@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.common.util.Asserts;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.instrument.LegacyProfilerPluginClassInjector;
@@ -85,7 +85,7 @@ public class TestClassLoader extends Loader {
         return agent.getProfilerConfig();
     }
 
-    public void addTransformer(final String targetClassName, final PinpointClassFileTransformer transformer) {
+    public void addTransformer(final String targetClassName, final TransformCallback transformer) {
         MatchableClassFileTransformer wrapper = new MatchableClassFileTransformer() {
             
             @Override
@@ -96,7 +96,7 @@ public class TestClassLoader extends Loader {
             @Override
             public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
                 try {
-                    return transformer.transform(context, loader, targetClassName, classBeingRedefined, protectionDomain, classfileBuffer);
+                    return transformer.doInTransform(context, loader, targetClassName, classBeingRedefined, protectionDomain, classfileBuffer);
                 } catch (InstrumentException e) {
                     throw new RuntimeException(e);
                 }

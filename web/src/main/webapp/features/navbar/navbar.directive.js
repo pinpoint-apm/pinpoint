@@ -151,7 +151,7 @@
 	                        onSelect: function () {
 	                        	var momentFrom = moment(getDate($fromPicker));
 	                        	var momentTo = moment(getDate($toPicker));
-	                        	if ( momentFrom.isBefore(momentTo.subtract(2, "days")) || momentFrom.isAfter(momentTo) ) {
+	                        	if ( momentTo.isAfter( moment(getDate($fromPicker)).add(2, "days") ) || momentFrom.isAfter(momentTo) ) {
 	                        		setDateTime($toPicker, momentFrom.add(2, "days").format());
 	                        	}
 	                        },
@@ -175,7 +175,7 @@
 	                        onSelect: function () {
 	                        	var momentFrom = moment(getDate($fromPicker));
 	                        	var momentTo = moment(getDate($toPicker));
-	                        	if ( momentFrom.isBefore(momentTo.subtract(2, "days")) || momentFrom.isAfter(momentTo) ) {
+	                        	if ( momentFrom.isBefore(moment(getDate($toPicker)).subtract(2, "days")) || momentFrom.isAfter(momentTo) ) {
 	                        		setDateTime($fromPicker, momentTo.subtract(2, "days").format());
 	                        	}
 	                        },
@@ -266,6 +266,7 @@
 	                emitAsChanged = function () {
 	                    setPeriodTypeAsCurrent();
 	                    scope.$emit('navbarDirective.changed', oNavbarVoService);
+	                    $rootScope.$broadcast("realtimeChartController.close");
 	                };
 	
 	                /**

@@ -3,6 +3,7 @@
 	width: 100%;
 	height: 100%;
 	position: relative;
+	overflow:hidden;
 }
 .servermap .servermap-toolbar {
 	position: absolute;
@@ -112,11 +113,11 @@
     transition: all 0.1s ease;
 }
 #servermapOverview {
-	width: 15%;
-	height: 15%;
+	width: 160px;
+	height: 160px;
 	position: absolute;
-	right: 16px;
-	bottom: 16px;
+	right: 0px;
+	bottom: 20px;
 	background-color: rgba(44, 160, 44, 0.2);
 	z-index: 2;
 	border: 1px solid rgb(44, 160, 44);
@@ -145,4 +146,148 @@
 }
 #filterWizard .antStyleHint td p{
 	margin: 0px;
+}
+
+.realtime {
+	height: 180px;
+	border: 2px solid #64a71a;
+	bottom: 0px;
+	z-index: 10;
+	position: absolute;
+	border-radius: 0px 0px 6px 6px;
+	background-color: #F0F3F4;
+}
+.realtime .handle {
+	position: absolute;
+	z-index: 9;
+	top: -21px;
+	right: -2px;
+}
+.realtime .handle .btn {
+	border-radius: 3px 3px 0px 0px;
+}
+.realtime .chart-title {
+	color: white;
+	width: 100%;
+	padding: 2px 0px 2px 6px;
+	position: absolute;
+	background-color: #7ED321;
+}
+.realtime .chart-close {
+	float: right;
+	cursor: pointer;
+	margin-right: 6px;
+}
+.realtime .chart-expand {
+	float: right;
+	cursor: pointer;
+	margin-right: 6px;
+}
+.realtime .agent-sum-chart {
+	top: 28px;
+	left: 0px;
+	width: 280px;
+	cursor: crosshair;
+	position: relative;
+	text-align: center;
+	background-color: #FFF;
+}
+.realtime .agent-sum-chart div {
+	font-weight: bold;
+	margin-bottom: 4px;
+}
+.realtime .agent-chart-list {
+	top: -119px;
+	height: 150px;
+	padding: 2px 4px 2px 4px;
+	position: relative;
+	overflow-y: auto;
+	margin-left: 280px;
+	margin-right: 6px;
+}
+.realtime .agent-chart {
+	float: left;
+	width: 120px;
+	height: 70px;
+	margin: 1px 2px 4px 4px;
+	box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.75);
+	border-radius: 4px 4px 0px 0px;
+	background-color: #FFF;
+}
+.realtime .agent-chart > div {
+	color: #000;
+	padding: 1px;
+	overflow: hidden;
+	font-size: 10px;
+	word-wrap: normal;
+	text-align: center;
+	font-family: Times;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	border-radius: 4px 4px 0px 0px;
+	background-color: rgba(126, 211, 33, 0.5);
+}
+.realtime .agent-sum-chart svg {
+	font: 10px sans-serif;
+    display: block;
+}
+.realtime .agent-chart-list svg {
+	font: 8px sans-serif;
+	display: block;
+}
+.realtime .agent-sum-chart .axis path, .axis line, .agent-chart-list .axis path, .axis line {
+	fill: none;
+	stroke: #000;
+	shape-rendering: crispEdges;
+}
+.realtime .agent-sum-chart .guideLine, .agent-chart-list .guideLine  {
+	fill: none;
+	stroke: #000;
+	shape-rendering: crispEdges;
+}
+.realtime .agent-sum-chart .x.axis area, .agent-chart-list .x.axis area {
+    shape-rendering: auto;
+}
+.realtime .agent-sum-chart .area, .agent-chart-list .area {
+    stroke: none;
+    stroke-width: 1.5px;
+}
+.realtime .agent-chart-list text {
+	font-size: 8px;
+}
+.realtime .connection-message {
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	text-align: center;
+	background-color: rgba(200, 200, 200, 0.9);
+}
+.realtime .connection-message h4 {
+	color: red;
+	padding-top: 40px;
+	font-weight: bold;
+}
+.realtime .request-count text {
+	font-size: 12px;
+	font-weight: bold;
+}
+.realtime .chart-tooltip text { 
+	font-size: 12px;
+}
+.realtime .error {
+	fill: #F00;
+	font-weight: bold;
+	text-anchor: middle;
+}
+.realtime text.date {
+	fill: #000;
+	font-size: 14px;
+	text-anchor: middle;
+}
+.realtime .grid {
+	stroke: rgba(200, 200, 200, 0.4);
+	stroke-dasharray: 4, 2;
+	shape-rendering: crispEdges;
 }

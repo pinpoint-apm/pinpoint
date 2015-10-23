@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 
 /**
  * 
@@ -82,7 +83,7 @@ public abstract class AbstractRecorder {
         if (args != null) {
             int max = Math.min(Math.min(args.length, AnnotationKey.MAX_ARGS_SIZE), end);
             for (int i = start; i < max; i++) {
-                recordAttribute(AnnotationKey.getArgs(i), args[i]);
+                recordAttribute(AnnotationKeyUtils.getArgs(i), args[i]);
             }
             // TODO How to handle if args length is greater than MAX_ARGS_SIZE?
         }
@@ -90,14 +91,14 @@ public abstract class AbstractRecorder {
 
     private void recordSingleArg(Object args, int index) {
         if (args != null) {
-            recordAttribute(AnnotationKey.getArgs(index), args);
+            recordAttribute(AnnotationKeyUtils.getArgs(index), args);
         }
     }
 
     private void recordSingleCachedString(String args, int index) {
         if (args != null) {
             int cacheId = traceContext.cacheString(args);
-            recordAttribute(AnnotationKey.getCachedArgs(index), cacheId);
+            recordAttribute(AnnotationKeyUtils.getCachedArgs(index), cacheId);
         }
     }
 
@@ -105,7 +106,7 @@ public abstract class AbstractRecorder {
         if (args != null) {
             int max = Math.min(args.length, AnnotationKey.MAX_ARGS_SIZE);
             for (int i = 0; i < max; i++) {
-                recordAttribute(AnnotationKey.getArgs(i), args[i]);
+                recordAttribute(AnnotationKeyUtils.getArgs(i), args[i]);
             }
          // TODO How to handle if args length is greater than MAX_ARGS_SIZE?                                                                  
         }

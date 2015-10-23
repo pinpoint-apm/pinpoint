@@ -311,7 +311,7 @@
                     	},
                     	new go.Binding("visible", "isWas"),
                     	new go.Binding("geometry", "histogram", function(histogram) {
-                    		if ( histogram["Slow"] == 0 ) return go.Geometry.parse("M30 0 B270 0 30 30 30 30");
+                    		if ( histogram["Slow"] == 0 ) return go.Geometry.parse("M30 0");
                     		var sum = 0;
                     		jQuery.each( histogram, function( key, value ) {
                 				sum += value;
@@ -322,7 +322,6 @@
                     self.$(
                     	go.Shape, {
                     		stroke : self.$(go.Brush, go.Brush.Linear, { "0.0": "lightgreen", "1.0": "green"}),
-//                    		stroke: "green",
                     		strokeWidth: 4,
                     		margin : new go.Margin( -28, 0, 0, 0 ),
                     		visible: true
@@ -334,7 +333,12 @@
                 				sum += value;
                 			});
                     		var size = calcuResponseSummaryCircleSize.maxSize - calcuResponseSummaryCircleSize(sum, histogram["Slow"]) - calcuResponseSummaryCircleSize(sum, histogram["Error"]);
-                    		return go.Geometry.parse("M30 0 B270 " + size + " 30 30 30 30");
+                    		if ( size >= 180 ) {
+                    			return go.Geometry.parse("M30 0 B270 " + size + " 30 30 30 30");
+                    		} else {
+                    			return go.Geometry.parse("M30 -60 B270 " + size + " 30 -30 30 30");
+                    		}
+                   			
                     	})
                     ),
                     self.$(

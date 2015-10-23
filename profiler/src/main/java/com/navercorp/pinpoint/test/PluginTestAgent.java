@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import org.apache.thrift.TBase;
 
 import com.google.common.base.Objects;
@@ -627,7 +628,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
                     continue;
                 }
                 
-                if (AnnotationKey.isCachedArgsKey(expectedAnnotationKey.getCode())) {
+                if (AnnotationKeyUtils.isCachedArgsKey(expectedAnnotationKey.getCode())) {
                     expectedValue = getTestTcpDataSender().getStringId(expectedValue.toString());
                 }
                 

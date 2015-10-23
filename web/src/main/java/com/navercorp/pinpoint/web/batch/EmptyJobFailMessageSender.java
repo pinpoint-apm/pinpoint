@@ -13,16 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.navercorp.pinpoint.web.batch;
 
-package com.navercorp.pinpoint.rpc.server;
-
-import com.navercorp.pinpoint.rpc.MessageListener;
-import com.navercorp.pinpoint.rpc.server.handler.HandshakerHandler;
-import com.navercorp.pinpoint.rpc.server.handler.PingHandler;
+import org.springframework.batch.core.JobExecution;
 
 /**
- * @author emeroad
+ * @author minwoo.jung<minwoo.jung@navercorp.com>
  */
-public interface ServerMessageListener extends MessageListener, HandshakerHandler, PingHandler {
+public class EmptyJobFailMessageSender implements JobFailMessageSender {
+
+	@Override
+	public void sendSMS(JobExecution jobExecution) {
+	}
+
+	@Override
+	public void sendEmail(JobExecution jobExecution) {
+	}
 
 }

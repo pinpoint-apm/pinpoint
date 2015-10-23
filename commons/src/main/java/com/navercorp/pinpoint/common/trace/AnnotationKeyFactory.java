@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.instrument.transformer;
-
-import java.security.ProtectionDomain;
-
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+package com.navercorp.pinpoint.common.trace;
 
 
-public interface PinpointClassFileTransformer {
-    byte[] transform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException;
+/**
+ * @author emeroad
+ */
+public abstract class AnnotationKeyFactory {
+
+    private static final AnnotationKeyFactory DEFAULT_FACTORY = new DefaultAnnotationKeyFactory();
+
+    public static AnnotationKey of(int code, String name, AnnotationKeyProperty... properties) {
+        return DEFAULT_FACTORY.createAnnotationKey(code, name, properties);
+    }
+
+
+    abstract AnnotationKey createAnnotationKey(int code, String name, AnnotationKeyProperty... properties);
 }

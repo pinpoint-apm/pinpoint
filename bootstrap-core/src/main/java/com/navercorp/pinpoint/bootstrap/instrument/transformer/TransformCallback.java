@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.rpc.server;
+package com.navercorp.pinpoint.bootstrap.instrument.transformer;
 
-import com.navercorp.pinpoint.rpc.MessageListener;
-import com.navercorp.pinpoint.rpc.server.handler.HandshakerHandler;
-import com.navercorp.pinpoint.rpc.server.handler.PingHandler;
+import java.security.ProtectionDomain;
 
-/**
- * @author emeroad
- */
-public interface ServerMessageListener extends MessageListener, HandshakerHandler, PingHandler {
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 
+
+public interface TransformCallback {
+    byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException;
 }

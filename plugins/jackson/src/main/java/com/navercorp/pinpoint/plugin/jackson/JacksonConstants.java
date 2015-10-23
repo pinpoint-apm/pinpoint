@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.jackson;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
@@ -30,5 +31,5 @@ public final class JacksonConstants {
 
     public static final ServiceType SERVICE_TYPE = ServiceTypeFactory.of(5011, "JACKSON");
 
-    public static final AnnotationKey ANNOTATION_KEY_LENGTH_VALUE = new AnnotationKey(9001, "jackson.json.length");
+    public static final AnnotationKey ANNOTATION_KEY_LENGTH_VALUE = AnnotationKeyFactory.of(9001, "jackson.json.length");
 }

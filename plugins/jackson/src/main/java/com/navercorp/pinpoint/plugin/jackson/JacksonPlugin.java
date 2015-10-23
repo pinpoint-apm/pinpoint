@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -55,10 +55,10 @@ public class JacksonPlugin implements ProfilerPlugin {
     }
 
     private void addObjectMapperEditor(ProfilerPluginSetupContext context, String clazzName) {
-        context.addClassFileTransformer(clazzName, new PinpointClassFileTransformer() {
+        context.addClassFileTransformer(clazzName, new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 final InstrumentMethod constructor1 = target.getConstructor();
@@ -93,10 +93,10 @@ public class JacksonPlugin implements ProfilerPlugin {
     }
 
     private void addObjectMapper_1_X_Editor(ProfilerPluginSetupContext context, String clazzName) {
-        context.addClassFileTransformer(clazzName, new PinpointClassFileTransformer() {
+        context.addClassFileTransformer(clazzName, new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 final InstrumentMethod constructor1 = target.getConstructor();
@@ -139,10 +139,10 @@ public class JacksonPlugin implements ProfilerPlugin {
 
 
     private void addObjectReaderEditor(ProfilerPluginSetupContext context, String clazzName) {
-        context.addClassFileTransformer(clazzName, new PinpointClassFileTransformer() {
+        context.addClassFileTransformer(clazzName, new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("readValue", "readValues"))) {
@@ -156,10 +156,10 @@ public class JacksonPlugin implements ProfilerPlugin {
     }
 
     private void addObjectWriterEditor(ProfilerPluginSetupContext context, String clazzName) {
-        context.addClassFileTransformer(clazzName, new PinpointClassFileTransformer() {
+        context.addClassFileTransformer(clazzName, new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
 //                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP);
 

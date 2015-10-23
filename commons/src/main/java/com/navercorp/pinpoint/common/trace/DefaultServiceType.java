@@ -16,7 +16,11 @@
 
 package com.navercorp.pinpoint.common.trace;
 
-
+/**
+ * @author emeroad
+ * @author netspider
+ * @author Jongho Moon
+ */
 class DefaultServiceType implements ServiceType {
     private final short code;
     private final String name;
@@ -217,6 +221,4 @@ class DefaultServiceType implements ServiceType {
     }
 
 
-    // FIXME need to define how to handle spring related codes
-//    ServiceType SPRING_BEAN = of(5071, "SPRING_BEAN", "SPRING_BEAN", NORMAL_SCHEMA);
 }

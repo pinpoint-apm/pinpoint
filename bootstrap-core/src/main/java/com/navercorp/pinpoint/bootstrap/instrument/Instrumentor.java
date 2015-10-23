@@ -15,7 +15,7 @@
 package com.navercorp.pinpoint.bootstrap.instrument;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 
 /**
@@ -33,7 +33,7 @@ public interface Instrumentor {
         
     <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className);
     
-    void addClassFileTransformer(ClassLoader classLoader, String targetClassName, PinpointClassFileTransformer transformer);
+    void addClassFileTransformer(ClassLoader classLoader, String targetClassName, TransformCallback transformer);
     
-    void retransform(Class<?> target, PinpointClassFileTransformer transformer);
+    void retransform(Class<?> target, TransformCallback transformer);
 }

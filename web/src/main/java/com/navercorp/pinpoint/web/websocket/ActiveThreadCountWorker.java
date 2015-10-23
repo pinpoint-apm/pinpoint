@@ -97,10 +97,8 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
 
                 logger.info("ActiveThreadCountWorker start. applicationName:{}, agentId:{}", applicationName, agentId);
                 this.active = active0(agentInfo);
-            } else {
             }
         }
-
     }
 
     @Override
@@ -133,7 +131,6 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
                 } catch (Exception e) {
                 }
                 return;
-            } else {
             }
         }
     }
@@ -149,6 +146,7 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
                 } else {
                     if (clientStreamChannelContext.getCreateFailPacket() == null) {
                         streamChannel = clientStreamChannelContext.getStreamChannel();
+                        defaultFailedResponse.setFail(TRouteResult.TIMEOUT.name());
                         active = true;
                     } else {
                         StreamCreateFailPacket createFailPacket = clientStreamChannelContext.getCreateFailPacket();
@@ -184,10 +182,6 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
 
     public AgentActiveThreadCount getDefaultFailedResponse() {
         return defaultFailedResponse;
-    }
-
-    private void setStreamChannel(ClientStreamChannel streamChannel) {
-        this.streamChannel = streamChannel;
     }
 
     private class MessageListener implements ClientStreamChannelMessageListener {

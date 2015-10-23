@@ -204,7 +204,7 @@ public class DefaultPinpointServer implements PinpointServer {
     private ChannelFuture write0(Object message, ChannelFutureListener futureListener) {
         ChannelFuture future = channel.write(message);
         if (futureListener != null) {
-            future.addListener(futureListener);;
+            future.addListener(futureListener);
         }
         return future;
     }

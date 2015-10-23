@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.rpc.server;
+package com.navercorp.pinpoint.common.trace;
 
-import com.navercorp.pinpoint.rpc.MessageListener;
-import com.navercorp.pinpoint.rpc.server.handler.HandshakerHandler;
-import com.navercorp.pinpoint.rpc.server.handler.PingHandler;
 
 /**
  * @author emeroad
  */
-public interface ServerMessageListener extends MessageListener, HandshakerHandler, PingHandler {
+public class DefaultAnnotationKeyFactory extends AnnotationKeyFactory {
+
+    public AnnotationKey createAnnotationKey(int code, String name, AnnotationKeyProperty... properties) {
+        return new DefaultAnnotationKey(code, name, properties);
+    }
 
 }

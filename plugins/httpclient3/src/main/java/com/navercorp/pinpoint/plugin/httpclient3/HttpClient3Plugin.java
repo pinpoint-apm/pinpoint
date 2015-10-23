@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
@@ -49,10 +49,10 @@ public class HttpClient3Plugin implements ProfilerPlugin {
     }
 
     private void addHttpClient3Class(ProfilerPluginSetupContext context, HttpClient3PluginConfig config) {
-        context.addClassFileTransformer("org.apache.commons.httpclient.HttpClient", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("org.apache.commons.httpclient.HttpClient", new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 
                 injectHttpClientExecuteMethod(target, "org.apache.commons.httpclient.HttpMethod");
@@ -75,10 +75,10 @@ public class HttpClient3Plugin implements ProfilerPlugin {
 
     
     private void addDefaultHttpMethodRetryHandlerClass(ProfilerPluginSetupContext context, HttpClient3PluginConfig config) {
-        context.addClassFileTransformer("org.apache.commons.httpclient.DefaultHttpMethodRetryHandler", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("org.apache.commons.httpclient.DefaultHttpMethodRetryHandler", new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 
                 InstrumentMethod retryMethod = target.getDeclaredMethod("retryMethod", "org.apache.commons.httpclient.HttpMethod", "java.io.IOException", "int");
@@ -93,10 +93,10 @@ public class HttpClient3Plugin implements ProfilerPlugin {
     }
     
     private void addHttpConnectionClass(ProfilerPluginSetupContext context, HttpClient3PluginConfig config) {
-        context.addClassFileTransformer("org.apache.commons.httpclient.HttpConnection", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("org.apache.commons.httpclient.HttpConnection", new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 
                 target.addGetter(HostNameGetter.class.getName(), HttpClient3Constants.FIELD_HOST_NAME);
@@ -116,10 +116,10 @@ public class HttpClient3Plugin implements ProfilerPlugin {
     }
     
     private void addHttpMethodBaseClass(ProfilerPluginSetupContext context, final HttpClient3PluginConfig config) {
-        context.addClassFileTransformer("org.apache.commons.httpclient.HttpMethodBase", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("org.apache.commons.httpclient.HttpMethodBase", new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 
                 InstrumentMethod execute = target.getDeclaredMethod("execute", "org.apache.commons.httpclient.HttpState", "org.apache.commons.httpclient.HttpConnection");

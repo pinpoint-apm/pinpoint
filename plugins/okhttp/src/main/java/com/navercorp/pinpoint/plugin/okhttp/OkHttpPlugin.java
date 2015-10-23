@@ -19,7 +19,7 @@ import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.*;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
@@ -51,10 +51,10 @@ public class OkHttpPlugin implements ProfilerPlugin {
     }
 
     private void addCall(ProfilerPluginSetupContext context, final OkHttpPluginConfig config) {
-        context.addClassFileTransformer("com.squareup.okhttp.Call", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("com.squareup.okhttp.Call", new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("execute", "enqueue", "cancel"))) {
@@ -67,10 +67,10 @@ public class OkHttpPlugin implements ProfilerPlugin {
     }
 
     private void addDispatcher(ProfilerPluginSetupContext context, final OkHttpPluginConfig config) {
-        context.addClassFileTransformer("com.squareup.okhttp.Dispatcher", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("com.squareup.okhttp.Dispatcher", new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
 
                 for(InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("execute", "cancel"))) {
@@ -89,10 +89,10 @@ public class OkHttpPlugin implements ProfilerPlugin {
     }
 
     private void addAsyncCall(ProfilerPluginSetupContext context, final OkHttpPluginConfig config) {
-        context.addClassFileTransformer("com.squareup.okhttp.Call$AsyncCall", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("com.squareup.okhttp.Call$AsyncCall", new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(AsyncTraceIdAccessor.class.getName());
 
@@ -108,10 +108,10 @@ public class OkHttpPlugin implements ProfilerPlugin {
     }
 
     private void addHttpEngine(final ProfilerPluginSetupContext context, final OkHttpPluginConfig config) {
-        context.addClassFileTransformer("com.squareup.okhttp.internal.http.HttpEngine", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("com.squareup.okhttp.internal.http.HttpEngine", new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addGetter(UserRequestGetter.class.getName(), OkHttpConstants.FIELD_USER_REQUEST);
                 target.addGetter(UserResponseGetter.class.getName(), OkHttpConstants.FIELD_USER_RESPONSE);
@@ -142,10 +142,10 @@ public class OkHttpPlugin implements ProfilerPlugin {
     }
 
     private void addRequestBuilder(ProfilerPluginSetupContext context, final OkHttpPluginConfig config) {
-        context.addClassFileTransformer("com.squareup.okhttp.Request$Builder", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("com.squareup.okhttp.Request$Builder", new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addGetter(HttpUrlGetter.class.getName(), OkHttpConstants.FIELD_HTTP_URL);
 

@@ -20,12 +20,26 @@
 		template: {
 			agentChart: '<div class="agent-chart"><div></div></div>',
 			chartDirective: Handlebars.compile( '<realtime-chart-directive chart-color="{{chartColor}}" xcount="{{xAxisCount}}" show-extra-info="{{showExtraInfo}}" request-label="requestLabelNames" namespace="{{namespace}}" width="{{width}}" height="{{height}}"></realtime-chart-directive>' )
+		},
+		css : {
+			borderWidth: 4,
+			height: 180,
+			navbarHeight: 70,
+			titleHeight: 30
+		},
+		sumChart: {
+			width: 260,
+			height: 120
+		},
+		otherChart: {
+			width: 120,
+			height: 60
 		}
 	});
 	
 	pinpointApp.controller('RealtimeChartCtrl', ['RealtimeChartCtrlConfig', '$scope', '$element', '$rootScope', '$compile', '$window', 'globalConfig', 'RealtimeWebsocketService',
 	    function (cfg, $scope, $element, $rootScope, $compile, $window, globalConfig, websocketService) {
-	    	
+	    	$element = $($element);
 			//@TODO will move to preference-service 
 			var X_AXIS_COUNT = 10;
 	    	var RECEIVE_SUCCESS = 0;
@@ -33,18 +47,22 @@
 			var $elSumChartWrapper = $element.find("div.agent-sum-chart");
 	    	var $elAgentChartListWrapper = $element.find("div.agent-chart-list");
 	    	var $elWarningMessage = $element.find(".connection-message");
+	    	var $elHandleGlyphicon = $element.find(".handle .glyphicon");
 	    	var aAgentChartElementList = [];
 	    	var oNamespaceToIndexMap = {};
 	    	var aSumChartData = [0];
-	    	var screenState = "small";
+	    	var bIsWas = false;
+	    	var bIsFullWindow = false;
+	    	var bShowRealtimeChart = true;
+	    	var popupHeight = cfg.css.height;
 	    	
 	    	$scope.hasCriticalError = false;
-	    	$scope.showRealtimeChart = false;
 	    	$scope.sumChartColor 	= ["rgba(44, 160, 44, 1)", 	"rgba(60, 129, 250, 1)", 	"rgba(248, 199, 49, 1)", 	"rgba(246, 145, 36, 1)" ];
 	    	$scope.agentChartColor 	= ["rgba(44, 160, 44, .8)", "rgba(60, 129, 250, .8)", 	"rgba(248, 199, 49, .8)", 	"rgba(246, 145, 36, .8)"];
 	    	$scope.requestLabelNames= [ "Fast", "Normal", "Slow", "Very Slow"];
 	    	$scope.currentAgentCount = 0;
 	    	$scope.currentApplicationName = "";
+	    	$scope.bInitialized = false;
 	    	
 	    	function getInitChartData( len ) {
     	    	var a = [];
@@ -60,8 +78,8 @@
 		    			"xAxisCount": X_AXIS_COUNT,
 		    			"namespace": "sum",
 		    			"showExtraInfo": "true",
-		    			"height": 120,
-		    			"width": 260
+		    			"height": cfg.sumChart.height,
+		    			"width": cfg.sumChart.width
 		    		}))($scope) );
 		    		oNamespaceToIndexMap["sum"] = -1;
 	    		}
@@ -75,8 +93,8 @@
 	    			"xAxisCount": X_AXIS_COUNT,
 	    			"namespace": aAgentChartElementList.length,
 	    			"showExtraInfo": "false",
-	    			"height": 60,
-	    			"width": 120 
+	    			"height": cfg.otherChart.height,
+	    			"width": cfg.otherChart.width 
 	    		}))($scope) );
 	    		$elAgentChartListWrapper.append( $newAgentChart );
 	    		
@@ -193,10 +211,10 @@
 	        	} else {
 	        		startReceive();
 	        	}
-        		$scope.showRealtimeChart = true;
+        		bShowRealtimeChart = true;
 	        }
 	        function stopReceive() {
-	        	$scope.showRealtimeChart = false;
+	        	bShowRealtimeChart = false;
         		websocketService.stopReceive(cfg.sendPrefix);
 	        }
 	        function stopChart() {
@@ -218,57 +236,100 @@
 	        	$elWarningMessage.find("button").hide();
 	        	$scope.hasCriticalError = true;
 	        }
+	        function hidePopup() {
+	        	$element.animate({
+	        		bottom: -popupHeight,
+	        		left: 0
+	        	}, 500, function() {
+	        		$elHandleGlyphicon.removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
+	        	});
+	        }
+	        function showPopup() {
+	        	$element.animate({
+	        		bottom: 0,
+	        		left: 0
+	        	}, 500, function() {
+	        		$elHandleGlyphicon.removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
+	        	});
+	        }
+	        function adjustWidth() {
+	        	$element.innerWidth( $element.parent().width() - cfg.css.borderWidth + "px" );
+	        }
 	        $scope.$on('realtimeChartController.close', function () {
+	        	hidePopup();
+	        	var prevShowRealtimeChart = bShowRealtimeChart;
 	        	$scope.closePopup();
+	        	bShowRealtimeChart = prevShowRealtimeChart;
 	        });
-	        $scope.$on('realtimeChartController.initialize', function (event, isWas, applicationName) {
+	        $scope.$on('realtimeChartController.initialize', function (event, was, applicationName) {
+	        	bIsWas = angular.isUndefined( was ) ? false : was;
+	        	applicationName = angular.isUndefined( applicationName ) ? "" : applicationName;
+
+	        	$scope.currentApplicationName = applicationName;
 	        	if ( globalConfig.useRealTime === false ) return;
-	        	if ( isWas === false && $scope.showRealtimeChart == false ) return;
-	        	
-	        	if ( isWas === true ) {
-	        		if ( $scope.showRealtimeChart === true ) {
-	    	        	$scope.closePopup();	        			
-	        		}
-	        		waitingConnection();
-	        		
-	        		$scope.currentApplicationName = applicationName;
-	        		initReceive();
-	        	} else {
-	        		stopReceive();
+	        	if ( bShowRealtimeChart === false ) return;
+	        	if ( bIsWas === false ) {
+	        		hidePopup();
+	        		return;
 	        	}
 	        	
+	        	adjustWidth();
+	        	$scope.bInitialized = true;
+	        	
+	        	showPopup();
+	        	$scope.closePopup();
+	        	$scope.currentApplicationName = applicationName;
+        		waitingConnection();
+        		
+        		initReceive();
 	        });
 	        $scope.retryConnection = function() {
 	        	waitingConnection();
         		initReceive();
 	        };
 	        $scope.resizePopup = function() {
-	        	switch( screenState ) {
-		        	case "full":
-		        		$element.css({
-		        			"height": "180px",
-		        			"bottom": "184px"
-		        		});
-		        		$elAgentChartListWrapper.css("height", "150px");
-		        		screenState = "small";
-		        		break;
-		        	case "small":
-		        		$element.css({
-		        			"height": ($window.innerHeight - 70) + "px",
-		        			"bottom": ($window.innerHeight - 70 + 4) + "px"
-		        		});
-		        		$elAgentChartListWrapper.css("height", ($window.innerHeight - 70 - 30) + "px");
-		        		screenState = "full";
-		        		break;
+	        	if ( bIsFullWindow ) {
+	        		popupHeight = cfg.css.height;
+	        		$element.css({
+	        			"height": cfg.css.height + "px",
+	        			"bottom": "0px"
+	        		});
+	        		$elAgentChartListWrapper.css("height", "150px");
+	        	} else {
+	        		popupHeight = $window.innerHeight - cfg.css.navbarHeight;
+	        		$element.css({
+	        			"height": popupHeight + "px",
+	        			"bottom": "0px"
+	        		});
+	        		$elAgentChartListWrapper.css("height", (popupHeight - cfg.css.titleHeight) + "px");
+	        	}
+	        	bIsFullWindow = !bIsFullWindow;
+	        }
+	        $scope.toggleRealtime = function() {
+	        	if ( bIsWas === false ) return;
+	        	
+	        	if ( bShowRealtimeChart === true ) {
+	        		hidePopup();
+	        		stopReceive();
+	        		bShowRealtimeChart = false;
+	        	} else {
+	        		showPopup();
+	        		waitingConnection();
+	        		initReceive();
+	        		bShowRealtimeChart = true;
 	        	}
 	        }
+	        
 	        $scope.closePopup = function() {
 	        	stopReceive();
 	        	stopChart();
 	        	$scope.currentApplicationName = "";
 	        	$scope.currentAgentCount = 0;
 	        	$scope.hasCriticalError = false;
-	        }			
+	        }
+	        $($window).on("resize", function() {
+	        	adjustWidth();
+	        });
 	    }
 	]);
 })(jQuery);

@@ -186,7 +186,10 @@
 <div class="modal"  id="customLogPopup">
 	<div class="modal-dialog modal-lg" style="width:600px;">
 		<div class="modal-content">
-			<div class="modal-header">Notice</div>
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4>Notice</h4>
+			</div>
 			<div class="modal-body"></div>
 		</div>
 	</div>
@@ -347,23 +350,32 @@
       			<table class="table table-bordered table-condensed">
       				<tbody>
       					<tr>
-      						<td class="col-md-1">Depth</td>
-      						<td class="col-md-4">
+      						<td class="col-md-10 title" colspan="4" style="padding-top:0px;background-color:white">ServerMap</td>
+      					<tr>
+      						<td class="col-md-2 title">Search Depth</td>
+      						<td class="col-md-3">
       							<select class="depth form-control" ng-change="changeDepth()" ng-model="depth">
       								<option ng-repeat="dep in depthList" ng-selected="dep == depth" value="{{dep}}">{{dep}}</option>
       							</select>
       						</td>
-      						<td class="col-md-1">Peroid</td>
-      						<td class="col-md-4">
+      						<td class="col-md-2 title">Search Peroid</td>
+      						<td class="col-md-3">
       							<select class="period form-control" ng-change="changePeriod()" ng-model="period">
       								<option ng-repeat="per in periodTypes" ng-selected="per == period" value="{{dep}}">{{per}}</option>
       							</select>
       						</td>
       					</tr>
+      				</tbody>
+      			</table>
+      			<table class="table table-bordered table-condensed">
+      				<tbody>
       					<tr>
-      						<td class="col-md-1">Favorite</td>
-      						<td  class="col-md-4">
-      							<select class="favorite" style="width:100%">
+      						<td class="col-md-10 title" colspan="4" style="padding-top:0px;background-color:white">Application</td>
+      					<tr>
+      					<tr>
+      						<td class="col-md-2 title">Application<br/>Favorite</td>
+      						<td  class="col-md-3">
+      							<select class="applicationList" style="width:100%">
 					                <option ng-repeat="app in applications" value="{{app.text}}">{{app.text}}</option>
 					            </select>
       						</td>

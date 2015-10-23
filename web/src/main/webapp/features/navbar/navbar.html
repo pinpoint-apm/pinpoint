@@ -8,6 +8,7 @@
                     <li style="margin-top:0px;">
                         <div ng-hide="showStaticApplication" style="margin-top:5px;" id="navbar_application">
                             <select class="application" ng-disabled="disableApplication" id="navbar_application">
+                            	<option></option>
                             	<optgroup label="Favorite">
                             		<option ng-repeat="app in applications | limitTo: favoriteCount" value="{{app.text}}">{{app.text}}</option>
                             	</optgroup>
@@ -84,11 +85,5 @@
     	<span class="glyphicon glyphicon-cog" ng-click="showConfig()" style="cursor:pointer;font-size:17px;color:#FFF;padding-left:8px;top:0px;"></span>
    		<a href="https://github.com/naver/pinpoint" target="_blank"><i class="xi-github" style="color:#FFF;padding-left:6px;font-size:22px;"></i></a>
     </div>
-    <!--div id="copyright">
-	    <p>
-	        <a href="http://www.naver.com" target="_blank">Copyright ⓒ NAVER Corp.</a><br>
-	        <a >GitHub</a>
-	    </p>
-	</div-->
 </div>
 
