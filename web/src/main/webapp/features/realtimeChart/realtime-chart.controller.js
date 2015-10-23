@@ -62,6 +62,7 @@
 	    	$scope.requestLabelNames= [ "Fast", "Normal", "Slow", "Very Slow"];
 	    	$scope.currentAgentCount = 0;
 	    	$scope.currentApplicationName = "";
+	    	$scope.bInitialized = false;
 	    	
 	    	function getInitChartData( len ) {
     	    	var a = [];
@@ -273,10 +274,13 @@
 	        	}
 	        	
 	        	adjustWidth();
+	        	$scope.bInitialized = true;
+	        	
 	        	showPopup();
 	        	$scope.closePopup();
 	        	$scope.currentApplicationName = applicationName;
         		waitingConnection();
+        		
         		initReceive();
 	        });
 	        $scope.retryConnection = function() {
