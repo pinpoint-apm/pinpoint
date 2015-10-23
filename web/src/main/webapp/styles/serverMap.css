@@ -113,8 +113,8 @@
     transition: all 0.1s ease;
 }
 #servermapOverview {
-	width: 15%;
-	height: 15%;
+	width: 160px;
+	height: 160px;
 	position: absolute;
 	right: 0px;
 	bottom: 20px;
