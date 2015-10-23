@@ -169,7 +169,7 @@
 	};
 	ICS.prototype.resize = function( resizedViewAreaHeight ) {
 		var currentRow = parseInt(this.options.scroller.scrollTop() / this.options.elementHeight);
-		this.setViewAreaHeight(resizedViewAreaHeight);
+//		this.setViewAreaHeight(resizedViewAreaHeight);
 		this.reset();
 		this.moveByRow( currentRow );
 	};

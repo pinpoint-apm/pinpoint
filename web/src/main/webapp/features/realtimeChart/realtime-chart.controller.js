@@ -62,7 +62,6 @@
 	    	$scope.requestLabelNames= [ "Fast", "Normal", "Slow", "Very Slow"];
 	    	$scope.currentAgentCount = 0;
 	    	$scope.currentApplicationName = "";
-	    	$scope.bInitialized = false;
 	    	
 	    	function getInitChartData( len ) {
     	    	var a = [];
@@ -252,9 +251,14 @@
 	        		$elHandleGlyphicon.removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
 	        	});
 	        }
+	        function adjustWidth() {
+	        	$element.innerWidth( $element.parent().width() - cfg.css.borderWidth + "px" );
+	        }
 	        $scope.$on('realtimeChartController.close', function () {
 	        	hidePopup();
+	        	var prevShowRealtimeChart = bShowRealtimeChart;
 	        	$scope.closePopup();
+	        	bShowRealtimeChart = prevShowRealtimeChart;
 	        });
 	        $scope.$on('realtimeChartController.initialize', function (event, was, applicationName) {
 	        	bIsWas = angular.isUndefined( was ) ? false : was;
@@ -268,14 +272,11 @@
 	        		return;
 	        	}
 	        	
-	        	$element.innerWidth( $element.parent().width() - cfg.css.borderWidth + "px" );
-	        	$scope.bInitialized = true;
-	        	
+	        	adjustWidth();
 	        	showPopup();
 	        	$scope.closePopup();
 	        	$scope.currentApplicationName = applicationName;
         		waitingConnection();
-        		
         		initReceive();
 	        });
 	        $scope.retryConnection = function() {
@@ -321,7 +322,10 @@
 	        	$scope.currentApplicationName = "";
 	        	$scope.currentAgentCount = 0;
 	        	$scope.hasCriticalError = false;
-	        }			
+	        }
+	        $($window).on("resize", function() {
+	        	adjustWidth();
+	        });
 	    }
 	]);
 })(jQuery);
