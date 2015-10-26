@@ -335,12 +335,13 @@
 	                        		data += "&bind=" + itemNext.argument;
 	                        		ajaxService.getSQLBind( "/sqlBind.pinpoint", data, function( result ) {
 		                        		$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html(
-		                        				'<button class="btn btn-default btn-xs sql" style="margin-left:2em">Copy</button>' + 
-		                        				'<div style="position:absolute;left:-1000px">' + item.argument + '</div>' +
-		                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + item.argument.replace(/\t\t/g, "") + '</pre>' +
 		                        				'<button class="btn btn-default btn-xs sql" style="margin-left:2em">Copy</button>' +
 		                        				'<div style="position:absolute;left:-1000px">' + result + '</div>' +
-		                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + result.replace(/\t\t/g, "") + '</pre>'
+		                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + result.replace(/\t\t/g, "") + '</pre>' + 
+		                        				'<button class="btn btn-default btn-xs sql" style="margin-left:2em">Copy</button>' + 
+		                        				'<div style="position:absolute;left:-1000px">' + item.argument + '</div>' + 		                        				
+		                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + item.argument.replace(/\t\t/g, "") + '</pre>' +
+		                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + itemNext.argument + '</pre>'
 		                        		).end().modal("show");
 		                        		prettyPrint();
 		                        	});
