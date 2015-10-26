@@ -20,12 +20,14 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.TraceType;
+import com.navercorp.pinpoint.profiler.context.ActiveTrace;
 import com.navercorp.pinpoint.profiler.context.TraceFactory;
 import com.navercorp.pinpoint.profiler.context.TraceFactoryWrapper;
 
 /**
  * @author Taejin Koo
  * @author emeroad
+ * @author HyunGil Jeong
  */
 public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
 
@@ -70,6 +72,7 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
     @Override
     public Trace disableSampling() {
         final Trace trace = this.delegate.disableSampling();
+        // Unsampled continuation
         attachTrace(trace);
         return trace;
     }
@@ -77,6 +80,7 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
     @Override
     public Trace continueTraceObject(TraceId traceID) {
         final Trace trace = this.delegate.continueTraceObject(traceID);
+        // Sampled continuation
         attachTrace(trace);
         return trace;
     }
@@ -84,7 +88,6 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
     @Override
     public Trace continueTraceObject(Trace continueTrace) {
         final Trace trace = this.delegate.continueTraceObject(continueTrace);
-        attachTrace(trace);
         return trace;
     }
 
@@ -100,7 +103,6 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
         return trace;
     }
 
-
     @Override
     public Trace newTraceObject(TraceType traceType) {
         final Trace trace = this.delegate.newTraceObject(traceType);
@@ -110,7 +112,6 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
         return trace;
     }
 
-
     @Override
     public Trace removeTraceObject() {
         final Trace trace = this.delegate.removeTraceObject();
@@ -118,23 +119,19 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
         return trace;
     }
 
-
     private void attachTrace(Trace trace) {
         if (trace == null) {
             return;
         }
-
-        final long traceObjectId = trace.getId();
-        this.activeTraceRepository.put(traceObjectId, trace);
-
+        this.activeTraceRepository.put(new ActiveTrace(trace));
     }
 
     private void detachTrace(Trace trace) {
         if (trace == null) {
             return;
         }
-        final long traceObjectId = trace.getId();
-        this.activeTraceRepository.remove(traceObjectId);
+        final long id = trace.getId();
+        this.activeTraceRepository.remove(id);
     }
 
     public ActiveTraceLocator getActiveTraceLocator() {
