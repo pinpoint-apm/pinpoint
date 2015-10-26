@@ -331,21 +331,24 @@
 	bottom: -16px;
 	width: 100%;
 	border: 1px solid #CECECE;
-	border-radius: 4px;
 	background-color: #EEE;
 }
 #pinpoint-configuration .some-list .filter-input input {
 	width: 66%;
 	border: 0px solid white;
 	padding: 1px 0px 2px 0px;
-	margin-left: 1px;
-	border-radius: 4px;
+	margin-left: -1px;
 }
 #pinpoint-configuration .some-list .filter-input button {
 	float: right;
 	padding : 0px 9px 0px 9px;
 	margin-top: 0px;
-	border-radius: 4px;
+}
+#pinpoint-configuration .some-list .filter-input select {
+	height: 22px;
+	margin-top: 1px;
+	margin-left: -1px;
+	border-radius: 0px 0px 0px 0px;
 }
 #pinpoint-configuration .pinpoint-user-list {
 	float: right;
