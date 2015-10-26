@@ -66,10 +66,12 @@ public class ProfilerPluginLoader {
     private DefaultProfilerPluginContext setupPlugin(URL jar, ProfilerPlugin plugin) {
         final ClassInjector classInjector = JarProfilerPluginClassInjector.of(agent.getInstrumentation(), agent.getClassPool(), jar);
         final DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(agent, classInjector);
+        final GuardProfilerPluginContext guard = new GuardProfilerPluginContext(context);
         try {
-            plugin.setup(context);
+            // WARN external plugin api
+            plugin.setup(guard);
         } finally {
-            context.markInitialized();
+            guard.close();
         }
         return context;
     }

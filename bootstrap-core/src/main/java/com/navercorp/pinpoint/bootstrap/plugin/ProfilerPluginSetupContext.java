@@ -40,5 +40,5 @@ public interface ProfilerPluginSetupContext {
      */
     void addApplicationTypeDetector(ApplicationTypeDetector... detectors);
     
-    void addClassFileTransformer(String targetClassName, TransformCallback transformer);
+    void addClassFileTransformer(String targetClassName, TransformCallback transformCallback);
 }
