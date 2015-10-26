@@ -473,7 +473,11 @@ public class DefaultSqlParser implements SqlParser {
             return sql;
         }
 
-        final Queue<String> bindValueQueue = new LinkedList<String>(bindValues);
+        final Queue<String> bindValueQueue = new LinkedList<String>();
+        for(String value : bindValues) {
+            // trim
+            bindValueQueue.add(value.trim());
+        }
         final int length = sql.length();
         final StringBuilder result = new StringBuilder(length + 16);
 
