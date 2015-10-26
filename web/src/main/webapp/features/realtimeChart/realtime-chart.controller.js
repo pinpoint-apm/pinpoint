@@ -37,8 +37,9 @@
 		}
 	});
 	
-	pinpointApp.controller('RealtimeChartCtrl', ['RealtimeChartCtrlConfig', '$scope', '$element', '$rootScope', '$compile', '$window', 'globalConfig', 'RealtimeWebsocketService',
-	    function (cfg, $scope, $element, $rootScope, $compile, $window, globalConfig, websocketService) {
+	pinpointApp.controller('RealtimeChartCtrl', ['RealtimeChartCtrlConfig', '$scope', '$element', '$rootScope', '$compile', '$window', 'globalConfig', 'RealtimeWebsocketService', '$location',
+	    function (cfg, $scope, $element, $rootScope, $compile, $window, globalConfig, websocketService, $location) {
+			
 	    	$element = $($element);
 			//@TODO will move to preference-service 
 			var X_AXIS_COUNT = 10;
@@ -262,6 +263,7 @@
 	        	bShowRealtimeChart = prevShowRealtimeChart;
 	        });
 	        $scope.$on('realtimeChartController.initialize', function (event, was, applicationName) {
+	        	if ( /^\/main/.test( $location.path() ) == false ) return;
 	        	bIsWas = angular.isUndefined( was ) ? false : was;
 	        	applicationName = angular.isUndefined( applicationName ) ? "" : applicationName;
 

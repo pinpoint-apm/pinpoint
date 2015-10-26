@@ -7,8 +7,8 @@
 	 * @name distributedCallFlowDirective
 	 * @class
 	 */	
-	pinpointApp.directive('distributedCallFlowDirective', [ '$filter', '$timeout',
-	    function ($filter, $timeout) {
+	pinpointApp.directive('distributedCallFlowDirective', [ '$filter', '$timeout', 'AjaxService',
+	    function ($filter, $timeout, ajaxService) {
 	        return {
 	            restrict: 'E',
 	            replace: true,
@@ -17,7 +17,6 @@
 	                namespace : '@' // string value
 	            },
 	            link: function postLink(scope, element, attrs) {
-	
 	                // initialize variables
 	            	var grid, dataView, lastAgent;
 	
@@ -86,7 +85,7 @@
 	                        html.push('<span class="glyphicon glyphicon-fire"></span>&nbsp;');
 	                    } else if (!item.isMethod) {
 	                    	if( item.method === "SQL" ) {
-	                    		html.push('<button type="button" class="btn btn-default btn-xs btn-success sql"><span class="glyphicon glyphicon-search"></span></button>&nbsp;');
+	                    		html.push('<button type="button" class="btn btn-default btn-xs btn-success sql"><span class="glyphicon glyphicon-search sql"></span></button>&nbsp;');
 	                    	} else {
 	                    		html.push('<span class="glyphicon glyphicon-info-sign"></span>&nbsp;');
 	                    	}
@@ -327,6 +326,19 @@
 	                            }
 	                            e.stopImmediatePropagation();
 	                        }
+	                        if ( $(e.target).hasClass("sql") ) {
+	                        	var item = dataView.getItem(args.row);
+	                        	var itemNext = dataView.getItem(args.row+1);
+	                        	var query = "/sqlBind.pinpoint?sql=" + item.argument;
+	                        	if ( angular.isDefined( itemNext ) && itemNext.method === "SQL-BindValue" ) {
+	                        		query += "&bind=" + itemNext.argument;
+	                        		ajaxService.getSQLBind( query, function( result ) {
+		                        		$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html( '<pre class="prettyprint lang-sql">' + result + '</pre>' ).end().modal("show");
+		                        	});
+	                        	} else {
+	                        		$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html( '<pre class="prettyprint lang-sql">' + item.argument + '</pre>' ).end().modal("show");
+	                        	}
+	                        }
 	
 	                        if (!clickTimeout) {
 	                            clickTimeout = $timeout(function () {
@@ -404,7 +416,8 @@
 	                        grid.invalidateRows(args.rows);
 	                        grid.render();
 	                    });
-	
+	                    
+	                    
 	                };
 	
 	                /**
