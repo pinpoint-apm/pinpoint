@@ -341,6 +341,8 @@
 		                        				'<button class="btn btn-default btn-xs sql" style="margin-left:2em">Copy</button>' + 
 		                        				'<div style="position:absolute;left:-1000px">' + item.argument + '</div>' + 		                        				
 		                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + item.argument.replace(/\t\t/g, "") + '</pre>' +
+		                        				'<button class="btn btn-default btn-xs sql" style="margin-left:2em">Copy</button>' +
+		                        				'<div style="position:absolute;left:-1000px">' + itemNext.argument + '</div>' +
 		                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + itemNext.argument + '</pre>'
 		                        		).end().modal("show");
 		                        		prettyPrint();
