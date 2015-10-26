@@ -23,6 +23,7 @@ import org.junit.Test;
 
 import com.codahale.metrics.Gauge;
 import com.navercorp.pinpoint.profiler.context.TestableTransactionCounter;
+import com.navercorp.pinpoint.profiler.context.TransactionCounter.SamplingType;
 import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
 
 /**
@@ -57,7 +58,7 @@ public class TransactionMetricSetTest {
         final int expectedNumberOfTransactions = expectedTps * expectedExecutionTimeInSeconds;
         // When
         initializeGauge();
-        this.transactionCounter.addTransactionCount(expectedNumberOfTransactions);
+        this.transactionCounter.addTransactionCount(SamplingType.SAMPLED_NEW, expectedNumberOfTransactions);
         Thread.sleep(expectedExecutionTimeInSeconds * 1000);
         final int actualTps = this.tpsGauge.getValue();
         // Then
@@ -72,7 +73,7 @@ public class TransactionMetricSetTest {
         final int expectedNumberOfTransactions = expectedTps * expectedExecutionTimeInSeconds;
         // When
         initializeGauge();
-        this.transactionCounter.addTransactionCount(expectedNumberOfTransactions);
+        this.transactionCounter.addTransactionCount(SamplingType.SAMPLED_NEW, expectedNumberOfTransactions);
         Thread.sleep(expectedExecutionTimeInSeconds * 1000);
         final int actualTps = this.tpsGauge.getValue();
         // Then
@@ -87,7 +88,7 @@ public class TransactionMetricSetTest {
         final int expectedNumberOfTransactions = expectedTps * expectedExecutionTimeInSeconds;
         // When
         initializeGauge();
-        this.transactionCounter.addTransactionCount(expectedNumberOfTransactions);
+        this.transactionCounter.addTransactionCount(SamplingType.SAMPLED_NEW, expectedNumberOfTransactions);
         Thread.sleep(expectedExecutionTimeInSeconds * 1000);
         final int actualTps = this.tpsGauge.getValue();
         // Then
@@ -102,7 +103,7 @@ public class TransactionMetricSetTest {
         final int expectedNumberOfTransactions = expectedTps * expectedExecutionTimeInSeconds;
         // When
         initializeGauge();
-        this.transactionCounter.addTransactionCount(expectedNumberOfTransactions);
+        this.transactionCounter.addTransactionCount(SamplingType.SAMPLED_NEW, expectedNumberOfTransactions);
         Thread.sleep(expectedExecutionTimeInSeconds * 1000);
         final int actualTps = this.tpsGauge.getValue();
         // Then
@@ -121,23 +122,23 @@ public class TransactionMetricSetTest {
         // When
         initializeGauge();
 
-        this.transactionCounter.addTransactionCount(expectedTpsForFirstSecond);
+        this.transactionCounter.addTransactionCount(SamplingType.SAMPLED_NEW, expectedTpsForFirstSecond);
         Thread.sleep(oneSecond);
         final int actualTpsForFirstSecond = this.tpsGauge.getValue();
 
-        this.transactionCounter.addTransactionCount(expectedTpsForSecondSecond);
+        this.transactionCounter.addTransactionCount(SamplingType.SAMPLED_CONTINUATION, expectedTpsForSecondSecond);
         Thread.sleep(oneSecond);
         final int actualTpsForSecondSecond = this.tpsGauge.getValue();
 
-        this.transactionCounter.addTransactionCount(expectedTpsForThirdSecond);
+        this.transactionCounter.addTransactionCount(SamplingType.UNSAMPLED_NEW, expectedTpsForThirdSecond);
         Thread.sleep(oneSecond);
         final int actualTpsForThirdSecond = this.tpsGauge.getValue();
 
-        this.transactionCounter.addTransactionCount(expectedTpsForFourthSecond);
+        this.transactionCounter.addTransactionCount(SamplingType.UNSAMPLED_CONTINUATION, expectedTpsForFourthSecond);
         Thread.sleep(oneSecond);
         final int actualTpsForFourthSecond = this.tpsGauge.getValue();
 
-        this.transactionCounter.addTransactionCount(expectedTpsForFifthSecond);
+        this.transactionCounter.addTransactionCount(SamplingType.SAMPLED_NEW, expectedTpsForFifthSecond);
         Thread.sleep(oneSecond);
         final int actualTpsForFifthSecond = this.tpsGauge.getValue();
         // Then

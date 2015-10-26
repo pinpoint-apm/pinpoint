@@ -31,18 +31,28 @@ public class DefaultTransactionCounter implements TransactionCounter {
     }
 
     @Override
-    public long getSampledTransactionCount() {
-        return Math.abs(idGenerator.currentTransactionId() - IdGenerator.INITIAL_TRANSACTION_ID);
-    }
-
-    @Override
-    public long getUnsampledTransactionCount() {
-        return Math.abs(idGenerator.currentDisabledId() - IdGenerator.INITIAL_DISABLE_ID);
+    public long getTransactionCount(SamplingType samplingType) {
+        // overflow improbable
+        switch (samplingType) {
+        case SAMPLED_NEW:
+            return idGenerator.currentTransactionId() - IdGenerator.INITIAL_TRANSACTION_ID;
+        case SAMPLED_CONTINUATION:
+            return Math.abs(idGenerator.currentContinuedTransactionId() - IdGenerator.INITIAL_CONTINUED_TRANSACTION_ID);
+        case UNSAMPLED_NEW:
+            return Math.abs(idGenerator.currentDisabledId() - IdGenerator.INITIAL_DISABLED_ID);
+        case UNSAMPLED_CONTINUATION:
+            return idGenerator.currentContinuedDisabledId() - IdGenerator.INITIAL_CONTINUED_DISABLED_ID;
+        default:
+            return 0L;
+        }
     }
 
     @Override
     public long getTotalTransactionCount() {
-        // overflow improbable
-        return this.getSampledTransactionCount() + this.getUnsampledTransactionCount();
+        long count = 0L;
+        for (SamplingType samplingType : SamplingType.values()) {
+            count += getTransactionCount(samplingType);
+        }
+        return count;
     }
 }
