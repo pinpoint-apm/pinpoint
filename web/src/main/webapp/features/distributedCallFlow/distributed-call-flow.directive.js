@@ -329,15 +329,28 @@
 	                        if ( $(e.target).hasClass("sql") ) {
 	                        	var item = dataView.getItem(args.row);
 	                        	var itemNext = dataView.getItem(args.row+1);
-	                        	var query = "/sqlBind.pinpoint?sql=" + $.trim(item.argument.replace(/^\/\*.*\*\/(.*)/, "$1")).replace(/\n/g, "{n}" ).replace(/\t/g, "{t}");
+	                        	var data = "sql=" + item.argument;
+	                        	
 	                        	if ( angular.isDefined( itemNext ) && itemNext.method === "SQL-BindValue" ) {
-	                        		query += "&bind=" + itemNext.argument;
-	                        		ajaxService.getSQLBind( query, function( result ) {
-		                        		$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html( '<pre class="prettyprint lang-sql">' + result.replace(/{n}({t})*/g, "<br>").replace(/{n}/g, "<br>").replace("{t}", "\t") + '</pre>' ).end().modal("show");
+	                        		data += "&bind=" + itemNext.argument;
+	                        		ajaxService.getSQLBind( "/sqlBind.pinpoint", data, function( result ) {
+		                        		$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html(
+		                        				'<button class="btn btn-default btn-xs sql" style="margin-left:2em">Copy</button>' + 
+		                        				'<div style="position:absolute;left:-1000px">' + item.argument + '</div>' +
+		                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + item.argument.replace(/\t\t/g, "") + '</pre>' +
+		                        				'<button class="btn btn-default btn-xs sql" style="margin-left:2em">Copy</button>' +
+		                        				'<div style="position:absolute;left:-1000px">' + result + '</div>' +
+		                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + result.replace(/\t\t/g, "") + '</pre>'
+		                        		).end().modal("show");
 		                        		prettyPrint();
 		                        	});
 	                        	} else {
-	                        		$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html( '<pre class="prettyprint lang-sql">' + item.argument + '</pre>' ).end().modal("show");
+	                        		$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html(
+                        				'<button class="btn btn-default btn-xs sql" style="margin-left:2em">Copy</button>' + 
+                        				'<div style="position:absolute;left:-1000px">' + item.argument + '</div>' +
+                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + item.argument.replace(/\t\t/g, "") + '</pre>' 
+	                        		).end().modal("show");
+	                        		prettyPrint();
 	                        	}
 	                        }
 	
@@ -420,6 +433,17 @@
 	                    
 	                    
 	                };
+	                $("#customLogPopup").on("click", "button", function() {
+	                	var range = document.createRange();
+	                	range.selectNode( $(this).next().get(0) );
+	                	window.getSelection().addRange( range );
+	                	try {
+	                		document.execCommand("copy");
+	                	}catch(err) {
+	                		console.log( "unable to copy :", err);
+	                	}
+	                	window.getSelection().removeAllRanges();
+	                });
 	
 	                /**
 	                 * scope event on distributedCallFlowDirective.initialize

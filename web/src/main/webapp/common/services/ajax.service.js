@@ -14,10 +14,11 @@
 	
 		var self = this;
 	
-		this.getSQLBind = function(url, cb) {
+		this.getSQLBind = function(url, data, cb) {
 			jQuery.ajax({
 				type: 'POST',
 				url: url,
+				data: data,
 				cache: false,
 				dataType: 'json',
 				success: function (result) {
