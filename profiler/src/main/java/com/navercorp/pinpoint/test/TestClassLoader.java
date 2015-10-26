@@ -16,18 +16,16 @@
 
 package com.navercorp.pinpoint.test;
 
-import java.lang.instrument.IllegalClassFormatException;
-import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformerGuardDelegate;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.Loader;
 import javassist.NotFoundException;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
@@ -35,7 +33,6 @@ import com.navercorp.pinpoint.common.util.Asserts;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.instrument.LegacyProfilerPluginClassInjector;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
-import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MatchableClassFileTransformer;
 
 /**
  * @author emeroad
@@ -86,24 +83,10 @@ public class TestClassLoader extends Loader {
     }
 
     public void addTransformer(final String targetClassName, final TransformCallback transformer) {
-        MatchableClassFileTransformer wrapper = new MatchableClassFileTransformer() {
-            
-            @Override
-            public Matcher getMatcher() {
-                return Matchers.newClassNameMatcher(targetClassName);
-            }
-            
-            @Override
-            public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-                try {
-                    return transformer.doInTransform(context, loader, targetClassName, classBeingRedefined, protectionDomain, classfileBuffer);
-                } catch (InstrumentException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-        
-        this.instrumentTranslator.addTransformer(wrapper);
+        final Matcher matcher = Matchers.newClassNameMatcher(targetClassName);
+        final MatchableClassFileTransformerGuardDelegate guard = new MatchableClassFileTransformerGuardDelegate(context, matcher, transformer);
+
+        this.instrumentTranslator.addTransformer(guard);
     }
 
     private void addDefaultDelegateLoadingOf() {

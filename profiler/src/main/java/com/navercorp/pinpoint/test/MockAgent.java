@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.navercorp.pinpoint.profiler.plugin.GuardProfilerPluginContext;
 import org.apache.thrift.TBase;
 
 import com.navercorp.pinpoint.bootstrap.AgentOption;
@@ -127,10 +128,11 @@ public class MockAgent extends DefaultAgent {
         
         for (ProfilerPlugin plugin : plugins) {
             final DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(this, classInjector);
+            final GuardProfilerPluginContext guard = new GuardProfilerPluginContext(context);
             try {
-                plugin.setup(context);
+                plugin.setup(guard);
             } finally {
-                context.markInitialized();
+                guard.close();
             }
             pluginContexts.add(context);
         }

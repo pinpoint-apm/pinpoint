@@ -17,15 +17,12 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
-import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
@@ -34,13 +31,10 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
+import com.navercorp.pinpoint.profiler.DynamicTransformService;
 import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
 import com.navercorp.pinpoint.profiler.interceptor.group.DefaultInterceptorGroup;
-import com.navercorp.pinpoint.profiler.plugin.xml.transformer.ClassFileTransformerBuilder;
-import com.navercorp.pinpoint.profiler.plugin.xml.transformer.DefaultClassFileTransformerBuilder;
-import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.profiler.util.NameValueList;
 
@@ -53,23 +47,15 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     
     private final NameValueList<InterceptorGroup> interceptorGroups = new NameValueList<InterceptorGroup>();
     
-    private boolean initialized = false;
-    
     public DefaultProfilerPluginContext(DefaultAgent agent, ClassInjector classInjector) {
+        if (agent == null) {
+            throw new NullPointerException("agent must not be null");
+        }
+        if (classInjector == null) {
+            throw new NullPointerException("classInjector must not be null");
+        }
         this.agent = agent;
         this.classInjector = classInjector;
-    }
-
-    public ClassFileTransformerBuilder getClassFileTransformerBuilder(String targetClassName) {
-        return new DefaultClassFileTransformerBuilder(this, targetClassName);
-    }
-    
-    public void addClassFileTransformer(ClassFileTransformer transformer) {
-        if (initialized) {
-            throw new IllegalStateException("Context already initialized");
-        }
-
-        classTransformers.add(transformer);
     }
 
     @Override
@@ -79,8 +65,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
 
     @Override
     public TraceContext getTraceContext() {
-        TraceContext context = agent.getTraceContext();
-        
+        final TraceContext context = agent.getTraceContext();
         if (context == null) {
             throw new IllegalStateException("TraceContext is not created yet");
         }
@@ -90,10 +75,9 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
         
     @Override
     public void addApplicationTypeDetector(ApplicationTypeDetector... detectors) {
-        if (initialized) {
-            throw new IllegalStateException("Context already initialized");
+        if (detectors == null) {
+            return;
         }
-        
         for (ApplicationTypeDetector detector : detectors) {
             serverTypeDetectors.add(detector);
         }
@@ -101,6 +85,9 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     
     @Override
     public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classFileBuffer) {
+        if (className == null) {
+            throw new NullPointerException("className must not be null");
+        }
         try {
             return agent.getClassPool().getClass(this, classLoader, className, classFileBuffer);
         } catch (NotFoundInstrumentException e) {
@@ -110,67 +97,65 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     
     @Override
     public boolean exist(ClassLoader classLoader, String className) {
+        if (className == null) {
+            throw new NullPointerException("className must not be null");
+        }
+
         return agent.getClassPool().hasClass(classLoader, className);
     }
 
     @Override
-    public void addClassFileTransformer(final String targetClassName, final TransformCallback transformer) {
-        if (initialized) {
-            throw new IllegalStateException("Context already initialized");
+    public void addClassFileTransformer(final String targetClassName, final TransformCallback transformCallback) {
+        if (targetClassName == null) {
+            throw new NullPointerException("targetClassName must not be null");
+        }
+        if (transformCallback == null) {
+            throw new NullPointerException("transformCallback must not be null");
         }
 
-        classTransformers.add(new MatchableClassFileTransformer() {
-            private final Matcher matcher = Matchers.newClassNameMatcher(JavaAssistUtils.javaNameToJvmName(targetClassName));
-            
-            @Override
-            public Matcher getMatcher() {
-                return matcher;
-            }
-            
-            @Override
-            public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-                try {
-                    return transformer.doInTransform(DefaultProfilerPluginContext.this, loader, targetClassName, classBeingRedefined, protectionDomain, classfileBuffer);
-                } catch (InstrumentException e) {
-                    throw new PinpointException(e);
-                }
-            }
-        });
+        final Matcher matcher = Matchers.newClassNameMatcher(JavaAssistUtils.javaNameToJvmName(targetClassName));
+        final MatchableClassFileTransformerGuardDelegate guard = new MatchableClassFileTransformerGuardDelegate(this, matcher, transformCallback);
+        classTransformers.add(guard);
     }
     
     @Override
-    public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, final TransformCallback transformer) {
-        agent.getDynamicTransformService().addClassFileTransformer(classLoader, targetClassName, new ClassFileTransformer() {
+    public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, final TransformCallback transformCallback) {
+        if (targetClassName == null) {
+            throw new NullPointerException("targetClassName must not be null");
+        }
+        if (transformCallback == null) {
+            throw new NullPointerException("transformCallback must not be null");
+        }
 
-            @Override
-            public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-                try {
-                    return transformer.doInTransform(DefaultProfilerPluginContext.this, loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
-                } catch (InstrumentException e) {
-                    throw new PinpointException(e);
-                }
-            }
-            
-        });
+        final ClassFileTransformerGuardDelegate classFileTransformerGuardDelegate = new ClassFileTransformerGuardDelegate(this, transformCallback);
+
+        final DynamicTransformService dynamicTransformService = agent.getDynamicTransformService();
+        dynamicTransformService.addClassFileTransformer(classLoader, targetClassName, classFileTransformerGuardDelegate);
     }
+
 
     @Override
-    public void retransform(Class<?> target, final TransformCallback transformer) {
-        agent.getDynamicTransformService().retransform(target, new ClassFileTransformer() {
+    public void retransform(Class<?> target, final TransformCallback transformCallback) {
+        if (target == null) {
+            throw new NullPointerException("target must not be null");
+        }
+        if (transformCallback == null) {
+            throw new NullPointerException("transformCallback must not be null");
+        }
 
-            @Override
-            public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-                try {
-                    return transformer.doInTransform(DefaultProfilerPluginContext.this, loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
-                } catch (InstrumentException e) {
-                    throw new PinpointException(e);
-                }
-            }
-            
-        });
+        final ClassFileTransformerGuardDelegate classFileTransformerGuardDelegate = new ClassFileTransformerGuardDelegate(this, transformCallback);
+
+        final DynamicTransformService dynamicTransformService = agent.getDynamicTransformService();
+        dynamicTransformService.retransform(target, classFileTransformerGuardDelegate);
     }
-    
+
+
+    @Override
     public <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className) {
+        if (className == null) {
+            throw new NullPointerException("className must not be null");
+        }
+
         return classInjector.injectClass(targetClassLoader, className);
     }
 
@@ -184,6 +169,9 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
 
     @Override
     public InterceptorGroup getInterceptorGroup(String name) {
+        if (name == null) {
+            throw new NullPointerException("name must not be null");
+        }
         InterceptorGroup group = interceptorGroups.get(name);
         
         if (group == null) {
@@ -192,9 +180,5 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
         }
         
         return group;
-    }
-    
-    public void markInitialized() {
-        this.initialized = true;
     }
 }
