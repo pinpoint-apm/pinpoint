@@ -329,11 +329,12 @@
 	                        if ( $(e.target).hasClass("sql") ) {
 	                        	var item = dataView.getItem(args.row);
 	                        	var itemNext = dataView.getItem(args.row+1);
-	                        	var query = "/sqlBind.pinpoint?sql=" + item.argument;
+	                        	var query = "/sqlBind.pinpoint?sql=" + $.trim(item.argument.replace(/^\/\*.*\*\/(.*)/, "$1")).replace(/\n/g, "{n}" ).replace(/\t/g, "{t}");
 	                        	if ( angular.isDefined( itemNext ) && itemNext.method === "SQL-BindValue" ) {
 	                        		query += "&bind=" + itemNext.argument;
 	                        		ajaxService.getSQLBind( query, function( result ) {
-		                        		$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html( '<pre class="prettyprint lang-sql">' + result + '</pre>' ).end().modal("show");
+		                        		$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html( '<pre class="prettyprint lang-sql">' + result.replace(/{n}({t})*/g, "<br>").replace(/{n}/g, "<br>").replace("{t}", "\t") + '</pre>' ).end().modal("show");
+		                        		prettyPrint();
 		                        	});
 	                        	} else {
 	                        		$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html( '<pre class="prettyprint lang-sql">' + item.argument + '</pre>' ).end().modal("show");

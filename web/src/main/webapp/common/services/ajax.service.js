@@ -16,7 +16,7 @@
 	
 		this.getSQLBind = function(url, cb) {
 			jQuery.ajax({
-				type: 'GET',
+				type: 'POST',
 				url: url,
 				cache: false,
 				dataType: 'json',
