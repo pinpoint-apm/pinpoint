@@ -329,10 +329,10 @@
 	                        if ( $(e.target).hasClass("sql") ) {
 	                        	var item = dataView.getItem(args.row);
 	                        	var itemNext = dataView.getItem(args.row+1);
-	                        	var data = "sql=" + item.argument;
+	                        	var data = "sql=" + encodeURIComponent( item.argument );
 	                        	
 	                        	if ( angular.isDefined( itemNext ) && itemNext.method === "SQL-BindValue" ) {
-	                        		data += "&bind=" + itemNext.argument;
+	                        		data += "&bind=" + encodeURIComponent( itemNext.argument );
 	                        		ajaxService.getSQLBind( "/sqlBind.pinpoint", data, function( result ) {
 		                        		$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html(
 		                        				'<button class="btn btn-default btn-xs sql" style="margin-left:2em">Copy</button>' +
