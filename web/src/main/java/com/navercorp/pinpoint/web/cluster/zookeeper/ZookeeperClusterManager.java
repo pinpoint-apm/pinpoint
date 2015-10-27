@@ -16,14 +16,11 @@
 
 package com.navercorp.pinpoint.web.cluster.zookeeper;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-
+import com.navercorp.pinpoint.rpc.util.TimerFactory;
+import com.navercorp.pinpoint.web.cluster.ClusterManager;
+import com.navercorp.pinpoint.web.cluster.CollectorClusterInfoRepository;
+import com.navercorp.pinpoint.web.cluster.zookeeper.exception.NoNodeException;
+import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -36,10 +33,13 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.rpc.util.TimerFactory;
-import com.navercorp.pinpoint.web.cluster.ClusterManager;
-import com.navercorp.pinpoint.web.cluster.CollectorClusterInfoRepository;
-import com.navercorp.pinpoint.web.cluster.zookeeper.exception.NoNodeException;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author koo.taejin
@@ -223,6 +223,11 @@ public class ZookeeperClusterManager implements ClusterManager, Watcher {
         if (client != null) {
             this.client.close();
         }
+    }
+
+    @Override
+    public List<String> getRegisteredAgentList(AgentInfo agentInfo) {
+        return getRegisteredAgentList(agentInfo.getApplicationName(), agentInfo.getAgentId(), agentInfo.getStartTimestamp());
     }
 
     @Override

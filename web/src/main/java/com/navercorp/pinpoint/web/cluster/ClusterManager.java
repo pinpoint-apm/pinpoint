@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.cluster;
 
+import com.navercorp.pinpoint.web.vo.AgentInfo;
+
 import java.util.List;
 
 /**
@@ -26,6 +28,8 @@ public interface ClusterManager {
     boolean registerWebCluster(String zNodeName, byte[] contents);
 
     void close();
+
+    List<String> getRegisteredAgentList(AgentInfo agentInfo);
 
     List<String> getRegisteredAgentList(String applicationName, String agentId, long startTimeStamp);
 

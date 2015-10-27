@@ -107,7 +107,12 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
             }
 
             for (AgentInfo agentInfo : agentInfoList) {
-                activeWorker(agentInfo);
+                AgentStatus agentStatus = agentInfo.getStatus();
+                if (agentStatus != null && agentStatus.getState() != AgentLifeCycleState.UNKNOWN) {
+                    activeWorker(agentInfo);
+                } else if (agentService.isConnected(agentInfo)){
+                    activeWorker(agentInfo);
+                }
             }
 
             boolean added = webSocketSessions.add(webSocketSession);
