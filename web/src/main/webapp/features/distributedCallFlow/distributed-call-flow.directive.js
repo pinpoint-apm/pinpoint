@@ -85,7 +85,7 @@
 	                        html.push('<span class="glyphicon glyphicon-fire"></span>&nbsp;');
 	                    } else if (!item.isMethod) {
 	                    	if( item.method === "SQL" ) {
-	                    		html.push('<button type="button" class="btn btn-default btn-xs btn-success sql"><span class="glyphicon glyphicon-eye-open sql"></span></button>&nbsp;');
+	                    		html.push('<button type="button" class="btn btn-default btn-xs btn-success sql" style="padding:0px 2px 0px 2px"><span class="glyphicon glyphicon-eye-open sql"></span></button>&nbsp;');
 	                    	} else {
 	                    		html.push('<span class="glyphicon glyphicon-info-sign"></span>&nbsp;');
 	                    	}
@@ -335,13 +335,14 @@
 	                        		data += "&bind=" + encodeURIComponent( itemNext.argument );
 	                        		ajaxService.getSQLBind( "/sqlBind.pinpoint", data, function( result ) {
 		                        		$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html(
-		                        				'<button class="btn btn-default btn-xs sql" style="margin-left:2em">Copy</button>' +
+		                        				'<h4>Binded SQL <button class="btn btn-default btn-xs sql">Copy</button></h4>' + 
 		                        				'<div style="position:absolute;left:10000px">' + result + '</div>' +
-		                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + result.replace(/\t\t/g, "") + '</pre>' + 
-		                        				'<button class="btn btn-default btn-xs sql" style="margin-left:2em">Copy</button>' + 
+		                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + result.replace(/\t\t/g, "") + '</pre>' +
+		                        				'<hr>' + 
+		                        				'<h4>Original SQL <button class="btn btn-default btn-xs sql">Copy</button></h4>' + 
 		                        				'<div style="position:absolute;left:10000px">' + item.argument + '</div>' + 		                        				
 		                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + item.argument.replace(/\t\t/g, "") + '</pre>' +
-		                        				'<button class="btn btn-default btn-xs sql" style="margin-left:2em">Copy</button>' +
+		                        				'<h4>SQL Bind Value <button class="btn btn-default btn-xs sql">Copy</button></h4>' +
 		                        				'<div style="position:absolute;left:10000px">' + itemNext.argument + '</div>' +
 		                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + itemNext.argument + '</pre>'
 		                        		).end().modal("show");
@@ -349,7 +350,7 @@
 		                        	});
 	                        	} else {
 	                        		$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html(
-                        				'<button class="btn btn-default btn-xs sql" style="margin-left:2em">Copy</button>' + 
+	                        			'<h4>Original SQL <button class="btn btn-default btn-xs sql">Copy</button></h4>' + 
                         				'<div style="position:absolute;left:10000px">' + item.argument + '</div>' +
                         				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + item.argument.replace(/\t\t/g, "") + '</pre>' 
 	                        		).end().modal("show");
@@ -438,7 +439,7 @@
 	                };
 	                $("#customLogPopup").on("click", "button", function() {
 	                	var range = document.createRange();
-	                	range.selectNode( $(this).next().get(0) );
+	                	range.selectNode( $(this).parent().next().get(0) );
 	                	window.getSelection().addRange( range );
 	                	try {
 	                		document.execCommand("copy");
