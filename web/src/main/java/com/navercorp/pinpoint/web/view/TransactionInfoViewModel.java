@@ -142,6 +142,7 @@ public class TransactionInfoViewModel {
                 }
                 first = false;
             }
+            // TODO
             list.add(new CallStack(record, barRatio));
         }
 
@@ -153,12 +154,12 @@ public class TransactionInfoViewModel {
         Map<String, List<Object>> result = new HashMap<String, List<Object>>();
         List<Object> nodeDataArray = new ArrayList<Object>();
         for(Node node : nodes) {
-            nodeDataArray.add(node.getNodeJson());
+            nodeDataArray.add(node);
         }
         result.put("nodeDataArray", nodeDataArray);
         List<Object> linkDataArray = new ArrayList<Object>();
         for(Link link : links) {
-            linkDataArray.add(link.getJson());
+            linkDataArray.add(link);
         }
         result.put("linkDataArray", linkDataArray);
 
@@ -233,7 +234,8 @@ public class TransactionInfoViewModel {
             isMethod = record.isMethod();
             hasChild = record.getHasChild();
             title = JSONObject.escape(record.getTitle());
-            arguments = JSONObject.escape(StringEscapeUtils.escapeHtml4(record.getArguments()));
+            //arguments = JSONObject.escape(StringEscapeUtils.escapeHtml4(record.getArguments()));
+            arguments = record.getArguments();
             if (record.isMethod()) {
                 executeTime = DateUtils.longToDateStr(record.getBegin(), "HH:mm:ss SSS"); // time format
                 gap = String.valueOf(record.getGap());
