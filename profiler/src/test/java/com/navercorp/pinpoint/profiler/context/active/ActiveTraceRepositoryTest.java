@@ -138,7 +138,6 @@ public class ActiveTraceRepositoryTest {
                 } finally {
                     executeLatch.countDown();
                     awaitLatch.await();
-                    traceContext.removeTraceObject();
                 }
             }
         });
@@ -153,7 +152,6 @@ public class ActiveTraceRepositoryTest {
                 } finally {
                     executeLatch.countDown();
                     awaitLatch.await();
-                    traceContext.removeTraceObject();
                 }
             }
         });
@@ -168,7 +166,6 @@ public class ActiveTraceRepositoryTest {
                 } finally {
                     executeLatch.countDown();
                     awaitLatch.await();
-                    traceContext.removeTraceObject();
                 }
             }
         });
