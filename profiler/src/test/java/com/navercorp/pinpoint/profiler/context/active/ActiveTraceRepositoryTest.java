@@ -104,7 +104,6 @@ public class ActiveTraceRepositoryTest {
         assertEquals(expectedUnsampledContinuationCount, transactionCounter.getTransactionCount(SamplingType.UNSAMPLED_CONTINUATION));
         assertEquals(expectedTotalTransactionCount, transactionCounter.getTotalTransactionCount());
         
-        assertEquals(executedTraceMap.size(), activeTraceInfos.size());
         for (ActiveTraceInfo activeTraceInfo : activeTraceInfos) {
             TraceThreadTuple executedTrace = executedTraceMap.get(activeTraceInfo.getId());
             assertEquals(executedTrace.id, activeTraceInfo.getId());
@@ -138,6 +137,7 @@ public class ActiveTraceRepositoryTest {
                 } finally {
                     executeLatch.countDown();
                     awaitLatch.await();
+                    traceContext.removeTraceObject();
                 }
             }
         });
@@ -152,6 +152,7 @@ public class ActiveTraceRepositoryTest {
                 } finally {
                     executeLatch.countDown();
                     awaitLatch.await();
+                    traceContext.removeTraceObject();
                 }
             }
         });
@@ -166,6 +167,7 @@ public class ActiveTraceRepositoryTest {
                 } finally {
                     executeLatch.countDown();
                     awaitLatch.await();
+                    traceContext.removeTraceObject();
                 }
             }
         });
