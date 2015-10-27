@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.interceptor;
  * @author Jongho Moon
  *
  */
+@Deprecated
 public interface AfterInterceptor5 extends Interceptor {
     void after(Object target, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object result, Throwable throwable);
 }

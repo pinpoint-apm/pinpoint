@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.interceptor;
  * @author Jongho Moon
  *
  */
+@Deprecated
 public interface BeforeInterceptor2 extends Interceptor {
     void before(Object target, Object arg0, Object arg1);
 }
