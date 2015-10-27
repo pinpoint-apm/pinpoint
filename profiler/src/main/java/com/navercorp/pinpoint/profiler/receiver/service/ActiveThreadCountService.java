@@ -161,8 +161,6 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
 
     private class ActiveThreadCountStreamChannelStateChangeEventHandler implements StreamChannelStateChangeEventHandler<ServerStreamChannel> {
 
-        private final LoggingStreamChannelStateChangeEventHandler loggingStateChangeEventListener = new LoggingStreamChannelStateChangeEventHandler();
-
         @Override
         public void eventPerformed(ServerStreamChannel streamChannel, StreamChannelStateCode updatedStateCode) throws Exception {
             synchronized (lock) {
@@ -177,10 +175,8 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
                     case CLOSED:
                     case ILLEGAL_STATE:
                         boolean removed = streamChannelRepository.remove(streamChannel);
-                        if (removed) {
-                            if (streamChannelRepository.size() == 0) {
-                                boolean turnOff = onTimerTask.compareAndSet(true, false);
-                            }
+                        if (removed && streamChannelRepository.size() == 0) {
+                            boolean turnOff = onTimerTask.compareAndSet(true, false);
                         }
                         break;
                 }

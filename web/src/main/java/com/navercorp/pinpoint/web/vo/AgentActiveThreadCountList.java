@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
-import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -80,10 +79,7 @@ class AgentActiveThreadCountListSerializer extends JsonSerializer<AgentActiveThr
             jgen.writeStringField("message", agentActiveThread.getCodeMessage());
 
             TCmdActiveThreadCountRes activeThreadCount = agentActiveThread.getActiveThreadCount();
-            long timeStamp = System.currentTimeMillis();
             if (activeThreadCount != null) {
-                timeStamp = activeThreadCount.getTimeStamp();
-
                 if (activeThreadCount.getActiveThreadCountSize() >= 4) {
                     List<Integer> values = activeThreadCount.getActiveThreadCount();
 

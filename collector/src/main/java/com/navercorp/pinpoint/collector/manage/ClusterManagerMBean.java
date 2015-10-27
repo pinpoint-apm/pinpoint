@@ -20,7 +20,6 @@
 package com.navercorp.pinpoint.collector.manage;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @Author Taejin Koo

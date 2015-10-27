@@ -20,7 +20,6 @@
 package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
-import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 
 /**
  * @Author Taejin Koo
