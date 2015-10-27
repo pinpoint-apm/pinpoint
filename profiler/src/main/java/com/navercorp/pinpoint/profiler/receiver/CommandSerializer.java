@@ -21,8 +21,6 @@ package com.navercorp.pinpoint.profiler.receiver;
 
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.thrift.io.*;
-import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.protocol.TProtocolFactory;
 
 /**
  * @Author Taejin Koo
@@ -35,14 +33,6 @@ public class CommandSerializer {
     static {
         SERIALIZER_FACTORY = new CommandHeaderTBaseSerializerFactory(Version.VERSION);
         DESERIALIZER_FACTORY = new CommandHeaderTBaseDeserializerFactory(Version.VERSION);
-    }
-
-    private static SerializerFactory<HeaderTBaseSerializer> wrappedThreadLocalSerializerFactory(SerializerFactory<HeaderTBaseSerializer> serializerFactory) {
-        return new ThreadLocalHeaderTBaseSerializerFactory<HeaderTBaseSerializer>(serializerFactory);
-    }
-
-    private static DeserializerFactory<HeaderTBaseDeserializer> wrappedThreadLocalDeserializerFactory(DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory) {
-        return new ThreadLocalHeaderTBaseDeserializerFactory<HeaderTBaseDeserializer>(deserializerFactory);
     }
 
 }
