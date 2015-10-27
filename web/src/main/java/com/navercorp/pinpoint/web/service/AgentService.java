@@ -44,6 +44,8 @@ public interface AgentService {
 
     List<AgentInfo> getAgentInfoList(String applicationName);
 
+    boolean isConnected(AgentInfo agentInfo);
+
     PinpointRouteResponse invoke(AgentInfo agentInfo, TBase<?, ?> tBase) throws TException;
     PinpointRouteResponse invoke(AgentInfo agentInfo, TBase<?, ?> tBase, long timeout) throws TException;
     PinpointRouteResponse invoke(AgentInfo agentInfo, byte[] payload) throws TException;

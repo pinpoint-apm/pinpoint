@@ -100,6 +100,7 @@ public class WebClusterConnectionManager {
 
         logger.info("{} initialization completed.", ClassUtils.simpleClassName(this));
     }
+
     @PreDestroy
     public void stop() {
         logger.info("{} destroying started.", ClassUtils.simpleClassName(this));
@@ -149,6 +150,15 @@ public class WebClusterConnectionManager {
         }
 
         return stringBuilder.toString().getBytes(charset);
+    }
+
+    public boolean isConnected(AgentInfo agentInfo) {
+        if (!config.isClusterEnable()) {
+            return false;
+        }
+
+        List<String> clusterIdList = clusterManager.getRegisteredAgentList(agentInfo);
+        return clusterIdList.size() == 1;
     }
 
     public PinpointSocket getSocket(AgentInfo agentInfo) {
