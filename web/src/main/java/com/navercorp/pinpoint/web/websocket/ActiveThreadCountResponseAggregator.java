@@ -19,10 +19,12 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
+import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCount;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.web.vo.AgentStatus;
 import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -187,7 +189,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
 
     @Override
     public void flush() throws Exception {
-        logger.info("flush started.");
+        logger.info("flush started. applicationName:{}", applicationName);
 
         if (isStopped) {
             return;

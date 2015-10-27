@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.rpc.stream;
 
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
-import com.navercorp.pinpoint.rpc.packet.stream.BasicStreamPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPingPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPongPacket;
@@ -182,11 +181,11 @@ public abstract class StreamChannel {
         }
 
         if (isChanged) {
-            for (StreamChannelStateChangeEventHandler h : stateChangeEventHandlers) {
+            for (StreamChannelStateChangeEventHandler handler : stateChangeEventHandlers) {
                 try {
-                    h.eventPerformed(this, nextState);
+                    handler.eventPerformed(this, nextState);
                 } catch (Exception e) {
-                    h.exceptionCaught(this, nextState, e);
+                    handler.exceptionCaught(this, nextState, e);
                 }
             }
         }

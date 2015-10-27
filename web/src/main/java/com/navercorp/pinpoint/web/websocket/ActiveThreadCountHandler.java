@@ -28,9 +28,7 @@ import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.Collection;
@@ -51,6 +49,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     private static final String APPLICATION_NAME_KEY = "applicationName";
 
     private static final long DEFAULT_FLUSH_DELAY = 1000;
+    private static final long DEFAULT_MIN_FLUSH_DELAY = 500;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -108,7 +107,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
     @Override
     public void afterConnectionEstablished(WebSocketSession newSession) throws Exception {
-        logger.info("ConnectionEstablished : {}", newSession);
+        logger.info("ConnectionEstablished. session:{}", newSession);
 
         synchronized (lock) {
             sessionRepository.add(newSession);
@@ -123,7 +122,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
     @Override
     public void afterConnectionClosed(WebSocketSession closeSession, CloseStatus status) throws Exception {
-        logger.info("ConnectionClosed : {}, caused : {}", closeSession, status);
+        logger.info("ConnectionClose. session:{}, caused:{}", closeSession, status);
 
         synchronized (lock) {
             unbindingResponseAggregator(closeSession);
@@ -139,7 +138,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
     @Override
     protected void handleTextMessage(WebSocketSession webSocketSession, TextMessage message) throws Exception {
-        logger.info("handleTextMessage. session:{}, message:{}.", webSocketSession, message.getPayload());
+        logger.info("handleTextMessage. session:{}, remote:{}, message:{}.", webSocketSession, webSocketSession.getRemoteAddress(), message.getPayload());
 
         String request = message.getPayload();
         if (request != null && request.startsWith(APPLICATION_NAME_KEY + "=")) {
@@ -158,8 +157,15 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         super.handleTextMessage(webSocketSession, message);
     }
 
+    @Override
+    protected void handlePongMessage(WebSocketSession webSocketSession, PongMessage message) throws Exception {
+        logger.info("handlePongMessage. session:{}, remote:{}, message:{}.", webSocketSession, webSocketSession.getRemoteAddress(), message.getPayload());
+
+        super.handlePongMessage(webSocketSession, message);
+    }
+
     private void bindingResponseAggregator(WebSocketSession webSocketSession, String applicationName) {
-        logger.info("bindingResponseAggregator. session : {}, applicationName: {}.", webSocketSession, applicationName);
+        logger.info("bindingResponseAggregator. session:{}, applicationName:{}.", webSocketSession, applicationName);
 
         webSocketSession.getAttributes().put(APPLICATION_NAME_KEY, applicationName);
         if (StringUtils.isEmpty(applicationName)) {
@@ -178,7 +184,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
     private void unbindingResponseAggregator(WebSocketSession webSocketSession) {
         String applicationName = (String) webSocketSession.getAttributes().get(APPLICATION_NAME_KEY);
-        logger.info("unbindingResponseAggregator. session : {}, applicationName: {}.", webSocketSession, applicationName);
+        logger.info("unbindingResponseAggregator. session:{}, applicationName:{}.", webSocketSession, applicationName);
         if (StringUtils.isEmpty(applicationName)) {
             return;
         }
@@ -199,6 +205,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
         @Override
         public void run(Timeout timeout) throws Exception {
+            long startTime = System.currentTimeMillis();
             try {
                 logger.info("ActiveThreadTimerTask started.");
 
@@ -212,7 +219,14 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
                 }
             } finally {
                 if (timer != null && onTimerTask.get()) {
-                    timer.newTimeout(this, flushDelay, TimeUnit.MILLISECONDS);
+                    long execTime = System.currentTimeMillis() - startTime;
+
+                    long nextFlushDelay = flushDelay - execTime;
+                    if (nextFlushDelay < DEFAULT_MIN_FLUSH_DELAY) {
+                        timer.newTimeout(this, DEFAULT_MIN_FLUSH_DELAY, TimeUnit.MILLISECONDS);
+                    } else {
+                        timer.newTimeout(this, nextFlushDelay, TimeUnit.MILLISECONDS);
+                    }
                 }
             }
         }

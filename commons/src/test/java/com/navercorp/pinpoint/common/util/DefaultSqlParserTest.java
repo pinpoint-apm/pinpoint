@@ -258,57 +258,46 @@ public class DefaultSqlParserTest {
         OutputParameterParser parameterParser = new OutputParameterParser();
 
         String sql = "select * from table a = 1 and b=50 and c=? and d='11'";
+        String expected = "select * from table a = 1 and b=50 and c='foo' and d='11'";
         List<String> bindValues = parameterParser.parseOutputParameter("foo");
         String result = sqlParser.combineBindValues(sql, bindValues);
-        System.out.println(result);
+        Assert.assertEquals(expected, result);
 
         sql = "select * from table a = ? and b=? and c=? and d=?";
+        expected = "select * from table a = '1' and b='50' and c='foo' and d='11'";
         bindValues = parameterParser.parseOutputParameter("1, 50, foo, 11");
         result = sqlParser.combineBindValues(sql, bindValues);
-        System.out.println(result);
+        Assert.assertEquals(expected, result);
 
         sql = "select * from table id = \"foo ? bar\" and number=?";
+        expected = "select * from table id = \"foo ? bar\" and number='99'";
         bindValues = parameterParser.parseOutputParameter("99");
         result = sqlParser.combineBindValues(sql, bindValues);
-        System.out.println(result);
+        Assert.assertEquals(expected, result);
 
         sql = "select * from table id = 'hi ? name''s foo' and number=?";
+        expected = "select * from table id = 'hi ? name's foo' and number='99'";
         bindValues = parameterParser.parseOutputParameter("99");
         result = sqlParser.combineBindValues(sql, bindValues);
-        System.out.println(result);
+        Assert.assertEquals(expected, result);
 
         sql = "/** comment ? */ select * from table id = ?";
+        expected = "/** comment ? */ select * from table id = 'foo,bar'";
         bindValues = parameterParser.parseOutputParameter("foo,,bar");
         result = sqlParser.combineBindValues(sql, bindValues);
-        System.out.println(result);
+        Assert.assertEquals(expected, result);
 
         sql = "select /*! STRAIGHT_JOIN ? */ * from table id = ?";
+        expected = "select /*! STRAIGHT_JOIN ? */ * from table id = 'foo,bar'";
         bindValues = parameterParser.parseOutputParameter("foo,,bar");
         result = sqlParser.combineBindValues(sql, bindValues);
-        System.out.println(result);
+        Assert.assertEquals(expected, result);
 
         sql = "select * from table id = ?; -- This ? comment";
+        expected = "select * from table id = 'foo'; -- This ? comment";
         bindValues = parameterParser.parseOutputParameter("foo");
         result = sqlParser.combineBindValues(sql, bindValues);
-        System.out.println(result);
-
-
-        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("sample-01.sql");
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        String line = null;
-        StringBuilder sb = new StringBuilder();
-        try {
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        sql = sb.toString();
-        bindValues = parameterParser.parseOutputParameter("110,110,INT,110,INT,110,15971651,15971651,15971616,15971616,15723121,16087526,16087526,16378494,16373473,16367539,16341683,16341538,16341532,16341528,16337730,16320395,16312813,16312813,16312811,16312811,16312768,16312768,16310806,16309771,16309770,16309769,16307041,16306787,16305511,16305510,16305509,16305506,16305370,16305309,16305308,16305307,16304924,16304789,16304788,16301699,16299101,16299050,16298984,16298887,16297035,16296700,16296112,16295921,16295244,16295158,16294585,16294577,16294503,16294461,16294445,16294433,16294433,16294429,16294428,16293967,16293967,16293621,16293621,16293518,16293518,16293440,16293440,16293175,16293175,16292605,16292605,16292486,16292486,16290389,16290388,16288484,16288483,16288481,16288466,16288396,16288305,16288212,16288145,16288143,16287979,16287942,16287888,16287873,16287871,16287869,16287868,16287705,16287568,16285753,16285741,16285057,16285020,16285003,16284689,16284681,SB");
-        result = sqlParser.combineBindValues(sql, bindValues);
-        System.out.println(result);
+        Assert.assertEquals(expected, result);
     }
 
     private void assertCombine(String result, String sql, String outputParams) {
