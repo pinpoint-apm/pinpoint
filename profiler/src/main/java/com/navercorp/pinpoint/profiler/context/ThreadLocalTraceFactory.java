@@ -105,7 +105,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     @Override
     public Trace disableSampling() {
         checkBeforeTraceObject();
-        final Trace metricTrace = newDisableTrace();
+        final Trace metricTrace = new DisableTrace(this.idGenerator.nextContinuedDisabledId());
         bind(metricTrace);
 
         return metricTrace;
@@ -113,14 +113,14 @@ public class ThreadLocalTraceFactory implements TraceFactory {
 
     // continue to trace the request that has been determined to be sampled on previous nodes
     @Override
-    public Trace continueTraceObject(final TraceId traceID) {
+    public Trace continueTraceObject(final TraceId traceId) {
         checkBeforeTraceObject();
 
         // TODO need to modify how to bind a datasender
         // always set true because the decision of sampling has been  made on previous nodes
         // TODO need to consider as a target to sample in case Trace object has a sampling flag (true) marked on previous node.
         final boolean sampling = true;
-        final DefaultTrace trace = new DefaultTrace(traceContext, traceID, sampling);
+        final DefaultTrace trace = new DefaultTrace(traceContext, traceId, this.idGenerator.nextContinuedTransactionId(), sampling);
         // final Storage storage = storageFactory.createStorage();
         final Storage storage = storageFactory.createStorage();
         trace.setStorage(storage);
@@ -167,7 +167,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
             bind(trace);
             return trace;
         } else {
-            final Trace disableTrace = newDisableTrace();
+            final Trace disableTrace = new DisableTrace(this.idGenerator.nextDisabledId());
             bind(disableTrace);
             return disableTrace;
         }
@@ -199,17 +199,12 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         return this.threadLocalBinder.remove();
     }
 
-    
-    private Trace newDisableTrace() {
-        return new DisableTrace(idGenerator.nextDisableId());
-    }
-
     public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
         checkBeforeTraceObject();
         
         final TraceId parentTraceId = traceId.getParentTraceId();
         final boolean sampling = true;
-        final DefaultTrace trace = new DefaultTrace(traceContext, parentTraceId, sampling);
+        final DefaultTrace trace = new DefaultTrace(traceContext, parentTraceId, IdGenerator.UNTRACKED_ID, sampling);
         final Storage storage = storageFactory.createStorage();
         trace.setStorage(new AsyncStorage(storage));
 

@@ -21,25 +21,47 @@ package com.navercorp.pinpoint.profiler.context;
  */
 public class TestableTransactionCounter implements TransactionCounter {
 
-    private long transactionCount = 0;
-
-    public void addTransactionCount(long transactionCount) {
-        this.transactionCount += transactionCount;
-    }
-
-    @Override
-    public long getSampledTransactionCount() {
-        return this.transactionCount;
-    }
-
-    @Override
-    public long getUnsampledTransactionCount() {
-        return 0;
-    }
+    private long sampledTransactionCount = 0L;
+    private long unsampledTransactionCount = 0L;
+    private long sampledContinuationCount = 0L;
+    private long unsampledContinuationCount = 0L;
 
     @Override
     public long getTotalTransactionCount() {
-        return this.transactionCount;
+        return this.sampledTransactionCount + this.unsampledTransactionCount
+                + this.sampledContinuationCount + this.unsampledContinuationCount;
+    }
+    
+    public void addTransactionCount(SamplingType samplingType, long count) {
+        switch (samplingType) {
+        case SAMPLED_NEW:
+            this.sampledTransactionCount += count;
+            break;
+        case UNSAMPLED_NEW:
+            this.unsampledTransactionCount += count;
+            break;
+        case SAMPLED_CONTINUATION:
+            this.sampledContinuationCount += count;
+            break;
+        case UNSAMPLED_CONTINUATION:
+            this.unsampledContinuationCount += count;
+            break;
+        }
     }
 
+    @Override
+    public long getTransactionCount(SamplingType samplingType) {
+        switch (samplingType) {
+        case SAMPLED_NEW:
+            return this.sampledTransactionCount;
+        case UNSAMPLED_NEW:
+            return this.unsampledTransactionCount;
+        case SAMPLED_CONTINUATION:
+            return this.sampledContinuationCount;
+        case UNSAMPLED_CONTINUATION:
+            return this.unsampledContinuationCount;
+        default:
+            return 0L;
+        }
+    }
 }

@@ -18,7 +18,8 @@ package com.navercorp.pinpoint.profiler.context.active;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.profiler.context.ActiveTrace;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,7 @@ public class ActiveTraceRepository implements ActiveTraceLocator {
     // memory leak defense threshold
     private static final int DEFAULT_MAX_ACTIVE_TRACE_SIZE = 1024 * 10;
     // oom safe cache
-    private final ConcurrentMap<Long, Trace> activeTraceInfoMap;
+    private final ConcurrentMap<Long, ActiveTrace> activeTraceInfoMap;
 
     public ActiveTraceRepository() {
         this(DEFAULT_MAX_ACTIVE_TRACE_SIZE);
@@ -47,7 +48,7 @@ public class ActiveTraceRepository implements ActiveTraceLocator {
         this.activeTraceInfoMap = createCache(maxActiveTraceSize);
     }
 
-    private ConcurrentMap<Long, Trace> createCache(int maxActiveTraceSize) {
+    private ConcurrentMap<Long, ActiveTrace> createCache(int maxActiveTraceSize) {
         final CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
         cacheBuilder.concurrencyLevel(64);
         cacheBuilder.initialCapacity(maxActiveTraceSize);
@@ -55,22 +56,22 @@ public class ActiveTraceRepository implements ActiveTraceLocator {
         // OOM defense
         cacheBuilder.weakValues();
 
-        final Cache<Long, Trace> localCache = cacheBuilder.build();
+        final Cache<Long, ActiveTrace> localCache = cacheBuilder.build();
         return localCache.asMap();
     }
 
-    public void put(Long key, Trace trace) {
-        this.activeTraceInfoMap.put(key, trace);
+    public void put(ActiveTrace activeTrace) {
+        this.activeTraceInfoMap.put(activeTrace.getId(), activeTrace);
     }
 
-    private Trace get(Long key) {
+    private ActiveTrace get(Long key) {
         return this.activeTraceInfoMap.get(key);
     }
 
 
     // @ThreadSafe
     public Object getStackTrace(Long key) {
-        final Trace trace = get(key);
+        final ActiveTrace trace = get(key);
         if (trace == null) {
             return null;
         }
@@ -88,7 +89,7 @@ public class ActiveTraceRepository implements ActiveTraceLocator {
         return null;
     }
 
-    public Trace remove(Long key) {
+    public ActiveTrace remove(Long key) {
         return this.activeTraceInfoMap.remove(key);
     }
 
@@ -96,8 +97,8 @@ public class ActiveTraceRepository implements ActiveTraceLocator {
     @Override
     public List<ActiveTraceInfo> collect() {
         List<ActiveTraceInfo> collectData = new ArrayList<ActiveTraceInfo>();
-        final Collection<Trace> copied = this.activeTraceInfoMap.values();
-        for (Trace trace : copied) {
+        final Collection<ActiveTrace> copied = this.activeTraceInfoMap.values();
+        for (ActiveTrace trace : copied) {
             final long startTime = trace.getStartTime();
             // not started
             if (startTime > 0) {

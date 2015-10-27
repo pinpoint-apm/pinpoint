@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -49,7 +48,7 @@ import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
 
 /**
  * @author emeroad
- * @author hyungil.jeong
+ * @author HyunGil Jeong
  * @author Taejin Koo
  */
 public class DefaultTraceContext implements TraceContext {
@@ -117,6 +116,7 @@ public class DefaultTraceContext implements TraceContext {
 
     /**
      * Return trace only if current transaction can be sampled.
+     * 
      * @return
      */
     public Trace currentTraceObject() {
@@ -129,6 +129,7 @@ public class DefaultTraceContext implements TraceContext {
 
     /**
      * Return trace without sampling check.
+     * 
      * @return
      */
     @Override
@@ -138,7 +139,7 @@ public class DefaultTraceContext implements TraceContext {
 
     @Override
     public Trace disableSampling() {
-        // return null; is bug.  #93
+        // return null; is bug. #93
         return traceFactory.disableSampling();
     }
 
@@ -154,7 +155,7 @@ public class DefaultTraceContext implements TraceContext {
         return profilerConfig;
     }
 
-    // Will be invoked when current transaction is picked as sampling target at remote.
+    @Override
     public Trace continueTraceObject(final TraceId traceID) {
         return traceFactory.continueTraceObject(traceID);
     }
@@ -163,12 +164,12 @@ public class DefaultTraceContext implements TraceContext {
     public Trace continueTraceObject(Trace trace) {
         return traceFactory.continueTraceObject(trace);
     }
-    
+
     @Override
     public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
         return traceFactory.continueAsyncTraceObject(traceId, asyncId, startTime);
     }
-    
+
     public Trace newTraceObject() {
         return traceFactory.newTraceObject();
     }
@@ -211,12 +212,11 @@ public class DefaultTraceContext implements TraceContext {
         return this.agentInformation.getServerType().getDesc();
     }
 
-
     @Override
     public int cacheApi(final MethodDescriptor methodDescriptor) {
         final String fullName = methodDescriptor.getFullName();
         final Result result = this.apiCache.put(fullName);
-        
+
         methodDescriptor.setApiId(result.getId());
 
         if (result.isNewValue()) {
@@ -230,8 +230,8 @@ public class DefaultTraceContext implements TraceContext {
             apiMetadata.setType(methodDescriptor.getType());
 
             this.priorityDataSender.request(apiMetadata);
-        } 
-        
+        }
+
         return result.getId();
     }
 
@@ -261,7 +261,6 @@ public class DefaultTraceContext implements TraceContext {
         // TODO Should handle exception when parsing failed.
         return DefaultTraceId.parse(transactionId, parentSpanID, spanID, flags);
     }
-
 
     @Override
     public ParsingResult parseSql(final String sql) {
@@ -300,12 +299,10 @@ public class DefaultTraceContext implements TraceContext {
         this.priorityDataSender = priorityDataSender;
     }
 
-
     @Override
     public ServerMetaDataHolder getServerMetaDataHolder() {
         return this.serverMetaDataHolder;
     }
-
 
     @Override
     public int getAsyncId() {
