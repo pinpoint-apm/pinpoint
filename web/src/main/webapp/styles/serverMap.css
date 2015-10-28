@@ -164,7 +164,7 @@
 	border-radius: 3px 3px 0px 0px;
 }
 .realtime .chart-title {
-	color: white;
+	color: #000;
 	width: 100%;
 	padding: 2px 0px 2px 6px;
 	position: absolute;
@@ -221,7 +221,7 @@
 	font-family: Times;
 	white-space: nowrap;
 	text-overflow: ellipsis;
-	background-color: rgba(126, 211, 33, 0.5);
+	background-color: rgba(205, 211, 33, 0.5);
 }
 .realtime .agent-sum-chart svg {
 	font: 10px sans-serif;
