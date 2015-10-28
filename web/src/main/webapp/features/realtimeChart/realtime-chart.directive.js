@@ -36,6 +36,7 @@
 	            		height:			parseInt(attrs[cfg.params.HEIGHT]),
 	            		width: 			parseInt(attrs[cfg.params.WIDTH])
 	            	};
+
 	            	var oInnerOption = {
             			domain: [1, oOuterOption.xAxisCount - 2],
             	        margin: {
@@ -85,7 +86,7 @@
 	            	            .attr("transform", "translate(" + (oOuterOption.showExtraInfo ? oInnerOption.margin.left : 0) + "," + oInnerOption.margin.top + ")");
             	        d3svg.append("defs")
             	        	.append("clipPath")
-	            	            .attr("id", "clip")
+	            	            .attr("id", "clip-" + oOuterOption.namespace)
 	            	            .append("rect")
 		            	            .attr("x", 1)
 		            	            .attr("y", 0)
@@ -163,7 +164,7 @@
             	    function initPath() {
         	    		d3path = d3svg.append("g")
 	        	            .attr("class", "pathArea")
-	        	            .attr("clip-path", "url(#clip)")
+	        	            .attr("clip-path", "url(#clip-" + oOuterOption.namespace + ")")
 	        	            .selectAll("path")
 	        	            .data(chartDataQueue)
 	        	            .enter()
