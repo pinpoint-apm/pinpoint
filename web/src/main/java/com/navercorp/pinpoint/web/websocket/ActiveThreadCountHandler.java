@@ -151,8 +151,10 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         switch (webSocketMessage.getType()) {
             case REQUEST:
                 handleRequestMessage0(webSocketSession, (RequestMessage) webSocketMessage);
+                break;
             case PONG:
                 handlePongMessage0(webSocketSession, (PongMessage) webSocketMessage);
+                break;
         }
 
         // this method will be checked socket status.
@@ -309,7 +311,6 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
                     timer.newTimeout(this, DEFAULT_HEALTH_CHECk_DELAY, TimeUnit.MILLISECONDS);
                 }
             }
-
         }
 
     }
