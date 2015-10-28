@@ -198,7 +198,7 @@
 	                };
 	
 	                /**
-	                 * get preiod type
+	                 * get period type
 	                 * @returns {*}
 	                 */
 	                getPeriodType = function () {

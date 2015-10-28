@@ -29,7 +29,7 @@ public class InterceptorInvokerHelper {
         if (propagateException) {
             throw new RuntimeException(t);
         } else {
-            logger.warn("Excetpion occured from interceptor", t);
+            logger.warn("Excetpion occurred from interceptor", t);
         }
     }
     
