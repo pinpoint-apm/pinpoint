@@ -60,7 +60,7 @@ public class AgentStatMonitorTest {
         final long collectionIntervalMs = 1000 * 1;
         final int numCollectionsPerBatch = 2;
         final int minNumBatchToTest = 2;
-        final long totalTestDurationMs = collectionIntervalMs * numCollectionsPerBatch * minNumBatchToTest;
+        final long totalTestDurationMs = collectionIntervalMs + collectionIntervalMs * numCollectionsPerBatch * minNumBatchToTest;
         // When
         System.setProperty("pinpoint.log", "test.");
         AgentStatCollectorFactory agentStatCollectorFactory = new AgentStatCollectorFactory(new TestableTransactionCounter());
