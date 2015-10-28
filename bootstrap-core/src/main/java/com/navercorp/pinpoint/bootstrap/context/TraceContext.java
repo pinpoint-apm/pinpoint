@@ -29,23 +29,24 @@ public interface TraceContext {
 
     /**
      * return a trace whose sampling rate should be further verified
+     * 
      * @return
      */
     Trace currentRawTraceObject();
 
-    Trace continueTraceObject(TraceId traceID);
-    
+    Trace continueTraceObject(TraceId traceId);
+
     Trace continueTraceObject(Trace trace);
 
     Trace newTraceObject();
-    
+
     Trace newTraceObject(TraceType traceType);
-    
+
     Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime);
 
     Trace removeTraceObject();
 
-//    ActiveThreadCounter getActiveThreadCounter();
+    // ActiveThreadCounter getActiveThreadCounter();
 
     String getAgentId();
 
@@ -71,7 +72,6 @@ public interface TraceContext {
     Trace disableSampling();
 
     ProfilerConfig getProfilerConfig();
-
 
     ServerMetaDataHolder getServerMetaDataHolder();
 

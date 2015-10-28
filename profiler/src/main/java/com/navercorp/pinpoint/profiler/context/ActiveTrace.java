@@ -16,20 +16,32 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+
 /**
  * @author HyunGil Jeong
  */
-public interface TransactionCounter {
-
-    public enum SamplingType {
-        SAMPLED_NEW,
-        SAMPLED_CONTINUATION,
-        UNSAMPLED_NEW,
-        UNSAMPLED_CONTINUATION
+public class ActiveTrace {
+    
+    private final Trace trace;
+    
+    public ActiveTrace(Trace trace) {
+        if (trace == null) {
+            throw new NullPointerException("trace must not be null");
+        }
+        this.trace = trace;
     }
 
-    long getTransactionCount(SamplingType samplingType);
+    public long getId() {
+        return this.trace.getId();
+    }
 
-    long getTotalTransactionCount();
+    public long getStartTime() {
+        return this.trace.getStartTime();
+    }
+
+    public Thread getBindThread() {
+        return this.trace.getBindThread();
+    }
 
 }

@@ -148,6 +148,11 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
+    public boolean isConnected(AgentInfo agentInfo) {
+        return clusterConnectionManager.isConnected(agentInfo);
+    }
+
+    @Override
     public PinpointRouteResponse invoke(AgentInfo agentInfo, TBase<?, ?> tBase) throws TException {
         byte[] payload = serializeRequest(tBase);
         return invoke(agentInfo, payload);

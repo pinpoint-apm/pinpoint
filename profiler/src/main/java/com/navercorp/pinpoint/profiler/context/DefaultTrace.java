@@ -42,6 +42,7 @@ public final class DefaultTrace implements Trace {
 
     private final boolean sampling;
 
+    private final long id;
     private final TraceId traceId;
 
     private final CallStack callStack;
@@ -62,6 +63,7 @@ public final class DefaultTrace implements Trace {
         }
         this.traceContext = traceContext;
         this.traceId = new DefaultTraceId(traceContext.getAgentId(), traceContext.getAgentStartTime(), transactionId);
+        this.id = this.traceId.getTransactionSequence();
         this.sampling = sampling;
 
         final Span span = createSpan();
@@ -72,7 +74,7 @@ public final class DefaultTrace implements Trace {
         setCurrentThread();
     }
 
-    public DefaultTrace(TraceContext traceContext, TraceId continueTraceId, boolean sampling) {
+    public DefaultTrace(TraceContext traceContext, TraceId continueTraceId, long transactionId, boolean sampling) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
         }
@@ -81,6 +83,7 @@ public final class DefaultTrace implements Trace {
         }
         this.traceContext = traceContext;
         this.traceId = continueTraceId;
+        this.id = transactionId;
         this.sampling = sampling;
 
         final Span span = createSpan();
@@ -224,7 +227,7 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public long getId() {
-        return traceId.getTransactionSequence();
+        return this.id;
     }
 
     @Override

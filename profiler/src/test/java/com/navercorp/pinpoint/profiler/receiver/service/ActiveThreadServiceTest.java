@@ -19,13 +19,14 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
+import com.navercorp.pinpoint.profiler.context.ActiveTrace;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.test.TestAgentInformation;
-import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
+
 import org.apache.thrift.TBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -64,14 +65,13 @@ public class ActiveThreadServiceTest {
 
     private void addActiveTrace(ActiveTraceRepository activeTraceRepository, int addCount) {
         for (int i = 0; i < addCount; i++) {
-            activeTraceRepository.put((long) idGenerator.incrementAndGet(), createDefaultTrace());
+            activeTraceRepository.put(createActiveTrace());
         }
     }
 
-    private DefaultTrace createDefaultTrace() {
-        DefaultTraceContext defaultTraceContext = new DefaultTraceContext(new TestAgentInformation());
+    private ActiveTrace createActiveTrace() {
         DefaultTrace trace = new DefaultTrace(defaultTraceContext, idGenerator.incrementAndGet(), true);
-        return trace;
+        return new ActiveTrace(trace);
     }
 
 }
