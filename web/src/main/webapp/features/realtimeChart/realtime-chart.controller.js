@@ -11,11 +11,22 @@
 		sendPrefix: "applicationName=",
 		keys: {
 			CODE: "code",
+			TYPE: "type",
+			RESULT: "result",
 			STATUS: "status",
+			COMMAND: "command",
 			MESSAGE: "message",
 			TIME_STAMP: "timeStamp",
+			PARAMETERS: "parameters",
 			APPLICATION_NAME: "applicationName",
 			ACTIVE_THREAD_COUNTS: "activeThreadCounts"
+		},
+		values: {
+			PING: "PING",
+			PONG: "PONG",
+			REQUEST: "REQUEST",
+			RESPONSE: "RESPONSE",
+			ACTIVE_THREAD_COUNT: "activeThreadCount"
 		},
 		template: {
 			agentChart: '<div class="agent-chart"><div></div></div>',
@@ -56,6 +67,20 @@
 	    	var bIsFullWindow = false;
 	    	var bShowRealtimeChart = true;
 	    	var popupHeight = cfg.css.height;
+	    	var wsPongTemplate = (function() {{};
+	    		var o = {};
+	    		o[cfg.keys.TYPE] = cfg.values.PONG;
+	    		return JSON.stringify(o);
+	    	})();
+	    	var wsMessageTemplate = (function() {
+	    		var o = {};
+		    	o[cfg.keys.TYPE] = cfg.values.REQUEST;
+		    	o[cfg.keys.COMMAND] = cfg.values.ACTIVE_THREAD_COUNT;
+		    	o[cfg.keys.PARAMETERS] = {};
+		    	return o;
+	    	})();
+	    	
+
 	    	
 	    	$scope.hasCriticalError = false;
 	    	$scope.sumChartColor 	= ["rgba(44, 160, 44, 1)", 	"rgba(60, 129, 250, 1)", 	"rgba(248, 199, 49, 1)", 	"rgba(246, 145, 36, 1)" ];
@@ -125,13 +150,23 @@
 	        }
 	        function receive( data ) {
 	        	$scope.hasCriticalError = false;
-	        	if ( data[cfg.keys.APPLICATION_NAME] !== $scope.currentApplicationName ) return;
-	        	
-	        	var applicationData = data[cfg.keys.ACTIVE_THREAD_COUNTS];
-	        	var aRequestSum = getSumOfRequestType( applicationData );
-	        	addSumYValue( aRequestSum );
-	        	
-	        	broadcastData( applicationData, aRequestSum, data[cfg.keys.TIME_STAMP] );
+	        	switch( data[cfg.keys.TYPE] ) {
+	        		case cfg.values.PING:
+	        			websocketService.send( wsPongTemplate );
+	        			break;
+	        		case cfg.values.RESPONSE:
+		        		// if ( data[cfg.keys.COMMAND] == cfg.values.ACTIVE_THREAD_COUNT;
+		        		var responseDdata = data[cfg.keys.RESULT];
+			        	if ( responseDdata[cfg.keys.APPLICATION_NAME] !== $scope.currentApplicationName ) return;
+			        	
+			        	var applicationData = responseDdata[cfg.keys.ACTIVE_THREAD_COUNTS];
+			        	var aRequestSum = getSumOfRequestType( applicationData );
+			        	addSumYValue( aRequestSum );
+			        	
+			        	broadcastData( applicationData, aRequestSum, responseDdata[cfg.keys.TIME_STAMP] );
+
+	        			break;
+	        	}
 	        }
 	        function broadcastData( applicationData, aRequestSum, timeStamp ) {
 	        	var maxY = getMaxOfYValue();
@@ -156,6 +191,10 @@
         		$scope.$apply(function() {
 	        		$scope.currentAgentCount = agentIndexAndCount;
 	        	});
+	        }
+	        function makeRequest( applicationName ) {
+	        	wsMessageTemplate[cfg.keys.PARAMETERS][cfg.keys.APPLICATION_NAME] = applicationName;
+	        	return JSON.stringify(wsMessageTemplate);
 	        }
 	        function checkAgentChart( agentName, agentIndexAndCount ) {
 	        	if ( hasAgentChart( agentName ) == false ) {
@@ -204,7 +243,7 @@
 	            });
     	    }
 	        function startReceive() {
-	        	websocketService.send(cfg.sendPrefix + $scope.currentApplicationName);
+	        	websocketService.send( makeRequest( $scope.currentApplicationName) );
 	        }
 	        function initReceive() {
 	        	if ( websocketService.isOpened() == false ) {
@@ -216,7 +255,7 @@
 	        }
 	        function stopReceive() {
 	        	bShowRealtimeChart = false;
-        		websocketService.stopReceive(cfg.sendPrefix);
+        		websocketService.stopReceive( makeRequest("") );
 	        }
 	        function stopChart() {
 	        	$rootScope.$broadcast('realtimeChartDirective.clear.sum');
@@ -313,6 +352,7 @@
 	        	if ( bShowRealtimeChart === true ) {
 	        		hidePopup();
 	        		stopReceive();
+	        		stopChart();
 	        		bShowRealtimeChart = false;
 	        	} else {
 	        		showPopup();
