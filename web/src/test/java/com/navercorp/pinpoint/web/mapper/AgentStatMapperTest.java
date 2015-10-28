@@ -64,6 +64,8 @@ public class AgentStatMapperTest {
     private static final long TIMESTAMP = System.currentTimeMillis();
     private static final byte[] ROW_KEY = RowKeyUtils.concatFixedByteAndLong(BytesUtils.toBytes(AGENT_ID), AGENT_NAME_MAX_LEN, TimeUtils.reverseTimeMillis(TIMESTAMP));
 
+    private static final long COLLECT_INTERVAL = 5000L;
+
     private static final TJvmGcType GC_TYPE = TJvmGcType.G1;
     private static final long GC_OLD_COUNT = 0L;
     private static final long GC_OLD_TIME = Long.MAX_VALUE;
@@ -75,7 +77,11 @@ public class AgentStatMapperTest {
     private static final double JVM_CPU_USAGE = 10;
     private static final double SYS_CPU_USAGE = 20;
 
-    private static final int TPS = 100;
+    private static final short TRANSACTION_VERSION = 1;
+    private static final long SAMPLED_NEW_COUNT = 100L;
+    private static final long SAMPLED_CONTINUATION_COUNT = 200L;
+    private static final long UNSAMPLED_NEW_COUNT = 50L;
+    private static final long UNSAMPLED_CONTINUATION_COUNT = 150L;
 
     @Mock
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
@@ -93,16 +99,21 @@ public class AgentStatMapperTest {
     public void test_current() throws Exception {
         // Given
         final Result result = Result.create(Arrays.asList(
-                createCell(AGENT_STAT_CF_STATISTICS_COL_GC_TYPE, Bytes.toBytes(GC_TYPE.name())),
-                createCell(AGENT_STAT_CF_STATISTICS_COL_GC_OLD_COUNT, Bytes.toBytes(GC_OLD_COUNT)),
-                createCell(AGENT_STAT_CF_STATISTICS_COL_GC_OLD_TIME, Bytes.toBytes(GC_OLD_TIME)),
-                createCell(AGENT_STAT_CF_STATISTICS_COL_HEAP_USED, Bytes.toBytes(HEAP_USED)),
-                createCell(AGENT_STAT_CF_STATISTICS_COL_HEAP_MAX, Bytes.toBytes(HEAP_MAX)),
-                createCell(AGENT_STAT_CF_STATISTICS_COL_NON_HEAP_USED, Bytes.toBytes(NON_HEAP_USED)),
-                createCell(AGENT_STAT_CF_STATISTICS_COL_NON_HEAP_MAX, Bytes.toBytes(NON_HEAP_MAX)),
-                createCell(AGENT_STAT_CF_STATISTICS_COL_JVM_CPU, Bytes.toBytes(JVM_CPU_USAGE)),
-                createCell(AGENT_STAT_CF_STATISTICS_COL_SYS_CPU, Bytes.toBytes(SYS_CPU_USAGE)),
-                createCell(AGENT_STAT_CF_STATISTICS_COL_TPS, Bytes.toBytes(TPS))
+                createCell(AGENT_STAT_COL_INTERVAL, Bytes.toBytes(COLLECT_INTERVAL)),
+                createCell(AGENT_STAT_COL_GC_TYPE, Bytes.toBytes(GC_TYPE.name())),
+                createCell(AGENT_STAT_COL_GC_OLD_COUNT, Bytes.toBytes(GC_OLD_COUNT)),
+                createCell(AGENT_STAT_COL_GC_OLD_TIME, Bytes.toBytes(GC_OLD_TIME)),
+                createCell(AGENT_STAT_COL_HEAP_USED, Bytes.toBytes(HEAP_USED)),
+                createCell(AGENT_STAT_COL_HEAP_MAX, Bytes.toBytes(HEAP_MAX)),
+                createCell(AGENT_STAT_COL_NON_HEAP_USED, Bytes.toBytes(NON_HEAP_USED)),
+                createCell(AGENT_STAT_COL_NON_HEAP_MAX, Bytes.toBytes(NON_HEAP_MAX)),
+                createCell(AGENT_STAT_COL_JVM_CPU, Bytes.toBytes(JVM_CPU_USAGE)),
+                createCell(AGENT_STAT_COL_SYS_CPU, Bytes.toBytes(SYS_CPU_USAGE)),
+                createCell(AGENT_STAT_COL_TRANSACTION_VERSION, Bytes.toBytes(TRANSACTION_VERSION)),
+                createCell(AGENT_STAT_COL_TRANSACTION_SAMPLED_NEW, Bytes.toBytes(SAMPLED_NEW_COUNT)),
+                createCell(AGENT_STAT_COL_TRANSACTION_SAMPLED_CONTINUATION, Bytes.toBytes(SAMPLED_CONTINUATION_COUNT)),
+                createCell(AGENT_STAT_COL_TRANSACTION_UNSAMPLED_NEW, Bytes.toBytes(UNSAMPLED_NEW_COUNT)),
+                createCell(AGENT_STAT_COL_TRANSACTION_UNSAMPLED_CONTINUATION, Bytes.toBytes(UNSAMPLED_CONTINUATION_COUNT))
                 ));
         // When
         List<AgentStat> agentStats = this.mapper.mapRow(result, 0);
@@ -111,6 +122,7 @@ public class AgentStatMapperTest {
         assertThat(agentStats.size(), is(1));
         AgentStat agentStat = agentStats.get(0);
 
+        assertEquals(COLLECT_INTERVAL, agentStat.getCollectInterval());
         assertJvmGc(agentStat);
         assertCpuUsage(agentStat);
         assertTransaction(agentStat);
@@ -127,10 +139,15 @@ public class AgentStatMapperTest {
         assertThat(agentStats.size(), is(1));
         AgentStat agentStat = agentStats.get(0);
 
+        assertEquals(0, agentStat.getCollectInterval());
         assertJvmGc(agentStat);
         assertEquals(AgentStat.NOT_COLLECTED, agentStat.getJvmCpuUsage(), DELTA);
         assertEquals(AgentStat.NOT_COLLECTED, agentStat.getSystemCpuUsage(), DELTA);
-        assertEquals(AgentStat.NOT_COLLECTED, agentStat.getTps());
+        assertEquals(0, agentStat.getTransactionVersion());
+        assertEquals(AgentStat.NOT_COLLECTED, agentStat.getSampledNewCount());
+        assertEquals(AgentStat.NOT_COLLECTED, agentStat.getSampledContinuationCount());
+        assertEquals(AgentStat.NOT_COLLECTED, agentStat.getUnsampledNewCount());
+        assertEquals(AgentStat.NOT_COLLECTED, agentStat.getUnsampledContinuationCount());
     }
 
     @Test
@@ -144,9 +161,14 @@ public class AgentStatMapperTest {
         assertThat(agentStats.size(), is(1));
         AgentStat agentStat = agentStats.get(0);
 
+        assertEquals(0, agentStat.getCollectInterval());
         assertJvmGc(agentStat);
         assertCpuUsage(agentStat);
-        assertEquals(AgentStat.NOT_COLLECTED, agentStat.getTps());
+        assertEquals(0, agentStat.getTransactionVersion());
+        assertEquals(AgentStat.NOT_COLLECTED, agentStat.getSampledNewCount());
+        assertEquals(AgentStat.NOT_COLLECTED, agentStat.getSampledContinuationCount());
+        assertEquals(AgentStat.NOT_COLLECTED, agentStat.getUnsampledNewCount());
+        assertEquals(AgentStat.NOT_COLLECTED, agentStat.getUnsampledContinuationCount());
     }
 
     private void assertJvmGc(AgentStat agentStat) {
@@ -167,7 +189,11 @@ public class AgentStatMapperTest {
     }
 
     private void assertTransaction(AgentStat agentStat) {
-        assertEquals(TPS, agentStat.getTps());
+        assertEquals(TRANSACTION_VERSION, agentStat.getTransactionVersion());
+        assertEquals(SAMPLED_NEW_COUNT, agentStat.getSampledNewCount());
+        assertEquals(SAMPLED_CONTINUATION_COUNT, agentStat.getSampledContinuationCount());
+        assertEquals(UNSAMPLED_NEW_COUNT, agentStat.getUnsampledNewCount());
+        assertEquals(UNSAMPLED_CONTINUATION_COUNT, agentStat.getUnsampledContinuationCount());
     }
 
     private Result createResultForLegacyWith_AGENT_STAT_CF_STATISTICS_V1() throws TException {

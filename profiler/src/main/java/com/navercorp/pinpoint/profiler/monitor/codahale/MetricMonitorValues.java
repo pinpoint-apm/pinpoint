@@ -99,7 +99,10 @@ public final class MetricMonitorValues {
     public static final String CPU_LOAD_SYSTEM = CPU_LOAD + ".system";
     
     public static final String TRANSACTION = "transaction";
-    public static final String TRANSACTION_PER_SECOND = TRANSACTION + ".tps";
+    public static final String TRANSACTION_SAMPLED_NEW = TRANSACTION + ".sampled.new";
+    public static final String TRANSACTION_SAMPLED_CONTINUATION = TRANSACTION + ".sampled.continuation";
+    public static final String TRANSACTION_UNSAMPLED_NEW = TRANSACTION + ".unsampled.new";
+    public static final String TRANSACTION_UNSAMPLED_CONTINUATION = TRANSACTION + ".unsampled.continuation";
 
     private MetricMonitorValues() {
     }
