@@ -22,7 +22,7 @@
 			chartDirective: Handlebars.compile( '<realtime-chart-directive chart-color="{{chartColor}}" xcount="{{xAxisCount}}" show-extra-info="{{showExtraInfo}}" request-label="requestLabelNames" namespace="{{namespace}}" width="{{width}}" height="{{height}}"></realtime-chart-directive>' )
 		},
 		css : {
-			borderWidth: 4,
+			borderWidth: 2,
 			height: 180,
 			navbarHeight: 70,
 			titleHeight: 30
