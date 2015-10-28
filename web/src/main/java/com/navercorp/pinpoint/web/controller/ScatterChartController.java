@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.web.service.ScatterChartService;
 import com.navercorp.pinpoint.web.util.LimitUtils;
 import com.navercorp.pinpoint.web.util.TimeUtils;
 import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.web.view.TransactionMetaDataViewModel;
 import com.navercorp.pinpoint.web.vo.*;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.navercorp.pinpoint.web.vo.scatter.ScatterIndex;
@@ -44,6 +45,7 @@ import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
@@ -271,16 +273,20 @@ public class ScatterChartController {
      * @return
      */
     @RequestMapping(value = "/transactionmetadata", method = RequestMethod.POST)
-    public String transactionmetadata(Model model, HttpServletRequest request, HttpServletResponse response) {
-
+    @ResponseBody
+    public TransactionMetaDataViewModel transactionmetadata(Model model, HttpServletRequest request, HttpServletResponse response) {
+        logger.warn("##### TransactionMetadata {}", model);
+        TransactionMetaDataViewModel viewModel = new TransactionMetaDataViewModel();
         TransactionMetadataQuery query = parseSelectTransaction(request);
+        ModelAndView mv = new ModelAndView();
         if (query.size() > 0) {
             List<SpanBo> metadata = scatter.selectTransactionMetadata(query);
-            model.addAttribute("metadata", metadata);
+            viewModel.setSpanBoList(metadata);
+            //mv.ad.addAttribute("metadata", metadata);
         }
 
 
-        return "transactionmetadata";
+        return viewModel;
     }
 
     private TransactionMetadataQuery parseSelectTransaction(HttpServletRequest request) {

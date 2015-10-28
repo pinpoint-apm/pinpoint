@@ -12,89 +12,94 @@ import java.util.List;
  */
 public class TransactionMetaDataViewModel {
     private List<SpanBo> spanBoList = new ArrayList<SpanBo>();
+    private String logButtionName = "";
+    private String logPageUrl = "";
 
     public void setSpanBoList(List<SpanBo> spanBoList) {
         this.spanBoList = spanBoList;
+    }
+
+    public void setLogButtionName(String logButtionName) {
+        this.logButtionName = logButtionName;
+    }
+
+    public void setLogPageUrl(String logPageUrl) {
+        this.logPageUrl = logPageUrl;
     }
 
     @JsonProperty("metadata")
     public List<MetaData> getMetadata() {
         List<MetaData> list = new ArrayList<MetaData>();
         for (SpanBo span : spanBoList) {
-            list.add(new MetaData(span));
+            list.add(new MetaData(span, logButtionName, logPageUrl));
         }
 
         return list;
     }
 
-    @JsonSerialize(using=TransactionMetaDataSerializer.class)
+    //@JsonSerialize(using=TransactionMetaDataSerializer.class)
     public static class MetaData {
-        private String traceId;
-        private long collectorAcceptTime;
-        private long startTime;
-        private long elapsed;
-        private String application;
-        private String agentId;
-        private String endpoint;
-        private int exception;
-        private String remoteAddr;
-        private String logButtonName;
-        private String logPageUrl;
+        private SpanBo span;
+        private String logButtonName = "";
+        private String logPageUrl = "";
 
-        public MetaData(SpanBo span) {
-            traceId = span.getTransactionId();
-            collectorAcceptTime = span.getCollectorAcceptTime();
-            startTime = span.getStartTime();
-            elapsed = span.getElapsed();
-            application = span.getRpc();
-            agentId = span.getAgentId();
-            endpoint = span.getEndPoint();
-            exception = span.getErrCode();
-            remoteAddr = span.getRemoteAddr();
-            logButtonName = "";
-            logPageUrl = "";
+        public MetaData(SpanBo span, String logButtionName, String logPageUrl) {
+            this.span = span;
+            this.logButtonName = logButtionName;
+            this.logPageUrl = logPageUrl;
         }
 
+        @JsonProperty("traceId")
         public String getTraceId() {
-            return traceId;
+            return span.getTransactionId();
         }
 
+        @JsonProperty("collectorAcceptTime")
         public long getCollectorAcceptTime() {
-            return collectorAcceptTime;
+            return span.getCollectorAcceptTime();
         }
 
+        @JsonProperty("startTime")
         public long getStartTime() {
-            return startTime;
+            return span.getStartTime();
         }
 
+        @JsonProperty("elapsed")
         public long getElapsed() {
-            return elapsed;
+            return span.getElapsed();
         }
 
+        @JsonProperty("application")
         public String getApplication() {
-            return application;
+            return span.getRpc();
         }
 
+        @JsonProperty("agentId")
         public String getAgentId() {
-            return agentId;
+            return span.getAgentId();
         }
 
+        @JsonProperty("endpoint")
         public String getEndpoint() {
-            return endpoint;
+            return span.getEndPoint();
         }
 
+        @JsonProperty("exception")
         public int getException() {
-            return exception;
+            return span.getErrCode();
         }
 
+        @JsonProperty("remoteAddr")
         public String getRemoteAddr() {
-            return remoteAddr;
+            return span.getRemoteAddr();
         }
 
+        @JsonProperty("logButtonName")
         public String getLogButtonName() {
             return logButtonName;
         }
 
+        @JsonProperty("logPageUrl")
         public String getLogPageUrl() {
             return logPageUrl;
         }
