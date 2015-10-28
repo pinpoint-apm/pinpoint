@@ -19,12 +19,14 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCount;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
+import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
 import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,18 +45,25 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class ActiveThreadCountResponseAggregator implements PinpointWebSocketResponseAggregator {
 
+    private static final String APPLICATION_NAME = "applicationName";
+    private static final String ACTIVE_THREAD_COUNTS = "activeThreadCounts";
+    private static final String TIME_STAMP = "timeStamp";
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final String applicationName;
     private final AgentService agentService;
     private final Timer timer;
+
     private final Object workerManagingLock = new Object();
     private final List<WebSocketSession> webSocketSessions = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<String, ActiveThreadCountWorker> activeThreadCountWorkerRepository = new ConcurrentHashMap<String, ActiveThreadCountWorker>();
+
     private final Object aggregatorLock = new Object();
-    private final ActiveThreadCountResponseMessageConverter messageConverter;
+    private final PinpointWebSocketMessageConverter messageConverter;
+
     private volatile boolean isStopped = false;
     private WorkerActiveManager workerActiveManager;
-    ;
+
     private Map<String, AgentActiveThreadCount> activeThreadCountMap = new HashMap<String, AgentActiveThreadCount>();
 
     public ActiveThreadCountResponseAggregator(String applicationName, AgentService agentService, Timer timer) {
@@ -63,7 +72,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
 
         this.timer = timer;
 
-        this.messageConverter = new ActiveThreadCountResponseMessageConverter(applicationName);
+        this.messageConverter = new PinpointWebSocketMessageConverter();
     }
 
     @Override
@@ -110,7 +119,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
                 AgentStatus agentStatus = agentInfo.getStatus();
                 if (agentStatus != null && agentStatus.getState() != AgentLifeCycleState.UNKNOWN) {
                     activeWorker(agentInfo);
-                } else if (agentService.isConnected(agentInfo)){
+                } else if (agentService.isConnected(agentInfo)) {
                     activeWorker(agentInfo);
                 }
             }
@@ -219,21 +228,48 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
     }
 
     private void flush0(AgentActiveThreadCountList activeThreadCountList) {
-        TextMessage responseMessage = messageConverter.createResponseMessage(activeThreadCountList, System.currentTimeMillis());
+        Map resultMap = createResultMap(activeThreadCountList, System.currentTimeMillis());
 
-        for (WebSocketSession webSocketSession : webSocketSessions) {
-            try {
-                logger.debug("flush webSocket:{}, response:{}", webSocketSession, responseMessage);
-                webSocketSession.sendMessage(responseMessage);
-            } catch (IOException e) {
-                logger.warn(e.getMessage(), e);
+        try {
+            TextMessage responseTextMessage = new TextMessage(messageConverter.getResponseTextMessage(ActiveThreadCountHandler.API_ACTIVE_THREAD_COUNT, resultMap));
+
+            for (WebSocketSession webSocketSession : webSocketSessions) {
+                try {
+                    logger.debug("flush webSocketSession:{}, response:{}", webSocketSession, responseTextMessage);
+                    webSocketSession.sendMessage(responseTextMessage);
+                } catch (IOException e) {
+                    logger.warn(e.getMessage(), e);
+                }
             }
+        } catch (JsonProcessingException e) {
+            logger.warn("json convert failed. original:{}, message:{}.", resultMap, e.getMessage(), e);
         }
     }
 
     @Override
     public String getApplicationName() {
         return applicationName;
+    }
+
+    private Map createResultMap(AgentActiveThreadCountList activeThreadCount, long timeStamp) {
+        Map<String, Object> response = new HashMap<String, Object>();
+
+        response.put(APPLICATION_NAME, applicationName);
+        response.put(ACTIVE_THREAD_COUNTS, activeThreadCount);
+        response.put(TIME_STAMP, timeStamp);
+
+        return response;
+    }
+
+    private String createEmptyResponseMessage(String applicationName, long timeStamp) {
+        StringBuilder emptyJsonMessage = new StringBuilder();
+        emptyJsonMessage.append("{");
+        emptyJsonMessage.append("\"").append(APPLICATION_NAME).append("\"").append(":").append("\"").append(applicationName).append("\"").append(",");
+        emptyJsonMessage.append("\"").append(ACTIVE_THREAD_COUNTS).append("\"").append(":").append("{}").append(",");
+        emptyJsonMessage.append("\"").append(TIME_STAMP).append("\"").append(":").append(timeStamp);
+        emptyJsonMessage.append("}");
+
+        return emptyJsonMessage.toString();
     }
 
 }

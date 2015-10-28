@@ -20,21 +20,25 @@
 package com.navercorp.pinpoint.web.websocket;
 
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
+import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.rpc.util.StringUtils;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.web.service.AgentService;
+import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessage;
+import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
+import com.navercorp.pinpoint.web.websocket.message.PongMessage;
+import com.navercorp.pinpoint.web.websocket.message.RequestMessage;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.socket.*;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -47,25 +51,26 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     private static final String DEFAULT_REQUEST_MAPPING = "/agent/activeThread";
 
     private static final String APPLICATION_NAME_KEY = "applicationName";
+    private static final String HEALTH_CHECK_WAIT_KEY = "pinpoint.healthCheck.wait";
+
+    static final String API_ACTIVE_THREAD_COUNT = "activeThreadCount";
 
     private static final long DEFAULT_FLUSH_DELAY = 1000;
     private static final long DEFAULT_MIN_FLUSH_DELAY = 500;
+    private static final long DEFAULT_HEALTH_CHECk_DELAY = 60 * 1000;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Object lock = new Object();
-
     private final String requestMapping;
     private final AgentService agentSerivce;
-
-    private Timer timer;
     private final long flushDelay;
-
     private final AtomicBoolean onTimerTask = new AtomicBoolean(false);
-
     private final List<WebSocketSession> sessionRepository = new CopyOnWriteArrayList<WebSocketSession>();
-
     private final Map<String, PinpointWebSocketResponseAggregator> aggregatorRepository = new HashMap<String, PinpointWebSocketResponseAggregator>();
+    private PinpointWebSocketMessageConverter messageConverter = new PinpointWebSocketMessageConverter();
+    private Timer timer;
+
 
     public ActiveThreadCountHandler(AgentService agentSerivce) {
         this(DEFAULT_REQUEST_MAPPING, agentSerivce);
@@ -110,10 +115,12 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         logger.info("ConnectionEstablished. session:{}", newSession);
 
         synchronized (lock) {
+            newSession.getAttributes().put(HEALTH_CHECK_WAIT_KEY, new AtomicBoolean(false));
             sessionRepository.add(newSession);
             boolean turnOn = onTimerTask.compareAndSet(false, true);
             if (turnOn) {
                 timer.newTimeout(new ActiveThreadTimerTask(), flushDelay, TimeUnit.MILLISECONDS);
+                timer.newTimeout(new HealthCheckTimerTask(), DEFAULT_HEALTH_CHECk_DELAY, TimeUnit.MILLISECONDS);
             }
         }
 
@@ -140,25 +147,45 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     protected void handleTextMessage(WebSocketSession webSocketSession, TextMessage message) throws Exception {
         logger.info("handleTextMessage. session:{}, remote:{}, message:{}.", webSocketSession, webSocketSession.getRemoteAddress(), message.getPayload());
 
-        String request = message.getPayload();
-        if (request != null && request.startsWith(APPLICATION_NAME_KEY + "=")) {
-            String applicationName = request.substring(APPLICATION_NAME_KEY.length() + 1);
-            synchronized (lock) {
-                if (StringUtils.isEquals(applicationName, (String) webSocketSession.getAttributes().get(APPLICATION_NAME_KEY))) {
-                    return;
-                }
-
-                unbindingResponseAggregator(webSocketSession);
-                bindingResponseAggregator(webSocketSession, applicationName);
-            }
+        PinpointWebSocketMessage webSocketMessage = messageConverter.getWebSocketMessage(message.getPayload());
+        switch (webSocketMessage.getType()) {
+            case REQUEST:
+                handleRequestMessage0(webSocketSession, (RequestMessage) webSocketMessage);
+            case PONG:
+                handlePongMessage0(webSocketSession, (PongMessage) webSocketMessage);
         }
 
         // this method will be checked socket status.
         super.handleTextMessage(webSocketSession, message);
     }
 
+    private void handleRequestMessage0(WebSocketSession webSocketSession, RequestMessage requestMessage) {
+        String command = requestMessage.getCommand();
+
+        if (API_ACTIVE_THREAD_COUNT.equals(command)) {
+            String applicationName = MapUtils.getString(requestMessage.getParams(), APPLICATION_NAME_KEY);
+            if (applicationName != null) {
+                synchronized (lock) {
+                    if (StringUtils.isEquals(applicationName, (String) webSocketSession.getAttributes().get(APPLICATION_NAME_KEY))) {
+                        return;
+                    }
+
+                    unbindingResponseAggregator(webSocketSession);
+                    bindingResponseAggregator(webSocketSession, applicationName);
+                }
+            }
+        }
+    }
+
+    private void handlePongMessage0(WebSocketSession webSocketSession, PongMessage pongMessage) {
+        Object healthCheckWait = webSocketSession.getAttributes().get(HEALTH_CHECK_WAIT_KEY);
+        if (healthCheckWait != null && healthCheckWait instanceof AtomicBoolean) {
+            ((AtomicBoolean) healthCheckWait).compareAndSet(true, false);
+        }
+    }
+
     @Override
-    protected void handlePongMessage(WebSocketSession webSocketSession, PongMessage message) throws Exception {
+    protected void handlePongMessage(WebSocketSession webSocketSession, org.springframework.web.socket.PongMessage message) throws Exception {
         logger.info("handlePongMessage. session:{}, remote:{}, message:{}.", webSocketSession, webSocketSession.getRemoteAddress(), message.getPayload());
 
         super.handlePongMessage(webSocketSession, message);
@@ -233,4 +260,57 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
     }
 
+
+    private class HealthCheckTimerTask implements TimerTask {
+
+        @Override
+        public void run(Timeout timeout) throws Exception {
+            try {
+                logger.info("HealthCheckTimerTask started.");
+
+                // check session state.
+                List<WebSocketSession> webSocketSessionList = new ArrayList<WebSocketSession>(sessionRepository);
+                for (WebSocketSession session : webSocketSessionList) {
+                    if (!session.isOpen()) {
+                        continue;
+                    }
+
+                    Object untilWait = session.getAttributes().get(HEALTH_CHECK_WAIT_KEY);
+                    if (untilWait != null && untilWait instanceof AtomicBoolean) {
+                        if (((AtomicBoolean) untilWait).get()) {
+                            session.close(CloseStatus.SESSION_NOT_RELIABLE);
+                        }
+                    } else {
+                        session.getAttributes().put(HEALTH_CHECK_WAIT_KEY, new AtomicBoolean(false));
+                    }
+                }
+
+                // send healthcheck packet
+                String pingTextMessage = messageConverter.getPingTextMessage();
+                TextMessage pingMessage = new TextMessage(pingTextMessage);
+
+                webSocketSessionList = new ArrayList<WebSocketSession>(sessionRepository);
+                for (WebSocketSession session : webSocketSessionList) {
+                    if (!session.isOpen()) {
+                        continue;
+                    }
+
+                    Object untilWait = session.getAttributes().get(HEALTH_CHECK_WAIT_KEY);
+                    if (untilWait != null && untilWait instanceof AtomicBoolean) {
+                        ((AtomicBoolean) untilWait).compareAndSet(false, true);
+                    } else {
+                        session.getAttributes().put(HEALTH_CHECK_WAIT_KEY, new AtomicBoolean(true));
+                    }
+
+                    session.sendMessage(pingMessage);
+                }
+            } finally {
+                if (timer != null && onTimerTask.get()) {
+                    timer.newTimeout(this, DEFAULT_HEALTH_CHECk_DELAY, TimeUnit.MILLISECONDS);
+                }
+            }
+
+        }
+
+    }
 }
