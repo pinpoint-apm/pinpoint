@@ -177,11 +177,11 @@ public class UserGroupController {
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public Map<String, String> handleException(Exception e) {
-        logger.error(" Exception occured while trying to CRUD userGroup information", e);
+        logger.error(" Exception occurred while trying to CRUD userGroup information", e);
         
         Map<String, String> result = new HashMap<String, String>();
         result.put("errorCode", "500");
-        result.put("errorMessage", "Exception occured while trying to CRUD userGroup information");
+        result.put("errorMessage", "Exception occurred while trying to CRUD userGroup information");
         return result;
     }
 }

@@ -323,7 +323,7 @@ public class JavassistMethod implements InstrumentMethod {
 
         if (interceptorMethod == null) {
             if (isDebug) {
-                logger.debug("Skip adding after interceptor becuase the interceptor doesn't have after method: {}", interceptorClass.getName());
+                logger.debug("Skip adding after interceptor because the interceptor doesn't have after method: {}", interceptorClass.getName());
             }
             return;
         }
@@ -356,7 +356,7 @@ public class JavassistMethod implements InstrumentMethod {
 
         if (interceptorMethod == null) {
             if (isDebug) {
-                logger.debug("Skip adding before interceptor becuase the interceptor doesn't have before method: {}", interceptorClass.getName());
+                logger.debug("Skip adding before interceptor because the interceptor doesn't have before method: {}", interceptorClass.getName());
             }
             return -1;
         }
