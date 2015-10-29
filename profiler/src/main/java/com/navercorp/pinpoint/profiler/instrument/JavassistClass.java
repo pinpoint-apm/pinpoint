@@ -340,6 +340,7 @@ public class JavassistClass implements InstrumentClass {
         addField0(accessorTypeName, null);
     }
 
+    @Deprecated
     @Override
     public void addField(String accessorTypeName, String initValExp) throws InstrumentException {
         addField0(accessorTypeName, initValExp);

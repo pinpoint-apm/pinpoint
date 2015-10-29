@@ -43,62 +43,36 @@ public class GuardInstrumentor implements Instrumentor {
 
     @Override
     public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classfileBuffer) {
-        if (className == null) {
-            throw new NullPointerException("className must not be null");
-        }
-
         checkOpen();
         return instrument.getInstrumentClass(classLoader, className, classfileBuffer);
     }
 
     @Override
     public boolean exist(ClassLoader classLoader, String className) {
-        if (className == null) {
-            throw new NullPointerException("className must not be null");
-        }
         checkOpen();
         return instrument.exist(classLoader, className);
     }
 
     @Override
     public InterceptorGroup getInterceptorGroup(String name) {
-        if (name == null) {
-            throw new NullPointerException("name must not be null");
-        }
         checkOpen();
         return instrument.getInterceptorGroup(name);
     }
 
     @Override
     public <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className) {
-        if (className == null) {
-            throw new NullPointerException("className must not be null");
-        }
         checkOpen();
         return instrument.injectClass(targetClassLoader, className);
     }
 
     @Override
     public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, TransformCallback transformCallback) {
-        if (targetClassName == null) {
-            throw new NullPointerException("targetClassName must not be null");
-        }
-        if (transformCallback == null) {
-            throw new NullPointerException("transformCallback must not be null");
-        }
-
         checkOpen();
         instrument.addClassFileTransformer(classLoader, targetClassName, transformCallback);
     }
 
     @Override
     public void retransform(Class<?> target, TransformCallback transformCallback) {
-        if (target == null) {
-            throw new NullPointerException("target must not be null");
-        }
-        if (transformCallback == null) {
-            throw new NullPointerException("transformCallback must not be null");
-        }
         checkOpen();
         instrument.retransform(target, transformCallback);
     }
