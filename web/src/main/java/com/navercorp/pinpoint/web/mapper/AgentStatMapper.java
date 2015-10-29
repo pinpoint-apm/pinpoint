@@ -106,9 +106,6 @@ public class AgentStatMapper implements RowMapper<List<AgentStat>> {
         if (qualifierMap.containsKey(AGENT_STAT_COL_SYS_CPU)) {
             agentStat.setSystemCpuUsage(Bytes.toDouble(qualifierMap.get(AGENT_STAT_COL_SYS_CPU)));
         }
-        if (qualifierMap.containsKey(AGENT_STAT_COL_TRANSACTION_VERSION)) {
-            agentStat.setTransactionVersion(Bytes.toShort(qualifierMap.get(AGENT_STAT_COL_TRANSACTION_VERSION)));
-        }
         if (qualifierMap.containsKey(AGENT_STAT_COL_TRANSACTION_SAMPLED_NEW)) {
             agentStat.setSampledNewCount(Bytes.toLong(qualifierMap.get(AGENT_STAT_COL_TRANSACTION_SAMPLED_NEW)));
         }

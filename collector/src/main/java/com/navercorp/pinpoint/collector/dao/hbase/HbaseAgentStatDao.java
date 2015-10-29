@@ -90,7 +90,6 @@ public class HbaseAgentStatDao implements AgentStatDao {
         // Transaction
         if (agentStat.isSetTransaction()) {
             TTransaction transaction = agentStat.getTransaction();
-            put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_COL_TRANSACTION_VERSION, Bytes.toBytes(transaction.getVersion()));
             put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_COL_TRANSACTION_SAMPLED_NEW, Bytes.toBytes(transaction.getSampledNewCount()));
             put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_COL_TRANSACTION_SAMPLED_CONTINUATION, Bytes.toBytes(transaction.getSampledContinuationCount()));
             put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_COL_TRANSACTION_UNSAMPLED_NEW, Bytes.toBytes(transaction.getUnsampledNewCount()));
