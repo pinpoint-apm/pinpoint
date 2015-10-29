@@ -85,7 +85,7 @@
 	    	$scope.hasCriticalError = false;
 	    	$scope.sumChartColor 	= ["rgba(44, 160, 44, 1)", 	"rgba(60, 129, 250, 1)", 	"rgba(248, 199, 49, 1)", 	"rgba(246, 145, 36, 1)" ];
 	    	$scope.agentChartColor 	= ["rgba(44, 160, 44, .8)", "rgba(60, 129, 250, .8)", 	"rgba(248, 199, 49, .8)", 	"rgba(246, 145, 36, .8)"];
-	    	$scope.requestLabelNames= [ "Fast", "Normal", "Slow", "Very Slow"];
+	    	$scope.requestLabelNames= [ "1s", "3s", "5s", "Slow"];
 	    	$scope.currentAgentCount = 0;
 	    	$scope.currentApplicationName = "";
 	    	$scope.bInitialized = false;

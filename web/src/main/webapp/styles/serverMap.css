@@ -218,7 +218,6 @@
 	font-size: 10px;
 	word-wrap: normal;
 	text-align: center;
-	font-family: Times;
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	background-color: rgba(205, 211, 33, 0.5);
@@ -265,8 +264,11 @@
 	padding-top: 40px;
 	font-weight: bold;
 }
+.realtime .request-label text {
+	font-size: 11px;
+}
 .realtime .request-count text {
-	font-size: 12px;
+	font-size: 14px;
 	font-weight: bold;
 }
 .realtime .chart-tooltip text { 
