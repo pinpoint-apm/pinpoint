@@ -73,3 +73,7 @@
     margin:0;
     height:28px;
 }
+.navbar .btn-group-sm .btn {
+	padding-left:8px;
+	padding-right: 8x;
+}

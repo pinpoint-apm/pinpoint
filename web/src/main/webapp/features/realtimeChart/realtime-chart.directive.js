@@ -63,7 +63,7 @@
             	    var chartDataQueue = [];
             	    initChartData();
 
-            	    var d3svg, d3svgX, d3svgY, d3grid, d3path, d3area, d3labels, d3tooltip, d3tooltipTextGroup, d3tooltipDate, d3errorLabel;
+            	    var d3svg, d3svgX, d3svgY, d3grid, d3path, d3area, d3labels, d3totalLabel, d3tooltip, d3tooltipTextGroup, d3tooltipDate, d3errorLabel;
             	    var d3stack = d3.layout.stack().y(function(d) { return d.y; });
             	    var d3transition = d3.select({}).transition().duration(oInnerOption.transaction.duration).ease(oInnerOption.transaction.ease);
             	    d3stack(chartDataQueue);
@@ -252,23 +252,68 @@
             	    }
             	    function initLabels( datum ) {
             	        if ( oOuterOption.showExtraInfo === false ) return;
+            	        
+            	        d3svg.append("g")
+	    	                .attr("transform", function(d, i) {
+	    	                    return "translate(" + (oOuterOption.width - oInnerOption.margin.left - oInnerOption.margin.right + 4 + 32) + ",10)";
+	    	                })
+	    	                .attr("class", "request-label")
+	    	                .append("text")
+            	        	.attr("text-anchor", "end")
+            	        	.attr("fill", "#000")
+            	        	.style("font-size", "14px")
+            	        	.style("font-weight", "bold")
+            	        	.attr("y", "0%")
+            	        	.text("Total");
+            	        
+            	        d3svg.append("g")
+	    	                .attr("transform", function(d, i) {
+	    	                    return "translate(" + (oOuterOption.width - oInnerOption.margin.left - oInnerOption.margin.right + 4 + 32) + ",10)";
+	    	                })
+	    	                .attr("class", "request-label")
+	    	                .selectAll("text")
+	    	                .data( oOuterOption.requestLabel )
+	    	                .enter()
+	    	                .append("text")
+	    	                .attr("text-anchor", "end")
+	    	                .attr("fill", "#9B9B9B")
+	    	                .attr("y", function(d, i) {
+	    	                	return ((4-i) * 20) + "%";
+	    	                })
+	    	                .text(function(d, i) {
+	    	                    return oOuterOption.requestLabel[i];
+	    	                });
+
+            	        d3totalLabel = d3svg.append("g")
+	    	                .attr("transform", function(d, i) {
+	    	                    return "translate(" + (oOuterOption.width - oInnerOption.margin.left - oInnerOption.margin.right + 4 + 70) + ",10)";
+	    	                })
+	    	                .attr("class", "request-count")
+	    	                .append("text")
+	        	        	.attr("text-anchor", "end")
+	        	        	.attr("fill", "#000")
+	        	        	.attr("y", "0%")
+	        	        	.text("0");
+    	                
             	        d3labels = d3svg.append("g")
         	                .attr("transform", function(d, i) {
-        	                    return "translate(" + (oOuterOption.width - oInnerOption.margin.left - oInnerOption.margin.right + 4) + ",10)";
+        	                    return "translate(" + (oOuterOption.width - oInnerOption.margin.left - oInnerOption.margin.right + 4 + 70) + ",10)";
         	                })
         	                .attr("class", "request-count")
         	                .selectAll("text")
         	                .data( oOuterOption.requestLabel )
         	                .enter()
         	                .append("text")
+        	                .attr("text-anchor", "end")
         	                .attr("y", function(d, i) {
-        	                    return ( (oOuterOption.requestLabel.length - i - 1) / oOuterOption.requestLabel.length) * 100 + "%";
+        	                	return ((4-i) * 20) + "%";
+//        	                    return ( (oOuterOption.requestLabel.length - i - 1) / oOuterOption.requestLabel.length) * 100 + 5 + "%";
         	                })
         	                .attr("fill", function(d, i) {
         	                    return oOuterOption.requestColor[i];
         	                })
         	                .text(function(d, i) {
-        	                    return oOuterOption.requestLabel[i];
+        	                	return "0";
         	                });
             	    }
             	    function initErrorLabel() {
@@ -279,11 +324,19 @@
             	    }
             	    function resetLabelData( datum ) {
             	        if ( oOuterOption.showExtraInfo === false ) return;
+            	        var subSum = 0;
             	        d3labels
         	                .data( datum )
         	                .text(function(d, i) {
-        	                    return typeof d.y !== "undefined" ? ( d.y + " : " + oOuterOption.requestLabel[i] ) : oOuterOption.requestLabel[i];
+//        	                    return typeof d.y !== "undefined" ? ( d.y + " : " + oOuterOption.requestLabel[i] ) : oOuterOption.requestLabel[i];
+        	                	if ( typeof d.y !== "undefined" ) {
+        	                		subSum += d.y;
+        	                		return d.y;
+        	                	}
+        	                	return "";
         	                });
+            	        
+            	        d3totalLabel.text(subSum);
             	    }
             	    function tick() {
             	        d3transition = d3transition.each(function() {
