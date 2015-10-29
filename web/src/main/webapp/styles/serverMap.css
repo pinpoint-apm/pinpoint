@@ -148,7 +148,7 @@
 
 .realtime {
 	height: 180px;
-	border: 1px solid #64a71a;
+	border: 1px solid #398439;
 	bottom: 0px;
 	z-index: 10;
 	position: absolute;
@@ -157,7 +157,7 @@
 .realtime .handle {
 	position: absolute;
 	z-index: 9;
-	top: -21px;
+	top: -22px;
 	right: -2px;
 }
 .realtime .handle .btn {
@@ -168,7 +168,7 @@
 	width: 100%;
 	padding: 2px 0px 2px 6px;
 	position: absolute;
-	background-color: #7ED321;
+	background-color: #5cb85c;
 }
 .realtime .chart-close {
 	float: right;
@@ -188,7 +188,7 @@
 	position: relative;
 	text-align: center;
 	background-color: #FFF;
-	border: 1px solid 
+	border: 1px solid #000;
 }
 .realtime .agent-sum-chart div {
 	font-weight: bold;
@@ -273,7 +273,7 @@
 	font-size: 12px;
 }
 .realtime .error {
-	fill: #F00;
+	fill: #C80279;
 	font-weight: bold;
 	text-anchor: middle;
 }
