@@ -314,6 +314,22 @@
             	            .attr("transform", "translate(" + d3svgX(0) + ")");
             	    }
             	    tick();
+            	    function checkSleeping() {
+            	    	if ( oOuterOption.showExtraInfo ) return;
+            	    	var bHasData = false;
+            	    	for( var i = 0 ; i < chartDataQueue.length ; i++ ) {
+            	    		var aInner = chartDataQueue[i];
+            	    		for( var j = 0 ; j < aInner.length ; j++ ) {
+            	    			if ( aInner[j].y !== 0 ) {
+            	    				bHasData = true;
+            	    				break;
+            	    			}
+            	    		}
+            	    	}
+            	    	if ( bHasData === false ) {
+            	    		d3errorLabel.text("Sleeping...");
+            	    	}
+            	    }
 	            	    
 	            	scope.$on('realtimeChartDirective.onData.' + oOuterOption.namespace, function (event, aNewRequestCount, timeStamp, yValue, bAllError) {
 	            		maxY = yValue;
@@ -325,6 +341,7 @@
 		            				d: timeStamp
 		            			}
 		            		}) );
+		            		checkSleeping();
 	            		}
 	    	        });
 	            	scope.$on('realtimeChartDirective.onError.' + oOuterOption.namespace, function (event, errorMessage, timeStamp, yValue) {
