@@ -36,6 +36,9 @@ import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @Author Taejin Koo
  */
@@ -55,6 +58,13 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
     private final AgentActiveThreadCount defaultFailedResponse;
     private final MessageListener messageListener;
     private final StateChangeListener stateChangeListener;
+
+    private static final Map<String, String> USER_ERROR_MESSAGE_MAP = new HashMap<String, String>();
+    static {
+        USER_ERROR_MESSAGE_MAP.put(StreamCode.TYPE_UNSUPPORT.name(), "UNSUPPORTED VERSION");
+        USER_ERROR_MESSAGE_MAP.put(StreamCode.CONNECTION_NOT_FOUND.name(), "NOT FOUND");
+        USER_ERROR_MESSAGE_MAP.put(StreamCode.CONNECTION_UNSUPPORT.name(), "CLUSTER OPTION NOT SET");
+    }
 
     private volatile boolean started = false;
     private volatile boolean active = false;
@@ -141,20 +151,20 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
             try {
                 ClientStreamChannelContext clientStreamChannelContext = agentService.openStream(agentInfo, COMMAND_INSTANCE, messageListener, stateChangeListener);
                 if (clientStreamChannelContext == null) {
-                    defaultFailedResponse.setFail(StreamCode.CONNECTION_NOT_FOUND.name());
+                    setDefaultErrorMessage(StreamCode.CONNECTION_NOT_FOUND.name());
                     workerActiveManager.addReactiveWorker(agentInfo);
                 } else {
                     if (clientStreamChannelContext.getCreateFailPacket() == null) {
                         streamChannel = clientStreamChannelContext.getStreamChannel();
-                        defaultFailedResponse.setFail(TRouteResult.TIMEOUT.name());
+                        setDefaultErrorMessage(TRouteResult.TIMEOUT.name());
                         active = true;
                     } else {
                         StreamCreateFailPacket createFailPacket = clientStreamChannelContext.getCreateFailPacket();
-                        defaultFailedResponse.setFail(createFailPacket.getCode().name());
+                        setDefaultErrorMessage(createFailPacket.getCode().name());
                     }
                 }
             } catch (TException exception) {
-                defaultFailedResponse.setFail(TRouteResult.NOT_SUPPORTED_REQUEST.name());
+                setDefaultErrorMessage(TRouteResult.NOT_SUPPORTED_REQUEST.name());
             }
 
             return active;
@@ -174,6 +184,20 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
             streamChannel.close();
         }
         defaultFailedResponse.setFail(StreamCode.STATE_CLOSED.name());
+    }
+
+    private void setDefaultErrorMessage(String message) {
+        String userErrorMessage = getUserErrorMessage(message);
+        defaultFailedResponse.setFail(userErrorMessage);
+    }
+
+    private String getUserErrorMessage(String errorMessage) {
+        String userErrorMessage = USER_ERROR_MESSAGE_MAP.get(errorMessage);
+        if (userErrorMessage != null) {
+            return userErrorMessage;
+        } else {
+            return errorMessage;
+        }
     }
 
     public String getAgentId() {
