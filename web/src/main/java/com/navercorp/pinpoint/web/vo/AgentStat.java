@@ -39,7 +39,6 @@ public class AgentStat {
     private double jvmCpuUsage = NOT_COLLECTED;
     private double systemCpuUsage = NOT_COLLECTED;
     
-    private short transactionVersion;
     private long sampledNewCount = NOT_COLLECTED;
     private long sampledContinuationCount = NOT_COLLECTED;
     private long unsampledNewCount = NOT_COLLECTED;
@@ -144,14 +143,6 @@ public class AgentStat {
         this.systemCpuUsage = systemCpuUsage;
     }
 
-    public short getTransactionVersion() {
-        return transactionVersion;
-    }
-
-    public void setTransactionVersion(short transactionVersion) {
-        this.transactionVersion = transactionVersion;
-    }
-
     public long getSampledNewCount() {
         return sampledNewCount;
     }
@@ -190,9 +181,8 @@ public class AgentStat {
                 + ", gcType=" + gcType + ", gcOldCount=" + gcOldCount + ", gcOldTime=" + gcOldTime
                 + ", heapUsed=" + heapUsed + ", heapMax=" + heapMax + ", nonHeapUsed=" + nonHeapUsed
                 + ", nonHeapMax=" + nonHeapMax + ", jvmCpuUsage=" + jvmCpuUsage + ", systemCpuUsage="+ systemCpuUsage
-                + ", transactionVersion=" + transactionVersion + ", sampledNewCount=" + sampledNewCount
-                + ", sampledContinuationCount=" + sampledContinuationCount + ", unsampledNewCount=" + unsampledNewCount
-                + ", unsampledContinuationCount=" + unsampledContinuationCount + "]";
+                + ", sampledNewCount=" + sampledNewCount + ", sampledContinuationCount=" + sampledContinuationCount
+                + ", unsampledNewCount=" + unsampledNewCount + ", unsampledContinuationCount=" + unsampledContinuationCount + "]";
     }
 
 }

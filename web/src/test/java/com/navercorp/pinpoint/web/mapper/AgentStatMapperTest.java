@@ -77,7 +77,6 @@ public class AgentStatMapperTest {
     private static final double JVM_CPU_USAGE = 10;
     private static final double SYS_CPU_USAGE = 20;
 
-    private static final short TRANSACTION_VERSION = 1;
     private static final long SAMPLED_NEW_COUNT = 100L;
     private static final long SAMPLED_CONTINUATION_COUNT = 200L;
     private static final long UNSAMPLED_NEW_COUNT = 50L;
@@ -109,7 +108,6 @@ public class AgentStatMapperTest {
                 createCell(AGENT_STAT_COL_NON_HEAP_MAX, Bytes.toBytes(NON_HEAP_MAX)),
                 createCell(AGENT_STAT_COL_JVM_CPU, Bytes.toBytes(JVM_CPU_USAGE)),
                 createCell(AGENT_STAT_COL_SYS_CPU, Bytes.toBytes(SYS_CPU_USAGE)),
-                createCell(AGENT_STAT_COL_TRANSACTION_VERSION, Bytes.toBytes(TRANSACTION_VERSION)),
                 createCell(AGENT_STAT_COL_TRANSACTION_SAMPLED_NEW, Bytes.toBytes(SAMPLED_NEW_COUNT)),
                 createCell(AGENT_STAT_COL_TRANSACTION_SAMPLED_CONTINUATION, Bytes.toBytes(SAMPLED_CONTINUATION_COUNT)),
                 createCell(AGENT_STAT_COL_TRANSACTION_UNSAMPLED_NEW, Bytes.toBytes(UNSAMPLED_NEW_COUNT)),
@@ -143,7 +141,6 @@ public class AgentStatMapperTest {
         assertJvmGc(agentStat);
         assertEquals(AgentStat.NOT_COLLECTED, agentStat.getJvmCpuUsage(), DELTA);
         assertEquals(AgentStat.NOT_COLLECTED, agentStat.getSystemCpuUsage(), DELTA);
-        assertEquals(0, agentStat.getTransactionVersion());
         assertEquals(AgentStat.NOT_COLLECTED, agentStat.getSampledNewCount());
         assertEquals(AgentStat.NOT_COLLECTED, agentStat.getSampledContinuationCount());
         assertEquals(AgentStat.NOT_COLLECTED, agentStat.getUnsampledNewCount());
@@ -164,7 +161,6 @@ public class AgentStatMapperTest {
         assertEquals(0, agentStat.getCollectInterval());
         assertJvmGc(agentStat);
         assertCpuUsage(agentStat);
-        assertEquals(0, agentStat.getTransactionVersion());
         assertEquals(AgentStat.NOT_COLLECTED, agentStat.getSampledNewCount());
         assertEquals(AgentStat.NOT_COLLECTED, agentStat.getSampledContinuationCount());
         assertEquals(AgentStat.NOT_COLLECTED, agentStat.getUnsampledNewCount());
@@ -189,7 +185,6 @@ public class AgentStatMapperTest {
     }
 
     private void assertTransaction(AgentStat agentStat) {
-        assertEquals(TRANSACTION_VERSION, agentStat.getTransactionVersion());
         assertEquals(SAMPLED_NEW_COUNT, agentStat.getSampledNewCount());
         assertEquals(SAMPLED_CONTINUATION_COUNT, agentStat.getSampledContinuationCount());
         assertEquals(UNSAMPLED_NEW_COUNT, agentStat.getUnsampledNewCount());
