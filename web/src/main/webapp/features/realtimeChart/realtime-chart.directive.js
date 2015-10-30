@@ -20,7 +20,7 @@
 			WIDTH: "width"
 		},
 		responseCode: {
-			ERROR: 111,
+			ERROR_BLACK: 111,
 			TIMEOUT: 211
 		}
 	});
@@ -429,7 +429,7 @@
 		            		}
 		            		timeoutCount++;
 	            		} else {
-	            			setErrorMessage( oError.code === cfg.responseCode.ERROR, oError.message.split("_") );
+	            			setErrorMessage( oError.code !== cfg.responseCode.ERROR_BLACK, oError.message.split("_") );
 	            		}
 	            		
 	            	});
