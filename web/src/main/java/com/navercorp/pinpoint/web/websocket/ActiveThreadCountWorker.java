@@ -60,10 +60,13 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
     private final StateChangeListener stateChangeListener;
 
     private static final Map<String, String> USER_ERROR_MESSAGE_MAP = new HashMap<String, String>();
+    private static final String INTERNAL_ERROR_MESSAGE = "PINPOINT INTERNAL ERROR";
     static {
         USER_ERROR_MESSAGE_MAP.put(StreamCode.TYPE_UNSUPPORT.name(), "UNSUPPORTED VERSION");
         USER_ERROR_MESSAGE_MAP.put(StreamCode.CONNECTION_NOT_FOUND.name(), "NOT FOUND");
         USER_ERROR_MESSAGE_MAP.put(StreamCode.CONNECTION_UNSUPPORT.name(), "CLUSTER OPTION NOT SET");
+        USER_ERROR_MESSAGE_MAP.put(StreamCode.STATE_CLOSED.name(), "CLUSTER CHANNEL CLOSED");
+        USER_ERROR_MESSAGE_MAP.put(TRouteResult.TIMEOUT.name(), "TIMEOUT");
     }
 
     private volatile boolean started = false;
@@ -183,7 +186,7 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
         if (streamChannel != null) {
             streamChannel.close();
         }
-        defaultFailedResponse.setFail(StreamCode.STATE_CLOSED.name());
+        setDefaultErrorMessage(StreamCode.STATE_CLOSED.name());
     }
 
     private void setDefaultErrorMessage(String message) {
@@ -196,7 +199,7 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
         if (userErrorMessage != null) {
             return userErrorMessage;
         } else {
-            return errorMessage;
+            return INTERNAL_ERROR_MESSAGE;
         }
     }
 
@@ -222,8 +225,7 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
         @Override
         public void handleStreamClose(ClientStreamChannelContext streamChannelContext, StreamClosePacket packet) {
             LOGGING.handleStreamClose(streamChannelContext, packet);
-
-            defaultFailedResponse.setFail(StreamCode.STATE_CLOSED.name());
+            setDefaultErrorMessage(StreamCode.STATE_CLOSED.name());
         }
 
         private AgentActiveThreadCount getAgentActiveThreadCount(TBase routeResponse) {
@@ -236,10 +238,12 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
                 if (activeThreadCountResponse != null && (activeThreadCountResponse instanceof TCmdActiveThreadCountRes)) {
                     agentActiveThreadCount.setResult((TCmdActiveThreadCountRes) activeThreadCountResponse);
                 } else {
-                    agentActiveThreadCount.setFail("ROUTE_ERROR:" + TRouteResult.NOT_SUPPORTED_RESPONSE.name());
+                    logger.warn("getAgentActiveThreadCount failed. applicationName:{}, agentId:{}, cause:{}", applicationName, agentId, ((TCommandTransferResponse) routeResponse).getRouteResult());
+                    agentActiveThreadCount.setFail(INTERNAL_ERROR_MESSAGE);
                 }
             } else {
-                agentActiveThreadCount.setFail("ROUTE_ERROR:" + TRouteResult.BAD_RESPONSE.name());
+                logger.warn("getAgentActiveThreadCount failed. applicationName:{}, agentId:{}", applicationName, agentId);
+                agentActiveThreadCount.setFail(INTERNAL_ERROR_MESSAGE);
             }
 
             return agentActiveThreadCount;
@@ -259,7 +263,7 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
                     if (isTurnOn()) {
                         active = false;
                         workerActiveManager.addReactiveWorker(agentId);
-                        defaultFailedResponse.setFail(StreamCode.STATE_CLOSED.name());
+                        setDefaultErrorMessage(StreamCode.STATE_CLOSED.name());
                     }
                     break;
             }
