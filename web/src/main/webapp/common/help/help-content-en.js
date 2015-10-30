@@ -467,7 +467,19 @@
 						desc: "Both the JVM's and the system's CPU usage are collected"
 					}]
 				}]
-			}
+			},
+            tps: {
+                mainStyle: "",
+                title: "TPS",
+                desc: "Transactions per second received by the server",
+                category: [{
+                    title: "[Legend]",
+                    items: [{
+                        name: "TPS",
+                        desc: "Number of transactions received by the server every second"
+                    }]
+                }]
+            }
 		},
 		callTree: {
 			column: {

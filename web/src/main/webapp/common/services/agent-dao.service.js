@@ -167,6 +167,38 @@
 	            
 	            return newData;
 	        };
+    
+            /**
+             * parse tps chart data for amcharts
+             * @param tps
+             * @param agentStat
+             * @returns {Array}
+             */
+	        this.parseTpsChartDataForAmcharts = function (tps, agentStat) {
+	            // TPS data availability check
+	            var totalTpsData = agentStat.charts['TPS_TOTAL'];
+	            if (totalTpsData) {
+	                tps.isAvailable = true;
+	            } else {
+	                return;
+	            }
+	            var newData = [],
+	            DATA_UNAVAILABLE = -1,
+	            pointsTotalTps = totalTpsData.points;
+	            
+	            for (var i = 0; i < pointsTotalTps.length; ++i) {
+	                var thisData = {
+	                        time: moment(pointsTotalTps[i].timestamp).toString('YYYY-MM-dd HH:mm:ss')
+	                };
+	                var totalTps = typeof agentStat.charts['TPS_TOTAL'].points[i].avgVal == "number" ? agentStat.charts['TPS_TOTAL'].points[i].avgVal.toFixed(2) : 0.00;
+	                if (!(totalTps < 0)) {
+	                    thisData.totalTps = totalTps;
+	                }
+	                newData.push(thisData);
+	            }
+	            
+	            return newData;
+	        }
 	    }
 	]);
 })();
