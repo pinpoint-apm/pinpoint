@@ -14,8 +14,8 @@
 	    }
 	});	
 
-	pinpointApp.controller('GeneralCtrl', [ 'GeneralConfig', '$scope', '$rootScope', '$element', '$document', 'PreferenceService',
-	    function ($config, $scope, $rootScope, $element, $document, preferenceService) {
+	pinpointApp.controller('GeneralCtrl', [ 'GeneralConfig', '$scope', '$rootScope', '$element', '$document', 'PreferenceService', 'AnalyticsService',
+	    function ($config, $scope, $rootScope, $element, $document, preferenceService, analyticsService) {
 
 			$scope.$on("general.configuration.show", function() {
 			});
