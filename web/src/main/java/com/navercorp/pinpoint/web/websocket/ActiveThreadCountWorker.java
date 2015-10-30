@@ -36,9 +36,6 @@ import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * @Author Taejin Koo
  */
@@ -46,6 +43,9 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
 
     private static final ClientStreamChannelMessageListener LOGGING = LoggingStreamChannelMessageListener.CLIENT_LISTENER;
     private static final TCmdActiveThreadCount COMMAND_INSTANCE = new TCmdActiveThreadCount();
+
+    private static final ActiveThreadCountErrorType INTERNAL_ERROR = ActiveThreadCountErrorType.PINPOINT_INTERNAL_ERROR;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Object lock = new Object();
     private final AgentService agentService;
@@ -58,16 +58,6 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
     private final AgentActiveThreadCount defaultFailedResponse;
     private final MessageListener messageListener;
     private final StateChangeListener stateChangeListener;
-
-    private static final Map<String, String> USER_ERROR_MESSAGE_MAP = new HashMap<String, String>();
-    private static final String INTERNAL_ERROR_MESSAGE = "PINPOINT INTERNAL ERROR";
-    static {
-        USER_ERROR_MESSAGE_MAP.put(StreamCode.TYPE_UNSUPPORT.name(), "UNSUPPORTED VERSION");
-        USER_ERROR_MESSAGE_MAP.put(StreamCode.CONNECTION_NOT_FOUND.name(), "NOT FOUND");
-        USER_ERROR_MESSAGE_MAP.put(StreamCode.CONNECTION_UNSUPPORT.name(), "CLUSTER OPTION NOT SET");
-        USER_ERROR_MESSAGE_MAP.put(StreamCode.STATE_CLOSED.name(), "CLUSTER CHANNEL CLOSED");
-        USER_ERROR_MESSAGE_MAP.put(TRouteResult.TIMEOUT.name(), "TIMEOUT");
-    }
 
     private volatile boolean started = false;
     private volatile boolean active = false;
@@ -190,17 +180,8 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
     }
 
     private void setDefaultErrorMessage(String message) {
-        String userErrorMessage = getUserErrorMessage(message);
-        defaultFailedResponse.setFail(userErrorMessage);
-    }
-
-    private String getUserErrorMessage(String errorMessage) {
-        String userErrorMessage = USER_ERROR_MESSAGE_MAP.get(errorMessage);
-        if (userErrorMessage != null) {
-            return userErrorMessage;
-        } else {
-            return INTERNAL_ERROR_MESSAGE;
-        }
+        ActiveThreadCountErrorType errorType = ActiveThreadCountErrorType.getType(message);
+        defaultFailedResponse.setFail(errorType.getCode(), errorType.getMessage());
     }
 
     public String getAgentId() {
@@ -239,11 +220,11 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
                     agentActiveThreadCount.setResult((TCmdActiveThreadCountRes) activeThreadCountResponse);
                 } else {
                     logger.warn("getAgentActiveThreadCount failed. applicationName:{}, agentId:{}, cause:{}", applicationName, agentId, ((TCommandTransferResponse) routeResponse).getRouteResult());
-                    agentActiveThreadCount.setFail(INTERNAL_ERROR_MESSAGE);
+                    agentActiveThreadCount.setFail(INTERNAL_ERROR.getCode(), INTERNAL_ERROR.getMessage());
                 }
             } else {
                 logger.warn("getAgentActiveThreadCount failed. applicationName:{}, agentId:{}", applicationName, agentId);
-                agentActiveThreadCount.setFail(INTERNAL_ERROR_MESSAGE);
+                agentActiveThreadCount.setFail(INTERNAL_ERROR.getCode(), INTERNAL_ERROR.getMessage());
             }
 
             return agentActiveThreadCount;
