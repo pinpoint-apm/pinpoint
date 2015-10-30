@@ -275,9 +275,16 @@
 	font-size: 12px;
 }
 .realtime .error {
-	fill: #C80279;
 	font-weight: bold;
 	text-anchor: middle;
+}
+.realtime .error tspan:nth-child(1){
+	y: 0px;
+	x: 50%;
+}
+.realtime .error tspan:nth-child(2){
+	x: 50%;
+	dy: 14px;
 }
 .realtime text.date {
 	fill: #000;

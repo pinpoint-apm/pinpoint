@@ -9,6 +9,7 @@
 	 */
 	pinpointApp.constant('realtimeChartDirectiveConfig', {
 		params: {
+			TIMEOUT_MAX_COUNT: "timeoutMaxCount",
 			SHOW_EXTRA_INFO: "showExtraInfo",
 			REQUEST_LABEL: "requestLabel",
 			REQUEST_COLOR: "requestColor",
@@ -17,6 +18,10 @@
 			XCOUNT: "xcount",
 			HEIGHT: "height",
 			WIDTH: "width"
+		},
+		responseCode: {
+			ERROR: 111,
+			TIMEOUT: 211
 		}
 	});
 	
@@ -28,6 +33,7 @@
 	            template: '<svg width="" height=""></svg>',
 	            link: function postLink(scope, element, attrs) {
 	            	var oOuterOption = {
+	            		timeoutMaxCount:parseInt(attrs[cfg.params.TIMEOUT_MAX_COUNT]),
 	            		showExtraInfo:	attrs[cfg.params.SHOW_EXTRA_INFO] === "true",
 	            		requestLabel:	scope[attrs[cfg.params.REQUEST_LABEL]],
 	            		requestColor: 	scope[attrs[cfg.params.CHART_COLOR]],
@@ -61,9 +67,10 @@
             	    var lastPosition = -1;
             	    var passingQueue = [];
             	    var chartDataQueue = [];
+            	    var timeoutCount = 0;
             	    initChartData();
 
-            	    var d3svg, d3svgX, d3svgY, d3grid, d3path, d3area, d3labels, d3totalLabel, d3tooltip, d3tooltipTextGroup, d3tooltipDate, d3errorLabel;
+            	    var d3svg, d3svgX, d3svgY, d3grid, d3path, d3area, d3labels, d3totalLabel, d3tooltip, d3tooltipTextGroup, d3tooltipDate, d3errorLabel, d3errorLabelSpan1, d3errorLabelSpan2;
             	    var d3stack = d3.layout.stack().y(function(d) { return d.y; });
             	    var d3transition = d3.select({}).transition().duration(oInnerOption.transaction.duration).ease(oInnerOption.transaction.ease);
             	    d3stack(chartDataQueue);
@@ -307,7 +314,6 @@
         	                .attr("text-anchor", "end")
         	                .attr("y", function(d, i) {
         	                	return ((4-i) * 20) + "%";
-//        	                    return ( (oOuterOption.requestLabel.length - i - 1) / oOuterOption.requestLabel.length) * 100 + 5 + "%";
         	                })
         	                .attr("fill", function(d, i) {
         	                    return oOuterOption.requestColor[i];
@@ -321,6 +327,21 @@
             	    		.attr("class", "error")
             	    		.attr("y", "40%")
             	    		.attr("x", "50%");
+            	    	d3errorLabelSpan1 = d3errorLabel.append("tspan").attr("x", "50%").attr("dy", "0%");
+            	    	d3errorLabelSpan2 = d3errorLabel.append("tspan").attr("x", "50%").attr("dy", "14px");
+            	    }
+            	    function setErrorMessage( bError, aMessage ) {
+
+           	    		d3errorLabel.style("fill", bError ? "#F00" : "#000");
+            	    	if ( aMessage.length > 1 ) {
+            				d3errorLabel.attr("y", "20%" );
+            				d3errorLabelSpan1.text( aMessage[0] );
+            				d3errorLabelSpan2.text( aMessage[1] );
+            			} else {
+            				d3errorLabel.attr("y", "40%" );
+            				d3errorLabelSpan1.text( aMessage[0] );
+            				d3errorLabelSpan2.text( "" );
+            			}
             	    }
             	    function resetLabelData( datum ) {
             	        if ( oOuterOption.showExtraInfo === false ) return;
@@ -328,7 +349,6 @@
             	        d3labels
         	                .data( datum )
         	                .text(function(d, i) {
-//        	                    return typeof d.y !== "undefined" ? ( d.y + " : " + oOuterOption.requestLabel[i] ) : oOuterOption.requestLabel[i];
         	                	if ( typeof d.y !== "undefined" ) {
         	                		subSum += d.y;
         	                		return d.y;
@@ -380,13 +400,14 @@
             	    		}
             	    	}
             	    	if ( bHasData === false ) {
-            	    		d3errorLabel.text("Sleeping...");
+            	    		setErrorMessage( false, ["No Active Thread"]);
             	    	}
             	    }
 	            	    
 	            	scope.$on('realtimeChartDirective.onData.' + oOuterOption.namespace, function (event, aNewRequestCount, timeStamp, yValue, bAllError) {
 	            		maxY = yValue;
-	            		d3errorLabel.text("");
+	            		timeoutCount = 0;
+	            		setErrorMessage(false, ["", ""]);
 	            		if ( bAllError === false ) {
 		            		passingQueue.push( aNewRequestCount.map(function(v, i) {
 		            			return {
@@ -397,9 +418,20 @@
 		            		checkSleeping();
 	            		}
 	    	        });
-	            	scope.$on('realtimeChartDirective.onError.' + oOuterOption.namespace, function (event, errorMessage, timeStamp, yValue) {
+	            	scope.$on('realtimeChartDirective.onError.' + oOuterOption.namespace, function (event, oError, timeStamp, yValue) {
 	            		maxY = yValue;
-	            		d3errorLabel.text( errorMessage );
+	            		if ( oError.code === cfg.responseCode.TIMEOUT ) {
+		            		if ( timeoutCount < oOuterOption.timeoutMaxCount ) {
+		            			passingQueue.push( chartDataQueue[chartDataQueue.length - 1] );
+		            			checkSleeping();
+		            		} else {
+		            			setErrorMessage( true, oError.message.split("_") );
+		            		}
+		            		timeoutCount++;
+	            		} else {
+	            			setErrorMessage( oError.code === cfg.responseCode.ERROR, oError.message.split("_") );
+	            		}
+	            		
 	            	});
 	            	scope.$on('realtimeChartDirective.clear.' + oOuterOption.namespace, function (event, aNewRequestCount, timeStamp) {
 	            		passingQueue.length = 0;

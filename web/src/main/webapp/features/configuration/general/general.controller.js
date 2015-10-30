@@ -26,11 +26,11 @@
 			$scope.favoriteList = preferenceService.getFavoriteList();
 			
 			$scope.changeDepth = function() {
-				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_GENERAL_SET_DEPTH );
+				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_GENERAL_SET_DEPTH, $scope.depth );
 				preferenceService.setDepth( $scope.depth );
 			};
 			$scope.changePeriod = function() {
-				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_GENERAL_SET_PERIOD );
+				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_GENERAL_SET_PERIOD, $scope.period );
 				preferenceService.setPeriod( $scope.period );
 			};
 			$scope.removeFavorite = function( applicationName ) {
