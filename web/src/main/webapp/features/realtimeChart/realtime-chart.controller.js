@@ -329,6 +329,7 @@
         		initReceive();
 	        };
 	        $scope.resizePopup = function() {
+	        	analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.TG_REALTIME_CHART_RESIZE );
 	        	if ( bIsFullWindow ) {
 	        		popupHeight = cfg.css.height;
 	        		$element.css({
@@ -350,11 +351,13 @@
 	        	if ( bIsWas === false ) return;
 	        	
 	        	if ( bShowRealtimeChart === true ) {
+	        		analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_REALTIME_CHART_HIDE );
 	        		hidePopup();
 	        		stopReceive();
 	        		stopChart();
 	        		bShowRealtimeChart = false;
 	        	} else {
+	        		analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_REALTIME_CHART_SHOW );
 	        		showPopup();
 	        		waitingConnection();
 	        		initReceive();
