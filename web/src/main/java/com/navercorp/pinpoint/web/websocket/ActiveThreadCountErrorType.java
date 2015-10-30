@@ -33,9 +33,10 @@ public enum ActiveThreadCountErrorType {
     UNSUPPORTED_VERSION((short) 111, "UNSUPPORTED VERSION", StreamCode.TYPE_UNSUPPORT.name()),
     CLUSTER_OPTION_NOT_SET((short) 121, "CLUSTER OPTION NOT SET", StreamCode.CONNECTION_UNSUPPORT.name()),
 
+    TIMEOUT((short) 211, "TIMEOUT", TRouteResult.TIMEOUT.name()),
+
     NOT_FOUND((short) -1, "NOT FOUND", StreamCode.CONNECTION_NOT_FOUND.name()),
     CLUSTER_CHANNEL_CLOSED((short) -1, "CLUSTER CHANNEL CLOSED", StreamCode.STATE_CLOSED.name()),
-    TIMEOUT((short) -1, "TIMEOUT", TRouteResult.TIMEOUT.name()),
     PINPOINT_INTERNAL_ERROR((short) -1, "PINPOINT INTERNAL ERROR");
 
     private final static Map<String, ActiveThreadCountErrorType> CODE_MAP = Collections.unmodifiableMap(initializeCodeMapping());
