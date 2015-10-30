@@ -30,7 +30,7 @@
 		},
 		template: {
 			agentChart: '<div class="agent-chart"><div></div></div>',
-			chartDirective: Handlebars.compile( '<realtime-chart-directive chart-color="{{chartColor}}" xcount="{{xAxisCount}}" show-extra-info="{{showExtraInfo}}" request-label="requestLabelNames" namespace="{{namespace}}" width="{{width}}" height="{{height}}"></realtime-chart-directive>' )
+			chartDirective: Handlebars.compile( '<realtime-chart-directive timeout-max-count="{{timeoutMaxCount}}" chart-color="{{chartColor}}" xcount="{{xAxisCount}}" show-extra-info="{{showExtraInfo}}" request-label="requestLabelNames" namespace="{{namespace}}" width="{{width}}" height="{{height}}"></realtime-chart-directive>' )
 		},
 		css : {
 			borderWidth: 2,
@@ -53,6 +53,7 @@
 			
 	    	$element = $($element);
 			//@TODO will move to preference-service 
+	    	var TIMEOUT_MAX_COUNT = 10;
 			var X_AXIS_COUNT = 10;
 	    	var RECEIVE_SUCCESS = 0;
 	    	
@@ -80,7 +81,13 @@
 		    	return o;
 	    	})();
 	    	
-
+	    	jQuery('.realtimeTooltip').tooltipster({
+            	content: function() {
+            		return "";//helpContentTemplate(helpContentService.navbar.applicationSelector) + helpContentTemplate(helpContentService.navbar.depth) + helpContentTemplate(helpContentService.navbar.periodSelector);
+            	},
+            	position: "top",
+            	trigger: "click"
+            });
 	    	
 	    	$scope.hasCriticalError = false;
 	    	$scope.sumChartColor 	= ["rgba(44, 160, 44, 1)", 	"rgba(60, 129, 250, 1)", 	"rgba(248, 199, 49, 1)", 	"rgba(246, 145, 36, 1)" ];
@@ -100,12 +107,13 @@
 	    	function initChartDirective() {
 	    		if ( hasAgentChart( "sum" ) === false ) {
 		    		$elSumChartWrapper.append( $compile( cfg.template.chartDirective({
+		    			"width": cfg.sumChart.width,
+		    			"height": cfg.sumChart.height,
+		    			"namespace": "sum",
 		    			"chartColor": "sumChartColor",
 		    			"xAxisCount": X_AXIS_COUNT,
-		    			"namespace": "sum",
 		    			"showExtraInfo": "true",
-		    			"height": cfg.sumChart.height,
-		    			"width": cfg.sumChart.width
+		    			"timeoutMaxCount": TIMEOUT_MAX_COUNT
 		    		}))($scope) );
 		    		oNamespaceToIndexMap["sum"] = -1;
 	    		}
@@ -115,12 +123,13 @@
 	    	}
 	    	function addAgentChart( agentName ) {
 	    		var $newAgentChart = $( cfg.template.agentChart ).append( $compile( cfg.template.chartDirective({
+	    			"width": cfg.otherChart.width, 
+	    			"height": cfg.otherChart.height,
+	    			"namespace": aAgentChartElementList.length,
 	    			"chartColor": "agentChartColor",
 	    			"xAxisCount": X_AXIS_COUNT,
-	    			"namespace": aAgentChartElementList.length,
 	    			"showExtraInfo": "false",
-	    			"height": cfg.otherChart.height,
-	    			"width": cfg.otherChart.width 
+	    			"timeoutMaxCount": TIMEOUT_MAX_COUNT
 	    		}))($scope) );
 	    		$elAgentChartListWrapper.append( $newAgentChart );
 	    		
@@ -180,7 +189,7 @@
 	        			bAllError = false;
 	        			$rootScope.$broadcast('realtimeChartDirective.onData.' + oNamespaceToIndexMap[agentName], applicationData[agentName][cfg.keys.STATUS], timeStamp, maxY, bAllError );
 	        		} else {
-	        			$rootScope.$broadcast('realtimeChartDirective.onError.' + oNamespaceToIndexMap[agentName], applicationData[agentName][cfg.keys.MESSAGE], timeStamp, maxY );
+	        			$rootScope.$broadcast('realtimeChartDirective.onError.' + oNamespaceToIndexMap[agentName], applicationData[agentName], timeStamp, maxY );
 	        		}
 	        		
 	        		showAgentChart( agentIndexAndCount );
