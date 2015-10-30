@@ -48,8 +48,8 @@
 		}
 	});
 	
-	pinpointApp.controller('RealtimeChartCtrl', ['RealtimeChartCtrlConfig', '$scope', '$element', '$rootScope', '$compile', '$window', 'globalConfig', 'RealtimeWebsocketService', '$location',
-	    function (cfg, $scope, $element, $rootScope, $compile, $window, globalConfig, websocketService, $location) {
+	pinpointApp.controller('RealtimeChartCtrl', ['RealtimeChartCtrlConfig', '$scope', '$element', '$rootScope', '$compile', '$window', 'globalConfig', 'RealtimeWebsocketService', '$location', 'AnalyticsService',
+	    function (cfg, $scope, $element, $rootScope, $compile, $window, globalConfig, websocketService, $location, analyticsService) {
 			
 	    	$element = $($element);
 			//@TODO will move to preference-service 
