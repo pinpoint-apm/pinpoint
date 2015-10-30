@@ -229,7 +229,6 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
 
     private void flush0(AgentActiveThreadCountList activeThreadCountList) {
         Map resultMap = createResultMap(activeThreadCountList, System.currentTimeMillis());
-
         try {
             TextMessage responseTextMessage = new TextMessage(messageConverter.getResponseTextMessage(ActiveThreadCountHandler.API_ACTIVE_THREAD_COUNT, resultMap));
 
