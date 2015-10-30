@@ -47,6 +47,7 @@ public class DispatchHandlerWrapper implements DispatchHandler {
     public void dispatchSendMessage(TBase<?, ?> tBase) {
         if (checkAvaiable()) {
             this.delegate.dispatchSendMessage(tBase);
+            return;
         }
 
         logger.debug("Handler is disabled. Skipping send message {}.", tBase);
