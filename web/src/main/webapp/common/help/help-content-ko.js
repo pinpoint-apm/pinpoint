@@ -486,7 +486,19 @@
 						desc: "JVM과 전체 시스템의 CPU 사용량 모두 수집됩니다."
 					}]
 				}]
-			}
+			},
+            tps: {
+                mainStyle: "",
+                title: "TPS",
+                desc: "서버로 인입된 초당 트랜잭션 수",
+                category: [{
+                    title: "[범례]",
+                    items: [{
+                        name: "TPS",
+                        desc: "초당 트랜잭션 수"
+                    }]
+                }]
+            }
 		},
 		callTree: {
 			column: {
