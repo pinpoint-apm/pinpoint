@@ -48,29 +48,31 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class ActiveThreadCountHandler extends TextWebSocketHandler implements PinpointWebSocketHandler {
 
-    private static final String DEFAULT_REQUEST_MAPPING = "/agent/activeThread";
-
     private static final String APPLICATION_NAME_KEY = "applicationName";
     private static final String HEALTH_CHECK_WAIT_KEY = "pinpoint.healthCheck.wait";
 
     static final String API_ACTIVE_THREAD_COUNT = "activeThreadCount";
 
-    private static final long DEFAULT_FLUSH_DELAY = 1000;
-    private static final long DEFAULT_MIN_FLUSH_DELAY = 500;
-    private static final long DEFAULT_HEALTH_CHECk_DELAY = 60 * 1000;
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Object lock = new Object();
-    private final String requestMapping;
     private final AgentService agentSerivce;
-    private final long flushDelay;
-    private final AtomicBoolean onTimerTask = new AtomicBoolean(false);
     private final List<WebSocketSession> sessionRepository = new CopyOnWriteArrayList<WebSocketSession>();
     private final Map<String, PinpointWebSocketResponseAggregator> aggregatorRepository = new HashMap<String, PinpointWebSocketResponseAggregator>();
     private PinpointWebSocketMessageConverter messageConverter = new PinpointWebSocketMessageConverter();
-    private Timer timer;
 
+    private static final String DEFAULT_REQUEST_MAPPING = "/agent/activeThread";
+    private final String requestMapping;
+
+    private Timer timer;
+    private final AtomicBoolean onTimerTask = new AtomicBoolean(false);
+
+    private static final long DEFAULT_FLUSH_DELAY = 1000;
+    private static final long DEFAULT_MIN_FLUSH_DELAY = 500;
+    private final long flushDelay;
+
+    private static final long DEFAULT_HEALTH_CHECk_DELAY = 60 * 1000;
+    private final long healthCheckDelay;
 
     public ActiveThreadCountHandler(AgentService agentSerivce) {
         this(DEFAULT_REQUEST_MAPPING, agentSerivce);
@@ -81,9 +83,14 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     }
 
     public ActiveThreadCountHandler(String requestMapping, AgentService agentSerivce, long flushDelay) {
+        this(requestMapping, agentSerivce, flushDelay, DEFAULT_HEALTH_CHECk_DELAY);
+    }
+
+    public ActiveThreadCountHandler(String requestMapping, AgentService agentSerivce, long flushDelay, long healthCheckDelay) {
         this.requestMapping = requestMapping;
         this.agentSerivce = agentSerivce;
         this.flushDelay = flushDelay;
+        this.healthCheckDelay = healthCheckDelay;
     }
 
     @Override
@@ -262,7 +269,6 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
     }
 
-
     private class HealthCheckTimerTask implements TimerTask {
 
         @Override
@@ -308,10 +314,11 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
                 }
             } finally {
                 if (timer != null && onTimerTask.get()) {
-                    timer.newTimeout(this, DEFAULT_HEALTH_CHECk_DELAY, TimeUnit.MILLISECONDS);
+                    timer.newTimeout(this, healthCheckDelay, TimeUnit.MILLISECONDS);
                 }
             }
         }
 
     }
+
 }
