@@ -26,18 +26,22 @@
 			$scope.favoriteList = preferenceService.getFavoriteList();
 			
 			$scope.changeDepth = function() {
+				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_GENERAL_SET_DEPTH );
 				preferenceService.setDepth( $scope.depth );
 			};
 			$scope.changePeriod = function() {
+				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_GENERAL_SET_PERIOD );
 				preferenceService.setPeriod( $scope.period );
 			};
 			$scope.removeFavorite = function( applicationName ) {
+				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_GENERAL_SET_FAVORITE );
 				preferenceService.removeFavorite( applicationName );
 				$scope.favoriteList = preferenceService.getFavoriteList();
 				$rootScope.$broadcast("navbarDirective.changedFavorite");
 			};
 			var $applicationList = $element.find(".applicationList");
 			function addToFavoriteList( applicationName ) {
+				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_GENERAL_SET_FAVORITE );
 				preferenceService.addFavorite( applicationName );
 				$scope.$apply(function() {
 					$scope.favoriteList = preferenceService.getFavoriteList();
