@@ -23,8 +23,6 @@ public class TransactionMetaDataSerializer extends JsonSerializer<TransactionMet
         jgen.writeString(value.getEndpoint());
         jgen.writeNumber(value.getException());
         jgen.writeString(value.getRemoteAddr());
-        jgen.writeString(value.getLogButtonName());
-        jgen.writeString(value.getLogPageUrl());
         jgen.writeEndArray();
     }
 }
