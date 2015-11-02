@@ -475,12 +475,24 @@
                 category: [{
                     title: "[Legend]",
                     items: [{
-                        name: "TPS",
-                        desc: "Number of transactions received by the server every second"
+                        name: "Sampled New (S.N)",
+                        desc: "Profiled transactions that started from the current agent"
+                    },{
+                        name: "Sampled Continuation (S.C)",
+                        desc: "Profiled transactions that started from another agent"
+                    },{
+                        name: "Unsampled New (U.N)",
+                        desc: "Unprofiled transactions that started from the current agent"
+                    },{
+                        name: "Unsampled Continuation (U.C)",
+                        desc: "Unprofiled transactions that started from another agent"
+                    },{
+                        name: "Total",
+                        desc: "All transactions"
                     }]
                 }]
             }
-		},
+		},	
 		callTree: {
 			column: {
 				mainStyle: "",
