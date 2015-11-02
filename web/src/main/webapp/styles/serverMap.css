@@ -148,7 +148,7 @@
 
 .realtime {
 	height: 180px;
-	border: 1px solid #64a71a;
+	border: 1px solid #398439;
 	bottom: 0px;
 	z-index: 10;
 	position: absolute;
@@ -157,18 +157,18 @@
 .realtime .handle {
 	position: absolute;
 	z-index: 9;
-	top: -21px;
+	top: -22px;
 	right: -2px;
 }
 .realtime .handle .btn {
 	border-radius: 3px 3px 0px 0px;
 }
 .realtime .chart-title {
-	color: white;
+	color: #000;
 	width: 100%;
 	padding: 2px 0px 2px 6px;
 	position: absolute;
-	background-color: #7ED321;
+	background-color: #5cb85c;
 }
 .realtime .chart-close {
 	float: right;
@@ -188,7 +188,7 @@
 	position: relative;
 	text-align: center;
 	background-color: #FFF;
-	border: 1px solid 
+	border: 1px solid #000;
 }
 .realtime .agent-sum-chart div {
 	font-weight: bold;
@@ -218,10 +218,9 @@
 	font-size: 10px;
 	word-wrap: normal;
 	text-align: center;
-	font-family: Times;
 	white-space: nowrap;
 	text-overflow: ellipsis;
-	background-color: rgba(126, 211, 33, 0.5);
+	background-color: rgba(205, 211, 33, 0.5);
 }
 .realtime .agent-sum-chart svg {
 	font: 10px sans-serif;
@@ -265,17 +264,27 @@
 	padding-top: 40px;
 	font-weight: bold;
 }
+.realtime .request-label text {
+	font-size: 11px;
+}
 .realtime .request-count text {
-	font-size: 12px;
+	font-size: 14px;
 	font-weight: bold;
 }
 .realtime .chart-tooltip text { 
 	font-size: 12px;
 }
 .realtime .error {
-	fill: #F00;
 	font-weight: bold;
 	text-anchor: middle;
+}
+.realtime .error tspan:nth-child(1){
+	y: 0px;
+	x: 50%;
+}
+.realtime .error tspan:nth-child(2){
+	x: 50%;
+	dy: 14px;
 }
 .realtime text.date {
 	fill: #000;

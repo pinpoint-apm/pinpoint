@@ -83,9 +83,8 @@ public class AgentStatMonitor {
     }
 
     public void start() {
-        long wait = 0;
         CollectJob job = new CollectJob(this.numCollectionsPerBatch);
-        executor.scheduleAtFixedRate(job, wait, this.collectionIntervalMs, TimeUnit.MILLISECONDS);
+        executor.scheduleAtFixedRate(job, this.collectionIntervalMs, this.collectionIntervalMs, TimeUnit.MILLISECONDS);
         logger.info("AgentStat monitor started");
     }
 
@@ -99,15 +98,17 @@ public class AgentStatMonitor {
         logger.info("AgentStat monitor stopped");
     }
 
+    // NotThreadSafe
     private class CollectJob implements Runnable {
 
         private final GarbageCollector garbageCollector;
         private final CpuLoadCollector cpuLoadCollector;
         private final TransactionMetricCollector transactionMetricCollector;
-        // Will be used by single thread.
-        // I don't think this object would run with multi threads.
+
+        // Not thread safe. For use with single thread ONLY
         private final int numStatsPerBatch;
         private int collectCount = 0;
+        private long prevCollectionTimestamp = System.currentTimeMillis();
         private List<TAgentStat> agentStats;
 
         private CollectJob(int numStatsPerBatch) {
@@ -118,9 +119,14 @@ public class AgentStatMonitor {
             this.agentStats = new ArrayList<TAgentStat>(this.numStatsPerBatch);
         }
 
+        @Override
         public void run() {
+            final long currentCollectionTimestamp = System.currentTimeMillis();
+            final long collectInterval = currentCollectionTimestamp - this.prevCollectionTimestamp;
             try {
                 final TAgentStat agentStat = collectAgentStat();
+                agentStat.setTimestamp(currentCollectionTimestamp);
+                agentStat.setCollectInterval(collectInterval);
                 this.agentStats.add(agentStat);
                 if (++this.collectCount >= this.numStatsPerBatch) {
                     sendAgentStats();
@@ -128,21 +134,19 @@ public class AgentStatMonitor {
                 }
             } catch (Exception ex) {
                 logger.warn("AgentStat collect failed. Caused:{}", ex.getMessage(), ex);
+            } finally {
+                this.prevCollectionTimestamp = currentCollectionTimestamp;
             }
         }
 
         private TAgentStat collectAgentStat() {
             final TAgentStat agentStat = new TAgentStat();
-            agentStat.setTimestamp(System.currentTimeMillis());
             final TJvmGc gc = garbageCollector.collect();
             agentStat.setGc(gc);
             final TCpuLoad cpuLoad = cpuLoadCollector.collect();
             agentStat.setCpuLoad(cpuLoad);
             final TTransaction transaction = transactionMetricCollector.collect();
             agentStat.setTransaction(transaction);
-            if (isTrace) {
-                logger.trace("collect agentStat:{}", agentStat);
-            }
             return agentStat;
         }
 
@@ -154,7 +158,8 @@ public class AgentStatMonitor {
             agentStatBatch.setAgentId(agentId);
             agentStatBatch.setStartTimestamp(agentStartTime);
             agentStatBatch.setAgentStats(this.agentStats);
-            // If we reuse agentStats list, there could be concurrency issue because data sender runs in a different thread.
+            // If we reuse agentStats list, there could be concurrency issue because data sender runs in a different
+            // thread.
             // So create new list.
             this.agentStats = new ArrayList<TAgentStat>(this.numStatsPerBatch);
             if (isTrace) {

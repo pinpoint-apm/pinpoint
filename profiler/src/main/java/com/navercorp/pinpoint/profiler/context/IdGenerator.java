@@ -24,14 +24,22 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class IdGenerator {
 
-    // Positive value for sampled traces
-    public static final long INITIAL_TRANSACTION_ID = 1L;
-    public static final long INITIAL_CONTINUED_TRANSACTION_ID = Long.MAX_VALUE;
-    // Negative value for unsampled traces
-    public static final long INITIAL_DISABLED_ID = -1L;
-    public static final long INITIAL_CONTINUED_DISABLED_ID = Long.MIN_VALUE;
+    // TODO might be a good idea to refactor these into SamplingType
 
+    // Reserved negative space (0 ~ -1000)
     public static final long UNTRACKED_ID = 0L;
+    public static final long RESERVED_MAX = 0L;
+    public static final long RESERVED_MIN = -1000;
+
+    // Positive value for sampled new traces
+    public static final long INITIAL_TRANSACTION_ID = 1L;
+    // Negative value for sampled continuations, and unsampled new traces/continuations
+    public static final long INITIAL_CONTINUED_TRANSACTION_ID = RESERVED_MIN - 1; // -1001
+    public static final long INITIAL_DISABLED_ID = RESERVED_MIN - 2; // -1002
+    public static final long INITIAL_CONTINUED_DISABLED_ID = RESERVED_MIN - 3; // -1003
+
+    public static final int DECREMENT_CYCLE = 3;
+    public static final int NEGATIVE_DECREMENT_CYCLE = DECREMENT_CYCLE * -1;
 
     // Unique id for tracing a internal stacktrace and calculating a slow time of activethreadcount
     // moved here in order to make codes simpler for now
@@ -49,15 +57,15 @@ public class IdGenerator {
     }
 
     public long nextContinuedTransactionId() {
-        return this.continuedTransactionId.getAndDecrement();
+        return this.continuedTransactionId.getAndAdd(NEGATIVE_DECREMENT_CYCLE);
     }
 
     public long nextDisabledId() {
-        return this.disabledId.getAndDecrement();
+        return this.disabledId.getAndAdd(NEGATIVE_DECREMENT_CYCLE);
     }
 
     public long nextContinuedDisabledId() {
-        return this.continuedDisabledId.getAndIncrement();
+        return this.continuedDisabledId.getAndAdd(NEGATIVE_DECREMENT_CYCLE);
     }
 
     public long currentTransactionId() {

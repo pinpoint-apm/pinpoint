@@ -24,6 +24,7 @@ import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricSet;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter;
+import com.navercorp.pinpoint.profiler.context.TransactionCounter.SamplingType;
 import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
 
 /**
@@ -31,19 +32,28 @@ import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
  */
 public class TransactionMetricSet implements MetricSet {
 
-    private final Gauge<Integer> tpsGauge;
+    private final Gauge<Long> sampledNewGauge;
+    private final Gauge<Long> sampledContinuationGauge;
+    private final Gauge<Long> unsampledNewGauge;
+    private final Gauge<Long> unsampledContinuationGuage;
 
     public TransactionMetricSet(TransactionCounter transactionCounter) {
         if (transactionCounter == null) {
             throw new NullPointerException("transactionCounter must not be null");
         }
-        this.tpsGauge = new TpsGauge(transactionCounter);
+        this.sampledNewGauge = new TransactionGauge(transactionCounter, SamplingType.SAMPLED_NEW);
+        this.sampledContinuationGauge = new TransactionGauge(transactionCounter, SamplingType.SAMPLED_CONTINUATION);
+        this.unsampledNewGauge = new TransactionGauge(transactionCounter, SamplingType.UNSAMPLED_NEW);
+        this.unsampledContinuationGuage = new TransactionGauge(transactionCounter, SamplingType.UNSAMPLED_CONTINUATION);
     }
 
     @Override
     public Map<String, Metric> getMetrics() {
         final Map<String, Metric> gauges = new HashMap<String, Metric>();
-        gauges.put(MetricMonitorValues.TRANSACTION_PER_SECOND, this.tpsGauge);
+        gauges.put(MetricMonitorValues.TRANSACTION_SAMPLED_NEW, this.sampledNewGauge);
+        gauges.put(MetricMonitorValues.TRANSACTION_SAMPLED_CONTINUATION, this.sampledContinuationGauge);
+        gauges.put(MetricMonitorValues.TRANSACTION_UNSAMPLED_NEW, this.unsampledNewGauge);
+        gauges.put(MetricMonitorValues.TRANSACTION_UNSAMPLED_CONTINUATION, this.unsampledContinuationGuage);
         return Collections.unmodifiableMap(gauges);
     }
 
@@ -52,50 +62,33 @@ public class TransactionMetricSet implements MetricSet {
         return "Default TransactionMetricSet";
     }
 
-    private class TpsGauge implements Gauge<Integer> {
-
+    private class TransactionGauge implements Gauge<Long> {
         private static final long UNINITIALIZED = -1L;
 
         private final TransactionCounter transactionCounter;
+        private final SamplingType samplingType;
 
-        private long lastTickMs = UNINITIALIZED;
-        private long lastTransactionCount = UNINITIALIZED;
+        private long prevTransactionCount = UNINITIALIZED;
 
-        private TpsGauge(TransactionCounter transactionCounter) {
+        private TransactionGauge(TransactionCounter transactionCounter, SamplingType samplingType) {
             this.transactionCounter = transactionCounter;
+            this.samplingType = samplingType;
         }
 
         @Override
-        public Integer getValue() {
-            final long currentTickMs = System.currentTimeMillis();
-            final long transactionCount = transactionCounter.getTotalTransactionCount();
-            if (this.lastTickMs == UNINITIALIZED) {
-                this.lastTickMs = currentTickMs;
-                this.lastTransactionCount = transactionCount;
-                return 0;
+        public final Long getValue() {
+            final long transactionCount = this.transactionCounter.getTransactionCount(this.samplingType);
+            if (transactionCount < 0) {
+                return 0L;
             }
-            final long timeMsSinceLastTick = currentTickMs - this.lastTickMs;
-            final long transactionCountSinceLastTick = transactionCount - this.lastTransactionCount;
-
-            this.lastTickMs = currentTickMs;
-            this.lastTransactionCount = transactionCount;
-
-            return calculateTps(transactionCountSinceLastTick, timeMsSinceLastTick);
+            if (this.prevTransactionCount == UNINITIALIZED) {
+                this.prevTransactionCount = transactionCount;
+                return 0L;
+            }
+            final long transactionCountDelta = transactionCount - this.prevTransactionCount;
+            this.prevTransactionCount = transactionCount;
+            return transactionCountDelta;
         }
-
-        private int calculateTps(long count, long timeMs) {
-            if (count <= 0 || timeMs <= 0) {
-                return 0;
-            }
-            // ignore improbable overflow
-            final long tps = (timeMs + (count * 1000) - 1) / timeMs;
-            if (tps > Integer.MAX_VALUE) {
-                return Integer.MAX_VALUE;
-            } else {
-                return (int)tps;
-            }
-        }
-
     }
 
 }

@@ -54,13 +54,17 @@ struct TCpuLoad {
 }
 
 struct TTransaction {
-    1: optional i32         tps
+    2: optional i64     sampledNewCount
+    3: optional i64     sampledContinuationCount
+    4: optional i64     unsampledNewCount
+    5: optional i64     unsampledContinuationCount
 }
 
 struct TAgentStat {
     1: optional string      agentId
     2: optional i64         startTimestamp
     3: optional i64         timestamp
+    4: optional i64         collectInterval
     10: optional TJvmGc     gc
     20: optional TCpuLoad   cpuLoad
     30: optional TTransaction   transaction

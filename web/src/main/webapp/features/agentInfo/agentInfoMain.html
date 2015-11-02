@@ -56,24 +56,25 @@
         </div>
     </div>
     <div>
-        <h3>Memory & Garbage Collection</h3>
         <div class="row">
             <div class="col-md-6">
-                <h5><span class="glyphicon glyphicon-question-sign heapTooltip" style="cursor:pointer;float:right;"></span> {{memoryGroup[0].title}}</h5>
+                <h4><span class="glyphicon glyphicon-question-sign heapTooltip" style="cursor:pointer;float:right;"></span> {{memoryGroup[0].title}}</h4>
                 <jvm-memory-chart-directive namespace="forHeap"></jvm-memory-chart-directive>
             </div>
             <div class="col-md-6">
-                <h5><span class="glyphicon glyphicon-question-sign permGenTooltip" style="cursor:pointer;float:right;"></span> {{memoryGroup[1].title}}</h5>
+                <h4><span class="glyphicon glyphicon-question-sign permGenTooltip" style="cursor:pointer;float:right;"></span> {{memoryGroup[1].title}}</h4>
                 <jvm-memory-chart-directive namespace="forNonHeap"></jvm-memory-chart-directive>
             </div>
         </div>
-    </div>
-    <div>
-        <h3>Cpu Usage</h3>
+        <hr>
         <div class="row">
             <div class="col-md-6">
-                <h5><span class="glyphicon glyphicon-question-sign cpuUsageTooltip" style="cursor:pointer;float:right;"></span> {{cpuLoadChart.title}}</h5>
+                <h4><span class="glyphicon glyphicon-question-sign cpuUsageTooltip" style="cursor:pointer;float:right;"></span> {{cpuLoadChart.title}}</h4>
                 <cpu-load-chart-directive namespace="forCpuLoad"></cpu-load-chart-directive>
+            </div>
+            <div class="col-md-6">
+                <h4><span class="glyphicon glyphicon-question-sign tpsTooltip" style="cursor:pointer;float:right;"></span> {{tpsChart.title}}</h4>
+                <tps-chart-directive namespace="forTps"></tps-chart-directive>
             </div>
         </div>
     </div>

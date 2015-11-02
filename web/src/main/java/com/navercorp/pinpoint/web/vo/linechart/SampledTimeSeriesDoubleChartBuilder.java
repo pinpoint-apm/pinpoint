@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.linechart;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.navercorp.pinpoint.web.util.TimeWindow;
@@ -24,30 +25,46 @@ import com.navercorp.pinpoint.web.util.TimeWindow;
  * @author hyungil.jeong
  */
 public class SampledTimeSeriesDoubleChartBuilder extends SampledTimeSeriesChartBuilder<Double> {
-    
+
     private static final Double DEFAULT_VALUE = 0D;
-    
+    private static final int DEFAULT_SCALE = 2;
+
+    private final int scale;
+
     public SampledTimeSeriesDoubleChartBuilder(TimeWindow timeWindow) {
-        super(timeWindow, DEFAULT_VALUE);
+        this(timeWindow, DEFAULT_VALUE, DEFAULT_SCALE);
     }
-    
+
     public SampledTimeSeriesDoubleChartBuilder(TimeWindow timeWindow, double defaultValue) {
-        super(timeWindow, defaultValue);
+        this(timeWindow, defaultValue, DEFAULT_SCALE);
     }
-    
+
+    public SampledTimeSeriesDoubleChartBuilder(TimeWindow timeWindow, double defaultValue, int scale) {
+        super(timeWindow, defaultValue);
+        if (scale < 1) {
+            this.scale = DEFAULT_SCALE;
+        } else {
+            this.scale = scale;
+        }
+    }
+
     @Override
     protected Double sampleMin(List<Double> sampleBuffer) {
-        return DownSamplers.MIN.sampleDouble(sampleBuffer);
+        return roundToScale(DownSamplers.MIN.sampleDouble(sampleBuffer));
     }
 
     @Override
     protected Double sampleMax(List<Double> sampleBuffer) {
-        return DownSamplers.MAX.sampleDouble(sampleBuffer);
+        return roundToScale(DownSamplers.MAX.sampleDouble(sampleBuffer));
     }
 
     @Override
     protected Double sampleAvg(List<Double> sampleBuffer) {
-        return DownSamplers.AVG.sampleDouble(sampleBuffer);
+        return roundToScale(DownSamplers.AVG.sampleDouble(sampleBuffer));
+    }
+
+    private double roundToScale(double value) {
+        return new BigDecimal(value).setScale(this.scale, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 
 }

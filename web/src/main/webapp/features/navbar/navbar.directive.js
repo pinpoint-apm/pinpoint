@@ -198,7 +198,7 @@
 	                };
 	
 	                /**
-	                 * get preiod type
+	                 * get period type
 	                 * @returns {*}
 	                 */
 	                getPeriodType = function () {
@@ -388,8 +388,8 @@
 	                    }
 	
 	                    $application.select2({
-	                        placeholder: "Select an application.",
-	                        searchInputPlaceholder: "Input your application name.",
+	                        placeholder: "Select an application",
+	                        searchInputPlaceholder: "Input your application name",
 	                        allowClear: false,
 	                        formatResult: formatOptionText,
 	                        formatSelection: formatOptionText,

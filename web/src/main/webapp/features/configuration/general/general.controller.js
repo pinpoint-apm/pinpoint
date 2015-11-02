@@ -14,8 +14,8 @@
 	    }
 	});	
 
-	pinpointApp.controller('GeneralCtrl', [ 'GeneralConfig', '$scope', '$rootScope', '$element', '$document', 'PreferenceService',
-	    function ($config, $scope, $rootScope, $element, $document, preferenceService) {
+	pinpointApp.controller('GeneralCtrl', [ 'GeneralConfig', '$scope', '$rootScope', '$element', '$document', 'PreferenceService', 'AnalyticsService',
+	    function ($config, $scope, $rootScope, $element, $document, preferenceService, analyticsService) {
 
 			$scope.$on("general.configuration.show", function() {
 			});
@@ -26,18 +26,22 @@
 			$scope.favoriteList = preferenceService.getFavoriteList();
 			
 			$scope.changeDepth = function() {
+				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_GENERAL_SET_DEPTH, $scope.depth );
 				preferenceService.setDepth( $scope.depth );
 			};
 			$scope.changePeriod = function() {
+				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_GENERAL_SET_PERIOD, $scope.period );
 				preferenceService.setPeriod( $scope.period );
 			};
 			$scope.removeFavorite = function( applicationName ) {
+				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_GENERAL_SET_FAVORITE );
 				preferenceService.removeFavorite( applicationName );
 				$scope.favoriteList = preferenceService.getFavoriteList();
 				$rootScope.$broadcast("navbarDirective.changedFavorite");
 			};
 			var $applicationList = $element.find(".applicationList");
 			function addToFavoriteList( applicationName ) {
+				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_GENERAL_SET_FAVORITE );
 				preferenceService.addFavorite( applicationName );
 				$scope.$apply(function() {
 					$scope.favoriteList = preferenceService.getFavoriteList();

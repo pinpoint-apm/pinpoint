@@ -194,7 +194,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             final HttpRequest httpRequest = getHttpRequest(args);
             if (httpRequest != null) {
-                // Accessing httpRequest here not BEFORE() becuase it can cause side effect.
+                // Accessing httpRequest here not BEFORE() because it can cause side effect.
                 recorder.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getRequestLine().getUri());
                 final NameIntValuePair<String> host = getHost();
                 if (host != null) {
