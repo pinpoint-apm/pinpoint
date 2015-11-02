@@ -20,6 +20,7 @@
 package com.navercorp.pinpoint.web.websocket;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.Ordering;
 import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCount;
@@ -37,6 +38,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -56,7 +58,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
 
     private final Object workerManagingLock = new Object();
     private final List<WebSocketSession> webSocketSessions = new CopyOnWriteArrayList<>();
-    private final ConcurrentHashMap<String, ActiveThreadCountWorker> activeThreadCountWorkerRepository = new ConcurrentHashMap<String, ActiveThreadCountWorker>();
+    private final Map<String, ActiveThreadCountWorker> activeThreadCountWorkerRepository = new TreeMap<String, ActiveThreadCountWorker>(Ordering.usingToString());
 
     private final Object aggregatorLock = new Object();
     private final PinpointWebSocketMessageConverter messageConverter;
