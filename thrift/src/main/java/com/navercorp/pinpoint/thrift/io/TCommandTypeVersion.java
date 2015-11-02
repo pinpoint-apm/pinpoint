@@ -58,7 +58,7 @@ public enum TCommandTypeVersion {
         }
 
         for (TCommandType supportCommand : supportCommandArray) {
-            getSupportCommandList().add(supportCommand);
+            supportCommandList.add(supportCommand);
         }
     }
 
