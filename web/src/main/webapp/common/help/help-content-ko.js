@@ -487,15 +487,27 @@
 					}]
 				}]
 			},
-            tps: {
+			tps: {
                 mainStyle: "",
                 title: "TPS",
                 desc: "서버로 인입된 초당 트랜잭션 수",
                 category: [{
                     title: "[범례]",
                     items: [{
-                        name: "TPS",
-                        desc: "초당 트랜잭션 수"
+                        name: "Sampled New (S.N)",
+                        desc: "선택된 agent에서 시작한 샘플링된 트랜잭션"
+                    },{
+                        name: "Sampled Continuation (S.C)",
+                        desc: "다른 agent에서 시작한 샘플링된 트랜잭션"
+                    },{
+                        name: "Unsampled New (U.N)",
+                        desc: "선택된 agent에서 시작한 샘플링되지 않은 트랜잭션"
+                    },{
+                        name: "Unsampled Continuation (U.C)",
+                        desc: "다른 agent에서 시작한 샘플링되지 않은 트랜잭션"
+                    },{
+                        name: "Total",
+                        desc: "모든 트랜잭션"
                     }]
                 }]
             }
