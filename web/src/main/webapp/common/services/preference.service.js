@@ -81,7 +81,6 @@
 					return oDefault[name];
 				};
 				self["set" + fnPostfix] = function(v) {
-					console.log( name, v );
 					localStorage.setItem(name, v);
 					oDefault[name] = v;
 				};
