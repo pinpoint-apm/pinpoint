@@ -49,6 +49,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author emeroad
  * @author netspider
+ * @author jaehong.kim
  */
 @Controller
 public class MapController {

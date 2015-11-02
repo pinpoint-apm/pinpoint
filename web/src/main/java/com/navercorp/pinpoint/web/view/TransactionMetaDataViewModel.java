@@ -12,26 +12,17 @@ import java.util.List;
  */
 public class TransactionMetaDataViewModel {
     private List<SpanBo> spanBoList = new ArrayList<SpanBo>();
-    private String logButtionName = "";
-    private String logPageUrl = "";
 
     public void setSpanBoList(List<SpanBo> spanBoList) {
         this.spanBoList = spanBoList;
     }
 
-    public void setLogButtionName(String logButtionName) {
-        this.logButtionName = logButtionName;
-    }
-
-    public void setLogPageUrl(String logPageUrl) {
-        this.logPageUrl = logPageUrl;
-    }
 
     @JsonProperty("metadata")
     public List<MetaData> getMetadata() {
         List<MetaData> list = new ArrayList<MetaData>();
         for (SpanBo span : spanBoList) {
-            list.add(new MetaData(span, logButtionName, logPageUrl));
+            list.add(new MetaData(span));
         }
 
         return list;
@@ -40,13 +31,9 @@ public class TransactionMetaDataViewModel {
     //@JsonSerialize(using=TransactionMetaDataSerializer.class)
     public static class MetaData {
         private SpanBo span;
-        private String logButtonName = "";
-        private String logPageUrl = "";
 
-        public MetaData(SpanBo span, String logButtionName, String logPageUrl) {
+        public MetaData(SpanBo span) {
             this.span = span;
-            this.logButtonName = logButtionName;
-            this.logPageUrl = logPageUrl;
         }
 
         @JsonProperty("traceId")
@@ -92,16 +79,6 @@ public class TransactionMetaDataViewModel {
         @JsonProperty("remoteAddr")
         public String getRemoteAddr() {
             return span.getRemoteAddr();
-        }
-
-        @JsonProperty("logButtonName")
-        public String getLogButtonName() {
-            return logButtonName;
-        }
-
-        @JsonProperty("logPageUrl")
-        public String getLogPageUrl() {
-            return logPageUrl;
         }
     }
 }

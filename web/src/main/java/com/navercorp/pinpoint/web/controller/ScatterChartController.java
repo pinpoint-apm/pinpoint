@@ -51,6 +51,7 @@ import org.springframework.web.servlet.ModelAndView;
 /**
  * @author netspider
  * @author emeroad
+ * @author jaehong.kim
  */
 @Controller
 public class ScatterChartController {
