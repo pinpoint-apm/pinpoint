@@ -129,6 +129,20 @@
 				}]
 			} 
 		},
+		realtime: {
+			"default": {
+				mainStyle: "",
+				title: "Realtime Active Thread Chart",
+				desc: "",
+				category: [{
+					title: "[범례]",
+					items: []
+				},{
+					title: "[기능]",
+					items: []
+				}]
+			}
+		},
 		scatter : {
 			"default": {
 				mainStyle: "",
@@ -237,7 +251,7 @@
 			},
 			nodeServers: {
 				mainStyle: "width:400px;",
-				title: "Server Instances",
+				title: "Server Information",
 				desc: "List of physical servers and their server instances.",
 				category: [{
 					title: "[Legend]",
@@ -355,7 +369,7 @@
 			},
 			linkServers: {
 				mainStyle: "width:350px;",
-				title: "Server Instance",
+				title: "Server Information",
 				desc: "List of physical servers and their server instances.",
 				category: [{
 					title: "[Legend]",

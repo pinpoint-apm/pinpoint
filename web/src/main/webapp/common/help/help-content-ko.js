@@ -131,6 +131,20 @@
 				}]
 			} 
 		},
+		realtime: {
+			"default": {
+				mainStyle: "",
+				title: "Realtime Active Thread Chart",
+				desc: "",
+				category: [{
+					title: "[범례]",
+					items: []
+				},{
+					title: "[기능]",
+					items: []
+				}]
+			}
+		},
 		scatter : {
 			"default": {
 				mainStyle: "",
@@ -367,7 +381,7 @@
 			},
 			linkServers: {
 				mainStyle: "width:350px;",
-				title: "Server Instance",
+				title: "Server Information",
 				desc: "해당 구간을 통과하는 트랜잭션을 호출한 서버 인스턴스의 정보입니다. (호출자)",
 				category: [{
 					title: "[범례]",
