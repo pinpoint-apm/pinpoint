@@ -83,7 +83,7 @@
 	    	
 	    	jQuery('.realtimeTooltip').tooltipster({
             	content: function() {
-            		return "";//helpContentTemplate(helpContentService.navbar.applicationSelector) + helpContentTemplate(helpContentService.navbar.depth) + helpContentTemplate(helpContentService.navbar.periodSelector);
+            		return helpContentTemplate(helpContentService.realtime);
             	},
             	position: "top",
             	trigger: "click"
