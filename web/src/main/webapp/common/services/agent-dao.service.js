@@ -194,11 +194,26 @@
 	                var thisData = {
 	                    time: moment(aSampledContinuationData[i].timestamp).toString('YYYY-MM-dd HH:mm:ss')
 	                };
-	                thisData.sampledContinuationTps 	= typeof aSampledContinuationData[i].avgVal == "number" ? aSampledContinuationData[i].avgVal.toFixed(2) : 0.00;
-	                thisData.sampledNewTps 				= typeof aSampledNewData[i].avgVal == "number" ? aSampledNewData[i].avgVal.toFixed(2) : 0.00;
-	                thisData.unsampledContinuationTps	= typeof aUnsampledContinuationData[i].avgVal == "number" ? aUnsampledContinuationData[i].avgVal.toFixed(2) : 0.00;
-	                thisData.unsampledNewTps			= typeof aUnsampledNewData[i].avgVal == "number" ? aUnsampledNewData[i].avgVal.toFixed(2) : 0.00;
-	                thisData.totalTps					= typeof aTotalData[i].avgVal == "number" ? aTotalData[i].avgVal.toFixed(2) : 0.00;
+	                var sampledContinuationTps     = typeof aSampledContinuationData[i].avgVal == "number" ? aSampledContinuationData[i].avgVal.toFixed(2) : 0.00;
+	                var sampledNewTps              = typeof aSampledNewData[i].avgVal == "number" ? aSampledNewData[i].avgVal.toFixed(2) : 0.00;
+	                var unsampledContinuationTps   = typeof aUnsampledContinuationData[i].avgVal == "number" ? aUnsampledContinuationData[i].avgVal.toFixed(2) : 0.00;
+	                var unsampledNewTps            = typeof aUnsampledNewData[i].avgVal == "number" ? aUnsampledNewData[i].avgVal.toFixed(2) : 0.00;
+	                var totalTps                   = typeof aTotalData[i].avgVal == "number" ? aTotalData[i].avgVal.toFixed(2) : 0.00;
+	                if (!(sampledContinuationTps == DATA_UNAVAILABLE)) {
+                        thisData.sampledContinuationTps = sampledContinuationTps;
+	                }
+	                if (!(sampledNewTps == DATA_UNAVAILABLE)) {
+	                    thisData.sampledNewTps = sampledNewTps;
+	                }
+	                if (!(unsampledContinuationTps == DATA_UNAVAILABLE)) {
+	                    thisData.unsampledContinuationTps = unsampledContinuationTps;
+	                }
+	                if (!(unsampledNewTps == DATA_UNAVAILABLE)) {
+	                    thisData.unsampledNewTps = unsampledNewTps;
+	                }
+	                if (!(totalTps == DATA_UNAVAILABLE)) {
+	                    thisData.totalTps = totalTps;
+	                }
 	                newData.push(thisData);
 	            }
 	            
