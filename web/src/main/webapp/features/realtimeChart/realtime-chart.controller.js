@@ -48,8 +48,8 @@
 		}
 	});
 	
-	pinpointApp.controller('RealtimeChartCtrl', ['RealtimeChartCtrlConfig', '$scope', '$element', '$rootScope', '$compile', '$window', 'globalConfig', 'RealtimeWebsocketService', '$location', 'AnalyticsService',
-	    function (cfg, $scope, $element, $rootScope, $compile, $window, globalConfig, websocketService, $location, analyticsService) {
+	pinpointApp.controller('RealtimeChartCtrl', ['RealtimeChartCtrlConfig', '$scope', '$element', '$rootScope', '$compile', '$window', 'globalConfig', 'RealtimeWebsocketService', '$location', 'AnalyticsService', 'helpContentTemplate', 'helpContentService',
+	    function (cfg, $scope, $element, $rootScope, $compile, $window, globalConfig, websocketService, $location, analyticsService, helpContentTemplate, helpContentService) {
 			
 	    	$element = $($element);
 			//@TODO will move to preference-service 
@@ -83,7 +83,7 @@
 	    	
 	    	jQuery('.realtimeTooltip').tooltipster({
             	content: function() {
-            		return helpContentTemplate(helpContentService.realtime);
+            		return helpContentTemplate(helpContentService.realtime["default"]);
             	},
             	position: "top",
             	trigger: "click"

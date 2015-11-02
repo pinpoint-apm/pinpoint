@@ -137,10 +137,10 @@
 				title: "Realtime Active Thread Chart",
 				desc: "",
 				category: [{
-					title: "[범례]",
+					title: "[]",
 					items: []
 				},{
-					title: "[기능]",
+					title: "[]",
 					items: []
 				}]
 			}
