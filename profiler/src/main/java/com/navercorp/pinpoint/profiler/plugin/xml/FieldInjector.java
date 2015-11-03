@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.profiler.plugin.xml;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.plugin.xml.FieldInitializationStrategy.ByConstructor;
 import com.navercorp.pinpoint.profiler.plugin.xml.transformer.ClassRecipe;
 
 public class FieldInjector implements ClassRecipe {
@@ -40,13 +38,6 @@ public class FieldInjector implements ClassRecipe {
     public void edit(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
         if (strategy == null) {
             target.addField(accessorTypeName);
-        } else {
-            if (strategy instanceof ByConstructor) {
-                String javaExpression = "new " + ((ByConstructor)strategy).getClassName() + "();";
-                target.addField(accessorTypeName, javaExpression);
-            } else {
-                throw new PinpointException("Unsupported strategy: " + strategy);
-            }
         }
     }
 

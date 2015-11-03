@@ -67,8 +67,6 @@ public interface InstrumentClass {
 
     void addField(String accessorTypeName) throws InstrumentException;
 
-    void addField(String accessorTypeName, String initValExp) throws InstrumentException;
-    
     void addGetter(String getterTypeName, String fieldName) throws InstrumentException;
 
 

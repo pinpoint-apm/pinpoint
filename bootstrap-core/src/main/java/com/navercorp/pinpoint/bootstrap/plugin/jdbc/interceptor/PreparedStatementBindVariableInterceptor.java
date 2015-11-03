@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -30,15 +31,16 @@ import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
-@TargetFilter(type="com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter", singleton=true)
+@TargetFilter(type = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter", singleton = true)
 public class PreparedStatementBindVariableInterceptor implements StaticAroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceContext traceContext;
-    
+
     public PreparedStatementBindVariableInterceptor(TraceContext traceContext) {
         this.traceContext = traceContext;
     }
@@ -49,7 +51,6 @@ public class PreparedStatementBindVariableInterceptor implements StaticAroundInt
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
-
         if (isDebug) {
             logger.afterInterceptor(target, className, methodName, parameterDescription, args, result, throwable);
         }
@@ -58,23 +59,24 @@ public class PreparedStatementBindVariableInterceptor implements StaticAroundInt
         if (trace == null) {
             return;
         }
-        Map<Integer, String> bindList = null;
-        if (target instanceof BindValueAccessor) {
-            bindList = ((BindValueAccessor)target)._$PINPOINT$_getBindValue();
-        }
-        if (bindList == null) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("bindValue is null");
-            }
+
+        if (!(target instanceof BindValueAccessor)) {
             return;
         }
-        Integer index = NumberUtils.toInteger(args[0]);
+
+        final Integer index = NumberUtils.toInteger(args[0]);
         if (index == null) {
             // something is wrong
             return;
         }
-        String value = BindValueConverter.convert(methodName, args);
-        bindList.put(index, value);
 
+        Map<Integer, String> bindList = ((BindValueAccessor) target)._$PINPOINT$_getBindValue();
+        if (bindList == null) {
+            bindList = new HashMap<Integer, String>();
+            ((BindValueAccessor) target)._$PINPOINT$_setBindValue(bindList);
+        }
+
+        final String value = BindValueConverter.convert(methodName, args);
+        bindList.put(index, value);
     }
 }

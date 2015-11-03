@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.xml.FieldInjector;
 import com.navercorp.pinpoint.profiler.plugin.xml.GetterInjector;
 import com.navercorp.pinpoint.profiler.plugin.xml.OverrideMethodInjector;
-import com.navercorp.pinpoint.profiler.plugin.xml.FieldInitializationStrategy.ByConstructor;
 import com.navercorp.pinpoint.profiler.plugin.xml.interceptor.AnnotatedInterceptorInjector;
 import com.navercorp.pinpoint.profiler.plugin.xml.interceptor.TargetAnnotatedInterceptorInjector;
 
@@ -67,12 +66,7 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
     public void injectField(String accessorTypeName) {
         recipes.add(new FieldInjector(accessorTypeName));
     }
-    
-    @Override
-    public void injectField(String accessorTypeName, String initialValueType) {
-        recipes.add(new FieldInjector(accessorTypeName, new ByConstructor(initialValueType)));
-    }
-    
+
     @Override
     public void overrideMethodToDelegate(String name, String... paramTypes) {
         recipes.add(new OverrideMethodInjector(name, paramTypes));
