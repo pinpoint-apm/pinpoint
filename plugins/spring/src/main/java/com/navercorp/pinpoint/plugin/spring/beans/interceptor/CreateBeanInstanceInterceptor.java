@@ -20,7 +20,8 @@ import java.lang.reflect.Method;
 
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor1;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor1;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
@@ -29,11 +30,17 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
  * @author Jongho Moon <jongho.moon@navercorp.com>
  *
  */
-public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInterceptor implements AfterInterceptor1 {
+public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInterceptor implements AroundInterceptor1 {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     
     public CreateBeanInstanceInterceptor(Instrumentor instrumentContext, TransformCallback transformer, TargetBeanFilter filter) {
         super(instrumentContext, transformer, filter);
+    }
+
+    @IgnoreMethod
+    @Override
+    public void before(Object target, Object arg0) {
+
     }
 
     @Override

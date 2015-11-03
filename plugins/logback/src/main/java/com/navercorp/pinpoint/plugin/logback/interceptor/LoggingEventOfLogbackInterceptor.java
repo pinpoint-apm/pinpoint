@@ -15,11 +15,12 @@
  */
 package com.navercorp.pinpoint.plugin.logback.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor0;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
 import org.slf4j.MDC;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor0;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructors;
 
@@ -30,7 +31,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructor
         @TargetConstructor({}),
         @TargetConstructor({"java.lang.String", "ch.qos.logback.classic.Logger", "ch.qos.logback.classic.Level", "java.lang.String", "java.lang.Throwable", "java.lang.Object[]"})
 })
-public class LoggingEventOfLogbackInterceptor implements BeforeInterceptor0 {
+public class LoggingEventOfLogbackInterceptor implements AroundInterceptor0 {
     private static final String TRANSACTION_ID = "PtxId";
     private static final String SPAN_ID = "PspanId";
 
@@ -52,5 +53,11 @@ public class LoggingEventOfLogbackInterceptor implements BeforeInterceptor0 {
             MDC.put(TRANSACTION_ID, trace.getTraceId().getTransactionId());
             MDC.put(SPAN_ID, String.valueOf(trace.getTraceId().getSpanId()));
         }
+    }
+
+    @IgnoreMethod
+    @Override
+    public void after(Object target, Object result, Throwable throwable) {
+
     }
 }

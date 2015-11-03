@@ -48,7 +48,7 @@ public interface InstrumentClass {
     ClassLoader getClassLoader();
 
 
-    public boolean isInterceptable();
+    boolean isInterceptable();
     
     boolean hasConstructor(String... parameterTypes);
 

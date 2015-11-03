@@ -19,11 +19,7 @@ import java.lang.reflect.Modifier;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInvokerHelper;
-import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
@@ -36,27 +32,33 @@ public class InvokeCodeGenerator {
     protected final Class<?> interceptorClass;
     protected final InstrumentMethod targetMethod;
     protected final int interceptorId;
-    protected final Type type;
-    
+    protected final InterceptorType type;
+
     public InvokeCodeGenerator(int interceptorId, Class<?> interceptorClass, InstrumentMethod targetMethod, TraceContext traceContext) {
+        if (interceptorClass == null) {
+            throw new NullPointerException("interceptorClass must not be null");
+        }
+        if (targetMethod == null) {
+            throw new NullPointerException("targetMethod must not be null");
+        }
+        if (traceContext == null) {
+            throw new NullPointerException("traceContext must not be null");
+        }
         this.interceptorClass = interceptorClass;
         this.targetMethod = targetMethod;
         this.interceptorId = interceptorId;
         this.traceContext = traceContext;
-        
-        if (BeforeInterceptor.class.isAssignableFrom(interceptorClass) || AfterInterceptor.class.isAssignableFrom(interceptorClass)) {
-            type = Type.ARRAY_ARGS;
-        } else if (StaticAroundInterceptor.class.isAssignableFrom(interceptorClass)) {
-            type = Type.STATIC;
-        } else if (ApiIdAwareAroundInterceptor.class.isAssignableFrom(interceptorClass)) {
-            type = Type.API_ID_AWARE;
-        } else {
-            type = Type.BASIC;
-        }
-    }
 
-    protected enum Type {
-        ARRAY_ARGS, STATIC, BASIC, API_ID_AWARE
+        // TODO remove
+        if (AroundInterceptor.class.isAssignableFrom(interceptorClass)) {
+            type = InterceptorType.ARRAY_ARGS;
+        } else if (StaticAroundInterceptor.class.isAssignableFrom(interceptorClass)) {
+            type = InterceptorType.STATIC;
+        } else if (ApiIdAwareAroundInterceptor.class.isAssignableFrom(interceptorClass)) {
+            type = InterceptorType.API_ID_AWARE;
+        } else {
+            type = InterceptorType.BASIC;
+        }
     }
 
     protected String getInterceptorType() {
@@ -81,8 +83,8 @@ public class InvokeCodeGenerator {
     }
     
     protected int getApiId() {
-        MethodDescriptor descriptor = targetMethod.getDescriptor();
-        int apiId = traceContext.cacheApi(descriptor);
+        final MethodDescriptor descriptor = targetMethod.getDescriptor();
+        final int apiId = traceContext.cacheApi(descriptor);
         return apiId;
     }
     
