@@ -133,16 +133,53 @@
 			"default": {
 				mainStyle: "",
 				title: "Realtime Active Thread Chart",
-				desc: "",
+				desc: "Shows the Active Thread count of each agent in realtime.",
 				category: [{
-					title: "[]",
-					items: []
-				},{
-					title: "[]",
-					items: []
+					title: "[Error Messages]",
+					items: [{
+						name: "UNSUPPORTED VERSION",
+						desc: "Agent version too old. (Please upgrade the agent to 1.5.0+)",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					},{
+						name: "CLUSTER OPTION NOTSET",
+						desc: "Option disabled by agent. (Please set profiler.pinpoint.activethread to true in profiler.config)",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					},{
+						name: "TIMEOUT",
+						desc: "Agent connection timed out receiving active thread count. Please contact the administrator if problem persists.",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					},{
+						name: "NOT FOUND",
+						desc: "Agent not found. (If you get this message while the agent is running, please set profiler.tcpdatasender.command.accept.enable to true in profiler.config)",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					},{
+						name: "CLUSTER CHANNEL CLOSED",
+						desc: "Agent session expired.",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					},{
+						name: "PINPOINT INTERNAL ERROR",
+						desc: "Pinpoint internal error. Please contact the administrator.",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					},{
+						name: "No Active Thread",
+						desc: "The agent has no threads that are currently active.",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					},{
+						name: "No Response",
+						desc: "No response from Pinpoint Web. Please contact the administrator.",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					}]
 				}]
 			}
-		},
+		},	
 		scatter : {
 			"default": {
 				mainStyle: "",

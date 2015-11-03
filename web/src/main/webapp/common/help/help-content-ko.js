@@ -135,16 +135,53 @@
 			"default": {
 				mainStyle: "",
 				title: "Realtime Active Thread Chart",
-				desc: "",
+				desc: "각 Agent의 Active Thread 갯수를 실시간으로 보여줍니다.",
 				category: [{
-					title: "[]",
-					items: []
-				},{
-					title: "[]",
-					items: []
+					title: "[에러 메시지 설명]",
+					items: [{
+						name: "UNSUPPORTED VERSION",
+						desc: "해당 에이전트의 버전에서는 지원하지 않는 기능입니다. (1.5.0 이상 버전으로 업그레이드하세요.)",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					},{
+						name: "CLUSTER OPTION NOTSET",
+						desc: "해당 에이전트의 설정에서 기능이 비활성화되어 있습니다. (pinpoint 설정 파일에서 profiler.pinpoint.activethread 항목을 true로 변경하세요.)",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					},{
+						name: "TIMEOUT",
+						desc: "해당 에이전트에서 일시적으로 활성화 된 스레드 개수를 받지 못하였습니다.(오래 지속될 경우 담당자에게 문의하세요.)",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					},{
+						name: "NOT FOUND",
+						desc: "해당 에이전트를 찾을 수 없습니다.(에이전트가 활성화 되어 있는 경우에 해당 메시지가 발생한다면 pinpoint 설정 파일에서 profiler.tcpdatasender.command.accept.enable 항목을 true로 변경하세요.)",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					},{
+						name: "CLUSTER CHANNEL CLOSED",
+						desc: "해당 에이전트와의 세션이 종료되었습니다.",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					},{
+						name: "PINPOINT INTERNAL ERROR",
+						desc: "핀포인트 내부 에러가 발생하였습니다.(담당자에게 문의하세요.)",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					},{
+						name: "No Active Thread",
+						desc: "현재 해당 에이전트는 활성화된 스레드가 존재하지 않습니다.",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					},{
+						name: "No Response",
+						desc: "핀포인트 웹 서버로부터의 응답을 받지 못하였습니다.(담당자에게 문의하세요.)",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					}]
 				}]
 			}
-		},
+		},		
 		scatter : {
 			"default": {
 				mainStyle: "",
