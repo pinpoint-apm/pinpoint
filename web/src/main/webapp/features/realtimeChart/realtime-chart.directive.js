@@ -22,6 +22,13 @@
 		responseCode: {
 			ERROR_BLACK: 111,
 			TIMEOUT: 211
+		},
+		consts: {
+			maxDealyCount: 5
+		},
+		message: {
+			NO_ACTIVE_THREAD: "No Active Thread",
+			NO_RESPONSE: "No Response"
 		}
 	});
 	
@@ -68,6 +75,7 @@
             	    var passingQueue = [];
             	    var chartDataQueue = [];
             	    var timeoutCount = 0;
+            	    var delayCount = 0;
             	    initChartData();
 
             	    var d3svg, d3svgX, d3svgY, d3grid, d3path, d3area, d3labels, d3totalLabel, d3tooltip, d3tooltipTextGroup, d3tooltipDate, d3errorLabel, d3errorLabelSpan1, d3errorLabelSpan2;
@@ -360,7 +368,14 @@
             	    }
             	    function tick() {
             	        d3transition = d3transition.each(function() {
-            	            if ( passingQueue.length === 0 ) return;
+            	        	delayCount++;
+            	            if ( passingQueue.length === 0 ) {
+            	            	if ( delayCount > cfg.maxDalyCount ) {
+            	            		setErrorMessage( false, [cfg.message.NO_RESPONSE]);
+            	            	}
+            	            	return;
+            	            }
+            	            delayCount = 0;
 
             	            var aNewData = passingQueue.shift();
             	            resetLabelData( aNewData );
@@ -400,7 +415,7 @@
             	    		}
             	    	}
             	    	if ( bHasData === false ) {
-            	    		setErrorMessage( false, ["No Active Thread"]);
+            	    		setErrorMessage( false, [cfg.message.NO_ACTIVE_THREAD]);
             	    	}
             	    }
 	            	    
