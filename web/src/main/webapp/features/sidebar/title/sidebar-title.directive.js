@@ -12,7 +12,7 @@
 	        return {
 	            restrict: 'E',
 	            replace: true,
-	            templateUrl: 'features/sidebar/title/sidebarTitle.html?v=${buildTime}',
+	            templateUrl: 'features/sidebar/title/sidebarTitle.html?v=' + G_BUILD_TIME,
 	            scope: {
 	                namespace: '@'
 	            },

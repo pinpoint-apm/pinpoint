@@ -15,7 +15,7 @@
 	    return {
 	        restrict: 'EA',
 	        replace: true,
-	        templateUrl: 'features/agentList/agentList.html?v=${buildTime}',
+	        templateUrl: 'features/agentList/agentList.html?v=' + G_BUILD_TIME,
 	        link: function postLink(scope, element, attrs) {
 	
 	            // define private variables of methods

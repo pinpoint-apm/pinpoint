@@ -16,7 +16,7 @@
 	        return {
 	            restrict: 'EA',
 	            replace: true,
-	            templateUrl: 'features/agentInfo/agentInfo.html?v=${buildTime}',
+	            templateUrl: 'features/agentInfo/agentInfo.html?v' + G_BUILD_TIME,
 	            link: function postLink(scope, element, attrs) {
 	
 	                // define private variables
@@ -27,7 +27,7 @@
 	                broadcastToCpuLoadChart, broadcastToTpsChart, resetServerMetaDataDiv, initTooltip;
 	
 	                // initialize
-	                scope.agentInfoTemplate = 'features/agentInfo/agentInfoReady.html?v=${buildTime}';
+	                scope.agentInfoTemplate = 'features/agentInfo/agentInfoReady.html?v=' + G_BUILD_TIME;
 	                oAlertService = new AlertsService();
 	                oProgressBarService = new ProgressBarService();
 	                
@@ -69,7 +69,7 @@
 	                 * scope event of agentInfo.initialize
 	                 */
 	                scope.$on('agentInfoDirective.initialize', function (event, navbarVoService, agent) {
-	                    scope.agentInfoTemplate = 'features/agentInfo/agentInfoMain.html?v=${buildTime}';
+	                    scope.agentInfoTemplate = 'features/agentInfo/agentInfoMain.html?v=' + G_BUILD_TIME;
 	                    scope.agent = agent;
 	                    oNavbarVoService = navbarVoService;
 	                    scope.chartGroup = null;

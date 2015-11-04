@@ -12,7 +12,7 @@
 	        return {
 	            restrict: 'EA',
 	            replace: true,
-	            templateUrl: 'features/configuration/alarm/alarmGroupMember.html?v=${buildTime}',
+	            templateUrl: 'features/configuration/alarm/alarmGroupMember.html?v=' + G_BUILD_TIME,
 	            scope: true,
 	            link: function (scope, element) {
 

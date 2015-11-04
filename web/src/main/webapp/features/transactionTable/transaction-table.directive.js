@@ -11,7 +11,7 @@
 	    return {
 	        restrict: 'EA',
 	        replace: true,
-	        templateUrl: 'features/transactionTable/transactionTable.html?v=${buildTime}',
+	        templateUrl: 'features/transactionTable/transactionTable.html?v=' + G_BUILD_TIME,
 	        link: function postLink(scope, element, attrs) {
 	
 	            // define private variables of methods
