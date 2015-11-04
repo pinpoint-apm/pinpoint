@@ -211,7 +211,7 @@ public class BusinessTransactionController {
         return mv;
     }
 
-    @RequestMapping(value = "/sqlBind", method = RequestMethod.GET)
+    @RequestMapping(value = "/sqlBind", method = RequestMethod.POST)
     @ResponseBody
     public String sqlBind(Model model, HttpServletResponse response,
                           @RequestParam("sql") String sql,

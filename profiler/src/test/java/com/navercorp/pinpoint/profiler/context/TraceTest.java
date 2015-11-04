@@ -38,9 +38,9 @@ public class TraceTest {
 
     @Test
     public void trace() {
-        DefaultTraceId traceID = new DefaultTraceId("agent", 0, 1);
+        DefaultTraceId traceId = new DefaultTraceId("agent", 0, 1);
         DefaultTraceContext defaultTraceContext = getDefaultTraceContext();
-        DefaultTrace trace = new DefaultTrace(defaultTraceContext , traceID, true);
+        DefaultTrace trace = new DefaultTrace(defaultTraceContext, traceId, 0L, true);
         trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
         trace.traceBlockBegin();
 
@@ -55,9 +55,9 @@ public class TraceTest {
 
     @Test
     public void popEventTest() {
-        DefaultTraceId traceID = new DefaultTraceId("agent", 0, 1);
+        DefaultTraceId traceId = new DefaultTraceId("agent", 0, 1);
         DefaultTraceContext defaultTraceContext = getDefaultTraceContext();
-        DefaultTrace trace = new DefaultTrace(defaultTraceContext, traceID, true);
+        DefaultTrace trace = new DefaultTrace(defaultTraceContext, traceId, 0L, true);
         TestDataSender dataSender = new TestDataSender();
         trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
         trace.close();

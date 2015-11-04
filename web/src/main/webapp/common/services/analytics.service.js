@@ -63,11 +63,16 @@
 		this.CONST.CLK_REFRESH = "ClickRefresh";
 		this.CONST.CLK_CALLEE_RANGE = "ClickCalleeRange";
 		this.CONST.CLK_CALLER_RANGE = "ClickCallerRange";
+		this.CONST.CLK_REALTIME_CHART_HIDE = "ClickRealtimeChartHide";
+		this.CONST.CLK_REALTIME_CHART_SHOW = "ClickRealtimeChartShow";		
 		
 		this.CONST.CLK_CONFIGURATION = "ClickConfiguration";
 		this.CONST.CLK_GENERAL = "ClickConfigurationGeneral";
 		this.CONST.CLK_ALARM = "ClickConfigurationAlarm";
 		this.CONST.CLK_HELP = "ClickConfigurationHelp";
+		this.CONST.CLK_GENERAL_SET_DEPTH = "ClickGeneralSetDepth";
+		this.CONST.CLK_GENERAL_SET_PERIOD = "ClickGeneralSetPeriod";
+		this.CONST.CLK_GENERAL_SET_FAVORITE = "ClickGeneralSetFavorite";
 		this.CONST.CLK_ALARM_CREATE_USER_GROUP = "ClickAlarmCreateUserGroup";
 		this.CONST.CLK_ALARM_REFRESH_USER_GROUP = "ClickAlarmRefreshUserGroup";
 		this.CONST.CLK_ALARM_FILTER_USER_GROUP = "ClickAlarmFilterUserGroup";
@@ -92,6 +97,7 @@
 		this.CONST.TG_TPS = "ToggleTPS";
 		this.CONST.TG_ROUTING = "ToggleRouting";
 		this.CONST.TG_CURVE = "ToggleCurve";
+		this.CONST.TG_REALTIME_CHART_RESIZE = "ToggleRealtimeChartResize";
 
 		this.CONST.ST_ = "Sort";
 		

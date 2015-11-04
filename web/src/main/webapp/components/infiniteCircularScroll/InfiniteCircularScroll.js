@@ -168,6 +168,7 @@
 		this.options.scroller.off("scroll");
 	};
 	ICS.prototype.resize = function( resizedViewAreaHeight ) {
+		if ( this._isDefined( this._source ) === false ) return;
 		var currentRow = parseInt(this.options.scroller.scrollTop() / this.options.elementHeight);
 //		this.setViewAreaHeight(resizedViewAreaHeight);
 		this.reset();

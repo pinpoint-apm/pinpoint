@@ -234,7 +234,8 @@
 	                 * @param top
 	                 * @param left
 	                 */
-	                setNodeContextMenuPosition = function (top, left) {
+	                setNodeContextMenuPosition = function (top, left, applicationName) {
+	                	scope.inspectApplicationName = applicationName;
 	                    scope.nodeContextMenuStyle = {
 	                        display: 'block',
 	                        'top': top,
@@ -359,6 +360,7 @@
 	                    	e.diagram.zoomToRect( node.actualBounds, 1.2);
 	                    };
 	                    options.fOnNodeContextClicked = function (e, node) {
+	                    	console.log("node context click : ", node );
 	                        reset();
 	                        var originalNode = ServerMapDaoService.getNodeDataByKey(htLastMapData.applicationMapData, node.key);
 	                        if (originalNode) {
@@ -369,9 +371,9 @@
 //	                            return;
 //	                        }
 	                        if (node.isWas === true) {
-	                            setNodeContextMenuPosition(e.event.layerY, e.event.layerX);
+	                            setNodeContextMenuPosition(e.event.layerY, e.event.layerX, node.applicationName);
 	                        }
-	                        scope.$emit("serverMapDirective.nodeContextClicked", e, query, node, applicationMapData);
+//	                        scope.$emit("serverMapDirective.nodeContextClicked", e, query, node, applicationMapData);
 	                    };
 	                    options.fOnLinkClicked = function (e, link) {
 	                        var originalLink;

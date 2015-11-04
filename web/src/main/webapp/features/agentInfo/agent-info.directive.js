@@ -24,7 +24,7 @@
 	
 	                // define private variables of methods
 	                var getAgentStat, getLink, initServiceInfo, showCharts, parseMemoryChartDataForAmcharts, parseCpuLoadChartDataForAmcharts,
-	                broadcastToCpuLoadChart, resetServerMetaDataDiv, initTooltip;
+	                broadcastToCpuLoadChart, broadcastToTpsChart, resetServerMetaDataDiv, initTooltip;
 	
 	                // initialize
 	                scope.agentInfoTemplate = 'features/agentInfo/agentInfoReady.html';
@@ -54,6 +54,13 @@
 			                	},
 			                	position: "top",
 			                	trigger: "click"
+			                });
+			                jQuery('.tpsTooltip').tooltipster({
+			                    content: function() {
+			                        return helpContentTemplate(helpContentService.inspector.tps);
+			                    },
+			                    position: "top",
+			                    trigger: "click"
 			                });
 	                	}
 	                };
@@ -112,26 +119,30 @@
 	                 */
 	                showCharts = function (agentStat) {
 	
-	                    var heap = { id: 'heap', title: 'Heap', span: 'span12', line: [
+	                    var heap = { id: 'heap', title: 'Heap Usage', span: 'span12', line: [
 	                        { id: 'JVM_MEMORY_HEAP_USED', key: 'Used', values: [], isFgc: false },
 	                        { id: 'JVM_MEMORY_HEAP_MAX', key: 'Max', values: [], isFgc: false },
 	                        { id: 'fgc', key: 'FGC', values: [], bar: true, isFgc: true }
 	                    ]};
 	
-	                    var nonheap = { id: 'nonheap', title: 'PermGen', span: 'span12', line: [
+	                    var nonheap = { id: 'nonheap', title: 'PermGen Usage', span: 'span12', line: [
 	                        { id: 'JVM_MEMORY_NON_HEAP_USED', key: 'Used', values: [], isFgc: false },
 	                        { id: 'JVM_MEMORY_NON_HEAP_MAX', key: 'Max', values: [], isFgc: false },
 	                        { id: 'fgc', key: 'FGC', values: [], bar: true, isFgc: true }
 	                    ]};
 	                    
 	                    var cpuLoad = { id: 'cpuLoad', title: 'JVM/System Cpu Usage', span: 'span12', isAvailable: false};
+	                    
+	                    var tps = { id: 'tps', title: 'Transactions Per Second', span: 'span12', isAvailable: false };
 	
 	                    scope.memoryGroup = [ heap, nonheap ];
 	                    scope.cpuLoadChart = cpuLoad;
+	                    scope.tpsChart = tps;
 	
 	                    scope.$broadcast('jvmMemoryChartDirective.initAndRenderWithData.forHeap', AgentDaoService.parseMemoryChartDataForAmcharts(heap, agentStat), '100%', '270px');
 	                    scope.$broadcast('jvmMemoryChartDirective.initAndRenderWithData.forNonHeap', AgentDaoService.parseMemoryChartDataForAmcharts(nonheap, agentStat), '100%', '270px');
 	                    scope.$broadcast('cpuLoadChartDirective.initAndRenderWithData.forCpuLoad', AgentDaoService.parseCpuLoadChartDataForAmcharts(cpuLoad, agentStat), '100%', '270px');
+	                    scope.$broadcast('tpsChartDirective.initAndRenderWithData.forTps', AgentDaoService.parseTpsChartDataForAmcharts(tps, agentStat), '100%', '270px');
 	                };
 	                
 	                /**
@@ -182,6 +193,12 @@
 	                	}
 	                }
 	                
+	                broadcastToTpsChart = function(e, event) {
+	                    if (scope.tpsChart.isAvailable) {
+	                        scope.$broadcast('tpsChartDirective.showCursorAt.forTps', event.index);
+	                    }
+	                }
+	                
 	                scope.openDetail = function() {
 	                	$('#serverMetaDataDiv').modal({});
 	                };
@@ -202,6 +219,7 @@
 	                scope.$on('jvmMemoryChartDirective.cursorChanged.forHeap', function (e, event) {
 	                    scope.$broadcast('jvmMemoryChart.showCursorAt.forNonHeap', event.index);
 	                    broadcastToCpuLoadChart(e, event);
+	                    broadcastToTpsChart(e, event);
 	                });
 	
 	                /**
@@ -210,6 +228,7 @@
 	                scope.$on('jvmMemoryChartDirective.cursorChanged.forNonHeap', function (e, event) {
 	                    scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
 	                    broadcastToCpuLoadChart(e, event);
+	                    broadcastToTpsChart(e, event);
 	                });
 	
 	                /**
@@ -218,7 +237,17 @@
 	                scope.$on('cpuLoadChartDirective.cursorChanged.forCpuLoad', function (e, event) {
 	                    scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
 	                    scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', event.index);
+	                    broadcastToTpsChart(e, event);
 	                });
+    
+                    /**
+                     * scope event on tpsChart.cursorChanged.forTps
+                     */
+                    scope.$on('tpsChartDirective.cursorChanged.forTps', function (e, event) {
+                        scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
+                        scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', event.index);
+                        broadcastToCpuLoadChart(e, event);
+                    });
 	            }
 	        };
 	    }

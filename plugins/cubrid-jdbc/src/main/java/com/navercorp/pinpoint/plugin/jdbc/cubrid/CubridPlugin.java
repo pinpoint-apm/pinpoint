@@ -95,7 +95,7 @@ public class CubridPlugin implements ProfilerPlugin {
                 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
-                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor", "new java.util.HashMap()");
+                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor");
                 
                 int maxBindValueSize = config.getMaxSqlBindValueSize();
 

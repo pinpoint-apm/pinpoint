@@ -19,8 +19,10 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
+import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.web.vo.AgentStatus;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
@@ -149,7 +151,15 @@ public class WorkerActiveManager {
                 List<AgentInfo> agentInfoList = agentService.getAgentInfoList(applicationName);
                 for (AgentInfo agentInfo : agentInfoList) {
                     String agentId = agentInfo.getAgentId();
-                    if (!defaultAgentIdList.contains(agentId)) {
+                    if (defaultAgentIdList.contains(agentId)) {
+                        continue;
+                    }
+
+                    AgentStatus agentStatus = agentInfo.getStatus();
+                    if (agentStatus != null && agentStatus.getState() != AgentLifeCycleState.UNKNOWN) {
+                        responseAggregator.addActiveWorker(agentInfo);
+                        defaultAgentIdList.add(agentId);
+                    } else if (agentService.isConnected(agentInfo)) {
                         responseAggregator.addActiveWorker(agentInfo);
                         defaultAgentIdList.add(agentId);
                     }

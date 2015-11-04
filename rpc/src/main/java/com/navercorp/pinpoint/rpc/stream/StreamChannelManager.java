@@ -114,7 +114,7 @@ public class StreamChannelManager {
         final int streamChannelId = packet.getStreamChannelId();
         final short packetType = packet.getPacketType();
 
-        logger.info("StreamChannel message received. (Channel:{}, StreamId:{}, Packet:{}).", channel, streamChannelId, packet);
+        logger.debug("StreamChannel message received. (Channel:{}, StreamId:{}, Packet:{}).", channel, streamChannelId, packet);
 
         if (PacketType.APPLICATION_STREAM_CREATE == packetType) {
             handleCreate((StreamCreatePacket) packet);

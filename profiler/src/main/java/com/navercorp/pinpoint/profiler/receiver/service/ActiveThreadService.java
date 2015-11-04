@@ -19,17 +19,10 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandService;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceGroup;
-import com.navercorp.pinpoint.thrift.dto.command.TMonitorInfo;
-import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
-import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
 
-import java.lang.management.LockInfo;
-import java.lang.management.MonitorInfo;
-import java.lang.management.ThreadInfo;
 import java.util.ArrayList;
 import java.util.List;
 

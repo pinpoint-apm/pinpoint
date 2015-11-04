@@ -37,7 +37,7 @@
                     <li class="divider-vertical" ng-hide="showStaticApplication"></li>
                     <li class="for-datetimepicker" id="navbar_period">
                         <div ng-show="periodType != 'range'">
-                            <div class="btn-group btn-group-sm" style="margin-top:0px;width:360px;float:left;">
+                            <div class="btn-group btn-group-sm" style="margin-top:0px;width:350px;float:left;">
                                 <button type="button" class="btn btn-success" ng-click="togglePeriod('range')"><span class="glyphicon glyphicon-th-list"></span></button>
                                 <button type="button" class="btn btn-default" ng-repeat="period in aReadablePeriodList" ng-class="getPeriodClass( period )" ng-click="setPeriod(period)" ng-disabled="periodDelay">{{period == "5m" ? "Last " + period : period}}</button>
                             </div>

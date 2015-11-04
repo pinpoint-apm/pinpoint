@@ -26,8 +26,6 @@ public interface BaseClassFileTransformerBuilder {
 
     public void injectField(String accessorTypeName);
 
-    public void injectField(String accessorTypeName, String initialValueType);
-
     public InterceptorBuilder injectInterceptor(String className, Object... constructorArgs);
 
     public void weave(String aspectClassName);

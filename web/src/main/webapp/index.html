@@ -36,6 +36,8 @@
     <link rel="stylesheet" href="components/angular-slider/angular-slider.min.css?v=${buildTime}">
     <link rel="stylesheet" href="components/slickgrid/slick.grid.css?v=${buildTime}">
     <link rel="stylesheet" href="components/tooltipster/css/tooltipster.css?v=${buildTime}">
+    <link rel="stylesheet" href="components/google-code-prettify/prettify.css?v=${buildTime}">
+    <link rel="stylesheet" href="components/google-code-prettify/sunburst.css?v=${buildTime}">
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -67,6 +69,8 @@
     <script src="components/angular/angular.js?v=${buildTime}"></script>
     <script src="components/underscore/underscore-min.js?v=${buildTime}"></script>
     <script src="components/bootstrap/dist/js/bootstrap.min.js?v=${buildTime}"></script>
+    <script src="components/google-code-prettify/prettify.js?v=${buildTime}"></script>
+    <script src="components/google-code-prettify/lang-sql.js?v=${buildTime}"></script>
     <script src="components/gojs/go.js?v=${buildTime}"></script>
     
     <script src="components/d3/d3.min.js?v=${buildTime}"></script>
@@ -184,7 +188,7 @@
 	</div>
 </div>
 <div class="modal"  id="customLogPopup">
-	<div class="modal-dialog modal-lg" style="width:600px;">
+	<div class="modal-dialog modal-lg" style="width:800px;">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -361,7 +365,7 @@
       						<td class="col-md-2 title">Search Peroid</td>
       						<td class="col-md-3">
       							<select class="period form-control" ng-change="changePeriod()" ng-model="period">
-      								<option ng-repeat="per in periodTypes" ng-selected="per == period" value="{{dep}}">{{per}}</option>
+      								<option ng-repeat="per in periodTypes" ng-selected="per == period" value="{{per}}">{{per}}</option>
       							</select>
       						</td>
       					</tr>
@@ -464,6 +468,7 @@
 <script src="common/services/analytics.service.js?v=${buildTime}"></script>
 <script src="common/services/realtime-websocket.service.js?v=${buildTime}"></script>
 <script src="common/services/preference.service.js?v=${buildTime}"></script>
+<script src="common/services/ajax.service.js?v=${buildTime}"></script>
 <script src="common/help/help-content-en.js?v=${buildTime}"></script>
 <script src="common/help/help-content-ko.js?v=${buildTime}"></script>
 <script src="common/help/help-content-template.js?v=${buildTime}"></script>
@@ -488,6 +493,7 @@
 <script src="features/loadChart/load-chart.directive.js?v=${buildTime}"></script>
 <script src="features/jvmMemoryChart/jvm-memory-chart.directive.js?v=${buildTime}"></script>
 <script src="features/cpuLoadChart/cpu-load-chart.directive.js?v=${buildTime}"></script>
+<script src="features/tpsChart/tps-chart.directive.js?v=${buildTime}"></script>
 <script src="features/loading/loading.directive.js?v=${buildTime}"></script>
 <script src="features/configuration/configuration.controller.js?v=${buildTime}"></script>
 <script src="features/configuration/help/help.controller.js?v=${buildTime}"></script>

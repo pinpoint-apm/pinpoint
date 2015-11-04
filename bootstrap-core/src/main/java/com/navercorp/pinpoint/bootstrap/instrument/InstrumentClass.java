@@ -67,9 +67,6 @@ public interface InstrumentClass {
 
     void addField(String accessorTypeName) throws InstrumentException;
 
-    @Deprecated
-    void addField(String accessorTypeName, @Deprecated String initValExp) throws InstrumentException;
-
     void addGetter(String getterTypeName, String fieldName) throws InstrumentException;
 
 

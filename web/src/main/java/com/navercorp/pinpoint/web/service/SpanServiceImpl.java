@@ -152,7 +152,7 @@ public class SpanServiceImpl implements SpanService {
 
                         AnnotationBo sql = new AnnotationBo();
                         sql.setKey(AnnotationKey.SQL.getCode());
-                        sql.setValue(sqlMetaDataBo.getSql());
+                        sql.setValue(sqlMetaDataBo.getSql().trim());
                         annotationBoList.add(sql);
                     } else {
                         logger.debug("sqlMetaDataBo:{}", sqlMetaDataBo);
@@ -170,7 +170,7 @@ public class SpanServiceImpl implements SpanService {
 
                         AnnotationBo sql = new AnnotationBo();
                         sql.setKey(AnnotationKey.SQL.getCode());
-                        sql.setValue(originalSql);
+                        sql.setValue(originalSql.trim());
                         annotationBoList.add(sql);
 
                     }

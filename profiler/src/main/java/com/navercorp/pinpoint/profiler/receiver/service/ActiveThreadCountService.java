@@ -28,7 +28,10 @@ import com.navercorp.pinpoint.profiler.receiver.CommandSerializer;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerStreamCommandService;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
-import com.navercorp.pinpoint.rpc.stream.*;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
+import com.navercorp.pinpoint.rpc.stream.StreamChannelStateCode;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
@@ -142,7 +145,6 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
         return response;
     }
 
-
     private static class IntAdder {
         private int value = 0;
 
@@ -161,8 +163,6 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
 
     private class ActiveThreadCountStreamChannelStateChangeEventHandler implements StreamChannelStateChangeEventHandler<ServerStreamChannel> {
 
-        private final LoggingStreamChannelStateChangeEventHandler loggingStateChangeEventListener = new LoggingStreamChannelStateChangeEventHandler();
-
         @Override
         public void eventPerformed(ServerStreamChannel streamChannel, StreamChannelStateCode updatedStateCode) throws Exception {
             synchronized (lock) {
@@ -177,10 +177,8 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
                     case CLOSED:
                     case ILLEGAL_STATE:
                         boolean removed = streamChannelRepository.remove(streamChannel);
-                        if (removed) {
-                            if (streamChannelRepository.size() == 0) {
-                                boolean turnOff = onTimerTask.compareAndSet(true, false);
-                            }
+                        if (removed && streamChannelRepository.size() == 0) {
+                            boolean turnOff = onTimerTask.compareAndSet(true, false);
                         }
                         break;
                 }

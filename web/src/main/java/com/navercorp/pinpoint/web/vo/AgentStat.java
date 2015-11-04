@@ -26,6 +26,8 @@ public class AgentStat {
     private final String agentId;
     private final long timestamp;
 
+    private long collectInterval;
+    
     private String gcType;
     private long gcOldCount = NOT_COLLECTED;
     private long gcOldTime = NOT_COLLECTED;
@@ -33,9 +35,14 @@ public class AgentStat {
     private long heapMax = NOT_COLLECTED;
     private long nonHeapUsed = NOT_COLLECTED;
     private long nonHeapMax = NOT_COLLECTED;
+    
     private double jvmCpuUsage = NOT_COLLECTED;
     private double systemCpuUsage = NOT_COLLECTED;
-    private int tps = NOT_COLLECTED;
+    
+    private long sampledNewCount = NOT_COLLECTED;
+    private long sampledContinuationCount = NOT_COLLECTED;
+    private long unsampledNewCount = NOT_COLLECTED;
+    private long unsampledContinuationCount = NOT_COLLECTED;
     
     public AgentStat(String agentId, long timestamp) {
         if (agentId == null) {
@@ -54,6 +61,14 @@ public class AgentStat {
     
     public long getTimestamp() {
         return this.timestamp;
+    }
+    
+    public long getCollectInterval() {
+        return this.collectInterval;
+    }
+    
+    public void setCollectInterval(long collectInterval) {
+        this.collectInterval = collectInterval;
     }
 
     public String getGcType() {
@@ -128,17 +143,46 @@ public class AgentStat {
         this.systemCpuUsage = systemCpuUsage;
     }
 
-    public int getTps() {
-        return tps;
+    public long getSampledNewCount() {
+        return sampledNewCount;
     }
 
-    public void setTps(int tps) {
-        this.tps = tps;
+    public void setSampledNewCount(long sampledNewCount) {
+        this.sampledNewCount = sampledNewCount;
+    }
+
+    public long getSampledContinuationCount() {
+        return sampledContinuationCount;
+    }
+
+    public void setSampledContinuationCount(long sampledContinuationCount) {
+        this.sampledContinuationCount = sampledContinuationCount;
+    }
+
+    public long getUnsampledNewCount() {
+        return unsampledNewCount;
+    }
+
+    public void setUnsampledNewCount(long unsampledNewCount) {
+        this.unsampledNewCount = unsampledNewCount;
+    }
+
+    public long getUnsampledContinuationCount() {
+        return unsampledContinuationCount;
+    }
+
+    public void setUnsampledContinuationCount(long unsampledContinuationCount) {
+        this.unsampledContinuationCount = unsampledContinuationCount;
     }
 
     @Override
     public String toString() {
-        return "AgentStat [agentId=" + agentId + ", timestamp=" + timestamp + ", tps=" + tps + "]";
+        return "AgentStat [agentId=" + agentId + ", timestamp=" + timestamp + ", collectInterval=" + collectInterval
+                + ", gcType=" + gcType + ", gcOldCount=" + gcOldCount + ", gcOldTime=" + gcOldTime
+                + ", heapUsed=" + heapUsed + ", heapMax=" + heapMax + ", nonHeapUsed=" + nonHeapUsed
+                + ", nonHeapMax=" + nonHeapMax + ", jvmCpuUsage=" + jvmCpuUsage + ", systemCpuUsage="+ systemCpuUsage
+                + ", sampledNewCount=" + sampledNewCount + ", sampledContinuationCount=" + sampledContinuationCount
+                + ", unsampledNewCount=" + unsampledNewCount + ", unsampledContinuationCount=" + unsampledContinuationCount + "]";
     }
 
 }

@@ -43,6 +43,9 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
 
     private static final ClientStreamChannelMessageListener LOGGING = LoggingStreamChannelMessageListener.CLIENT_LISTENER;
     private static final TCmdActiveThreadCount COMMAND_INSTANCE = new TCmdActiveThreadCount();
+
+    private static final ActiveThreadCountErrorType INTERNAL_ERROR = ActiveThreadCountErrorType.PINPOINT_INTERNAL_ERROR;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Object lock = new Object();
     private final AgentService agentService;
@@ -141,20 +144,20 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
             try {
                 ClientStreamChannelContext clientStreamChannelContext = agentService.openStream(agentInfo, COMMAND_INSTANCE, messageListener, stateChangeListener);
                 if (clientStreamChannelContext == null) {
-                    defaultFailedResponse.setFail(StreamCode.CONNECTION_NOT_FOUND.name());
+                    setDefaultErrorMessage(StreamCode.CONNECTION_NOT_FOUND.name());
                     workerActiveManager.addReactiveWorker(agentInfo);
                 } else {
                     if (clientStreamChannelContext.getCreateFailPacket() == null) {
                         streamChannel = clientStreamChannelContext.getStreamChannel();
-                        defaultFailedResponse.setFail(TRouteResult.TIMEOUT.name());
+                        setDefaultErrorMessage(TRouteResult.TIMEOUT.name());
                         active = true;
                     } else {
                         StreamCreateFailPacket createFailPacket = clientStreamChannelContext.getCreateFailPacket();
-                        defaultFailedResponse.setFail(createFailPacket.getCode().name());
+                        setDefaultErrorMessage(createFailPacket.getCode().name());
                     }
                 }
             } catch (TException exception) {
-                defaultFailedResponse.setFail(TRouteResult.NOT_SUPPORTED_REQUEST.name());
+                setDefaultErrorMessage(TRouteResult.NOT_SUPPORTED_REQUEST.name());
             }
 
             return active;
@@ -173,7 +176,12 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
         if (streamChannel != null) {
             streamChannel.close();
         }
-        defaultFailedResponse.setFail(StreamCode.STATE_CLOSED.name());
+        setDefaultErrorMessage(StreamCode.STATE_CLOSED.name());
+    }
+
+    private void setDefaultErrorMessage(String message) {
+        ActiveThreadCountErrorType errorType = ActiveThreadCountErrorType.getType(message);
+        defaultFailedResponse.setFail(errorType.getCode(), errorType.getMessage());
     }
 
     public String getAgentId() {
@@ -198,8 +206,7 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
         @Override
         public void handleStreamClose(ClientStreamChannelContext streamChannelContext, StreamClosePacket packet) {
             LOGGING.handleStreamClose(streamChannelContext, packet);
-
-            defaultFailedResponse.setFail(StreamCode.STATE_CLOSED.name());
+            setDefaultErrorMessage(StreamCode.STATE_CLOSED.name());
         }
 
         private AgentActiveThreadCount getAgentActiveThreadCount(TBase routeResponse) {
@@ -212,10 +219,12 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
                 if (activeThreadCountResponse != null && (activeThreadCountResponse instanceof TCmdActiveThreadCountRes)) {
                     agentActiveThreadCount.setResult((TCmdActiveThreadCountRes) activeThreadCountResponse);
                 } else {
-                    agentActiveThreadCount.setFail("ROUTE_ERROR:" + TRouteResult.NOT_SUPPORTED_RESPONSE.name());
+                    logger.warn("getAgentActiveThreadCount failed. applicationName:{}, agentId:{}, cause:{}", applicationName, agentId, ((TCommandTransferResponse) routeResponse).getRouteResult());
+                    agentActiveThreadCount.setFail(INTERNAL_ERROR.getCode(), INTERNAL_ERROR.getMessage());
                 }
             } else {
-                agentActiveThreadCount.setFail("ROUTE_ERROR:" + TRouteResult.BAD_RESPONSE.name());
+                logger.warn("getAgentActiveThreadCount failed. applicationName:{}, agentId:{}", applicationName, agentId);
+                agentActiveThreadCount.setFail(INTERNAL_ERROR.getCode(), INTERNAL_ERROR.getMessage());
             }
 
             return agentActiveThreadCount;
@@ -235,7 +244,7 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
                     if (isTurnOn()) {
                         active = false;
                         workerActiveManager.addReactiveWorker(agentId);
-                        defaultFailedResponse.setFail(StreamCode.STATE_CLOSED.name());
+                        setDefaultErrorMessage(StreamCode.STATE_CLOSED.name());
                     }
                     break;
             }

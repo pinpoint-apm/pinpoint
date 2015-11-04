@@ -4,11 +4,9 @@
     <div class="servermap-toolbar" ng-show="bShowServerMapStatus">
     	<span class="glyphicon glyphicon-question-sign serverMapTooltip"></span>
 	    <div class="servermap-status" style="right:420px">
-	    	<form class="form-inline">
-		    	<input type="text" class="form-control" ng-keydown="searchNodeByEnter($event)" ng-model="searchNodeQuery" placeholder="Enter node name"/>
-		    	<button class="btn btn-info" style="margin-left:-10px" ng-click="searchNode()"><span class="glyphicon glyphicon-search"></span></button>
-		    	<button class="btn btn-info" ng-click="clearSearchNode()"><span class="glyphicon glyphicon-trash"></span></button>
-		    </form>
+	    	<input type="text" class="form-control" ng-keydown="searchNodeByEnter($event)" ng-model="searchNodeQuery" placeholder="Enter node name" style="display:inline-block;;width:147px"/>
+	    	<button class="btn btn-info" style="margin-left:-10px;margin-top:-4px" ng-click="searchNode()"><span class="glyphicon glyphicon-search"></span></button>
+	    	<button class="btn btn-info" style="margin-top:-4px" ng-click="clearSearchNode()"><span class="glyphicon glyphicon-trash"></span></button>
 	    </div>
 	    <div class="servermap-status">
 	    	<button type="button" class="btn btn-default btn-info" style="margin-top:-4px" ng-click="moveThePast()"><span class="glyphicon glyphicon-chevron-left"></span></button><button type="button" class="btn btn-default btn-info" style="margin-top:-4px" ng-click="moveTheFuture()"><span class="glyphicon glyphicon-chevron-right"></span></button><div class="alert alert-info serverMapTime" style="min-height: 30px;display:inline-block;padding-bottom:9px;padding-top:10px">
@@ -22,7 +20,7 @@
 	    </div>
     </div>
     <div class="servermap-toolbar-handle" ng-show="bShowServerMapStatus">
-    	<button type="button" class="btn btn-xs btn-default btn-warning" ng-click="toggleToolbar()" style="height:54px"><span class="glyphicon glyphicon-chevron-up"></span></button>
+    	<button type="button" class="btn btn-xs btn-default btn-info" ng-click="toggleToolbar()" style="height:54px"><span class="glyphicon glyphicon-chevron-up"></span></button>
     </div>   
     <div ng-include=" 'error' "></div>
     <div ng-include=" 'warning' "></div>
@@ -30,11 +28,11 @@
     <div ng-include=" 'loading' "></div>
 
     <ul ng-style="nodeContextMenuStyle" class="nodeContextMenu dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="z-index:10">
-        <li><a href tabindex="-1" ng-click=""><span class="glyphicon glyphicon-filter"></span> Filter Transaction</a></li>
+        <!--li><a href tabindex="-1" ng-click=""><span class="glyphicon glyphicon-filter"></span> Filter Transaction</a></li>
         <li><a href tabindex="-1" ng-click=""><span class="glyphicon glyphicon-filter"></span> Filter Transaction Wizard</a></li>
-        <li class="divider"></li>
+        <li class="divider"></li-->
         <li>
-        	<a tabindex="-1" ng-href="#/inspector/{{oNavbarVoService.getApplication()}}/{{oNavbarVoService.getReadablePeriod()}}/{{oNavbarVoService.getQueryEndDateTime()}}"
+        	<a tabindex="-1" ng-href="#/inspector/{{inspectApplicationName}}/{{oNavbarVoService.getReadablePeriod()}}/{{oNavbarVoService.getQueryEndDateTime()}}"
                target="_blank"><span class="glyphicon glyphicon-search"></span> Inspect Agents</a>
         </li>
     </ul>
@@ -216,6 +214,7 @@
 		<div class="chart-title">
 			<span>Realtime Active Thread Chart</span>
 			<span class="chart-expand glyphicon glyphicon-fullscreen" aria-hidden="true" ng-click="resizePopup()"></span>
+			<span class="glyphicon glyphicon-question-sign realtimeTooltip tooltipstered" style="float:right;cursor:pointer;color:#FFF;font-size:17px;padding-right:6px;"></span>
 		</div>
 		<div class="agent-sum-chart">
 			<div>{{currentApplicationName}} ({{currentAgentCount == 0 ? "..." : currentAgentCount}})</div>
