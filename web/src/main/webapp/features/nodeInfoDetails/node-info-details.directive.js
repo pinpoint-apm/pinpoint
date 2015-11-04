@@ -18,7 +18,7 @@
             return {
                 restrict: 'EA',
                 replace: true,
-                templateUrl: 'features/nodeInfoDetails/nodeInfoDetails.html?v=${buildTime}',
+                templateUrl: 'features/nodeInfoDetails/nodeInfoDetails.html?v=' + G_BUILD_TIME,
                 scope: {},
                 link: function postLink(scope, element) {
 

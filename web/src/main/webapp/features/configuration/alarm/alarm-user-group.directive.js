@@ -13,7 +13,7 @@
 	        return {
 	            restrict: 'EA',
 	            replace: true,
-	            templateUrl: 'features/configuration/alarm/alarmUserGroup.html?v=${buildTime}',
+	            templateUrl: 'features/configuration/alarm/alarmUserGroup.html?v=' + G_BUILD_TIME,
 	            scope: true,
 	            link: function (scope, element) {
 	            	scope.prefix = "alarmUserGroup_";
