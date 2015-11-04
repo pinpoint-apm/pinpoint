@@ -191,7 +191,7 @@ public class DefaultAgent implements Agent {
 
         addCommandService(commandDispatcher, traceContext);
 
-        this.agentInfoSender = new AgentInfoSender(tcpDataSender, profilerConfig.getAgentInfoSendRetryInterval(), this.agentInformation);
+        this.agentInfoSender = new AgentInfoSender.Builder(tcpDataSender, this.agentInformation).sendInterval(profilerConfig.getAgentInfoSendRetryInterval()).build();
         this.serverMetaDataHolder.addListener(this.agentInfoSender);
 
         AgentStatCollectorFactory agentStatCollectorFactory = new AgentStatCollectorFactory(this.getTransactionCounter(this.traceContext));
