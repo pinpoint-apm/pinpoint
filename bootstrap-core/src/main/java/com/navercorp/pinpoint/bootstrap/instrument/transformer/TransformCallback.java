@@ -23,5 +23,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 
 
 public interface TransformCallback {
+
     byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException;
+
 }

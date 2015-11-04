@@ -52,12 +52,6 @@ public class GuardProfilerPluginContext implements ProfilerPluginSetupContext {
 
     @Override
     public void addClassFileTransformer(String targetClassName, TransformCallback transformCallback) {
-        if (targetClassName == null) {
-            throw new NullPointerException("targetClassName must not be null");
-        }
-        if (transformCallback == null) {
-            throw new NullPointerException("transformCallback must not be null");
-        }
         checkOpen();
         this.delegate.addClassFileTransformer(targetClassName, transformCallback);
     }

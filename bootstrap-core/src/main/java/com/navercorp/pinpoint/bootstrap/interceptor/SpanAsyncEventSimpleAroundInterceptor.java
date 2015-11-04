@@ -19,6 +19,13 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
     final MethodDescriptor asyncMethodDescriptor = new AsyncMethodDescriptor();
 
     public SpanAsyncEventSimpleAroundInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+        if (traceContext == null) {
+            throw new NullPointerException("traceContext must not be null");
+        }
+        if (methodDescriptor == null) {
+            throw new NullPointerException("methodDescriptor must not be null");
+        }
+
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
 

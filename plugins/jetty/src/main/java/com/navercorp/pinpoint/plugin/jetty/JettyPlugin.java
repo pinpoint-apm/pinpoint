@@ -15,6 +15,7 @@
 package com.navercorp.pinpoint.plugin.jetty;
 
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformers;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
@@ -32,10 +33,12 @@ public class JettyPlugin implements ProfilerPlugin {
     }
 
     private void addServerInterceptor(ProfilerPluginSetupContext context, JettyConfiguration config){
-        context.addClassFileTransformer("org.eclipse.jetty.server.Server", PinpointClassFileTransformers.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.ServerHandleInterceptor", va(config.getJettyExcludeUrlFilter())));
+        final TransformCallback transformCallback = PinpointClassFileTransformers.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.ServerHandleInterceptor", va(config.getJettyExcludeUrlFilter()));
+        context.addClassFileTransformer("org.eclipse.jetty.server.Server", transformCallback);
     }
     
     private void addRequestEditor(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("org.eclipse.jetty.server.Request", PinpointClassFileTransformers.addField("com.navercorp.pinpoint.plugin.jetty.interceptor.TraceAccessor"));
+        final TransformCallback transformCallback = PinpointClassFileTransformers.addField("com.navercorp.pinpoint.plugin.jetty.interceptor.TraceAccessor");
+        context.addClassFileTransformer("org.eclipse.jetty.server.Request", transformCallback);
     }
 }

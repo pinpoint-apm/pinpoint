@@ -19,13 +19,6 @@ package com.navercorp.pinpoint.profiler.interceptor.factory;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
-import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor0;
-import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor1;
-import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor2;
-import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor3;
-import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor4;
-import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor5;
 import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor0;
@@ -34,13 +27,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor2;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor3;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor4;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor5;
-import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor0;
-import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor1;
-import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor2;
-import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor3;
-import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor4;
-import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor5;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
@@ -95,49 +81,21 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
     
     private Interceptor wrapByGroup(Interceptor interceptor, InterceptorGroup group, ExecutionPolicy policy) {
         if (interceptor instanceof AroundInterceptor) {
-            return new GroupedInterceptor((AroundInterceptor)interceptor, (AroundInterceptor)interceptor, group, policy);
+            return new GroupedInterceptor((AroundInterceptor)interceptor, group, policy);
         } else if (interceptor instanceof StaticAroundInterceptor) {
             return new GroupedStaticAroundInterceptor((StaticAroundInterceptor)interceptor, group, policy);
         } else if (interceptor instanceof AroundInterceptor5) {
-            return new GroupedInterceptor5((BeforeInterceptor5)interceptor, (AfterInterceptor5)interceptor, group, policy);
-        } else if (interceptor instanceof BeforeInterceptor5) {
-            return new GroupedInterceptor5((BeforeInterceptor5)interceptor, null, group, policy);
-        } else if (interceptor instanceof AfterInterceptor5) {
-            return new GroupedInterceptor5(null, (AfterInterceptor5)interceptor, group, policy);
+            return new GroupedInterceptor5((AroundInterceptor5)interceptor, group, policy);
         } else if (interceptor instanceof AroundInterceptor4) {
-            return new GroupedInterceptor4((BeforeInterceptor4)interceptor, (AfterInterceptor4)interceptor, group, policy);
-        } else if (interceptor instanceof BeforeInterceptor4) {
-            return new GroupedInterceptor4((BeforeInterceptor4)interceptor, null, group, policy);
-        } else if (interceptor instanceof AfterInterceptor4) {
-            return new GroupedInterceptor4(null, (AfterInterceptor4)interceptor, group, policy);
+            return new GroupedInterceptor4((AroundInterceptor4)interceptor, group, policy);
         } else if (interceptor instanceof AroundInterceptor3) {
-            return new GroupedInterceptor3((BeforeInterceptor3)interceptor, (AfterInterceptor3)interceptor, group, policy);
-        } else if (interceptor instanceof BeforeInterceptor3) {
-            return new GroupedInterceptor3((BeforeInterceptor3)interceptor, null, group, policy);
-        } else if (interceptor instanceof AfterInterceptor3) {
-            return new GroupedInterceptor3(null, (AfterInterceptor3)interceptor, group, policy);
+            return new GroupedInterceptor3((AroundInterceptor3)interceptor, group, policy);
         } else if (interceptor instanceof AroundInterceptor2) {
-            return new GroupedInterceptor2((BeforeInterceptor2)interceptor, (AfterInterceptor2)interceptor, group, policy);
-        } else if (interceptor instanceof BeforeInterceptor2) {
-            return new GroupedInterceptor2((BeforeInterceptor2)interceptor, null, group, policy);
-        } else if (interceptor instanceof AfterInterceptor2) {
-            return new GroupedInterceptor2(null, (AfterInterceptor2)interceptor, group, policy);
+            return new GroupedInterceptor2((AroundInterceptor2)interceptor, group, policy);
         } else if (interceptor instanceof AroundInterceptor1) {
-            return new GroupedInterceptor1((BeforeInterceptor1)interceptor, (AfterInterceptor1)interceptor, group, policy);
-        } else if (interceptor instanceof BeforeInterceptor1) {
-            return new GroupedInterceptor1((BeforeInterceptor1)interceptor, null, group, policy);
-        } else if (interceptor instanceof AfterInterceptor1) {
-            return new GroupedInterceptor1(null, (AfterInterceptor1)interceptor, group, policy);
+            return new GroupedInterceptor1((AroundInterceptor1)interceptor, group, policy);
         } else if (interceptor instanceof AroundInterceptor0) {
-            return new GroupedInterceptor0((BeforeInterceptor0)interceptor, (AfterInterceptor0)interceptor, group, policy);
-        } else if (interceptor instanceof BeforeInterceptor0) {
-            return new GroupedInterceptor0((BeforeInterceptor0)interceptor, null, group, policy);
-        } else if (interceptor instanceof AfterInterceptor0) {
-            return new GroupedInterceptor0(null, (AfterInterceptor0)interceptor, group, policy);
-        } else if (interceptor instanceof BeforeInterceptor) {
-            return new GroupedInterceptor((BeforeInterceptor)interceptor, null, group, policy);
-        } else if (interceptor instanceof AfterInterceptor) {
-            return new GroupedInterceptor(null, (AfterInterceptor)interceptor, group, policy);
+            return new GroupedInterceptor0((AroundInterceptor0)interceptor, group, policy);
         } else if (interceptor instanceof ApiIdAwareAroundInterceptor) {
             return new GroupedApiIdAwareAroundInterceptor((ApiIdAwareAroundInterceptor)interceptor, group, policy);
         }

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.instrument;
 
 import java.lang.reflect.Method;
 
+import com.navercorp.pinpoint.profiler.instrument.interceptor.*;
 import javassist.CannotCompileException;
 import javassist.CtBehavior;
 import javassist.CtClass;
@@ -49,9 +50,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry;
 import com.navercorp.pinpoint.common.util.Asserts;
 import com.navercorp.pinpoint.profiler.context.DefaultMethodDescriptor;
-import com.navercorp.pinpoint.profiler.instrument.interceptor.InvokeAfterCodeGenerator;
-import com.navercorp.pinpoint.profiler.instrument.interceptor.InvokeBeforeCodeGenerator;
-import com.navercorp.pinpoint.profiler.instrument.interceptor.InvokeCodeGenerator;
 import com.navercorp.pinpoint.profiler.interceptor.factory.AnnotatedInterceptorFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
@@ -66,6 +64,9 @@ public class JavassistMethod implements InstrumentMethod {
     private final CtBehavior behavior;
     private final InstrumentClass declaringClass;
     private final MethodDescriptor descriptor;
+
+    // TODO fix inject InterceptorTypeDetector
+    private static final InterceptorTypeDetector INTERCEPTOR_TYPE_DETECTOR = new InterceptorTypeDetector();
 
     public JavassistMethod(Instrumentor pluginContext, InterceptorRegistryBinder interceptorRegistryBinder, InstrumentClass declaringClass, CtBehavior behavior) {
         this.pluginContext = pluginContext;
@@ -286,8 +287,13 @@ public class JavassistMethod implements InstrumentMethod {
     }
     
     private void addInterceptor0(Interceptor interceptor, int interceptorId) throws CannotCompileException, NotFoundException {
+        if (interceptor == null) {
+            throw new NullPointerException("interceptor must not be null");
+        }
+
+        final InterceptorDefinition interceptorDefinition = INTERCEPTOR_TYPE_DETECTOR.getInterceptorDefinition(interceptor.getClass());
+
         StringBuilder initVars = new StringBuilder();
-        
         String interceptorInstanceVar = InvokeCodeGenerator.getInterceptorVar(interceptorId);
         addLocalVariable(interceptorInstanceVar, Interceptor.class);
         initVars.append(interceptorInstanceVar);
@@ -297,14 +303,14 @@ public class JavassistMethod implements InstrumentMethod {
 
         boolean localVarsInitialized = false;
         
-        int offset = addBeforeInterceptor(interceptor, interceptorId, originalCodeOffset);
+        int offset = addBeforeInterceptor(interceptorDefinition, interceptorId, originalCodeOffset);
         
         if (offset != -1) {
             localVarsInitialized = true;
             originalCodeOffset = offset;
         }
 
-        addAfterInterceptor(interceptor, interceptorId, localVarsInitialized, originalCodeOffset);
+        addAfterInterceptor(interceptorDefinition, interceptorId, localVarsInitialized, originalCodeOffset);
     }
     
     private static Method findMethod(Class<?> interceptorClass, String name) {
@@ -317,9 +323,14 @@ public class JavassistMethod implements InstrumentMethod {
         return null;
     }
 
-    private void addAfterInterceptor(Interceptor interceptor, int interceptorId, boolean localVarsInitialized, int originalCodeOffset) throws NotFoundException, CannotCompileException {
-        Class<?> interceptorClass = interceptor.getClass();
-        Method interceptorMethod = findMethod(interceptorClass, "after");
+    private void addAfterInterceptor(InterceptorDefinition interceptor, int interceptorId, boolean localVarsInitialized, int originalCodeOffset) throws NotFoundException, CannotCompileException {
+
+        final Class<?> interceptorClass = interceptor.getInterceptorClazz();
+        final CaptureType captureType = interceptor.getCaptureType();
+        if (!isAfterInterceptor(captureType)) {
+            return;
+        }
+        final Method interceptorMethod = interceptor.getAfterMethod();
 
         if (interceptorMethod == null) {
             if (isDebug) {
@@ -350,9 +361,17 @@ public class JavassistMethod implements InstrumentMethod {
         behavior.insertAfter(afterCode);
     }
 
-    private int addBeforeInterceptor(Interceptor interceptor, int interceptorId, int pos) throws CannotCompileException, NotFoundException {
-        Class<?> interceptorClass = interceptor.getClass();
-        Method interceptorMethod = findMethod(interceptorClass, "before");
+    private boolean isAfterInterceptor(CaptureType captureType) {
+        return CaptureType.AFTER == captureType || CaptureType.AROUND == captureType;
+    }
+
+    private int addBeforeInterceptor(InterceptorDefinition interceptor, int interceptorId, int pos) throws CannotCompileException, NotFoundException {
+        final Class<?> interceptorClass = interceptor.getInterceptorClazz();
+        final CaptureType captureType = interceptor.getCaptureType();
+        if (!isBeforeInterceptor(captureType)) {
+            return -1;
+        }
+        final Method interceptorMethod = interceptor.getBeforeMethod();
 
         if (interceptorMethod == null) {
             if (isDebug) {
@@ -371,8 +390,14 @@ public class JavassistMethod implements InstrumentMethod {
         return insertBefore(pos, beforeCode);
     }
 
+    private boolean isBeforeInterceptor(CaptureType captureType) {
+        return CaptureType.BEFORE == captureType || CaptureType.AROUND == captureType;
+    }
+
     private void addLocalVariable(String name, Class<?> type) throws CannotCompileException, NotFoundException {
-        behavior.addLocalVariable(name, behavior.getDeclaringClass().getClassPool().get(type.getName()));
+        final String interceptorClassName = type.getName();
+        final CtClass interceptorCtClass = behavior.getDeclaringClass().getClassPool().get(interceptorClassName);
+        behavior.addLocalVariable(name, interceptorCtClass);
     }
     
     private int insertBefore(int pos, String src) throws CannotCompileException {

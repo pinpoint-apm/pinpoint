@@ -32,6 +32,15 @@ public class GroupedApiIdAwareAroundInterceptor implements ApiIdAwareAroundInter
     private final ExecutionPolicy policy;
 
     public GroupedApiIdAwareAroundInterceptor(ApiIdAwareAroundInterceptor delegate, InterceptorGroup group, ExecutionPolicy policy) {
+        if (delegate == null) {
+            throw new NullPointerException("delegate must not be null");
+        }
+        if (group == null) {
+            throw new NullPointerException("group must not be null");
+        }
+        if (policy == null) {
+            throw new NullPointerException("policy must not be null");
+        }
         this.delegate = delegate;
         this.group = group;
         this.policy = policy;
@@ -39,7 +48,7 @@ public class GroupedApiIdAwareAroundInterceptor implements ApiIdAwareAroundInter
 
     @Override
     public void before(Object target, int apiId, Object[] args) {
-        InterceptorGroupInvocation transaction = group.getCurrentInvocation();
+        final InterceptorGroupInvocation transaction = group.getCurrentInvocation();
         
         if (transaction.tryEnter(policy)) {
             this.delegate.before(target, apiId, args);
@@ -52,7 +61,7 @@ public class GroupedApiIdAwareAroundInterceptor implements ApiIdAwareAroundInter
 
     @Override
     public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
-        InterceptorGroupInvocation transaction = group.getCurrentInvocation();
+        final InterceptorGroupInvocation transaction = group.getCurrentInvocation();
         
         if (transaction.canLeave(policy)) {
             this.delegate.after(target, apiId, args, result, throwable);

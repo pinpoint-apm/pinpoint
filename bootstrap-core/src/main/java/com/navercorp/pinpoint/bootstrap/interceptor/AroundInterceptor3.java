@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.interceptor;
  * @author Jongho Moon
  *
  */
-public interface AroundInterceptor3 extends BeforeInterceptor3, AfterInterceptor3 {
-
+public interface AroundInterceptor3 extends Interceptor {
+    void before(Object target, Object arg0, Object arg1, Object arg2);
+    void after(Object target, Object arg0, Object arg1, Object arg2, Object result, Throwable throwable);
 }
