@@ -15,7 +15,7 @@
 	    return {
 	        restrict: 'EA',
 	        replace: true,
-	        templateUrl: 'features/agentList/agentList.html',
+	        templateUrl: 'features/agentList/agentList.html?v=${buildTime}',
 	        link: function postLink(scope, element, attrs) {
 	
 	            // define private variables of methods

@@ -13,7 +13,7 @@
 	        return {
 	            restrict: 'EA',
 	            replace: true,
-	            templateUrl: 'features/configuration/alarm/alarmUserGroup.html',
+	            templateUrl: 'features/configuration/alarm/alarmUserGroup.html?v=${buildTime}',
 	            scope: true,
 	            link: function (scope, element) {
 	            	scope.prefix = "alarmUserGroup_";
@@ -65,6 +65,7 @@
 	    					}
 	    				} else if ( tagName == "span" ) {
 	    					if ( $target.hasClass("remove") ) {
+	    						if ( isRemoving == true ) return;
 	    						isRemoving = true;
 	    	    				$li.addClass("remove").find("span.remove").hide().end().append($removeTemplate);
 	    					} else if ( $target.hasClass("contents") ) {

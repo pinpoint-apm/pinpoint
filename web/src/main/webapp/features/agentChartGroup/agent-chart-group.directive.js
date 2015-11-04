@@ -19,7 +19,7 @@
 	    return {
 	        restrict: 'EA',
 	        replace: true,
-	        templateUrl: 'features/agentChartGroup/agentChartGroup.html',
+	        templateUrl: 'features/agentChartGroup/agentChartGroup.html?v=${buildTime}',
 	        scope: {
 	            namespace: '@'
 	        },

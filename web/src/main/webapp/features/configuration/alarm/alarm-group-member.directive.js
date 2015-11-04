@@ -12,7 +12,7 @@
 	        return {
 	            restrict: 'EA',
 	            replace: true,
-	            templateUrl: 'features/configuration/alarm/alarmGroupMember.html',
+	            templateUrl: 'features/configuration/alarm/alarmGroupMember.html?v=${buildTime}',
 	            scope: true,
 	            link: function (scope, element) {
 
@@ -49,6 +49,7 @@
 	    					}
 	    				} else if ( tagName == "span" ) {
 	    					if ( $target.hasClass("remove") ) {
+	    						if ( isRemoving == true ) return;
 	    						isRemoving = true;
 	    	    				$li.addClass("remove").find("span.remove").hide().end().append($removeTemplate);
 	    					} else if ( $target.hasClass("glyphicon-remove") ) {

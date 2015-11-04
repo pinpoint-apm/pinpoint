@@ -12,7 +12,7 @@
 	        return {
 	            restrict: 'E',
 	            replace: true,
-	            templateUrl: 'features/distributedCallFlow/distributedCallFlow.html',
+	            templateUrl: 'features/distributedCallFlow/distributedCallFlow.html?v=${buildTime}',
 	            scope : {
 	                namespace : '@' // string value
 	            },

@@ -15,7 +15,7 @@
 	    return {
 	        restrict: 'EA',
 	        replace: true,
-	        templateUrl: 'features/timeSlider/timeSlider.html',
+	        templateUrl: 'features/timeSlider/timeSlider.html?v=${buildTime}',
 	        link: function postLink(scope, element, attrs) {
 	
 	            // define variables
