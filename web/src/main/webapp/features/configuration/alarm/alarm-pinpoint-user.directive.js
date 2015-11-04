@@ -13,7 +13,7 @@
         return {
             restrict: 'EA',
             replace: true,
-            templateUrl: 'features/configuration/alarm/alarmPinpointUser.html',
+            templateUrl: 'features/configuration/alarm/alarmPinpointUser.html?v=${buildTime}',
             scope: true,
             link: function (scope, element) {
             	var $element = $(element);
@@ -62,6 +62,7 @@
     					}
     				} else if ( tagName == "span" ) {
     					if ( $target.hasClass("remove") ) {
+    						if ( isRemoving == true ) return;
     	    				isRemoving = true;
     	    				$li.addClass("remove").find("span.remove").hide().end().find("button.move").addClass("disabled").end().append($removeTemplate);
     					} else if ( $target.hasClass("contents") ) {

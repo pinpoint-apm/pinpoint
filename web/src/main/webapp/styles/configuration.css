@@ -175,15 +175,14 @@
 	margin-right: 2px;
 	padding: 1px 3px 3px 1px;
 	font-size: 6px;
-	border-radius: 15px;
 }
 
 #pinpoint-configuration .some-list-content li button.edit {
-	margin-top: 0px;
+	margin-top: -8px;
 	margin-right: 2px;
-	padding: 1px 3px 3px 4px;
+	padding: 5px 3px 7px 4px;
 	font-size: 6px;
-	border-radius: 15px;
+	margin-left: -4px;
 }
 
 #pinpoint-configuration .some-list-content li.selected {
@@ -405,11 +404,11 @@
 	right: 24px;
 }
 #pinpoint-configuration .some-table .some-list-content .wrapper tbody button.edit {
-	margin-top: 0px;
-	margin-right: 2px;
-	padding: 1px 3px 3px 4px;
+	padding: 6px 3px 7px 4px;
 	font-size: 6px;
-	border-radius: 15px;
+	margin-top: -2px;
+	margin-left: -4px;
+	margin-right: 2px;
 }
 
 #pinpoint-configuration .some-table .filter-input {
@@ -428,9 +427,12 @@
 	display: none;
 }
 #pinpoint-configuration .some-table .some-list-content th, #pinpoint-configuration .some-table .some-list-content td {
-	text-align: center;
-	vertical-align: bottom;
 	overflow: hidden;
+	word-wrap: normal;
+	text-align: center;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	vertical-align: bottom;
 }
 #pinpoint-configuration .some-table .some-list-content .remove {
 	color: #AAA;

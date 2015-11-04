@@ -46,7 +46,7 @@
 	        return {
 	            restrict: 'EA',
 	            replace: true,
-	            templateUrl: 'features/serverMap/serverMap.html',
+	            templateUrl: 'features/serverMap/serverMap.html?v=${buildTime}',
 	            link: function postLink(scope, element, attrs) {
 	
 	                // define private variables

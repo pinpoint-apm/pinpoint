@@ -18,7 +18,7 @@
 	        return {
 	            restrict: 'EA',
 	            replace: true,
-	            templateUrl: 'features/navbar/navbar.html',
+	            templateUrl: 'features/navbar/navbar.html?v=${buildTime}',
 	            link: function (scope, element) {
 	
 	                // define private variables
