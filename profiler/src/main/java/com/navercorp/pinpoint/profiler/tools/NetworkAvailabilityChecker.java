@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.tools;
 
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
@@ -52,7 +53,7 @@ public class NetworkAvailabilityChecker implements PinpointTools {
         PinpointClientFactory clientFactory = null;
         PinpointClient client = null;
         try {
-            ProfilerConfig profilerConfig = ProfilerConfig.load(configPath);
+            ProfilerConfig profilerConfig = DefaultProfilerConfig.load(configPath);
 
             String collectorStatIp = profilerConfig.getCollectorStatServerIp();
             int collectorStatPort = profilerConfig.getCollectorStatServerPort();
