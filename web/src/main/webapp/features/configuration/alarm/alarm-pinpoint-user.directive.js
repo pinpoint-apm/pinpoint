@@ -33,7 +33,7 @@
     			var $elEditInputEmail = $elEdit.find("input[name=email]");
     			var $elEditGuide = $elEdit.find(".title-message");
     			var $removeTemplate = $([
-    	           '<span class="right">',
+    	           '<span class="position:absolute;right:0px">',
     	               '<button class="btn btn-danger confirm-cancel"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>',
     	               '<button class="btn btn-danger confirm-remove" style="margin-left:2px;"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>',
        			   '</span>'
