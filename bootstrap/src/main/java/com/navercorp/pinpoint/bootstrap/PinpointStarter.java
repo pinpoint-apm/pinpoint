@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.navercorp.pinpoint.ProductInfo;
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.PinpointConstants;
@@ -115,7 +116,7 @@ public class PinpointStarter {
 
         try {
             // Is it right to load the configuration in the bootstrap?
-            ProfilerConfig profilerConfig = ProfilerConfig.load(configPath);
+            ProfilerConfig profilerConfig = DefaultProfilerConfig.load(configPath);
 
             // this is the library list that must be loaded
             List<URL> libUrlList = resolveLib(classPathResolver);

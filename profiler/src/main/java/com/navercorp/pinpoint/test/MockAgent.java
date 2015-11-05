@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.profiler.plugin.GuardProfilerPluginContext;
 import org.apache.thrift.TBase;
 
@@ -63,7 +64,7 @@ public class MockAgent extends DefaultAgent {
             if (resource == null) {
                 throw new FileNotFoundException("pinpoint.config not found. configPath:" + configPath);
             }
-            profilerConfig = ProfilerConfig.load(resource.getPath());
+            profilerConfig = DefaultProfilerConfig.load(resource.getPath());
             profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
         } catch (IOException ex) {
             throw new RuntimeException(ex.getMessage(), ex);

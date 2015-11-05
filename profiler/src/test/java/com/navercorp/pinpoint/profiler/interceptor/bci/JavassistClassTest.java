@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import javassist.bytecode.Descriptor;
 
 import org.junit.Assert;
@@ -238,7 +239,7 @@ public class JavassistClassTest {
     private TestClassLoader getTestClassLoader() {
         PLoggerFactory.initialize(new Slf4jLoggerBinder());
 
-        ProfilerConfig profilerConfig = new ProfilerConfig();
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
         profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
         DefaultAgent agent = MockAgent.of(profilerConfig);
 
