@@ -29,14 +29,13 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
  */
 public class InvokeCodeGenerator {
     private final TraceContext traceContext;
-    protected final Class<?> interceptorClass;
+    protected final InterceptorDefinition interceptorDefinition;
     protected final InstrumentMethod targetMethod;
     protected final int interceptorId;
-    protected final InterceptorType type;
 
-    public InvokeCodeGenerator(int interceptorId, Class<?> interceptorClass, InstrumentMethod targetMethod, TraceContext traceContext) {
-        if (interceptorClass == null) {
-            throw new NullPointerException("interceptorClass must not be null");
+    public InvokeCodeGenerator(int interceptorId, InterceptorDefinition interceptorDefinition, InstrumentMethod targetMethod, TraceContext traceContext) {
+        if (interceptorDefinition == null) {
+            throw new NullPointerException("interceptorDefinition must not be null");
         }
         if (targetMethod == null) {
             throw new NullPointerException("targetMethod must not be null");
@@ -44,25 +43,17 @@ public class InvokeCodeGenerator {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
         }
-        this.interceptorClass = interceptorClass;
+
+        this.interceptorDefinition = interceptorDefinition;
         this.targetMethod = targetMethod;
         this.interceptorId = interceptorId;
         this.traceContext = traceContext;
 
-        // TODO remove
-        if (AroundInterceptor.class.isAssignableFrom(interceptorClass)) {
-            type = InterceptorType.ARRAY_ARGS;
-        } else if (StaticAroundInterceptor.class.isAssignableFrom(interceptorClass)) {
-            type = InterceptorType.STATIC;
-        } else if (ApiIdAwareAroundInterceptor.class.isAssignableFrom(interceptorClass)) {
-            type = InterceptorType.API_ID_AWARE;
-        } else {
-            type = InterceptorType.BASIC;
-        }
     }
 
     protected String getInterceptorType() {
-        return interceptorClass.getName();
+//        return interceptorDefinition.getInterceptorClass().getName();
+        return interceptorDefinition.getInterceptorBaseClass().getName();
     }
 
     protected String getParameterTypes() {

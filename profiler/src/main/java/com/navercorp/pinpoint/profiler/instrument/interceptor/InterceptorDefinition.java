@@ -17,55 +17,23 @@
 
 package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+
 import java.lang.reflect.Method;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class InterceptorDefinition {
-    private final Class<?> interceptorClazz;
-    private final InterceptorType interceptorType;
-    private final CaptureType captureType;
-    private final Method beforeMethod;
-    private final Method afterMethod;
+public interface InterceptorDefinition {
+    Class<? extends Interceptor> getInterceptorBaseClass();
 
-    public InterceptorDefinition(Class<?> interceptorClazz, InterceptorType interceptorType, CaptureType captureType, Method beforeMethod, Method afterMethod) {
-        if (interceptorClazz == null) {
-            throw new NullPointerException("interceptorClazz must not be null");
-        }
-        if (interceptorType == null) {
-            throw new NullPointerException("interceptorType must not be null");
-        }
-        if (captureType == null) {
-            throw new NullPointerException("captureType must not be null");
-        }
-        this.interceptorClazz = interceptorClazz;
-        this.interceptorType = interceptorType;
-        this.captureType = captureType;
-        this.beforeMethod = beforeMethod;
-        this.afterMethod = afterMethod;
-    }
+    Class<? extends Interceptor> getInterceptorClass();
 
-    public Class<?> getInterceptorClazz() {
-        return interceptorClazz;
-    }
+    InterceptorType getInterceptorType();
 
-    public InterceptorType getInterceptorType() {
-        return interceptorType;
-    }
+    CaptureType getCaptureType();
 
+    Method getBeforeMethod();
 
-    public CaptureType getCaptureType() {
-        return captureType;
-    }
-
-    public Method getBeforeMethod() {
-        return beforeMethod;
-    }
-
-    public Method getAfterMethod() {
-        return afterMethod;
-    }
-
-
+    Method getAfterMethod();
 }

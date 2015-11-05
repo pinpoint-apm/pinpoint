@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
 import static org.mockito.Mockito.*;
 
-import java.lang.reflect.Method;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -38,13 +36,13 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor3;
 public class InvokeAfterCodeGeneratorTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-
+    private final InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
     @Test
     public void testGenerate_AroundInterceptor3_catchClause() throws Exception {
 
         final Class<AroundInterceptor3> aroundInterceptor3Class = AroundInterceptor3.class;
-        //                                                                           this,          param0,       param1,        param2,        return,        throwable
-        final Method interceptorAfter = aroundInterceptor3Class.getMethod("after", Object.class, Object.class, Object.class, Object.class, Object.class, Throwable.class);
+        final InterceptorDefinition interceptorDefinition = interceptorDefinitionFactory.createInterceptorDefinition(aroundInterceptor3Class);
+
         final InstrumentClass mockClass = mock(InstrumentClass.class);
         Mockito.when(mockClass.getName()).thenReturn("TestClass");
 
@@ -56,7 +54,7 @@ public class InvokeAfterCodeGeneratorTest {
         TraceContext context = mock(TraceContext.class);
 
 
-        final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, aroundInterceptor3Class, interceptorAfter, mockClass, mockMethod, context, false, true);
+        final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, interceptorDefinition, mockClass, mockMethod, context, false, true);
         final String generate = invokeAfterCodeGenerator.generate();
 
         logger.debug("testGenerate_AroundInterceptor3_catchClause:{}", generate);
@@ -72,8 +70,8 @@ public class InvokeAfterCodeGeneratorTest {
     public void testGenerate_AroundInterceptor3_NoCatchClause() throws Exception {
 
         final Class<AroundInterceptor3> aroundInterceptor3Class = AroundInterceptor3.class;
-        //                                                                           this,          param0,       param1,        param2,        return,        throwable
-        final Method interceptorAfter = aroundInterceptor3Class.getMethod("after", Object.class, Object.class, Object.class, Object.class, Object.class, Throwable.class);
+        final InterceptorDefinition interceptorDefinition = interceptorDefinitionFactory.createInterceptorDefinition(aroundInterceptor3Class);
+
         final InstrumentClass mockClass = mock(InstrumentClass.class);
         Mockito.when(mockClass.getName()).thenReturn("TestClass");
 
@@ -84,7 +82,7 @@ public class InvokeAfterCodeGeneratorTest {
 
         TraceContext context = mock(TraceContext.class);
 
-        final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, aroundInterceptor3Class, interceptorAfter, mockClass, mockMethod, context, false, false);
+        final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, interceptorDefinition, mockClass, mockMethod, context, false, false);
         final String generate = invokeAfterCodeGenerator.generate();
 
         logger.debug("testGenerate_AroundInterceptor3_NoCatchClause:{}", generate);
@@ -100,8 +98,8 @@ public class InvokeAfterCodeGeneratorTest {
     public void testGenerate_AroundInterceptor3_methodParam2() throws Exception {
 
         final Class<AroundInterceptor3> aroundInterceptor3Class = AroundInterceptor3.class;
-        //                                                                           this,          param0,       param1,        param2,        return,        throwable
-        final Method interceptorAfter = aroundInterceptor3Class.getMethod("after", Object.class, Object.class, Object.class, Object.class, Object.class, Throwable.class);
+        final InterceptorDefinition interceptorDefinition = interceptorDefinitionFactory.createInterceptorDefinition(aroundInterceptor3Class);
+
         final InstrumentClass mockClass = mock(InstrumentClass.class);
         Mockito.when(mockClass.getName()).thenReturn("TestClass");
 
@@ -113,7 +111,7 @@ public class InvokeAfterCodeGeneratorTest {
         TraceContext context = mock(TraceContext.class);
 
 
-        final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, aroundInterceptor3Class, interceptorAfter, mockClass, mockMethod, context, false, true);
+        final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, interceptorDefinition, mockClass, mockMethod, context, false, true);
         final String generate = invokeAfterCodeGenerator.generate();
 
         logger.debug("testGenerate_AroundInterceptor3_methodParam2:{}", generate);
@@ -129,8 +127,8 @@ public class InvokeAfterCodeGeneratorTest {
     public void testGenerate_AroundInterceptor3_methodParam4() throws Exception {
 
         final Class<AroundInterceptor3> aroundInterceptor3Class = AroundInterceptor3.class;
-        //                                                                           this,          param0,       param1,        param2,        return,        throwable
-        final Method interceptorAfter = aroundInterceptor3Class.getMethod("after", Object.class, Object.class, Object.class, Object.class, Object.class, Throwable.class);
+        final InterceptorDefinition interceptorDefinition = interceptorDefinitionFactory.createInterceptorDefinition(aroundInterceptor3Class);
+
         final InstrumentClass mockClass = mock(InstrumentClass.class);
         Mockito.when(mockClass.getName()).thenReturn("TestClass");
 
@@ -141,7 +139,7 @@ public class InvokeAfterCodeGeneratorTest {
 
         TraceContext context = mock(TraceContext.class);
 
-        final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, aroundInterceptor3Class, interceptorAfter, mockClass, mockMethod, context, false, true);
+        final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, interceptorDefinition, mockClass, mockMethod, context, false, true);
         final String generate = invokeAfterCodeGenerator.generate();
 
         logger.debug("testGenerate_AroundInterceptor3_methodParam4:{}", generate);
@@ -159,8 +157,8 @@ public class InvokeAfterCodeGeneratorTest {
     public void testGenerate_AroundInterceptor0() throws Exception {
 
         final Class<AroundInterceptor0> aroundInterceptor3Class = AroundInterceptor0.class;
-        //                                                                           this,          return,        throwable
-        final Method interceptorAfter = aroundInterceptor3Class.getMethod("after", Object.class, Object.class, Throwable.class);
+        final InterceptorDefinition interceptorDefinition = interceptorDefinitionFactory.createInterceptorDefinition(aroundInterceptor3Class);
+
         final InstrumentClass mockClass = mock(InstrumentClass.class);
         Mockito.when(mockClass.getName()).thenReturn("TestClass");
 
@@ -171,7 +169,7 @@ public class InvokeAfterCodeGeneratorTest {
 
         TraceContext context = mock(TraceContext.class);
 
-        final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, aroundInterceptor3Class, interceptorAfter, mockClass, mockMethod, context, false, true);
+        final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, interceptorDefinition, mockClass, mockMethod, context, false, true);
         final String generate = invokeAfterCodeGenerator.generate();
 
         logger.debug("testGenerate_AroundInterceptor0:{}", generate);
