@@ -58,7 +58,7 @@
     					} else if ( $target.hasClass("confirm-remove") ) {
     						removeConfirm( $tr );
     					} else if ( $target.hasClass("confirm-cancel") ) {
-    						revmoeCancel( $tr );	
+    						removeCancel( $tr );	
     					}
     				} else if ( tagName == "span" ) {
     					if ( $target.hasClass("remove") ) {
