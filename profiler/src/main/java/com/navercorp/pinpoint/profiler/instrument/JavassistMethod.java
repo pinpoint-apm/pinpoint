@@ -65,8 +65,8 @@ public class JavassistMethod implements InstrumentMethod {
     private final InstrumentClass declaringClass;
     private final MethodDescriptor descriptor;
 
-    // TODO fix inject InterceptorTypeDetector
-    private static final InterceptorTypeDetector INTERCEPTOR_TYPE_DETECTOR = new InterceptorTypeDetector();
+    // TODO fix inject InterceptorDefinitionFactory
+    private static final InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
 
     public JavassistMethod(Instrumentor pluginContext, InterceptorRegistryBinder interceptorRegistryBinder, InstrumentClass declaringClass, CtBehavior behavior) {
         this.pluginContext = pluginContext;
@@ -291,20 +291,14 @@ public class JavassistMethod implements InstrumentMethod {
             throw new NullPointerException("interceptor must not be null");
         }
 
-        final InterceptorDefinition interceptorDefinition = INTERCEPTOR_TYPE_DETECTOR.getInterceptorDefinition(interceptor.getClass());
+        final InterceptorDefinition interceptorDefinition = interceptorDefinitionFactory.createInterceptorDefinition(interceptor.getClass());
 
-        StringBuilder initVars = new StringBuilder();
-        String interceptorInstanceVar = InvokeCodeGenerator.getInterceptorVar(interceptorId);
-        addLocalVariable(interceptorInstanceVar, Interceptor.class);
-        initVars.append(interceptorInstanceVar);
-        initVars.append(" = null;");
-        
-        int originalCodeOffset = insertBefore(-1, initVars.toString());
+        final String localVariableName = initializeLocalVariable(interceptorId);
+        int originalCodeOffset = insertBefore(-1, localVariableName);
 
         boolean localVarsInitialized = false;
         
-        int offset = addBeforeInterceptor(interceptorDefinition, interceptorId, originalCodeOffset);
-        
+        final int offset = addBeforeInterceptor(interceptorDefinition, interceptorId, originalCodeOffset);
         if (offset != -1) {
             localVarsInitialized = true;
             originalCodeOffset = offset;
@@ -312,25 +306,26 @@ public class JavassistMethod implements InstrumentMethod {
 
         addAfterInterceptor(interceptorDefinition, interceptorId, localVarsInitialized, originalCodeOffset);
     }
-    
-    private static Method findMethod(Class<?> interceptorClass, String name) {
-        for (Method m : interceptorClass.getMethods()) {
-            if (m.getName().equals(name)) {
-                return m;
-            }
-        }
 
-        return null;
+    private String initializeLocalVariable(int interceptorId) throws CannotCompileException, NotFoundException {
+
+        final String interceptorInstanceVar = InvokeCodeGenerator.getInterceptorVar(interceptorId);
+        addLocalVariable(interceptorInstanceVar, Interceptor.class);
+
+        final StringBuilder initVars = new StringBuilder();
+        initVars.append(interceptorInstanceVar);
+        initVars.append(" = null;");
+        return initVars.toString();
     }
 
-    private void addAfterInterceptor(InterceptorDefinition interceptor, int interceptorId, boolean localVarsInitialized, int originalCodeOffset) throws NotFoundException, CannotCompileException {
+    private void addAfterInterceptor(InterceptorDefinition interceptorDefinition, int interceptorId, boolean localVarsInitialized, int originalCodeOffset) throws NotFoundException, CannotCompileException {
 
-        final Class<?> interceptorClass = interceptor.getInterceptorClazz();
-        final CaptureType captureType = interceptor.getCaptureType();
+        final Class<?> interceptorClass = interceptorDefinition.getInterceptorClass();
+        final CaptureType captureType = interceptorDefinition.getCaptureType();
         if (!isAfterInterceptor(captureType)) {
             return;
         }
-        final Method interceptorMethod = interceptor.getAfterMethod();
+        final Method interceptorMethod = interceptorDefinition.getAfterMethod();
 
         if (interceptorMethod == null) {
             if (isDebug) {
@@ -338,9 +333,8 @@ public class JavassistMethod implements InstrumentMethod {
             }
             return;
         }
-        
-        
-        InvokeAfterCodeGenerator catchGenerator = new InvokeAfterCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this, pluginContext.getTraceContext(), localVarsInitialized, true);
+
+        InvokeAfterCodeGenerator catchGenerator = new InvokeAfterCodeGenerator(interceptorId, interceptorDefinition, declaringClass, this, pluginContext.getTraceContext(), localVarsInitialized, true);
         String catchCode = catchGenerator.generate();
         
         if (isDebug) {
@@ -351,7 +345,7 @@ public class JavassistMethod implements InstrumentMethod {
         insertCatch(originalCodeOffset, catchCode, throwable, "$e");
 
         
-        InvokeAfterCodeGenerator afterGenerator = new InvokeAfterCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this, pluginContext.getTraceContext(), localVarsInitialized, false);
+        InvokeAfterCodeGenerator afterGenerator = new InvokeAfterCodeGenerator(interceptorId, interceptorDefinition, declaringClass, this, pluginContext.getTraceContext(), localVarsInitialized, false);
         final String afterCode = afterGenerator.generate();
 
         if (isDebug) {
@@ -365,23 +359,23 @@ public class JavassistMethod implements InstrumentMethod {
         return CaptureType.AFTER == captureType || CaptureType.AROUND == captureType;
     }
 
-    private int addBeforeInterceptor(InterceptorDefinition interceptor, int interceptorId, int pos) throws CannotCompileException, NotFoundException {
-        final Class<?> interceptorClass = interceptor.getInterceptorClazz();
-        final CaptureType captureType = interceptor.getCaptureType();
+    private int addBeforeInterceptor(InterceptorDefinition interceptorDefinition, int interceptorId, int pos) throws CannotCompileException, NotFoundException {
+        final Class<?> interceptorClass = interceptorDefinition.getInterceptorClass();
+        final CaptureType captureType = interceptorDefinition.getCaptureType();
         if (!isBeforeInterceptor(captureType)) {
             return -1;
         }
-        final Method interceptorMethod = interceptor.getBeforeMethod();
+        final Method interceptorMethod = interceptorDefinition.getBeforeMethod();
 
         if (interceptorMethod == null) {
             if (isDebug) {
-                logger.debug("Skip adding before interceptor because the interceptor doesn't have before method: {}", interceptorClass.getName());
+                logger.debug("Skip adding before interceptorDefinition because the interceptorDefinition doesn't have before method: {}", interceptorClass.getName());
             }
             return -1;
         }
 
-        InvokeBeforeCodeGenerator generator = new InvokeBeforeCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this, pluginContext.getTraceContext());
-        String beforeCode = generator.generate();
+        final InvokeBeforeCodeGenerator generator = new InvokeBeforeCodeGenerator(interceptorId, interceptorDefinition, declaringClass, this, pluginContext.getTraceContext());
+        final String beforeCode = generator.generate();
 
         if (isDebug) {
             logger.debug("addBeforeInterceptor before behavior:{} code:{}", behavior.getLongName(), beforeCode);

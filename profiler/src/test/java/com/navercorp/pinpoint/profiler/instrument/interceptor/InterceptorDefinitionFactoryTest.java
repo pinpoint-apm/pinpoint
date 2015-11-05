@@ -30,33 +30,33 @@ import java.lang.reflect.Method;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class InterceptorCaptureTypeDetectorTest {
+public class InterceptorDefinitionFactoryTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Test
     public void testGetInterceptorType_BasicType() throws Exception {
-        InterceptorTypeDetector typeDetector = new InterceptorTypeDetector();
+        InterceptorDefinitionFactory typeDetector = new InterceptorDefinitionFactory();
 
-        Assert.assertSame(typeDetector.getInterceptorDefinition(AroundInterceptor.class).getCaptureType(), CaptureType.AROUND);
+        Assert.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor.class).getCaptureType(), CaptureType.AROUND);
 
-        Assert.assertSame(typeDetector.getInterceptorDefinition(AroundInterceptor0.class).getCaptureType(), CaptureType.AROUND);
-        Assert.assertSame(typeDetector.getInterceptorDefinition(AroundInterceptor1.class).getCaptureType(), CaptureType.AROUND);
-        Assert.assertSame(typeDetector.getInterceptorDefinition(AroundInterceptor2.class).getCaptureType(), CaptureType.AROUND);
-        Assert.assertSame(typeDetector.getInterceptorDefinition(AroundInterceptor3.class).getCaptureType(), CaptureType.AROUND);
-        Assert.assertSame(typeDetector.getInterceptorDefinition(AroundInterceptor4.class).getCaptureType(), CaptureType.AROUND);
-        Assert.assertSame(typeDetector.getInterceptorDefinition(AroundInterceptor5.class).getCaptureType(), CaptureType.AROUND);
+        Assert.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor0.class).getCaptureType(), CaptureType.AROUND);
+        Assert.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor1.class).getCaptureType(), CaptureType.AROUND);
+        Assert.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor2.class).getCaptureType(), CaptureType.AROUND);
+        Assert.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor3.class).getCaptureType(), CaptureType.AROUND);
+        Assert.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor4.class).getCaptureType(), CaptureType.AROUND);
+        Assert.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor5.class).getCaptureType(), CaptureType.AROUND);
 
-        Assert.assertSame(typeDetector.getInterceptorDefinition(StaticAroundInterceptor.class).getCaptureType(), CaptureType.AROUND);
+        Assert.assertSame(typeDetector.createInterceptorDefinition(StaticAroundInterceptor.class).getCaptureType(), CaptureType.AROUND);
 
-        Assert.assertSame(typeDetector.getInterceptorDefinition(ApiIdAwareAroundInterceptor.class).getCaptureType(), CaptureType.AROUND);
+        Assert.assertSame(typeDetector.createInterceptorDefinition(ApiIdAwareAroundInterceptor.class).getCaptureType(), CaptureType.AROUND);
     }
 
 
     @Test
     public void testGetInterceptorType_Inherited() throws Exception {
-        InterceptorTypeDetector typeDetector = new InterceptorTypeDetector();
+        InterceptorDefinitionFactory typeDetector = new InterceptorDefinitionFactory();
 
-        Assert.assertSame(typeDetector.getInterceptorDefinition(InheritedAroundInterceptor.class).getCaptureType(), CaptureType.AROUND);
+        Assert.assertSame(typeDetector.createInterceptorDefinition(InheritedAroundInterceptor.class).getCaptureType(), CaptureType.AROUND);
     }
 
     @Test
@@ -72,22 +72,22 @@ public class InterceptorCaptureTypeDetectorTest {
 
     @Test(expected = RuntimeException.class)
     public void testGetType_Error() throws Exception {
-        InterceptorTypeDetector typeDetector = new InterceptorTypeDetector();
-        typeDetector.getInterceptorDefinition(Interceptor.class);
+        InterceptorDefinitionFactory typeDetector = new InterceptorDefinitionFactory();
+        typeDetector.createInterceptorDefinition(Interceptor.class);
     }
 
 
     @Test
     public void testGetInterceptorCaptureType() throws Exception {
-        InterceptorTypeDetector interceptorTypeDetector = new InterceptorTypeDetector();
+        InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
 
-        CaptureType before = interceptorTypeDetector.getInterceptorDefinition(TestBeforeInterceptor.class).getCaptureType();
+        CaptureType before = interceptorDefinitionFactory.createInterceptorDefinition(TestBeforeInterceptor.class).getCaptureType();
         Assert.assertSame(before, CaptureType.BEFORE);
 
-        CaptureType after = interceptorTypeDetector.getInterceptorDefinition(TestAfterInterceptor.class).getCaptureType();
+        CaptureType after = interceptorDefinitionFactory.createInterceptorDefinition(TestAfterInterceptor.class).getCaptureType();
         Assert.assertSame(after, CaptureType.AFTER);
 
-        CaptureType around = interceptorTypeDetector.getInterceptorDefinition(TestAroundInterceptor.class).getCaptureType();
+        CaptureType around = interceptorDefinitionFactory.createInterceptorDefinition(TestAroundInterceptor.class).getCaptureType();
         Assert.assertSame(around, CaptureType.AROUND);
 
     }

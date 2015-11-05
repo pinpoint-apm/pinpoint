@@ -26,19 +26,17 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
  */
 public class InvokeBeforeCodeGenerator extends InvokeCodeGenerator {
     private final int interceptorId;
-    private final Method interceptorMethod;
     private final InstrumentClass targetClass;
     
-    public InvokeBeforeCodeGenerator(int interceptorId, Class<?> interceptorClass, Method interceptorMethod, InstrumentClass targetClass, InstrumentMethod targetMethod, TraceContext traceContext) {
-        super(interceptorId, interceptorClass, targetMethod, traceContext);
+    public InvokeBeforeCodeGenerator(int interceptorId, InterceptorDefinition interceptorDefinition, InstrumentClass targetClass, InstrumentMethod targetMethod, TraceContext traceContext) {
+        super(interceptorId, interceptorDefinition, targetMethod, traceContext);
         
         this.interceptorId = interceptorId;
-        this.interceptorMethod = interceptorMethod;
         this.targetClass = targetClass;
     }
 
     public String generate() {
-        CodeBuilder builder = new CodeBuilder();
+        final CodeBuilder builder = new CodeBuilder();
         
         builder.begin();
 
@@ -51,8 +49,9 @@ public class InvokeBeforeCodeGenerator extends InvokeCodeGenerator {
         
         builder.append("try { ");
         builder.format("%1$s = %2$s.getInterceptor(%3$d); ", getInterceptorVar(), getInterceptorRegistryClassName(), interceptorId);
-        
-        if (interceptorMethod != null) {
+
+        final Method beforeMethod = interceptorDefinition.getBeforeMethod();
+        if (beforeMethod != null) {
             builder.format("((%1$s)%2$s).before(", getInterceptorType(), getInterceptorVar());
             appendArguments(builder);
             builder.format(");");
@@ -66,6 +65,7 @@ public class InvokeBeforeCodeGenerator extends InvokeCodeGenerator {
     }
 
     private void appendArguments(CodeBuilder builder) {
+        final InterceptorType type = interceptorDefinition.getInterceptorType();
         switch (type) {
         case ARRAY_ARGS:
             appendSimpleBeforeArguments(builder);
@@ -95,7 +95,8 @@ public class InvokeBeforeCodeGenerator extends InvokeCodeGenerator {
     }
 
     private void appendCustomBeforeArguments(CodeBuilder builder) {
-        Class<?>[] paramTypes = interceptorMethod.getParameterTypes();
+        final Method interceptorMethod = interceptorDefinition.getBeforeMethod();
+        final Class<?>[] paramTypes = interceptorMethod.getParameterTypes();
         
         if (paramTypes.length == 0) {
             return;
