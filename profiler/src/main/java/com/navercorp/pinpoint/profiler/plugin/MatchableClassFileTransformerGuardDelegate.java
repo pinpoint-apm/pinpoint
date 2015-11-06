@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.instrument.GuardInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.exception.PinpointException;
@@ -32,14 +32,14 @@ import java.security.ProtectionDomain;
  */
 public class MatchableClassFileTransformerGuardDelegate implements MatchableClassFileTransformer {
 
-    private final Instrumentor instrumentor;
+    private final InstrumentContext instrumentContext;
     private final Matcher matcher;
     private final TransformCallback transformCallback;
 
 
-    public MatchableClassFileTransformerGuardDelegate(Instrumentor instrumentor, Matcher matcher, TransformCallback transformCallback) {
-        if (instrumentor == null) {
-            throw new NullPointerException("instrumentor must not be null");
+    public MatchableClassFileTransformerGuardDelegate(InstrumentContext instrumentContext, Matcher matcher, TransformCallback transformCallback) {
+        if (instrumentContext == null) {
+            throw new NullPointerException("instrumentContext must not be null");
         }
         if (matcher == null) {
             throw new NullPointerException("matcher must not be null");
@@ -47,7 +47,7 @@ public class MatchableClassFileTransformerGuardDelegate implements MatchableClas
         if (transformCallback == null) {
             throw new NullPointerException("transformCallback must not be null");
         }
-        this.instrumentor = instrumentor;
+        this.instrumentContext = instrumentContext;
         this.matcher = matcher;
         this.transformCallback = transformCallback;
     }
@@ -64,7 +64,7 @@ public class MatchableClassFileTransformerGuardDelegate implements MatchableClas
             throw new NullPointerException("className must not be null");
         }
 
-        final GuardInstrumentor guard = new GuardInstrumentor(this.instrumentor);
+        final GuardInstrumentor guard = new GuardInstrumentor(this.instrumentContext);
         try {
             // WARN external plugin api
             return transformCallback.doInTransform(guard, loader, className, classBeingRedefined, protectionDomain, classfileBuffer);

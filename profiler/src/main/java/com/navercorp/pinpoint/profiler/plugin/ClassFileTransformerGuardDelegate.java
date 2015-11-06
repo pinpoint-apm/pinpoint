@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.instrument.GuardInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.exception.PinpointException;
 
@@ -30,17 +30,17 @@ import java.security.ProtectionDomain;
  * @author emeroad
  */
 public class ClassFileTransformerGuardDelegate implements ClassFileTransformer {
-    private final Instrumentor instrumentor;
+    private final InstrumentContext instrumentContext;
     private final TransformCallback transformCallback;
 
-    public ClassFileTransformerGuardDelegate(Instrumentor instrumentor, TransformCallback transformCallback) {
-        if (instrumentor == null) {
-            throw new NullPointerException("instrumentor must not be null");
+    public ClassFileTransformerGuardDelegate(InstrumentContext instrumentContext, TransformCallback transformCallback) {
+        if (instrumentContext == null) {
+            throw new NullPointerException("instrumentContext must not be null");
         }
         if (transformCallback == null) {
             throw new NullPointerException("transformCallback must not be null");
         }
-        this.instrumentor = instrumentor;
+        this.instrumentContext = instrumentContext;
         this.transformCallback = transformCallback;
     }
 
@@ -50,7 +50,7 @@ public class ClassFileTransformerGuardDelegate implements ClassFileTransformer {
             throw new NullPointerException("className must not be null");
         }
 
-        final GuardInstrumentor guard = new GuardInstrumentor(this.instrumentor);
+        final GuardInstrumentor guard = new GuardInstrumentor(this.instrumentContext);
         try {
             // WARN external plugin api
             return transformCallback.doInTransform(guard, loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
