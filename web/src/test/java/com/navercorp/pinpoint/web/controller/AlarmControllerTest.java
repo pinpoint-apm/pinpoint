@@ -203,7 +203,7 @@ public class AlarmControllerTest {
         
         String content = result.getResponse().getContentAsString();
         ObjectMapper objectMapper = new ObjectMapper();
-        List<String> checherList = objectMapper.readValue(content, List.class);
-        Assert.assertNotEquals(checherList.size(), 0);
+        List<String> checkerList = objectMapper.readValue(content, List.class);
+        Assert.assertNotEquals(checkerList.size(), 0);
     }
 }
