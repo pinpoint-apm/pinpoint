@@ -16,29 +16,38 @@ package com.navercorp.pinpoint.plugin.jetty;
 
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformers;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
-public class JettyPlugin implements ProfilerPlugin {
+public class JettyPlugin implements ProfilerPlugin, TransformTemplateAware {
+
+    private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         context.addApplicationTypeDetector(new JettyDetector());
         JettyConfiguration config = new JettyConfiguration(context.getConfig());
         
-        addServerInterceptor(context, config);
-        addRequestEditor(context);
+        addServerInterceptor(config);
+        addRequestEditor();
     }
 
-    private void addServerInterceptor(ProfilerPluginSetupContext context, JettyConfiguration config){
+    private void addServerInterceptor(JettyConfiguration config){
         final TransformCallback transformCallback = PinpointClassFileTransformers.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.ServerHandleInterceptor", va(config.getJettyExcludeUrlFilter()));
-        context.addClassFileTransformer("org.eclipse.jetty.server.Server", transformCallback);
+        transformTemplate.transform("org.eclipse.jetty.server.Server", transformCallback);
     }
     
-    private void addRequestEditor(ProfilerPluginSetupContext context) {
+    private void addRequestEditor() {
         final TransformCallback transformCallback = PinpointClassFileTransformers.addField("com.navercorp.pinpoint.plugin.jetty.interceptor.TraceAccessor");
-        context.addClassFileTransformer("org.eclipse.jetty.server.Request", transformCallback);
+        transformTemplate.transform("org.eclipse.jetty.server.Request", transformCallback);
+    }
+
+    @Override
+    public void setTransformTemplate(TransformTemplate transformTemplate) {
+        this.transformTemplate = transformTemplate;
     }
 }
