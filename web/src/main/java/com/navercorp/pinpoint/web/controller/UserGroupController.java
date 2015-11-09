@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.web.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,10 +88,12 @@ public class UserGroupController {
     
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public List<UserGroup> getUserGroup(@RequestParam(value=USER_ID, required=false) String userId) {
+    public List<UserGroup> getUserGroup(@RequestParam(value=USER_ID, required=false) String userId,@RequestParam(value=USER_GROUP_ID, required=false) String userGroupId) {
         
-        if(userId != null) {
+        if (userId != null) {
             return userGroupService.selectUserGroupByUserId(userId);
+        } else if (userGroupId != null) {
+            return userGroupService.selectUserGroupByUserGroupId(userGroupId);
         }
         return userGroupService.selectUserGroup();
     }
@@ -177,7 +180,7 @@ public class UserGroupController {
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public Map<String, String> handleException(Exception e) {
-        logger.error(" Exception occurred while trying to CRUD userGroup information", e);
+        logger.error("Exception occurred while trying to CRUD userGroup information", e);
         
         Map<String, String> result = new HashMap<String, String>();
         result.put("errorCode", "500");

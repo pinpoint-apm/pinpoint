@@ -81,6 +81,19 @@ public class MemoryUserGroupDao implements UserGroupDao {
         
         return groups;
     }
+    
+    @Override
+    public List<UserGroup> selectUserGroupByUserGroupId(String userGroupId) {
+        List<UserGroup> userGroupList = new ArrayList<>();
+        
+        for(UserGroup userGroup : userGroups.values()) {
+            if (userGroup.getId().contains(userGroupId)) {
+                userGroupList.add(userGroup);
+            }
+        }
+        
+        return userGroupList;
+    }
 
     @Override
     public void updateUserGroup(UserGroup userGroup) {
@@ -194,5 +207,4 @@ public class MemoryUserGroupDao implements UserGroupDao {
             }
         }
     }
-
 }
