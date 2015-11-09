@@ -39,6 +39,7 @@ public interface ProfilerPluginSetupContext {
      * @param detectors
      */
     void addApplicationTypeDetector(ApplicationTypeDetector... detectors);
-    
+
+    @Deprecated
     void addClassFileTransformer(String targetClassName, TransformCallback transformCallback);
 }

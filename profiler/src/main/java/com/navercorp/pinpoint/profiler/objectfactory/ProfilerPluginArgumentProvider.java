@@ -19,6 +19,8 @@ import java.lang.annotation.Annotation;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentorDelegate;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.exception.PinpointException;
@@ -29,9 +31,9 @@ import com.navercorp.pinpoint.profiler.util.TypeUtils;
  *
  */
 public class ProfilerPluginArgumentProvider implements ArgumentProvider {
-    private final Instrumentor pluginContext;
+    private final InstrumentContext pluginContext;
 
-    public ProfilerPluginArgumentProvider(Instrumentor pluginContext) {
+    public ProfilerPluginArgumentProvider(InstrumentContext pluginContext) {
         this.pluginContext = pluginContext;
     }
 
@@ -42,7 +44,8 @@ public class ProfilerPluginArgumentProvider implements ArgumentProvider {
         } else if (type == TraceContext.class) {
             return Option.withValue(pluginContext.getTraceContext());
         } else if (type == Instrumentor.class) {
-            return Option.withValue(pluginContext);
+            final InstrumentorDelegate delegate = new InstrumentorDelegate(pluginContext);
+            return Option.withValue(delegate);
         } else if (type == InterceptorGroup.class) {
             Name annotation = TypeUtils.findAnnotation(annotations, Name.class);
             

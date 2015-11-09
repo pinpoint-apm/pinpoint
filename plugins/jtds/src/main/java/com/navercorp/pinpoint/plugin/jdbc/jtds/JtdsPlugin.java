@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
@@ -30,20 +32,22 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  * @author Jongho Moon
  *
  */
-public class JtdsPlugin implements ProfilerPlugin {
+public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
+
+    private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         JtdsConfig config = new JtdsConfig(context.getConfig());
         
-        addConnectionTransformer(context, config);
-        addDriverTransformer(context);
-        addPreparedStatementTransformer(context, config);
-        addStatementTransformer(context);
+        addConnectionTransformer(config);
+        addDriverTransformer();
+        addPreparedStatementTransformer(config);
+        addStatementTransformer();
     }
 
     
-    private void addConnectionTransformer(ProfilerPluginSetupContext setupContext, final JtdsConfig config) {
+    private void addConnectionTransformer(final JtdsConfig config) {
         TransformCallback transformer = new TransformCallback() {
             
             @Override
@@ -71,12 +75,12 @@ public class JtdsPlugin implements ProfilerPlugin {
             }
         };
         
-        setupContext.addClassFileTransformer("net.sourceforge.jtds.jdbc.ConnectionJDBC2", transformer);
-        setupContext.addClassFileTransformer("net.sourceforge.jtds.jdbc.JtdsConnection", transformer);
+        transformTemplate.transform("net.sourceforge.jtds.jdbc.ConnectionJDBC2", transformer);
+        transformTemplate.transform("net.sourceforge.jtds.jdbc.JtdsConnection", transformer);
     }
     
-    private void addDriverTransformer(ProfilerPluginSetupContext setupContext) {
-        setupContext.addClassFileTransformer("net.sourceforge.jtds.jdbc.Driver", new TransformCallback() {
+    private void addDriverTransformer() {
+        transformTemplate.transform("net.sourceforge.jtds.jdbc.Driver", new TransformCallback() {
             
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -89,8 +93,8 @@ public class JtdsPlugin implements ProfilerPlugin {
         });
     }
     
-    private void addPreparedStatementTransformer(ProfilerPluginSetupContext setupContext, final JtdsConfig config) {
-        setupContext.addClassFileTransformer("net.sourceforge.jtds.jdbc.JtdsPreparedStatement", new TransformCallback() {
+    private void addPreparedStatementTransformer(final JtdsConfig config) {
+        transformTemplate.transform("net.sourceforge.jtds.jdbc.JtdsPreparedStatement", new TransformCallback() {
             
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -110,8 +114,8 @@ public class JtdsPlugin implements ProfilerPlugin {
         });
     }
     
-    private void addStatementTransformer(ProfilerPluginSetupContext setupContext) {
-        setupContext.addClassFileTransformer("net.sourceforge.jtds.jdbc.JtdsStatement", new TransformCallback() {
+    private void addStatementTransformer() {
+        transformTemplate.transform("net.sourceforge.jtds.jdbc.JtdsStatement", new TransformCallback() {
             
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -125,5 +129,10 @@ public class JtdsPlugin implements ProfilerPlugin {
                 return target.toBytecode();
             }
         });
+    }
+
+    @Override
+    public void setTransformTemplate(TransformTemplate transformTemplate) {
+        this.transformTemplate = transformTemplate;
     }
 }

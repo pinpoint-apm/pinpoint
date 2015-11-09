@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.interceptor.factory;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor0;
@@ -46,9 +46,9 @@ import com.navercorp.pinpoint.profiler.objectfactory.AutoBindingObjectFactory;
 import com.navercorp.pinpoint.profiler.objectfactory.InterceptorArgumentProvider;
 
 public class AnnotatedInterceptorFactory implements InterceptorFactory {
-    private final Instrumentor pluginContext;
+    private final InstrumentContext pluginContext;
     
-    public AnnotatedInterceptorFactory(Instrumentor pluginContext) {
+    public AnnotatedInterceptorFactory(InstrumentContext pluginContext) {
         this.pluginContext = pluginContext;
     }
 

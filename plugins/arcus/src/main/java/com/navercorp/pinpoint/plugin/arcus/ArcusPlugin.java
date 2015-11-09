@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -36,7 +38,7 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  * @author jaehong.kim
  *
  */
-public class ArcusPlugin implements ProfilerPlugin {
+public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
     private static final String ASYNC_TRACE_ID_ACCESSOR = "com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor";
     private static final String OPERATION_ACCESSOR = "com.navercorp.pinpoint.plugin.arcus.OperationAccessor";
     private static final String CACHE_KEY_ACCESSOR = "com.navercorp.pinpoint.plugin.arcus.CacheKeyAccessor";
@@ -44,6 +46,7 @@ public class ArcusPlugin implements ProfilerPlugin {
     private static final String SERVICE_CODE_ACCESSOR = "com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor";
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
@@ -78,7 +81,7 @@ public class ArcusPlugin implements ProfilerPlugin {
     }
 
     private void addArcusClientEditor(ProfilerPluginSetupContext context, final ArcusPluginConfig config) {
-        context.addClassFileTransformer("net.spy.memcached.ArcusClient", new TransformCallback() {
+        transformTemplate.transform("net.spy.memcached.ArcusClient", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -108,7 +111,7 @@ public class ArcusPlugin implements ProfilerPlugin {
     }
 
     private void addCacheManagerEditor(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("net.spy.memcached.CacheManager", new TransformCallback() {
+        transformTemplate.transform("net.spy.memcached.CacheManager", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -122,7 +125,7 @@ public class ArcusPlugin implements ProfilerPlugin {
     }
 
     private void addBaseOperationImplEditor(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("net.spy.memcached.protocol.BaseOperationImpl", new TransformCallback() {
+        transformTemplate.transform("net.spy.memcached.protocol.BaseOperationImpl", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -135,7 +138,7 @@ public class ArcusPlugin implements ProfilerPlugin {
     }
 
     private void addFrontCacheGetFutureEditor(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("net.spy.memcached.plugin.FrontCacheGetFuture", new TransformCallback() {
+        transformTemplate.transform("net.spy.memcached.plugin.FrontCacheGetFuture", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -145,7 +148,7 @@ public class ArcusPlugin implements ProfilerPlugin {
                 target.addField(CACHE_KEY_ACCESSOR);
                 target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureConstructInterceptor");
 
-                InstrumentMethod get0 = target.getDeclaredMethod("get", new String[] { "long", "java.util.concurrent.TimeUnit" });
+                InstrumentMethod get0 = target.getDeclaredMethod("get", new String[]{"long", "java.util.concurrent.TimeUnit"});
                 get0.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureGetInterceptor");
 
                 InstrumentMethod get1 = target.getDeclaredMethod("get", new String[0]);
@@ -158,7 +161,7 @@ public class ArcusPlugin implements ProfilerPlugin {
     }
 
     private void addFrontCacheMemcachedClientEditor(ProfilerPluginSetupContext context, final ArcusPluginConfig config) {
-        context.addClassFileTransformer("net.spy.memcached.plugin.FrontCacheMemcachedClient", new TransformCallback() {
+        transformTemplate.transform("net.spy.memcached.plugin.FrontCacheMemcachedClient", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -182,13 +185,13 @@ public class ArcusPlugin implements ProfilerPlugin {
     }
 
     private void addMemcachedClientEditor(ProfilerPluginSetupContext context, final ArcusPluginConfig config) {
-        context.addClassFileTransformer("net.spy.memcached.MemcachedClient", new TransformCallback() {
+        transformTemplate.transform("net.spy.memcached.MemcachedClient", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
 
-                if (target.hasDeclaredMethod("addOp", new String[] { "java.lang.String", "net.spy.memcached.ops.Operation" })) {
+                if (target.hasDeclaredMethod("addOp", new String[]{"java.lang.String", "net.spy.memcached.ops.Operation"})) {
                     target.addField(SERVICE_CODE_ACCESSOR);
                     target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.AddOpInterceptor");
                 }
@@ -254,34 +257,39 @@ public class ArcusPlugin implements ProfilerPlugin {
 
     
     private void addCollectionFutureEditor(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("net.spy.memcached.internal.CollectionFuture", FUTURE_TRANSFORMER);
+        transformTemplate.transform("net.spy.memcached.internal.CollectionFuture", FUTURE_TRANSFORMER);
     }
 
     private void addGetFutureEditor(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("net.spy.memcached.internal.GetFuture", FUTURE_TRANSFORMER);
+        transformTemplate.transform("net.spy.memcached.internal.GetFuture", FUTURE_TRANSFORMER);
     }
 
     private void addOperationFutureEditor(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("net.spy.memcached.internal.OperationFuture", FUTURE_TRANSFORMER);
+        transformTemplate.transform("net.spy.memcached.internal.OperationFuture", FUTURE_TRANSFORMER);
     }
 
     private void addImmediateFutureEditor(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("net.spy.memcached.internal.ImmediateFuture", INTERNAL_FUTURE_TRANSFORMER);
+        transformTemplate.transform("net.spy.memcached.internal.ImmediateFuture", INTERNAL_FUTURE_TRANSFORMER);
     }
 
     private void addBulkGetFutureEditor(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("net.spy.memcached.internal.BulkGetFuture", INTERNAL_FUTURE_TRANSFORMER);
+        transformTemplate.transform("net.spy.memcached.internal.BulkGetFuture", INTERNAL_FUTURE_TRANSFORMER);
     }
 
     private void addBTreeStoreGetFutureEditor(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("net.spy.memcached.internal.BTreeStoreAndGetFuture", INTERNAL_FUTURE_TRANSFORMER);
+        transformTemplate.transform("net.spy.memcached.internal.BTreeStoreAndGetFuture", INTERNAL_FUTURE_TRANSFORMER);
     }
 
     private void addCollectionGetBulkFutureEditor(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("net.spy.memcached.internal.CollectionGetBulkFuture", INTERNAL_FUTURE_TRANSFORMER);
+        transformTemplate.transform("net.spy.memcached.internal.CollectionGetBulkFuture", INTERNAL_FUTURE_TRANSFORMER);
     }
 
     private void addSMGetFutureFutureEditor(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("net.spy.memcached.internal.SMGetFuture", INTERNAL_FUTURE_TRANSFORMER);
+        transformTemplate.transform("net.spy.memcached.internal.SMGetFuture", INTERNAL_FUTURE_TRANSFORMER);
+    }
+
+    @Override
+    public void setTransformTemplate(TransformTemplate transformTemplate) {
+        this.transformTemplate = transformTemplate;
     }
 }

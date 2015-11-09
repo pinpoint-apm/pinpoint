@@ -45,13 +45,13 @@ public class BeanMethodTransformer implements TransformCallback {
     
     
     @Override
-    public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+    public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
         if (logger.isInfoEnabled()) {
             logger.info("Modify {}", className);
         }
 
         try {
-            InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             if (!target.isInterceptable()) {
                 return null;

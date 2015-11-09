@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
@@ -31,7 +33,9 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  * @author Jongho Moon
  *
  */
-public class SpringBeansPlugin implements ProfilerPlugin {
+public class SpringBeansPlugin implements ProfilerPlugin, TransformTemplateAware {
+
+    private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
@@ -39,7 +43,7 @@ public class SpringBeansPlugin implements ProfilerPlugin {
     }
 
     private void addAbstractAutowireCapableBeanFactoryTransformer(final ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory", new TransformCallback() {
+        transformTemplate.transform("org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -60,4 +64,8 @@ public class SpringBeansPlugin implements ProfilerPlugin {
 
     }
 
+    @Override
+    public void setTransformTemplate(TransformTemplate transformTemplate) {
+        this.transformTemplate = transformTemplate;
+    }
 }

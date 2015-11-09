@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -33,8 +35,9 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
  * @author jaehong.kim
  *
  */
-public class HttpClientPlugin implements ProfilerPlugin {
+public class HttpClientPlugin implements ProfilerPlugin, TransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
@@ -46,13 +49,13 @@ public class HttpClientPlugin implements ProfilerPlugin {
     }
 
     private void addHttpRequestClass(ProfilerPluginSetupContext context, final HttpClientPluginConfig config) {
-        context.addClassFileTransformer("com.google.api.client.http.HttpRequest", new TransformCallback() {
+        transformTemplate.transform("com.google.api.client.http.HttpRequest", new TransformCallback() {
             
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 
-                InstrumentMethod execute = target.getDeclaredMethod("execute", new String[] {});
+                InstrumentMethod execute = target.getDeclaredMethod("execute");
                 if (execute != null) {
                     execute.addInterceptor("com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteMethodInterceptor");
                 }
@@ -92,5 +95,10 @@ public class HttpClientPlugin implements ProfilerPlugin {
                 return target.toBytecode();
             }
         });
+    }
+
+    @Override
+    public void setTransformTemplate(TransformTemplate transformTemplate) {
+        this.transformTemplate = transformTemplate;
     }
 }

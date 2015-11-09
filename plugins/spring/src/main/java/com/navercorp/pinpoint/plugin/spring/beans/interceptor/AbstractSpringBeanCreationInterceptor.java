@@ -28,12 +28,12 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 public abstract class AbstractSpringBeanCreationInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
 
-    private final Instrumentor instrumentContext;
+    private final Instrumentor instrumentor;
     private final TransformCallback transformer;
     private final TargetBeanFilter filter;
     
-    protected AbstractSpringBeanCreationInterceptor(Instrumentor instrumentContext, TransformCallback transformer, TargetBeanFilter filter) {
-        this.instrumentContext = instrumentContext;
+    protected AbstractSpringBeanCreationInterceptor(Instrumentor instrumentor, TransformCallback transformer, TargetBeanFilter filter) {
+        this.instrumentor = instrumentor;
         this.transformer = transformer;
         this.filter = filter;
     }
@@ -50,7 +50,7 @@ public abstract class AbstractSpringBeanCreationInterceptor {
         }
         
         // If you want to trace inherited methods, you have to retranform super classes, too.
-        instrumentContext.retransform(clazz, transformer);
+        instrumentor.retransform(clazz, transformer);
         
         filter.addTransformed(clazz);
 

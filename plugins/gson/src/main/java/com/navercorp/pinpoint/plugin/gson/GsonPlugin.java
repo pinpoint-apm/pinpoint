@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -33,15 +35,17 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 /**
  * @author ChaYoung You
  */
-public class GsonPlugin implements ProfilerPlugin {
+public class GsonPlugin implements ProfilerPlugin, TransformTemplateAware {
     public static final ServiceType GSON_SERVICE_TYPE = ServiceTypeFactory.of(5010, "GSON");
     public static final AnnotationKey GSON_ANNOTATION_KEY_JSON_LENGTH = AnnotationKeyFactory.of(9000, "gson.json.length");
 
     private static final String GSON_GROUP = "GSON_GROUP";
 
+    private TransformTemplate transformTemplate;
+
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("com.google.gson.Gson", new TransformCallback() {
+        transformTemplate.transform("com.google.gson.Gson", new TransformCallback() {
             
             @Override
             public byte[] doInTransform(Instrumentor pluginContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -58,5 +62,11 @@ public class GsonPlugin implements ProfilerPlugin {
                 return target.toBytecode();
             }
         });
+    }
+
+
+    @Override
+    public void setTransformTemplate(TransformTemplate transformTemplate) {
+        this.transformTemplate = transformTemplate;
     }
 }

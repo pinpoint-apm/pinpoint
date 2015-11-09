@@ -17,14 +17,14 @@
 package com.navercorp.pinpoint.profiler.plugin.xml.transformer;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 
 public class ConditionalMethodTransformer implements MethodTransformer {
-    private final Instrumentor context;
+    private final InstrumentContext context;
     private final ClassCondition condition;
     private final MethodTransformer delegate;
     
-    public ConditionalMethodTransformer(Instrumentor context, ClassCondition condition, MethodTransformer delegate) {
+    public ConditionalMethodTransformer(InstrumentContext context, ClassCondition condition, MethodTransformer delegate) {
         this.context = context;
         this.condition = condition;
         this.delegate = delegate;
