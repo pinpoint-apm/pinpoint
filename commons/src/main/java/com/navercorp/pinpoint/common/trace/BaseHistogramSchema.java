@@ -91,37 +91,46 @@ public class BaseHistogramSchema implements HistogramSchema {
         throw new IllegalArgumentException("HistogramSlot not found. slotTime:" + slotTime);
     }
 
-    public HistogramSlot getSlot(SlotType slotType) {
-        if (slotType == SlotType.FAST) {
-            return fastSlot;
-        }
-        if (slotType == SlotType.FAST_ERROR) {
-            return fastErrorSlot;
-        }
-
-        if (slotType == SlotType.NORMAL) {
-            return normalSlot;
-        }
-        if (slotType == SlotType.NORMAL_ERROR) {
-            return normalErrorSlot;
-        }
-
-        if (slotType == SlotType.SLOW) {
-            return slowSlot;
-        }
-        if (slotType == SlotType.SLOW_ERROR) {
-            return slowErrorSlot;
-        }
-
-        if (slotType == SlotType.VERY_SLOW) {
-            return verySlowSlot;
-        }
-        if (slotType == SlotType.VERY_SLOW_ERROR) {
-            return verySlowErrorSlot;
-        }
-
-        throw new IllegalArgumentException("HistogramSlot not found. slotType:" + slotType);
+    @Override
+    public HistogramSlot getFastSlot() {
+        return fastSlot;
     }
+
+    @Override
+    public HistogramSlot getNormalSlot() {
+        return normalSlot;
+    }
+
+    @Override
+    public HistogramSlot getSlowSlot() {
+        return slowSlot;
+    }
+
+    @Override
+    public HistogramSlot getVerySlowSlot() {
+        return verySlowSlot;
+    }
+
+    @Override
+    public HistogramSlot getFastErrorSlot() {
+        return fastErrorSlot;
+    }
+
+    @Override
+    public HistogramSlot getNormalErrorSlot() {
+        return normalErrorSlot;
+    }
+
+    @Override
+    public HistogramSlot getSlowErrorSlot() {
+        return slowErrorSlot;
+    }
+
+    @Override
+    public HistogramSlot getVerySlowErrorSlot() {
+        return verySlowErrorSlot;
+    }
+
 
     @Override
     public int hashCode() {

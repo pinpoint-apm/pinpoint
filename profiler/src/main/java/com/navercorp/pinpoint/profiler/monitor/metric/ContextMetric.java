@@ -43,8 +43,8 @@ public class ContextMetric {
         this.userHistogram = new LongAdderHistogram(contextServiceType);
     }
 
-    public void addResponseTime(int millis) {
-        this.responseMetric.addResponseTime(millis);
+    public void addResponseTime(int millis, boolean error) {
+        this.responseMetric.addResponseTime(millis, error);
     }
 
     public void addAcceptHistogram(String parentApplicationName, short serviceType, int millis) {
@@ -54,8 +54,8 @@ public class ContextMetric {
         this.acceptHistogram.addResponseTime(parentApplicationName, serviceType, millis);
     }
 
-    public void addUserAcceptHistogram(int millis) {
-        this.userHistogram.addResponseTime(millis);
+    public void addUserAcceptHistogram(int millis, boolean error) {
+        this.userHistogram.addResponseTime(millis, error);
     }
 
 

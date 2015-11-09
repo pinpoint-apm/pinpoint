@@ -22,20 +22,24 @@ package com.navercorp.pinpoint.profiler.monitor.metric;
 public class HistogramSnapshot {
     private final short serviceType;
     private final long fastCount;
+    private final long fastErrorCount;
     private final long normalCount;
+    private final long normalErrorCount;
     private final long slowCount;
+    private final long slowErrorCount;
     private final long verySlowCount;
+    private final long verySlowErrorCount;
 
-    private final long errorCount;
-
-    public HistogramSnapshot(short serviceType, long fastCount, long normalCount, long slowCount, long verySlowCount, long errorCounter) {
-
+    public HistogramSnapshot(short serviceType, long fastCount, long fastErrorCount, long normalCount, long normalErrorCount, long slowCount, long slowErrorCount, long verySlowCount, long verySlowErrorCount) {
         this.serviceType = serviceType;
         this.fastCount = fastCount;
+        this.fastErrorCount = fastErrorCount;
         this.normalCount = normalCount;
+        this.normalErrorCount = normalErrorCount;
         this.slowCount = slowCount;
+        this.slowErrorCount = slowErrorCount;
         this.verySlowCount = verySlowCount;
-        this.errorCount = errorCounter;
+        this.verySlowErrorCount = verySlowErrorCount;
     }
 
     public short getServiceType() {
@@ -58,19 +62,34 @@ public class HistogramSnapshot {
         return verySlowCount;
     }
 
-    public long getErrorCount() {
-        return errorCount;
+    public long getVerySlowErrorCount() {
+        return verySlowErrorCount;
+    }
+
+    public long getFastErrorCount() {
+        return fastErrorCount;
+    }
+
+    public long getNormalErrorCount() {
+        return normalErrorCount;
+    }
+
+    public long getSlowErrorCount() {
+        return slowErrorCount;
     }
 
     @Override
     public String toString() {
         return "HistogramSnapshot{" +
                 "serviceType=" + serviceType +
-                "fast=" + fastCount +
-                ", normal=" + normalCount +
-                ", slow=" + slowCount +
-                ", verySlow=" + verySlowCount +
-                ", error=" + errorCount +
+                ", fastCount=" + fastCount +
+                ", fastErrorCount=" + fastErrorCount +
+                ", normalCount=" + normalCount +
+                ", normalErrorCount=" + normalErrorCount +
+                ", slowCount=" + slowCount +
+                ", slowErrorCount=" + slowErrorCount +
+                ", verySlowCount=" + verySlowCount +
+                ", verySlowErrorCount=" + verySlowErrorCount +
                 '}';
     }
 }
