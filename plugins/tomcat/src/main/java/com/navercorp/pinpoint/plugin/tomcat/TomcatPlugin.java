@@ -50,19 +50,19 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         TomcatConfiguration config = new TomcatConfiguration(context.getConfig());
 
         if (config.isTomcatHidePinpointHeader()) {
-            addRequestFacadeEditor(context);
+            addRequestFacadeEditor();
         }
 
-        addRequestEditor(context);
-        addStandardHostValveEditor(context, config);
-        addStandardServiceEditor(context);
-        addTomcatConnectorEditor(context);
-        addWebappLoaderEditor(context);
+        addRequestEditor();
+        addStandardHostValveEditor(config);
+        addStandardServiceEditor();
+        addTomcatConnectorEditor();
+        addWebappLoaderEditor();
 
-        addAsyncContextImpl(context);
+        addAsyncContextImpl();
     }
 
-    private void addRequestEditor(ProfilerPluginSetupContext context) {
+    private void addRequestEditor() {
         transformTemplate.transform("org.apache.catalina.connector.Request", new TransformCallback() {
 
             @Override
@@ -88,7 +88,7 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addRequestFacadeEditor(ProfilerPluginSetupContext context) {
+    private void addRequestFacadeEditor() {
         transformTemplate.transform("org.apache.catalina.connector.RequestFacade", new TransformCallback() {
 
             @Override
@@ -104,7 +104,7 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addStandardHostValveEditor(ProfilerPluginSetupContext context, final TomcatConfiguration config) {
+    private void addStandardHostValveEditor(final TomcatConfiguration config) {
         transformTemplate.transform("org.apache.catalina.core.StandardHostValve", new TransformCallback() {
 
             @Override
@@ -121,7 +121,7 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addStandardServiceEditor(ProfilerPluginSetupContext context) {
+    private void addStandardServiceEditor() {
         transformTemplate.transform("org.apache.catalina.core.StandardService", new TransformCallback() {
 
             @Override
@@ -145,7 +145,7 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addTomcatConnectorEditor(ProfilerPluginSetupContext context) {
+    private void addTomcatConnectorEditor() {
         transformTemplate.transform("org.apache.catalina.connector.Connector", new TransformCallback() {
 
             @Override
@@ -169,7 +169,7 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addWebappLoaderEditor(ProfilerPluginSetupContext context) {
+    private void addWebappLoaderEditor() {
         transformTemplate.transform("org.apache.catalina.loader.WebappLoader", new TransformCallback() {
 
             @Override
@@ -193,7 +193,7 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addAsyncContextImpl(ProfilerPluginSetupContext context) {
+    private void addAsyncContextImpl() {
         transformTemplate.transform("org.apache.catalina.core.AsyncContextImpl", new TransformCallback() {
 
             @Override

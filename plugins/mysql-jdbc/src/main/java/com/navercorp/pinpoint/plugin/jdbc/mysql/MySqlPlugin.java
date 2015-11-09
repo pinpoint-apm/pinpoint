@@ -41,17 +41,17 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
         MySqlConfig config = new MySqlConfig(context.getConfig());
         
-        addConnectionTransformer(context, config);
-        addDriverTransformer(context);
-        addStatementTransformer(context);
-        addPreparedStatementTransformer(context, config);
+        addConnectionTransformer(config);
+        addDriverTransformer();
+        addStatementTransformer();
+        addPreparedStatementTransformer(config);
         
         // From MySQL driver 5.1.x, backward compatibility is broken.
         // Driver returns not com.mysql.jdbc.Connection but com.mysql.jdbc.JDBC4Connection which extends com.mysql.jdbc.ConnectionImpl from 5.1.x
-        addJDBC4PreparedStatementTransformer(context);
+        addJDBC4PreparedStatementTransformer();
     }
     
-    private void addConnectionTransformer(ProfilerPluginSetupContext setupContext, final MySqlConfig config) {
+    private void addConnectionTransformer(final MySqlConfig config) {
         TransformCallback transformer = new TransformCallback() {
             
             @Override
@@ -89,7 +89,7 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("com.mysql.jdbc.ConnectionImpl", transformer);
     }
     
-    private void addDriverTransformer(ProfilerPluginSetupContext setupContext) {
+    private void addDriverTransformer() {
         transformTemplate.transform("com.mysql.jdbc.NonRegisteringDriver", new TransformCallback() {
 
             @Override
@@ -103,7 +103,7 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
     
-    private void addPreparedStatementTransformer(ProfilerPluginSetupContext setupContext, final MySqlConfig config) {
+    private void addPreparedStatementTransformer(final MySqlConfig config) {
         transformTemplate.transform("com.mysql.jdbc.PreparedStatement", new TransformCallback() {
 
             @Override
@@ -125,7 +125,7 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addJDBC4PreparedStatementTransformer(ProfilerPluginSetupContext setupContext) {
+    private void addJDBC4PreparedStatementTransformer() {
         transformTemplate.transform("com.mysql.jdbc.JDBC4PreparedStatement", new TransformCallback() {
 
             @Override
@@ -141,7 +141,7 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     
-    private void addStatementTransformer(ProfilerPluginSetupContext setupContext) {
+    private void addStatementTransformer() {
         TransformCallback transformer = new TransformCallback() {
             
             @Override

@@ -24,10 +24,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.DefaultTransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.profiler.plugin.GuardProfilerPluginContext;
 import org.apache.thrift.TBase;
 
@@ -53,8 +52,6 @@ import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author emeroad
@@ -156,10 +153,10 @@ public class MockAgent extends DefaultAgent {
      * @param plugin
      * @param context
      */
-    private void preparePlugin(ProfilerPlugin plugin, ProfilerPluginSetupContext context) {
+    private void preparePlugin(ProfilerPlugin plugin, InstrumentContext context) {
 
         if (plugin instanceof TransformTemplateAware) {
-            TransformTemplate transformTemplate = new DefaultTransformTemplate(context);
+            final TransformTemplate transformTemplate = new TransformTemplate(context);
             ((TransformTemplateAware) plugin).setTransformTemplate(transformTemplate);
         }
     }

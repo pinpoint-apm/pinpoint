@@ -16,16 +16,31 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument.transformer;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+
 /**
  * @author emeroad
  */
-@Plugin
-public interface TransformTemplate {
+public class TransformTemplate implements TransformOperations {
 
-    void transform(String className, TransformCallback transformCallback);
+    private final InstrumentContext instrumentContext;
 
-//    void transform(Matcher className, TransformCallback transformCallback);
+    public TransformTemplate(InstrumentContext instrumentContext) {
+        if (instrumentContext == null) {
+            throw new NullPointerException("instrumentContext must not be null");
+        }
+        this.instrumentContext = instrumentContext;
+    }
 
-//    Future<TransformResult> transformEx(String className, TransformCallback transformCallback);
+    @Override
+    public void transform(String className, TransformCallback transformCallback) {
+        if (className == null) {
+            throw new NullPointerException("className must not be null");
+        }
+        if (transformCallback == null) {
+            throw new NullPointerException("transformCallback must not be null");
+        }
+        this.instrumentContext.addClassFileTransformer(className, transformCallback);
+    }
 
 }

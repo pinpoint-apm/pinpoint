@@ -45,16 +45,16 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
         logger.debug("[OkHttp] Initialized config={}", config);
 
         logger.debug("[OkHttp] Add Call class.");
-        addCall(config);
+        addCall();
         logger.debug("[OkHttp] Add Dispatcher class.");
-        addDispatcher(config);
+        addDispatcher();
         logger.debug("[OkHttp] Add AsyncCall class.");
-        addAsyncCall(config);
+        addAsyncCall();
         addHttpEngine(config);
-        addRequestBuilder(config);
+        addRequestBuilder();
     }
 
-    private void addCall(final OkHttpPluginConfig config) {
+    private void addCall() {
         transformTemplate.transform("com.squareup.okhttp.Call", new TransformCallback() {
 
             @Override
@@ -70,7 +70,7 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addDispatcher(final OkHttpPluginConfig config) {
+    private void addDispatcher() {
         transformTemplate.transform("com.squareup.okhttp.Dispatcher", new TransformCallback() {
 
             @Override
@@ -92,7 +92,7 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addAsyncCall(final OkHttpPluginConfig config) {
+    private void addAsyncCall() {
         transformTemplate.transform("com.squareup.okhttp.Call$AsyncCall", new TransformCallback() {
 
             @Override
@@ -146,7 +146,7 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addRequestBuilder(final OkHttpPluginConfig config) {
+    private void addRequestBuilder() {
         transformTemplate.transform("com.squareup.okhttp.Request$Builder", new TransformCallback() {
 
             @Override

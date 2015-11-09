@@ -56,31 +56,31 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
         boolean memcached = config.isMemcached();
 
         if (arcus) {
-            addArcusClientEditor(context, config);
-            addCollectionFutureEditor(context);
-            addFrontCacheGetFutureEditor(context);
-            addFrontCacheMemcachedClientEditor(context, config);
-            addCacheManagerEditor(context);
+            addArcusClientEditor(config);
+            addCollectionFutureEditor();
+            addFrontCacheGetFutureEditor();
+            addFrontCacheMemcachedClientEditor(config);
+            addCacheManagerEditor();
 
             // add none operation future. over 1.5.4
-            addBTreeStoreGetFutureEditor(context);
-            addCollectionGetBulkFutureEditor(context);
-            addSMGetFutureFutureEditor(context);
+            addBTreeStoreGetFutureEditor();
+            addCollectionGetBulkFutureEditor();
+            addSMGetFutureFutureEditor();
         }
 
         if (arcus || memcached) {
-            addMemcachedClientEditor(context, config);
+            addMemcachedClientEditor(config);
 
-            addBaseOperationImplEditor(context);
-            addGetFutureEditor(context);
-            addOperationFutureEditor(context);
+            addBaseOperationImplEditor();
+            addGetFutureEditor();
+            addOperationFutureEditor();
             // add none operation future.
-            addImmediateFutureEditor(context);
-            addBulkGetFutureEditor(context);
+            addImmediateFutureEditor();
+            addBulkGetFutureEditor();
         }
     }
 
-    private void addArcusClientEditor(ProfilerPluginSetupContext context, final ArcusPluginConfig config) {
+    private void addArcusClientEditor(final ArcusPluginConfig config) {
         transformTemplate.transform("net.spy.memcached.ArcusClient", new TransformCallback() {
 
             @Override
@@ -110,7 +110,7 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addCacheManagerEditor(ProfilerPluginSetupContext context) {
+    private void addCacheManagerEditor() {
         transformTemplate.transform("net.spy.memcached.CacheManager", new TransformCallback() {
 
             @Override
@@ -124,7 +124,7 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addBaseOperationImplEditor(ProfilerPluginSetupContext context) {
+    private void addBaseOperationImplEditor() {
         transformTemplate.transform("net.spy.memcached.protocol.BaseOperationImpl", new TransformCallback() {
 
             @Override
@@ -137,7 +137,7 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addFrontCacheGetFutureEditor(ProfilerPluginSetupContext context) {
+    private void addFrontCacheGetFutureEditor() {
         transformTemplate.transform("net.spy.memcached.plugin.FrontCacheGetFuture", new TransformCallback() {
 
             @Override
@@ -160,7 +160,7 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addFrontCacheMemcachedClientEditor(ProfilerPluginSetupContext context, final ArcusPluginConfig config) {
+    private void addFrontCacheMemcachedClientEditor(final ArcusPluginConfig config) {
         transformTemplate.transform("net.spy.memcached.plugin.FrontCacheMemcachedClient", new TransformCallback() {
 
             @Override
@@ -184,7 +184,7 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addMemcachedClientEditor(ProfilerPluginSetupContext context, final ArcusPluginConfig config) {
+    private void addMemcachedClientEditor(final ArcusPluginConfig config) {
         transformTemplate.transform("net.spy.memcached.MemcachedClient", new TransformCallback() {
 
             @Override
@@ -256,35 +256,35 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
     };
 
     
-    private void addCollectionFutureEditor(ProfilerPluginSetupContext context) {
+    private void addCollectionFutureEditor() {
         transformTemplate.transform("net.spy.memcached.internal.CollectionFuture", FUTURE_TRANSFORMER);
     }
 
-    private void addGetFutureEditor(ProfilerPluginSetupContext context) {
+    private void addGetFutureEditor() {
         transformTemplate.transform("net.spy.memcached.internal.GetFuture", FUTURE_TRANSFORMER);
     }
 
-    private void addOperationFutureEditor(ProfilerPluginSetupContext context) {
+    private void addOperationFutureEditor() {
         transformTemplate.transform("net.spy.memcached.internal.OperationFuture", FUTURE_TRANSFORMER);
     }
 
-    private void addImmediateFutureEditor(ProfilerPluginSetupContext context) {
+    private void addImmediateFutureEditor() {
         transformTemplate.transform("net.spy.memcached.internal.ImmediateFuture", INTERNAL_FUTURE_TRANSFORMER);
     }
 
-    private void addBulkGetFutureEditor(ProfilerPluginSetupContext context) {
+    private void addBulkGetFutureEditor() {
         transformTemplate.transform("net.spy.memcached.internal.BulkGetFuture", INTERNAL_FUTURE_TRANSFORMER);
     }
 
-    private void addBTreeStoreGetFutureEditor(ProfilerPluginSetupContext context) {
+    private void addBTreeStoreGetFutureEditor() {
         transformTemplate.transform("net.spy.memcached.internal.BTreeStoreAndGetFuture", INTERNAL_FUTURE_TRANSFORMER);
     }
 
-    private void addCollectionGetBulkFutureEditor(ProfilerPluginSetupContext context) {
+    private void addCollectionGetBulkFutureEditor() {
         transformTemplate.transform("net.spy.memcached.internal.CollectionGetBulkFuture", INTERNAL_FUTURE_TRANSFORMER);
     }
 
-    private void addSMGetFutureFutureEditor(ProfilerPluginSetupContext context) {
+    private void addSMGetFutureFutureEditor() {
         transformTemplate.transform("net.spy.memcached.internal.SMGetFuture", INTERNAL_FUTURE_TRANSFORMER);
     }
 

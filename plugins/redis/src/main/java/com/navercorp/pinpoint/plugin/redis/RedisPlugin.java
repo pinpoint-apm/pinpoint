@@ -49,11 +49,11 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         // jedis
         addJedisClassEditors(config);
-        addProtocolClassEditor(config);
+        addProtocolClassEditor();
 
         if (pipelineEnabled) {
             // jedis pipeline
-            addJedisClientClassEditor(config);
+            addJedisClientClassEditor();
             addJedisPipelineClassEditors(config);
         }
     }
@@ -123,7 +123,7 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     // Client
-    private void addJedisClientClassEditor(RedisPluginConfig config) {
+    private void addJedisClientClassEditor() {
        transformTemplate.transform("redis.clients.jedis.Client", new TransformCallback() {
 
             @Override
@@ -146,7 +146,7 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addProtocolClassEditor(RedisPluginConfig config) {
+    private void addProtocolClassEditor() {
         transformTemplate.transform("redis.clients.jedis.Protocol", new TransformCallback() {
 
             @Override

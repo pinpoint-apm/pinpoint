@@ -46,7 +46,7 @@ public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
         // add user include methods
         for (String fullQualifiedMethodName : config.getIncludeList()) {
             try {
-                addUserIncludeClass(context, fullQualifiedMethodName);
+                addUserIncludeClass(fullQualifiedMethodName);
                 if (logger.isDebugEnabled()) {
                     logger.debug("Add user include class interceptor {}", fullQualifiedMethodName);
                 }
@@ -56,7 +56,7 @@ public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private void addUserIncludeClass(ProfilerPluginSetupContext context, final String fullQualifiedMethodName) {
+    private void addUserIncludeClass(final String fullQualifiedMethodName) {
         final String className = toClassName(fullQualifiedMethodName);
         final String methodName = toMethodName(fullQualifiedMethodName);
 

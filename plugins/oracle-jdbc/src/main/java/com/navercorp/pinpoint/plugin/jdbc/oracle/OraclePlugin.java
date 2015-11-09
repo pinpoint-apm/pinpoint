@@ -45,14 +45,14 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
         OracleConfig config = new OracleConfig(context.getConfig());
         
-        addConnectionTransformer(context, config);
-        addDriverTransformer(context);
-        addPreparedStatementTransformer(context, config);
-        addStatementTransformer(context);
+        addConnectionTransformer(config);
+        addDriverTransformer();
+        addPreparedStatementTransformer(config);
+        addStatementTransformer();
     }
 
     
-    private void addConnectionTransformer(ProfilerPluginSetupContext setupContext, final OracleConfig config) {
+    private void addConnectionTransformer(final OracleConfig config) {
         transformTemplate.transform("oracle.jdbc.driver.PhysicalConnection", new TransformCallback() {
             
             @Override
@@ -82,7 +82,7 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
     
-    private void addDriverTransformer(ProfilerPluginSetupContext setupContext) {
+    private void addDriverTransformer() {
         transformTemplate.transform("oracle.jdbc.driver.OracleDriver", new TransformCallback() {
             
             @Override
@@ -96,7 +96,7 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
     
-    private void addPreparedStatementTransformer(ProfilerPluginSetupContext setupContext, final OracleConfig config) {
+    private void addPreparedStatementTransformer(final OracleConfig config) {
         TransformCallback transformer = new TransformCallback() {
             
             @Override
@@ -126,7 +126,7 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform(CLASS_PREPARED_STATEMENT_WRAPPER, transformer);
     }
     
-    private void addStatementTransformer(ProfilerPluginSetupContext setupContext) {
+    private void addStatementTransformer() {
         TransformCallback transformer = new TransformCallback() {
             
             @Override
