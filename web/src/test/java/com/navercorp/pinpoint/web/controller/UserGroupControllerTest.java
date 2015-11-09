@@ -120,8 +120,8 @@ public class UserGroupControllerTest {
         
         String content = result.getResponse().getContentAsString();
         ObjectMapper objectMapper = new ObjectMapper();
-        List<Map> checherList = objectMapper.readValue(content, List.class);
-        Assert.assertEquals(checherList.size(), 2);
+        List<Map> checkerList = objectMapper.readValue(content, List.class);
+        Assert.assertEquals(checkerList.size(), 2);
     }
 
     @Test

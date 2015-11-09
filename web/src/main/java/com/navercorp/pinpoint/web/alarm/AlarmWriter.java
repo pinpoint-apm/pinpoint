@@ -17,11 +17,14 @@
 package com.navercorp.pinpoint.web.alarm;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
+import com.navercorp.pinpoint.web.alarm.vo.CheckerResult;
+import com.navercorp.pinpoint.web.service.AlarmService;
 
 /**
  * @author minwoo.jung
@@ -31,22 +34,51 @@ public class AlarmWriter implements ItemWriter<AlarmChecker> {
     @Autowired(required=false)
     private AlarmMessageSender alarmMessageSender = new EmptyMessageSender();
     
+    @Autowired
+    private AlarmService alarmService;
+    
     @Override
     public void write(List<? extends AlarmChecker> checkers) throws Exception {
+        Map<String, CheckerResult> beforeCheckerResults = alarmService.selectBeforeCheckerResults(checkers.get(0).getRule().getApplicationId());
+
         for(AlarmChecker checker : checkers) {
-            send(checker);
+            CheckerResult beforeCheckerResult = beforeCheckerResults.get(checker.getRule().getCheckerName());
+            
+            if (beforeCheckerResult == null) {
+                beforeCheckerResult = new CheckerResult(checker.getRule().getApplicationId(), checker.getRule().getCheckerName(), false, 0 , 1);
+            }
+            
+            if (checker.isDetected()) {
+                    sendAlarmMessage(beforeCheckerResult, checker);
+            }
+
+            alarmService.updateBeforeCheckerResult(beforeCheckerResult, checker);
         }
     }
-    
-    private void send(AlarmChecker checker) {
-        if (!checker.isDetected()) {
-            return;
+
+    private void sendAlarmMessage(CheckerResult beforeCheckerResult, AlarmChecker checker) {
+        if (isTurnToSendAlarm(beforeCheckerResult)) {
+            if (checker.isSMSSend()) {
+                alarmMessageSender.sendSms(checker, beforeCheckerResult.getSequenceCount() + 1);
+            }
+            if (checker.isEmailSend()) {
+                alarmMessageSender.sendEmail(checker, beforeCheckerResult.getSequenceCount() + 1);
+            }
         }
-        if (checker.isSMSSend()) {
-            alarmMessageSender.sendSms(checker);
+        
+    }
+
+    private boolean isTurnToSendAlarm(CheckerResult beforeCheckerResult) {
+        if(!beforeCheckerResult.isDetected()) {
+            return true;
         }
-        if (checker.isEmailSend()) {
-            alarmMessageSender.sendEmail(checker);
+        
+        int sequenceCount = beforeCheckerResult.getSequenceCount() + 1;
+        
+        if (sequenceCount == beforeCheckerResult.getTimingCount()) {
+                return true;
         }
+        
+        return false;
     }
 }
