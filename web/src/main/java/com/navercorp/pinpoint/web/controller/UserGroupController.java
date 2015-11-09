@@ -88,11 +88,11 @@ public class UserGroupController {
     
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public List<UserGroup> getUserGroup(@RequestParam(value=USER_ID, required=false) String userId,@RequestParam(value=USER_GROUP_ID, required=false) String userGroupId) {
+    public List<UserGroup> getUserGroup(@RequestParam(value=USER_ID, required=false) String userId, @RequestParam(value=USER_GROUP_ID, required=false) String userGroupId) {
         
-        if (userId != null) {
+        if (!StringUtils.isEmpty(userId)) {
             return userGroupService.selectUserGroupByUserId(userId);
-        } else if (userGroupId != null) {
+        } else if (!StringUtils.isEmpty(userGroupId)) {
             return userGroupService.selectUserGroupByUserGroupId(userGroupId);
         }
         return userGroupService.selectUserGroup();
