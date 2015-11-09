@@ -30,7 +30,6 @@ import java.io.IOException;
  */
 public class HistogramSerializer extends JsonSerializer<Histogram> {
 
-
     @Override
     public void serialize(Histogram histogram, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
@@ -48,8 +47,17 @@ public class HistogramSerializer extends JsonSerializer<Histogram> {
         jgen.writeFieldName(schema.getVerySlowSlot().getSlotName());
         jgen.writeNumber(histogram.getVerySlowCount());
 
-        jgen.writeFieldName(schema.getErrorSlot().getSlotName());
-        jgen.writeNumber(histogram.getErrorCount());
+        jgen.writeFieldName(schema.getFastErrorSlot().getSlotName());
+        jgen.writeNumber(histogram.getFastErrorCount());
+
+        jgen.writeFieldName(schema.getNormalErrorSlot().getSlotName());
+        jgen.writeNumber(histogram.getNormalErrorCount());
+
+        jgen.writeFieldName(schema.getSlowErrorSlot().getSlotName());
+        jgen.writeNumber(histogram.getSlowErrorCount());
+
+        jgen.writeFieldName(schema.getVerySlowErrorSlot().getSlotName());
+        jgen.writeNumber(histogram.getVerySlowErrorCount());
 
         jgen.writeEndObject();
     }
