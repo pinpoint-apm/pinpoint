@@ -25,10 +25,11 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 
 /**
+ *
  * @author emeroad
  * @author netspider
  */
-@JsonSerialize(using = HistogramSerializer.class)
+@JsonSerialize(using=HistogramSerializer.class)
 public class Histogram {
 
     private final HistogramSchema schema;
@@ -37,10 +38,9 @@ public class Histogram {
     private long normalCount;
     private long slowCount;
     private long verySlowCount;
-    private long fastErrorCount;
-    private long normalErrorCount;
-    private long slowErrorCount;
-    private long verySlowErrorCount;
+
+    private long errorCount;
+
 
     public Histogram(ServiceType serviceType) {
         if (serviceType == null) {
@@ -70,43 +70,23 @@ public class Histogram {
             this.verySlowCount += count;
             return;
         }
-
-        if (slotTime == schema.getVerySlowErrorSlot().getSlotTime()) { // 0 is slow slotTime
-            this.verySlowErrorCount += count;
+        if (slotTime == schema.getErrorSlot().getSlotTime()) { // -1 is error
+            this.errorCount += count;
             return;
         }
-
-        // TODO if clause condition should be "==", not "<="
+                // TODO if clause condition should be "==", not "<="
         if (slotTime <= schema.getFastSlot().getSlotTime()) {
             this.fastCount += count;
             return;
         }
-
-        if (slotTime <= schema.getFastErrorSlot().getSlotTime()) {
-            this.fastErrorCount += count;
-            return;
-        }
-
         if (slotTime <= schema.getNormalSlot().getSlotTime()) {
             this.normalCount += count;
             return;
         }
-
-        if (slotTime <= schema.getNormalErrorSlot().getSlotTime()) {
-            this.normalErrorCount += count;
-            return;
-        }
-
         if (slotTime <= schema.getSlowSlot().getSlotTime()) {
             this.slowCount += count;
             return;
         }
-
-        if (slotTime <= schema.getSlowErrorSlot().getSlotTime()) {
-            this.slowErrorCount += count;
-            return;
-        }
-
         throw new IllegalArgumentException("slot not found slotTime:" + slotTime + " count:" + count);
     }
 
@@ -115,40 +95,28 @@ public class Histogram {
     }
 
 
-    public long getFastCount() {
-        return fastCount;
+    public long getErrorCount() {
+        return errorCount;
     }
 
-    public long getFastErrorCount() {
-        return fastErrorCount;
+    public long getFastCount() {
+        return fastCount;
     }
 
     public long getNormalCount() {
         return normalCount;
     }
 
-    public long getNormalErrorCount() {
-        return normalErrorCount;
-    }
-
     public long getSlowCount() {
         return slowCount;
-    }
-
-    public long getSlowErrorCount() {
-        return slowErrorCount;
     }
 
     public long getVerySlowCount() {
         return verySlowCount;
     }
 
-    public long getVerySlowErrorCount() {
-        return verySlowErrorCount;
-    }
-
     public long getTotalCount() {
-        return fastCount + normalCount + slowCount + verySlowCount + fastErrorCount + normalErrorCount + slowErrorCount + verySlowErrorCount;
+        return errorCount + fastCount + normalCount + slowCount + verySlowCount;
     }
 
     public long getSuccessCount() {
@@ -169,15 +137,8 @@ public class Histogram {
                 return slowCount;
             case VERY_SLOW:
                 return verySlowCount;
-            case FAST_ERROR:
-                T:
-                return fastErrorCount;
-            case NORMAL_ERROR:
-                return normalErrorCount;
-            case SLOW_ERROR:
-                return slowErrorCount;
-            case VERY_SLOW_ERROR:
-                return verySlowErrorCount;
+            case ERROR:
+                return errorCount;
         }
         throw new IllegalArgumentException("slotType:" + slotType);
     }
@@ -194,11 +155,10 @@ public class Histogram {
         this.normalCount += histogram.normalCount;
         this.slowCount += histogram.slowCount;
         this.verySlowCount += histogram.verySlowCount;
-        this.fastErrorCount += histogram.getFastErrorCount();
-        this.normalErrorCount += histogram.getNormalErrorCount();
-        this.slowErrorCount += histogram.getSlowErrorCount();
-        this.verySlowErrorCount += histogram.getVerySlowCount();
+
+        this.errorCount += histogram.errorCount;
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -225,10 +185,8 @@ public class Histogram {
                 ", normalCount=" + normalCount +
                 ", slowCount=" + slowCount +
                 ", verySlowCount=" + verySlowCount +
-                ", fastErrorCount=" + fastErrorCount +
-                ", normalErrorCount=" + normalErrorCount +
-                ", slowErrorCount=" + slowErrorCount +
-                ", verySlowErrorCount=" + verySlowErrorCount +
+                ", errorCount=" + errorCount +
                 '}';
     }
+
 }
