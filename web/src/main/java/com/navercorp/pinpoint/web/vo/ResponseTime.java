@@ -79,7 +79,7 @@ public class ResponseTime {
         return histogram;
     }
 
-    public void addResponseTime(String agentId, short slotNumber, long count, boolean error) {
+    public void addResponseTime(String agentId, short slotNumber, long count) {
         Histogram histogram = getHistogram(agentId);
         histogram.addCallCount(slotNumber, count);
     }

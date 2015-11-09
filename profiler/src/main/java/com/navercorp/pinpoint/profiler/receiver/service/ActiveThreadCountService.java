@@ -19,7 +19,6 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.SlotType;
@@ -82,7 +81,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
 
     private final ActiveTraceLocator activeTraceLocator;
     private final int activeThreadSlotsCount;
-    private final HistogramSchema histogramSchema = BaseHistogramSchema.NORMAL_SCHEMA;
+    private final HistogramSchema histogramSchema = HistogramSchema.NORMAL_SCHEMA;
 
     public ActiveThreadCountService(ActiveTraceLocator activeTraceLocator) {
         this(activeTraceLocator, DEFAULT_FLUSH_DELAY);
