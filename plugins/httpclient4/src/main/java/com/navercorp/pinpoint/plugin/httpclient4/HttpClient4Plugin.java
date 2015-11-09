@@ -48,30 +48,30 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         final HttpClient4PluginConfig config = new HttpClient4PluginConfig(context.getConfig());
 
         // common
-        addHttpRequestExecutorClass(context, config);
-        addDefaultHttpRequestRetryHandlerClass(context, config);
+        addHttpRequestExecutorClass();
+        addDefaultHttpRequestRetryHandlerClass();
 
         logger.debug("Add HttpClient4(4.0 ~ 4.2");
         // Apache httpclient4 (version 4.0 ~ 4.2)
         addAbstractHttpClient4Class(context, config);
-        addAbstractPooledConnAdapterClass(context, config);
-        addManagedClientConnectionImplClass(context, config);
+        addAbstractPooledConnAdapterClass();
+        addManagedClientConnectionImplClass();
         
         // Apache httpclient4 (version 4.3 ~ 4.4)
         logger.debug("Add CloseableHttpClient4(4.3 ~ ");
-        addCloseableHttpClientClass(context, config);
-        addBasicHttpClientConnectionManagerClass(context, config);
-        addPoolingHttpClientConnectionManagerClass(context, config);
+        addCloseableHttpClientClass();
+        addBasicHttpClientConnectionManagerClass();
+        addPoolingHttpClientConnectionManagerClass();
 
         // Apache httpAsyncClient4 (version 4.0)
         // unsupported AbstractHttpAsyncClient because of deprecated.
         logger.debug("Add CloseableHttpAsyncClient4(4.0 ~ ");
-        addClosableHttpAsyncClientClass(context, config);
-        addDefaultClientExchangeHandlerImplClass(context, config);
-        addBasicFutureClass(context, config);
+        addClosableHttpAsyncClientClass();
+        addDefaultClientExchangeHandlerImplClass();
+        addBasicFutureClass();
     }
 
-    private void addHttpRequestExecutorClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
+    private void addHttpRequestExecutorClass() {
         transformTemplate.transform("org.apache.http.protocol.HttpRequestExecutor", new TransformCallback() {
 
             @Override
@@ -121,7 +121,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
     }
 
 
-    private void addCloseableHttpClientClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
+    private void addCloseableHttpClientClass() {
         transformTemplate.transform("org.apache.http.impl.client.CloseableHttpClient", new TransformCallback() {
 
             @Override
@@ -161,7 +161,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         }
     }
 
-    private void addDefaultHttpRequestRetryHandlerClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
+    private void addDefaultHttpRequestRetryHandlerClass() {
         transformTemplate.transform("org.apache.http.impl.client.DefaultHttpRequestRetryHandler", new TransformCallback() {
 
             @Override
@@ -178,7 +178,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         });
     }
 
-    private void addAbstractPooledConnAdapterClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
+    private void addAbstractPooledConnAdapterClass() {
         transformTemplate.transform("org.apache.http.impl.conn.AbstractPooledConnAdapter", new TransformCallback() {
 
             @Override
@@ -196,7 +196,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         });
     }
 
-    private void addManagedClientConnectionImplClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
+    private void addManagedClientConnectionImplClass() {
         transformTemplate.transform("org.apache.http.impl.conn.ManagedClientConnectionImpl", new TransformCallback() {
 
             @Override
@@ -214,7 +214,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         });
     }
 
-    private void addBasicHttpClientConnectionManagerClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
+    private void addBasicHttpClientConnectionManagerClass() {
         transformTemplate.transform("org.apache.http.impl.conn.BasicHttpClientConnectionManager", new TransformCallback() {
 
             @Override
@@ -232,7 +232,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         });
     }
 
-    private void addPoolingHttpClientConnectionManagerClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
+    private void addPoolingHttpClientConnectionManagerClass() {
         transformTemplate.transform("org.apache.http.impl.conn.PoolingHttpClientConnectionManager", new TransformCallback() {
 
             @Override
@@ -250,7 +250,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         });
     }
 
-    private void addClosableHttpAsyncClientClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
+    private void addClosableHttpAsyncClientClass() {
         transformTemplate.transform("org.apache.http.impl.nio.client.CloseableHttpAsyncClient", new TransformCallback() {
 
             @Override
@@ -277,7 +277,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
     }
 
 
-    private void addDefaultClientExchangeHandlerImplClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
+    private void addDefaultClientExchangeHandlerImplClass() {
         transformTemplate.transform("org.apache.http.impl.nio.client.DefaultClientExchangeHandlerImpl", new TransformCallback() {
 
             @Override
@@ -299,7 +299,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         });
     }
 
-    private void addBasicFutureClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
+    private void addBasicFutureClass() {
         transformTemplate.transform("org.apache.http.concurrent.BasicFuture", new TransformCallback() {
 
             @Override

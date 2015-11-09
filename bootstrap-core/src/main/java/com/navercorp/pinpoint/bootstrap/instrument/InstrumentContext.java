@@ -38,6 +38,8 @@ public interface InstrumentContext {
 
     void addClassFileTransformer(ClassLoader classLoader, String targetClassName, TransformCallback transformCallback);
 
+    void addClassFileTransformer(String targetClassName, TransformCallback transformCallback);
+
     void retransform(Class<?> target, TransformCallback transformCallback);
 
 }

@@ -40,14 +40,14 @@ public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
         CubridConfig config = new CubridConfig(context.getConfig());
         
-        addCUBRIDConnectionTransformer(context, config);
-        addCUBRIDDriverTransformer(context);
-        addCUBRIDPreparedStatementTransformer(context, config);
-        addCUBRIDStatementTransformer(context);
+        addCUBRIDConnectionTransformer(config);
+        addCUBRIDDriverTransformer();
+        addCUBRIDPreparedStatementTransformer(config);
+        addCUBRIDStatementTransformer();
     }
 
     
-    private void addCUBRIDConnectionTransformer(ProfilerPluginSetupContext setupContext, final CubridConfig config) {
+    private void addCUBRIDConnectionTransformer(final CubridConfig config) {
         transformTemplate.transform("cubrid.jdbc.driver.CUBRIDConnection", new TransformCallback() {
 
             @Override
@@ -76,7 +76,7 @@ public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
     
-    private void addCUBRIDDriverTransformer(ProfilerPluginSetupContext setupContext) {
+    private void addCUBRIDDriverTransformer() {
         transformTemplate.transform("cubrid.jdbc.driver.CUBRIDDriver", new TransformCallback() {
 
             @Override
@@ -90,7 +90,7 @@ public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
     
-    private void addCUBRIDPreparedStatementTransformer(ProfilerPluginSetupContext setupContext, final CubridConfig config) {
+    private void addCUBRIDPreparedStatementTransformer(final CubridConfig config) {
         transformTemplate.transform("cubrid.jdbc.driver.CUBRIDPreparedStatement", new TransformCallback() {
 
             @Override
@@ -111,18 +111,18 @@ public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
     
-    private void addCUBRIDStatementTransformer(ProfilerPluginSetupContext setupContext) {
+    private void addCUBRIDStatementTransformer() {
         transformTemplate.transform("cubrid.jdbc.driver.CUBRIDStatement", new TransformCallback() {
-            
+
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
-                
+
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
-                
+
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor", CubridConstants.GROUP_CUBRID);
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor", CubridConstants.GROUP_CUBRID);
-                
+
                 return target.toBytecode();
             }
         });

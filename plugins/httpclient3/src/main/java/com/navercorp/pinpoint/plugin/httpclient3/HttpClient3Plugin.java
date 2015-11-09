@@ -43,16 +43,16 @@ public class HttpClient3Plugin implements ProfilerPlugin, TransformTemplateAware
         final HttpClient3PluginConfig config = new HttpClient3PluginConfig(context.getConfig());
 
         // apache http client 3
-        addHttpClient3Class(config);
+        addHttpClient3Class();
 
         // apache http client 3 retry
-        addDefaultHttpMethodRetryHandlerClass(config);
+        addDefaultHttpMethodRetryHandlerClass();
         // 3.1.0
-        addHttpConnectionClass(config);
+        addHttpConnectionClass();
         addHttpMethodBaseClass(config);
     }
 
-    private void addHttpClient3Class(HttpClient3PluginConfig config) {
+    private void addHttpClient3Class() {
         transformTemplate.transform("org.apache.commons.httpclient.HttpClient", new TransformCallback() {
 
             @Override
@@ -78,7 +78,7 @@ public class HttpClient3Plugin implements ProfilerPlugin, TransformTemplateAware
 
 
     
-    private void addDefaultHttpMethodRetryHandlerClass(HttpClient3PluginConfig config) {
+    private void addDefaultHttpMethodRetryHandlerClass() {
         transformTemplate.transform("org.apache.commons.httpclient.DefaultHttpMethodRetryHandler", new TransformCallback() {
 
             @Override
@@ -96,7 +96,7 @@ public class HttpClient3Plugin implements ProfilerPlugin, TransformTemplateAware
         });
     }
     
-    private void addHttpConnectionClass(HttpClient3PluginConfig config) {
+    private void addHttpConnectionClass() {
         transformTemplate.transform("org.apache.commons.httpclient.HttpConnection", new TransformCallback() {
 
             @Override

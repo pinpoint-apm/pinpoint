@@ -18,10 +18,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.DefaultTransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.GuardInstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,26 +67,29 @@ public class ProfilerPluginLoader {
         return pluginContexts;
     }
 
-    private void preparePlugin(ProfilerPlugin plugin, ProfilerPluginSetupContext context) {
-
+    private GuardInstrumentContext preparePlugin(ProfilerPlugin plugin, InstrumentContext context) {
+        GuardInstrumentContext guardInstrumentContext = new GuardInstrumentContext(context);
         if (plugin instanceof TransformTemplateAware) {
             logger.info("setTransformTemplate");
-            TransformTemplate transformTemplate = new DefaultTransformTemplate(context);
+            final TransformTemplate transformTemplate = new TransformTemplate(guardInstrumentContext);
             ((TransformTemplateAware) plugin).setTransformTemplate(transformTemplate);
         }
+        return guardInstrumentContext;
     }
 
     private DefaultProfilerPluginContext setupPlugin(URL jar, ProfilerPlugin plugin) {
         final ClassInjector classInjector = JarProfilerPluginClassInjector.of(agent.getInstrumentation(), agent.getClassPool(), jar);
         final DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(agent, classInjector);
 
-        final GuardProfilerPluginContext guard = new GuardProfilerPluginContext(context);
+        final GuardProfilerPluginContext guardPluginContext = new GuardProfilerPluginContext(context);
+        final GuardInstrumentContext guardInstrumentContext = preparePlugin(plugin, context);
         try {
-            preparePlugin(plugin, context);
+
             // WARN external plugin api
-            plugin.setup(guard);
+            plugin.setup(guardPluginContext);
         } finally {
-            guard.close();
+            guardPluginContext.close();
+            guardInstrumentContext.close();
         }
         return context;
     }

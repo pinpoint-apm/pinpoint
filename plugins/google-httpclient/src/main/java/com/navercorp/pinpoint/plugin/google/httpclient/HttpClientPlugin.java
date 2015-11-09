@@ -45,10 +45,10 @@ public class HttpClientPlugin implements ProfilerPlugin, TransformTemplateAware 
         logger.debug("[GoogleHttpClient] Initialized config={}", config);
 
         logger.debug("[GoogleHttpClient] Add HttpRequest class.");
-        addHttpRequestClass(context, config);
+        addHttpRequestClass(config);
     }
 
-    private void addHttpRequestClass(ProfilerPluginSetupContext context, final HttpClientPluginConfig config) {
+    private void addHttpRequestClass(final HttpClientPluginConfig config) {
         transformTemplate.transform("com.google.api.client.http.HttpRequest", new TransformCallback() {
             
             @Override

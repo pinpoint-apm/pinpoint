@@ -50,12 +50,6 @@ public class GuardProfilerPluginContext implements ProfilerPluginSetupContext {
         this.delegate.addApplicationTypeDetector(detectors);
     }
 
-    @Override
-    public void addClassFileTransformer(String targetClassName, TransformCallback transformCallback) {
-        checkOpen();
-        this.delegate.addClassFileTransformer(targetClassName, transformCallback);
-    }
-
     private void checkOpen() {
         if (close) {
             throw new IllegalStateException("ProfilerPluginSetupContext already initialized");
