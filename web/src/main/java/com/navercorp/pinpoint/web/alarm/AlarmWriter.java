@@ -59,10 +59,10 @@ public class AlarmWriter implements ItemWriter<AlarmChecker> {
     private void sendAlarmMessage(CheckerResult beforeCheckerResult, AlarmChecker checker) {
         if (isTurnToSendAlarm(beforeCheckerResult)) {
             if (checker.isSMSSend()) {
-                alarmMessageSender.sendSms(checker);
+                alarmMessageSender.sendSms(checker, beforeCheckerResult.getSequenceCount() + 1);
             }
             if (checker.isEmailSend()) {
-                alarmMessageSender.sendEmail(checker);
+                alarmMessageSender.sendEmail(checker, beforeCheckerResult.getSequenceCount() + 1);
             }
         }
         

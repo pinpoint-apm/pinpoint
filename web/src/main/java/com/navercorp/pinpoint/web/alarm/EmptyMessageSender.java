@@ -24,11 +24,11 @@ import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
 public class EmptyMessageSender implements AlarmMessageSender {
 
     @Override
-    public void sendSms(AlarmChecker checker) {
+    public void sendSms(AlarmChecker checker, int sequenceCount) {
     }
 
     @Override
-    public void sendEmail(AlarmChecker checker) {
+    public void sendEmail(AlarmChecker checker, int sequenceCount) {
     }
 
 }
