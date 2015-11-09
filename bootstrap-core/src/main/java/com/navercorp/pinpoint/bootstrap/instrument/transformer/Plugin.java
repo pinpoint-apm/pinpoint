@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.alarm;
+package com.navercorp.pinpoint.bootstrap.instrument.transformer;
 
-import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * @author minwoo.jung
+ * @author emeroad
  */
-public interface AlarmMessageSender {
-    void sendSms(AlarmChecker checker, int sequenceCount);
-    void sendEmail(AlarmChecker checker, int sequenceCount);
+@Retention(RetentionPolicy.CLASS)
+@Target(ElementType.TYPE)
+public @interface Plugin {
 }

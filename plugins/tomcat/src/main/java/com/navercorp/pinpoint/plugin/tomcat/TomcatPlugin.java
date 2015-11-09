@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
@@ -32,7 +34,9 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  * @author jaehong.kim
  *
  */
-public class TomcatPlugin implements ProfilerPlugin {
+public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
+
+    private TransformTemplate transformTemplate;
 
     /*
      * (non-Javadoc)
@@ -46,20 +50,20 @@ public class TomcatPlugin implements ProfilerPlugin {
         TomcatConfiguration config = new TomcatConfiguration(context.getConfig());
 
         if (config.isTomcatHidePinpointHeader()) {
-            addRequestFacadeEditor(context);
+            addRequestFacadeEditor();
         }
 
-        addRequestEditor(context);
-        addStandardHostValveEditor(context, config);
-        addStandardServiceEditor(context);
-        addTomcatConnectorEditor(context);
-        addWebappLoaderEditor(context);
+        addRequestEditor();
+        addStandardHostValveEditor(config);
+        addStandardServiceEditor();
+        addTomcatConnectorEditor();
+        addWebappLoaderEditor();
 
-        addAsyncContextImpl(context);
+        addAsyncContextImpl();
     }
 
-    private void addRequestEditor(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("org.apache.catalina.connector.Request", new TransformCallback() {
+    private void addRequestEditor() {
+        transformTemplate.transform("org.apache.catalina.connector.Request", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -84,8 +88,8 @@ public class TomcatPlugin implements ProfilerPlugin {
         });
     }
 
-    private void addRequestFacadeEditor(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("org.apache.catalina.connector.RequestFacade", new TransformCallback() {
+    private void addRequestFacadeEditor() {
+        transformTemplate.transform("org.apache.catalina.connector.RequestFacade", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -100,8 +104,8 @@ public class TomcatPlugin implements ProfilerPlugin {
         });
     }
 
-    private void addStandardHostValveEditor(ProfilerPluginSetupContext context, final TomcatConfiguration config) {
-        context.addClassFileTransformer("org.apache.catalina.core.StandardHostValve", new TransformCallback() {
+    private void addStandardHostValveEditor(final TomcatConfiguration config) {
+        transformTemplate.transform("org.apache.catalina.core.StandardHostValve", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -117,8 +121,8 @@ public class TomcatPlugin implements ProfilerPlugin {
         });
     }
 
-    private void addStandardServiceEditor(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("org.apache.catalina.core.StandardService", new TransformCallback() {
+    private void addStandardServiceEditor() {
+        transformTemplate.transform("org.apache.catalina.core.StandardService", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -141,8 +145,8 @@ public class TomcatPlugin implements ProfilerPlugin {
         });
     }
 
-    private void addTomcatConnectorEditor(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("org.apache.catalina.connector.Connector", new TransformCallback() {
+    private void addTomcatConnectorEditor() {
+        transformTemplate.transform("org.apache.catalina.connector.Connector", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -165,8 +169,8 @@ public class TomcatPlugin implements ProfilerPlugin {
         });
     }
 
-    private void addWebappLoaderEditor(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("org.apache.catalina.loader.WebappLoader", new TransformCallback() {
+    private void addWebappLoaderEditor() {
+        transformTemplate.transform("org.apache.catalina.loader.WebappLoader", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -189,8 +193,8 @@ public class TomcatPlugin implements ProfilerPlugin {
         });
     }
 
-    private void addAsyncContextImpl(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("org.apache.catalina.core.AsyncContextImpl", new TransformCallback() {
+    private void addAsyncContextImpl() {
+        transformTemplate.transform("org.apache.catalina.core.AsyncContextImpl", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -204,5 +208,10 @@ public class TomcatPlugin implements ProfilerPlugin {
                 return target.toBytecode();
             }
         });
+    }
+
+    @Override
+    public void setTransformTemplate(TransformTemplate transformTemplate) {
+        this.transformTemplate = transformTemplate;
     }
 }

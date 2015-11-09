@@ -14,7 +14,7 @@
  */
 package com.navercorp.pinpoint.bootstrap.instrument;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 
@@ -23,7 +23,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
  *
  */
 public interface Instrumentor {
-    TraceContext getTraceContext();
+
+    ProfilerConfig getProfilerConfig();
     
     InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classfileBuffer);
     

@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -36,8 +38,9 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  * @author jaehong.kim
  *
  */
-public class RedisPlugin implements ProfilerPlugin {
+public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
@@ -45,19 +48,19 @@ public class RedisPlugin implements ProfilerPlugin {
         final boolean pipelineEnabled = config.isPipelineEnabled();
 
         // jedis
-        addJedisClassEditors(context, config);
-        addProtocolClassEditor(context, config);
+        addJedisClassEditors(config);
+        addProtocolClassEditor();
 
         if (pipelineEnabled) {
             // jedis pipeline
-            addJedisClientClassEditor(context, config);
-            addJedisPipelineClassEditors(context, config);
+            addJedisClientClassEditor();
+            addJedisPipelineClassEditors(config);
         }
     }
 
     // Jedis & BinaryJedis
-    private void addJedisClassEditors(ProfilerPluginSetupContext context, RedisPluginConfig config) {
-        addJedisExtendedClassEditor(context, config, "redis.clients.jedis.BinaryJedis", new TransformHandler() {
+    private void addJedisClassEditors(RedisPluginConfig config) {
+        addJedisExtendedClassEditor(config, "redis.clients.jedis.BinaryJedis", new TransformHandler() {
 
             @Override
             public void handle(InstrumentClass target) throws InstrumentException {
@@ -66,11 +69,11 @@ public class RedisPlugin implements ProfilerPlugin {
         });
 
         // Jedis extends BinaryJedis
-        addJedisExtendedClassEditor(context, config, "redis.clients.jedis.Jedis", null);
+        addJedisExtendedClassEditor(config, "redis.clients.jedis.Jedis", null);
     }
 
-    private void addJedisExtendedClassEditor(ProfilerPluginSetupContext context, final RedisPluginConfig config, final String targetClassName, final TransformHandler handler) {
-        context.addClassFileTransformer(targetClassName, new TransformCallback() {
+    private void addJedisExtendedClassEditor(final RedisPluginConfig config, final String targetClassName, final TransformHandler handler) {
+       transformTemplate.transform(targetClassName, new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -120,8 +123,8 @@ public class RedisPlugin implements ProfilerPlugin {
     }
 
     // Client
-    private void addJedisClientClassEditor(ProfilerPluginSetupContext context, RedisPluginConfig config) {
-        context.addClassFileTransformer("redis.clients.jedis.Client", new TransformCallback() {
+    private void addJedisClientClassEditor() {
+       transformTemplate.transform("redis.clients.jedis.Client", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -143,8 +146,8 @@ public class RedisPlugin implements ProfilerPlugin {
         });
     }
 
-    private void addProtocolClassEditor(ProfilerPluginSetupContext context, RedisPluginConfig config) {
-        context.addClassFileTransformer("redis.clients.jedis.Protocol", new TransformCallback() {
+    private void addProtocolClassEditor() {
+        transformTemplate.transform("redis.clients.jedis.Protocol", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -160,14 +163,14 @@ public class RedisPlugin implements ProfilerPlugin {
     }
 
     // Pipeline
-    private void addJedisPipelineClassEditors(ProfilerPluginSetupContext context, RedisPluginConfig config) {
-        addJedisPipelineBaseExtendedClassEditor(context, config, "redis.clients.jedis.PipelineBase", null);
+    private void addJedisPipelineClassEditors(RedisPluginConfig config) {
+        addJedisPipelineBaseExtendedClassEditor(config, "redis.clients.jedis.PipelineBase", null);
 
         // MultikeyPipellineBase extends PipelineBase
-        addJedisPipelineBaseExtendedClassEditor(context, config, "redis.clients.jedis.MultiKeyPipelineBase", null);
+        addJedisPipelineBaseExtendedClassEditor(config, "redis.clients.jedis.MultiKeyPipelineBase", null);
 
         // Pipeline extends PipelineBase
-        addJedisPipelineBaseExtendedClassEditor(context, config, "redis.clients.jedis.Pipeline", new TransformHandler() {
+        addJedisPipelineBaseExtendedClassEditor(config, "redis.clients.jedis.Pipeline", new TransformHandler() {
 
             @Override
             public void handle(InstrumentClass target) throws InstrumentException {
@@ -186,8 +189,8 @@ public class RedisPlugin implements ProfilerPlugin {
         });
     }
 
-    private void addJedisPipelineBaseExtendedClassEditor(ProfilerPluginSetupContext context, final RedisPluginConfig config, String targetClassName, final TransformHandler handler) {
-        context.addClassFileTransformer(targetClassName, new TransformCallback() {
+    private void addJedisPipelineBaseExtendedClassEditor(final RedisPluginConfig config, String targetClassName, final TransformHandler handler) {
+        transformTemplate.transform(targetClassName, new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -213,5 +216,10 @@ public class RedisPlugin implements ProfilerPlugin {
 
     private interface TransformHandler {
         void handle(InstrumentClass target) throws InstrumentException;
+    }
+
+    @Override
+    public void setTransformTemplate(TransformTemplate transformTemplate) {
+        this.transformTemplate = transformTemplate;
     }
 }

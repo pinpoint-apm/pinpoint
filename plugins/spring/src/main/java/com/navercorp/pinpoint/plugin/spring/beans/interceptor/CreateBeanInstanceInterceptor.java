@@ -33,8 +33,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInterceptor implements AroundInterceptor1 {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     
-    public CreateBeanInstanceInterceptor(Instrumentor instrumentContext, TransformCallback transformer, TargetBeanFilter filter) {
-        super(instrumentContext, transformer, filter);
+    public CreateBeanInstanceInterceptor(Instrumentor instrumentor, TransformCallback transformer, TargetBeanFilter filter) {
+        super(instrumentor, transformer, filter);
     }
 
     @IgnoreMethod

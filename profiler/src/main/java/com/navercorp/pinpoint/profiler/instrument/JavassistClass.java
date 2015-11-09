@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.instrument.*;
 import javassist.CannotCompileException;
 import javassist.CtBehavior;
 import javassist.CtClass;
@@ -34,14 +36,6 @@ import javassist.bytecode.MethodInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.instrument.ClassFilter;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
-import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructors;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetFilter;
@@ -70,7 +64,7 @@ public class JavassistClass implements InstrumentClass {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final Instrumentor pluginContext;
+    private final InstrumentContext pluginContext;
     // private final JavassistClassPool instrumentClassPool;
     private final InterceptorRegistryBinder interceptorRegistryBinder;
     private final ClassLoader classLoader;
@@ -80,7 +74,7 @@ public class JavassistClass implements InstrumentClass {
     private static final String SETTER_PREFIX = "_$PINPOINT$_set";
     private static final String GETTER_PREFIX = "_$PINPOINT$_get";
 
-    public JavassistClass(Instrumentor pluginContext, InterceptorRegistryBinder interceptorRegistryBinder, ClassLoader classLoader, CtClass ctClass) {
+    public JavassistClass(InstrumentContext pluginContext, InterceptorRegistryBinder interceptorRegistryBinder, ClassLoader classLoader, CtClass ctClass) {
         this.pluginContext = pluginContext;
         this.ctClass = ctClass;
         this.interceptorRegistryBinder = interceptorRegistryBinder;
@@ -541,7 +535,9 @@ public class JavassistClass implements InstrumentClass {
         String filterTypeName = annotation.type();
         Asserts.notNull(filterTypeName, "type of @TargetFilter");
 
-        AutoBindingObjectFactory filterFactory = new AutoBindingObjectFactory(pluginContext, classLoader, new InterceptorArgumentProvider(pluginContext.getTraceContext(), this));
+        final TraceContext traceContext = pluginContext.getTraceContext();
+        final InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(traceContext, this);
+        AutoBindingObjectFactory filterFactory = new AutoBindingObjectFactory(pluginContext, classLoader, interceptorArgumentProvider);
         MethodFilter filter = (MethodFilter) filterFactory.createInstance(ObjectRecipe.byConstructor(filterTypeName, (Object[]) annotation.constructorArguments()));
 
         boolean singleton = annotation.singleton();

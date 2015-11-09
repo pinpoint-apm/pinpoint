@@ -73,7 +73,7 @@ public class AlarmMessageSenderImple implements AlarmMessageSender {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public void sendSms(AlarmChecker checker) {
+    public void sendSms(AlarmChecker checker, int sequenceCount) {
         List<String> receivers = userGroupService.selectPhoneNumberOfMember(checker.getUserGroupId());
 
         if (receivers.size() == 0) {
@@ -88,7 +88,7 @@ public class AlarmMessageSenderImple implements AlarmMessageSender {
     }
 
     @Override
-    public void sendEmail(AlarmChecker checker) {
+    public void sendEmail(AlarmChecker checker, int sequenceCount) {
         List<String> receivers = userGroupService.selectEmailOfMember(checker.getUserGroupId());
 
         if (receivers.size() == 0) {
@@ -234,7 +234,7 @@ public class AlarmMessageSenderImple implements AlarmMessageSender {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public void sendSms(AlarmChecker checker) {
+    public void sendSms(AlarmChecker checker, int sequenceCount) {
         List<String> receivers = userGroupService.selectPhoneNumberOfMember(checker.getUserGroupId());
 
         if (receivers.size() == 0) {
@@ -249,7 +249,7 @@ public class AlarmMessageSenderImple implements AlarmMessageSender {
     }
 
     @Override
-    public void sendEmail(AlarmChecker checker) {
+    public void sendEmail(AlarmChecker checker, int sequenceCount) {
         List<String> receivers = userGroupService.selectEmailOfMember(checker.getUserGroupId());
 
         if (receivers.size() == 0) {

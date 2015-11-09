@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
@@ -31,23 +33,25 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  * @author Jongho Moon
  *
  */
-public class MySqlPlugin implements ProfilerPlugin {
+public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
+
+    private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         MySqlConfig config = new MySqlConfig(context.getConfig());
         
-        addConnectionTransformer(context, config);
-        addDriverTransformer(context);
-        addStatementTransformer(context);
-        addPreparedStatementTransformer(context, config);
+        addConnectionTransformer(config);
+        addDriverTransformer();
+        addStatementTransformer();
+        addPreparedStatementTransformer(config);
         
         // From MySQL driver 5.1.x, backward compatibility is broken.
         // Driver returns not com.mysql.jdbc.Connection but com.mysql.jdbc.JDBC4Connection which extends com.mysql.jdbc.ConnectionImpl from 5.1.x
-        addJDBC4PreparedStatementTransformer(context);
+        addJDBC4PreparedStatementTransformer();
     }
     
-    private void addConnectionTransformer(ProfilerPluginSetupContext setupContext, final MySqlConfig config) {
+    private void addConnectionTransformer(final MySqlConfig config) {
         TransformCallback transformer = new TransformCallback() {
             
             @Override
@@ -81,63 +85,63 @@ public class MySqlPlugin implements ProfilerPlugin {
             }
         };
         
-        setupContext.addClassFileTransformer("com.mysql.jdbc.Connection", transformer);
-        setupContext.addClassFileTransformer("com.mysql.jdbc.ConnectionImpl", transformer);
+        transformTemplate.transform("com.mysql.jdbc.Connection", transformer);
+        transformTemplate.transform("com.mysql.jdbc.ConnectionImpl", transformer);
     }
     
-    private void addDriverTransformer(ProfilerPluginSetupContext setupContext) {
-        setupContext.addClassFileTransformer("com.mysql.jdbc.NonRegisteringDriver", new TransformCallback() {
-            
+    private void addDriverTransformer() {
+        transformTemplate.transform("com.mysql.jdbc.NonRegisteringDriver", new TransformCallback() {
+
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
 
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", va(new MySqlJdbcUrlParser(), false), MySqlConstants.GROUP_NAME, ExecutionPolicy.ALWAYS);
-                
+
                 return target.toBytecode();
             }
         });
     }
     
-    private void addPreparedStatementTransformer(ProfilerPluginSetupContext setupContext, final MySqlConfig config) {
-        setupContext.addClassFileTransformer("com.mysql.jdbc.PreparedStatement", new TransformCallback() {
-            
+    private void addPreparedStatementTransformer(final MySqlConfig config) {
+        transformTemplate.transform("com.mysql.jdbc.PreparedStatement", new TransformCallback() {
+
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
-                
+
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor");
-                
+
                 int maxBindValueSize = config.getMaxSqlBindValueSize();
 
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor", va(maxBindValueSize), MySqlConstants.GROUP_NAME);
                 final PreparedStatementBindingMethodFilter excludes = PreparedStatementBindingMethodFilter.excludes("setRowId", "setNClob", "setSQLXML");
                 target.addGroupedInterceptor(excludes, "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", MySqlConstants.GROUP_NAME, ExecutionPolicy.BOUNDARY);
-                
+
                 return target.toBytecode();
             }
         });
     }
 
-    private void addJDBC4PreparedStatementTransformer(ProfilerPluginSetupContext setupContext) {
-        setupContext.addClassFileTransformer("com.mysql.jdbc.JDBC4PreparedStatement", new TransformCallback() {
-            
+    private void addJDBC4PreparedStatementTransformer() {
+        transformTemplate.transform("com.mysql.jdbc.JDBC4PreparedStatement", new TransformCallback() {
+
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
 
                 final PreparedStatementBindingMethodFilter includes = PreparedStatementBindingMethodFilter.includes("setRowId", "setNClob", "setSQLXML");
                 target.addGroupedInterceptor(includes, "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", MySqlConstants.GROUP_NAME, ExecutionPolicy.BOUNDARY);
-                
+
                 return target.toBytecode();
             }
         });
     }
 
     
-    private void addStatementTransformer(ProfilerPluginSetupContext setupContext) {
+    private void addStatementTransformer() {
         TransformCallback transformer = new TransformCallback() {
             
             @Override
@@ -156,8 +160,14 @@ public class MySqlPlugin implements ProfilerPlugin {
                 return target.toBytecode();
             }
         };
-        
-        setupContext.addClassFileTransformer("com.mysql.jdbc.Statement", transformer);
-        setupContext.addClassFileTransformer("com.mysql.jdbc.StatementImpl", transformer);
+
+        transformTemplate.transform("com.mysql.jdbc.Statement", transformer);
+        transformTemplate.transform("com.mysql.jdbc.StatementImpl", transformer);
+
+    }
+
+    @Override
+    public void setTransformTemplate(TransformTemplate transformTemplate) {
+        this.transformTemplate = transformTemplate;
     }
 }

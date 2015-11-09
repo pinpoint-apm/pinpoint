@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.web.dao.memory;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.stereotype.Repository;
 
+import com.navercorp.pinpoint.web.alarm.vo.CheckerResult;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
 
@@ -87,5 +89,18 @@ public class MemoryAlarmDao implements AlarmDao {
     @Override
     public void updateRule(Rule rule) {
         alarmRule.put(rule.getRuleId(), rule);
+    }
+
+    @Override
+    public List<CheckerResult> selectBeforeCheckerResultList(String applicationId) {
+        return new ArrayList<CheckerResult>();
+    }
+
+    @Override
+    public void deleteCheckerResult(CheckerResult checkerResult) {
+    }
+
+    @Override
+    public void insertCheckerResult(CheckerResult checkerResult) {
     }
 }

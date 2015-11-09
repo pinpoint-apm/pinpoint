@@ -18,6 +18,7 @@ import static org.junit.Assert.*;
 
 import java.util.Properties;
 
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import org.junit.Test;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
@@ -33,7 +34,7 @@ public class TargetBeanFilterTest {
     public void testClassLoadedByBootClassLoader() {
         Properties properties = new Properties();
         properties.put(SpringBeansConfig.SPRING_BEANS_ANNOTATION, "org.springframework.stereotype.Controller,org.springframework.stereotype.Service,org.springframework.stereotype.Repository");
-        ProfilerConfig config = new ProfilerConfig(properties);
+        ProfilerConfig config = new DefaultProfilerConfig(properties);
         
         TargetBeanFilter filter = TargetBeanFilter.of(config);
         
@@ -50,7 +51,7 @@ public class TargetBeanFilterTest {
     public void test() {
         Properties properties = new Properties();
         properties.put(SpringBeansConfig.SPRING_BEANS_NAME_PATTERN, "Target.*");
-        ProfilerConfig config = new ProfilerConfig(properties);
+        ProfilerConfig config = new DefaultProfilerConfig(properties);
         
         TargetBeanFilter filter = TargetBeanFilter.of(config);
         

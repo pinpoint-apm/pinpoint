@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
@@ -29,11 +31,13 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
  * @author Jongho Moon
  *
  */
-public class JdkHttpPlugin implements ProfilerPlugin {
+public class JdkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
+
+    private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("sun.net.www.protocol.http.HttpURLConnection", new TransformCallback() {
+        transformTemplate.transform("sun.net.www.protocol.http.HttpURLConnection", new TransformCallback() {
             
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -52,4 +56,8 @@ public class JdkHttpPlugin implements ProfilerPlugin {
         });
     }
 
+    @Override
+    public void setTransformTemplate(TransformTemplate transformTemplate) {
+        this.transformTemplate = transformTemplate;
+    }
 }

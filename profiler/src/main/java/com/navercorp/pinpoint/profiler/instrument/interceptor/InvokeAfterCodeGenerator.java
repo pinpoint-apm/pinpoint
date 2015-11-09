@@ -29,24 +29,23 @@ public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
     private static final int THIS_RETURN_EXCEPTION_SIZE = 3;
 
     private final int interceptorId;
-    private final Method interceptorMethod;
+    private final InterceptorDefinition interceptorDefinition;
     private final InstrumentClass targetClass;
     private final boolean localVarsInitialized;
     private final boolean catchClause;
 
-    public InvokeAfterCodeGenerator(int interceptorId, Class<?> interceptorClass, Method interceptorMethod, InstrumentClass targetClass, InstrumentMethod targetMethod, TraceContext traceContext, boolean localVarsInitialized, boolean catchClause) {
-        super(interceptorId, interceptorClass, targetMethod, traceContext);
-        
+    public InvokeAfterCodeGenerator(int interceptorId, InterceptorDefinition interceptorDefinition, InstrumentClass targetClass, InstrumentMethod targetMethod, TraceContext traceContext, boolean localVarsInitialized, boolean catchClause) {
+        super(interceptorId, interceptorDefinition, targetMethod, traceContext);
+        this.interceptorDefinition = interceptorDefinition;
         this.interceptorId = interceptorId;
-        this.interceptorMethod = interceptorMethod;
         this.targetClass = targetClass;
         this.localVarsInitialized = localVarsInitialized;
         this.catchClause = catchClause;
     }
 
     public String generate() {
-        CodeBuilder builder = new CodeBuilder();
-        
+        final CodeBuilder builder = new CodeBuilder();
+
         builder.begin();
 
         // try {
@@ -56,25 +55,25 @@ public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
         // }
         //
         // throw e;
-        
+
         builder.append("try { ");
 
         if (!localVarsInitialized) {
             builder.format("%1$s = %2$s.getInterceptor(%3$d); ", getInterceptorVar(), getInterceptorRegistryClassName(), interceptorId);
-        } 
-        
-        if (interceptorMethod != null) {
+        }
+        final Method afterMethod = interceptorDefinition.getAfterMethod();
+        if (afterMethod != null) {
             builder.format("((%1$s)%2$s).after(", getInterceptorType(), getInterceptorVar());
             appendArguments(builder);
             builder.format(");");
         }
-        
+
         builder.format("} catch (java.lang.Throwable _$PINPOINT_EXCEPTION$_) { %1$s.handleException(_$PINPOINT_EXCEPTION$_); }", getInterceptorInvokerHelperClassName());
-        
+
         if (catchClause) {
             builder.append(" throw $e;");
         }
-        
+
         builder.end();
         
         return builder.toString();
@@ -104,6 +103,7 @@ public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
     }
 
     private void appendArguments(CodeBuilder builder) {
+        final InterceptorType type = interceptorDefinition.getInterceptorType();
         switch (type) {
         case ARRAY_ARGS:
             appendSimpleAfterArguments(builder);
@@ -133,6 +133,7 @@ public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
     }
 
     private void appendCustomAfterArguments(CodeBuilder builder) {
+        final Method interceptorMethod = interceptorDefinition.getAfterMethod();
         final Class<?>[] interceptorParamTypes = interceptorMethod.getParameterTypes();
         
         if (interceptorParamTypes.length == 0) {

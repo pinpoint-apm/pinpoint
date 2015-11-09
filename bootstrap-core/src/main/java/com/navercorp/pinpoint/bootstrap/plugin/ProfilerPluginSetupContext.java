@@ -15,7 +15,6 @@
 package com.navercorp.pinpoint.bootstrap.plugin;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 
 /**
  *  Provides attributes and objects to interceptors.
@@ -39,6 +38,5 @@ public interface ProfilerPluginSetupContext {
      * @param detectors
      */
     void addApplicationTypeDetector(ApplicationTypeDetector... detectors);
-    
-    void addClassFileTransformer(String targetClassName, TransformCallback transformCallback);
+
 }

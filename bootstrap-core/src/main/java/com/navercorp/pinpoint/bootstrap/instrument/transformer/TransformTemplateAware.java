@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.alarm;
-
-import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
+package com.navercorp.pinpoint.bootstrap.instrument.transformer;
 
 /**
- * @author minwoo.jung
+ * @author emeroad
  */
-public interface AlarmMessageSender {
-    void sendSms(AlarmChecker checker, int sequenceCount);
-    void sendEmail(AlarmChecker checker, int sequenceCount);
+@Plugin
+public interface TransformTemplateAware {
+    void setTransformTemplate(TransformTemplate transformTemplate);
 }

@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
@@ -134,8 +135,10 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
         if (type == null) {
             throw new PinpointException("type of @TargetFilter is null: " + interceptorClassName);
         }
-        
-        AutoBindingObjectFactory filterFactory = new AutoBindingObjectFactory(pluginContext, classLoader, new InterceptorArgumentProvider(pluginContext.getTraceContext(), targetClass));
+
+        final TraceContext traceContext = pluginContext.getTraceContext();
+        final InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(traceContext, targetClass);
+        AutoBindingObjectFactory filterFactory = new AutoBindingObjectFactory(pluginContext, classLoader, interceptorArgumentProvider);
         MethodFilter filter = (MethodFilter)filterFactory.createInstance(ObjectRecipe.byConstructor(type, (Object[])annotation.constructorArguments()));
         MethodRecipe recipe = annotation.singleton() ? new SharedAnnotatedInterceptorInjector(injector) : injector;
         

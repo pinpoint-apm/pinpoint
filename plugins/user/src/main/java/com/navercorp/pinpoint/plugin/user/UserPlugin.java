@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -32,9 +34,11 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
  * @author jaehong.kim
  *
  */
-public class UserPlugin implements ProfilerPlugin {
+public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
+    private TransformTemplate transformTemplate;
+    
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final UserPluginConfig config = new UserPluginConfig(context.getConfig());
@@ -42,7 +46,7 @@ public class UserPlugin implements ProfilerPlugin {
         // add user include methods
         for (String fullQualifiedMethodName : config.getIncludeList()) {
             try {
-                addUserIncludeClass(context, fullQualifiedMethodName);
+                addUserIncludeClass(fullQualifiedMethodName);
                 if (logger.isDebugEnabled()) {
                     logger.debug("Add user include class interceptor {}", fullQualifiedMethodName);
                 }
@@ -52,11 +56,11 @@ public class UserPlugin implements ProfilerPlugin {
         }
     }
 
-    private void addUserIncludeClass(ProfilerPluginSetupContext context, final String fullQualifiedMethodName) {
+    private void addUserIncludeClass(final String fullQualifiedMethodName) {
         final String className = toClassName(fullQualifiedMethodName);
         final String methodName = toMethodName(fullQualifiedMethodName);
 
-        context.addClassFileTransformer(className, new TransformCallback() {
+       transformTemplate.transform(className, new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -93,5 +97,10 @@ public class UserPlugin implements ProfilerPlugin {
         }
 
         return fullQualifiedMethodName.substring(methodBeginPosition + 1);
+    }
+
+    @Override
+    public void setTransformTemplate(TransformTemplate transformTemplate) {
+        this.transformTemplate = transformTemplate;
     }
 }

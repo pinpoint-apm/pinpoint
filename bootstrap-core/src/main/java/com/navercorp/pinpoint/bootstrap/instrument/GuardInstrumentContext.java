@@ -1,43 +1,45 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * *
+ *  * Copyright 2014 NAVER Corp.
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  *     http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package com.navercorp.pinpoint.bootstrap.instrument;
 
-
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 
 /**
- * @author emeroad
+ * @author Woonduk Kang(emeroad)
  */
-public class GuardInstrumentor implements Instrumentor {
+public class GuardInstrumentContext implements InstrumentContext {
     private final InstrumentContext instrumentContext;
     private boolean closed = false;
 
-    public GuardInstrumentor(InstrumentContext instrumentContext) {
+    public GuardInstrumentContext(InstrumentContext instrumentContext) {
         if (instrumentContext == null) {
             throw new NullPointerException("instrumentContext must not be null");
         }
+
         this.instrumentContext = instrumentContext;
     }
 
     @Override
-    public ProfilerConfig getProfilerConfig() {
-        return instrumentContext.getTraceContext().getProfilerConfig();
+    public TraceContext getTraceContext() {
+        checkOpen();
+        return instrumentContext.getTraceContext();
     }
 
     @Override
@@ -68,6 +70,12 @@ public class GuardInstrumentor implements Instrumentor {
     public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, TransformCallback transformCallback) {
         checkOpen();
         instrumentContext.addClassFileTransformer(classLoader, targetClassName, transformCallback);
+    }
+
+    @Override
+    public void addClassFileTransformer(String targetClassName, TransformCallback transformCallback) {
+        checkOpen();
+        instrumentContext.addClassFileTransformer(targetClassName, transformCallback);
     }
 
     @Override

@@ -15,25 +15,17 @@
  *
  */
 
-package com.navercorp.pinpoint.profiler.instrument.interceptor;
-
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-
-import java.lang.reflect.Method;
+package com.navercorp.pinpoint.bootstrap.instrument.transformer;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface InterceptorDefinition {
-    Class<? extends Interceptor> getInterceptorBaseClass();
+@Plugin
+public interface TransformOperations {
 
-    Class<? extends Interceptor> getInterceptorClass();
+    void transform(String className, TransformCallback transformCallback);
 
-    InterceptorType getInterceptorType();
+//    void transform(Matcher className, TransformCallback transformCallback);
 
-    CaptureType getCaptureType();
 
-    Method getBeforeMethod();
-
-    Method getAfterMethod();
 }

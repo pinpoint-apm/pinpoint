@@ -27,6 +27,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
@@ -36,29 +38,31 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 /**
  * @author HyunGil Jeong
  */
-public class MyBatisPlugin implements ProfilerPlugin {
+public class MyBatisPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     public static final ServiceType MYBATIS = ServiceTypeFactory.of(5510, "MYBATIS");
 
     private static final String MYBATIS_SCOPE = "MYBATIS_SCOPE";
 
+    private TransformTemplate transformTemplate;
+
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         ProfilerConfig profilerConfig = context.getConfig();
         if (profilerConfig.isMyBatisEnabled()) {
-            addInterceptorsForSqlSession(context);
+            addInterceptorsForSqlSession();
         }
     }
 
     // SqlSession implementations
-    private void addInterceptorsForSqlSession(ProfilerPluginSetupContext context) {
+    private void addInterceptorsForSqlSession() {
         final MethodFilter methodFilter = MethodFilters.name("selectOne", "selectList", "selectMap", "select",
                 "insert", "update", "delete");
         final String[] sqlSessionImpls = { "org.apache.ibatis.session.defaults.DefaultSqlSession",
                 "org.mybatis.spring.SqlSessionTemplate" };
 
         for (final String sqlSession : sqlSessionImpls) {
-            context.addClassFileTransformer(sqlSession, new TransformCallback() {
+            transformTemplate.transform(sqlSession, new TransformCallback() {
 
                 @Override
                 public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader,
@@ -78,5 +82,10 @@ public class MyBatisPlugin implements ProfilerPlugin {
             });
 
         }
+    }
+
+    @Override
+    public void setTransformTemplate(TransformTemplate transformTemplate) {
+        this.transformTemplate = transformTemplate;
     }
 }

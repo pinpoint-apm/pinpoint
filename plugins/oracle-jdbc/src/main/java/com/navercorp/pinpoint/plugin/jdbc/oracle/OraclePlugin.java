@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
@@ -30,26 +32,28 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  * @author Jongho Moon
  *
  */
-public class OraclePlugin implements ProfilerPlugin {
+public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private static final String CLASS_STATEMENT_WRAPPER = "oracle.jdbc.driver.OracleStatementWrapper";
     private static final String CLASS_STATEMENT = "oracle.jdbc.driver.OracleStatement";
     private static final String CLASS_PREPARED_STATEMENT_WRAPPER = "oracle.jdbc.driver.OraclePreparedStatementWrapper";
     private static final String CLASS_PREPARED_STATEMENT = "oracle.jdbc.driver.OraclePreparedStatement";
 
+    private TransformTemplate transformTemplate;
+
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         OracleConfig config = new OracleConfig(context.getConfig());
         
-        addConnectionTransformer(context, config);
-        addDriverTransformer(context);
-        addPreparedStatementTransformer(context, config);
-        addStatementTransformer(context);
+        addConnectionTransformer(config);
+        addDriverTransformer();
+        addPreparedStatementTransformer(config);
+        addStatementTransformer();
     }
 
     
-    private void addConnectionTransformer(ProfilerPluginSetupContext setupContext, final OracleConfig config) {
-        setupContext.addClassFileTransformer("oracle.jdbc.driver.PhysicalConnection", new TransformCallback() {
+    private void addConnectionTransformer(final OracleConfig config) {
+        transformTemplate.transform("oracle.jdbc.driver.PhysicalConnection", new TransformCallback() {
             
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -78,8 +82,8 @@ public class OraclePlugin implements ProfilerPlugin {
         });
     }
     
-    private void addDriverTransformer(ProfilerPluginSetupContext setupContext) {
-        setupContext.addClassFileTransformer("oracle.jdbc.driver.OracleDriver", new TransformCallback() {
+    private void addDriverTransformer() {
+        transformTemplate.transform("oracle.jdbc.driver.OracleDriver", new TransformCallback() {
             
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -92,7 +96,7 @@ public class OraclePlugin implements ProfilerPlugin {
         });
     }
     
-    private void addPreparedStatementTransformer(ProfilerPluginSetupContext setupContext, final OracleConfig config) {
+    private void addPreparedStatementTransformer(final OracleConfig config) {
         TransformCallback transformer = new TransformCallback() {
             
             @Override
@@ -118,11 +122,11 @@ public class OraclePlugin implements ProfilerPlugin {
             }
         };
         
-        setupContext.addClassFileTransformer(CLASS_PREPARED_STATEMENT, transformer);
-        setupContext.addClassFileTransformer(CLASS_PREPARED_STATEMENT_WRAPPER, transformer);
+        transformTemplate.transform(CLASS_PREPARED_STATEMENT, transformer);
+        transformTemplate.transform(CLASS_PREPARED_STATEMENT_WRAPPER, transformer);
     }
     
-    private void addStatementTransformer(ProfilerPluginSetupContext setupContext) {
+    private void addStatementTransformer() {
         TransformCallback transformer = new TransformCallback() {
             
             @Override
@@ -144,7 +148,12 @@ public class OraclePlugin implements ProfilerPlugin {
             }
         };
         
-        setupContext.addClassFileTransformer(CLASS_STATEMENT, transformer);
-        setupContext.addClassFileTransformer(CLASS_STATEMENT_WRAPPER, transformer);
+        transformTemplate.transform(CLASS_STATEMENT, transformer);
+        transformTemplate.transform(CLASS_STATEMENT_WRAPPER, transformer);
+    }
+
+    @Override
+    public void setTransformTemplate(TransformTemplate transformTemplate) {
+        this.transformTemplate = transformTemplate;
     }
 }

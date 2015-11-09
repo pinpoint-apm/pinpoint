@@ -29,6 +29,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
@@ -38,50 +40,51 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 /**
  * @author HyunGil Jeong
  */
-public class IBatisPlugin implements ProfilerPlugin {
+public class IBatisPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     public static final ServiceType IBATIS = ServiceTypeFactory.of(5500, "IBATIS");
     public static final ServiceType IBATIS_SPRING = ServiceTypeFactory.of(5501, "IBATIS_SPRING", "IBATIS");
 
     private static final String IBATIS_SCOPE = "IBATIS_SCOPE";
+    private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         ProfilerConfig profilerConfig = context.getConfig();
         if (profilerConfig.isIBatisEnabled()) {
-            addInterceptorsForSqlMapExecutors(context);
-            addInterceptorsForSqlMapClientTemplate(context);
+            addInterceptorsForSqlMapExecutors();
+            addInterceptorsForSqlMapClientTemplate();
         }
     }
 
     // SqlMapClient / SqlMapSession
-    private void addInterceptorsForSqlMapExecutors(ProfilerPluginSetupContext context) {
+    private void addInterceptorsForSqlMapExecutors() {
         final ServiceType serviceType = IBATIS;
         final String[] sqlMapExecutorImplClasses = { "com.ibatis.sqlmap.engine.impl.SqlMapClientImpl",
                 "com.ibatis.sqlmap.engine.impl.SqlMapSessionImpl" };
-        addInterceptorsForClasses(context, serviceType, sqlMapExecutorImplClasses);
+        addInterceptorsForClasses(serviceType, sqlMapExecutorImplClasses);
     }
 
     // SqlMapClientTemplate
-    private void addInterceptorsForSqlMapClientTemplate(ProfilerPluginSetupContext context) {
+    private void addInterceptorsForSqlMapClientTemplate() {
         final ServiceType serviceType = IBATIS_SPRING;
         final String[] sqlMapClientTemplateClasses = { "org.springframework.orm.ibatis.SqlMapClientTemplate" };
-        addInterceptorsForClasses(context, serviceType, sqlMapClientTemplateClasses);
+        addInterceptorsForClasses(serviceType, sqlMapClientTemplateClasses);
     }
 
-    private void addInterceptorsForClasses(ProfilerPluginSetupContext context, ServiceType serviceType,
-            String... targetClassNames) {
+    private void addInterceptorsForClasses(ServiceType serviceType, String... targetClassNames) {
+
         final MethodFilter methodFilter = MethodFilters.name("insert", "delete", "update", "queryForList",
                 "queryForMap", "queryForObject", "queryForPaginatedList");
         for (String targetClassName : targetClassNames) {
-            addInterceptorsForClass(context, targetClassName, serviceType, methodFilter);
+            addInterceptorsForClass(targetClassName, serviceType, methodFilter);
         }
     }
 
-    private void addInterceptorsForClass(ProfilerPluginSetupContext context, final String targetClassName,
+    private void addInterceptorsForClass(final String targetClassName,
             final ServiceType serviceType, final MethodFilter methodFilter) {
 
-        context.addClassFileTransformer(targetClassName, new TransformCallback() {
+        transformTemplate.transform(targetClassName, new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader,
@@ -101,5 +104,10 @@ public class IBatisPlugin implements ProfilerPlugin {
             }
 
         });
+    }
+
+    @Override
+    public void setTransformTemplate(TransformTemplate transformTemplate) {
+        this.transformTemplate = transformTemplate;
     }
 }
