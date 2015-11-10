@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.jar.JarFile;
 
 import javassist.CannotCompileException;
@@ -75,10 +74,13 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
     
     private final Instrumentation instrumentation;
     private final InstrumentClassPool classPool;
-    private final AtomicBoolean injectedToRoot = new AtomicBoolean(false);
+
     private final URL pluginJarURL;
     private final String pluginJarURLExternalForm;
     private final JarFile pluginJar;
+
+    private final Object lock = new Object();
+    private boolean injectedToRoot = false;
     
     
     private JarProfilerPluginClassInjector(Instrumentation instrumentation, InstrumentClassPool classPool, URL pluginJarURL, JarFile pluginJar) {
@@ -107,9 +109,12 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
     }
 
     private Class<?> injectToBootstrapClassLoader(String className) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
-        if (injectedToRoot.compareAndSet(false, true)) {
-            instrumentation.appendToBootstrapClassLoaderSearch(pluginJar);
-            classPool.appendToBootstrapClassPath(pluginJar.getName());
+        synchronized (lock) {
+            if (this.injectedToRoot == false) {
+                this.injectedToRoot = true;
+                instrumentation.appendToBootstrapClassLoaderSearch(pluginJar);
+                classPool.appendToBootstrapClassPath(pluginJar.getName());
+            }
         }
         
         return Class.forName(className, false, null);
@@ -149,38 +154,34 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
     
     private Class<?> injectToPlainClassLoader(ClassPool pool, ClassLoader classLoader, String className) throws NotFoundException, IOException, CannotCompileException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         Class<?> c = null;
-        
         try {
             c = classLoader.loadClass(className);
-        } catch (ClassNotFoundException ignore) {
-            
+        } catch (ClassNotFoundException ex) {
+            if (logger.isTraceEnabled()) {
+                logger.trace("ClassNotFound {}", ex.getMessage(), ex);
+            }
         }
-        
         if (c != null) {
             return c;
         }
         
-        CtClass ct = pool.get(className);
-        
+        final CtClass ct = pool.get(className);
         if (ct == null) {
             throw new NotFoundException(className);
         }
         
         
-        CtClass superClass = ct.getSuperclass();
-        
+        final CtClass superClass = ct.getSuperclass();
         if (superClass != null) {
             injectToPlainClassLoader(pool, classLoader, superClass.getName());
         }
         
-        CtClass[] interfaces = ct.getInterfaces();
-        
-        for (CtClass i : interfaces) {
-            injectToPlainClassLoader(pool, classLoader, i.getName());
+        final CtClass[] interfaces = ct.getInterfaces();
+        for (CtClass ctInterface : interfaces) {
+            injectToPlainClassLoader(pool, classLoader, ctInterface.getName());
         }
         
-        Collection<String> refs = ct.getRefClasses();
-        
+        final Collection<String> refs = ct.getRefClasses();
         for (String ref : refs) {
             try {
                 injectToPlainClassLoader(pool, classLoader, ref);
@@ -189,7 +190,7 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
             }
         }
         
-        byte[] bytes = ct.toBytecode();
+        final byte[] bytes = ct.toBytecode();
         return (Class<?>)DEFINE_CLASS.invoke(classLoader, ct.getName(), bytes, 0, bytes.length);
     }
 }
