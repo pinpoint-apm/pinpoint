@@ -27,7 +27,7 @@
 
                     // define variables of methods
                     var setIdAutomatically, setWidthHeight, render, clickGraphItemListener, updateData,
-                        parseHistogramForAmcharts;
+                        parseHistogramForAmcharts, renderEmpty;
 
                     /**
                      * set id automatically
@@ -128,10 +128,10 @@
                      * @param data
                      */
                     updateData = function (data) {
-                        oChart.dataProvider = data;
+                	    oChart.dataProvider = data;
                         $timeout(function () {
                             oChart.validateData();
-                        });
+                        });                	
                     };
 
                     /**
@@ -140,6 +140,9 @@
                      * @returns {Array}
                      */
                     parseHistogramForAmcharts = function (data) {
+                    	if ( angular.isUndefined( data ) ) {
+                    		data = {"1s": 0, "3s": 0, "5s": 0, "Slow": 0, "Error": 0};
+                    	}
                         var newData = [],
                             alpha = [0.2, 0.3, 0.4, 0.6, 0.6],
                             i = 0;
@@ -160,7 +163,7 @@
                     scope.$on('responseTimeChartDirective.initAndRenderWithData.' + scope.namespace, function (event, data, w, h, useFilterTransaction, useChartCursor) {
                         setIdAutomatically();
                         setWidthHeight(w, h);
-                        render(parseHistogramForAmcharts(data), useFilterTransaction, useChartCursor);
+                       	render(parseHistogramForAmcharts(data), useFilterTransaction, useChartCursor);
                     });
 
                     /**

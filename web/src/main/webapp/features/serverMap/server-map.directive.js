@@ -222,7 +222,7 @@
 	                 * @param mapData
 	                 */
 	                emitDataExisting = function (mapData) {
-	                    if (mapData.applicationMapData.nodeDataArray.length === 0 || mapData.applicationMapData.linkDataArray.length === 0) {
+	                    if (mapData.applicationMapData.nodeDataArray.length === 0 ) {
 	                        scope.$emit('serverMapDirective.hasNoData');
 	                    } else {
 	                        scope.$emit('serverMapDirective.hasData');
