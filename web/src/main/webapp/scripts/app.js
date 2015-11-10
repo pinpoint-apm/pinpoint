@@ -11,6 +11,9 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
     $routeProvider.when('/main', {
         templateUrl: 'pages/main/ready.html',
         controller: 'MainCtrl'
+    }).when('/main/:application', {
+        templateUrl: 'pages/main/main.html',
+        controller: 'MainCtrl'
     }).when('/main/:application/:readablePeriod/:queryEndDateTime', {
         templateUrl: 'pages/main/main.html',
         controller: 'MainCtrl'

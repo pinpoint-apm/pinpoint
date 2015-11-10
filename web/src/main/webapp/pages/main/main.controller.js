@@ -38,11 +38,15 @@
 	            if ($routeParams.queryEndDateTime) {
 	                oNavbarVoService.setQueryEndDateTime($routeParams.queryEndDateTime);
 	            }
-	            $window.$routeParams = $routeParams;
-	            oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
-	            $scope.$broadcast('navbarDirective.initialize', oNavbarVoService);
-	            $scope.$broadcast('scatterDirective.initialize', oNavbarVoService);
-	            $scope.$broadcast('serverMapDirective.initialize', oNavbarVoService);
+	            if ( angular.isDefined( $routeParams.application) && angular.isUndefined( $routeParams.readablePeriod ) && angular.isUndefined( $routeParams.readablePeriod ) ) {
+		            $scope.$broadcast('navbarDirective.initialize.andReload', oNavbarVoService);	            	
+	            } else {
+		            $window.$routeParams = $routeParams;
+		            oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
+		            $scope.$broadcast('navbarDirective.initialize', oNavbarVoService);
+		            $scope.$broadcast('scatterDirective.initialize', oNavbarVoService);
+		            $scope.$broadcast('serverMapDirective.initialize', oNavbarVoService);
+	            }
 	        }, 500);
 	
 	        /**

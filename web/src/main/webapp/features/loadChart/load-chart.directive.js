@@ -14,7 +14,7 @@
 	
 	pinpointApp.directive('loadChartDirective', ['loadChartDirectiveConfig', '$timeout', 'AnalyticsService', function (cfg, $timeout, analyticsService) {
         return {
-            template: '<div></div>',
+            template: '<div style="text-align:center"></div>',
             replace: true,
             restrict: 'EA',
             scope: {
@@ -27,7 +27,7 @@
 
                 // define variables of methods
                 var setIdAutomatically, setWidthHeight, render, parseTimeSeriesHistogramForAmcharts, updateData,
-                    renderSimple;
+                    renderSimple, renderEmpty;
 
                 /**
                  * set id automatically
@@ -258,6 +258,9 @@
                         });
                     });
                 };
+                renderEmpty = function() {
+                	element.append("<h4 style='padding-top:25%'>No Data</h4>");
+                };
 
                 /**
                  * update data
@@ -265,11 +268,17 @@
                  */
                 updateData = function (data) {
 //                    oChart.dataProvider = data;
-                    oChart.clear();
+                	if ( angular.isDefined( oChart ) ) {
+	                    oChart.clear();
+                	}
                     element.empty();
                     $timeout(function () {
 //                        oChart.validateData();
-                        render(data, true);
+                    	if( data.length === 0 ) {
+                    		renderEmpty();
+                    	} else {
+                    		render(data, true);
+                    	}
                     });
                 };
 
@@ -279,6 +288,8 @@
                  * @returns {Array}
                  */
                 parseTimeSeriesHistogramForAmcharts = function (data) {
+                	if ( angular.isUndefined( data ) ) return [];
+                	
                     function getKeyFromNewDataByTime (time) {
                         for (var key in newData) {
                             if (moment(time).format("YYYY-MM-DD HH:mm") === newData[key].time) {
@@ -315,7 +326,12 @@
                 scope.$on('loadChartDirective.initAndRenderWithData.' + scope.namespace, function (event, data, w, h, useChartCursor) {
                     setIdAutomatically();
                     setWidthHeight(w, h);
-                    render(parseTimeSeriesHistogramForAmcharts(data), useChartCursor);
+                    var parsedData = parseTimeSeriesHistogramForAmcharts(data);
+                    if ( parsedData.length === 0 ) {
+                    	renderEmpty();
+                    } else {
+                    	render(parsedData, useChartCursor);
+                    }
                 });
 
                 /**
@@ -331,7 +347,12 @@
                 scope.$on('loadChartDirective.initAndSimpleRenderWithData.' + scope.namespace, function (event, data, w, h, useChartCursor) {
                     setIdAutomatically();
                     setWidthHeight(w, h);
-                    renderSimple(parseTimeSeriesHistogramForAmcharts(data), useChartCursor);
+                    var parsedData = parseTimeSeriesHistogramForAmcharts(data);
+                    if ( parsedData.length === 0 ) {
+                    	renderEmpty();
+                    } else {
+                    	renderSimple(parsedData, useChartCursor);
+                    }
                 });
             }
         };
