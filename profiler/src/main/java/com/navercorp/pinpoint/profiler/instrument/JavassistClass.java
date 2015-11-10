@@ -43,7 +43,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
 import com.navercorp.pinpoint.common.util.Asserts;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.instrument.AccessorAnalyzer.AccessorDetails;
@@ -538,7 +538,8 @@ public class JavassistClass implements InstrumentClass {
         final TraceContext traceContext = pluginContext.getTraceContext();
         final InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(traceContext, this);
         AutoBindingObjectFactory filterFactory = new AutoBindingObjectFactory(pluginContext, classLoader, interceptorArgumentProvider);
-        MethodFilter filter = (MethodFilter) filterFactory.createInstance(ObjectRecipe.byConstructor(filterTypeName, (Object[]) annotation.constructorArguments()));
+        final ObjectFactory objectFactory = ObjectFactory.byConstructor(filterTypeName, (Object[]) annotation.constructorArguments());
+        MethodFilter filter = (MethodFilter) filterFactory.createInstance(objectFactory);
 
         boolean singleton = annotation.singleton();
         int interceptorId = -1;

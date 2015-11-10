@@ -16,7 +16,7 @@ package com.navercorp.pinpoint.profiler.objectfactory;
 
 import java.lang.annotation.Annotation;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
 import com.navercorp.pinpoint.profiler.util.TypeUtils;
 
 /**
@@ -75,8 +75,8 @@ public class OrderedValueProvider implements JudgingParameterResolver {
         
         Object val = values[index];
         
-        if (val instanceof ObjectRecipe) {
-            val = objectFactory.createInstance((ObjectRecipe)val);
+        if (val instanceof ObjectFactory) {
+            val = objectFactory.createInstance((ObjectFactory)val);
             values[index] = val;
         }
     }

@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.interceptor.factory.AnnotatedInterceptorFactory;
 import com.navercorp.pinpoint.profiler.plugin.TestInterceptors.TestInterceptor0;
@@ -256,7 +256,7 @@ public class AnnotatedInterceptorFactoryTest {
     @Test
     public void test14() throws Exception {
         String arg0 = "arg0";
-        Object[] args = new Object[] { ObjectRecipe.byConstructor("java.lang.String", arg0) };
+        Object[] args = new Object[] { ObjectFactory.byConstructor("java.lang.String", arg0) };
         
         AnnotatedInterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext);
         Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor0.class.getName(), args, null, null, aClass, aMethod);

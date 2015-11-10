@@ -19,11 +19,11 @@ package com.navercorp.pinpoint.bootstrap.plugin;
  *
  */
 
-public abstract class ObjectRecipe {
+public abstract class ObjectFactory {
     private final String className;
     private final Object[] arguments;
     
-    private ObjectRecipe(String className, Object[] arguments) {
+    private ObjectFactory(String className, Object[] arguments) {
         this.className = className;
         this.arguments = arguments;
     }
@@ -37,22 +37,22 @@ public abstract class ObjectRecipe {
     }
 
     
-    public static ObjectRecipe byConstructor(String className, Object... args) {
+    public static ObjectFactory byConstructor(String className, Object... args) {
         return new ByConstructor(className, args);
     }
     
-    public static ObjectRecipe byStaticFactory(String className, String factoryMethodName, Object... args) {
+    public static ObjectFactory byStaticFactory(String className, String factoryMethodName, Object... args) {
         return new ByStaticFactoryMethod(className, factoryMethodName, args);
     }
 
     
-    public static class ByConstructor extends ObjectRecipe {
+    public static class ByConstructor extends ObjectFactory {
         public ByConstructor(String className, Object[] arguments) {
             super(className, arguments);
         }
     }
     
-    public static class ByStaticFactoryMethod extends ObjectRecipe {
+    public static class ByStaticFactoryMethod extends ObjectFactory {
         private final String factoryMethodName;
         
         public ByStaticFactoryMethod(String className, String factoryMethodName, Object[] arguments) {
@@ -65,17 +65,17 @@ public abstract class ObjectRecipe {
         }
     }
     
-    public static class ByFactoryObject extends ObjectRecipe {
-        private final ObjectRecipe recipe;
+    public static class ByFactoryObject extends ObjectFactory {
+        private final ObjectFactory recipe;
         private final String factoryMethod;
         
-        public ByFactoryObject(String className, ObjectRecipe recipe, String factoryMethod, Object[] arguments) {
+        public ByFactoryObject(String className, ObjectFactory recipe, String factoryMethod, Object[] arguments) {
             super(className, arguments);
             this.recipe = recipe;
             this.factoryMethod = factoryMethod;
         }
 
-        public ObjectRecipe getRecipe() {
+        public ObjectFactory getRecipe() {
             return recipe;
         }
 

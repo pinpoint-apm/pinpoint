@@ -41,7 +41,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedInterceptor4;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedInterceptor5;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedStaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
 import com.navercorp.pinpoint.profiler.objectfactory.AutoBindingObjectFactory;
 import com.navercorp.pinpoint.profiler.objectfactory.InterceptorArgumentProvider;
 
@@ -67,10 +67,10 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
         }
         
         AutoBindingObjectFactory factory = new AutoBindingObjectFactory(pluginContext, classLoader);
-        ObjectRecipe recipe = ObjectRecipe.byConstructor(interceptorClassName, providedArguments);
+        ObjectFactory objectFactory = ObjectFactory.byConstructor(interceptorClassName, providedArguments);
         InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(pluginContext.getTraceContext(), group, target, targetMethod);
         
-        Interceptor interceptor = (Interceptor)factory.createInstance(recipe, interceptorArgumentProvider);
+        Interceptor interceptor = (Interceptor)factory.createInstance(objectFactory, interceptorArgumentProvider);
         
         if (group != null) {
             interceptor = wrapByGroup(interceptor, group, policy == null ? ExecutionPolicy.BOUNDARY : policy);
