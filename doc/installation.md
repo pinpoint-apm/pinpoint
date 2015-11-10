@@ -51,7 +51,7 @@ To run these scripts, feed them into the HBase shell like below:
 
 `$HBASE_HOME/bin/hbase shell hbase-create.hbase`
 
-See [here](../scripts/) for a complete list of scripts.
+See [here](../scripts/ "Pinpoint HBase scripts") for a complete list of scripts.
 
 ## Building Pinpoint
 
@@ -195,4 +195,26 @@ Set these values appropriately in *pinpoint.config*:
 * `profiler.collector.stat.port` (collector's *collector.udpStatListenPort* - default: 9995)
 * `profiler.collector.span.port` (collector's *collector.udpSpanListenPort* - default: 9996)
 
-You may take a look at the default *pinpoint.config* file [here](../agent/src/main/resources/pinpoint.config) along with all the available configuration options.
+You may take a look at the default *pinpoint.config* file [here](../agent/src/main/resources/pinpoint.config "pinpoint.config") along with all the available configuration options.
+
+## Miscellaneous
+
+### Routing web requests to agents
+
+Starting from 1.5.0, Pinpoint can send requests from the web to agents directly via the collector (and vice-versa). To make this possible, we use Zookeeper to co-ordinate the communication channels established between agents and collectors, and those between collectors and web instances. With this addition, real-time communication (for things like active thread count monitoring) is now possible.
+
+We typially use the Zookeeper instance provided by the HBase backend so no additional Zookeeper configuration is required. Related configuration options are shown below.
+
+* **Collector** - *pinpoint-collector.properties*
+	* `cluster.enable`  
+	* `cluster.zookeeper.address`
+	* `cluster.zookeeper.sessiontimeout`
+	* `cluster.listen.ip`
+	* `cluster.listen.port`
+* **Web** - *pinpoint-web.properties*
+	* `cluster.enable`
+	* `cluster.web.tcp.port`
+	* `cluster.zookeeper.address`
+	* `cluster.zookeeper.sessiontimeout`
+	* `cluster.zookeeper.retry.interval`
+	* `cluster.connect.address`
