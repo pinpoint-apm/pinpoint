@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric;
 
+import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 
@@ -57,7 +58,7 @@ public class DefaultAcceptHistogram implements AcceptHistogram {
         if (hit != null) {
             return hit;
         }
-        final Histogram histogram = new LongAdderHistogram(responseKey.getServiceType(), HistogramSchema.NORMAL_SCHEMA);
+        final Histogram histogram = new LongAdderHistogram(responseKey.getServiceType(), BaseHistogramSchema.NORMAL_SCHEMA);
         final Histogram old = map.putIfAbsent(responseKey, histogram);
         if (old != null) {
             return old;

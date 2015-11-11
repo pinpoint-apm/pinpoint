@@ -69,7 +69,8 @@ public class ErrorCountToCalleCheckerTest {
                         TimeHistogram timeHistogram = new TimeHistogram(ServiceType.STAND_ALONE, timeStamp);
                         
                         if (j % 2 == 0) {
-                            timeHistogram.addCallCountByElapsedTime(-1, true);
+                            System.out.println("ERROR");
+                            timeHistogram.addCallCountByElapsedTime(1000, true);
                         } else {
                             timeHistogram.addCallCountByElapsedTime(1000, false);
                         }

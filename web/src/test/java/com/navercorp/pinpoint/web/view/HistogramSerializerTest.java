@@ -79,7 +79,7 @@ public class HistogramSerializerTest {
         // very slow means 0, so should use slow
         appendSlotTimeAndCount(sb, histogramSchema.getVerySlowSlot().getSlotName(), histogram.getVerySlowCount());
         sb.append(", ");
-        appendSlotTimeAndCount(sb, histogramSchema.getFastErrorSlot().getSlotName(), histogram.getTotalErrorCount());
+        appendSlotTimeAndCount(sb, histogramSchema.getErrorSlot().getSlotName(), histogram.getTotalErrorCount());
         sb.append(" }");
 
         return sb.toString();

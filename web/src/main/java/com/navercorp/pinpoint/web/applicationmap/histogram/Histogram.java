@@ -190,7 +190,8 @@ public class Histogram {
             case VERY_SLOW_ERROR:
                 return verySlowErrorCount;
             case ERROR:
-                return errorCount;
+                // for backward compatibility.
+                return errorCount + fastErrorCount + normalErrorCount + slowErrorCount + verySlowErrorCount;
         }
         throw new IllegalArgumentException("slotType:" + slotType);
     }
@@ -203,7 +204,7 @@ public class Histogram {
             throw new IllegalArgumentException("schema not equals. this=" + this + ", histogram=" + histogram);
 
         }
-        this.errorCount += histogram.getTotalErrorCount();
+        this.errorCount += histogram.getErrorCount();
         this.fastCount += histogram.getFastCount();
         this.fastErrorCount += histogram.getFastErrorCount();
         this.normalCount += histogram.getNormalCount();
