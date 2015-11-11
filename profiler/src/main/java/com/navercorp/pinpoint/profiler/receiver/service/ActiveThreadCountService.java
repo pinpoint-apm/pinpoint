@@ -76,7 +76,6 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
         ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.NORMAL);
         ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.SLOW);
         ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.VERY_SLOW);
-        ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.ERROR);
     }
 
     private final ActiveTraceLocator activeTraceLocator;
@@ -128,7 +127,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
 
         List<ActiveTraceInfo> collectedActiveTraceInfo = activeTraceLocator.collect();
         for (ActiveTraceInfo activeTraceInfo : collectedActiveTraceInfo) {
-            HistogramSlot slot = histogramSchema.findHistogramSlot((int) (currentTime - activeTraceInfo.getStartTime()));
+            HistogramSlot slot = histogramSchema.findHistogramSlot((int) (currentTime - activeTraceInfo.getStartTime()), false);
             mappedSlot.get(slot.getSlotType()).incrementAndGet();
         }
 
@@ -213,5 +212,4 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
         }
 
     }
-
 }

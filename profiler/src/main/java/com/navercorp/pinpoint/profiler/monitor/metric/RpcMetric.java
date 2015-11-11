@@ -25,7 +25,7 @@ import java.util.Collection;
  */
 public interface RpcMetric extends Metric {
 
-    void addResponseTime(String destinationId, int millis);
+    void addResponseTime(String destinationId, int millis, boolean error);
 
     Collection<HistogramSnapshot> createSnapshotList();
 

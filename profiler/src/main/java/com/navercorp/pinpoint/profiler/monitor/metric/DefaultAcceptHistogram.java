@@ -34,7 +34,7 @@ public class DefaultAcceptHistogram implements AcceptHistogram {
     }
 
     @Override
-    public boolean addResponseTime(String parentApplicationName, short serviceTypeCode, int millis) {
+    public boolean addResponseTime(String parentApplicationName, short serviceTypeCode, int millis, boolean error) {
         if (parentApplicationName == null) {
             throw new NullPointerException("parentApplicationName must not be null");
         }
@@ -48,7 +48,7 @@ public class DefaultAcceptHistogram implements AcceptHistogram {
         // We can infer if we know the type of histogramSchema. Server can determine the server type with code + schemaType. 
         final ResponseKey responseKey = new ResponseKey(parentApplicationName, serviceTypeCode);
         final Histogram histogram = getHistogram(responseKey);
-        histogram.addResponseTime(millis);
+        histogram.addResponseTime(millis, error);
         return true;
     }
 

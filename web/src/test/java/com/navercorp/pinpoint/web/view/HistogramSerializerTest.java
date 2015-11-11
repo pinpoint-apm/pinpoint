@@ -46,7 +46,7 @@ public class HistogramSerializerTest {
         original.addCallCount(schema.getNormalSlot().getSlotTime(), 2);
         original.addCallCount(schema.getSlowSlot().getSlotTime(), 3);
         original.addCallCount(schema.getVerySlowSlot().getSlotTime(), 4);
-        original.addCallCount(schema.getErrorSlot().getSlotTime(), 5);
+        original.addCallCount(schema.getNormalErrorSlot().getSlotTime(), 5);
 
         String jacksonJson = objectMapper.writeValueAsString(original);
         HashMap objectMapperHashMap = objectMapper.readValue(jacksonJson, HashMap.class);
@@ -79,7 +79,7 @@ public class HistogramSerializerTest {
         // very slow means 0, so should use slow
         appendSlotTimeAndCount(sb, histogramSchema.getVerySlowSlot().getSlotName(), histogram.getVerySlowCount());
         sb.append(", ");
-        appendSlotTimeAndCount(sb, histogramSchema.getErrorSlot().getSlotName(), histogram.getErrorCount());
+        appendSlotTimeAndCount(sb, histogramSchema.getFastErrorSlot().getSlotName(), histogram.getTotalErrorCount());
         sb.append(" }");
 
         return sb.toString();

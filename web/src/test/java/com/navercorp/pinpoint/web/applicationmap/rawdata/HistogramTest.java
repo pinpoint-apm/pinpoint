@@ -66,6 +66,6 @@ public class HistogramTest {
         HashMap hashMap = objectMapper.readValue(json, HashMap.class);
 
         Assert.assertEquals(hashMap.get(schema.getFastSlot().getSlotName()), 100);
-        Assert.assertEquals(hashMap.get(schema.getErrorSlot().getSlotName()), 0);
+        Assert.assertEquals(hashMap.get(schema.getFastErrorSlot().getSlotName()), 0);
     }
 }
