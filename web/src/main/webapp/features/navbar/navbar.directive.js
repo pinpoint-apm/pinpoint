@@ -462,7 +462,7 @@
 	                 * @param readablePeriod
 	                 */
 	                scope.setPeriod = function (readablePeriod) {
-	                	selectPeriod(readabledPeriod);
+	                	selectPeriod(readablePeriod);
 	                };
 	                scope.getPreviousClass = function() {
 	                	return "";
