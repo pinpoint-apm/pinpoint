@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.modifier.arcus.interceptor;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.Future;
@@ -61,11 +62,12 @@ public class ApiInterceptor extends SpanEventSimpleAroundInterceptor implements 
         if (result instanceof Future && !(result instanceof FrontCacheGetFuture)) {
             final Operation op = getOperation(result);
             if (op != null) {
-                MemcachedNode handlingNode = op.getHandlingNode();
-                SocketAddress socketAddress = handlingNode.getSocketAddress();
-                if (socketAddress instanceof InetSocketAddress) {
-                    InetSocketAddress address = (InetSocketAddress) socketAddress;
-                    trace.recordEndPoint(address.getHostName() + ":" + address.getPort());
+                final MemcachedNode handlingNode = op.getHandlingNode();
+                if (handlingNode != null) {
+                    final String endPoint = getEndPoint(handlingNode);
+                    if (endPoint != null) {
+                        trace.recordEndPoint(endPoint);
+                    }
                 }
             } else {
                 logger.info("operation not found");
@@ -83,6 +85,40 @@ public class ApiInterceptor extends SpanEventSimpleAroundInterceptor implements 
         }
 
         trace.markAfterTime();
+    }
+
+    private String getEndPoint(MemcachedNode handlingNode) {
+        // TODO duplicated code : ApiInterceptor, FutureGetInterceptor
+        final SocketAddress socketAddress = handlingNode.getSocketAddress();
+        if (socketAddress instanceof InetSocketAddress) {
+            final InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
+            final String hostAddress = getHostAddress(inetSocketAddress);
+            if (hostAddress == null) {
+                // TODO return "Unknown Host"; ?
+                logger.debug("hostAddress is null");
+                return null;
+            }
+            return hostAddress + ":" + inetSocketAddress.getPort();
+
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("invalid socketAddress:{}", socketAddress);
+            }
+            return null;
+        }
+    }
+
+    private String getHostAddress(InetSocketAddress inetSocketAddress) {
+        if (inetSocketAddress == null) {
+            return null;
+        }
+        // TODO JDK 1.7 InetSocketAddress.getHostString();
+        // Warning : Avoid unnecessary DNS lookup  (warning:InetSocketAddress.getHostName())
+        final InetAddress inetAddress = inetSocketAddress.getAddress();
+        if (inetAddress == null) {
+            return null;
+        }
+        return inetAddress.getHostAddress();
     }
 
     private Operation getOperation(Object result) {
