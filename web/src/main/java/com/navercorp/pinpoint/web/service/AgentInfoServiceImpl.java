@@ -35,7 +35,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * 
  * @author netspider
  * @author HyunGil Jeong
  */
@@ -54,9 +53,17 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     private AgentLifeCycleDao agentLifeCycleDao;
 
     @Override
-    public ApplicationAgentList getApplicationAgentList(String applicationName, long timestamp) {
+    public ApplicationAgentList getApplicationAgentList(String applicationName, ApplicationAgentList.Key key) {
+        return this.getApplicationAgentList(applicationName, key, System.currentTimeMillis());
+    }
+
+    @Override
+    public ApplicationAgentList getApplicationAgentList(String applicationName, ApplicationAgentList.Key applicationAgentListKey, long timestamp) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
+        }
+        if (applicationAgentListKey == null) {
+            throw new NullPointerException("applicationAgentListKey must not be null");
         }
         final List<String> agentIdList = this.applicationIndexDao.selectAgentIds(applicationName);
         if (logger.isDebugEnabled()) {
@@ -89,7 +96,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
                 agentInfo.setInitialStartTimestamp(initialAgentInfo.getStartTime());
             }
 
-            String hostname = agentInfoBo.getHostName();
+            String hostname = applicationAgentListKey.getKey(agentInfo);
 
             if (result.containsKey(hostname)) {
                 result.get(hostname).add(agentInfo);
