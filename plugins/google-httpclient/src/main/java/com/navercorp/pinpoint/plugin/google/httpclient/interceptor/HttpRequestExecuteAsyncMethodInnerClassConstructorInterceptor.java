@@ -69,7 +69,7 @@ public class HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor imple
 
     private boolean validate(final Object target, final Object[] args) {
         if (!(target instanceof AsyncTraceIdAccessor)) {
-            logger.debug("Invalid target object. Need field accessor({}).", HttpClientConstants.METADATA_ASYNC_TRACE_ID);
+            logger.debug("Invalid target object. Need field accessor({}).", AsyncTraceIdAccessor.class.getName());
             return false;
         }
 

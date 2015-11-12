@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.plugin.tomcat;
 
 import java.security.ProtectionDomain;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -68,8 +69,8 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(TomcatConstants.METADATA_TRACE);
-                target.addField(TomcatConstants.METADATA_ASYNC);
+                target.addField(TraceAccessor.class.getName());
+                target.addField(AsyncAccessor.class.getName());
 
                 // clear request.
                 InstrumentMethod recycleMethodEditorBuilder = target.getDeclaredMethod("recycle");
@@ -199,8 +200,7 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(TomcatConstants.METADATA_ASYNC_TRACE_ID);
-
+                target.addField(AsyncTraceIdAccessor.class.getName());
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("dispatch"))) {
                     method.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.AsyncContextImplDispatchMethodInterceptor");
                 }
