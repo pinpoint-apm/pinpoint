@@ -49,6 +49,11 @@ public class UserGroupServiceImpl implements UserGroupService {
     }
 
     @Override
+    public List<UserGroup> selectUserGroupByUserGroupId(String userGroupId) {
+        return userGroupDao.selectUserGroupByUserGroupId(userGroupId);
+    }
+    
+    @Override
     public void updateUserGroup(UserGroup userGroup) {
         userGroupDao.updateUserGroup(userGroup);
     }

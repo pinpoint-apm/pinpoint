@@ -22,6 +22,12 @@
                         WHERE member_id = #{userId}
                     )
     </select>
+    
+    <select id="selectUserGroupByUserGroupId" parameterType="String" resultType="UserGroup">
+        SELECT *
+        FROM user_group
+        WHERE id LIKE CONCAT('%', #{userGroupId}, '%')
+    </select>
 
     <delete id="deleteUserGroup" parameterType="UserGroup">
         DELETE

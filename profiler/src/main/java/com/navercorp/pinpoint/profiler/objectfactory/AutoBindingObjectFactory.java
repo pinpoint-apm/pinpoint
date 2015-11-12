@@ -24,9 +24,9 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
-import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe.ByConstructor;
-import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe.ByStaticFactoryMethod;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory.ByConstructor;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory.ByStaticFactoryMethod;
 import com.navercorp.pinpoint.exception.PinpointException;
 
 /**
@@ -48,17 +48,17 @@ public class AutoBindingObjectFactory {
         this.commonProviders.add(new ProfilerPluginArgumentProvider(pluginContext));
     }
     
-    public Object createInstance(ObjectRecipe recipe, ArgumentProvider... providers) {
-        Class<?> type = pluginContext.injectClass(classLoader, recipe.getClassName());
-        ArgumentsResolver argumentsResolver = getArgumentResolver(recipe, providers);
+    public Object createInstance(ObjectFactory objectFactory, ArgumentProvider... providers) {
+        Class<?> type = pluginContext.injectClass(classLoader, objectFactory.getClassName());
+        ArgumentsResolver argumentsResolver = getArgumentResolver(objectFactory, providers);
         
-        if (recipe instanceof ByConstructor) {
-            return byConstructor(type, (ByConstructor)recipe, argumentsResolver);
-        } else if (recipe instanceof ByStaticFactoryMethod) {
-            return byStaticFactoryMethod(type, (ByStaticFactoryMethod)recipe, argumentsResolver);
+        if (objectFactory instanceof ByConstructor) {
+            return byConstructor(type, (ByConstructor) objectFactory, argumentsResolver);
+        } else if (objectFactory instanceof ByStaticFactoryMethod) {
+            return byStaticFactoryMethod(type, (ByStaticFactoryMethod) objectFactory, argumentsResolver);
         }
         
-        throw new IllegalArgumentException("Unknown recipe type: " + recipe);
+        throw new IllegalArgumentException("Unknown objectFactory type: " + objectFactory);
     }
     
     private Object byConstructor(Class<?> type, ByConstructor recipe, ArgumentsResolver argumentsResolver) {
@@ -104,7 +104,7 @@ public class AutoBindingObjectFactory {
 
     }
     
-    private ArgumentsResolver getArgumentResolver(ObjectRecipe recipe, ArgumentProvider[] providers) {
+    private ArgumentsResolver getArgumentResolver(ObjectFactory recipe, ArgumentProvider[] providers) {
         List<ArgumentProvider> merged = new ArrayList<ArgumentProvider>(commonProviders);
         merged.addAll(Arrays.asList(providers));
         

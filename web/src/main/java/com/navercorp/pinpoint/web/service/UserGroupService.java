@@ -30,6 +30,8 @@ public interface UserGroupService {
     
     List<UserGroup> selectUserGroupByUserId(String userId);
 
+    List<UserGroup> selectUserGroupByUserGroupId(String userGroupId);
+
     void updateUserGroup(UserGroup userGroup);
     
     void deleteUserGroup(UserGroup userGroup);
@@ -49,6 +51,7 @@ public interface UserGroupService {
     void deleteMemberByUserGroupId(String userGroupId);
 
     void updateUserGroupIdOfMember(UserGroup userGroup);
+
 
 
 }

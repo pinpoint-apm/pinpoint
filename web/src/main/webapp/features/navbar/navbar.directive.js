@@ -20,7 +20,6 @@
 	            replace: true,
 	            templateUrl: 'features/navbar/navbar.html?v=' + G_BUILD_TIME,
 	            link: function (scope, element) {
-	
 	                // define private variables
 	                var $application, $fromPicker, $toPicker, oNavbarVoService;
 	
@@ -28,7 +27,7 @@
 	                var initialize, initializeDateTimePicker, initializeApplication, setDateTime, getQueryEndTimeFromServer,
 	                    broadcast, getApplicationList, getQueryStartTime, getQueryEndTime, parseApplicationList, emitAsChanged,
 	                    initializeWithStaticApplication, getPeriodType, setPeriodTypeAsCurrent, getDate, startUpdate,
-	                    resetTimeLeft, getRangeFromStorage, setRangeToStorage, getMilliSecondByReadablePeriod, movePeriod;
+	                    resetTimeLeft, getRangeFromStorage, setRangeToStorage, getMilliSecondByReadablePeriod, movePeriod, selectPeriod;
 	
 	                var applicationResource;
 	                /**
@@ -98,7 +97,7 @@
 	                 */
 	                initialize = function (navbarVoService) {
 	                    oNavbarVoService = navbarVoService;
-	
+	                    
 	                    scope.periodType = getPeriodType();
 	                    scope.showNavbar = true;
 	                    scope.showStaticApplication = false;
@@ -114,7 +113,7 @@
 	                    scope.disableApplication = true;
 	                    scope.readablePeriod = oNavbarVoService.getReadablePeriod() || preferenceService.getPeriod();
 	                    scope.queryEndTime = oNavbarVoService.getQueryEndTime() || '';
-	
+	                    
 	                    initializeApplication();
 	                    initializeDateTimePicker();
 	                    getApplicationList();
@@ -436,6 +435,19 @@
 	                        emitAsChanged();
 	                	}
 	                };
+	                selectPeriod = function( readablePeriod ) {
+	                	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_TIME, readablePeriod);
+	                    scope.periodDelay = true;
+	                    scope.readablePeriod = readablePeriod;
+	                    scope.autoUpdate = false;
+	                    broadcast();
+	                    $timeout(function () {
+	                        scope.periodDelay = false;
+	                        if (!scope.$$phase) {
+	                            scope.$digest();
+	                        }
+	                    }, 1000);
+	                }
 	                
 	
 	                /**
@@ -450,17 +462,7 @@
 	                 * @param readablePeriod
 	                 */
 	                scope.setPeriod = function (readablePeriod) {
-	                	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_TIME, readablePeriod);
-	                    scope.periodDelay = true;
-	                    scope.readablePeriod = readablePeriod;
-	                    scope.autoUpdate = false;
-	                    broadcast();
-	                    $timeout(function () {
-	                        scope.periodDelay = false;
-	                        if (!scope.$$phase) {
-	                            scope.$digest();
-	                        }
-	                    }, 1000);
+	                	selectPeriod(readablePeriod);
 	                };
 	                scope.getPreviousClass = function() {
 	                	return "";
@@ -583,6 +585,11 @@
 	                 */
 	                scope.$on('navbarDirective.initialize', function (event, navbarVo) {
 	                    initialize(navbarVo);
+	                });
+	                scope.$on('navbarDirective.initialize.andReload', function (event, navbarVo) {
+	                    initialize(navbarVo);
+	                    scope.periodType = 'last';
+	                    selectPeriod(preferenceService.getPeriod());
 	                });
 	
 	                /**
