@@ -89,13 +89,13 @@ public class NodeSerializer extends JsonSerializer<Node>  {
             } else {
                 jgen.writeObjectField("histogram", applicationHistogram);
                 jgen.writeNumberField("totalCount", applicationHistogram.getTotalCount()); // for go.js
-                jgen.writeNumberField("errorCount", applicationHistogram.getErrorCount());
+                jgen.writeNumberField("errorCount", applicationHistogram.getTotalErrorCount());
                 jgen.writeNumberField("slowCount", applicationHistogram.getSlowCount());
 
                 if (applicationHistogram.getTotalCount() == 0) {
                     jgen.writeBooleanField("hasAlert", false);  // for go.js
                 } else {
-                    long error = applicationHistogram.getErrorCount() / applicationHistogram.getTotalCount();
+                    long error = applicationHistogram.getTotalErrorCount() / applicationHistogram.getTotalCount();
                     if (error * 100 > 10) {
                         jgen.writeBooleanField("hasAlert", true);  // for go.js
                     } else {

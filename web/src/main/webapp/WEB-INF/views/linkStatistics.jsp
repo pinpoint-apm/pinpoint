@@ -11,7 +11,7 @@
 	"targetApplicationTypeCode" : "${targetApplication.serviceTypeCode}",
 	"from" : ${range.from},
 	"to" : ${range.to},
-	"failedCount" : ${linkStatistics.errorCount},
+	"failedCount" : ${linkStatistics.totalErrorCount},
 	"successCount" : ${linkStatistics.successCount},
 	"timeSeriesHistogram" : ${timeSeriesHistogram}
 }

@@ -67,7 +67,7 @@ public class TotalCountToCalleCheckerTest {
                     
                     for (int j = 1 ; j < 11  ; j++) {
                         TimeHistogram timeHistogram = new TimeHistogram(ServiceType.STAND_ALONE, timeStamp);
-                        timeHistogram.addCallCountByElapsedTime(i * j * 1000);
+                        timeHistogram.addCallCountByElapsedTime(i * j * 1000, false);
                         timeHistogramList.add(timeHistogram);
                     }
                     

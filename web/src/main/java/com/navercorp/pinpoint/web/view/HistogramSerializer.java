@@ -49,7 +49,7 @@ public class HistogramSerializer extends JsonSerializer<Histogram> {
         jgen.writeNumber(histogram.getVerySlowCount());
 
         jgen.writeFieldName(schema.getErrorSlot().getSlotName());
-        jgen.writeNumber(histogram.getErrorCount());
+        jgen.writeNumber(histogram.getTotalErrorCount());
 
         jgen.writeEndObject();
     }

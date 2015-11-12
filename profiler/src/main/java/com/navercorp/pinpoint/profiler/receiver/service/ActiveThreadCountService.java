@@ -19,6 +19,7 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
+import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.SlotType;
@@ -76,12 +77,11 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
         ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.NORMAL);
         ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.SLOW);
         ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.VERY_SLOW);
-        ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.ERROR);
     }
 
     private final ActiveTraceLocator activeTraceLocator;
     private final int activeThreadSlotsCount;
-    private final HistogramSchema histogramSchema = HistogramSchema.NORMAL_SCHEMA;
+    private final HistogramSchema histogramSchema = BaseHistogramSchema.NORMAL_SCHEMA;
 
     public ActiveThreadCountService(ActiveTraceLocator activeTraceLocator) {
         this(activeTraceLocator, DEFAULT_FLUSH_DELAY);
@@ -128,7 +128,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
 
         List<ActiveTraceInfo> collectedActiveTraceInfo = activeTraceLocator.collect();
         for (ActiveTraceInfo activeTraceInfo : collectedActiveTraceInfo) {
-            HistogramSlot slot = histogramSchema.findHistogramSlot((int) (currentTime - activeTraceInfo.getStartTime()));
+            HistogramSlot slot = histogramSchema.findHistogramSlot((int) (currentTime - activeTraceInfo.getStartTime()), false);
             mappedSlot.get(slot.getSlotType()).incrementAndGet();
         }
 
@@ -213,5 +213,4 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
         }
 
     }
-
 }

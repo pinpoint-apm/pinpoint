@@ -83,7 +83,7 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
                 break;
             case ERROR_COUNT:
                 for (TimeHistogram timeHistogram : linkCallData.getTimeHistogram()) {
-                    count += timeHistogram.getErrorCount();
+                    count += timeHistogram.getTotalErrorCount();
                 }
                 break;
             case TOTAL_COUNT:
@@ -117,7 +117,7 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
                 break;
             case ERROR_RATE:
                 for (TimeHistogram timeHistogram : linkCallData.getTimeHistogram()) {
-                    count += timeHistogram.getErrorCount();
+                    count += timeHistogram.getTotalErrorCount();
                     totalCount += timeHistogram.getTotalCount();
                 }
                 break;

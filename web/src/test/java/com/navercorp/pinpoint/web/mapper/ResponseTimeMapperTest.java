@@ -40,7 +40,7 @@ public class ResponseTimeMapperTest {
     public void testResponseTimeMapperTest() throws Exception {
 
         Buffer buffer = new AutomaticBuffer();
-        HistogramSlot histogramSlot = ServiceType.STAND_ALONE.getHistogramSchema().findHistogramSlot(1000);
+        HistogramSlot histogramSlot = ServiceType.STAND_ALONE.getHistogramSchema().findHistogramSlot(1000, false);
         short histogramSlotTime = histogramSlot.getSlotTime();
         buffer.put(histogramSlotTime);
         buffer.put(Bytes.toBytes("agent"));

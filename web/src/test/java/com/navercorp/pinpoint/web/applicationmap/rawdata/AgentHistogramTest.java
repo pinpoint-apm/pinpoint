@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.applicationmap.rawdata;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import org.junit.Assert;
@@ -42,18 +41,18 @@ public class AgentHistogramTest {
     public void testDeepCopy() throws Exception {
         AgentHistogram agentHistogram = new AgentHistogram(new Application("test", ServiceType.STAND_ALONE));
         TimeHistogram histogram = new TimeHistogram(ServiceType.STAND_ALONE, 0);
-        histogram.addCallCount(ServiceType.STAND_ALONE.getHistogramSchema().getErrorSlot().getSlotTime(), 1);
+        histogram.addCallCount(ServiceType.STAND_ALONE.getHistogramSchema().getFastErrorSlot().getSlotTime(), 1);
         agentHistogram.addTimeHistogram(histogram);
 
         AgentHistogram copy = new AgentHistogram(agentHistogram);
-        Assert.assertEquals(copy.getHistogram().getErrorCount(), 1);
+        Assert.assertEquals(copy.getHistogram().getTotalErrorCount(), 1);
 
         TimeHistogram histogram2 = new TimeHistogram(ServiceType.STAND_ALONE, 0);
-        histogram2.addCallCount(ServiceType.STAND_ALONE.getHistogramSchema().getErrorSlot().getSlotTime(), 2);
+        histogram2.addCallCount(ServiceType.STAND_ALONE.getHistogramSchema().getFastErrorSlot().getSlotTime(), 2);
         agentHistogram.addTimeHistogram(histogram2);
-        Assert.assertEquals(agentHistogram.getHistogram().getErrorCount(), 3);
+        Assert.assertEquals(agentHistogram.getHistogram().getTotalErrorCount(), 3);
 
-        Assert.assertEquals(copy.getHistogram().getErrorCount(), 1);
+        Assert.assertEquals(copy.getHistogram().getTotalErrorCount(), 1);
 
     }
 
@@ -62,17 +61,17 @@ public class AgentHistogramTest {
         // compatibility test for changing to Jackson
         AgentHistogram agentHistogram = new AgentHistogram(new Application("test", ServiceType.STAND_ALONE));
         TimeHistogram histogram = new TimeHistogram(ServiceType.STAND_ALONE, 0);
-        histogram.addCallCount(ServiceType.STAND_ALONE.getHistogramSchema().getErrorSlot().getSlotTime(), 1);
+        histogram.addCallCount(ServiceType.STAND_ALONE.getHistogramSchema().getFastErrorSlot().getSlotTime(), 1);
         agentHistogram.addTimeHistogram(histogram);
 
         AgentHistogram copy = new AgentHistogram(agentHistogram);
         logger.debug(copy.getHistogram().toString());
-        Assert.assertEquals(copy.getHistogram().getErrorCount(), 1);
+        Assert.assertEquals(copy.getHistogram().getTotalErrorCount(), 1);
 
         TimeHistogram histogram2 = new TimeHistogram(ServiceType.STAND_ALONE, 0);
-        histogram2.addCallCount(ServiceType.STAND_ALONE.getHistogramSchema().getErrorSlot().getSlotTime(), 2);
+        histogram2.addCallCount(ServiceType.STAND_ALONE.getHistogramSchema().getFastErrorSlot().getSlotTime(), 2);
         agentHistogram.addTimeHistogram(histogram2);
-        Assert.assertEquals(agentHistogram.getHistogram().getErrorCount(), 3);
+        Assert.assertEquals(agentHistogram.getHistogram().getTotalErrorCount(), 3);
 
         String callJson = mapper.writeValueAsString(agentHistogram);
         String before = originalJson(agentHistogram);

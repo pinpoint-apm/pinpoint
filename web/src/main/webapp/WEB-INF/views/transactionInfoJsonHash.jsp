@@ -111,7 +111,7 @@
 				"from" : "${link.from.nodeName}",
 				"to" : "${link.to.nodeName}",
 				"text" : ${link.histogram.totalCount},
-				"error" : ${link.histogram.errorCount},
+				"error" : ${link.histogram.totalErrorCount},
 				"slow" : ${link.histogram.verySlowCount},
 				"histogram" : ${link.histogram}
 			}

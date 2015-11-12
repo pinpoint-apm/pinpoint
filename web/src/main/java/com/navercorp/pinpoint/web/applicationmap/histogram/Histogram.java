@@ -23,13 +23,11 @@ import com.navercorp.pinpoint.common.trace.SlotType;
 import com.navercorp.pinpoint.web.view.HistogramSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-
 /**
- *
  * @author emeroad
  * @author netspider
  */
-@JsonSerialize(using=HistogramSerializer.class)
+@JsonSerialize(using = HistogramSerializer.class)
 public class Histogram {
 
     private final HistogramSchema schema;
@@ -38,9 +36,11 @@ public class Histogram {
     private long normalCount;
     private long slowCount;
     private long verySlowCount;
-
-    private long errorCount;
-
+    private long errorCount; // for backward compatibility.
+    private long fastErrorCount;
+    private long normalErrorCount;
+    private long slowErrorCount;
+    private long verySlowErrorCount;
 
     public Histogram(ServiceType serviceType) {
         if (serviceType == null) {
@@ -56,9 +56,8 @@ public class Histogram {
         this.schema = schema;
     }
 
-
-    public void addCallCountByElapsedTime(int elapsedTime) {
-        final HistogramSlot histogramSlot = this.schema.findHistogramSlot(elapsedTime);
+    public void addCallCountByElapsedTime(int elapsedTime, boolean error) {
+        final HistogramSlot histogramSlot = this.schema.findHistogramSlot(elapsedTime, error);
         short slotTime = histogramSlot.getSlotTime();
         addCallCount(slotTime, 1);
     }
@@ -66,34 +65,63 @@ public class Histogram {
     // TODO one may extract slot number from this class
     public void addCallCount(final short slotTime, final long count) {
         final HistogramSchema schema = this.schema;
+
+        if (slotTime <= schema.getVerySlowErrorSlot().getSlotTime()) {
+            this.verySlowErrorCount += count;
+            return;
+        }
+
+        if (slotTime <= schema.getSlowErrorSlot().getSlotTime()) {
+            this.slowErrorCount += count;
+            return;
+        }
+
+
+        if (slotTime <= schema.getNormalErrorSlot().getSlotTime()) {
+            this.normalErrorCount += count;
+            return;
+        }
+
+        if (slotTime <= schema.getFastErrorSlot().getSlotTime()) {
+            this.fastErrorCount += count;
+            return;
+        }
+
+        if (slotTime <= schema.getErrorSlot().getSlotTime()) {
+            this.errorCount += count;
+            return;
+        }
+
         if (slotTime == schema.getVerySlowSlot().getSlotTime()) { // 0 is slow slotTime
             this.verySlowCount += count;
             return;
         }
-        if (slotTime == schema.getErrorSlot().getSlotTime()) { // -1 is error
-            this.errorCount += count;
-            return;
-        }
-                // TODO if clause condition should be "==", not "<="
+
         if (slotTime <= schema.getFastSlot().getSlotTime()) {
             this.fastCount += count;
             return;
         }
+
         if (slotTime <= schema.getNormalSlot().getSlotTime()) {
             this.normalCount += count;
             return;
         }
+
         if (slotTime <= schema.getSlowSlot().getSlotTime()) {
             this.slowCount += count;
             return;
         }
-        throw new IllegalArgumentException("slot not found slotTime:" + slotTime + " count:" + count);
+
+        throw new IllegalArgumentException("slot not found slotTime=" + slotTime + ", count=" + count + ", schema=" + schema);
     }
 
     public HistogramSchema getHistogramSchema() {
         return this.schema;
     }
 
+    public long getTotalErrorCount() {
+        return errorCount + fastErrorCount + normalErrorCount + slowErrorCount + verySlowErrorCount;
+    }
 
     public long getErrorCount() {
         return errorCount;
@@ -103,20 +131,36 @@ public class Histogram {
         return fastCount;
     }
 
+    public long getFastErrorCount() {
+        return fastErrorCount;
+    }
+
     public long getNormalCount() {
         return normalCount;
+    }
+
+    public long getNormalErrorCount() {
+        return normalErrorCount;
     }
 
     public long getSlowCount() {
         return slowCount;
     }
 
+    public long getSlowErrorCount() {
+        return slowErrorCount;
+    }
+
     public long getVerySlowCount() {
         return verySlowCount;
     }
 
+    public long getVerySlowErrorCount() {
+        return verySlowErrorCount;
+    }
+
     public long getTotalCount() {
-        return errorCount + fastCount + normalCount + slowCount + verySlowCount;
+        return errorCount + fastCount + fastErrorCount + normalCount + normalErrorCount + slowCount + slowErrorCount + verySlowCount + verySlowErrorCount;
     }
 
     public long getSuccessCount() {
@@ -131,14 +175,23 @@ public class Histogram {
         switch (slotType) {
             case FAST:
                 return fastCount;
+            case FAST_ERROR:
+                return fastErrorCount;
             case NORMAL:
                 return normalCount;
+            case NORMAL_ERROR:
+                return normalErrorCount;
             case SLOW:
                 return slowCount;
+            case SLOW_ERROR:
+                return slowErrorCount;
             case VERY_SLOW:
                 return verySlowCount;
+            case VERY_SLOW_ERROR:
+                return verySlowErrorCount;
             case ERROR:
-                return errorCount;
+                // for backward compatibility.
+                return errorCount + fastErrorCount + normalErrorCount + slowErrorCount + verySlowErrorCount;
         }
         throw new IllegalArgumentException("slotType:" + slotType);
     }
@@ -151,14 +204,16 @@ public class Histogram {
             throw new IllegalArgumentException("schema not equals. this=" + this + ", histogram=" + histogram);
 
         }
-        this.fastCount += histogram.fastCount;
-        this.normalCount += histogram.normalCount;
-        this.slowCount += histogram.slowCount;
-        this.verySlowCount += histogram.verySlowCount;
-
-        this.errorCount += histogram.errorCount;
+        this.errorCount += histogram.getErrorCount();
+        this.fastCount += histogram.getFastCount();
+        this.fastErrorCount += histogram.getFastErrorCount();
+        this.normalCount += histogram.getNormalCount();
+        this.normalErrorCount += histogram.getNormalErrorCount();
+        this.slowCount += histogram.getSlowCount();
+        this.slowErrorCount += histogram.getSlowErrorCount();
+        this.verySlowCount += histogram.getVerySlowCount();
+        this.verySlowErrorCount += histogram.getVerySlowErrorCount();
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -179,14 +234,18 @@ public class Histogram {
 
     @Override
     public String toString() {
-        return "Histogram{" +
-                "schema=" + schema +
-                ", fastCount=" + fastCount +
-                ", normalCount=" + normalCount +
-                ", slowCount=" + slowCount +
-                ", verySlowCount=" + verySlowCount +
-                ", errorCount=" + errorCount +
-                '}';
+        final StringBuilder sb = new StringBuilder("Histogram{");
+        sb.append("schema=").append(schema);
+        sb.append(", fastCount=").append(fastCount);
+        sb.append(", normalCount=").append(normalCount);
+        sb.append(", slowCount=").append(slowCount);
+        sb.append(", verySlowCount=").append(verySlowCount);
+        sb.append(", errorCount=").append(errorCount);
+        sb.append(", fastErrorCount=").append(fastErrorCount);
+        sb.append(", normalErrorCount=").append(normalErrorCount);
+        sb.append(", slowErrorCount=").append(slowErrorCount);
+        sb.append(", verySlowErrorCount=").append(verySlowErrorCount);
+        sb.append('}');
+        return sb.toString();
     }
-
 }

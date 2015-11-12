@@ -93,9 +93,9 @@ public class ResponseTime {
         histogram.add(copyHistogram);
     }
 
-    public void addResponseTime(String agentId, int elapsedTime) {
+    public void addResponseTime(String agentId, int elapsedTime, boolean error) {
         Histogram histogram = getHistogram(agentId);
-        histogram.addCallCountByElapsedTime(elapsedTime);
+        histogram.addCallCountByElapsedTime(elapsedTime, error);
     }
 
     public Collection<TimeHistogram> getAgentResponseHistogramList() {
