@@ -30,8 +30,9 @@ import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.okhttp.*;
-import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.Request;
+
+import java.net.URL;
 
 /**
  * @author jaehong.kim
@@ -146,9 +147,13 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
 
             Request request = ((UserRequestGetter) target)._$PINPOINT$_getUserRequest();
             if (request != null) {
-                recorder.recordAttribute(AnnotationKey.HTTP_URL, request.httpUrl().toString());
-                final String endpoint = getDestinationId(request.httpUrl());
-                recorder.recordDestinationId(endpoint);
+                try {
+                    recorder.recordAttribute(AnnotationKey.HTTP_URL, request.urlString());
+                    final String endpoint = getDestinationId(request.url());
+                    recorder.recordDestinationId(endpoint);
+                } catch(Exception ignored) {
+                    logger.warn("Failed to invoke of request.url(). {}", ignored.getMessage());
+                }
                 recordRequest(trace, request, throwable);
             }
 
@@ -162,17 +167,17 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
         }
     }
 
-    private String getDestinationId(HttpUrl httpUrl) {
-        if (httpUrl == null || httpUrl.host() == null) {
+    private String getDestinationId(URL httpUrl) {
+        if (httpUrl == null || httpUrl.getHost() == null) {
             return "UnknownHttpClient";
         }
-        if (httpUrl.port() == HttpUrl.defaultPort(httpUrl.scheme())) {
-            return httpUrl.host();
+        if (httpUrl.getPort() == httpUrl.getDefaultPort()) {
+            return httpUrl.getHost();
         }
         final StringBuilder sb = new StringBuilder();
-        sb.append(httpUrl.host());
+        sb.append(httpUrl.getHost());
         sb.append(':');
-        sb.append(httpUrl.port());
+        sb.append(httpUrl.getPort());
         return sb.toString();
     }
 
