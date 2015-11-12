@@ -195,7 +195,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
 
         @Override
         public void run(Timeout timeout) throws Exception {
-            logger.info("ActiveThreadCountService timer started.");
+            logger.debug("ActiveThreadCountService timer started.");
 
             try {
                 TCmdActiveThreadCountRes activeThreadCountResponse = getActiveThreadCountResponse();
