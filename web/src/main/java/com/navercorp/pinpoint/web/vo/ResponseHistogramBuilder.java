@@ -54,12 +54,11 @@ public class ResponseHistogramBuilder {
 
 
         final ResponseTime responseTime = getResponseTime(application, timeStamp);
+        boolean error = false;
         if (span.getErrCode() != 0) {
-            responseTime.addResponseTime(span.getAgentId(), HistogramSchema.ERROR_SLOT_TIME);
-        } else {
-            responseTime.addResponseTime(span.getAgentId(), span.getElapsed());
+            error = true;
         }
-
+        responseTime.addResponseTime(span.getAgentId(), span.getElapsed(), error);
     }
 
 

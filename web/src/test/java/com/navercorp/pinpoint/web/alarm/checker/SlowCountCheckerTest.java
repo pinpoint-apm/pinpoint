@@ -59,11 +59,11 @@ public class SlowCountCheckerTest {
                 for (int i=0 ; i < 5; i++) {
                     for (int j=0 ; j < 5; j++) {
                         histogram = new TimeHistogram(ServiceType.STAND_ALONE, timeStamp);
-                        histogram.addCallCountByElapsedTime(1000);
-                        histogram.addCallCountByElapsedTime(3000);
-                        histogram.addCallCountByElapsedTime(5000);
-                        histogram.addCallCountByElapsedTime(6000);
-                        histogram.addCallCountByElapsedTime(7000);
+                        histogram.addCallCountByElapsedTime(1000, false);
+                        histogram.addCallCountByElapsedTime(3000, false);
+                        histogram.addCallCountByElapsedTime(5000, false);
+                        histogram.addCallCountByElapsedTime(6000, false);
+                        histogram.addCallCountByElapsedTime(7000, false);
                         responseTime.addResponseTime("agent_" + i + "_" + j, histogram);
                     }
                     

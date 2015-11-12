@@ -28,9 +28,13 @@ import com.navercorp.pinpoint.profiler.util.jdk.LongAdder;
 public class LongAdderHistogram implements Histogram {
     // We could use LongAdder only for fastCounter and AtomicLong for the others.
     private final LongAdder fastCounter = new LongAdder();
+    private final LongAdder fastErrorCounter = new LongAdder();
     private final LongAdder normalCounter = new LongAdder();
+    private final LongAdder normalErrorCounter = new LongAdder();
     private final LongAdder slowCounter = new LongAdder();
+    private final LongAdder slowErrorCounter = new LongAdder();
     private final LongAdder verySlowCounter = new LongAdder();
+    private final LongAdder verySlowErrorCounter = new LongAdder();
 
     private final LongAdder errorCounter = new LongAdder();
 
@@ -50,24 +54,33 @@ public class LongAdderHistogram implements Histogram {
         return serviceType;
     }
 
-    public void addResponseTime(int millis) {
-        final HistogramSlot histogramSlot = histogramSchema.findHistogramSlot(millis);
+    public void addResponseTime(int millis, boolean error) {
+        final HistogramSlot histogramSlot = histogramSchema.findHistogramSlot(millis, error);
         final SlotType slotType = histogramSlot.getSlotType();
         switch (slotType) {
             case FAST:
                 fastCounter.increment();
                 return;
+            case FAST_ERROR:
+                fastErrorCounter.increment();
+                return;
             case NORMAL:
                 normalCounter.increment();
+                return;
+            case NORMAL_ERROR:
+                normalErrorCounter.increment();
                 return;
             case SLOW:
                 slowCounter.increment();
                 return;
+            case SLOW_ERROR:
+                slowErrorCounter.increment();
+                return;
             case VERY_SLOW:
                 verySlowCounter.increment();
                 return;
-            case ERROR:
-                errorCounter.increment();
+            case VERY_SLOW_ERROR:
+                verySlowErrorCounter.increment();
                 return;
             default:
                 throw new IllegalArgumentException("slot ServiceTypeInfo notFound:" + slotType);
@@ -77,12 +90,15 @@ public class LongAdderHistogram implements Histogram {
 
     public HistogramSnapshot createSnapshot() {
         long fast = fastCounter.sum();
+        long fastError = fastErrorCounter.sum();
         long normal = normalCounter.sum();
+        long normalError = normalErrorCounter.sum();
         long slow = slowCounter.sum();
+        long slowError = slowErrorCounter.sum();
         long verySlow = verySlowCounter.sum();
-        long error = errorCounter.sum();
+        long verySlowError = verySlowErrorCounter.sum();
 
-        return new HistogramSnapshot(this.serviceType, fast, normal, slow, verySlow, error);
+        return new HistogramSnapshot(this.serviceType, fast, normal, slow, verySlow, fastError, normalError, slowError, verySlowError);
     }
 
     @Override

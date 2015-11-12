@@ -25,7 +25,6 @@ public class HistogramSlot {
     private final SlotType slotType;
     private final String slotName;
 
-
     public HistogramSlot(short slotTime, SlotType slotType, String slotName) {
         if (slotType == null) {
             throw new NullPointerException("slotType must not be null");
@@ -42,7 +41,6 @@ public class HistogramSlot {
         return slotTime;
     }
 
-
     public SlotType getSlotType() {
         return slotType;
     }
@@ -53,10 +51,11 @@ public class HistogramSlot {
 
     @Override
     public String toString() {
-        return "HistogramSlot{" +
-                "slotTime=" + slotTime +
-                ", slotType=" + slotType +
-                ", slotName='" + slotName + '\'' +
-                '}';
+        final StringBuilder sb = new StringBuilder("HistogramSlot{");
+        sb.append("slotTime=").append(slotTime);
+        sb.append(", slotType=").append(slotType);
+        sb.append(", slotName='").append(slotName).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 }

@@ -40,12 +40,12 @@ public class DefaultRpcMetric implements RpcMetric {
     }
 
     @Override
-    public void addResponseTime(String destinationId, int millis) {
+    public void addResponseTime(String destinationId, int millis, boolean error) {
         if (destinationId == null) {
             throw new NullPointerException("destinationId must not be null");
         }
         Histogram histogram = getHistogram0(destinationId);
-        histogram.addResponseTime(millis);
+        histogram.addResponseTime(millis, error);
     }
 
     private Histogram getHistogram0(String destinationId) {

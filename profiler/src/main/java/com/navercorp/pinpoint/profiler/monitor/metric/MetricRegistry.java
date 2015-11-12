@@ -70,8 +70,8 @@ public class MetricRegistry {
         return contextMetric;
     }
 
-    public void addResponseTime(int mills) {
-        this.contextMetric.addResponseTime(mills);
+    public void addResponseTime(int mills, boolean error) {
+        this.contextMetric.addResponseTime(mills, error);
     }
 
     public Collection<HistogramSnapshot> createRpcResponseSnapshot() {

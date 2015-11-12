@@ -378,13 +378,9 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
     private short getHistogramSlotTime(boolean hasException, int elapsedTime, ServiceType serviceType) {
-        if (hasException) {
-            return serviceType.getHistogramSchema().getErrorSlot().getSlotTime();
-        } else {
-            final HistogramSchema schema = serviceType.getHistogramSchema();
-            final HistogramSlot histogramSlot = schema.findHistogramSlot(elapsedTime);
-            return histogramSlot.getSlotTime();
-        }
+        final HistogramSchema schema = serviceType.getHistogramSchema();
+        final HistogramSlot histogramSlot = schema.findHistogramSlot(elapsedTime, hasException);
+        return histogramSlot.getSlotTime();
     }
 
     private Collection<TransactionId> recursiveCallFilter(List<TransactionId> transactionIdList) {

@@ -55,6 +55,6 @@ public class LinkStateResolver {
         if (totalCount == 0) {
             return 0;
         }
-        return histogram.getErrorCount() / totalCount;
+        return histogram.getTotalErrorCount() / totalCount;
     }
 }

@@ -63,7 +63,7 @@ public class LinkSerializer extends JsonSerializer<Link> {
 
         Histogram histogram = link.getHistogram();
         jgen.writeNumberField("totalCount", histogram.getTotalCount()); // for go.js
-        jgen.writeNumberField("errorCount", histogram.getErrorCount());
+        jgen.writeNumberField("errorCount", histogram.getTotalErrorCount());
         jgen.writeNumberField("slowCount", histogram.getSlowCount());
 
         jgen.writeObjectField("histogram", histogram);
