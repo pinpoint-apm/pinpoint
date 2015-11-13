@@ -19,35 +19,35 @@ package com.navercorp.pinpoint.profiler.util;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InterceptorGroupDefinition;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.instrument.InterceptorScopeDefinition;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 
 /**
  * @author emeroad
  */
 public class ThreadLocalScopePool implements ScopePool {
 
-    private final ConcurrentMap<InterceptorGroupDefinition, InterceptorGroupInvocation> pool = new ConcurrentHashMap<InterceptorGroupDefinition, InterceptorGroupInvocation>();
+    private final ConcurrentMap<InterceptorScopeDefinition, InterceptorScopeInvocation> pool = new ConcurrentHashMap<InterceptorScopeDefinition, InterceptorScopeInvocation>();
 
     @Override
-    public InterceptorGroupInvocation getScope(InterceptorGroupDefinition scopeDefinition) {
+    public InterceptorScopeInvocation getScope(InterceptorScopeDefinition scopeDefinition) {
         if (scopeDefinition == null) {
             throw new NullPointerException("scopeDefinition must not be null");
         }
-        final InterceptorGroupInvocation scope = this.pool.get(scopeDefinition);
+        final InterceptorScopeInvocation scope = this.pool.get(scopeDefinition);
         if (scope != null) {
             return scope;
         }
 
-        final InterceptorGroupInvocation newScope = createScope(scopeDefinition);
-        final InterceptorGroupInvocation exist = this.pool.putIfAbsent(scopeDefinition, newScope);
+        final InterceptorScopeInvocation newScope = createScope(scopeDefinition);
+        final InterceptorScopeInvocation exist = this.pool.putIfAbsent(scopeDefinition, newScope);
         if (exist != null) {
             return exist;
         }
         return newScope;
     }
 
-    private InterceptorGroupInvocation createScope(InterceptorGroupDefinition scopeDefinition) {
+    private InterceptorScopeInvocation createScope(InterceptorScopeDefinition scopeDefinition) {
         return new ThreadLocalScope(scopeDefinition);
     }
 

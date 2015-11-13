@@ -21,10 +21,10 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.google.httpclient.HttpClientConstants;
@@ -34,19 +34,19 @@ import com.navercorp.pinpoint.plugin.google.httpclient.HttpClientConstants;
  * @author jaehong.kim
  *
  */
-@Group(value = HttpClientConstants.EXECUTE_ASYNC_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
+@Scope(value = HttpClientConstants.EXECUTE_ASYNC_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
 public class HttpRequestExecuteAsyncMethodInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private TraceContext traceContext;
     private MethodDescriptor methodDescriptor;
-    private InterceptorGroup interceptorGroup;
+    private InterceptorScope interceptorScope;
 
-    public HttpRequestExecuteAsyncMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup) {
+    public HttpRequestExecuteAsyncMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
-        this.interceptorGroup = interceptorGroup;
+        this.interceptorScope = interceptorScope;
     }
 
     @Override
@@ -67,7 +67,7 @@ public class HttpRequestExecuteAsyncMethodInterceptor implements AroundIntercept
             recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
 
             // set async id.
-            InterceptorGroupInvocation transaction = interceptorGroup.getCurrentInvocation();
+            InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
             if (transaction != null) {
                 transaction.setAttachment(asyncTraceId);
                 if (isDebug) {
@@ -97,7 +97,7 @@ public class HttpRequestExecuteAsyncMethodInterceptor implements AroundIntercept
             recorder.recordException(throwable);
 
             // remove async id.
-            InterceptorGroupInvocation transaction = interceptorGroup.getCurrentInvocation();
+            InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
             if (transaction != null) {
                 // clear
                 transaction.removeAttachment();

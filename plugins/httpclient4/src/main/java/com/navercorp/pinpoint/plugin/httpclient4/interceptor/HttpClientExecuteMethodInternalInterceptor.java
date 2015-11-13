@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
@@ -36,7 +36,7 @@ import org.apache.http.*;
  * @author minwoo.jung
  * @author jaehong.kim
  */
-@Group(value = HttpClient4Constants.HTTP_CLIENT4_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
+@Scope(value = HttpClient4Constants.HTTP_CLIENT4_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
 public class HttpClientExecuteMethodInternalInterceptor implements AroundInterceptor {
 
     private boolean isHasCallbackParam;
@@ -45,14 +45,14 @@ public class HttpClientExecuteMethodInternalInterceptor implements AroundInterce
     protected final boolean isDebug;
 
     protected final TraceContext traceContext;
-    private final InterceptorGroup interceptorGroup;
+    private final InterceptorScope interceptorScope;
 
-    public HttpClientExecuteMethodInternalInterceptor(boolean isHasCallbackParam, TraceContext context, InterceptorGroup interceptorGroup) {
+    public HttpClientExecuteMethodInternalInterceptor(boolean isHasCallbackParam, TraceContext context, InterceptorScope interceptorScope) {
         this.logger = PLoggerFactory.getLogger(this.getClass());
         this.isDebug = logger.isDebugEnabled();
 
         this.traceContext = context;
-        this.interceptorGroup = interceptorGroup;
+        this.interceptorScope = interceptorScope;
         this.isHasCallbackParam = isHasCallbackParam;
     }
 
@@ -78,7 +78,7 @@ public class HttpClientExecuteMethodInternalInterceptor implements AroundInterce
                 final StatusLine statusLine = response.getStatusLine();
                 if (statusLine != null) {
                     context.setStatusCode(statusLine.getStatusCode());
-                    InterceptorGroupInvocation transaction = interceptorGroup.getCurrentInvocation();
+                    InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
                     transaction.setAttachment(context);
                 }
             }
@@ -100,7 +100,7 @@ public class HttpClientExecuteMethodInternalInterceptor implements AroundInterce
 //            return false;
 //        }
 
-        InterceptorGroupInvocation transaction = interceptorGroup.getCurrentInvocation();
+        InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
         if (transaction.getAttachment() != null) {
             return false;
         }

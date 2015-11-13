@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.bootstrap.instrument;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,7 +32,7 @@ public interface InstrumentContext {
 
     boolean exist(ClassLoader classLoader, String className);
 
-    InterceptorGroup getInterceptorGroup(String name);
+    InterceptorScope getInterceptorScope(String name);
 
     <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className);
 

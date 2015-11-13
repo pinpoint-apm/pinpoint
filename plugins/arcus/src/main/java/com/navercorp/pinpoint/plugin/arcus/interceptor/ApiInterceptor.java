@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.arcus.ArcusConstants;
@@ -40,7 +40,7 @@ import com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor;
  * @author emeroad
  * @author jaehong.kim
  */
-@Group(ArcusConstants.ARCUS_SCOPE)
+@Scope(ArcusConstants.ARCUS_SCOPE)
 public class ApiInterceptor implements AroundInterceptor {
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();

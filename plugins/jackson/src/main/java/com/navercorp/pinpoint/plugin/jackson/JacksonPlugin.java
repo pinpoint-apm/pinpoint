@@ -36,7 +36,7 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  *
  */
 public class JacksonPlugin implements ProfilerPlugin, TransformTemplateAware {
-    private static final String GROUP = "JACKSON_OBJECTMAPPER_GROUP";
+    private static final String JACKSON_SCOPE = "JACKSON_OBJECTMAPPER_SCOPE";
 
     private static final String BASIC_METHOD_INTERCEPTOR = "com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor";
     private static final String READ_VALUE_INTERCEPTOR = "com.navercorp.pinpoint.plugin.jackson.interceptor.ReadValueInterceptor";
@@ -164,7 +164,7 @@ public class JacksonPlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
-//                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP);
+//                InterceptorScope scope = instrumentContext.getInterceptorScope(JACKSON_SCOPE);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValue"))) {
                     addInterceptor(method, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
@@ -187,7 +187,7 @@ public class JacksonPlugin implements ProfilerPlugin, TransformTemplateAware {
     private boolean addInterceptor(InstrumentMethod method, String interceptorClassName) {
         if (method != null) {
             try {
-                method.addGroupedInterceptor(interceptorClassName, GROUP);
+                method.addScopedInterceptor(interceptorClassName, JACKSON_SCOPE);
                 return true;
             } catch (InstrumentException e) {
                 if (logger.isWarnEnabled()) {
@@ -201,7 +201,7 @@ public class JacksonPlugin implements ProfilerPlugin, TransformTemplateAware {
     private boolean addInterceptor(InstrumentMethod method, String interceptorClassName, Object[] constructorArgs) {
         if (method != null) {
             try {
-                method.addGroupedInterceptor(interceptorClassName, constructorArgs, GROUP);
+                method.addScopedInterceptor(interceptorClassName, constructorArgs, JACKSON_SCOPE);
                 return true;
             } catch (InstrumentException e) {
                 if (logger.isWarnEnabled()) {

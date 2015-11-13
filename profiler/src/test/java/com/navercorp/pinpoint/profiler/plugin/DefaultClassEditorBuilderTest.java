@@ -20,21 +20,14 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
-import java.lang.instrument.ClassFileTransformer;
-
 import org.junit.Test;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.instrument.JavassistClassPool;
-import com.navercorp.pinpoint.profiler.plugin.xml.transformer.DefaultClassFileTransformerBuilder;
-import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MethodTransformerBuilder;
 import com.navercorp.pinpoint.profiler.util.TypeUtils;
 import com.navercorp.pinpoint.test.TestProfilerPluginClassLoader;
 
@@ -79,7 +72,7 @@ public class DefaultClassEditorBuilderTest {
 //
 //        transformer.transform(classLoader, className, null, null, classFileBuffer);
 //
-//        verify(aMethod).addGroupedInterceptor(eq("com.navercorp.pinpoint.profiler.plugin.TestInterceptor"), eq(va("provided")), (InterceptorGroup)isNull(), (ExecutionPolicy)isNull());
+//        verify(aMethod).addScopedInterceptor(eq("com.navercorp.pinpoint.profiler.plugin.TestInterceptor"), eq(va("provided")), (InterceptorScope)isNull(), (ExecutionPolicy)isNull());
 //        verify(aClass).addField("some.accessor.Type", "new java.util.HashMap();");
 //        verify(aClass).addGetter("some.getter.Type", "someField");
     }

@@ -27,7 +27,7 @@ public final class MySqlConstants {
     private MySqlConstants() {
     }
 
-    public static final String GROUP_NAME = "MYSQL_JDBC";
+    public static final String MYSQL_SCOPE = "MYSQL_JDBC";
     
     public static final ServiceType MYSQL = ServiceTypeFactory.of(2100, "MYSQL", TERMINAL, INCLUDE_DESTINATION_ID);
     public static final ServiceType MYSQL_EXECUTE_QUERY = ServiceTypeFactory.of(2101, "MYSQL_EXECUTE_QUERY", "MYSQL", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);

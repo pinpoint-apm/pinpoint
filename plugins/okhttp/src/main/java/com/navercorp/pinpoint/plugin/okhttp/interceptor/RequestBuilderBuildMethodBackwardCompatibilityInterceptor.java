@@ -17,10 +17,10 @@ package com.navercorp.pinpoint.plugin.okhttp.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
@@ -33,19 +33,19 @@ import java.net.URL;
 /**
  * @author jaehong.kim
  */
-@Group(value = OkHttpConstants.SEND_REQUEST_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
+@Scope(value = OkHttpConstants.SEND_REQUEST_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
 public class RequestBuilderBuildMethodBackwardCompatibilityInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private TraceContext traceContext;
     private MethodDescriptor methodDescriptor;
-    private InterceptorGroup interceptorGroup;
+    private InterceptorScope interceptorScope;
 
-    public RequestBuilderBuildMethodBackwardCompatibilityInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup) {
+    public RequestBuilderBuildMethodBackwardCompatibilityInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
-        this.interceptorGroup = interceptorGroup;
+        this.interceptorScope = interceptorScope;
     }
 
     @Override
@@ -69,9 +69,9 @@ public class RequestBuilderBuildMethodBackwardCompatibilityInterceptor implement
                 return;
             }
 
-            final InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
+            final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
             if (invocation == null || invocation.getAttachment() == null || !(invocation.getAttachment() instanceof TraceId)) {
-                logger.debug("Invalid interceptor group invocation. {}", invocation);
+                logger.debug("Invalid interceptor scope invocation. {}", invocation);
                 return;
             }
 

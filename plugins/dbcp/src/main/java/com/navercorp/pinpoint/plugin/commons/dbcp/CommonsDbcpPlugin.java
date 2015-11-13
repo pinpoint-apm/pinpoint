@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
  */
 public class CommonsDbcpPlugin implements ProfilerPlugin, TransformTemplateAware {
     public static final ServiceType DBCP_SERVICE_TYPE = ServiceTypeFactory.of(6050, "DBCP");
-    public static final String DBCP_GROUP = "DBCP_GROUP";
+    public static final String DBCP_SCOPE = "DBCP_SCOPE";
 
     private TransformTemplate transformTemplate;
 

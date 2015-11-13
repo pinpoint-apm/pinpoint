@@ -20,6 +20,7 @@ import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.*;
 
 import java.net.Socket;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransport;
 
@@ -30,11 +31,10 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -70,7 +70,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadFieldBeginInterceptor TProtocolReadFieldBeginInterceptor
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor
  */
-@Group(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
+@Scope(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
 public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
 
     private final ThriftServerEntryMethodDescriptor thriftServerEntryMethodDescriptor = new ThriftServerEntryMethodDescriptor();
@@ -79,11 +79,11 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceContext traceContext;
-    private final InterceptorGroup group;
+    private final InterceptorScope scope;
 
-    public TProtocolReadMessageEndInterceptor(TraceContext traceContext, @Name(THRIFT_SERVER_SCOPE) InterceptorGroup group) {
+    public TProtocolReadMessageEndInterceptor(TraceContext traceContext, @Name(THRIFT_SERVER_SCOPE) InterceptorScope scope) {
         this.traceContext = traceContext;
-        this.group = group;
+        this.scope = scope;
         this.traceContext.cacheApi(this.thriftServerEntryMethodDescriptor);
     }
 
@@ -102,7 +102,7 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
         }
         final boolean shouldTrace = ((ServerMarkerFlagFieldAccessor)target)._$PINPOINT$_getServerMarkerFlag();
         if (shouldTrace) {
-            InterceptorGroupInvocation currentTransaction = this.group.getCurrentInvocation();
+            InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
             Object attachment = currentTransaction.getAttachment();
             if (attachment instanceof ThriftClientCallContext) {
                 ThriftClientCallContext clientCallContext = (ThriftClientCallContext)attachment;

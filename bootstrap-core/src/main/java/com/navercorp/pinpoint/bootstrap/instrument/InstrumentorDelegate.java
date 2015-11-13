@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.bootstrap.instrument;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 
 /**
  * @author emeroad
@@ -50,8 +50,8 @@ public class InstrumentorDelegate implements Instrumentor {
     }
 
     @Override
-    public InterceptorGroup getInterceptorGroup(String name) {
-        return instrumentContext.getInterceptorGroup(name);
+    public InterceptorScope getInterceptorScope(String scopeName) {
+        return instrumentContext.getInterceptorScope(scopeName);
     }
 
     @Override

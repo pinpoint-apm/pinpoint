@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
@@ -55,20 +55,20 @@ public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", JtdsConstants.GROUP_JTDS);
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor", JtdsConstants.GROUP_JTDS);
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementCreateInterceptor", JtdsConstants.GROUP_JTDS);
+                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", JtdsConstants.JTDS_SCOPE);
+                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor", JtdsConstants.JTDS_SCOPE);
+                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementCreateInterceptor", JtdsConstants.JTDS_SCOPE);
                 
                 if (config.isProfileSetAutoCommit()) {
-                    target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor", JtdsConstants.GROUP_JTDS);
+                    target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor", JtdsConstants.JTDS_SCOPE);
                 }
                 
                 if (config.isProfileCommit()) {
-                    target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionCommitInterceptor", JtdsConstants.GROUP_JTDS);
+                    target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionCommitInterceptor", JtdsConstants.JTDS_SCOPE);
                 }
                 
                 if (config.isProfileRollback()) {
-                    target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollbackInterceptor", JtdsConstants.GROUP_JTDS);
+                    target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollbackInterceptor", JtdsConstants.JTDS_SCOPE);
                 }
                 
                 return target.toBytecode();
@@ -86,7 +86,7 @@ public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
 
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", va(new JtdsJdbcUrlParser()), JtdsConstants.GROUP_JTDS, ExecutionPolicy.ALWAYS);
+                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", va(new JtdsJdbcUrlParser()), JtdsConstants.JTDS_SCOPE, ExecutionPolicy.ALWAYS);
                 
                 return target.toBytecode();
             }
@@ -106,8 +106,8 @@ public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
                 
                 int maxBindValueSize = config.getMaxSqlBindValueSize();
 
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor", va(maxBindValueSize), JtdsConstants.GROUP_JTDS);
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", JtdsConstants.GROUP_JTDS);
+                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor", va(maxBindValueSize), JtdsConstants.JTDS_SCOPE);
+                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", JtdsConstants.JTDS_SCOPE);
                 
                 return target.toBytecode();
             }
@@ -123,8 +123,8 @@ public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
                 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor", JtdsConstants.GROUP_JTDS);
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor", JtdsConstants.GROUP_JTDS);
+                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor", JtdsConstants.JTDS_SCOPE);
+                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor", JtdsConstants.JTDS_SCOPE);
                 
                 return target.toBytecode();
             }

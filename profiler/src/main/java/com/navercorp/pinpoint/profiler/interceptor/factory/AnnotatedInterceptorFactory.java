@@ -29,18 +29,18 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor4;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor5;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedApiIdAwareAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedInterceptor0;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedInterceptor1;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedInterceptor2;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedInterceptor3;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedInterceptor4;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedInterceptor5;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedStaticAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedInterceptor0;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedInterceptor1;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedInterceptor2;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedInterceptor3;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedInterceptor4;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedInterceptor5;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedStaticAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
 import com.navercorp.pinpoint.profiler.objectfactory.AutoBindingObjectFactory;
 import com.navercorp.pinpoint.profiler.objectfactory.InterceptorArgumentProvider;
@@ -53,51 +53,51 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
     }
 
     @Override
-    public Interceptor getInterceptor(ClassLoader classLoader, String interceptorClassName, Object[] providedArguments, InterceptorGroup group, ExecutionPolicy policy, InstrumentClass target, InstrumentMethod targetMethod) {
+    public Interceptor getInterceptor(ClassLoader classLoader, String interceptorClassName, Object[] providedArguments, InterceptorScope scope, ExecutionPolicy policy, InstrumentClass target, InstrumentMethod targetMethod) {
         Class<? extends Interceptor> interceptorType = pluginContext.injectClass(classLoader, interceptorClassName);
         
-        if (group == null) {
-            Group interceptorGroup = interceptorType.getAnnotation(Group.class);
+        if (scope == null) {
+            Scope interceptorScope = interceptorType.getAnnotation(Scope.class);
             
-            if (interceptorGroup != null) {
-                String groupName = interceptorGroup.value();
-                group = pluginContext.getInterceptorGroup(groupName);
-                policy = interceptorGroup.executionPolicy();
+            if (interceptorScope != null) {
+                String scopeName = interceptorScope.value();
+                scope = pluginContext.getInterceptorScope(scopeName);
+                policy = interceptorScope.executionPolicy();
             }
         }
         
         AutoBindingObjectFactory factory = new AutoBindingObjectFactory(pluginContext, classLoader);
         ObjectFactory objectFactory = ObjectFactory.byConstructor(interceptorClassName, providedArguments);
-        InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(pluginContext.getTraceContext(), group, target, targetMethod);
+        InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(pluginContext.getTraceContext(), scope, target, targetMethod);
         
         Interceptor interceptor = (Interceptor)factory.createInstance(objectFactory, interceptorArgumentProvider);
         
-        if (group != null) {
-            interceptor = wrapByGroup(interceptor, group, policy == null ? ExecutionPolicy.BOUNDARY : policy);
+        if (scope != null) {
+            interceptor = wrapByScope(interceptor, scope, policy == null ? ExecutionPolicy.BOUNDARY : policy);
         }
         
         return interceptor;
     }
     
-    private Interceptor wrapByGroup(Interceptor interceptor, InterceptorGroup group, ExecutionPolicy policy) {
+    private Interceptor wrapByScope(Interceptor interceptor, InterceptorScope scope, ExecutionPolicy policy) {
         if (interceptor instanceof AroundInterceptor) {
-            return new GroupedInterceptor((AroundInterceptor)interceptor, group, policy);
+            return new ScopedInterceptor((AroundInterceptor)interceptor, scope, policy);
         } else if (interceptor instanceof StaticAroundInterceptor) {
-            return new GroupedStaticAroundInterceptor((StaticAroundInterceptor)interceptor, group, policy);
+            return new ScopedStaticAroundInterceptor((StaticAroundInterceptor)interceptor, scope, policy);
         } else if (interceptor instanceof AroundInterceptor5) {
-            return new GroupedInterceptor5((AroundInterceptor5)interceptor, group, policy);
+            return new ScopedInterceptor5((AroundInterceptor5)interceptor, scope, policy);
         } else if (interceptor instanceof AroundInterceptor4) {
-            return new GroupedInterceptor4((AroundInterceptor4)interceptor, group, policy);
+            return new ScopedInterceptor4((AroundInterceptor4)interceptor, scope, policy);
         } else if (interceptor instanceof AroundInterceptor3) {
-            return new GroupedInterceptor3((AroundInterceptor3)interceptor, group, policy);
+            return new ScopedInterceptor3((AroundInterceptor3)interceptor, scope, policy);
         } else if (interceptor instanceof AroundInterceptor2) {
-            return new GroupedInterceptor2((AroundInterceptor2)interceptor, group, policy);
+            return new ScopedInterceptor2((AroundInterceptor2)interceptor, scope, policy);
         } else if (interceptor instanceof AroundInterceptor1) {
-            return new GroupedInterceptor1((AroundInterceptor1)interceptor, group, policy);
+            return new ScopedInterceptor1((AroundInterceptor1)interceptor, scope, policy);
         } else if (interceptor instanceof AroundInterceptor0) {
-            return new GroupedInterceptor0((AroundInterceptor0)interceptor, group, policy);
+            return new ScopedInterceptor0((AroundInterceptor0)interceptor, scope, policy);
         } else if (interceptor instanceof ApiIdAwareAroundInterceptor) {
-            return new GroupedApiIdAwareAroundInterceptor((ApiIdAwareAroundInterceptor)interceptor, group, policy);
+            return new ScopedApiIdAwareAroundInterceptor((ApiIdAwareAroundInterceptor)interceptor, scope, policy);
         }
         
         throw new IllegalArgumentException("Unexpected interceptor type: " + interceptor.getClass());

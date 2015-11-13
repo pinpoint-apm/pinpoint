@@ -20,6 +20,8 @@ import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.THRIFT_CLIENT_SCO
 
 import java.net.Socket;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TProtocol;
@@ -31,11 +33,9 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
@@ -58,7 +58,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
  * 
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.client.TProtocolWriteFieldStopInterceptor TProtocolWriteFieldStopInterceptor
  */
-@Group(value = THRIFT_CLIENT_SCOPE, executionPolicy = ExecutionPolicy.BOUNDARY)
+@Scope(value = THRIFT_CLIENT_SCOPE, executionPolicy = ExecutionPolicy.BOUNDARY)
 public class TServiceClientSendBaseInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -66,15 +66,15 @@ public class TServiceClientSendBaseInterceptor implements AroundInterceptor {
 
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
-    private final InterceptorGroup group;
+    private final InterceptorScope scope;
 
     private final boolean traceServiceArgs;
 
-    public TServiceClientSendBaseInterceptor(TraceContext traceContext, MethodDescriptor descriptor, @Name(THRIFT_CLIENT_SCOPE) InterceptorGroup group,
+    public TServiceClientSendBaseInterceptor(TraceContext traceContext, MethodDescriptor descriptor, @Name(THRIFT_CLIENT_SCOPE) InterceptorScope scope,
             boolean traceServiceArgs) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
-        this.group = group;
+        this.scope = scope;
         this.traceServiceArgs = traceServiceArgs;
     }
 
@@ -137,7 +137,7 @@ public class TServiceClientSendBaseInterceptor implements AroundInterceptor {
                 parentTraceInfo.setParentApplicationType(traceContext.getServerTypeCode());
                 parentTraceInfo.setAcceptorHost(remoteAddress);
             }
-            InterceptorGroupInvocation currentTransaction = this.group.getCurrentInvocation();
+            InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
             currentTransaction.setAttachment(parentTraceInfo);
         }
     }

@@ -12,26 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.interceptor.group;
+package com.navercorp.pinpoint.profiler.interceptor.scope;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 
 /**
  * @author Jongho Moon
  *
  */
-public class DefaultInterceptorGroup implements InterceptorGroup {
+public class DefaultInterceptorScope implements InterceptorScope {
     private final String name;
-    private final ThreadLocal<InterceptorGroupInvocation> threadLocal;
+    private final ThreadLocal<InterceptorScopeInvocation> threadLocal;
     
-    public DefaultInterceptorGroup(final String name) {
+    public DefaultInterceptorScope(final String name) {
         this.name = name;
-        this.threadLocal = new ThreadLocal<InterceptorGroupInvocation>() {
+        this.threadLocal = new ThreadLocal<InterceptorScopeInvocation>() {
 
             @Override
-            protected InterceptorGroupInvocation initialValue() {
-                return new DefaultInterceptorGroupInvocation(name);
+            protected InterceptorScopeInvocation initialValue() {
+                return new DefaultInterceptorScopeInvocation(name);
             }
             
         };
@@ -43,7 +43,7 @@ public class DefaultInterceptorGroup implements InterceptorGroup {
     }
 
     @Override
-    public InterceptorGroupInvocation getCurrentInvocation() {
+    public InterceptorScopeInvocation getCurrentInvocation() {
         return threadLocal.get();
     }
 }

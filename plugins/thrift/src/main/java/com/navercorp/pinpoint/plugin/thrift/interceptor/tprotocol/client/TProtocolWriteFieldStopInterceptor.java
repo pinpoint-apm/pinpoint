@@ -18,15 +18,15 @@ package com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.client;
 
 import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.THRIFT_CLIENT_SCOPE;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.thrift.ThriftRequestProperty;
@@ -44,16 +44,16 @@ import com.navercorp.pinpoint.plugin.thrift.ThriftHeader;
  * 
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.client.TServiceClientSendBaseInterceptor TServiceClientSendBaseInterceptor
  */
-@Group(value = THRIFT_CLIENT_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
+@Scope(value = THRIFT_CLIENT_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
 public class TProtocolWriteFieldStopInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final InterceptorGroup group;
+    private final InterceptorScope scope;
 
-    public TProtocolWriteFieldStopInterceptor(@Name(THRIFT_CLIENT_SCOPE) InterceptorGroup group) {
-        this.group = group;
+    public TProtocolWriteFieldStopInterceptor(@Name(THRIFT_CLIENT_SCOPE) InterceptorScope scope) {
+        this.scope = scope;
     }
 
     @Override
@@ -77,7 +77,7 @@ public class TProtocolWriteFieldStopInterceptor implements AroundInterceptor {
     }
 
     private void appendParentTraceInfo(TProtocol oprot) throws TException {
-        InterceptorGroupInvocation currentTransaction = this.group.getCurrentInvocation();
+        InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
         ThriftRequestProperty parentTraceInfo = (ThriftRequestProperty)currentTransaction.getAttachment();
         if (parentTraceInfo == null) {
             return;

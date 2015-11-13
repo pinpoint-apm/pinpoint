@@ -20,6 +20,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContextFactory;
 import org.apache.commons.httpclient.HttpConstants;
 import org.apache.commons.httpclient.HttpMethod;
@@ -39,10 +41,8 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
@@ -57,7 +57,7 @@ import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 /**
  * @author Minwoo Jung
  */
-@Group(value = HttpClient3Constants.HTTP_CLIENT3_METHOD_BASE_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
+@Scope(value = HttpClient3Constants.HTTP_CLIENT3_METHOD_BASE_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
 public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -73,7 +73,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
 
     private TraceContext traceContext;
     private MethodDescriptor descriptor;
-    private InterceptorGroup interceptorGroup;
+    private InterceptorScope interceptorScope;
 
     private boolean cookie;
     private DumpType cookieDumpType;
@@ -85,10 +85,10 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
 
     private boolean io;
 
-    public HttpMethodBaseExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup) {
+    public HttpMethodBaseExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
         this.descriptor = methodDescriptor;
-        this.interceptorGroup = interceptorGroup;
+        this.interceptorScope = interceptorScope;
 
         final ProfilerConfig config = traceContext.getProfilerConfig();
         this.cookie = config.isApacheHttpClient3ProfileCookie();
@@ -150,7 +150,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             }
         }
 
-        InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
+        InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
         if (invocation != null) {
             invocation.getOrCreateAttachment(HttpClient3CallContextFactory.HTTPCLIENT3_CONTEXT_FACTORY);
         }
@@ -201,7 +201,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
 
-            InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
+            InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
             if (invocation != null && invocation.getAttachment() != null) {
                 final HttpClient3CallContext callContext = (HttpClient3CallContext) invocation.getAttachment();
                 logger.debug("Check call context {}", callContext);

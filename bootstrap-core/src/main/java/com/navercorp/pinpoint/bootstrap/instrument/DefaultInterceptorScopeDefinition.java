@@ -19,11 +19,11 @@ package com.navercorp.pinpoint.bootstrap.instrument;
 /**
  * @author emeroad
  */
-public class DefaultInterceptorGroupDefinition implements InterceptorGroupDefinition {
+public class DefaultInterceptorScopeDefinition implements InterceptorScopeDefinition {
 
     private final String name;
 
-    public DefaultInterceptorGroupDefinition(String name) {
+    public DefaultInterceptorScopeDefinition(String name) {
         if (name == null) {
             throw new NullPointerException("name must not be null");
         }
@@ -40,7 +40,7 @@ public class DefaultInterceptorGroupDefinition implements InterceptorGroupDefini
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        DefaultInterceptorGroupDefinition that = (DefaultInterceptorGroupDefinition) o;
+        DefaultInterceptorScopeDefinition that = (DefaultInterceptorScopeDefinition) o;
 
         if (!name.equals(that.name)) return false;
 

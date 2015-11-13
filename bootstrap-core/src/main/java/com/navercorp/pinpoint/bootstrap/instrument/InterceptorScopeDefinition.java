@@ -14,26 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.interceptor.group;
-
+package com.navercorp.pinpoint.bootstrap.instrument;
 
 /**
- * 
- * 
  * @author emeroad
- * @author Jongho Moon
  */
-public interface InterceptorGroupInvocation {
+public interface InterceptorScopeDefinition {
     String getName();
-
-    boolean tryEnter(ExecutionPolicy policy);
-    boolean canLeave(ExecutionPolicy policy);
-    void leave(ExecutionPolicy policy);
-    
-    boolean isActive();
-    
-    Object setAttachment(Object attachment);
-    Object getAttachment();
-    Object getOrCreateAttachment(AttachmentFactory factory);
-    Object removeAttachment();
 }

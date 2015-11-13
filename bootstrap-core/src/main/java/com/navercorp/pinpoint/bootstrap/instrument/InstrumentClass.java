@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.bootstrap.instrument;
 
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 
 /**
  * @author emeroad
@@ -79,33 +79,33 @@ public interface InstrumentClass {
     int addInterceptor(MethodFilter filter, String interceptorClassName, Object[] constructorArgs) throws InstrumentException;
 
 
-    int addGroupedInterceptor(String interceptorClassName, Object[] constructorArgs, String groupName) throws InstrumentException;
+    int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, String scopeName) throws InstrumentException;
 
-    int addGroupedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorGroup group) throws InstrumentException;
-
-
-    int addGroupedInterceptor(String interceptorClassName, Object[] constructorArgs, String groupName, ExecutionPolicy executionPolicy) throws InstrumentException;
-
-    int addGroupedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorGroup group, ExecutionPolicy executionPolicy) throws InstrumentException;
+    int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorScope scope) throws InstrumentException;
 
 
-    int addGroupedInterceptor(String interceptorClassName, String groupName) throws InstrumentException;
+    int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException;
 
-    int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group) throws InstrumentException;
-
-
-    int addGroupedInterceptor(String interceptorClassName, String groupName, ExecutionPolicy executionPolicy) throws InstrumentException;
-
-    int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy) throws InstrumentException;
+    int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorScope scope, ExecutionPolicy executionPolicy) throws InstrumentException;
 
 
-    int addGroupedInterceptor(MethodFilter filter, String interceptorClassName, String groupName, ExecutionPolicy executionPolicy) throws InstrumentException;
+    int addScopedInterceptor(String interceptorClassName, String scopeName) throws InstrumentException;
 
-    int addGroupedInterceptor(MethodFilter filter, String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy) throws InstrumentException;
+    int addScopedInterceptor(String interceptorClassName, InterceptorScope scope) throws InstrumentException;
 
-    int addGroupedInterceptor(MethodFilter filter, String interceptorClassName, Object[] constructorArgs, String groupName, ExecutionPolicy executionPolicy) throws InstrumentException;
 
-    int addGroupedInterceptor(MethodFilter filter, String interceptorClassName, Object[] constructorArgs, InterceptorGroup group, ExecutionPolicy executionPolicy) throws InstrumentException;
+    int addScopedInterceptor(String interceptorClassName, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException;
+
+    int addScopedInterceptor(String interceptorClassName, InterceptorScope scope, ExecutionPolicy executionPolicy) throws InstrumentException;
+
+
+    int addScopedInterceptor(MethodFilter filter, String interceptorClassName, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException;
+
+    int addScopedInterceptor(MethodFilter filter, String interceptorClassName, InterceptorScope scope, ExecutionPolicy executionPolicy) throws InstrumentException;
+
+    int addScopedInterceptor(MethodFilter filter, String interceptorClassName, Object[] constructorArgs, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException;
+
+    int addScopedInterceptor(MethodFilter filter, String interceptorClassName, Object[] constructorArgs, InterceptorScope scope, ExecutionPolicy executionPolicy) throws InstrumentException;
 
     /**
      * You should check that class already have Declared method.

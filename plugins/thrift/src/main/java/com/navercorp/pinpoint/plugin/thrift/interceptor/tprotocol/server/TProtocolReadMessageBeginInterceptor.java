@@ -18,14 +18,14 @@ package com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server;
 
 import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.THRIFT_SERVER_SCOPE;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import org.apache.thrift.protocol.TMessage;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContext;
@@ -47,16 +47,16 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncMarkerFlagFieldA
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor
  */
-@Group(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
+@Scope(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
 public class TProtocolReadMessageBeginInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final InterceptorGroup group;
+    private final InterceptorScope scope;
 
-    public TProtocolReadMessageBeginInterceptor(@Name(THRIFT_SERVER_SCOPE) InterceptorGroup group) {
-        this.group = group;
+    public TProtocolReadMessageBeginInterceptor(@Name(THRIFT_SERVER_SCOPE) InterceptorScope scope) {
+        this.scope = scope;
     }
 
     @Override
@@ -80,7 +80,7 @@ public class TProtocolReadMessageBeginInterceptor implements AroundInterceptor {
                 methodName = message.name;
             }
             ThriftClientCallContext clientCallContext = new ThriftClientCallContext(methodName);
-            InterceptorGroupInvocation currentTransaction = this.group.getCurrentInvocation();
+            InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
             currentTransaction.setAttachment(clientCallContext);
         }
     }

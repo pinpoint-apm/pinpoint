@@ -20,6 +20,8 @@ import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.THRIFT_SERVER_SCO
 
 import java.net.Socket;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import org.apache.thrift.TBaseProcessor;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransport;
@@ -30,11 +32,9 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContext;
@@ -77,7 +77,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor
  */
-@Group(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.BOUNDARY)
+@Scope(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.BOUNDARY)
 public class TBaseProcessorProcessInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -85,12 +85,12 @@ public class TBaseProcessorProcessInterceptor implements AroundInterceptor {
 
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
-    private final InterceptorGroup group;
+    private final InterceptorScope scope;
 
-    public TBaseProcessorProcessInterceptor(TraceContext traceContext, MethodDescriptor descriptor, @Name(THRIFT_SERVER_SCOPE) InterceptorGroup group) {
+    public TBaseProcessorProcessInterceptor(TraceContext traceContext, MethodDescriptor descriptor, @Name(THRIFT_SERVER_SCOPE) InterceptorScope scope) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
-        this.group = group;
+        this.scope = scope;
     }
 
     @Override
@@ -167,7 +167,7 @@ public class TBaseProcessorProcessInterceptor implements AroundInterceptor {
 
     private String getMethodUri(Object target) {
         String methodUri = ThriftConstants.UNKNOWN_METHOD_URI;
-        InterceptorGroupInvocation currentTransaction = this.group.getCurrentInvocation();
+        InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
         Object attachment = currentTransaction.getAttachment();
         if (attachment instanceof ThriftClientCallContext && target instanceof TBaseProcessor) {
             ThriftClientCallContext clientCallContext = (ThriftClientCallContext)attachment;

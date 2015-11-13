@@ -20,24 +20,24 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 
 /**
- * Indicates that the annotated {@link Interceptor} participate in a {@link Group}.
+ * Indicates that the annotated {@link Interceptor} participate in a {@link Scope}.
  * 
  * @author Jongho Moon
  *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface Group {
+public @interface Scope {
     /**
-     * group name
+     * scope name
      */
-    public String value();
+    String value();
     
     /**
      * specify when this interceptor have to be invoked.
      */
-    public ExecutionPolicy executionPolicy() default ExecutionPolicy.BOUNDARY;
+    ExecutionPolicy executionPolicy() default ExecutionPolicy.BOUNDARY;
 }

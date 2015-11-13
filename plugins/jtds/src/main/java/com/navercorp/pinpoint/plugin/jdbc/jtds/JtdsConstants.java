@@ -27,7 +27,7 @@ public final class JtdsConstants {
     private JtdsConstants() {
     }
 
-    public static final String GROUP_JTDS = "JTDS";
+    public static final String JTDS_SCOPE = "JTDS";
     
     public static final ServiceType MSSQL = ServiceTypeFactory.of(2200, "MSSQL", "MSSQLSERVER", TERMINAL, INCLUDE_DESTINATION_ID);
     public static final ServiceType MSSQL_EXECUTE_QUERY = ServiceTypeFactory.of(2201, "MSSQL_EXECUTE_QUERY", "MSSQLSERVER", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
