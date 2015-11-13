@@ -38,8 +38,8 @@ public class LogbackPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("ch.qos.logback.classic.spi.LoggingEvent", new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor pluginContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass mdcClass = pluginContext.getInstrumentClass(loader, "org.slf4j.MDC", null);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass mdcClass = Instrumentor.getInstrumentClass(loader, "org.slf4j.MDC", null);
                 
                 if (mdcClass == null) {
                     logger.warn("modify fail. Because org.slf4j.MDC does not exist.");
@@ -55,7 +55,7 @@ public class LogbackPlugin implements ProfilerPlugin, TransformTemplateAware {
                     return null;
                 }
                 
-                InstrumentClass target = pluginContext.getInstrumentClass(loader, className, classfileBuffer);
+                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addInterceptor("com.navercorp.pinpoint.plugin.logback.interceptor.LoggingEventOfLogbackInterceptor");
                 
                 return target.toBytecode();

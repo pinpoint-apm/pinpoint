@@ -52,8 +52,8 @@ public class HttpClientPlugin implements ProfilerPlugin, TransformTemplateAware 
         transformTemplate.transform("com.google.api.client.http.HttpRequest", new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 
                 InstrumentMethod execute = target.getDeclaredMethod("execute");
                 if (execute != null) {
@@ -68,10 +68,10 @@ public class HttpClientPlugin implements ProfilerPlugin, TransformTemplateAware 
 
                     for(InstrumentClass nestedClass : target.getNestedClasses(ClassFilters.chain(ClassFilters.enclosingMethod("executeAsync", "java.util.concurrent.Executor"), ClassFilters.interfaze("java.util.concurrent.Callable")))) {
                         logger.debug("Find nested class {}", target.getName());
-                        instrumentContext.addClassFileTransformer(loader, nestedClass.getName(), new TransformCallback() {
+                        Instrumentor.addClassFileTransformer(loader, nestedClass.getName(), new TransformCallback() {
                             @Override
-                            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                                 target.addField(AsyncTraceIdAccessor.class.getName());
 
                                 InstrumentMethod constructor = target.getConstructor("com.google.api.client.http.HttpRequest");

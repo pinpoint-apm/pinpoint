@@ -67,8 +67,8 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("org.apache.catalina.connector.Request", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
                 target.addField(TraceAccessor.class.getName());
                 target.addField(AsyncAccessor.class.getName());
 
@@ -93,8 +93,8 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("org.apache.catalina.connector.RequestFacade", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
                 if (target != null) {
                     target.weave("com.navercorp.pinpoint.plugin.tomcat.aspect.RequestFacadeAspect");
                     return target.toBytecode();
@@ -109,8 +109,8 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("org.apache.catalina.core.StandardHostValve", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 InstrumentMethod method = target.getDeclaredMethod("invoke", "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response");
                 if (method != null) {
@@ -126,8 +126,8 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("org.apache.catalina.core.StandardService", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 // Tomcat 6
                 InstrumentMethod startEditor = target.getDeclaredMethod("start");
@@ -150,8 +150,8 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("org.apache.catalina.connector.Connector", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 // Tomcat 6
                 InstrumentMethod initializeEditor = target.getDeclaredMethod("initialize");
@@ -174,8 +174,8 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("org.apache.catalina.loader.WebappLoader", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 // Tomcat 6 - org.apache.catalina.loader.WebappLoader.start()
                 InstrumentMethod startEditor = target.getDeclaredMethod("start");
@@ -198,8 +198,8 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("org.apache.catalina.core.AsyncContextImpl", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
                 target.addField(AsyncTraceIdAccessor.class.getName());
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("dispatch"))) {
                     method.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.AsyncContextImplDispatchMethodInterceptor");
