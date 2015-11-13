@@ -73,9 +73,9 @@
 		    color: rgb(216, 33, 33);
 		    font-family: 'Tahoma', 'Trebuchet MS', 'Verdana';
 		}
-		.center-middle {
-			text-align: center;
-			vertical-align: middle !important;
+		td.agent {
+			cursor: pointer;
+			text-decoration: underline;
 		}
 		.loading {
 			position:absolute;
@@ -123,16 +123,12 @@
     <script src="components/bootstrap/dist/js/bootstrap.min.js?v=${buildTime}"></script>
     <script src="components/d3/d3.min.js?v=${buildTime}"></script>
     <script src="components/handlebars/handlebars.min.js?v=${buildTime}"></script>
+	<script src="components/moment/moment.js?v=${buildTime}"></script>
     
     <script>
 function dashboard(id, fData){
-    var barColor = 'steelblue';
     var segColor = d3.scale.category20();
-    fData.sort( function( pre, cur ) {
-		//return cur.count > pre.count;
-		return pre.version > cur.version;
-	});
-    
+
     // function to handle pieChart.
     function pieChart(pD){
         var pC ={},    pieDim ={w:250, h: 250};
@@ -227,9 +223,9 @@ function dashboard(id, fData){
 	   fData.sort( function( pre, cur ) {
 		   $(id).empty();
 		   if ( key == "version") {
-			   return pre.version > cur.version;
+			   return pre.version > cur.version ? 1 : pre.version == cur.version ? 0 : -1;
 		   } else {
-			   return cur.count > pre.count;
+			   return cur.count > pre.count ? 1 : cur.count == pre.count ? 0 : -1;
 		   }
 		});
 	   pieChart(fData), // create the pie-chart.
@@ -275,8 +271,14 @@ var filterTable = function( version ) {
 			}
 		}
 	});
-}
-var compiledTemplate = Handlebars.compile( '<tr><td>{{{index}}}</td><td>{{{appName}}}<td>{{{hostName}}}</td><td class="version">{{{version}}}</td></tr>' );
+};
+//$tbody.on("click", "td.agent", function() {
+//	var appName = $(this).attr("data-app-name");
+//	var url = appName + "/5m/" + moment().format('YYYY-MM-DD-HH-mm-ss') + "/" + $(this).html();
+//	window.open(url);
+//})
+
+var compiledTemplate = Handlebars.compile( '<tr><td>{{{index}}}</td><td>{{#if visible}}<a href="/#/main/{{{appName}}}@{{{serviceType}}}" target="_blank">{{{appName}}}</a>{{/if}}<td data-app-name="{{{appName}}}@{{{serviceType}}}">{{{hostName}}}</td><td class="version">{{{version}}}</td></tr>' );
 
 
 $.ajax({
@@ -285,9 +287,16 @@ $.ajax({
 	dataType: "json"
 }).done(function(data, textStatue, jqXHR) {
  	var versionData = parseResultData( data );
+	versionData.sort( function( pre, cur ) {
+		return pre.version > cur.version ? 1 : pre.version == cur.version ? 0 : -1;
+	});
+
+	var sum = 0;
  	$.each( versionData, function(index, o ) {
- 		$selectVersion.append('<option value="' + o.version +'">' + o.version + '</option>');
+		sum += o.count;
+ 		$selectVersion.append('<option value="' + o.version +'">' + o.version + ' - '+ o.count + '</option>');
  	});
+	$selectVersion.find("option:first").html( "All - " + sum );
  	$selectVersion.on("change", function() {
  		filterTable( $(this).val() );
  	});
@@ -298,7 +307,9 @@ $.ajax({
  	 	$.each( aApplication, function( index, o ) {
  	 	 	$tbody.append( compiledTemplate({
  	 	 		index: totalIndex++,
- 	 	 		appName: index > 0 ? "" : appName,
+ 	 	 		appName: appName,
+				visible: index > 0 ? "" : appName,
+				serviceType: o.serviceType,
  	 	 		hostName: o.hostName,
  	 	 		version: o.agentVersion
  	 	 	}));
