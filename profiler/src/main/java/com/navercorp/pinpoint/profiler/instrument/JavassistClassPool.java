@@ -101,9 +101,9 @@ public class JavassistClassPool implements InstrumentClassPool {
     }
     
     @Override
-    public InstrumentClass getClass(InstrumentContext pluginContext, ClassLoader classLoader, String jvmInternalClassName, byte[] classFileBuffer) throws NotFoundInstrumentException {
+    public InstrumentClass getClass(InstrumentContext instrumentContext, ClassLoader classLoader, String jvmInternalClassName, byte[] classFileBuffer) throws NotFoundInstrumentException {
         CtClass cc = getClass(classLoader, jvmInternalClassName);
-        return new JavassistClass(pluginContext, interceptorRegistryBinder, classLoader, cc);
+        return new JavassistClass(instrumentContext, interceptorRegistryBinder, classLoader, cc);
     }
     
     public CtClass getClass(ClassLoader classLoader, String className) throws NotFoundInstrumentException {

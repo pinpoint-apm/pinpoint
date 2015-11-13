@@ -51,8 +51,8 @@ public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("cubrid.jdbc.driver.CUBRIDConnection", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
                 target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", CubridConstants.CUBRID_SCOPE);
@@ -80,8 +80,8 @@ public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("cubrid.jdbc.driver.CUBRIDDriver", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", va(new CubridJdbcUrlParser()), CubridConstants.CUBRID_SCOPE, ExecutionPolicy.ALWAYS);
 
@@ -94,8 +94,8 @@ public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("cubrid.jdbc.driver.CUBRIDPreparedStatement", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
@@ -115,8 +115,8 @@ public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("cubrid.jdbc.driver.CUBRIDStatement", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 

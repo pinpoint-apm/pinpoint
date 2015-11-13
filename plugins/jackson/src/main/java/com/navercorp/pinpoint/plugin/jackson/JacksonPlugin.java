@@ -61,8 +61,8 @@ public class JacksonPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform(clazzName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 final InstrumentMethod constructor1 = target.getConstructor();
                 addInterceptor(constructor1, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
@@ -99,8 +99,8 @@ public class JacksonPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform(clazzName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 final InstrumentMethod constructor1 = target.getConstructor();
                 addInterceptor(constructor1, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
@@ -145,8 +145,8 @@ public class JacksonPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform(clazzName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("readValue", "readValues"))) {
                     addInterceptor(method, READ_VALUE_INTERCEPTOR);
@@ -162,9 +162,9 @@ public class JacksonPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform(clazzName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
-//                InterceptorScope scope = instrumentContext.getInterceptorScope(JACKSON_SCOPE);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+//                InterceptorScope scope = Instrumentor.getInterceptorScope(JACKSON_SCOPE);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValue"))) {
                     addInterceptor(method, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));

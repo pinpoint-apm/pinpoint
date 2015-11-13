@@ -65,11 +65,11 @@ public class MyBatisPlugin implements ProfilerPlugin, TransformTemplateAware {
             transformTemplate.transform(sqlSession, new TransformCallback() {
 
                 @Override
-                public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader,
+                public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader,
                                             String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
                                             byte[] classfileBuffer) throws InstrumentException {
                     
-                    final InstrumentClass target = instrumentContext.getInstrumentClass(loader, sqlSession, classfileBuffer);
+                    final InstrumentClass target = Instrumentor.getInstrumentClass(loader, sqlSession, classfileBuffer);
 
                     final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(methodFilter);
                     for (InstrumentMethod methodToTrace : methodsToTrace) {

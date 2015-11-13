@@ -87,10 +87,10 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined,
                                         ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
-                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                final InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 // TServiceClient.sendBase(String, TBase)
                 final InstrumentMethod sendBase = target.getDeclaredMethod("sendBase", "java.lang.String", "org.apache.thrift.TBase");
@@ -123,10 +123,10 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined,
                                         ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
-                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                final InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 // TAsyncClientManager.call(TAsyncMethodCall)
                 final InstrumentMethod call = target.getDeclaredMethod("call", "org.apache.thrift.async.TAsyncMethodCall");
@@ -146,10 +146,10 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined,
                                         ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
-                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                final InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(SocketAddressFieldAccessor.class.getName());
                 target.addField(AsyncMarkerFlagFieldAccessor.class.getName());
                 target.addField(AsyncTraceIdFieldAccessor.class.getName());
@@ -241,10 +241,10 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined,
                                         ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
-                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                final InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 // TBaseProcessor.process(TProtocol, TProtocol)
                 final InstrumentMethod process = target.getDeclaredMethod("process", "org.apache.thrift.protocol.TProtocol",
@@ -265,10 +265,10 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined,
                                         ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
-                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                final InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(ServerMarkerFlagFieldAccessor.class.getName());
 
                 // ProcessFunction.process(int, TProtocol, TProtocol, I)
@@ -296,10 +296,10 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined,
                                         ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
-                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                final InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(ServerMarkerFlagFieldAccessor.class.getName());
                 target.addField(AsyncMarkerFlagFieldAccessor.class.getName());
 
@@ -358,10 +358,10 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined,
                                         ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
-                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                final InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(SocketFieldAccessor.class.getName());
                 return target.toBytecode();
             }
@@ -375,10 +375,10 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined,
                                         ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
-                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                final InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(SocketFieldAccessor.class.getName());
 
                 for (String[] parameterTypeGroup : parameterTypeGroups) {
@@ -399,10 +399,10 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined,
                                         ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
-                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                final InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(SocketFieldAccessor.class.getName());
                 target.addField(SocketAddressFieldAccessor.class.getName());
 
@@ -424,10 +424,10 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined,
                                         ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
-                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                final InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(SocketFieldAccessor.class.getName());
                 target.addGetter(TNonblockingTransportFieldGetter.class.getName(), ThriftConstants.FRAME_BUFFER_FIELD_TRANS_);
 
@@ -477,10 +477,10 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined,
                                         ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
-                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                final InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 // client
                 if (traceThriftClient) {

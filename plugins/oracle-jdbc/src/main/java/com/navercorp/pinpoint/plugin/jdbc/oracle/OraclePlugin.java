@@ -56,8 +56,8 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("oracle.jdbc.driver.PhysicalConnection", new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
 
@@ -86,8 +86,8 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("oracle.jdbc.driver.OracleDriver", new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", va(new OracleJdbcUrlParser()), OracleConstants.ORACLE_SCOPE, ExecutionPolicy.ALWAYS);
                 
@@ -100,14 +100,14 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
         TransformCallback transformer = new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 if (className.equals(CLASS_PREPARED_STATEMENT)) {
-                    if (instrumentContext.exist(loader, CLASS_PREPARED_STATEMENT_WRAPPER)) {
+                    if (Instrumentor.exist(loader, CLASS_PREPARED_STATEMENT_WRAPPER)) {
                         return null;
                     }
                 }
                 
-                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
@@ -130,14 +130,14 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
         TransformCallback transformer = new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 if (className.equals(CLASS_STATEMENT)) {
-                    if (instrumentContext.exist(loader, CLASS_STATEMENT_WRAPPER)) {
+                    if (Instrumentor.exist(loader, CLASS_STATEMENT_WRAPPER)) {
                         return null;
                     }
                 }
                 
-                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
                 

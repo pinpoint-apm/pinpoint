@@ -51,8 +51,8 @@ public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
         TransformCallback transformer = new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
                 target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", JtdsConstants.JTDS_SCOPE);
@@ -83,8 +83,8 @@ public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("net.sourceforge.jtds.jdbc.Driver", new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", va(new JtdsJdbcUrlParser()), JtdsConstants.JTDS_SCOPE, ExecutionPolicy.ALWAYS);
                 
@@ -97,8 +97,8 @@ public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("net.sourceforge.jtds.jdbc.JtdsPreparedStatement", new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
@@ -118,8 +118,8 @@ public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("net.sourceforge.jtds.jdbc.JtdsStatement", new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 

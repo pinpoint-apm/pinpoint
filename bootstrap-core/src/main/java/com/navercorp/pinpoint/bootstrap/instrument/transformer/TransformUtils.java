@@ -24,14 +24,14 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
  * @author Jongho Moon
  *
  */
-public class PinpointClassFileTransformers {
+public class TransformUtils {
 
     public static TransformCallback addInterceptor(final String interceptorClassName, final Object[] constructorArgs) {
         return new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addInterceptor(interceptorClassName, constructorArgs);
                 return target.toBytecode();
             }
@@ -42,8 +42,8 @@ public class PinpointClassFileTransformers {
         return new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(fieldAccessorClassName);
                 return target.toBytecode();
             }
