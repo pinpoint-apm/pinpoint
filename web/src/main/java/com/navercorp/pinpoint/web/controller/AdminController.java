@@ -16,14 +16,11 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -67,18 +64,6 @@ public class AdminController {
         } catch (Exception e) {
             logger.error("error while removing agentId", e);
             return e.getMessage();
-        }
-    }
-
-    @RequestMapping(value = "/getAgents", method = RequestMethod.GET)
-    @ResponseBody
-    public ApplicationAgentList getAgents(@RequestParam(value = "applicationName", required = false, defaultValue = "") String applicationName) {
-        if (StringUtils.isEmpty(applicationName)) {
-            logger.debug("/getAgents");
-            return this.adminService.getApplicationAgentList();
-        } else {
-            logger.debug("/getAgents - ApplicationName: [{}]", applicationName);
-            return this.adminService.getApplicationAgentList(applicationName);
         }
     }
 

@@ -88,21 +88,49 @@ public class AgentStatController {
         return chartGroup;
     }
 
+    @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params = {"!application"})
+    @ResponseBody
+    public ApplicationAgentList getAgentList() {
+        return this.agentInfoService.getApplicationAgentList(ApplicationAgentList.Key.APPLICATION_NAME);
+    }
+
+    @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params = {"!application", "from", "to"})
+    @ResponseBody
+    public ApplicationAgentList getAgentList(
+            @RequestParam("from") long from,
+            @RequestParam("to") long to) {
+        return this.agentInfoService.getApplicationAgentList(ApplicationAgentList.Key.APPLICATION_NAME, to);
+    }
+
+    @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params = {"!application", "timestamp"})
+    @ResponseBody
+    public ApplicationAgentList getAgentList(
+            @RequestParam("timestamp") long timestamp) {
+        return this.agentInfoService.getApplicationAgentList(ApplicationAgentList.Key.APPLICATION_NAME, timestamp);
+    }
+
+    @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params = {"application"})
+    @ResponseBody
+    public ApplicationAgentList getAgentList(
+            @RequestParam("application") String applicationName) {
+        return this.agentInfoService.getApplicationAgentList(ApplicationAgentList.Key.HOST_NAME, applicationName);
+    }
+
     @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params = {"application", "from", "to"})
     @ResponseBody
-    public ApplicationAgentList getApplicationAgentList(
+    public ApplicationAgentList getAgentList(
             @RequestParam("application") String applicationName,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
-        return this.getApplicationAgentList(applicationName, to);
+        return this.agentInfoService.getApplicationAgentList(ApplicationAgentList.Key.HOST_NAME, applicationName, to);
     }
 
     @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params = {"application", "timestamp"})
     @ResponseBody
-    public ApplicationAgentList getApplicationAgentList(
+    public ApplicationAgentList getAgentList(
             @RequestParam("application") String applicationName,
             @RequestParam("timestamp") long timestamp) {
-        return this.agentInfoService.getApplicationAgentList(applicationName, ApplicationAgentList.Key.HOST_NAME, timestamp);
+        return this.agentInfoService.getApplicationAgentList(ApplicationAgentList.Key.HOST_NAME, applicationName, timestamp);
     }
 
     @RequestMapping(value = "/getAgentInfo", method = RequestMethod.GET)

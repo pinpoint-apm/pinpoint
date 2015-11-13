@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,9 +31,6 @@ import java.util.List;
 public class AdminServiceImpl implements AdminService {
 
     @Autowired
-    private AgentInfoService agentInfoService;
-
-    @Autowired
     private ApplicationIndexDao applicationIndexDao;
 
     @Override
@@ -46,22 +41,6 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void removeAgentId(String applicationName, String agentId) {
         applicationIndexDao.deleteAgentId(applicationName, agentId);
-    }
-
-    @Override
-    public ApplicationAgentList getApplicationAgentList() {
-        ApplicationAgentList applicationAgentList = new ApplicationAgentList();
-        List<Application> applications = applicationIndexDao.selectAllApplicationNames();
-        for (Application application : applications) {
-            applicationAgentList.merge(this.getApplicationAgentList(application.getName()));
-
-        }
-        return applicationAgentList;
-    }
-
-    @Override
-    public ApplicationAgentList getApplicationAgentList(String applicationName) {
-        return this.agentInfoService.getApplicationAgentList(applicationName, ApplicationAgentList.Key.APPLICATION_NAME);
     }
 
 }
