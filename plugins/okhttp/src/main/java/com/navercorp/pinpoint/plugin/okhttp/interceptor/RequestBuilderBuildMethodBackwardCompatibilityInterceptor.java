@@ -24,15 +24,17 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvoca
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
-import com.navercorp.pinpoint.plugin.okhttp.*;
-import com.squareup.okhttp.HttpUrl;
+import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
+import com.navercorp.pinpoint.plugin.okhttp.UrlGetter;
 import com.squareup.okhttp.Request;
+
+import java.net.URL;
 
 /**
  * @author jaehong.kim
  */
 @Group(value = OkHttpConstants.SEND_REQUEST_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
-public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
+public class RequestBuilderBuildMethodBackwardCompatibilityInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -40,7 +42,7 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
     private MethodDescriptor methodDescriptor;
     private InterceptorGroup interceptorGroup;
 
-    public RequestBuilderBuildMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup) {
+    public RequestBuilderBuildMethodBackwardCompatibilityInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
         this.interceptorGroup = interceptorGroup;
@@ -83,8 +85,8 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
             builder.header(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
             builder.header(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
 
-            if (target instanceof HttpUrlGetter) {
-                final HttpUrl url = ((HttpUrlGetter) target)._$PINPOINT$_getHttpUrl();
+            if (target instanceof UrlGetter) {
+                final URL url = ((UrlGetter) target)._$PINPOINT$_getUrl();
                 if (url != null) {
                     final String endpoint = getDestinationId(url);
                     logger.debug("Set HTTP_HOST {}", endpoint);
@@ -96,17 +98,17 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
         }
     }
 
-    private String getDestinationId(HttpUrl httpUrl) {
-        if (httpUrl == null || httpUrl.host() == null) {
+    private String getDestinationId(URL httpUrl) {
+        if (httpUrl == null || httpUrl.getHost() == null) {
             return "UnknownHttpClient";
         }
-        if (httpUrl.port() <= 0 || httpUrl.port() == HttpUrl.defaultPort(httpUrl.scheme())) {
-            return httpUrl.host();
+        if (httpUrl.getPort() <= 0 || httpUrl.getPort() == httpUrl.getDefaultPort()) {
+            return httpUrl.getHost();
         }
         final StringBuilder sb = new StringBuilder();
-        sb.append(httpUrl.host());
+        sb.append(httpUrl.getHost());
         sb.append(':');
-        sb.append(httpUrl.port());
+        sb.append(httpUrl.getPort());
         return sb.toString();
     }
 

@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
@@ -79,7 +80,7 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("execute", "cancel"))) {
                     logger.debug("[OkHttp] Add Dispatcher.execute | cancel interceptor.");
-                    method.addInterceptor(OkHttpConstants.BASIC_METHOD_INTERCEPTOR, va(OkHttpConstants.OK_HTTP_CLIENT_INTERNAL));
+                    method.addInterceptor(BasicMethodInterceptor.class.getName(), va(OkHttpConstants.OK_HTTP_CLIENT_INTERNAL));
                 }
                 InstrumentMethod enqueueMethod = target.getDeclaredMethod("enqueue", "com.squareup.okhttp.Call$AsyncCall");
                 if (enqueueMethod != null) {
@@ -152,12 +153,19 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
-                target.addGetter(HttpUrlGetter.class.getName(), OkHttpConstants.FIELD_HTTP_URL);
-
                 InstrumentMethod buildMethod = target.getDeclaredMethod("build");
                 if (buildMethod != null) {
                     logger.debug("[OkHttp] Add Request.Builder.build interceptor.");
-                    buildMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.RequestBuilderBuildMethodInterceptor");
+
+                    if(instrumentContext.exist(loader, "com.squareup.okhttp.HttpUrl")) {
+                        // over 2.4.0
+                        target.addGetter(HttpUrlGetter.class.getName(), OkHttpConstants.FIELD_HTTP_URL);
+                        buildMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.RequestBuilderBuildMethodInterceptor");
+                    } else {
+                        // 2.0 ~ 2.3
+                        target.addGetter(UrlGetter.class.getName(), OkHttpConstants.FIELD_HTTP_URL);
+                        buildMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.RequestBuilderBuildMethodBackwardCompatibilityInterceptor");
+                    }
                 }
 
                 return target.toBytecode();
