@@ -100,7 +100,7 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
         if (httpUrl == null || httpUrl.host() == null) {
             return "UnknownHttpClient";
         }
-        if (httpUrl.port() == HttpUrl.defaultPort(httpUrl.scheme())) {
+        if (httpUrl.port() <= 0 || httpUrl.port() == HttpUrl.defaultPort(httpUrl.scheme())) {
             return httpUrl.host();
         }
         final StringBuilder sb = new StringBuilder();

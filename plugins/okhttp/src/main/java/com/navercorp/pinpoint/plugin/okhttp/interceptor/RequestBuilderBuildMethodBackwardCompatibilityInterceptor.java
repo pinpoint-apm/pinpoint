@@ -102,7 +102,7 @@ public class RequestBuilderBuildMethodBackwardCompatibilityInterceptor implement
         if (httpUrl == null || httpUrl.getHost() == null) {
             return "UnknownHttpClient";
         }
-        if (httpUrl.getPort() == httpUrl.getDefaultPort()) {
+        if (httpUrl.getPort() <= 0 || httpUrl.getPort() == httpUrl.getDefaultPort()) {
             return httpUrl.getHost();
         }
         final StringBuilder sb = new StringBuilder();
