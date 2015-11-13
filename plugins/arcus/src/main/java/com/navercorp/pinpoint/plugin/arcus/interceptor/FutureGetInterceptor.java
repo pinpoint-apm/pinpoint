@@ -18,6 +18,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.ops.Operation;
 
@@ -26,7 +27,6 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.plugin.arcus.ArcusConstants;
 import com.navercorp.pinpoint.plugin.arcus.OperationAccessor;
 import com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor;
@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor;
  * @author emeroad
  * @author jaehong.kim
  */
-@Group(ArcusConstants.ARCUS_FUTURE_SCOPE)
+@Scope(ArcusConstants.ARCUS_FUTURE_SCOPE)
 public class FutureGetInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
 
     public FutureGetInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext) {

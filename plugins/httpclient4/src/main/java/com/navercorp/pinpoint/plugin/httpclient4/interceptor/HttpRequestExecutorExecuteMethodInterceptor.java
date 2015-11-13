@@ -21,6 +21,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContextFactory;
 import org.apache.http.HeaderElement;
@@ -43,10 +45,8 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
@@ -62,7 +62,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author minwoo.jung
  * @author jaehong.kim
  */
-@Group(value = HttpClient4Constants.HTTP_CLIENT4_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
+@Scope(value = HttpClient4Constants.HTTP_CLIENT4_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
 public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterceptor {
     private static final int HTTP_REQUEST_INDEX = 1;
 
@@ -81,14 +81,14 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
     private final SimpleSampler entitySampler;
 
     private final boolean statusCode;
-    private final InterceptorGroup interceptorGroup;
+    private final InterceptorScope interceptorScope;
 
     private final boolean io;
 
-    public HttpRequestExecutorExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup) {
+    public HttpRequestExecutorExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
-        this.interceptorGroup = interceptorGroup;
+        this.interceptorScope = interceptorScope;
 
         final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
         this.cookie = profilerConfig.isApacheHttpClient4ProfileCookie();
@@ -155,7 +155,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
             }
         }
 
-        InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
+        InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
         if (invocation != null) {
             invocation.getOrCreateAttachment(HttpCallContextFactory.HTTPCALL_CONTEXT_FACTORY);
         }
@@ -170,7 +170,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
     }
 
     private NameIntValuePair<String> getHost() {
-        InterceptorGroupInvocation transaction = interceptorGroup.getCurrentInvocation();
+        InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
         if (transaction != null && transaction.getAttachment() != null) {
             HttpCallContext callContext = (HttpCallContext) transaction.getAttachment();
             return new NameIntValuePair<String>(callContext.getHost(), callContext.getPort());
@@ -215,7 +215,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
             recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);
 
-            InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
+            InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
             if (invocation != null && invocation.getAttachment() != null) {
                 final HttpCallContext callContext = (HttpCallContext) invocation.getAttachment();
                 logger.debug("Check call context {}", callContext);

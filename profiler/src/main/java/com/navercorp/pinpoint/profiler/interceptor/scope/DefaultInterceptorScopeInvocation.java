@@ -12,24 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.interceptor.group;
+package com.navercorp.pinpoint.profiler.interceptor.scope;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.group.AttachmentFactory;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.AttachmentFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 
 /**
  * @author Jongho Moon
  *
  */
-public class DefaultInterceptorGroupInvocation implements InterceptorGroupInvocation {
+public class DefaultInterceptorScopeInvocation implements InterceptorScopeInvocation {
     private final String name;
     private Object attachment = null;
     
     private int depth = 0;
     private int skippedBoundary = 0;
     
-    public DefaultInterceptorGroupInvocation(String name) {
+    public DefaultInterceptorScopeInvocation(String name) {
         this.name = name;
     }
 
@@ -166,7 +166,7 @@ public class DefaultInterceptorGroupInvocation implements InterceptorGroupInvoca
 
     @Override
     public String toString() {
-        return "InterceptorGroupInvocation(" + name + ")[depth=" + depth +"]";
+        return "InterceptorScopeInvocation(" + name + ")[depth=" + depth +"]";
     }
     
     

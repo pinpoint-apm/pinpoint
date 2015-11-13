@@ -14,13 +14,13 @@
  */
 package com.navercorp.pinpoint.profiler.plugin.xml.transformer;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 
 /**
  * @author Jongho Moon
  *
  */
 public interface InterceptorBuilder {
-    public void group(String groupName);
-    public void group(String groupName, ExecutionPolicy point);
+    void setScope(String scopeName);
+    void setScope(String scopeName, ExecutionPolicy point);
 }

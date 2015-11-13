@@ -14,61 +14,62 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.interceptor.group;
+package com.navercorp.pinpoint.bootstrap.interceptor.scope;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor4;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor3;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
  * @author emeroad
  */
-public class GroupedInterceptor4 implements AroundInterceptor4 {
+public class ScopedInterceptor3 implements AroundInterceptor3 {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final boolean debugEnabled = logger.isDebugEnabled();
 
-    private final AroundInterceptor4 interceptor;
-    private final InterceptorGroup group;
+    private final AroundInterceptor3 interceptor;
+    private final InterceptorScope scope;
     private final ExecutionPolicy policy;
     
-    public GroupedInterceptor4(AroundInterceptor4 interceptor, InterceptorGroup group, ExecutionPolicy policy) {
+    public ScopedInterceptor3(AroundInterceptor3 interceptor, InterceptorScope scope, ExecutionPolicy policy) {
         if (interceptor == null) {
             throw new NullPointerException("interceptor must not be null");
         }
-        if (group == null) {
-            throw new NullPointerException("group must not be null");
+        if (scope == null) {
+            throw new NullPointerException("scope must not be null");
         }
         if (policy == null) {
             throw new NullPointerException("policy must not be null");
         }
         this.interceptor = interceptor;
-        this.group = group;
+        this.scope = scope;
         this.policy = policy;
     }
     
     @Override
-    public void before(Object target, Object arg0, Object arg1, Object arg2, Object arg3) {
-        final InterceptorGroupInvocation transaction = group.getCurrentInvocation();
+    public void before(Object target, Object arg0, Object arg1, Object arg2) {
+        final InterceptorScopeInvocation transaction = scope.getCurrentInvocation();
         
         if (transaction.tryEnter(policy)) {
-            this.interceptor.before(target, arg0, arg1, arg2, arg3);
+            this.interceptor.before(target, arg0, arg1, arg2);
         } else {
             if (debugEnabled) {
-                logger.debug("tryBefore() returns false: interceptorGroupTransaction: {}, executionPoint: {}. Skip interceptor {}", new Object[]{transaction, policy, interceptor.getClass()});
+                logger.debug("tryBefore() returns false: interceptorScopeTransaction: {}, executionPoint: {}. Skip interceptor {}", new Object[] {transaction, policy, interceptor.getClass()} );
             }
         }
     }
 
     @Override
-    public void after(Object target, Object arg0, Object arg1, Object arg2, Object arg3, Object result, Throwable throwable) {
-        final InterceptorGroupInvocation transaction = group.getCurrentInvocation();
+    public void after(Object target, Object arg0, Object arg1, Object arg2, Object result, Throwable throwable) {
+        final InterceptorScopeInvocation transaction = scope.getCurrentInvocation();
         
         if (transaction.canLeave(policy)) {
-            this.interceptor.after(target, arg0, arg1, arg2, arg3, result, throwable);
+            this.interceptor.after(target, arg0, arg1, arg2, result, throwable);
+
             transaction.leave(policy);
         } else {
             if (debugEnabled) {
-                logger.debug("tryAfter() returns false: interceptorGroupTransaction: {}, executionPoint: {}. Skip interceptor {}", new Object[] {transaction, policy, interceptor.getClass()} );
+                logger.debug("tryAfter() returns false: interceptorScopeTransaction: {}, executionPoint: {}. Skip interceptor {}", new Object[] {transaction, policy, interceptor.getClass()} );
             }
         }
     }

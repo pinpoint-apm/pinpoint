@@ -26,10 +26,10 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
@@ -42,7 +42,7 @@ import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpConstants;
  * @author netspider
  * @author emeroad
  */
-@Group("HttpURLConnection")
+@Scope("HttpURLConnection")
 @TargetMethods({
         @TargetMethod(name="connect"),
         @TargetMethod(name="getInputStream"),
@@ -55,12 +55,12 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
 
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
-    private final InterceptorGroup group;
+    private final InterceptorScope scope;
     
-    public HttpURLConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorGroup group) {
+    public HttpURLConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
-        this.group = group;
+        this.scope = scope;
     }
 
     @Override
@@ -88,7 +88,7 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
             return;
         }
 
-        group.getCurrentInvocation().setAttachment(TRACE_BLOCK_BEGIN_MARKER);
+        scope.getCurrentInvocation().setAttachment(TRACE_BLOCK_BEGIN_MARKER);
         
         SpanEventRecorder recorder = trace.traceBlockBegin();
         TraceId nextId = trace.getTraceId().getNextTraceId();
@@ -141,7 +141,7 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
             return;
         }
         
-        Object marker = group.getCurrentInvocation().getAttachment();
+        Object marker = scope.getCurrentInvocation().getAttachment();
         
         if (marker != TRACE_BLOCK_BEGIN_MARKER) {
             return;

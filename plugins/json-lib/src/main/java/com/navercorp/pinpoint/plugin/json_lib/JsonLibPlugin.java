@@ -40,7 +40,7 @@ public class JsonLibPlugin implements ProfilerPlugin, TransformTemplateAware {
     private static final String PARSING_INTERCEPTOR = "com.navercorp.pinpoint.plugin.json_lib.interceptor.ParsingInterceptor";
     private static final String TO_STRING_INTERCEPTOR = "com.navercorp.pinpoint.plugin.json_lib.interceptor.ToStringInterceptor";
 
-    private static final String GROUP = "json-lib";
+    private static final String JSON_LIB_SCOPE = "json-lib";
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private TransformTemplate transformTemplate;
@@ -136,7 +136,7 @@ public class JsonLibPlugin implements ProfilerPlugin, TransformTemplateAware {
     private boolean addInterceptor(InstrumentMethod method, String interceptorClassName, Object... constructorArgs) {
         if (method != null && isPublicMethod(method)) {
             try {
-                method.addGroupedInterceptor(interceptorClassName, constructorArgs, GROUP);
+                method.addScopedInterceptor(interceptorClassName, constructorArgs, JSON_LIB_SCOPE);
                 return true;
             } catch (InstrumentException e) {
                 if (logger.isWarnEnabled()) {

@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.plugin.okhttp.interceptor;
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.AttachmentFactory;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.AttachmentFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
@@ -37,24 +37,24 @@ import java.net.URL;
 /**
  * @author jaehong.kim
  */
-@Group(OkHttpConstants.SEND_REQUEST_SCOPE)
+@Scope(OkHttpConstants.SEND_REQUEST_SCOPE)
 public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private TraceContext traceContext;
     private MethodDescriptor methodDescriptor;
-    private InterceptorGroup interceptorGroup;
+    private InterceptorScope interceptorScope;
 
     private final boolean cookie;
     private final DumpType cookieDumpType;
     private final SimpleSampler cookieSampler;
     private final boolean statusCode;
 
-    public HttpEngineSendRequestMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup, OkHttpPluginConfig config) {
+    public HttpEngineSendRequestMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope, OkHttpPluginConfig config) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
-        this.interceptorGroup = interceptorGroup;
+        this.interceptorScope = interceptorScope;
 
         this.cookie = config.isCookie();
         this.cookieDumpType = config.getCookieDumpType();
@@ -92,7 +92,7 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
             recorder.recordNextSpanId(nextId.getSpanId());
             recorder.recordServiceType(OkHttpConstants.OK_HTTP_CLIENT);
 
-            InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
+            InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
             if (invocation != null) {
                 invocation.getOrCreateAttachment(new AttachmentFactory() {
                     @Override
@@ -158,7 +158,7 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
             }
 
             // clear attachment.
-            InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
+            InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
             if(invocation != null && invocation.getAttachment() != null) {
                 invocation.removeAttachment();
             }

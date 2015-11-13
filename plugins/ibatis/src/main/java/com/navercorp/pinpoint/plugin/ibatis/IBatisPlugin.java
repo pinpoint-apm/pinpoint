@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -96,7 +96,7 @@ public class IBatisPlugin implements ProfilerPlugin, TransformTemplateAware {
                 final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(methodFilter);
                 for (InstrumentMethod methodToTrace : methodsToTrace) {
                     String sqlMapOperationInterceptor = "com.navercorp.pinpoint.plugin.ibatis.interceptor.SqlMapOperationInterceptor";
-                    methodToTrace.addGroupedInterceptor(sqlMapOperationInterceptor, va(serviceType), IBATIS_SCOPE, ExecutionPolicy.BOUNDARY
+                    methodToTrace.addScopedInterceptor(sqlMapOperationInterceptor, va(serviceType), IBATIS_SCOPE, ExecutionPolicy.BOUNDARY
                     );
                 }
 

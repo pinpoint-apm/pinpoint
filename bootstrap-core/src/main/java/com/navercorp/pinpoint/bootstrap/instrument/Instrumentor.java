@@ -16,7 +16,7 @@ package com.navercorp.pinpoint.bootstrap.instrument;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 
 /**
  * @author Jongho Moon
@@ -30,7 +30,7 @@ public interface Instrumentor {
     
     boolean exist(ClassLoader classLoader, String className);
     
-    InterceptorGroup getInterceptorGroup(String name);
+    InterceptorScope getInterceptorScope(String scopeName);
         
     <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className);
     

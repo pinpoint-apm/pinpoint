@@ -22,7 +22,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.xml.FieldInjector;
 import com.navercorp.pinpoint.profiler.plugin.xml.GetterInjector;
@@ -143,7 +143,7 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
         private final String interceptorClassName;
         private final Object[] constructorArguments;
         
-        private String groupName;
+        private String scopeName;
         private ExecutionPolicy executionPoint;
 
         public TargetAnnotatedInterceptorInjectorBuilder(String interceptorClassName, Object[] constructorArguments) {
@@ -152,19 +152,19 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
         }
 
         @Override
-        public void group(String groupName) {
-            group(groupName, ExecutionPolicy.BOUNDARY);            
+        public void setScope(String scopeName) {
+            setScope(scopeName, ExecutionPolicy.BOUNDARY);
         }
         
         @Override
-        public void group(String groupName, ExecutionPolicy point) {
-            this.groupName = groupName;
+        public void setScope(String scopeName, ExecutionPolicy point) {
+            this.scopeName = scopeName;
             this.executionPoint = point;
         }
 
         @Override
         public ClassRecipe buildRecipe() {
-            return new TargetAnnotatedInterceptorInjector(pluginContext, interceptorClassName, constructorArguments, groupName, executionPoint);
+            return new TargetAnnotatedInterceptorInjector(pluginContext, interceptorClassName, constructorArguments, scopeName, executionPoint);
         }
     }
 
@@ -172,7 +172,7 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
         private final String interceptorClassName;
         private final Object[] constructorArguments;
         
-        private String groupName;
+        private String scopeName;
         private ExecutionPolicy executionPoint;
         
         public AnnotatedInterceptorInjectorBuilder(String interceptorClassName, Object[] constructorArguments) {
@@ -181,19 +181,19 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
         }
         
         @Override
-        public void group(String groupName) {
-            group(groupName, ExecutionPolicy.BOUNDARY);            
+        public void setScope(String scopeName) {
+            setScope(scopeName, ExecutionPolicy.BOUNDARY);
         }
         
         @Override
-        public void group(String groupName, ExecutionPolicy point) {
-            this.groupName = groupName;
+        public void setScope(String scopeName, ExecutionPolicy point) {
+            this.scopeName = scopeName;
             this.executionPoint = point;
         }
 
         @Override
         public MethodRecipe buildRecipe() {
-            return new AnnotatedInterceptorInjector(pluginContext, interceptorClassName, constructorArguments, groupName, executionPoint);
+            return new AnnotatedInterceptorInjector(pluginContext, interceptorClassName, constructorArguments, scopeName, executionPoint);
         }
     }
     

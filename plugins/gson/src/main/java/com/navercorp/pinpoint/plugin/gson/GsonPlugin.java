@@ -39,7 +39,7 @@ public class GsonPlugin implements ProfilerPlugin, TransformTemplateAware {
     public static final ServiceType GSON_SERVICE_TYPE = ServiceTypeFactory.of(5010, "GSON");
     public static final AnnotationKey GSON_ANNOTATION_KEY_JSON_LENGTH = AnnotationKeyFactory.of(9000, "gson.json.length");
 
-    private static final String GSON_GROUP = "GSON_GROUP";
+    private static final String GSON_SCOPE = "GSON_SCOPE";
 
     private TransformTemplate transformTemplate;
 
@@ -52,11 +52,11 @@ public class GsonPlugin implements ProfilerPlugin, TransformTemplateAware {
                 InstrumentClass target = pluginContext.getInstrumentClass(loader, className, classfileBuffer);
 
                 for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("fromJson"))) {
-                    m.addGroupedInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.FromJsonInterceptor", GSON_GROUP);
+                    m.addScopedInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.FromJsonInterceptor", GSON_SCOPE);
                 }
                 
                 for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("toJson"))) {
-                    m.addGroupedInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.ToJsonInterceptor", GSON_GROUP);
+                    m.addScopedInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.ToJsonInterceptor", GSON_SCOPE);
                 }
                 
                 return target.toBytecode();

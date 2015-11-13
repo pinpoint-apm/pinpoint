@@ -27,7 +27,7 @@ public final class CubridConstants {
     private CubridConstants() {
     }
 
-    public static final String GROUP_CUBRID = "GROUP_CUBRID";
+    public static final String CUBRID_SCOPE = "CUBRID_SCOPE";
     
     public static final ServiceType CUBRID = ServiceTypeFactory.of(2400, "CUBRID", TERMINAL, INCLUDE_DESTINATION_ID);
     public static final ServiceType CUBRID_EXECUTE_QUERY = ServiceTypeFactory.of(2401, "CUBRID_EXECUTE_QUERY", "CUBRID", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);

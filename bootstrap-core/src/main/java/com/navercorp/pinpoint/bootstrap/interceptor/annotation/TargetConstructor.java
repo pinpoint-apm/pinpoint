@@ -33,5 +33,5 @@ public @interface TargetConstructor {
      * 
      * @return
      */
-    public String[] value() default {};
+    String[] value() default {};
 }

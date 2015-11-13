@@ -12,14 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.interceptor.group;
+package com.navercorp.pinpoint.bootstrap.interceptor.scope;
 
 
 /**
  * @author Jongho Moon
  *
  */
-public interface InterceptorGroup {
+public interface InterceptorScope {
     String getName();
-    InterceptorGroupInvocation getCurrentInvocation();
+    InterceptorScopeInvocation getCurrentInvocation();
 }

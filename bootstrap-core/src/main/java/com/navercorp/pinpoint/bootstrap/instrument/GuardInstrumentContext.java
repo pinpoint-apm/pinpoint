@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.bootstrap.instrument;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -55,9 +55,9 @@ public class GuardInstrumentContext implements InstrumentContext {
     }
 
     @Override
-    public InterceptorGroup getInterceptorGroup(String name) {
+    public InterceptorScope getInterceptorScope(String name) {
         checkOpen();
-        return instrumentContext.getInterceptorGroup(name);
+        return instrumentContext.getInterceptorScope(name);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class GuardInstrumentContext implements InstrumentContext {
 
     private void checkOpen() {
         if (closed) {
-            throw new IllegalStateException("Instrumentor already closed");
+            throw new IllegalStateException("instrumentContext already closed");
         }
     }
 }

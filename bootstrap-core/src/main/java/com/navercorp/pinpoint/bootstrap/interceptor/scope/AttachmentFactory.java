@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.interceptor.group;
+package com.navercorp.pinpoint.bootstrap.interceptor.scope;
 
 /**
  * @author emeroad

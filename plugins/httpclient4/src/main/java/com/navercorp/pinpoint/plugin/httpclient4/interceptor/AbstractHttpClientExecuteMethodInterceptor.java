@@ -21,6 +21,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContextFactory;
 import org.apache.http.HeaderElement;
@@ -41,9 +44,6 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
@@ -58,7 +58,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author minwoo.jung
  * @author jaehong.kim
  */
-@Group(HttpClient4Constants.HTTP_CLIENT4_SCOPE)
+@Scope(HttpClient4Constants.HTTP_CLIENT4_SCOPE)
 public abstract class AbstractHttpClientExecuteMethodInterceptor implements AroundInterceptor {
     protected final PLogger logger;
     protected final boolean isDebug;
@@ -76,16 +76,16 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Arou
     protected SimpleSampler entitySampler;
 
     protected boolean statusCode;
-    protected InterceptorGroup interceptorGroup;
+    protected InterceptorScope interceptorScope;
 
-    public AbstractHttpClientExecuteMethodInterceptor(Class<? extends AbstractHttpClientExecuteMethodInterceptor> childClazz, boolean isHasCallbackParam, TraceContext context, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup) {
+    public AbstractHttpClientExecuteMethodInterceptor(Class<? extends AbstractHttpClientExecuteMethodInterceptor> childClazz, boolean isHasCallbackParam, TraceContext context, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.logger = PLoggerFactory.getLogger(childClazz);
         this.isDebug = logger.isDebugEnabled();
 
         this.traceContext = context;
         this.descriptor = methodDescriptor;
         this.isHasCallbackParam = isHasCallbackParam;
-        this.interceptorGroup = interceptorGroup;
+        this.interceptorScope = interceptorScope;
     }
 
     abstract NameIntValuePair<String> getHost(Object[] args);
@@ -106,7 +106,7 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Arou
         recorder.recordServiceType(HttpClient4Constants.HTTP_CLIENT_4_INTERNAL);
         final NameIntValuePair<String> host = getHost(args);
         if (host != null) {
-            final InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
+            final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
             if (invocation != null) {
 
                 final HttpCallContext callContext = (HttpCallContext) invocation.getOrCreateAttachment(HttpCallContextFactory.HTTPCALL_CONTEXT_FACTORY);
@@ -132,7 +132,7 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Arou
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
 
-            final InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
+            final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
             if (invocation != null) {
                 // clear
                 invocation.removeAttachment();
@@ -165,7 +165,7 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Arou
     }
 
     private Integer getStatusCodeFromAttachment() {
-        InterceptorGroupInvocation transaction = interceptorGroup.getCurrentInvocation();
+        InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
 
         final Object attachment = transaction.getAttachment();
         if (attachment == null) {
