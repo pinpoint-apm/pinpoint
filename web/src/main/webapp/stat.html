@@ -71,11 +71,6 @@
 		    top: 12px;
 		    font-size: 12px;
 		    color: rgb(216, 33, 33);
-		    font-family: 'Tahoma', 'Trebuchet MS', 'Verdana';
-		}
-		td.agent {
-			cursor: pointer;
-			text-decoration: underline;
 		}
 		.loading {
 			position:absolute;
@@ -89,11 +84,12 @@
     </style>
 </head>
 <body>
-<div class="navbar main-navbar bs-docs-nav">
-    <div class="nav-container">
-        <a href="/" class="navbar-brand"><img class="brand" src="/images/logo2.png" width="116" height="18"><div class="beta">beta</div></a>
-    </div>
-</div>
+	<div class="navbar main-navbar bs-docs-nav">
+		<div class="nav-container">
+			<a href="/" class="navbar-brand"><img class="brand" src="/images/logo2.png" width="116" height="18"><div class="beta">beta</div></a>
+		</div>
+	</div>
+
 	<div class="container">
   		<div class="starter-template">
     		<h1>Pinpoint Agent Version Statistic</h1>
@@ -115,10 +111,12 @@
   			</thead>
   			<tbody></tbody>
 		</table>
-	</div><!-- /.container -->
+	</div>
+
 	<div class="loading" id="loadingBar">
 		<div class="timer-loader" style="margin-top:40%"></div>
 	</div>
+
 	<script src="components/jquery/dist/jquery.js?v=${buildTime}"></script>
     <script src="components/bootstrap/dist/js/bootstrap.min.js?v=${buildTime}"></script>
     <script src="components/d3/d3.min.js?v=${buildTime}"></script>
@@ -126,202 +124,195 @@
 	<script src="components/moment/moment.js?v=${buildTime}"></script>
     
     <script>
-function dashboard(id, fData){
-    var segColor = d3.scale.category20();
+		var oRef = {
+			REQ_URL: "/getAgentList.pinpoint",
+			CONST_ALL: "all",
+			fnTableTemplate : Handlebars.compile([
+				'<tr>',
+					'<td>{{{index}}}</td>',
+					'<td>',
+						'{{#if visible}}<a href="/#/main/{{{appName}}}@{{{serviceType}}}" target="_blank">{{{appName}}}</a>{{/if}}',
+						'<td data-app-name="{{{appName}}}@{{{serviceType}}}">{{{hostName}}}</td>',
+					'<td class="version">{{{version}}}</td>',
+				'</tr>'
+			].join("")),
+			fnSelectTemplate: Handlebars.compile('<option value="{{{version}}}">{{{version}}} - {{{count}}}</option>'),
+			$tbody: $("tbody"),
+			$select: $("#filter-version")
+		};
 
-    // function to handle pieChart.
-    function pieChart(pD){
-        var pC ={},    pieDim ={w:250, h: 250};
-        pieDim.r = Math.min(pieDim.w, pieDim.h) / 2;
-                
-        // create svg for pie chart.
-        var piesvg = d3.select(id).append("svg")
-            .attr("width", pieDim.w).attr("height", pieDim.h).append("g")
-            .attr("transform", "translate("+pieDim.w/2+","+pieDim.h/2+")");
-        
-        // create function to draw the arcs of the pie slices.
-        var arc = d3.svg.arc().outerRadius(pieDim.r - 10).innerRadius(0);
 
-        // create a function to compute the pie slice angles.
-        var pie = d3.layout.pie().sort(null).value(function(d) { return d.count; });
+		$.ajax({
+			url: oRef.REQ_URL,
+			method: "GET",
+			dataType: "json"
+		}).done( function(data){ //, textStatue, jqXHR) {
+			if ( typeof data["exception"] === "undefined" ) {
+				var versionData = parseResultData(data);
 
-        // Draw the pie slices.
-        piesvg.selectAll("path").data(pie(pD)).enter().append("path").attr("d", arc)
-            .each(function(d) { this._current = d; })
-            .style("fill", function(d, i) { return segColor(i); });
-
-        // create function to update pie-chart. This will be used by histogram.
-        pC.update = function(nD){
-            piesvg.selectAll("path").data(pie(nD)).transition().duration(500)
-                .attrTween("d", arcTween);
-        }        
-        // how the intermediate paths should be drawn.
-        function arcTween(a) {
-            var i = d3.interpolate(this._current, a);
-            this._current = i(0);
-            return function(t) { return arc(i(t));    };
-        }    
-        return pC;
-    }
-    
-    // function to handle legend.
-    function legend(lD, selected){
-        var leg = {};
-            
-        // create table for legend.
-        var legend = d3.select(id).append("table").attr('class','legend');
-        var select = legend.append("thead").append("tr").append("td").attr("colspan", 4).append("select").attr("class", "form-control").attr("id", "chart-sort");
-        select.append("option").attr("value", "version").text("Version");
-        var optionCount = select.append("option");
-        optionCount.attr("value", "count").text("Percentage");
-        if ( selected == "count" ) {
-        	optionCount.attr("selected", "selected");
-        }
-        
-        // create one row per segment.
-        var tr = legend.append("tbody").selectAll("tr").data(lD).enter().append("tr");
-   
-        // create the first column for each segment.
-        tr.append("td").append("svg").attr("width", '16').attr("height", '16').append("rect")
-            .attr("width", '16').attr("height", '16')
-			.attr("fill",function(d, i){ return segColor(i); });
-            
-        // create the second column for each segment.
-        tr.append("td").text(function(d){ return d.version;});
-
-        // create the third column for each segment.
-        tr.append("td").attr("class",'legendFreq')
-            .text(function(d){ return d3.format(",")(d.count);});
-
-        // create the fourth column for each segment.
-        tr.append("td").attr("class",'legendPerc')
-            .text(function(d){ return getLegend(d,lD);});
-
-        // Utility function to be used to update the legend.
-        leg.update = function(nD){
-            // update the data attached to the row elements.
-            var l = legend.select("tbody").selectAll("tr").data(nD);
-
-            // update the frequencies.
-            l.select(".legendFreq").text(function(d){ return d3.format(",")(d.count);});
-
-            // update the percentage column.
-            l.select(".legendPerc").text(function(d){ return getLegend(d,nD);});        
-        }
-        
-        function getLegend(d,aD){ // Utility function to compute percentage.
-            return d3.format("%")(d.count/d3.sum(aD.map(function(v){ return v.count; })));
-        }
-
-        return leg;
-    }
-    var pC = pieChart(fData);
-   	var leg= legend(fData, "version");
-        
-   $(id).on("change", "select", function() {
-	   var key = $(this).val();
-	   fData.sort( function( pre, cur ) {
-		   $(id).empty();
-		   if ( key == "version") {
-			   return pre.version > cur.version ? 1 : pre.version == cur.version ? 0 : -1;
-		   } else {
-			   return cur.count > pre.count ? 1 : cur.count == pre.count ? 0 : -1;
-		   }
-		});
-	   pieChart(fData), // create the pie-chart.
-       legend(fData, key);
-   });     
-}
-var parseResultData = function( oData ) {
-	var oResult = {};
-		
-	for (var p in oData ) {
-		var a = oData[p];
-		for( var j = 0 ; j < a.length ; j++ ) {
-			var version = a[j].agentVersion;
-			if ( typeof oResult[version] === "undefined" ) {
-				oResult[version] = 1;
+				sortData(versionData);
+				addToSelect(versionData);
+				dashboard('#dashboard', versionData);
+				addToTable(data);
 			} else {
-				oResult[version]++;
+				alert( data["exception"].message );
+			}
+			$("#loadingBar").hide();
+		}).fail(function(jqXHR, textStatus, errorThrown) {});
+
+		function addToTable( data ) {
+			var totalIndex = 1;
+			for (var appName in data ) {
+				var aApplication = data[appName];
+				$.each( aApplication, function( index, o ) {
+					oRef.$tbody.append( oRef.fnTableTemplate({
+						index: totalIndex++,
+						version: o.agentVersion,
+						appName: appName,
+						visible: index > 0 ? "" : appName,
+						hostName: o.hostName,
+						serviceType: o.serviceType
+					}));
+				});
 			}
 		}
-	}
-	var aResult = [];
-	for(var ver in oResult ) {
-		aResult.push({
-			version: ver,
-			count: oResult[ver]
-		});
-	}
-	return aResult;
-}
-var $tbody = $("#versionList tbody"); 
-var $selectVersion = $("#filter-version");
-var ALL = "all";
-var filterTable = function( version ) {
-	$tbody.find("td.version").each(function() {
-		var $i = $(this);
-		if ( version === ALL ) { 
-			$i.parent().show();
-		} else {
-			if ( $i.html() === version ) {
-				$i.parent().show();
-			} else {
-				$i.parent().hide();
-			}
+
+		function addToSelect( data ) {
+			var sum = 0;
+			$.each( data, function(index, o ) {
+				sum += o.count;
+				oRef.$select.append( oRef.fnSelectTemplate(o) );
+			});
+			oRef.$select.find("option:first").html( "All - " + sum).end().on("change", function() {
+				filterTable( $(this).val() );
+			});
 		}
-	});
-};
-//$tbody.on("click", "td.agent", function() {
-//	var appName = $(this).attr("data-app-name");
-//	var url = appName + "/5m/" + moment().format('YYYY-MM-DD-HH-mm-ss') + "/" + $(this).html();
-//	window.open(url);
-//})
 
-var compiledTemplate = Handlebars.compile( '<tr><td>{{{index}}}</td><td>{{#if visible}}<a href="/#/main/{{{appName}}}@{{{serviceType}}}" target="_blank">{{{appName}}}</a>{{/if}}<td data-app-name="{{{appName}}}@{{{serviceType}}}">{{{hostName}}}</td><td class="version">{{{version}}}</td></tr>' );
+		function sortData( data ) {
+			data.sort( function( pre, cur ) {
+				return pre.version > cur.version ? 1 : pre.version == cur.version ? 0 : -1;
+			});
+		}
 
+		function filterTable( version ) {
+			var newIndex = 1;
+			oRef.$tbody.find("td.version").each(function() {
+				var $this = $(this);
+				if ( oRef.CONST_ALL == version || $this.html() === version ) {
+					$this.parent().show();
+					$this.parent().find("td:first").html(newIndex++);
+				} else {
+					$this.parent().hide();
+				}
+			});
+		}
 
-$.ajax({
-	url: "/admin/getAgents.pinpoint?password=admin", 
-	method: "GET",
-	dataType: "json"
-}).done(function(data, textStatue, jqXHR) {
- 	var versionData = parseResultData( data );
-	versionData.sort( function( pre, cur ) {
-		return pre.version > cur.version ? 1 : pre.version == cur.version ? 0 : -1;
-	});
+		function parseResultData( oData ) {
+			var oResult = {};
 
-	var sum = 0;
- 	$.each( versionData, function(index, o ) {
-		sum += o.count;
- 		$selectVersion.append('<option value="' + o.version +'">' + o.version + ' - '+ o.count + '</option>');
- 	});
-	$selectVersion.find("option:first").html( "All - " + sum );
- 	$selectVersion.on("change", function() {
- 		filterTable( $(this).val() );
- 	});
- 	
- 	var totalIndex = 1;
- 	for (var appName in data ) {
- 		var aApplication = data[appName];
- 	 	$.each( aApplication, function( index, o ) {
- 	 	 	$tbody.append( compiledTemplate({
- 	 	 		index: totalIndex++,
- 	 	 		appName: appName,
-				visible: index > 0 ? "" : appName,
-				serviceType: o.serviceType,
- 	 	 		hostName: o.hostName,
- 	 	 		version: o.agentVersion
- 	 	 	}));
- 	 	});
- 		
- 	}
-	dashboard('#dashboard',versionData);
-	$("#loadingBar").hide();
-}).fail(function(jqXHR, textStatus, errorThrown) {
-	
-});
+			for (var p in oData ) {
+				var a = oData[p];
+				for( var j = 0 ; j < a.length ; j++ ) {
+					var version = a[j].agentVersion;
+					if ( typeof oResult[version] === "undefined" ) {
+						oResult[version] = 1;
+					} else {
+						oResult[version]++;
+					}
+				}
+			}
+			var aResult = [];
+			for(var ver in oResult ) {
+				aResult.push({
+					version: ver,
+					count: oResult[ver]
+				});
+			}
+			return aResult;
+		}
 
-</script>
+		function dashboard(id, fData){
+			var segColor = d3.scale.category20();
+
+			function pieChart(pD){
+				var pC = {};
+				var pieDim = {
+					w: 250,
+					h: 250
+				};
+				pieDim.r = Math.min(pieDim.w, pieDim.h) / 2;
+
+				var piesvg = d3.select(id).append("svg")
+						.attr("width", pieDim.w).attr("height", pieDim.h).append("g")
+						.attr("transform", "translate("+pieDim.w/2+","+pieDim.h/2+")");
+
+				var arc = d3.svg.arc().outerRadius(pieDim.r - 10).innerRadius(0);
+				var pie = d3.layout.pie().sort(null).value(function(d) { return d.count; });
+
+				piesvg.selectAll("path").data(pie(pD)).enter().append("path").attr("d", arc)
+						.each(function(d) { this._current = d; })
+						.style("fill", function(d, i) { return segColor(i); });
+
+				pC.update = function(nD){
+					piesvg.selectAll("path").data(pie(nD)).transition().duration(500).attrTween("d", arcTween);
+				};
+				function arcTween(a) {
+					var i = d3.interpolate(this._current, a);
+					this._current = i(0);
+					return function(t) { return arc(i(t));    };
+				}
+				return pC;
+			}
+
+			function legend(lD, selected){
+				var leg = {};
+
+				var legend = d3.select(id).append("table").attr('class','legend');
+				var select = legend.append("thead").append("tr").append("td").attr("colspan", 4).append("select").attr("class", "form-control").attr("id", "chart-sort");
+				select.append("option").attr("value", "version").text("Version");
+				var optionCount = select.append("option");
+				optionCount.attr("value", "count").text("Percentage");
+				if ( selected == "count" ) {
+					optionCount.attr("selected", "selected");
+				}
+
+				var tr = legend.append("tbody").selectAll("tr").data(lD).enter().append("tr");
+				tr.append("td").append("svg").attr("width", '16').attr("height", '16').append("rect")
+						.attr("width", '16').attr("height", '16')
+						.attr("fill",function(d, i){ return segColor(i); });
+				tr.append("td").text(function(d){ return d.version;});
+				tr.append("td").attr("class",'legendFreq').text(function(d){ return d3.format(",")(d.count);});
+				tr.append("td").attr("class",'legendPerc').text(function(d){ return getLegend(d,lD);});
+
+				leg.update = function(nD){
+					var l = legend.select("tbody").selectAll("tr").data(nD);
+					l.select(".legendFreq").text(function(d){ return d3.format(",")(d.count);});
+					l.select(".legendPerc").text(function(d){ return getLegend(d,nD);});
+				}
+
+				function getLegend(d,aD){
+					return d3.format("%")(d.count/d3.sum(aD.map(function(v){ return v.count; })));
+				}
+
+				return leg;
+			}
+			pieChart(fData);
+			legend(fData, "version");
+
+			$(id).on("change", "select", function() {
+				var key = $(this).val();
+				fData.sort( function( pre, cur ) {
+					$(id).empty();
+					if ( key == "version") {
+						return pre.version > cur.version ? 1 : pre.version == cur.version ? 0 : -1;
+					} else {
+						return cur.count > pre.count ? 1 : cur.count == pre.count ? 0 : -1;
+					}
+				});
+				pieChart(fData);
+				legend(fData, key);
+			});
+		}
+	</script>
 </body>
 </html>
