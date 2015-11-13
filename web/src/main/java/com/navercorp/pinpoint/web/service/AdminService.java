@@ -16,20 +16,14 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
-
 /**
- * 
  * @author netspider
  * @author HyunGil Jeong
- * 
  */
 public interface AdminService {
+
     void removeApplicationName(String applicationName);
 
     void removeAgentId(String applicationName, String agentId);
-
-    ApplicationAgentList getApplicationAgentList();
-
-    ApplicationAgentList getApplicationAgentList(String applicationName);
+    
 }

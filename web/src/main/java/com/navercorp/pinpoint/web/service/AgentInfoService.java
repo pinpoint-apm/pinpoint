@@ -28,9 +28,13 @@ import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
  */
 public interface AgentInfoService {
 
-    ApplicationAgentList getApplicationAgentList(String applicationName, ApplicationAgentList.Key key);
+    ApplicationAgentList getApplicationAgentList(ApplicationAgentList.Key key);
 
-    ApplicationAgentList getApplicationAgentList(String applicationName, ApplicationAgentList.Key key, long timestamp);
+    ApplicationAgentList getApplicationAgentList(ApplicationAgentList.Key key, String applicationName);
+
+    ApplicationAgentList getApplicationAgentList(ApplicationAgentList.Key key, long timestamp);
+
+    ApplicationAgentList getApplicationAgentList(ApplicationAgentList.Key key, String applicationName, long timestamp);
 
     Set<AgentInfo> getAgentsByApplicationName(String applicationName, long timestamp);
 

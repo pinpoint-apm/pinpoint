@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
+import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -53,12 +54,27 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     private AgentLifeCycleDao agentLifeCycleDao;
 
     @Override
-    public ApplicationAgentList getApplicationAgentList(String applicationName, ApplicationAgentList.Key key) {
-        return this.getApplicationAgentList(applicationName, key, System.currentTimeMillis());
+    public ApplicationAgentList getApplicationAgentList(ApplicationAgentList.Key key) {
+        return this.getApplicationAgentList(key, System.currentTimeMillis());
     }
 
     @Override
-    public ApplicationAgentList getApplicationAgentList(String applicationName, ApplicationAgentList.Key applicationAgentListKey, long timestamp) {
+    public ApplicationAgentList getApplicationAgentList(ApplicationAgentList.Key key, long timestamp) {
+        ApplicationAgentList applicationAgentList = new ApplicationAgentList();
+        List<Application> applications = applicationIndexDao.selectAllApplicationNames();
+        for (Application application : applications) {
+            applicationAgentList.merge(this.getApplicationAgentList(key, application.getName(), timestamp));
+        }
+        return applicationAgentList;
+    }
+
+    @Override
+    public ApplicationAgentList getApplicationAgentList(ApplicationAgentList.Key key, String applicationName) {
+        return this.getApplicationAgentList(key, applicationName, System.currentTimeMillis());
+    }
+
+    @Override
+    public ApplicationAgentList getApplicationAgentList(ApplicationAgentList.Key applicationAgentListKey, String applicationName, long timestamp) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
