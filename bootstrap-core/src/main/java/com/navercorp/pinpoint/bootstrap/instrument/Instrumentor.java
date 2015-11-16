@@ -34,7 +34,7 @@ public interface Instrumentor {
         
     <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className);
     
-    void addClassFileTransformer(ClassLoader classLoader, String targetClassName, TransformCallback transformCallback);
+    void transform(ClassLoader classLoader, String targetClassName, TransformCallback transformCallback);
     
     void retransform(Class<?> target, TransformCallback transformCallback);
 }

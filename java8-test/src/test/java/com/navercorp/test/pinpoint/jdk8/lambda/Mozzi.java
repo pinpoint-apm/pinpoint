@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.spring.beans;
+package com.navercorp.test.pinpoint.jdk8.lambda;
 
+import org.springframework.stereotype.Controller;
 
-public class Outer {
-    private Inner inner;
+@Controller
+public class Mozzi {
+    private final int age;
     
-    public void setInner(Inner inner) {
-        this.inner = inner;
-    }
-    
-    public Inner getInner() {
-        return inner;
+    public Mozzi(int age) {
+        this.age = age;
     }
 
-    public void doSomething() {
-        
+    public int getAge() {
+        return age;
     }
 }

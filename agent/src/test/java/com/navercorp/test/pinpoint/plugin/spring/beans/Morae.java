@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.spring.beans;
+package com.navercorp.test.pinpoint.plugin.spring.beans;
 
-import org.springframework.stereotype.Component;
-
-@Component
-public class Inner {
+public class Morae {
 
     public void doSomething() {
         

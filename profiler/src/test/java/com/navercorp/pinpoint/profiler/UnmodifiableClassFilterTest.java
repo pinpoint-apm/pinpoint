@@ -20,35 +20,33 @@ import org.junit.Assert;
 
 import org.junit.Test;
 
-import com.navercorp.pinpoint.profiler.ClassFileFilter;
-import com.navercorp.pinpoint.profiler.UnmodifiableClassFilter;
-
 import java.net.URL;
 import java.net.URLClassLoader;
 
 
-public class DefaultClassFileFilterTest {
+public class UnmodifiableClassFilterTest {
 
     @Test
     public void testDoFilter_Package() throws Exception {
-        ClassFileFilter filter = new UnmodifiableClassFilter(this.getClass().getClassLoader());
+        ClassFileFilter filter = new UnmodifiableClassFilter();
 
-        Assert.assertFalse(filter.accept(null, "java/test", null, null, null));
-        Assert.assertFalse(filter.accept(null, "javax/test", null, null, null));
-        Assert.assertFalse(filter.accept(null, "com/navercorp/pinpoint/", null, null, null));
+        Assert.assertSame(filter.accept(null, "java/test", null, null, null), ClassFileFilter.SKIP);
+        Assert.assertSame(filter.accept(null, "javax/test", null, null, null), ClassFileFilter.SKIP);
 
-        Assert.assertTrue(filter.accept(null, "test", null, null, null));
+
+        Assert.assertSame(filter.accept(null, "com/navercorp/pinpoint/", null, null, null), ClassFileFilter.CONTINUE);
+
+        Assert.assertSame(filter.accept(null, "test", null, null, null), ClassFileFilter.CONTINUE);
     }
 
 
     @Test
     public void testDoFilter_ClassLoader() throws Exception {
-        ClassFileFilter filter = new UnmodifiableClassFilter(this.getClass().getClassLoader());
+        ClassFileFilter filter = new UnmodifiableClassFilter();
 
-
-        Assert.assertFalse(filter.accept(this.getClass().getClassLoader(), "test", null, null, null));
+        Assert.assertSame(filter.accept(this.getClass().getClassLoader(), "test", null, null, null), ClassFileFilter.CONTINUE);
 
         URLClassLoader classLoader = new URLClassLoader(new URL[]{});
-        Assert.assertTrue(filter.accept(classLoader, "test", null, null, null));
+        Assert.assertSame(filter.accept(classLoader, "test", null, null, null), ClassFileFilter.CONTINUE);
     }
 }

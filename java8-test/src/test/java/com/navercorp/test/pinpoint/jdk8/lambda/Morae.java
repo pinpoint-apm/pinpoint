@@ -14,11 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.spring.beans;
+package com.navercorp.test.pinpoint.jdk8.lambda;
 
-public class Excluded {
+import java.util.function.Predicate;
 
-    public void doSomething() {
-        
+public class Morae {
+    
+    private final Mozzi mozzi;
+    
+    public Morae(Mozzi mozzi) {
+        this.mozzi = mozzi;
+    }
+
+    public boolean test(Predicate<Mozzi> predicate) {
+        return predicate.test(mozzi);
     }
 }

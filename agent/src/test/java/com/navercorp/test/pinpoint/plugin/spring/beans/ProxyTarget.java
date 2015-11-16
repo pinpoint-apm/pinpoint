@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.jdk8.lambda;
+package com.navercorp.test.pinpoint.plugin.spring.beans;
 
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 
-@Controller
-public class Mozzi {
-    private final int age;
-    
-    public Mozzi(int age) {
-        this.age = age;
-    }
+@Component
+public class ProxyTarget {
 
-    public int getAge() {
-        return age;
+    public void doSomething() {
+        
     }
 }

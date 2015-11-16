@@ -65,7 +65,7 @@ public class GuardInstrumentor implements Instrumentor {
     }
 
     @Override
-    public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, TransformCallback transformCallback) {
+    public void transform(ClassLoader classLoader, String targetClassName, TransformCallback transformCallback) {
         checkOpen();
         instrumentContext.addClassFileTransformer(classLoader, targetClassName, transformCallback);
     }

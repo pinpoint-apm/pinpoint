@@ -60,7 +60,7 @@ public class InstrumentorDelegate implements Instrumentor {
     }
 
     @Override
-    public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, TransformCallback transformCallback) {
+    public void transform(ClassLoader classLoader, String targetClassName, TransformCallback transformCallback) {
         instrumentContext.addClassFileTransformer(classLoader, targetClassName, transformCallback);
     }
 

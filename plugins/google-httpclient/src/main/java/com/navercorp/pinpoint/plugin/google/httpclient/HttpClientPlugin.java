@@ -68,7 +68,7 @@ public class HttpClientPlugin implements ProfilerPlugin, TransformTemplateAware 
 
                     for (InstrumentClass nestedClass : target.getNestedClasses(ClassFilters.chain(ClassFilters.enclosingMethod("executeAsync", "java.util.concurrent.Executor"), ClassFilters.interfaze("java.util.concurrent.Callable")))) {
                         logger.debug("Find nested class {}", target.getName());
-                        instrumentor.addClassFileTransformer(loader, nestedClass.getName(), new TransformCallback() {
+                        instrumentor.transform(loader, nestedClass.getName(), new TransformCallback() {
                             @Override
                             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);

@@ -23,13 +23,8 @@ import java.security.ProtectionDomain;
  */
 public class UnmodifiableClassFilter implements ClassFileFilter {
 
-    private final ClassLoader agentLoader;
 
-    public UnmodifiableClassFilter(ClassLoader agentLoader) {
-        if (agentLoader == null) {
-            throw new NullPointerException("agentLoader must not be null");
-        }
-        this.agentLoader = agentLoader;
+    public UnmodifiableClassFilter() {
     }
 
     @Override
@@ -41,16 +36,6 @@ public class UnmodifiableClassFilter implements ClassFileFilter {
             }
         }
 
-        if (classLoader == agentLoader) {
-            // skip classes loaded by agent class loader.
-            return SKIP;
-        }
-
-        // Skip pinpoint packages too.
-        if (className.startsWith("com/navercorp/pinpoint/")) {
-            return SKIP;
-        }
-        
         return CONTINUE;
     }
 }

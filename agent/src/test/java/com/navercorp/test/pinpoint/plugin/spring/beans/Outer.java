@@ -14,9 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.spring.beans;
+package com.navercorp.test.pinpoint.plugin.spring.beans;
 
-public class Morae {
+public class Outer {
+    private Inner inner;
+    
+    public void setInner(Inner inner) {
+        this.inner = inner;
+    }
+    
+    public Inner getInner() {
+        return inner;
+    }
 
     public void doSomething() {
         
