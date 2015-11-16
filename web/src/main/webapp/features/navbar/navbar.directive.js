@@ -299,7 +299,9 @@
 	                                    if (oNavbarVoService.getApplication()) {
 	                                        $application.select2('val', oNavbarVoService.getApplication());
 	                                        scope.application = oNavbarVoService.getApplication();
-	                                    }
+	                                    } else {
+											$application.select2('open');
+										}
 	                                });
 	                                $rootScope.$broadcast("alarmRule.applications.set", scope.applications);
 	                                $rootScope.$broadcast("configuration.general.applications.set", scope.applications);

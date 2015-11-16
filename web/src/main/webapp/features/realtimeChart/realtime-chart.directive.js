@@ -386,6 +386,7 @@
             	                chartDataQueue[i].push( aNewData[i] );
             	            }
             	            d3stack(chartDataQueue);
+							initArea();
             	            redrawPath();
             	            for( i = 0 ; i < chartDataQueue.length ; i++ ) {
             	                chartDataQueue[i].shift();
@@ -396,7 +397,8 @@
             	        });
             	    }
             	    function redrawPath() {
-            	        d3path.attr("d", d3area)
+            	        d3path.data(chartDataQueue)
+							.attr("d", d3area)
             	            .attr("transform", null)
             	            .transition()
             	            .attr("transform", "translate(" + d3svgX(0) + ")");
@@ -424,7 +426,7 @@
 	            		timeoutCount = 0;
 	            		setErrorMessage(false, ["", ""]);
 	            		if ( bAllError === false ) {
-		            		passingQueue.push( aNewRequestCount.map(function(v, i) {
+		            		passingQueue.push( aNewRequestCount.map(function(v) {
 		            			return {
 		            				y: parseInt( v ),
 		            				d: timeStamp

@@ -45,6 +45,9 @@
 		otherChart: {
 			width: 120,
 			height: 60
+		},
+		const: {
+			MIN_Y: 10
 		}
 	});
 	
@@ -68,7 +71,7 @@
 	    	var bIsFullWindow = false;
 	    	var bShowRealtimeChart = true;
 	    	var popupHeight = cfg.css.height;
-	    	var wsPongTemplate = (function() {{};
+	    	var wsPongTemplate = (function() {
 	    		var o = {};
 	    		o[cfg.keys.TYPE] = cfg.values.PONG;
 	    		return JSON.stringify(o);
@@ -96,14 +99,7 @@
 	    	$scope.currentAgentCount = 0;
 	    	$scope.currentApplicationName = "";
 	    	$scope.bInitialized = false;
-	    	
-	    	function getInitChartData( len ) {
-    	    	var a = [];
-    	        for( var i = 0 ; i < $scope.sumChartColor.length ; i++ ) {
-    	            a.push( d3.range(len).map(function() { return 0; }) );
-    	        }
-    	        return a;
-    	    }
+
 	    	function initChartDirective() {
 	    		if ( hasAgentChart( "sum" ) === false ) {
 		    		$elSumChartWrapper.append( $compile( cfg.template.chartDirective({
@@ -164,21 +160,20 @@
 	        			websocketService.send( wsPongTemplate );
 	        			break;
 	        		case cfg.values.RESPONSE:
-		        		// if ( data[cfg.keys.COMMAND] == cfg.values.ACTIVE_THREAD_COUNT;
-		        		var responseDdata = data[cfg.keys.RESULT];
-			        	if ( responseDdata[cfg.keys.APPLICATION_NAME] !== $scope.currentApplicationName ) return;
+		        		var responseData = data[cfg.keys.RESULT];
+			        	if ( responseData[cfg.keys.APPLICATION_NAME] !== $scope.currentApplicationName ) return;
 			        	
-			        	var applicationData = responseDdata[cfg.keys.ACTIVE_THREAD_COUNTS];
+			        	var applicationData = responseData[cfg.keys.ACTIVE_THREAD_COUNTS];
 			        	var aRequestSum = getSumOfRequestType( applicationData );
 			        	addSumYValue( aRequestSum );
 			        	
-			        	broadcastData( applicationData, aRequestSum, responseDdata[cfg.keys.TIME_STAMP] );
+			        	broadcastData( applicationData, aRequestSum, responseData[cfg.keys.TIME_STAMP] );
 
 	        			break;
 	        	}
 	        }
 	        function broadcastData( applicationData, aRequestSum, timeStamp ) {
-	        	var maxY = getMaxOfYValue();
+	        	var maxY = Math.max( getMaxOfYValue(), cfg.const.MIN_Y);
 	        	var agentIndexAndCount = 0;
 	        	var bAllError = true;
 	        	
@@ -242,7 +237,7 @@
 	        	aSumChartData.push( data.reduce(function(pre, cur) {
 	        		return pre + cur;
 	        	}));
-	        	if ( aSumChartData.legnth > X_AXIS_COUNT ) {
+	        	if ( aSumChartData.length > X_AXIS_COUNT ) {
 	        		aSumChartData.shift();
 	        	}
 	        }
