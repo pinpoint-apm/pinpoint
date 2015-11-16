@@ -31,8 +31,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 public class PostProcessorInterceptor extends AbstractSpringBeanCreationInterceptor implements AroundInterceptor2 {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     
-    public PostProcessorInterceptor(Instrumentor Instrumentor, TransformCallback transformer, TargetBeanFilter filter) {
-        super(Instrumentor, transformer, filter);
+    public PostProcessorInterceptor(Instrumentor instrumentor, TransformCallback transformer, TargetBeanFilter filter) {
+        super(instrumentor, transformer, filter);
     }
 
     //

@@ -44,8 +44,8 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
         transformTemplate.transform("org.springframework.web.servlet.FrameworkServlet", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 
                 target.getDeclaredMethod("doGet", "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse").addInterceptor(BasicMethodInterceptor.class.getName(), va(SPRING_MVC));
                 target.getDeclaredMethod("doPost", "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse").addInterceptor(BasicMethodInterceptor.class.getName(), va(SPRING_MVC));

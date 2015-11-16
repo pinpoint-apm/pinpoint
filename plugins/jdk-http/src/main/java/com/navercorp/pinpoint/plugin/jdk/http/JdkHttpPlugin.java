@@ -40,8 +40,8 @@ public class JdkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("sun.net.www.protocol.http.HttpURLConnection", new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 
                 target.addGetter(ConnectedGetter.class.getName(), "connected");
 

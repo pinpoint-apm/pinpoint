@@ -53,7 +53,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
 
         logger.debug("Add HttpClient4(4.0 ~ 4.2");
         // Apache httpclient4 (version 4.0 ~ 4.2)
-        addAbstractHttpClient4Class(context, config);
+        addAbstractHttpClient4Class();
         addAbstractPooledConnAdapterClass();
         addManagedClientConnectionImplClass();
         
@@ -98,7 +98,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         });
     }
     
-    private void addAbstractHttpClient4Class(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
+    private void addAbstractHttpClient4Class() {
         transformTemplate.transform("org.apache.http.impl.client.AbstractHttpClient", new TransformCallback() {
 
             @Override
@@ -254,8 +254,8 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         transformTemplate.transform("org.apache.http.impl.nio.client.CloseableHttpAsyncClient", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 injectHttpAsyncClientExecuteMethodInterceptor(target, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.protocol.HttpContext", "org.apache.http.concurrent.FutureCallback");
                 injectHttpAsyncClientExecuteMethodInterceptor(target, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.concurrent.FutureCallback");
@@ -281,8 +281,8 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         transformTemplate.transform("org.apache.http.impl.nio.client.DefaultClientExchangeHandlerImpl", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 
                 target.addGetter(RequestProducerGetter.class.getName(), HttpClient4Constants.FIELD_REQUEST_PRODUCER);
                 target.addGetter(ResultFutureGetter.class.getName(), HttpClient4Constants.FIELD_RESULT_FUTURE);
@@ -303,8 +303,8 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         transformTemplate.transform("org.apache.http.concurrent.BasicFuture", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 target.addField(AsyncTraceIdAccessor.class.getName());
                 

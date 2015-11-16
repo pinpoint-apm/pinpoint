@@ -22,8 +22,8 @@ import java.security.ProtectionDomain;
  * @author emeroad
  */
 public interface ClassFileFilter {
-    public static final boolean SKIP = false;
-    public static final boolean CONTINUE = true;
+    boolean SKIP = false;
+    boolean CONTINUE = true;
 
     boolean accept(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer);
 }

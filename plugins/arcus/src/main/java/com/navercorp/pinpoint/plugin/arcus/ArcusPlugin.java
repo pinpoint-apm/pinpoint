@@ -80,8 +80,8 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("net.spy.memcached.ArcusClient", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 if (target.hasMethod("addOp", "java.lang.String", "net.spy.memcached.ops.Operation")) {
                     boolean traceKey = config.isArcusKeyTrace();
@@ -110,8 +110,8 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("net.spy.memcached.CacheManager", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(ServiceCodeAccessor.class.getName());
                 target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.CacheManagerConstructInterceptor");
                 return target.toBytecode();
@@ -124,8 +124,8 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("net.spy.memcached.protocol.BaseOperationImpl", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(ServiceCodeAccessor.class.getName());
                 return target.toBytecode();
             }
@@ -137,8 +137,8 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("net.spy.memcached.plugin.FrontCacheGetFuture", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 target.addField(CacheNameAccessor.class.getName());
                 target.addField(CacheKeyAccessor.class.getName());
@@ -160,8 +160,8 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("net.spy.memcached.plugin.FrontCacheMemcachedClient", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 boolean traceKey = config.isMemcachedKeyTrace();
 
                 for (InstrumentMethod m : target.getDeclaredMethods(new FrontCacheMemcachedMethodFilter())) {
@@ -184,8 +184,8 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("net.spy.memcached.MemcachedClient", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 if (target.hasDeclaredMethod("addOp", new String[]{"java.lang.String", "net.spy.memcached.ops.Operation"})) {
                     target.addField(ServiceCodeAccessor.class.getName());
@@ -213,8 +213,8 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
     private static final TransformCallback FUTURE_TRANSFORMER = new TransformCallback() {
 
         @Override
-        public byte[] doInTransform(Instrumentor context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             target.addField(OperationAccessor.class.getName());
             target.addField(AsyncTraceIdAccessor.class.getName());
@@ -237,8 +237,8 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
     private static final TransformCallback INTERNAL_FUTURE_TRANSFORMER = new TransformCallback() {
 
         @Override
-        public byte[] doInTransform(Instrumentor context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             target.addField(AsyncTraceIdAccessor.class.getName());
             

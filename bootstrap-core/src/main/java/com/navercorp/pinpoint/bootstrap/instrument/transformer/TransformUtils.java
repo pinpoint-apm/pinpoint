@@ -24,7 +24,9 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
  * @author Jongho Moon
  *
  */
-public class TransformUtils {
+public final class TransformUtils {
+    private TransformUtils() {
+    }
 
     public static TransformCallback addInterceptor(final String interceptorClassName, final Object[] constructorArgs) {
         return new TransformCallback() {

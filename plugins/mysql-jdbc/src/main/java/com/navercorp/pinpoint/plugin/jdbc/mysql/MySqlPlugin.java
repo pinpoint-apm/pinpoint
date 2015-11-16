@@ -55,8 +55,8 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
         TransformCallback transformer = new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 
                 if (!target.isInterceptable()) {
                     return null;
@@ -93,8 +93,8 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("com.mysql.jdbc.NonRegisteringDriver", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", va(new MySqlJdbcUrlParser(), false), MySqlConstants.MYSQL_SCOPE, ExecutionPolicy.ALWAYS);
 
@@ -107,8 +107,8 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("com.mysql.jdbc.PreparedStatement", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
@@ -129,8 +129,8 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("com.mysql.jdbc.JDBC4PreparedStatement", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 final PreparedStatementBindingMethodFilter includes = PreparedStatementBindingMethodFilter.includes("setRowId", "setNClob", "setSQLXML");
                 target.addScopedInterceptor(includes, "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", MySqlConstants.MYSQL_SCOPE, ExecutionPolicy.BOUNDARY);
@@ -145,8 +145,8 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
         TransformCallback transformer = new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 
                 if (!target.isInterceptable()) {
                     return null;
