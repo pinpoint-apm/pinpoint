@@ -46,16 +46,17 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
     private MethodDescriptor methodDescriptor;
     private InterceptorScope interceptorScope;
 
+    private final boolean param;
     private final boolean cookie;
     private final DumpType cookieDumpType;
     private final SimpleSampler cookieSampler;
-    private final boolean statusCode;
 
     public HttpEngineSendRequestMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope, OkHttpPluginConfig config) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
         this.interceptorScope = interceptorScope;
 
+        this.param = config.isParam();
         this.cookie = config.isCookie();
         this.cookieDumpType = config.getCookieDumpType();
         if(cookie) {
@@ -63,8 +64,6 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
         } else {
             this.cookieSampler = null;
         }
-
-        statusCode = config.isStatusCode();
     }
 
     @Override
@@ -148,7 +147,11 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
             Request request = ((UserRequestGetter) target)._$PINPOINT$_getUserRequest();
             if (request != null) {
                 try {
-                    recorder.recordAttribute(AnnotationKey.HTTP_URL, request.urlString());
+                    if(param) {
+                        recorder.recordAttribute(AnnotationKey.HTTP_URL, request.urlString());
+                    } else {
+                        recorder.recordAttribute(AnnotationKey.HTTP_URL, trimParam(request.urlString()));
+                    }
                     final String endpoint = getDestinationId(request.url());
                     recorder.recordDestinationId(endpoint);
                 } catch(Exception ignored) {
@@ -165,6 +168,27 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
         } finally {
             trace.traceBlockEnd();
         }
+    }
+
+    private String trimParam(final String urlString) {
+        if(urlString == null || urlString.length() == 0) {
+            return "";
+        }
+
+        try {
+            final URL url = new URL(urlString);
+            final StringBuilder sb = new StringBuilder();
+            sb.append(url.getProtocol()).append("://");
+            sb.append(url.getHost());
+            if(url.getPort() > 0 && url.getPort() != url.getDefaultPort()) {
+                sb.append(":").append(url.getPort());
+            }
+
+            return sb.toString();
+        } catch(Exception ignored) {
+        }
+
+        return "";
     }
 
     private String getDestinationId(URL httpUrl) {
