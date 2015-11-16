@@ -14,9 +14,10 @@
 	    }
 	});	
 
-	pinpointApp.controller('GeneralCtrl', [ 'GeneralConfig', '$scope', '$rootScope', '$element', '$document', 'PreferenceService', 'AnalyticsService',
-	    function ($config, $scope, $rootScope, $element, $document, preferenceService, analyticsService) {
+	pinpointApp.controller('GeneralCtrl', [ 'GeneralConfig', '$scope', '$rootScope', '$element', '$document', 'PreferenceService', 'AnalyticsService', 'helpContentService',
+	    function ($config, $scope, $rootScope, $element, $document, preferenceService, analyticsService, helpContentService) {
 
+			$element.find("span.general-warning").html(helpContentService.configuration.general.warning);
 			$scope.$on("general.configuration.show", function() {
 			});
 			$scope.depthList = preferenceService.getDepthList();

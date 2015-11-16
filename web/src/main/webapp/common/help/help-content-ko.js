@@ -8,6 +8,9 @@
 	 */
 	var oHelp = {
 		configuration: {
+			general: {
+				warning: "(설정 정보는 브라우저 캐쉬에 저장합니다. 서버 측 저장은 추후 지원 할 예정입니다.)"
+			},
 			alarmRules: {
 				mainStyle: "",
 				title: "알람 룰의 종류",
