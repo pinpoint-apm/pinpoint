@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.jdk8.lambda;
+package com.navercorp.test.pinpoint.jdk8.lambda;
 
 import java.util.function.Predicate;
 

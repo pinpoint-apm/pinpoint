@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.jdk8.lambda;
+package com.navercorp.test.pinpoint.plugin.spring.beans;
 
-import java.util.function.Predicate;
+import org.springframework.stereotype.Controller;
 
-public class Morae {
-    
-    private final Mozzi mozzi;
-    
-    public Morae(Mozzi mozzi) {
-        this.mozzi = mozzi;
-    }
+@Controller
+public class Mozzi {
 
-    public boolean test(Predicate<Mozzi> predicate) {
-        return predicate.test(mozzi);
+    public void doSomething() {
+        
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.spring.beans;
+package com.navercorp.test.pinpoint.plugin.spring.beans;
 
 
 public class Maru implements Comparable<Maru> {

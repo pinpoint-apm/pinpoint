@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.spring.beans;
+package com.navercorp.test.pinpoint.plugin.spring.beans;
 
-import org.springframework.stereotype.Controller;
-
-@Controller
-public class Mozzi {
+public class Excluded {
 
     public void doSomething() {
         
