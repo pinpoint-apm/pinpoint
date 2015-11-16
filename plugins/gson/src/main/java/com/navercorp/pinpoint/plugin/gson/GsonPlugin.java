@@ -48,8 +48,8 @@ public class GsonPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("com.google.gson.Gson", new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("fromJson"))) {
                     m.addScopedInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.FromJsonInterceptor", GSON_SCOPE);

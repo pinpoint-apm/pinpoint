@@ -59,8 +59,8 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("com.squareup.okhttp.Call", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("execute", "enqueue", "cancel"))) {
                     method.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.CallMethodInterceptor");
@@ -75,8 +75,8 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("com.squareup.okhttp.Dispatcher", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("execute", "cancel"))) {
                     logger.debug("[OkHttp] Add Dispatcher.execute | cancel interceptor.");
@@ -97,8 +97,8 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("com.squareup.okhttp.Call$AsyncCall", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(AsyncTraceIdAccessor.class.getName());
 
                 InstrumentMethod executeMethod = target.getDeclaredMethod("execute");
@@ -116,8 +116,8 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("com.squareup.okhttp.internal.http.HttpEngine", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addGetter(UserRequestGetter.class.getName(), OkHttpConstants.FIELD_USER_REQUEST);
                 target.addGetter(UserResponseGetter.class.getName(), OkHttpConstants.FIELD_USER_RESPONSE);
                 target.addGetter(ConnectionGetter.class.getName(), OkHttpConstants.FIELD_CONNECTION);
@@ -126,7 +126,7 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
                 if (sendRequestMethod != null) {
 
                     logger.debug("[OkHttp] Add HttpEngine.sendRequest interceptor.");
-                    final ObjectFactory objectFactory = ObjectFactory.byConstructor("com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig", Instrumentor.getProfilerConfig());
+                    final ObjectFactory objectFactory = ObjectFactory.byConstructor("com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig", instrumentor.getProfilerConfig());
                     sendRequestMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.HttpEngineSendRequestMethodInterceptor", va(objectFactory));
                 }
 
@@ -151,13 +151,13 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("com.squareup.okhttp.Request$Builder", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 InstrumentMethod buildMethod = target.getDeclaredMethod("build");
                 if (buildMethod != null) {
                     logger.debug("[OkHttp] Add Request.Builder.build interceptor.");
 
-                    if(Instrumentor.exist(loader, "com.squareup.okhttp.HttpUrl")) {
+                    if(instrumentor.exist(loader, "com.squareup.okhttp.HttpUrl")) {
                         // over 2.4.0
                         target.addGetter(HttpUrlGetter.class.getName(), OkHttpConstants.FIELD_HTTP_URL);
                         buildMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.RequestBuilderBuildMethodInterceptor");

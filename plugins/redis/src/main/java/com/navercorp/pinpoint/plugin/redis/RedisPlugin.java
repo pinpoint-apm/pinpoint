@@ -76,8 +76,8 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
        transformTemplate.transform(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
                 if (handler != null) {
                     handler.handle(target);
                 }
@@ -127,8 +127,8 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
        transformTemplate.transform("redis.clients.jedis.Client", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
                 target.addField(RedisConstants.METADATA_END_POINT);
 
                 final InstrumentMethod constructorEditorBuilderArg1 = target.getConstructor("java.lang.String");
@@ -150,8 +150,8 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("redis.clients.jedis.Protocol", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.name("sendCommand", "read"), MethodFilters.modifierNot(Modifier.PRIVATE)))) {
                     method.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.ProtocolSendCommandAndReadMethodInterceptor");
@@ -193,8 +193,8 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
                 if (handler != null) {
                     handler.handle(target);
                 }

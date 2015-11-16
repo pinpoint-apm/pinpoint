@@ -87,11 +87,11 @@ public class IBatisPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader,
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader,
                                         String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
                                         byte[] classfileBuffer) throws InstrumentException {
 
-                final InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(methodFilter);
                 for (InstrumentMethod methodToTrace : methodsToTrace) {

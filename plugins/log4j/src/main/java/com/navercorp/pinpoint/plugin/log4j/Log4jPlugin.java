@@ -37,8 +37,8 @@ public class Log4jPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("org.apache.log4j.spi.LoggingEvent", new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor Instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass mdcClass = Instrumentor.getInstrumentClass(loader, "org.apache.log4j.MDC", null);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass mdcClass = instrumentor.getInstrumentClass(loader, "org.apache.log4j.MDC", null);
                 
                 if (mdcClass == null) {
                     logger.warn("modify fail. Because org.apache.log4j.MDC does not exist.");
@@ -54,7 +54,7 @@ public class Log4jPlugin implements ProfilerPlugin, TransformTemplateAware {
                     return null;
                 }
                 
-                InstrumentClass target = Instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addInterceptor("com.navercorp.pinpoint.plugin.log4j.interceptor.LoggingEventOfLog4jInterceptor");
                 
                 return target.toBytecode();
