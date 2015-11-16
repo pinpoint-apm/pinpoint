@@ -10,7 +10,7 @@
 					<button class="btn btn-warning left move"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></button>
 					<button class="btn btn-warning left edit-user" ng-show="isAllowedCreate"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>
 					<span class="contents">{{"("+pinpointUser.department + ")" + pinpointUser.name}}</span>
-					<span class="remove">x</span>
+					<span class="remove" ng-show="isAllowedCreate">x</span>
 				</li>
 			</ul>
 			<div class="empty-list" ng-show="pinpointUserList.length == 0">Search Pinpoint User</div>
