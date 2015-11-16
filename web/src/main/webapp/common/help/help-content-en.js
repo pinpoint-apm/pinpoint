@@ -8,6 +8,9 @@
 	 */
 	var oHelp = {
 		configuration: {
+			general: {
+				warning: "(User configuration is stored in browser cache. Server-side storage will be supported in a future release.)"
+			},
 			alarmRules: {
 				mainStyle: "",
 				title: "Alarm Rule Type",

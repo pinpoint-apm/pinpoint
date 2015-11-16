@@ -488,3 +488,8 @@
 #config-general .favorite-list button{
 	margin-right: 2px;
 }
+#config-general .general-warning {
+	color: #F0AD4E;
+	font-size: 12px;
+	padding-left: 10px
+}
