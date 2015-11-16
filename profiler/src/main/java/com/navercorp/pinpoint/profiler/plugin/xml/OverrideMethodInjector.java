@@ -4,6 +4,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.profiler.plugin.xml.transformer.ClassRecipe;
 
+import java.util.Arrays;
+
 public class OverrideMethodInjector implements ClassRecipe {
     private final String methodName;
     private final String[] paramTypes;
@@ -20,6 +22,6 @@ public class OverrideMethodInjector implements ClassRecipe {
 
     @Override
     public String toString() {
-        return "OverrideMethodInjector[methodName=" + methodName + ", paramTypes" + paramTypes + "]";
+        return "OverrideMethodInjector[methodName=" + methodName + ", paramTypes" + Arrays.toString(paramTypes) + "]";
     }
 }
