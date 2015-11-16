@@ -206,6 +206,7 @@
     <bean id="udpSpanBasePacketHandler" class="com.navercorp.pinpoint.collector.receiver.udp.BaseUDPHandlerFactory">
         <constructor-arg index="0" ref="udpSpanDispatchHandlerWrapper"/>
         <constructor-arg index="1" ref="tBaseFilterChain"/>
+        <constructor-arg index="2" value="#{collectorConfiguration.l4IpList}"/>
     </bean>
 
     <bean id="tBaseFilterChain" class="com.navercorp.pinpoint.collector.receiver.udp.TBaseFilterChain">
@@ -237,6 +238,7 @@
     <bean id="udpStatBasePacketHandler" class="com.navercorp.pinpoint.collector.receiver.udp.BaseUDPHandlerFactory">
         <constructor-arg index="0" ref="udpDispatchHandlerWrapper"/>
         <constructor-arg index="1" ref="tBaseFilterChain"/>
+        <constructor-arg index="2" value="#{collectorConfiguration.l4IpList}"/>
     </bean>
 
     <bean id="udpStatReceiver" class="com.navercorp.pinpoint.collector.receiver.udp.UDPReceiver">

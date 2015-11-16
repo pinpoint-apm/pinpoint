@@ -20,16 +20,23 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
 import com.navercorp.pinpoint.thrift.io.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.SocketAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author emeroad
  * @author netspider
+ * @author minwoo.jung
  */
 public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHandlerFactory<T> {
 
@@ -42,8 +49,10 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
     private final TBaseFilter<SocketAddress> filter;
 
     private final PacketHandler<T> dispatchPacket = new DispatchPacket();
+    
+    private final InetAddress[] ignoreAddresses;
 
-    public BaseUDPHandlerFactory(DispatchHandler dispatchHandler, TBaseFilter<SocketAddress> filter) {
+    public BaseUDPHandlerFactory(DispatchHandler dispatchHandler, TBaseFilter<SocketAddress> filter, List<String> l4IpList) {
         if (dispatchHandler == null) {
             throw new NullPointerException("dispatchHandler must not be null");
         }
@@ -52,6 +61,34 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
         }
         this.dispatchHandler = dispatchHandler;
         this.filter = filter;
+        this.ignoreAddresses = setIgnoreAddressList(l4IpList);
+    }
+    
+    private InetAddress[] setIgnoreAddressList(List<String> l4IpList) {
+        if (l4IpList == null) {
+            return null;
+        }
+        try {
+            List<InetAddress> inetAddressList = new ArrayList<InetAddress>();
+            for (int i = 0; i < l4IpList.size(); i++) {
+                String l4Ip = l4IpList.get(i);
+                if (StringUtils.isBlank(l4Ip)) {
+                    continue;
+                }
+
+                InetAddress address = InetAddress.getByName(l4Ip);
+                if (address != null) {
+                    inetAddressList.add(address);
+                }
+            }
+            
+            InetAddress[] inetAddressArray = new InetAddress[inetAddressList.size()];
+            return inetAddressList.toArray(inetAddressArray);
+        } catch (UnknownHostException e) {
+            logger.warn("l4ipList error {}", l4IpList, e);
+        }
+        
+        return null;
     }
 
     @Override
@@ -67,9 +104,14 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
 
         @Override
         public void receive(T packet) {
+            if (isIgnoreAddress(packet.getAddress())) {
+                return;
+            }
+            
             final HeaderTBaseDeserializer deserializer = deserializerFactory.createDeserializer();
-            TBase<?, ?> tBase = null;
             SocketAddress socketAddress = packet.getSocketAddress();
+            TBase<?, ?> tBase = null;
+            
             try {
                 tBase = deserializer.deserialize(packet.getData());
                 if (filter.filter(tBase, socketAddress) == TBaseFilter.BREAK) {
@@ -93,6 +135,24 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
                     logger.debug("packet dump hex:{}", PacketUtils.dumpDatagramPacket(packet));
                 }
             }
+        }
+        
+        private boolean isIgnoreAddress(InetAddress remoteAddress) {
+            if (ignoreAddresses == null) {
+                return false;
+            }
+            if (remoteAddress == null) {
+                return false;
+            }
+            for (InetAddress ignore : ignoreAddresses) {
+                if (ignore.equals(remoteAddress)) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("UDP Connected ignore address. IP : " + remoteAddress.getHostAddress());
+                    }
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
