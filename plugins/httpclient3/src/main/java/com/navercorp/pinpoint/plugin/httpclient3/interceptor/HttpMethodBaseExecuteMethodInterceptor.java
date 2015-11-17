@@ -62,7 +62,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    private final int MAX_READ_SIZE = 1024;
+    private static final int MAX_READ_SIZE = 1024;
     private static final Map<Integer, Integer> httpMethod_Index;
     static {
         httpMethod_Index = new HashMap<Integer, Integer>();

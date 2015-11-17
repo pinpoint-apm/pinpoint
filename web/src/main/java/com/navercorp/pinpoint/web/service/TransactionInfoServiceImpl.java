@@ -211,43 +211,6 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     // }
     // }
 
-    private class TransactionInfo {
-
-        private final String transactionId;
-        private final long spanId;
-
-        public TransactionInfo(String transactionId, long spanId) {
-            this.transactionId = transactionId;
-            this.spanId = spanId;
-        }
-
-        public String getTransactionId() {
-            return transactionId;
-        }
-
-        public long getSpanId() {
-            return spanId;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof TransactionInfo == false) {
-                return false;
-            }
-
-            TransactionInfo transactionInfo = (TransactionInfo) obj;
-
-            if (!transactionId.equals(transactionInfo.getTransactionId())) {
-                return false;
-            }
-            if (spanId != transactionInfo.getSpanId()) {
-                return false;
-            }
-
-            return true;
-        }
-    }
-
     private long getStartTime(List<SpanAlign> spanAlignList) {
         if (spanAlignList == null || spanAlignList.size() == 0) {
             return 0;

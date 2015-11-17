@@ -183,7 +183,7 @@ public class RecordFactory {
         return idGen++;
     }
 
-    private class Api {
+    private static class Api {
         private String title = "";
         private String className = "";
         private String description = "";

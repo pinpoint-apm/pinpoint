@@ -62,7 +62,7 @@ public class TransactionMetricSet implements MetricSet {
         return "Default TransactionMetricSet";
     }
 
-    private class TransactionGauge implements Gauge<Long> {
+    private static class TransactionGauge implements Gauge<Long> {
         private static final long UNINITIALIZED = -1L;
 
         private final TransactionCounter transactionCounter;

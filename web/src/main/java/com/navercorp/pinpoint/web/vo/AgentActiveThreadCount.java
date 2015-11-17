@@ -26,8 +26,8 @@ import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
  */
 public class AgentActiveThreadCount {
 
-    private final short OK_CODE = 0;
-    private final String OK_CODE_MESSAGE = "OK";
+    private static final short OK_CODE = 0;
+    private static final String OK_CODE_MESSAGE = "OK";
 
     private final String agentId;
 
