@@ -147,11 +147,7 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
             Request request = ((UserRequestGetter) target)._$PINPOINT$_getUserRequest();
             if (request != null) {
                 try {
-                    if(param) {
-                        recorder.recordAttribute(AnnotationKey.HTTP_URL, request.urlString());
-                    } else {
-                        recorder.recordAttribute(AnnotationKey.HTTP_URL, trimParam(request.urlString()));
-                    }
+                    recorder.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(request.urlString(), param));
                     final String endpoint = getDestinationId(request.url());
                     recorder.recordDestinationId(endpoint);
                 } catch(Exception ignored) {
