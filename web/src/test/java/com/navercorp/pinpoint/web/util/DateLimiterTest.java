@@ -61,13 +61,13 @@ public class DateLimiterTest {
         try {
             limiter.limit(0, TimeUnit.DAYS.toMillis(2) + 1);
             Assert.fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
         try {
             limiter.limit(TimeUnit.DAYS.toMillis(2), 0);
             Assert.fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 
@@ -77,13 +77,13 @@ public class DateLimiterTest {
         try {
             limiter.limit(new Range(0, TimeUnit.DAYS.toMillis(2) + 1));
             Assert.fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
         try {
             limiter.limit(new Range(TimeUnit.DAYS.toMillis(2), 0));
             Assert.fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 
