@@ -59,6 +59,10 @@ public interface ProfilerConfig {
 
     int getJdbcSqlCacheSize();
 
+    boolean isTraceSqlBindValue();
+
+    int getMaxSqlBindValueSize();
+
     boolean isSamplingEnable();
 
     int getSamplingRate();

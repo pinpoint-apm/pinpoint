@@ -106,8 +106,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private boolean traceAgentActiveThread = true;
 
     private int callStackMaxDepth = 512;
-    
+
     private int jdbcSqlCacheSize = 1024;
+    private boolean traceSqlBindValue = false;
+    private int maxSqlBindValueSize = 1024;
 
     private boolean tomcatHidePinpointHeader = true;
     private Filter<String> tomcatExcludeUrlFilter = new SkipFilter<String>();
@@ -275,6 +277,16 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public int getJdbcSqlCacheSize() {
         return jdbcSqlCacheSize;
+    }
+
+    @Override
+    public boolean isTraceSqlBindValue() {
+        return traceSqlBindValue;
+    }
+
+    @Override
+    public int getMaxSqlBindValueSize() {
+        return maxSqlBindValueSize;
     }
 
     @Override
@@ -545,6 +557,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         
         // JDBC
         this.jdbcSqlCacheSize = readInt("profiler.jdbc.sqlcachesize", 1024);
+        this.traceSqlBindValue = readBoolean("profiler.jdbc.tracesqlbindvalue", false);
 
         this.tomcatHidePinpointHeader = readBoolean("profiler.tomcat.hidepinpointheader", true);
         final String tomcatExcludeURL = readString("profiler.tomcat.excludeurl", "");
@@ -556,8 +569,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         final String tomcatExcludeProfileMethod = readString("profiler.tomcat.excludemethod", "");
         if (!tomcatExcludeProfileMethod.isEmpty()) {
-            this.tomcatExcludeProfileMethodFilter = new ExcludeMethodFilter(tomcatExcludeProfileMethod);
         }
+        this.tomcatExcludeProfileMethodFilter = new ExcludeMethodFilter(tomcatExcludeProfileMethod);
 
         /**
          * apache http client 3
@@ -766,6 +779,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append(callStackMaxDepth);
         builder.append(", jdbcSqlCacheSize=");
         builder.append(jdbcSqlCacheSize);
+        builder.append(", traceSqlBindValue=");
+        builder.append(traceSqlBindValue);
+        builder.append(", maxSqlBindValueSize=");
+        builder.append(maxSqlBindValueSize);
         builder.append(", tomcatHidePinpointHeader=");
         builder.append(tomcatHidePinpointHeader);
         builder.append(", tomcatExcludeUrlFilter=");
