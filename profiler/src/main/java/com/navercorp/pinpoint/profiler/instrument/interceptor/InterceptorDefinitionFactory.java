@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
-import com.navercorp.pinpoint.profiler.util.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +26,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Woonduk Kang(emeroad)

@@ -31,8 +31,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
-
 /**
  * @author emeroad
  */

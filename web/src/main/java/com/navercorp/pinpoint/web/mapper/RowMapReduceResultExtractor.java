@@ -1,8 +1,5 @@
 package com.navercorp.pinpoint.web.mapper;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.springframework.data.hadoop.hbase.ResultsExtractor;

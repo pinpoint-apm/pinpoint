@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
 
 /**
  * @Author Taejin Koo

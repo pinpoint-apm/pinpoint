@@ -21,8 +21,6 @@ import org.springframework.stereotype.Service;
 
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 
-import java.util.List;
-
 /**
  * @author netspider
  * @author HyunGil Jeong

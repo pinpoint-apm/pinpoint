@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
 import com.navercorp.pinpoint.profiler.context.ThreadLocalTraceFactory;
 import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
-import com.navercorp.pinpoint.profiler.monitor.metric.MetricRegistry;
 import com.navercorp.pinpoint.profiler.sampler.TrueSampler;
 
 import org.junit.Assert;

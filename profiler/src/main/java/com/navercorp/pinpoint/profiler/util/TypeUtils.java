@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.profiler.util;
 
 import java.lang.annotation.Annotation;
 
-import com.navercorp.pinpoint.exception.PinpointException;
-
 // TODO move package
 public final class TypeUtils {
 

@@ -6,8 +6,6 @@ import org.junit.Test;
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.DefaultLocker;
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.Locker;
 
-import static org.junit.Assert.*;
-
 public class DefaultLockerTest {
 
     @Test

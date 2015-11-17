@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.web.applicationmap;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
-import com.navercorp.pinpoint.web.applicationmap.link.ServerMatcher;
 import com.navercorp.pinpoint.web.view.ServerInstanceListSerializer;
 
 /**
