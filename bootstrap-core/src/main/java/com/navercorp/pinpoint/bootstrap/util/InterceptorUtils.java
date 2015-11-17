@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.bootstrap.util;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.URI;
 import java.net.URL;
 
 public final class InterceptorUtils {
@@ -49,26 +50,39 @@ public final class InterceptorUtils {
         return null;
     }
 
-    public static String getHttpUrl(final String urlString, final boolean param) {
-        if (urlString == null || urlString.length() == 0) {
+    public static String getHttpUrl(final String uriString, final boolean param) {
+        if (uriString == null || uriString.length() == 0) {
             return "";
         }
 
         if (param) {
-            return urlString;
+            return uriString;
         }
 
         try {
-            final URL url = new URL(urlString);
+            final URI url = new URI(uriString);
             final StringBuilder sb = new StringBuilder();
-            sb.append(url.getProtocol()).append("://");
-            sb.append(url.getHost());
-            if (url.getPort() > 0 && url.getPort() != url.getDefaultPort()) {
-                sb.append(":").append(url.getPort());
+            if (url.getScheme() != null) {
+                sb.append(url.getScheme()).append(":");
+            }
+
+            if (url.getHost() != null) {
+                if (url.getScheme() != null) {
+                    sb.append("//");
+                }
+                sb.append(url.getHost());
+                if (url.getPort() > 0) {
+                    sb.append(":").append(url.getPort());
+                }
+            }
+
+            if(url.getPath() != null) {
+                sb.append(url.getPath());
             }
 
             return sb.toString();
         } catch (Exception ignored) {
+            ignored.printStackTrace();
         }
 
         return "";
