@@ -23,6 +23,7 @@ import java.util.Map;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContextFactory;
+import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3PluginConfig;
 import org.apache.commons.httpclient.HttpConstants;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.URI;
@@ -75,6 +76,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
     private MethodDescriptor descriptor;
     private InterceptorScope interceptorScope;
 
+    private boolean param;
     private boolean cookie;
     private DumpType cookieDumpType;
     private SimpleSampler cookieSampler;
@@ -90,22 +92,23 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         this.descriptor = methodDescriptor;
         this.interceptorScope = interceptorScope;
 
-        final ProfilerConfig config = traceContext.getProfilerConfig();
-        this.cookie = config.isApacheHttpClient3ProfileCookie();
-        this.cookieDumpType = config.getApacheHttpClient3ProfileCookieDumpType();
+        final HttpClient3PluginConfig config  = new HttpClient3PluginConfig(traceContext.getProfilerConfig());
+        this.param = config.isParam();
+        this.cookie = config.isCookie();
+        this.cookieDumpType = config.getCookieDumpType();
 
         if (cookie) {
-            this.cookieSampler = SimpleSamplerFactory.createSampler(cookie, config.getApacheHttpClient3ProfileCookieSamplingRate());
+            this.cookieSampler = SimpleSamplerFactory.createSampler(cookie, config.getCookieSamplingRate());
         }
 
-        this.entity = config.isApacheHttpClient3ProfileEntity();
-        this.entityDumpType = config.getApacheHttpClient3ProfileEntityDumpType();
+        this.entity = config.isEntity();
+        this.entityDumpType = config.getEntityDumpType();
 
         if (entity) {
-            this.entitySampler = SimpleSamplerFactory.createSampler(entity, config.getApacheHttpClient3ProfileEntitySamplingRate());
+            this.entitySampler = SimpleSamplerFactory.createSampler(entity, config.getEntitySamplingRate());
         }
 
-        this.io = config.isApacheHttpClient3ProfileIo();
+        this.io = config.isIo();
     }
 
     @Override
@@ -185,7 +188,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
                 try {
                     final URI uri = httpMethod.getURI();
                     String uriString = uri.getURI();
-                    recorder.recordAttribute(AnnotationKey.HTTP_URL, uriString);
+                    recorder.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(uriString, param));
                     recorder.recordDestinationId(getEndpoint(uri.getHost(), uri.getPort()));
                 } catch (URIException e) {
                     logger.error("Fail get URI", e);

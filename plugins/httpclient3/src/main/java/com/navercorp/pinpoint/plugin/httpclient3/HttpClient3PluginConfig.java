@@ -25,72 +25,72 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  */
 public class HttpClient3PluginConfig {
 
-    private boolean apacheHttpClient3ProfileCookie = false;
-    private DumpType apacheHttpClient3ProfileCookieDumpType = DumpType.EXCEPTION;
-    private int apacheHttpClient3ProfileCookieSamplingRate = 1;
-    private boolean apacheHttpClient3ProfileEntity = false;
-    private DumpType apacheHttpClient3ProfileEntityDumpType = DumpType.EXCEPTION;
-    private int apacheHttpClient3ProfileEntitySamplingRate = 1;
-    private boolean apacheHttpClient3ProfileIo;
+    private boolean param = true;
+    private boolean cookie = false;
+    private DumpType cookieDumpType = DumpType.EXCEPTION;
+    private int cookieSamplingRate = 1;
+    private boolean entity = false;
+    private DumpType entityDumpType = DumpType.EXCEPTION;
+    private int entitySamplingRate = 1;
+    private boolean io;
 
     public HttpClient3PluginConfig(ProfilerConfig src) {
-        this.apacheHttpClient3ProfileCookie = src.readBoolean("profiler.apache.httpclient3.cookie", false);
-        this.apacheHttpClient3ProfileCookieDumpType = src.readDumpType("profiler.apache.httpclient3.cookie.dumptype", DumpType.EXCEPTION);
-        this.apacheHttpClient3ProfileCookieSamplingRate = src.readInt("profiler.apache.httpclient3.cookie.sampling.rate", 1);
+        this.param = src.readBoolean("profiler.apache.httpclient3.param", true);
+        this.cookie = src.readBoolean("profiler.apache.httpclient3.cookie", false);
+        this.cookieDumpType = src.readDumpType("profiler.apache.httpclient3.cookie.dumptype", DumpType.EXCEPTION);
+        this.cookieSamplingRate = src.readInt("profiler.apache.httpclient3.cookie.sampling.rate", 1);
 
-        this.apacheHttpClient3ProfileEntity = src.readBoolean("profiler.apache.httpclient3.entity", false);
-        this.apacheHttpClient3ProfileEntityDumpType = src.readDumpType("profiler.apache.httpclient3.entity.dumptype", DumpType.EXCEPTION);
-        this.apacheHttpClient3ProfileEntitySamplingRate = src.readInt("profiler.apache.httpclient3.entity.sampling.rate", 1);
+        this.entity = src.readBoolean("profiler.apache.httpclient3.entity", false);
+        this.entityDumpType = src.readDumpType("profiler.apache.httpclient3.entity.dumptype", DumpType.EXCEPTION);
+        this.entitySamplingRate = src.readInt("profiler.apache.httpclient3.entity.sampling.rate", 1);
 
-        this.apacheHttpClient3ProfileIo = src.readBoolean("profiler.apache.httpclient3.io", true);
+        this.io = src.readBoolean("profiler.apache.httpclient3.io", true);
     }
 
-    public boolean isApacheHttpClient3ProfileCookie() {
-        return apacheHttpClient3ProfileCookie;
+    public boolean isParam() {
+        return param;
     }
 
-    public DumpType getApacheHttpClient3ProfileCookieDumpType() {
-        return apacheHttpClient3ProfileCookieDumpType;
+    public boolean isCookie() {
+        return cookie;
     }
 
-    public int getApacheHttpClient3ProfileCookieSamplingRate() {
-        return apacheHttpClient3ProfileCookieSamplingRate;
+    public DumpType getCookieDumpType() {
+        return cookieDumpType;
     }
 
-    public boolean isApacheHttpClient3ProfileEntity() {
-        return apacheHttpClient3ProfileEntity;
+    public int getCookieSamplingRate() {
+        return cookieSamplingRate;
     }
 
-    public DumpType getApacheHttpClient3ProfileEntityDumpType() {
-        return apacheHttpClient3ProfileEntityDumpType;
+    public boolean isEntity() {
+        return entity;
     }
 
-    public int getApacheHttpClient3ProfileEntitySamplingRate() {
-        return apacheHttpClient3ProfileEntitySamplingRate;
+    public DumpType getEntityDumpType() {
+        return entityDumpType;
     }
 
-    public boolean isApacheHttpClient3ProfileIo() {
-        return apacheHttpClient3ProfileIo;
+    public int getEntitySamplingRate() {
+        return entitySamplingRate;
+    }
+
+    public boolean isIo() {
+        return io;
     }
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("{apacheHttpClient3ProfileCookie=");
-        builder.append(apacheHttpClient3ProfileCookie);
-        builder.append(", apacheHttpClient3ProfileCookieDumpType=");
-        builder.append(apacheHttpClient3ProfileCookieDumpType);
-        builder.append(", apacheHttpClient3ProfileCookieSamplingRate=");
-        builder.append(apacheHttpClient3ProfileCookieSamplingRate);
-        builder.append(", apacheHttpClient3ProfileEntity=");
-        builder.append(apacheHttpClient3ProfileEntity);
-        builder.append(", apacheHttpClient3ProfileEntityDumpType=");
-        builder.append(apacheHttpClient3ProfileEntityDumpType);
-        builder.append(", apacheHttpClient3ProfileEntitySamplingRate=");
-        builder.append(apacheHttpClient3ProfileEntitySamplingRate);
-        builder.append(", apacheHttpClient3ProfileIo=");
-        builder.append(apacheHttpClient3ProfileIo);
-        builder.append("}");
-        return builder.toString();
+        final StringBuilder sb = new StringBuilder("{");
+        sb.append("param=").append(param);
+        sb.append(", cookie=").append(cookie);
+        sb.append(", cookieDumpType=").append(cookieDumpType);
+        sb.append(", cookieSamplingRate=").append(cookieSamplingRate);
+        sb.append(", entity=").append(entity);
+        sb.append(", entityDumpType=").append(entityDumpType);
+        sb.append(", entitySamplingRate=").append(entitySamplingRate);
+        sb.append(", io=").append(io);
+        sb.append('}');
+        return sb.toString();
     }
 }

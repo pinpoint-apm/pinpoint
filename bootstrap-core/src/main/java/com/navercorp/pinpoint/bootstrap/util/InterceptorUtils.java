@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.bootstrap.util;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.URL;
 
 public final class InterceptorUtils {
     private InterceptorUtils() {
@@ -46,5 +47,30 @@ public final class InterceptorUtils {
             return sb.toString();
         }
         return null;
+    }
+
+    public static String getHttpUrl(final String urlString, final boolean param) {
+        if (urlString == null || urlString.length() == 0) {
+            return "";
+        }
+
+        if (param) {
+            return urlString;
+        }
+
+        try {
+            final URL url = new URL(urlString);
+            final StringBuilder sb = new StringBuilder();
+            sb.append(url.getProtocol()).append("://");
+            sb.append(url.getHost());
+            if (url.getPort() > 0 && url.getPort() != url.getDefaultPort()) {
+                sb.append(":").append(url.getPort());
+            }
+
+            return sb.toString();
+        } catch (Exception ignored) {
+        }
+
+        return "";
     }
 }
