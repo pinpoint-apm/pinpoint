@@ -34,7 +34,7 @@ public class RangeTest {
         try {
             Range range3 = new Range(0, -1);
             Assert.fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
     }

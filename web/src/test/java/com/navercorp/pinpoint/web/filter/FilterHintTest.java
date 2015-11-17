@@ -17,20 +17,14 @@
 package com.navercorp.pinpoint.web.filter;
 
 
-import com.fasterxml.jackson.core.JsonParseException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  *

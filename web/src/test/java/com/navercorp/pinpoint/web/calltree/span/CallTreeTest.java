@@ -21,7 +21,6 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.navercorp.pinpoint.common.bo.SpanBo;
@@ -185,7 +184,7 @@ public class CallTreeTest {
             callTree.add(-1, makeSpanAlign(SYNC, (short) 21));
             callTree.add(-1, makeSpanAlign(SYNC, (short) 22));
             callTree.add(-1, makeSpanAlign(SYNC, (short) 23));
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         assertDepth("missing-case-1", callTree, expectResult);
     }
@@ -217,7 +216,7 @@ public class CallTreeTest {
             callTree.add(4, makeSpanAlign(SYNC, (short) 15));
             callTree.add(-1, makeSpanAlign(SYNC, (short) 16));
             callTree.add(-1, makeSpanAlign(SYNC, (short) 17));
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         assertDepth("missing-case-2", callTree, expectResult);
     }
@@ -233,7 +232,7 @@ public class CallTreeTest {
             // subTree.add(1, makeSpanAlign(ASYNC, (short) 0, -1, 1));
             subTree.add(2, makeSpanAlign(ASYNC, (short) 1, 2, 1));
             callTree.add(subTree);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         assertDepth("missing-case-3", callTree, expectResult);
     }

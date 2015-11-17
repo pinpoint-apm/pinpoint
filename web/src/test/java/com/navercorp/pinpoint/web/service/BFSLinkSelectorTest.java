@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
-import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.*;
 import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
