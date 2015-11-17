@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * One or more variables that together maintain an initially zero

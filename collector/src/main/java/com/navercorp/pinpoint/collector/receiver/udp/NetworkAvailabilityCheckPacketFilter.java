@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.receiver.udp;
 
-import com.navercorp.pinpoint.collector.util.PacketUtils;
 import com.navercorp.pinpoint.thrift.io.NetworkAvailabilityCheckPacket;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;

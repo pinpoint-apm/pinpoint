@@ -16,12 +16,9 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.BlockingQueue;
 
 /**
  * @author emeroad

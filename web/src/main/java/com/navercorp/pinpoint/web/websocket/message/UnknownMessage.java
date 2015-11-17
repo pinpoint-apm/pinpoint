@@ -19,8 +19,6 @@
 
 package com.navercorp.pinpoint.web.websocket.message;
 
-import java.util.Map;
-
 /**
  * @Author Taejin Koo
  */

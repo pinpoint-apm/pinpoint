@@ -15,8 +15,6 @@ z * Copyright 2014 NAVER Corp.
  */
 package com.navercorp.pinpoint.plugin.httpclient3;
 
-import java.lang.reflect.Method;
-
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.NameValuePair;
@@ -25,7 +23,6 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.test.plugin.Dependency;

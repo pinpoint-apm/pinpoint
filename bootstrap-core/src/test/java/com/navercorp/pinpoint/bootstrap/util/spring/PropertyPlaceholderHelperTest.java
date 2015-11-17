@@ -24,8 +24,6 @@ import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
 
 import java.util.Properties;
 
-import static org.junit.Assert.*;
-
 public class PropertyPlaceholderHelperTest {
 
     @Test

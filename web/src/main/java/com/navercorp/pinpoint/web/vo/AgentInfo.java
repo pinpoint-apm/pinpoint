@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.bo.ServerMetaDataBo;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * @author HyunGil Jeong

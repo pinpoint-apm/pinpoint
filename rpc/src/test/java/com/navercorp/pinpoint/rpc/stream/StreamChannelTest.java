@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
-import com.navercorp.pinpoint.common.util.Asserts;
 import org.junit.Assert;
 import org.junit.Test;
 

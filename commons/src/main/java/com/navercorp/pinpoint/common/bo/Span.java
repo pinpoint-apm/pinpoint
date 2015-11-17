@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.common.bo;
 
 import java.util.List;
 
-import com.navercorp.pinpoint.common.trace.ServiceType;
-
 /**
  * @author emeroad
  */

@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.bo.AnnotationBo;

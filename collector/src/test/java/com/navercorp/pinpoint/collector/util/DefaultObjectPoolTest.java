@@ -21,8 +21,6 @@ import org.junit.Test;
 
 import java.net.DatagramPacket;
 
-import static org.mockito.Mockito.mock;
-
 /**
  * @author emeroad
  */

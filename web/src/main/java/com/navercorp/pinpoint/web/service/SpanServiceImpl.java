@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.bo.*;
@@ -30,7 +29,6 @@ import com.navercorp.pinpoint.web.calltree.span.CallTree;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
 import com.navercorp.pinpoint.web.calltree.span.SpanAligner2;
-import com.navercorp.pinpoint.web.calltree.span.SpanCallTree;
 import com.navercorp.pinpoint.web.dao.ApiMetaDataDao;
 import com.navercorp.pinpoint.web.dao.SqlMetaDataDao;
 import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
@@ -41,7 +39,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /**
  * @author emeroad

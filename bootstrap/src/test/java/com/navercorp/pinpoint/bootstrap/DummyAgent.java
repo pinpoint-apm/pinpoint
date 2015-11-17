@@ -16,13 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
-
-import java.lang.instrument.Instrumentation;
-import java.net.URL;
 
 /**
  * @author emeroad

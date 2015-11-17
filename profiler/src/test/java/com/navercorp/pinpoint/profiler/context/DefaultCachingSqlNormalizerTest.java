@@ -20,8 +20,6 @@ import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 /**
  * @author emeroad
  */
