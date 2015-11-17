@@ -296,7 +296,7 @@ public class FixedBuffer implements Buffer {
         int copyOffset = this.offset;
         long result = 0;
         for (int shift = 0; shift < 64; shift += 7) {
-            final byte b = this.buffer[copyOffset++];;
+            final byte b = this.buffer[copyOffset++];
             result |= (long) (b & 0x7F) << shift;
             if ((b & 0x80) == 0) {
                 this.offset = copyOffset;

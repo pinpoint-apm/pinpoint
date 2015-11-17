@@ -47,7 +47,7 @@ public class HttpClientIT {
         try {
             // Execute the method.
             client.executeMethod(method);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         } finally {
             method.releaseConnection();
         }

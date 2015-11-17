@@ -23,6 +23,6 @@ public enum SpanStreamSendDataMode {
 
     WAIT_BUFFER,
     WAIT_BUFFER_AND_FLUSH,
-    FLUSH;
+    FLUSH
 
 }

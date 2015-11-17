@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.web.vo.Range;
  */
 public interface AgentEventDao {
 
-    public AgentEventBo getAgentEvent(String agentId, long eventTimestamp, AgentEventType eventType);
+    AgentEventBo getAgentEvent(String agentId, long eventTimestamp, AgentEventType eventType);
 
-    public List<AgentEventBo> getAgentEvents(String agentId, Range range);
+    List<AgentEventBo> getAgentEvents(String agentId, Range range);
     
 }

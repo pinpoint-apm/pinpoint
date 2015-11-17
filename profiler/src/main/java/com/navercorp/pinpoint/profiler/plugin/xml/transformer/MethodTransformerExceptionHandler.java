@@ -31,10 +31,10 @@ public interface MethodTransformerExceptionHandler {
      * @param targetMethodParameterTypes
      * @param exception
      */
-    public void handle(String targetClassName, String targetMethodName, String[] targetMethodParameterTypes, Throwable exception) throws Throwable;
+    void handle(String targetClassName, String targetMethodName, String[] targetMethodParameterTypes, Throwable exception) throws Throwable;
     
     
-    public static final MethodTransformerExceptionHandler IGNORE = new MethodTransformerExceptionHandler() {
+    MethodTransformerExceptionHandler IGNORE = new MethodTransformerExceptionHandler() {
         
         @Override
         public void handle(String targetClassName, String targetMethodName, String[] targetMethodParameterTypes, Throwable exception) throws Throwable {

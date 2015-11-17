@@ -38,7 +38,7 @@ public class DumpTypeTest {
         try {
             DumpType.valueOf("error");
             Assert.fail("not found");
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
 
         }
     }

@@ -71,7 +71,7 @@ public class ThreadLocalScopePoolTest {
             @Override
             public Object createAttachment() {
                 return "test";
-            };
+            }
         }), "test");
         
         scope.canLeave(ExecutionPolicy.BOUNDARY);

@@ -23,5 +23,5 @@ public enum AgentEventTypeCategory {
     AGENT_LIFECYCLE,
     USER_REQUEST,
     THREAD_DUMP,
-    OTHER;
+    OTHER
 }

@@ -57,7 +57,7 @@ public enum ManagedAgentLifeCycle {
     private final int eventCounter;
     private final Set<SocketStateCode> managedStateCodeSet;
 
-    private ManagedAgentLifeCycle(int eventCounter, SocketStateCode... managedStateCodes) {
+    ManagedAgentLifeCycle(int eventCounter, SocketStateCode... managedStateCodes) {
         this.eventCounter = eventCounter;
         this.managedStateCodeSet = new HashSet<SocketStateCode>(Arrays.asList(managedStateCodes));
     }

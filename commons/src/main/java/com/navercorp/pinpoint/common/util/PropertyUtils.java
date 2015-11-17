@@ -32,7 +32,7 @@ public final class PropertyUtils {
         }
     };
 
-    public static interface InputStreamFactory {
+    public interface InputStreamFactory {
         InputStream openInputStream() throws IOException;
     }
 

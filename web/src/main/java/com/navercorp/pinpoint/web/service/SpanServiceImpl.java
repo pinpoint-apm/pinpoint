@@ -395,7 +395,7 @@ public class SpanServiceImpl implements SpanService {
         return apiMetaDataBo.getApiInfo();
     }
 
-    public static interface AnnotationReplacementCallback {
+    public interface AnnotationReplacementCallback {
         void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList);
     }
 

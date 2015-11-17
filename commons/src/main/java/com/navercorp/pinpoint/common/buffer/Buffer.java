@@ -21,12 +21,12 @@ package com.navercorp.pinpoint.common.buffer;
  */
 public interface Buffer {
 
-    public static final int BOOLEAN_FALSE = 0;
-    public static final int BOOLEAN_TRUE = 1;
+    int BOOLEAN_FALSE = 0;
+    int BOOLEAN_TRUE = 1;
 
-    public static final byte[] EMPTY = new byte[0];
+    byte[] EMPTY = new byte[0];
 
-    public static final String UTF8 = "UTF-8";
+    String UTF8 = "UTF-8";
 
     void putPadBytes(byte[] bytes, int totalLength);
 

@@ -34,7 +34,7 @@ public enum SystemPropertyKey {
 
     private final String key;
 
-    private SystemPropertyKey(String key) {
+    SystemPropertyKey(String key) {
         this.key = key;
     }
 

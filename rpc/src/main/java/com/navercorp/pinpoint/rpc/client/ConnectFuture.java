@@ -35,7 +35,7 @@ public class ConnectFuture {
     private final CountDownLatch latch;
     private volatile Result result;
 
-    public static enum Result {
+    public enum Result {
         SUCCESS, FAIL
     }
 

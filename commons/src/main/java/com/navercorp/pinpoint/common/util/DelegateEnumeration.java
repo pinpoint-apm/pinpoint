@@ -130,7 +130,7 @@ public class DelegateEnumeration<E> implements Enumeration<E> {
         return nextException;
     }
 
-    public static interface Filter<E> {
+    public interface Filter<E> {
         boolean filter(E e);
     }
 }

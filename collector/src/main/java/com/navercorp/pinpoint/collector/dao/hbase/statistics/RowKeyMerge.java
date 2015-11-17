@@ -57,13 +57,13 @@ public class RowKeyMerge {
     private Increment createIncrement(Map.Entry<RowKey, List<ColumnName>> rowKeyEntry, RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         RowKey rowKey = rowKeyEntry.getKey();
         byte[] key = null;
-        if(rowKeyDistributorByHashPrefix == null) {
+        if (rowKeyDistributorByHashPrefix == null) {
             key = rowKey.getRowKey();
         } else {
             key = rowKeyDistributorByHashPrefix.getDistributedKey(rowKey.getRowKey());
         }
         final Increment increment = new Increment(key);
-        for(ColumnName columnName : rowKeyEntry.getValue()) {
+        for (ColumnName columnName : rowKeyEntry.getValue()) {
             increment.addColumn(family, columnName.getColumnName(), columnName.getCallCount());
         }
         logger.trace("create increment row:{}, column:{}", rowKey, rowKeyEntry.getValue());

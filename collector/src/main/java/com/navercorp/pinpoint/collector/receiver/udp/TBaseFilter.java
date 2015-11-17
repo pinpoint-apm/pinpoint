@@ -30,7 +30,7 @@ public interface TBaseFilter<T> {
     boolean filter(TBase<?, ?> tBase, T remoteHostAddress);
 
     // TODO fix generic type
-    public static final TBaseFilter CONTINUE_FILTER = new TBaseFilter<SocketAddress>() {
+    TBaseFilter CONTINUE_FILTER = new TBaseFilter<SocketAddress>() {
         @Override
         public boolean filter(TBase<?, ?> tBase, SocketAddress remoteHostAddress) {
             return CONTINUE;

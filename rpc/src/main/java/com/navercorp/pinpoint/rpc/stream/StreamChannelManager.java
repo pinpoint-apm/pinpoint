@@ -71,7 +71,7 @@ public class StreamChannelManager {
 
     public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) {
         return openStream(payload, messageListener, LOGGING_STATE_CHANGE_HANDLER);
-    };
+    }
 
     public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) {
         logger.info("Open streamChannel initialization started. Channel:{} ", channel);

@@ -32,7 +32,7 @@ public enum ThriftHeader {
     
     private final byte type;
     
-    private ThriftHeader(byte type, short id) {
+    ThriftHeader(byte type, short id) {
         this.type = type;
         this.id = (short)id;
     }

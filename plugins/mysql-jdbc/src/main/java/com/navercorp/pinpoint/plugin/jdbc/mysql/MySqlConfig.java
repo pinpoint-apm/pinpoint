@@ -52,5 +52,5 @@ public class MySqlConfig {
     @Override
     public String toString() {
         return "MySqlConfig [profileSetAutoCommit=" + profileSetAutoCommit + ", profileCommit=" + profileCommit + ", profileRollback=" + profileRollback + ", maxSqlBindValueSize=" + maxSqlBindValueSize + "]";
-    };
+    }
 }

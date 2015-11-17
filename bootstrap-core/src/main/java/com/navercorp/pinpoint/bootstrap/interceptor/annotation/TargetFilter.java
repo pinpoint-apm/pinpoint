@@ -33,12 +33,12 @@ public @interface TargetFilter {
     /**
      * Filter type
      */
-    public String type();
+    String type();
     
     /**
      * Arguments for specified {@link MethodFilter}'s constructor. 
      */
-    public String[] constructorArguments() default {};
+    String[] constructorArguments() default {};
     
-    public boolean singleton() default false;
+    boolean singleton() default false;
 }

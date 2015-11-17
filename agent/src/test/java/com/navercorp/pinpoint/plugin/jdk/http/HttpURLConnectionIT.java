@@ -92,7 +92,7 @@ public class HttpURLConnectionIT {
         Field field = null;
         try {
             field = connection.getClass().getDeclaredField("connecting");
-        } catch (NoSuchFieldException e) {
+        } catch (NoSuchFieldException ignored) {
             
         }
         

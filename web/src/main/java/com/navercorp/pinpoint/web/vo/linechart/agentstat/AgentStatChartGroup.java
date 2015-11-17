@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.web.vo.linechart.Chart.ChartBuilder;
  */
 public class AgentStatChartGroup {
 
-    private static enum ChartType {
+    private enum ChartType {
         JVM_MEMORY_HEAP_USED,
         JVM_MEMORY_HEAP_MAX,
         JVM_MEMORY_NON_HEAP_USED,

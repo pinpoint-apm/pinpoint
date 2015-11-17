@@ -64,7 +64,7 @@ public class SpanStreamUDPSenderTest {
             receiver = new TestUDPReceiver("test", new SpanStreamUDPPacketHandlerFactory<DatagramPacket>(messageHolder, new TestTBaseFilter()), "127.0.0.1",
                     port, 1024, 1, 10);
             receiver.start();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 

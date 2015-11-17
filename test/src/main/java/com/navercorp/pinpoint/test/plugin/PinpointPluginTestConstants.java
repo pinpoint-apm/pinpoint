@@ -20,7 +20,7 @@ package com.navercorp.pinpoint.test.plugin;
  *
  */
 public interface PinpointPluginTestConstants {
-    public static final String JUNIT_OUTPUT_DELIMITER = "#####";
-    public static final String PINPOINT_TEST_ID = "pinpoint.test.id";
-    public static final String CHILD_CLASS_PATH_PREFIX = "-child=";
+    String JUNIT_OUTPUT_DELIMITER = "#####";
+    String PINPOINT_TEST_ID = "pinpoint.test.id";
+    String CHILD_CLASS_PATH_PREFIX = "-child=";
 }

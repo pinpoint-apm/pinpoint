@@ -36,7 +36,7 @@ public class PinpointURLClassLoaderTest {
         try {
             cl.loadClass("test");
             Assert.fail();
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException ignored) {
         }
 
 //        try {

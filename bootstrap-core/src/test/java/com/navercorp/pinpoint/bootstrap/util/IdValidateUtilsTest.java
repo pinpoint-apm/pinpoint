@@ -62,7 +62,7 @@ public class IdValidateUtilsTest  {
         try {
             IdValidateUtils.validateId("0123", -1);
             Assert.fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
         }
     }
 }

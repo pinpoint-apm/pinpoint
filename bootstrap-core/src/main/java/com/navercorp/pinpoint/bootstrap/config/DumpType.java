@@ -24,7 +24,7 @@ public enum DumpType {
     ALWAYS(0), EXCEPTION(1);
 
     private int code;
-    private DumpType(int code) {
+    DumpType(int code) {
         this.code = code;
     }
 

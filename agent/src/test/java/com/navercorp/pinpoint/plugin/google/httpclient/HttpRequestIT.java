@@ -59,7 +59,7 @@ public class HttpRequestIT {
             request = requestFactory.buildGetRequest(url);
             response = request.execute();
             response.disconnect();
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         } finally {
             if (response != null) {
                 response.disconnect();
@@ -90,7 +90,7 @@ public class HttpRequestIT {
             request = requestFactory.buildGetRequest(url);
             response = request.executeAsync().get();
             response.disconnect();
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         } finally {
             if (response != null) {
                 response.disconnect();

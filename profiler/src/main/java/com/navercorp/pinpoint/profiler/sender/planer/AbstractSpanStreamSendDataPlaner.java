@@ -245,7 +245,7 @@ public abstract class AbstractSpanStreamSendDataPlaner implements SendDataPlaner
     abstract protected ByteBuffer getSpanChunkBuffer();
 
     private enum FlushMode {
-        FLUSH_FIRST, NORMAL;
+        FLUSH_FIRST, NORMAL
     }
 
 }

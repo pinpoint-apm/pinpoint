@@ -329,17 +329,17 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
 
     private interface ActualTrace {
-        public Short getServiceType();
-        public Integer getApiId();
-        public Integer getAsyncId();
-        public Integer getNextAsyncId();
-        public String getRpc();
-        public String getEndPoint();
-        public String getRemoteAddr();
-        public String getDestinationId();
-        public List<TAnnotation> getAnnotations();
+        Short getServiceType();
+        Integer getApiId();
+        Integer getAsyncId();
+        Integer getNextAsyncId();
+        String getRpc();
+        String getEndPoint();
+        String getRemoteAddr();
+        String getDestinationId();
+        List<TAnnotation> getAnnotations();
         
-        public Class<?> getType();
+        Class<?> getType();
     }
     
     private final class SpanFacade implements ActualTrace {

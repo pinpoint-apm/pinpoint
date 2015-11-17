@@ -52,5 +52,5 @@ public class JtdsConfig {
     @Override
     public String toString() {
         return "JtdsConfig [profileSetAutoCommit=" + profileSetAutoCommit + ", profileCommit=" + profileCommit + ", profileRollback=" + profileRollback + ", maxSqlBindValueSize=" + maxSqlBindValueSize + "]";
-    };
+    }
 }

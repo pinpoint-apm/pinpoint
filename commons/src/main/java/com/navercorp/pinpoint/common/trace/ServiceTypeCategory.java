@@ -32,11 +32,11 @@ public enum ServiceTypeCategory {
     private final short maxCode;
     private HistogramSchema histogramSchema;
 
-    private ServiceTypeCategory(short minCode, short maxCode) {
+    ServiceTypeCategory(short minCode, short maxCode) {
         this(minCode, maxCode, BaseHistogramSchema.NORMAL_SCHEMA);
     }
     
-    private ServiceTypeCategory(short minCode, short maxCode, HistogramSchema histogramSchema) {
+    ServiceTypeCategory(short minCode, short maxCode, HistogramSchema histogramSchema) {
         this.minCode = minCode;
         this.maxCode = maxCode;
         if (histogramSchema == null) {

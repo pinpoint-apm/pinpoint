@@ -57,7 +57,7 @@ public class NettyUdpReceiverTest {
                 try {
                     logger.debug("server-await");
                     latch.await();
-                } catch (InterruptedException e) {
+                } catch (InterruptedException ignored) {
                 }
                 logger.debug("server-shutdown");
                 udpServer.shutdown();

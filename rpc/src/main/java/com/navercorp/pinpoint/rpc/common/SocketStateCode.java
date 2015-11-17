@@ -50,7 +50,7 @@ public enum SocketStateCode {
     private final byte id;
     private final Set<SocketStateCode> validBeforeStateSet;
 
-    private SocketStateCode(byte id, SocketStateCode... validBeforeStates) {
+    SocketStateCode(byte id, SocketStateCode... validBeforeStates) {
         this.id = id;
         this.validBeforeStateSet = new HashSet<SocketStateCode>();
 
