@@ -134,7 +134,7 @@ public class StandbySpanStreamDataStorage {
         return firstAccessTime + maxWaitTimeMillis - System.currentTimeMillis();
     }
 
-    class SpanStreamSendDataComparator implements Comparator<SpanStreamSendData> {
+    static class SpanStreamSendDataComparator implements Comparator<SpanStreamSendData> {
 
         @Override
         public int compare(SpanStreamSendData newValue, SpanStreamSendData oldValue) {
