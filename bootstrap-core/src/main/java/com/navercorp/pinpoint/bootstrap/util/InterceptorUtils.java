@@ -59,32 +59,11 @@ public final class InterceptorUtils {
             return uriString;
         }
 
-        try {
-            final URI url = new URI(uriString);
-            final StringBuilder sb = new StringBuilder();
-            if (url.getScheme() != null) {
-                sb.append(url.getScheme()).append(":");
-            }
-
-            if (url.getHost() != null) {
-                if (url.getScheme() != null) {
-                    sb.append("//");
-                }
-                sb.append(url.getHost());
-                if (url.getPort() > 0) {
-                    sb.append(":").append(url.getPort());
-                }
-            }
-
-            if(url.getPath() != null) {
-                sb.append(url.getPath());
-            }
-
-            return sb.toString();
-        } catch (Exception ignored) {
-            ignored.printStackTrace();
+        int queryStart = uriString.indexOf("?");
+        if(queryStart != -1) {
+            return uriString.substring(0, queryStart);
         }
 
-        return "";
+        return uriString;
     }
 }

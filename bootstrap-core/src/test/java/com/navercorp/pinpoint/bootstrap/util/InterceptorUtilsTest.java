@@ -25,6 +25,6 @@ public class InterceptorUtilsTest {
         assertEquals("http://google.com", InterceptorUtils.getHttpUrl("http://google.com?foo=bar", false));
 
         assertEquals("https://google.com#foo", InterceptorUtils.getHttpUrl("https://google.com#foo", true));
-        assertEquals("https://google.com", InterceptorUtils.getHttpUrl("https://google.com#foo", false));
+        assertEquals("https://google.com#foo", InterceptorUtils.getHttpUrl("https://google.com#foo", false));
     }
 }
