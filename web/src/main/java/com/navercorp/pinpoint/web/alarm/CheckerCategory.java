@@ -145,7 +145,7 @@ public enum CheckerCategory {
     }
 
     public static List<String> getNames() {
-        List<String> names = new LinkedList<String>();
+        List<String> names = new LinkedList<>();
         
         for (CheckerCategory category : CheckerCategory.values()) {
             names.add(category.getName());

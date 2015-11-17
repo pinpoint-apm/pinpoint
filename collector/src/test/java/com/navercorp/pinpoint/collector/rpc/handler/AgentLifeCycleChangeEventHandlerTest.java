@@ -95,7 +95,7 @@ public class AgentLifeCycleChangeEventHandlerTest {
     @Test
     public void unmanagedStatesShouldNotBeHandled() throws Exception {
         // given
-        final Set<SocketStateCode> unmanagedStates = new HashSet<SocketStateCode>();
+        final Set<SocketStateCode> unmanagedStates = new HashSet<>();
         for (SocketStateCode socketStateCode : SocketStateCode.values()) {
             if (ManagedAgentLifeCycle.getManagedAgentLifeCycleByStateCode(socketStateCode) == AgentLifeCycleChangeEventHandler.STATE_NOT_MANAGED) {
                 unmanagedStates.add(socketStateCode);

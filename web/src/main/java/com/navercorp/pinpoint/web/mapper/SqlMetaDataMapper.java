@@ -50,7 +50,7 @@ public class SqlMetaDataMapper implements RowMapper<List<SqlMetaDataBo>> {
         }
         final byte[] rowKey = getOriginalKey(result.getRow());
 
-        List<SqlMetaDataBo> sqlMetaDataList = new ArrayList<SqlMetaDataBo>();
+        List<SqlMetaDataBo> sqlMetaDataList = new ArrayList<>();
         Cell[] rawCell = result.rawCells();
         for (Cell cell : rawCell) {
             SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo();

@@ -25,7 +25,7 @@ import java.util.*;
  */
 public class NodeList {
 
-    private final Map<Application, Node> nodeMap = new HashMap<Application, Node>();
+    private final Map<Application, Node> nodeMap = new HashMap<>();
 
     public Collection<Node> getNodeList() {
         return this.nodeMap.values();

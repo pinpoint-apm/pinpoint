@@ -57,7 +57,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     private AbstractRowKeyDistributor rowKeyDistributor;
 
     // FIXME should modify to save a cachekey at each 30~50 seconds instead of saving at each time
-    private final AtomicLongUpdateMap<CacheKey> updater = new AtomicLongUpdateMap<CacheKey>();
+    private final AtomicLongUpdateMap<CacheKey> updater = new AtomicLongUpdateMap<>();
 
 
     @Override

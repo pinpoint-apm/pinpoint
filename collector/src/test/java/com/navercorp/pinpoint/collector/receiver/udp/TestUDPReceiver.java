@@ -109,7 +109,7 @@ public class TestUDPReceiver implements DataReceiver {
         Assert.notNull(packetHandlerFactory, "packetHandlerFactory must not be null");
 
         final int packetPoolSize = getPacketPoolSize(workerThreadSize, workerThreadQueueSize);
-        this.datagramPacketPool = new DefaultObjectPool<DatagramPacket>(new DatagramPacketFactory(), packetPoolSize);
+        this.datagramPacketPool = new DefaultObjectPool<>(new DatagramPacketFactory(), packetPoolSize);
         this.worker = ExecutorFactory.newFixedThreadPool(workerThreadSize, workerThreadQueueSize, receiverName + "-Worker", true);
 
         this.io = (ThreadPoolExecutor) Executors.newCachedThreadPool(new PinpointThreadFactory(receiverName + "-Io", true));

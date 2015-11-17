@@ -46,7 +46,7 @@ public class AnnotationMapper implements RowMapper<Map<Long, List<AnnotationBo>>
             return Collections.emptyMap();
         }
         Cell[] rawCells = result.rawCells();
-        Map<Long, List<AnnotationBo>> annotationList = new HashMap<Long, List<AnnotationBo>>();
+        Map<Long, List<AnnotationBo>> annotationList = new HashMap<>();
 
         for (Cell cell : rawCells) {
 

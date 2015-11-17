@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.common.bo.SpanBo;
  */
 public class FilterChain implements Filter {
 
-    private final List<Filter> filterList = new ArrayList<Filter>();
+    private final List<Filter> filterList = new ArrayList<>();
 
     public FilterChain() {
     }

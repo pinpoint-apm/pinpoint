@@ -95,14 +95,14 @@ public class SpanServiceImpl implements SpanService {
             if (spanAlign.isSpan()) {
                 annotationBoList = spanAlign.getSpanBo().getAnnotationBoList();
                 if (annotationBoList == null) {
-                    annotationBoList = new ArrayList<AnnotationBo>();
+                    annotationBoList = new ArrayList<>();
                     spanAlign.getSpanBo().setAnnotationBoList(annotationBoList);
                 }
                 annotationReplacementCallback.replacement(spanAlign, annotationBoList);
             } else {
                 annotationBoList = spanAlign.getSpanEventBo().getAnnotationBoList();
                 if (annotationBoList == null) {
-                    annotationBoList = new ArrayList<AnnotationBo>();
+                    annotationBoList = new ArrayList<>();
                     spanAlign.getSpanEventBo().setAnnotationBoList(annotationBoList);
                 }
                 annotationReplacementCallback.replacement(spanAlign, annotationBoList);
@@ -303,7 +303,7 @@ public class SpanServiceImpl implements SpanService {
     }
 
     private List<AnnotationBo> findCachedStringAnnotation(List<AnnotationBo> annotationBoList) {
-        List<AnnotationBo> findAnnotationBoList = new ArrayList<AnnotationBo>(annotationBoList.size());
+        List<AnnotationBo> findAnnotationBoList = new ArrayList<>(annotationBoList.size());
         for (AnnotationBo annotationBo : annotationBoList) {
             if (AnnotationKeyUtils.isCachedArgsKey(annotationBo.getKey())) {
                 findAnnotationBoList.add(annotationBo);

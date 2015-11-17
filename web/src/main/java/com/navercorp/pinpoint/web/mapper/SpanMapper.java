@@ -61,9 +61,9 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
         final TransactionId transactionId = new TransactionId(rowKey, TransactionId.DISTRIBUTE_HASH_SIZE);
 
         final Cell[] rawCells = result.rawCells();
-        List<SpanBo> spanList = new ArrayList<SpanBo>();
-        Map<Long, SpanBo> spanMap = new HashMap<Long, SpanBo>();
-        List<SpanEventBo> spanEventBoList = new ArrayList<SpanEventBo>();
+        List<SpanBo> spanList = new ArrayList<>();
+        Map<Long, SpanBo> spanMap = new HashMap<>();
+        List<SpanEventBo> spanEventBoList = new ArrayList<>();
         for (Cell cell : rawCells) {
             // only if family name is "span"
             if (CellUtil.matchingFamily(cell, HBaseTables.TRACES_CF_SPAN)) {

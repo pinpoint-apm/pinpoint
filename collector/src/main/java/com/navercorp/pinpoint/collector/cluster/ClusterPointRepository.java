@@ -27,7 +27,7 @@ public class ClusterPointRepository<T extends ClusterPoint> implements ClusterPo
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final CopyOnWriteArrayList<T> clusterPointRepository = new CopyOnWriteArrayList<T>();
+    private final CopyOnWriteArrayList<T> clusterPointRepository = new CopyOnWriteArrayList<>();
 
     public boolean addClusterPoint(T clusterPoint) {
         boolean isAdd = clusterPointRepository.addIfAbsent(clusterPoint);
@@ -50,7 +50,7 @@ public class ClusterPointRepository<T extends ClusterPoint> implements ClusterPo
     }
 
     public List<T> getClusterPointList() {
-        return new ArrayList<T>(clusterPointRepository);
+        return new ArrayList<>(clusterPointRepository);
     }
 
     public void clear() {

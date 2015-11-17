@@ -33,7 +33,7 @@ public class PinpointWebSocketHandlerManager {
     private final List<PinpointWebSocketHandler> webSocketHandlerRepository;
 
     public PinpointWebSocketHandlerManager(List<PinpointWebSocketHandler> pinpointWebSocketHandlers) {
-        webSocketHandlerRepository = Collections.unmodifiableList(new ArrayList<PinpointWebSocketHandler>(pinpointWebSocketHandlers));
+        webSocketHandlerRepository = Collections.unmodifiableList(new ArrayList<>(pinpointWebSocketHandlers));
     }
 
     @PostConstruct
@@ -51,7 +51,7 @@ public class PinpointWebSocketHandlerManager {
     }
 
     public List<PinpointWebSocketHandler> getWebSocketHandlerRepository() {
-        return new ArrayList<PinpointWebSocketHandler>(webSocketHandlerRepository);
+        return new ArrayList<>(webSocketHandlerRepository);
     }
 
 }

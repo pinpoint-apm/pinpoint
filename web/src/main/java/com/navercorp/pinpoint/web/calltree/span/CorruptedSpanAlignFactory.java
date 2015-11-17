@@ -49,7 +49,7 @@ public class CorruptedSpanAlignFactory {
         missedEvent.setAgentStartTime(span.getAgentStartTime());
         missedEvent.setServiceType(ServiceType.COLLECTOR.getCode());
 
-        List<AnnotationBo> annotations = new ArrayList<AnnotationBo>();
+        List<AnnotationBo> annotations = new ArrayList<>();
 
         ApiMetaDataBo apiMetaData = new ApiMetaDataBo();
         apiMetaData.setLineNumber(-1);

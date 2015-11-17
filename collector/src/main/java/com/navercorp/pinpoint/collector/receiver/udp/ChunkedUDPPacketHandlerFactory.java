@@ -37,7 +37,7 @@ public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final DeserializerFactory<ChunkHeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<ChunkHeaderTBaseDeserializer>(new ChunkHeaderTBaseDeserializerFactory());
+    private final DeserializerFactory<ChunkHeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<>(new ChunkHeaderTBaseDeserializerFactory());
 
     private final DispatchHandler dispatchHandler;
     private final TBaseFilter filter;

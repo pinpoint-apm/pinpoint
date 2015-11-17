@@ -52,7 +52,7 @@ public class JMXCollectorManagerList {
             return Collections.emptyList();
         }
         
-        List<CollectorManager> supportManagerList = new ArrayList<CollectorManager>();
+        List<CollectorManager> supportManagerList = new ArrayList<>();
 
         ListUtils.addIfValueNotNull(supportManagerList, handlerManager);
         ListUtils.addIfValueNotNull(supportManagerList, clusterManager);

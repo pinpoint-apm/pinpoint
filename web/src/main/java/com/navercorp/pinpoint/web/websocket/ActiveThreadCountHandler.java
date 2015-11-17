@@ -57,8 +57,8 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
     private final Object lock = new Object();
     private final AgentService agentSerivce;
-    private final List<WebSocketSession> sessionRepository = new CopyOnWriteArrayList<WebSocketSession>();
-    private final Map<String, PinpointWebSocketResponseAggregator> aggregatorRepository = new HashMap<String, PinpointWebSocketResponseAggregator>();
+    private final List<WebSocketSession> sessionRepository = new CopyOnWriteArrayList<>();
+    private final Map<String, PinpointWebSocketResponseAggregator> aggregatorRepository = new HashMap<>();
     private PinpointWebSocketMessageConverter messageConverter = new PinpointWebSocketMessageConverter();
 
     private static final String DEFAULT_REQUEST_MAPPING = "/agent/activeThread";
@@ -277,7 +277,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
                 logger.info("HealthCheckTimerTask started.");
 
                 // check session state.
-                List<WebSocketSession> webSocketSessionList = new ArrayList<WebSocketSession>(sessionRepository);
+                List<WebSocketSession> webSocketSessionList = new ArrayList<>(sessionRepository);
                 for (WebSocketSession session : webSocketSessionList) {
                     if (!session.isOpen()) {
                         continue;
@@ -297,7 +297,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
                 String pingTextMessage = messageConverter.getPingTextMessage();
                 TextMessage pingMessage = new TextMessage(pingTextMessage);
 
-                webSocketSessionList = new ArrayList<WebSocketSession>(sessionRepository);
+                webSocketSessionList = new ArrayList<>(sessionRepository);
                 for (WebSocketSession session : webSocketSessionList) {
                     if (!session.isOpen()) {
                         continue;

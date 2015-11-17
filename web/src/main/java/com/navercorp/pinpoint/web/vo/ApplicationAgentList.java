@@ -51,7 +51,7 @@ public class ApplicationAgentList {
     private final SortedMap<String, List<AgentInfo>> applicationAgentList;
 
     public ApplicationAgentList() {
-        this.applicationAgentList = new TreeMap<String, List<AgentInfo>>();
+        this.applicationAgentList = new TreeMap<>();
     }
 
     public ApplicationAgentList(SortedMap<String, List<AgentInfo>> applicationAgentList) {

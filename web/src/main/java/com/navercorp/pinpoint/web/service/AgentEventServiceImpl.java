@@ -54,7 +54,7 @@ public class AgentEventServiceImpl implements AgentEventService {
         }
         final boolean includeEventMessage = false;
         List<AgentEventBo> agentEventBos = this.agentEventDao.getAgentEvents(agentId, range);
-        List<AgentEvent> agentEvents = new ArrayList<AgentEvent>(agentEventBos.size());
+        List<AgentEvent> agentEvents = new ArrayList<>(agentEventBos.size());
         for (AgentEventBo agentEventBo : agentEventBos) {
             if (agentEventBo != null) {
                 agentEvents.add(createAgentEvent(agentEventBo, includeEventMessage));

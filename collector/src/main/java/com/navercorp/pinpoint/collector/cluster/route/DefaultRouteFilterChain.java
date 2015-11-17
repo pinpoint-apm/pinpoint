@@ -31,11 +31,11 @@ public class DefaultRouteFilterChain<T extends RouteEvent> implements RouteFilte
     private final List<RouteFilter<T>> filterList;
     
     public DefaultRouteFilterChain() {
-        this.filterList = new CopyOnWriteArrayList<RouteFilter<T>>();
+        this.filterList = new CopyOnWriteArrayList<>();
     }
     
     public DefaultRouteFilterChain(List<RouteFilter<T>> filterList) {
-        this.filterList = new CopyOnWriteArrayList<RouteFilter<T>>(filterList);
+        this.filterList = new CopyOnWriteArrayList<>(filterList);
     }
 
     @Override

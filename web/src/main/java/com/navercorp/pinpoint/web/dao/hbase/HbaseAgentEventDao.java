@@ -113,7 +113,7 @@ public class HbaseAgentEventDao implements AgentEventDao {
 
         @Override
         public List<AgentEventBo> extractData(ResultScanner results) throws Exception {
-            List<AgentEventBo> agentEvents = new ArrayList<AgentEventBo>();
+            List<AgentEventBo> agentEvents = new ArrayList<>();
             int rowNum = 0;
             for (Result result : results) {
                 List<AgentEventBo> intermediateEvents = agentEventMapper.mapRow(result, rowNum++);

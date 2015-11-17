@@ -70,7 +70,7 @@ public class LimitRowMapperResultsExtractor<T> implements ResultsExtractor<List<
     }
 
     public List<T> extractData(ResultScanner results) throws Exception {
-        final List<T> rs = new ArrayList<T>();
+        final List<T> rs = new ArrayList<>();
         int rowNum = 0;
         Result lastResult = null;
 

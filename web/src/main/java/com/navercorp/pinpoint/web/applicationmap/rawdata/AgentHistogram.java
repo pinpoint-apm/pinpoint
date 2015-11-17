@@ -47,7 +47,7 @@ public class AgentHistogram {
         }
 
         this.agentId = agentId;
-        this.timeHistogramMap = new HashMap<Long, TimeHistogram>();
+        this.timeHistogramMap = new HashMap<>();
     }
 
     public AgentHistogram(AgentHistogram copyAgentHistogram) {
@@ -57,7 +57,7 @@ public class AgentHistogram {
 
         this.agentId = copyAgentHistogram.agentId;
 
-        this.timeHistogramMap = new HashMap<Long, TimeHistogram>();
+        this.timeHistogramMap = new HashMap<>();
         addTimeHistogram(copyAgentHistogram.timeHistogramMap.values());
     }
 

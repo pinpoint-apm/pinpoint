@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.common.bo.SpanBo;
  */
 public class BusinessTransactions {
 
-    private final Map<String, BusinessTransaction> transactions = new HashMap<String, BusinessTransaction>();
+    private final Map<String, BusinessTransaction> transactions = new HashMap<>();
 
     private int totalCallCount;
 

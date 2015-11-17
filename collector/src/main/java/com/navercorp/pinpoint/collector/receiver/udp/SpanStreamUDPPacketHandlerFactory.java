@@ -39,7 +39,7 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<HeaderTBaseDeserializer>(new HeaderTBaseDeserializerFactory());
+    private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<>(new HeaderTBaseDeserializerFactory());
     private final DispatchHandler dispatchHandler;
 
     @SuppressWarnings("unused")
@@ -146,11 +146,11 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
 
     private List<TSpanEvent> getSpanEventList(List<TBase<?, ?>> tbaseList) {
         if (tbaseList == null || tbaseList.size() == 0) {
-            return new ArrayList<TSpanEvent>(0);
+            return new ArrayList<>(0);
         }
 
         int spanEventListSize = tbaseList.size() - 1;
-        List<TSpanEvent> spanEventList = new ArrayList<TSpanEvent>(spanEventListSize);
+        List<TSpanEvent> spanEventList = new ArrayList<>(spanEventListSize);
         for (int i = 0; i < spanEventListSize; i++) {
             TBase<?, ?> tBase = tbaseList.get(i);
             if (tBase instanceof TSpanEvent) {

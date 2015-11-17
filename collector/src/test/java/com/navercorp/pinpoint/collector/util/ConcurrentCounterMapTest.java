@@ -30,7 +30,7 @@ import java.util.Map;
 public class ConcurrentCounterMapTest {
     @Test
     public void testIncrement() throws Exception {
-        ConcurrentCounterMap<String> cache = new ConcurrentCounterMap<String>();
+        ConcurrentCounterMap<String> cache = new ConcurrentCounterMap<>();
         cache.increment("a", 1L);
         cache.increment("a", 2L);
         cache.increment("b", 5L);
@@ -47,7 +47,7 @@ public class ConcurrentCounterMapTest {
 
     @Test
     public void testIntegerMax() throws Exception {
-        ConcurrentCounterMap<String> cache = new ConcurrentCounterMap<String>(16, Integer.MAX_VALUE);
+        ConcurrentCounterMap<String> cache = new ConcurrentCounterMap<>(16, Integer.MAX_VALUE);
         cache.increment("a", 1L);
         cache.increment("a", 2L);
         cache.increment("b", 5L);
@@ -56,7 +56,7 @@ public class ConcurrentCounterMapTest {
 
     @Test
     public void testIntegerMin() throws Exception {
-        ConcurrentCounterMap<String> cache = new ConcurrentCounterMap<String>(16, Integer.MIN_VALUE);
+        ConcurrentCounterMap<String> cache = new ConcurrentCounterMap<>(16, Integer.MIN_VALUE);
         cache.increment("a", 1L);
         cache.increment("a", 2L);
         cache.increment("b", 5L);

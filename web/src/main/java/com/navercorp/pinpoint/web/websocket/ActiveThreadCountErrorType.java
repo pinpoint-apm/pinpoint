@@ -43,7 +43,7 @@ public enum ActiveThreadCountErrorType {
 
     private final short code;
     private final String message;
-    private final List<String> errorMessageList = new ArrayList<String>();
+    private final List<String> errorMessageList = new ArrayList<>();
     private static final String LINE_DELEMETER = "-";
 
     ActiveThreadCountErrorType(short code, String message, String... candidateErrorMessages) {
@@ -70,7 +70,7 @@ public enum ActiveThreadCountErrorType {
     }
 
     private static Map<String, ActiveThreadCountErrorType> initializeCodeMapping() {
-        Map<String, ActiveThreadCountErrorType> codeMap = new HashMap<String, ActiveThreadCountErrorType>();
+        Map<String, ActiveThreadCountErrorType> codeMap = new HashMap<>();
         for (ActiveThreadCountErrorType errorType : ActiveThreadCountErrorType.values()) {
 
             List<String> errorMessageList = errorType.getErrorMessageList();

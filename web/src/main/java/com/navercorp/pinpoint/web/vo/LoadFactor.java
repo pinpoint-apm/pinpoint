@@ -51,8 +51,8 @@ public class LoadFactor {
      * value = key=timestamp, value=value
      * </pre>
      */
-    private final List<Map<Long, Long>> timeseriesValueList = new ArrayList<Map<Long, Long>>();
-    private final Map<Integer, Integer> timeseriesSlotIndex = new TreeMap<Integer, Integer>();
+    private final List<Map<Long, Long>> timeseriesValueList = new ArrayList<>();
+    private final Map<Integer, Integer> timeseriesSlotIndex = new TreeMap<>();
 
     private final Range range;
 
@@ -75,7 +75,7 @@ public class LoadFactor {
      * @return
      */
     private Map<Long, Long> makeEmptyTimeseriesValueMap() {
-        Map<Long, Long> map = new TreeMap<Long, Long>();
+        Map<Long, Long> map = new TreeMap<>();
         for (Long time : timeWindow) {
             map.put(time, 0L);
         }

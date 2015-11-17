@@ -136,7 +136,7 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     public List<AgentInfo> getAgentInfoList(String applicationName) {
-        List<AgentInfo> agentInfoList = new ArrayList<AgentInfo>();
+        List<AgentInfo> agentInfoList = new ArrayList<>();
 
         long currentTime = System.currentTimeMillis();
 
@@ -206,7 +206,7 @@ public class AgentServiceImpl implements AgentService {
     @Override
     public Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, byte[] payload, long timeout)
             throws TException {
-        Map<AgentInfo, Future<ResponseMessage>> futureMap = new HashMap<AgentInfo, Future<ResponseMessage>>();
+        Map<AgentInfo, Future<ResponseMessage>> futureMap = new HashMap<>();
         for (AgentInfo agentInfo : agentInfoList) {
             TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
             PinpointSocket socket = clusterConnectionManager.getSocket(agentInfo);
@@ -220,7 +220,7 @@ public class AgentServiceImpl implements AgentService {
 
         long startTime = System.currentTimeMillis();
 
-        Map<AgentInfo, PinpointRouteResponse> result = new HashMap<AgentInfo, PinpointRouteResponse>();
+        Map<AgentInfo, PinpointRouteResponse> result = new HashMap<>();
         for (Map.Entry<AgentInfo, Future<ResponseMessage>> futureEntry : futureMap.entrySet()) {
             AgentInfo agentInfo = futureEntry.getKey();
             Future<ResponseMessage> future = futureEntry.getValue();

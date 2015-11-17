@@ -70,12 +70,12 @@ public class ZookeeperLatestJobWorker implements Runnable {
 
     private final ZookeeperClient zookeeperClient;
 
-    private final ConcurrentHashMap<PinpointServer, Job> latestJobRepository = new ConcurrentHashMap<PinpointServer, Job>();
+    private final ConcurrentHashMap<PinpointServer, Job> latestJobRepository = new ConcurrentHashMap<>();
 
     // Storage for managing PinpointServers received by Worker
-    private final CopyOnWriteArrayList<PinpointServer> pinpointServerRepository = new CopyOnWriteArrayList<PinpointServer>();
+    private final CopyOnWriteArrayList<PinpointServer> pinpointServerRepository = new CopyOnWriteArrayList<>();
 
-    private final BlockingQueue<Job> leakJobQueue = new LinkedBlockingQueue<Job>();
+    private final BlockingQueue<Job> leakJobQueue = new LinkedBlockingQueue<>();
 
     public ZookeeperLatestJobWorker(ZookeeperClient zookeeperClient, String serverIdentifier) {
         this.zookeeperClient = zookeeperClient;
@@ -268,7 +268,7 @@ public class ZookeeperLatestJobWorker implements Runnable {
     }
 
     public List<PinpointServer> getRegisteredPinpointServerList() {
-        return new ArrayList<PinpointServer>(pinpointServerRepository);
+        return new ArrayList<>(pinpointServerRepository);
     }
 
     /**

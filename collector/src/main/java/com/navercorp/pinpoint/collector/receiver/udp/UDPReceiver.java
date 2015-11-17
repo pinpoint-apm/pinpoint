@@ -117,7 +117,7 @@ public class UDPReceiver implements DataReceiver {
         Assert.notNull(packetHandlerFactory, "packetHandlerFactory must not be null");
 
         final int packetPoolSize = getPacketPoolSize(workerThreadSize, workerThreadQueueSize);
-        this.datagramPacketPool = new DefaultObjectPool<DatagramPacket>(new DatagramPacketFactory(), packetPoolSize);
+        this.datagramPacketPool = new DefaultObjectPool<>(new DatagramPacketFactory(), packetPoolSize);
         this.worker = ExecutorFactory.newFixedThreadPool(workerThreadSize, workerThreadQueueSize, receiverName + "-Worker", true);
 
         this.timer = metricRegistry.timer(receiverName + "-timer");

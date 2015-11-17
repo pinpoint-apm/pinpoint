@@ -47,7 +47,7 @@ public abstract class SampledDataChartBuilder<X extends Number, Y extends Number
     
     private Point makePoint(List<DataPoint<X, Y>> sampleDataPoints) {
         X xVal = sampleDataPoints.get(sampleDataPoints.size()-1).getxVal();
-        List<Y> sampleBuffer = new ArrayList<Y>(sampleDataPoints.size());
+        List<Y> sampleBuffer = new ArrayList<>(sampleDataPoints.size());
         for (DataPoint<X, Y> sampleDataPoint : sampleDataPoints) {
             sampleBuffer.add(sampleDataPoint.getyVal());
         }

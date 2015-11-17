@@ -138,7 +138,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
 
     @Override
     public <T> List<T> find(String tableName, final Scan scan, final RowMapper<T> action) {
-        return find(tableName, scan, new RowMapperResultsExtractor<T>(action));
+        return find(tableName, scan, new RowMapperResultsExtractor<>(action));
     }
 
 //    public class ParallelScan<T> {
@@ -273,7 +273,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
             @Override
             public List<T> doInTable(HTableInterface htable) throws Throwable {
                 Result[] result = htable.get(getList);
-                List<T> list = new ArrayList<T>(result.length);
+                List<T> list = new ArrayList<>(result.length);
                 for (int i = 0; i < result.length; i++) {
                     T t = mapper.mapRow(result[i], i);
                     list.add(t);
@@ -374,7 +374,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         return execute(tableName, new TableCallback<List<T>>() {
             @Override
             public List<T> doInTable(HTableInterface htable) throws Throwable {
-                List<T> result = new ArrayList<T>(scanList.size());
+                List<T> result = new ArrayList<>(scanList.size());
                 for (Scan scan : scanList) {
                     final ResultScanner scanner = htable.getScanner(scan);
                     try {
@@ -391,11 +391,11 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
 
     @Override
     public <T> List<List<T>> find(String tableName, List<Scan> scanList, RowMapper<T> action) {
-        return find(tableName, scanList, new RowMapperResultsExtractor<T>(action));
+        return find(tableName, scanList, new RowMapperResultsExtractor<>(action));
     }
 
     public <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final RowMapper<T> action) {
-        final ResultsExtractor<List<T>> resultsExtractor = new RowMapperResultsExtractor<T>(action);
+        final ResultsExtractor<List<T>> resultsExtractor = new RowMapperResultsExtractor<>(action);
         return execute(tableName, new TableCallback<List<T>>() {
             @Override
             public List<T> doInTable(HTableInterface htable) throws Throwable {
@@ -410,7 +410,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     }
 
     public <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action) {
-        final ResultsExtractor<List<T>> resultsExtractor = new LimitRowMapperResultsExtractor<T>(action, limit);
+        final ResultsExtractor<List<T>> resultsExtractor = new LimitRowMapperResultsExtractor<>(action, limit);
         return execute(tableName, new TableCallback<List<T>>() {
             @Override
             public List<T> doInTable(HTableInterface htable) throws Throwable {
@@ -425,7 +425,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     }
     
     public <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, final LimitEventHandler limitEventHandler) {
-        final LimitRowMapperResultsExtractor<T> resultsExtractor = new LimitRowMapperResultsExtractor<T>(action, limit, limitEventHandler);
+        final LimitRowMapperResultsExtractor<T> resultsExtractor = new LimitRowMapperResultsExtractor<>(action, limit, limitEventHandler);
         return execute(tableName, new TableCallback<List<T>>() {
             @Override
             public List<T> doInTable(HTableInterface htable) throws Throwable {
@@ -523,7 +523,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         return execute(tableName, new TableCallback<List<Result>>() {
             @Override
             public List<Result> doInTable(HTableInterface htable) throws Throwable {
-                final List<Result> resultList = new ArrayList<Result>(incrementList.size());
+                final List<Result> resultList = new ArrayList<>(incrementList.size());
 
                 Exception lastException = null;
                 for (Increment increment : incrementList) {

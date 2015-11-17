@@ -156,7 +156,7 @@ public class AgentLifeCycleHandlerTest {
     }
 
     private static Map<Object, Object> createChannelProperties(String agentId, long startTimestamp, int socketId) {
-        Map<Object, Object> map = new HashMap<Object, Object>();
+        Map<Object, Object> map = new HashMap<>();
         map.put(AgentHandshakePropertyType.AGENT_ID.getName(), agentId);
         map.put(AgentHandshakePropertyType.START_TIMESTAMP.getName(), startTimestamp);
         map.put(AgentLifeCycleHandler.SOCKET_ID_KEY, socketId);

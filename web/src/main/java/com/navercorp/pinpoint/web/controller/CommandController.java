@@ -147,7 +147,7 @@ public class CommandController {
 
     private Map<String, String> createThreadDump(TCommandThreadDumpResponse threadDumps) {
 
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
 
         for (TThreadDump threadDump : threadDumps.getThreadDumps()) {
             String dump = threadDumptoString(threadDump);

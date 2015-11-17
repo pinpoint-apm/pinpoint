@@ -49,7 +49,7 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
             return Collections.emptyList();
         }
         Cell[] rawCells = result.rawCells();
-        List<TransactionId> traceIdList = new ArrayList<TransactionId>(rawCells.length);
+        List<TransactionId> traceIdList = new ArrayList<>(rawCells.length);
         for (Cell cell : rawCells) {
             byte[] qualifierArray = cell.getQualifierArray();
             int qualifierOffset = cell.getQualifierOffset();

@@ -32,13 +32,13 @@ public class CollectorClusterInfoRepository {
 
     private static final String PROFILER_SEPARATOR = "\r\n";
 
-    private final Map<String, Map<String, String>> repository = new HashMap<String, Map<String, String>>();
+    private final Map<String, Map<String, String>> repository = new HashMap<>();
 
     private final Object lock = new Object();
 
     public void put(String id, byte[] data) {
         synchronized (lock) {
-            Map<String, String> newMap = new HashMap<String, String>();
+            Map<String, String> newMap = new HashMap<>();
 
             String[] profilerInfoList = new String(data, charset).split(PROFILER_SEPARATOR);
 
@@ -61,7 +61,7 @@ public class CollectorClusterInfoRepository {
     }
 
     public List<String> get(String applicationName, String agentId, long startTimeStamp) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
 
         synchronized (lock) {
             String key = bindingKey(applicationName, agentId, startTimeStamp);

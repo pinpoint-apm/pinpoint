@@ -133,7 +133,7 @@ public class ScatterChartController {
         logger.trace("submitted transactionId count={}", traceIdList.size());
 
         // TODO just need sorted?  we need range check with tree-based structure.
-        SortedSet<TransactionId> traceIdSet = new TreeSet<TransactionId>(traceIdList);
+        SortedSet<TransactionId> traceIdSet = new TreeSet<>(traceIdList);
         logger.debug("unified traceIdSet size={}", traceIdSet.size());
 
         Filter filter = filterBuilder.build(filterText);
@@ -172,11 +172,11 @@ public class ScatterChartController {
         if(version <= 2) {
             mv.addObject("scatter", scatterData);
         } else {
-            final Map<String, List<Dot>> scatterAgentData = new HashMap<String, List<Dot>>();
+            final Map<String, List<Dot>> scatterAgentData = new HashMap<>();
             for(Dot dot : scatterData) {
                 List<Dot> list = scatterAgentData.get(dot.getAgentId());
                 if(list == null) {
-                    list = new ArrayList<Dot>();
+                    list = new ArrayList<>();
                     scatterAgentData.put(dot.getAgentId(), list);
                 }
                 list.add(dot);
@@ -184,12 +184,12 @@ public class ScatterChartController {
 
             if(version == 4) {
                 TimeWindow timeWindow = new TimeWindow(range);
-                TreeMap<Long, List<Dot>> sortedMap = new TreeMap<Long, List<Dot>>();
+                TreeMap<Long, List<Dot>> sortedMap = new TreeMap<>();
                 for(Dot dot : scatterData) {
                     long key = timeWindow.refineTimestamp(dot.getAcceptedTime());
                     List<Dot> list = sortedMap.get(key);
                     if(list == null) {
-                        list = new ArrayList<Dot>();
+                        list = new ArrayList<>();
                         sortedMap.put(key, list);
                     }
                     list.add(dot);
@@ -198,9 +198,9 @@ public class ScatterChartController {
                 // average
                 // max
                 // min
-                List<Dot> averageList = new ArrayList<Dot>();
-                List<Dot> maxList = new ArrayList<Dot>();
-                List<Dot> minList = new ArrayList<Dot>();
+                List<Dot> averageList = new ArrayList<>();
+                List<Dot> maxList = new ArrayList<>();
+                List<Dot> minList = new ArrayList<>();
                 for(Map.Entry<Long, List<Dot>> entry : sortedMap.entrySet()) {
                     Dot max = null;
                     Dot min = null;
@@ -361,7 +361,7 @@ public class ScatterChartController {
             logger.trace("submitted transactionId count={}", traceIdList.size());
 
             // TODO: just sorted?  we need range check based on tree structure
-            SortedSet<TransactionId> traceIdSet = new TreeSet<TransactionId>(traceIdList);
+            SortedSet<TransactionId> traceIdSet = new TreeSet<>(traceIdList);
             logger.debug("unified traceIdSet size={}", traceIdSet.size());
 
             List<Dot> dots = scatter.selectScatterData(traceIdSet, applicationName, filterBuilder.build(filterText));

@@ -30,7 +30,7 @@ public class AcceptApplicationLocalCache {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private boolean isDebug = logger.isDebugEnabled();
 
-    private final Map<RpcApplication, Set<AcceptApplication>> acceptApplicationLocalCache = new HashMap<RpcApplication, Set<AcceptApplication>>();
+    private final Map<RpcApplication, Set<AcceptApplication>> acceptApplicationLocalCache = new HashMap<>();
 
     public Set<AcceptApplication> get(RpcApplication findKey) {
         final Set<AcceptApplication> hit = this.acceptApplicationLocalCache.get(findKey);
@@ -62,7 +62,7 @@ public class AcceptApplicationLocalCache {
             RpcApplication newKey = new RpcApplication(acceptApplication.getHost(), findKey.getApplication());
             Set<AcceptApplication> findSet = this.acceptApplicationLocalCache.get(newKey);
             if (findSet == null) {
-                findSet = new HashSet<AcceptApplication>();
+                findSet = new HashSet<>();
                 this.acceptApplicationLocalCache.put(newKey, findSet);
             }
             findSet.add(acceptApplication);

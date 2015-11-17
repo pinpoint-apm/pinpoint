@@ -32,7 +32,7 @@ public class LinkCallDataMap {
 
 //    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final Map<LinkKey, LinkCallData> linkDataMap = new HashMap<LinkKey, LinkCallData>();
+    private final Map<LinkKey, LinkCallData> linkDataMap = new HashMap<>();
     private final TimeWindow timeWindow;
 
     public LinkCallDataMap() {

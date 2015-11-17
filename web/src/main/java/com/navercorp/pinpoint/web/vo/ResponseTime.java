@@ -32,7 +32,7 @@ public class ResponseTime {
     private final long timeStamp;
 
     // agentId is the key
-    private final Map<String, TimeHistogram> responseHistogramMap = new HashMap<String, TimeHistogram>();
+    private final Map<String, TimeHistogram> responseHistogramMap = new HashMap<>();
 
 
     public ResponseTime(String applicationName, ServiceType applicationServiceType, long timeStamp) {

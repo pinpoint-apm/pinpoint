@@ -47,7 +47,7 @@ public class ApplicationNameMapper implements RowMapper<List<Application>> {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
-        Set<Short> uniqueTypeCodes = new HashSet<Short>();
+        Set<Short> uniqueTypeCodes = new HashSet<>();
         String applicationName = Bytes.toString(result.getRow());
         
         Cell[] rawCells = result.rawCells();
@@ -55,7 +55,7 @@ public class ApplicationNameMapper implements RowMapper<List<Application>> {
             short serviceTypeCode = Bytes.toShort(CellUtil.cloneValue(cell));
             uniqueTypeCodes.add(serviceTypeCode);
         }
-        List<Application> applicationList = new ArrayList<Application>();
+        List<Application> applicationList = new ArrayList<>();
         for (short serviceTypeCode : uniqueTypeCodes) {
             final Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
             applicationList.add(application);

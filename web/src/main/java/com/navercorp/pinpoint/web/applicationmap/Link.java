@@ -228,7 +228,7 @@ public class Link {
     }
 
     public Collection<Application> getSourceLinkTargetAgentList() {
-        Set<Application> agentList = new HashSet<Application>();
+        Set<Application> agentList = new HashSet<>();
         Collection<LinkCallData> linkDataList = sourceLinkCallDataMap.getLinkDataList();
         for (LinkCallData linkCallData : linkDataList) {
             agentList.add(new Application(linkCallData.getTarget(), linkCallData.getTargetServiceType()));

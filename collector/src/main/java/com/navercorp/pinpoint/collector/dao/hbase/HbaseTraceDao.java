@@ -137,7 +137,7 @@ public class HbaseTraceDao implements TracesDao {
     }
 
     private byte[] writeAnnotation(List<TAnnotation> annotations) {
-        List<AnnotationBo> boList = new ArrayList<AnnotationBo>(annotations.size());
+        List<AnnotationBo> boList = new ArrayList<>(annotations.size());
         for (TAnnotation ano : annotations) {
             AnnotationBo annotationBo = new AnnotationBo(ano);
             boList.add(annotationBo);

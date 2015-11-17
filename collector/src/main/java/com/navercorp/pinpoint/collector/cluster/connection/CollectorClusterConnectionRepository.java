@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CollectorClusterConnectionRepository {
 
-    private final ConcurrentHashMap<SocketAddress, PinpointSocket> clusterConnectionRepository = new ConcurrentHashMap<SocketAddress, PinpointSocket>();
+    private final ConcurrentHashMap<SocketAddress, PinpointSocket> clusterConnectionRepository = new ConcurrentHashMap<>();
 
     public PinpointSocket putIfAbsent(SocketAddress address, PinpointSocket pinpointSocket) {
         return clusterConnectionRepository.putIfAbsent(address, pinpointSocket);
@@ -46,11 +46,11 @@ public class CollectorClusterConnectionRepository {
     }
 
     public List<SocketAddress> getAddressList() {
-        return new ArrayList<SocketAddress>(clusterConnectionRepository.keySet());
+        return new ArrayList<>(clusterConnectionRepository.keySet());
     }
 
     public List<PinpointSocket> getClusterSocketList() {
-        return new ArrayList<PinpointSocket>(clusterConnectionRepository.values());
+        return new ArrayList<>(clusterConnectionRepository.values());
     }
 
 }

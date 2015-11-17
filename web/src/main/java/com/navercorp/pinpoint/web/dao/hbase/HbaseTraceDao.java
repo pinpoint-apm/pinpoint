@@ -84,7 +84,7 @@ public class HbaseTraceDao implements TraceDao {
             throw new NullPointerException("transactionIdList must not be null");
         }
 
-        final List<Get> getList = new ArrayList<Get>(transactionIdList.size());
+        final List<Get> getList = new ArrayList<>(transactionIdList.size());
         for (TransactionId traceId : transactionIdList) {
             final byte[] traceIdBytes = rowKeyDistributor.getDistributedKey(traceId.getBytes());
             final Get get = new Get(traceIdBytes);
@@ -100,7 +100,7 @@ public class HbaseTraceDao implements TraceDao {
             throw new NullPointerException("transactionIdList must not be null");
         }
 
-        final List<Get> gets = new ArrayList<Get>(transactionIdList.size());
+        final List<Get> gets = new ArrayList<>(transactionIdList.size());
         for (TransactionId transactionId : transactionIdList) {
             final byte[] transactionIdBytes = this.rowKeyDistributor.getDistributedKey(transactionId.getBytes());
             final Get get = new Get(transactionIdBytes);
