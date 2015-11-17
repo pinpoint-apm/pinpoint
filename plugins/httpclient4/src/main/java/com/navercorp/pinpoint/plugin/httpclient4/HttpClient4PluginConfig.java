@@ -28,90 +28,78 @@ public class HttpClient4PluginConfig {
     /**
      * apache http client 4
      */
-    private boolean apacheHttpClient4ProfileCookie = false;
-    private DumpType apacheHttpClient4ProfileCookieDumpType = DumpType.EXCEPTION;
-    private int apacheHttpClient4ProfileCookieSamplingRate = 1;
-    private boolean apacheHttpClient4ProfileEntity = false;
-    private DumpType apacheHttpClient4ProfileEntityDumpType = DumpType.EXCEPTION;
-    private int apacheHttpClient4ProfileEntitySamplingRate = 1;
-    private boolean apacheHttpClient4ProfileStatusCode = true;
-
-    /**
-     * apache nio http client
-     */
-    private boolean apacheNIOHttpClient4Profile = true;
+    private boolean param = true;
+    private boolean cookie = false;
+    private DumpType cookieDumpType = DumpType.EXCEPTION;
+    private int cookieSamplingRate = 1;
+    private boolean entity = false;
+    private DumpType entityDumpType = DumpType.EXCEPTION;
+    private int entitySamplingRate = 1;
+    private boolean statusCode = true;
+    private boolean io;
 
     public HttpClient4PluginConfig(ProfilerConfig src) {
         /**
          * apache http client 4
          */
-        this.apacheHttpClient4ProfileCookie = src.readBoolean("profiler.apache.httpclient4.cookie", false);
-        this.apacheHttpClient4ProfileCookieDumpType = src.readDumpType("profiler.apache.httpclient4.cookie.dumptype", DumpType.EXCEPTION);
-        this.apacheHttpClient4ProfileCookieSamplingRate = src.readInt("profiler.apache.httpclient4.cookie.sampling.rate", 1);
+        this.param = src.readBoolean("profiler.apache.httpclient4.param", true);
+        this.cookie = src.readBoolean("profiler.apache.httpclient4.cookie", false);
+        this.cookieDumpType = src.readDumpType("profiler.apache.httpclient4.cookie.dumptype", DumpType.EXCEPTION);
+        this.cookieSamplingRate = src.readInt("profiler.apache.httpclient4.cookie.sampling.rate", 1);
 
-        this.apacheHttpClient4ProfileEntity = src.readBoolean("profiler.apache.httpclient4.entity", false);
-        this.apacheHttpClient4ProfileEntityDumpType = src.readDumpType("profiler.apache.httpclient4.entity.dumptype", DumpType.EXCEPTION);
-        this.apacheHttpClient4ProfileEntitySamplingRate = src.readInt("profiler.apache.httpclient4.entity.sampling.rate", 1);
+        this.entity = src.readBoolean("profiler.apache.httpclient4.entity", false);
+        this.entityDumpType = src.readDumpType("profiler.apache.httpclient4.entity.dumptype", DumpType.EXCEPTION);
+        this.entitySamplingRate = src.readInt("profiler.apache.httpclient4.entity.sampling.rate", 1);
 
-        this.apacheHttpClient4ProfileStatusCode = src.readBoolean("profiler.apache.httpclient4.entity.statuscode", true);
-        /**
-         * apache nio http client
-         */
-        this.apacheNIOHttpClient4Profile = src.readBoolean("profiler.apache.nio.httpclient4", true);
+        this.statusCode = src.readBoolean("profiler.apache.httpclient4.entity.statuscode", true);
+        this.io = src.readBoolean("profiler.apache.httpclient4.io", true);
     }
 
-    public boolean isApacheHttpClient4ProfileCookie() {
-        return apacheHttpClient4ProfileCookie;
+    public boolean isParam() {
+        return param;
     }
 
-    public DumpType getApacheHttpClient4ProfileCookieDumpType() {
-        return apacheHttpClient4ProfileCookieDumpType;
+    public boolean isCookie() {
+        return cookie;
     }
 
-    public int getApacheHttpClient4ProfileCookieSamplingRate() {
-        return apacheHttpClient4ProfileCookieSamplingRate;
+    public DumpType getCookieDumpType() {
+        return cookieDumpType;
     }
 
-    public boolean isApacheHttpClient4ProfileEntity() {
-        return apacheHttpClient4ProfileEntity;
+    public int getCookieSamplingRate() {
+        return cookieSamplingRate;
     }
 
-    public DumpType getApacheHttpClient4ProfileEntityDumpType() {
-        return apacheHttpClient4ProfileEntityDumpType;
+    public boolean isEntity() {
+        return entity;
     }
 
-    public int getApacheHttpClient4ProfileEntitySamplingRate() {
-        return apacheHttpClient4ProfileEntitySamplingRate;
+    public DumpType getEntityDumpType() {
+        return entityDumpType;
     }
 
-    public boolean isApacheHttpClient4ProfileStatusCode() {
-        return apacheHttpClient4ProfileStatusCode;
+    public int getEntitySamplingRate() {
+        return entitySamplingRate;
     }
 
-    public boolean isApacheNIOHttpClient4Profile() {
-        return apacheNIOHttpClient4Profile;
+    public boolean isStatusCode() {
+        return statusCode;
     }
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("{apacheHttpClient4ProfileCookie=");
-        builder.append(apacheHttpClient4ProfileCookie);
-        builder.append(", apacheHttpClient4ProfileCookieDumpType=");
-        builder.append(apacheHttpClient4ProfileCookieDumpType);
-        builder.append(", apacheHttpClient4ProfileCookieSamplingRate=");
-        builder.append(apacheHttpClient4ProfileCookieSamplingRate);
-        builder.append(", apacheHttpClient4ProfileEntity=");
-        builder.append(apacheHttpClient4ProfileEntity);
-        builder.append(", apacheHttpClient4ProfileEntityDumpType=");
-        builder.append(apacheHttpClient4ProfileEntityDumpType);
-        builder.append(", apacheHttpClient4ProfileEntitySamplingRate=");
-        builder.append(apacheHttpClient4ProfileEntitySamplingRate);
-        builder.append(", apacheHttpClient4ProfileStatusCode=");
-        builder.append(apacheHttpClient4ProfileStatusCode);
-        builder.append(", apacheNIOHttpClient4Profile=");
-        builder.append(apacheNIOHttpClient4Profile);
-        builder.append("}");
-        return builder.toString();
+        final StringBuilder sb = new StringBuilder("{");
+        sb.append("param=").append(param);
+        sb.append(", cookie=").append(cookie);
+        sb.append(", cookieDumpType=").append(cookieDumpType);
+        sb.append(", cookieSamplingRate=").append(cookieSamplingRate);
+        sb.append(", entity=").append(entity);
+        sb.append(", entityDumpType=").append(entityDumpType);
+        sb.append(", entitySamplingRate=").append(entitySamplingRate);
+        sb.append(", statusCode=").append(statusCode);
+        sb.append(", io=").append(io);
+        sb.append('}');
+        return sb.toString();
     }
 }

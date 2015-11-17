@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4PluginConfig;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -69,6 +70,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
     private TraceContext traceContext;
     private MethodDescriptor methodDescriptor;
 
+    private boolean param;
     protected boolean cookie;
     protected DumpType cookieDumpType;
     protected SimpleSampler cookieSampler;
@@ -80,8 +82,22 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
     protected boolean statusCode;
 
     public DefaultClientExchangeHandlerImplStartMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        setTraceContext(traceContext);
+        this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
+
+        final HttpClient4PluginConfig config = new HttpClient4PluginConfig(traceContext.getProfilerConfig());
+        this.param = config.isParam();
+        this.cookie = config.isCookie();
+        this.cookieDumpType = config.getCookieDumpType();
+        if (cookie) {
+            this.cookieSampler = SimpleSamplerFactory.createSampler(cookie, config.getCookieSamplingRate());
+        }
+
+        this.entity = config.isEntity();
+        this.entityDumpType = config.getEntityDumpType();
+        if (entity) {
+            this.entitySampler = SimpleSamplerFactory.createSampler(entity, config.getEntitySamplingRate());
+        }
     }
 
     @Override
@@ -196,7 +212,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
             final HttpRequest httpRequest = getHttpRequest(target);
             if (httpRequest != null) {
                 // Accessing httpRequest here not BEFORE() because it can cause side effect.
-                recorder.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getRequestLine().getUri());
+                recorder.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(httpRequest.getRequestLine().getUri(), param));
                 final NameIntValuePair<String> host = getHost(target);
                 if (host != null) {
                     final String endpoint = getEndpoint(host.getName(), host.getValue());
@@ -364,22 +380,5 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
             }
         }
         return charset;
-    }
-
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
-
-        final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
-        this.cookie = profilerConfig.isApacheHttpClient4ProfileCookie();
-        this.cookieDumpType = profilerConfig.getApacheHttpClient4ProfileCookieDumpType();
-        if (cookie) {
-            this.cookieSampler = SimpleSamplerFactory.createSampler(cookie, profilerConfig.getApacheHttpClient4ProfileCookieSamplingRate());
-        }
-
-        this.entity = profilerConfig.isApacheHttpClient4ProfileEntity();
-        this.entityDumpType = profilerConfig.getApacheHttpClient4ProfileEntityDumpType();
-        if (entity) {
-            this.entitySampler = SimpleSamplerFactory.createSampler(entity, profilerConfig.getApacheHttpClient4ProfileEntitySamplingRate());
-        }
     }
 }
