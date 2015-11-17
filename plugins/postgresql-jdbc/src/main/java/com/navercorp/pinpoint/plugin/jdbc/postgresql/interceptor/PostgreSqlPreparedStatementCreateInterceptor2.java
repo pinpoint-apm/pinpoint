@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 
 /**
- * @author emeroad
+ * @author Brad Hong
  */
 @TargetMethods({
         @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int" }), 

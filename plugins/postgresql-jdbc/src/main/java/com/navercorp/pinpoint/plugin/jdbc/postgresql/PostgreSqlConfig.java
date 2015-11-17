@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.plugin.jdbc.postgresql;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 /**
- * @author Jongho Moon
+ * @author Brad Hong
  *
  */
 public class PostgreSqlConfig {

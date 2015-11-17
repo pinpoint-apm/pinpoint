@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.plugin.jdbc.postgresql.PostgreSqlConstants;
 
 /**
- * @author emeroad
+ * @author Brad Hong
  */
 @TargetConstructor({ "org.postgresql.util.HostSpec[]", "java.lang.String", "java.lang.String", "java.util.Properties", "java.lang.String" })
 public class PostgreSQLConnectionCreateInterceptor implements AroundInterceptor {

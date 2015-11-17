@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 
 /**
- * @author emeroad
+ * @author Brad Hong
  */
 public class PostgreSqlUrlParserTest {
 

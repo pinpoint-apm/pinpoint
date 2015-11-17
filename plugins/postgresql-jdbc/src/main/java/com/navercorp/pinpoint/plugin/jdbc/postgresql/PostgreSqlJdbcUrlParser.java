@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
 
 /**
- * @author emeroad
+ * @author Brad Hong
  */
 public class PostgreSqlJdbcUrlParser extends JdbcUrlParser {
 

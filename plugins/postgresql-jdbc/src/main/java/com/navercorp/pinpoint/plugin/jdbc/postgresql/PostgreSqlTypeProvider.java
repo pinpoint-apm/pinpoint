@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
 /**
- * @author Jongho Moon
+ * @author Brad Hong
  *
  */
 public class PostgreSqlTypeProvider implements TraceMetadataProvider {

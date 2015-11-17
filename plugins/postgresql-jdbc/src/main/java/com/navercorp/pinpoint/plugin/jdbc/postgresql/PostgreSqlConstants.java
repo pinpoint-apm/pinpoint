@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 /**
- * @author Jongho Moon
+ * @author Brad Hong
  *
  */
 public final class PostgreSqlConstants {
