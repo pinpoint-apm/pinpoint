@@ -39,8 +39,8 @@ import com.navercorp.pinpoint.web.vo.UserGroupMember;
 @Repository
 public class MemoryUserGroupDao implements UserGroupDao {
     
-    private final Map<String, UserGroup> userGroups = new ConcurrentHashMap<String, UserGroup>();
-    private final Map<String, UserGroupMember> userGroupMembers = new ConcurrentHashMap<String, UserGroupMember>();
+    private final Map<String, UserGroup> userGroups = new ConcurrentHashMap<>();
+    private final Map<String, UserGroupMember> userGroupMembers = new ConcurrentHashMap<>();
     
     private final AtomicInteger userGroupNumGenerator  = new AtomicInteger();
     private final AtomicInteger userGroupMemNumGenerator  = new AtomicInteger();
@@ -64,7 +64,7 @@ public class MemoryUserGroupDao implements UserGroupDao {
 
     @Override
     public List<UserGroup> selectUserGroupByUserId(String userId) {
-        Set<String> userGroupNames = new HashSet<String>();
+        Set<String> userGroupNames = new HashSet<>();
         
         for (UserGroupMember member : userGroupMembers.values()) {
             if (member.getMemberId().equals(userId)) {

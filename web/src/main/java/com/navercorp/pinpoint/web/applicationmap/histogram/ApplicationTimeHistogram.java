@@ -60,7 +60,7 @@ public class ApplicationTimeHistogram {
     }
 
     public List<ResponseTimeViewModel> createViewModel() {
-        final List<ResponseTimeViewModel> value = new ArrayList<ResponseTimeViewModel>(5);
+        final List<ResponseTimeViewModel> value = new ArrayList<>(5);
         ServiceType serviceType = application.getServiceType();
         HistogramSchema schema = serviceType.getHistogramSchema();
         value.add(new ResponseTimeViewModel(schema.getFastSlot().getSlotName(), getColumnValue(SlotType.FAST)));
@@ -77,7 +77,7 @@ public class ApplicationTimeHistogram {
     }
 
     public List<ResponseTimeViewModel.TimeCount> getColumnValue(SlotType slotType) {
-        List<ResponseTimeViewModel.TimeCount> result = new ArrayList<ResponseTimeViewModel.TimeCount>(histogramList.size());
+        List<ResponseTimeViewModel.TimeCount> result = new ArrayList<>(histogramList.size());
         for (TimeHistogram timeHistogram : histogramList) {
             final long timeStamp = timeHistogram.getTimeStamp();
 

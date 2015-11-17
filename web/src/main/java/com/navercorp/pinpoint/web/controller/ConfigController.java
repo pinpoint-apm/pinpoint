@@ -46,7 +46,7 @@ public class ConfigController {
     @RequestMapping(value="/configuration", method=RequestMethod.GET)
     @ResponseBody
     public Map<String, Object> getProperties(@RequestHeader(value="SSO_USER", required=false) String userId) {
-        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> result = new HashMap<>();
         
         result.put("sendUsage", webProperties.getSendUsage());
         result.put("editUserInfo", webProperties.getEditUserInfo());

@@ -86,7 +86,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 
         final List<List<SpanBo>> traceList = traceDao.selectAllSpans(transactionIdList);
 
-        final List<Dot> result = new ArrayList<Dot>();
+        final List<Dot> result = new ArrayList<>();
 
         for (List<SpanBo> trace : traceList) {
             if (!filter.include(trace)) {
@@ -117,7 +117,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
         final List<List<SpanBo>> selectedSpans = traceDao.selectSpans(transactionIdList);
 
 
-        final List<SpanBo> result = new ArrayList<SpanBo>(query.size());
+        final List<SpanBo> result = new ArrayList<>(query.size());
         int index = 0;
         for (List<SpanBo> spans : selectedSpans) {
             if (spans.size() == 0) {

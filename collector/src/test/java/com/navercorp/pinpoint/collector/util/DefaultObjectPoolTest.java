@@ -28,7 +28,7 @@ public class DefaultObjectPoolTest {
 
     @Test
     public void testGetObject() throws Exception {
-        DefaultObjectPool<DatagramPacket> pool = new DefaultObjectPool<DatagramPacket>(new DatagramPacketFactory(), 1);
+        DefaultObjectPool<DatagramPacket> pool = new DefaultObjectPool<>(new DatagramPacketFactory(), 1);
 
         PooledObject<DatagramPacket> pooledObject = pool.getObject();
         Assert.assertEquals(0, pool.size());
@@ -39,7 +39,7 @@ public class DefaultObjectPoolTest {
 
     @Test
     public void testReset() throws Exception {
-        DefaultObjectPool<DatagramPacket> pool = new DefaultObjectPool<DatagramPacket>(new DatagramPacketFactory(), 1);
+        DefaultObjectPool<DatagramPacket> pool = new DefaultObjectPool<>(new DatagramPacketFactory(), 1);
 
         PooledObject<DatagramPacket> pooledObject = pool.getObject();
         DatagramPacket packet = pooledObject.getObject();

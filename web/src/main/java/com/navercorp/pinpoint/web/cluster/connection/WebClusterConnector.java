@@ -44,7 +44,7 @@ public class WebClusterConnector implements WebClusterConnectionProvider {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final PinpointClientFactory clientFactory = new PinpointClientFactory();
-    private final List<PinpointSocket> clusterSocketList = new ArrayList<PinpointSocket>();
+    private final List<PinpointSocket> clusterSocketList = new ArrayList<>();
 
     private final String connectString;
 
@@ -86,7 +86,7 @@ public class WebClusterConnector implements WebClusterConnectionProvider {
 
 
     private List<InetSocketAddress> parseConnectString(String connectString) {
-        List<InetSocketAddress> serverAddressList = new ArrayList<InetSocketAddress>();
+        List<InetSocketAddress> serverAddressList = new ArrayList<>();
 
         String[] hostsList = connectString.split(",");
         for (String host : hostsList) {

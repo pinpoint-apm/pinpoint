@@ -39,7 +39,7 @@ public class DotExtractor {
     private final Range range;
     private final ApplicationFactory applicationFactory;
 
-    private Map<Application, List<Dot>> dotMap = new HashMap<Application, List<Dot>>();
+    private Map<Application, List<Dot>> dotMap = new HashMap<>();
 
 
     public DotExtractor(Range range, ApplicationFactory applicationFactory) {
@@ -70,14 +70,14 @@ public class DotExtractor {
     private List<Dot> getDotList(Application spanApplication) {
         List<Dot> dotList = this.dotMap.get(spanApplication);
         if(dotList == null) {
-            dotList = new ArrayList<Dot>();
+            dotList = new ArrayList<>();
             this.dotMap.put(spanApplication, dotList);
         }
         return dotList;
     }
 
     public List<ApplicationScatterScanResult> getApplicationScatterScanResult() {
-        List<ApplicationScatterScanResult> applicationScatterScanResult = new ArrayList<ApplicationScatterScanResult>();
+        List<ApplicationScatterScanResult> applicationScatterScanResult = new ArrayList<>();
         for (Map.Entry<Application, List<Dot>> entry : this.dotMap.entrySet()) {
             List<Dot> dotList = entry.getValue();
             Application application = entry.getKey();

@@ -40,9 +40,9 @@ public class AgentStatDataCollector extends DataCollector {
     private final long slotInterval;
     private final AtomicBoolean init = new AtomicBoolean(false); // need to consider a race condition when checkers start simultaneously.
 
-    private final Map<String, Long> agentHeapUsageRate = new HashMap<String, Long>();
-    private final Map<String, Long> agentGcCount = new HashMap<String, Long>();
-    private final Map<String, Long> agentJvmCpuUsageRate = new HashMap<String, Long>();
+    private final Map<String, Long> agentHeapUsageRate = new HashMap<>();
+    private final Map<String, Long> agentGcCount = new HashMap<>();
+    private final Map<String, Long> agentJvmCpuUsageRate = new HashMap<>();
 
     public AgentStatDataCollector(DataCollectorCategory category, Application application, AgentStatDao agentStatDao, ApplicationIndexDao applicationIndexDao, long timeSlotEndTime, long slotInterval) {
         super(category);

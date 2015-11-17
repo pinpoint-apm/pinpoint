@@ -38,7 +38,7 @@ import com.navercorp.pinpoint.web.vo.UserGroup;
 @Repository
 public class MemoryAlarmDao implements AlarmDao {
     
-    private final Map<String, Rule> alarmRule = new ConcurrentHashMap<String, Rule>();
+    private final Map<String, Rule> alarmRule = new ConcurrentHashMap<>();
     private final AtomicInteger ruleIdGenerator  = new AtomicInteger(); 
     
     @Autowired
@@ -118,7 +118,7 @@ public class MemoryAlarmDao implements AlarmDao {
 
     @Override
     public List<CheckerResult> selectBeforeCheckerResultList(String applicationId) {
-        return new ArrayList<CheckerResult>();
+        return new ArrayList<>();
     }
 
     @Override

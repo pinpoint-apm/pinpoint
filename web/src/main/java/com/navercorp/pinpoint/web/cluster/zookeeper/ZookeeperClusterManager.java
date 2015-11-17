@@ -66,7 +66,7 @@ public class ZookeeperClusterManager implements ClusterManager, Watcher {
 
     private final Timer timer;
 
-    private final AtomicReference<PushWebClusterJob> job = new AtomicReference<ZookeeperClusterManager.PushWebClusterJob>();
+    private final AtomicReference<PushWebClusterJob> job = new AtomicReference<>();
 
     private final CollectorClusterInfoRepository collectorClusterInfo = new CollectorClusterInfoRepository();
 

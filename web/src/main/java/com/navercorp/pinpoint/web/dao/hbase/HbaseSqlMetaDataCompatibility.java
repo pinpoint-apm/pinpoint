@@ -67,7 +67,7 @@ public class HbaseSqlMetaDataCompatibility implements SqlMetaDataDao {
     
     @Override
     public List<SqlMetaDataBo> getSqlMetaData(String agentId, long time, int hashCode) {
-        List<SqlMetaDataBo> sqlMetaDataList = new ArrayList<SqlMetaDataBo>();
+        List<SqlMetaDataBo> sqlMetaDataList = new ArrayList<>();
         
         if (SQL_METADATA_VER2_EXISTED) {
             sqlMetaDataList = hbaseSqlMetaDataDao.getSqlMetaData(agentId, time, hashCode);

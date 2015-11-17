@@ -50,7 +50,7 @@ public class ClusterManager extends AbstractCollectorManager implements ClusterM
 
     @Override
     public List<String> getConnectedAgentList() {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
 
         List clusterPointList = clusterPointLocator.getClusterPointList();
         for (Object clusterPoint : clusterPointList) {

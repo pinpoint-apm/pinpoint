@@ -87,7 +87,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         final Scan scan = createScan(host, range);
         final List<Application> result = hbaseOperations2.find(HBaseTables.HOST_APPLICATION_MAP, scan, hostApplicationMapper);
         if (CollectionUtils.isNotEmpty(result)) {
-            Set<AcceptApplication> resultSet = new HashSet<AcceptApplication>();
+            Set<AcceptApplication> resultSet = new HashSet<>();
             for (Application application : result) {
                 resultSet.add(new AcceptApplication(host, application));
             }
@@ -129,7 +129,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         final Scan scan = createScan(fromApplication, range);
         final List<List<AcceptApplication>> result = hbaseOperations2.find(HBaseTables.HOST_APPLICATION_MAP_VER2, scan, acceptApplicationRowKeyDistributor, hostApplicationMapperVer2);
         if (CollectionUtils.isNotEmpty(result)) {
-            final Set<AcceptApplication> resultSet = new HashSet<AcceptApplication>();
+            final Set<AcceptApplication> resultSet = new HashSet<>();
             for (List<AcceptApplication> resultList : result) {
                 resultSet.addAll(resultList);
             }

@@ -30,8 +30,8 @@ import java.util.Set;
 public class LinkVisitChecker {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final Set<Application> calleeFound = new HashSet<Application>();
-    private final Set<Application> callerFound = new HashSet<Application>();
+    private final Set<Application> calleeFound = new HashSet<>();
+    private final Set<Application> callerFound = new HashSet<>();
 
     public boolean visitCaller(Application caller) {
         return visit(callerFound, caller, "Caller");

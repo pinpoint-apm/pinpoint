@@ -27,7 +27,7 @@ public class AtomicLongUpdateMap<T> {
     // FIXME consider to save a mapping information at each 30 ~ 50 seconds not to do at each time.
     // consider to change to LRU due to OOM risk
 
-    private final ConcurrentMap<T, AtomicLong> cache = new ConcurrentHashMap<T, AtomicLong>(1024, 0.75f, 32);
+    private final ConcurrentMap<T, AtomicLong> cache = new ConcurrentHashMap<>(1024, 0.75f, 32);
 
 
     public boolean update(final T cacheKey, final long time) {

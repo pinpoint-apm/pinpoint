@@ -54,7 +54,7 @@ public class HostApplicationMapperVer2 implements RowMapper<List<AcceptApplicati
         }
 //       readRowKey(result.getRow());
 
-        final List<AcceptApplication> acceptApplicationList = new ArrayList<AcceptApplication>(result.size());
+        final List<AcceptApplication> acceptApplicationList = new ArrayList<>(result.size());
         for (Cell cell : result.rawCells()) {
             AcceptApplication acceptedApplication = createAcceptedApplication(cell);
             acceptApplicationList.add(acceptedApplication);

@@ -347,7 +347,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                 throw new NullPointerException("callTreeIterator must not be null");
             }
 
-            final List<Record> recordList = new ArrayList<Record>(callTreeIterator.size() * 2);
+            final List<Record> recordList = new ArrayList<>(callTreeIterator.size() * 2);
             final RecordFactory factory = new RecordFactory(registry, annotationKeyRegistryService);
 
             // annotation id has nothing to do with spanAlign's seq and thus may be incremented as long as they don't overlap.

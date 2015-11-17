@@ -52,7 +52,7 @@ public class StringMetaDataMapper implements RowMapper<List<StringMetaDataBo>> {
         }
         final byte[] rowKey = getOriginalKey(result.getRow());
 
-        List<StringMetaDataBo> stringMetaDataList = new ArrayList<StringMetaDataBo>();
+        List<StringMetaDataBo> stringMetaDataList = new ArrayList<>();
         Cell[] rawCells = result.rawCells();
         for (Cell cell : rawCells) {
             StringMetaDataBo sqlMetaDataBo = new StringMetaDataBo();

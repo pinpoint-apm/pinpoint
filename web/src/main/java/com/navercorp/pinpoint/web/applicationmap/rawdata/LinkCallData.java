@@ -51,7 +51,7 @@ public class LinkCallData {
         this.target = linkKey.getToApplication();
         this.targetServiceType = linkKey.getToServiceType();
 
-        this.targetHistogramTimeMap = new HashMap<Long, TimeHistogram>();
+        this.targetHistogramTimeMap = new HashMap<>();
         this.timeWindow = timeWindow;
     }
 

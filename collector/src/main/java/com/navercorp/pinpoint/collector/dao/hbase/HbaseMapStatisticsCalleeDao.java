@@ -69,7 +69,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
     private final boolean useBulk;
 
-    private final ConcurrentCounterMap<RowInfo> counter = new ConcurrentCounterMap<RowInfo>();
+    private final ConcurrentCounterMap<RowInfo> counter = new ConcurrentCounterMap<>();
 
     public HbaseMapStatisticsCalleeDao() {
         this(true);

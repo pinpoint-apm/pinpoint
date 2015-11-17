@@ -33,7 +33,7 @@ public class TBaseFilterChain<T extends SocketAddress> implements TBaseFilter<T>
         if (tBaseFilter == null) {
             throw new NullPointerException("tBaseFilter must not be null");
         }
-        this.filterChain = new ArrayList<TBaseFilter<T>>(tBaseFilter);
+        this.filterChain = new ArrayList<>(tBaseFilter);
     }
 
     @Override

@@ -79,7 +79,7 @@ public abstract class AlarmChecker {
     }
     
     public List<String> getSmsMessage() {
-        List<String> messages = new LinkedList<String>();
+        List<String> messages = new LinkedList<>();
         messages.add(String.format("[PINPOINT Alarm - %s] %s is %s%s (Threshold : %s%s)", rule.getApplicationId(), rule.getCheckerName(), getDetectedValue(), unit, rule.getThreshold(), unit));
         return messages;
     }

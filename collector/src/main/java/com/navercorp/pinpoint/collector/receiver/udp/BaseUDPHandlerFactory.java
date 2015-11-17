@@ -35,7 +35,7 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<HeaderTBaseDeserializer>(new HeaderTBaseDeserializerFactory());
+    private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<>(new HeaderTBaseDeserializerFactory());
 
     private final DispatchHandler dispatchHandler;
 

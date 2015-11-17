@@ -54,7 +54,7 @@ public class DFSLinkSelector implements LinkSelector {
 
     private final AcceptApplicationLocalCache acceptApplicationLocalCache = new AcceptApplicationLocalCache();
 
-    private final Set<LinkData> emulationLinkMarker = new HashSet<LinkData>();
+    private final Set<LinkData> emulationLinkMarker = new HashSet<>();
 
     public DFSLinkSelector(MapStatisticsCalleeDao mapStatisticsCalleeDao, MapStatisticsCallerDao mapStatisticsCallerDao, HostApplicationMapDao hostApplicationMapDao) {
         if (mapStatisticsCalleeDao == null) {
@@ -211,7 +211,7 @@ public class DFSLinkSelector implements LinkSelector {
     private List<LinkData> createVirtualLinkData(LinkData linkData, Application toApplication, Set<AcceptApplication> acceptApplicationList) {
         logger.warn("ono to N replaced. node:{}->host:{} accept:{}", linkData.getFromApplication(), toApplication.getName(), acceptApplicationList);
 
-        List<LinkData> emulationLink = new ArrayList<LinkData>();
+        List<LinkData> emulationLink = new ArrayList<>();
         for (AcceptApplication acceptApplication : acceptApplicationList) {
             // linkCallData needs to be modified - remove callHistogram on purpose
             final LinkData acceptedLinkData = new LinkData(linkData.getFromApplication(), acceptApplication.getApplication());
@@ -295,7 +295,7 @@ public class DFSLinkSelector implements LinkSelector {
     private List<LinkData> findEmulationLinkData(LinkDataDuplexMap linkDataDuplexMap) {
         // LinkDataDuplexMap already has a copy of the data - modifying emulationLinkMarker's data has no effect.
         // We must get the data from LinkDataDuplexMap again.
-        List<LinkData> searchList = new ArrayList<LinkData>();
+        List<LinkData> searchList = new ArrayList<>();
         for (LinkData emulationLinkData : this.emulationLinkMarker) {
             LinkKey search = getLinkKey(emulationLinkData);
             for (LinkData linkData : linkDataDuplexMap.getSourceLinkDataList()) {

@@ -214,7 +214,7 @@ public class WebClusterConnectionManager {
     }
 
     public List<PinpointSocket> getClusterList() {
-        List<PinpointSocket> clusterList = new ArrayList<PinpointSocket>();
+        List<PinpointSocket> clusterList = new ArrayList<>();
 
         if (clusterAcceptor != null) {
             clusterList.addAll(clusterAcceptor.getClusterSocketList());

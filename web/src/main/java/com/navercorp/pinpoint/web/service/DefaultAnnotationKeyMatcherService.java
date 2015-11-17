@@ -55,7 +55,7 @@ public class DefaultAnnotationKeyMatcherService implements AnnotationKeyMatcherS
     private AnnotationKeyMatcherRegistry build(TraceMetadataLoaderService typeLoaderService) {
         AnnotationKeyMatcherRegistry.Builder builder = new AnnotationKeyMatcherRegistry.Builder();
 
-        StaticFieldLookUp<DisplayArgumentMatcher> staticFieldLookUp = new StaticFieldLookUp<DisplayArgumentMatcher>(DefaultDisplayArgument.class, DisplayArgumentMatcher.class);
+        StaticFieldLookUp<DisplayArgumentMatcher> staticFieldLookUp = new StaticFieldLookUp<>(DefaultDisplayArgument.class, DisplayArgumentMatcher.class);
         List<DisplayArgumentMatcher> lookup = staticFieldLookUp.lookup();
         for (DisplayArgumentMatcher displayArgumentMatcher : lookup) {
             AnnotationKeyMatcher annotationKeyMatcher = displayArgumentMatcher.getAnnotationKeyMatcher();

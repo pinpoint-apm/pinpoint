@@ -39,7 +39,7 @@ public abstract class SampledTimeSeriesChartBuilder<Y extends Number> extends Sa
             throw new IllegalArgumentException("range yields too many timeslots");
         }
         int numTimeslots = (int)(long)this.timeWindow.getWindowRangeCount();
-        this.timeslots = new ArrayList<List<Y>>(numTimeslots);
+        this.timeslots = new ArrayList<>(numTimeslots);
         initializeTimeslots(numTimeslots);
     }
     

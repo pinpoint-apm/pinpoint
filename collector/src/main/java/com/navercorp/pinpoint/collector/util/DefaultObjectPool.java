@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class DefaultObjectPool<T> implements ObjectPool<T> {
 
     // you don't need a blocking queue. There must be enough objects in a queue. if not, it means leakage.
-    private final Queue<PooledObject<T>> queue = new ConcurrentLinkedQueue<PooledObject<T>>();
+    private final Queue<PooledObject<T>> queue = new ConcurrentLinkedQueue<>();
 
     private final ObjectPoolFactory<T> factory;
 

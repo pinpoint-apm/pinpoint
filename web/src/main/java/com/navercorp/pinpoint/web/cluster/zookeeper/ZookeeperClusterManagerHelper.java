@@ -43,7 +43,7 @@ public class ZookeeperClusterManagerHelper {
         try {
             List<String> collectorList = client.getChildren(path, true);
 
-            Map<String, byte[]> map = new HashMap<String, byte[]>();
+            Map<String, byte[]> map = new HashMap<>();
 
             for (String collector : collectorList) {
                 String node = bindingPathAndZnode(path, collector);
@@ -115,7 +115,7 @@ public class ZookeeperClusterManagerHelper {
             return Collections.emptyMap();
         }
 
-        Map<String, byte[]> result = new HashMap<String, byte[]>();
+        Map<String, byte[]> result = new HashMap<>();
         for (Map.Entry<String, byte[]> entry : map.entrySet()) {
             String key = entry.getKey();
             byte[] value = entry.getValue();

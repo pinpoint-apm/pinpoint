@@ -93,7 +93,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
         // key = hostname
         // value= list fo agentinfo
-        SortedMap<String, List<AgentInfo>> result = new TreeMap<String, List<AgentInfo>>();
+        SortedMap<String, List<AgentInfo>> result = new TreeMap<>();
 
         for (String agentId : agentIdList) {
             AgentInfoBo agentInfoBo = this.agentInfoDao.getAgentInfo(agentId, timestamp);
@@ -117,7 +117,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             if (result.containsKey(hostname)) {
                 result.get(hostname).add(agentInfo);
             } else {
-                List<AgentInfo> list = new ArrayList<AgentInfo>();
+                List<AgentInfo> list = new ArrayList<>();
                 list.add(agentInfo);
                 result.put(hostname, list);
             }
@@ -139,7 +139,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         }
 
         List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
-        Set<AgentInfo> agentSet = new HashSet<AgentInfo>();
+        Set<AgentInfo> agentSet = new HashSet<>();
         for (String agentId : agentIds) {
             // TODO Temporarily scans for the most recent AgentInfo row starting from range's to value.
             // (As we do not yet have a way to accurately record the agent's lifecycle.)

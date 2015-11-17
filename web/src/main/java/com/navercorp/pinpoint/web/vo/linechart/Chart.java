@@ -39,7 +39,7 @@ public class Chart {
         private final List<DataPoint<X, Y>> dataPoints;
         
         protected ChartBuilder() {
-            this.dataPoints = new ArrayList<DataPoint<X, Y>>();
+            this.dataPoints = new ArrayList<>();
         }
         
         public void addDataPoint(DataPoint<X, Y> dataPoint) {
@@ -62,7 +62,7 @@ public class Chart {
         private final List<Point> points;
 
         public Points() {
-            this.points = new ArrayList<Point>();
+            this.points = new ArrayList<>();
         }
 
         public void addPoint(Point point) {

@@ -50,7 +50,7 @@ public class RpcHintJsonDeserializer extends JsonDeserializer<RpcHint> {
         if (token == JsonToken.END_ARRAY) {
             return new RpcHint(applicationName, Collections.<RpcType>emptyList());
         }
-        final List<RpcType> rpcHintList = new ArrayList<RpcType>();
+        final List<RpcType> rpcHintList = new ArrayList<>();
         while (true) {
             RpcType rpcType =  jp.readValueAs(RpcType.class);
             rpcHintList.add(rpcType);

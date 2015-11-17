@@ -69,7 +69,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
     private final boolean useBulk;
 
-    private final ConcurrentCounterMap<RowInfo> counter = new ConcurrentCounterMap<RowInfo>();
+    private final ConcurrentCounterMap<RowInfo> counter = new ConcurrentCounterMap<>();
 
     public HbaseMapResponseTimeDao() {
         this(true);

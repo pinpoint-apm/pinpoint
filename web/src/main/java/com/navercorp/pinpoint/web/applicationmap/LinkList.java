@@ -26,7 +26,7 @@ import java.util.*;
  */
 public class LinkList {
 
-    private final Map<LinkKey, Link> linkMap = new HashMap<LinkKey, Link>();
+    private final Map<LinkKey, Link> linkMap = new HashMap<>();
 
     public Collection<Link> getLinkList() {
         return this.linkMap.values();
@@ -52,7 +52,7 @@ public class LinkList {
             throw new NullPointerException("toApplication must not be null");
         }
 
-        List<Link> findList = new ArrayList<Link>();
+        List<Link> findList = new ArrayList<>();
         for (Link link : linkMap.values()) {
             Node toNode = link.getTo();
             // find all the callers of toApplication/destination
@@ -73,7 +73,7 @@ public class LinkList {
             throw new NullPointerException("fromApplication must not be null");
         }
 
-        List<Link> findList = new ArrayList<Link>();
+        List<Link> findList = new ArrayList<>();
         for (Link link : linkMap.values()) {
             Node fromNode = link.getFrom();
 
