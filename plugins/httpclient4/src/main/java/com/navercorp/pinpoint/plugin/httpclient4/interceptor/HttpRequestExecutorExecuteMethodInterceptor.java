@@ -198,7 +198,8 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
             final HttpRequest httpRequest = getHttpRequest(args);
             if (httpRequest != null) {
                 // Accessing httpRequest here not BEFORE() because it can cause side effect.
-                recorder.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(httpRequest.getRequestLine().getUri(), param));
+                final String httpUrl = InterceptorUtils.getHttpUrl(httpRequest.getRequestLine().getUri(), param);
+                recorder.recordAttribute(AnnotationKey.HTTP_URL, httpUrl);
                 final NameIntValuePair<String> host = getHost();
                 if (host != null) {
                     final String endpoint = getEndpoint(host.getName(), host.getValue());

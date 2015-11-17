@@ -212,7 +212,8 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
             final HttpRequest httpRequest = getHttpRequest(target);
             if (httpRequest != null) {
                 // Accessing httpRequest here not BEFORE() because it can cause side effect.
-                recorder.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(httpRequest.getRequestLine().getUri(), param));
+                final String httpUrl = InterceptorUtils.getHttpUrl(httpRequest.getRequestLine().getUri(), param);
+                recorder.recordAttribute(AnnotationKey.HTTP_URL, httpUrl);
                 final NameIntValuePair<String> host = getHost(target);
                 if (host != null) {
                     final String endpoint = getEndpoint(host.getName(), host.getValue());
