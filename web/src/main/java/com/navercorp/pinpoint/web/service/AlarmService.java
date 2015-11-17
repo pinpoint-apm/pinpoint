@@ -21,6 +21,7 @@ import java.util.Map;
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.web.alarm.vo.CheckerResult;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
+import com.navercorp.pinpoint.web.vo.UserGroup;
 
 /**
  * @author minwoo.jung
@@ -41,5 +42,7 @@ public interface AlarmService {
 
     void updateBeforeCheckerResult(CheckerResult beforeCheckerResult, AlarmChecker checker);
 
+    void deleteRuleByUserGroupId(String groupId);
 
+    void updateUserGroupIdOfRule(UserGroup userGroup);
 }
