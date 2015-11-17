@@ -76,6 +76,8 @@
 	                }
 	            }).on("change", function (e) {
 	            	addToFavoriteList( $applicationList.select2('val') );
+	            }).on("select2-selecting", function(e) {
+	            	addToFavoriteList( $applicationList.select2('val') );
 	            });
 			}
 			
