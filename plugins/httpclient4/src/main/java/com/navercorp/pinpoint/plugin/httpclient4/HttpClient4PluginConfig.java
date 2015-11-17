@@ -87,6 +87,10 @@ public class HttpClient4PluginConfig {
         return statusCode;
     }
 
+    public boolean isIo() {
+        return io;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("{");
