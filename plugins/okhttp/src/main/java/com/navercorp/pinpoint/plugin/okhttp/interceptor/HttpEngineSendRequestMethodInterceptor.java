@@ -166,27 +166,6 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
         }
     }
 
-    private String trimParam(final String urlString) {
-        if(urlString == null || urlString.length() == 0) {
-            return "";
-        }
-
-        try {
-            final URL url = new URL(urlString);
-            final StringBuilder sb = new StringBuilder();
-            sb.append(url.getProtocol()).append("://");
-            sb.append(url.getHost());
-            if(url.getPort() > 0 && url.getPort() != url.getDefaultPort()) {
-                sb.append(":").append(url.getPort());
-            }
-
-            return sb.toString();
-        } catch(Exception ignored) {
-        }
-
-        return "";
-    }
-
     private String getDestinationId(URL httpUrl) {
         if (httpUrl == null || httpUrl.getHost() == null) {
             return "UnknownHttpClient";
