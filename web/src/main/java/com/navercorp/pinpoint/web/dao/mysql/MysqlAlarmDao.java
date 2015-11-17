@@ -25,6 +25,7 @@ import org.springframework.stereotype.Repository;
 import com.navercorp.pinpoint.web.alarm.vo.CheckerResult;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
+import com.navercorp.pinpoint.web.vo.UserGroup;
 
 /**
  * @author minwoo.jung
@@ -70,6 +71,11 @@ public class MysqlAlarmDao implements AlarmDao {
     }
 
     @Override
+    public void updateUserGroupIdOfRule(UserGroup userGroup) {
+        sqlSessionTemplate.update(NAMESPACE + "updateUserGroupIdOfRule", userGroup);
+    }
+
+    @Override
     public List<CheckerResult> selectBeforeCheckerResultList(String applicationId) {
         return sqlSessionTemplate.selectList(NAMESPACE + "selectBeforeCheckerResultList", applicationId);
     }
@@ -83,4 +89,5 @@ public class MysqlAlarmDao implements AlarmDao {
     public void insertCheckerResult(CheckerResult checkerResult) {
         sqlSessionTemplate.insert(NAMESPACE + "insertCheckerResult", checkerResult);
     }
+
 }

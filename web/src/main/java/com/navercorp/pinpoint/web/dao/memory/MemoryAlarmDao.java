@@ -23,11 +23,15 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jca.cci.connection.NotSupportedRecordFactory;
 import org.springframework.stereotype.Repository;
 
 import com.navercorp.pinpoint.web.alarm.vo.CheckerResult;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
+import com.navercorp.pinpoint.web.dao.UserGroupDao;
+import com.navercorp.pinpoint.web.vo.UserGroup;
 
 /**
  * @author minwoo.jung
@@ -92,6 +96,10 @@ public class MemoryAlarmDao implements AlarmDao {
     }
 
     @Override
+    public void updateUserGroupIdOfRule(UserGroup userGroup) {
+    }
+
+    @Override
     public List<CheckerResult> selectBeforeCheckerResultList(String applicationId) {
         return new ArrayList<CheckerResult>();
     }
@@ -103,4 +111,5 @@ public class MemoryAlarmDao implements AlarmDao {
     @Override
     public void insertCheckerResult(CheckerResult checkerResult) {
     }
+
 }

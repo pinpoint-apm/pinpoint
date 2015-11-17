@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.web.service.UserGroupService;
 import com.navercorp.pinpoint.web.vo.UserGroup;
 import com.navercorp.pinpoint.web.vo.UserGroupMember;
@@ -50,6 +51,9 @@ public class UserGroupController {
 
     @Autowired
     UserGroupService userGroupService;
+    
+    @Autowired
+    AlarmService alarmService;
     
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
@@ -80,6 +84,9 @@ public class UserGroupController {
         
         userGroupService.deleteUserGroup(userGroup);
         userGroupService.deleteMemberByUserGroupId(userGroup.getId());
+        alarmService.deleteRuleByUserGroupId(userGroup.getId());
+        
+        
 
         Map<String, String> result = new HashMap<String, String>();
         result.put("result", "SUCCESS");
@@ -108,6 +115,7 @@ public class UserGroupController {
             return result;
         }
         
+        alarmService.updateUserGroupIdOfRule(userGroup);
         userGroupService.updateUserGroupIdOfMember(userGroup);
         userGroupService.updateUserGroup(userGroup);
         
@@ -155,7 +163,7 @@ public class UserGroupController {
     @RequestMapping(value = "/member", method = RequestMethod.GET)
     @ResponseBody
     public List<UserGroupMember> getUserGroupMember(@RequestParam(USER_GROUP_ID) String userGroupId) {
-        //need param check and make respose message for exception
+        //need param check and make response message for exception
         
         return userGroupService.selectMember(userGroupId);
     }
