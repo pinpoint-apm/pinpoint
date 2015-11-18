@@ -64,9 +64,11 @@
 	    	var $elAgentChartListWrapper = $element.find("div.agent-chart-list");
 	    	var $elWarningMessage = $element.find(".connection-message");
 	    	var $elHandleGlyphicon = $element.find(".handle .glyphicon");
+	    	var $elPin = $element.find(".glyphicon-pushpin");
 	    	var aAgentChartElementList = [];
 	    	var oNamespaceToIndexMap = {};
 	    	var aSumChartData = [0];
+	    	var bIsPinned = false;
 	    	var bIsWas = false;
 	    	var bIsFullWindow = false;
 	    	var bShowRealtimeChart = true;
@@ -299,13 +301,19 @@
 	        function adjustWidth() {
 	        	$element.innerWidth( $element.parent().width() - cfg.css.borderWidth + "px" );
 	        }
+	        function setPinColor() {
+	        	$elPin.css("color", bIsPinned ? "red": "");
+	        }
 	        $scope.$on('realtimeChartController.close', function () {
 	        	hidePopup();
 	        	var prevShowRealtimeChart = bShowRealtimeChart;
 	        	$scope.closePopup();
 	        	bShowRealtimeChart = prevShowRealtimeChart;
+	        	bIsPinned = false;
+	        	setPinColor();
 	        });
 	        $scope.$on('realtimeChartController.initialize', function (event, was, applicationName) {
+	        	if ( bIsPinned === true ) return;
 	        	if ( /^\/main/.test( $location.path() ) == false ) return;
 	        	bIsWas = angular.isUndefined( was ) ? false : was;
 	        	applicationName = angular.isUndefined( applicationName ) ? "" : applicationName;
@@ -331,6 +339,10 @@
 	        $scope.retryConnection = function() {
 	        	waitingConnection();
         		initReceive();
+	        };
+	        $scope.pin = function() {
+	        	bIsPinned = !bIsPinned;
+	        	setPinColor();
 	        };
 	        $scope.resizePopup = function() {
 	        	analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.TG_REALTIME_CHART_RESIZE );
