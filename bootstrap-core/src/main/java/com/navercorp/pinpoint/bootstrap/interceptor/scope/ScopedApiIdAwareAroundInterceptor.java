@@ -54,7 +54,7 @@ public class ScopedApiIdAwareAroundInterceptor implements ApiIdAwareAroundInterc
             this.delegate.before(target, apiId, args);
         } else {
             if (debugEnabled) {
-                logger.debug("tryBefore() returns false: interceptorScopeTransaction: {}, executionPoint: {}. Skip interceptor {}", new Object[] {transaction, policy, delegate.getClass()} );
+                logger.debug("tryBefore() returns false: interceptorScopeTransaction: {}, executionPoint: {}. Skip interceptor {}", transaction, policy, delegate.getClass());
             }
         }
     }
@@ -68,7 +68,7 @@ public class ScopedApiIdAwareAroundInterceptor implements ApiIdAwareAroundInterc
             transaction.leave(policy);
         } else {
             if (debugEnabled) {
-                logger.debug("tryAfter() returns false: interceptorScopeTransaction: {}, executionPoint: {}. Skip interceptor {}", new Object[] {transaction, policy, delegate.getClass()} );
+                logger.debug("tryAfter() returns false: interceptorScopeTransaction: {}, executionPoint: {}. Skip interceptor {}", transaction, policy, delegate.getClass());
             }
         }
     }

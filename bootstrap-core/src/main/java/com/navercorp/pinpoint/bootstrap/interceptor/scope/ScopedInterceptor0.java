@@ -54,7 +54,7 @@ public class ScopedInterceptor0 implements AroundInterceptor0 {
             this.interceptor.before(target);
         } else {
             if (debugEnabled) {
-                logger.debug("tryBefore() returns false: interceptorScopeTransaction: {}, executionPoint: {}. Skip interceptor {}", new Object[] {transaction, policy, interceptor.getClass()} );
+                logger.debug("tryBefore() returns false: interceptorScopeTransaction: {}, executionPoint: {}. Skip interceptor {}", transaction, policy, interceptor.getClass());
             }
         }
     }
@@ -68,7 +68,7 @@ public class ScopedInterceptor0 implements AroundInterceptor0 {
             transaction.leave(policy);
         } else {
             if (debugEnabled) {
-                logger.debug("tryAfter() returns false: interceptorScopeTransaction: {}, executionPoint: {}. Skip interceptor {}", new Object[] {transaction, policy, interceptor.getClass()} );
+                logger.debug("tryAfter() returns false: interceptorScopeTransaction: {}, executionPoint: {}. Skip interceptor {}", transaction, policy, interceptor.getClass());
             }
         }
     }
