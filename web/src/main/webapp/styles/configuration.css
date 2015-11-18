@@ -476,7 +476,7 @@
 }
 #config-general .favorite-list-wrapper {
 	overflow: auto;
-	max-height: 160px;
+	max-height: 320px;
 }
 #config-general .favorite-list {
 	list-style:none;
