@@ -20,6 +20,8 @@ import java.lang.instrument.ClassFileTransformer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +34,6 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
     @Override
     public void onRetransformRequest(Class<?> target, final ClassFileTransformer transformer) {
         add(target.getClassLoader(), target.getName(), transformer);
-
         if (logger.isInfoEnabled()) {
             logger.info("added retransformer classLoader: {}, class: {}, registry size: {}", target.getClassLoader(), target.getName(), transformerMap.size());
         }
@@ -40,6 +41,11 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
     
     @Override
     public void onTransformRequest(ClassLoader classLoader, String targetClassName, ClassFileTransformer transformer) {
+        // TODO fix classLoader null case
+//        if (classLoader== null) {
+//            boot? ext? system?
+//            classLoader = ClassLoader.getSystemClassLoader();
+//        }
         add(classLoader, targetClassName, transformer);
 
         if (logger.isInfoEnabled()) {
@@ -48,7 +54,10 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
     }
 
     private void add(ClassLoader classLoader, String targetClassName, ClassFileTransformer transformer) {
-        ClassFileTransformer prev = transformerMap.putIfAbsent(new TransformerKey(classLoader, targetClassName.replace('.', '/')), transformer);
+        final String jvmName = JavaAssistUtils.javaNameToJvmName(targetClassName);
+
+        final TransformerKey key = new TransformerKey(classLoader, jvmName);
+        final ClassFileTransformer prev = transformerMap.putIfAbsent(key, transformer);
         
         if (prev != null) {
             throw new ProfilerException("Transformer already exists. classLoader: " + classLoader + ", target: " + targetClassName + ", transformer: " + prev);
@@ -57,11 +66,13 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
     
     @Override
     public ClassFileTransformer getTransformer(ClassLoader classLoader, String targetClassName) {
+        // TODO fix classLoader null case
         if (transformerMap.isEmpty()) {
             return null;
         }
-        
-        ClassFileTransformer transformer = transformerMap.remove(new TransformerKey(classLoader, targetClassName));
+
+        final TransformerKey key = new TransformerKey(classLoader, targetClassName);
+        final ClassFileTransformer transformer = transformerMap.remove(key);
         
         if (logger.isDebugEnabled()) {
             logger.info("removed dynamic transformer classLoader: {}, className: {}, registry size: {}", classLoader, targetClassName, transformerMap.size());
@@ -71,23 +82,35 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
     }
     
     private static final class TransformerKey {
+        // TODO depends classLoader memory leak
         private final ClassLoader classLoader;
         private final String targetClassName;
         
         public TransformerKey(ClassLoader classLoader, String targetClassName) {
+            if (targetClassName == null) {
+                throw new NullPointerException("targetClassName must not be null");
+            }
             this.classLoader = classLoader;
             this.targetClassName = targetClassName;
         }
 
         @Override
-        public int hashCode() {
-            return classLoader.hashCode() * 31 + targetClassName.hashCode();
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            TransformerKey that = (TransformerKey) o;
+
+            if (classLoader != null ? !classLoader.equals(that.classLoader) : that.classLoader != null) return false;
+            return targetClassName.equals(that.targetClassName);
+
         }
 
         @Override
-        public boolean equals(Object obj) {
-            TransformerKey other = (TransformerKey) obj;
-            return this.classLoader.equals(other.classLoader) && this.targetClassName.equals(other.targetClassName);
+        public int hashCode() {
+            int result = classLoader != null ? classLoader.hashCode() : 0;
+            result = 31 * result + targetClassName.hashCode();
+            return result;
         }
     }
 }
