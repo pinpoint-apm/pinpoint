@@ -384,10 +384,12 @@
 					            </select>
       						</td>
       						<td class="col-md-5" colspan="2">
-      							<ul class="favorite-list">
-      								<li ng-repeat="favorite in favoriteList"><img ng-src='/images/icons/{{favorite.split("@")[1]}}.png' height="25px"/> {{favorite.split('@')[0]}} <button class="btn btn-danger btn-xs" style="float:right" ng-click="removeFavorite(favorite)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></li>
-      							</ul>
-      							<div ng-show="favoriteList.length == 0" style="color:#F00">등록된 목록이 없습니다.</div>
+      							<div class="favorite-list-wrapper">
+	      							<ul class="favorite-list">
+	      								<li ng-repeat="favorite in favoriteList"><img ng-src='/images/icons/{{favorite.split("@")[1]}}.png' height="25px"/> {{favorite.split('@')[0]}} <button class="btn btn-danger btn-xs" style="float:right" ng-click="removeFavorite(favorite)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></li>
+	      							</ul>
+	      							<div ng-show="favoriteList.length == 0" style="color:#F00">등록된 목록이 없습니다.</div>
+      							</div>
       						</td>
       					</tr>
       				</tbody>
