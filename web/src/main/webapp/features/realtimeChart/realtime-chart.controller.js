@@ -65,10 +65,11 @@
 	    	var $elWarningMessage = $element.find(".connection-message");
 	    	var $elHandleGlyphicon = $element.find(".handle .glyphicon");
 	    	var $elPin = $element.find(".glyphicon-pushpin");
+	    	var prevUrlApplication = "";
 	    	var aAgentChartElementList = [];
 	    	var oNamespaceToIndexMap = {};
 	    	var aSumChartData = [0];
-	    	var bIsPinned = false;
+	    	var bIsPinned = true;
 	    	var bIsWas = false;
 	    	var bIsFullWindow = false;
 	    	var bShowRealtimeChart = true;
@@ -309,14 +310,14 @@
 	        	var prevShowRealtimeChart = bShowRealtimeChart;
 	        	$scope.closePopup();
 	        	bShowRealtimeChart = prevShowRealtimeChart;
-	        	bIsPinned = false;
 	        	setPinColor();
 	        });
-	        $scope.$on('realtimeChartController.initialize', function (event, was, applicationName) {
-	        	if ( bIsPinned === true ) return;
+	        $scope.$on('realtimeChartController.initialize', function (event, was, applicationName, urlApplication) {
+	        	if ( bIsPinned === true && prevUrlApplication === urlApplication ) return;
 	        	if ( /^\/main/.test( $location.path() ) == false ) return;
 	        	bIsWas = angular.isUndefined( was ) ? false : was;
 	        	applicationName = angular.isUndefined( applicationName ) ? "" : applicationName;
+	        	prevUrlApplication = urlApplication;
 
 	        	$scope.currentApplicationName = applicationName;
 	        	if ( globalConfig.useRealTime === false ) return;
@@ -325,9 +326,10 @@
 	        		hidePopup();
 	        		return;
 	        	}
-	        	
+
 	        	adjustWidth();
 	        	$scope.bInitialized = true;
+	        	
 	        	
 	        	showPopup();
 	        	$scope.closePopup();
@@ -335,6 +337,7 @@
         		waitingConnection();
         		
         		initReceive();
+        		setPinColor();
 	        });
 	        $scope.retryConnection = function() {
 	        	waitingConnection();
