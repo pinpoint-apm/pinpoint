@@ -60,7 +60,7 @@ public class BeanMethodTransformer implements TransformCallback {
             List<InstrumentMethod> methodList = target.getDeclaredMethods(METHOD_FILTER);
             for (InstrumentMethod method : methodList) {
                 if (logger.isTraceEnabled()) {
-                    logger.trace("### c={}, m={}, params={}", new Object[] {className, method.getName(), Arrays.toString(method.getParameterTypes())});
+                    logger.trace("### c={}, m={}, params={}", className, method.getName(), Arrays.toString(method.getParameterTypes()));
                 }
 
                 addInterceptor(method);

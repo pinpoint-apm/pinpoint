@@ -201,11 +201,11 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                 recordRootSpan(recorder, request);
                 setTraceMetadata(request, trace);
                 if (isDebug) {
-                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, request.getRequestURI(), request.getRemoteAddr()});
+                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, request.getRequestURI(), request.getRemoteAddr());
                 }
             } else {
                 if (isDebug) {
-                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, request.getRequestURI(), request.getRemoteAddr()});
+                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, request.getRequestURI(), request.getRemoteAddr());
                 }
             }
             return trace;
