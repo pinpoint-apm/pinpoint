@@ -131,7 +131,7 @@ public class HttpClient3Plugin implements ProfilerPlugin, TransformTemplateAware
                     execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.HttpMethodBaseExecuteMethodInterceptor");
                 }
 
-                if (config.isApacheHttpClient3ProfileIo()) {
+                if (config.isIo()) {
                     InstrumentMethod writeRequest = target.getDeclaredMethod("writeRequest", "org.apache.commons.httpclient.HttpState", "org.apache.commons.httpclient.HttpConnection");
 
                     if (writeRequest != null) {
