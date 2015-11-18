@@ -569,8 +569,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         final String tomcatExcludeProfileMethod = readString("profiler.tomcat.excludemethod", "");
         if (!tomcatExcludeProfileMethod.isEmpty()) {
+            this.tomcatExcludeProfileMethodFilter = new ExcludeMethodFilter(tomcatExcludeProfileMethod);
         }
-        this.tomcatExcludeProfileMethodFilter = new ExcludeMethodFilter(tomcatExcludeProfileMethod);
 
         /**
          * apache http client 3
