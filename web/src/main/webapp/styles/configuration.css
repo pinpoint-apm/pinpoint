@@ -474,9 +474,14 @@
 	padding-top: 10px;
 	padding-bottom: 0px;
 }
+#config-general .favorite-list-wrapper {
+	overflow: auto;
+	max-height: 160px;
+}
 #config-general .favorite-list {
 	list-style:none;
 	padding-left: 10px;
+	padding-right: 10px;
 }
 #config-general .favorite-list li{
 	display: block;
