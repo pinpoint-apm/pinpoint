@@ -16,7 +16,7 @@
   float: none;
 }
 
-.tabs-left > .nav-tabs > li > a {
+.tabs-left > .nav-tabs > li > div {
   min-width: 74px;
   margin-right: 0;
   margin-bottom: 3px;
@@ -28,18 +28,28 @@
   border-right: 1px solid #ddd;
 }
 
-.tabs-left > .nav-tabs > li > a {
+.tabs-left > .nav-tabs > li > div {
   margin-right: -1px;
-  -webkit-border-radius: 4px 0 0 4px;
-     -moz-border-radius: 4px 0 0 4px;
-          border-radius: 4px 0 0 4px;
+  border-radius: 4px 0 0 4px;
 }
-
+.tabs-left > .nav-tabs > li > div {
+	padding: 10px 15px;
+	border-color: #eeeeee #dddddd #eeeeee #eeeeee;
+}
 .tabs-left > .nav-tabs > li > a:hover,
 .tabs-left > .nav-tabs > li > a:focus {
   border-color: #eeeeee #dddddd #eeeeee #eeeeee;
 }
 
+.tabs-left > .nav-tabs .active > div {
+  	border-color: #ddd transparent #ddd #ddd;
+  	*border-right-color: #ffffff;
+  	color: #555;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-bottom-color: transparent;
+    cursor: pointer;
+}
 .tabs-left > .nav-tabs .active > a,
 .tabs-left > .nav-tabs .active > a:hover,
 .tabs-left > .nav-tabs .active > a:focus {
