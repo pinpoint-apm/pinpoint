@@ -65,9 +65,6 @@ public class HeaderTBaseDeserializer {
                 base.read(protocol);
                 return base;
             }
-            if (validate == HeaderUtils.PASS_L4) {
-                return new L4Packet(header);
-            }
             throw new IllegalStateException("invalid validate " + validate);
         } finally {
             trans.clear();
@@ -87,8 +84,6 @@ public class HeaderTBaseDeserializer {
                     TBase<?, ?> base = locator.tBaseLookup(header.getType());
                     base.read(protocol);
                     tBaseList.add(base);
-                } else if (validate == HeaderUtils.PASS_L4) {
-                    tBaseList.add(new L4Packet(header));
                 } else {
                     throw new IllegalStateException("invalid validate " + validate);
                 }

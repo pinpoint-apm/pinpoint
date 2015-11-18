@@ -212,13 +212,11 @@
     <bean id="tBaseFilterChain" class="com.navercorp.pinpoint.collector.receiver.udp.TBaseFilterChain">
         <constructor-arg>
             <list>
-                <ref bean="l4PacketFilter"/>
                 <ref bean="networkAvailabilityCheckPacketFilter"/>
             </list>
         </constructor-arg>
     </bean>
 
-    <bean id="l4PacketFilter" class="com.navercorp.pinpoint.collector.receiver.udp.L4PacketFilter"/>
     <bean id="networkAvailabilityCheckPacketFilter" class="com.navercorp.pinpoint.collector.receiver.udp.NetworkAvailabilityCheckPacketFilter"/>
 
 

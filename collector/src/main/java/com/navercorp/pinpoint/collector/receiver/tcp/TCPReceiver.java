@@ -271,13 +271,6 @@ public class TCPReceiver {
             SocketAddress remoteAddress = pinpointSocket.getRemoteAddress();
             try {
                 TBase<?, ?> tBase = SerializationUtils.deserialize(bytes, deserializerFactory);
-                if (tBase instanceof L4Packet) {
-                    if (logger.isDebugEnabled()) {
-                        L4Packet packet = (L4Packet) tBase;
-                        logger.debug("tcp l4 packet {}", packet.getHeader());
-                    }
-                    return;
-                }
                 TBase result = dispatchHandler.dispatchRequestMessage(tBase);
                 if (result != null) {
                     byte[] resultBytes = SerializationUtils.serialize(result, serializerFactory);
