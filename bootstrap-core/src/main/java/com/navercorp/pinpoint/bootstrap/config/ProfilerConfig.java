@@ -77,6 +77,8 @@ public interface ProfilerConfig {
 
     boolean isTomcatHidePinpointHeader();
 
+    boolean isTomcatTraceRequestParam();
+
     Filter<String> getTomcatExcludeUrlFilter();
 
     String getTomcatRealIpHeader();
