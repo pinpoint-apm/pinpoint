@@ -45,8 +45,6 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        final HttpClient4PluginConfig config = new HttpClient4PluginConfig(context.getConfig());
-
         // common
         addHttpRequestExecutorClass();
         addDefaultHttpRequestRetryHandlerClass();
