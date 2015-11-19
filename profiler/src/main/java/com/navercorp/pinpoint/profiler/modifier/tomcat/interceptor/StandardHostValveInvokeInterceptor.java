@@ -39,6 +39,7 @@ import java.util.Enumeration;
 public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundInterceptor implements TargetClassLoader {
 
     private final boolean isTrace = logger.isTraceEnabled();
+    private boolean isTraceRequestParam = false;
     private Filter<String> excludeUrlFilter;
 
     private Filter<String> excludeProfileMethodFilter;
@@ -203,11 +204,13 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     @Override
     protected void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
         if (trace.canSampled()) {
-            final HttpServletRequest request = (HttpServletRequest) args[0];
-            if (!excludeProfileMethodFilter.filter(request.getMethod())) {
-                final String parameters = getRequestParameter(request, 64, 512);
-                if (parameters != null && parameters.length() > 0) {
-                    trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+            if (this.isTraceRequestParam) {
+                final HttpServletRequest request = (HttpServletRequest) args[0];
+                if (!excludeProfileMethodFilter.filter(request.getMethod())) {
+                    final String parameters = getRequestParameter(request, 64, 512);
+                    if (parameters != null && parameters.length() > 0) {
+                        trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+                    }
                 }
             }
 
@@ -280,6 +283,8 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         super.setTraceContext(traceContext);
 
         ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
+
+        this.isTraceRequestParam = profilerConfig.isTomcatTraceRequestParam();
 
         this.excludeUrlFilter = profilerConfig.getTomcatExcludeUrlFilter();
         this.excludeProfileMethodFilter = profilerConfig.getTomcatExcludeProfileMethodFilter();
