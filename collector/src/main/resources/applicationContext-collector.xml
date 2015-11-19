@@ -95,6 +95,7 @@
         <constructor-arg value="#{collectorConfiguration.udpSpanSocketReceiveBufferSize}"/>
         <constructor-arg value="#{collectorConfiguration.udpSpanWorkerThread}"/>
         <constructor-arg value="#{collectorConfiguration.udpSpanWorkerQueueSize}"/>
+        <constructor-arg value="#{collectorConfiguration.l4IpList}"/>
     </bean>
 
     <bean id="udpStatReceiver" class="com.navercorp.pinpoint.collector.receiver.udp.BaseUDPReceiver">
@@ -105,6 +106,7 @@
         <constructor-arg value="#{collectorConfiguration.udpStatSocketReceiveBufferSize}"/>
         <constructor-arg value="#{collectorConfiguration.udpStatWorkerThread}"/>
         <constructor-arg value="#{collectorConfiguration.udpStatWorkerQueueSize}"/>
+        <constructor-arg value="#{collectorConfiguration.l4IpList}"/>
     </bean>
     
     <bean id="jsonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper">

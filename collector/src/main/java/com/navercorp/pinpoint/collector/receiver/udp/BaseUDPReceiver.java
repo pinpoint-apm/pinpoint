@@ -23,9 +23,11 @@ import com.navercorp.pinpoint.thrift.io.*;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.List;
 
 /**
  * @author emeroad
@@ -34,8 +36,8 @@ import java.net.*;
 public class BaseUDPReceiver extends AbstractUDPReceiver {
     private DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<HeaderTBaseDeserializer>(new HeaderTBaseDeserializerFactory());
 
-    public BaseUDPReceiver(String receiverName, DispatchHandler dispatchHandler, String bindAddress, int port, int receiverBufferSize, int workerThreadSize, int workerThreadQueueSize) {
-        super(receiverName, dispatchHandler, bindAddress, port, receiverBufferSize, workerThreadSize, workerThreadQueueSize);
+    public BaseUDPReceiver(String receiverName, DispatchHandler dispatchHandler, String bindAddress, int port, int receiverBufferSize, int workerThreadSize, int workerThreadQueueSize, List<String> l4IpList) {
+        super(receiverName, dispatchHandler, bindAddress, port, receiverBufferSize, workerThreadSize, workerThreadQueueSize, l4IpList);
     }
     
     @Override
@@ -57,19 +59,16 @@ public class BaseUDPReceiver extends AbstractUDPReceiver {
 
         @Override
         public void run() {
+            if (isIgnoreAddress(packet.getAddress())) {
+                return;
+            }
+            
             Timer.Context time = receiver.getTimer().time();
 
             final HeaderTBaseDeserializer deserializer = (HeaderTBaseDeserializer) deserializerFactory.createDeserializer();
             TBase<?, ?> tBase = null;
             try {
                 tBase = deserializer.deserialize(packet.getData());
-                if (tBase instanceof L4Packet) {
-                    if (logger.isDebugEnabled()) {
-                        L4Packet packet = (L4Packet) tBase;
-                        logger.debug("udp l4 packet {}", packet.getHeader());
-                    }
-                    return;
-                }
                 // Network port availability check packet
                 if (tBase instanceof NetworkAvailabilityCheckPacket) {
                     if (logger.isDebugEnabled()) {

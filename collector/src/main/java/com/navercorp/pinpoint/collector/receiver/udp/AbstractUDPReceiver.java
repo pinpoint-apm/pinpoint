@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.util.CpuUtils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,8 @@ import javax.annotation.PreDestroy;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -87,12 +90,13 @@ public abstract class AbstractUDPReceiver implements DataReceiver {
     private AtomicInteger rejectedExecutionCount = new AtomicInteger(0);
 
     private AtomicBoolean state = new AtomicBoolean(true);
-
+    
+    protected InetAddress[] ignoreAddresses =new InetAddress[0];
 
     public AbstractUDPReceiver() {
     }
 
-    public AbstractUDPReceiver(String receiverName, DispatchHandler dispatchHandler, String bindAddress, int port, int receiverBufferSize, int workerThreadSize, int workerThreadQueueSize) {
+    public AbstractUDPReceiver(String receiverName, DispatchHandler dispatchHandler, String bindAddress, int port, int receiverBufferSize, int workerThreadSize, int workerThreadQueueSize, List<String> l4IpList) {
         if (dispatchHandler == null) {
             throw new NullPointerException("dispatchHandler must not be null");
         }
@@ -107,9 +111,55 @@ public abstract class AbstractUDPReceiver implements DataReceiver {
 
         this.workerThreadSize = workerThreadSize;
         this.workerThreadQueueSize = workerThreadQueueSize;
+        this.ignoreAddresses = setIgnoreAddressList(l4IpList);
     }
 
     abstract Runnable getPacketDispatcher(AbstractUDPReceiver receiver, DatagramPacket packet);
+    
+    private InetAddress[] setIgnoreAddressList(List<String> l4IpList) {
+        if (l4IpList == null) {
+            return null;
+        }
+        try {
+            List<InetAddress> inetAddressList = new ArrayList<InetAddress>();
+            for (int i = 0; i < l4IpList.size(); i++) {
+                String l4Ip = l4IpList.get(i);
+                if (StringUtils.isBlank(l4Ip)) {
+                    continue;
+                }
+
+                InetAddress address = InetAddress.getByName(l4Ip);
+                if (address != null) {
+                    inetAddressList.add(address);
+                }
+            }
+            
+            InetAddress[] inetAddressArray = new InetAddress[inetAddressList.size()];
+            return inetAddressList.toArray(inetAddressArray);
+        } catch (UnknownHostException e) {
+            logger.warn("l4ipList error {}", l4IpList, e);
+        }
+        
+        return null;
+    }
+    
+    protected boolean isIgnoreAddress(InetAddress remoteAddress) {
+        if (ignoreAddresses == null) {
+            return false;
+        }
+        if (remoteAddress == null) {
+            return false;
+        }
+        for (InetAddress ignore : ignoreAddresses) {
+            if (ignore.equals(remoteAddress)) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("UDP Connected ignore address. IP : " + remoteAddress.getHostAddress());
+                }
+                return true;
+            }
+        }
+        return false;
+    }
     
     public void afterPropertiesSet() {
         Assert.notNull(dispatchHandler, "dispatchHandler must not be null");

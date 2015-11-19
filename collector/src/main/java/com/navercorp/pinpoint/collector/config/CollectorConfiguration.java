@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.config;
 
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,9 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 import java.io.FileNotFoundException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -67,6 +71,8 @@ public class CollectorConfiguration implements InitializingBean {
     private boolean clusterEnable;
     private String clusterAddress;
     private int clusterSessionTimeout;
+    
+    private List<String> l4IpList = Collections.emptyList();
 
     public String getTcpListenIp() {
         return tcpListenIp;
@@ -154,6 +160,15 @@ public class CollectorConfiguration implements InitializingBean {
     public void setClusterSessionTimeout(int clusterSessionTimeout) {
         this.clusterSessionTimeout = clusterSessionTimeout;
     }
+    
+    public List<String> getL4IpList() {
+        return l4IpList;
+    }
+
+    public void setL4IpList(List<String> l4IpList) {
+        this.l4IpList = l4IpList;
+    }
+
 
     public void readConfigFile() {
 
@@ -205,6 +220,14 @@ public class CollectorConfiguration implements InitializingBean {
         this.clusterEnable = readBoolen(properties, "cluster.enable");
         this.clusterAddress = readString(properties, "cluster.zookeeper.address", "");
         this.clusterSessionTimeout = readInt(properties, "cluster.zookeeper.sessiontimeout", -1);
+        
+        String[] l4Ips = StringUtils.split(readString(properties, "collector.l4.ip", null), ",");
+        if (l4Ips == null) {
+            this.l4IpList = Collections.emptyList();
+        } else {
+            this.l4IpList = Arrays.asList(l4Ips);
+        }
+        
     }
 
     private String readString(Properties properties, String propertyName, String defaultValue) {
@@ -256,6 +279,7 @@ public class CollectorConfiguration implements InitializingBean {
         sb.append(", clusterEnable=").append(clusterEnable);
         sb.append(", clusterAddress=").append(clusterAddress);
         sb.append(", clusterSessionTimeout=").append(clusterSessionTimeout);
+        sb.append(", l4IpList=").append(l4IpList);
         
         sb.append('}');
         return sb.toString();
