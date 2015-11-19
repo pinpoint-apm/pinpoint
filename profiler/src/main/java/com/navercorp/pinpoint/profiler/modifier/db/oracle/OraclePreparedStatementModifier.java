@@ -20,8 +20,7 @@ import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
-import com.navercorp.pinpoint.profiler.modifier.ModifierDelegate;
+import com.navercorp.pinpoint.profiler.modifier.db.AbstractPreparedStatementModifier;
 
 /**
  * For ojdbc library without OraclePreparedStatementWrapper.
@@ -29,13 +28,10 @@ import com.navercorp.pinpoint.profiler.modifier.ModifierDelegate;
  * 
  * @author HyunGil Jeong
  */
-public class OraclePreparedStatementModifier extends AbstractModifier {
-
-    private final ModifierDelegate delegate;
+public class OraclePreparedStatementModifier extends AbstractPreparedStatementModifier {
 
     public OraclePreparedStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-        super(byteCodeInstrumentor, agent);
-        this.delegate = new OraclePreparedStatementModifierDelegate(byteCodeInstrumentor);
+        super(byteCodeInstrumentor, agent, agent.getProfilerConfig().isJdbcProfileOracleSqlBindValue());
     }
 
     @Override
@@ -44,12 +40,17 @@ public class OraclePreparedStatementModifier extends AbstractModifier {
     }
 
     @Override
+    protected String getScope() {
+        return OracleScope.SCOPE_NAME;
+    }
+
+    @Override
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
         // Do not modify if wrapper exists
         if (byteCodeInstrumentor.findClass(classLoader, OracleClassConstants.ORACLE_PREPARED_STATEMENT_WRAPPER)) {
             return null;
         }
-        return this.delegate.modify(classLoader, javassistClassName, protectedDomain, classFileBuffer);
+        return super.modify(classLoader, javassistClassName, protectedDomain, classFileBuffer);
     }
 
 }
