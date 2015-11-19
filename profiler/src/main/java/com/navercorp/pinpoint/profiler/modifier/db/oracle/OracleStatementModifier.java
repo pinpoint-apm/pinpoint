@@ -20,22 +20,18 @@ import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
-import com.navercorp.pinpoint.profiler.modifier.ModifierDelegate;
+import com.navercorp.pinpoint.profiler.modifier.db.AbstractStatementModifier;
 
 /**
  * For ojdbc library without OracleStatementWrapper.
  * eg. ojdbc-10.0.x
- * 
+ *
  * @author HyunGil Jeong
  */
-public class OracleStatementModifier extends AbstractModifier {
+public class OracleStatementModifier extends AbstractStatementModifier {
 
-    private final ModifierDelegate delegate;
-    
     public OracleStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
-        this.delegate = new OracleStatementModifierDelegate(byteCodeInstrumentor);
     }
 
     @Override
@@ -44,12 +40,17 @@ public class OracleStatementModifier extends AbstractModifier {
     }
 
     @Override
+    protected String getScope() {
+        return OracleScope.SCOPE_NAME;
+    }
+
+    @Override
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-     // Do not modify if wrapper exists
+        // Do not modify if wrapper exists
         if (byteCodeInstrumentor.findClass(classLoader, OracleClassConstants.ORACLE_STATEMENT_WRAPPER)) {
             return null;
         }
-        return this.delegate.modify(classLoader, javassistClassName, protectedDomain, classFileBuffer);
+        return super.modify(classLoader, javassistClassName, protectedDomain, classFileBuffer);
     }
-    
+
 }

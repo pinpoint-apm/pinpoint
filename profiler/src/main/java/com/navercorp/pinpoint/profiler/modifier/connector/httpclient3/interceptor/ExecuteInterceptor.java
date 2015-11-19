@@ -76,6 +76,8 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
     protected boolean entity;
     protected DumpType entityDumpType;
     protected SimpleSampler entitySampler;
+
+    protected boolean traceParam;
     
     
     @Override
@@ -148,7 +150,7 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
                 try {
                     final URI uri = httpMethod.getURI();
                     String uriString = uri.getURI();
-                    trace.recordAttribute(AnnotationKey.HTTP_URL, uriString);
+                    trace.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(uriString, this.traceParam));
                     trace.recordDestinationId(getEndpoint(uri.getHost(), uri.getPort()));
                 } catch (URIException e) {
                     logger.error("Fail get URI", e);
@@ -306,5 +308,7 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
         if (entity) {
             this.entitySampler = SimpleSamplerFactory.createSampler(entity, profilerConfig.getApacheHttpClient3ProfileEntitySamplingRate());
         }
+
+        this.traceParam = profilerConfig.isApacheHttpClient3ProfileParam();
     }
 }

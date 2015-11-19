@@ -20,19 +20,15 @@ import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
-import com.navercorp.pinpoint.profiler.modifier.ModifierDelegate;
+import com.navercorp.pinpoint.profiler.modifier.db.AbstractStatementModifier;
 
 /**
  * @author emeroad
  */
-public class OracleStatementWrapperModifier extends AbstractModifier {
-
-    private final ModifierDelegate delegate;
+public class OracleStatementWrapperModifier extends AbstractStatementModifier {
 
     public OracleStatementWrapperModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
-        this.delegate = new OracleStatementModifierDelegate(byteCodeInstrumentor);
     }
 
     @Override
@@ -41,8 +37,13 @@ public class OracleStatementWrapperModifier extends AbstractModifier {
     }
 
     @Override
+    protected String getScope() {
+        return OracleScope.SCOPE_NAME;
+    }
+
+    @Override
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-        return this.delegate.modify(classLoader, javassistClassName, protectedDomain, classFileBuffer);
+        return super.modify(classLoader, javassistClassName, protectedDomain, classFileBuffer);
     }
 
 }
