@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.udp;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.Collections;
 
 import com.navercorp.pinpoint.collector.receiver.DataReceiver;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
@@ -52,7 +53,7 @@ public class UDPReceiverTest {
                     return null;
                 }
 
-            }, "127.0.0.1", 10999, 1024, 1, 10);
+            }, "127.0.0.1", 10999, 1024, 1, 10, Collections.<String>emptyList());
 
         } catch (Exception e) {
             e.printStackTrace();
