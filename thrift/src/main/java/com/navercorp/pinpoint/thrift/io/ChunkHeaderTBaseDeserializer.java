@@ -79,10 +79,6 @@ public class ChunkHeaderTBaseDeserializer {
         }
 
         final int validate = validate(header);
-        if (validate == HeaderUtils.PASS_L4) {
-            return new L4Packet(header);
-        }
-
         TBase<?, ?> base = locator.tBaseLookup(header.getType());
         base.read(protocol);
         return base;

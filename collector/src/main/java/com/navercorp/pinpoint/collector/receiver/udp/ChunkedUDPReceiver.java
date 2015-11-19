@@ -38,8 +38,8 @@ public class ChunkedUDPReceiver extends AbstractUDPReceiver {
     private final DeserializerFactory<ChunkHeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<ChunkHeaderTBaseDeserializer>(new ChunkHeaderTBaseDeserializerFactory());
 
     
-    public ChunkedUDPReceiver(String receiverName, DispatchHandler dispatchHandler, String bindAddress, int port, int receiverBufferSize, int workerThreadSize, int workerThreadQueueSize) {
-        super(receiverName, dispatchHandler, bindAddress, port, receiverBufferSize, workerThreadSize, workerThreadQueueSize);
+    public ChunkedUDPReceiver(String receiverName, DispatchHandler dispatchHandler, String bindAddress, int port, int receiverBufferSize, int workerThreadSize, int workerThreadQueueSize, List<String> l4IpList) {
+        super(receiverName, dispatchHandler, bindAddress, port, receiverBufferSize, workerThreadSize, workerThreadQueueSize, l4IpList);
     }
     
     @Override
@@ -61,6 +61,10 @@ public class ChunkedUDPReceiver extends AbstractUDPReceiver {
 
         @Override
         public void run() {
+            if (isIgnoreAddress(packet.getAddress())) {
+                return;
+            }
+        	
             Timer.Context time = receiver.getTimer().time();
 
             final ChunkHeaderTBaseDeserializer deserializer = deserializerFactory.createDeserializer();
@@ -71,13 +75,6 @@ public class ChunkedUDPReceiver extends AbstractUDPReceiver {
                 }
 
                 for (TBase<?, ?> tBase : list) {
-                    if (tBase instanceof L4Packet) {
-                        if (logger.isDebugEnabled()) {
-                            L4Packet packet = (L4Packet) tBase;
-                            logger.debug("udp l4 packet {}", packet.getHeader());
-                        }
-                        continue;
-                    }
                     // Network port availability check packet
                     if (tBase instanceof NetworkAvailabilityCheckPacket) {
                         if (logger.isDebugEnabled()) {

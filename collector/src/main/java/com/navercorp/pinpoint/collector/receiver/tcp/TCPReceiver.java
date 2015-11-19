@@ -56,7 +56,6 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
-import com.navercorp.pinpoint.thrift.io.L4Packet;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseSerializerFactory;
@@ -252,13 +251,6 @@ public class TCPReceiver {
             SocketAddress remoteAddress = socketChannel.getRemoteAddress();
             try {
                 TBase<?, ?> tBase = SerializationUtils.deserialize(bytes, deserializerFactory);
-                if (tBase instanceof L4Packet) {
-                    if (logger.isDebugEnabled()) {
-                        L4Packet packet = (L4Packet) tBase;
-                        logger.debug("tcp l4 packet {}", packet.getHeader());
-                    }
-                    return;
-                }
                 TBase result = dispatchHandler.dispatchRequestMessage(tBase, bytes, Header.HEADER_SIZE, bytes.length);
                 if (result != null) {
                     byte[] resultBytes = SerializationUtils.serialize(result, serializerFactory);
