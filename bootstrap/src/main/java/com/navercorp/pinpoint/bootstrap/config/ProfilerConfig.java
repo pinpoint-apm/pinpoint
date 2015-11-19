@@ -104,31 +104,37 @@ public class ProfilerConfig {
     private int jdbcSqlCacheSize = 1024;
     private int jdbcMaxSqlBindValueSize = 1024;
     private boolean jdbcProfile = true;
+    private boolean jdbcProfileSqlBindValue = false;
 
     private boolean jdbcProfileMySql = true;
     private boolean jdbcProfileMySqlSetAutoCommit = false;
     private boolean jdbcProfileMySqlCommit = false;
     private boolean jdbcProfileMySqlRollback = false;
+    private boolean jdbcProfileMySqlSqlBindValue = false;
 
     private boolean jdbcProfileJtds = true;
     private boolean jdbcProfileJtdsSetAutoCommit = false;
     private boolean jdbcProfileJtdsCommit = false;
     private boolean jdbcProfileJtdsRollback = false;
+    private boolean jdbcProfileJtdsSqlBindValue = false;
 
     private boolean jdbcProfileOracle = true;
     private boolean jdbcProfileOracleSetAutoCommit = false;
     private boolean jdbcProfileOracleCommit = false;
     private boolean jdbcProfileOracleRollback = false;
+    private boolean jdbcProfileOracleSqlBindValue = false;
 
     private boolean jdbcProfileCubrid = true;
     private boolean jdbcProfileCubridSetAutoCommit = false;
     private boolean jdbcProfileCubridCommit = false;
     private boolean jdbcProfileCubridRollback = false;
+    private boolean jdbcProfileCubridSqlBindValue = false;
 
     private boolean jdbcProfileDbcp = true;
     private boolean jdbcProfileDbcpConnectionClose = false;
 
     private boolean tomcatHidePinpointHeader = true;
+    private boolean tomcatTraceRequestParam = false;
     private Filter<String> tomcatExcludeUrlFilter = new SkipFilter<String>();
     private String tomcatRealIpHeader;
     private String tomcatRealIpEmptyValue;
@@ -138,7 +144,7 @@ public class ProfilerConfig {
     private boolean arucsKeyTrace = false;
     private boolean memcached = true;
     private boolean memcachedKeyTrace = false;
-    
+
     private boolean ibatis = true;
 
     private boolean mybatis = true;
@@ -150,17 +156,19 @@ public class ProfilerConfig {
      * apache http client 3
      */
     private boolean apacheHttpClient3Profile = true;
+    private boolean apacheHttpClient3ProfileParam = false;
     private boolean apacheHttpClient3ProfileCookie = false;
     private DumpType apacheHttpClient3ProfileCookieDumpType = DumpType.EXCEPTION;
     private int apacheHttpClient3ProfileCookieSamplingRate = 1;
     private boolean apacheHttpClient3ProfileEntity = false;
     private DumpType apacheHttpClient3ProfileEntityDumpType = DumpType.EXCEPTION;
     private int apacheHttpClient3ProfileEntitySamplingRate = 1;
-    
+
     /**
      * apache http client 4
      */
     private boolean apacheHttpClient4Profile = true;
+    private boolean apacheHttpClient4ProfileParam = false;
     private boolean apacheHttpClient4ProfileCookie = false;
     private DumpType apacheHttpClient4ProfileCookieDumpType = DumpType.EXCEPTION;
     private int apacheHttpClient4ProfileCookieSamplingRate = 1;
@@ -178,6 +186,7 @@ public class ProfilerConfig {
      * jdk httpclient : sun.net.www.protocol.http.HttpURLConnection
      */
     private boolean jdkHttpURLConnectionProfile = true;
+    private boolean jdkHttpURLConnectionProfileParam = false;
 
     /**
      * ning async http client
@@ -195,7 +204,7 @@ public class ProfilerConfig {
     private DumpType ningAsyncHttpClientProfileParamDumpType = DumpType.EXCEPTION;
     private int ningAsyncHttpClientProfileParamDumpSize = 1024;
     private int ningAsyncHttpClientProfileParamSamplingRate = 1;
-    
+
     //logging
     private boolean log4jLoggingTransactionInfo;
     private boolean logbackLoggingTransactionInfo;
@@ -303,6 +312,10 @@ public class ProfilerConfig {
         return jdbcProfile;
     }
 
+    public boolean isJdbcProfileSqlBindValue() {
+        return jdbcProfileSqlBindValue;
+    }
+
     public int getJdbcSqlCacheSize() {
         return jdbcSqlCacheSize;
     }
@@ -327,6 +340,10 @@ public class ProfilerConfig {
     public boolean isJdbcProfileMySqlRollback() {
         return jdbcProfileMySqlRollback;
     }
+
+    public boolean isJdbcProfileMySqlSqlBindValue() {
+        return jdbcProfileMySqlSqlBindValue;
+    }
     // mysql end-----------------------------------------------------
 
     public boolean isJdbcProfileJtds() {
@@ -345,6 +362,10 @@ public class ProfilerConfig {
         return jdbcProfileJtdsRollback;
     }
 
+    public boolean isJdbcProfileJtdsSqlBindValue() {
+        return jdbcProfileJtdsSqlBindValue;
+    }
+
     // oracle start -----------------------------------------------------
     public boolean isJdbcProfileOracle() {
         return jdbcProfileOracle;
@@ -360,6 +381,10 @@ public class ProfilerConfig {
 
     public boolean isJdbcProfileOracleRollback() {
         return jdbcProfileOracleRollback;
+    }
+
+    public boolean isJdbcProfileOracleSqlBindValue() {
+        return jdbcProfileOracleSqlBindValue;
     }
     // oracle end -----------------------------------------------------
 
@@ -378,6 +403,10 @@ public class ProfilerConfig {
 
     public boolean isJdbcProfileCubridRollback() {
         return jdbcProfileCubridRollback;
+    }
+
+    public boolean isJdbcProfileCubridSqlBindValue() {
+        return jdbcProfileCubridSqlBindValue;
     }
     // cubrid end -----------------------------------------------------
 
@@ -418,6 +447,10 @@ public class ProfilerConfig {
         return tomcatHidePinpointHeader;
     }
 
+    public boolean isTomcatTraceRequestParam() {
+        return tomcatTraceRequestParam;
+    }
+
     public Filter<String> getTomcatExcludeUrlFilter() {
         return tomcatExcludeUrlFilter;
     }
@@ -449,14 +482,18 @@ public class ProfilerConfig {
     public boolean isMemcachedKeyTrace() {
         return memcachedKeyTrace;
     }
-    
+
     //-----------------------------------------
     // http apache client 3
 
     public boolean isApacheHttpClient3Profile() {
         return apacheHttpClient3Profile;
     }
-    
+
+    public boolean isApacheHttpClient3ProfileParam() {
+        return apacheHttpClient3ProfileParam;
+    }
+
     public boolean isApacheHttpClient3ProfileCookie() {
         return apacheHttpClient3ProfileCookie;
     }
@@ -480,12 +517,16 @@ public class ProfilerConfig {
     public int getApacheHttpClient3ProfileEntitySamplingRate() {
         return apacheHttpClient3ProfileEntitySamplingRate;
     }
-    
+
     //-----------------------------------------
     // http apache client 4
 
     public boolean isApacheHttpClient4Profile() {
         return apacheHttpClient4Profile;
+    }
+
+    public boolean isApacheHttpClient4ProfileParam() {
+        return apacheHttpClient4ProfileParam;
     }
 
     public boolean isApacheHttpClient4ProfileCookie() {
@@ -511,7 +552,7 @@ public class ProfilerConfig {
     public int getApacheHttpClient4ProfileEntitySamplingRate() {
         return apacheHttpClient4ProfileEntitySamplingRate;
     }
-    
+
     public boolean isApacheHttpClient4ProfileStatusCode() {
         return apacheHttpClient4ProfileStatusCode;
     }
@@ -524,6 +565,10 @@ public class ProfilerConfig {
 
     public boolean isJdkHttpURLConnectionProfile() {
         return jdkHttpURLConnectionProfile;
+    }
+
+    public boolean isJdkHttpURLConnectionProfileParam() {
+        return jdkHttpURLConnectionProfileParam;
     }
 
     //-----------------------------------------
@@ -655,6 +700,7 @@ public class ProfilerConfig {
 
         // JDBC
         this.jdbcProfile = readBoolean("profiler.jdbc", true);
+        this.jdbcProfileSqlBindValue = readBoolean("profiler.jdbc.tracesqlbindvalue", false);
 
         this.jdbcSqlCacheSize = readInt("profiler.jdbc.sqlcachesize", 1024);
         this.jdbcMaxSqlBindValueSize = readInt("profiler.jdbc.maxsqlbindvaluesize", 1024);
@@ -663,24 +709,28 @@ public class ProfilerConfig {
         this.jdbcProfileMySqlSetAutoCommit = readBoolean("profiler.jdbc.mysql.setautocommit", false);
         this.jdbcProfileMySqlCommit = readBoolean("profiler.jdbc.mysql.commit", false);
         this.jdbcProfileMySqlRollback = readBoolean("profiler.jdbc.mysql.rollback", false);
+        this.jdbcProfileMySqlSqlBindValue = readBoolean("profiler.jdbc.mysql.tracesqlbindvalue", this.jdbcProfileSqlBindValue);
 
 
         this.jdbcProfileJtds = readBoolean("profiler.jdbc.jtds", true);
         this.jdbcProfileJtdsSetAutoCommit = readBoolean("profiler.jdbc.jtds.setautocommit", false);
         this.jdbcProfileJtdsCommit = readBoolean("profiler.jdbc.jtds.commit", false);
         this.jdbcProfileJtdsRollback = readBoolean("profiler.jdbc.jtds.rollback", false);
+        this.jdbcProfileJtdsSqlBindValue = readBoolean("profiler.jdbc.jtds.tracesqlbindvalue", this.jdbcProfileSqlBindValue);
 
 
         this.jdbcProfileOracle = readBoolean("profiler.jdbc.oracle", true);
         this.jdbcProfileOracleSetAutoCommit = readBoolean("profiler.jdbc.oracle.setautocommit", false);
         this.jdbcProfileOracleCommit = readBoolean("profiler.jdbc.oracle.commit", false);
         this.jdbcProfileOracleRollback = readBoolean("profiler.jdbc.oracle.rollback", false);
+        this.jdbcProfileOracleSqlBindValue = readBoolean("profiler.jdbc.oracle.tracesqlbindvalue", this.jdbcProfileSqlBindValue);
 
 
         this.jdbcProfileCubrid = readBoolean("profiler.jdbc.cubrid", true);
         this.jdbcProfileCubridSetAutoCommit = readBoolean("profiler.jdbc.cubrid.setautocommit", false);
         this.jdbcProfileCubridCommit = readBoolean("profiler.jdbc.cubrid.commit", false);
         this.jdbcProfileCubridRollback = readBoolean("profiler.jdbc.cubrid.rollback", false);
+        this.jdbcProfileCubridSqlBindValue = readBoolean("profiler.jdbc.cubrid.tracesqlbindvalue", this.jdbcProfileSqlBindValue);
 
 
         this.jdbcProfileDbcp = readBoolean("profiler.jdbc.dbcp", true);
@@ -688,6 +738,7 @@ public class ProfilerConfig {
 
 
         this.tomcatHidePinpointHeader = readBoolean("profiler.tomcat.hidepinpointheader", true);
+        this.tomcatTraceRequestParam = readBoolean("profiler.tomcat.tracerequestparam", false);
         final String tomcatExcludeURL = readString("profiler.tomcat.excludeurl", "");
         if (!tomcatExcludeURL.isEmpty()) {
             this.tomcatExcludeUrlFilter = new ExcludeUrlFilter(tomcatExcludeURL);
@@ -705,11 +756,12 @@ public class ProfilerConfig {
         this.arucsKeyTrace = readBoolean("profiler.arcus.keytrace", false);
         this.memcached = readBoolean("profiler.memcached", true);
         this.memcachedKeyTrace = readBoolean("profiler.memcached.keytrace", false);
-        
+
         /**
          * apache http client 3
          */
         this.apacheHttpClient3Profile = readBoolean("profiler.apache.httpclient3", true);
+        this.apacheHttpClient3ProfileParam = readBoolean("profiler.apache.httpclient3.param", false);
         this.apacheHttpClient3ProfileCookie = readBoolean("profiler.apache.httpclient3.cookie", false);
         this.apacheHttpClient3ProfileCookieDumpType = readDumpType("profiler.apache.httpclient3.cookie.dumptype", DumpType.EXCEPTION);
         this.apacheHttpClient3ProfileCookieSamplingRate = readInt("profiler.apache.httpclient3.cookie.sampling.rate", 1);
@@ -717,11 +769,12 @@ public class ProfilerConfig {
         this.apacheHttpClient3ProfileEntity = readBoolean("profiler.apache.httpclient3.entity", false);
         this.apacheHttpClient3ProfileEntityDumpType = readDumpType("profiler.apache.httpclient3.entity.dumptype", DumpType.EXCEPTION);
         this.apacheHttpClient3ProfileEntitySamplingRate = readInt("profiler.apache.httpclient3.entity.sampling.rate", 1);
-        
+
         /**
          * apache http client 4
          */
         this.apacheHttpClient4Profile = readBoolean("profiler.apache.httpclient4", true);
+        this.apacheHttpClient4ProfileParam = readBoolean("profiler.apache.httpclient4.param", false);
         this.apacheHttpClient4ProfileCookie = readBoolean("profiler.apache.httpclient4.cookie", false);
         this.apacheHttpClient4ProfileCookieDumpType = readDumpType("profiler.apache.httpclient4.cookie.dumptype", DumpType.EXCEPTION);
         this.apacheHttpClient4ProfileCookieSamplingRate = readInt("profiler.apache.httpclient4.cookie.sampling.rate", 1);
@@ -740,6 +793,7 @@ public class ProfilerConfig {
          * jdk httpclient
          */
         this.jdkHttpURLConnectionProfile = readBoolean("profiler.jdk.httpurlconnection", true);
+        this.jdkHttpURLConnectionProfileParam = readBoolean("profiler.jdk.httpurlconnection.param", false);
 
         /**
          * ning.async http client
@@ -764,12 +818,12 @@ public class ProfilerConfig {
          * log4j
          */
         this.log4jLoggingTransactionInfo = readBoolean("profiler.log4j.logging.transactioninfo", false);
-        
+
         /**
          * logback
          */
         this.logbackLoggingTransactionInfo = readBoolean("profiler.logback.logging.transactioninfo", false);
-        
+
         // redis & nBase-ARC
         this.redis = readBoolean("profiler.redis", true);
         this.redisPipeline = readBoolean("profiler.redis.pipeline", true);
@@ -800,7 +854,7 @@ public class ProfilerConfig {
         // service type
         this.applicationServerType = readServiceType("profiler.applicationservertype");
 
-        
+
         // TODO have to remove        
         // profile package included in order to test "call stack view".
         // this config must not be used in service environment because the size of  profiling information will get heavy.
@@ -895,7 +949,7 @@ public class ProfilerConfig {
         }
         return result;
     }
-    
+
     public boolean isLog4jLoggingTransactionInfo() {
         return this.log4jLoggingTransactionInfo;
     }
@@ -926,25 +980,31 @@ public class ProfilerConfig {
         sb.append(", jdbcSqlCacheSize=").append(jdbcSqlCacheSize);
         sb.append(", jdbcMaxSqlBindValueSize=").append(jdbcMaxSqlBindValueSize);
         sb.append(", jdbcProfile=").append(jdbcProfile);
+        sb.append(", jdbcProfileSqlBindValue=").append(jdbcProfileSqlBindValue);
         sb.append(", jdbcProfileMySql=").append(jdbcProfileMySql);
         sb.append(", jdbcProfileMySqlSetAutoCommit=").append(jdbcProfileMySqlSetAutoCommit);
         sb.append(", jdbcProfileMySqlCommit=").append(jdbcProfileMySqlCommit);
         sb.append(", jdbcProfileMySqlRollback=").append(jdbcProfileMySqlRollback);
+        sb.append(", jdbcProfileMySqlSqlBindValue=").append(jdbcProfileMySqlSqlBindValue);
         sb.append(", jdbcProfileJtds=").append(jdbcProfileJtds);
         sb.append(", jdbcProfileJtdsSetAutoCommit=").append(jdbcProfileJtdsSetAutoCommit);
         sb.append(", jdbcProfileJtdsCommit=").append(jdbcProfileJtdsCommit);
         sb.append(", jdbcProfileJtdsRollback=").append(jdbcProfileJtdsRollback);
+        sb.append(", jdbcProfileJtdsSqlBindValue=").append(jdbcProfileJtdsSqlBindValue);
         sb.append(", jdbcProfileOracle=").append(jdbcProfileOracle);
         sb.append(", jdbcProfileOracleSetAutoCommit=").append(jdbcProfileOracleSetAutoCommit);
         sb.append(", jdbcProfileOracleCommit=").append(jdbcProfileOracleCommit);
         sb.append(", jdbcProfileOracleRollback=").append(jdbcProfileOracleRollback);
+        sb.append(", jdbcProfileOracleSqlBindValue=").append(jdbcProfileOracleSqlBindValue);
         sb.append(", jdbcProfileCubrid=").append(jdbcProfileCubrid);
         sb.append(", jdbcProfileCubridSetAutoCommit=").append(jdbcProfileCubridSetAutoCommit);
         sb.append(", jdbcProfileCubridCommit=").append(jdbcProfileCubridCommit);
         sb.append(", jdbcProfileCubridRollback=").append(jdbcProfileCubridRollback);
+        sb.append(", jdbcProfileCubridSqlBindValue=").append(jdbcProfileCubridSqlBindValue);
         sb.append(", jdbcProfileDbcp=").append(jdbcProfileDbcp);
         sb.append(", jdbcProfileDbcpConnectionClose=").append(jdbcProfileDbcpConnectionClose);
         sb.append(", tomcatHidePinpointHeader=").append(tomcatHidePinpointHeader);
+        sb.append(", tomcatTraceRequestParam=").append(tomcatTraceRequestParam);
         sb.append(", tomcatExcludeUrlFilter=").append(tomcatExcludeUrlFilter);
         sb.append(", tomcatRealIpHeader=").append(tomcatRealIpHeader);
         sb.append(", tomcatRealIpEmptyValue=").append(tomcatRealIpEmptyValue);
@@ -958,6 +1018,7 @@ public class ProfilerConfig {
         sb.append(", redis=").append(redis);
         sb.append(", redisPipeline=").append(redisPipeline);
         sb.append(", apacheHttpClient3Profile=").append(apacheHttpClient3Profile);
+        sb.append(", apacheHttpClient3ProfileParam=").append(apacheHttpClient3ProfileParam);
         sb.append(", apacheHttpClient3ProfileCookie=").append(apacheHttpClient3ProfileCookie);
         sb.append(", apacheHttpClient3ProfileCookieDumpType=").append(apacheHttpClient3ProfileCookieDumpType);
         sb.append(", apacheHttpClient3ProfileCookieSamplingRate=").append(apacheHttpClient3ProfileCookieSamplingRate);
@@ -965,6 +1026,7 @@ public class ProfilerConfig {
         sb.append(", apacheHttpClient3ProfileEntityDumpType=").append(apacheHttpClient3ProfileEntityDumpType);
         sb.append(", apacheHttpClient3ProfileEntitySamplingRate=").append(apacheHttpClient3ProfileEntitySamplingRate);
         sb.append(", apacheHttpClient4Profile=").append(apacheHttpClient4Profile);
+        sb.append(", apacheHttpClient4ProfileParam=").append(apacheHttpClient4ProfileParam);
         sb.append(", apacheHttpClient4ProfileCookie=").append(apacheHttpClient4ProfileCookie);
         sb.append(", apacheHttpClient4ProfileCookieDumpType=").append(apacheHttpClient4ProfileCookieDumpType);
         sb.append(", apacheHttpClient4ProfileCookieSamplingRate=").append(apacheHttpClient4ProfileCookieSamplingRate);
@@ -974,6 +1036,7 @@ public class ProfilerConfig {
         sb.append(", apacheHttpClient4ProfileStatusCode=").append(apacheHttpClient4ProfileStatusCode);
         sb.append(", apacheNIOHttpClient4Profile=").append(apacheNIOHttpClient4Profile);
         sb.append(", jdkHttpURLConnectionProfile=").append(jdkHttpURLConnectionProfile);
+        sb.append(", jdkHttpURLConnectionProfileParam=").append(jdkHttpURLConnectionProfileParam);
         sb.append(", ningAsyncHttpClientProfile=").append(ningAsyncHttpClientProfile);
         sb.append(", ningAsyncHttpClientProfileCookie=").append(ningAsyncHttpClientProfileCookie);
         sb.append(", ningAsyncHttpClientProfileCookieDumpType=").append(ningAsyncHttpClientProfileCookieDumpType);
