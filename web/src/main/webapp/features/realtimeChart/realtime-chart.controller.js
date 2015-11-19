@@ -65,7 +65,7 @@
 	    	var $elWarningMessage = $element.find(".connection-message");
 	    	var $elHandleGlyphicon = $element.find(".handle .glyphicon");
 	    	var $elPin = $element.find(".glyphicon-pushpin");
-	    	var prevUrlApplication = "";
+	    	var preUrlParam = "";
 	    	var aAgentChartElementList = [];
 	    	var oNamespaceToIndexMap = {};
 	    	var aSumChartData = [0];
@@ -320,12 +320,12 @@
 	        	bShowRealtimeChart = prevShowRealtimeChart;
 	        	setPinColor();
 	        });
-	        $scope.$on('realtimeChartController.initialize', function (event, was, applicationName, urlApplication) {
-	        	if ( bIsPinned === true && prevUrlApplication === urlApplication ) return;
+	        $scope.$on('realtimeChartController.initialize', function (event, was, applicationName, urlParam ) {
+	        	if ( bIsPinned === true && preUrlParam === urlParam ) return;
 	        	if ( /^\/main/.test( $location.path() ) == false ) return;
 	        	bIsWas = angular.isUndefined( was ) ? false : was;
 	        	applicationName = angular.isUndefined( applicationName ) ? "" : applicationName;
-	        	prevUrlApplication = urlApplication;
+	        	preUrlParam = urlParam;
 
 	        	$scope.currentApplicationName = applicationName;
 	        	if ( globalConfig.useRealTime === false ) return;
