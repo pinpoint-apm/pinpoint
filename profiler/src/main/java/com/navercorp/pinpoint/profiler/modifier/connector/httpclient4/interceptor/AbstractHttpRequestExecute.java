@@ -63,6 +63,8 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
     protected boolean entity;
     protected DumpType entityDumpType;
     protected SimpleSampler entitySampler;
+
+    protected boolean traceParam;
     
     protected boolean statusCode;
 
@@ -155,7 +157,7 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
             final HttpRequest httpRequest = getHttpRequest(args);
             if (httpRequest != null) {
              // Accessing httpRequest here not before() becuase it can cause side effect.
-                trace.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getRequestLine().getUri());
+                trace.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(httpRequest.getRequestLine().getUri(), this.traceParam));
                 final NameIntValuePair<String> host = getHost(args);
                 if (host != null) {
                     int port = host.getValue();
@@ -325,6 +327,7 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
         if (entity) {
             this.entitySampler = SimpleSamplerFactory.createSampler(entity, profilerConfig.getApacheHttpClient4ProfileEntitySamplingRate());
         }
+        this.traceParam = profilerConfig.isApacheHttpClient4ProfileParam();
         this.statusCode = profilerConfig.isApacheHttpClient4ProfileStatusCode();
     }
 

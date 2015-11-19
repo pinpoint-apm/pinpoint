@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.modifier.connector.jdkhttpconnector.inte
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -30,6 +31,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.MetaObject;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
@@ -48,6 +50,8 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
     private final boolean hasConnecting;
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
+
+    private boolean traceParam;
     
     public ConnectMethodInterceptor(boolean hasConnecting) {
         this.hasConnecting = hasConnecting;
@@ -103,7 +107,7 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
         
         // Don't record end point because it's same with destination id.
         trace.recordDestinationId(endpoint);
-        trace.recordAttribute(AnnotationKey.HTTP_URL, url.toString());
+        trace.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(url.toString(), this.traceParam));
     }
 
     private String getEndpoint(String host, int port) {
@@ -151,5 +155,7 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
     @Override
     public void setTraceContext(TraceContext traceContext) {
         this.traceContext = traceContext;
+        final ProfilerConfig profilerConfig = this.traceContext.getProfilerConfig();
+        this.traceParam = profilerConfig.isJdkHttpURLConnectionProfileParam();
     }
 }

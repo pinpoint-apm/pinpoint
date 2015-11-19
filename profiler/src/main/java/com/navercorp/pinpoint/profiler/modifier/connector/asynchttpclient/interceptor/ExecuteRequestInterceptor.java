@@ -155,7 +155,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 
             if (httpRequest != null) {
                 // Accessing httpRequest here not before() becuase it can cause side effect.
-                trace.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getUrl());
+                trace.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(httpRequest.getUrl(), this.dumpParam));
 
                 String endpoint = getEndpoint(httpRequest.getURI().getHost(), httpRequest.getURI().getPort());
                 trace.recordDestinationId(endpoint);
