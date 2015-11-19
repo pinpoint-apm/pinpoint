@@ -353,7 +353,7 @@
 	                        sLastSelection = 'node';
 	                        htLastNode = node;
 	                        scope.$emit("serverMapDirective.nodeClicked", e, htLastQuery, node, htLastMergedMapData, searchQuery);
-	                        $rootScope.$broadcast("realtimeChartController.initialize", node.isWas, node.applicationName, scope.oNavbarVoService.getApplication() + "/" + scope.oNavbarVoService.getReadablePeriod() + "/" + scope.oNavbarVoService.getQueryEndDateTime() );
+	                        $rootScope.$broadcast("realtimeChartController.initialize", node.isWas, node.applicationName, scope.oNavbarVoService.getApplication() + "/" + scope.oNavbarVoService.getReadablePeriod() + "/" + scope.oNavbarVoService.getQueryEndDateTime() + "/" + scope.oNavbarVoService.getCallerRange() );
 	                        reset();
 	                    };
 	                    options.fOnNodeDoubleClicked = function(e, node, htData ) {
