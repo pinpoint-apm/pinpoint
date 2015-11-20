@@ -12,6 +12,11 @@ flush 'SqlMetaData_Ver2'
 flush 'ApplicationMapStatisticsCaller'
 flush 'ApplicationMapStatisticsCallee'
 flush 'ApplicationMapStatisticsSelf'
+
+flush 'ApplicationMapStatisticsCaller_Ver2'
+flush 'ApplicationMapStatisticsCallee_Ver2'
+flush 'ApplicationMapStatisticsSelf_Ver2'
+
 flush 'ApplicationStatistics'
 flush 'HostApplicationMap'
 flush 'HostApplicationMap_Ver2'
