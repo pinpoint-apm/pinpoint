@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.bootstrap.util;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.net.URI;
-import java.net.URL;
 
 public final class InterceptorUtils {
     private InterceptorUtils() {
@@ -59,8 +57,8 @@ public final class InterceptorUtils {
             return uriString;
         }
 
-        int queryStart = uriString.indexOf("?");
-        if(queryStart != -1) {
+        int queryStart = uriString.indexOf('?');
+        if (queryStart != -1) {
             return uriString.substring(0, queryStart);
         }
 

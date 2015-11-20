@@ -112,7 +112,7 @@ public class RpcURLPatternFilter implements URLPatternFilter {
         if (authorityIndex == -1) {
             return endPoint;
         }
-        final int pathIndex = endPoint.indexOf("/", authorityIndex + 1);
+        final int pathIndex = endPoint.indexOf('/', authorityIndex + 1);
         if (pathIndex == -1) {
 //            ???
             return endPoint;
