@@ -161,9 +161,9 @@ public class ThriftUtils {
             if (address.startsWith("/")) {
                 return address.substring(1);
             } else {
-                int delimeterIndex = address.indexOf("/");
+                final int delimeterIndex = address.indexOf('/');
                 if (delimeterIndex != -1 && delimeterIndex < addressLength) {
-                    return address.substring(address.indexOf("/") + 1);
+                    return address.substring(address.indexOf('/') + 1);
                 }
             }
         }
