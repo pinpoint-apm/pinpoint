@@ -18,6 +18,7 @@
 	    function ($config, $scope, $rootScope, $element, $document, preferenceService, analyticsService, helpContentService) {
 
 			$element.find("span.general-warning").html(helpContentService.configuration.general.warning);
+			$element.find("div.favorite-empty").html(helpContentService.configuration.general.empty);
 			$scope.$on("general.configuration.show", function() {
 			});
 			$scope.depthList = preferenceService.getDepthList();
