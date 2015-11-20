@@ -57,8 +57,8 @@ public final class InterceptorUtils {
             return uriString;
         }
 
-        int queryStart = uriString.indexOf("?");
-        if(queryStart != -1) {
+        int queryStart = uriString.indexOf('?');
+        if (queryStart != -1) {
             return uriString.substring(0, queryStart);
         }
 
