@@ -34,7 +34,7 @@ Services nowadays often consist of many different components, communicating amon
 
 ## Supported Modules
 * JDK 6+
-* Tomcat 6/7, Jetty
+* Tomcat 6/7/8, Jetty
 * Spring, Spring Boot
 * Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient
 * Thrift Client, Thrift Service
