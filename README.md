@@ -25,7 +25,7 @@ Services nowadays often consist of many different components, communicating amon
 
   ![Call Stack](doc/img/ss_call-stack.png)
 
-* **Inspector** - View additional details on the application such as CPU usage, Memory/Garbage Collection, and JVM arguments.
+* **Inspector** - View additional details on the application such as CPU usage, Memory/Garbage Collection, TPS, and JVM arguments.
 
   ![Inspector](doc/img/ss_inspector.png)
 
