@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/naver/pinpoint.svg?branch=master)](https://travis-ci.org/naver/pinpoint)
 
-**Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java. Modelled after [Google's Dapper paper](http://research.google.com/pubs/pub36356.html), Pinpoint provides a solution to help analyze the overall structure of the system and how components within them are interconnected by tracing transactions across distributed applications.
+**Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java. Modelled after [Dapper](http://research.google.com/pubs/pub36356.html "Google Dapper"), Pinpoint provides a solution to help analyze the overall structure of the system and how components within them are interconnected by tracing transactions across distributed applications.
 
 * Install agents without changing a single line of code
 * Minimal impact on performance (approximately 3% increase in resource usage)
@@ -16,6 +16,7 @@ We're now focusing on developing **v1.5.0**.
 Services nowadays often consist of many different components, communicating amongst themselves as well as making API calls to external services. How each and every transaction gets executed is often left as a blackbox. Pinpoint traces transaction flows between these components and provides a clear view to identify problem areas and potential bottlenecks.
 
 * **ServerMap** - Understand the topology of any distributed systems by visualizing how their components are interconnected. Clicking on a node reveals details about the component, such as its current status, and transaction count.
+* **Realtime Active Thread Chart** - Monitor active threads inside applications in real-time.
 * **Request/Response Scatter Chart** - Visualize request count and response patterns over time to identify potential problems. Transactions can be selected for additional detail by **dragging over the chart**.
 
   ![Server Map](doc/img/ss_server-map.png)
@@ -31,23 +32,24 @@ Services nowadays often consist of many different components, communicating amon
 ## Architecture
 ![Pinpoint Architecture](doc/img/pinpoint-architecture.png)
 
-
-
 ## Supported Modules
 * JDK 6+
-* Tomcat 6/7
-* Spring
-* Apache HTTP Client 3.x/4.x, JDK HttpConnector
+* Tomcat 6/7, Jetty
+* Spring, Spring Boot
+* Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient
+* Thrift Client, Thrift Service
 * MySQL, Oracle, MSSQL, CUBRID, DBCP
-* iBATIS, MyBatis
 * Arcus, Memcached, Redis
+* iBATIS, MyBatis
+* gson, Jackson, Json Lib
+* log4j, Logback
 
 ## Quick Start
 You may run a sample Pinpoint instance in your own machine by running four simple scripts for each components: Collector, Web, Sample TestApp, HBase.
 
 Once the components are running, you should be able to visit http://localhost:28080 to view the Pinpoint Web UI, and http://localhost:28081 to generate transactions on the Sample TestApp.
 
-For details, please refer to the [quick-start guide](quickstart/README.md "Pinpoint quick-start guide").
+For details, please refer to the [quick-start guide](quickstart/README.md).
 
 ## Installation
 **Build Requirements**
@@ -84,25 +86,28 @@ To set up your very own Pinpoint instance you can either **download the build re
 Take a look at our [installation guide](doc/installation.md) for further instructions.
 
 ## Issues
-For feature requests and bug reports, feel free to post them [here](https://github.com/naver/pinpoint/issues).
+For feature requests and bug reports, feel free to post them [here](https://github.com/naver/pinpoint/issues "Pinpoint Issues").
 
 
 ## User Group
-For Q/A and discussion [here](https://groups.google.com/forum/#!forum/pinpoint_user).
+For Q/A and discussion [here](https://groups.google.com/forum/#!forum/pinpoint_user "Pinpoint Google Group").
 
 
 ## Wiki
-For roadmap, user guide, documentation.
+We have a [wiki](https://github.com/naver/pinpoint/wiki) page for roadmap, user guide, and some documentation.
 We welcome any documentation contribution.
-[here](https://github.com/naver/pinpoint/wiki).
 
 
 ## Contribution
-We welcome any and all suggestions. Our development guide is currently WIP so check back often for any updates.
+We welcome any and all suggestions.
 
-For contributions, please make a pull-request against our `master` branch.
+For plugin development, take a look at our [plugin samples](https://github.com/naver/pinpoint-plugin-sample "Pinpoint Plugin Samples project") project to get an idea of how we do instrumentation. The samples will provide you with example codes to help you get started. You can also join Gitter below for any questions regarding plugin development.
 
-We would love to see additional tracing support for libraries such as [Storm](https://storm.apache.org/), [HBase](http://hbase.apache.org/), as well as profiler support for additional languages (.NET, C++).
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/naver/pinpoint-plugin-sample?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
+Please make a pull-request against our `master` branch for contributions.
+
+We would love to see additional tracing support for libraries such as [Storm](https://storm.apache.org "Apache Storm"), [HBase](http://hbase.apache.org "Apache HBase"), as well as profiler support for additional languages (.NET, C++).
 
 ## License
 Pinpoint is licensed under the Apache License, Version 2.0.
