@@ -186,7 +186,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite imp
     
     
     
-    private class NormalPluginTestCase implements PinpointPluginTestInstance {
+    private static class NormalPluginTestCase implements PinpointPluginTestInstance {
         private final PinpointPluginTestContext context;
         private final String testId;
         private final List<String> libs;

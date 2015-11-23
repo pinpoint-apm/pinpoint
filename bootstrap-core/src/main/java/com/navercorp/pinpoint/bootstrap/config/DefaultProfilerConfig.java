@@ -106,10 +106,13 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private boolean traceAgentActiveThread = true;
 
     private int callStackMaxDepth = 512;
-    
+
     private int jdbcSqlCacheSize = 1024;
+    private boolean traceSqlBindValue = false;
+    private int maxSqlBindValueSize = 1024;
 
     private boolean tomcatHidePinpointHeader = true;
+    private boolean tomcatTraceRequestParam = true;
     private Filter<String> tomcatExcludeUrlFilter = new SkipFilter<String>();
     private String tomcatRealIpHeader;
     private String tomcatRealIpEmptyValue;
@@ -278,6 +281,16 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
+    public boolean isTraceSqlBindValue() {
+        return traceSqlBindValue;
+    }
+
+    @Override
+    public int getMaxSqlBindValueSize() {
+        return maxSqlBindValueSize;
+    }
+
+    @Override
     public boolean isSamplingEnable() {
         return samplingEnable;
     }
@@ -311,6 +324,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public boolean isTomcatHidePinpointHeader() {
         return tomcatHidePinpointHeader;
+    }
+
+    @Override
+    public boolean isTomcatTraceRequestParam() {
+        return tomcatTraceRequestParam;
     }
 
     @Override
@@ -545,8 +563,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         
         // JDBC
         this.jdbcSqlCacheSize = readInt("profiler.jdbc.sqlcachesize", 1024);
+        this.traceSqlBindValue = readBoolean("profiler.jdbc.tracesqlbindvalue", false);
 
         this.tomcatHidePinpointHeader = readBoolean("profiler.tomcat.hidepinpointheader", true);
+        this.tomcatTraceRequestParam = readBoolean("profiler.tomcat.tracerequestparam", true);
         final String tomcatExcludeURL = readString("profiler.tomcat.excludeurl", "");
         if (!tomcatExcludeURL.isEmpty()) {
             this.tomcatExcludeUrlFilter = new ExcludeUrlFilter(tomcatExcludeURL);
@@ -766,8 +786,14 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append(callStackMaxDepth);
         builder.append(", jdbcSqlCacheSize=");
         builder.append(jdbcSqlCacheSize);
+        builder.append(", traceSqlBindValue=");
+        builder.append(traceSqlBindValue);
+        builder.append(", maxSqlBindValueSize=");
+        builder.append(maxSqlBindValueSize);
         builder.append(", tomcatHidePinpointHeader=");
         builder.append(tomcatHidePinpointHeader);
+        builder.append(", tomcatTraceRequestParam=");
+        builder.append(tomcatTraceRequestParam);
         builder.append(", tomcatExcludeUrlFilter=");
         builder.append(tomcatExcludeUrlFilter);
         builder.append(", tomcatExcludeProfileMethodFilter=");

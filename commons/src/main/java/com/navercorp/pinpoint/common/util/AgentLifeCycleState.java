@@ -26,7 +26,7 @@ public enum AgentLifeCycleState {
     private final short code; 
     private final String desc;
 
-    private AgentLifeCycleState(short code, String desc) {
+    AgentLifeCycleState(short code, String desc) {
         this.code = code;
         this.desc = desc;
     }

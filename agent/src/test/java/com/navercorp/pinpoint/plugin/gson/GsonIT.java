@@ -50,7 +50,7 @@ public class GsonIT {
         Method m = null;
         try {
             m = Gson.class.getMethod("fromJson", Reader.class, Class.class);
-        } catch (NoSuchMethodException e) {
+        } catch (NoSuchMethodException ignored) {
         }
         
         v1_2 = m != null;
@@ -58,7 +58,7 @@ public class GsonIT {
         Class<?> c = null;
         try {
             c = Class.forName("com.google.gson.stream.JsonReader");
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException ignored) {
         }
         
         v1_6 = c != null;

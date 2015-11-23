@@ -39,11 +39,11 @@ public class AgentActiveThreadCountList {
     private final List<AgentActiveThreadCount> agentActiveThreadRepository;
 
     public AgentActiveThreadCountList() {
-        agentActiveThreadRepository = new ArrayList<AgentActiveThreadCount>();
+        agentActiveThreadRepository = new ArrayList<>();
     }
 
     public AgentActiveThreadCountList(int initialCapacity) {
-        agentActiveThreadRepository = new ArrayList<AgentActiveThreadCount>(initialCapacity);
+        agentActiveThreadRepository = new ArrayList<>(initialCapacity);
     }
 
     public void add(AgentActiveThreadCount agentActiveThreadStatus) {

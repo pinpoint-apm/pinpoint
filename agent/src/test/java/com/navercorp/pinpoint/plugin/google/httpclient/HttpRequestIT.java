@@ -20,7 +20,6 @@ import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -60,7 +59,7 @@ public class HttpRequestIT {
             request = requestFactory.buildGetRequest(url);
             response = request.execute();
             response.disconnect();
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         } finally {
             if (response != null) {
                 response.disconnect();
@@ -91,7 +90,7 @@ public class HttpRequestIT {
             request = requestFactory.buildGetRequest(url);
             response = request.executeAsync().get();
             response.disconnect();
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         } finally {
             if (response != null) {
                 response.disconnect();

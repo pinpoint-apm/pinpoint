@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import com.navercorp.pinpoint.profiler.receiver.service.ActiveThreadCountService;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
 

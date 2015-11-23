@@ -50,7 +50,7 @@ public class AlarmPartitioner implements Partitioner {
     @Override
     public Map<String, ExecutionContext> partition(int gridSize) {
         int partitionCount = calculateGroupCount();
-        Map<String, ExecutionContext> mapContext = new HashMap<String, ExecutionContext>();
+        Map<String, ExecutionContext> mapContext = new HashMap<>();
 
         for (int i = 1; i <= partitionCount; i++) {
             ExecutionContext executionContext = new ExecutionContext();

@@ -152,7 +152,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
     private List<SpanBo> filterList(List<List<SpanBo>> transactionList, Filter filter) {
-        final List<SpanBo> filteredResult = new ArrayList<SpanBo>();
+        final List<SpanBo> filteredResult = new ArrayList<>();
         for (List<SpanBo> transaction : transactionList) {
             if (filter.include(transaction)) {
                 filteredResult.addAll(transaction);
@@ -162,7 +162,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
     private List<List<SpanBo>> filterList2(List<List<SpanBo>> transactionList, Filter filter) {
-        final List<List<SpanBo>> filteredResult = new ArrayList<List<SpanBo>>();
+        final List<List<SpanBo>> filteredResult = new ArrayList<>();
         for (List<SpanBo> transaction : transactionList) {
             if (filter.include(transaction)) {
                 filteredResult.add(transaction);
@@ -176,7 +176,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
-        List<TransactionId> transactionIdList = new ArrayList<TransactionId>();
+        List<TransactionId> transactionIdList = new ArrayList<>();
         transactionIdList.add(transactionId);
         // FIXME from,to -1
         Range range = new Range(-1, -1);
@@ -293,7 +293,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
     private Map<Long, SpanBo> checkDuplicatedSpanId(List<SpanBo> transaction) {
-        final Map<Long, SpanBo> transactionSpanMap = new HashMap<Long, SpanBo>();
+        final Map<Long, SpanBo> transactionSpanMap = new HashMap<>();
         for (SpanBo span : transaction) {
             final SpanBo old = transactionSpanMap.put(span.getSpanId(), span);
             if (old != null) {
@@ -388,8 +388,8 @@ public class FilteredMapServiceImpl implements FilteredMapService {
             throw new NullPointerException("transactionIdList must not be null");
         }
 
-        List<TransactionId> crashKey = new ArrayList<TransactionId>();
-        Map<TransactionId, Object> filterMap = new LinkedHashMap<TransactionId, Object>(transactionIdList.size());
+        List<TransactionId> crashKey = new ArrayList<>();
+        Map<TransactionId, Object> filterMap = new LinkedHashMap<>(transactionIdList.size());
         for (TransactionId transactionId : transactionIdList) {
             Object old = filterMap.put(transactionId, V);
             if (old != null) {

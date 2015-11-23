@@ -265,7 +265,7 @@ public final class BytesUtils {
 
         long result = 0;
         for (int shift = 0; shift < 64; shift += 7) {
-            final byte b = buffer[offset++];;
+            final byte b = buffer[offset++];
             result |= (long) (b & 0x7F) << shift;
             if ((b & 0x80) == 0) {
                 return result;

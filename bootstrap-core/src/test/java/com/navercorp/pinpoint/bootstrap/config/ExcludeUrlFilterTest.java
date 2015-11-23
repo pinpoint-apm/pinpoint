@@ -23,8 +23,6 @@ import org.junit.Test;
 import com.navercorp.pinpoint.bootstrap.config.ExcludeUrlFilter;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 
-import static org.junit.Assert.*;
-
 public class ExcludeUrlFilterTest {
 
     @Test

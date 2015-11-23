@@ -53,7 +53,7 @@ public class UserController {
     public Map<String, String> insertUser(@RequestBody User user) {
         
         if (StringUtils.isEmpty(user.getUserId()) || StringUtils.isEmpty(user.getName())) {
-            Map<String, String> result = new HashMap<String, String>();
+            Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
             result.put("errorMessage", "there is not userId or name in params to creating user infomation");
             return result;
@@ -61,7 +61,7 @@ public class UserController {
         
         userService.insertUser(user);
 
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         result.put("result", "SUCCESS");
         return result;
     }
@@ -70,7 +70,7 @@ public class UserController {
     @ResponseBody
     public Map<String, String> deletetUser(@RequestBody User user) {
         if (StringUtils.isEmpty(user.getUserId())) {
-            Map<String, String> result = new HashMap<String, String>();
+            Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
             result.put("errorMessage", "there is not userId in params to delete user");
             return result;
@@ -78,7 +78,7 @@ public class UserController {
         
         userService.deleteUser(user);
 
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         result.put("result", "SUCCESS");
         return result;
     }
@@ -88,7 +88,7 @@ public class UserController {
     public Object getUser(@RequestParam(value="userId", required=false) String userId, @RequestParam(value="userName", required=false) String userName, @RequestParam(value="department", required=false) String department) {
         try {
             if(userId != null) {
-                List<User> users = new ArrayList<User>(1);
+                List<User> users = new ArrayList<>(1);
                 users.add(userService.selectUserByUserId(userId));
                 return users;
             } else if (userName != null) {
@@ -101,7 +101,7 @@ public class UserController {
         } catch (Exception e) {
             logger.error("can't select user", e);
             
-            Map<String, String> result = new HashMap<String, String>();
+            Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
             result.put("errorMessage", "This api need to collect condition for search.");
             return result;
@@ -113,7 +113,7 @@ public class UserController {
     public Map<String, String> updateUser(@RequestBody User user) {
        
         if (StringUtils.isEmpty(user.getUserId())) {
-            Map<String, String> result = new HashMap<String, String>();
+            Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
             result.put("errorMessage", "there is not userId in params to update user");
             return result;
@@ -121,7 +121,7 @@ public class UserController {
         
         userService.updateUser(user);
         
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         result.put("result", "SUCCESS");
         return result;
     }
@@ -131,7 +131,7 @@ public class UserController {
     public Map<String, String> handleException(Exception e) {
         logger.error(" Exception occurred while trying to CRUD user information", e);
         
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         result.put("errorCode", "500");
         result.put("errorMessage", "Exception occurred while trying to CRUD user information");
         return result;

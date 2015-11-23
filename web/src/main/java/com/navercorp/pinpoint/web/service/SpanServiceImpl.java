@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.bo.*;
@@ -30,7 +29,6 @@ import com.navercorp.pinpoint.web.calltree.span.CallTree;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
 import com.navercorp.pinpoint.web.calltree.span.SpanAligner2;
-import com.navercorp.pinpoint.web.calltree.span.SpanCallTree;
 import com.navercorp.pinpoint.web.dao.ApiMetaDataDao;
 import com.navercorp.pinpoint.web.dao.SqlMetaDataDao;
 import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
@@ -41,7 +39,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /**
  * @author emeroad
@@ -98,14 +95,14 @@ public class SpanServiceImpl implements SpanService {
             if (spanAlign.isSpan()) {
                 annotationBoList = spanAlign.getSpanBo().getAnnotationBoList();
                 if (annotationBoList == null) {
-                    annotationBoList = new ArrayList<AnnotationBo>();
+                    annotationBoList = new ArrayList<>();
                     spanAlign.getSpanBo().setAnnotationBoList(annotationBoList);
                 }
                 annotationReplacementCallback.replacement(spanAlign, annotationBoList);
             } else {
                 annotationBoList = spanAlign.getSpanEventBo().getAnnotationBoList();
                 if (annotationBoList == null) {
-                    annotationBoList = new ArrayList<AnnotationBo>();
+                    annotationBoList = new ArrayList<>();
                     spanAlign.getSpanEventBo().setAnnotationBoList(annotationBoList);
                 }
                 annotationReplacementCallback.replacement(spanAlign, annotationBoList);
@@ -306,7 +303,7 @@ public class SpanServiceImpl implements SpanService {
     }
 
     private List<AnnotationBo> findCachedStringAnnotation(List<AnnotationBo> annotationBoList) {
-        List<AnnotationBo> findAnnotationBoList = new ArrayList<AnnotationBo>(annotationBoList.size());
+        List<AnnotationBo> findAnnotationBoList = new ArrayList<>(annotationBoList.size());
         for (AnnotationBo annotationBo : annotationBoList) {
             if (AnnotationKeyUtils.isCachedArgsKey(annotationBo.getKey())) {
                 findAnnotationBoList.add(annotationBo);
@@ -398,7 +395,7 @@ public class SpanServiceImpl implements SpanService {
         return apiMetaDataBo.getApiInfo();
     }
 
-    public static interface AnnotationReplacementCallback {
+    public interface AnnotationReplacementCallback {
         void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList);
     }
 

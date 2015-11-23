@@ -50,7 +50,7 @@ public class MySqlUrlParserTest {
             logger.debug(oracleRac.toString());
             logger.debug(oracleRac.getScheme());
             Assert.fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 

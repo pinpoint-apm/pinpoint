@@ -153,7 +153,7 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
             return Collections.emptyList();
         }
 
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
 
         String clusterData = new String(contents, charset);
         String[] allClusterData = clusterData.split(PROFILER_SEPARATOR);

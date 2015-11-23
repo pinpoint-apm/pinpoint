@@ -43,7 +43,7 @@ public enum AgentEventType {
     private final Class<?> messageType;
     private final Set<AgentEventTypeCategory> category;
 
-    private AgentEventType(int code, String desc, Class<?> messageType, AgentEventTypeCategory ... category) {
+    AgentEventType(int code, String desc, Class<?> messageType, AgentEventTypeCategory... category) {
         this.code = code;
         this.desc = desc;
         this.messageType = messageType;

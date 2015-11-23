@@ -24,8 +24,6 @@ import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.applicationmap.ServerInstance;
-import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
-import com.navercorp.pinpoint.web.applicationmap.link.ServerMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

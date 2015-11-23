@@ -24,6 +24,6 @@ import java.lang.instrument.ClassFileTransformer;
  *
  */
 public interface ClassFileTransformerBuilder extends BaseClassFileTransformerBuilder {
-    public void conditional(ClassCondition condition, ConditionalClassFileTransformerSetup descriptor);
-    public ClassFileTransformer build();
+    void conditional(ClassCondition condition, ConditionalClassFileTransformerSetup descriptor);
+    ClassFileTransformer build();
 }

@@ -60,7 +60,7 @@ public enum StreamCode {
     private final short value;
     private final static Map<Short, StreamCode> CODE_MAP = Collections.unmodifiableMap(initializeCodeMapping());
 
-    private StreamCode(short value) {
+    StreamCode(short value) {
         this.value = value;
     }
 

@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.web.alarm.vo.CheckerResult;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
+import com.navercorp.pinpoint.web.vo.UserGroup;
 
 /**
  * @author minwoo.jung
@@ -64,7 +65,7 @@ public class AlarmServiceImpl implements AlarmService {
 
     @Override
     public Map<String, CheckerResult> selectBeforeCheckerResults(String applicationId) {
-        Map<String, CheckerResult> checkerResults = new HashMap<String, CheckerResult>();
+        Map<String, CheckerResult> checkerResults = new HashMap<>();
         List<CheckerResult> CheckerResultList = alarmDao.selectBeforeCheckerResultList(applicationId);
         
         if (CheckerResultList.size() > 0) {
@@ -89,6 +90,16 @@ public class AlarmServiceImpl implements AlarmService {
         }
         
          
+    }
+
+    @Override
+    public void deleteRuleByUserGroupId(String groupId) {
+        alarmDao.deleteRuleByUserGroupId(groupId);
+    }
+
+    @Override
+    public void updateUserGroupIdOfRule(UserGroup userGroup) {
+        alarmDao.updateUserGroupIdOfRule(userGroup);
     }
 
 }

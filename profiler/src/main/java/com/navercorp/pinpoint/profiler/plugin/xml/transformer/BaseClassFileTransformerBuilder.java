@@ -22,20 +22,20 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
  */
 public interface BaseClassFileTransformerBuilder {
 
-    public void injectGetter(String getterTypeName, String fieldName);
+    void injectGetter(String getterTypeName, String fieldName);
 
-    public void injectField(String accessorTypeName);
+    void injectField(String accessorTypeName);
 
-    public InterceptorBuilder injectInterceptor(String className, Object... constructorArgs);
+    InterceptorBuilder injectInterceptor(String className, Object... constructorArgs);
 
-    public void weave(String aspectClassName);
+    void weave(String aspectClassName);
 
-    public MethodTransformerBuilder editMethods(MethodFilter... filter);
+    MethodTransformerBuilder editMethods(MethodFilter... filter);
 
-    public MethodTransformerBuilder editMethod(String name, String... parameterTypeNames);
+    MethodTransformerBuilder editMethod(String name, String... parameterTypeNames);
 
-    public ConstructorTransformerBuilder editConstructor(String... parameterTypeNames);
+    ConstructorTransformerBuilder editConstructor(String... parameterTypeNames);
     
-    public void overrideMethodToDelegate(String name, String... paramTypes);
+    void overrideMethodToDelegate(String name, String... paramTypes);
 
 }

@@ -71,7 +71,7 @@ public class ObjectMapper_1_x_IT {
         try {
             serializationConfig = Class.forName("org.codehaus.jackson.map.SerializationConfig"); 
             deserializationConfig = Class.forName("org.codehaus.jackson.map.DeserializationConfig");
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException ignored) {
             
         }
         
@@ -162,7 +162,7 @@ public class ObjectMapper_1_x_IT {
             readerClass = Class.forName("org.codehaus.jackson.map.ObjectReader");
             readerReadValueString = getMethod(readerClass, "readValue", String.class);
             readerReadValueBytes = getMethod(readerClass, "readValue", byte[].class);
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException ignored) {
             
         }
         

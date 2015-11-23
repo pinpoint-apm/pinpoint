@@ -85,7 +85,7 @@ public class PinpointWebSocketMessageConverter {
     }
 
     public String getRequestTextMessage(String command, Map<String, Object> params) throws JsonProcessingException {
-        Map<String, Object> request = new HashMap<String, Object>(3);
+        Map<String, Object> request = new HashMap<>(3);
         request.put(TYPE, PinpointWebSocketMessageType.REQUEST.name());
         request.put(COMMAND, command);
         request.put(PARAMETERS, params);
@@ -94,7 +94,7 @@ public class PinpointWebSocketMessageConverter {
     }
 
     public String getResponseTextMessage(String command, Map<String, Object> result) throws JsonProcessingException {
-        Map<String, Object> request = new HashMap<String, Object>(3);
+        Map<String, Object> request = new HashMap<>(3);
         request.put(TYPE, PinpointWebSocketMessageType.RESPONSE.name());
         request.put(COMMAND, command);
         request.put(RESULT, result);
@@ -103,7 +103,7 @@ public class PinpointWebSocketMessageConverter {
     }
 
     public String getSendTextMessage(String command, Map<String, Object> params) throws JsonProcessingException {
-        Map<String, Object> request = new HashMap<String, Object>(3);
+        Map<String, Object> request = new HashMap<>(3);
         request.put(TYPE, PinpointWebSocketMessageType.SEND.name());
         request.put(COMMAND, command);
         request.put(PARAMETERS, params);
@@ -120,7 +120,7 @@ public class PinpointWebSocketMessageConverter {
     }
 
     private String createPingMessage() {
-        Map<String, Object> ping = new HashMap<String, Object>(1);
+        Map<String, Object> ping = new HashMap<>(1);
         ping.put(TYPE, PinpointWebSocketMessageType.PING.name());
 
         String pingTextMessage;
@@ -144,7 +144,7 @@ public class PinpointWebSocketMessageConverter {
     }
 
     private String createPongMessage() {
-        Map<String, Object> ping = new HashMap<String, Object>(1);
+        Map<String, Object> ping = new HashMap<>(1);
         ping.put(TYPE, PinpointWebSocketMessageType.PONG.name());
 
         String pongTextMessage;

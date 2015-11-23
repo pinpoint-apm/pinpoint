@@ -37,7 +37,7 @@ public enum AgentHandshakePropertyType {
     private final String name;
     private final Class<?> clazzType;
 
-    private AgentHandshakePropertyType(String name, Class<?> clazzType) {
+    AgentHandshakePropertyType(String name, Class<?> clazzType) {
         this.name = name;
         this.clazzType = clazzType;
     }

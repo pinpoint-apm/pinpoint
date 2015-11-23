@@ -34,10 +34,10 @@ public enum ManagedAgentLifeCycle {
     UNEXPECTED_CLOSE_BY_SERVER(Integer.MAX_VALUE, SocketStateCode.UNEXPECTED_CLOSE_BY_SERVER, SocketStateCode.ERROR_UNKNOWN,
             SocketStateCode.ERROR_ILLEGAL_STATE_CHANGE, SocketStateCode.ERROR_SYNC_STATE_SESSION);
 
-    private static final EnumMap<ManagedAgentLifeCycle, AgentLifeCycleState> MAPPED_STATE = new EnumMap<ManagedAgentLifeCycle, AgentLifeCycleState>(
+    private static final EnumMap<ManagedAgentLifeCycle, AgentLifeCycleState> MAPPED_STATE = new EnumMap<>(
             ManagedAgentLifeCycle.class);
 
-    private static final EnumMap<ManagedAgentLifeCycle, AgentEventType> MAPPED_EVENT = new EnumMap<ManagedAgentLifeCycle, AgentEventType>(
+    private static final EnumMap<ManagedAgentLifeCycle, AgentEventType> MAPPED_EVENT = new EnumMap<>(
             ManagedAgentLifeCycle.class);
 
     static {
@@ -57,9 +57,9 @@ public enum ManagedAgentLifeCycle {
     private final int eventCounter;
     private final Set<SocketStateCode> managedStateCodeSet;
 
-    private ManagedAgentLifeCycle(int eventCounter, SocketStateCode... managedStateCodes) {
+    ManagedAgentLifeCycle(int eventCounter, SocketStateCode... managedStateCodes) {
         this.eventCounter = eventCounter;
-        this.managedStateCodeSet = new HashSet<SocketStateCode>(Arrays.asList(managedStateCodes));
+        this.managedStateCodeSet = new HashSet<>(Arrays.asList(managedStateCodes));
     }
 
     public int getEventCounter() {

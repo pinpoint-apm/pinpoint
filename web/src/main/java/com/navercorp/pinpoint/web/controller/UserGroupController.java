@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.web.controller;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.web.service.UserGroupService;
 import com.navercorp.pinpoint.web.vo.UserGroup;
 import com.navercorp.pinpoint.web.vo.UserGroupMember;
@@ -51,11 +51,14 @@ public class UserGroupController {
     @Autowired
     UserGroupService userGroupService;
     
+    @Autowired
+    AlarmService alarmService;
+    
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
     public Map<String, String> createUserGroup(@RequestBody UserGroup userGroup) {
         if (StringUtils.isEmpty(userGroup.getId())) {
-            Map<String, String> result = new HashMap<String, String>();
+            Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
             result.put("errorMessage", "there is not id of userGroup in params to create user group");
             return result;
@@ -63,7 +66,7 @@ public class UserGroupController {
         
         String userGroupNumber = userGroupService.createUserGroup(userGroup);
 
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         result.put("number", userGroupNumber);
         return result;
     }
@@ -72,7 +75,7 @@ public class UserGroupController {
     @ResponseBody
     public Map<String, String> deleteUserGroup(@RequestBody UserGroup userGroup) {
         if (StringUtils.isEmpty(userGroup.getId())) {
-            Map<String, String> result = new HashMap<String, String>();
+            Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
             result.put("errorMessage", "there is id of userGroup in params to delete user group");
             return result;
@@ -80,8 +83,11 @@ public class UserGroupController {
         
         userGroupService.deleteUserGroup(userGroup);
         userGroupService.deleteMemberByUserGroupId(userGroup.getId());
+        alarmService.deleteRuleByUserGroupId(userGroup.getId());
+        
+        
 
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         result.put("result", "SUCCESS");
         return result;
     }
@@ -102,16 +108,17 @@ public class UserGroupController {
     @ResponseBody
     public Map<String, String> updateUserGroup(@RequestBody UserGroup userGroup) {
         if (StringUtils.isEmpty(userGroup.getNumber()) || StringUtils.isEmpty(userGroup.getId())) {
-            Map<String, String> result = new HashMap<String, String>();
+            Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
             result.put("errorMessage", "there is not id or number of user group in params to update user group");
             return result;
         }
         
+        alarmService.updateUserGroupIdOfRule(userGroup);
         userGroupService.updateUserGroupIdOfMember(userGroup);
         userGroupService.updateUserGroup(userGroup);
         
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         
         result.put("result", "SUCCESS");
         return result;
@@ -121,7 +128,7 @@ public class UserGroupController {
     @ResponseBody
     public Map<String, String> insertUserGroupMember(@RequestBody UserGroupMember userGroupMember) {
         if (StringUtils.isEmpty(userGroupMember.getMemberId()) || StringUtils.isEmpty(userGroupMember.getMemberId())) {
-            Map<String, String> result = new HashMap<String, String>();
+            Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
             result.put("errorMessage", "there is not userGroupId or memberId in params to insert user group member");
             return result;
@@ -129,7 +136,7 @@ public class UserGroupController {
         
         userGroupService.insertMember(userGroupMember);
 
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         result.put("result", "SUCCESS");
         return result;
     }
@@ -139,7 +146,7 @@ public class UserGroupController {
     public Map<String, String> deleteUserGroupMember(@RequestBody UserGroupMember userGroupMember) {
         
         if (StringUtils.isEmpty(userGroupMember.getUserGroupId()) || StringUtils.isEmpty(userGroupMember.getMemberId())) {
-            Map<String, String> result = new HashMap<String, String>();
+            Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
             result.put("errorMessage", "there is not userGroupId or memberId in params to delete user group member");
             return result;
@@ -147,7 +154,7 @@ public class UserGroupController {
         
         userGroupService.deleteMember(userGroupMember);
 
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         result.put("result", "SUCCESS");
         return result;
     }
@@ -155,7 +162,7 @@ public class UserGroupController {
     @RequestMapping(value = "/member", method = RequestMethod.GET)
     @ResponseBody
     public List<UserGroupMember> getUserGroupMember(@RequestParam(USER_GROUP_ID) String userGroupId) {
-        //need param check and make respose message for exception
+        //need param check and make response message for exception
         
         return userGroupService.selectMember(userGroupId);
     }
@@ -182,7 +189,7 @@ public class UserGroupController {
     public Map<String, String> handleException(Exception e) {
         logger.error("Exception occurred while trying to CRUD userGroup information", e);
         
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         result.put("errorCode", "500");
         result.put("errorMessage", "Exception occurred while trying to CRUD userGroup information");
         return result;

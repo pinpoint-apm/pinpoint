@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.hadoop.hbase.RowMapper;
@@ -47,7 +46,7 @@ public class AnnotationMapper implements RowMapper<Map<Long, List<AnnotationBo>>
             return Collections.emptyMap();
         }
         Cell[] rawCells = result.rawCells();
-        Map<Long, List<AnnotationBo>> annotationList = new HashMap<Long, List<AnnotationBo>>();
+        Map<Long, List<AnnotationBo>> annotationList = new HashMap<>();
 
         for (Cell cell : rawCells) {
 

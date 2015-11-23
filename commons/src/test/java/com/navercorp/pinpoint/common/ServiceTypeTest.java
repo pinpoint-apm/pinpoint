@@ -45,7 +45,7 @@ public class ServiceTypeTest {
         try {
             serviceTypeList.add(ServiceType.INTERNAL_METHOD);
             Assert.fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 

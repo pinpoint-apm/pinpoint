@@ -211,43 +211,6 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     // }
     // }
 
-    private class TransactionInfo {
-
-        private final String transactionId;
-        private final long spanId;
-
-        public TransactionInfo(String transactionId, long spanId) {
-            this.transactionId = transactionId;
-            this.spanId = spanId;
-        }
-
-        public String getTransactionId() {
-            return transactionId;
-        }
-
-        public long getSpanId() {
-            return spanId;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof TransactionInfo == false) {
-                return false;
-            }
-
-            TransactionInfo transactionInfo = (TransactionInfo) obj;
-
-            if (!transactionId.equals(transactionInfo.getTransactionId())) {
-                return false;
-            }
-            if (spanId != transactionInfo.getSpanId()) {
-                return false;
-            }
-
-            return true;
-        }
-    }
-
     private long getStartTime(List<SpanAlign> spanAlignList) {
         if (spanAlignList == null || spanAlignList.size() == 0) {
             return 0;
@@ -347,7 +310,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                 throw new NullPointerException("callTreeIterator must not be null");
             }
 
-            final List<Record> recordList = new ArrayList<Record>(callTreeIterator.size() * 2);
+            final List<Record> recordList = new ArrayList<>(callTreeIterator.size() * 2);
             final RecordFactory factory = new RecordFactory(registry, annotationKeyRegistryService);
 
             // annotation id has nothing to do with spanAlign's seq and thus may be incremented as long as they don't overlap.

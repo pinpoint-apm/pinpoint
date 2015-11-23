@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.common.bo.SpanBo;
-import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
@@ -35,8 +34,8 @@ public class ResponseHistogramBuilder {
 
     private final TimeWindow window;
 
-    private Map<Long, Map<Application, ResponseTime>> responseTimeApplicationMap = new HashMap<Long, Map<Application, ResponseTime>>();
-    private Map<Application, List<ResponseTime>> result = new HashMap<Application, List<ResponseTime>>();
+    private Map<Long, Map<Application, ResponseTime>> responseTimeApplicationMap = new HashMap<>();
+    private Map<Application, List<ResponseTime>> result = new HashMap<>();
 
 
     public ResponseHistogramBuilder(Range range) {
@@ -72,7 +71,7 @@ public class ResponseHistogramBuilder {
     private ResponseTime getResponseTime(Application application, Long timeStamp) {
         Map<Application, ResponseTime> responseTimeMap = responseTimeApplicationMap.get(timeStamp);
         if (responseTimeMap == null) {
-            responseTimeMap = new HashMap<Application, ResponseTime>();
+            responseTimeMap = new HashMap<>();
             responseTimeApplicationMap.put(timeStamp, responseTimeMap);
         }
         ResponseTime responseTime = responseTimeMap.get(application);
@@ -84,13 +83,13 @@ public class ResponseHistogramBuilder {
     }
 
     public void build() {
-        final Map<Application, List<ResponseTime>> result = new HashMap<Application, List<ResponseTime>>();
+        final Map<Application, List<ResponseTime>> result = new HashMap<>();
 
         for (Map<Application, ResponseTime> entry : responseTimeApplicationMap.values()) {
             for (Map.Entry<Application, ResponseTime> applicationResponseTimeEntry : entry.entrySet()) {
                 List<ResponseTime> responseTimeList = result.get(applicationResponseTimeEntry.getKey());
                 if (responseTimeList == null) {
-                    responseTimeList = new ArrayList<ResponseTime>();
+                    responseTimeList = new ArrayList<>();
                     Application key = applicationResponseTimeEntry.getKey();
                     result.put(key, responseTimeList);
                 }

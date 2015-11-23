@@ -59,10 +59,10 @@ public class WorkerActiveManager {
     private final Object lock = new Object();
 
     private final AtomicBoolean onReconnectTimerTask = new AtomicBoolean(false);
-    private final Set<String> reactiveWorkerRepository = new CopyOnWriteArraySet<String>();
+    private final Set<String> reactiveWorkerRepository = new CopyOnWriteArraySet<>();
 
     private final AtomicBoolean onAgentCheckTimerTask = new AtomicBoolean(false);
-    private final List<String> defaultAgentIdList = new CopyOnWriteArrayList<String>();
+    private final List<String> defaultAgentIdList = new CopyOnWriteArrayList<>();
 
     public WorkerActiveManager(PinpointWebSocketResponseAggregator responseAggregator, AgentService agentService, Timer timer) {
         this.responseAggregator = responseAggregator;
@@ -124,7 +124,7 @@ public class WorkerActiveManager {
         public void run(Timeout timeout) throws Exception {
             logger.info("ReactiveTimerTask started.");
 
-            Set<String> reactiveWorkerCandidates = new HashSet<String>(reactiveWorkerRepository.size());
+            Set<String> reactiveWorkerCandidates = new HashSet<>(reactiveWorkerRepository.size());
             synchronized (lock) {
                 reactiveWorkerCandidates.addAll(reactiveWorkerRepository);
                 reactiveWorkerRepository.clear();

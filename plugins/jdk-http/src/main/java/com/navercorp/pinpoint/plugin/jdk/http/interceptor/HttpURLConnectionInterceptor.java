@@ -33,10 +33,12 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.jdk.http.ConnectedGetter;
 import com.navercorp.pinpoint.plugin.jdk.http.ConnectingGetter;
 import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpConstants;
+import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpPluginConfig;
 
 /**
  * @author netspider
@@ -56,11 +58,15 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
     private final InterceptorScope scope;
+    private final boolean param;
     
     public HttpURLConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
         this.scope = scope;
+
+        final JdkHttpPluginConfig config = new JdkHttpPluginConfig(traceContext.getProfilerConfig());
+        this.param = config.isParam();
     }
 
     @Override
@@ -115,7 +121,7 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
         
         // Don't record end point because it's same with destination id.
         recorder.recordDestinationId(endpoint);
-        recorder.recordAttribute(AnnotationKey.HTTP_URL, url.toString());
+        recorder.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(url.toString(), param));
     }
 
     private String getEndpoint(String host, int port) {

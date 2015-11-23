@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.util.apache;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**

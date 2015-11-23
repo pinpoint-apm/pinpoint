@@ -21,8 +21,6 @@ import org.junit.Test;
 
 import java.net.DatagramPacket;
 
-import static org.junit.Assert.*;
-
 /**
  * @author emeroad
  */

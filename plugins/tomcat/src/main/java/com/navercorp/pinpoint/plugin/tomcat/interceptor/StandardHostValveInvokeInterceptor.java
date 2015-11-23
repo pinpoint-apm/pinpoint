@@ -52,31 +52,32 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isTrace = logger.isTraceEnabled();
 
+    private final boolean isTraceRequestParam;
+    private final Filter<String> excludeUrlFilter;
+    private final Filter<String> excludeProfileMethodFilter;
+    private final RemoteAddressResolver<HttpServletRequest> remoteAddressResolver;
+
     private MethodDescriptor methodDescriptor;
     private TraceContext traceContext;
-
-    private Filter<String> excludeUrlFilter;
-	private Filter<String> excludeProfileMethodFilter;
-
-    private RemoteAddressResolver<HttpServletRequest> remoteAddressResolver;
 
     public StandardHostValveInvokeInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter) {
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
         this.excludeUrlFilter = excludeFilter;
-        this.excludeProfileMethodFilter = traceContext.getProfilerConfig().getTomcatExcludeProfileMethodFilter();
-
-        traceContext.cacheApi(SERVLET_ASYNCHRONOUS_API_TAG);
-        traceContext.cacheApi(SERVLET_SYNCHRONOUS_API_TAG);
 
         ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
         final String proxyIpHeader = profilerConfig.getTomcatRealIpHeader();
         if (proxyIpHeader == null || proxyIpHeader.isEmpty()) {
-            remoteAddressResolver = new Bypass<HttpServletRequest>();
+            this.remoteAddressResolver = new Bypass<HttpServletRequest>();
         } else {
             final String tomcatRealIpEmptyValue = profilerConfig.getTomcatRealIpEmptyValue();
-            remoteAddressResolver = new RealIpHeaderResolver<HttpServletRequest>(proxyIpHeader, tomcatRealIpEmptyValue);
+            this.remoteAddressResolver = new RealIpHeaderResolver<HttpServletRequest>(proxyIpHeader, tomcatRealIpEmptyValue);
         }
+        this.isTraceRequestParam = profilerConfig.isTomcatTraceRequestParam();
+        this.excludeProfileMethodFilter = profilerConfig.getTomcatExcludeProfileMethodFilter();
+
+        traceContext.cacheApi(SERVLET_ASYNCHRONOUS_API_TAG);
+        traceContext.cacheApi(SERVLET_SYNCHRONOUS_API_TAG);
     }
 
     @Override
@@ -115,7 +116,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     public static class RealIpHeaderResolver<T extends HttpServletRequest> implements RemoteAddressResolver<T> {
 
         public static final String X_FORWARDED_FOR = "x-forwarded-for";
-        public static final String X_REAL_IP =  "x-real-ip";
+        public static final String X_REAL_IP = "x-real-ip";
         public static final String UNKNOWN = "unknown";
 
         private final String realIpHeaderName;
@@ -200,11 +201,11 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                 recordRootSpan(recorder, request);
                 setTraceMetadata(request, trace);
                 if (isDebug) {
-                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[] { traceId, request.getRequestURI(), request.getRemoteAddr() });
+                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, request.getRequestURI(), request.getRemoteAddr());
                 }
             } else {
                 if (isDebug) {
-                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[] { traceId, request.getRequestURI(), request.getRemoteAddr() });
+                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, request.getRequestURI(), request.getRemoteAddr());
                 }
             }
             return trace;
@@ -228,7 +229,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
 
     private void setTraceMetadata(final Request request, final Trace trace) {
         if (request instanceof TraceAccessor) {
-            ((TraceAccessor)request)._$PINPOINT$_setTrace(trace);
+            ((TraceAccessor) request)._$PINPOINT$_setTrace(trace);
         }
     }
 
@@ -237,7 +238,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             return null;
         }
 
-        return ((TraceAccessor)request)._$PINPOINT$_getTrace();
+        return ((TraceAccessor) request)._$PINPOINT$_getTrace();
     }
 
     private boolean getAsyncMetadata(final Request request) {
@@ -245,7 +246,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             return false;
         }
 
-        return ((AsyncAccessor)request)._$PINPOINT$_isAsync();
+        return ((AsyncAccessor) request)._$PINPOINT$_isAsync();
     }
 
     private boolean isAsynchronousProcess(final Request request) {
@@ -267,7 +268,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         final String endPoint = request.getServerName() + ":" + port;
         recorder.recordEndPoint(endPoint);
 
-        final String remoteAddr =  remoteAddressResolver.resolve(request);
+        final String remoteAddr = remoteAddressResolver.resolve(request);
         recorder.recordRemoteAddress(remoteAddr);
 
         if (!recorder.isRoot()) {
@@ -310,12 +311,14 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         // ------------------------------------------------------
         try {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            final HttpServletRequest request = (HttpServletRequest) args[0];
 
-            if (!excludeProfileMethodFilter.filter(request.getMethod())) {
-                final String parameters = getRequestParameter(request, 64, 512);
-                if (parameters != null && parameters.length() > 0) {
-                    recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+            if (this.isTraceRequestParam) {
+                final HttpServletRequest request = (HttpServletRequest) args[0];
+                if (!excludeProfileMethodFilter.filter(request.getMethod())) {
+                    final String parameters = getRequestParameter(request, 64, 512);
+                    if (parameters != null && parameters.length() > 0) {
+                        recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+                    }
                 }
             }
 

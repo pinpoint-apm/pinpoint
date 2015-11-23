@@ -39,6 +39,12 @@
         WHERE rule_id = #{ruleId}
     </update>
     
+    <update id="updateUserGroupIdOfRule" parameterType="UserGroup">
+        UPDATE alarm_rule
+        SET user_group_id = #{id} 
+        WHERE user_group_id = (SELECT id FROM user_group WHERE number = #{number})
+    </update>
+    
     <select id="selectBeforeCheckerResultList" resultType="ChecherResult">
         SELECT *
         FROM alarm_history

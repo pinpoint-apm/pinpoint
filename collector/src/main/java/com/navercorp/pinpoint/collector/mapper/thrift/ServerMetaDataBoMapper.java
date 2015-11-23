@@ -41,7 +41,7 @@ public class ServerMetaDataBoMapper implements ThriftBoMapper<ServerMetaDataBo, 
         builder.serverInfo(serverInfo);
         builder.vmArgs(vmArgs);
         if (thriftObject.isSetServiceInfos()) {
-            final List<ServiceInfoBo> serviceInfos = new ArrayList<ServiceInfoBo>(thriftObject.getServiceInfosSize());
+            final List<ServiceInfoBo> serviceInfos = new ArrayList<>(thriftObject.getServiceInfosSize());
             for (TServiceInfo tServiceInfo : thriftObject.getServiceInfos()) {
                 final ServiceInfoBo serviceInfoBo = mapServiceInfo(tServiceInfo);
                 serviceInfos.add(serviceInfoBo);

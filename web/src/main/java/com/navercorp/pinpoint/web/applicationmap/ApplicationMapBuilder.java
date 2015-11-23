@@ -350,7 +350,7 @@ public class ApplicationMapBuilder {
 
         // for Terminal nodes, create AgentLevel histogram
         if (nodeApplication.getServiceType().isTerminal()) {
-            final Map<String, Histogram> agentHistogramMap = new HashMap<String, Histogram>();
+            final Map<String, Histogram> agentHistogramMap = new HashMap<>();
 
             for (Link link : toLinkList) {
                 LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
@@ -435,7 +435,7 @@ public class ApplicationMapBuilder {
      * For agents that do not have response data, check their status and include those that were alive.
      */
     private Set<AgentInfo> filterAgentInfoByResponseData(Set<AgentInfo> agentList, Node node) {
-        Set<AgentInfo> filteredAgentInfo = new HashSet<AgentInfo>();
+        Set<AgentInfo> filteredAgentInfo = new HashSet<>();
 
         NodeHistogram nodeHistogram = node.getNodeHistogram();
         Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();

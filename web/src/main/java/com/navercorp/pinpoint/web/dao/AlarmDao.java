@@ -19,6 +19,7 @@ import java.util.List;
 
 import com.navercorp.pinpoint.web.alarm.vo.CheckerResult;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
+import com.navercorp.pinpoint.web.vo.UserGroup;
 
 /**
  * @author minwoo.jung
@@ -42,4 +43,6 @@ public interface AlarmDao {
     void deleteCheckerResult(CheckerResult checkerResult);
 
     void insertCheckerResult(CheckerResult checkerResult);
+
+    void updateUserGroupIdOfRule(UserGroup userGroup);
 }

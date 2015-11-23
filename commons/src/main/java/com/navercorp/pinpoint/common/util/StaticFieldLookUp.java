@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class StaticFieldLookUp<T> {
 
-    public static interface Filter<T>  {
+    public interface Filter<T>  {
         boolean FILTERED = true;
         boolean INCLUDE = false;
         boolean filter(T serviceType);
@@ -37,7 +37,7 @@ public class StaticFieldLookUp<T> {
         public boolean filter(T type) {
             return INCLUDE;
         }
-    };
+    }
 
     public static class ExcludeFilter<T> implements Filter<T> {
         private final T[] excludeTypeList;
@@ -58,7 +58,7 @@ public class StaticFieldLookUp<T> {
             }
             return Filter.INCLUDE;
         }
-    };
+    }
 
     private final Class<?> targetClazz;
     private final Class<T> findClazz;

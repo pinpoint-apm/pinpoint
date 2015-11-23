@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.web.alarm.checker.ErrorCountChecker;
 import com.navercorp.pinpoint.web.alarm.checker.ErrorCountToCalleeChecker;
 import com.navercorp.pinpoint.web.alarm.checker.ErrorRateChecker;
 import com.navercorp.pinpoint.web.alarm.checker.ErrorRateToCalleeChecker;
-import com.navercorp.pinpoint.web.alarm.checker.GcCountChecker;
 import com.navercorp.pinpoint.web.alarm.checker.HeapUsageRateChecker;
 import com.navercorp.pinpoint.web.alarm.checker.JvmCpuUsageRateChecker;
 import com.navercorp.pinpoint.web.alarm.checker.ResponseCountChecker;
@@ -146,7 +145,7 @@ public enum CheckerCategory {
     }
 
     public static List<String> getNames() {
-        List<String> names = new LinkedList<String>();
+        List<String> names = new LinkedList<>();
         
         for (CheckerCategory category : CheckerCategory.values()) {
             names.add(category.getName());

@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classpool;
 
-import javassist.ClassPool;
-
 /**
  * @author emeroad
  */

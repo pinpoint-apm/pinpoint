@@ -23,7 +23,7 @@ import java.util.LinkedList;
  */
 public class Stack<T> {
 
-    private final LinkedList<T> stack = new LinkedList<T>();
+    private final LinkedList<T> stack = new LinkedList<>();
 
     public void push(T obj) {
         if (obj == null) {

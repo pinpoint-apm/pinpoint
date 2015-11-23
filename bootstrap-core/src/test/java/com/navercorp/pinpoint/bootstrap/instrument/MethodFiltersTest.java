@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.bootstrap.instrument;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import static org.junit.Assert.*;

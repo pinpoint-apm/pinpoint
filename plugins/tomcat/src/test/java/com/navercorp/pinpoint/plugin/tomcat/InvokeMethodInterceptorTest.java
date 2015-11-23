@@ -52,8 +52,8 @@ public class InvokeMethodInterceptorTest {
     @Mock
     public HttpServletResponse response;
 
-    private final MethodDescriptor descriptor = new DefaultMethodDescriptor("org.apache.catalina.core.StandardHostValve", "invoke", new String[] {"org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response"}, new String[] {"request", "response"});;
-    
+    private final MethodDescriptor descriptor = new DefaultMethodDescriptor("org.apache.catalina.core.StandardHostValve", "invoke", new String[] {"org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response"}, new String[] {"request", "response"});
+
     @BeforeClass
     public static void before() {
         PLoggerFactory.initialize(new Slf4jLoggerBinder());

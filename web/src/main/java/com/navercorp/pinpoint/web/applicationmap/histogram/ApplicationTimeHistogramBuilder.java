@@ -57,7 +57,7 @@ public class ApplicationTimeHistogramBuilder {
             throw new NullPointerException("responseHistogramList must not be null");
         }
 
-        Map<Long, TimeHistogram> applicationLevelHistogram = new HashMap<Long, TimeHistogram>();
+        Map<Long, TimeHistogram> applicationLevelHistogram = new HashMap<>();
 
         for (ResponseTime responseTime : responseHistogramList) {
             final Long timeStamp = responseTime.getTimeStamp();
@@ -84,7 +84,7 @@ public class ApplicationTimeHistogramBuilder {
     }
 
     public ApplicationTimeHistogram build(Collection<LinkCallData> linkCallDataMapList) {
-        Map<Long, TimeHistogram> applicationLevelHistogram = new HashMap<Long, TimeHistogram>();
+        Map<Long, TimeHistogram> applicationLevelHistogram = new HashMap<>();
         for (LinkCallData linkCallData : linkCallDataMapList) {
             for (TimeHistogram timeHistogram : linkCallData.getTimeHistogram()) {
                 Long timeStamp = timeHistogram.getTimeStamp();
@@ -111,7 +111,7 @@ public class ApplicationTimeHistogramBuilder {
     private List<TimeHistogram> interpolation(Collection<TimeHistogram> histogramList) {
         // upon individual span query, "window time" alone may not be enough
         //
-        Map<Long, TimeHistogram> resultMap = new HashMap<Long, TimeHistogram>();
+        Map<Long, TimeHistogram> resultMap = new HashMap<>();
         for (Long time : window) {
             resultMap.put(time, new TimeHistogram(application.getServiceType(), time));
         }
@@ -129,7 +129,7 @@ public class ApplicationTimeHistogramBuilder {
         }
 
 
-        List<TimeHistogram> resultList = new ArrayList<TimeHistogram>(resultMap.values());
+        List<TimeHistogram> resultList = new ArrayList<>(resultMap.values());
         Collections.sort(resultList, TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
         return resultList;
     }

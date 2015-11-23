@@ -72,7 +72,7 @@
                                     "position": "left",
                                     "title": "TPS",
                                     "minimum" : 0
-                                },
+                                }
                             ],
                             "graphs": [
                                 {

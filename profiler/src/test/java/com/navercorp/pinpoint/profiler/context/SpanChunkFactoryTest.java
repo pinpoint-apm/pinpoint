@@ -44,7 +44,7 @@ public class SpanChunkFactoryTest {
         try {
             spanChunkFactory.create(new ArrayList<SpanEvent>());
             Assert.fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         // one spanEvent
         List<SpanEvent> spanEvents = new ArrayList<SpanEvent>();

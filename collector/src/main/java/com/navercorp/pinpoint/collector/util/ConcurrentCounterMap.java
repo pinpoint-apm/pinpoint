@@ -51,7 +51,7 @@ public class ConcurrentCounterMap<T> {
 
         final Entry<T>[] entry = new Entry[concurrencyLevel];
         for (int i = 0; i < entry.length; i++) {
-            entry[i] = new Entry<T>();
+            entry[i] = new Entry<>();
         }
         return entry;
     }
@@ -72,7 +72,7 @@ public class ConcurrentCounterMap<T> {
         final List<Map<T, LongAdder>> copy = removeAll();
 
         // merge
-        final Map<T, LongAdder> mergeMap = new HashMap<T, LongAdder>();
+        final Map<T, LongAdder> mergeMap = new HashMap<>();
         for (Map<T, LongAdder> mutableLongMap : copy) {
             for (Map.Entry<T, LongAdder> entry : mutableLongMap.entrySet()) {
                 final T key = entry.getKey();
@@ -88,7 +88,7 @@ public class ConcurrentCounterMap<T> {
     }
 
     private List<Map<T, LongAdder>> removeAll() {
-        final List<Map<T, LongAdder>> copy = new ArrayList<Map<T, LongAdder>>(entryArray.length);
+        final List<Map<T, LongAdder>> copy = new ArrayList<>(entryArray.length);
         final int entryArrayLength = entryArray.length;
         for (int i = 0; i < entryArrayLength; i++ ) {
             Entry<T> tEntry = entryArray[i];
@@ -119,7 +119,7 @@ public class ConcurrentCounterMap<T> {
         private static final Map EMPTY = Collections.emptyMap();
 
 
-        private Map<T, LongAdder> map = new HashMap<T, LongAdder>();
+        private Map<T, LongAdder> map = new HashMap<>();
 
         public synchronized void increment(T key, Long increment) {
             LongAdder longAdder = map.get(key);
@@ -137,7 +137,7 @@ public class ConcurrentCounterMap<T> {
                 if (old.isEmpty()) {
                     return EMPTY;
                 }
-                this.map = new HashMap<T, LongAdder>();
+                this.map = new HashMap<>();
             }
             return old;
         }

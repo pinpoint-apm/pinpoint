@@ -19,5 +19,5 @@ package com.navercorp.pinpoint.profiler.interceptor.bci;
  *
  */
 public interface IntGetter {
-    public int _$PINPOINT$_getInt();
+    int _$PINPOINT$_getInt();
 }

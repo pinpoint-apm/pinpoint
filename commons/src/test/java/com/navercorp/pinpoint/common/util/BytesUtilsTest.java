@@ -464,7 +464,7 @@ public class BytesUtilsTest {
         try {
             BytesUtils.bytesToSVar32(new byte[10], 10);
             Assert.fail("bound check fail");
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
     }

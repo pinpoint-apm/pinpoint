@@ -70,7 +70,7 @@ public class SpanIdMatcher {
 
     private SpanBo getMinWeight(List<WeightSpanBo> weightSpanList) {
         long min = Long.MAX_VALUE;
-        final List<SpanBo> minValue = new ArrayList<SpanBo>();
+        final List<SpanBo> minValue = new ArrayList<>();
         for (WeightSpanBo weightSpanBo : weightSpanList) {
             long weight = weightSpanBo.getWeight();
             if (weight <= min) {
@@ -89,7 +89,7 @@ public class SpanIdMatcher {
     }
 
     private List<WeightSpanBo> computeWeight(long spanEventBoStartTime) {
-        List<WeightSpanBo> weightSpanList = new ArrayList<WeightSpanBo>();
+        List<WeightSpanBo> weightSpanList = new ArrayList<>();
         for (SpanBo next : nextSpanBoList) {
             long startTime = next.getStartTime();
             long distance = startTime - spanEventBoStartTime;

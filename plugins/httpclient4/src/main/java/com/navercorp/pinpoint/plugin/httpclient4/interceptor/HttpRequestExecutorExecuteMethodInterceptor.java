@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContextFactory;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4PluginConfig;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -72,6 +73,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
     private final TraceContext traceContext;
     private final MethodDescriptor methodDescriptor;
 
+    private final boolean param;
     private final boolean cookie;
     private final DumpType cookieDumpType;
     private final SimpleSampler cookieSampler;
@@ -90,24 +92,25 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         this.methodDescriptor = methodDescriptor;
         this.interceptorScope = interceptorScope;
 
-        final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
-        this.cookie = profilerConfig.isApacheHttpClient4ProfileCookie();
-        this.cookieDumpType = profilerConfig.getApacheHttpClient4ProfileCookieDumpType();
+        final HttpClient4PluginConfig profilerConfig = new HttpClient4PluginConfig(traceContext.getProfilerConfig());
+        this.param = profilerConfig.isParam();
+        this.cookie = profilerConfig.isCookie();
+        this.cookieDumpType = profilerConfig.getCookieDumpType();
         if (cookie) {
-            this.cookieSampler = SimpleSamplerFactory.createSampler(cookie, profilerConfig.getApacheHttpClient4ProfileCookieSamplingRate());
+            this.cookieSampler = SimpleSamplerFactory.createSampler(cookie, profilerConfig.getCookieSamplingRate());
         } else {
             this.cookieSampler = null;
         }
 
-        this.entity = profilerConfig.isApacheHttpClient4ProfileEntity();
-        this.entityDumpType = profilerConfig.getApacheHttpClient4ProfileEntityDumpType();
+        this.entity = profilerConfig.isEntity();
+        this.entityDumpType = profilerConfig.getEntityDumpType();
         if (entity) {
-            this.entitySampler = SimpleSamplerFactory.createSampler(entity, profilerConfig.getApacheHttpClient4ProfileEntitySamplingRate());
+            this.entitySampler = SimpleSamplerFactory.createSampler(entity, profilerConfig.getEntitySamplingRate());
         } else {
             this.entitySampler = null;
         }
-        this.statusCode = profilerConfig.isApacheHttpClient4ProfileStatusCode();
-        this.io = profilerConfig.isApacheHttpClient4ProfileIo();
+        this.statusCode = profilerConfig.isStatusCode();
+        this.io = profilerConfig.isIo();
     }
 
     @Override
@@ -195,7 +198,8 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
             final HttpRequest httpRequest = getHttpRequest(args);
             if (httpRequest != null) {
                 // Accessing httpRequest here not BEFORE() because it can cause side effect.
-                recorder.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getRequestLine().getUri());
+                final String httpUrl = InterceptorUtils.getHttpUrl(httpRequest.getRequestLine().getUri(), param);
+                recorder.recordAttribute(AnnotationKey.HTTP_URL, httpUrl);
                 final NameIntValuePair<String> host = getHost();
                 if (host != null) {
                     final String endpoint = getEndpoint(host.getName(), host.getValue());

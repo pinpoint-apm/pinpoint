@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.plugin.xml;
 
 public interface FieldInitializationStrategy {
-    public static final class ByConstructor implements FieldInitializationStrategy {
+    final class ByConstructor implements FieldInitializationStrategy {
         private final String className;
 
         public ByConstructor(String className) {

@@ -46,16 +46,17 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
     private MethodDescriptor methodDescriptor;
     private InterceptorScope interceptorScope;
 
+    private final boolean param;
     private final boolean cookie;
     private final DumpType cookieDumpType;
     private final SimpleSampler cookieSampler;
-    private final boolean statusCode;
 
     public HttpEngineSendRequestMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope, OkHttpPluginConfig config) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
         this.interceptorScope = interceptorScope;
 
+        this.param = config.isParam();
         this.cookie = config.isCookie();
         this.cookieDumpType = config.getCookieDumpType();
         if(cookie) {
@@ -63,8 +64,6 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
         } else {
             this.cookieSampler = null;
         }
-
-        statusCode = config.isStatusCode();
     }
 
     @Override
@@ -148,7 +147,7 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
             Request request = ((UserRequestGetter) target)._$PINPOINT$_getUserRequest();
             if (request != null) {
                 try {
-                    recorder.recordAttribute(AnnotationKey.HTTP_URL, request.urlString());
+                    recorder.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(request.urlString(), param));
                     final String endpoint = getDestinationId(request.url());
                     recorder.recordDestinationId(endpoint);
                 } catch(Exception ignored) {

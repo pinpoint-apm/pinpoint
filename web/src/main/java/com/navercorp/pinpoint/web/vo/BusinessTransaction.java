@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.common.util.TransactionIdUtils;
  * @author emeroad
  */
 public class BusinessTransaction {
-    private final List<Trace> traces = new ArrayList<Trace>();
+    private final List<Trace> traces = new ArrayList<>();
     private final String rpc;
 
     private int calls = 0;

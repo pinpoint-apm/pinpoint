@@ -35,7 +35,7 @@ public class AgentHistogramList {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // stores times series data per agent
-    private final Map<Application, AgentHistogram> agentHistogramMap = new HashMap<Application, AgentHistogram>();
+    private final Map<Application, AgentHistogram> agentHistogramMap = new HashMap<>();
 
     public AgentHistogramList() {
     }

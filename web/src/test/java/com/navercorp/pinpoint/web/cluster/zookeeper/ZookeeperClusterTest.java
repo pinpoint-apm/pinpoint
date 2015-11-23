@@ -47,7 +47,7 @@ public class ZookeeperClusterTest {
 
     private static final String COLLECTOR_NODE_PATH = "/pinpoint-cluster/collector";
     private static final String COLLECTOR_TEST_NODE_PATH = "/pinpoint-cluster/collector/test";
-    private static String CLUSTER_NODE_PATH;;
+    private static String CLUSTER_NODE_PATH;
 
     private static TestingServer ts = null;
 

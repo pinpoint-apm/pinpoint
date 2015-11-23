@@ -58,7 +58,7 @@ public class CollectorClusterConnector implements CollectorClusterConnectionProv
         this.clientFactory.setServerStreamChannelMessageListener(option.getRouteStreamMessageHandler());
         this.clientFactory.setClusterOption(clusterOption);
 
-        Map<String, Object> properties = new HashMap<String, Object>();
+        Map<String, Object> properties = new HashMap<>();
         properties.put("id", option.getClusterId());
         clientFactory.setProperties(properties);
 

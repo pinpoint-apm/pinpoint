@@ -424,7 +424,7 @@ public class FixedBufferTest {
             } catch (IllegalArgumentException e) {
                 logger.info(e.getMessage(), e);
                 String binaryString = BytesUtils.toString(bytes);
-                logger.info(binaryString);;
+                logger.info(binaryString);
                 for (byte aByte : bytes) {
                     String code = String.valueOf((int) aByte);
                     logger.info(code);
@@ -447,7 +447,7 @@ public class FixedBufferTest {
             } catch (IllegalArgumentException e) {
                 logger.info(e.getMessage(), e);
                 String binaryString = BytesUtils.toString(bytes);
-                logger.info(binaryString);;
+                logger.info(binaryString);
                 for (byte aByte : bytes) {
                     String code = String.valueOf((int) aByte);
                     logger.info(code);

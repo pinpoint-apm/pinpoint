@@ -11,9 +11,6 @@
     <title>PINPOINT</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	<meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate" />
-	<meta http-equiv="expires" content="0" />
-	<meta http-equiv="pragma" content="no-cache" />
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
@@ -384,10 +381,12 @@
 					            </select>
       						</td>
       						<td class="col-md-5" colspan="2">
-      							<ul class="favorite-list">
-      								<li ng-repeat="favorite in favoriteList"><img ng-src='/images/icons/{{favorite.split("@")[1]}}.png' height="25px"/> {{favorite.split('@')[0]}} <button class="btn btn-danger btn-xs" style="float:right" ng-click="removeFavorite(favorite)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></li>
-      							</ul>
-      							<div ng-show="favoriteList.length == 0" style="color:#F00">등록된 목록이 없습니다.</div>
+      							<div class="favorite-list-wrapper">
+	      							<ul class="favorite-list">
+	      								<li ng-repeat="favorite in favoriteList"><img ng-src='/images/icons/{{favorite.split("@")[1]}}.png' height="25px"/> {{favorite.split('@')[0]}} <button class="btn btn-danger btn-xs" style="float:right" ng-click="removeFavorite(favorite)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></li>
+	      							</ul>
+	      							<div ng-show="favoriteList.length == 0" style="color:#F00" class="favorite-empty"></div>
+      							</div>
       						</td>
       					</tr>
       				</tbody>
@@ -398,8 +397,8 @@
       		<alarm-user-group-directive></alarm-user-group-directive>
 	      	<div class="tabbable tabs-left" style="padding-left:20px;">
 	          	<ul class="nav nav-tabs">
-	            	<li class="active"><a href="#userListInGroup" data-toggle="tab">Member</a></li>
-	            	<li><a href="#alarmInGroup" data-toggle="tab">Alarm</a></li>
+	            	<li class="active"><div href="#userListInGroup" data-toggle="tab">Member</div></li>
+	            	<li><div href="#alarmInGroup" data-toggle="tab">Alarm</div></li>
 	          	</ul>
 	          	<div class="tab-content" style="float:left;width:590px;">
 	            	<div class="tab-pane active" id="userListInGroup">

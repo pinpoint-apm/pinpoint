@@ -189,7 +189,7 @@ public class AgentEventHandlerTest {
     }
 
     private static Map<Object, Object> createChannelProperties(String agentId, long startTimestamp) {
-        Map<Object, Object> map = new HashMap<Object, Object>();
+        Map<Object, Object> map = new HashMap<>();
         map.put(AgentHandshakePropertyType.AGENT_ID.getName(), agentId);
         map.put(AgentHandshakePropertyType.START_TIMESTAMP.getName(), startTimestamp);
         return map;

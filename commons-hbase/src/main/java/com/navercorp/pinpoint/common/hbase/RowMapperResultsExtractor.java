@@ -44,7 +44,7 @@ class RowMapperResultsExtractor<T> implements ResultsExtractor<List<T>> {
     }
 
     public List<T> extractData(ResultScanner results) throws Exception {
-        List<T> rs = new ArrayList<T>();
+        List<T> rs = new ArrayList<>();
         int rowNum = 0;
         for (Result result : results) {
             rs.add(this.rowMapper.mapRow(result, rowNum++));

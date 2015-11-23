@@ -139,7 +139,7 @@ public class AgentInfoSender implements ServerMetaDataListener {
     private static class AgentInfoSendRunnableWrapper implements Runnable {
         private final AgentInfoSendRunnable delegate;
         private final int maxTryCount;
-        private final AtomicInteger tryCount = new AtomicInteger();;
+        private final AtomicInteger tryCount = new AtomicInteger();
         private volatile ScheduledFuture<?> self;
 
         private AgentInfoSendRunnableWrapper(AgentInfoSendRunnable agentInfoSendRunnable, int maxTryCount) {

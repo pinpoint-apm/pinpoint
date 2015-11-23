@@ -44,7 +44,7 @@ public abstract class AbstractRouteHandler<T extends RouteEvent> implements Rout
         String agentId = deliveryCommand.getAgentId();
         long startTimeStamp = deliveryCommand.getStartTime();
 
-        List<TargetClusterPoint> result = new ArrayList<TargetClusterPoint>();
+        List<TargetClusterPoint> result = new ArrayList<>();
 
         for (TargetClusterPoint targetClusterPoint : targetClusterPointLocator.getClusterPointList()) {
             if (!targetClusterPoint.getApplicationName().equals(applicationName)) {

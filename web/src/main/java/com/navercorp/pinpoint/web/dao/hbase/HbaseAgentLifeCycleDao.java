@@ -107,7 +107,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         public List<AgentLifeCycleBo> extractData(ResultScanner results) throws Exception {
             int found = 0;
             int matchCnt = 0;
-            List<AgentLifeCycleBo> agentLifeCycles = new ArrayList<AgentLifeCycleBo>();
+            List<AgentLifeCycleBo> agentLifeCycles = new ArrayList<>();
             for (Result result : results) {
                 AgentLifeCycleBo agentLifeCycle = agentLifeCycleMapper.mapRow(result, found++);
                 if (agentLifeCycle.getEventTimestamp() < timestamp) {

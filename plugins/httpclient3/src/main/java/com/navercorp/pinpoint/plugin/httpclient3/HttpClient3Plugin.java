@@ -56,8 +56,8 @@ public class HttpClient3Plugin implements ProfilerPlugin, TransformTemplateAware
         transformTemplate.transform("org.apache.commons.httpclient.HttpClient", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrument, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrument.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumenttor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumenttor.getInstrumentClass(loader, className, classfileBuffer);
 
                 injectHttpClientExecuteMethod(target, "org.apache.commons.httpclient.HttpMethod");
                 injectHttpClientExecuteMethod(target, "org.apache.commons.httpclient.HostConfiguration", "org.apache.commons.httpclient.HttpMethod");
@@ -82,8 +82,8 @@ public class HttpClient3Plugin implements ProfilerPlugin, TransformTemplateAware
         transformTemplate.transform("org.apache.commons.httpclient.DefaultHttpMethodRetryHandler", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrument, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrument.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 InstrumentMethod retryMethod = target.getDeclaredMethod("retryMethod", "org.apache.commons.httpclient.HttpMethod", "java.io.IOException", "int");
 
@@ -100,8 +100,8 @@ public class HttpClient3Plugin implements ProfilerPlugin, TransformTemplateAware
         transformTemplate.transform("org.apache.commons.httpclient.HttpConnection", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrument, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrument.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 target.addGetter(HostNameGetter.class.getName(), HttpClient3Constants.FIELD_HOST_NAME);
                 target.addGetter(PortNumberGetter.class.getName(), HttpClient3Constants.FIELD_PORT_NUMBER);
@@ -123,15 +123,15 @@ public class HttpClient3Plugin implements ProfilerPlugin, TransformTemplateAware
         transformTemplate.transform("org.apache.commons.httpclient.HttpMethodBase", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrument, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrument.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 InstrumentMethod execute = target.getDeclaredMethod("execute", "org.apache.commons.httpclient.HttpState", "org.apache.commons.httpclient.HttpConnection");
                 if (execute != null) {
                     execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.HttpMethodBaseExecuteMethodInterceptor");
                 }
 
-                if (config.isApacheHttpClient3ProfileIo()) {
+                if (config.isIo()) {
                     InstrumentMethod writeRequest = target.getDeclaredMethod("writeRequest", "org.apache.commons.httpclient.HttpState", "org.apache.commons.httpclient.HttpConnection");
 
                     if (writeRequest != null) {

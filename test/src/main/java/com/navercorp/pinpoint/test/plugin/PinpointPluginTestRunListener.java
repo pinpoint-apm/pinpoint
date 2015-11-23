@@ -15,7 +15,9 @@
 package com.navercorp.pinpoint.test.plugin;
 
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 
 import org.junit.runner.Description;
 import org.junit.runner.Result;
@@ -27,60 +29,58 @@ import org.junit.runner.notification.RunListener;
  *
  */
 public class PinpointPluginTestRunListener extends RunListener implements PinpointPluginTestConstants {
-    private final PrintWriter out;
-    
+    public static final String UTF_8 = "UTF-8";
+    private final PrintStream out;
+
     public PinpointPluginTestRunListener(OutputStream out) {
-        this(new PrintWriter(out));
+        this(out, UTF_8);
     }
-    
-    public PinpointPluginTestRunListener(PrintWriter out) {
-        this.out = out;
+    public PinpointPluginTestRunListener(OutputStream out, String encoding) {
+        try {
+            this.out = new PrintStream(out, true, encoding);
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException("encoding error. error:" + ex.getMessage(), ex);
+        }
     }
+
 
     @Override
     public void testRunStarted(Description description) throws Exception {
         out.println(JUNIT_OUTPUT_DELIMITER + "testRunStarted");
-        out.flush();
     }
 
     @Override
     public void testRunFinished(Result result) throws Exception {
         out.println(JUNIT_OUTPUT_DELIMITER + "testRunFinished");
-        out.flush();
     }
 
     @Override
     public void testStarted(Description description) throws Exception {
         out.println(JUNIT_OUTPUT_DELIMITER + "testStarted" + JUNIT_OUTPUT_DELIMITER + description.getDisplayName());
-        out.flush();
     }
 
     @Override
     public void testFinished(Description description) throws Exception {
         out.println(JUNIT_OUTPUT_DELIMITER + "testFinished" + JUNIT_OUTPUT_DELIMITER + description.getDisplayName());
-        out.flush();
     }
 
     @Override
     public void testFailure(Failure failure) throws Exception {
         out.println(JUNIT_OUTPUT_DELIMITER + "testFailure" + JUNIT_OUTPUT_DELIMITER + failureToString(failure));
-        out.flush();
     }
 
     @Override
     public void testAssumptionFailure(Failure failure) {
         out.println(JUNIT_OUTPUT_DELIMITER + "testAssumptionFailure" + JUNIT_OUTPUT_DELIMITER + failureToString(failure));
-        out.flush();
     }
 
     @Override
     public void testIgnored(Description description) throws Exception {
         out.println(JUNIT_OUTPUT_DELIMITER + "testIgnored" + JUNIT_OUTPUT_DELIMITER + description.getDisplayName());
-        out.flush();
     }
 
     private String failureToString(Failure failure) {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(64);
 
         builder.append(failure.getTestHeader());
         builder.append(JUNIT_OUTPUT_DELIMITER);

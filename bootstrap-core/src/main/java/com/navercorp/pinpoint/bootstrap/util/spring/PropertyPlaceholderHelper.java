@@ -241,7 +241,7 @@ public class PropertyPlaceholderHelper {
      * Strategy interface used to resolve replacement values for placeholders contained in Strings.
      * @see PropertyPlaceholderHelper
      */
-    public static interface PlaceholderResolver {
+    public interface PlaceholderResolver {
 
         /**
          * Resolves the supplied placeholder name into the replacement value.

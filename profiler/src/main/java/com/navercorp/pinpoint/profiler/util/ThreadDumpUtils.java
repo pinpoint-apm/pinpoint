@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
 import java.lang.management.LockInfo;
 import java.lang.management.MonitorInfo;
 import java.lang.management.ThreadInfo;
-import java.util.Arrays;
 
 /**
  * @Author Taejin Koo

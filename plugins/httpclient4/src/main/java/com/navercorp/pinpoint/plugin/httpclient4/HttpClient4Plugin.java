@@ -45,8 +45,6 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        final HttpClient4PluginConfig config = new HttpClient4PluginConfig(context.getConfig());
-
         // common
         addHttpRequestExecutorClass();
         addDefaultHttpRequestRetryHandlerClass();
@@ -75,8 +73,8 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         transformTemplate.transform("org.apache.http.protocol.HttpRequestExecutor", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrument, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrument.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 InstrumentMethod execute = target.getDeclaredMethod("execute", "org.apache.http.HttpRequest", "org.apache.http.HttpClientConnection", "org.apache.http.protocol.HttpContext");
                 if (execute != null) {
@@ -102,8 +100,8 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         transformTemplate.transform("org.apache.http.impl.client.AbstractHttpClient", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrument, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrument.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 injectHttpClientExecuteMethodWithHttpRequestInterceptor(target, false, "org.apache.http.HttpHost", "org.apache.http.HttpRequest");
                 injectHttpClientExecuteMethodWithHttpRequestInterceptor(target, false, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.protocol.HttpContext");
@@ -125,8 +123,8 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         transformTemplate.transform("org.apache.http.impl.client.CloseableHttpClient", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrument, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrument.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 injectHttpClientExecuteMethodWithHttpRequestInterceptor(target, false, "org.apache.http.HttpHost", "org.apache.http.HttpRequest");
                 injectHttpClientExecuteMethodWithHttpRequestInterceptor(target, false, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.protocol.HttpContext");
@@ -165,8 +163,8 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         transformTemplate.transform("org.apache.http.impl.client.DefaultHttpRequestRetryHandler", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrument, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrument.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 InstrumentMethod retryRequest = target.getDeclaredMethod("retryRequest", "java.io.IOException", "int", "org.apache.http.protocol.HttpContext");
 
                 if (retryRequest != null) {
@@ -182,8 +180,8 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         transformTemplate.transform("org.apache.http.impl.conn.AbstractPooledConnAdapter", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrument, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrument.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 InstrumentMethod open = target.getDeclaredMethod("open", "org.apache.http.conn.routing.HttpRoute", "org.apache.http.protocol.HttpContext", "org.apache.http.params.HttpParams");
 
                 if (open != null) {
@@ -200,8 +198,8 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         transformTemplate.transform("org.apache.http.impl.conn.ManagedClientConnectionImpl", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrument, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrument.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 InstrumentMethod open = target.getDeclaredMethod("open", "org.apache.http.conn.routing.HttpRoute", "org.apache.http.protocol.HttpContext", "org.apache.http.params.HttpParams");
 
                 if (open != null) {
@@ -218,8 +216,8 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         transformTemplate.transform("org.apache.http.impl.conn.BasicHttpClientConnectionManager", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrument, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrument.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 InstrumentMethod connect = target.getDeclaredMethod("connect", "org.apache.http.HttpClientConnection", "org.apache.http.conn.routing.HttpRoute", "int", "org.apache.http.protocol.HttpContext");
 
                 if (connect != null) {
@@ -236,8 +234,8 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         transformTemplate.transform("org.apache.http.impl.conn.PoolingHttpClientConnectionManager", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor Instrument, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = Instrument.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 InstrumentMethod connect = target.getDeclaredMethod("connect", "org.apache.http.HttpClientConnection", "org.apache.http.conn.routing.HttpRoute", "int", "org.apache.http.protocol.HttpContext");
 
                 if (connect != null) {

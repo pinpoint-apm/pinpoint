@@ -40,8 +40,9 @@ public class BeanMethodTransformer implements TransformCallback {
     private static final MethodFilter METHOD_FILTER = MethodFilters.modifier(REQUIRED_ACCESS_FLAG, REJECTED_ACCESS_FLAG);
 
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
-    
-    private AtomicInteger interceptorId = new AtomicInteger(-1);
+
+    private final Object lock = new Object();
+    private final AtomicInteger interceptorId = new AtomicInteger(-1);
     
     
     @Override
@@ -51,16 +52,15 @@ public class BeanMethodTransformer implements TransformCallback {
         }
 
         try {
-            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             if (!target.isInterceptable()) {
                 return null;
             }
 
-            List<InstrumentMethod> methodList = target.getDeclaredMethods(METHOD_FILTER);
+            final List<InstrumentMethod> methodList = target.getDeclaredMethods(METHOD_FILTER);
             for (InstrumentMethod method : methodList) {
                 if (logger.isTraceEnabled()) {
-                    logger.trace("### c={}, m={}, params={}", new Object[] {className, method.getName(), Arrays.toString(method.getParameterTypes())});
+                    logger.trace("### c={}, m={}, params={}", className, method.getName(), Arrays.toString(method.getParameterTypes()));
                 }
 
                 addInterceptor(method);
@@ -81,7 +81,7 @@ public class BeanMethodTransformer implements TransformCallback {
             return;
         }
         
-        synchronized (interceptorId) {
+        synchronized (lock) {
             id = interceptorId.get();
             
             if (id != -1) {

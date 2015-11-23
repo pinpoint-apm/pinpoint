@@ -12,7 +12,7 @@ import com.navercorp.pinpoint.common.bo.SpanEventBo;
 
 public class SpanAsyncEventMap {
 
-    final Map<Integer, Map<Short, List<SpanEventBo>>> map = new HashMap<Integer, Map<Short, List<SpanEventBo>>>();
+    final Map<Integer, Map<Short, List<SpanEventBo>>> map = new HashMap<>();
 
     public boolean add(final SpanEventBo spanEvent) {
         if (!spanEvent.isAsync()) {
@@ -22,14 +22,14 @@ public class SpanAsyncEventMap {
         final int id = spanEvent.getAsyncId();
         Map<Short, List<SpanEventBo>> subMap = map.get(id);
         if (subMap == null) {
-            subMap = new HashMap<Short, List<SpanEventBo>>();
+            subMap = new HashMap<>();
             map.put(id, subMap);
         }
 
         final short sequence = spanEvent.getAsyncSequence();
         List<SpanEventBo> list = subMap.get(sequence);
         if (list == null) {
-            list = new ArrayList<SpanEventBo>();
+            list = new ArrayList<>();
             list.add(spanEvent);
             subMap.put(sequence, list);
         } else {

@@ -21,7 +21,7 @@ package com.navercorp.pinpoint.profiler.context;
  */
 public interface TransactionCounter {
 
-    public enum SamplingType {
+    enum SamplingType {
         SAMPLED_NEW,
         SAMPLED_CONTINUATION,
         UNSAMPLED_NEW,

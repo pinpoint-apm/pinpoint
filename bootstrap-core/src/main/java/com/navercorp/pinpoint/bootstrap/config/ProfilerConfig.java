@@ -59,6 +59,10 @@ public interface ProfilerConfig {
 
     int getJdbcSqlCacheSize();
 
+    boolean isTraceSqlBindValue();
+
+    int getMaxSqlBindValueSize();
+
     boolean isSamplingEnable();
 
     int getSamplingRate();
@@ -72,6 +76,8 @@ public interface ProfilerConfig {
     long getAgentInfoSendRetryInterval();
 
     boolean isTomcatHidePinpointHeader();
+
+    boolean isTomcatTraceRequestParam();
 
     Filter<String> getTomcatExcludeUrlFilter();
 

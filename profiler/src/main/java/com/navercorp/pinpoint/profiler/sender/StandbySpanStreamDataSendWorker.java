@@ -82,7 +82,7 @@ public class StandbySpanStreamDataSendWorker implements Runnable {
                 if (System.currentTimeMillis() - startTimeMillis > maxWaitTimeMillis) {
                     break;
                 }
-            } catch (InterruptedException e) {
+            } catch (InterruptedException ignored) {
             }
         }
 

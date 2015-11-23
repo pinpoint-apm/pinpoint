@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.monitor.metric;
 
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
-import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 
 import java.util.concurrent.ConcurrentHashMap;

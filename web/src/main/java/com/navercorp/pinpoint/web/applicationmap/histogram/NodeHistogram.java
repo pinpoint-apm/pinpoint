@@ -63,7 +63,7 @@ public class NodeHistogram {
         this.range = range;
 
         this.applicationHistogram = new Histogram(this.application.getServiceType());
-        this.agentHistogramMap = new HashMap<String, Histogram>();
+        this.agentHistogramMap = new HashMap<>();
 
         this.applicationTimeHistogram = new ApplicationTimeHistogram(this.application, this.range);
         this.agentTimeHistogram = new AgentTimeHistogram(this.application, this.range);
@@ -141,7 +141,7 @@ public class NodeHistogram {
 
 
     private Map<String, Histogram> createAgentLevelResponseTime(List<ResponseTime> responseHistogramList) {
-        Map<String, Histogram> agentHistogramMap = new HashMap<String, Histogram>();
+        Map<String, Histogram> agentHistogramMap = new HashMap<>();
         for (ResponseTime responseTime : responseHistogramList) {
             for (Map.Entry<String, TimeHistogram> entry : responseTime.getAgentHistogram()) {
                 addAgentLevelHistogram(agentHistogramMap, entry.getKey(), entry.getValue());

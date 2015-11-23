@@ -19,8 +19,6 @@
 
 package com.navercorp.pinpoint.web.cluster;
 
-import com.navercorp.pinpoint.common.Version;
-import com.navercorp.pinpoint.rpc.util.AssertUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;

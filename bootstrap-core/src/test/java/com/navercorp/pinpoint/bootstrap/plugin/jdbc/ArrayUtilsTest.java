@@ -84,7 +84,7 @@ public class ArrayUtilsTest {
         try {
             ArrayUtils.dropToString(bytes, -1);
             Assert.fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 }

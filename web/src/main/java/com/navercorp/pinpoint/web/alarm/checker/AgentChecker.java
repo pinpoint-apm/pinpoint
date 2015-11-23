@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.web.alarm.vo.Rule;
  */
 public abstract class AgentChecker extends AlarmChecker {
     
-    protected Map<String, Long> detectedAgents = new HashMap<String, Long>();
+    protected Map<String, Long> detectedAgents = new HashMap<>();
 
     protected AgentChecker(Rule rule, String unit, DataCollector dataCollector) {
         super(rule, unit, dataCollector);
@@ -58,7 +58,7 @@ public abstract class AgentChecker extends AlarmChecker {
     }
 
     public List<String> getSmsMessage() {
-        List<String> messages = new LinkedList<String>();
+        List<String> messages = new LinkedList<>();
         
         for (Entry<String, Long> detected : detectedAgents.entrySet()) {
             messages.add(String.format("[PINPOINT Alarm - %s] %s is %s%s (Threshold : %s%s)", detected.getKey(), rule.getCheckerName(), detected.getValue(), unit, rule.getThreshold(), unit));

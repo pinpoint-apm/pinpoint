@@ -42,7 +42,7 @@ public final class PinpointMBeanServer {
 
     PinpointMBeanServer() {
         this.mBeanServer = ManagementFactory.getPlatformMBeanServer();
-        this.pinpointMBeanHolder = new HashMap<String, CollectorManager>();
+        this.pinpointMBeanHolder = new HashMap<>();
     }
 
     public void registerMBean(CollectorManager pinpointMBean) {

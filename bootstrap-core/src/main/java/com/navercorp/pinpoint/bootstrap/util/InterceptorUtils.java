@@ -47,4 +47,21 @@ public final class InterceptorUtils {
         }
         return null;
     }
+
+    public static String getHttpUrl(final String uriString, final boolean param) {
+        if (uriString == null || uriString.length() == 0) {
+            return "";
+        }
+
+        if (param) {
+            return uriString;
+        }
+
+        int queryStart = uriString.indexOf('?');
+        if (queryStart != -1) {
+            return uriString.substring(0, queryStart);
+        }
+
+        return uriString;
+    }
 }

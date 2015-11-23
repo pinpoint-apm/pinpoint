@@ -19,5 +19,5 @@ package com.navercorp.pinpoint.profiler.plugin.xml.transformer;
  *
  */
 public interface ConditionalClassFileTransformerSetup {
-    public void setup(ConditionalClassFileTransformerBuilder conditional);
+    void setup(ConditionalClassFileTransformerBuilder conditional);
 }

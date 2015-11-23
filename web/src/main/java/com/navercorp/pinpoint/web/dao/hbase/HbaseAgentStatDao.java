@@ -85,7 +85,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
         List<List<AgentStat>> intermediate = hbaseOperations2.find(HBaseTables.AGENT_STAT, scan, rowKeyDistributor, agentStatMapper);
 
         int expectedSize = (int)(range.getRange() / 5000); // data for 5 seconds
-        List<AgentStat> merged = new ArrayList<AgentStat>(expectedSize);
+        List<AgentStat> merged = new ArrayList<>(expectedSize);
 
         for(List<AgentStat> each : intermediate) {
             merged.addAll(each);

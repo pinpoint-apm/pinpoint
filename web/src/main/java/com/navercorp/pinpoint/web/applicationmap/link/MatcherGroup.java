@@ -25,7 +25,7 @@ import java.util.List;
  */
 public abstract class MatcherGroup {
 
-    final List<ServerMatcher> serverMatcherList = new ArrayList<ServerMatcher>();
+    final List<ServerMatcher> serverMatcherList = new ArrayList<>();
     ServerMatcher defaultMatcher = new EmptyLinkMatcher();
 
     public MatcherGroup() {

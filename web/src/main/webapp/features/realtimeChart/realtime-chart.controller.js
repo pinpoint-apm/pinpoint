@@ -64,9 +64,12 @@
 	    	var $elAgentChartListWrapper = $element.find("div.agent-chart-list");
 	    	var $elWarningMessage = $element.find(".connection-message");
 	    	var $elHandleGlyphicon = $element.find(".handle .glyphicon");
+	    	var $elPin = $element.find(".glyphicon-pushpin");
+	    	var preUrlParam = "";
 	    	var aAgentChartElementList = [];
 	    	var oNamespaceToIndexMap = {};
 	    	var aSumChartData = [0];
+	    	var bIsPinned = true;
 	    	var bIsWas = false;
 	    	var bIsFullWindow = false;
 	    	var bShowRealtimeChart = true;
@@ -112,6 +115,14 @@
 		    			"timeoutMaxCount": TIMEOUT_MAX_COUNT
 		    		}))($scope) );
 		    		oNamespaceToIndexMap["sum"] = -1;
+	    		}
+	    	}
+	    	function initNamespaceToIndexMap() {
+	    		if ( angular.isDefined( oNamespaceToIndexMap["sum"] ) ) {
+	    			oNamespaceToIndexMap = {};
+		    		oNamespaceToIndexMap["sum"] = -1;
+	    		} else {
+	    			oNamespaceToIndexMap = {};
 	    		}
 	    	}
 	    	function hasAgentChart( agentName ) {
@@ -299,16 +310,22 @@
 	        function adjustWidth() {
 	        	$element.innerWidth( $element.parent().width() - cfg.css.borderWidth + "px" );
 	        }
+	        function setPinColor() {
+	        	$elPin.css("color", bIsPinned ? "red": "");
+	        }
 	        $scope.$on('realtimeChartController.close', function () {
 	        	hidePopup();
 	        	var prevShowRealtimeChart = bShowRealtimeChart;
 	        	$scope.closePopup();
 	        	bShowRealtimeChart = prevShowRealtimeChart;
+	        	setPinColor();
 	        });
-	        $scope.$on('realtimeChartController.initialize', function (event, was, applicationName) {
+	        $scope.$on('realtimeChartController.initialize', function (event, was, applicationName, urlParam ) {
+	        	if ( bIsPinned === true && preUrlParam === urlParam ) return;
 	        	if ( /^\/main/.test( $location.path() ) == false ) return;
 	        	bIsWas = angular.isUndefined( was ) ? false : was;
 	        	applicationName = angular.isUndefined( applicationName ) ? "" : applicationName;
+	        	preUrlParam = urlParam;
 
 	        	$scope.currentApplicationName = applicationName;
 	        	if ( globalConfig.useRealTime === false ) return;
@@ -317,9 +334,10 @@
 	        		hidePopup();
 	        		return;
 	        	}
-	        	
+	        	initNamespaceToIndexMap();
 	        	adjustWidth();
 	        	$scope.bInitialized = true;
+	        	
 	        	
 	        	showPopup();
 	        	$scope.closePopup();
@@ -327,10 +345,15 @@
         		waitingConnection();
         		
         		initReceive();
+        		setPinColor();
 	        });
 	        $scope.retryConnection = function() {
 	        	waitingConnection();
         		initReceive();
+	        };
+	        $scope.pin = function() {
+	        	bIsPinned = !bIsPinned;
+	        	setPinColor();
 	        };
 	        $scope.resizePopup = function() {
 	        	analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.TG_REALTIME_CHART_RESIZE );

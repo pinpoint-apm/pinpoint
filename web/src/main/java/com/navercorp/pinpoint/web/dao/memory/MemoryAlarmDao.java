@@ -23,11 +23,14 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.navercorp.pinpoint.web.alarm.vo.CheckerResult;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
+import com.navercorp.pinpoint.web.dao.UserGroupDao;
+import com.navercorp.pinpoint.web.vo.UserGroup;
 
 /**
  * @author minwoo.jung
@@ -35,8 +38,11 @@ import com.navercorp.pinpoint.web.dao.AlarmDao;
 @Repository
 public class MemoryAlarmDao implements AlarmDao {
     
-    private final Map<String, Rule> alarmRule = new ConcurrentHashMap<String, Rule>();
+    private final Map<String, Rule> alarmRule = new ConcurrentHashMap<>();
     private final AtomicInteger ruleIdGenerator  = new AtomicInteger(); 
+    
+    @Autowired
+    UserGroupDao userGroupDao;
     
     @Override
     public String insertRule(Rule rule) {
@@ -92,8 +98,27 @@ public class MemoryAlarmDao implements AlarmDao {
     }
 
     @Override
+    public void updateUserGroupIdOfRule(UserGroup updatedUserGroup) {
+        List<UserGroup> userGroupList = userGroupDao.selectUserGroup();
+        
+        String beforeUserGroupId = "";
+        for (UserGroup userGroup : userGroupList) {
+            if (userGroup.getNumber().equals(updatedUserGroup.getNumber())) {
+                beforeUserGroupId = userGroup.getId();
+                break;
+            }
+        }
+        
+        List<Rule> ruleList = selectRuleByUserGroupId(beforeUserGroupId);
+        
+        for (Rule rule : ruleList) {
+            rule.setuserGroupId(updatedUserGroup.getId());
+        }
+    }
+
+    @Override
     public List<CheckerResult> selectBeforeCheckerResultList(String applicationId) {
-        return new ArrayList<CheckerResult>();
+        return new ArrayList<>();
     }
 
     @Override
@@ -103,4 +128,5 @@ public class MemoryAlarmDao implements AlarmDao {
     @Override
     public void insertCheckerResult(CheckerResult checkerResult) {
     }
+
 }
