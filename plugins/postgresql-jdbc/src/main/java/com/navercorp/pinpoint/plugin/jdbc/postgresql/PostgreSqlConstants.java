@@ -27,7 +27,7 @@ public final class PostgreSqlConstants {
     private PostgreSqlConstants() {
     }
 
-    public static final String GROUP_NAME = "POSTGRESQL_JDBC";
+    public static final String POSTGRESQL_SCOPE = "POSTGRESQL_JDBC";
     
     public static final ServiceType POSTGRESQL = ServiceTypeFactory.of(2500, "POSTGRESQL", TERMINAL, INCLUDE_DESTINATION_ID);
     public static final ServiceType POSTGRESQL_EXECUTE_QUERY = ServiceTypeFactory.of(2501, "POSTGRESQL_EXECUTE_QUERY", "POSTGRESQL", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
