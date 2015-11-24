@@ -40,6 +40,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -59,7 +60,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     private final Object lock = new Object();
     private final AgentService agentSerivce;
     private final List<WebSocketSession> sessionRepository = new CopyOnWriteArrayList<>();
-    private final Map<String, PinpointWebSocketResponseAggregator> aggregatorRepository = new HashMap<>();
+    private final Map<String, PinpointWebSocketResponseAggregator> aggregatorRepository = new ConcurrentHashMap<>();
     private PinpointWebSocketMessageConverter messageConverter = new PinpointWebSocketMessageConverter();
 
     private static final String DEFAULT_REQUEST_MAPPING = "/agent/activeThread";

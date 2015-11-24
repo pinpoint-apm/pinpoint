@@ -25,9 +25,12 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -51,6 +54,15 @@ public class AgentActiveThreadCountList {
     }
 
     public List<AgentActiveThreadCount> getAgentActiveThreadRepository() {
+        // sort agentId
+        Collections.sort(agentActiveThreadRepository, new Comparator<AgentActiveThreadCount>() {
+            @Override
+            public int compare(AgentActiveThreadCount o1, AgentActiveThreadCount o2) {
+                final String agentId1 = StringUtils.defaultString(o1.getAgentId(), "");
+                final String agentId2 = StringUtils.defaultString(o2.getAgentId(), "");
+                return agentId1.compareTo(agentId2);
+            }
+        });
         return agentActiveThreadRepository;
     }
 
