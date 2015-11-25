@@ -18,12 +18,17 @@ import java.lang.annotation.Annotation;
 
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
 import com.navercorp.pinpoint.profiler.util.TypeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Jongho Moon
  *
  */
 public class OrderedValueProvider implements JudgingParameterResolver {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final AutoBindingObjectFactory objectFactory;
     private final Object[] values;
     private int index = 0;
@@ -45,7 +50,7 @@ public class OrderedValueProvider implements JudgingParameterResolver {
             return Option.empty();
         }
         
-        Object value = values[this.index];
+        final Object value = values[this.index];
         
         if (type.isPrimitive()) {
             if (value == null) {
@@ -60,10 +65,21 @@ public class OrderedValueProvider implements JudgingParameterResolver {
             if (type.isInstance(value)) {
                 prepareNextCandidate();
                 return Option.withValue(value);
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("argument miss match index:{}, type:{} value:{} typeCl:{}, valueCl:{}", this.index, type, value, type.getClassLoader(), getClassLoader(value));
+                }
             }
         }
         
         return Option.empty();
+    }
+
+    private ClassLoader getClassLoader(Object object) {
+        if (object == null) {
+            return null;
+        }
+        return object.getClass().getClassLoader();
     }
 
     private void prepareNextCandidate() {
