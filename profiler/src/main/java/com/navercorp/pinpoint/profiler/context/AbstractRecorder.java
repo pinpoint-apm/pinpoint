@@ -34,17 +34,23 @@ public abstract class AbstractRecorder {
         this.traceContext = traceContext;
     }
     
-    public void recordException(Throwable th) {
-        if (th == null) {
+    public void recordException(Throwable throwable) {
+        recordException(true, throwable);
+    }
+
+    public void recordException(boolean markError, Throwable throwable) {
+        if (throwable == null) {
             return;
         }
-        final String drop = StringUtils.drop(th.getMessage(), 256);
+        final String drop = StringUtils.drop(throwable.getMessage(), 256);
         // An exception that is an instance of a proxy class could make something wrong because the class name will vary.
-        final int exceptionId = traceContext.cacheString(th.getClass().getName());
-        setExceptionInfo(exceptionId, drop);
+        final int exceptionId = traceContext.cacheString(throwable.getClass().getName());
+        setExceptionInfo(markError, exceptionId, drop);
     }
 
     abstract void setExceptionInfo(int exceptionClassId, String exceptionMessage);
+
+    abstract void setExceptionInfo(boolean markError, int exceptionClassId, String exceptionMessage);
     
     public void recordApi(MethodDescriptor methodDescriptor) {
         if (methodDescriptor == null) {

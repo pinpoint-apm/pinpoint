@@ -35,9 +35,11 @@ public class BeanMethodInterceptor implements ApiIdAwareAroundInterceptor {
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceContext traceContext;
+    private final boolean markError;
 
-    public BeanMethodInterceptor(TraceContext traceContext) {
+    public BeanMethodInterceptor(TraceContext traceContext, boolean markError) {
         this.traceContext = traceContext;
+        this.markError = markError;
     }
     
     @Override
@@ -69,7 +71,7 @@ public class BeanMethodInterceptor implements ApiIdAwareAroundInterceptor {
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(new DummyMethodDescriptor(apiId));
-            recorder.recordException(throwable);
+            recorder.recordException(markError, throwable);
         } finally {
             trace.traceBlockEnd();
         }

@@ -16,6 +16,8 @@ public interface SpanRecorder extends FrameAttachment {
 
     void recordException(Throwable throwable);
 
+    void recordException(boolean markError, Throwable throwable);
+
     void recordApi(MethodDescriptor methodDescriptor);
 
     void recordApi(MethodDescriptor methodDescriptor, Object[] args);

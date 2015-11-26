@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.plugin.spring.beans;
 
 import java.security.ProtectionDomain;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -35,6 +36,8 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  */
 public class SpringBeansPlugin implements ProfilerPlugin, TransformTemplateAware {
 
+    public static final String SPRING_BEANS_MARK_ERROR = "profiler.spring.beans.mark.error";
+
     private TransformTemplate transformTemplate;
 
     @Override
@@ -43,19 +46,22 @@ public class SpringBeansPlugin implements ProfilerPlugin, TransformTemplateAware
     }
 
     private void addAbstractAutowireCapableBeanFactoryTransformer(final ProfilerPluginSetupContext context) {
+        final ProfilerConfig config = context.getConfig();
+        final boolean errorMark = config.readBoolean(SPRING_BEANS_MARK_ERROR, false);
+
         transformTemplate.transform("org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 
-                BeanMethodTransformer beanTransformer = new BeanMethodTransformer();
-                ObjectFactory beanFilterFactory = ObjectFactory.byStaticFactory("com.navercorp.pinpoint.plugin.spring.beans.interceptor.TargetBeanFilter", "of", context.getConfig());
+                final BeanMethodTransformer beanTransformer = new BeanMethodTransformer(errorMark);
+                final ObjectFactory beanFilterFactory = ObjectFactory.byStaticFactory("com.navercorp.pinpoint.plugin.spring.beans.interceptor.TargetBeanFilter", "of", config);
                 
-                InstrumentMethod createBeanInstance = target.getDeclaredMethod("createBeanInstance", "java.lang.String", "org.springframework.beans.factory.support.RootBeanDefinition", "java.lang.Object[]");
+                final InstrumentMethod createBeanInstance = target.getDeclaredMethod("createBeanInstance", "java.lang.String", "org.springframework.beans.factory.support.RootBeanDefinition", "java.lang.Object[]");
                 createBeanInstance.addInterceptor("com.navercorp.pinpoint.plugin.spring.beans.interceptor.CreateBeanInstanceInterceptor", va(beanTransformer, beanFilterFactory));
 
-                InstrumentMethod postProcessor = target.getDeclaredMethod("applyBeanPostProcessorsBeforeInstantiation", "java.lang.Class", "java.lang.String");
+                final InstrumentMethod postProcessor = target.getDeclaredMethod("applyBeanPostProcessorsBeforeInstantiation", "java.lang.Class", "java.lang.String");
                 postProcessor.addInterceptor("com.navercorp.pinpoint.plugin.spring.beans.interceptor.PostProcessorInterceptor", va(beanTransformer, beanFilterFactory));
 
                 return target.toBytecode();

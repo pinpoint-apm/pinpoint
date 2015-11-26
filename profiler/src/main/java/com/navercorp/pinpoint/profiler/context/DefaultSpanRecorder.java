@@ -60,9 +60,16 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
 
     @Override
     void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
+        setExceptionInfo(true, exceptionClassId, exceptionMessage);
+    }
+
+    @Override
+    void setExceptionInfo(boolean markError, int exceptionClassId, String exceptionMessage) {
         span.setExceptionInfo(exceptionClassId, exceptionMessage);
-        if (!span.isSetErrCode()) {
-            span.setErrCode(1);
+        if (markError) {
+            if (!span.isSetErrCode()) {
+                span.setErrCode(1);
+            }
         }
     }
 

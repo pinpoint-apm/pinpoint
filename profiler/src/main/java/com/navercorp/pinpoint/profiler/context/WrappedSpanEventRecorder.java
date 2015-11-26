@@ -122,9 +122,17 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
 
     @Override
     void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
+        this.setExceptionInfo(true, exceptionClassId, exceptionMessage);
+    }
+
+    @Override
+    void setExceptionInfo(boolean markError, int exceptionClassId, String exceptionMessage) {
         spanEvent.setExceptionInfo(exceptionClassId, exceptionMessage);
-        if (!spanEvent.getSpan().isSetErrCode()) {
-            spanEvent.getSpan().setErrCode(1);
+        if (markError) {
+            final Span span = spanEvent.getSpan();
+            if (!span.isSetErrCode()) {
+                span.setErrCode(1);
+            }
         }
     }
 
