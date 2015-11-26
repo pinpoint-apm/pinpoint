@@ -14,12 +14,18 @@
  */
 package com.navercorp.pinpoint.plugin.jetty;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformUtils;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+
+import java.security.ProtectionDomain;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
@@ -36,11 +42,29 @@ public class JettyPlugin implements ProfilerPlugin, TransformTemplateAware {
         addRequestEditor();
     }
 
-    private void addServerInterceptor(JettyConfiguration config){
-        final TransformCallback transformCallback = TransformUtils.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.ServerHandleInterceptor", va(config.getJettyExcludeUrlFilter()));
-        transformTemplate.transform("org.eclipse.jetty.server.Server", transformCallback);
+    private void addServerInterceptor(final JettyConfiguration config){
+        transformTemplate.transform("org.eclipse.jetty.server.Server",  new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+                InstrumentMethod handleMethodEditorBuilder = target.getDeclaredMethod("handle", "org.eclipse.jetty.server.HttpChannel");
+                if (handleMethodEditorBuilder != null) {
+                    handleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.ServerHandleInterceptor", va(config.getJettyExcludeUrlFilter()));
+                    return target.toBytecode();
+                }
+
+                InstrumentMethod jetty8HandleMethodEditorBuilder = target.getDeclaredMethod("handle", "org.eclipse.jetty.server.AbstractHttpConnection");
+                if (jetty8HandleMethodEditorBuilder != null) {
+                    jetty8HandleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.Jetty8ServerHandleInterceptor", va(config.getJettyExcludeUrlFilter()));
+                    return target.toBytecode();
+                }
+
+                return target.toBytecode();
+            };
+        });
     }
-    
+
     private void addRequestEditor() {
         final TransformCallback transformCallback = TransformUtils.addField("com.navercorp.pinpoint.plugin.jetty.interceptor.TraceAccessor");
         transformTemplate.transform("org.eclipse.jetty.server.Request", transformCallback);
