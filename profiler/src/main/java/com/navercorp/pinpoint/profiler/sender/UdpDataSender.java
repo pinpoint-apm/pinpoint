@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
 public class UdpDataSender extends AbstractDataSender implements DataSender {
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
-    protected final boolean isTrace = logger.isTraceEnabled();
     protected final boolean isDebug = logger.isDebugEnabled();
 
     public static final int SOCKET_TIMEOUT = 1000 * 5;
@@ -47,14 +46,14 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
     public static final int UDP_MAX_PACKET_LENGTH = 65507;
 
     // Caution. not thread safe
-    protected DatagramPacket reusePacket = new DatagramPacket(new byte[1], 1);
+    protected final DatagramPacket reusePacket = new DatagramPacket(new byte[1], 1);
 
     protected final DatagramSocket udpSocket;
 
     // Caution. not thread safe
     private final HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory(false, UDP_MAX_PACKET_LENGTH, false).createSerializer();
 
-    private AsyncQueueingExecutor<Object> executor;
+    private final AsyncQueueingExecutor<Object> executor;
 
     public UdpDataSender(String host, int port, String threadName, int queueSize) {
         this(host, port, threadName, queueSize, SOCKET_TIMEOUT, SEND_BUFFER_SIZE);
@@ -95,23 +94,23 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
     }
 
     public boolean isNetworkAvailable() {
-        NetworkAvailabilityCheckPacket dto = new NetworkAvailabilityCheckPacket();
+        final NetworkAvailabilityCheckPacket dto = new NetworkAvailabilityCheckPacket();
         try {
-            byte[] interBufferData = serialize(serializer, dto);
-            int interBufferSize = serializer.getInterBufferSize();
+            final byte[] interBufferData = serialize(serializer, dto);
+            final int interBufferSize = serializer.getInterBufferSize();
             reusePacket.setData(interBufferData, 0, interBufferSize);
             udpSocket.send(reusePacket);
             
-            if (isTrace) {
-                logger.trace("Data sent. {}", dto);
+            if (logger.isInfoEnabled()) {
+                logger.info("Data sent. {}", dto);
             }
-            
-            byte[] receiveData = new byte[NetworkAvailabilityCheckPacket.DATA_OK.length];
-            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+
+            final byte[] receiveData = new byte[NetworkAvailabilityCheckPacket.DATA_OK.length];
+            final DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
             udpSocket.receive(receivePacket);
 
-            if (isTrace) {
-                logger.trace("Data received. {}", Arrays.toString(receivePacket.getData()));
+            if (logger.isInfoEnabled()) {
+                logger.info("Data received. {}", Arrays.toString(receivePacket.getData()));
             }
 
             return Arrays.equals(NetworkAvailabilityCheckPacket.DATA_OK , receiveData);
@@ -123,18 +122,18 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
 
     private DatagramSocket createSocket(String host, int port, int timeout, int sendBufferSize) {
         try {
-            DatagramSocket datagramSocket = new DatagramSocket();
+            final DatagramSocket datagramSocket = new DatagramSocket();
 
             datagramSocket.setSoTimeout(timeout);
             datagramSocket.setSendBufferSize(sendBufferSize);
-            if (logger.isWarnEnabled()) {
+            if (logger.isInfoEnabled()) {
                 final int checkSendBufferSize = datagramSocket.getSendBufferSize();
                 if (sendBufferSize != checkSendBufferSize) {
-                    logger.warn("DatagramSocket.setSendBufferSize() error. {}!={}", sendBufferSize, checkSendBufferSize);
+                    logger.info("DatagramSocket.setSendBufferSize() error. {}!={}", sendBufferSize, checkSendBufferSize);
                 }
             }
 
-            InetSocketAddress serverAddress = new InetSocketAddress(host, port);
+            final InetSocketAddress serverAddress = new InetSocketAddress(host, port);
             datagramSocket.connect(serverAddress);
             return datagramSocket;
         } catch (SocketException e) {
@@ -167,7 +166,7 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
                     logger.debug("Data sent. size:{}, {}", internalBufferSize, dto);
                 }
             } catch (IOException e) {
-                logger.warn("packet send error. size:{}, {}", internalBufferSize, dto, e);
+                logger.info("packet send error. size:{}, {}", internalBufferSize, dto, e);
             }
         } else {
             logger.warn("sendPacket fail. invalid type:{}", message != null ? message.getClass() : null);
