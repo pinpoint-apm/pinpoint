@@ -79,20 +79,20 @@ public class PinpointClientHandshaker {
     }
  
     public void handshakeStart(Channel channel, Map<String, Object> handshakeData) {
-        logger.info("{} handshakeStart method started.", simpleClassNameAndHashCodeString());
+        logger.info("{} handshakeStart method started. channel:{}", simpleClassNameAndHashCodeString(), channel);
         
         if (channel == null) {
-            logger.info("{} handshakeStart method failed. channel may not be null.", simpleClassNameAndHashCodeString());
+            logger.warn("{} handshakeStart method failed. caused:channel may not be null.", simpleClassNameAndHashCodeString());
             return;
         }
         
         if (!channel.isConnected()) {
-            logger.info("{} handshakeStart method failed. channel is not connected.", simpleClassNameAndHashCodeString());
+            logger.warn("{} handshakeStart method failed. caused:channel is not connected.", simpleClassNameAndHashCodeString());
             return;
         }
 
         if (!state.compareAndSet(STATE_INIT, STATE_STARTED)) {
-            logger.info("{} handshakeStart method failed. currentState:{}", simpleClassNameAndHashCodeString(), state.get());
+            logger.warn("{} handshakeStart method failed. caused:unexpected state.", simpleClassNameAndHashCodeString());
             return;
         }
         
@@ -100,19 +100,17 @@ public class PinpointClientHandshaker {
         try {
             handshakeJob = createHandshakeJob(channel, handshakeData);
         } catch (Exception e) {
-            if (logger.isWarnEnabled()) {
-                logger.warn(simpleClassNameAndHashCodeString() + " create handshake job failed. Error:" + e.getMessage() + " state will be aborted.", e);
-            }
+            logger.warn("{} create HandshakeJob failed. caused:{}", simpleClassNameAndHashCodeString(), e.getMessage(), e);
         }
 
         if (handshakeJob == null) {
+            logger.warn("{} handshakeStart method failed. caused:handshakeJob may not be null.", simpleClassNameAndHashCodeString());
             handshakeAbort();
-            logger.info("{} handshakeStart method failed.", simpleClassNameAndHashCodeString());
             return;
         }
 
         handshake(handshakeJob);
-        reservationJob(handshakeJob);
+        reserveHandshake(handshakeJob);
         logger.info("{} handshakeStart method completed. channel:{}, data:{}", simpleClassNameAndHashCodeString(), channel, handshakeData);
     }
 
@@ -130,34 +128,35 @@ public class PinpointClientHandshaker {
         Channel channel = handshakeJob.getChannel();
         ControlHandshakePacket packet = handshakeJob.getHandshakePacket();
         
+        logger.info("{} do handshake({}/{}). channel:{}.", simpleClassNameAndHashCodeString(), handshakeCount.get(), maxHandshakeCount, channel);
         final ChannelFuture future = channel.write(packet);
-        
-        logger.debug("{} handshakePacket sent. channel:{}, packet:{}.", simpleClassNameAndHashCodeString(), channel, packet);
-        
+
         future.addListener(handShakeFailFutureListener);
     }
 
-    private void reservationJob(HandshakeJob handshake) {
+    private void reserveHandshake(HandshakeJob handshake) {
         if (handshakeCount.get() >= maxHandshakeCount) {
+            logger.warn("{} reserveHandshake method failed. caused:Retry count is over({}/{}).", simpleClassNameAndHashCodeString(), handshakeCount.get(), maxHandshakeCount);
             handshakeAbort();
             return;
         }
 
+        logger.debug("{} reserveHandshake method started.", simpleClassNameAndHashCodeString());
         this.handshakerTimer.newTimeout(handshake, retryInterval, TimeUnit.MILLISECONDS);
     }
     
-    public boolean handshakeComplete(ControlHandshakeResponsePacket message) {
-        logger.info("{} handshakeComplete method started. params:{}", simpleClassNameAndHashCodeString(), message);
+    public boolean handshakeComplete(ControlHandshakeResponsePacket responsePacket) {
+        logger.info("{} handshakeComplete method started. responsePacket:{}", simpleClassNameAndHashCodeString(), responsePacket);
 
         synchronized (lock) {
             if (!this.state.compareAndSet(STATE_STARTED, STATE_FINISHED)) {
                 // state can be 0 or 2.
-                logger.info("{} handshakeComplete method failed. beforeState:{}", simpleClassNameAndHashCodeString(), state.get());
+                logger.info("{} handshakeComplete method failed. caused:unexpected state.", simpleClassNameAndHashCodeString());
                 this.state.set(STATE_FINISHED);
                 return false;
             }
 
-            Map handshakeResponse = decode(message);
+            Map handshakeResponse = decode(responsePacket);
 
             HandshakeResponseCode code = getResponseCode(handshakeResponse);
             handshakeResult.compareAndSet(null, code);
@@ -165,7 +164,7 @@ public class PinpointClientHandshaker {
             ClusterOption clusterOption = getClusterOption(handshakeResponse);
             this.clusterOption.compareAndSet(null, clusterOption);
 
-            logger.info("{} handshakeComplete method completed. handshakeResult:{} / {}", simpleClassNameAndHashCodeString(), code, handshakeResult.get());
+            logger.info("{} handshakeComplete method completed. handshake-response:{}.", simpleClassNameAndHashCodeString(), handshakeResponse);
             return true;
         }
     }
@@ -240,7 +239,7 @@ public class PinpointClientHandshaker {
 
         if (!state.compareAndSet(STATE_STARTED, STATE_FINISHED)) {
             // state can be 0 or 2.
-            logger.info("{} handshakeStart method failed. beforeState:{}", simpleClassNameAndHashCodeString(), state.get());
+            logger.info("{} unexpected state", simpleClassNameAndHashCodeString());
             this.state.set(STATE_FINISHED);
             return;
         }
@@ -295,9 +294,10 @@ public class PinpointClientHandshaker {
 
         @Override
         public void run(Timeout timeout) throws Exception {
-            logger.info("Do handshake ({}/{}). channel:{}.", handshakeCount.get(), maxHandshakeCount, channel);
+            logger.debug("{} HandshakeJob started.", simpleClassNameAndHashCodeString());
+
             if (timeout.isCancelled()) {
-                reservationJob(this);
+                reserveHandshake(this);
                 return;
             }
 
@@ -305,11 +305,11 @@ public class PinpointClientHandshaker {
             
             if (isRun(currentState)) {
                 handshake(this);
-                reservationJob(this);
+                reserveHandshake(this);
             } else if (isFinished(currentState)) {
-                logger.warn("Handshake already completed.");
+                logger.info("{} HandshakeJob completed.", simpleClassNameAndHashCodeString());
             } else {
-                logger.warn("Handshake invalid state. {}", state.get());
+                logger.warn("{} HandshakeJob will be stop. caused:unexpected state.", simpleClassNameAndHashCodeString());
             }
         }
 
