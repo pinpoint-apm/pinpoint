@@ -49,7 +49,7 @@ public class TransactionMetricCollector implements AgentStatCollector<TTransacti
         this.sampledNewGauge = (Gauge<Long>)MetricMonitorValues.getMetric(metrics, TRANSACTION_SAMPLED_NEW, UNSUPPORTED_GAUGE);
         this.sampledContinuationGauge = (Gauge<Long>)MetricMonitorValues.getMetric(metrics, TRANSACTION_SAMPLED_CONTINUATION, UNSUPPORTED_GAUGE);
         this.unsampledNewGauge = (Gauge<Long>)MetricMonitorValues.getMetric(metrics, TRANSACTION_UNSAMPLED_NEW, UNSUPPORTED_GAUGE);
-        this.unsampledContinuationGuage = (Gauge<Long>)MetricMonitorValues.getMetric(metrics, TRANSACTION_UNSAMPLED_NEW, UNSUPPORTED_GAUGE);
+        this.unsampledContinuationGuage = (Gauge<Long>)MetricMonitorValues.getMetric(metrics, TRANSACTION_UNSAMPLED_CONTINUATION, UNSUPPORTED_GAUGE);
     }
 
     @Override
