@@ -765,7 +765,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
-                <version>2.5.5</version>
+                <version>3.0.3</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -827,7 +827,7 @@
                     <xmlOutput>true</xmlOutput>
                     <xmlOutputDirectory>${project.build.directory}/findbugs</xmlOutputDirectory>
                 </configuration>
-                <version>2.5.5</version>
+                <version>3.0.3</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
