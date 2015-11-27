@@ -770,7 +770,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.4</version>
+                <version>1.4.1</version>
                 <executions>
                     <execution>
                         <id>enforce-pinpoint-build-requirements</id>
@@ -780,6 +780,12 @@
                         </goals>
                         <configuration>
                             <rules>
+                                <requireMavenVersion>
+                                    <version>3.2</version>
+                                </requireMavenVersion>
+                                <requireJavaVersion>
+                                    <version>1.7</version>
+                                </requireJavaVersion>
                                 <requireEnvironmentVariable>
                                     <variableName>JAVA_6_HOME</variableName>
                                 </requireEnvironmentVariable>
