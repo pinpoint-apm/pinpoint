@@ -165,12 +165,14 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
 
         @Override
         public void eventPerformed(ServerStreamChannel streamChannel, StreamChannelStateCode updatedStateCode) throws Exception {
+            logger.info("eventPerformed. ServerStreamChannel:{}, StreamChannelStateCode:{}.", streamChannel, updatedStateCode);
             synchronized (lock) {
                 switch (updatedStateCode) {
                     case CONNECTED:
                         streamChannelRepository.add(streamChannel);
                         boolean turnOn = onTimerTask.compareAndSet(false, true);
                         if (turnOn) {
+                            logger.info("turn on ActiveThreadCountTimerTask.");
                             timer.newTimeout(new ActiveThreadCountTimerTask(), flushDelay, TimeUnit.MILLISECONDS);
                         }
                         break;
@@ -179,6 +181,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
                         boolean removed = streamChannelRepository.remove(streamChannel);
                         if (removed && streamChannelRepository.size() == 0) {
                             boolean turnOff = onTimerTask.compareAndSet(true, false);
+                            logger.info("turn off ActiveThreadCountTimerTask.");
                         }
                         break;
                 }
@@ -187,6 +190,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
 
         @Override
         public void exceptionCaught(ServerStreamChannel streamChannel, StreamChannelStateCode updatedStateCode, Throwable e) {
+            logger.warn("exceptionCaught caused:{}. ServerStreamChannel:{}, StreamChannelStateCode:{}.", e.getMessage(), streamChannel, updatedStateCode, e);
         }
 
     }
@@ -195,7 +199,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
 
         @Override
         public void run(Timeout timeout) throws Exception {
-            logger.debug("ActiveThreadCountService timer started.");
+            logger.debug("ActiveThreadCountTimerTask started. target-streams:{}", streamChannelRepository);
 
             try {
                 TCmdActiveThreadCountRes activeThreadCountResponse = getActiveThreadCountResponse();
