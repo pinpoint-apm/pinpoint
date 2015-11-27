@@ -230,10 +230,14 @@
 	font: 8px sans-serif;
 	display: block;
 }
-.realtime .agent-sum-chart .axis path, .axis line, .agent-chart-list .axis path, .axis line {
+.realtime .agent-sum-chart .axis path, .agent-chart-list .axis path {
 	fill: none;
 	stroke: #000;
 	shape-rendering: crispEdges;
+}
+.realtime .axis line {
+	stroke: #000;
+	stroke-opaticy: 0.1;
 }
 .realtime .agent-sum-chart .guideLine, .agent-chart-list .guideLine  {
 	fill: none;
@@ -243,6 +247,10 @@
 .realtime .agent-sum-chart .x.axis area, .agent-chart-list .x.axis area {
     shape-rendering: auto;
 }
+.realtime .agent-chart-list .x.axis path {
+	stroke: #AAA;
+}
+
 .realtime .agent-sum-chart .area, .agent-chart-list .area {
     stroke: none;
     stroke-width: 1.5px;
@@ -293,6 +301,5 @@
 }
 .realtime .grid {
 	stroke: rgba(200, 200, 200, 0.4);
-	stroke-dasharray: 4, 2;
 	shape-rendering: crispEdges;
 }
