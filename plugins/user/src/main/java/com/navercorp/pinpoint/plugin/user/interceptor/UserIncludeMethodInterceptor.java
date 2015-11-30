@@ -16,13 +16,10 @@
 
 package com.navercorp.pinpoint.plugin.user.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceType;
+import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -53,30 +50,32 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        Trace trace = traceContext.currentTraceObject();
+        Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             trace = traceContext.newTraceObject(TraceType.USER);
-            if (!trace.canSampled()) {
-                if(isDebug) {
-                    logger.debug("New trace and can't sampled {}", trace);
-                }
-                return;
-            } 
-            if(isDebug) {
-                logger.debug("New trace and sampled {}", trace);
+            if (isDebug) {
+                logger.debug("New user trace and sampled {}", trace.canSampled());
             }
-            SpanRecorder recorder = trace.getSpanRecorder();
-            recordRootSpan(recorder);
+
+            // record root span.
+            final SpanRecorder recorder = trace.getSpanRecorder();
+            recorder.recordServiceType(ServiceType.STAND_ALONE);
+            recorder.recordApi(USER_INCLUDE_METHOD_DESCRIPTOR);
+        }
+
+        if(trace.getTraceType() == TraceType.USER) {
+            // entry point in.
+            final EntryPointChecker entryPointChecker = trace.getEntryPointChecker();
+            entryPointChecker.entry();
+        }
+
+        if (!trace.canSampled()) {
+            return;
         }
 
         trace.traceBlockBegin();
     }
 
-    private void recordRootSpan(final SpanRecorder recorder) {
-        // root
-        recorder.recordServiceType(ServiceType.STAND_ALONE);
-        recorder.recordApi(USER_INCLUDE_METHOD_DESCRIPTOR);
-    }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
@@ -84,27 +83,50 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args);
         }
 
-        final Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
 
+        if(trace.getTraceType() == TraceType.USER) {
+            final EntryPointChecker entryPointChecker = trace.getEntryPointChecker();
+            entryPointChecker.leave();
+        }
+
+        if (!trace.canSampled()) {
+            if (trace.getTraceType() == TraceType.USER) {
+                final EntryPointChecker entryPointChecker = trace.getEntryPointChecker();
+                if(!entryPointChecker.isNested()) {
+                    if (isDebug) {
+                        logger.debug("Remove trace. {}", trace);
+                    }
+                    traceContext.removeTraceObject();
+                }
+            }
+
+            return;
+        }
+
         try {
-            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
             recorder.recordServiceType(UserConstants.USER_INCLUDE);
             recorder.recordException(throwable);
         } finally {
             trace.traceBlockEnd();
-            if(isDebug) {
+            if (isDebug) {
                 logger.debug("Closed user trace. {}", trace.getCallStackFrameId());
             }
-            if(trace.getTraceType() == TraceType.USER && trace.isRootStack()) {
-                if(isDebug) {
-                    logger.debug("Closed user trace. {}", trace);
+
+            if (trace.getTraceType() == TraceType.USER) {
+                final EntryPointChecker entryPointChecker = trace.getEntryPointChecker();
+                if(!entryPointChecker.isNested()) {
+                    if (isDebug) {
+                        logger.debug("Closed user trace. {}", trace);
+                    }
+                    trace.close();
+                    traceContext.removeTraceObject();
                 }
-                trace.close();
-                traceContext.removeTraceObject();
             }
         }
     }

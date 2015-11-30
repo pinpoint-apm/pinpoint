@@ -13,42 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.navercorp.pinpoint.bootstrap.context;
 
-
 /**
- * @author emeroad
+ * @author jaehong.kim
  */
-public interface Trace extends StackOperation {
-    // ----------------------------------------------
-    // activeTrace related api
-    // TODO extract interface???
-    long getId();
+public class EntryPointChecker {
+    private int nestedCounter = 0;
 
-    long getStartTime();
+    public void entry() {
+        this.nestedCounter++;
+    }
 
-    Thread getBindThread();
+    public void leave() {
+        this.nestedCounter--;
+    }
 
-    //------------------------------------------------
+    public boolean isNested() {
+        return nestedCounter > 0;
+    }
 
-    TraceId getTraceId();
-
-    AsyncTraceId getAsyncTraceId();
-
-    boolean canSampled();
-
-    boolean isRoot();
-
-    boolean isAsync();
-    
-    SpanRecorder getSpanRecorder();
-    
-    SpanEventRecorder currentSpanEventRecorder();
-    
-    void close();
-    
-    TraceType getTraceType();
-
-    EntryPointChecker getEntryPointChecker();
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("EntryPointChecker{");
+        sb.append("nestedCounter=").append(nestedCounter);
+        sb.append('}');
+        return sb.toString();
+    }
 }

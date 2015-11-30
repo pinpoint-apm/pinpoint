@@ -160,14 +160,14 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         final boolean sampling = sampler.isSampling();
         if (sampling) {
             final DefaultTrace trace = new DefaultTrace(traceContext, idGenerator.nextTransactionId(), sampling);
-
             final Storage storage = storageFactory.createStorage();
             trace.setStorage(storage);
             trace.setTraceType(traceType);
             bind(trace);
             return trace;
         } else {
-            final Trace disableTrace = new DisableTrace(this.idGenerator.nextDisabledId());
+            final DisableTrace disableTrace = new DisableTrace(this.idGenerator.nextDisabledId());
+            disableTrace.setTraceType(traceType);
             bind(disableTrace);
             return disableTrace;
         }

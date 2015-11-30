@@ -116,6 +116,11 @@ public class TraceChain implements TraceWrap {
     }
 
     @Override
+    public EntryPointChecker getEntryPointChecker() {
+        return delegate.getEntryPointChecker();
+    }
+
+    @Override
     public SpanEventRecorder traceBlockBegin() {
         return delegate.traceBlockBegin();
     }

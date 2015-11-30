@@ -17,16 +17,10 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.context.TraceType;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
 
@@ -56,6 +50,7 @@ public final class DefaultTrace implements Trace {
     private boolean closed = false;
 
     private Thread bindThread;
+    private final EntryPointChecker entryPointChecker = new EntryPointChecker();
 
     public DefaultTrace(final TraceContext traceContext, long transactionId, boolean sampling) {
         if (traceContext == null) {
@@ -329,5 +324,10 @@ public final class DefaultTrace implements Trace {
 
     public void setTraceType(TraceType traceType) {
         this.traceType = traceType;
+    }
+
+    @Override
+    public EntryPointChecker getEntryPointChecker() {
+        return entryPointChecker;
     }
 }
