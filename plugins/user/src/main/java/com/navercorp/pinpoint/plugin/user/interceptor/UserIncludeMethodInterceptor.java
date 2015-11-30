@@ -54,13 +54,15 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
         if (trace == null) {
             trace = traceContext.newTraceObject(TraceType.USER);
             if (isDebug) {
-                logger.debug("New user trace and sampled {}", trace.canSampled());
+                logger.debug("New user trace {} and sampled {}", trace, trace.canSampled());
             }
 
-            // record root span.
-            final SpanRecorder recorder = trace.getSpanRecorder();
-            recorder.recordServiceType(ServiceType.STAND_ALONE);
-            recorder.recordApi(USER_INCLUDE_METHOD_DESCRIPTOR);
+            if(trace.canSampled()) {
+                // record root span.
+                final SpanRecorder recorder = trace.getSpanRecorder();
+                recorder.recordServiceType(ServiceType.STAND_ALONE);
+                recorder.recordApi(USER_INCLUDE_METHOD_DESCRIPTOR);
+            }
         }
 
         if(trace.getTraceType() == TraceType.USER) {
@@ -76,7 +78,6 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
             return;
         }
 
-        trace.traceBlockBegin();
     }
 
 
