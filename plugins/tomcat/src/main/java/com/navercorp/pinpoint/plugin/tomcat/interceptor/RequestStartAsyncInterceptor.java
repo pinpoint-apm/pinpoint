@@ -77,6 +77,7 @@ public class RequestStartAsyncInterceptor implements AroundInterceptor {
                 final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
                 recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
                 // result is BasicFuture
+                // type check validate()
                 ((AsyncTraceIdAccessor)result)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
                 if (isDebug) {
                     logger.debug("Set asyncTraceId metadata {}", asyncTraceId);

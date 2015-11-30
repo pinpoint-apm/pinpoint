@@ -38,7 +38,9 @@ public class ConnectionCloseInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
         // In case of close, we have to delete data even if the invocation failed.
-        ((DatabaseInfoAccessor)target)._$PINPOINT$_setDatabaseInfo(null);
+        if (target instanceof DatabaseInfoAccessor) {
+            ((DatabaseInfoAccessor) target)._$PINPOINT$_setDatabaseInfo(null);
+        }
     }
 
     @IgnoreMethod

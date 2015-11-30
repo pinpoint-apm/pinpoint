@@ -76,7 +76,9 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorFo
         DatabaseInfo databaseInfo = createDatabaseInfo(driverUrl);
         if (success) {
             if (recordConnection) {
-                ((DatabaseInfoAccessor)result)._$PINPOINT$_setDatabaseInfo(databaseInfo);
+                if (result instanceof DatabaseInfoAccessor) {
+                    ((DatabaseInfoAccessor) result)._$PINPOINT$_setDatabaseInfo(databaseInfo);
+                }
             }
         }
     }
@@ -86,7 +88,7 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorFo
 
         if (recordConnection) {
             DatabaseInfo databaseInfo = (result instanceof DatabaseInfoAccessor) ? ((DatabaseInfoAccessor)result)._$PINPOINT$_getDatabaseInfo() : null;
-            
+
             if (databaseInfo == null) {
                 databaseInfo = UnKnownDatabaseInfo.INSTANCE;
             }
