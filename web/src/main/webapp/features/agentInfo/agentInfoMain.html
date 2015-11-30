@@ -25,7 +25,14 @@
                     </tr>
                     <tr>
                         <td class="text-right"><strong>Hostname</strong></td>
-                        <td class="text-left">{{info.hostName}}&nbsp;<a ng-if="info.linkName" class="btn btn-default btn-xs" href="{{info.linkURL}}" target="_blank" title="System resource monitoring site">{{info.linkName}}</a></td>
+                        <td class="text-left">{{info.hostName}}&nbsp;
+                        	<ul ng-if="info.linkList" style="padding:0px;margin:0px;display:inline;">	
+		                    	<li ng-repeat="link in info.linkList" style="list-style:none;padding:0px;margin:0px;display:inline;padding-left:4px;">
+		                    		<a ng-if="link.linkType == 'aTag'" class="btn btn-default btn-xs" href="{{link.linkURL}}" target="_blank">{{link.linkName}}</a>	
+		                    	</li>
+		                    </ul>
+                        	<a ng-if="info.linkName" class="btn btn-default btn-xs" href="{{info.linkURL}}" target="_blank" title="System resource monitoring site">{{info.linkName}}</a>
+                        </td>
                         <td class="text-right"><strong>JVM&nbsp;(GC Type)</strong></td>
                         <td class="text-left" ng-if="info.vmVersion">{{info.vmVersion}}&nbsp;({{info.jvmGcType}})</td>
                         <td class="text-left" ng-if="!info.vmVersion">{{info.jvmGcType}}</td>

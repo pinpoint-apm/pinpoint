@@ -84,8 +84,7 @@
 	                        'vmVersion': agent.vmVersion,
 	                        'jvmGcType': '',
 	                        'serverMetaData': agent.serverMetaData,
-	                        'linkName' : agent.linkName,
-	                        'linkURL' : agent.linkURL
+	                        'linkList': agent.linkList
 	                    };
 	                    scope.currentServiceInfo = initServiceInfo(agent);
 	                    
