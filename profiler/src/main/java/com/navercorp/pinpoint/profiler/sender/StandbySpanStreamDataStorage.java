@@ -53,7 +53,7 @@ public class StandbySpanStreamDataStorage {
             return false;
         }
 
-        if (standbySpanStreamData.getAvailableBufferCapacity() > 0 && standbySpanStreamData.getAvailableBufferCapacity() > 0) {
+        if (standbySpanStreamData.getAvailableBufferCapacity() > 0 && standbySpanStreamData.getAvailableGatheringComponentsCount() > 0) {
             if (priorityQueue.size() >= capacity) {
                 return false;
             }
