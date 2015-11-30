@@ -65,6 +65,9 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
 
         if(trace.getTraceType() == TraceType.USER) {
             // entry point in.
+            if (isDebug) {
+                logger.debug("Entry user trace. {}", trace);
+            }
             final EntryPointChecker entryPointChecker = trace.getEntryPointChecker();
             entryPointChecker.entry();
         }
@@ -89,6 +92,9 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
         }
 
         if(trace.getTraceType() == TraceType.USER) {
+            if (isDebug) {
+                logger.debug("Leave user trace. {}", trace);
+            }
             final EntryPointChecker entryPointChecker = trace.getEntryPointChecker();
             entryPointChecker.leave();
         }
@@ -98,7 +104,7 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
                 final EntryPointChecker entryPointChecker = trace.getEntryPointChecker();
                 if(!entryPointChecker.isNested()) {
                     if (isDebug) {
-                        logger.debug("Remove trace. {}", trace);
+                        logger.debug("Remove user trace. {}", trace);
                     }
                     traceContext.removeTraceObject();
                 }
@@ -114,15 +120,11 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
             recorder.recordException(throwable);
         } finally {
             trace.traceBlockEnd();
-            if (isDebug) {
-                logger.debug("Closed user trace. {}", trace.getCallStackFrameId());
-            }
-
             if (trace.getTraceType() == TraceType.USER) {
                 final EntryPointChecker entryPointChecker = trace.getEntryPointChecker();
                 if(!entryPointChecker.isNested()) {
                     if (isDebug) {
-                        logger.debug("Closed user trace. {}", trace);
+                        logger.debug("Close and remove user trace. {}", trace);
                     }
                     trace.close();
                     traceContext.removeTraceObject();
