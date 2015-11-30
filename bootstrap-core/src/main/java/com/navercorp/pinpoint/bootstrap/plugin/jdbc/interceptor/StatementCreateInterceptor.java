@@ -75,8 +75,9 @@ public class StatementCreateInterceptor implements AroundInterceptor {
             if (databaseInfo == null) {
                 databaseInfo = UnKnownDatabaseInfo.INSTANCE;
             }
-            
-            ((DatabaseInfoAccessor)result)._$PINPOINT$_setDatabaseInfo(databaseInfo);
+            if (result instanceof DatabaseInfoAccessor) {
+                ((DatabaseInfoAccessor) result)._$PINPOINT$_setDatabaseInfo(databaseInfo);
+            }
         }
     }
 }
