@@ -150,7 +150,7 @@
 	                        onSelect: function () {
 	                        	var momentFrom = moment(getDate($fromPicker));
 	                        	var momentTo = moment(getDate($toPicker));
-	                        	if ( momentTo.isAfter( moment(getDate($fromPicker)).add(2, "days") ) || momentFrom.isAfter(momentTo) ) {
+	                        	if ( momentTo.isAfter( moment(getDate($fromPicker)).add(preferenceService.getMaxPeriod(), "days") ) || momentFrom.isAfter(momentTo) ) {
 	                        		setDateTime($toPicker, momentFrom.add(2, "days").format());
 	                        	}
 	                        },
@@ -174,7 +174,7 @@
 	                        onSelect: function () {
 	                        	var momentFrom = moment(getDate($fromPicker));
 	                        	var momentTo = moment(getDate($toPicker));
-	                        	if ( momentFrom.isBefore(moment(getDate($toPicker)).subtract(2, "days")) || momentFrom.isAfter(momentTo) ) {
+	                        	if ( momentFrom.isBefore(moment(getDate($toPicker)).subtract(preferenceService.getMaxPeriod(), "days")) || momentFrom.isAfter(momentTo) ) {
 	                        		setDateTime($fromPicker, momentTo.subtract(2, "days").format());
 	                        	}
 	                        },
@@ -189,7 +189,6 @@
 	                        }
 	                    });
 	                    setDateTime($toPicker, oNavbarVoService.getQueryEndTime());
-	
 	                };
 	
 	                getDate = function ($picker) {
@@ -222,11 +221,7 @@
 	                 * set DateTime
 	                 */
 	                setDateTime = function ($picker, time) {
-	                    var date = new Date();
-	                    if (time) {
-	                        date.setTime(time);
-	                    }
-	                    $picker.datetimepicker('setDate', date);
+						$picker.datetimepicker('setDate', time ? new Date(time) : new Date());
 	                };
 	
 	                /**

@@ -27,7 +27,8 @@
 		cst: {
 			periodTypes: ['5m', '20m', '1h', '3h', '6h', '12h', '1d', '2d'],
 			depthList: [ 1, 2, 3, 4, 5, 6, 7, 8],
-			maxFavorite: 5000
+			maxFavorite: 5000,
+			maxPeriod: 2
 		}
 	});
 	
@@ -63,6 +64,9 @@
 		this.getPeriodTypes = function() {
 			return cfg.cst.periodTypes;
 		};
+		this.getMaxPeriod = function() {
+			return cfg.cst.maxPeriod;
+		}
 		
 		
 		function loadPreference() {
