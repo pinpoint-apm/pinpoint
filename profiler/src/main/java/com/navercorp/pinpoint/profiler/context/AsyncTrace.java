@@ -1,11 +1,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.context.TraceType;
+import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 
 public class AsyncTrace implements Trace {
     private static final int BEGIN_STACKID = 1;
@@ -119,9 +115,14 @@ public class AsyncTrace implements Trace {
     public int getCallStackFrameId() {
         return trace.getCallStackFrameId();
     }
-    
+
     @Override
-    public TraceType getTraceType() {
-        return TraceType.ASYNC;
+    public TraceScope getScope(String name) {
+        return trace.getScope(name);
+    }
+
+    @Override
+    public TraceScope addScope(String name) {
+        return trace.addScope(name);
     }
 }

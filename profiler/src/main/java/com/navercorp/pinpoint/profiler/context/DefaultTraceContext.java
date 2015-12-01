@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.context.TraceType;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceFactory;
@@ -170,12 +169,9 @@ public class DefaultTraceContext implements TraceContext {
         return traceFactory.continueAsyncTraceObject(traceId, asyncId, startTime);
     }
 
+    @Override
     public Trace newTraceObject() {
         return traceFactory.newTraceObject();
-    }
-
-    public Trace newTraceObject(TraceType traceType) {
-        return traceFactory.newTraceObject(traceType);
     }
 
     @Override

@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.context.TraceType;
 
 /**
  * @author emeroad
@@ -63,11 +62,6 @@ public class MockTraceContext implements TraceContext {
 
     @Override
     public Trace newTraceObject() {
-        return trace;
-    }
-
-    @Override
-    public Trace newTraceObject(TraceType traceType) {
         return trace;
     }
 

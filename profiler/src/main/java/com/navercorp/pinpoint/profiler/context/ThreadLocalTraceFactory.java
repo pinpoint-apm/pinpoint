@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.context.TraceType;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.storage.AsyncStorage;
@@ -150,24 +149,17 @@ public class ThreadLocalTraceFactory implements TraceFactory {
 
     @Override
     public Trace newTraceObject() {
-        return newTraceObject(TraceType.DEFAULT);
-    }
-    
-    @Override
-    public Trace newTraceObject(TraceType traceType) {
         checkBeforeTraceObject();
         // TODO need to modify how to inject a datasender
         final boolean sampling = sampler.isSampling();
         if (sampling) {
             final DefaultTrace trace = new DefaultTrace(traceContext, idGenerator.nextTransactionId(), sampling);
-
             final Storage storage = storageFactory.createStorage();
             trace.setStorage(storage);
-            trace.setTraceType(traceType);
             bind(trace);
             return trace;
         } else {
-            final Trace disableTrace = new DisableTrace(this.idGenerator.nextDisabledId());
+            final DisableTrace disableTrace = new DisableTrace(this.idGenerator.nextDisabledId());
             bind(disableTrace);
             return disableTrace;
         }

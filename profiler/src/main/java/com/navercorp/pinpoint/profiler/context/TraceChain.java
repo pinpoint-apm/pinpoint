@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 
 /**
  * @author emeroad
@@ -111,8 +112,13 @@ public class TraceChain implements TraceWrap {
     }
 
     @Override
-    public TraceType getTraceType() {
-        return delegate.getTraceType();
+    public TraceScope getScope(String name) {
+        return delegate.getScope(name);
+    }
+
+    @Override
+    public TraceScope addScope(String name) {
+        return delegate.addScope(name);
     }
 
     @Override
@@ -144,5 +150,4 @@ public class TraceChain implements TraceWrap {
     public int getCallStackFrameId() {
         return delegate.getCallStackFrameId();
     }
-
 }

@@ -16,12 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.context.TraceType;
+import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
 
 
 /**
@@ -36,6 +33,7 @@ public class DisableTrace implements Trace {
     private final long id;
     private final long startTime;
     private final Thread bindThread;
+    private final DefaultTraceScopePool scopePool = new DefaultTraceScopePool();
     
     public DisableTrace(long id) {
         this.id = id;
@@ -129,7 +127,12 @@ public class DisableTrace implements Trace {
     }
 
     @Override
-    public TraceType getTraceType() {
-        return TraceType.DISABLE;
+    public TraceScope getScope(String name) {
+        return scopePool.get(name);
+    }
+
+    @Override
+    public TraceScope addScope(String name) {
+        return scopePool.add(name);
     }
 }

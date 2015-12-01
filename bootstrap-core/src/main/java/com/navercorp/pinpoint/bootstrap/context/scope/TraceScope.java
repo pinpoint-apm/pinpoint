@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.user;
-
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+package com.navercorp.pinpoint.bootstrap.context.scope;
 
 /**
- * 
  * @author jaehong.kim
- *
  */
-public final class UserConstants {
-    private UserConstants() {
-    }
+public interface TraceScope {
+    String getName();
+
+    boolean tryEnter();
+    boolean canLeave();
+    void leave();
+
+    boolean isActive();
 }
