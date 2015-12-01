@@ -27,6 +27,5 @@ public class UserTypeProvider implements TraceMetadataProvider {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(UserConstants.USER_INCLUDE);
     }
 }
