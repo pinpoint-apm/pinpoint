@@ -46,7 +46,6 @@ public final class DefaultTrace implements Trace {
     private Storage storage;
 
     private final TraceContext traceContext;
-    private TraceType traceType = TraceType.DEFAULT;
     private final WrappedSpanEventRecorder spanEventRecorder;
     private final DefaultSpanRecorder spanRecorder;
     private boolean closed = false;
@@ -320,11 +319,6 @@ public final class DefaultTrace implements Trace {
     }
 
     @Override
-    public TraceType getTraceType() {
-        return this.traceType;
-    }
-
-    @Override
     public TraceScope getScope(String name) {
         return scopePool.get(name);
     }
@@ -332,9 +326,5 @@ public final class DefaultTrace implements Trace {
     @Override
     public TraceScope addScope(String name) {
         return scopePool.add(name);
-    }
-
-    public void setTraceType(TraceType traceType) {
-        this.traceType = traceType;
     }
 }

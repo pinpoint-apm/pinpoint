@@ -50,8 +50,6 @@ public interface Trace extends StackOperation {
     
     void close();
     
-    TraceType getTraceType();
-
     TraceScope getScope(String name);
 
     TraceScope addScope(String name);

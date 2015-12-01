@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.context.active;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.context.TraceType;
 import com.navercorp.pinpoint.profiler.context.ActiveTrace;
 import com.navercorp.pinpoint.profiler.context.TraceFactory;
 import com.navercorp.pinpoint.profiler.context.TraceFactoryWrapper;
@@ -100,15 +99,6 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
     public Trace newTraceObject() {
         final Trace trace = this.delegate.newTraceObject();
         attachTrace(trace);
-        return trace;
-    }
-
-    @Override
-    public Trace newTraceObject(TraceType traceType) {
-        final Trace trace = this.delegate.newTraceObject(traceType);
-        if (TraceType.DEFAULT == traceType) {
-            attachTrace(trace);
-        }
         return trace;
     }
 

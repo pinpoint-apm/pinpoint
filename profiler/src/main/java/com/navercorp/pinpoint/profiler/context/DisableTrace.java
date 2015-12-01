@@ -33,7 +33,6 @@ public class DisableTrace implements Trace {
     private final long id;
     private final long startTime;
     private final Thread bindThread;
-    private TraceType traceType = TraceType.DEFAULT;
     private final DefaultTraceScopePool scopePool = new DefaultTraceScopePool();
     
     public DisableTrace(long id) {
@@ -125,15 +124,6 @@ public class DisableTrace implements Trace {
     @Override
     public SpanEventRecorder currentSpanEventRecorder() {
         return null;
-    }
-
-    @Override
-    public TraceType getTraceType() {
-        return traceType;
-    }
-
-    public void setTraceType(TraceType traceType) {
-        this.traceType = traceType;
     }
 
     @Override

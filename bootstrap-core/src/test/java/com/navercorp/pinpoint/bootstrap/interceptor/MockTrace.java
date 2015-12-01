@@ -131,11 +131,6 @@ public class MockTrace implements Trace {
 //    }
 
     @Override
-    public TraceType getTraceType() {
-        return TraceType.DEFAULT;
-    }
-
-    @Override
     public TraceScope getScope(String name) {
         return null;
     }

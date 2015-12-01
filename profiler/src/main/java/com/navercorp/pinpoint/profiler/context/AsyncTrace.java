@@ -115,11 +115,6 @@ public class AsyncTrace implements Trace {
     public int getCallStackFrameId() {
         return trace.getCallStackFrameId();
     }
-    
-    @Override
-    public TraceType getTraceType() {
-        return TraceType.ASYNC;
-    }
 
     @Override
     public TraceScope getScope(String name) {

@@ -93,11 +93,6 @@ public class MetricTraceFactory implements TraceFactory, TraceFactoryWrapper {
     }
 
     @Override
-    public Trace newTraceObject(TraceType traceType) {
-        return delegate.newTraceObject(traceType);
-    }
-
-    @Override
     public Trace removeTraceObject() {
         final Trace trace = delegate.removeTraceObject();
 //        TODO;

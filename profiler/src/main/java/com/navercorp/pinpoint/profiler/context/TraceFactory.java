@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.context.TraceType;
 
 /**
  * @author emeroad
@@ -41,8 +40,6 @@ public interface TraceFactory {
     Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime);
 
     Trace newTraceObject();
-
-    Trace newTraceObject(TraceType traceType);
 
     Trace removeTraceObject();
 }
