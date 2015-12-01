@@ -58,6 +58,9 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
         }
 
         try {
+            if(!(target instanceof Request.Builder)) {
+                return;
+            }
             final Request.Builder builder = ((Request.Builder) target);
             if (!trace.canSampled()) {
                 if (isDebug) {

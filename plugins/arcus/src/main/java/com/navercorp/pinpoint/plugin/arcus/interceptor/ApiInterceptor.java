@@ -162,6 +162,7 @@ public class ApiInterceptor implements AroundInterceptor {
                     this.traceContext.getAsyncId();
                     final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
                     recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
+                    // type check isAsynchronousInvocation
                     ((AsyncTraceIdAccessor)result)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
                     if (isDebug) {
                         logger.debug("Set asyncTraceId metadata {}", asyncTraceId);

@@ -38,8 +38,11 @@ public class SetCacheManagerInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        String serviceCode = ((ServiceCodeAccessor)args[0])._$PINPOINT$_getServiceCode();
-        ((ServiceCodeAccessor)target)._$PINPOINT$_setServiceCode(serviceCode);
+        final Object serviceCodeObject = args[0];
+        if (serviceCodeObject instanceof ServiceCodeAccessor && target instanceof ServiceCodeAccessor) {
+            String serviceCode = ((ServiceCodeAccessor) serviceCodeObject)._$PINPOINT$_getServiceCode();
+            ((ServiceCodeAccessor) target)._$PINPOINT$_setServiceCode(serviceCode);
+        }
     }
 
     @IgnoreMethod

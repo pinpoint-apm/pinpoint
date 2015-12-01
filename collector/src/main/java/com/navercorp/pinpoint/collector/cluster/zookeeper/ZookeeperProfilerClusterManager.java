@@ -126,13 +126,11 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
 
             if (SocketStateCode.RUN_DUPLEX == stateCode) {
                 UpdateJob job = new UpdateJob(pinpointServer, new byte[0]);
-                worker.putJob(job);
-
                 profileCluster.addClusterPoint(new PinpointServerClusterPoint(pinpointServer));
+                worker.putJob(job);
             } else if (SocketStateCode.isClosed(stateCode)) {
                 DeleteJob job = new DeleteJob(pinpointServer);
                 worker.putJob(job);
-
                 profileCluster.removeClusterPoint(new PinpointServerClusterPoint(pinpointServer));
             }
         } else {

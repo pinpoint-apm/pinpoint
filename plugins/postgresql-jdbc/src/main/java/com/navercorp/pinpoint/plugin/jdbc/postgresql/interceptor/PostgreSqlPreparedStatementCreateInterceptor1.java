@@ -39,8 +39,11 @@ public class PostgreSqlPreparedStatementCreateInterceptor1 extends SpanEventSimp
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args)  {
-        DatabaseInfo databaseInfo = (target instanceof DatabaseInfoAccessor) ? ((DatabaseInfoAccessor)target)._$PINPOINT$_getDatabaseInfo() : null;
-        
+        DatabaseInfo databaseInfo = null;
+        if (target instanceof DatabaseInfoAccessor) {
+            databaseInfo = ((DatabaseInfoAccessor)target)._$PINPOINT$_getDatabaseInfo();
+        }
+
         if (databaseInfo == null) {
             databaseInfo = UnKnownDatabaseInfo.INSTANCE;
         }
@@ -56,7 +59,7 @@ public class PostgreSqlPreparedStatementCreateInterceptor1 extends SpanEventSimp
         if (success) {
             if (target instanceof DatabaseInfoAccessor) {
                 // set databaseInfo to PreparedStatement only when preparedStatement is generated successfully.
-                DatabaseInfo databaseInfo = ((DatabaseInfoAccessor)target)._$PINPOINT$_getDatabaseInfo();
+                final DatabaseInfo databaseInfo = ((DatabaseInfoAccessor)target)._$PINPOINT$_getDatabaseInfo();
                 if (databaseInfo != null) {
                     if (result instanceof DatabaseInfoAccessor) {
                         ((DatabaseInfoAccessor)result)._$PINPOINT$_setDatabaseInfo(databaseInfo);
@@ -67,7 +70,7 @@ public class PostgreSqlPreparedStatementCreateInterceptor1 extends SpanEventSimp
                 // 1. Don't check traceContext. preparedStatement can be created in other thread.
                 // 2. While sampling is active, the thread which creates preparedStatement could not be a sampling target. So record sql anyway. 
                 String sql = (String) args[0];
-                ParsingResult parsingResult = traceContext.parseSql(sql);
+                final ParsingResult parsingResult = traceContext.parseSql(sql);
                 if (parsingResult != null) {
                     ((ParsingResultAccessor)result)._$PINPOINT$_setParsingResult(parsingResult);
                 } else {

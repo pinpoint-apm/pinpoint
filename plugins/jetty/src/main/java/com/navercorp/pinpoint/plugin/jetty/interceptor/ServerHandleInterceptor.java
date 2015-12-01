@@ -19,7 +19,11 @@ public class ServerHandleInterceptor extends AbstractServerHandleInterceptor {
 
     @Override
     protected Request getRequest(Object[] args) {
-        final HttpChannel<?> channel = (HttpChannel<?>) args[0];
+        final Object httpChannelObject = args[0];
+        if (!(httpChannelObject instanceof HttpChannel)) {
+           return null;
+        }
+        final HttpChannel<?> channel = (HttpChannel<?>) httpChannelObject;
         final Request request = channel.getRequest();
         return request;
     }

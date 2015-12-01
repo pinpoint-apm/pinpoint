@@ -93,9 +93,11 @@ public class ProcessFunctionProcessInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
         // Unset server marker
-        Object iprot = args[1];
-        if (validateInputProtocol(iprot)) {
-            ((ServerMarkerFlagFieldAccessor)iprot)._$PINPOINT$_setServerMarkerFlag(false);
+        if (args.length != 4) {
+            Object iprot = args[1];
+            if (validateInputProtocol(iprot)) {
+                ((ServerMarkerFlagFieldAccessor) iprot)._$PINPOINT$_setServerMarkerFlag(false);
+            }
         }
     }
 

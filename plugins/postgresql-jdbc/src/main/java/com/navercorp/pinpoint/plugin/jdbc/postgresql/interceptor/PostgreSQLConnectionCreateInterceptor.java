@@ -56,9 +56,6 @@ public class PostgreSQLConnectionCreateInterceptor implements AroundInterceptor 
             return;
         }
 
-        for(Object o:args) {
-            logger.info("test: "+o.toString());
-        }
 
         Properties properties = getProperties(args[3]);
 

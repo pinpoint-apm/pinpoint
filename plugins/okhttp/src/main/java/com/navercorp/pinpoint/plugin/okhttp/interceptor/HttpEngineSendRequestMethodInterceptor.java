@@ -143,7 +143,7 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);
-
+            // typeCheck validate();
             Request request = ((UserRequestGetter) target)._$PINPOINT$_getUserRequest();
             if (request != null) {
                 try {

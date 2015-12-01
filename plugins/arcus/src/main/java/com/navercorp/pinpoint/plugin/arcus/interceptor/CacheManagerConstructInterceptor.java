@@ -41,7 +41,8 @@ public class CacheManagerConstructInterceptor implements AroundInterceptor {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-
-        ((ServiceCodeAccessor)target)._$PINPOINT$_setServiceCode((String)args[1]);
+        if (target instanceof ServiceCodeAccessor) {
+            ((ServiceCodeAccessor) target)._$PINPOINT$_setServiceCode((String) args[1]);
+        }
     }
 }
