@@ -147,7 +147,7 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
 
     private void deleteUserIncludeTrace(final Trace trace) {
         if (isDebug) {
-            logger.debug("Delete user trace={}, sampled={}", trace, trace.canSampled());
+            logger.debug("Delete user include trace={}, sampled={}", trace, trace.canSampled());
         }
         traceContext.removeTraceObject();
         trace.close();

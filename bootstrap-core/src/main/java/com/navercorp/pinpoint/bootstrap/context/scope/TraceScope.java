@@ -15,8 +15,6 @@
  */
 package com.navercorp.pinpoint.bootstrap.context.scope;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
-
 /**
  * @author jaehong.kim
  */
