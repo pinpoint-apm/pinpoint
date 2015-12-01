@@ -26,6 +26,4 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 public final class UserConstants {
     private UserConstants() {
     }
-
-    public static final ServiceType USER_INCLUDE = ServiceTypeFactory.of(7010, "USER_INCLUDE");
 }
