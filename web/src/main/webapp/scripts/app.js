@@ -61,9 +61,14 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
 
 pinpointApp.value("globalConfig", {});
 
-pinpointApp.run([ '$rootScope', '$timeout', '$modal', '$location', '$cookies', '$interval', '$http', 'globalConfig',
-    function ($rootScope, $timeout, $modal, $location, $cookies, $interval, $http, globalConfig) {
+pinpointApp.run([ '$rootScope', '$window', '$timeout', '$modal', '$location', '$cookies', '$interval', '$http', 'globalConfig',
+    function ($rootScope, $window, $timeout, $modal, $location, $cookies, $interval, $http, globalConfig) {
 		$http.get('/configuration.pinpoint').then(function(result) {
+			if ( result.data.errorCode == 302 ) {
+				$window.location = result.data.redirect;
+				return;
+			}
+
 			for( var p in result.data ) {
 				globalConfig[p] = result.data[p];
 			}
