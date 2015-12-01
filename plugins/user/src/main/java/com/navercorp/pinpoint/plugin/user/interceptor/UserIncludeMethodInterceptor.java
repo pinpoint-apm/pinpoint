@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.user.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
@@ -30,7 +31,11 @@ import com.navercorp.pinpoint.plugin.user.UserIncludeMethodDescriptor;
  * @author jaehong.kim
  */
 public class UserIncludeMethodInterceptor implements AroundInterceptor {
+    // must be unique.
+    private static final String SCOPE_NAME = "##USER_INCLUDE";
     private static final UserIncludeMethodDescriptor USER_INCLUDE_METHOD_DESCRIPTOR = new UserIncludeMethodDescriptor();
+
+
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -52,12 +57,15 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
 
         Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
+            // entry point.
             trace = traceContext.newTraceObject(TraceType.USER);
             if (isDebug) {
                 logger.debug("New user trace {} and sampled {}", trace, trace.canSampled());
             }
+            // add user scope.
+            trace.addScope(SCOPE_NAME);
 
-            if(trace.canSampled()) {
+            if (trace.canSampled()) {
                 // record root span.
                 final SpanRecorder recorder = trace.getSpanRecorder();
                 recorder.recordServiceType(ServiceType.STAND_ALONE);
@@ -65,21 +73,18 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
             }
         }
 
-        if(trace.getTraceType() == TraceType.USER) {
-            // entry point in.
-            if (isDebug) {
-                logger.debug("Entry user trace. {}", trace);
-            }
-            final EntryPointChecker entryPointChecker = trace.getEntryPointChecker();
-            entryPointChecker.entry();
+        //
+        final TraceScope scope = trace.getScope(SCOPE_NAME);
+        if (scope != null) {
+            scope.tryEnter();
         }
 
         if (!trace.canSampled()) {
             return;
         }
 
+        trace.traceBlockBegin();
     }
-
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
@@ -92,23 +97,26 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
             return;
         }
 
-        if(trace.getTraceType() == TraceType.USER) {
-            if (isDebug) {
-                logger.debug("Leave user trace. {}", trace);
+        final TraceScope scope = trace.getScope(SCOPE_NAME);
+        if (scope != null) {
+            if (scope.canLeave()) {
+                scope.leave();
+            } else {
+                if (logger.isInfoEnabled()) {
+                    logger.info("Detected invalid scope={}. close and remove user trace={}, sampled={}", scope.getName(), trace, trace.canSampled());
+                }
+                trace.close();
+                traceContext.removeTraceObject();
+                return;
             }
-            final EntryPointChecker entryPointChecker = trace.getEntryPointChecker();
-            entryPointChecker.leave();
         }
 
         if (!trace.canSampled()) {
-            if (trace.getTraceType() == TraceType.USER) {
-                final EntryPointChecker entryPointChecker = trace.getEntryPointChecker();
-                if(!entryPointChecker.isNested()) {
-                    if (isDebug) {
-                        logger.debug("Remove user trace. {}", trace);
-                    }
-                    traceContext.removeTraceObject();
+            if (scope != null && !scope.isActive()) {
+                if (isDebug) {
+                    logger.debug("Remove user trace={}, sampled={}", trace, trace.canSampled());
                 }
+                traceContext.removeTraceObject();
             }
 
             return;
@@ -121,15 +129,12 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
             recorder.recordException(throwable);
         } finally {
             trace.traceBlockEnd();
-            if (trace.getTraceType() == TraceType.USER) {
-                final EntryPointChecker entryPointChecker = trace.getEntryPointChecker();
-                if(!entryPointChecker.isNested()) {
-                    if (isDebug) {
-                        logger.debug("Close and remove user trace. {}", trace);
-                    }
-                    trace.close();
-                    traceContext.removeTraceObject();
+            if (scope != null && !scope.isActive()) {
+                if (isDebug) {
+                    logger.debug("Close and remove user trace={}, sampled={}", trace, trace.canSampled());
                 }
+                trace.close();
+                traceContext.removeTraceObject();
             }
         }
     }
