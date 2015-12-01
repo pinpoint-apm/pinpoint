@@ -14,6 +14,8 @@ import java.lang.reflect.Method;
 @TargetMethod(name = "handle", paramTypes = { "org.eclipse.jetty.server.AbstractHttpConnection" })
 public class Jetty8ServerHandleInterceptor extends AbstractServerHandleInterceptor {
 
+    private volatile Method getRequestMethod;
+
     public Jetty8ServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter) {
         super(traceContext, descriptor, excludeFilter);
     }
@@ -23,7 +25,7 @@ public class Jetty8ServerHandleInterceptor extends AbstractServerHandleIntercept
         try {
             Object object = args[0];
 
-            Method getRequestMethod = getMethod(object.getClass(), "getRequest");
+            Method getRequestMethod = getGetRequestMethod(object.getClass());
             Request request = (Request) getRequestMethod.invoke(object);
             return request;
         } catch (Exception e) {
@@ -33,24 +35,26 @@ public class Jetty8ServerHandleInterceptor extends AbstractServerHandleIntercept
         return null;
     }
 
-    private Method getMethod(Class clazz, String methodName) {
-        Class targetClazz = clazz;
-
-        while (targetClazz != null) {
-            try {
-                Method method = targetClazz.getMethod(methodName);
-                if (method != null) {
-                    return method;
-                }
-
-            } catch (NoSuchMethodException e) {
-                Class superclass = targetClazz.getSuperclass();
-                if (superclass != null) {
-                    targetClazz = superclass;
-                }
-            }
+    private Method getGetRequestMethod(Class clazz) {
+        if (getRequestMethod != null) {
+            return getRequestMethod;
         }
 
+        synchronized (this) {
+            if (getRequestMethod != null) {
+                return getRequestMethod;
+            }
+
+            try {
+                Method findedMethod = clazz.getMethod("getRequest");
+                if (findedMethod != null) {
+                    getRequestMethod = findedMethod;
+                    return getRequestMethod;
+                }
+            } catch (NoSuchMethodException e) {
+                logger.warn(e.getMessage(), e);
+            }
+        }
         return null;
     };
 
