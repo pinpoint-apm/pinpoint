@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.monitor.codahale.gc;
 
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.context.TestableTransactionCounter;
 import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
 import com.navercorp.pinpoint.profiler.monitor.codahale.gc.GarbageCollector;
@@ -31,11 +33,27 @@ public class GarbageCollectorFactoryTest {
 
     @Test
     public void test() {
-        GarbageCollector collector = new AgentStatCollectorFactory(new TestableTransactionCounter()).getGarbageCollector();
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
+        GarbageCollector collector = new AgentStatCollectorFactory(new TestableTransactionCounter(), profilerConfig).getGarbageCollector();
 
         logger.debug("collector.getType():{}", collector);
         TJvmGc collect1 = collector.collect();
         logger.debug("collector.collect():{}", collect1);
+
+        TJvmGc collect2 = collector.collect();
+        logger.debug("collector.collect():{}", collect2);
+    }
+
+    @Test
+    public void testDetailedMetrics() {
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
+        profilerConfig.setProfilerJvmCollectDetailedMetrics(true);
+        GarbageCollector collector = new AgentStatCollectorFactory(new TestableTransactionCounter(), profilerConfig).getGarbageCollector();
+
+        logger.debug("collector.getType():{}", collector);
+        TJvmGc collect1 = collector.collect();
+        logger.debug("collector.collect():{}", collect1);
+
         TJvmGc collect2 = collector.collect();
         logger.debug("collector.collect():{}", collect2);
     }
