@@ -62,6 +62,7 @@ public class HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodIntercept
 
         InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
         if(invocation != null && invocation.getAttachment() != null) {
+            // TODO type check
             HttpCallContext callContext = (HttpCallContext) invocation.getAttachment();
             if(methodDescriptor.getMethodName().equals("doSendRequest")) {
                 callContext.setWriteBeginTime(System.currentTimeMillis());
@@ -85,6 +86,7 @@ public class HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodIntercept
 
         InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
         if(invocation != null && invocation.getAttachment() != null) {
+            // TODO type check
             HttpCallContext callContext = (HttpCallContext) invocation.getAttachment();
             if(methodDescriptor.getMethodName().equals("doSendRequest")) {
                 callContext.setWriteEndTime(System.currentTimeMillis());
