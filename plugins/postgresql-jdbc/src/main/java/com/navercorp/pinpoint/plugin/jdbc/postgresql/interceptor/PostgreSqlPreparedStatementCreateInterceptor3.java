@@ -39,8 +39,11 @@ public class PostgreSqlPreparedStatementCreateInterceptor3 extends SpanEventSimp
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args)  {
-        DatabaseInfo databaseInfo = (target instanceof DatabaseInfoAccessor) ? ((DatabaseInfoAccessor)target)._$PINPOINT$_getDatabaseInfo() : null;
-        
+        DatabaseInfo databaseInfo = null;
+        if (target instanceof DatabaseInfoAccessor) {
+            databaseInfo = ((DatabaseInfoAccessor)target)._$PINPOINT$_getDatabaseInfo();
+        }
+
         if (databaseInfo == null) {
             databaseInfo = UnKnownDatabaseInfo.INSTANCE;
         }

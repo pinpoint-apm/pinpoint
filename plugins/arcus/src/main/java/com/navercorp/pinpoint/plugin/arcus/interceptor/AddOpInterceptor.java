@@ -37,9 +37,11 @@ public class AddOpInterceptor implements AroundInterceptor {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
-
-        String serviceCode = ((ServiceCodeAccessor)target)._$PINPOINT$_getServiceCode();
-        ((ServiceCodeAccessor)args[1])._$PINPOINT$_setServiceCode(serviceCode);
+        final Object serviceCodeAccessor = args[1];
+        if (target instanceof ServiceCodeAccessor && serviceCodeAccessor instanceof ServiceCodeAccessor) {
+            String serviceCode = ((ServiceCodeAccessor) target)._$PINPOINT$_getServiceCode();
+            ((ServiceCodeAccessor) serviceCodeAccessor)._$PINPOINT$_setServiceCode(serviceCode);
+        }
     }
 
     @Override

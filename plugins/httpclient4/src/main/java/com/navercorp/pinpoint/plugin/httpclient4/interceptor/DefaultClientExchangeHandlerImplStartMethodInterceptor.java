@@ -152,6 +152,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
                 // set asynchronous trace
                 final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
                 recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
+                // check type isAsynchronousInvocation()
                 ((AsyncTraceIdAccessor)((ResultFutureGetter)target)._$PINPOINT$_getResultFuture())._$PINPOINT$_setAsyncTraceId(asyncTraceId);
                 if (isDebug) {
                     logger.debug("Set asyncTraceId metadata {}", asyncTraceId);

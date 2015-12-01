@@ -69,8 +69,7 @@ public class ParsingInterceptor implements AroundInterceptor {
             recorder.recordServiceType(JsonLibConstants.SERVICE_TYPE);
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
-            
-            if (args.length > 0 && args[0] instanceof String) {
+            if (args != null && args.length > 0 && args[0] instanceof String) {
                 recorder.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
             }
         } finally {
