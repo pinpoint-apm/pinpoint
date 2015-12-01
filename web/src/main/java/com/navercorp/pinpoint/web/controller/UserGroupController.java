@@ -127,7 +127,7 @@ public class UserGroupController {
     @RequestMapping(value = "/member", method = RequestMethod.POST)
     @ResponseBody
     public Map<String, String> insertUserGroupMember(@RequestBody UserGroupMember userGroupMember) {
-        if (StringUtils.isEmpty(userGroupMember.getMemberId()) || StringUtils.isEmpty(userGroupMember.getMemberId())) {
+        if (StringUtils.isEmpty(userGroupMember.getMemberId()) || StringUtils.isEmpty(userGroupMember.getUserGroupId())) {
             Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
             result.put("errorMessage", "there is not userGroupId or memberId in params to insert user group member");
