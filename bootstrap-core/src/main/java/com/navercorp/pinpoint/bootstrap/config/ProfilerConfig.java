@@ -73,6 +73,10 @@ public interface ProfilerConfig {
 
     int getProfileJvmCollectInterval();
 
+    boolean isProfilerJvmCollectDetailedMetrics();
+
+    void setProfilerJvmCollectDetailedMetrics(boolean profilerJvmCollectDetailedMetrics);
+
     long getAgentInfoSendRetryInterval();
 
     boolean isTomcatHidePinpointHeader();
