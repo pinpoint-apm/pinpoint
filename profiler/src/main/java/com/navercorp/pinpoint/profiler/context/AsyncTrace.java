@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 
 public class AsyncTrace implements Trace {
     private static final int BEGIN_STACKID = 1;
@@ -121,7 +122,12 @@ public class AsyncTrace implements Trace {
     }
 
     @Override
-    public EntryPointChecker getEntryPointChecker() {
-        return trace.getEntryPointChecker();
+    public TraceScope getScope(String name) {
+        return trace.getScope(name);
+    }
+
+    @Override
+    public TraceScope addScope(String name) {
+        return trace.addScope(name);
     }
 }

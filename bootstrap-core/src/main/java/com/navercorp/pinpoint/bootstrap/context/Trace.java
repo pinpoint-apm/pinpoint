@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.bootstrap.context;
 
 
+import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+
 /**
  * @author emeroad
  */
@@ -50,5 +52,7 @@ public interface Trace extends StackOperation {
     
     TraceType getTraceType();
 
-    EntryPointChecker getEntryPointChecker();
+    TraceScope getScope(String name);
+
+    TraceScope addScope(String name);
 }

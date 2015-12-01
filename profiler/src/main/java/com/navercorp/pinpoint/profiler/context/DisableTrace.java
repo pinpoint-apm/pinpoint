@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
 
 
 /**
@@ -32,7 +34,7 @@ public class DisableTrace implements Trace {
     private final long startTime;
     private final Thread bindThread;
     private TraceType traceType = TraceType.DEFAULT;
-    private final EntryPointChecker entryPointChecker = new EntryPointChecker();
+    private final DefaultTraceScopePool scopePool = new DefaultTraceScopePool();
     
     public DisableTrace(long id) {
         this.id = id;
@@ -135,7 +137,12 @@ public class DisableTrace implements Trace {
     }
 
     @Override
-    public EntryPointChecker getEntryPointChecker() {
-        return entryPointChecker;
+    public TraceScope getScope(String name) {
+        return scopePool.get(name);
+    }
+
+    @Override
+    public TraceScope addScope(String name) {
+        return scopePool.add(name);
     }
 }

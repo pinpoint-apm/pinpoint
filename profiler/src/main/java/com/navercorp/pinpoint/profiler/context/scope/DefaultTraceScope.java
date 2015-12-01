@@ -33,6 +33,7 @@ public class DefaultTraceScope implements TraceScope {
     }
 
     public boolean tryEnter() {
+        // policy is ALWAYS
         depth++;
         return true;
     }
@@ -50,7 +51,8 @@ public class DefaultTraceScope implements TraceScope {
             throw new IllegalStateException("Cannot leave with scope. depth: " + depth);
         }
 
-        --depth;
+        // policy is ALWAYS
+        depth--;
     }
 
     @Override

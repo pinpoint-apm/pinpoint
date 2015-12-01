@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +52,7 @@ public final class DefaultTrace implements Trace {
     private boolean closed = false;
 
     private Thread bindThread;
-    private final EntryPointChecker entryPointChecker = new EntryPointChecker();
+    private final DefaultTraceScopePool scopePool = new DefaultTraceScopePool();
 
     public DefaultTrace(final TraceContext traceContext, long transactionId, boolean sampling) {
         if (traceContext == null) {
@@ -322,12 +324,17 @@ public final class DefaultTrace implements Trace {
         return this.traceType;
     }
 
-    public void setTraceType(TraceType traceType) {
-        this.traceType = traceType;
+    @Override
+    public TraceScope getScope(String name) {
+        return scopePool.get(name);
     }
 
     @Override
-    public EntryPointChecker getEntryPointChecker() {
-        return entryPointChecker;
+    public TraceScope addScope(String name) {
+        return scopePool.add(name);
+    }
+
+    public void setTraceType(TraceType traceType) {
+        this.traceType = traceType;
     }
 }

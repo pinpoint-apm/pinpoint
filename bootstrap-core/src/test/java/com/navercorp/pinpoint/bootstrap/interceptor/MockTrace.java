@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.interceptor;
 
 
 import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.common.util.Clock;
 import com.navercorp.pinpoint.common.util.SystemClock;
 
@@ -32,8 +33,7 @@ public class MockTrace implements Trace {
     private boolean sampled = true;
 
     private Clock clock = SystemClock.INSTANCE;
-    private final EntryPointChecker entryPointChecker = new EntryPointChecker();
-        
+
     public void setClock(Clock clock) {
         this.clock = clock;
     }
@@ -136,7 +136,12 @@ public class MockTrace implements Trace {
     }
 
     @Override
-    public EntryPointChecker getEntryPointChecker() {
-        return entryPointChecker;
+    public TraceScope getScope(String name) {
+        return null;
+    }
+
+    @Override
+    public TraceScope addScope(String name) {
+        return null;
     }
 }
