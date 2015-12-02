@@ -21,7 +21,7 @@
 	            templateUrl: 'features/navbar/navbar.html?v=' + G_BUILD_TIME,
 	            link: function (scope, element) {
 	                // define private variables
-	                var $application, $fromPicker, $toPicker, oNavbarVoService;
+	                var $application, $fromPicker, $toPicker, oNavbarVoService, $fromToPopup;
 	
 	                // define private variables of methods
 	                var initialize, initializeDateTimePicker, initializeApplication, setDateTime, getQueryEndTimeFromServer,
@@ -142,11 +142,21 @@
 	                 * initialize date time picker
 	                 */
 	                initializeDateTimePicker = function () {
-	                    $fromPicker = element.find('#from-picker');
+						$fromToPopup = $("#ui-datepicker-div");
+						console.log(helpContentService.navbar.searchPeriod.guide);
+						$fromToPopup.find(".guide").html(helpContentService.navbar.searchPeriod.guide.replace(/\{\{day\}\}/, preferenceService.getMaxPeriod() ) );
+						$fromToPopup.find("button").on("click", function() {
+							$fromToPopup.hide();
+						});
+
+						$fromPicker = element.find('#from-picker');
 	                    $fromPicker.datetimepicker({
+							altField: "#from-picker-alt",
+							altFieldTimeOnly: false,
 	                        dateFormat: "yy-mm-dd",
 	                        timeFormat: "HH:mm",
 	                        controlType: "select",
+							showButtonPanel: false,
 	                        onSelect: function () {
 	                        	var momentFrom = moment(getDate($fromPicker));
 	                        	var momentTo = moment(getDate($toPicker));
@@ -168,9 +178,12 @@
 	
 	                    $toPicker = element.find('#to-picker');
 	                    $toPicker.datetimepicker({
+							altField: "#to-picker-alt",
+							altFieldTimeOnly: false,
 	                        dateFormat: "yy-mm-dd",
 	                        timeFormat: "HH:mm",
 	                        controlType: "select",
+							showButtonPanel: false,
 	                        onSelect: function () {
 	                        	var momentFrom = moment(getDate($fromPicker));
 	                        	var momentTo = moment(getDate($toPicker));
@@ -189,6 +202,19 @@
 	                        }
 	                    });
 	                    setDateTime($toPicker, oNavbarVoService.getQueryEndTime());
+
+						$("#from-picker-alt").on("click", function() {
+							$fromToPopup.toggle();
+						});
+						$("#to-picker-alt").on("click", function() {
+							$fromToPopup.toggle();
+						});
+						$(document).mousedown(function(event) {
+							if ( $fromToPopup.is(":visible") === false ) return;
+							if ( $(event.target).parents("div#ui-datepicker-div").length === 0 ) {
+								$fromToPopup.hide();
+							}
+						});
 	                };
 	
 	                getDate = function ($picker) {

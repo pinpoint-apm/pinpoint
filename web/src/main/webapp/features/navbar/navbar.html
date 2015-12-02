@@ -63,11 +63,11 @@
                                     <span class="glyphicon glyphicon-calendar"></span>
                                 </button>
                             </span>
-                            <input id="from-picker" type="text" class="form-control ">
+                            <input id="from-picker-alt" type="text" class="form-control ">
                             <span class="input-group-addon">
                                 <span class="glyphicon glyphicon-minus"></span>
                             </span>
-                            <input id="to-picker" type="text" class="form-control">
+                            <input id="to-picker-alt" type="text" class="form-control">
                             <span class="input-group-btn">
                                 <button class="btn" ng-click="search()">
                                     <span class="glyphicon glyphicon-search"></span>
@@ -84,6 +84,14 @@
     	<span class="glyphicon glyphicon-question-sign navbarTooltip" style="cursor:pointer;font-size:17px;color:#FFF;top:0px;"></span>
     	<span class="glyphicon glyphicon-cog" ng-click="showConfig()" style="cursor:pointer;font-size:17px;color:#FFF;padding-left:8px;top:0px;"></span>
    		<a href="https://github.com/naver/pinpoint" target="_blank"><i class="xi-github" style="color:#FFF;padding-left:6px;font-size:22px;"></i></a>
+    </div>
+    <div id="ui-datepicker-div">
+        <div id="from-picker"></div>
+        <div id="to-picker" ></div>
+        <div class="guide"></div>
+        <div class="ui-datepicker-buttonpane" style="text-align:right;font-weight:bold">
+            <button type="button" class="ui-datepicker-close ui-state-default ui-priority-primary ui-corner-all">Done</button>
+        </div>
     </div>
 </div>
 
