@@ -205,7 +205,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             recorder.recordException(throwable);
 
             InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-            if (invocation != null && invocation.getAttachment() != null) {
+            if (invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof HttpClient3CallContext) {
                 final HttpClient3CallContext callContext = (HttpClient3CallContext) invocation.getAttachment();
                 logger.debug("Check call context {}", callContext);
                 if (io) {

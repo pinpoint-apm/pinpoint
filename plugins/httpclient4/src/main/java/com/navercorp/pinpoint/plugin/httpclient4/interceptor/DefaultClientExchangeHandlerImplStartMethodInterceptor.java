@@ -213,8 +213,10 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
             final HttpRequest httpRequest = getHttpRequest(target);
             if (httpRequest != null) {
                 // Accessing httpRequest here not BEFORE() because it can cause side effect.
-                final String httpUrl = InterceptorUtils.getHttpUrl(httpRequest.getRequestLine().getUri(), param);
-                recorder.recordAttribute(AnnotationKey.HTTP_URL, httpUrl);
+                if(httpRequest.getRequestLine() != null) {
+                    final String httpUrl = InterceptorUtils.getHttpUrl(httpRequest.getRequestLine().getUri(), param);
+                    recorder.recordAttribute(AnnotationKey.HTTP_URL, httpUrl);
+                }
                 final NameIntValuePair<String> host = getHost(target);
                 if (host != null) {
                     final String endpoint = getEndpoint(host.getName(), host.getValue());
@@ -236,8 +238,11 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
 
         final HttpAsyncRequestProducer producer = ((RequestProducerGetter)target)._$PINPOINT$_getRequestProducer();
         final HttpHost httpHost = producer.getTarget();
-
-        return new NameIntValuePair<String>(httpHost.getHostName(), httpHost.getPort());
+        if(httpHost != null) {
+            return new NameIntValuePair<String>(httpHost.getHostName(), httpHost.getPort());
+        } else {
+            return null;
+        }
     }
 
     private String getEndpoint(String host, int port) {

@@ -21,7 +21,7 @@ package com.navercorp.pinpoint.plugin.httpclient4;
  */
 public class HttpCallContext {
     private int statusCode;
-    private String host;
+    private String host = "";
     private int port;
 
     private long readBeginTime;

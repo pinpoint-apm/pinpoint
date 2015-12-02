@@ -70,16 +70,17 @@ public class HttpClientExecuteMethodInternalInterceptor implements AroundInterce
             return;
         }
 
-        if (result instanceof HttpResponse) {
+        if (result != null && result instanceof HttpResponse) {
             HttpResponse response = (HttpResponse) result;
-
             if (response.getStatusLine() != null) {
                 HttpCallContext context = new HttpCallContext();
                 final StatusLine statusLine = response.getStatusLine();
                 if (statusLine != null) {
                     context.setStatusCode(statusLine.getStatusCode());
                     InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
-                    transaction.setAttachment(context);
+                    if(transaction != null && transaction.getAttachment() == null) {
+                        transaction.setAttachment(context);
+                    }
                 }
             }
         }
@@ -101,7 +102,7 @@ public class HttpClientExecuteMethodInternalInterceptor implements AroundInterce
 //        }
 
         InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
-        if (transaction.getAttachment() != null) {
+        if (transaction != null && transaction.getAttachment() != null && transaction.getAttachment() instanceof HttpCallContext) {
             return false;
         }
 
