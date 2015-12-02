@@ -88,7 +88,7 @@ public class TestContext implements Closeable {
     @Override
     public void close() throws IOException {
         if (mockAgent != null) {
-            mockAgent.stop();
+            mockAgent.stop(true);
         }
         PLoggerFactory.unregister(loggerBinder);
     }

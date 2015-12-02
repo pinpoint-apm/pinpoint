@@ -390,6 +390,10 @@ public class DefaultAgent implements Agent {
 
     @Override
     public void stop() {
+        stop(false);
+    }
+
+    public void stop(boolean staticResourceCleanup) {
         synchronized (this) {
             if (this.agentStatus == AgentStatus.RUNNING) {
                 changeStatus(AgentStatus.STOPPED);
@@ -408,9 +412,11 @@ public class DefaultAgent implements Agent {
         this.statDataSender.stop();
 
         closeTcpDataSender();
-
-        PLoggerFactory.unregister(this.binder);
-        this.interceptorRegistryBinder.unbind();
+        // for testcase
+        if (staticResourceCleanup) {
+            PLoggerFactory.unregister(this.binder);
+            this.interceptorRegistryBinder.unbind();
+        }
     }
 
     private void closeTcpDataSender() {
