@@ -173,8 +173,8 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
     }
 
     private NameIntValuePair<String> getHost() {
-        InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
-        if (transaction != null && transaction.getAttachment() != null) {
+        final InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
+        if (transaction != null && transaction.getAttachment() != null && transaction.getAttachment() instanceof  HttpCallContext) {
             HttpCallContext callContext = (HttpCallContext) transaction.getAttachment();
             return new NameIntValuePair<String>(callContext.getHost(), callContext.getPort());
         }
@@ -198,8 +198,10 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
             final HttpRequest httpRequest = getHttpRequest(args);
             if (httpRequest != null) {
                 // Accessing httpRequest here not BEFORE() because it can cause side effect.
-                final String httpUrl = InterceptorUtils.getHttpUrl(httpRequest.getRequestLine().getUri(), param);
-                recorder.recordAttribute(AnnotationKey.HTTP_URL, httpUrl);
+                if(httpRequest.getRequestLine() != null) {
+                    final String httpUrl = InterceptorUtils.getHttpUrl(httpRequest.getRequestLine().getUri(), param);
+                    recorder.recordAttribute(AnnotationKey.HTTP_URL, httpUrl);
+                }
                 final NameIntValuePair<String> host = getHost();
                 if (host != null) {
                     final String endpoint = getEndpoint(host.getName(), host.getValue());
@@ -219,8 +221,8 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
             recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);
 
-            InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-            if (invocation != null && invocation.getAttachment() != null) {
+            final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
+            if (invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof  HttpCallContext) {
                 final HttpCallContext callContext = (HttpCallContext) invocation.getAttachment();
                 logger.debug("Check call context {}", callContext);
                 if (io) {
@@ -249,7 +251,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
     }
 
     Integer getStatusCodeFromResponse(Object result) {
-        if (result instanceof HttpResponse) {
+        if (result != null && result instanceof HttpResponse) {
             HttpResponse response = (HttpResponse) result;
 
             final StatusLine statusLine = response.getStatusLine();

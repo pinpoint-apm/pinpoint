@@ -67,7 +67,7 @@ public class HttpClientExecuteMethodWithHttpUriRequestInterceptor extends Abstra
 
     private HttpUriRequest getHttpUriRequest(Object[] args) {
         final Object arg = args[HTTP_URI_REQUEST_INDEX];
-        if (arg instanceof HttpUriRequest) {
+        if (arg != null && arg instanceof HttpUriRequest) {
             return (HttpUriRequest) arg;
         }
         return null;

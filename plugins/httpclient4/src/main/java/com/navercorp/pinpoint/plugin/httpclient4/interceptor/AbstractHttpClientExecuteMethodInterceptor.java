@@ -108,7 +108,6 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Arou
         if (host != null) {
             final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
             if (invocation != null) {
-
                 final HttpCallContext callContext = (HttpCallContext) invocation.getOrCreateAttachment(HttpCallContextFactory.HTTPCALL_CONTEXT_FACTORY);
                 callContext.setHost(host.getName());
                 callContext.setPort(host.getValue());

@@ -52,7 +52,7 @@ public class HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodIntercept
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
-            logger.beforeInterceptor(target, methodDescriptor.getClassName(), methodDescriptor.getMethodName(), "", args);
+            logger.beforeInterceptor(target, args);
         }
 
         final Trace trace = traceContext.currentTraceObject();
@@ -60,23 +60,24 @@ public class HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodIntercept
             return;
         }
 
-        InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-        if(invocation != null && invocation.getAttachment() != null) {
-            // TODO type check
+        final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
+        if(invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof HttpCallContext) {
             HttpCallContext callContext = (HttpCallContext) invocation.getAttachment();
             if(methodDescriptor.getMethodName().equals("doSendRequest")) {
                 callContext.setWriteBeginTime(System.currentTimeMillis());
             } else {
                 callContext.setReadBeginTime(System.currentTimeMillis());
             }
-            logger.debug("Set call context {}", callContext);
+            if(isDebug) {
+                logger.debug("Set call context {}", callContext);
+            }
         }
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
-            logger.afterInterceptor(target, methodDescriptor.getClassName(), methodDescriptor.getMethodName(), "", args, result, throwable);
+            logger.afterInterceptor(target, args);
         }
 
         final Trace trace = traceContext.currentTraceObject();
@@ -84,9 +85,8 @@ public class HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodIntercept
             return;
         }
 
-        InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-        if(invocation != null && invocation.getAttachment() != null) {
-            // TODO type check
+        final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
+        if(invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof HttpCallContext) {
             HttpCallContext callContext = (HttpCallContext) invocation.getAttachment();
             if(methodDescriptor.getMethodName().equals("doSendRequest")) {
                 callContext.setWriteEndTime(System.currentTimeMillis());
@@ -95,7 +95,9 @@ public class HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodIntercept
                 callContext.setReadEndTime(System.currentTimeMillis());
                 callContext.setReadFail(throwable != null);
             }
-            logger.debug("Set call context {}", callContext);
+            if(isDebug) {
+                logger.debug("Set call context {}", callContext);
+            }
         }
     }
 }

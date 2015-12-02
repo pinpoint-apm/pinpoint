@@ -61,7 +61,7 @@ public class HttpMethodBaseRequestAndResponseMethodInterceptor implements Around
         }
 
         InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-        if(invocation != null && invocation.getAttachment() != null) {
+        if(invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof HttpClient3CallContext) {
             HttpClient3CallContext callContext = (HttpClient3CallContext) invocation.getAttachment();
             if(methodDescriptor.getMethodName().equals("writeRequest")) {
                 callContext.setWriteBeginTime(System.currentTimeMillis());
@@ -84,7 +84,7 @@ public class HttpMethodBaseRequestAndResponseMethodInterceptor implements Around
         }
 
         InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-        if(invocation != null && invocation.getAttachment() != null) {
+        if(invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof HttpClient3CallContext) {
             HttpClient3CallContext callContext = (HttpClient3CallContext) invocation.getAttachment();
             if(methodDescriptor.getMethodName().equals("writeRequest")) {
                 callContext.setWriteEndTime(System.currentTimeMillis());
