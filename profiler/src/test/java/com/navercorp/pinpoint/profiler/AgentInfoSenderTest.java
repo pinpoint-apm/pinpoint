@@ -149,8 +149,8 @@ public class AgentInfoSenderTest {
         final AtomicInteger successServerRequestCount = new AtomicInteger();
         final AtomicInteger failServerRequestCount = new AtomicInteger();
         final AtomicInteger successCount = new AtomicInteger();
-        final long agentInfoSendRetryIntervalMs = 100L;
-        final long agentInfoSendRefreshIntervalMs = 1000L;
+        final long agentInfoSendRetryIntervalMs = 1000L;
+        final long agentInfoSendRefreshIntervalMs = 5000L;
         final int expectedSuccessServerTries = 1;
         final int expectedFailServerTries = AgentInfoSender.DEFAULT_MAX_TRY_COUNT_PER_ATTEMPT;
         final CountDownLatch agentReconnectLatch = new CountDownLatch(1);
@@ -181,11 +181,12 @@ public class AgentInfoSenderTest {
                 Thread.sleep(agentInfoSendRetryIntervalMs);
             }
             successServerAcceptor.close();
+            Thread.sleep(agentInfoSendRetryIntervalMs * AgentInfoSender.DEFAULT_MAX_TRY_COUNT_PER_ATTEMPT);
             failServerAcceptor = createServerAcceptor(failServerListener);
             // wait till agent reconnects
             agentReconnectLatch.await();
             while (failServerRequestCount.get() < expectedFailServerTries) {
-                Thread.sleep(agentInfoSendRefreshIntervalMs);
+                Thread.sleep(agentInfoSendRetryIntervalMs * AgentInfoSender.DEFAULT_MAX_TRY_COUNT_PER_ATTEMPT);
             }
             failServerAcceptor.close();
         } finally {
