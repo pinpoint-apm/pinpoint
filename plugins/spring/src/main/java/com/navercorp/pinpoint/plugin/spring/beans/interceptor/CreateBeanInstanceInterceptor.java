@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.spring.beans.interceptor;
 
-import java.lang.reflect.Method;
-
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor1;
@@ -25,14 +23,17 @@ import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
+import java.lang.reflect.Method;
+
 /**
- * 
  * @author Jongho Moon <jongho.moon@navercorp.com>
- *
+ * @Author Taejin Koo
  */
 public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInterceptor implements AroundInterceptor1 {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
-    
+
+    private volatile Method getWrappedInstanceMethod;
+
     public CreateBeanInstanceInterceptor(Instrumentor instrumentor, TransformCallback transformer, TargetBeanFilter filter) {
         super(instrumentor, transformer, filter);
     }
@@ -57,16 +58,36 @@ public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInt
 
             Object bean;
             try {
-                Method getter = result.getClass().getMethod("getWrappedInstance"); 
-                bean = getter.invoke(result);
+                Method getWrappedInstanceMethod = getGetWrappedInstanceMethod(result);
+                bean = getWrappedInstanceMethod.invoke(result);
             } catch (Exception e) {
                 logger.warn("Fail to get create bean instance", e);
                 return;
             }
-            
+
             processBean(beanName, bean);
         } catch (Throwable t) {
             logger.warn("Unexpected exception", t);
         }
     }
+
+    private Method getGetWrappedInstanceMethod(Object object) throws NoSuchMethodException {
+        if (getWrappedInstanceMethod != null) {
+            return getWrappedInstanceMethod;
+        }
+
+        synchronized (this) {
+            if (getWrappedInstanceMethod != null) {
+                return getWrappedInstanceMethod;
+            }
+
+            Method findedMethod = object.getClass().getMethod("getWrappedInstance");
+            if (findedMethod != null) {
+                getWrappedInstanceMethod = findedMethod;
+                return getWrappedInstanceMethod;
+            }
+        }
+        return null;
+    }
+
 }
