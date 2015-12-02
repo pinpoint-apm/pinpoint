@@ -26,7 +26,7 @@ public final class InterceptorRegistry {
 
     private static final Locker LOCK = new DefaultLocker();
 
-    private static InterceptorRegistryAdaptor REGISTRY;
+    private static InterceptorRegistryAdaptor REGISTRY = EmptyRegistryAdaptor.EMPTY;
 
     public static void bind(final InterceptorRegistryAdaptor interceptorRegistryAdaptor, final Object lock) {
         if (interceptorRegistryAdaptor == null) {
@@ -42,7 +42,7 @@ public final class InterceptorRegistry {
 
     public static void unbind(final Object lock) {
         if (LOCK.unlock(lock)) {
-            REGISTRY = null;
+            REGISTRY = EmptyRegistryAdaptor.EMPTY;
         } else {
             throw new IllegalStateException("unbind failed.");
         }
