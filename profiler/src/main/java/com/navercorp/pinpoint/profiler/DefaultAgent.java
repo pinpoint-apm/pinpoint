@@ -116,7 +116,20 @@ public class DefaultAgent implements Agent {
         ClassPreLoader.preload();
     }
     public DefaultAgent(AgentOption agentOption) {
-        this(agentOption, new DefaultInterceptorRegistryBinder());
+        this(agentOption, createInterceptorRegistry(agentOption));
+    }
+
+    public static InterceptorRegistryBinder createInterceptorRegistry(AgentOption agentOption) {
+        final int interceptorSize = getInterceptorSize(agentOption);
+        return new DefaultInterceptorRegistryBinder(interceptorSize);
+    }
+
+    private static int getInterceptorSize(AgentOption agentOption) {
+        if (agentOption == null) {
+            return DefaultInterceptorRegistryBinder.DEFAULT_MAX;
+        }
+        final ProfilerConfig profilerConfig = agentOption.getProfilerConfig();
+        return profilerConfig.getInterceptorRegistrySize();
     }
 
     public DefaultAgent(AgentOption agentOption, final InterceptorRegistryBinder interceptorRegistryBinder) {

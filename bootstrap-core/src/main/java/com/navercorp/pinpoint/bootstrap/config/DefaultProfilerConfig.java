@@ -82,6 +82,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private boolean profileEnable = false;
 
+    private int interceptorRegistrySize = 1024*8;
+
     private String collectorSpanServerIp = DEFAULT_IP;
     private int collectorSpanServerPort = 9996;
 
@@ -188,6 +190,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         }
         this.properties = properties;
         readPropertyValues();
+    }
+
+    @Override
+    public int getInterceptorRegistrySize() {
+        return interceptorRegistrySize;
     }
 
     @Override
@@ -531,6 +538,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         this.profileEnable = readBoolean("profiler.enable", true);
 
+        this.interceptorRegistrySize = readInt("profiler.interceptorregistry.size", 1024*8);
 
         this.collectorSpanServerIp = readString("profiler.collector.span.ip", DEFAULT_IP, placeHolderResolver);
         this.collectorSpanServerPort = readInt("profiler.collector.span.port", 9996);
@@ -746,6 +754,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         StringBuilder builder = new StringBuilder();
         builder.append("{properties=");
         builder.append(properties);
+        builder.append(", interceptorRegistrySize=");
+        builder.append(interceptorRegistrySize);
         builder.append(", propertyPlaceholderHelper=");
         builder.append(propertyPlaceholderHelper);
         builder.append(", profileEnable=");

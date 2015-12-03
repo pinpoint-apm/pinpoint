@@ -23,6 +23,8 @@ import java.util.List;
  * @author Woonduk Kang(emeroad)
  */
 public interface ProfilerConfig {
+    int getInterceptorRegistrySize();
+
     String getCollectorSpanServerIp();
 
     int getCollectorSpanServerPort();

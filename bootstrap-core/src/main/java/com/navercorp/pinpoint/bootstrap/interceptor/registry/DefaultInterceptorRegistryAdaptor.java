@@ -11,7 +11,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.LoggingInterceptor;
 public final class DefaultInterceptorRegistryAdaptor implements InterceptorRegistryAdaptor {
     private static final LoggingInterceptor LOGGING_INTERCEPTOR = new LoggingInterceptor("com.navercorp.pinpoint.profiler.interceptor.LOGGING_INTERCEPTOR");
 
-    private final static int DEFAULT_MAX = 4096;
+    private final static int DEFAULT_MAX = 8192;
     private final int registrySize;
 
     private final AtomicInteger id = new AtomicInteger(0);
