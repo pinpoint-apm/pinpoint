@@ -21,13 +21,14 @@
 	            templateUrl: 'features/navbar/navbar.html?v=' + G_BUILD_TIME,
 	            link: function (scope, element) {
 	                // define private variables
-	                var $application, $fromPicker, $toPicker, oNavbarVoService, $fromToPopup;
+	                var $application, $fromPicker, $toPicker, oNavbarVoService, $fromToCalendarPopup;
 	
 	                // define private variables of methods
 	                var initialize, initializeDateTimePicker, initializeApplication, setDateTime, getQueryEndTimeFromServer,
 	                    broadcast, getApplicationList, getQueryStartTime, getQueryEndTime, parseApplicationList, emitAsChanged,
 	                    initializeWithStaticApplication, getPeriodType, setPeriodTypeAsCurrent, getDate, startUpdate,
-	                    resetTimeLeft, getRangeFromStorage, setRangeToStorage, getMilliSecondByReadablePeriod, movePeriod, selectPeriod;
+	                    resetTimeLeft, getRangeFromStorage, setRangeToStorage, getMilliSecondByReadablePeriod, movePeriod, selectPeriod,
+						toggleCalendarPopup;
 	
 	                var applicationResource;
 	                /**
@@ -142,11 +143,10 @@
 	                 * initialize date time picker
 	                 */
 	                initializeDateTimePicker = function () {
-						$fromToPopup = $("#ui-datepicker-div");
-						console.log(helpContentService.navbar.searchPeriod.guide);
-						$fromToPopup.find(".guide").html(helpContentService.navbar.searchPeriod.guide.replace(/\{\{day\}\}/, preferenceService.getMaxPeriod() ) );
-						$fromToPopup.find("button").on("click", function() {
-							$fromToPopup.hide();
+						$fromToCalendarPopup = $("#ui-datepicker-div");
+						$fromToCalendarPopup.find(".guide").html(helpContentService.navbar.searchPeriod.guide.replace(/\{\{day\}\}/, preferenceService.getMaxPeriod() ) );
+						$fromToCalendarPopup.find("button.ui-datepicker-close").on("click", function() {
+							$fromToCalendarPopup.hide();
 						});
 
 						$fromPicker = element.find('#from-picker');
@@ -204,18 +204,27 @@
 	                    setDateTime($toPicker, oNavbarVoService.getQueryEndTime());
 
 						$("#from-picker-alt").on("click", function() {
-							$fromToPopup.toggle();
+							toggleCalendarPopup();
 						});
 						$("#to-picker-alt").on("click", function() {
-							$fromToPopup.toggle();
+							toggleCalendarPopup();
 						});
 						$(document).mousedown(function(event) {
-							if ( $fromToPopup.is(":visible") === false ) return;
+							if ( $fromToCalendarPopup.is(":visible") === false ) return;
 							if ( $(event.target).parents("div#ui-datepicker-div").length === 0 ) {
-								$fromToPopup.hide();
+								$fromToCalendarPopup.hide();
 							}
 						});
 	                };
+
+					toggleCalendarPopup = function() {
+						if ( $fromToCalendarPopup.is(":visible") ) {
+							$fromToCalendarPopup.hide();
+						} else {
+							$fromToCalendarPopup.css("left", $("#navbar_period").offset().left );
+							$fromToCalendarPopup.show();
+						}
+					}
 	
 	                getDate = function ($picker) {
 	                    return $picker.datetimepicker('getDate');
@@ -542,6 +551,9 @@
 	                resetTimeLeft = function () {
 	                    scope.timeLeft = scope.timeCountDown;
 	                };
+					scope.setPeriodForCalendar = function(period) {
+						console.log(" >", period );
+					};
 	
 	                /**
 	                 * set auto update time
