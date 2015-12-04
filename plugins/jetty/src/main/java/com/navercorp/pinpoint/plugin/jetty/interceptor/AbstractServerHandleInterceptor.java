@@ -108,7 +108,6 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
             if (trace.canSampled()) {
                 SpanRecorder recorder = trace.getSpanRecorder();
                 recordRootSpan(recorder, request);
-                setTraceMetadata(request, trace);
                 if (isDebug) {
                     logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, request.getRequestURI(), request.getRemoteAddr());
                 }
@@ -123,7 +122,6 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
             if (trace.canSampled()) {
                 SpanRecorder recorder = trace.getSpanRecorder();
                 recordRootSpan(recorder, request);
-                setTraceMetadata(request, trace);
                 if (isDebug) {
                     logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
                 }
@@ -179,12 +177,6 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
             logger.debug("SamplingFlag:{}", samplingFlag);
         }
         return SamplingFlagUtils.isSamplingFlag(samplingFlag);
-    }
-
-    private void setTraceMetadata(final Request request, final Trace trace) {
-        if (request instanceof TraceAccessor) {
-            ((TraceAccessor)request)._$PINPOINT$_setTrace(trace);            
-        }
     }
 
     private String getRequestParameter(Request request, int eachLimit, int totalLimit) {
@@ -272,8 +264,5 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
     private void deleteTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
         trace.traceBlockEnd();
         trace.close();
-        final Request request = getRequest(args);
-        setTraceMetadata(request, null);
     }
-
 }

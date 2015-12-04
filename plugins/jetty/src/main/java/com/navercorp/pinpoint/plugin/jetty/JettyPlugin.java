@@ -39,7 +39,6 @@ public class JettyPlugin implements ProfilerPlugin, TransformTemplateAware {
         JettyConfiguration config = new JettyConfiguration(context.getConfig());
         
         addServerInterceptor(config);
-        addRequestEditor();
     }
 
     private void addServerInterceptor(final JettyConfiguration config){
@@ -63,11 +62,6 @@ public class JettyPlugin implements ProfilerPlugin, TransformTemplateAware {
                 return target.toBytecode();
             };
         });
-    }
-
-    private void addRequestEditor() {
-        final TransformCallback transformCallback = TransformUtils.addField("com.navercorp.pinpoint.plugin.jetty.interceptor.TraceAccessor");
-        transformTemplate.transform("org.eclipse.jetty.server.Request", transformCallback);
     }
 
     @Override
