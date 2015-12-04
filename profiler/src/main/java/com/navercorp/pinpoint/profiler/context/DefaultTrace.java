@@ -204,7 +204,6 @@ public final class DefaultTrace implements Trace {
             logSpan(span);
         }
 
-        // If the stack is not handled properly, NullPointerException will be thrown AFTER this. Is it OK?
         if (this.storage != null) {
             this.storage.close();
             this.storage = null;
@@ -262,7 +261,9 @@ public final class DefaultTrace implements Trace {
             final Thread th = Thread.currentThread();
             logger.trace("[DefaultTrace] Write {} thread{id={}, name={}}", spanEvent, th.getId(), th.getName());
         }
-        this.storage.store(spanEvent);
+        if(this.storage != null) {
+            this.storage.store(spanEvent);
+        }
     }
 
     private void logSpan(Span span) {
@@ -270,7 +271,9 @@ public final class DefaultTrace implements Trace {
             final Thread th = Thread.currentThread();
             logger.trace("[DefaultTrace] Write {} thread{id={}, name={}}", span, th.getId(), th.getName());
         }
-        this.storage.store(span);
+        if(this.storage != null) {
+            this.storage.store(span);
+        }
     }
 
     @Override

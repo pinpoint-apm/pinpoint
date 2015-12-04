@@ -30,7 +30,5 @@ public final class RedisConstants {
     }
 
     public static final ServiceType REDIS = ServiceTypeFactory.of(8200, "REDIS", TERMINAL, RECORD_STATISTICS);
-    public static final String METADATA_END_POINT = "com.navercorp.pinpoint.plugin.redis.EndPointAccessor";
-    
     public static final String REDIS_SCOPE = "redisScope";
 }

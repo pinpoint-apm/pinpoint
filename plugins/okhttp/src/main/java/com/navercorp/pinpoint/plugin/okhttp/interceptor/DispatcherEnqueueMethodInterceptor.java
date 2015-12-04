@@ -78,7 +78,7 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
     }
 
     private boolean validate(Object[] args) {
-        if (args == null || args.length < 1 || !(args[0] instanceof AsyncTraceIdAccessor)) {
+        if (args == null || args.length < 1 || args[0] == null || !(args[0] instanceof AsyncTraceIdAccessor)) {
             logger.debug("Invalid args[0] object {}. Need field accessor({}).", args, AsyncTraceIdAccessor.class.getName());
             return false;
         }

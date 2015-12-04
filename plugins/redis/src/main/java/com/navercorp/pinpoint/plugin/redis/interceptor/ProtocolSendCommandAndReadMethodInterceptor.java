@@ -63,7 +63,7 @@ public class ProtocolSendCommandAndReadMethodInterceptor implements AroundInterc
 
         try {
             final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-            if (invocation != null && invocation.getAttachment() != null) {
+            if (invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof CommandContext) {
                 final CommandContext commandContext = (CommandContext) invocation.getAttachment();
                 if (methodDescriptor.getMethodName().equals("sendCommand")) {
                     commandContext.setWriteBeginTime(System.currentTimeMillis());
@@ -90,7 +90,7 @@ public class ProtocolSendCommandAndReadMethodInterceptor implements AroundInterc
 
         try {
             final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-            if (invocation != null && invocation.getAttachment() != null) {
+            if (invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof CommandContext) {
                 final CommandContext commandContext = (CommandContext) invocation.getAttachment();
                 if (methodDescriptor.getMethodName().equals("sendCommand")) {
                     commandContext.setWriteEndTime(System.currentTimeMillis());

@@ -64,7 +64,7 @@ public class JedisPipelineMethodInterceptor extends SpanEventSimpleAroundInterce
         }
 
         final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-        if (invocation != null && invocation.getAttachment() != null) {
+        if (invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof CommandContext) {
             final CommandContext commandContext = (CommandContext) invocation.getAttachment();
             logger.debug("Check command context {}", commandContext);
             if (io) {

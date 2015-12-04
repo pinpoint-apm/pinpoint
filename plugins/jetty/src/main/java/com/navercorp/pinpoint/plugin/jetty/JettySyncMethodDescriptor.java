@@ -69,7 +69,7 @@ public class JettySyncMethodDescriptor implements MethodDescriptor{
 
     @Override
     public String getApiDescriptor() {
-        return "Jetty Servlet Sync Process";
+        return "Jetty Servlet Process";
     }
 
     public int getType() {

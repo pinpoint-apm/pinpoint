@@ -69,12 +69,12 @@ public abstract class JedisClientMetadataAttchInterceptor implements AroundInter
         }
 
         if (!(args[0] instanceof EndPointAccessor)) {
-            logger.debug("Invalid args[0] object. Need field accessor({}).", RedisConstants.METADATA_END_POINT);
+            logger.debug("Invalid args[0] object. Need field accessor({}).", EndPointAccessor.class.getName());
             return false;
         }
 
         if (!(target instanceof EndPointAccessor)) {
-            logger.debug("Invalid target object. Need field accessor({}).", RedisConstants.METADATA_END_POINT);
+            logger.debug("Invalid target object. Need field accessor({}).", EndPointAccessor.class.getName());
             return false;
         }
 
