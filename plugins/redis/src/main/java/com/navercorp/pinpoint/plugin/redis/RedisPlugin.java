@@ -64,7 +64,7 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             @Override
             public void handle(InstrumentClass target) throws InstrumentException {
-                target.addField(RedisConstants.METADATA_END_POINT);
+                target.addField(EndPointAccessor.class.getName());
             }
         });
 
@@ -129,7 +129,7 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(RedisConstants.METADATA_END_POINT);
+                target.addField(EndPointAccessor.class.getName());
 
                 final InstrumentMethod constructorEditorBuilderArg1 = target.getConstructor("java.lang.String");
                 if (constructorEditorBuilderArg1 != null) {
@@ -174,7 +174,7 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             @Override
             public void handle(InstrumentClass target) throws InstrumentException {
-                target.addField(RedisConstants.METADATA_END_POINT);
+                target.addField(EndPointAccessor.class.getName());
 
                 final InstrumentMethod setClientMethodEditorBuilder = target.getDeclaredMethod("setClient", "redis.clients.jedis.Client");
                 if (setClientMethodEditorBuilder != null) {

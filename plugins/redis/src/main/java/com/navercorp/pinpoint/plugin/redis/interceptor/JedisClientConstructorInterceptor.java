@@ -54,7 +54,7 @@ public class JedisClientConstructorInterceptor implements AroundInterceptor {
             endPoint.append(args[0]);
 
             // second argument is port
-            if (args.length >= 2 && args[1] instanceof Integer) {
+            if (args.length >= 2 && args[1] != null && args[1] instanceof Integer) {
                 endPoint.append(":").append(args[1]);
             } else {
                 // set default port
@@ -78,7 +78,7 @@ public class JedisClientConstructorInterceptor implements AroundInterceptor {
         }
 
         if (!(target instanceof EndPointAccessor)) {
-            logger.debug("Invalid target object. Need field accessor({}).", RedisConstants.METADATA_END_POINT);
+            logger.debug("Invalid target object. Need field accessor({}).", EndPointAccessor.class.getName());
             return false;
         }
 
