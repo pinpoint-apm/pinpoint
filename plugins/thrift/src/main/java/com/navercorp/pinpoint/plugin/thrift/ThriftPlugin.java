@@ -54,17 +54,23 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
         ThriftPluginConfig config = new ThriftPluginConfig(context.getConfig());
 
         boolean traceClient = config.traceThriftClient();
+        boolean traceClientAsync = config.traceThriftClientAsync();
         boolean traceProcessor = config.traceThriftProcessor();
+        boolean traceProcessorAsync = config.traceThriftProcessorAsync();
         boolean traceCommon = traceClient || traceProcessor;
 
         if (traceClient) {
             addInterceptorsForSynchronousClients(config);
-            addInterceptorsForAsynchronousClients();
+            if (traceClientAsync) {
+                addInterceptorsForAsynchronousClients();
+            }
         }
 
         if (traceProcessor) {
             addInterceptorsForSynchronousProcessors();
-            addInterceptorsForAsynchronousProcessors();
+            if (traceProcessorAsync) {
+                addInterceptorsForAsynchronousProcessors();
+            }
         }
 
         if (traceCommon) {
