@@ -466,12 +466,13 @@
 	            		if ( oError.code === cfg.responseCode.TIMEOUT ) {
 		            		if ( timeoutCount < oOuterOption.timeoutMaxCount ) {
 		            			passingQueue.push( chartDataQueue[chartDataQueue.length - 1] );
-		            			//checkSleeping();
 		            		} else {
+								delayCount = 0;
 		            			setErrorMessage( true, oError.message.split("_") );
 		            		}
 		            		timeoutCount++;
 	            		} else {
+							delayCount = 0;
 	            			setErrorMessage( oError.code !== cfg.responseCode.ERROR_BLACK, oError.message.split("_") );
 	            		}
 	            		
