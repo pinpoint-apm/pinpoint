@@ -384,16 +384,19 @@
             	        
             	        d3totalLabel.text(subSum);
             	    }
+					function initDelayCount() {
+						delayCount = 0;
+					}
             	    function tick() {
             	        d3transition = d3transition.each(function() {
             	        	delayCount++;
             	            if ( passingQueue.length === 0 ) {
-            	            	if ( delayCount > cfg.consts.maxDealyCount ) {
+            	            	if ( delayCount > cfg.consts.maxDealyCount && oOuterOption.showExtraInfo == false ) {
             	            		setErrorMessage( false, [cfg.message.NO_RESPONSE]);
             	            	}
             	            	return;
             	            }
-            	            delayCount = 0;
+							initDelayCount();
 
             	            var aNewData = passingQueue.shift();
 							resetLabelData( aNewData );
@@ -467,12 +470,12 @@
 		            		if ( timeoutCount < oOuterOption.timeoutMaxCount ) {
 		            			passingQueue.push( chartDataQueue[chartDataQueue.length - 1] );
 		            		} else {
-								delayCount = 0;
+								initDelayCount();
 		            			setErrorMessage( true, oError.message.split("_") );
 		            		}
 		            		timeoutCount++;
 	            		} else {
-							delayCount = 0;
+							initDelayCount();
 	            			setErrorMessage( oError.code !== cfg.responseCode.ERROR_BLACK, oError.message.split("_") );
 	            		}
 	            		
