@@ -28,6 +28,15 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
+/**
+ * This modifier support slf4j 1.4.1 version and logback 0.9.8 version, or greater.
+ * Because package name of MDC class is different on under those version 
+ * and under those version is too old.
+ * By the way slf4j 1.4.0 version release on May 2007.
+ * Refer to url http://mvnrepository.com/artifact/org.slf4j/slf4j-api for detail.
+ * 
+ * @author minwoo.jung
+ */
 public class LogbackPlugin implements ProfilerPlugin, TransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
 
@@ -42,20 +51,30 @@ public class LogbackPlugin implements ProfilerPlugin, TransformTemplateAware {
                 InstrumentClass mdcClass = instrumentor.getInstrumentClass(loader, "org.slf4j.MDC", null);
                 
                 if (mdcClass == null) {
-                    logger.warn("modify fail. Because org.slf4j.MDC does not exist.");
+                    logger.warn("Can not modify. Because org.slf4j.MDC does not exist.");
                     return null;
                 }
                 
                 if (!mdcClass.hasMethod("put", "java.lang.String", "java.lang.String")) {
-                    logger.warn("modify fail. Because put method does not exist at org.slf4j.MDC class.");
+                    logger.warn("Can not modify. Because put method does not exist at org.slf4j.MDC class.");
                     return null;
                 }
                 if (!mdcClass.hasMethod("remove", "java.lang.String")) {
-                    logger.warn("modify fail. Because remove method does not exist at org.slf4j.MDC class.");
+                    logger.warn("Can not modify. Because remove method does not exist at org.slf4j.MDC class.");
                     return null;
                 }
                 
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                
+                if (!target.hasConstructor()) {
+                    logger.warn("Can not modify. Because constructor to modify not exist at ch.qos.logback.classic.spi.LoggingEvent class."
+                                + "\nconstructor prototype : LoggingEvent();");
+                }
+                if (!target.hasConstructor("java.lang.String", "ch.qos.logback.classic.Logger", "ch.qos.logback.classic.Level", "java.lang.String", "java.lang.Throwable", "java.lang.Object[]")) {
+                    logger.warn("Can not modify. Because constructor to modify not exist at ch.qos.logback.classic.spi.LoggingEvent class."
+                                + "\nconstructor prototype : LoggingEvent(String fqcn, Logger logger, Level level, String message, Throwable throwable, Object[] argArray);");
+                }
+                
                 target.addInterceptor("com.navercorp.pinpoint.plugin.logback.interceptor.LoggingEventOfLogbackInterceptor");
                 
                 return target.toBytecode();
