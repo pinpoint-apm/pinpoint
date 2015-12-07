@@ -42,7 +42,8 @@ public interface AgentService {
     AgentInfo getAgentInfo(String applicationName, String agentId, long startTimeStamp);
     AgentInfo getAgentInfo(String applicationName, String agentId, long startTimeStamp, boolean checkDB);
 
-    List<AgentInfo> getAgentInfoList(String applicationName);
+    List<AgentInfo> getRecentAgentInfoList(String applicationName);
+    List<AgentInfo> getRecentAgentInfoList(String applicationName, long timeDiff);
 
     boolean isConnected(AgentInfo agentInfo);
 

@@ -38,6 +38,8 @@ public interface AgentInfoService {
 
     Set<AgentInfo> getAgentsByApplicationName(String applicationName, long timestamp);
 
+    Set<AgentInfo> getAgentsByApplicationName(String applicationName, long timestamp, long timeDiff);
+
     AgentInfo getAgentInfo(String agentId, long timestamp);
 
     AgentStatus getAgentStatus(String agentId, long timestamp);
