@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.plugin.user.UserIncludeMethodDescriptor;
  */
 public class UserIncludeMethodInterceptor implements AroundInterceptor {
     // scope name, must be unique.
-    private static final String SCOPE_NAME = "##USER_INCLUDE";
+    private static final String SCOPE_NAME = "##USER_INCLUDE_TRACE";
     private static final UserIncludeMethodDescriptor USER_INCLUDE_METHOD_DESCRIPTOR = new UserIncludeMethodDescriptor();
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -53,16 +53,19 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
 
         Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
+            if(isDebug) {
+                logger.debug("Not found trace. Crate user include trace.");
+            }
+
             // create user include trace for standalone entry point.
             trace = createUserIncludeTrace();
             if (trace == null) {
                 return;
             }
-        }
-
-        // check user include trace.
-        if (!isUserIncludeTrace(trace)) {
-            return;
+        } else {
+            if(isDebug) {
+                logger.debug("Found trace {}, sampled={}.", trace, trace.canSampled());
+            }
         }
 
         // entry scope(default & disable trace).
@@ -88,14 +91,11 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
             return;
         }
 
-        // check user include trace.
-        if (!isUserIncludeTrace(trace)) {
-            return;
-        }
-
         // leave scope(default & disable trace).
         if (!leaveUserIncludeTraceScope(trace)) {
-            logger.warn("Failed to leave scope of user include trace. trace={}, sampled={}", trace, trace.canSampled());
+            if(logger.isInfoEnabled()) {
+                logger.info("Failed to leave scope of user include trace. trace={}, sampled={}", trace, trace.canSampled());
+            }
             // delete unstable trace.
             deleteUserIncludeTrace(trace);
             return;
@@ -131,7 +131,9 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
         TraceScope oldScope = trace.addScope(SCOPE_NAME);
         if (oldScope != null) {
             // delete corrupted trace.
-            logger.warn("Duplicated user include trace scope={}.", oldScope.getName());
+            if(logger.isInfoEnabled()) {
+                logger.info("Duplicated user include trace scope={}.", oldScope.getName());
+            }
             deleteUserIncludeTrace(trace);
             return null;
         }
@@ -157,6 +159,9 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
         final TraceScope scope = trace.getScope(SCOPE_NAME);
         if (scope != null) {
             scope.tryEnter();
+            if(isDebug) {
+                logger.debug("Try enter trace scope={}", scope.getName());
+            }
         }
     }
 
@@ -165,6 +170,9 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
         if (scope != null) {
             if (scope.canLeave()) {
                 scope.leave();
+                if(isDebug) {
+                    logger.debug("Leave trace scope={}", scope.getName());
+                }
             } else {
                 return false;
             }
