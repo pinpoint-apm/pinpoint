@@ -51,6 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author HyunGil Jeong
@@ -60,6 +61,9 @@ import java.util.*;
 public class AgentServiceImpl implements AgentService {
 
     private static final long DEFAULT_FUTURE_TIMEOUT = 3000;
+
+    private static final long DEFAULT_TIME_DIFF_DAYS = 7;
+    private static final long DEFAULT_TIME_DIFF_MS = TimeUnit.MILLISECONDS.convert(DEFAULT_TIME_DIFF_DAYS, TimeUnit.DAYS);
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -135,12 +139,17 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
-    public List<AgentInfo> getAgentInfoList(String applicationName) {
+    public List<AgentInfo> getRecentAgentInfoList(String applicationName) {
+        return this.getRecentAgentInfoList(applicationName, DEFAULT_TIME_DIFF_MS);
+    }
+
+    @Override
+    public List<AgentInfo> getRecentAgentInfoList(String applicationName, long timeDiff) {
         List<AgentInfo> agentInfoList = new ArrayList<>();
 
         long currentTime = System.currentTimeMillis();
 
-        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationName(applicationName, currentTime);
+        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationName(applicationName, currentTime, timeDiff);
         for (AgentInfo agentInfo : agentInfos) {
             ListUtils.addIfValueNotNull(agentInfoList, agentInfo);
         }

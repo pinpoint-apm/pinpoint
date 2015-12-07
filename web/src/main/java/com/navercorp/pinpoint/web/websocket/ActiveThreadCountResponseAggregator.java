@@ -110,7 +110,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
 
         logger.info("addWebSocketSession. applicationName:{}, webSocketSession:{}", applicationName, webSocketSession);
 
-        List<AgentInfo> agentInfoList = agentService.getAgentInfoList(applicationName);
+        List<AgentInfo> agentInfoList = agentService.getRecentAgentInfoList(applicationName);
         synchronized (workerManagingLock) {
             if (isStopped) {
                 return;

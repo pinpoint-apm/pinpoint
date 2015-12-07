@@ -134,9 +134,23 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     @Override
     public Set<AgentInfo> getAgentsByApplicationName(String applicationName, long timestamp) {
+        long timeDiff = timestamp;
+        return this.getAgentsByApplicationName(applicationName, timestamp, timeDiff);
+    }
+
+    @Override
+    public Set<AgentInfo> getAgentsByApplicationName(String applicationName, long timestamp, long timeDiff) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
+        if (timeDiff < 0) {
+            throw new IllegalArgumentException("timeDiff must not be less than 0");
+        }
+        if (timeDiff > timestamp) {
+            throw new IllegalArgumentException("timeDiff must not be greater than timestamp");
+        }
+
+        final long eventTimestampFloor = timestamp - timeDiff;
 
         List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
         Set<AgentInfo> agentSet = new HashSet<>();
@@ -145,9 +159,12 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             // (As we do not yet have a way to accurately record the agent's lifecycle.)
             AgentInfoBo agentInfoBo = this.agentInfoDao.getAgentInfo(agentId, timestamp);
             if (agentInfoBo != null) {
-                AgentInfo agentInfo = new AgentInfo(agentInfoBo);
-                agentInfo.setStatus(this.getAgentStatus(agentId, timestamp));
-                agentSet.add(agentInfo);
+                AgentStatus agentStatus = this.getAgentStatus(agentId, timestamp);
+                if (AgentLifeCycleState.UNKNOWN == agentStatus.getState() || eventTimestampFloor <= agentStatus.getEventTimestamp()) {
+                    AgentInfo agentInfo = new AgentInfo(agentInfoBo);
+                    agentInfo.setStatus(agentStatus);
+                    agentSet.add(agentInfo);
+                }
             }
         }
         return agentSet;
