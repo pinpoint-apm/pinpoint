@@ -28,9 +28,10 @@
 	                    broadcast, getApplicationList, getQueryStartTime, getQueryEndTime, parseApplicationList, emitAsChanged,
 	                    initializeWithStaticApplication, getPeriodType, setPeriodTypeAsCurrent, getDate, startUpdate,
 	                    resetTimeLeft, getRangeFromStorage, setRangeToStorage, getMilliSecondByReadablePeriod, movePeriod, selectPeriod,
-						toggleCalendarPopup;
+						toggleCalendarPopup, getPeriodForCalendar;
 	
 	                var applicationResource;
+					var bInitCalendar = false;
 	                /**
 	                 * getRangeFromStorage
 	                 */
@@ -113,8 +114,9 @@
 	                    scope.application = oNavbarVoService.getApplication() || '';
 	                    scope.disableApplication = true;
 	                    scope.readablePeriod = oNavbarVoService.getReadablePeriod() || preferenceService.getPeriod();
+						scope.periodCalendar = oNavbarVoService.getReadablePeriod() || preferenceService.getPeriod();
 	                    scope.queryEndTime = oNavbarVoService.getQueryEndTime() || '';
-	                    
+
 	                    initializeApplication();
 	                    initializeDateTimePicker();
 	                    getApplicationList();
@@ -134,9 +136,13 @@
 	                    scope.application = oNavbarVoService.getApplication() || '';
 	                    scope.applicationName = oNavbarVoService.getApplicationName() || '';
 	                    scope.readablePeriod = oNavbarVoService.getReadablePeriod() || preferenceService.getPeriod();
+						scope.periodCalendar = oNavbarVoService.getReadablePeriod() || preferenceService.getPeriod();
 	                    scope.queryEndTime = oNavbarVoService.getQueryEndTime() || '';
-	
-	                    initializeDateTimePicker();
+
+						if ( bInitCalendar === false ) {
+							initializeDateTimePicker();
+							bInitCalendar = true;
+						}
 	                };
 	
 	                /**
@@ -161,7 +167,8 @@
 	                        	var momentFrom = moment(getDate($fromPicker));
 	                        	var momentTo = moment(getDate($toPicker));
 	                        	if ( momentTo.isAfter( moment(getDate($fromPicker)).add(preferenceService.getMaxPeriod(), "days") ) || momentFrom.isAfter(momentTo) ) {
-	                        		setDateTime($toPicker, momentFrom.add(2, "days").format());
+									var aPeriodTime = getPeriodForCalendar();
+	                        		setDateTime($toPicker, momentFrom.add( aPeriodTime[0], aPeriodTime[1] ).format());
 	                        	}
 	                        },
 	                        onClose: function (currentTime, oTime) {
@@ -188,7 +195,8 @@
 	                        	var momentFrom = moment(getDate($fromPicker));
 	                        	var momentTo = moment(getDate($toPicker));
 	                        	if ( momentFrom.isBefore(moment(getDate($toPicker)).subtract(preferenceService.getMaxPeriod(), "days")) || momentFrom.isAfter(momentTo) ) {
-	                        		setDateTime($fromPicker, momentTo.subtract(2, "days").format());
+									var aPeriodTime = getPeriodForCalendar();
+	                        		setDateTime($fromPicker, momentTo.subtract(aPeriodTime[0], aPeriodTime[1]).format());
 	                        	}
 	                        },
 	                        onClose: function (currentTime, oTime) {
@@ -216,6 +224,13 @@
 							}
 						});
 	                };
+					getPeriodForCalendar = function() {
+						var a = [];
+						var s = scope.periodCalendar.substring( scope.periodCalendar.length - 1 );
+						a[0] = parseInt( scope.periodCalendar );
+						a[1] = s == "d" ? "days" : s == "h" ? "hours" : "minutes";
+						return a;
+					}
 
 					toggleCalendarPopup = function() {
 						if ( $fromToCalendarPopup.is(":visible") ) {
@@ -502,7 +517,10 @@
 	                scope.getNextClass = function() {
 	                	return "";
 	                };
-	
+
+					scope.getPeriodClassInCalendar = function (period) {
+						return ( scope.periodCalendar === period ? "btn-success" : "" );
+					};
 	                /**
 	                 * get period class
 	                 * @param readablePeriod
@@ -552,7 +570,7 @@
 	                    scope.timeLeft = scope.timeCountDown;
 	                };
 					scope.setPeriodForCalendar = function(period) {
-						console.log(" >", period );
+						scope.periodCalendar = period;
 					};
 	
 	                /**

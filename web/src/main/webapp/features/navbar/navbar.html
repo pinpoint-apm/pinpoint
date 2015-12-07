@@ -88,6 +88,11 @@
     <div id="ui-datepicker-div">
         <div id="from-picker"></div>
         <div id="to-picker" ></div>
+        <div class="btn-group btn-group-justified" style="padding-top:6px;">
+            <div class="btn-group" role="group" ng-repeat="period in aReadablePeriodList" >
+                <button type="button" class="btn btn-default btn-sm" ng-class="getPeriodClassInCalendar( period )" ng-click="setPeriodForCalendar(period)">{{period}}</button>
+            </div>
+        </div>
         <div class="guide"></div>
         <div class="ui-datepicker-buttonpane" style="text-align:right;font-weight:bold">
             <button type="button" class="ui-datepicker-close ui-state-default ui-priority-primary ui-corner-all">Done</button>
