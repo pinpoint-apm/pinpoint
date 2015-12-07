@@ -24,6 +24,7 @@ import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import javassist.*;
 
 import org.slf4j.Logger;
@@ -114,17 +115,41 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     @Override
     public InstrumentClass getClass(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) throws InstrumentException {
-        CtClass cc = getClass(classLoader, javassistClassName);
+        final CtClass cc = getCtClass(classLoader, javassistClassName, classFileBuffer);
         return new JavaAssistClass(this, cc);
     }
 
-    public CtClass getClass(ClassLoader classLoader, String className) throws InstrumentException {
+
+    private CtClass getCtClass(ClassLoader classLoader, String className, byte[] classfileBuffer) throws InstrumentException {
         final NamedClassPool classPool = getClassPool(classLoader);
         try {
-            return classPool.get(className);
+            if (classfileBuffer == null) {
+                return classPool.get(className);
+            } else {
+                final ClassPool contextCassPool = getContextClassPool(classPool, className, classfileBuffer);
+                return contextCassPool.get(className);
+            }
         } catch (NotFoundException e) {
             throw new InstrumentException(className + " class not found. Cause:" + e.getMessage(), e);
         }
+    }
+
+    private ClassPool getContextClassPool(NamedClassPool parent, String className, byte[] classfileBuffer) {
+        final ClassPool contextCassPool = new ClassPool(parent);
+        contextCassPool.childFirstLookup = true;
+
+        final String javaName = JavaAssistUtils.jvmNameToJavaName(className);
+        if (logger.isDebugEnabled()) {
+            logger.debug("classfileBuffer className={}", javaName);
+        }
+        final ClassPath byteArrayClassPath = new ByteArrayClassPath(javaName, classfileBuffer);
+        contextCassPool.insertClassPath(byteArrayClassPath);
+        return contextCassPool;
+    }
+
+
+    public CtClass getClass(ClassLoader classLoader, String className) throws InstrumentException {
+        return getCtClass(classLoader, className, null);
     }
 
     public NamedClassPool getClassPool(ClassLoader classLoader) {
