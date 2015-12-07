@@ -29,16 +29,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncCallEndFlagFieldAccessor;
-import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncCallRemoteAddressFieldAccessor;
-import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncMarkerFlagFieldAccessor;
-import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncNextSpanIdFieldAccessor;
-import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncTraceIdFieldAccessor;
-import com.navercorp.pinpoint.plugin.thrift.field.accessor.ServerMarkerFlagFieldAccessor;
-import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketAddressFieldAccessor;
-import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
-import com.navercorp.pinpoint.plugin.thrift.field.getter.TNonblockingTransportFieldGetter;
-import com.navercorp.pinpoint.plugin.thrift.field.getter.TTransportFieldGetter;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
@@ -156,13 +146,13 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                                         ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addField(SocketAddressFieldAccessor.class.getName());
-                target.addField(AsyncMarkerFlagFieldAccessor.class.getName());
-                target.addField(AsyncTraceIdFieldAccessor.class.getName());
-                target.addField(AsyncNextSpanIdFieldAccessor.class.getName());
-                target.addField(AsyncCallEndFlagFieldAccessor.class.getName());
-                target.addField(AsyncCallRemoteAddressFieldAccessor.class.getName());
-                target.addGetter(TNonblockingTransportFieldGetter.class.getName(), ThriftConstants.T_ASYNC_METHOD_CALL_FIELD_TRANSPORT);
+                target.addField(ThriftConstants.FIELD_ACCESSOR_SOCKET_ADDRESS);
+                target.addField(ThriftConstants.FIELD_ACCESSOR_ASYNC_MARKER_FLAG);
+                target.addField(ThriftConstants.FIELD_ACCESSOR_ASYNC_TRACE_ID);
+                target.addField(ThriftConstants.FIELD_ACCESSOR_ASYNC_NEXT_SPAN_ID);
+                target.addField(ThriftConstants.FIELD_ACCESSOR_ASYNC_CALL_END_FLAG);
+                target.addField(ThriftConstants.FIELD_ACCESSOR_ASYNC_CALL_REMOTE_ADDRESS);
+                target.addGetter(ThriftConstants.FIELD_GETTER_T_NON_BLOCKING_TRANSPORT, ThriftConstants.T_ASYNC_METHOD_CALL_FIELD_TRANSPORT);
 
                 // TAsyncMethodCall(TAsyncClient, TProtocolFactory, TNonblockingTransport, AsyncMethodCallback<T>, boolean)
                 final InstrumentMethod constructor = target.getConstructor("org.apache.thrift.async.TAsyncClient",
@@ -275,7 +265,7 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                                         ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addField(ServerMarkerFlagFieldAccessor.class.getName());
+                target.addField(ThriftConstants.FIELD_ACCESSOR_SERVER_MARKER_FLAG);
 
                 // ProcessFunction.process(int, TProtocol, TProtocol, I)
                 final InstrumentMethod process = target.getDeclaredMethod("process", "int", "org.apache.thrift.protocol.TProtocol",
@@ -306,8 +296,8 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                                         ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addField(ServerMarkerFlagFieldAccessor.class.getName());
-                target.addField(AsyncMarkerFlagFieldAccessor.class.getName());
+                target.addField(ThriftConstants.FIELD_ACCESSOR_SERVER_MARKER_FLAG);
+                target.addField(ThriftConstants.FIELD_ACCESSOR_ASYNC_MARKER_FLAG);
 
                 // TBaseAsyncProcessor.process(AbstractNonblockingServer$AsyncFrameBuffer)
                 final InstrumentMethod process = target.getDeclaredMethod("process", "org.apache.thrift.server.AbstractNonblockingServer$AsyncFrameBuffer");
@@ -328,23 +318,23 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
         // injector TTranports
         // TSocket(Socket), TSocket(String, int, int)
         addTTransportEditor("org.apache.thrift.transport.TSocket",
-                "com.navercorp.pinpoint.plugin.thrift.interceptor.transport.TSocketConstructInterceptor", new String[] { "java.net.Socket" }, new String[] {
-                        "java.lang.String", "int", "int" });
+                "com.navercorp.pinpoint.plugin.thrift.interceptor.transport.TSocketConstructInterceptor", new String[]{"java.net.Socket"}, new String[]{
+                        "java.lang.String", "int", "int"});
 
         // wrapper TTransports
         // TFramedTransport(TTransport), TFramedTransport(TTransport, int)
         addTTransportEditor("org.apache.thrift.transport.TFramedTransport",
                 "com.navercorp.pinpoint.plugin.thrift.interceptor.transport.wrapper.TFramedTransportConstructInterceptor",
-                new String[] { "org.apache.thrift.transport.TTransport" }, new String[] { "org.apache.thrift.transport.TTransport", "int" });
+                new String[]{"org.apache.thrift.transport.TTransport"}, new String[]{"org.apache.thrift.transport.TTransport", "int"});
         // TFastFramedTransport(TTransport, int, int)
         addTTransportEditor("org.apache.thrift.transport.TFastFramedTransport",
-                "com.navercorp.pinpoint.plugin.thrift.interceptor.transport.wrapper.TFastFramedTransportConstructInterceptor", new String[] {
-                        "org.apache.thrift.transport.TTransport", "int", "int" });
+                "com.navercorp.pinpoint.plugin.thrift.interceptor.transport.wrapper.TFastFramedTransportConstructInterceptor", new String[]{
+                        "org.apache.thrift.transport.TTransport", "int", "int"});
         // TSaslClientTransport(TTransport), TSaslClientTransport(SaslClient, TTransport)
         addTTransportEditor("org.apache.thrift.transport.TSaslClientTransport",
                 "com.navercorp.pinpoint.plugin.thrift.interceptor.transport.wrapper.TSaslTransportConstructInterceptor",
-                new String[] { "org.apache.thrift.transport.TTransport" }, new String[] { "javax.security.sasl.SaslClient",
-                        "org.apache.thrift.transport.TTransport" });
+                new String[]{"org.apache.thrift.transport.TTransport"}, new String[]{"javax.security.sasl.SaslClient",
+                        "org.apache.thrift.transport.TTransport"});
 
         // TMemoryInputTransport - simply add socket field
         addTTransportEditor("org.apache.thrift.transport.TMemoryInputTransport");
@@ -368,7 +358,7 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                                         ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addField(SocketFieldAccessor.class.getName());
+                target.addField(ThriftConstants.FIELD_ACCESSOR_SOCKET);
                 return target.toBytecode();
             }
 
@@ -376,7 +366,7 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void addTTransportEditor(String tTransportClassName, final String tTransportInterceptorFqcn,
-            final String[]... parameterTypeGroups) {
+                                     final String[]... parameterTypeGroups) {
         final String targetClassName = tTransportClassName;
         transformTemplate.transform(targetClassName, new TransformCallback() {
 
@@ -385,7 +375,7 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                                         ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addField(SocketFieldAccessor.class.getName());
+                target.addField(ThriftConstants.FIELD_ACCESSOR_SOCKET);
 
                 for (String[] parameterTypeGroup : parameterTypeGroups) {
                     final InstrumentMethod constructor = target.getConstructor(parameterTypeGroup);
@@ -409,8 +399,8 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                                         ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addField(SocketFieldAccessor.class.getName());
-                target.addField(SocketAddressFieldAccessor.class.getName());
+                target.addField(ThriftConstants.FIELD_ACCESSOR_SOCKET);
+                target.addField(ThriftConstants.FIELD_ACCESSOR_SOCKET_ADDRESS);
 
                 // TNonblockingSocket(SocketChannel, int, SocketAddress)
                 final InstrumentMethod constructor = target.getConstructor("java.nio.channels.SocketChannel", "int", "java.net.SocketAddress");
@@ -434,12 +424,12 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                                         ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addField(SocketFieldAccessor.class.getName());
-                target.addGetter(TNonblockingTransportFieldGetter.class.getName(), ThriftConstants.FRAME_BUFFER_FIELD_TRANS_);
+                target.addField(ThriftConstants.FIELD_ACCESSOR_SOCKET);
+                target.addGetter(ThriftConstants.FIELD_GETTER_T_NON_BLOCKING_TRANSPORT, ThriftConstants.FRAME_BUFFER_FIELD_TRANS_);
 
                 // [THRIFT-1972] - 0.9.1 added a field for the wrapper around trans_ field, while getting rid of getInputTransport() method
                 if (target.hasField(ThriftConstants.FRAME_BUFFER_FIELD_IN_TRANS_)) {
-                    target.addGetter(TTransportFieldGetter.class.getName(), ThriftConstants.FRAME_BUFFER_FIELD_IN_TRANS_);
+                    target.addGetter(ThriftConstants.FIELD_GETTER_T_TRANSPORT, ThriftConstants.FRAME_BUFFER_FIELD_IN_TRANS_);
                     // AbstractNonblockingServer$FrameBuffer(TNonblockingTransport, SelectionKey, AbstractSelectThread)
                     final InstrumentMethod constructor = target.getConstructor(
                             "org.apache.thrift.server.AbstractNonblockingServer", // inner class - implicit reference to outer class instance
@@ -500,7 +490,7 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 // processor
                 if (traceThriftProcessor) {
-                    target.addField(ServerMarkerFlagFieldAccessor.class.getName());
+                    target.addField(ThriftConstants.FIELD_ACCESSOR_SERVER_MARKER_FLAG);
                     // TProtocol.readFieldBegin()
                     final InstrumentMethod readFieldBegin = target.getDeclaredMethod("readFieldBegin");
                     if (readFieldBegin != null) {
@@ -525,7 +515,7 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                     }
 
                     // for async processors
-                    target.addField(AsyncMarkerFlagFieldAccessor.class.getName());
+                    target.addField(ThriftConstants.FIELD_ACCESSOR_ASYNC_MARKER_FLAG);
                     // TProtocol.readMessageBegin()
                     final InstrumentMethod readMessageBegin = target.getDeclaredMethod("readMessageBegin");
                     if (readMessageBegin != null) {
