@@ -54,8 +54,15 @@ public class DynamicTransformService implements DynamicTransformTrigger {
         assertClass(target);
 
         this.dynamicTransformRequestListener.onRetransformRequest(target, transformer);
-
-        triggerRetransform(target);
+        boolean success = false;
+        try {
+            triggerRetransform(target);
+            success = true;
+        } finally {
+            if (!success) {
+                this.dynamicTransformRequestListener.onRetransformFail(target);
+            }
+        }
     }
     
     @Override

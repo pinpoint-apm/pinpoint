@@ -134,6 +134,11 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
     }
 
     @Override
+    public ClassFileTransformer onRetransformFail(Class<?> target) {
+        return this.dynamicTransformerRegistry.onRetransformFail(target);
+    }
+
+    @Override
     public void onTransformRequest(ClassLoader classLoader, String targetClassName, ClassFileTransformer transformer) {
         this.dynamicTransformerRegistry.onTransformRequest(classLoader, targetClassName, transformer);
     }

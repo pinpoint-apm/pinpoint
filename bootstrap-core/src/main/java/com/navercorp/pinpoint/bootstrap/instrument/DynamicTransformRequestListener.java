@@ -23,5 +23,8 @@ import java.lang.instrument.ClassFileTransformer;
  */
 public interface DynamicTransformRequestListener {
     void onRetransformRequest(Class<?> target, ClassFileTransformer transformer);
+
+    ClassFileTransformer onRetransformFail(Class<?> target);
+
     void onTransformRequest(ClassLoader classLoader, String targetClassName, ClassFileTransformer transformer);
 }

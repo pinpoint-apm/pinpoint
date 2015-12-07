@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.test.util.BytecodeUtils;
 import javassist.bytecode.Descriptor;
 
 import org.junit.Assert;
@@ -62,15 +63,19 @@ public class JavassistClassTest {
         TestInterceptors.clear();
     }
 
+    private byte[] readByteCode(String className) {
+        final ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        return BytecodeUtils.getClassFile(classLoader, className);
+    }
+
     @Test
     public void testClassHierarchy() throws InstrumentException {
         JavassistClassPool pool = new JavassistClassPool(new GlobalInterceptorRegistryBinder(), null);
 
         String testObjectName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject";
 
-        // final CallLoader loader = null; // systemClassLoader
-        // final ClassLoader loader = ClassLoader.getSystemClassLoader();
-        InstrumentClass testObject = pool.getClass(null, testObjectName, null);
+        byte[] testObjectByteCode = readByteCode(testObjectName);
+        InstrumentClass testObject = pool.getClass(null, null, testObjectName, testObjectByteCode);
 
         Assert.assertEquals(testObject.getName(), testObjectName);
 
@@ -80,7 +85,9 @@ public class JavassistClassTest {
         String[] testObjectSuperClassInterfaces = testObject.getInterfaces();
         Assert.assertEquals(testObjectSuperClassInterfaces.length, 0);
 
-        InstrumentClass classHierarchyObject = pool.getClass(null, "com.navercorp.pinpoint.profiler.interceptor.bci.ClassHierarchyTestMock", null);
+        final String classHierarchyTestMockName = "com.navercorp.pinpoint.profiler.interceptor.bci.ClassHierarchyTestMock";
+        byte[] classHierarchyTestMockByteCode = readByteCode(classHierarchyTestMockName);
+        InstrumentClass classHierarchyObject = pool.getClass(null, null, classHierarchyTestMockName, classHierarchyTestMockByteCode);
         String hierarchySuperClass = classHierarchyObject.getSuperClass();
         Assert.assertEquals("java.util.HashMap", hierarchySuperClass);
 
@@ -96,12 +103,12 @@ public class JavassistClassTest {
         JavassistClassPool pool = new JavassistClassPool(new GlobalInterceptorRegistryBinder(), null);
 
         String testObjectName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject";
-
-        InstrumentClass testObject = pool.getClass(null, testObjectName, null);
+        byte[] testObjectByteCode = readByteCode(testObjectName);
+        InstrumentClass testObject = pool.getClass(null, null, testObjectName, testObjectByteCode);
 
         Assert.assertEquals(testObject.getName(), testObjectName);
 
-        InstrumentMethod declaredMethod = testObject.getDeclaredMethod("callA", null);
+        InstrumentMethod declaredMethod = testObject.getDeclaredMethod("callA");
         Assert.assertNotNull(declaredMethod);
 
     }
@@ -112,8 +119,8 @@ public class JavassistClassTest {
         JavassistClassPool pool = new JavassistClassPool(new GlobalInterceptorRegistryBinder(), null);
 
         String testObjectName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject";
-
-        InstrumentClass testObject = pool.getClass(null, testObjectName, null);
+        byte[] testObjectByteCode = readByteCode(testObjectName);
+        InstrumentClass testObject = pool.getClass(null, null, testObjectName, testObjectByteCode);
         Assert.assertEquals(testObject.getName(), testObjectName);
 
         int findMethodCount = 0;
@@ -137,11 +144,11 @@ public class JavassistClassTest {
         loader.addTransformer(javassistClassName, new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 try {
                     logger.info("modify cl:{}", loader);
 
-                    InstrumentClass aClass = instrumentContext.getInstrumentClass(loader, javassistClassName, classfileBuffer);
+                    InstrumentClass aClass = instrumentor.getInstrumentClass(loader, javassistClassName, classfileBuffer);
 
                     aClass.addField(ObjectTraceValue.class.getName());
                     aClass.addField(IntTraceValue.class.getName());
@@ -196,11 +203,11 @@ public class JavassistClassTest {
         loader.addTransformer(javassistClassName, new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 try {
                     logger.info("modify className:{} cl:{}", className, classLoader);
 
-                    InstrumentClass aClass = instrumentContext.getInstrumentClass(classLoader, javassistClassName, classfileBuffer);
+                    InstrumentClass aClass = instrumentor.getInstrumentClass(classLoader, javassistClassName, classfileBuffer);
                     
                     String methodName = "callA";
                     aClass.getDeclaredMethod(methodName).addInterceptor("com.navercorp.pinpoint.profiler.interceptor.TestBeforeInterceptor");
@@ -267,10 +274,10 @@ public class JavassistClassTest {
         loader.addTransformer(testClassObject, new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 try {
                     logger.info("modify cl:{}", classLoader);
-                    InstrumentClass aClass = instrumentContext.getInstrumentClass(classLoader, testClassObject, classfileBuffer);
+                    InstrumentClass aClass = instrumentor.getInstrumentClass(classLoader, testClassObject, classfileBuffer);
                     
                     String methodName = "callA";
                     aClass.getDeclaredMethod(methodName).addInterceptor("com.navercorp.pinpoint.profiler.interceptor.TestAfterInterceptor");
@@ -332,10 +339,10 @@ public class JavassistClassTest {
         loader.addTransformer(targetClassName, new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 try {
                     logger.info("modify cl:{}", classLoader);
-                    InstrumentClass aClass = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+                    InstrumentClass aClass = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
                     
                     aClass.addGetter(StringGetter.class.getName(), "value");
                     aClass.addGetter(IntGetter.class.getName(), "intValue");
@@ -379,7 +386,9 @@ public class JavassistClassTest {
     public void getNestedClasses() throws Exception {
         JavassistClassPool pool = new JavassistClassPool(new GlobalInterceptorRegistryBinder(), null);
         String testObjectName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObjectNestedClass";
-        InstrumentClass testObject = pool.getClass(null, testObjectName, null);
+
+        byte[] testObjectByteCode = readByteCode(testObjectName);
+        InstrumentClass testObject = pool.getClass(null, null, testObjectName, testObjectByteCode);
         Assert.assertEquals(testObject.getName(), testObjectName);
 
         // find class name condition.
@@ -402,7 +411,9 @@ public class JavassistClassTest {
     public void hasEnclodingMethod() throws Exception {
         JavassistClassPool pool = new JavassistClassPool(new GlobalInterceptorRegistryBinder(), null);
         String testObjectName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObjectNestedClass";
-        InstrumentClass testObject = pool.getClass(null, testObjectName, null);
+
+        byte[] testObjectByteCode = readByteCode(testObjectName);
+        InstrumentClass testObject = pool.getClass(null, null, testObjectName, testObjectByteCode);
         Assert.assertEquals(testObject.getName(), testObjectName);
 
         assertEquals(1, testObject.getNestedClasses(ClassFilters.enclosingMethod("enclosingMethod", "java.lang.String", "int")).size());
