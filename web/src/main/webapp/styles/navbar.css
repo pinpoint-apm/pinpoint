@@ -55,13 +55,14 @@
 #ui-datepicker-div {
     top: 40px;
     left: 536px;
-    width: 402px;
+    width: 404px;
     border: 1px solid #DDD;
     display:none;
     padding: 4px 2px;
     z-index: 10 !important;
     position: fixed;
     font-size: 75%;
+    text-align: center;
     background-color: #f2f2f2;
 }
 #ui-datepicker-div .guide {
