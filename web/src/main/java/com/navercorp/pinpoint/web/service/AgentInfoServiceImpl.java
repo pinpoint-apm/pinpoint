@@ -134,17 +134,13 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     @Override
     public Set<AgentInfo> getAgentsByApplicationName(String applicationName, long timestamp) {
-        long timeDiff = timestamp;
-        return this.getAgentsByApplicationName(applicationName, timestamp, timeDiff);
+        return this.getAgentsByApplicationName(applicationName, timestamp, timestamp);
     }
 
     @Override
     public Set<AgentInfo> getAgentsByApplicationName(String applicationName, long timestamp, long timeDiff) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
-        }
-        if (timeDiff < 0) {
-            throw new IllegalArgumentException("timeDiff must not be less than 0");
         }
         if (timeDiff > timestamp) {
             throw new IllegalArgumentException("timeDiff must not be greater than timestamp");
