@@ -18,8 +18,8 @@
 	    }
 	});
 	
-	pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$location', '$routeParams', '$rootScope', '$timeout', '$window', '$http', 'webStorage', 'TimeSliderVoService', 'TransactionDaoService', 'AnalyticsService',
-	    function (cfg, $scope, $location, $routeParams, $rootScope, $timeout, $window, $http, webStorage, TimeSliderVoService, oTransactionDaoService, analyticsService) {
+	pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$location', '$routeParams', '$rootScope', '$timeout', '$window', '$http', 'webStorage', 'TimeSliderVoService', 'TransactionDaoService', 'AnalyticsService', 'helpContentService',
+	    function (cfg, $scope, $location, $routeParams, $rootScope, $timeout, $window, $http, webStorage, TimeSliderVoService, oTransactionDaoService, analyticsService, helpContentService) {
 			analyticsService.send(analyticsService.CONST.TRANSACTION_LIST_PAGE);
 	        // define private variables
 	        var nFetchCount, nLastFetchedIndex, htTransactionInfo, htTransactionData, oTimeSliderVoService;
@@ -27,7 +27,7 @@
 	
 	        // define private variables of methods
 	        var fetchStart, fetchNext, fetchAll, emitTransactionListToTable, getQuery, getTransactionList, changeTransactionDetail,
-	            parseWindowName, hasScatterByApplicationName, getDataByTransactionInfo, hasParent, hasValidParam;
+				getTransactionInfoFromWindow, hasScatterByApplicationName, getDataByTransactionInfo, getTransactionInfoFromURL, hasParent, hasValidParam, initAndLoad, alertAndMove;
 	
 	        /**
 	         * initialization
@@ -47,35 +47,21 @@
 					aParamTransactionInfo = $routeParams.transactionInfo.split("-");
 				}
 				if ( bHasParent && bHasValidParam ) {
-					htTransactionInfo = parseWindowName($window.name);
+					htTransactionInfo = getTransactionInfoFromWindow($window.name);
 
 					if(!hasScatterByApplicationName(htTransactionInfo.applicationName)) {
-						alert('There is no ' + htTransactionInfo.applicationName + ' scatter data in parent window.');
-						$window.location.replace( $window.location.href.replace( "transactionList", "main" ) );
+						alertAndMove(helpContentService.transactionList.openError.noData.replace(/\{\{application\}\}/, htTransactionInfo.applicationName ) );
+					} else {
+						htTransactionData = getDataByTransactionInfo(htTransactionInfo);
+						initAndLoad( bHasTransactionInfo );
 					}
-
-					htTransactionData = getDataByTransactionInfo(htTransactionInfo);
-					oTimeSliderVoService = new TimeSliderVoService();
-					oTimeSliderVoService.setTotal(htTransactionData.length);
-
-					fetchStart( bHasTransactionInfo );
 				} else {
 					if ( bHasTransactionInfo === false ) {
-						alert('Scatter data of parent window had been changed.\r\nso can\'t scan the data any more.');
-						$window.location.replace( $window.location.href.replace( "transactionList", "main" ) );
+						alertAndMove(helpContentService.transactionList.openError.noParent);
 					} else {
-						htTransactionInfo = {
-							applicationName: $routeParams.application.split("@")[0],
-							nXFrom: parseInt(aParamTransactionInfo[1]) - 1000,
-							nXTo: parseInt(aParamTransactionInfo[1]) + 1000,
-							nYFrom: 0,
-							nYTo: 0
-						};
+						htTransactionInfo = getTransactionInfoFromURL();
 						htTransactionData = [[ aParamTransactionInfo[1], aParamTransactionInfo[2], aParamTransactionInfo[0] ]];
-						oTimeSliderVoService = new TimeSliderVoService();
-						oTimeSliderVoService.setTotal(htTransactionData.length);
-
-						fetchStart( bHasTransactionInfo );
+						initAndLoad( bHasTransactionInfo );
 					}
 				}
 
@@ -91,6 +77,17 @@
 	            }, 100);
 	
 	        }, 100);
+			alertAndMove = function( msg ) {
+				alert( msg );
+				$window.location.replace( $window.location.href.replace( "transactionList", "main" ) );
+			};
+
+			initAndLoad = function(bHasTransactionInfo) {
+				oTimeSliderVoService = new TimeSliderVoService();
+				oTimeSliderVoService.setTotal(htTransactionData.length);
+
+				fetchStart( bHasTransactionInfo );
+			};
 
 			hasParent = function() {
 				return !($window.opener == null);
@@ -110,7 +107,7 @@
 	         * @param windowName
 	         * @returns {{applicationName: *, nXFrom: *, nXTo: *, nYFrom: *, nYTo: *}}
 	         */
-	        parseWindowName = function (windowName) {
+			getTransactionInfoFromWindow = function (windowName) {
 	            var t = windowName.split('|');
 	            return {
 	                applicationName: t[0],
@@ -120,6 +117,15 @@
 	                nYTo: t[4]
 	            };
 	        };
+			getTransactionInfoFromURL = function() {
+				return {
+					applicationName: $routeParams.application.split("@")[0],
+					nXFrom: parseInt(aParamTransactionInfo[1]) - 1000,
+					nXTo: parseInt(aParamTransactionInfo[1]) + 1000,
+					nYFrom: 0,
+					nYTo: 0
+				};
+			};
 	
 	        /**
 	         * has scatter by application name

@@ -601,6 +601,12 @@
 		},
 		transactionTable: {
 			log: {}
+		},
+		transactionList: {
+			openError: {
+				noParent: "부모 윈도우의 scatter chart 정보가 변경되어 더 이상 transaction 정보를 표시할 수 없습니다.",
+				noData: "부모 윈도우에 {{application}} scatter chart 정보가 없습니다."
+			}
 		}
 	};
 	pinpointApp.constant('helpContent-ko', oHelp );
