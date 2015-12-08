@@ -69,8 +69,8 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(TraceAccessor.class.getName());
-                target.addField(AsyncAccessor.class.getName());
+                target.addField(TomcatConstants.TRACE_ACCESSOR);
+                target.addField(TomcatConstants.ASYNC_ACCESSOR);
 
                 // clear request.
                 InstrumentMethod recycleMethodEditorBuilder = target.getDeclaredMethod("recycle");

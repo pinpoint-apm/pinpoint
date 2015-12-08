@@ -103,10 +103,10 @@ public class HttpClient3Plugin implements ProfilerPlugin, TransformTemplateAware
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                target.addGetter(HostNameGetter.class.getName(), HttpClient3Constants.FIELD_HOST_NAME);
-                target.addGetter(PortNumberGetter.class.getName(), HttpClient3Constants.FIELD_PORT_NUMBER);
-                target.addGetter(ProxyHostNameGetter.class.getName(), HttpClient3Constants.FIELD_PROXY_HOST_NAME);
-                target.addGetter(ProxyPortNumberGetter.class.getName(), HttpClient3Constants.FIELD_PROXY_PORT_NUMBER);
+                target.addGetter("com.navercorp.pinpoint.plugin.httpclient3.HostNameGetter", HttpClient3Constants.FIELD_HOST_NAME);
+                target.addGetter("com.navercorp.pinpoint.plugin.httpclient3.PortNumberGetter", HttpClient3Constants.FIELD_PORT_NUMBER);
+                target.addGetter("com.navercorp.pinpoint.plugin.httpclient3.ProxyHostNameGetter", HttpClient3Constants.FIELD_PROXY_HOST_NAME);
+                target.addGetter("com.navercorp.pinpoint.plugin.httpclient3.ProxyPortNumberGetter", HttpClient3Constants.FIELD_PROXY_PORT_NUMBER);
 
                 InstrumentMethod open = target.getDeclaredMethod("open");
 

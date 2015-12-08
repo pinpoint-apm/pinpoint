@@ -282,8 +282,8 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 
-                target.addGetter(RequestProducerGetter.class.getName(), HttpClient4Constants.FIELD_REQUEST_PRODUCER);
-                target.addGetter(ResultFutureGetter.class.getName(), HttpClient4Constants.FIELD_RESULT_FUTURE);
+                target.addGetter("com.navercorp.pinpoint.plugin.httpclient4.RequestProducerGetter", HttpClient4Constants.FIELD_REQUEST_PRODUCER);
+                target.addGetter("com.navercorp.pinpoint.plugin.httpclient4.ResultFutureGetter", HttpClient4Constants.FIELD_RESULT_FUTURE);
 
                 InstrumentMethod start = target.getDeclaredMethod("start");
                 

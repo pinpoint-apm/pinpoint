@@ -43,10 +43,10 @@ public class JdkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 
-                target.addGetter(ConnectedGetter.class.getName(), "connected");
+                target.addGetter("com.navercorp.pinpoint.plugin.jdk.http.ConnectedGetter", "connected");
 
                 if (target.hasField("connecting", "boolean")) {
-                    target.addGetter(ConnectingGetter.class.getName(), "connecting");
+                    target.addGetter("com.navercorp.pinpoint.plugin.jdk.http.ConnectingGetter", "connecting");
                 }
                 
                 target.addInterceptor("com.navercorp.pinpoint.plugin.jdk.http.interceptor.HttpURLConnectionInterceptor");

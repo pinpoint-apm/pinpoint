@@ -118,9 +118,9 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addGetter(UserRequestGetter.class.getName(), OkHttpConstants.FIELD_USER_REQUEST);
-                target.addGetter(UserResponseGetter.class.getName(), OkHttpConstants.FIELD_USER_RESPONSE);
-                target.addGetter(ConnectionGetter.class.getName(), OkHttpConstants.FIELD_CONNECTION);
+                target.addGetter(OkHttpConstants.USER_REQUEST_GETTER, OkHttpConstants.FIELD_USER_REQUEST);
+                target.addGetter(OkHttpConstants.USER_RESPONSE_GETTER, OkHttpConstants.FIELD_USER_RESPONSE);
+                target.addGetter(OkHttpConstants.CONNECTION_GETTER, OkHttpConstants.FIELD_CONNECTION);
 
                 InstrumentMethod sendRequestMethod = target.getDeclaredMethod("sendRequest");
                 if (sendRequestMethod != null) {
@@ -159,11 +159,11 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                     if(instrumentor.exist(loader, "com.squareup.okhttp.HttpUrl")) {
                         // over 2.4.0
-                        target.addGetter(HttpUrlGetter.class.getName(), OkHttpConstants.FIELD_HTTP_URL);
+                        target.addGetter(OkHttpConstants.HTTP_URL_GETTER, OkHttpConstants.FIELD_HTTP_URL);
                         buildMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.RequestBuilderBuildMethodInterceptor");
                     } else {
                         // 2.0 ~ 2.3
-                        target.addGetter(UrlGetter.class.getName(), OkHttpConstants.FIELD_HTTP_URL);
+                        target.addGetter(OkHttpConstants.URL_GETTER, OkHttpConstants.FIELD_HTTP_URL);
                         buildMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.RequestBuilderBuildMethodBackwardCompatibilityInterceptor");
                     }
                 }
