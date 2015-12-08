@@ -56,6 +56,7 @@ public class ClassFileRetransformer implements ClassFileTransformer {
         try {
             instrumentation.retransformClasses(target);
         } catch (UnmodifiableClassException e) {
+            targets.remove(target);
             throw new ProfilerException(e);
         }
     }
