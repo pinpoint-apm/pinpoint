@@ -37,25 +37,40 @@ public final class ThriftConstants {
     public static final ServiceType THRIFT_CLIENT = ServiceTypeFactory.of(9100, "THRIFT_CLIENT", RECORD_STATISTICS);
     public static final ServiceType THRIFT_SERVER_INTERNAL = ServiceTypeFactory.of(1101, "THRIFT_SERVER_INTERNAL", "THRIFT_SERVER");
     public static final ServiceType THRIFT_CLIENT_INTERNAL = ServiceTypeFactory.of(9101, "THRIFT_CLIENT_INTERNAL", "THRIFT_CLIENT");
-    
+
     public static final AnnotationKey THRIFT_URL = AnnotationKeyFactory.of(80, "thrift.url");
     public static final AnnotationKey THRIFT_ARGS = AnnotationKeyFactory.of(81, "thrift.args", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
     public static final AnnotationKey THRIFT_RESULT = AnnotationKeyFactory.of(82, "thrift.result", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
-    
+
     public static final String UNKNOWN_METHOD_NAME = "unknown";
     public static final String UNKNOWN_METHOD_URI = "/" + UNKNOWN_METHOD_NAME;
     public static final String UNKNOWN_ADDRESS = "Unknown";
-    
+
     public static final Pattern PROCESSOR_PATTERN = Pattern.compile("\\$Processor");
     public static final Pattern ASYNC_PROCESSOR_PATTERN = Pattern.compile("\\$AsyncProcessor");
     public static final Pattern CLIENT_PATTERN = Pattern.compile("\\$Client");
     public static final Pattern ASYNC_METHOD_CALL_PATTERN = Pattern.compile("\\$AsyncClient\\$");
-    
+
     public static final String ATTRIBUTE_CONFIG = "thriftPluginConfig";
-    
+
     // field names
     public static final String T_ASYNC_METHOD_CALL_FIELD_TRANSPORT = "transport";
     public static final String FRAME_BUFFER_FIELD_TRANS_ = "trans_";
     public static final String FRAME_BUFFER_FIELD_IN_TRANS_ = "inTrans_";
-    
+
+    // custom field injector (accessor) FQCN
+    private static final String FIELD_ACCESSOR_BASE = "com.navercorp.pinpoint.plugin.thrift.field.accessor.";
+    public static final String FIELD_ACCESSOR_ASYNC_CALL_END_FLAG = FIELD_ACCESSOR_BASE + "AsyncCallEndFlagFieldAccessor";
+    public static final String FIELD_ACCESSOR_ASYNC_CALL_REMOTE_ADDRESS = FIELD_ACCESSOR_BASE + "AsyncCallRemoteAddressFieldAccessor";
+    public static final String FIELD_ACCESSOR_ASYNC_MARKER_FLAG = FIELD_ACCESSOR_BASE + "AsyncMarkerFlagFieldAccessor";
+    public static final String FIELD_ACCESSOR_ASYNC_NEXT_SPAN_ID = FIELD_ACCESSOR_BASE + "AsyncNextSpanIdFieldAccessor";
+    public static final String FIELD_ACCESSOR_ASYNC_TRACE_ID = FIELD_ACCESSOR_BASE + "AsyncTraceIdFieldAccessor";
+    public static final String FIELD_ACCESSOR_SERVER_MARKER_FLAG = FIELD_ACCESSOR_BASE + "ServerMarkerFlagFieldAccessor";
+    public static final String FIELD_ACCESSOR_SOCKET_ADDRESS = FIELD_ACCESSOR_BASE + "SocketAddressFieldAccessor";
+    public static final String FIELD_ACCESSOR_SOCKET = FIELD_ACCESSOR_BASE + "SocketFieldAccessor";
+
+    // field getter FQCN
+    private static final String FIELD_GETTER_BASE = "com.navercorp.pinpoint.plugin.thrift.field.getter.";
+    public static final String FIELD_GETTER_T_NON_BLOCKING_TRANSPORT = FIELD_GETTER_BASE + "TNonblockingTransportFieldGetter";
+    public static final String FIELD_GETTER_T_TRANSPORT = FIELD_GETTER_BASE + "TTransportFieldGetter";
 }

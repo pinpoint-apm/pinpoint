@@ -56,16 +56,16 @@ public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInt
             }
             final String beanName = (String) beanNameObject;
 
-            Object bean;
             try {
-                Method getWrappedInstanceMethod = getGetWrappedInstanceMethod(result);
-                bean = getWrappedInstanceMethod.invoke(result);
+                final Method getWrappedInstanceMethod = getGetWrappedInstanceMethod(result);
+                if (getWrappedInstanceMethod != null) {
+                    final Object bean = getWrappedInstanceMethod.invoke(result);
+                    processBean(beanName, bean);
+                }
             } catch (Exception e) {
                 logger.warn("Fail to get create bean instance", e);
                 return;
             }
-
-            processBean(beanName, bean);
         } catch (Throwable t) {
             logger.warn("Unexpected exception", t);
         }
@@ -81,7 +81,8 @@ public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInt
                 return getWrappedInstanceMethod;
             }
 
-            Method findedMethod = object.getClass().getMethod("getWrappedInstance");
+            final Class<?> aClass = object.getClass();
+            final Method findedMethod = aClass.getMethod("getWrappedInstance");
             if (findedMethod != null) {
                 getWrappedInstanceMethod = findedMethod;
                 return getWrappedInstanceMethod;
