@@ -112,7 +112,7 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addField(ServiceCodeAccessor.class.getName());
+                target.addField("com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor");
                 target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.CacheManagerConstructInterceptor");
                 return target.toBytecode();
             }
@@ -126,7 +126,7 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addField(ServiceCodeAccessor.class.getName());
+                target.addField("com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor");
                 return target.toBytecode();
             }
 
@@ -140,8 +140,8 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                target.addField(CacheNameAccessor.class.getName());
-                target.addField(CacheKeyAccessor.class.getName());
+                target.addField("com.navercorp.pinpoint.plugin.arcus.CacheNameAccessor");
+                target.addField("com.navercorp.pinpoint.plugin.arcus.CacheKeyAccessor");
                 target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureConstructInterceptor");
 
                 InstrumentMethod get0 = target.getDeclaredMethod("get", new String[]{"long", "java.util.concurrent.TimeUnit"});
@@ -188,7 +188,7 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 if (target.hasDeclaredMethod("addOp", new String[]{"java.lang.String", "net.spy.memcached.ops.Operation"})) {
-                    target.addField(ServiceCodeAccessor.class.getName());
+                    target.addField("com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor");
                     target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.AddOpInterceptor");
                 }
 
@@ -216,7 +216,7 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-            target.addField(OperationAccessor.class.getName());
+            target.addField("com.navercorp.pinpoint.plugin.arcus.OperationAccessor");
             target.addField(AsyncTraceIdAccessor.class.getName());
 
             // setOperation

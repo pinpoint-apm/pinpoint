@@ -33,12 +33,9 @@ public final class HttpClient4Constants {
     public static final ServiceType HTTP_CLIENT_4 = ServiceTypeFactory.of(9052, "HTTP_CLIENT_4", RECORD_STATISTICS);
     public static final ServiceType HTTP_CLIENT_4_INTERNAL = ServiceTypeFactory.of(9053, "HTTP_CLIENT_4_INTERNAL", "HTTP_CLIENT_4");
 
-    public static final String METADATA_END_POINT = "endPoint";
-    public static final String METADATA_DESTINATION_ID = "destinationId";
     public static final String METADATA_ASYNC_TRACE_ID = "asyncTraceId";
     public static final String FIELD_REQUEST_PRODUCER = "requestProducer";
     public static final String FIELD_RESULT_FUTURE = "resultFuture";
     
     public static final String HTTP_CLIENT4_SCOPE = "HttpClient4Scope"; 
-    public static final String HTTP_CLIENT4_EXECUTOR_SCOPE = "HttpClient4ExecutorScope";
 }

@@ -23,11 +23,14 @@ public class Jetty8ServerHandleInterceptor extends AbstractServerHandleIntercept
     @Override
     protected Request getRequest(Object[] args) {
         try {
-            Object object = args[0];
+            final Object object = args[0];
 
-            Method getRequestMethod = getGetRequestMethod(object.getClass());
-            Request request = (Request) getRequestMethod.invoke(object);
-            return request;
+
+            final Method getRequestMethod = getGetRequestMethod(object);
+            if (getRequestMethod == null) {
+                final Request request = (Request) getRequestMethod.invoke(object);
+                return request;
+            }
         } catch (Exception e) {
             logger.warn(e.getMessage(), e);
         }
@@ -35,7 +38,7 @@ public class Jetty8ServerHandleInterceptor extends AbstractServerHandleIntercept
         return null;
     }
 
-    private Method getGetRequestMethod(Class clazz) {
+    private Method getGetRequestMethod(Object target) {
         if (getRequestMethod != null) {
             return getRequestMethod;
         }
@@ -46,7 +49,8 @@ public class Jetty8ServerHandleInterceptor extends AbstractServerHandleIntercept
             }
 
             try {
-                Method findedMethod = clazz.getMethod("getRequest");
+                final Class<?> clazz = target.getClass();
+                final Method findedMethod = clazz.getMethod("getRequest");
                 if (findedMethod != null) {
                     getRequestMethod = findedMethod;
                     return getRequestMethod;

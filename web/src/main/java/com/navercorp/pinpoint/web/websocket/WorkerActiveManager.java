@@ -148,7 +148,7 @@ public class WorkerActiveManager {
             logger.info("AgentCheckTimerTask started.");
 
             try {
-                List<AgentInfo> agentInfoList = agentService.getAgentInfoList(applicationName);
+                List<AgentInfo> agentInfoList = agentService.getRecentAgentInfoList(applicationName);
                 for (AgentInfo agentInfo : agentInfoList) {
                     String agentId = agentInfo.getAgentId();
                     if (defaultAgentIdList.contains(agentId)) {

@@ -582,6 +582,12 @@
 		},
 		transactionTable: {
 			log: {}
+		},
+		transactionList: {
+			openError: {
+				noParent: "Scatter data of parent window had been changed.\r\nso can\'t scan the data any more.",
+				noData: "There is no {{application}} scatter data in parent window."
+			}
 		}
 	};
 	pinpointApp.constant('helpContent-en', oHelp );

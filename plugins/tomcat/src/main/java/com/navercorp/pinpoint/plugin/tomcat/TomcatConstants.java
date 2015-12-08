@@ -28,10 +28,12 @@ public final class TomcatConstants {
     private TomcatConstants() {
     }
 
-    public static final String TYPE_NAME = "TOMCAT";
     public static final ServiceType TOMCAT = ServiceTypeFactory.of(1010, "TOMCAT", RECORD_STATISTICS);
     public static final ServiceType TOMCAT_METHOD = ServiceTypeFactory.of(1011, "TOMCAT_METHOD");
 
-    public static final String ATTRIBUTE_PINPOINT_TRACE = "PINPOINT_TRACE";
     public static final String TOMCAT_SERVLET_ASYNC_SCOPE = "TomcatServletAsyncScope";
+
+    public static final String ASYNC_ACCESSOR = "com.navercorp.pinpoint.plugin.tomcat.AsyncAccessor";
+    public static final String TRACE_ACCESSOR = "com.navercorp.pinpoint.plugin.tomcat.TraceAccessor";
+
 }
