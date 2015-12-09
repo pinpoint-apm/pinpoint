@@ -73,7 +73,7 @@ public class UserIncludeMethodDescriptor implements MethodDescriptor {
 
     @Override
     public String getApiDescriptor() {
-        return "User Include Process";
+        return "Entry Point Process";
     }
 
     public int getType() {
