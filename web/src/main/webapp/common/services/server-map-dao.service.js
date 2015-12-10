@@ -71,7 +71,9 @@
 	            to: query.to,
 	            originTo: query.originTo,
 	            filter: query.filter,
-	            limit: cfg.FILTER_FETCH_LIMIT
+	            limit: cfg.FILTER_FETCH_LIMIT,
+				callerRange: query.callerRange,
+				calleeRange: query.calleeRange
 	        };
 	        if ( isNaN( parseInt( query.serviceTypeName ) ) ) {
 	    		data.serviceTypeName = query.serviceTypeName; 
