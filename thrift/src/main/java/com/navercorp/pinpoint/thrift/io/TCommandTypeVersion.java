@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import org.apache.thrift.TBase;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.thrift.TBase;
 
 /**
  * @author koo.taejin
@@ -58,6 +58,10 @@ public enum TCommandTypeVersion {
     V_1_5_0("1.5.0", V_1_5_0_SNAPSHOT),
 
     V_1_5_1_SNAPSHOT("1.5.1-SNAPSHOT", V_1_5_0),
+
+    V_1_5_1("1.5.1", V_1_5_1_SNAPSHOT),
+
+    V_1_5_2_SNAPSHOT("1.5.2-SNAPSHOT", V_1_5_1),
 
     UNKNOWN("UNKNOWN");
 
