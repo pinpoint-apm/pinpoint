@@ -35,11 +35,11 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 
 ## Supported Modules
 * JDK 6+
-* Tomcat 6/7/8, Jetty9
+* Tomcat 6/7/8, Jetty 8/9
 * Spring, Spring Boot
 * Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient
 * Thrift Client, Thrift Service
-* MySQL, Oracle, MSSQL, CUBRID, DBCP
+* MySQL, Oracle, MSSQL, CUBRID, DBCP, POSTGRESQL
 * Arcus, Memcached, Redis
 * iBATIS, MyBatis
 * gson, Jackson, Json Lib
