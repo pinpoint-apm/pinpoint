@@ -58,8 +58,7 @@ public class HttpClientIT {
     }
 
     @Test
-    public void hostConfiguration() throws Exception {
-
+    public void hostConfig() throws Exception {
         HttpClient client = new HttpClient();
         HostConfiguration config = new HostConfiguration();
         config.setHost("weather.naver.com", 80, "http");

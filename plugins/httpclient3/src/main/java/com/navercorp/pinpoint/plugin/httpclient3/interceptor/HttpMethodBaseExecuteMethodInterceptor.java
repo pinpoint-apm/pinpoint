@@ -135,11 +135,8 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         // set http header for trace.
         setHttpTraceHeader(target, args, nextId);
 
-        // set attachment for io(read/write).
-        InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-        if (invocation != null) {
-            invocation.getOrCreateAttachment(HttpClient3CallContextFactory.HTTPCLIENT3_CONTEXT_FACTORY);
-        }
+        // init attachment for io(read/write).
+        initAttachment();
     }
 
 
@@ -169,32 +166,15 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
 
-            final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-            if (invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof HttpClient3CallContext) {
-                final HttpClient3CallContext callContext = (HttpClient3CallContext) invocation.getAttachment();
-                if (io) {
-                    recordIo(recorder, callContext);
-                }
-                // clear
-                invocation.removeAttachment();
+            final HttpClient3CallContext callContext = getAndCleanAttachment();
+            if (callContext != null & io) {
+                recordIo(recorder, callContext);
             }
         } finally {
             trace.traceBlockEnd();
         }
     }
 
-    private void recordIo(SpanEventRecorder recorder, HttpClient3CallContext callContext) {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("write=").append(callContext.getWriteElapsedTime());
-        if (callContext.isWriteFail()) {
-            sb.append("(fail)");
-        }
-        sb.append(", read=").append(callContext.getReadElapsedTime());
-        if (callContext.isReadFail()) {
-            sb.append("(fail)");
-        }
-        recorder.recordAttribute(AnnotationKey.HTTP_IO, sb.toString());
-    }
 
     private void setHttpSampledHeader(final Object target) {
         if (isDebug) {
@@ -229,7 +209,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
                 return getEndpoint(url.getHost(), url.getPort());
             }
 
-            if(isDebug) {
+            if (isDebug) {
                 logger.debug("URI is not absolute. {}", url.getURI());
             }
 
@@ -252,6 +232,21 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         return null;
     }
 
+    private void initAttachment() {
+        InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
+        if (invocation != null) {
+            invocation.getOrCreateAttachment(HttpClient3CallContextFactory.HTTPCLIENT3_CONTEXT_FACTORY);
+        }
+    }
+
+    private HttpClient3CallContext getAndCleanAttachment() {
+        final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
+        if (invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof HttpClient3CallContext) {
+            return (HttpClient3CallContext) invocation.removeAttachment();
+        }
+
+        return null;
+    }
 
     private void recordDestination(final Trace trace, final HttpMethod httpMethod, final Object[] args) {
         final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
@@ -265,7 +260,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
                 return;
             }
 
-            if(isDebug) {
+            if (isDebug) {
                 logger.debug("URI is not absolute. {}", uri.getURI());
             }
 
@@ -291,6 +286,19 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             logger.error("Fail get URI", e);
             recorder.recordDestinationId("unknown");
         }
+    }
+
+    private void recordIo(SpanEventRecorder recorder, HttpClient3CallContext callContext) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("write=").append(callContext.getWriteElapsedTime());
+        if (callContext.isWriteFail()) {
+            sb.append("(fail)");
+        }
+        sb.append(", read=").append(callContext.getReadElapsedTime());
+        if (callContext.isReadFail()) {
+            sb.append("(fail)");
+        }
+        recorder.recordAttribute(AnnotationKey.HTTP_IO, sb.toString());
     }
 
     private void recordRequest(Trace trace, HttpMethod httpMethod, Throwable throwable) {
