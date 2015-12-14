@@ -16,20 +16,36 @@
 
 package com.navercorp.pinpoint.collector.cluster.zookeeper.job;
 
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
+import org.apache.commons.lang3.StringUtils;
 
 /**
- * @author koo.taejin
+ * @Author Taejin Koo
  */
-public interface Job {
+public class ZookeeperJob {
 
+    private final Type type;
+    private final String key;
+    public ZookeeperJob(Type type) {
+        this(type, StringUtils.EMPTY);
+    }
 
-    PinpointServer getPinpointServer();
+    public ZookeeperJob(Type type, String key) {
+        this.type = type;
+        this.key = key;
+    }
 
-    int getMaxRetryCount();
+    public Type getType() {
+        return type;
+    }
 
-    int getCurrentRetryCount();
+    public String getKey() {
+        return key;
+    }
 
-    void incrementCurrentRetryCount();
+    public static enum Type {
+        ADD,
+        REMOVE,
+        CLEAR
+    }
 
 }
