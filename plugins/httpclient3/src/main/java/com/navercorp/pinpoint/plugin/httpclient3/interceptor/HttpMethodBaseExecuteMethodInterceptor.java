@@ -24,10 +24,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContextFactory;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3PluginConfig;
-import org.apache.commons.httpclient.HttpConstants;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
@@ -54,9 +51,11 @@ import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContext;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
+import org.apache.commons.httpclient.protocol.Protocol;
 
 /**
  * @author Minwoo Jung
+ * @author jaehong.kim
  */
 @Scope(value = HttpClient3Constants.HTTP_CLIENT3_METHOD_BASE_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
 public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor {
@@ -65,6 +64,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
     private final boolean isDebug = logger.isDebugEnabled();
     private static final int MAX_READ_SIZE = 1024;
     private static final Map<Integer, Integer> httpMethod_Index;
+
     static {
         httpMethod_Index = new HashMap<Integer, Integer>();
         httpMethod_Index.put(1, 0);
@@ -92,7 +92,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         this.descriptor = methodDescriptor;
         this.interceptorScope = interceptorScope;
 
-        final HttpClient3PluginConfig config  = new HttpClient3PluginConfig(traceContext.getProfilerConfig());
+        final HttpClient3PluginConfig config = new HttpClient3PluginConfig(traceContext.getProfilerConfig());
         this.param = config.isParam();
         this.cookie = config.isCookie();
         this.cookieDumpType = config.getCookieDumpType();
@@ -147,7 +147,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             httpMethod.setRequestHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
             httpMethod.setRequestHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
             httpMethod.setRequestHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
-            final String host = getHost(httpMethod);
+            final String host = getHost(httpMethod, args);
             if (host != null) {
                 httpMethod.setRequestHeader(Header.HTTP_HOST.toString(), host);
             }
@@ -159,10 +159,23 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         }
     }
 
-    private String getHost(HttpMethod httpMethod) {
+    private String getHost(HttpMethod httpMethod, Object[] args) {
         try {
-            URI url = httpMethod.getURI();
-            return getEndpoint(url.getHost(), url.getPort());
+            final URI url = httpMethod.getURI();
+            if (url.isAbsoluteURI()) {
+                return getEndpoint(url.getHost(), url.getPort());
+            }
+            // if not found schema, use httpConnection.
+            final HttpConnection httpConnection = getHttpConnection(args);
+            if (httpConnection != null) {
+                final String host = httpConnection.getHost();
+                int port = httpConnection.getPort();
+                // if port is default port number.
+                if (httpConnection.getProtocol() != null && port == httpConnection.getProtocol().getDefaultPort()) {
+                    port = -1;
+                }
+                return getEndpoint(host, port);
+            }
         } catch (URIException e) {
             logger.error("Fail get URI", e);
         }
@@ -185,15 +198,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             HttpMethod httpMethod = (HttpMethod) target;
             if (httpMethod != null) {
-                try {
-                    final URI uri = httpMethod.getURI();
-                    String uriString = uri.getURI();
-                    recorder.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(uriString, param));
-                    recorder.recordDestinationId(getEndpoint(uri.getHost(), uri.getPort()));
-                } catch (URIException e) {
-                    logger.error("Fail get URI", e);
-                }
-
+                recordDestination(trace, httpMethod, args);
                 recordRequest(trace, httpMethod, throwable);
             }
 
@@ -211,11 +216,11 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
                 if (io) {
                     final StringBuilder sb = new StringBuilder();
                     sb.append("write=").append(callContext.getWriteElapsedTime());
-                    if(callContext.isWriteFail()) {
+                    if (callContext.isWriteFail()) {
                         sb.append("(fail)");
                     }
                     sb.append(", read=").append(callContext.getReadElapsedTime());
-                    if(callContext.isReadFail()) {
+                    if (callContext.isReadFail()) {
                         sb.append("(fail)");
                     }
                     recorder.recordAttribute(AnnotationKey.HTTP_IO, sb.toString());
@@ -225,6 +230,41 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             }
         } finally {
             trace.traceBlockEnd();
+        }
+    }
+
+    private void recordDestination(final Trace trace, final HttpMethod httpMethod, final Object[] args) {
+        final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+        try {
+            final URI uri = httpMethod.getURI();
+            final HttpConnection httpConnection = getHttpConnection(args);
+            // if uri have schema or not found HttpConnection argument.
+            if (uri.isAbsoluteURI() || httpConnection == null) {
+                recorder.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(uri.getURI(), param));
+                recorder.recordDestinationId(getEndpoint(uri.getHost(), uri.getPort()));
+                return;
+            }
+            // use HttpConnection argument.
+            final String host = httpConnection.getHost();
+            int port = httpConnection.getPort();
+            final StringBuilder httpUrl = new StringBuilder();
+            final Protocol protocol = httpConnection.getProtocol();
+            if (protocol != null) {
+                httpUrl.append(protocol.getScheme()).append("://");
+                httpUrl.append(httpConnection.getHost());
+                // if port is default port number.
+                if (httpConnection.getPort() == protocol.getDefaultPort()) {
+                    port = -1;
+                } else {
+                    httpUrl.append(":").append(port);
+                }
+            }
+            httpUrl.append(uri.getURI());
+            recorder.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(httpUrl.toString(), param));
+            recorder.recordDestinationId(getEndpoint(host, port));
+        } catch (URIException e) {
+            logger.error("Fail get URI", e);
+            recorder.recordDestinationId("unknown");
         }
     }
 
@@ -316,7 +356,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
 
     private String getEndpoint(String host, int port) {
         if (host == null) {
-            return "UnknownHttpClient";
+            return "unknown";
         }
         if (port < 0) {
             return host;
@@ -326,5 +366,13 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         sb.append(':');
         sb.append(port);
         return sb.toString();
+    }
+
+    private HttpConnection getHttpConnection(final Object[] args) {
+        if (args == null || args.length <= 1 || !(args[1] instanceof HttpConnection)) {
+            return null;
+        }
+
+        return (HttpConnection) args[1];
     }
 }
