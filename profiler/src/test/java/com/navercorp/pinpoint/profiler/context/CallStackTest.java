@@ -22,15 +22,16 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.profiler.context.CallStack;
-import com.navercorp.pinpoint.profiler.context.Span;
-import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author emeroad
  * @author jaehong.kim
  */
 public class CallStackTest {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private Span span;
     private SpanEvent spanEvent;
 
@@ -123,7 +124,7 @@ public class CallStackTest {
         assertTrue(callStack.isOverflow());
         assertNotNull(callStack.peek());
         // check inner index value.
-        System.out.println(callStack);
+        logger.debug("{}", callStack);
 
         assertNotNull(callStack.pop());
         assertEquals(maxDepth, callStack.getIndex());

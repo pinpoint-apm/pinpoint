@@ -26,6 +26,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
@@ -47,6 +49,7 @@ import com.navercorp.pinpoint.web.vo.User;
 @WebAppConfiguration
 @ContextConfiguration(locations = {"classpath:servlet-context.xml", "classpath:applicationContext-web.xml"})
 public class ConfigControllerTest {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private WebApplicationContext wac;
     
@@ -82,7 +85,7 @@ public class ConfigControllerTest {
                                         .andExpect(jsonPath("$", hasKey("userDepartment")))
                                         .andReturn();
         String content = result.getResponse().getContentAsString();
-        System.out.println(content);
+        logger.debug(content);
         
         result = this.mockMvc.perform(get("/configuration.pinpoint").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -92,7 +95,7 @@ public class ConfigControllerTest {
                 .andExpect(jsonPath("$", hasKey("sendUsage")))
                 .andReturn();
         content = result.getResponse().getContentAsString();
-        System.out.println(content);
+        logger.debug(content);
     }
 
 }

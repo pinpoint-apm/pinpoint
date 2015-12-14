@@ -22,18 +22,21 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author emeroad
  */
 public class PreparedStatementUtilsTest {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Test
     public void testBindSetMethod() {
         List<Method> bindVariableSetMethod = PreparedStatementUtils.findBindVariableSetMethod();
         for (Method method : bindVariableSetMethod) {
-            System.out.println(method);
+            logger.debug("{}", method);
         }
     }
 

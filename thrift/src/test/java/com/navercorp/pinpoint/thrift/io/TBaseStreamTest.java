@@ -29,10 +29,13 @@ import org.junit.Test;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
-import com.navercorp.pinpoint.thrift.io.ByteArrayOutput;
-import com.navercorp.pinpoint.thrift.io.TBaseStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TBaseStreamTest {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private static final String AGENT_ID = "agentId";
     private static final String APPLICATION_NAME = "applicationName";
     private static final byte[] TRANSACTION_ID = "transactionId".getBytes();
@@ -119,13 +122,13 @@ public class TBaseStreamTest {
         for (TSpanEvent e : spanChunk.getSpanEventList()) {
             stream.write(e);
         }
-        System.out.println("event " + stream);
+        logger.debug("event {}", stream);
 
         // split 1k
         TBaseStream chunkStream = new TBaseStream(DEFAULT_PROTOCOL_FACTORY);
 
         List<ByteArrayOutput> nodes = stream.split(1024);
-        System.out.println("nodes " + nodes);
+        logger.debug("nodes {}", nodes);
 //        chunkStream.write(spanChunk, "spanEventList", nodes);
 //        while (!stream.isEmpty()) {
 //            nodes = stream.split(1024);

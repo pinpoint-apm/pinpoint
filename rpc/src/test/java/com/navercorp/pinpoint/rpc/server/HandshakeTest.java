@@ -89,7 +89,7 @@ public class HandshakeTest {
     public void handshakeTest2() throws InterruptedException {
         PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_INSTANCE);
 
-        Map params = PinpointRPCTestUtils.getParams();
+        Map<String, Object> params = PinpointRPCTestUtils.getParams();
         
         PinpointClientFactory clientFactory1 = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
 

@@ -44,6 +44,8 @@ import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
 
 /**
@@ -202,9 +204,11 @@ public class SpanStreamUDPSenderTest {
 
     static class TestTBaseFilter<T> implements TBaseFilter<T> {
 
+        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
         @Override
         public boolean filter(TBase<?, ?> tBase, T remoteHostAddress) {
-            System.out.println("filter");
+            logger.debug("filter");
             return false;
         }
 
@@ -212,11 +216,13 @@ public class SpanStreamUDPSenderTest {
 
     static class MessageHolderDispatchHandler extends AbstractDispatchHandler {
 
+        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
         private List<TBase> messageHolder = new ArrayList<>();
 
         @Override
         public void dispatchSendMessage(TBase<?, ?> tBase) {
-            System.out.println("dispatchSendMessage");
+            logger.debug("dispatchSendMessage");
         }
 
         @Override
