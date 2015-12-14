@@ -16,6 +16,7 @@ z * Copyright 2014 NAVER Corp.
 package com.navercorp.pinpoint.plugin.httpclient3;
 
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -47,6 +48,30 @@ public class HttpClientIT {
         try {
             // Execute the method.
             client.executeMethod(method);
+        } catch (Exception ignored) {
+        } finally {
+            method.releaseConnection();
+        }
+
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printCache();
+    }
+
+    @Test
+    public void hostConfiguration() throws Exception {
+
+        HttpClient client = new HttpClient();
+        HostConfiguration config = new HostConfiguration();
+        config.setHost("weather.naver.com", 80, "http");
+        GetMethod method = new GetMethod("/rgn/cityWetrMain.nhn");
+
+        // Provide custom retry handler is necessary
+        method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
+        method.setQueryString(new NameValuePair[] { new NameValuePair("key2", "value2") });
+
+        try {
+            // Execute the method.
+            client.executeMethod(config, method);
         } catch (Exception ignored) {
         } finally {
             method.releaseConnection();

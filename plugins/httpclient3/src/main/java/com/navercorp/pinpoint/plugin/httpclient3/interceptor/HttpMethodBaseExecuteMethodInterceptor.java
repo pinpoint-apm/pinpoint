@@ -31,7 +31,6 @@ import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -122,66 +121,27 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             return;
         }
 
-        final HttpMethod httpMethod = (HttpMethod) target;
-        final boolean sampling = trace.canSampled();
-        if (!sampling) {
-            if (isDebug) {
-                logger.debug("set Sampling flag=false");
-            }
-            if (httpMethod != null) {
-                httpMethod.setRequestHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
-            }
-
+        if (!trace.canSampled()) {
+            // set http header.
+            setHttpSampledHeader(target);
             return;
         }
 
         final SpanEventRecorder recorder = trace.traceBlockBegin();
-        TraceId nextId = trace.getTraceId().getNextTraceId();
+        // generate next trace id.
+        final TraceId nextId = trace.getTraceId().getNextTraceId();
         recorder.recordNextSpanId(nextId.getSpanId());
         recorder.recordServiceType(HttpClient3Constants.HTTP_CLIENT_3);
+        // set http header for trace.
+        setHttpTraceHeader(target, args, nextId);
 
-        if (httpMethod != null) {
-            httpMethod.setRequestHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
-            httpMethod.setRequestHeader(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
-            httpMethod.setRequestHeader(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
-            httpMethod.setRequestHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
-            httpMethod.setRequestHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-            httpMethod.setRequestHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
-            final String host = getHost(httpMethod, args);
-            if (host != null) {
-                httpMethod.setRequestHeader(Header.HTTP_HOST.toString(), host);
-            }
-        }
-
+        // set attachment for io(read/write).
         InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
         if (invocation != null) {
             invocation.getOrCreateAttachment(HttpClient3CallContextFactory.HTTPCLIENT3_CONTEXT_FACTORY);
         }
     }
 
-    private String getHost(HttpMethod httpMethod, Object[] args) {
-        try {
-            final URI url = httpMethod.getURI();
-            if (url.isAbsoluteURI()) {
-                return getEndpoint(url.getHost(), url.getPort());
-            }
-            // if not found schema, use httpConnection.
-            final HttpConnection httpConnection = getHttpConnection(args);
-            if (httpConnection != null) {
-                final String host = httpConnection.getHost();
-                int port = httpConnection.getPort();
-                // if port is default port number.
-                if (httpConnection.getProtocol() != null && port == httpConnection.getProtocol().getDefaultPort()) {
-                    port = -1;
-                }
-                return getEndpoint(host, port);
-            }
-        } catch (URIException e) {
-            logger.error("Fail get URI", e);
-        }
-
-        return null;
-    }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
@@ -196,8 +156,8 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
 
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            HttpMethod httpMethod = (HttpMethod) target;
-            if (httpMethod != null) {
+            if (target instanceof HttpMethod) {
+                HttpMethod httpMethod = (HttpMethod) target;
                 recordDestination(trace, httpMethod, args);
                 recordRequest(trace, httpMethod, throwable);
             }
@@ -209,21 +169,11 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
 
-            InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
+            final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
             if (invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof HttpClient3CallContext) {
                 final HttpClient3CallContext callContext = (HttpClient3CallContext) invocation.getAttachment();
-                logger.debug("Check call context {}", callContext);
                 if (io) {
-                    final StringBuilder sb = new StringBuilder();
-                    sb.append("write=").append(callContext.getWriteElapsedTime());
-                    if (callContext.isWriteFail()) {
-                        sb.append("(fail)");
-                    }
-                    sb.append(", read=").append(callContext.getReadElapsedTime());
-                    if (callContext.isReadFail()) {
-                        sb.append("(fail)");
-                    }
-                    recorder.recordAttribute(AnnotationKey.HTTP_IO, sb.toString());
+                    recordIo(recorder, callContext);
                 }
                 // clear
                 invocation.removeAttachment();
@@ -232,6 +182,76 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             trace.traceBlockEnd();
         }
     }
+
+    private void recordIo(SpanEventRecorder recorder, HttpClient3CallContext callContext) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("write=").append(callContext.getWriteElapsedTime());
+        if (callContext.isWriteFail()) {
+            sb.append("(fail)");
+        }
+        sb.append(", read=").append(callContext.getReadElapsedTime());
+        if (callContext.isReadFail()) {
+            sb.append("(fail)");
+        }
+        recorder.recordAttribute(AnnotationKey.HTTP_IO, sb.toString());
+    }
+
+    private void setHttpSampledHeader(final Object target) {
+        if (isDebug) {
+            logger.debug("set Sampling flag=false");
+        }
+        if (target instanceof HttpMethod) {
+            final HttpMethod httpMethod = (HttpMethod) target;
+            httpMethod.setRequestHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
+        }
+    }
+
+    private void setHttpTraceHeader(final Object target, final Object[] args, TraceId nextId) {
+        if (target instanceof HttpMethod) {
+            final HttpMethod httpMethod = (HttpMethod) target;
+            httpMethod.setRequestHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
+            httpMethod.setRequestHeader(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
+            httpMethod.setRequestHeader(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
+            httpMethod.setRequestHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
+            httpMethod.setRequestHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
+            httpMethod.setRequestHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
+            final String host = getHost(httpMethod, args);
+            if (host != null) {
+                httpMethod.setRequestHeader(Header.HTTP_HOST.toString(), host);
+            }
+        }
+    }
+
+    private String getHost(HttpMethod httpMethod, Object[] args) {
+        try {
+            final URI url = httpMethod.getURI();
+            if (url.isAbsoluteURI()) {
+                return getEndpoint(url.getHost(), url.getPort());
+            }
+
+            if(isDebug) {
+                logger.debug("URI is not absolute. {}", url.getURI());
+            }
+
+            // if not found schema, use httpConnection.
+            final HttpConnection httpConnection = getHttpConnection(args);
+            if (httpConnection != null) {
+                final String host = httpConnection.getHost();
+                int port = httpConnection.getPort();
+                // if port is default port number.
+                if (httpConnection.getProtocol() != null && port == httpConnection.getProtocol().getDefaultPort()) {
+                    port = -1;
+                }
+                return getEndpoint(host, port);
+            }
+        } catch (URIException e) {
+            // unexpected error, perhaps of user fault.
+            logger.error("[HttpClient3] Fail get URI", e);
+        }
+
+        return null;
+    }
+
 
     private void recordDestination(final Trace trace, final HttpMethod httpMethod, final Object[] args) {
         final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
@@ -244,6 +264,11 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
                 recorder.recordDestinationId(getEndpoint(uri.getHost(), uri.getPort()));
                 return;
             }
+
+            if(isDebug) {
+                logger.debug("URI is not absolute. {}", uri.getURI());
+            }
+
             // use HttpConnection argument.
             final String host = httpConnection.getHost();
             int port = httpConnection.getPort();
@@ -345,7 +370,6 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         }
 
         final String value = cookie.getValue();
-
         if (value != null && !value.isEmpty()) {
             if (cookieSampler.isSampling()) {
                 final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
@@ -369,10 +393,10 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
     }
 
     private HttpConnection getHttpConnection(final Object[] args) {
-        if (args == null || args.length <= 1 || !(args[1] instanceof HttpConnection)) {
-            return null;
+        if (args != null && args.length > 1 && args[1] instanceof HttpConnection) {
+            return (HttpConnection) args[1];
         }
 
-        return (HttpConnection) args[1];
+        return null;
     }
 }
