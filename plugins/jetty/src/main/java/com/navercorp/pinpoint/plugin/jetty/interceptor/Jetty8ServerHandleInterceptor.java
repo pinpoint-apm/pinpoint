@@ -27,7 +27,7 @@ public class Jetty8ServerHandleInterceptor extends AbstractServerHandleIntercept
 
 
             final Method getRequestMethod = getGetRequestMethod(object);
-            if (getRequestMethod == null) {
+            if (getRequestMethod != null) {
                 final Request request = (Request) getRequestMethod.invoke(object);
                 return request;
             }
