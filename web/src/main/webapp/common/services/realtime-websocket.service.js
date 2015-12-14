@@ -10,36 +10,24 @@
 	pinpointApp.constant('RealtimeWebsocketServiceConfig', {
 		wsUrl: "/agent/activeThread.pinpointws",
 		wsTimeout: 10000, //ms
+		retryTimeout: 3000,
+		maxRetryCount: 1
 	});
 	
 	pinpointApp.service('RealtimeWebsocketService', [ 'RealtimeWebsocketServiceConfig', function(cfg) {
 
-	    var self = this;
+		var connectTime = null;
 	    var lastReceiveTime = null;
     	var websocket = null;
     	var refInterval = null;
     	var oHandlers;
+		var retryCount = 0;
 
 	    this.open = function( handlers ) {
 	    	websocket = null;
 	    	oHandlers = handlers;
         	if ( angular.isDefined( WebSocket ) ) {
-	    		websocket = new WebSocket("ws://" + location.host + cfg.wsUrl);
-	    		websocket.onopen = function(event) {
-	    			lastReceiveTime = Date.now();
-	    			startTimeoutChecker();
-	    			oHandlers.onopen(event);
-	            };
-	            websocket.onmessage = function(event) {
-	            	lastReceiveTime = Date.now();
-	            	oHandlers.onmessage(JSON.parse( event.data ));
-	            };
-	            websocket.onclose = function(event) {
-	            	console.log( "onClose websocket", event);
-	            	websocket = null;
-	            	stopTimeoutChecker();
-	            	oHandlers.onclose(event);
-	            };
+				connectWebsocket();
 	            return true;
         	}
         	return false;
@@ -63,7 +51,26 @@
 	    		websocket.send( message );
 	    	}
 	    	stopTimeoutChecker();
-	    }
+	    };
+		function connectWebsocket() {
+			websocket = new WebSocket("ws://" + location.host + cfg.wsUrl);
+			websocket.onopen = function(event) {
+				connectTime = lastReceiveTime = Date.now();
+				startTimeoutChecker();
+				oHandlers.onopen(event);
+			};
+			websocket.onmessage = function(event) {
+				lastReceiveTime = Date.now();
+				oHandlers.onmessage(JSON.parse( event.data ));
+			};
+			websocket.onclose = function(event) {
+				console.log( "onClose websocket", event);
+				websocket = null;
+				stopTimeoutChecker();
+				oHandlers.onclose(event);
+				checkRetry();
+			};
+		};
 	    
 	    function startTimeoutChecker() {
     		refInterval = setInterval(function() {
@@ -75,11 +82,18 @@
 	    		}
 	    		oHandlers.ondelay();
 	    	}, 1000);
-    	}
+    	};
     	function stopTimeoutChecker() {
-    		lastReceiveTime = null;
     		clearInterval( refInterval );
-    	}
-	    	
+    	};
+		function checkRetry() {
+			if ( connectTime !== null && connectTime === lastReceiveTime && ( Date.now() - connectTime < cfg.retryTimeout ) ) {
+				if ( retryCount < cfg.maxRetryCount ) {
+					console.log("retry websocket connection");
+					retryCount++;
+					oHandlers.retry();
+				}
+			}
+		};
 	}]);
 })();

@@ -158,7 +158,10 @@
 	        		},
 	        		ondelay: function() {
 	        			websocketService.close();
-	        		}
+	        		},
+					retry: function() {
+						$scope.retryConnection();
+					}
 	        	});
 	        	if ( bConnected ) {
 	        		initChartDirective();
