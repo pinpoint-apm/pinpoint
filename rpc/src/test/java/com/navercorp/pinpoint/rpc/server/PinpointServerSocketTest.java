@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import com.navercorp.pinpoint.rpc.DiscardPipelineFactory;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
+import org.springframework.util.SocketUtils;
 
 /**
  * @author emeroad
@@ -34,7 +35,7 @@ public class PinpointServerSocketTest {
     
     @BeforeClass
     public static void setUp() throws IOException {
-        bindPort = PinpointRPCTestUtils.findAvailablePort();
+        bindPort = SocketUtils.findAvailableTcpPort();
     }
     
     @Test

@@ -26,6 +26,7 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -41,7 +42,7 @@ public class PinpointClientStateTest {
 
     @BeforeClass
     public static void setUp() throws IOException {
-        bindPort = PinpointRPCTestUtils.findAvailablePort();
+        bindPort = SocketUtils.findAvailableTcpPort();
     }
 
     @Test

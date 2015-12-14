@@ -45,6 +45,7 @@ import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
+import org.springframework.util.SocketUtils;
 
 /**
  * @author koo.taejin
@@ -57,7 +58,7 @@ public class ControlPacketServerTest {
     
     @BeforeClass
     public static void setUp() throws IOException {
-        bindPort = PinpointRPCTestUtils.findAvailablePort();
+        bindPort = SocketUtils.findAvailableTcpPort();
     }
 
     // Test for being possible to send messages in case of failure of registering packet ( return code : 2, lack of parameter)

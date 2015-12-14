@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.SocketUtils;
 
 import java.util.Collections;
 import java.util.Map;
@@ -44,7 +45,7 @@ public class TcpDataSenderTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public static final int PORT = 10050;
+    public static final int PORT = SocketUtils.findAvailableTcpPort(50050);
     public static final String HOST = "127.0.0.1";
 
     private PinpointServerAcceptor serverAcceptor;

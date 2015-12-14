@@ -41,31 +41,7 @@ public final class PinpointRPCTestUtils {
 
     private PinpointRPCTestUtils() {
     }
-    
 
-    public static int findAvailablePort() throws IOException {
-        return findAvailablePort(21111);
-    }
-
-    public static int findAvailablePort(int defaultPort) throws IOException {
-        int bindPort = defaultPort;
-
-        ServerSocket serverSocket = null;
-        while (0xFFFF >= bindPort && serverSocket == null) {
-            try {
-                serverSocket = new ServerSocket(bindPort);
-            } catch (IOException ex) {
-                bindPort++;
-            }
-        }
-        
-        if (serverSocket != null) {
-            serverSocket.close();
-            return bindPort;
-        } 
-        
-        throw new IOException("can't find available port.");
-    }
 
     public static PinpointServerAcceptor createPinpointServerFactory(int bindPort) {
         return createPinpointServerFactory(bindPort, null);

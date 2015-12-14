@@ -28,6 +28,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -45,7 +46,7 @@ public class PinpointClientFactoryTest {
     
     @BeforeClass
     public static void setUp() throws IOException {
-        bindPort = PinpointRPCTestUtils.findAvailablePort();
+        bindPort = SocketUtils.findAvailableTcpPort();
 
         clientFactory = new PinpointClientFactory();
         clientFactory.setPingDelay(100);

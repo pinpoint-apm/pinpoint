@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.web.util;
 
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -35,30 +33,6 @@ public class PinpointWebTestUtils {
     private PinpointWebTestUtils() {
     }
 
-    public static int findAvailablePort() throws IOException {
-        return findAvailablePort(21111);
-    }
-
-    public static int findAvailablePort(int defaultPort) throws IOException {
-        int bindPort = defaultPort;
-
-        ServerSocket serverSocket = null;
-        while (0xFFFF >= bindPort && serverSocket == null) {
-            try {
-                serverSocket = new ServerSocket(bindPort);
-            } catch (IOException ex) {
-                bindPort++;
-            }
-        }
-        
-        if (serverSocket != null) {
-            serverSocket.close();
-            return bindPort;
-        } 
-        
-        throw new IOException("can't find available port.");
-    }
-    
     public static String getRepresentationLocalV4Ip() {
         String ip = NetUtils.getLocalV4Ip();
 

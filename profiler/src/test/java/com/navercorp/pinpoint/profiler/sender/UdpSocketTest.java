@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.sender;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -35,7 +36,7 @@ public class UdpSocketTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     // port conflict against base port. so increased 5
-    private int PORT = 61112;
+    private int PORT = SocketUtils.findAvailableTcpPort(51112);
     // The correct maximum UDP message size is 65507, as determined by the following formula:
     // 0xffff - (sizeof(IP Header) + sizeof(UDP Header)) = 65535-(20+8) = 65507
     private static int AcceptedSize = 65507;
@@ -56,7 +57,7 @@ public class UdpSocketTest {
         close(sender);
         close(receiver);
         // port conflict happens when testcases run continuously so port number is increased.
-        PORT++;
+        PORT = SocketUtils.findAvailableTcpPort(61112);
     }
 
     private void close(DatagramSocket socket) {
