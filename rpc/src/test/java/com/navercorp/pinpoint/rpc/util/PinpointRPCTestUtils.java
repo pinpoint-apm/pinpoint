@@ -72,11 +72,11 @@ public final class PinpointRPCTestUtils {
         }
     }
     
-    public static PinpointClientFactory createClientFactory(Map param) {
+    public static PinpointClientFactory createClientFactory(Map<String, Object> param) {
         return createClientFactory(param, null);
     }
     
-    public static PinpointClientFactory createClientFactory(Map param, MessageListener messageListener) {
+    public static PinpointClientFactory createClientFactory(Map<String, Object> param, MessageListener messageListener) {
         PinpointClientFactory clientFactory = new PinpointClientFactory();
         clientFactory.setProperties(param);
         clientFactory.addStateChangeEventListener(LoggingStateChangeEventListener.INSTANCE);
@@ -137,8 +137,8 @@ public final class PinpointRPCTestUtils {
         return new EchoClientListener();
     }
 
-    public static Map getParams() {
-        Map properties = new HashMap();
+    public static Map<String, Object> getParams() {
+        Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(AgentHandshakePropertyType.AGENT_ID.getName(), "agent");
         properties.put(AgentHandshakePropertyType.APPLICATION_NAME.getName(), "application");
         properties.put(AgentHandshakePropertyType.HOSTNAME.getName(), "hostname");

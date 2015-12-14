@@ -310,7 +310,7 @@ public class WeakAtomicReferenceArrayTest {
             writer.execute(writeJob);
         }
 
-        System.out.println("start");
+        logger.info("start");
         for (int i = 0; i < 100; i++) {
             Thread.sleep(1000);
             logger.info("failCounter:{}", failCounter.get());

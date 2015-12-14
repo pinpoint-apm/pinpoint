@@ -38,8 +38,12 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ErrorCountToCalleCheckerTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(ErrorCountToCalleCheckerTest.class);
 
     private static final String FROM_SERVICE_NAME = "from_local_service";
     private static final String TO_SERVICE_NAME = "to_local_service";
@@ -69,7 +73,7 @@ public class ErrorCountToCalleCheckerTest {
                         TimeHistogram timeHistogram = new TimeHistogram(ServiceType.STAND_ALONE, timeStamp);
                         
                         if (j % 2 == 0) {
-                            System.out.println("ERROR");
+                            logger.debug("ERROR");
                             timeHistogram.addCallCountByElapsedTime(1000, true);
                         } else {
                             timeHistogram.addCallCountByElapsedTime(1000, false);

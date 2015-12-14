@@ -23,12 +23,16 @@ import org.junit.Test;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Jongho Moon
  *
  */
 public class TargetBeanFilterTest {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
     public void testClassLoadedByBootClassLoader() {
@@ -39,7 +43,7 @@ public class TargetBeanFilterTest {
         TargetBeanFilter filter = TargetBeanFilter.of(config);
         
         if (String.class.getClassLoader() != null) {
-            System.out.println("String is not loaded by: " + String.class.getClassLoader() + ". Skip test.");
+            logger.debug("String is not loaded by: {}. Skip test.", String.class.getClassLoader());
             return;
         }
 

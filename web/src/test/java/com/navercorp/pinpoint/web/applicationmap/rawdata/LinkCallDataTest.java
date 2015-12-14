@@ -9,8 +9,11 @@ import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
 import com.navercorp.pinpoint.web.vo.LinkKey;
 import com.navercorp.pinpoint.web.vo.Range;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LinkCallDataTest {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final long ONE_MINUTE = 6000 * 10;
     private static final long ONE_HOUR = TimeUnit.HOURS.toMillis(1);
@@ -33,7 +36,7 @@ public class LinkCallDataTest {
         data1.addCallData(currentTime + ONE_MINUTE + ONE_MINUTE + ONE_MINUTE, (short) 100, 1L);
         data1.addCallData(currentTime + ONE_MINUTE + ONE_MINUTE + ONE_MINUTE + ONE_MINUTE, (short) 100, 1L);
         
-        System.out.println(data1.getTimeHistogram().size());
+        logger.debug("{}", data1.getTimeHistogram().size());
         
         Range range = new Range(currentTime, currentTime + SIX_HOURS);
         TimeWindow window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
@@ -44,8 +47,7 @@ public class LinkCallDataTest {
         data2.addCallData(currentTime + ONE_MINUTE + ONE_MINUTE + ONE_MINUTE, (short) 100, 1L);
         data2.addCallData(currentTime + ONE_MINUTE + ONE_MINUTE + ONE_MINUTE + ONE_MINUTE, (short) 100, 1L);
 
-        
-        System.out.println(data2.getTimeHistogram().size());
+        logger.debug("{}", data2.getTimeHistogram().size());
 
     }
 

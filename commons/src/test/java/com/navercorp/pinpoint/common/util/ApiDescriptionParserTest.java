@@ -20,14 +20,17 @@ package com.navercorp.pinpoint.common.util;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.common.util.ApiDescription;
-import com.navercorp.pinpoint.common.util.ApiDescriptionParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * @author emeroad
  */
 public class ApiDescriptionParserTest {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private ApiDescriptionParser apiParser = new ApiDescriptionParser();
 
     @Test
@@ -95,8 +98,8 @@ public class ApiDescriptionParserTest {
         final String apiDescriptionString = ".Tomcat Servlet Process()";
         ApiDescription result = apiParser.parse(apiDescriptionString);
         
-        System.out.println(result.getSimpleMethodDescription());
-        System.out.println(result.getSimpleClassName());
+        logger.debug(result.getSimpleMethodDescription());
+        logger.debug(result.getSimpleClassName());
     }
 
 }

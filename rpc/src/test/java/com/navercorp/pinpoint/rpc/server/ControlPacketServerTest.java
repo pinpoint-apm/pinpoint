@@ -152,10 +152,10 @@ public class ControlPacketServerTest {
 
 
     private int sendAndReceiveRegisterPacket(Socket socket) throws ProtocolException, IOException {
-        return sendAndReceiveRegisterPacket(socket, Collections.EMPTY_MAP);
+        return sendAndReceiveRegisterPacket(socket, Collections.<String, Object>emptyMap());
     }
 
-    private int sendAndReceiveRegisterPacket(Socket socket, Map properties) throws ProtocolException, IOException {
+    private int sendAndReceiveRegisterPacket(Socket socket, Map<String, Object> properties) throws ProtocolException, IOException {
         sendRegisterPacket(socket.getOutputStream(), properties);
         ControlHandshakeResponsePacket packet = receiveRegisterConfirmPacket(socket.getInputStream());
         Map<Object, Object> result = (Map<Object, Object>) ControlMessageEncodingUtils.decode(packet.getPayload());
@@ -169,7 +169,7 @@ public class ControlPacketServerTest {
         Assert.assertNotNull(responsePacket);
     }
 
-    private void sendRegisterPacket(OutputStream outputStream, Map properties) throws ProtocolException, IOException {
+    private void sendRegisterPacket(OutputStream outputStream, Map<String, Object> properties) throws ProtocolException, IOException {
         byte[] payload = ControlMessageEncodingUtils.encode(properties);
         ControlHandshakePacket packet = new ControlHandshakePacket(1, payload);
 
