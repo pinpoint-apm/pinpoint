@@ -167,7 +167,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             recorder.recordException(throwable);
 
             final HttpClient3CallContext callContext = getAndCleanAttachment();
-            if (callContext != null & io) {
+            if (callContext != null) {
                 recordIo(recorder, callContext);
             }
         } finally {
@@ -289,16 +289,18 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
     }
 
     private void recordIo(SpanEventRecorder recorder, HttpClient3CallContext callContext) {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("write=").append(callContext.getWriteElapsedTime());
-        if (callContext.isWriteFail()) {
-            sb.append("(fail)");
+        if (io) {
+            final StringBuilder sb = new StringBuilder();
+            sb.append("write=").append(callContext.getWriteElapsedTime());
+            if (callContext.isWriteFail()) {
+                sb.append("(fail)");
+            }
+            sb.append(", read=").append(callContext.getReadElapsedTime());
+            if (callContext.isReadFail()) {
+                sb.append("(fail)");
+            }
+            recorder.recordAttribute(AnnotationKey.HTTP_IO, sb.toString());
         }
-        sb.append(", read=").append(callContext.getReadElapsedTime());
-        if (callContext.isReadFail()) {
-            sb.append("(fail)");
-        }
-        recorder.recordAttribute(AnnotationKey.HTTP_IO, sb.toString());
     }
 
     private void recordRequest(Trace trace, HttpMethod httpMethod, Throwable throwable) {
