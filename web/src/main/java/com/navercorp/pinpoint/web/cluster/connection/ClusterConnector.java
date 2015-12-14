@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.rpc.UnsupportOperationMessageListener;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.cluster.Role;
-import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
 import com.navercorp.pinpoint.web.util.WebUtils;
 import org.slf4j.Logger;
@@ -39,7 +38,7 @@ import java.util.List;
 /**
  * @Author Taejin Koo
  */
-public class WebClusterConnector implements WebClusterConnectionProvider {
+public class ClusterConnector implements ClusterConnectionProvider {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -48,13 +47,13 @@ public class WebClusterConnector implements WebClusterConnectionProvider {
 
     private final String connectString;
 
-    public WebClusterConnector(String connectString) {
+    public ClusterConnector(String connectString) {
         this.connectString = connectString;
     }
 
     @Override
     public void start() {
-        logger.info("{} initialization started.", ClassUtils.simpleClassName(this));
+        logger.info("start() started.");
 
         clientFactory.setTimeoutMillis(1000 * 5);
         clientFactory.setMessageListener(UnsupportOperationMessageListener.getInstance());
@@ -70,18 +69,18 @@ public class WebClusterConnector implements WebClusterConnectionProvider {
             clusterSocketList.add(pinpointSocket);
         }
 
-        logger.info("{} initialization completed.", ClassUtils.simpleClassName(this));
+        logger.info("start completed.");
     }
 
     @Override
     public void stop() {
-        logger.info("{} destroying started.", ClassUtils.simpleClassName(this));
+        logger.info("stop() started.");
 
         if (clientFactory != null) {
             clientFactory.release();
         }
 
-        logger.info("{} destroying completed.", ClassUtils.simpleClassName(this));
+        logger.info("stop() completed.");
     }
 
 

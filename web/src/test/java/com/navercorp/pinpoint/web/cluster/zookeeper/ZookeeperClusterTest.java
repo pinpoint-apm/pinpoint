@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.PinpointZook
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+import com.navercorp.pinpoint.web.config.WebConfig;
 import com.navercorp.pinpoint.web.util.PinpointWebTestUtils;
 import org.apache.curator.test.TestingServer;
 import org.apache.zookeeper.CreateMode;
@@ -44,6 +45,7 @@ public class ZookeeperClusterTest {
 
     private static int acceptorPort;
     private static int zookeeperPort;
+    private static WebConfig webConfig;
 
     private static final String COLLECTOR_NODE_PATH = "/pinpoint-cluster/collector";
     private static final String COLLECTOR_TEST_NODE_PATH = "/pinpoint-cluster/collector/test";
@@ -59,6 +61,8 @@ public class ZookeeperClusterTest {
         CLUSTER_NODE_PATH = "/pinpoint-cluster/web/" + DEFAULT_IP + ":" + acceptorPort;
         
         ts = createZookeeperServer(zookeeperPort);
+
+        webConfig = new WebConfig();
     }
 
     @AfterClass
@@ -77,13 +81,14 @@ public class ZookeeperClusterTest {
         ts.restart();
 
         ZooKeeper zookeeper = null;
-        ZookeeperClusterManager manager = null;
+        ZookeeperClusterDataManager manager = null;
         try {
             zookeeper = new ZooKeeper(DEFAULT_IP + ":" + zookeeperPort, 5000, null);
             createPath(zookeeper, COLLECTOR_TEST_NODE_PATH, true);
             zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1".getBytes(), -1);
 
-            manager = new ZookeeperClusterManager(DEFAULT_IP + ":" + zookeeperPort, 5000, 60000);
+            manager = new ZookeeperClusterDataManager(DEFAULT_IP + ":" + zookeeperPort, 5000, 60000);
+            manager.start();
             Thread.sleep(3000);
 
             List<String> agentList = manager.getRegisteredAgentList("a", "b", 1L);
@@ -104,7 +109,7 @@ public class ZookeeperClusterTest {
             }
 
             if (manager != null) {
-                manager.close();
+                manager.stop();
             }
         }
     }
@@ -114,13 +119,14 @@ public class ZookeeperClusterTest {
         ts.restart();
 
         ZooKeeper zookeeper = null;
-        ZookeeperClusterManager manager = null;
+        ZookeeperClusterDataManager manager = null;
         try {
             zookeeper = new ZooKeeper(DEFAULT_IP + ":" + zookeeperPort, 5000, null);
             createPath(zookeeper, COLLECTOR_TEST_NODE_PATH, true);
             zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1".getBytes(), -1);
 
-            manager = new ZookeeperClusterManager(DEFAULT_IP + ":" + zookeeperPort, 5000, 60000);
+            manager = new ZookeeperClusterDataManager(DEFAULT_IP + ":" + zookeeperPort, 5000, 60000);
+            manager.start();
             Thread.sleep(3000);
 
             List<String> agentList = manager.getRegisteredAgentList("a", "b", 1L);
@@ -153,7 +159,7 @@ public class ZookeeperClusterTest {
             }
 
             if (manager != null) {
-                manager.close();
+                manager.stop();
             }
         }
     }

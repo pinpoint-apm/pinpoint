@@ -41,7 +41,7 @@ import java.util.Map;
 /**
  * @Author Taejin Koo
  */
-public class WebClusterAcceptor implements WebClusterConnectionProvider {
+public class ClusterAcceptor implements ClusterConnectionProvider {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -50,7 +50,7 @@ public class WebClusterAcceptor implements WebClusterConnectionProvider {
 
     private final PinpointServerAcceptor serverAcceptor;
 
-    public WebClusterAcceptor(String host, int port) {
+    public ClusterAcceptor(String host, int port) {
         this.bindHost = host;
         this.bindPort = port;
 

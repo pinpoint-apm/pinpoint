@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.SimpleMessageListener;
-import com.navercorp.pinpoint.web.cluster.connection.WebClusterConnectionManager;
+import com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager;
 import com.navercorp.pinpoint.web.config.WebConfig;
 import com.navercorp.pinpoint.web.util.PinpointWebTestUtils;
 import org.apache.curator.test.TestingServer;
@@ -57,7 +57,7 @@ public class ClusterTest {
     
     private static TestingServer ts = null;
 
-    static WebClusterConnectionManager clusterConnectionManager;
+    static ClusterConnectionManager clusterConnectionManager;
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -77,7 +77,7 @@ public class ClusterTest {
         when(config.getClusterZookeeperRetryInterval()).thenReturn(60000);
         when(config.getClusterZookeeperSessionTimeout()).thenReturn(3000);
 
-        clusterConnectionManager = new WebClusterConnectionManager(config);
+        clusterConnectionManager = new ClusterConnectionManager(config);
         clusterConnectionManager.start();
 
         ts = createZookeeperServer(zookeeperPort);

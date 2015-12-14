@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * @Author Taejin Koo
  */
-public interface WebClusterConnectionProvider {
+public interface ClusterConnectionProvider {
 
     void start();
 

@@ -36,10 +36,10 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
+import com.navercorp.pinpoint.web.cluster.ClusterManager;
 import com.navercorp.pinpoint.web.cluster.DefaultPinpointRouteResponse;
 import com.navercorp.pinpoint.web.cluster.FailedPinpointRouteResponse;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
-import com.navercorp.pinpoint.web.cluster.connection.WebClusterConnectionManager;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCount;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
@@ -71,7 +71,7 @@ public class AgentServiceImpl implements AgentService {
     private AgentInfoService agentInfoService;
 
     @Autowired
-    private WebClusterConnectionManager clusterConnectionManager;
+    private ClusterManager clusterManager;
 
     @Autowired
     private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
@@ -158,7 +158,7 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     public boolean isConnected(AgentInfo agentInfo) {
-        return clusterConnectionManager.isConnected(agentInfo);
+        return clusterManager.isConnected(agentInfo);
     }
 
     @Override
@@ -181,7 +181,7 @@ public class AgentServiceImpl implements AgentService {
     @Override
     public PinpointRouteResponse invoke(AgentInfo agentInfo, byte[] payload, long timeout) throws TException {
         TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
-        PinpointSocket socket = clusterConnectionManager.getSocket(agentInfo);
+        PinpointSocket socket = clusterManager.getSocket(agentInfo);
 
         Future<ResponseMessage> future = null;
         if (socket != null) {
@@ -218,7 +218,7 @@ public class AgentServiceImpl implements AgentService {
         Map<AgentInfo, Future<ResponseMessage>> futureMap = new HashMap<>();
         for (AgentInfo agentInfo : agentInfoList) {
             TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
-            PinpointSocket socket = clusterConnectionManager.getSocket(agentInfo);
+            PinpointSocket socket = clusterManager.getSocket(agentInfo);
             if (socket != null) {
                 Future<ResponseMessage> future = socket.request(serializeRequest(transferObject));
                 futureMap.put(agentInfo, future);
@@ -260,7 +260,7 @@ public class AgentServiceImpl implements AgentService {
     @Override
     public ClientStreamChannelContext openStream(AgentInfo agentInfo, byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) throws TException {
         TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
-        PinpointSocket socket = clusterConnectionManager.getSocket(agentInfo);
+        PinpointSocket socket = clusterManager.getSocket(agentInfo);
 
         if (socket != null) {
             return socket.openStream(serializeRequest(transferObject), messageListener, stateChangeListener);
