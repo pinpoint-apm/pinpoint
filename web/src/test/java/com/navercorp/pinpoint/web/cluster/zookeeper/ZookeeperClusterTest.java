@@ -30,6 +30,7 @@ import org.apache.zookeeper.ZooKeeper;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
 import java.util.List;
@@ -55,8 +56,8 @@ public class ZookeeperClusterTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        acceptorPort = PinpointWebTestUtils.findAvailablePort();
-        zookeeperPort = PinpointWebTestUtils.findAvailablePort(acceptorPort + 1);
+        acceptorPort = SocketUtils.findAvailableTcpPort();
+        zookeeperPort = SocketUtils.findAvailableTcpPort(acceptorPort + 1);
         
         CLUSTER_NODE_PATH = "/pinpoint-cluster/web/" + DEFAULT_IP + ":" + acceptorPort;
         

@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
 import java.util.List;
@@ -43,7 +44,7 @@ public class StreamChannelManagerTest {
     
     @BeforeClass
     public static void setUp() throws IOException {
-        bindPort = PinpointRPCTestUtils.findAvailablePort();
+        bindPort = SocketUtils.findAvailableTcpPort();
     }
 
     // Client to Server Stream

@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.rpc.control.ProtocolException;
 import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
 import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
+import org.springframework.util.SocketUtils;
 
 /**
  * @author Taejin Koo
@@ -44,7 +45,7 @@ public class PinpointServerStateTest {
 
     @BeforeClass
     public static void setUp() throws IOException {
-        bindPort = PinpointRPCTestUtils.findAvailablePort();
+        bindPort = SocketUtils.findAvailableTcpPort();
     }
 
     @Test
