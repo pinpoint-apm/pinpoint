@@ -7,10 +7,10 @@
 * Install agents without changing a single line of code
 * Minimal impact on performance (approximately 3% increase in resource usage)
 
-## Latest Release (2015/11/23)
-We're happy to announce the release of Pinpoint **v1.5.0**. <br/>
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.5.0)<br/>
-We're now focusing on developing **v1.5.1**.
+## Latest Release (2015/12/11)
+We're happy to announce the release of Pinpoint **v1.5.1**. <br/>
+Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.5.1)<br/>
+We're now focusing on developing **v1.5.2**.
 
 ## Overview
 Services nowadays often consist of many different components, communicating amongst themselves as well as making API calls to external services. How each and every transaction gets executed is often left as a blackbox. Pinpoint traces transaction flows between these components and provides a clear view to identify problem areas and potential bottlenecks.<br/>
@@ -35,11 +35,11 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 
 ## Supported Modules
 * JDK 6+
-* Tomcat 6/7/8, Jetty9
+* Tomcat 6/7/8, Jetty 8/9
 * Spring, Spring Boot
 * Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient
 * Thrift Client, Thrift Service
-* MySQL, Oracle, MSSQL, CUBRID, DBCP
+* MySQL, Oracle, MSSQL, CUBRID, DBCP, POSTGRESQL
 * Arcus, Memcached, Redis
 * iBATIS, MyBatis
 * gson, Jackson, Json Lib
