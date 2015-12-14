@@ -44,6 +44,7 @@ import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
+import org.springframework.util.SocketUtils;
 
 /**
  * @author emeroad
@@ -57,7 +58,7 @@ public class SpanStreamUDPSenderTest {
 
     @BeforeClass
     public static void setUp() throws IOException {
-        port = getAvaiableUDPPort(21111);
+        port = SocketUtils.findAvailableUdpPort(21111);
 
         try {
             messageHolder = new MessageHolderDispatchHandler();
@@ -75,25 +76,6 @@ public class SpanStreamUDPSenderTest {
         }
     }
 
-    private static int getAvaiableUDPPort(int defaultPort) throws IOException {
-        int bindPort = defaultPort;
-
-        DatagramSocket dagagramSocket = null;
-        while (0xFFFF >= bindPort && dagagramSocket == null) {
-            try {
-                dagagramSocket = new DatagramSocket(bindPort);
-            } catch (IOException ex) {
-                bindPort++;
-            }
-        }
-
-        if (dagagramSocket != null) {
-            dagagramSocket.close();
-            return bindPort;
-        }
-
-        throw new IOException("can't find available port.");
-    }
 
     @Test
     public void sendTest1() throws InterruptedException {
