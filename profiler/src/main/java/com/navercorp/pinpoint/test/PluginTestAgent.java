@@ -684,7 +684,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
         InstrumentClass ic;
         try {
-            ic = getClassPool().getClass(clazz.getClassLoader(), clazz.getName(), null);
+            ic = getClassPool().getClass(null, clazz.getClassLoader(), clazz.getName(), null);
         } catch (InstrumentException e) {
             throw new RuntimeException("Cannot get instrumentClass " + clazz.getName(), e);
         }
