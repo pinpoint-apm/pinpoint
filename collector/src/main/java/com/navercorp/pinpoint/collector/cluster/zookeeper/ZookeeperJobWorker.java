@@ -103,7 +103,7 @@ public class ZookeeperJobWorker implements Runnable {
     }
 
     private String bindingPathAndZnode(String path, String znodeName) {
-        StringBuilder fullPath = new StringBuilder();
+        StringBuilder fullPath = new StringBuilder(StringUtils.length(path) + StringUtils.length(znodeName) + 1);
 
         fullPath.append(path);
         if (!path.endsWith(PATH_SEPARATOR)) {
@@ -122,6 +122,16 @@ public class ZookeeperJobWorker implements Runnable {
                 putZookeeperJob(new ZookeeperJob(ZookeeperJob.Type.ADD, key));
             }
         }
+    }
+
+    public byte[] getClusterData() {
+        try {
+            return zookeeperClient.getData(collectorUniqPath);
+        } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+        }
+
+        return null;
     }
 
     public void removePinpointServer(PinpointServer pinpointServer) {
