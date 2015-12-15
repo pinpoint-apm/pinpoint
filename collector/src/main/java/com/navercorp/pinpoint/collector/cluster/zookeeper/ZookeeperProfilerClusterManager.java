@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRepository;
 import com.navercorp.pinpoint.collector.cluster.PinpointServerClusterPoint;
-import com.navercorp.pinpoint.collector.cluster.WorkerState;
 import com.navercorp.pinpoint.collector.cluster.WorkerStateContext;
 import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
@@ -30,6 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -125,15 +126,32 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
                 }
             }
         } else {
-            WorkerState state = this.workerState.getCurrentState();
             logger.info("eventPerformed() failed. caused:unexpected state.");
-            return;
         }
     }
     
     @Override
     public void exceptionCaught(PinpointServer pinpointServer, SocketStateCode stateCode, Throwable e) {
         logger.warn("exceptionCaught(). (pinpointServer:{}, PinpointServerStateCode:{}). caused:{}.", pinpointServer, stateCode, e.getMessage(), e);
+    }
+
+    public List<String> getClusterData() {
+        byte[] contents = worker.getClusterData();
+        if (contents == null) {
+            return Collections.emptyList();
+        }
+
+        List<String> result = new ArrayList<>();
+
+        String clusterData = new String(contents, charset);
+        String[] allClusterData = clusterData.split(PROFILER_SEPARATOR);
+        for (String eachClusterData : allClusterData) {
+            if (!StringUtils.isBlank(eachClusterData)) {
+                result.add(eachClusterData);
+            }
+        }
+
+        return result;
     }
 
     public void initZookeeperClusterData() {
