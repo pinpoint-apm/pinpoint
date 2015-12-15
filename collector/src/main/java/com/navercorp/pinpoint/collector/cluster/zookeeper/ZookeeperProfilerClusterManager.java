@@ -91,8 +91,6 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
 
     public void stop() {
         if (!(this.workerState.changeStateDestroying())) {
-            WorkerState state = this.workerState.getCurrentState();
-
             logger.info("stop() failed. caused:unexpected state.");
             return;
         }
