@@ -527,7 +527,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
     private void closeStreamChannelManager(Channel channel) {
         if (channel == null) {
-            logger.debug("channel already set null. skip closeStreamChannelManager() {}", channel);
+            logger.debug("channel already set null. skip closeStreamChannelManager().");
             return;
         }
 

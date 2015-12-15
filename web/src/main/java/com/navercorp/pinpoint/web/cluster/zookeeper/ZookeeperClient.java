@@ -136,24 +136,22 @@ public class ZookeeperClient {
         do {
             pos = path.indexOf('/', pos + 1);
 
-            if (pos == -1) {
+            if (pos != -1) {
+                try {
+                    String subPath = path.substring(0, pos);
+                    if (zookeeper.exists(subPath, false) != null) {
+                        continue;
+                    }
+
+                    zookeeper.create(subPath, new byte[0], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                } catch (KeeperException exception) {
+                    if (exception.code() != Code.NODEEXISTS) {
+                        handleException(exception);
+                    }
+                }
+            } else {
                 pos = path.length();
-                return;
             }
-
-            try {
-                String subPath = path.substring(0, pos);
-                if (zookeeper.exists(subPath, false) != null) {
-                    continue;
-                }
-
-                zookeeper.create(subPath, new byte[0], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            } catch (KeeperException exception) {
-                if (exception.code() != Code.NODEEXISTS) {
-                    handleException(exception);
-                }
-            }
-
         } while (pos < path.length());
     }
 

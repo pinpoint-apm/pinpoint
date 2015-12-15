@@ -181,7 +181,9 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
                         boolean removed = streamChannelRepository.remove(streamChannel);
                         if (removed && streamChannelRepository.size() == 0) {
                             boolean turnOff = onTimerTask.compareAndSet(true, false);
-                            logger.info("turn off ActiveThreadCountTimerTask.");
+                            if (turnOff) {
+                                logger.info("turn off ActiveThreadCountTimerTask.");
+                            }
                         }
                         break;
                 }

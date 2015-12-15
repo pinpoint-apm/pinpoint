@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessage;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
+import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageType;
 import com.navercorp.pinpoint.web.websocket.message.PongMessage;
 import com.navercorp.pinpoint.web.websocket.message.RequestMessage;
 import org.jboss.netty.util.Timeout;
@@ -39,7 +40,10 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -171,13 +175,16 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         logger.info("handleTextMessage. session:{}, remote:{}, message:{}.", webSocketSession, webSocketSession.getRemoteAddress(), message.getPayload());
 
         PinpointWebSocketMessage webSocketMessage = messageConverter.getWebSocketMessage(message.getPayload());
-        switch (webSocketMessage.getType()) {
+        PinpointWebSocketMessageType webSocketMessageType = webSocketMessage.getType();
+        switch (webSocketMessageType) {
             case REQUEST:
                 handleRequestMessage0(webSocketSession, (RequestMessage) webSocketMessage);
                 break;
             case PONG:
                 handlePongMessage0(webSocketSession, (PongMessage) webSocketMessage);
                 break;
+            default:
+                logger.warn("Unexpected WebSocketMessageType received. messageType:{}.", webSocketMessageType);
         }
 
         // this method will be checked socket status.

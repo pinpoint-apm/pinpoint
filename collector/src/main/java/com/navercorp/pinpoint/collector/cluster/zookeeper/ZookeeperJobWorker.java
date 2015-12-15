@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
-import com.navercorp.pinpoint.collector.cluster.WorkerState;
 import com.navercorp.pinpoint.collector.cluster.WorkerStateContext;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.job.ZookeeperJob;
 import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
@@ -84,7 +83,6 @@ public class ZookeeperJobWorker implements Runnable {
 
     public void stop() {
         if (!(this.workerState.changeStateDestroying())) {
-            WorkerState state = this.workerState.getCurrentState();
             logger.info("stop() failed. caused:Unexpected State.");
             return;
         }
@@ -308,8 +306,6 @@ public class ZookeeperJobWorker implements Runnable {
     }
 
     private String createProfilerContents(PinpointServer pinpointServer) {
-        StringBuilder profilerContents = new StringBuilder();
-
         Map<Object, Object> agentProperties = pinpointServer.getChannelProperties();
         final String applicationName = MapUtils.getString(agentProperties, AgentHandshakePropertyType.APPLICATION_NAME.getName());
         final String agentId = MapUtils.getString(agentProperties, AgentHandshakePropertyType.AGENT_ID.getName());
