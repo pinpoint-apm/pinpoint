@@ -44,7 +44,9 @@
 				var bHasValidParam = hasValidParam();
 				var bHasTransactionInfo = !angular.isUndefined( $routeParams.transactionInfo );
 				if ( bHasTransactionInfo ) {
-					aParamTransactionInfo = $routeParams.transactionInfo.split("-");
+					var i2 = $routeParams.transactionInfo.lastIndexOf("-");
+					var i1 = $routeParams.transactionInfo.lastIndexOf("-", i2 -1);
+					aParamTransactionInfo = [ $routeParams.transactionInfo.substring(0, i1), $routeParams.transactionInfo.substring(i1+1, i2), $routeParams.transactionInfo.substring(i2+1) ];
 				}
 				if ( bHasParent && bHasValidParam ) {
 					htTransactionInfo = getTransactionInfoFromWindow($window.name);
