@@ -234,8 +234,9 @@
 	                 * @param top
 	                 * @param left
 	                 */
-	                setNodeContextMenuPosition = function (top, left, applicationName) {
+	                setNodeContextMenuPosition = function (top, left, applicationName, category) {
 	                	scope.inspectApplicationName = applicationName;
+						scope.inspectCategory = category;
 	                    scope.nodeContextMenuStyle = {
 	                        display: 'block',
 	                        'top': top,
@@ -373,7 +374,7 @@
 //	                            return;
 //	                        }
 	                        if (node.isWas === true) {
-	                            setNodeContextMenuPosition(e.event.layerY, e.event.layerX, node.applicationName);
+								setNodeContextMenuPosition(e.event.layerY, e.event.layerX, node.applicationName, node.category);
 	                        }
 //	                        scope.$emit("serverMapDirective.nodeContextClicked", e, query, node, applicationMapData);
 	                    };
