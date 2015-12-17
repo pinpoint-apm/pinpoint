@@ -20,6 +20,7 @@ package com.navercorp.pinpoint.common.util;
  * @author HyunGil Jeong
  */
 public enum AgentEventTypeCategory {
+    DURATIONAL,
     AGENT_LIFECYCLE,
     USER_REQUEST,
     THREAD_DUMP,
