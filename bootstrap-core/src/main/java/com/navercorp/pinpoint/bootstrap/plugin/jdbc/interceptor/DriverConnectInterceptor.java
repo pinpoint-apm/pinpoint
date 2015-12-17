@@ -87,7 +87,12 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorFo
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
 
         if (recordConnection) {
-            DatabaseInfo databaseInfo = (result instanceof DatabaseInfoAccessor) ? ((DatabaseInfoAccessor)result)._$PINPOINT$_getDatabaseInfo() : null;
+            DatabaseInfo databaseInfo;
+            if (result instanceof DatabaseInfoAccessor) {
+                databaseInfo = ((DatabaseInfoAccessor) result)._$PINPOINT$_getDatabaseInfo();
+            } else {
+                databaseInfo = null;
+            }
 
             if (databaseInfo == null) {
                 databaseInfo = UnKnownDatabaseInfo.INSTANCE;
