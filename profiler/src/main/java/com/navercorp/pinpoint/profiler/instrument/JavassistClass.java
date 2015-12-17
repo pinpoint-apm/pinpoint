@@ -598,6 +598,7 @@ public class JavassistClass implements InstrumentClass {
     public int addScopedInterceptor(MethodFilter filter, String interceptorClassName, Object[] constructorArgs, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException {
         Asserts.notNull(filter, "filter");
         Asserts.notNull(interceptorClassName, "interceptorClassName");
+        Asserts.notNull(constructorArgs, "constructorArgs");
         Asserts.notNull(scopeName, "scopeName");
         Asserts.notNull(executionPolicy, "executionPolicy");
         final InterceptorScope interceptorScope = pluginContext.getInterceptorScope(scopeName);
