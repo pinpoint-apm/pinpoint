@@ -21,6 +21,7 @@ import java.util.Comparator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.navercorp.pinpoint.common.bo.AgentEventBo;
 import com.navercorp.pinpoint.common.util.AgentEventType;
 
 /**
@@ -28,6 +29,17 @@ import com.navercorp.pinpoint.common.util.AgentEventType;
  */
 @JsonInclude(Include.NON_NULL)
 public class AgentEvent {
+
+    public static final Comparator<AgentEvent> EVENT_TIMESTAMP_ASC_COMPARATOR = new Comparator<AgentEvent>() {
+        @Override
+        public int compare(AgentEvent o1, AgentEvent o2) {
+            int eventTimestampComparison = Long.compare(o1.eventTimestamp, o2.eventTimestamp);
+            if (eventTimestampComparison == 0) {
+                return o2.eventTypeCode - o1.eventTypeCode;
+            }
+            return eventTimestampComparison;
+        }
+    };
 
     public static final Comparator<AgentEvent> EVENT_TIMESTAMP_DESC_COMPARATOR = new Comparator<AgentEvent>() {
         @Override
@@ -56,23 +68,16 @@ public class AgentEvent {
     private final boolean hasEventMessage;
 
     @JsonProperty
-    private long startTimestamp;
+    private final long startTimestamp;
 
     @JsonProperty
     private Object eventMessage;
 
-    public AgentEvent(String agentId, long eventTimestamp, AgentEventType eventType) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
-        if (eventTimestamp < 0) {
-            throw new IllegalArgumentException("eventTimestamp must not be null");
-        }
-        if (eventType == null) {
-            throw new NullPointerException("eventType must not be null");
-        }
-        this.agentId = agentId;
-        this.eventTimestamp = eventTimestamp;
+    public AgentEvent(AgentEventBo agentEventBo) {
+        this.agentId = agentEventBo.getAgentId();
+        this.eventTimestamp = agentEventBo.getEventTimestamp();
+        this.startTimestamp = agentEventBo.getStartTimestamp();
+        AgentEventType eventType = agentEventBo.getEventType();
         this.eventTypeCode = eventType.getCode();
         this.eventTypeDesc = eventType.getDesc();
         this.hasEventMessage = eventType.getMessageType() != Void.class;
@@ -100,10 +105,6 @@ public class AgentEvent {
 
     public long getStartTimestamp() {
         return startTimestamp;
-    }
-
-    public void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
     }
 
     public Object getEventMessage() {
@@ -161,6 +162,6 @@ public class AgentEvent {
     public String toString() {
         return "AgentEvent [agentId=" + agentId + ", eventTimestamp=" + eventTimestamp + ", eventTypeCode="
                 + eventTypeCode + ", eventTypeDesc=" + eventTypeDesc + ", hasEventMessage=" + hasEventMessage
-                + ", startTimestamp=" + startTimestamp + ", eventMessage=" + eventMessage + "]";
+                + ", eventMessage=" + eventMessage + ", startTimestamp=" + startTimestamp + "]";
     }
 }

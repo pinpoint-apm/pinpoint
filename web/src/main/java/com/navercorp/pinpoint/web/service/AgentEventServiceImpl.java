@@ -19,8 +19,12 @@ package com.navercorp.pinpoint.web.service;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.PriorityQueue;
 
+import com.navercorp.pinpoint.common.util.AgentEventTypeCategory;
+import com.navercorp.pinpoint.web.vo.DurationalAgentEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,13 +58,8 @@ public class AgentEventServiceImpl implements AgentEventService {
         }
         final boolean includeEventMessage = false;
         List<AgentEventBo> agentEventBos = this.agentEventDao.getAgentEvents(agentId, range);
-        List<AgentEvent> agentEvents = new ArrayList<>(agentEventBos.size());
-        for (AgentEventBo agentEventBo : agentEventBos) {
-            if (agentEventBo != null) {
-                agentEvents.add(createAgentEvent(agentEventBo, includeEventMessage));
-            }
-        }
-        Collections.sort(agentEvents, AgentEvent.EVENT_TIMESTAMP_DESC_COMPARATOR);
+        List<AgentEvent> agentEvents = createAgentEvents(agentEventBos, includeEventMessage);
+        Collections.sort(agentEvents, AgentEvent.EVENT_TIMESTAMP_ASC_COMPARATOR);
         return agentEvents;
     }
 
@@ -84,21 +83,54 @@ public class AgentEventServiceImpl implements AgentEventService {
         return null;
     }
 
-    private AgentEvent createAgentEvent(AgentEventBo agentEventBo, boolean includeEventMessage) {
-        final String agentId = agentEventBo.getAgentId();
-        final long eventTimestamp = agentEventBo.getEventTimestamp();
-        final AgentEventType eventType = agentEventBo.getEventType();
-        AgentEvent agentEvent = new AgentEvent(agentId, eventTimestamp, eventType);
-        agentEvent.setStartTimestamp(agentEventBo.getStartTimestamp());
-        if (includeEventMessage) {
-            try {
-                agentEvent.setEventMessage(this.agentEventMessageDeserializer.deserialize(eventType,
-                        agentEventBo.getEventBody()));
-            } catch (UnsupportedEncodingException e) {
-                logger.warn("error deserializing event message", e);
+    private List<AgentEvent> createAgentEvents(List<AgentEventBo> agentEventBos, boolean includeEventMessage) {
+        List<AgentEvent> agentEvents = new ArrayList<>(agentEventBos.size());
+        PriorityQueue<DurationalAgentEvent> durationalAgentEvents = new PriorityQueue<>(agentEventBos.size(), AgentEvent.EVENT_TIMESTAMP_ASC_COMPARATOR);
+        for (AgentEventBo agentEventBo : agentEventBos) {
+            if (agentEventBo.getEventType().isCategorizedAs(AgentEventTypeCategory.DURATIONAL)) {
+                durationalAgentEvents.add(createDurationalAgentEvent(agentEventBo, includeEventMessage));
+            } else {
+                agentEvents.add(createAgentEvent(agentEventBo, includeEventMessage));
             }
         }
+        long durationStartTimestamp = DurationalAgentEvent.UNKNOWN_TIMESTAMP;
+        while (!durationalAgentEvents.isEmpty()) {
+            DurationalAgentEvent currentEvent = durationalAgentEvents.remove();
+            currentEvent.setDurationStartTimestamp(durationStartTimestamp);
+            DurationalAgentEvent nextEvent = durationalAgentEvents.peek();
+            if (nextEvent != null) {
+                long nextEventTimestamp = nextEvent.getEventTimestamp();
+                currentEvent.setDurationEndTimestamp(nextEventTimestamp);
+                durationStartTimestamp = nextEventTimestamp;
+            }
+            agentEvents.add(currentEvent);
+        }
+        return agentEvents;
+    }
+
+    private AgentEvent createAgentEvent(AgentEventBo agentEventBo, boolean includeEventMessage) {
+        AgentEvent agentEvent = new AgentEvent(agentEventBo);
+        if (includeEventMessage) {
+            agentEvent.setEventMessage(deserializeEventMessage(agentEventBo));
+        }
         return agentEvent;
+    }
+
+    private DurationalAgentEvent createDurationalAgentEvent(AgentEventBo agentEventBo, boolean includeEventMessage) {
+        DurationalAgentEvent durationalAgentEvent = new DurationalAgentEvent(agentEventBo);
+        if (includeEventMessage) {
+            durationalAgentEvent.setEventMessage(deserializeEventMessage(agentEventBo));
+        }
+        return durationalAgentEvent;
+    }
+
+    private Object deserializeEventMessage(AgentEventBo agentEventBo) {
+        try {
+            return this.agentEventMessageDeserializer.deserialize(agentEventBo.getEventType(), agentEventBo.getEventBody());
+        } catch (UnsupportedEncodingException e) {
+            logger.warn("error deserializing event message", e);
+            return null;
+        }
     }
 
 }
