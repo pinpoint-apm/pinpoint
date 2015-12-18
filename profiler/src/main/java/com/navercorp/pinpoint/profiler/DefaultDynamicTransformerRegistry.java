@@ -96,9 +96,10 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
 
         final TransformerKey key = new TransformerKey(classLoader, targetClassName);
         final ClassFileTransformer transformer = transformerMap.remove(key);
-        
-        if (logger.isDebugEnabled()) {
-            logger.info("removed dynamic transformer classLoader: {}, className: {}, registry size: {}", classLoader, targetClassName, transformerMap.size());
+        if (transformer != null) {
+            if (logger.isInfoEnabled()) {
+                logger.info("removed dynamic transformer classLoader: {}, className: {}, registry size: {}", classLoader, targetClassName, transformerMap.size());
+            }
         }
         
         return transformer;

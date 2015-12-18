@@ -53,6 +53,7 @@ public class PinpointStarter {
 
     private SimpleProperty systemProperty = SystemProperty.INSTANCE;
     private final String agentArgs;
+    private String bootStrapCore;
     private final Map<String, String> argMap;
     private final Instrumentation instrumentation;
 
@@ -87,6 +88,7 @@ public class PinpointStarter {
             logPinpointAgentLoadFail();
             return;
         }
+        this.bootStrapCore = bootStrapCoreJar;
 
         
         if (!isValidId("pinpoint.agentId", PinpointConstants.AGENT_NAME_MAX_LEN)) {
@@ -125,7 +127,7 @@ public class PinpointStarter {
             agentClassLoader.setBootClass(bootClass);
             logger.info("pinpoint agent [" + bootClass + "] starting...");
 
-            AgentOption option = createAgentOption(agentArgs, instrumentation, profilerConfig, pluginJars, null, serviceTypeRegistryService, annotationKeyRegistryService);
+            AgentOption option = createAgentOption(agentArgs, instrumentation, profilerConfig, pluginJars, bootStrapCore, serviceTypeRegistryService, annotationKeyRegistryService, bootStrapCoreJar);
             Agent pinpointAgent = agentClassLoader.boot(option);
             pinpointAgent.start();
             registerShutdownHook(pinpointAgent);
@@ -137,7 +139,7 @@ public class PinpointStarter {
         }
     }
 
-    private AgentOption createAgentOption(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars, String bootStrapJarPath, ServiceTypeRegistryService serviceTypeRegistryService, AnnotationKeyRegistryService annotationKeyRegistryService) {
+    private AgentOption createAgentOption(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars, String bootStrapJarPath, ServiceTypeRegistryService serviceTypeRegistryService, AnnotationKeyRegistryService annotationKeyRegistryService, String bootStrapCoreJar) {
 
         return new DefaultAgentOption(agentArgs, instrumentation, profilerConfig, pluginJars, bootStrapJarPath, serviceTypeRegistryService, annotationKeyRegistryService);
     }

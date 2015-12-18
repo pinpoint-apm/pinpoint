@@ -337,9 +337,10 @@ public class JavassistClass implements InstrumentClass {
     private void addField0(String accessorTypeName, String initValExp) throws InstrumentException {
         try {
             Class<?> accessorType = pluginContext.injectClass(classLoader, accessorTypeName);
-            AccessorDetails accessorDetails = new AccessorAnalyzer().analyze(accessorType);
+            final AccessorAnalyzer accessorAnalyzer = new AccessorAnalyzer();
+            final AccessorDetails accessorDetails = accessorAnalyzer.analyze(accessorType);
 
-            CtField newField = CtField.make("private " + accessorDetails.getFieldType().getName() + " " + FIELD_PREFIX + accessorTypeName.replace('.', '_').replace('$', '_') + ";", ctClass);
+            final CtField newField = CtField.make("private " + accessorDetails.getFieldType().getName() + " " + FIELD_PREFIX + accessorTypeName.replace('.', '_').replace('$', '_') + ";", ctClass);
 
             if (initValExp == null) {
                 ctClass.addField(newField);
@@ -472,34 +473,34 @@ public class JavassistClass implements InstrumentClass {
     private int addInterceptor0(String interceptorClassName, Object[] constructorArgs, InterceptorScope scope, ExecutionPolicy executionPolicy) throws InstrumentException {
 
         int interceptorId = -1;
-        Class<?> interceptorType = pluginContext.injectClass(classLoader, interceptorClassName);
+        final Class<?> interceptorType = pluginContext.injectClass(classLoader, interceptorClassName);
 
 
-        TargetMethods targetMethods = interceptorType.getAnnotation(TargetMethods.class);
+        final TargetMethods targetMethods = interceptorType.getAnnotation(TargetMethods.class);
         if (targetMethods != null) {
             for (TargetMethod m : targetMethods.value()) {
                 interceptorId = addInterceptor0(m, interceptorClassName, constructorArgs, scope, executionPolicy);
             }
         }
 
-        TargetMethod targetMethod = interceptorType.getAnnotation(TargetMethod.class);
+        final TargetMethod targetMethod = interceptorType.getAnnotation(TargetMethod.class);
         if (targetMethod != null) {
             interceptorId = addInterceptor0(targetMethod, interceptorClassName, constructorArgs, scope, executionPolicy);
         }
 
-        TargetConstructors targetConstructors = interceptorType.getAnnotation(TargetConstructors.class);
+        final TargetConstructors targetConstructors = interceptorType.getAnnotation(TargetConstructors.class);
         if (targetConstructors != null) {
             for (TargetConstructor c : targetConstructors.value()) {
                 interceptorId = addInterceptor0(c, interceptorClassName, scope, executionPolicy, constructorArgs);
             }
         }
 
-        TargetConstructor targetConstructor = interceptorType.getAnnotation(TargetConstructor.class);
+        final TargetConstructor targetConstructor = interceptorType.getAnnotation(TargetConstructor.class);
         if (targetConstructor != null) {
             interceptorId = addInterceptor0(targetConstructor, interceptorClassName, scope, executionPolicy, constructorArgs);
         }
 
-        TargetFilter targetFilter = interceptorType.getAnnotation(TargetFilter.class);
+        final TargetFilter targetFilter = interceptorType.getAnnotation(TargetFilter.class);
         if (targetFilter != null) {
             interceptorId = addInterceptor0(targetFilter, interceptorClassName, scope, executionPolicy, constructorArgs);
         }
@@ -512,7 +513,7 @@ public class JavassistClass implements InstrumentClass {
     }
 
     private int addInterceptor0(TargetConstructor c, String interceptorClassName, InterceptorScope scope, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException {
-        InstrumentMethod constructor = getConstructor(c.value());
+        final InstrumentMethod constructor = getConstructor(c.value());
         
         if (constructor == null) {
             throw new NotFoundInstrumentException("Cannot find constructor with parameter types: " + Arrays.toString(c.value()));

@@ -36,7 +36,7 @@ public interface AgentOption {
 
     URL[] getPluginJars();
 
-    String getBootStrapJarPath();
+    String getBootStrapCoreJarPath();
 
     ServiceTypeRegistryService getServiceTypeRegistryService();
     

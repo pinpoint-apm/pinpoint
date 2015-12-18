@@ -14,16 +14,15 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
-import java.io.File;
 import java.io.IOException;
-import java.lang.instrument.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Collection;
-import java.util.jar.JarFile;
+import java.util.*;
 
+import com.navercorp.pinpoint.profiler.plugin.ClassLoadingChecker;
+import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -33,7 +32,6 @@ import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
 import com.navercorp.pinpoint.exception.PinpointException;
 
 /**
@@ -41,7 +39,8 @@ import com.navercorp.pinpoint.exception.PinpointException;
  *
  */
 public class JarProfilerPluginClassInjector implements ClassInjector {
-    private static final Logger logger = LoggerFactory.getLogger(JarProfilerPluginClassInjector.class);
+    private final Logger logger = LoggerFactory.getLogger(JarProfilerPluginClassInjector.class);
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private static final Method ADD_URL;
     private static final Method DEFINE_CLASS;
@@ -62,33 +61,16 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
         }
     }
     
-    public static JarProfilerPluginClassInjector of(Instrumentation instrumentation, InstrumentClassPool classPool, URL pluginJar) {
-        try {
-            JarFile jarFile = new JarFile(new File(pluginJar.toURI()));
-            return new JarProfilerPluginClassInjector(instrumentation, classPool, pluginJar, jarFile);
-        } catch (Exception e) {
-            logger.warn("Failed to get JarFile {}", pluginJar, e);
-            return null;
-        }
-    }
-    
-    private final Instrumentation instrumentation;
-    private final InstrumentClassPool classPool;
-
-    private final URL pluginJarURL;
-    private final String pluginJarURLExternalForm;
-    private final JarFile pluginJar;
+    private final PluginConfig pluginConfig;
 
     private final Object lock = new Object();
     private boolean injectedToRoot = false;
-    
-    
-    private JarProfilerPluginClassInjector(Instrumentation instrumentation, InstrumentClassPool classPool, URL pluginJarURL, JarFile pluginJar) {
-        this.instrumentation = instrumentation;
-        this.classPool = classPool;
-        this.pluginJarURL = pluginJarURL;
-        this.pluginJarURLExternalForm = pluginJarURL.toExternalForm();
-        this.pluginJar = pluginJar;
+
+    public JarProfilerPluginClassInjector(PluginConfig pluginConfig) {
+        if (pluginConfig == null) {
+            throw new NullPointerException("pluginConfig must not be null");
+        }
+        this.pluginConfig = pluginConfig;
     }
 
     @Override
@@ -98,7 +80,8 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
             if (classLoader == null) {
                 return (Class<T>)injectToBootstrapClassLoader(className);
             } else if (classLoader instanceof URLClassLoader) {
-                return (Class<T>)injectToURLClassLoader((URLClassLoader)classLoader, className);
+                final URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
+                return (Class<T>)injectToURLClassLoader(urlClassLoader, className);
             } else {
                 return (Class<T>)injectToPlainClassLoader(classLoader, className);
             }
@@ -112,8 +95,8 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
         synchronized (lock) {
             if (this.injectedToRoot == false) {
                 this.injectedToRoot = true;
-                instrumentation.appendToBootstrapClassLoaderSearch(pluginJar);
-                classPool.appendToBootstrapClassPath(pluginJar.getName());
+                pluginConfig.getInstrumentation().appendToBootstrapClassLoaderSearch(pluginConfig.getPluginJarFile());
+                pluginConfig.getClassPool().appendToBootstrapClassPath(pluginConfig.getPluginJarFile().getName());
             }
         }
         
@@ -129,68 +112,113 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
                 // if (url.equals(pluginJarURL)) { fix very slow
                 // http://michaelscharf.blogspot.com/2006/11/javaneturlequals-and-hashcode-make.html
                 final String externalForm = url.toExternalForm();
-                if (pluginJarURLExternalForm.equals(externalForm)) {
+                if (pluginConfig.getPluginJarURLExternalForm().equals(externalForm)) {
                     hasPluginJar = true;
                     break;
                 }
             }
 
             if (!hasPluginJar) {
-                ADD_URL.invoke(classLoader, pluginJarURL);
+                ADD_URL.invoke(classLoader, pluginConfig.getPluginJar());
             }
         }
-        
+
         return classLoader.loadClass(className);
     }
     
     private Class<?> injectToPlainClassLoader(ClassLoader classLoader, String className) throws NotFoundException, IllegalArgumentException, IOException, CannotCompileException, IllegalAccessException, InvocationTargetException {
-        ClassPool pool = new ClassPool();
-        
-        pool.appendClassPath(new LoaderClassPath(classLoader));
-        pool.appendClassPath(pluginJar.getName());
-        
-        return injectToPlainClassLoader(pool, classLoader, className);
+        if (isDebug) {
+            logger.debug("injectToPlainClassLoader className:{} cl:{}", className, classLoader);
+        }
+        logger.info("bootstrapCoreJarPath:{}", pluginConfig.getBootstrapCoreJarPath());
+
+        final ClassPool pool = createClassPool(classLoader);
+
+        // TODO ClassLoader + ClassName key?
+        // TODO concurrent class loading
+        final ClassLoadingChecker classLoadingChecker = new ClassLoadingChecker();
+        return injectToPlainClassLoader(pool, classLoader, className, classLoadingChecker);
     }
-    
-    private Class<?> injectToPlainClassLoader(ClassPool pool, ClassLoader classLoader, String className) throws NotFoundException, IOException, CannotCompileException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+
+    private ClassPool createClassPool(ClassLoader classLoader) throws NotFoundException {
+        final ClassPool pool = new ClassPool();
+        pool.appendClassPath(pluginConfig.getBootstrapCoreJarPath());
+
+        pool.appendClassPath(new LoaderClassPath(classLoader));
+        pool.appendClassPath(pluginConfig.getPluginJarFile().getName());
+        return pool;
+    }
+
+    private Class<?> injectToPlainClassLoader(ClassPool pool, ClassLoader classLoader, String className, ClassLoadingChecker classLoadingChecker) throws NotFoundException, IOException, CannotCompileException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+        if (pluginConfig.getProfilerPackageFilter().accept(className)) {
+            if (isDebug) {
+                logger.debug("ProfilerFilter skip class {}", className);
+            }
+            return null;
+        }
+        if (!pluginConfig.getPluginPackageFilter().accept(className)) {
+            if (isDebug) {
+                logger.debug("PluginFilter skip class:{}", className);
+            }
+            return null;
+        }
+        if (!classLoadingChecker.isFirstLoad(className)) {
+            if (isDebug) {
+                logger.debug("skip already loaded class:{}", className);
+            }
+            return null;
+        }
+
         Class<?> c = null;
         try {
             c = classLoader.loadClass(className);
+            if (isDebug) {
+                logger.debug("loadClass:{}", className);
+            }
         } catch (ClassNotFoundException ex) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("ClassNotFound {}", ex.getMessage(), ex);
+            if (isDebug) {
+                logger.debug("ClassNotFound {}", ex.getMessage());
             }
         }
         if (c != null) {
             return c;
         }
-        
-        final CtClass ct = pool.get(className);
+
+        final CtClass ct = pool.getOrNull(className);
         if (ct == null) {
             throw new NotFoundException(className);
         }
-        
-        
+
+
         final CtClass superClass = ct.getSuperclass();
         if (superClass != null) {
-            injectToPlainClassLoader(pool, classLoader, superClass.getName());
+            if ("java.lang.Object".equals(superClass.getName())) {
+                return null;
+            }
+            injectToPlainClassLoader(pool, classLoader, superClass.getName(), classLoadingChecker);
         }
-        
+
         final CtClass[] interfaces = ct.getInterfaces();
         for (CtClass ctInterface : interfaces) {
-            injectToPlainClassLoader(pool, classLoader, ctInterface.getName());
+            injectToPlainClassLoader(pool, classLoader, ctInterface.getName(), classLoadingChecker);
         }
-        
-        final Collection<String> refs = ct.getRefClasses();
-        for (String ref : refs) {
+        @SuppressWarnings("unchecked")
+        final Collection<String> referenceClassList = ct.getRefClasses();
+        if (isDebug) {
+            logger.debug("target:{} referenceClassList:{}", className, referenceClassList);
+        }
+        for (String referenceClass : referenceClassList) {
             try {
-                injectToPlainClassLoader(pool, classLoader, ref);
+                injectToPlainClassLoader(pool, classLoader, referenceClass, classLoadingChecker);
             } catch (NotFoundException e) {
-                logger.warn("Skip a referenced class because of NotFoundException : ", e);
+                logger.warn("Skip a referenced class because of NotFoundException : {}", e.getMessage(), e);
             }
         }
-        
+        if (logger.isInfoEnabled()) {
+            logger.debug("defineClass pluginClass:{} cl:{}", className, classLoader);
+        }
         final byte[] bytes = ct.toBytecode();
         return (Class<?>)DEFINE_CLASS.invoke(classLoader, ct.getName(), bytes, 0, bytes.length);
     }
+
 }

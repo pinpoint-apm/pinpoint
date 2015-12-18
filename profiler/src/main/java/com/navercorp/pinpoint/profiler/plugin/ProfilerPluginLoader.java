@@ -38,8 +38,11 @@ import com.navercorp.pinpoint.profiler.instrument.JarProfilerPluginClassInjector
 public class ProfilerPluginLoader {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final DefaultAgent agent;
-    
+
     public ProfilerPluginLoader(DefaultAgent agent) {
+        if (agent == null) {
+            throw new NullPointerException("agent must not be null");
+        }
         this.agent = agent;
     }
     
@@ -58,7 +61,8 @@ public class ProfilerPluginLoader {
                 
                 logger.info("Loading plugin: {}", plugin.getClass().getName());
 
-                final DefaultProfilerPluginContext context = setupPlugin(jar, plugin);
+                PluginConfig pluginConfig = new PluginConfig(jar, plugin, agent.getInstrumentation(), agent.getClassPool(), agent.getBootstrapCoreJar());
+                final DefaultProfilerPluginContext context = setupPlugin(pluginConfig);
                 pluginContexts.add(context);
             }
         }
@@ -68,24 +72,26 @@ public class ProfilerPluginLoader {
     }
 
     private GuardInstrumentContext preparePlugin(ProfilerPlugin plugin, InstrumentContext context) {
-        GuardInstrumentContext guardInstrumentContext = new GuardInstrumentContext(context);
+        final GuardInstrumentContext guardInstrumentContext = new GuardInstrumentContext(context);
         if (plugin instanceof TransformTemplateAware) {
-            logger.info("setTransformTemplate");
+            if (logger.isDebugEnabled()) {
+                logger.debug("setTransformTemplate {}", plugin.getClass().getName());
+            }
             final TransformTemplate transformTemplate = new TransformTemplate(guardInstrumentContext);
             ((TransformTemplateAware) plugin).setTransformTemplate(transformTemplate);
         }
         return guardInstrumentContext;
     }
 
-    private DefaultProfilerPluginContext setupPlugin(URL jar, ProfilerPlugin plugin) {
-        final ClassInjector classInjector = JarProfilerPluginClassInjector.of(agent.getInstrumentation(), agent.getClassPool(), jar);
+    private DefaultProfilerPluginContext setupPlugin(PluginConfig pluginConfig) {
+        final ClassInjector classInjector = new JarProfilerPluginClassInjector(pluginConfig);
         final DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(agent, classInjector);
 
         final GuardProfilerPluginContext guardPluginContext = new GuardProfilerPluginContext(context);
-        final GuardInstrumentContext guardInstrumentContext = preparePlugin(plugin, context);
+        final GuardInstrumentContext guardInstrumentContext = preparePlugin(pluginConfig.getPlugin(), context);
         try {
-
             // WARN external plugin api
+            final ProfilerPlugin plugin = pluginConfig.getPlugin();
             plugin.setup(guardPluginContext);
         } finally {
             guardPluginContext.close();
