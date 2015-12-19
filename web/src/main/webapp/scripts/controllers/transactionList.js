@@ -1,7 +1,7 @@
 'use strict';
 
 pinpointApp.constant('TransactionListConfig', {
-    applicationUrl: '/transactionmetadata.pinpoint',
+    applicationUrl: 'transactionmetadata.pinpoint',
     MAX_FETCH_BLOCK_SIZE: 100,
     transactionIndex: {
         x: 0,

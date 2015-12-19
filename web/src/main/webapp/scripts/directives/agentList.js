@@ -1,7 +1,7 @@
 'use strict';
 
 pinpointApp.constant('agentListConfig', {
-    agentGroupUrl: '/getAgentList.pinpoint'
+    agentGroupUrl: 'getAgentList.pinpoint'
 });
 
 pinpointApp.directive('agentList', [ 'agentListConfig', '$rootScope', function (cfg, $rootScope) {

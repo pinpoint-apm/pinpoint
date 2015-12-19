@@ -1,6 +1,6 @@
 'use strict';
 pinpointApp.constant('TransactionDetailConfig', {
-    applicationUrl: '/transactionInfo.pinpoint'
+    applicationUrl: 'transactionInfo.pinpoint'
 });
 
 pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$scope', '$rootScope', '$routeParams', '$timeout', '$rootElement', 'Alerts', 'ProgressBar', 'TransactionDao', '$window', '$location',
@@ -94,7 +94,7 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
          * @param transaction
          */
         $scope.openTransactionView = function () {
-            $window.open('/#/transactionView/' + $scope.transactionDetail.agentId + '/' + $scope.transactionDetail.transactionId + '/' + $scope.transactionDetail.callStackStart);
+            $window.open('#/transactionView/' + $scope.transactionDetail.agentId + '/' + $scope.transactionDetail.transactionId + '/' + $scope.transactionDetail.callStackStart);
         };
         $scope.$on("transactionDetail.selectDistributedCallFlowRow", function( event, rowId ) {
         	$at($at.CALLSTACK, $at.CLK_DISTRIBUTED_CALL_FLOW);
