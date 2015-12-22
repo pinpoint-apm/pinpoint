@@ -16,7 +16,7 @@
   float: none;
 }
 
-.tabs-left > .nav-tabs > li > a {
+.tabs-left > .nav-tabs > li > div {
   min-width: 74px;
   margin-right: 0;
   margin-bottom: 3px;
@@ -28,18 +28,28 @@
   border-right: 1px solid #ddd;
 }
 
-.tabs-left > .nav-tabs > li > a {
+.tabs-left > .nav-tabs > li > div {
   margin-right: -1px;
-  -webkit-border-radius: 4px 0 0 4px;
-     -moz-border-radius: 4px 0 0 4px;
-          border-radius: 4px 0 0 4px;
+  border-radius: 4px 0 0 4px;
 }
-
+.tabs-left > .nav-tabs > li > div {
+	padding: 10px 15px;
+	border-color: #eeeeee #dddddd #eeeeee #eeeeee;
+}
 .tabs-left > .nav-tabs > li > a:hover,
 .tabs-left > .nav-tabs > li > a:focus {
   border-color: #eeeeee #dddddd #eeeeee #eeeeee;
 }
 
+.tabs-left > .nav-tabs .active > div {
+  	border-color: #ddd transparent #ddd #ddd;
+  	*border-right-color: #ffffff;
+  	color: #555;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-bottom-color: transparent;
+    cursor: pointer;
+}
 .tabs-left > .nav-tabs .active > a,
 .tabs-left > .nav-tabs .active > a:hover,
 .tabs-left > .nav-tabs .active > a:focus {
@@ -175,15 +185,14 @@
 	margin-right: 2px;
 	padding: 1px 3px 3px 1px;
 	font-size: 6px;
-	border-radius: 15px;
 }
 
 #pinpoint-configuration .some-list-content li button.edit {
-	margin-top: 0px;
+	margin-top: -8px;
 	margin-right: 2px;
-	padding: 1px 3px 3px 4px;
+	padding: 5px 3px 7px 4px;
 	font-size: 6px;
-	border-radius: 15px;
+	margin-left: -4px;
 }
 
 #pinpoint-configuration .some-list-content li.selected {
@@ -405,11 +414,11 @@
 	right: 24px;
 }
 #pinpoint-configuration .some-table .some-list-content .wrapper tbody button.edit {
-	margin-top: 0px;
-	margin-right: 2px;
-	padding: 1px 3px 3px 4px;
+	padding: 6px 3px 7px 4px;
 	font-size: 6px;
-	border-radius: 15px;
+	margin-top: -2px;
+	margin-left: -4px;
+	margin-right: 2px;
 }
 
 #pinpoint-configuration .some-table .filter-input {
@@ -428,9 +437,12 @@
 	display: none;
 }
 #pinpoint-configuration .some-table .some-list-content th, #pinpoint-configuration .some-table .some-list-content td {
-	text-align: center;
-	vertical-align: bottom;
 	overflow: hidden;
+	word-wrap: normal;
+	text-align: center;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	vertical-align: bottom;
 }
 #pinpoint-configuration .some-table .some-list-content .remove {
 	color: #AAA;
@@ -472,9 +484,14 @@
 	padding-top: 10px;
 	padding-bottom: 0px;
 }
+#config-general .favorite-list-wrapper {
+	overflow: auto;
+	max-height: 320px;
+}
 #config-general .favorite-list {
 	list-style:none;
 	padding-left: 10px;
+	padding-right: 10px;
 }
 #config-general .favorite-list li{
 	display: block;
@@ -485,4 +502,9 @@
 }
 #config-general .favorite-list button{
 	margin-right: 2px;
+}
+#config-general .general-warning {
+	color: #F0AD4E;
+	font-size: 12px;
+	padding-left: 10px
 }

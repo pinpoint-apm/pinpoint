@@ -130,7 +130,7 @@ public class SpanStreamUdpSender extends AbstractDataSender {
             if (datagramChannel != null) {
                 try {
                     datagramChannel.close();
-                } catch (IOException e1) {
+                } catch (IOException ignored) {
                 }
             }
             

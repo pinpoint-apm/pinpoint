@@ -52,7 +52,7 @@ public class AlarmController {
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
     public Map<String, String> insertRule(@RequestBody Rule rule) {
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
 
         if (StringUtils.isEmpty(rule.getApplicationId()) || StringUtils.isEmpty(rule.getCheckerName()) || StringUtils.isEmpty(rule.getUserGroupId()) || StringUtils.isEmpty(rule.getThreshold())) {
             result.put("errorCode", "500");
@@ -71,7 +71,7 @@ public class AlarmController {
     @ResponseBody
     public Map<String, String> deleteRule(@RequestBody Rule rule) {
         if (StringUtils.isEmpty(rule.getRuleId())) {
-            Map<String, String> result = new HashMap<String, String>();
+            Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
             result.put("errorMessage", "there is not ruleId to delete alarm rule");
             return result;
@@ -79,7 +79,7 @@ public class AlarmController {
         
         alarmService.deleteRule(rule);
 
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         result.put("result", "SUCCESS");
         return result;
     }
@@ -88,7 +88,7 @@ public class AlarmController {
     @ResponseBody
     public Object getRule(@RequestParam(USER_GROUP_ID) String userGroupId) {
         if (StringUtils.isEmpty(userGroupId)) {
-            Map<String, String> result = new HashMap<String, String>();
+            Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
             result.put("errorMessage", "there is not userGroupId to get alarm rule");
             return result;
@@ -100,7 +100,7 @@ public class AlarmController {
     @RequestMapping(method = RequestMethod.PUT)
     @ResponseBody
     public Map<String, String> updateRule(@RequestBody Rule rule) {
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
 
         if (StringUtils.isEmpty(rule.getRuleId()) || StringUtils.isEmpty(rule.getApplicationId()) || StringUtils.isEmpty(rule.getCheckerName()) || StringUtils.isEmpty(rule.getUserGroupId())) {
             result.put("errorCode", "500");
@@ -125,7 +125,7 @@ public class AlarmController {
     public Map<String, String> handleException(Exception e) {
         logger.error(" Exception occurred while trying to CRUD Alarm Rule information", e);
         
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         result.put("errorCode", "500");
         result.put("errorMessage", "Exception occurred while trying to Alarm Rule information");
         return result;

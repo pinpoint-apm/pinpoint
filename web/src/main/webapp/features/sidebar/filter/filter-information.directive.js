@@ -12,7 +12,7 @@
 	        return {
 	            restrict: 'EA',
 	            replace: true,
-	            templateUrl: 'features/sidebar/filter/filterInformation.html',
+	            templateUrl: 'features/sidebar/filter/filterInformation.html?v=' + G_BUILD_TIME,
 	            scope : {
 	                namespace : '@' // string value
 	            },

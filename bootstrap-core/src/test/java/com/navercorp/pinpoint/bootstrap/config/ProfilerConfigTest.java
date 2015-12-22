@@ -25,9 +25,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.config.Filter;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-
 /**
  * @author emeroad
  */
@@ -37,17 +34,17 @@ public class ProfilerConfigTest {
 
     @Test
     public void defaultProfilableClassFilter() throws IOException {
-        ProfilerConfig profilerConfig = new ProfilerConfig();
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
         Filter<String> profilableClassFilter = profilerConfig.getProfilableClassFilter();
         Assert.assertFalse(profilableClassFilter.filter("net/spider/king/wang/Jjang"));
     }
 
     @Test
     public void readProperty() throws IOException {
-        String path = ProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test.property").getPath();
+        String path = DefaultProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test.property").getPath();
         logger.debug("path:{}", path);
 
-        ProfilerConfig profilerConfig = ProfilerConfig.load(path);
+        ProfilerConfig profilerConfig = DefaultProfilerConfig.load(path);
     }
 
     @Test
@@ -61,7 +58,7 @@ public class ProfilerConfigTest {
         properties.setProperty("test2", "placeHolder2");
 
 
-        ProfilerConfig profilerConfig = new ProfilerConfig(properties);
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
 
         Assert.assertEquals(profilerConfig.getCollectorSpanServerIp(), "placeHolder1");
         Assert.assertEquals(profilerConfig.getCollectorStatServerIp(), "placeHolder1");
@@ -71,10 +68,10 @@ public class ProfilerConfigTest {
 
     @Test
     public void ioBuffering_test() throws IOException {
-        String path = ProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test.property").getPath();
+        String path = DefaultProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test.property").getPath();
         logger.debug("path:{}", path);
 
-        ProfilerConfig profilerConfig = ProfilerConfig.load(path);
+        ProfilerConfig profilerConfig = DefaultProfilerConfig.load(path);
 
         Assert.assertEquals(profilerConfig.isIoBufferingEnable(), false);
         Assert.assertEquals(profilerConfig.getIoBufferingBufferSize(), 30);
@@ -82,10 +79,10 @@ public class ProfilerConfigTest {
 
     @Test
     public void ioBuffering_default() throws IOException {
-        String path = ProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/default.property").getPath();
+        String path = DefaultProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/default.property").getPath();
         logger.debug("path:{}", path);
 
-        ProfilerConfig profilerConfig = ProfilerConfig.load(path);
+        ProfilerConfig profilerConfig = DefaultProfilerConfig.load(path);
 
         Assert.assertEquals(profilerConfig.isIoBufferingEnable(), true);
         Assert.assertEquals(profilerConfig.getIoBufferingBufferSize(), 10);
@@ -93,20 +90,20 @@ public class ProfilerConfigTest {
     
     @Test
     public void tcpCommandAcceptorConfigTest1() throws IOException {
-        String path = ProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test.property").getPath();
+        String path = DefaultProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test.property").getPath();
         logger.debug("path:{}", path);
 
-        ProfilerConfig profilerConfig = ProfilerConfig.load(path);
+        ProfilerConfig profilerConfig = DefaultProfilerConfig.load(path);
         
         Assert.assertFalse(profilerConfig.isTcpDataSenderCommandAcceptEnable());
     }
     
     @Test
     public void tcpCommandAcceptorConfigTest2() throws IOException {
-        String path = ProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test2.property").getPath();
+        String path = DefaultProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test2.property").getPath();
         logger.debug("path:{}", path);
 
-        ProfilerConfig profilerConfig = ProfilerConfig.load(path);
+        ProfilerConfig profilerConfig = DefaultProfilerConfig.load(path);
         
         Assert.assertTrue(profilerConfig.isTcpDataSenderCommandAcceptEnable());
     }

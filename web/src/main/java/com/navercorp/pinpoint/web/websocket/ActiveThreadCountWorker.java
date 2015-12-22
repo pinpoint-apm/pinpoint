@@ -131,7 +131,7 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
 
                 try {
                     closeStreamChannel();
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                 }
                 return;
             }

@@ -47,8 +47,9 @@ public class ConnectorInitializeInterceptor implements AroundInterceptor {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-
-        Connector connector = (Connector)target;
-        this.traceContext.getServerMetaDataHolder().addConnector(connector.getProtocol(), connector.getPort());
+        if (target instanceof Connector) {
+            final Connector connector = (Connector) target;
+            this.traceContext.getServerMetaDataHolder().addConnector(connector.getProtocol(), connector.getPort());
+        }
     }
 }

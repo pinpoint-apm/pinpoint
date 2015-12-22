@@ -91,7 +91,7 @@ public class ResponseTimeDataCollector extends DataCollector {
         for (TimeHistogram timeHistogram : timeHistograms) {
             slowCount += timeHistogram.getSlowCount();
             slowCount += timeHistogram.getVerySlowCount();
-            errorCount += timeHistogram.getErrorCount();
+            errorCount += timeHistogram.getTotalErrorCount();
             totalCount += timeHistogram.getTotalCount();
         }
     }

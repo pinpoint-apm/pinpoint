@@ -28,11 +28,11 @@
     <div ng-include=" 'loading' "></div>
 
     <ul ng-style="nodeContextMenuStyle" class="nodeContextMenu dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="z-index:10">
-        <li><a href tabindex="-1" ng-click=""><span class="glyphicon glyphicon-filter"></span> Filter Transaction</a></li>
+        <!--li><a href tabindex="-1" ng-click=""><span class="glyphicon glyphicon-filter"></span> Filter Transaction</a></li>
         <li><a href tabindex="-1" ng-click=""><span class="glyphicon glyphicon-filter"></span> Filter Transaction Wizard</a></li>
-        <li class="divider"></li>
+        <li class="divider"></li-->
         <li>
-        	<a tabindex="-1" ng-href="#/inspector/{{oNavbarVoService.getApplication()}}/{{oNavbarVoService.getReadablePeriod()}}/{{oNavbarVoService.getQueryEndDateTime()}}"
+        	<a tabindex="-1" ng-href="#/inspector/{{inspectApplicationName}}@{{inspectCategory}}/{{oNavbarVoService.getReadablePeriod()}}/{{oNavbarVoService.getQueryEndDateTime()}}"
                target="_blank"><span class="glyphicon glyphicon-search"></span> Inspect Agents</a>
         </li>
     </ul>
@@ -166,8 +166,8 @@
             <ul class="dropdown-menu">
                 <li><a href class="labelTextType" ng-click="toggleLinkLableTextType('totalRequestCount')"><span
                         class="glyphicon" style="width:14px" ng-class="{'glyphicon-ok': totalRequestCount}"></span> Call Count</a></li>
-                <li><a href class="labelTextType" ng-click="toggleLinkLableTextType('tps')"><span
-                        class="glyphicon" style="width:14px" ng-class="{'glyphicon-ok': tps}"></span> TPS</a></li>
+                <!--li><a href class="labelTextType" ng-click="toggleLinkLableTextType('tps')"><span
+                        class="glyphicon" style="width:14px" ng-class="{'glyphicon-ok': tps}"></span> TPS</a></li-->
             </ul>
         </li>
         <li class="divider"></li>
@@ -214,6 +214,7 @@
 		<div class="chart-title">
 			<span>Realtime Active Thread Chart</span>
 			<span class="chart-expand glyphicon glyphicon-fullscreen" aria-hidden="true" ng-click="resizePopup()"></span>
+			<span class="chart-expand glyphicon glyphicon-pushpin" aria-hidden="true" ng-click="pin()"></span>
 			<span class="glyphicon glyphicon-question-sign realtimeTooltip tooltipstered" style="float:right;cursor:pointer;color:#FFF;font-size:17px;padding-right:6px;"></span>
 		</div>
 		<div class="agent-sum-chart">

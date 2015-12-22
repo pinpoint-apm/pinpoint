@@ -24,6 +24,6 @@ import org.apache.thrift.TFieldIdEnum;
  */
 public interface AgentStatCollector<T extends TBase<T, ? extends TFieldIdEnum>> {
     
-    public T collect();
+    T collect();
 
 }

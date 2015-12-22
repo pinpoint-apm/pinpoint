@@ -32,7 +32,7 @@ public class ResponseTime {
     private final long timeStamp;
 
     // agentId is the key
-    private final Map<String, TimeHistogram> responseHistogramMap = new HashMap<String, TimeHistogram>();
+    private final Map<String, TimeHistogram> responseHistogramMap = new HashMap<>();
 
 
     public ResponseTime(String applicationName, ServiceType applicationServiceType, long timeStamp) {
@@ -93,9 +93,9 @@ public class ResponseTime {
         histogram.add(copyHistogram);
     }
 
-    public void addResponseTime(String agentId, int elapsedTime) {
+    public void addResponseTime(String agentId, int elapsedTime, boolean error) {
         Histogram histogram = getHistogram(agentId);
-        histogram.addCallCountByElapsedTime(elapsedTime);
+        histogram.addCallCountByElapsedTime(elapsedTime, error);
     }
 
     public Collection<TimeHistogram> getAgentResponseHistogramList() {

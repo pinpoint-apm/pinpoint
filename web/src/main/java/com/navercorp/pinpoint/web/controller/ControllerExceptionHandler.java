@@ -55,7 +55,7 @@ public class ControllerExceptionHandler {
     }
 
     private Map<String, Object> createExceptionResource(HttpServletRequest request, Throwable throwable) {
-        Map<String, Object> exceptionMap = new HashMap<String, Object>();
+        Map<String, Object> exceptionMap = new HashMap<>();
 
         exceptionMap.put("message", getExceptionMessage(throwable));
         exceptionMap.put("stacktrace", getExceptionStackTrace(throwable));
@@ -94,7 +94,7 @@ public class ControllerExceptionHandler {
             return Collections.emptyMap();
         }
         
-        Map<String, Object> requestMap = new HashMap<String, Object>();
+        Map<String, Object> requestMap = new HashMap<>();
 
         requestMap.put("method", request.getMethod());
         requestMap.put("url", getRequestUrl(request));
@@ -118,7 +118,7 @@ public class ControllerExceptionHandler {
             return Collections.emptyMap();
         }
         
-        Map<String, List<String>> result = new HashMap<String, List<String>>();
+        Map<String, List<String>> result = new HashMap<>();
         while (keys.hasMoreElements()) {
             Object key = keys.nextElement();
             if (key == null) {
@@ -137,7 +137,7 @@ public class ControllerExceptionHandler {
             return Collections.emptyList();
         }
         
-        List<String> headerValueList = new ArrayList<String>();
+        List<String> headerValueList = new ArrayList<>();
         while (headerValues.hasMoreElements()) {
             Object headerValue = headerValues.nextElement();
             if (headerValue == null) {
@@ -156,7 +156,7 @@ public class ControllerExceptionHandler {
             return Collections.emptyMap();
         }
         
-        Map<String, List<String>> result = new HashMap<String, List<String>>();
+        Map<String, List<String>> result = new HashMap<>();
         while (keys.hasMoreElements()) {
             Object key = keys.nextElement();
             if (key == null) {

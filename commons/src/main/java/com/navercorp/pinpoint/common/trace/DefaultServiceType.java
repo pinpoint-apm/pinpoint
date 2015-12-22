@@ -149,71 +149,19 @@ class DefaultServiceType implements ServiceType {
     }
 
     @Override
-    public int hashCode() {
-        // ServiceType's hashCode method is not used as they are put into IntHashMap (see ServiceTypeRegistry)
-        // which uses ServiceType code as key. It shouldn't really matter what this method returns.
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + code;
-        return result;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DefaultServiceType that = (DefaultServiceType) o;
+
+        return code == that.code;
+
     }
-    
+
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        
-        if (obj == null) {
-            return false;
-        }
-        
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        
-        DefaultServiceType other = (DefaultServiceType) obj;
-        if (code != other.code) {
-            return false;
-        }
-        if (desc == null) {
-            if (other.desc != null) {
-                return false;
-            }
-        } else if (!desc.equals(other.desc)) {
-            return false;
-            
-        }
-        
-        if (category == null) {
-            if (other.category != null) {
-                return false;
-            }
-        } else if (!category.equals(other.category)) {
-            return false;
-        }
-        
-        if (includeDestinationId != other.includeDestinationId) {
-            return false;
-        }
-        
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else if (!name.equals(other.name)) {
-            return false;
-        }
-        
-        if (recordStatistics != other.recordStatistics) {
-            return false;
-        }
-        
-        if (terminal != other.terminal) {
-            return false;
-        }
-        
-        return true;
+    public int hashCode() {
+        return (int) code;
     }
 
     public static boolean isWas(final short code) {

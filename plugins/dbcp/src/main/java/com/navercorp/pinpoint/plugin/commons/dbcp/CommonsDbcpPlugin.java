@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -29,42 +31,49 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 /**
  * @author Jongho Moon
  */
-public class CommonsDbcpPlugin implements ProfilerPlugin {
+public class CommonsDbcpPlugin implements ProfilerPlugin, TransformTemplateAware {
     public static final ServiceType DBCP_SERVICE_TYPE = ServiceTypeFactory.of(6050, "DBCP");
-    public static final String DBCP_GROUP = "DBCP_GROUP";
+    public static final String DBCP_SCOPE = "DBCP_SCOPE";
+
+    private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        addBasicDataSourceTransformer(context);
+        addBasicDataSourceTransformer();
         
         boolean profileClose = context.getConfig().readBoolean("profiler.jdbc.dbcp.connectionclose", false);
         
         if (profileClose) {
-            addPoolGuardConnectionWrapperTransformer(context);
+            addPoolGuardConnectionWrapperTransformer();
         }
     }
 
-    private void addPoolGuardConnectionWrapperTransformer(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("org.apache.commons.dbcp.PoolingDataSource$PoolGuardConnectionWrapper", new TransformCallback() {
-            
+    private void addPoolGuardConnectionWrapperTransformer() {
+        transformTemplate.transform("org.apache.commons.dbcp.PoolingDataSource$PoolGuardConnectionWrapper", new TransformCallback() {
+
             @Override
-            public byte[] doInTransform(Instrumentor pluginContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = pluginContext.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addInterceptor("com.navercorp.pinpoint.plugin.commons.dbcp.interceptor.DataSourceCloseInterceptor");
                 return target.toBytecode();
             }
         });
     }
 
-    private void addBasicDataSourceTransformer(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("org.apache.commons.dbcp.BasicDataSource", new TransformCallback() {
+    private void addBasicDataSourceTransformer() {
+        transformTemplate.transform("org.apache.commons.dbcp.BasicDataSource", new TransformCallback() {
             
             @Override
-            public byte[] doInTransform(Instrumentor pluginContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = pluginContext.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addInterceptor("com.navercorp.pinpoint.plugin.commons.dbcp.interceptor.DataSourceGetConnectionInterceptor");
                 return target.toBytecode();
             }
         });
+    }
+
+    @Override
+    public void setTransformTemplate(TransformTemplate transformTemplate) {
+        this.transformTemplate = transformTemplate;
     }
 }

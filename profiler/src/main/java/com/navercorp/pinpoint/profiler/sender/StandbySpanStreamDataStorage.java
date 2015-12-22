@@ -53,7 +53,7 @@ public class StandbySpanStreamDataStorage {
             return false;
         }
 
-        if (standbySpanStreamData.getAvailableBufferCapacity() > 0 && standbySpanStreamData.getAvailableBufferCapacity() > 0) {
+        if (standbySpanStreamData.getAvailableBufferCapacity() > 0 && standbySpanStreamData.getAvailableGatheringComponentsCount() > 0) {
             if (priorityQueue.size() >= capacity) {
                 return false;
             }
@@ -134,7 +134,7 @@ public class StandbySpanStreamDataStorage {
         return firstAccessTime + maxWaitTimeMillis - System.currentTimeMillis();
     }
 
-    class SpanStreamSendDataComparator implements Comparator<SpanStreamSendData> {
+    static class SpanStreamSendDataComparator implements Comparator<SpanStreamSendData> {
 
         @Override
         public int compare(SpanStreamSendData newValue, SpanStreamSendData oldValue) {

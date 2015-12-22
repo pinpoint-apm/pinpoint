@@ -47,11 +47,16 @@ public class FrontCacheGetFutureConstructInterceptor implements AroundIntercepto
         }
 
         try {
-            ((CacheNameAccessor)target)._$PINPOINT$_setCacheName(DEFAULT_FRONTCACHE_NAME);
-            
-            if (args[0] instanceof Element) {
-                Element element = (Element) args[0];
-                ((CacheKeyAccessor)target)._$PINPOINT$_setCacheKey(element.getObjectKey());
+            if (target instanceof CacheNameAccessor) {
+                ((CacheNameAccessor) target)._$PINPOINT$_setCacheName(DEFAULT_FRONTCACHE_NAME);
+            }
+
+            final Object elementArg = args[0];
+            if (elementArg instanceof Element) {
+                final Element element = (Element) elementArg;
+                if (target instanceof CacheKeyAccessor) {
+                    ((CacheKeyAccessor) target)._$PINPOINT$_setCacheKey(element.getObjectKey());
+                }
             }
         } catch (Exception e) {
             logger.error("failed to add metadata: {}", e);

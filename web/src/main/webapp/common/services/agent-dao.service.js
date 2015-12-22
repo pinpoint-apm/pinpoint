@@ -164,7 +164,6 @@
 	                }
 	                newData.push(thisData);
 	            }
-	            
 	            return newData;
 	        };
     
@@ -176,22 +175,43 @@
              */
 	        this.parseTpsChartDataForAmcharts = function (tps, agentStat) {
 	            // TPS data availability check
-	            var totalTpsData = agentStat.charts['TPS_TOTAL'];
-	            if (totalTpsData) {
-	                tps.isAvailable = true;
-	            } else {
-	                return;
-	            }
+	        	var aSampledContinuationData = agentStat.charts['TPS_SAMPLED_CONTINUATION'].points;
+	        	var aSampledNewData = agentStat.charts['TPS_SAMPLED_NEW'].points;
+	        	var aUnsampledContinuationData = agentStat.charts['TPS_UNSAMPLED_CONTINUATION'].points;
+	        	var aUnsampledNewData = agentStat.charts['TPS_UNSAMPLED_NEW'].points;
+	        	var aTotalData = agentStat.charts['TPS_TOTAL'].points;
+	        	
+	        	var tpsLength = aTotalData.length;
+	        	if ( tpsLength > 0 ) {
+	        		tps.isAvailable = true;
+	        	} else {
+	        		return;
+	        	}
 	            var newData = [],
-	            DATA_UNAVAILABLE = -1,
-	            pointsTotalTps = totalTpsData.points;
+	            DATA_UNAVAILABLE = -1;
 	            
-	            for (var i = 0; i < pointsTotalTps.length; ++i) {
+	            for ( var i = 0 ; i < tpsLength ; i++ ) {
 	                var thisData = {
-	                        time: moment(pointsTotalTps[i].timestamp).toString('YYYY-MM-dd HH:mm:ss')
+	                    time: moment(aSampledContinuationData[i].timestamp).toString('YYYY-MM-dd HH:mm:ss')
 	                };
-	                var totalTps = typeof agentStat.charts['TPS_TOTAL'].points[i].avgVal == "number" ? agentStat.charts['TPS_TOTAL'].points[i].avgVal.toFixed(2) : 0.00;
-	                if (!(totalTps < 0)) {
+	                var sampledContinuationTps     = typeof aSampledContinuationData[i].avgVal == "number" ? aSampledContinuationData[i].avgVal.toFixed(2) : 0.00;
+	                var sampledNewTps              = typeof aSampledNewData[i].avgVal == "number" ? aSampledNewData[i].avgVal.toFixed(2) : 0.00;
+	                var unsampledContinuationTps   = typeof aUnsampledContinuationData[i].avgVal == "number" ? aUnsampledContinuationData[i].avgVal.toFixed(2) : 0.00;
+	                var unsampledNewTps            = typeof aUnsampledNewData[i].avgVal == "number" ? aUnsampledNewData[i].avgVal.toFixed(2) : 0.00;
+	                var totalTps                   = typeof aTotalData[i].avgVal == "number" ? aTotalData[i].avgVal.toFixed(2) : 0.00;
+	                if (!(sampledContinuationTps == DATA_UNAVAILABLE)) {
+                        thisData.sampledContinuationTps = sampledContinuationTps;
+	                }
+	                if (!(sampledNewTps == DATA_UNAVAILABLE)) {
+	                    thisData.sampledNewTps = sampledNewTps;
+	                }
+	                if (!(unsampledContinuationTps == DATA_UNAVAILABLE)) {
+	                    thisData.unsampledContinuationTps = unsampledContinuationTps;
+	                }
+	                if (!(unsampledNewTps == DATA_UNAVAILABLE)) {
+	                    thisData.unsampledNewTps = unsampledNewTps;
+	                }
+	                if (!(totalTps == DATA_UNAVAILABLE)) {
 	                    thisData.totalTps = totalTps;
 	                }
 	                newData.push(thisData);

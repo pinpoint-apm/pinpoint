@@ -25,10 +25,7 @@ import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
-import org.springframework.stereotype.Component;
 
 import com.navercorp.pinpoint.common.bo.SqlMetaDataBo;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
@@ -53,7 +50,7 @@ public class SqlMetaDataMapper implements RowMapper<List<SqlMetaDataBo>> {
         }
         final byte[] rowKey = getOriginalKey(result.getRow());
 
-        List<SqlMetaDataBo> sqlMetaDataList = new ArrayList<SqlMetaDataBo>();
+        List<SqlMetaDataBo> sqlMetaDataList = new ArrayList<>();
         Cell[] rawCell = result.rawCells();
         for (Cell cell : rawCell) {
             SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo();

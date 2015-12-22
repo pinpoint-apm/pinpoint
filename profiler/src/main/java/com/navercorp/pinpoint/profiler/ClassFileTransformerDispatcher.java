@@ -47,10 +47,11 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
     private final TransformerRegistry transformerRegistry;
     private final DynamicTransformerRegistry dynamicTransformerRegistry;
     
-    private final DefaultProfilerPluginContext globalContext;    
+    private final DefaultProfilerPluginContext globalContext;
     private final Filter<String> debugTargetFilter;
     private final DebugTransformer debugTransformer;
 
+    private final ClassFileFilter pinpointClassFilter;
     private final ClassFileFilter unmodifiableFilter;
     
     public ClassFileTransformerDispatcher(DefaultAgent agent, List<DefaultProfilerPluginContext> pluginContexts) {
@@ -62,26 +63,29 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
         this.debugTargetFilter = agent.getProfilerConfig().getProfilableClassFilter();
         this.debugTransformer = new DebugTransformer(globalContext);
 
-        this.unmodifiableFilter = new UnmodifiableClassFilter(agentClassLoader);
-        
+        this.pinpointClassFilter = new PinpointClassFilter(agentClassLoader);
+        this.unmodifiableFilter = new UnmodifiableClassFilter();
+
         this.transformerRegistry = createTransformerRegistry(pluginContexts);
         this.dynamicTransformerRegistry = new DefaultDynamicTransformerRegistry();
     }
 
     @Override
     public byte[] transform(ClassLoader classLoader, String jvmClassName, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws IllegalClassFormatException {
-        ClassFileTransformer transformer = dynamicTransformerRegistry.getTransformer(classLoader, jvmClassName);
-        
-        if (transformer != null) {
-            return transform0(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
+        if (!pinpointClassFilter.accept(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer)) {
+            return null;
+        }
+
+        final ClassFileTransformer dynamicTransformer = dynamicTransformerRegistry.getTransformer(classLoader, jvmClassName);
+        if (dynamicTransformer != null) {
+            return transform0(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer, dynamicTransformer);
         }
         
         if (!unmodifiableFilter.accept(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer)) {
             return null;
         }
 
-        transformer = this.transformerRegistry.findTransformer(jvmClassName);
-        
+        ClassFileTransformer transformer = this.transformerRegistry.findTransformer(jvmClassName);
         if (transformer == null) {
             // For debug
             // TODO What if a modifier is duplicated?
@@ -101,9 +105,9 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
 
         if (isDebug) {
             if (classBeingRedefined == null) {
-                logger.debug("[transform] classLoader:{} className:{} trnasformer:{}", classLoader, javaClassName, transformer.getClass().getName());
+                logger.debug("[transform] classLoader:{} className:{} transformer:{}", classLoader, javaClassName, transformer.getClass().getName());
             } else {
-                logger.debug("[retransform] classLoader:{} className:{} trnasformer:{}", classLoader, javaClassName, transformer.getClass().getName());
+                logger.debug("[retransform] classLoader:{} className:{} transformer:{}", classLoader, javaClassName, transformer.getClass().getName());
             }
         }
 
@@ -127,6 +131,11 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
     @Override
     public void onRetransformRequest(Class<?> target, final ClassFileTransformer transformer) {
         this.dynamicTransformerRegistry.onRetransformRequest(target, transformer);
+    }
+
+    @Override
+    public ClassFileTransformer onRetransformFail(Class<?> target) {
+        return this.dynamicTransformerRegistry.onRetransformFail(target);
     }
 
     @Override

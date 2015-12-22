@@ -226,7 +226,7 @@ public class AspectWeaverClass {
         return annotationList;
     }
 
-    public static interface MethodNameReplacer {
+    public interface MethodNameReplacer {
         String replaceMethodName(String methodName);
     }
 

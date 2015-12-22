@@ -19,12 +19,12 @@ package com.navercorp.pinpoint.profiler.util;
 /**
  * @author emeroad
  */
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.bootstrap.instrument.DefaultInterceptorGroupDefinition;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.instrument.DefaultInterceptorScopeDefinition;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 
 /**
  * @author emeroad
@@ -32,7 +32,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvoca
 public class ThreadLocalScopeTest {
     @Test
     public void pushPop() {
-        InterceptorGroupInvocation scope = new ThreadLocalScope(new DefaultInterceptorGroupDefinition("test"));
+        InterceptorScopeInvocation scope = new ThreadLocalScope(new DefaultInterceptorScopeDefinition("test"));
         Assert.assertTrue(scope.tryEnter(ExecutionPolicy.BOUNDARY));
         Assert.assertFalse(scope.tryEnter(ExecutionPolicy.BOUNDARY));
         Assert.assertFalse(scope.tryEnter(ExecutionPolicy.BOUNDARY));
@@ -47,13 +47,13 @@ public class ThreadLocalScopeTest {
 
     @Test(expected=IllegalStateException.class)
     public void pushPopError() {
-        InterceptorGroupInvocation scope = new ThreadLocalScope(new DefaultInterceptorGroupDefinition("test"));
+        InterceptorScopeInvocation scope = new ThreadLocalScope(new DefaultInterceptorScopeDefinition("test"));
         scope.leave(ExecutionPolicy.BOUNDARY);
     }
 
     @Test
     public void getName() {
-        InterceptorGroupInvocation scope = new ThreadLocalScope(new DefaultInterceptorGroupDefinition("test"));
+        InterceptorScopeInvocation scope = new ThreadLocalScope(new DefaultInterceptorScopeDefinition("test"));
         Assert.assertEquals(scope.getName(), "test");
 
     }

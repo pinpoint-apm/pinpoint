@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.web.vo.linechart.Chart.ChartBuilder;
  */
 public class AgentStatChartGroup {
 
-    private static enum ChartType {
+    private enum ChartType {
         JVM_MEMORY_HEAP_USED,
         JVM_MEMORY_HEAP_MAX,
         JVM_MEMORY_NON_HEAP_USED,
@@ -60,7 +60,7 @@ public class AgentStatChartGroup {
     private final Map<ChartType, Chart> charts;
 
     public AgentStatChartGroup(TimeWindow timeWindow) {
-        this.chartBuilders = new EnumMap<ChartType, ChartBuilder<? extends Number, ? extends Number>>(ChartType.class);
+        this.chartBuilders = new EnumMap<>(ChartType.class);
         this.chartBuilders.put(ChartType.JVM_MEMORY_HEAP_USED, new SampledTimeSeriesLongChartBuilder(timeWindow, UNCOLLECTED_DATA));
         this.chartBuilders.put(ChartType.JVM_MEMORY_HEAP_MAX, new SampledTimeSeriesLongChartBuilder(timeWindow, UNCOLLECTED_DATA));
         this.chartBuilders.put(ChartType.JVM_MEMORY_NON_HEAP_USED, new SampledTimeSeriesLongChartBuilder(timeWindow, UNCOLLECTED_DATA));
@@ -74,7 +74,7 @@ public class AgentStatChartGroup {
         this.chartBuilders.put(ChartType.TPS_UNSAMPLED_NEW, new SampledTimeSeriesDoubleChartBuilder(timeWindow, UNCOLLECTED_DATA, 1));
         this.chartBuilders.put(ChartType.TPS_UNSAMPLED_CONTINUATION, new SampledTimeSeriesDoubleChartBuilder(timeWindow, UNCOLLECTED_DATA, 1));
         this.chartBuilders.put(ChartType.TPS_TOTAL, new SampledTimeSeriesDoubleChartBuilder(timeWindow, UNCOLLECTED_DATA, 1));
-        this.charts = new EnumMap<ChartType, Chart>(ChartType.class);
+        this.charts = new EnumMap<>(ChartType.class);
     }
 
     public void addAgentStats(List<AgentStat> agentStats) {
@@ -96,20 +96,20 @@ public class AgentStatChartGroup {
     private void addMemoryGcData(AgentStat agentStat) {
         this.type = agentStat.getGcType();
         long timestamp = agentStat.getTimestamp();
-        ((SampledTimeSeriesLongChartBuilder) this.chartBuilders.get(ChartType.JVM_MEMORY_HEAP_USED)).addDataPoint(new DataPoint<Long, Long>(timestamp, agentStat.getHeapUsed()));
-        ((SampledTimeSeriesLongChartBuilder) this.chartBuilders.get(ChartType.JVM_MEMORY_HEAP_MAX)).addDataPoint(new DataPoint<Long, Long>(timestamp, agentStat.getHeapMax()));
-        ((SampledTimeSeriesLongChartBuilder) this.chartBuilders.get(ChartType.JVM_MEMORY_NON_HEAP_USED)).addDataPoint(new DataPoint<Long, Long>(timestamp, agentStat.getNonHeapUsed()));
-        ((SampledTimeSeriesLongChartBuilder) this.chartBuilders.get(ChartType.JVM_MEMORY_NON_HEAP_MAX)).addDataPoint(new DataPoint<Long, Long>(timestamp, agentStat.getNonHeapMax()));
-        ((SampledTimeSeriesLongChartBuilder) this.chartBuilders.get(ChartType.JVM_GC_OLD_COUNT)).addDataPoint(new DataPoint<Long, Long>(timestamp, agentStat.getGcOldCount()));
-        ((SampledTimeSeriesLongChartBuilder) this.chartBuilders.get(ChartType.JVM_GC_OLD_TIME)).addDataPoint(new DataPoint<Long, Long>(timestamp, agentStat.getGcOldTime()));
+        ((SampledTimeSeriesLongChartBuilder) this.chartBuilders.get(ChartType.JVM_MEMORY_HEAP_USED)).addDataPoint(new DataPoint<>(timestamp, agentStat.getHeapUsed()));
+        ((SampledTimeSeriesLongChartBuilder) this.chartBuilders.get(ChartType.JVM_MEMORY_HEAP_MAX)).addDataPoint(new DataPoint<>(timestamp, agentStat.getHeapMax()));
+        ((SampledTimeSeriesLongChartBuilder) this.chartBuilders.get(ChartType.JVM_MEMORY_NON_HEAP_USED)).addDataPoint(new DataPoint<>(timestamp, agentStat.getNonHeapUsed()));
+        ((SampledTimeSeriesLongChartBuilder) this.chartBuilders.get(ChartType.JVM_MEMORY_NON_HEAP_MAX)).addDataPoint(new DataPoint<>(timestamp, agentStat.getNonHeapMax()));
+        ((SampledTimeSeriesLongChartBuilder) this.chartBuilders.get(ChartType.JVM_GC_OLD_COUNT)).addDataPoint(new DataPoint<>(timestamp, agentStat.getGcOldCount()));
+        ((SampledTimeSeriesLongChartBuilder) this.chartBuilders.get(ChartType.JVM_GC_OLD_TIME)).addDataPoint(new DataPoint<>(timestamp, agentStat.getGcOldTime()));
     }
 
     private void addCpuLoadData(AgentStat agentStat) {
         long timestamp = agentStat.getTimestamp();
         double jvmCpuUsagePercentage = agentStat.getJvmCpuUsage() * 100;
         double systemCpuUsagePercentage = agentStat.getSystemCpuUsage() * 100;
-        ((SampledTimeSeriesDoubleChartBuilder) this.chartBuilders.get(ChartType.CPU_LOAD_JVM)).addDataPoint(new DataPoint<Long, Double>(timestamp, jvmCpuUsagePercentage));
-        ((SampledTimeSeriesDoubleChartBuilder) this.chartBuilders.get(ChartType.CPU_LOAD_SYSTEM)).addDataPoint(new DataPoint<Long, Double>(timestamp, systemCpuUsagePercentage));
+        ((SampledTimeSeriesDoubleChartBuilder) this.chartBuilders.get(ChartType.CPU_LOAD_JVM)).addDataPoint(new DataPoint<>(timestamp, jvmCpuUsagePercentage));
+        ((SampledTimeSeriesDoubleChartBuilder) this.chartBuilders.get(ChartType.CPU_LOAD_SYSTEM)).addDataPoint(new DataPoint<>(timestamp, systemCpuUsagePercentage));
     }
 
     private void addTransactionData(AgentStat agentStat) {
@@ -121,11 +121,11 @@ public class AgentStatChartGroup {
             double unsampledNewTps = calculateTps(agentStat.getUnsampledNewCount(), interval);
             double unsampledContinuationTps = calculateTps(agentStat.getUnsampledContinuationCount(), interval);
             double totalTps = sampledNewTps + sampledContinuationTps + unsampledNewTps + unsampledContinuationTps;
-            ((SampledTimeSeriesDoubleChartBuilder) this.chartBuilders.get(ChartType.TPS_SAMPLED_NEW)).addDataPoint(new DataPoint<Long, Double>(timestamp, sampledNewTps));
-            ((SampledTimeSeriesDoubleChartBuilder) this.chartBuilders.get(ChartType.TPS_SAMPLED_CONTINUATION)).addDataPoint(new DataPoint<Long, Double>(timestamp, sampledContinuationTps));
-            ((SampledTimeSeriesDoubleChartBuilder) this.chartBuilders.get(ChartType.TPS_UNSAMPLED_NEW)).addDataPoint(new DataPoint<Long, Double>(timestamp, unsampledNewTps));
-            ((SampledTimeSeriesDoubleChartBuilder) this.chartBuilders.get(ChartType.TPS_UNSAMPLED_CONTINUATION)).addDataPoint(new DataPoint<Long, Double>(timestamp, unsampledContinuationTps));
-            ((SampledTimeSeriesDoubleChartBuilder) this.chartBuilders.get(ChartType.TPS_TOTAL)).addDataPoint(new DataPoint<Long, Double>(timestamp, totalTps));
+            ((SampledTimeSeriesDoubleChartBuilder) this.chartBuilders.get(ChartType.TPS_SAMPLED_NEW)).addDataPoint(new DataPoint<>(timestamp, sampledNewTps));
+            ((SampledTimeSeriesDoubleChartBuilder) this.chartBuilders.get(ChartType.TPS_SAMPLED_CONTINUATION)).addDataPoint(new DataPoint<>(timestamp, sampledContinuationTps));
+            ((SampledTimeSeriesDoubleChartBuilder) this.chartBuilders.get(ChartType.TPS_UNSAMPLED_NEW)).addDataPoint(new DataPoint<>(timestamp, unsampledNewTps));
+            ((SampledTimeSeriesDoubleChartBuilder) this.chartBuilders.get(ChartType.TPS_UNSAMPLED_CONTINUATION)).addDataPoint(new DataPoint<>(timestamp, unsampledContinuationTps));
+            ((SampledTimeSeriesDoubleChartBuilder) this.chartBuilders.get(ChartType.TPS_TOTAL)).addDataPoint(new DataPoint<>(timestamp, totalTps));
         }
     }
 

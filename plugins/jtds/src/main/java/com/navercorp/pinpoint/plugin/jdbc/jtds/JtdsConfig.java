@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,21 @@
 package com.navercorp.pinpoint.plugin.jdbc.jtds;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConfig;
 
 /**
  * @author Jongho Moon
- *
  */
-public class JtdsConfig {
+public class JtdsConfig extends JdbcConfig {
     private final boolean profileSetAutoCommit;
     private final boolean profileCommit;
     private final boolean profileRollback;
-    private final int maxSqlBindValueSize; 
 
     public JtdsConfig(ProfilerConfig config) {
+        super(config.readBoolean("profiler.jdbc.jtds.tracesqlbindvalue", config.isTraceSqlBindValue()), config.getMaxSqlBindValueSize());
         this.profileSetAutoCommit = config.readBoolean("profiler.jdbc.jtds.setautocommit", false);
         this.profileCommit = config.readBoolean("profiler.jdbc.jtds.commit", false);
         this.profileRollback = config.readBoolean("profiler.jdbc.jtds.rollback", false);
-        this.maxSqlBindValueSize = config.readInt("profiler.jdbc.maxsqlbindvaluesize", 1024);
     }
 
     public boolean isProfileSetAutoCommit() {
@@ -44,13 +43,9 @@ public class JtdsConfig {
     public boolean isProfileRollback() {
         return profileRollback;
     }
-    
-    public int getMaxSqlBindValueSize() {
-        return maxSqlBindValueSize;
-    }
-    
+
     @Override
     public String toString() {
-        return "JtdsConfig [profileSetAutoCommit=" + profileSetAutoCommit + ", profileCommit=" + profileCommit + ", profileRollback=" + profileRollback + ", maxSqlBindValueSize=" + maxSqlBindValueSize + "]";
-    };
+        return "JtdsConfig [" + super.toString() + ", profileSetAutoCommit=" + profileSetAutoCommit + ", profileCommit=" + profileCommit + ", profileRollback=" + profileRollback + "]";
+    }
 }

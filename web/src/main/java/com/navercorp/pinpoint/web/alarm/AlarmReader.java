@@ -32,7 +32,6 @@ import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCatego
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
-import com.navercorp.pinpoint.web.dao.AlarmDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -51,7 +50,7 @@ public class AlarmReader implements ItemReader<AlarmChecker>, StepExecutionListe
     @Autowired
     private AlarmService alarmService;
     
-    private final Queue<AlarmChecker> checkers = new LinkedList<AlarmChecker>();
+    private final Queue<AlarmChecker> checkers = new LinkedList<>();
 
     public AlarmReader() {
     }
@@ -90,7 +89,7 @@ public class AlarmReader implements ItemReader<AlarmChecker>, StepExecutionListe
     private void addChecker(Application application) {
         List<Rule> rules = alarmService.selectRuleByApplicationId(application.getName());
         long timeSlotEndTime = System.currentTimeMillis();
-        Map<DataCollectorCategory, DataCollector> collectorMap = new HashMap<DataCollectorCategory, DataCollector>();
+        Map<DataCollectorCategory, DataCollector> collectorMap = new HashMap<>();
         
         for (Rule rule : rules) {
             CheckerCategory checkerCategory = CheckerCategory.getValue(rule.getCheckerName());

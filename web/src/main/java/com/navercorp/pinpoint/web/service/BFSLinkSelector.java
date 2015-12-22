@@ -55,7 +55,7 @@ public class BFSLinkSelector implements LinkSelector {
 
     private final AcceptApplicationLocalCache acceptApplicationLocalCache = new AcceptApplicationLocalCache();
 
-    private final Set<LinkData> emulationLinkMarker = new HashSet<LinkData>();
+    private final Set<LinkData> emulationLinkMarker = new HashSet<>();
 
     private final Queue nextQueue = new Queue();
 
@@ -198,7 +198,7 @@ public class BFSLinkSelector implements LinkSelector {
     private List<LinkData> createVirtualLinkData(LinkData linkData, Application toApplication, Set<AcceptApplication> acceptApplicationList) {
         logger.warn("ono to N replaced. node:{}->host:{} accept:{}", linkData.getFromApplication(), toApplication.getName(), acceptApplicationList);
 
-        List<LinkData> emulationLink = new ArrayList<LinkData>();
+        List<LinkData> emulationLink = new ArrayList<>();
         for (AcceptApplication acceptApplication : acceptApplicationList) {
             // linkCallData needs to be modified - remove callHistogram on purpose
             final LinkData acceptedLinkData = new LinkData(linkData.getFromApplication(), acceptApplication.getApplication());
@@ -283,7 +283,7 @@ public class BFSLinkSelector implements LinkSelector {
     private List<LinkData> findEmulationLinkData(LinkDataDuplexMap linkDataDuplexMap) {
         // LinkDataDuplexMap already has a copy of the data - modifying emulationLinkMarker's data has no effect.
         // We must get the data from LinkDataDuplexMap again.
-        List<LinkData> searchList = new ArrayList<LinkData>();
+        List<LinkData> searchList = new ArrayList<>();
         for (LinkData emulationLinkData : this.emulationLinkMarker) {
             LinkKey search = getLinkKey(emulationLinkData);
             for (LinkData linkData : linkDataDuplexMap.getSourceLinkDataList()) {
@@ -387,7 +387,7 @@ public class BFSLinkSelector implements LinkSelector {
     }
 
     private List<Application> getUnvisitedEmulationNode() {
-        Set<Application> unvisitedList = new HashSet<Application>();
+        Set<Application> unvisitedList = new HashSet<>();
         for (LinkData linkData : this.emulationLinkMarker) {
             Application toApplication = linkData.getToApplication();
             boolean isVisited = this.linkVisitChecker.isVisitedCaller(toApplication);
@@ -395,7 +395,7 @@ public class BFSLinkSelector implements LinkSelector {
                 unvisitedList.add(toApplication);
             }
         }
-        return new ArrayList<Application>(unvisitedList);
+        return new ArrayList<>(unvisitedList);
     }
 
 
@@ -413,14 +413,14 @@ public class BFSLinkSelector implements LinkSelector {
 
     static class Queue {
 
-        private final Set<Application> nextNode = new HashSet<Application>();
+        private final Set<Application> nextNode = new HashSet<>();
 
         public boolean addNextNode(Application application) {
             return this.nextNode.add(application);
         }
 
         public List<Application> copyAndClear() {
-            List<Application> copyList = new ArrayList<Application>(this.nextNode);
+            List<Application> copyList = new ArrayList<>(this.nextNode);
 
             this.nextNode.clear();
 

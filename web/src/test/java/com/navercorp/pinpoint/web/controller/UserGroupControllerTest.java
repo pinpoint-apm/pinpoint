@@ -120,8 +120,21 @@ public class UserGroupControllerTest {
         
         String content = result.getResponse().getContentAsString();
         ObjectMapper objectMapper = new ObjectMapper();
-        List<Map> checherList = objectMapper.readValue(content, List.class);
-        Assert.assertEquals(checherList.size(), 2);
+        List<Map> userGroupList = objectMapper.readValue(content, List.class);
+        Assert.assertEquals(userGroupList.size(), 2);
+    }
+
+    @Test
+    public void selectUserGroupByUserGroupId() throws Exception {
+        MvcResult result = this.mockMvc.perform(get("/userGroup.pinpoint?userGroupId=" + TEST_USER_GROUP_ID).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn();
+        
+        String content = result.getResponse().getContentAsString();
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Map> userGroupList = objectMapper.readValue(content, List.class);
+        Assert.assertEquals(userGroupList.size(), 2);
     }
 
     @Test

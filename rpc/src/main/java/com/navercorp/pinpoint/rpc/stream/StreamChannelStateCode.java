@@ -35,7 +35,7 @@ public enum StreamChannelStateCode {
 
     private final Set<StreamChannelStateCode> validBeforeStateSet;
 
-    private StreamChannelStateCode(StreamChannelStateCode... validBeforeStates) {
+    StreamChannelStateCode(StreamChannelStateCode... validBeforeStates) {
         this.validBeforeStateSet = new HashSet<StreamChannelStateCode>();
 
         if (validBeforeStates != null) {

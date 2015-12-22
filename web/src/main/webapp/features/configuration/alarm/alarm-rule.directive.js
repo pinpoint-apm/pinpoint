@@ -13,7 +13,7 @@
         return {
             restrict: 'EA',
             replace: true,
-            templateUrl: 'features/configuration/alarm/alarmRule.html',
+            templateUrl: 'features/configuration/alarm/alarmRule.html?v=' + G_BUILD_TIME,
             scope: true,
             link: function (scope, element) {
 
@@ -58,10 +58,11 @@
     					} else if ( $target.hasClass("confirm-remove") ) {
     						removeConfirm( $tr );
     					} else if ( $target.hasClass("confirm-cancel") ) {
-    						revmoeCancel( $tr );	
+    						removeCancel( $tr );	
     					}
     				} else if ( tagName == "span" ) {
     					if ( $target.hasClass("remove") ) {
+    						if ( isRemoving == true ) return;
     						isRemoving = true;
     	    				$tr.addClass("remove").find("td:last-child").addClass("remove").find("span.remove").hide().end().append($removeTemplate);		
     					} else if( $target.hasClass("glyphicon-edit") ) {

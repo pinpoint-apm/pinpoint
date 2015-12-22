@@ -105,7 +105,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         if(tableExists) {
             // find distributed key - ver2.
             final Scan scan = createScan(calleeApplication, range, HBaseTables.MAP_STATISTICS_CALLER_VER2_CF_COUNTER);
-            ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<LinkDataMap>(mapStatisticsCalleeMapper, new MapStatisticsTimeWindowReducer(timeWindow));
+            ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(mapStatisticsCalleeMapper, new MapStatisticsTimeWindowReducer(timeWindow));
             LinkDataMap linkDataMap = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER_VER2, scan, rowKeyDistributorByHashPrefix, resultExtractor);
             logger.debug("Callee data. {}, {}", linkDataMap, range);
             if (linkDataMap != null && linkDataMap.size() > 0) {
@@ -116,7 +116,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         if(backwardCompatibility) {
             // backward compatibility - non distributed - ver1.
             final Scan scan = createScan(calleeApplication, range, HBaseTables.MAP_STATISTICS_CALLER_CF_COUNTER);
-            ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<LinkDataMap>(mapStatisticsCalleeMapperBackwardCompatibility, new MapStatisticsTimeWindowReducer(timeWindow));
+            ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(mapStatisticsCalleeMapperBackwardCompatibility, new MapStatisticsTimeWindowReducer(timeWindow));
             LinkDataMap linkDataMap = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, scan, resultExtractor);
             logger.debug("Callee data. {}, {}", linkDataMap, range);
             return linkDataMap != null ? linkDataMap : new LinkDataMap();

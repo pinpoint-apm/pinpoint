@@ -57,7 +57,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         Scan scan = new Scan();
         scan.setCaching(30);
         List<List<Application>> results = hbaseOperations2.find(HBaseTables.APPLICATION_INDEX, scan, applicationNameMapper);
-        List<Application> applications = new ArrayList<Application>();
+        List<Application> applications = new ArrayList<>();
         for (List<Application> result : results) {
             applications.addAll(result);
         }

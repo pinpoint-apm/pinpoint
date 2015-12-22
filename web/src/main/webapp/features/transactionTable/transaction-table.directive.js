@@ -11,7 +11,7 @@
 	    return {
 	        restrict: 'EA',
 	        replace: true,
-	        templateUrl: 'features/transactionTable/transactionTable.html',
+	        templateUrl: 'features/transactionTable/transactionTable.html?v=' + G_BUILD_TIME,
 	        link: function postLink(scope, element, attrs) {
 	
 	            // define private variables of methods
@@ -63,7 +63,7 @@
 	             * @param transaction
 	             */
 	            scope.traceByApplication = function (transaction) {
-	            	analyticsService.send(analyticsService.CONST.CALLSTACK, analyticsService.CONST.CLK_TRANSACTION);
+					analyticsService.send(analyticsService.CONST.CALLSTACK, analyticsService.CONST.CLK_TRANSACTION);
 	                scope.currentTransaction = transaction;
 	                scope.$emit('transactionTableDirective.applicationSelected', transaction);
 	            };
@@ -79,11 +79,12 @@
 	            /**
 	             * scope trace by sequence
 	             * @param transaction
+				 * not used
 	             */
-	            scope.traceBySequence = function (transaction) {
-	                scope.currentTransaction = transaction;
-	                scope.$emit('transactionTableDirective.sequenceSelected', transaction);
-	            };
+	            //scope.traceBySequence = function (transaction) {
+	            //    scope.currentTransaction = transaction;
+	            //    scope.$emit('transactionTableDirective.sequenceSelected', transaction);
+	            //};
 	
 	            /**
 	             * scope transaction order
@@ -98,7 +99,7 @@
 	                analyticsService.send(analyticsService.CONST.CALLSTACK, analyticsService.CONST.ST_ + orderKey.charAt(0).toUpperCase() + orderKey.substring(1), scope.transactionReverse ? analyticsService.CONST.DESCENDING : analyticsService.CONST.ASCENDING );
 	                scope.transactionOrderBy = orderKey;
 	            };
-	
+
 	            /**
 	             * scope event on transactionTableDirective.appendTransactionList
 	             */

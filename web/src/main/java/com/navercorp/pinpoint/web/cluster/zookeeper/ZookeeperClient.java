@@ -17,12 +17,8 @@
 package com.navercorp.pinpoint.web.cluster.zookeeper;
 
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
+import com.navercorp.pinpoint.rpc.util.TimerFactory;
+import com.navercorp.pinpoint.web.cluster.zookeeper.exception.*;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.KeeperException.Code;
@@ -35,14 +31,11 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.rpc.util.TimerFactory;
-import com.navercorp.pinpoint.web.cluster.zookeeper.exception.AuthException;
-import com.navercorp.pinpoint.web.cluster.zookeeper.exception.BadOperationException;
-import com.navercorp.pinpoint.web.cluster.zookeeper.exception.ConnectionException;
-import com.navercorp.pinpoint.web.cluster.zookeeper.exception.NoNodeException;
-import com.navercorp.pinpoint.web.cluster.zookeeper.exception.PinpointZookeeperException;
-import com.navercorp.pinpoint.web.cluster.zookeeper.exception.TimeoutException;
-import com.navercorp.pinpoint.web.cluster.zookeeper.exception.UnknownException;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author koo.taejin
@@ -57,24 +50,24 @@ public class ZookeeperClient {
 
     private final String hostPort;
     private final int sessionTimeout;
-    private final ZookeeperClusterManager manager;
+    private final ZookeeperClusterDataManager zookeeperDataManager;
     private final long reconnectDelayWhenSessionExpired;
 
     // ZK client is thread-safe
     private volatile ZooKeeper zookeeper;
 
     // hmm this structure should contain all necessary information
-    public ZookeeperClient(String hostPort, int sessionTimeout, ZookeeperClusterManager manager) throws KeeperException, IOException, InterruptedException {
-        this(hostPort, sessionTimeout, manager, ZookeeperClusterManager.DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED);
+    public ZookeeperClient(String hostPort, int sessionTimeout, ZookeeperClusterDataManager manager) throws KeeperException, IOException, InterruptedException {
+        this(hostPort, sessionTimeout, manager, ZookeeperClusterDataManager.DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED);
     }
     
-    public ZookeeperClient(String hostPort, int sessionTimeout, ZookeeperClusterManager manager, long reconnectDelayWhenSessionExpired) throws KeeperException, IOException, InterruptedException {
+    public ZookeeperClient(String hostPort, int sessionTimeout, ZookeeperClusterDataManager zookeeperDataManager, long reconnectDelayWhenSessionExpired) throws KeeperException, IOException, InterruptedException {
         this.hostPort = hostPort;
         this.sessionTimeout = sessionTimeout;
-        this.manager = manager;
+        this.zookeeperDataManager = zookeeperDataManager;
         this.reconnectDelayWhenSessionExpired = reconnectDelayWhenSessionExpired;
         
-        this.zookeeper = new ZooKeeper(hostPort, sessionTimeout, manager); // server
+        this.zookeeper = new ZooKeeper(hostPort, sessionTimeout, zookeeperDataManager); // server
         
         this.timer = TimerFactory.createHashedWheelTimer(this.getClass().getSimpleName(), 100, TimeUnit.MILLISECONDS, 512);
     }
@@ -122,7 +115,7 @@ public class ZookeeperClient {
 
     private ZooKeeper createNewZookeeper() {
         try {
-            return new ZooKeeper(hostPort, sessionTimeout, manager);
+            return new ZooKeeper(hostPort, sessionTimeout, zookeeperDataManager);
         } catch (IOException ignore) {
             // ignore
         }
@@ -143,24 +136,22 @@ public class ZookeeperClient {
         do {
             pos = path.indexOf('/', pos + 1);
 
-            if (pos == -1) {
+            if (pos != -1) {
+                try {
+                    String subPath = path.substring(0, pos);
+                    if (zookeeper.exists(subPath, false) != null) {
+                        continue;
+                    }
+
+                    zookeeper.create(subPath, new byte[0], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                } catch (KeeperException exception) {
+                    if (exception.code() != Code.NODEEXISTS) {
+                        handleException(exception);
+                    }
+                }
+            } else {
                 pos = path.length();
-                return;
             }
-
-            try {
-                String subPath = path.substring(0, pos);
-                if (zookeeper.exists(subPath, false) != null) {
-                    continue;
-                }
-
-                zookeeper.create(subPath, new byte[0], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            } catch (KeeperException exception) {
-                if (exception.code() != Code.NODEEXISTS) {
-                    handleException(exception);
-                }
-            }
-
         } while (pos < path.length());
     }
 
@@ -248,7 +239,7 @@ public class ZookeeperClient {
     }
 
     private void checkState() throws PinpointZookeeperException {
-        if (!this.manager.isConnected() || !clientState.get()) {
+        if (!this.zookeeperDataManager.isConnected() || !clientState.get()) {
             throw new ConnectionException("instance must be connected.");
         }
     }

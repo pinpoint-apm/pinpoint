@@ -17,16 +17,12 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.context.TraceType;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
 
@@ -50,12 +46,12 @@ public final class DefaultTrace implements Trace {
     private Storage storage;
 
     private final TraceContext traceContext;
-    private TraceType traceType = TraceType.DEFAULT;
     private final WrappedSpanEventRecorder spanEventRecorder;
     private final DefaultSpanRecorder spanRecorder;
     private boolean closed = false;
 
     private Thread bindThread;
+    private final DefaultTraceScopePool scopePool = new DefaultTraceScopePool();
 
     public DefaultTrace(final TraceContext traceContext, long transactionId, boolean sampling) {
         if (traceContext == null) {
@@ -208,7 +204,6 @@ public final class DefaultTrace implements Trace {
             logSpan(span);
         }
 
-        // If the stack is not handled properly, NullPointerException will be thrown AFTER this. Is it OK?
         if (this.storage != null) {
             this.storage.close();
             this.storage = null;
@@ -266,7 +261,9 @@ public final class DefaultTrace implements Trace {
             final Thread th = Thread.currentThread();
             logger.trace("[DefaultTrace] Write {} thread{id={}, name={}}", spanEvent, th.getId(), th.getName());
         }
-        this.storage.store(spanEvent);
+        if(this.storage != null) {
+            this.storage.store(spanEvent);
+        }
     }
 
     private void logSpan(Span span) {
@@ -274,7 +271,9 @@ public final class DefaultTrace implements Trace {
             final Thread th = Thread.currentThread();
             logger.trace("[DefaultTrace] Write {} thread{id={}, name={}}", span, th.getId(), th.getName());
         }
-        this.storage.store(span);
+        if(this.storage != null) {
+            this.storage.store(span);
+        }
     }
 
     @Override
@@ -323,11 +322,12 @@ public final class DefaultTrace implements Trace {
     }
 
     @Override
-    public TraceType getTraceType() {
-        return this.traceType;
+    public TraceScope getScope(String name) {
+        return scopePool.get(name);
     }
 
-    public void setTraceType(TraceType traceType) {
-        this.traceType = traceType;
+    @Override
+    public TraceScope addScope(String name) {
+        return scopePool.add(name);
     }
 }

@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
-import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.monitor.metric.ContextMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricRegistry;
@@ -94,11 +93,6 @@ public class MetricTraceFactory implements TraceFactory, TraceFactoryWrapper {
     }
 
     @Override
-    public Trace newTraceObject(TraceType traceType) {
-        return delegate.newTraceObject(traceType);
-    }
-
-    @Override
     public Trace removeTraceObject() {
         final Trace trace = delegate.removeTraceObject();
 //        TODO;
@@ -115,23 +109,18 @@ public class MetricTraceFactory implements TraceFactory, TraceFactoryWrapper {
         return this.metricRegistry.getRpcMetric(serviceType);
     }
 
-
-    public void recordContextMetricIsError() {
-        recordContextMetric(HistogramSchema.ERROR_SLOT_TIME);
+    public void recordContextMetric(int elapsedTime, boolean error) {
+        final ContextMetric contextMetric = this.metricRegistry.getResponseMetric();
+        contextMetric.addResponseTime(elapsedTime, error);
     }
 
-    public void recordContextMetric(int elapsedTime) {
+    public void recordAcceptResponseTime(String parentApplicationName, short parentApplicationType, int elapsedTime, boolean error) {
         final ContextMetric contextMetric = this.metricRegistry.getResponseMetric();
-        contextMetric.addResponseTime(elapsedTime);
+        contextMetric.addAcceptHistogram(parentApplicationName, parentApplicationType, elapsedTime, error);
     }
 
-    public void recordAcceptResponseTime(String parentApplicationName, short parentApplicationType, int elapsedTime) {
+    public void recordUserAcceptResponseTime(int elapsedTime, boolean error) {
         final ContextMetric contextMetric = this.metricRegistry.getResponseMetric();
-        contextMetric.addAcceptHistogram(parentApplicationName, parentApplicationType, elapsedTime);
-    }
-
-    public void recordUserAcceptResponseTime(int elapsedTime) {
-        final ContextMetric contextMetric = this.metricRegistry.getResponseMetric();
-        contextMetric.addUserAcceptHistogram(elapsedTime);
+        contextMetric.addUserAcceptHistogram(elapsedTime, error);
     }
 }

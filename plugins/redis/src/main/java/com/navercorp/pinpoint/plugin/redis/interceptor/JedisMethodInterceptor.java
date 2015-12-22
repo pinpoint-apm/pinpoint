@@ -20,9 +20,9 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.redis.CommandContext;
 import com.navercorp.pinpoint.plugin.redis.CommandContextFactory;
@@ -35,22 +35,22 @@ import com.navercorp.pinpoint.plugin.redis.RedisConstants;
  * @author jaehong.kim
  *
  */
-@Group(value = RedisConstants.REDIS_SCOPE)
+@Scope(value = RedisConstants.REDIS_SCOPE)
 public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
-    private InterceptorGroup interceptorGroup;
+    private InterceptorScope interceptorScope;
     private boolean io;
 
-    public JedisMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup, boolean io) {
+    public JedisMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope, boolean io) {
         super(traceContext, methodDescriptor);
 
-        this.interceptorGroup = interceptorGroup;
+        this.interceptorScope = interceptorScope;
         this.io = io;
     }
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        final InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
+        final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
         if (invocation != null) {
             invocation.getOrCreateAttachment(CommandContextFactory.COMMAND_CONTEXT_FACTORY);
         }
@@ -64,8 +64,8 @@ public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptorForP
             endPoint = ((EndPointAccessor) target)._$PINPOINT$_getEndPoint();
         }
         
-        final InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
-        if (invocation != null && invocation.getAttachment() != null) {
+        final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
+        if (invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof  CommandContext) {
             final CommandContext commandContext = (CommandContext) invocation.getAttachment();
             logger.debug("Check command context {}", commandContext);
             if (io) {

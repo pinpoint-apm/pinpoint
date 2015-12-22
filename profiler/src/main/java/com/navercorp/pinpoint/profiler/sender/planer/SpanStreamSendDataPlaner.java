@@ -51,8 +51,8 @@ public class SpanStreamSendDataPlaner extends AbstractSpanStreamSendDataPlaner {
     protected int getSpanChunkLength() {
         getSpanChunkBuffer0();
         return spanChunkSize;
-    };
-    
+    }
+
     @Override
     protected ByteBuffer getSpanChunkBuffer() {
         return ByteBuffer.wrap(getSpanChunkBuffer0(), 0, spanChunkSize);

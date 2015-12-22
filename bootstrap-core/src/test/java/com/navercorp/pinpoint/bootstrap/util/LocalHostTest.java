@@ -16,6 +16,11 @@
 
 package com.navercorp.pinpoint.bootstrap.util;
 
+import org.junit.Ignore;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -26,21 +31,25 @@ import java.util.Enumeration;
  * @author emeroad
  */
 public class LocalHostTest {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public static void main(String[] args) throws UnknownHostException, SocketException {
-        System.out.println("Canonical:" + InetAddress.getLocalHost().getCanonicalHostName());
-        System.out.println("normal:" + InetAddress.getLocalHost().getHostName());
+    @Ignore
+    @Test
+    public void portName() throws UnknownHostException, SocketException {
 
-        System.out.println("NetworkInterface");
+        logger.debug("CanonicalHostName:{}", InetAddress.getLocalHost().getCanonicalHostName());
+        logger.debug("HostName:{}", InetAddress.getLocalHost().getHostName());
+
+        logger.debug("NetworkInterface");
         Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
         while (networkInterfaces.hasMoreElements()) {
             NetworkInterface networkInterface = networkInterfaces.nextElement();
-            System.out.println("Nic:" + networkInterface);
+            logger.debug("NetworkInterface:{}", networkInterface);
             Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
             while (inetAddresses.hasMoreElements()) {
                 InetAddress inetAddress = inetAddresses.nextElement();
-                System.out.println(inetAddress.getCanonicalHostName());
-                System.out.println(inetAddress.getHostName());
+                logger.debug(inetAddress.getCanonicalHostName());
+                logger.debug(inetAddress.getHostName());
             }
         }
     }

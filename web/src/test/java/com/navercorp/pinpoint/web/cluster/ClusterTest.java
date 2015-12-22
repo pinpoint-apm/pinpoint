@@ -17,14 +17,11 @@
 package com.navercorp.pinpoint.web.cluster;
 
 import com.navercorp.pinpoint.common.util.NetUtils;
-import com.navercorp.pinpoint.rpc.MessageListener;
-import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.SimpleMessageListener;
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.web.cluster.connection.WebClusterConnectionManager;
+import com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager;
+import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterDataManager;
 import com.navercorp.pinpoint.web.config.WebConfig;
 import com.navercorp.pinpoint.web.util.PinpointWebTestUtils;
 import org.apache.curator.test.TestingServer;
@@ -33,8 +30,11 @@ import org.apache.zookeeper.ZooKeeper;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.mockito.Mockito.mock;
@@ -47,32 +47,34 @@ public class ClusterTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusterTest.class);
 
+    private static final Charset UTF_8_CHARSET = Charset.forName("UTF-8");
+
     // some tests may fail when executed in local environment
     // when failures happen, you have to copy pinpoint-web.properties of resource-test to resource-local. Tests will succeed.
 
     private static final String DEFAULT_IP = PinpointWebTestUtils.getRepresentationLocalV4Ip();
-
+    static ClusterConnectionManager clusterConnectionManager;
+    static ZookeeperClusterDataManager clusterDataManager;
     private static String CLUSTER_NODE_PATH;
-
     private static int acceptorPort;
     private static int zookeeperPort;
-    
+    private static String acceptorAddress;
     private static String zookeeperAddress;
-    
     private static TestingServer ts = null;
-
-    static WebClusterConnectionManager clusterConnectionManager;
 
     @BeforeClass
     public static void setUp() throws Exception {
-        acceptorPort = PinpointWebTestUtils.findAvailablePort();
-        zookeeperPort = PinpointWebTestUtils.findAvailablePort(acceptorPort + 1);
+        acceptorPort = SocketUtils.findAvailableTcpPort(28000);
+        acceptorAddress = DEFAULT_IP + ":" + acceptorPort;
 
+        zookeeperPort = SocketUtils.findAvailableTcpPort(acceptorPort + 1);
         zookeeperAddress = DEFAULT_IP + ":" + zookeeperPort;
-        
-        CLUSTER_NODE_PATH = "/pinpoint-cluster/web/" + DEFAULT_IP + ":" + acceptorPort;
+
+        ts = createZookeeperServer(zookeeperPort);
+
+        CLUSTER_NODE_PATH = "/pinpoint-cluster/web/" + acceptorAddress;
         LOGGER.info("CLUSTER_NODE_PATH:{}", CLUSTER_NODE_PATH);
-        
+
         WebConfig config = mock(WebConfig.class);
 
         when(config.isClusterEnable()).thenReturn(true);
@@ -81,16 +83,62 @@ public class ClusterTest {
         when(config.getClusterZookeeperRetryInterval()).thenReturn(60000);
         when(config.getClusterZookeeperSessionTimeout()).thenReturn(3000);
 
-        clusterConnectionManager = new WebClusterConnectionManager(config);
+        clusterConnectionManager = new ClusterConnectionManager(config);
         clusterConnectionManager.start();
 
-        ts = createZookeeperServer(zookeeperPort);
+        clusterDataManager = new ZookeeperClusterDataManager(config);
+        clusterDataManager.start();
+
+        List<String> localV4IpList = NetUtils.getLocalV4IpList();
+        clusterDataManager.registerWebCluster(acceptorAddress, convertIpListToBytes(localV4IpList, "\r\n"));
     }
 
     @AfterClass
     public static void tearDown() throws Exception {
         closeZookeeperServer(ts);
-        clusterConnectionManager.stop();
+
+        try {
+            clusterDataManager.stop();
+        } catch (Exception ignore) {
+        }
+
+        try {
+            clusterConnectionManager.stop();
+        } catch (Exception ignore) {
+        }
+    }
+
+    private static TestingServer createZookeeperServer(int port) throws Exception {
+        TestingServer mockZookeeperServer = new TestingServer(port);
+        mockZookeeperServer.start();
+
+        return mockZookeeperServer;
+    }
+
+    private static void closeZookeeperServer(TestingServer mockZookeeperServer) throws Exception {
+        try {
+            if (mockZookeeperServer != null) {
+                mockZookeeperServer.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static byte[] convertIpListToBytes(List<String> ipList, String delimiter) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        Iterator<String> ipIterator = ipList.iterator();
+        while (ipIterator.hasNext()) {
+            String eachIp = ipIterator.next();
+            stringBuilder.append(eachIp);
+
+            if (ipIterator.hasNext()) {
+                stringBuilder.append(delimiter);
+            }
+        }
+
+        return stringBuilder.toString().getBytes(UTF_8_CHARSET);
     }
 
     @Before
@@ -171,23 +219,6 @@ public class ClusterTest {
             if (zookeeper != null) {
                 zookeeper.close();
             }
-        }
-    }
-
-    private static TestingServer createZookeeperServer(int port) throws Exception {
-        TestingServer mockZookeeperServer = new TestingServer(port);
-        mockZookeeperServer.start();
-
-        return mockZookeeperServer;
-    }
-
-    private static void closeZookeeperServer(TestingServer mockZookeeperServer) throws Exception {
-        try {
-            if (mockZookeeperServer != null) {
-                mockZookeeperServer.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 

@@ -21,8 +21,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContextFactory;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4PluginConfig;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -43,10 +46,8 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
@@ -62,7 +63,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author minwoo.jung
  * @author jaehong.kim
  */
-@Group(value = HttpClient4Constants.HTTP_CLIENT4_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
+@Scope(value = HttpClient4Constants.HTTP_CLIENT4_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
 public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterceptor {
     private static final int HTTP_REQUEST_INDEX = 1;
 
@@ -72,6 +73,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
     private final TraceContext traceContext;
     private final MethodDescriptor methodDescriptor;
 
+    private final boolean param;
     private final boolean cookie;
     private final DumpType cookieDumpType;
     private final SimpleSampler cookieSampler;
@@ -81,33 +83,34 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
     private final SimpleSampler entitySampler;
 
     private final boolean statusCode;
-    private final InterceptorGroup interceptorGroup;
+    private final InterceptorScope interceptorScope;
 
     private final boolean io;
 
-    public HttpRequestExecutorExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup) {
+    public HttpRequestExecutorExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
-        this.interceptorGroup = interceptorGroup;
+        this.interceptorScope = interceptorScope;
 
-        final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
-        this.cookie = profilerConfig.isApacheHttpClient4ProfileCookie();
-        this.cookieDumpType = profilerConfig.getApacheHttpClient4ProfileCookieDumpType();
+        final HttpClient4PluginConfig profilerConfig = new HttpClient4PluginConfig(traceContext.getProfilerConfig());
+        this.param = profilerConfig.isParam();
+        this.cookie = profilerConfig.isCookie();
+        this.cookieDumpType = profilerConfig.getCookieDumpType();
         if (cookie) {
-            this.cookieSampler = SimpleSamplerFactory.createSampler(cookie, profilerConfig.getApacheHttpClient4ProfileCookieSamplingRate());
+            this.cookieSampler = SimpleSamplerFactory.createSampler(cookie, profilerConfig.getCookieSamplingRate());
         } else {
             this.cookieSampler = null;
         }
 
-        this.entity = profilerConfig.isApacheHttpClient4ProfileEntity();
-        this.entityDumpType = profilerConfig.getApacheHttpClient4ProfileEntityDumpType();
+        this.entity = profilerConfig.isEntity();
+        this.entityDumpType = profilerConfig.getEntityDumpType();
         if (entity) {
-            this.entitySampler = SimpleSamplerFactory.createSampler(entity, profilerConfig.getApacheHttpClient4ProfileEntitySamplingRate());
+            this.entitySampler = SimpleSamplerFactory.createSampler(entity, profilerConfig.getEntitySamplingRate());
         } else {
             this.entitySampler = null;
         }
-        this.statusCode = profilerConfig.isApacheHttpClient4ProfileStatusCode();
-        this.io = profilerConfig.isApacheHttpClient4ProfileIo();
+        this.statusCode = profilerConfig.isStatusCode();
+        this.io = profilerConfig.isIo();
     }
 
     @Override
@@ -155,7 +158,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
             }
         }
 
-        InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
+        InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
         if (invocation != null) {
             invocation.getOrCreateAttachment(HttpCallContextFactory.HTTPCALL_CONTEXT_FACTORY);
         }
@@ -170,8 +173,8 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
     }
 
     private NameIntValuePair<String> getHost() {
-        InterceptorGroupInvocation transaction = interceptorGroup.getCurrentInvocation();
-        if (transaction != null && transaction.getAttachment() != null) {
+        final InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
+        if (transaction != null && transaction.getAttachment() != null && transaction.getAttachment() instanceof  HttpCallContext) {
             HttpCallContext callContext = (HttpCallContext) transaction.getAttachment();
             return new NameIntValuePair<String>(callContext.getHost(), callContext.getPort());
         }
@@ -195,7 +198,10 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
             final HttpRequest httpRequest = getHttpRequest(args);
             if (httpRequest != null) {
                 // Accessing httpRequest here not BEFORE() because it can cause side effect.
-                recorder.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getRequestLine().getUri());
+                if(httpRequest.getRequestLine() != null) {
+                    final String httpUrl = InterceptorUtils.getHttpUrl(httpRequest.getRequestLine().getUri(), param);
+                    recorder.recordAttribute(AnnotationKey.HTTP_URL, httpUrl);
+                }
                 final NameIntValuePair<String> host = getHost();
                 if (host != null) {
                     final String endpoint = getEndpoint(host.getName(), host.getValue());
@@ -215,8 +221,8 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
             recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);
 
-            InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
-            if (invocation != null && invocation.getAttachment() != null) {
+            final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
+            if (invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof  HttpCallContext) {
                 final HttpCallContext callContext = (HttpCallContext) invocation.getAttachment();
                 logger.debug("Check call context {}", callContext);
                 if (io) {
@@ -245,7 +251,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
     }
 
     Integer getStatusCodeFromResponse(Object result) {
-        if (result instanceof HttpResponse) {
+        if (result != null && result instanceof HttpResponse) {
             HttpResponse response = (HttpResponse) result;
 
             final StatusLine statusLine = response.getStatusLine();

@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.collector.cluster.WorkerStateContext;
 import com.navercorp.pinpoint.collector.cluster.connection.*;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.StringUtils;
 import org.apache.zookeeper.KeeperException;
@@ -38,7 +37,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -104,7 +102,7 @@ public class ZookeeperClusterService extends AbstractClusterService {
                     logger.info("{} initialization started.", this.getClass().getSimpleName());
 
                     ClusterManagerWatcher watcher = new ClusterManagerWatcher();
-                    this.client = new ZookeeperClient(config.getClusterAddress(), config.getClusterSessionTimeout(), watcher);
+                    this.client = new DefaultZookeeperClient(config.getClusterAddress(), config.getClusterSessionTimeout(), watcher);
 
                     this.profilerClusterManager = new ZookeeperProfilerClusterManager(client, serverIdentifier, clusterPointRouter.getTargetClusterPointRepository());
                     this.profilerClusterManager.start();
@@ -224,11 +222,7 @@ public class ZookeeperClusterService extends AbstractClusterService {
 
                 // duplicate event possible - but the logic does not change
                 if (ZookeeperUtils.isConnectedEvent(state, eventType)) {
-                    List<PinpointServer> pinpointServerList = profilerClusterManager.getRegisteredPinpointServerList();
-                    for (PinpointServer pinpointServer : pinpointServerList) {
-                        profilerClusterManager.eventPerformed(pinpointServer, pinpointServer.getCurrentStateCode());
-                    }
-
+                    profilerClusterManager.initZookeeperClusterData();
                     webClusterManager.handleAndRegisterWatcher(PINPOINT_WEB_CLUSTER_PATH);
                 } else if (eventType == EventType.NodeChildrenChanged) {
                     String path = event.getPath();

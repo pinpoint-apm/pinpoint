@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.mapper;
 
 import static org.hamcrest.core.Is.*;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 

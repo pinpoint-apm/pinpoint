@@ -39,14 +39,14 @@ public class MetricRegistryTest {
         try {
             metricRegistry = new MetricRegistry(ServiceType.UNKNOWN_DB);
             Assert.fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
         metricRegistry = new MetricRegistry(ServiceType.STAND_ALONE);
         try {
             metricRegistry.getRpcMetric(ServiceType.ASYNC);
             Assert.fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
     }

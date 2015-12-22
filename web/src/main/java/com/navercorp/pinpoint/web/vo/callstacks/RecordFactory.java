@@ -92,7 +92,7 @@ public class RecordFactory {
 
 
     public List<Record> getAnnotations(final int depth, final int parentId, SpanAlign align) {
-        List<Record> list = new ArrayList<Record>();
+        List<Record> list = new ArrayList<>();
         for(AnnotationBo annotation : align.getAnnotationBoList()) {
             final AnnotationKey key = findAnnotationKey(annotation.getKey());
             if (key.isViewInRecordSet()) {
@@ -183,7 +183,7 @@ public class RecordFactory {
         return idGen++;
     }
 
-    private class Api {
+    private static class Api {
         private String title = "";
         private String className = "";
         private String description = "";

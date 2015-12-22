@@ -46,7 +46,7 @@ public class RowKeyMerge {
 
         final Map<RowKey, List<ColumnName>> rowkeyMerge = rowKeyBaseMerge(data);
 
-        List<Increment> incrementList = new ArrayList<Increment>();
+        List<Increment> incrementList = new ArrayList<>();
         for (Map.Entry<RowKey, List<ColumnName>> rowKeyEntry : rowkeyMerge.entrySet()) {
             Increment increment = createIncrement(rowKeyEntry, rowKeyDistributorByHashPrefix);
             incrementList.add(increment);
@@ -57,13 +57,13 @@ public class RowKeyMerge {
     private Increment createIncrement(Map.Entry<RowKey, List<ColumnName>> rowKeyEntry, RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         RowKey rowKey = rowKeyEntry.getKey();
         byte[] key = null;
-        if(rowKeyDistributorByHashPrefix == null) {
+        if (rowKeyDistributorByHashPrefix == null) {
             key = rowKey.getRowKey();
         } else {
             key = rowKeyDistributorByHashPrefix.getDistributedKey(rowKey.getRowKey());
         }
         final Increment increment = new Increment(key);
-        for(ColumnName columnName : rowKeyEntry.getValue()) {
+        for (ColumnName columnName : rowKeyEntry.getValue()) {
             increment.addColumn(family, columnName.getColumnName(), columnName.getCallCount());
         }
         logger.trace("create increment row:{}, column:{}", rowKey, rowKeyEntry.getValue());
@@ -71,7 +71,7 @@ public class RowKeyMerge {
     }
 
     private Map<RowKey, List<ColumnName>> rowKeyBaseMerge(Map<RowInfo, ConcurrentCounterMap.LongAdder> data) {
-        final Map<RowKey, List<ColumnName>> merge =  new HashMap<RowKey, List<ColumnName>>();
+        final Map<RowKey, List<ColumnName>> merge = new HashMap<>();
 
         for (Map.Entry<RowInfo, ConcurrentCounterMap.LongAdder> entry : data.entrySet()) {
             final RowInfo rowInfo = entry.getKey();
@@ -82,7 +82,7 @@ public class RowKeyMerge {
             RowKey rowKey = rowInfo.getRowKey();
             List<ColumnName> oldList = merge.get(rowKey);
             if (oldList == null) {
-                List<ColumnName> newList = new ArrayList<ColumnName>();
+                List<ColumnName> newList = new ArrayList<>();
                 newList.add(rowInfo.getColumnName());
                 merge.put(rowKey, newList);
             } else {

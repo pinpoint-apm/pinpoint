@@ -22,8 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
+import com.navercorp.pinpoint.web.alarm.vo.CheckerResult;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
+import com.navercorp.pinpoint.web.vo.UserGroup;
 
 /**
  * @author minwoo.jung
@@ -67,4 +69,25 @@ public class MysqlAlarmDao implements AlarmDao {
     public void updateRule(Rule rule) {
         sqlSessionTemplate.update(NAMESPACE + "updateRule", rule);
     }
+
+    @Override
+    public void updateUserGroupIdOfRule(UserGroup userGroup) {
+        sqlSessionTemplate.update(NAMESPACE + "updateUserGroupIdOfRule", userGroup);
+    }
+
+    @Override
+    public List<CheckerResult> selectBeforeCheckerResultList(String applicationId) {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectBeforeCheckerResultList", applicationId);
+    }
+
+    @Override
+    public void deleteCheckerResult(CheckerResult checkerResult) {
+        sqlSessionTemplate.delete(NAMESPACE + "deleteCheckerResult", checkerResult);
+    }
+
+    @Override
+    public void insertCheckerResult(CheckerResult checkerResult) {
+        sqlSessionTemplate.insert(NAMESPACE + "insertCheckerResult", checkerResult);
+    }
+
 }

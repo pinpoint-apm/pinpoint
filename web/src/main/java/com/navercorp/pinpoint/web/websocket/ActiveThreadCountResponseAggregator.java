@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -56,7 +57,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
 
     private final Object workerManagingLock = new Object();
     private final List<WebSocketSession> webSocketSessions = new CopyOnWriteArrayList<>();
-    private final ConcurrentHashMap<String, ActiveThreadCountWorker> activeThreadCountWorkerRepository = new ConcurrentHashMap<String, ActiveThreadCountWorker>();
+    private final ConcurrentMap<String, ActiveThreadCountWorker> activeThreadCountWorkerRepository = new ConcurrentHashMap<>();
 
     private final Object aggregatorLock = new Object();
     private final PinpointWebSocketMessageConverter messageConverter;
@@ -64,7 +65,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
     private volatile boolean isStopped = false;
     private WorkerActiveManager workerActiveManager;
 
-    private Map<String, AgentActiveThreadCount> activeThreadCountMap = new HashMap<String, AgentActiveThreadCount>();
+    private Map<String, AgentActiveThreadCount> activeThreadCountMap = new HashMap<>();
 
     public ActiveThreadCountResponseAggregator(String applicationName, AgentService agentService, Timer timer) {
         this.applicationName = applicationName;
@@ -109,7 +110,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
 
         logger.info("addWebSocketSession. applicationName:{}, webSocketSession:{}", applicationName, webSocketSession);
 
-        List<AgentInfo> agentInfoList = agentService.getAgentInfoList(applicationName);
+        List<AgentInfo> agentInfoList = agentService.getRecentAgentInfoList(applicationName);
         synchronized (workerManagingLock) {
             if (isStopped) {
                 return;
@@ -221,7 +222,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
                     response.add(activeThreadCountWorker.getDefaultFailedResponse());
                 }
             }
-            activeThreadCountMap = new HashMap<String, AgentActiveThreadCount>(activeThreadCountWorkerRepository.size());
+            activeThreadCountMap = new HashMap<>(activeThreadCountWorkerRepository.size());
         }
 
         flush0(response);
@@ -251,7 +252,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
     }
 
     private Map createResultMap(AgentActiveThreadCountList activeThreadCount, long timeStamp) {
-        Map<String, Object> response = new HashMap<String, Object>();
+        Map<String, Object> response = new HashMap<>();
 
         response.put(APPLICATION_NAME, applicationName);
         response.put(ACTIVE_THREAD_COUNTS, activeThreadCount);

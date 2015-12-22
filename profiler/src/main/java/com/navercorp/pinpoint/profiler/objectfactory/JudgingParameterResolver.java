@@ -19,6 +19,6 @@ package com.navercorp.pinpoint.profiler.objectfactory;
  *
  */
 public interface JudgingParameterResolver extends ArgumentProvider {
-    public void prepare();
-    public boolean isAcceptable();
+    void prepare();
+    boolean isAcceptable();
 }

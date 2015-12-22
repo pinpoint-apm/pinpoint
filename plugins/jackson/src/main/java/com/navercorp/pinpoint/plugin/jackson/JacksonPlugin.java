@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -33,8 +35,8 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  * @author Sungkook Kim
  *
  */
-public class JacksonPlugin implements ProfilerPlugin {
-    private static final String GROUP = "JACKSON_OBJECTMAPPER_GROUP";
+public class JacksonPlugin implements ProfilerPlugin, TransformTemplateAware {
+    private static final String JACKSON_SCOPE = "JACKSON_OBJECTMAPPER_SCOPE";
 
     private static final String BASIC_METHOD_INTERCEPTOR = "com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor";
     private static final String READ_VALUE_INTERCEPTOR = "com.navercorp.pinpoint.plugin.jackson.interceptor.ReadValueInterceptor";
@@ -42,24 +44,25 @@ public class JacksonPlugin implements ProfilerPlugin {
     private static final String WRITE_VALUE_AS_STRING_INTERCEPTOR = "com.navercorp.pinpoint.plugin.jackson.interceptor.WriteValueAsStringInterceptor";
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        addObjectMapperEditor(context, "com.fasterxml.jackson.databind.ObjectMapper");
-        addObjectReaderEditor(context, "com.fasterxml.jackson.databind.ObjectReader");
-        addObjectWriterEditor(context, "com.fasterxml.jackson.databind.ObjectWriter");
+        addObjectMapperEditor("com.fasterxml.jackson.databind.ObjectMapper");
+        addObjectReaderEditor("com.fasterxml.jackson.databind.ObjectReader");
+        addObjectWriterEditor("com.fasterxml.jackson.databind.ObjectWriter");
 
-        addObjectMapper_1_X_Editor(context, "org.codehaus.jackson.map.ObjectMapper");
-        addObjectReaderEditor(context, "org.codehaus.jackson.map.ObjectReader");
-        addObjectWriterEditor(context, "org.codehaus.jackson.map.ObjectWriter");
+        addObjectMapper_1_X_Editor("org.codehaus.jackson.map.ObjectMapper");
+        addObjectReaderEditor("org.codehaus.jackson.map.ObjectReader");
+        addObjectWriterEditor("org.codehaus.jackson.map.ObjectWriter");
     }
 
-    private void addObjectMapperEditor(ProfilerPluginSetupContext context, String clazzName) {
-        context.addClassFileTransformer(clazzName, new TransformCallback() {
+    private void addObjectMapperEditor(String clazzName) {
+        transformTemplate.transform(clazzName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 final InstrumentMethod constructor1 = target.getConstructor();
                 addInterceptor(constructor1, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
@@ -92,12 +95,12 @@ public class JacksonPlugin implements ProfilerPlugin {
         });
     }
 
-    private void addObjectMapper_1_X_Editor(ProfilerPluginSetupContext context, String clazzName) {
-        context.addClassFileTransformer(clazzName, new TransformCallback() {
+    private void addObjectMapper_1_X_Editor(String clazzName) {
+        transformTemplate.transform(clazzName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 final InstrumentMethod constructor1 = target.getConstructor();
                 addInterceptor(constructor1, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
@@ -138,12 +141,12 @@ public class JacksonPlugin implements ProfilerPlugin {
     }
 
 
-    private void addObjectReaderEditor(ProfilerPluginSetupContext context, String clazzName) {
-        context.addClassFileTransformer(clazzName, new TransformCallback() {
+    private void addObjectReaderEditor(String clazzName) {
+        transformTemplate.transform(clazzName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("readValue", "readValues"))) {
                     addInterceptor(method, READ_VALUE_INTERCEPTOR);
@@ -155,13 +158,13 @@ public class JacksonPlugin implements ProfilerPlugin {
         });
     }
 
-    private void addObjectWriterEditor(ProfilerPluginSetupContext context, String clazzName) {
-        context.addClassFileTransformer(clazzName, new TransformCallback() {
+    private void addObjectWriterEditor(String clazzName) {
+        transformTemplate.transform(clazzName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
-//                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+//                InterceptorScope scope = instrumentor.getInterceptorScope(JACKSON_SCOPE);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValue"))) {
                     addInterceptor(method, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
@@ -184,7 +187,7 @@ public class JacksonPlugin implements ProfilerPlugin {
     private boolean addInterceptor(InstrumentMethod method, String interceptorClassName) {
         if (method != null) {
             try {
-                method.addGroupedInterceptor(interceptorClassName, GROUP);
+                method.addScopedInterceptor(interceptorClassName, JACKSON_SCOPE);
                 return true;
             } catch (InstrumentException e) {
                 if (logger.isWarnEnabled()) {
@@ -198,7 +201,7 @@ public class JacksonPlugin implements ProfilerPlugin {
     private boolean addInterceptor(InstrumentMethod method, String interceptorClassName, Object[] constructorArgs) {
         if (method != null) {
             try {
-                method.addGroupedInterceptor(interceptorClassName, constructorArgs, GROUP);
+                method.addScopedInterceptor(interceptorClassName, constructorArgs, JACKSON_SCOPE);
                 return true;
             } catch (InstrumentException e) {
                 if (logger.isWarnEnabled()) {
@@ -209,4 +212,8 @@ public class JacksonPlugin implements ProfilerPlugin {
         return false;
     }
 
+    @Override
+    public void setTransformTemplate(TransformTemplate transformTemplate) {
+        this.transformTemplate = transformTemplate;
+    }
 }

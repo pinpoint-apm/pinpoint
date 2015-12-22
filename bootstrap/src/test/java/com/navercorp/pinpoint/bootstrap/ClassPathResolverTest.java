@@ -113,7 +113,7 @@ public class ClassPathResolverTest {
                 logger.warn("null");
             }
             Assert.fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 }

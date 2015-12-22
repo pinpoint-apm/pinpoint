@@ -42,3 +42,15 @@ CREATE TABLE `alarm_rule` (
   PRIMARY KEY (`rule_id`)
 );
 ALTER TABLE alarm_rule ADD UNIQUE KEY application_id_checker_name_user_group_id_idx (application_id, user_group_id, checker_name);
+
+CREATE TABLE `alarm_history` (
+  `history_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `application_id` VARCHAR(30) NOT NULL,
+  `checker_name` VARCHAR(50) NOT NULL,
+  `detected` CHAR(1) DEFAULT NULL,
+  `sequence_count` INT(10),
+  `timing_count` INT(10),
+  PRIMARY KEY (`history_id`)
+);
+ALTER TABLE alarm_history ADD UNIQUE KEY application_id_checker_name_idx (application_id, checker_name);
+       

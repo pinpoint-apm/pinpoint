@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.common.service.TraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.ServiceTypeInfo;
-import com.navercorp.pinpoint.common.trace.TraceMetadataLoader;
 import com.navercorp.pinpoint.common.util.DefaultDisplayArgument;
 import com.navercorp.pinpoint.common.util.DisplayArgumentMatcher;
 import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
@@ -27,7 +26,6 @@ import com.navercorp.pinpoint.web.util.AnnotationKeyMatcherRegistry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -57,7 +55,7 @@ public class DefaultAnnotationKeyMatcherService implements AnnotationKeyMatcherS
     private AnnotationKeyMatcherRegistry build(TraceMetadataLoaderService typeLoaderService) {
         AnnotationKeyMatcherRegistry.Builder builder = new AnnotationKeyMatcherRegistry.Builder();
 
-        StaticFieldLookUp<DisplayArgumentMatcher> staticFieldLookUp = new StaticFieldLookUp<DisplayArgumentMatcher>(DefaultDisplayArgument.class, DisplayArgumentMatcher.class);
+        StaticFieldLookUp<DisplayArgumentMatcher> staticFieldLookUp = new StaticFieldLookUp<>(DefaultDisplayArgument.class, DisplayArgumentMatcher.class);
         List<DisplayArgumentMatcher> lookup = staticFieldLookUp.lookup();
         for (DisplayArgumentMatcher displayArgumentMatcher : lookup) {
             AnnotationKeyMatcher annotationKeyMatcher = displayArgumentMatcher.getAnnotationKeyMatcher();

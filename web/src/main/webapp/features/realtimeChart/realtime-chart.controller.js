@@ -45,11 +45,14 @@
 		otherChart: {
 			width: 120,
 			height: 60
+		},
+		const: {
+			MIN_Y: 10
 		}
 	});
 	
-	pinpointApp.controller('RealtimeChartCtrl', ['RealtimeChartCtrlConfig', '$scope', '$element', '$rootScope', '$compile', '$window', 'globalConfig', 'RealtimeWebsocketService', '$location', 'AnalyticsService',
-	    function (cfg, $scope, $element, $rootScope, $compile, $window, globalConfig, websocketService, $location, analyticsService) {
+	pinpointApp.controller('RealtimeChartCtrl', ['RealtimeChartCtrlConfig', '$scope', '$element', '$rootScope', '$compile', '$window', 'globalConfig', 'RealtimeWebsocketService', '$location', 'AnalyticsService', 'helpContentTemplate', 'helpContentService',
+	    function (cfg, $scope, $element, $rootScope, $compile, $window, globalConfig, websocketService, $location, analyticsService, helpContentTemplate, helpContentService) {
 			
 	    	$element = $($element);
 			//@TODO will move to preference-service 
@@ -61,14 +64,17 @@
 	    	var $elAgentChartListWrapper = $element.find("div.agent-chart-list");
 	    	var $elWarningMessage = $element.find(".connection-message");
 	    	var $elHandleGlyphicon = $element.find(".handle .glyphicon");
+	    	var $elPin = $element.find(".glyphicon-pushpin");
+	    	var preUrlParam = "";
 	    	var aAgentChartElementList = [];
 	    	var oNamespaceToIndexMap = {};
 	    	var aSumChartData = [0];
+	    	var bIsPinned = true;
 	    	var bIsWas = false;
 	    	var bIsFullWindow = false;
 	    	var bShowRealtimeChart = true;
 	    	var popupHeight = cfg.css.height;
-	    	var wsPongTemplate = (function() {{};
+	    	var wsPongTemplate = (function() {
 	    		var o = {};
 	    		o[cfg.keys.TYPE] = cfg.values.PONG;
 	    		return JSON.stringify(o);
@@ -83,7 +89,7 @@
 	    	
 	    	jQuery('.realtimeTooltip').tooltipster({
             	content: function() {
-            		return "";//helpContentTemplate(helpContentService.navbar.applicationSelector) + helpContentTemplate(helpContentService.navbar.depth) + helpContentTemplate(helpContentService.navbar.periodSelector);
+            		return helpContentTemplate(helpContentService.realtime["default"]);
             	},
             	position: "top",
             	trigger: "click"
@@ -96,14 +102,7 @@
 	    	$scope.currentAgentCount = 0;
 	    	$scope.currentApplicationName = "";
 	    	$scope.bInitialized = false;
-	    	
-	    	function getInitChartData( len ) {
-    	    	var a = [];
-    	        for( var i = 0 ; i < $scope.sumChartColor.length ; i++ ) {
-    	            a.push( d3.range(len).map(function() { return 0; }) );
-    	        }
-    	        return a;
-    	    }
+
 	    	function initChartDirective() {
 	    		if ( hasAgentChart( "sum" ) === false ) {
 		    		$elSumChartWrapper.append( $compile( cfg.template.chartDirective({
@@ -116,6 +115,14 @@
 		    			"timeoutMaxCount": TIMEOUT_MAX_COUNT
 		    		}))($scope) );
 		    		oNamespaceToIndexMap["sum"] = -1;
+	    		}
+	    	}
+	    	function initNamespaceToIndexMap() {
+	    		if ( angular.isDefined( oNamespaceToIndexMap["sum"] ) ) {
+	    			oNamespaceToIndexMap = {};
+		    		oNamespaceToIndexMap["sum"] = -1;
+	    		} else {
+	    			oNamespaceToIndexMap = {};
 	    		}
 	    	}
 	    	function hasAgentChart( agentName ) {
@@ -151,7 +158,10 @@
 	        		},
 	        		ondelay: function() {
 	        			websocketService.close();
-	        		}
+	        		},
+					retry: function() {
+						$scope.retryConnection();
+					}
 	        	});
 	        	if ( bConnected ) {
 	        		initChartDirective();
@@ -164,21 +174,20 @@
 	        			websocketService.send( wsPongTemplate );
 	        			break;
 	        		case cfg.values.RESPONSE:
-		        		// if ( data[cfg.keys.COMMAND] == cfg.values.ACTIVE_THREAD_COUNT;
-		        		var responseDdata = data[cfg.keys.RESULT];
-			        	if ( responseDdata[cfg.keys.APPLICATION_NAME] !== $scope.currentApplicationName ) return;
+		        		var responseData = data[cfg.keys.RESULT];
+			        	if ( responseData[cfg.keys.APPLICATION_NAME] !== $scope.currentApplicationName ) return;
 			        	
-			        	var applicationData = responseDdata[cfg.keys.ACTIVE_THREAD_COUNTS];
+			        	var applicationData = responseData[cfg.keys.ACTIVE_THREAD_COUNTS];
 			        	var aRequestSum = getSumOfRequestType( applicationData );
 			        	addSumYValue( aRequestSum );
 			        	
-			        	broadcastData( applicationData, aRequestSum, responseDdata[cfg.keys.TIME_STAMP] );
+			        	broadcastData( applicationData, aRequestSum, responseData[cfg.keys.TIME_STAMP] );
 
 	        			break;
 	        	}
 	        }
 	        function broadcastData( applicationData, aRequestSum, timeStamp ) {
-	        	var maxY = getMaxOfYValue();
+	        	var maxY = Math.max( getMaxOfYValue(), cfg.const.MIN_Y);
 	        	var agentIndexAndCount = 0;
 	        	var bAllError = true;
 	        	
@@ -242,7 +251,7 @@
 	        	aSumChartData.push( data.reduce(function(pre, cur) {
 	        		return pre + cur;
 	        	}));
-	        	if ( aSumChartData.legnth > X_AXIS_COUNT ) {
+	        	if ( aSumChartData.length > X_AXIS_COUNT ) {
 	        		aSumChartData.shift();
 	        	}
 	        }
@@ -304,16 +313,22 @@
 	        function adjustWidth() {
 	        	$element.innerWidth( $element.parent().width() - cfg.css.borderWidth + "px" );
 	        }
+	        function setPinColor() {
+	        	$elPin.css("color", bIsPinned ? "red": "");
+	        }
 	        $scope.$on('realtimeChartController.close', function () {
 	        	hidePopup();
 	        	var prevShowRealtimeChart = bShowRealtimeChart;
 	        	$scope.closePopup();
 	        	bShowRealtimeChart = prevShowRealtimeChart;
+	        	setPinColor();
 	        });
-	        $scope.$on('realtimeChartController.initialize', function (event, was, applicationName) {
+	        $scope.$on('realtimeChartController.initialize', function (event, was, applicationName, urlParam ) {
+	        	if ( bIsPinned === true && preUrlParam === urlParam ) return;
 	        	if ( /^\/main/.test( $location.path() ) == false ) return;
 	        	bIsWas = angular.isUndefined( was ) ? false : was;
 	        	applicationName = angular.isUndefined( applicationName ) ? "" : applicationName;
+	        	preUrlParam = urlParam;
 
 	        	$scope.currentApplicationName = applicationName;
 	        	if ( globalConfig.useRealTime === false ) return;
@@ -322,9 +337,10 @@
 	        		hidePopup();
 	        		return;
 	        	}
-	        	
+	        	initNamespaceToIndexMap();
 	        	adjustWidth();
 	        	$scope.bInitialized = true;
+	        	
 	        	
 	        	showPopup();
 	        	$scope.closePopup();
@@ -332,10 +348,15 @@
         		waitingConnection();
         		
         		initReceive();
+        		setPinColor();
 	        });
 	        $scope.retryConnection = function() {
 	        	waitingConnection();
         		initReceive();
+	        };
+	        $scope.pin = function() {
+	        	bIsPinned = !bIsPinned;
+	        	setPinColor();
 	        };
 	        $scope.resizePopup = function() {
 	        	analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.TG_REALTIME_CHART_RESIZE );

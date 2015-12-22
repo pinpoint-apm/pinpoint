@@ -30,6 +30,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
+
 /**
  * @author Jongho Moon
  *
@@ -40,27 +42,33 @@ public class BeanMethodTransformer implements TransformCallback {
     private static final MethodFilter METHOD_FILTER = MethodFilters.modifier(REQUIRED_ACCESS_FLAG, REJECTED_ACCESS_FLAG);
 
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
-    
-    private AtomicInteger interceptorId = new AtomicInteger(-1);
-    
-    
+
+    private final Object lock = new Object();
+    private final AtomicInteger interceptorId = new AtomicInteger(-1);
+
+    private final boolean markError;
+
+
+    public BeanMethodTransformer(boolean markError) {
+        this.markError = markError;
+    }
+
     @Override
-    public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+    public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
         if (logger.isInfoEnabled()) {
             logger.info("Modify {}", className);
         }
 
         try {
-            InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
-
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             if (!target.isInterceptable()) {
                 return null;
             }
 
-            List<InstrumentMethod> methodList = target.getDeclaredMethods(METHOD_FILTER);
+            final List<InstrumentMethod> methodList = target.getDeclaredMethods(METHOD_FILTER);
             for (InstrumentMethod method : methodList) {
-                if (logger.isTraceEnabled()) {
-                    logger.trace("### c={}, m={}, params={}", new Object[] {className, method.getName(), Arrays.toString(method.getParameterTypes())});
+                if (logger.isDebugEnabled()) {
+                    logger.debug("### c={}, m={}, params={}", className, method.getName(), Arrays.toString(method.getParameterTypes()));
                 }
 
                 addInterceptor(method);
@@ -81,7 +89,7 @@ public class BeanMethodTransformer implements TransformCallback {
             return;
         }
         
-        synchronized (interceptorId) {
+        synchronized (lock) {
             id = interceptorId.get();
             
             if (id != -1) {
@@ -89,7 +97,7 @@ public class BeanMethodTransformer implements TransformCallback {
                 return;
             }
             
-            id = targetMethod.addInterceptor("com.navercorp.pinpoint.plugin.spring.beans.interceptor.BeanMethodInterceptor");
+            id = targetMethod.addInterceptor("com.navercorp.pinpoint.plugin.spring.beans.interceptor.BeanMethodInterceptor", va(markError));
             interceptorId.set(id);
         }
     }

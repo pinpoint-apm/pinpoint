@@ -11,6 +11,9 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
     $routeProvider.when('/main', {
         templateUrl: 'pages/main/ready.html',
         controller: 'MainCtrl'
+    }).when('/main/:application', {
+        templateUrl: 'pages/main/main.html',
+        controller: 'MainCtrl'
     }).when('/main/:application/:readablePeriod/:queryEndDateTime', {
         templateUrl: 'pages/main/main.html',
         controller: 'MainCtrl'
@@ -27,6 +30,9 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
         templateUrl: 'pages/inspector/inspector.html',
         controller: 'InspectorCtrl'
     }).when('/transactionList/:application/:readablePeriod/:queryEndDateTime', {
+        templateUrl: 'pages/transactionList/transactionList.html',
+        controller: 'TransactionListCtrl'
+    }).when('/transactionList/:application/:readablePeriod/:queryEndDateTime/:transactionInfo', {
         templateUrl: 'pages/transactionList/transactionList.html',
         controller: 'TransactionListCtrl'
     }).when('/transactionDetail', {
@@ -58,9 +64,25 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
 
 pinpointApp.value("globalConfig", {});
 
-pinpointApp.run([ '$rootScope', '$timeout', '$modal', '$location', '$cookies', '$interval', '$http', 'globalConfig',
-    function ($rootScope, $timeout, $modal, $location, $cookies, $interval, $http, globalConfig) {
+pinpointApp.run([ '$rootScope', '$window', '$timeout', '$modal', '$location', '$route', '$cookies', '$interval', '$http', 'globalConfig',
+    function ($rootScope, $window, $timeout, $modal, $location, $route, $cookies, $interval, $http, globalConfig) {
+        var original = $location.path;
+        $location.path = function (path, reload) {
+            if (reload === false) {
+                var lastRoute = $route.current;
+                var un = $rootScope.$on('$locationChangeSuccess', function () {
+                    $route.current = lastRoute;
+                    un();
+                });
+            }
+            return original.apply($location, [path]);
+        };
 		$http.get('/configuration.pinpoint').then(function(result) {
+			if ( result.data.errorCode == 302 ) {
+				$window.location = result.data.redirect;
+				return;
+			}
+
 			for( var p in result.data ) {
 				globalConfig[p] = result.data[p];
 			}

@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import java.util.List;
-import java.util.concurrent.ThreadFactory;
-
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import java.util.List;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * @author Taejin Koo
@@ -37,8 +36,8 @@ public class StandbySpanStreamDataSendWorker implements Runnable {
     private final StandbySpanStreamDataStorage standbySpanStreamDataStorage;
     private final long blockTime;
 
-    private final Thread workerThread;
     private final Object lock = new Object();
+    private Thread workerThread;
 
     private boolean isStarted = false;
 
@@ -50,43 +49,43 @@ public class StandbySpanStreamDataSendWorker implements Runnable {
         this.flushHandler = flushHandler;
         this.standbySpanStreamDataStorage = dataStorage;
         this.blockTime = blockTime;
-
-        final ThreadFactory threadFactory = new PinpointThreadFactory(this.getClass().getSimpleName(), true);
-        this.workerThread = threadFactory.newThread(this);
     }
 
     public void start() {
-        logger.info("{} initialization started.", this.getClass().getSimpleName());
+        final ThreadFactory threadFactory = new PinpointThreadFactory(this.getClass().getSimpleName(), true);
+        this.workerThread = threadFactory.newThread(this);
+
+        logger.info("start() started.");
         if (!workerThread.isAlive()) {
             this.isStarted = true;
             this.workerThread.start();
-            logger.info("{} initialization completed.", this.getClass().getSimpleName());
+            logger.info("start() completed.");
         } else {
-            logger.info("{} already started.", this.getClass().getSimpleName());
+            logger.info("start() failed. caused:already started.", this.getClass().getSimpleName());
         }
     }
 
     public void stop() {
-        logger.info("{} destroying started.", this.getClass().getSimpleName());
+        logger.info("stop() started.");
 
         this.isStarted = false;
 
         long startTimeMillis = System.currentTimeMillis();
         long maxWaitTimeMillis = 3000;
 
-        while (this.workerThread.isAlive()) {
-            this.workerThread.interrupt();
+        while (workerThread != null && workerThread.isAlive()) {
+            workerThread.interrupt();
             try {
-                this.workerThread.join(100L);
+                workerThread.join(100L);
 
                 if (System.currentTimeMillis() - startTimeMillis > maxWaitTimeMillis) {
                     break;
                 }
-            } catch (InterruptedException e) {
+            } catch (InterruptedException ignored) {
             }
         }
 
-        logger.info("{} destroying completed.", this.getClass().getSimpleName());
+        logger.info("stop() completed.");
     }
 
     boolean addStandbySpanStreamData(SpanStreamSendData standbySpanStreamData) {

@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import org.apache.thrift.TBase;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.thrift.TBase;
 
 /**
  * @author koo.taejin
@@ -29,22 +29,40 @@ public enum TCommandTypeVersion {
     // Match with agent version
     V_1_0_2_SNAPSHOT("1.0.2-SNAPSHOT", TCommandType.RESULT, TCommandType.THREAD_DUMP),
     V_1_0_2("1.0.2", V_1_0_2_SNAPSHOT),
+
     V_1_0_3_SNAPSHOT("1.0.3-SNAPSHOT", V_1_0_2,
             TCommandType.ECHO, TCommandType.THREAD_DUMP_RESPONSE,
             TCommandType.TRANSFER),
     V_1_0_3("1.0.3", V_1_0_3_SNAPSHOT),
+
     V_1_0_4_SNAPSHOT("1.0.4-SNAPSHOT", V_1_0_3),
     V_1_0_4("1.0.4", V_1_0_4_SNAPSHOT),
+
+
     V_1_1_0_SNAPSHOT("1.1.0-SNAPSHOT", V_1_0_4),
     V_1_1_0("1.1.0", V_1_1_0_SNAPSHOT),
+
     V_1_1_1_SNAPSHOT("1.1.1-SNAPSHOT", V_1_1_0),
     V_1_1_1("1.1.1", V_1_1_1_SNAPSHOT),
+
     V_1_1_2_SNAPSHOT("1.1.2-SNAPSHOT", V_1_1_1),
+    V_1_1_2("1.1.2", V_1_1_2_SNAPSHOT),
+
+    V_1_1_3_SNAPSHOT("1.1.3-SNAPSHOT", V_1_1_2),
+
+
     V_1_5_0_SNAPSHOT("1.5.0-SNAPSHOT", V_1_1_1,
             TCommandType.ACTIVE_THREAD_COUNT, TCommandType.ACTIVE_THREAD_COUNT_RESPONSE,
             TCommandType.ACTIVE_THREAD_DUMP, TCommandType.ACTIVE_THREAD_DUMP_RESPONSE,
             TCommandType.TRANSFER_RESPONSE),
-    
+    V_1_5_0("1.5.0", V_1_5_0_SNAPSHOT),
+
+    V_1_5_1_SNAPSHOT("1.5.1-SNAPSHOT", V_1_5_0),
+
+    V_1_5_1("1.5.1", V_1_5_1_SNAPSHOT),
+
+    V_1_5_2_SNAPSHOT("1.5.2-SNAPSHOT", V_1_5_1),
+
     UNKNOWN("UNKNOWN");
 
     private final String versionName;
@@ -58,7 +76,7 @@ public enum TCommandTypeVersion {
         }
 
         for (TCommandType supportCommand : supportCommandArray) {
-            getSupportCommandList().add(supportCommand);
+            supportCommandList.add(supportCommand);
         }
     }
 

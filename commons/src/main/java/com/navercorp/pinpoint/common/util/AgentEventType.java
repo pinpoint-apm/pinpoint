@@ -29,12 +29,12 @@ import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
  * @author HyunGil Jeong
  */
 public enum AgentEventType {
-    AGENT_CONNECTED(10100, "Agent connected", Void.class, AGENT_LIFECYCLE),
+    AGENT_CONNECTED(10100, "Agent connected", Void.class, DURATIONAL, AGENT_LIFECYCLE),
     AGENT_PING(10199, "Agent ping", Void.class, AGENT_LIFECYCLE),
-    AGENT_SHUTDOWN(10200, "Agent shutdown", Void.class, AGENT_LIFECYCLE),
-    AGENT_UNEXPECTED_SHUTDOWN(10201, "Agent unexpected shutdown", Void.class, AGENT_LIFECYCLE),
-    AGENT_CLOSED_BY_SERVER(10300, "Agent connection closed by server", Void.class, AGENT_LIFECYCLE),
-    AGENT_UNEXPECTED_CLOSE_BY_SERVER(10301, "Agent connection unexpectedly closed by server", Void.class, AGENT_LIFECYCLE),
+    AGENT_SHUTDOWN(10200, "Agent shutdown", Void.class, DURATIONAL, AGENT_LIFECYCLE),
+    AGENT_UNEXPECTED_SHUTDOWN(10201, "Agent unexpected shutdown", Void.class, DURATIONAL, AGENT_LIFECYCLE),
+    AGENT_CLOSED_BY_SERVER(10300, "Agent connection closed by server", Void.class, DURATIONAL, AGENT_LIFECYCLE),
+    AGENT_UNEXPECTED_CLOSE_BY_SERVER(10301, "Agent connection unexpectedly closed by server", Void.class, DURATIONAL, AGENT_LIFECYCLE),
     USER_THREAD_DUMP(20100, "Thread dump by user", TCommandThreadDumpResponse.class, USER_REQUEST, THREAD_DUMP),
     OTHER(-1, "Other event", String.class, AgentEventTypeCategory.OTHER);
     
@@ -43,7 +43,7 @@ public enum AgentEventType {
     private final Class<?> messageType;
     private final Set<AgentEventTypeCategory> category;
 
-    private AgentEventType(int code, String desc, Class<?> messageType, AgentEventTypeCategory ... category) {
+    AgentEventType(int code, String desc, Class<?> messageType, AgentEventTypeCategory... category) {
         this.code = code;
         this.desc = desc;
         this.messageType = messageType;

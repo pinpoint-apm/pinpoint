@@ -41,7 +41,7 @@ public class ServerBuilder {
 
     public ServerBuilder() {
         this.agentHistogramList = new AgentHistogramList();
-        this.agentSet = new HashSet<AgentInfo>();
+        this.agentSet = new HashSet<>();
     }
 
     public void addCallHistogramList(AgentHistogramList agentHistogramList) {

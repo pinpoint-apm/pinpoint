@@ -20,10 +20,10 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContext;
@@ -32,7 +32,7 @@ import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 /**
  * @author jaehong.kim
  */
-@Group(value=HttpClient3Constants.HTTP_CLIENT3_METHOD_BASE_SCOPE, executionPolicy=ExecutionPolicy.ALWAYS)
+@Scope(value=HttpClient3Constants.HTTP_CLIENT3_METHOD_BASE_SCOPE, executionPolicy=ExecutionPolicy.ALWAYS)
 public class HttpMethodBaseRequestAndResponseMethodInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -40,13 +40,13 @@ public class HttpMethodBaseRequestAndResponseMethodInterceptor implements Around
 
     private TraceContext traceContext;
     private MethodDescriptor methodDescriptor;
-    private InterceptorGroup interceptorGroup;
+    private InterceptorScope interceptorScope;
 
 
-    public HttpMethodBaseRequestAndResponseMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup) {
+    public HttpMethodBaseRequestAndResponseMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
-        this.interceptorGroup = interceptorGroup;
+        this.interceptorScope = interceptorScope;
     }
     
     @Override
@@ -60,8 +60,8 @@ public class HttpMethodBaseRequestAndResponseMethodInterceptor implements Around
             return;
         }
 
-        InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
-        if(invocation != null && invocation.getAttachment() != null) {
+        InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
+        if(invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof HttpClient3CallContext) {
             HttpClient3CallContext callContext = (HttpClient3CallContext) invocation.getAttachment();
             if(methodDescriptor.getMethodName().equals("writeRequest")) {
                 callContext.setWriteBeginTime(System.currentTimeMillis());
@@ -83,8 +83,8 @@ public class HttpMethodBaseRequestAndResponseMethodInterceptor implements Around
             return;
         }
 
-        InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
-        if(invocation != null && invocation.getAttachment() != null) {
+        InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
+        if(invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof HttpClient3CallContext) {
             HttpClient3CallContext callContext = (HttpClient3CallContext) invocation.getAttachment();
             if(methodDescriptor.getMethodName().equals("writeRequest")) {
                 callContext.setWriteEndTime(System.currentTimeMillis());

@@ -32,7 +32,7 @@ public class AnnotationKeyMatcherRegistry {
     private final IntHashMap<AnnotationKeyMatcher> annotationMatcherMap;
 
     public AnnotationKeyMatcherRegistry() {
-        this.annotationMatcherMap = new IntHashMap<AnnotationKeyMatcher>();
+        this.annotationMatcherMap = new IntHashMap<>();
     }
 
     AnnotationKeyMatcherRegistry(IntHashMap<AnnotationKeyMatcher> annotationMatcherMap) {
@@ -43,7 +43,7 @@ public class AnnotationKeyMatcherRegistry {
     }
 
     private IntHashMap<AnnotationKeyMatcher> copy(HashMap<Short, AnnotationKeyMatcher> annotationMatcherMap) {
-        final IntHashMap<AnnotationKeyMatcher> copy = new IntHashMap<AnnotationKeyMatcher>();
+        final IntHashMap<AnnotationKeyMatcher> copy = new IntHashMap<>();
         for (Map.Entry<Short, AnnotationKeyMatcher> entry : annotationMatcherMap.entrySet()) {
             copy.put(entry.getKey(), entry.getValue());
         }
@@ -58,7 +58,7 @@ public class AnnotationKeyMatcherRegistry {
 
     public static class Builder {
 
-        private final HashMap<Integer, AnnotationKeyMatcher> buildMap = new HashMap<Integer, AnnotationKeyMatcher>();
+        private final HashMap<Integer, AnnotationKeyMatcher> buildMap = new HashMap<>();
 
         public AnnotationKeyMatcher addAnnotationMatcher(ServiceType serviceType, AnnotationKeyMatcher annotationKeyMatcher) {
             if (serviceType == null) {

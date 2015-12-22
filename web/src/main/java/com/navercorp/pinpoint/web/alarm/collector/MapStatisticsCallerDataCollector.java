@@ -39,7 +39,7 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
     private MapStatisticsCallerDao mapStatisticsCallerDao;
     private long timeSlotEndTime;
     private long slotInterval;
-    private Map<String, LinkCallData> calleStatMap = new HashMap<String, LinkCallData>();
+    private Map<String, LinkCallData> calleStatMap = new HashMap<>();
     private final AtomicBoolean init =new AtomicBoolean(false); // need to consider a trace condition when checkers start simultaneously.
 
     public MapStatisticsCallerDataCollector(DataCollectorCategory category, Application application, MapStatisticsCallerDao mapStatisticsCallerDao, long timeSlotEndTime, long slotInterval) {
@@ -83,7 +83,7 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
                 break;
             case ERROR_COUNT:
                 for (TimeHistogram timeHistogram : linkCallData.getTimeHistogram()) {
-                    count += timeHistogram.getErrorCount();
+                    count += timeHistogram.getTotalErrorCount();
                 }
                 break;
             case TOTAL_COUNT:
@@ -117,7 +117,7 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
                 break;
             case ERROR_RATE:
                 for (TimeHistogram timeHistogram : linkCallData.getTimeHistogram()) {
-                    count += timeHistogram.getErrorCount();
+                    count += timeHistogram.getTotalErrorCount();
                     totalCount += timeHistogram.getTotalCount();
                 }
                 break;

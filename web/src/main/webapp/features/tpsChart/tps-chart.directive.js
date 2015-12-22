@@ -66,25 +66,59 @@
                             "dataProvider": chartData,
                             "valueAxes": [
                                 {
-                                    "id": "v1",
+                                	"stackType": "regular",
                                     "gridAlpha": 0,
                                     "axisAlpha": 1,
                                     "position": "left",
                                     "title": "TPS",
                                     "minimum" : 0
-                                },
+                                }
                             ],
                             "graphs": [
                                 {
-                                    "valueAxis": "v1",
-                                    "balloonText": "[[value]]",
+                                    "balloonText": "Sampled Continuation : [[value]]",
                                     "legendValueText": "[[value]]",
-                                    "lineColor": "rgb(31, 119, 180)",
-                                    "fillColor": "rgb(31, 119, 180)",
-                                    "title": "TPS",
+                                    "lineColor": "rgb(214, 141, 8)",
+                                    "fillColor": "rgb(214, 141, 8)",
+                                    "title": "S.C",
+                                    "valueField": "sampledContinuationTps",
+                                    "fillAlphas": 0.4,
+                                    "connect": true
+                                },{
+                                    "balloonText": "Sampled New : [[value]]",
+                                    "legendValueText": "[[value]]",
+                                    "lineColor": "rgb(252, 178, 65)",
+                                    "fillColor": "rgb(252, 178, 65)",
+                                    "title": "S.N",
+                                    "valueField": "sampledNewTps",
+                                    "fillAlphas": 0.4,
+                                    "connect": true
+                                },{
+                                    "balloonText": "Unsampled Continuation : [[value]]",
+                                    "legendValueText": "[[value]]",
+                                    "lineColor": "rgb(90, 103, 166)",
+                                    "fillColor": "rgb(90, 103, 166)",
+                                    "title": "U.C",
+                                    "valueField": "unsampledContinuationTps",
+                                    "fillAlphas": 0.4,
+                                    "connect": true
+                                },{
+                                    "balloonText": "Unsampled New : [[value]]",
+                                    "legendValueText": "[[value]]",
+                                    "lineColor": "rgb(160, 153, 255)",
+                                    "fillColor": "rgb(160, 153, 255)",
+                                    "title": "U.N",
+                                    "valueField": "unsampledNewTps",
+                                    "fillAlphas": 0.4,
+                                    "connect": true
+                                },{
+                                    "balloonText": "Total : [[value]]",
+                                    "legendValueText": "[[value]]",
+                                    "lineColor": "rgba(31, 119, 180, 0)",
+                                    "fillColor": "rgba(31, 119, 180, 0)",
                                     "valueField": "totalTps",
                                     "fillAlphas": 0.4,
-                                    "connect": false
+                                    "connect": true
                                 }
                             ],
                             "chartCursor": {

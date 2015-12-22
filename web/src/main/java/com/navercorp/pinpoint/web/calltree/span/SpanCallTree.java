@@ -170,8 +170,8 @@ public class SpanCallTree implements CallTree {
             return;
         }
 
-        final List<CallTreeNode> events = new ArrayList<CallTreeNode>();
-        final LinkedList<CallTreeNode> spans = new LinkedList<CallTreeNode>();
+        final List<CallTreeNode> events = new ArrayList<>();
+        final LinkedList<CallTreeNode> spans = new LinkedList<>();
         splitChildSiblingNodes(parent, events, spans);
         if (spans.size() == 0) {
             // not found span
@@ -187,7 +187,7 @@ public class SpanCallTree implements CallTree {
         });
 
         // sort
-        final List<CallTreeNode> nodes = new ArrayList<CallTreeNode>();
+        final List<CallTreeNode> nodes = new ArrayList<>();
         for (CallTreeNode event : events) {
             while (spans.peek() != null && event.getValue().getStartTime() > spans.peek().getValue().getStartTime()) {
                 nodes.add(spans.poll());

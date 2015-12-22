@@ -156,8 +156,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
             final com.ning.http.client.Request httpRequest = (com.ning.http.client.Request) args[0];
             if (httpRequest != null) {
                 // Accessing httpRequest here not BEFORE() because it can cause side effect.
-                recorder.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getUrl());
-
+                recorder.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(httpRequest.getUrl(), config.isProfileParam()));
                 String endpoint = getEndpoint(httpRequest.getURI().getHost(), httpRequest.getURI().getPort());
                 recorder.recordDestinationId(endpoint);
 

@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
 
 public class LinkDataMap {
-    private final Map<LinkKey, LinkData> linkDataMap = new HashMap<LinkKey, LinkData>();
+    private final Map<LinkKey, LinkData> linkDataMap = new HashMap<>();
     private TimeWindow timeWindow;
 
     public LinkDataMap() {

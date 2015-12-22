@@ -71,8 +71,8 @@ public class TCPReceiver {
 
     private final ThreadPoolExecutor worker;
 
-    private final SerializerFactory<HeaderTBaseSerializer> serializerFactory = new ThreadLocalHeaderTBaseSerializerFactory<HeaderTBaseSerializer>(new HeaderTBaseSerializerFactory(true, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE));
-    private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<HeaderTBaseDeserializer>(new HeaderTBaseDeserializerFactory());
+    private final SerializerFactory<HeaderTBaseSerializer> serializerFactory = new ThreadLocalHeaderTBaseSerializerFactory<>(new HeaderTBaseSerializerFactory(true, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE));
+    private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<>(new HeaderTBaseDeserializerFactory());
 
     @Resource(name="agentEventWorker")
     private ExecutorService agentEventWorker;
@@ -115,7 +115,7 @@ public class TCPReceiver {
             return;
         }
         try {
-            List<InetAddress> inetAddressList = new ArrayList<InetAddress>();
+            List<InetAddress> inetAddressList = new ArrayList<>();
             for (int i = 0; i < l4ipList.size(); i++) {
                 String l4Ip = l4ipList.get(i);
                 if (StringUtils.isBlank(l4Ip)) {
@@ -271,13 +271,6 @@ public class TCPReceiver {
             SocketAddress remoteAddress = pinpointSocket.getRemoteAddress();
             try {
                 TBase<?, ?> tBase = SerializationUtils.deserialize(bytes, deserializerFactory);
-                if (tBase instanceof L4Packet) {
-                    if (logger.isDebugEnabled()) {
-                        L4Packet packet = (L4Packet) tBase;
-                        logger.debug("tcp l4 packet {}", packet.getHeader());
-                    }
-                    return;
-                }
                 TBase result = dispatchHandler.dispatchRequestMessage(tBase);
                 if (result != null) {
                     byte[] resultBytes = SerializationUtils.serialize(result, serializerFactory);

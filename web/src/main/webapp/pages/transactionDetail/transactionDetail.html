@@ -77,7 +77,7 @@
     <li style="padding-top:8px;padding-left:10px;color:#FF0000"><span>{{searchMessage}}</span></li>
     <li style="position: absolute; top: 6px; right: 10px;">
     	<span class="glyphicon glyphicon-question-sign callTreeTooltip" style="cursor:pointer;font-size:15px;top:4px;padding-right:10px;"></span>
-        <span class="label" ng-class="completeStateClass"><span class="glyphicon glyphicon-refresh"></span> {{transactionDetail.completeState}}</span>
+        <span class="label" ng-class="completeStateClass"><span class="glyphicon glyphicon-th-list"></span> {{transactionDetail.completeState}}</span>
         <button ng-click="openInNewWindow();$event.stopPropagation()" class="btn btn-default btn-xs" target="_blank" title="New Window" data-toggle="tooltip" data-placement="left"><span class="glyphicon glyphicon-share"></span></button>
     </li>
 </ul>
@@ -95,7 +95,6 @@
     </div>
 
     <div class="tab-pane" id="ServerMap">
-    	<span class="label label-danger"><span class="glyphicon glyphicon-exclamation-sign"></span> Technical Preview</span>
         <server-map-directive></server-map-directive>
     </div>
 

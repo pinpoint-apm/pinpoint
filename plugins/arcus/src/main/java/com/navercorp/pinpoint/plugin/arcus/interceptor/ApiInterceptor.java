@@ -14,6 +14,7 @@
  */
 package com.navercorp.pinpoint.plugin.arcus.interceptor;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.Future;
@@ -28,7 +29,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.arcus.ArcusConstants;
@@ -39,7 +40,7 @@ import com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor;
  * @author emeroad
  * @author jaehong.kim
  */
-@Group(ArcusConstants.ARCUS_SCOPE)
+@Scope(ArcusConstants.ARCUS_SCOPE)
 public class ApiInterceptor implements AroundInterceptor {
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
@@ -126,15 +127,14 @@ public class ApiInterceptor implements AroundInterceptor {
 
             // find the target node
             if (result instanceof Future && result instanceof OperationAccessor) {
-                Operation op = ((OperationAccessor)result)._$PINPOINT$_getOperation();
-
+                final Operation op = ((OperationAccessor)result)._$PINPOINT$_getOperation();
                 if (op != null) {
-                    MemcachedNode handlingNode = op.getHandlingNode();
-                    SocketAddress socketAddress = handlingNode.getSocketAddress();
-
-                    if (socketAddress instanceof InetSocketAddress) {
-                        InetSocketAddress address = (InetSocketAddress) socketAddress;
-                        recorder.recordEndPoint(address.getHostName() + ":" + address.getPort());
+                    final MemcachedNode handlingNode = op.getHandlingNode();
+                    if (handlingNode != null) {
+                        final String endPoint = getEndPoint(handlingNode);
+                        if (endPoint != null) {
+                            recorder.recordEndPoint(endPoint);
+                        }
                     }
                 } else {
                     logger.info("operation not found");
@@ -162,6 +162,7 @@ public class ApiInterceptor implements AroundInterceptor {
                     this.traceContext.getAsyncId();
                     final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
                     recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
+                    // type check isAsynchronousInvocation
                     ((AsyncTraceIdAccessor)result)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
                     if (isDebug) {
                         logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
@@ -177,6 +178,40 @@ public class ApiInterceptor implements AroundInterceptor {
         } finally {
             trace.traceBlockEnd();
         }
+    }
+
+    private String getEndPoint(MemcachedNode handlingNode) {
+        // TODO duplicated code : ApiInterceptor, FutureGetInterceptor
+        final SocketAddress socketAddress = handlingNode.getSocketAddress();
+        if (socketAddress instanceof InetSocketAddress) {
+            final InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
+            final String hostAddress = getHostAddress(inetSocketAddress);
+            if (hostAddress == null) {
+                // TODO return "Unknown Host"; ?
+                logger.debug("hostAddress is null");
+                return null;
+            }
+            return hostAddress + ":" + inetSocketAddress.getPort();
+
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("invalid socketAddress:{}", socketAddress);
+            }
+            return null;
+        }
+    }
+
+    private String getHostAddress(InetSocketAddress inetSocketAddress) {
+        if (inetSocketAddress == null) {
+            return null;
+        }
+        // TODO JDK 1.7 InetSocketAddress.getHostString();
+        // Warning : Avoid unnecessary DNS lookup  (warning:InetSocketAddress.getHostName())
+        final InetAddress inetAddress = inetSocketAddress.getAddress();
+        if (inetAddress == null) {
+            return null;
+        }
+        return inetAddress.getHostAddress();
     }
 
     private boolean isAsynchronousInvocation(final Object target, final Object[] args, Object result, Throwable throwable) {

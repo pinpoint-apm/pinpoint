@@ -53,7 +53,7 @@ public class HttpClientIT {
 
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
             httpClient.execute(post, responseHandler);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         } finally {
             if (null != httpClient && null != httpClient.getConnectionManager()) {
                 httpClient.getConnectionManager().shutdown();

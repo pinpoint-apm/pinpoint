@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -33,28 +35,29 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
  * @author Sangyoon Lee
  *
  */
-public class JsonLibPlugin implements ProfilerPlugin {
+public class JsonLibPlugin implements ProfilerPlugin, TransformTemplateAware {
     private static final String BASIC_INTERCEPTOR = BasicMethodInterceptor.class.getName();
     private static final String PARSING_INTERCEPTOR = "com.navercorp.pinpoint.plugin.json_lib.interceptor.ParsingInterceptor";
     private static final String TO_STRING_INTERCEPTOR = "com.navercorp.pinpoint.plugin.json_lib.interceptor.ToStringInterceptor";
 
-    private static final String GROUP = "json-lib";
+    private static final String JSON_LIB_SCOPE = "json-lib";
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        addJSONSerializerInterceptor(context, "net.sf.json.JSONSerializer");
-        addJSONObjectInterceptor(context, "net.sf.json.JSONObject");
-        addJSONArrayInterceptor(context, "net.sf.json.JSONArray");
+        addJSONSerializerInterceptor("net.sf.json.JSONSerializer");
+        addJSONObjectInterceptor("net.sf.json.JSONObject");
+        addJSONArrayInterceptor("net.sf.json.JSONArray");
     }
     
-    private void addJSONSerializerInterceptor(ProfilerPluginSetupContext context, String clazzName) {
-        context.addClassFileTransformer(clazzName, new TransformCallback() {
+    private void addJSONSerializerInterceptor(String clazzName) {
+        transformTemplate.transform(clazzName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toJSON"))) {
                     addInterceptor(method, PARSING_INTERCEPTOR);
@@ -71,12 +74,12 @@ public class JsonLibPlugin implements ProfilerPlugin {
 
     }
 
-    private void addJSONObjectInterceptor(ProfilerPluginSetupContext context, String clazzName) {
-        context.addClassFileTransformer(clazzName, new TransformCallback() {
+    private void addJSONObjectInterceptor(String clazzName) {
+        transformTemplate.transform(clazzName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("fromObject"))) {
                     addInterceptor(method, PARSING_INTERCEPTOR);
@@ -96,12 +99,12 @@ public class JsonLibPlugin implements ProfilerPlugin {
         });
     }
 
-    private void addJSONArrayInterceptor(ProfilerPluginSetupContext context, String clazzName) {
-        context.addClassFileTransformer(clazzName, new TransformCallback() {
+    private void addJSONArrayInterceptor(String clazzName) {
+        transformTemplate.transform(clazzName, new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("fromObject"))) {
                     addInterceptor(method, PARSING_INTERCEPTOR);
@@ -133,7 +136,7 @@ public class JsonLibPlugin implements ProfilerPlugin {
     private boolean addInterceptor(InstrumentMethod method, String interceptorClassName, Object... constructorArgs) {
         if (method != null && isPublicMethod(method)) {
             try {
-                method.addGroupedInterceptor(interceptorClassName, constructorArgs, GROUP);
+                method.addScopedInterceptor(interceptorClassName, constructorArgs, JSON_LIB_SCOPE);
                 return true;
             } catch (InstrumentException e) {
                 if (logger.isWarnEnabled()) {
@@ -148,6 +151,11 @@ public class JsonLibPlugin implements ProfilerPlugin {
     private boolean isPublicMethod(InstrumentMethod method) {
         int modifier = method.getModifiers();
         return Modifier.isPublic(modifier);
+    }
+
+    @Override
+    public void setTransformTemplate(TransformTemplate transformTemplate) {
+        this.transformTemplate = transformTemplate;
     }
 
 }

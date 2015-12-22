@@ -70,10 +70,10 @@ import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
  * @author hyungil.jeong
  */
 public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier {
-    
+
     private TestableServerMetaDataListener serverMetaDataListener;
     private AnnotationKeyRegistryService annotationKeyRegistryService;
-    
+
     private final List<Short> ignoredServiceTypes = new ArrayList<Short>();
 
     public PluginTestAgent(AgentOption agentOption) {
@@ -112,21 +112,21 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         serverMetaDataHolder.addListener(this.serverMetaDataListener);
         return serverMetaDataHolder;
     }
-    
+
     @Override
     public void verifyServerType(String serviceTypeName) {
         ServiceType expectedType = findServiceType(serviceTypeName);
         ServiceType actualType = getAgentInformation().getServerType();
-        
+
         if (!expectedType.equals(actualType)) {
             throw new AssertionError("ResolvedExpectedTrace server type: " + expectedType.getName() + "[" + expectedType.getCode() + "] but was " + actualType + "[" + actualType.getCode() + "]");
         }
     }
-    
+
     @Override
     public void verifyServerInfo(String expected) {
         String actualName = this.serverMetaDataListener.getServerMetaData().getServerInfo();
-        
+
         if (!actualName.equals(expected)) {
             throw new AssertionError("ResolvedExpectedTrace server name [" + expected + "] but was [" + actualName + "]");
         }
@@ -136,7 +136,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     public void verifyConnector(String protocol, int port) {
         Map<Integer, String> connectorMap = this.serverMetaDataListener.getServerMetaData().getConnectors();
         String actualProtocol = connectorMap.get(port);
-        
+
         if (actualProtocol == null || !actualProtocol.equals(protocol)) {
             throw new AssertionError("ResolvedExpectedTrace protocol [" + protocol + "] at port [" + port + "] but was [" + actualProtocol + "]");
         }
@@ -145,93 +145,93 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     @Override
     public void verifyService(String name, List<String> libs) {
         List<ServiceInfo> serviceInfos = this.serverMetaDataListener.getServerMetaData().getServiceInfos();
-        
+
         for (ServiceInfo serviceInfo : serviceInfos) {
             if (serviceInfo.getServiceName().equals(name)) {
                 List<String> actualLibs = serviceInfo.getServiceLibs();
-                
+
                 if (actualLibs.size() != libs.size()) {
                     throw new AssertionError("ResolvedExpectedTrace service [" + name + "] with libraries [" + libs + "] but was [" + actualLibs + "]");
                 }
-                
+
                 for (String lib : libs) {
                     if (!actualLibs.contains(lib)) {
                         throw new AssertionError("ResolvedExpectedTrace service [" + name + "] with libraries [" + libs + "] but was [" + actualLibs + "]");
                     }
                 }
-                
+
                 // OK
                 return;
             }
         }
-        
+
         throw new AssertionError("ResolvedExpectedTrace service [" + name + "] with libraries [" + libs + "] but there is no such service");
     }
-    
+
     private boolean isIgnored(Object obj) {
         short serviceType = -1;
-        
+
         if (obj instanceof TSpan) {
             serviceType = ((TSpan) obj).getServiceType();
         } else if (obj instanceof TSpanEvent) {
             serviceType = ((TSpanEvent) obj).getServiceType();
         }
-        
+
         return ignoredServiceTypes.contains(serviceType);
     }
 
     @Override
     public void verifyTraceCount(int expected) {
         int actual = 0;
-        
+
         for (Object obj : getRecorder()) {
             if (!isIgnored(obj)) {
                 actual++;
             }
         }
-        
+
         if (expected != actual) {
             throw new AssertionError("ResolvedExpectedTrace count: " + expected + ", actual: " + actual);
         }
     }
-    
+
     private ServiceType findServiceType(String name) {
         ServiceType serviceType = getServiceTypeRegistryService().findServiceTypeByName(name);
-        
+
         if (serviceType == ServiceType.UNDEFINED) {
             throw new AssertionError("No such service type: " + name);
         }
-        
+
         return serviceType;
     }
-    
+
     private Class<?> resolveSpanClass(TraceType type) {
         switch (type) {
-        case ROOT:
-            return Span.class;
-        case EVENT:
-            return SpanEvent.class;
+            case ROOT:
+                return Span.class;
+            case EVENT:
+                return SpanEvent.class;
         }
-        
+
         throw new IllegalArgumentException(type.toString());
     }
-    
+
     @Override
     public void verifyDiscreteTrace(ExpectedTrace... expectations) {
         verifyDiscreteTraceBlock(expectations, null);
     }
-        
-    public void verifyDiscreteTraceBlock(ExpectedTrace[] expectations, Integer asyncId) {   
+
+    public void verifyDiscreteTraceBlock(ExpectedTrace[] expectations, Integer asyncId) {
         if (expectations == null || expectations.length == 0) {
             throw new IllegalArgumentException("No expectations");
         }
-        
+
         ExpectedTrace expected = expectations[0];
         ResolvedExpectedTrace resolved = resolveExpectedTrace(expected, asyncId);
-        
+
         int i = 0;
         Iterator<?> iterator = getRecorder().iterator();
-        
+
         while (iterator.hasNext()) {
             ActualTrace actual = wrap(iterator.next());
 
@@ -240,18 +240,18 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
             } catch (AssertionError e) {
                 continue;
             }
-            
+
             iterator.remove();
             verifyAsyncTraces(expected, actual);
-            
+
             if (++i == expectations.length) {
                 return;
             }
-            
+
             expected = expectations[i];
             resolved = resolveExpectedTrace(expected, asyncId);
         }
-        
+
         throw new AssertionError("Failed to match " + i + "th expectation: " + resolved);
     }
 
@@ -265,13 +265,13 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
             ResolvedExpectedTrace resolved = resolveExpectedTrace(expected, null);
 
             Object actual = popSpan();
-            
+
             if (actual == null) {
                 throw new AssertionError("Expected a " + resolved.type.getSimpleName() + " but there is no trace");
             }
 
             ActualTrace wrapped = wrap(actual);
-            
+
             verifySpan(resolved, wrapped);
             verifyAsyncTraces(expected, wrapped);
         }
@@ -279,26 +279,40 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     private void verifyAsyncTraces(ExpectedTrace expected, ActualTrace wrapped) throws AssertionError {
         ExpectedTrace[] asyncTraces = expected.getAsyncTraces();
-        
+
         if (asyncTraces != null && asyncTraces.length > 0) {
             Integer asyncId = wrapped.getNextAsyncId();
-            
+
             if (asyncId == null) {
                 throw new AssertionError("Expected async traces triggered but nextAsyncId is not present: " + wrapped);
             }
-            
+
             verifyDiscreteTraceBlock(asyncTraces, asyncId);
         }
     }
-    
+
     private ResolvedExpectedTrace resolveExpectedTrace(ExpectedTrace expected, Integer asyncId) throws AssertionError {
-        ServiceType serviceType = findServiceType(expected.getServiceType());
-        Class<?> spanClass = resolveSpanClass(expected.getType());
-        int apiId = expected.getMethod() != null ? findApiId(expected.getMethod()) : (expected.getMethodSignature() == null ? null : findApiId(expected.getMethodSignature()));
-        
+        final ServiceType serviceType = findServiceType(expected.getServiceType());
+        final Class<?> spanClass = resolveSpanClass(expected.getType());
+        final int apiId = getApiId(expected);
+
         return new ResolvedExpectedTrace(spanClass, serviceType, apiId, expected.getRpc(), expected.getEndPoint(), expected.getRemoteAddr(), expected.getDestinationId(), expected.getAnnotations(), asyncId);
     }
-    
+
+    private int getApiId(ExpectedTrace expected) {
+        final Member method = expected.getMethod();
+        if (method == null) {
+            if (expected.getMethodSignature() == null) {
+//                return null;
+                throw new RuntimeException("Method or MethodSignature is null");
+            } else {
+                return findApiId(expected.getMethodSignature());
+            }
+        } else {
+            return findApiId(method);
+        }
+    }
+
 
     @Override
     public void ignoreServiceType(String... serviceTypes) {
@@ -310,7 +324,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     private static void appendAnnotations(StringBuilder builder, List<TAnnotation> annotations) {
         boolean first = true;
-        
+
         if (annotations != null) {
             for (TAnnotation a : annotations) {
                 if (first) {
@@ -318,7 +332,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
                 } else {
                     builder.append(", ");
                 }
-                
+
                 builder.append(toString(a));
             }
         }
@@ -329,22 +343,30 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
 
     private interface ActualTrace {
-        public Short getServiceType();
-        public Integer getApiId();
-        public Integer getAsyncId();
-        public Integer getNextAsyncId();
-        public String getRpc();
-        public String getEndPoint();
-        public String getRemoteAddr();
-        public String getDestinationId();
-        public List<TAnnotation> getAnnotations();
-        
-        public Class<?> getType();
+        Short getServiceType();
+
+        Integer getApiId();
+
+        Integer getAsyncId();
+
+        Integer getNextAsyncId();
+
+        String getRpc();
+
+        String getEndPoint();
+
+        String getRemoteAddr();
+
+        String getDestinationId();
+
+        List<TAnnotation> getAnnotations();
+
+        Class<?> getType();
     }
-    
-    private final class SpanFacade implements ActualTrace {
+
+    private static final class SpanFacade implements ActualTrace {
         private final Span span;
-        
+
         public SpanFacade(Span span) {
             this.span = span;
         }
@@ -358,12 +380,12 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         public Integer getApiId() {
             return span.isSetApiId() ? span.getApiId() : null;
         }
-        
+
         @Override
         public Integer getAsyncId() {
             return null;
         }
-        
+
         @Override
         public Integer getNextAsyncId() {
             return null;
@@ -398,7 +420,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         public Class<?> getType() {
             return Span.class;
         }
-        
+
         @Override
         public String toString() {
             StringBuilder builder = new StringBuilder();
@@ -415,14 +437,14 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
             builder.append(", [");
             appendAnnotations(builder, getAnnotations());
             builder.append("])");
-            
+
             return builder.toString();
         }
     }
 
-    private final class SpanEventFacade implements ActualTrace {
+    private static final class SpanEventFacade implements ActualTrace {
         private final SpanEvent span;
-        
+
         public SpanEventFacade(SpanEvent span) {
             this.span = span;
         }
@@ -436,7 +458,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         public Integer getApiId() {
             return span.isSetApiId() ? span.getApiId() : null;
         }
-        
+
         @Override
         public Integer getAsyncId() {
             return span.isSetAsyncId() ? span.getAsyncId() : null;
@@ -497,12 +519,12 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
             builder.append("nextAsyncId: ");
             builder.append(getNextAsyncId());
             builder.append(')');
-            
+
             return builder.toString();
         }
     }
-    
-    private final class ResolvedExpectedTrace {
+
+    private static final class ResolvedExpectedTrace {
         private final Class<?> type;
         private final ServiceType serviceType;
         private final Integer asyncId;
@@ -512,7 +534,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         private final String remoteAddr;
         private final String destinationId;
         private final ExpectedAnnotation[] annotations;
-        
+
         public ResolvedExpectedTrace(Class<?> type, ServiceType serviceType, Integer apiId, String rpc, String endPoint, String remoteAddr, String destinationId, ExpectedAnnotation[] annotations, Integer asyncId) {
             this.type = type;
             this.serviceType = serviceType;
@@ -528,7 +550,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         @Override
         public String toString() {
             StringBuilder builder = new StringBuilder();
-            
+
             builder.append(type.getSimpleName());
             builder.append("(serviceType: ");
             builder.append(serviceType.getCode());
@@ -547,21 +569,21 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
             builder.append(", asyncId: ");
             builder.append(asyncId);
             builder.append(")");
-            
+
             return builder.toString();
         }
     }
-    
+
     private ActualTrace wrap(Object obj) {
         if (obj instanceof Span) {
-            return new SpanFacade((Span)obj);
+            return new SpanFacade((Span) obj);
         } else if (obj instanceof SpanEvent) {
-            return new SpanEventFacade((SpanEvent)obj);
+            return new SpanEventFacade((SpanEvent) obj);
         }
-        
+
         throw new IllegalArgumentException("Unexpected type: " + obj.getClass());
     }
-    
+
     private static boolean equals(Object expected, Object actual) {
         // if expected is null, no need to compare.
         return expected == null ? true : (expected.equals(actual));
@@ -569,17 +591,17 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     private void verifySpan(ResolvedExpectedTrace expected, ActualTrace actual) {
         if (!expected.type.equals(actual.getType())) {
-            throw new AssertionError("Expected an instance of " + expected.type.getSimpleName() + " but was " + actual.getType().getName() +". expected: " + expected + ", was: " + actual);
+            throw new AssertionError("Expected an instance of " + expected.type.getSimpleName() + " but was " + actual.getType().getName() + ". expected: " + expected + ", was: " + actual);
         }
-        
+
         if (!equals(expected.serviceType.getCode(), actual.getServiceType())) {
             throw new AssertionError("Expected a " + expected.type.getSimpleName() + " with serviceType[" + expected.serviceType.getCode() + "] but was [" + actual.getServiceType() + "]. expected: " + expected + ", was: " + actual);
         }
-        
+
         if (!equals(expected.apiId, actual.getApiId())) {
             throw new AssertionError("Expected a " + expected.type.getSimpleName() + " with apiId[" + expected.apiId + "] but was [" + actual.getApiId() + "]. expected: " + expected + ", was: " + actual);
         }
-        
+
         if (!equals(expected.rpc, actual.getRpc())) {
             throw new AssertionError("Expected a " + expected.type.getSimpleName() + " with rpc[" + expected.rpc + "] but was [" + actual.getRpc() + "]. expected: " + expected + ", was: " + actual);
         }
@@ -587,29 +609,29 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         if (!equals(expected.endPoint, actual.getEndPoint())) {
             throw new AssertionError("Expected a " + expected.type.getSimpleName() + " with endPoint[" + expected.endPoint + "] but was [" + actual.getEndPoint() + "]. expected: " + expected + ", was: " + actual);
         }
-        
+
         if (!equals(expected.remoteAddr, actual.getRemoteAddr())) {
             throw new AssertionError("Expected a " + expected.type.getSimpleName() + " with remoteAddr[" + expected.remoteAddr + "] but was [" + actual.getRemoteAddr() + "]. expected: " + expected + ", was: " + actual);
         }
-        
+
         if (!equals(expected.destinationId, actual.getDestinationId())) {
             throw new AssertionError("Expected a " + expected.type.getSimpleName() + " with destinationId[" + expected.destinationId + "] but was [" + actual.getDestinationId() + "]. expected: " + expected + ", was: " + actual);
         }
-        
+
         if (!equals(expected.asyncId, actual.getAsyncId())) {
             throw new AssertionError("Expected a " + expected.type.getSimpleName() + " with asyncId[" + expected.asyncId + "] but was [" + actual.getAsyncId() + "]. expected: " + expected + ", was: " + actual);
         }
 
-        
+
         List<TAnnotation> actualAnnotations = actual.getAnnotations();
-        
+
         int len = expected.annotations == null ? 0 : expected.annotations.length;
         int actualLen = actualAnnotations == null ? 0 : actualAnnotations.size();
-        
+
         if (actualLen != len) {
             throw new AssertionError("Expected [" + len + "] annotations but was [" + actualLen + "], expected: " + expected + ", was: " + actual);
         }
-        
+
         for (int i = 0; i < len; i++) {
             ExpectedAnnotation expect = expected.annotations[i];
             AnnotationKey expectedAnnotationKey = annotationKeyRegistryService.findAnnotationKeyByName(expect.getKeyName());
@@ -620,25 +642,25 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
             }
 
             if (expectedAnnotationKey == AnnotationKey.SQL_ID && expect instanceof ExpectedSql) {
-                verifySql((ExpectedSql)expect, actualAnnotation);
+                verifySql((ExpectedSql) expect, actualAnnotation);
             } else {
                 Object expectedValue = expect.getValue();
-                
+
                 if (expectedValue == Expectations.anyAnnotationValue()) {
                     continue;
                 }
-                
+
                 if (AnnotationKeyUtils.isCachedArgsKey(expectedAnnotationKey.getCode())) {
                     expectedValue = getTestTcpDataSender().getStringId(expectedValue.toString());
                 }
-                
+
                 if (!Objects.equal(expectedValue, actualAnnotation.getValue().getFieldValue())) {
                     throw new AssertionError("Expected " + i + "th annotation [" + expectedAnnotationKey.getCode() + "=" + expect.getValue() + "] but was [" + toString(actualAnnotation) + "], expected: " + expected + ", was: " + actual);
                 }
             }
         }
     }
-    
+
     private void verifySql(ExpectedSql expected, TAnnotation actual) {
         int id = getTestTcpDataSender().getSqlId(expected.getQuery());
         TIntStringStringValue value = actual.getValue().getIntStringStringValue();
@@ -647,52 +669,52 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
             String actualQuery = getTestTcpDataSender().getSql(value.getIntValue());
             throw new AssertionError("Expected sql [" + id + ": " + expected.getQuery() + "] but was [" + value.getIntValue() + ": " + actualQuery + "], expected: " + expected + ", was: " + actual);
         }
-        
+
         if (!Objects.equal(value.getStringValue1(), expected.getOutput())) {
             throw new AssertionError("Expected sql with output [" + expected.getOutput() + "] but was [" + value.getStringValue1() + "], expected: " + expected + ", was: " + actual);
         }
-        
+
         if (!Objects.equal(value.getStringValue2(), expected.getBindValuesAsString())) {
             throw new AssertionError("Expected sql with bindValues [" + expected.getBindValuesAsString() + "] but was [" + value.getStringValue2() + "], expected: " + expected + ", was: " + actual);
         }
     }
-        
+
     private int findApiId(Member method) throws AssertionError {
         Class<?> clazz = method.getDeclaringClass();
-        
+
         InstrumentClass ic;
         try {
-            ic = getClassPool().getClass(clazz.getClassLoader(), clazz.getName(), null);
+            ic = getClassPool().getClass(null, clazz.getClassLoader(), clazz.getName(), null);
         } catch (InstrumentException e) {
             throw new RuntimeException("Cannot get instrumentClass " + clazz.getName(), e);
         }
 
         InstrumentMethod methodInfo;
-        
+
         if (method instanceof Method) {
-            methodInfo = getMethodInfo(ic, (Method)method);
+            methodInfo = getMethodInfo(ic, (Method) method);
         } else if (method instanceof Constructor) {
-            methodInfo = getMethodInfo(ic, (Constructor<?>)method);
+            methodInfo = getMethodInfo(ic, (Constructor<?>) method);
         } else {
             throw new IllegalArgumentException("method: " + method);
         }
-        
+
         String desc = methodInfo.getDescriptor().getFullName();
-        
+
         return findApiId(desc);
     }
-    
+
     private InstrumentMethod getMethodInfo(InstrumentClass ic, Method method) {
         Class<?>[] parameterTypes = method.getParameterTypes();
         String[] parameterTypeNames = JavaAssistUtils.toPinpointParameterType(parameterTypes);
-        
+
         return ic.getDeclaredMethod(method.getName(), parameterTypeNames);
     }
-    
+
     private InstrumentMethod getMethodInfo(InstrumentClass ic, Constructor<?> constructor) {
         Class<?>[] parameterTypes = constructor.getParameterTypes();
         String[] parameterTypeNames = JavaAssistUtils.getParameterType(parameterTypes);
-        
+
         return ic.getConstructor(parameterTypeNames);
     }
 
@@ -706,21 +728,21 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
 
     private TestTcpDataSender getTestTcpDataSender() {
-        return (TestTcpDataSender)getTcpDataSender();
+        return (TestTcpDataSender) getTcpDataSender();
     }
-    
+
     private OrderedSpanRecorder getRecorder() {
-        return (OrderedSpanRecorder)((ListenableDataSender<?>)getSpanDataSender()).getListener();
+        return (OrderedSpanRecorder) ((ListenableDataSender<?>) getSpanDataSender()).getListener();
     }
-    
+
     private Object popSpan() {
         while (true) {
             Object obj = getRecorder().pop();
-            
+
             if (obj == null) {
                 return null;
             }
-            
+
             if (!isIgnored(obj)) {
                 return obj;
             }
@@ -732,7 +754,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         getRecorder().print(out);
         getTestTcpDataSender().printDatas(out);
     }
-    
+
     @Override
     public void printCache() {
         printCache(System.out);
@@ -743,7 +765,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         if (createTraceObject) {
             Trace trace = getTraceContext().newTraceObject();
         }
-        
+
         getRecorder().clear();
         getTestTcpDataSender().clear();
         ignoredServiceTypes.clear();
@@ -766,26 +788,26 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         Span span = null;
 
         if (actual instanceof Span) {
-            span = (Span)actual;
+            span = (Span) actual;
         } else if (actual instanceof SpanEvent) {
-            span = ((SpanEvent)actual).getSpan();
+            span = ((SpanEvent) actual).getSpan();
         } else {
             throw new IllegalArgumentException("Unexpected type: " + actual.getClass());
         }
-        
+
         if (span.getLoggingTransactionInfo() != loggingInfo.getCode()) {
-            
+
             LoggingInfo loggingTransactionInfo = LoggingInfo.searchByCode(span.getLoggingTransactionInfo());
-            
+
             if (loggingTransactionInfo != null) {
                 throw new AssertionError("Expected a Span isLoggingTransactionInfo value with [" + loggingInfo.getName() + "] but was [" + loggingTransactionInfo.getName() + "]. expected: " + loggingInfo.getName() + ", was: " + loggingTransactionInfo.getName());
             } else {
                 throw new AssertionError("Expected a Span isLoggingTransactionInfo value with [" + loggingInfo.getName() + "] but loggingTransactionInfo value invalid.");
             }
-            
+
         }
-        
-        
+
+
     }
 
 }

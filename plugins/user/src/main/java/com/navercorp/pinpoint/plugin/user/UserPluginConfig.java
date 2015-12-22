@@ -31,7 +31,7 @@ public class UserPluginConfig {
     private List<String> includeList;
 
     public UserPluginConfig(ProfilerConfig src) {
-        includeList = split(src.readString("profiler.user.include", ""));
+        includeList = split(src.readString("profiler.entrypoint", ""));
     }
 
     public List<String> getIncludeList() {

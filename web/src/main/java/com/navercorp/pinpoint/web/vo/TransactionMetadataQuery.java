@@ -28,7 +28,7 @@ public class TransactionMetadataQuery {
     private final List<QueryCondition> queryConditionList;
 
     public TransactionMetadataQuery() {
-        this.queryConditionList = new ArrayList<QueryCondition>();
+        this.queryConditionList = new ArrayList<>();
     }
 
     public void addQueryCondition(String transactionId, long collectorAcceptTime, int responseTime) {
@@ -42,7 +42,7 @@ public class TransactionMetadataQuery {
 
 
     public List<TransactionId> getTransactionIdList() {
-        final List<TransactionId> result = new ArrayList<TransactionId>(queryConditionList.size());
+        final List<TransactionId> result = new ArrayList<>(queryConditionList.size());
         for (QueryCondition queryCondition : queryConditionList) {
             result.add(queryCondition.getTransactionId());
         }

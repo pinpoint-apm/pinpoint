@@ -146,13 +146,13 @@ public class LinkFilter implements Filter {
         USER_TO_WAS,
         WAS_TO_UNKNOWN,
         WAS_TO_BACKEND,
-        UNSUPPORTED;
+        UNSUPPORTED
     }
 
     enum ExecutionType {
         ALL,
         SUCCESS_ONLY,
-        FAIL_ONLY;
+        FAIL_ONLY
     }
 
     private FilterType getFilterType() {

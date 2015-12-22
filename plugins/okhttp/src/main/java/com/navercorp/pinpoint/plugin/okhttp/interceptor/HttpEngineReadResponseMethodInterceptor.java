@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.plugin.okhttp.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -36,7 +36,7 @@ public class HttpEngineReadResponseMethodInterceptor implements AroundIntercepto
 
     private TraceContext traceContext;
     private MethodDescriptor methodDescriptor;
-    private InterceptorGroup interceptorGroup;
+    private InterceptorScope interceptorScope;
     private final boolean statusCode;
 
     public HttpEngineReadResponseMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, boolean statusCode) {
@@ -104,6 +104,7 @@ public class HttpEngineReadResponseMethodInterceptor implements AroundIntercepto
             recorder.recordException(throwable);
 
             if (statusCode) {
+                // type check validate();
                 Response response = ((UserResponseGetter) target)._$PINPOINT$_getUserResponse();
                 if (response != null) {
                     recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, response.code());

@@ -77,6 +77,7 @@ public class RequestStartAsyncInterceptor implements AroundInterceptor {
                 final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
                 recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
                 // result is BasicFuture
+                // type check validate()
                 ((AsyncTraceIdAccessor)result)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
                 if (isDebug) {
                     logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
@@ -99,12 +100,12 @@ public class RequestStartAsyncInterceptor implements AroundInterceptor {
         }
 
         if (!(target instanceof AsyncAccessor)) {
-            logger.debug("Invalid target object. Need field accessor({}).", TomcatConstants.METADATA_ASYNC);
+            logger.debug("Invalid target object. Need field accessor({}).", AsyncAccessor.class.getName());
             return false;
         }
 
         if (!(result instanceof AsyncTraceIdAccessor)) {
-            logger.debug("Invalid target object. Need metadata accessor({}).", TomcatConstants.METADATA_ASYNC_TRACE_ID);
+            logger.debug("Invalid target object. Need metadata accessor({}).", AsyncTraceIdAccessor.class.getName());
             return false;
         }
 

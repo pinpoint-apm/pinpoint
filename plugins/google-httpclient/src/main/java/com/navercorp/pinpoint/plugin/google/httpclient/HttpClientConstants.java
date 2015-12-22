@@ -30,6 +30,5 @@ public final class HttpClientConstants {
 
     public static final ServiceType HTTP_CLIENT_INTERNAL = ServiceTypeFactory.of(9054, "GOOGLE_HTTP_CLIENT_INTERNAL", "GOOGLE_HTTP_CLIENT");
     
-    public static final String METADATA_ASYNC_TRACE_ID = "com.navercorp.pinpoint.bootstrap.interceptor.AsyncTraceIdAccessor";
-    public static final String EXECUTE_ASYNC_SCOPE = "ExecuteAsyncScope"; 
+    public static final String EXECUTE_ASYNC_SCOPE = "ExecuteAsyncScope";
 }

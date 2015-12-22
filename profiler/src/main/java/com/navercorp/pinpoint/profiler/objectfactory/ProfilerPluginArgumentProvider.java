@@ -19,8 +19,10 @@ import java.lang.annotation.Annotation;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentorDelegate;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.util.TypeUtils;
 
@@ -29,9 +31,9 @@ import com.navercorp.pinpoint.profiler.util.TypeUtils;
  *
  */
 public class ProfilerPluginArgumentProvider implements ArgumentProvider {
-    private final Instrumentor pluginContext;
+    private final InstrumentContext pluginContext;
 
-    public ProfilerPluginArgumentProvider(Instrumentor pluginContext) {
+    public ProfilerPluginArgumentProvider(InstrumentContext pluginContext) {
         this.pluginContext = pluginContext;
     }
 
@@ -42,21 +44,22 @@ public class ProfilerPluginArgumentProvider implements ArgumentProvider {
         } else if (type == TraceContext.class) {
             return Option.withValue(pluginContext.getTraceContext());
         } else if (type == Instrumentor.class) {
-            return Option.withValue(pluginContext);
-        } else if (type == InterceptorGroup.class) {
+            final InstrumentorDelegate delegate = new InstrumentorDelegate(pluginContext);
+            return Option.withValue(delegate);
+        } else if (type == InterceptorScope.class) {
             Name annotation = TypeUtils.findAnnotation(annotations, Name.class);
             
             if (annotation == null) {
                 return Option.empty();
             }
             
-            InterceptorGroup group = pluginContext.getInterceptorGroup(annotation.value());
+            InterceptorScope scope = pluginContext.getInterceptorScope(annotation.value());
             
-            if (group == null) {
-                throw new PinpointException("No such Group: " + annotation.value());
+            if (scope == null) {
+                throw new PinpointException("No such Scope: " + annotation.value());
             }
             
-            return Option.withValue(group);
+            return Option.withValue(scope);
         }
         
         return Option.empty();

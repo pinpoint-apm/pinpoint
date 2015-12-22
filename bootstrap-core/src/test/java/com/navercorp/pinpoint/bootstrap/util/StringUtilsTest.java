@@ -62,7 +62,7 @@ public class StringUtilsTest {
         try {
             StringUtils.drop(longString, -4);
             Assert.fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
         } catch (Exception e) {
             Assert.fail();
         }
@@ -73,7 +73,7 @@ public class StringUtilsTest {
         try {
             StringUtils.drop(shortString, -4);
             Assert.fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
         } catch (Exception e) {
             Assert.fail();
         }

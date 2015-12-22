@@ -23,29 +23,29 @@ import java.util.List;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.DynamicTransformService;
 import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
-import com.navercorp.pinpoint.profiler.interceptor.group.DefaultInterceptorGroup;
+import com.navercorp.pinpoint.profiler.interceptor.scope.DefaultInterceptorScope;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.profiler.util.NameValueList;
 
-public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, Instrumentor {
+public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, InstrumentContext {
     private final DefaultAgent agent;
     private final ClassInjector classInjector;
     
     private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
     private final List<ClassFileTransformer> classTransformers = new ArrayList<ClassFileTransformer>();
     
-    private final NameValueList<InterceptorGroup> interceptorGroups = new NameValueList<InterceptorGroup>();
+    private final NameValueList<InterceptorScope> interceptorScopeList = new NameValueList<InterceptorScope>();
     
     public DefaultProfilerPluginContext(DefaultAgent agent, ClassInjector classInjector) {
         if (agent == null) {
@@ -168,17 +168,17 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     }
 
     @Override
-    public InterceptorGroup getInterceptorGroup(String name) {
+    public InterceptorScope getInterceptorScope(String name) {
         if (name == null) {
             throw new NullPointerException("name must not be null");
         }
-        InterceptorGroup group = interceptorGroups.get(name);
+        InterceptorScope scope = interceptorScopeList.get(name);
         
-        if (group == null) {
-            group = new DefaultInterceptorGroup(name);
-            interceptorGroups.add(name, group);
+        if (scope == null) {
+            scope = new DefaultInterceptorScope(name);
+            interceptorScopeList.add(name, scope);
         }
         
-        return group;
+        return scope;
     }
 }

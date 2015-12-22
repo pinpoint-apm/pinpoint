@@ -47,7 +47,7 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
         }
 
         Cell[] rawCells = result.rawCells();
-        List<Dot> list = new ArrayList<Dot>(rawCells.length);
+        List<Dot> list = new ArrayList<>(rawCells.length);
         for (Cell cell : rawCells) {
             final Dot dot = createDot(cell);
             list.add(dot);

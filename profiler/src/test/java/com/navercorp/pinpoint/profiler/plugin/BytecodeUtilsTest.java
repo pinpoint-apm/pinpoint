@@ -22,8 +22,6 @@ import org.junit.Test;
 
 import com.navercorp.pinpoint.test.util.BytecodeUtils;
 
-import static org.junit.Assert.*;
-
 public class BytecodeUtilsTest {
 
     @Test

@@ -29,7 +29,7 @@ public class ListenableDataSender<T extends TBase<?, ?>> implements DataSender {
         public boolean handleSend(TBase<?, ?> data) {
             return true;
         }
-    };;
+    };
     private volatile Listener listener = DEFAULT_LISTENER;
 
     public ListenableDataSender() {
@@ -57,7 +57,7 @@ public class ListenableDataSender<T extends TBase<?, ?>> implements DataSender {
         return true;
     }
 
-    public static interface Listener {
+    public interface Listener {
         boolean handleSend(TBase<?, ?> data);
     }
 }

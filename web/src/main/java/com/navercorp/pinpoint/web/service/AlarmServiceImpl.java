@@ -15,13 +15,18 @@
  */
 package com.navercorp.pinpoint.web.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
+import com.navercorp.pinpoint.web.alarm.vo.CheckerResult;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
+import com.navercorp.pinpoint.web.vo.UserGroup;
 
 /**
  * @author minwoo.jung
@@ -58,5 +63,43 @@ public class AlarmServiceImpl implements AlarmService {
         alarmDao.updateRule(rule);
     }
 
+    @Override
+    public Map<String, CheckerResult> selectBeforeCheckerResults(String applicationId) {
+        Map<String, CheckerResult> checkerResults = new HashMap<>();
+        List<CheckerResult> CheckerResultList = alarmDao.selectBeforeCheckerResultList(applicationId);
+        
+        if (CheckerResultList.size() > 0) {
+            for (CheckerResult checkerResult : CheckerResultList) {
+                checkerResults.put(checkerResult.getCheckerName(), checkerResult);
+            }
+        }
+        
+        return checkerResults;
+    }
+
+    @Override
+    public void updateBeforeCheckerResult(CheckerResult beforeCheckerResult, AlarmChecker checker) {
+        alarmDao.deleteCheckerResult(beforeCheckerResult);
+        
+        if (checker.isDetected()) {
+            beforeCheckerResult.setDetected(true);
+            beforeCheckerResult.increseCount();
+            alarmDao.insertCheckerResult(beforeCheckerResult);
+        } else {
+            alarmDao.insertCheckerResult(new CheckerResult(checker.getRule().getApplicationId(), checker.getRule().getCheckerName(), false, 0, 1));
+        }
+        
+         
+    }
+
+    @Override
+    public void deleteRuleByUserGroupId(String groupId) {
+        alarmDao.deleteRuleByUserGroupId(groupId);
+    }
+
+    @Override
+    public void updateUserGroupIdOfRule(UserGroup userGroup) {
+        alarmDao.updateUserGroupIdOfRule(userGroup);
+    }
 
 }

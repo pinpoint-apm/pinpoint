@@ -42,8 +42,6 @@ public interface RecordableTrace {
     
     short getServiceType();
 
-    TraceType getTraceType();
-
     void recordException(Throwable throwable);
 
     void recordApi(MethodDescriptor methodDescriptor);

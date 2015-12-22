@@ -25,27 +25,25 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  */
 public class OkHttpPluginConfig {
 
+    private boolean param = false;
     private boolean cookie = false;
     private DumpType cookieDumpType = DumpType.EXCEPTION;
     private int cookieSamplingRate = 1;
-    private boolean entity = false;
-    private DumpType entityDumpType = DumpType.EXCEPTION;
-    private int entitySamplingRate = 1;
     private boolean statusCode = true;
 
     private final boolean async;
 
     public OkHttpPluginConfig(ProfilerConfig src) {
+        this.param = src.readBoolean("profiler.okhttp.param", false);
         this.cookie = src.readBoolean("profiler.okhttp.cookie", false);
         this.cookieDumpType = src.readDumpType("profiler.okhttp.cookie.dumptype", DumpType.EXCEPTION);
         this.cookieSamplingRate = src.readInt("profiler.okhttp.cookie.sampling.rate", 1);
-
-        this.entity = src.readBoolean("profiler.okhttp.entity", false);
-        this.entityDumpType = src.readDumpType("profiler.okhttp.entity.dumptype", DumpType.EXCEPTION);
-        this.entitySamplingRate = src.readInt("profiler.okhttp.entity.sampling.rate", 1);
-
         this.statusCode = src.readBoolean("profiler.okhttp.entity.statuscode", true);
         this.async = src.readBoolean("profiler.okhttp.async", true);
+    }
+
+    public boolean isParam() {
+        return param;
     }
 
     public boolean isAsync() {
@@ -64,18 +62,6 @@ public class OkHttpPluginConfig {
         return cookieSamplingRate;
     }
 
-    public boolean isEntity() {
-        return entity;
-    }
-
-    public DumpType getEntityDumpType() {
-        return entityDumpType;
-    }
-
-    public int getEntitySamplingRate() {
-        return entitySamplingRate;
-    }
-
     public boolean isStatusCode() {
         return statusCode;
     }
@@ -83,12 +69,10 @@ public class OkHttpPluginConfig {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("OkHttpPluginConfig{");
-        sb.append("cookie=").append(cookie);
+        sb.append("param=").append(param);
+        sb.append(", cookie=").append(cookie);
         sb.append(", cookieDumpType=").append(cookieDumpType);
         sb.append(", cookieSamplingRate=").append(cookieSamplingRate);
-        sb.append(", entity=").append(entity);
-        sb.append(", entityDumpType=").append(entityDumpType);
-        sb.append(", entitySamplingRate=").append(entitySamplingRate);
         sb.append(", statusCode=").append(statusCode);
         sb.append(", async=").append(async);
         sb.append('}');

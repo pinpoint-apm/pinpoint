@@ -21,5 +21,5 @@ import java.lang.annotation.Annotation;
  *
  */
 public interface ArgumentProvider {
-    public Option get(int index, Class<?> type, Annotation[] annotations);
+    Option get(int index, Class<?> type, Annotation[] annotations);
 }

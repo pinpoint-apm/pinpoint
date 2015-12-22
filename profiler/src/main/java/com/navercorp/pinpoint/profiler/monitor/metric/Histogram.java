@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.bootstrap.context.Metric;
 public interface Histogram extends Metric {
     short getServiceType();
 
-    void addResponseTime(int millis);
+    void addResponseTime(int millis, boolean error);
 
     HistogramSnapshot createSnapshot();
 }

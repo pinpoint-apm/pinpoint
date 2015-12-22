@@ -46,7 +46,7 @@
 	        return {
 	            restrict: 'EA',
 	            replace: true,
-	            templateUrl: 'features/serverMap/serverMap.html',
+	            templateUrl: 'features/serverMap/serverMap.html?v=' + G_BUILD_TIME,
 	            link: function postLink(scope, element, attrs) {
 	
 	                // define private variables
@@ -222,7 +222,7 @@
 	                 * @param mapData
 	                 */
 	                emitDataExisting = function (mapData) {
-	                    if (mapData.applicationMapData.nodeDataArray.length === 0 || mapData.applicationMapData.linkDataArray.length === 0) {
+	                    if (mapData.applicationMapData.nodeDataArray.length === 0 ) {
 	                        scope.$emit('serverMapDirective.hasNoData');
 	                    } else {
 	                        scope.$emit('serverMapDirective.hasData');
@@ -234,7 +234,9 @@
 	                 * @param top
 	                 * @param left
 	                 */
-	                setNodeContextMenuPosition = function (top, left) {
+	                setNodeContextMenuPosition = function (top, left, applicationName, category) {
+	                	scope.inspectApplicationName = applicationName;
+						scope.inspectCategory = category;
 	                    scope.nodeContextMenuStyle = {
 	                        display: 'block',
 	                        'top': top,
@@ -352,13 +354,16 @@
 	                        sLastSelection = 'node';
 	                        htLastNode = node;
 	                        scope.$emit("serverMapDirective.nodeClicked", e, htLastQuery, node, htLastMergedMapData, searchQuery);
-	                        $rootScope.$broadcast("realtimeChartController.initialize", node.isWas, node.applicationName );
+							if ( scope.oNavbarVoService !== null ) {
+								$rootScope.$broadcast("realtimeChartController.initialize", node.isWas, node.applicationName, scope.oNavbarVoService.getApplication() + "/" + scope.oNavbarVoService.getReadablePeriod() + "/" + scope.oNavbarVoService.getQueryEndDateTime() + "/" + scope.oNavbarVoService.getCallerRange());
+							}
 	                        reset();
 	                    };
 	                    options.fOnNodeDoubleClicked = function(e, node, htData ) {
 	                    	e.diagram.zoomToRect( node.actualBounds, 1.2);
 	                    };
 	                    options.fOnNodeContextClicked = function (e, node) {
+	                    	console.log("node context click : ", node );
 	                        reset();
 	                        var originalNode = ServerMapDaoService.getNodeDataByKey(htLastMapData.applicationMapData, node.key);
 	                        if (originalNode) {
@@ -369,9 +374,9 @@
 //	                            return;
 //	                        }
 	                        if (node.isWas === true) {
-	                            setNodeContextMenuPosition(e.event.layerY, e.event.layerX);
+								setNodeContextMenuPosition(e.event.layerY, e.event.layerX, node.applicationName, node.category);
 	                        }
-	                        scope.$emit("serverMapDirective.nodeContextClicked", e, query, node, applicationMapData);
+//	                        scope.$emit("serverMapDirective.nodeContextClicked", e, query, node, applicationMapData);
 	                    };
 	                    options.fOnLinkClicked = function (e, link) {
 	                        var originalLink;

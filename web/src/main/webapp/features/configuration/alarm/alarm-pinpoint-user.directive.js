@@ -13,7 +13,7 @@
         return {
             restrict: 'EA',
             replace: true,
-            templateUrl: 'features/configuration/alarm/alarmPinpointUser.html',
+            templateUrl: 'features/configuration/alarm/alarmPinpointUser.html?v=' + G_BUILD_TIME,
             scope: true,
             link: function (scope, element) {
             	var $element = $(element);
@@ -33,7 +33,7 @@
     			var $elEditInputEmail = $elEdit.find("input[name=email]");
     			var $elEditGuide = $elEdit.find(".title-message");
     			var $removeTemplate = $([
-    	           '<span class="right">',
+    	           '<span class="position:absolute;right:0px">',
     	               '<button class="btn btn-danger confirm-cancel"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>',
     	               '<button class="btn btn-danger confirm-remove" style="margin-left:2px;"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>',
        			   '</span>'
@@ -62,6 +62,7 @@
     					}
     				} else if ( tagName == "span" ) {
     					if ( $target.hasClass("remove") ) {
+    						if ( isRemoving == true ) return;
     	    				isRemoving = true;
     	    				$li.addClass("remove").find("span.remove").hide().end().find("button.move").addClass("disabled").end().append($removeTemplate);
     					} else if ( $target.hasClass("contents") ) {

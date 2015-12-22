@@ -22,8 +22,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.thrift.TBase;
 
-import com.navercorp.pinpoint.profiler.sender.DataSender;
-
 /**
  * @author hyungil.jeong
  */

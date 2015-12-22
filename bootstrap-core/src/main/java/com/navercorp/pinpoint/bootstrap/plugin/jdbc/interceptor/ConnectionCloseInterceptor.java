@@ -16,7 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -26,7 +27,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
  * @author emeroad
  */
 @TargetMethod(name="close")
-public class ConnectionCloseInterceptor implements BeforeInterceptor {
+public class ConnectionCloseInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -37,6 +38,14 @@ public class ConnectionCloseInterceptor implements BeforeInterceptor {
             logger.beforeInterceptor(target, args);
         }
         // In case of close, we have to delete data even if the invocation failed.
-        ((DatabaseInfoAccessor)target)._$PINPOINT$_setDatabaseInfo(null);
+        if (target instanceof DatabaseInfoAccessor) {
+            ((DatabaseInfoAccessor) target)._$PINPOINT$_setDatabaseInfo(null);
+        }
+    }
+
+    @IgnoreMethod
+    @Override
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+
     }
 }

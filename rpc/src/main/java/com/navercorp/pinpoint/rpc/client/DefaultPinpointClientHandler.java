@@ -65,7 +65,6 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     private long timeoutMillis = DEFAULT_TIMEOUTMILLIS;
     private long pingDelay = DEFAULT_PING_DELAY;
     
-    private long handshakeRetryInterval = DEFAULT_ENABLE_WORKER_PACKET_DELAY;
     private int maxHandshakeCount = DEFAULT_ENABLE_WORKER_PACKET_RETRY_COUNT;
     
     private final Timer channelTimer;
@@ -528,7 +527,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
     private void closeStreamChannelManager(Channel channel) {
         if (channel == null) {
-            logger.debug("channel already set null. skip closeStreamChannelManager() {}", channel);
+            logger.debug("channel already set null. skip closeStreamChannelManager().");
             return;
         }
 

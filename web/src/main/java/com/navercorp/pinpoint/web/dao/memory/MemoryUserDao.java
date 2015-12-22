@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.web.vo.User;
 @Repository
 public class MemoryUserDao implements UserDao {
 
-    private final Map<String, User> users = new ConcurrentHashMap<String, User>();
+    private final Map<String, User> users = new ConcurrentHashMap<>();
     private final AtomicInteger userNumGenerator  = new AtomicInteger(); 
     
     @Override

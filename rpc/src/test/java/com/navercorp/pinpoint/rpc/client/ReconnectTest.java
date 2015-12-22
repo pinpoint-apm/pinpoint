@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -46,7 +47,7 @@ public class ReconnectTest {
     
     @BeforeClass
     public static void setUp() throws IOException {
-        bindPort = PinpointRPCTestUtils.findAvailablePort();
+        bindPort = SocketUtils.findAvailableTcpPort();
         
         clientFactory = new PinpointClientFactory();
         clientFactory.setReconnectDelay(200);

@@ -47,7 +47,7 @@ public final class ClientFactoryUtils {
                 LOGGER.info("tcp connect success. remote:{}", connectAddress);
                 return pinpointClient;
             } catch (PinpointSocketException e) {
-                LOGGER.warn("tcp connect fail. retmoe:{} try reconnect, retryCount:{}", connectAddress, i);
+                LOGGER.warn("tcp connect fail. remote:{} try reconnect, retryCount:{}", connectAddress, i);
             }
         }
         LOGGER.warn("change background tcp connect mode remote:{} ", connectAddress);

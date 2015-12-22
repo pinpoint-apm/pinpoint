@@ -16,10 +16,6 @@
 
 package com.navercorp.pinpoint.web.alarm;
 
-import org.junit.Assert;
-
-import org.junit.Test;
-
 public class MainCategoryTest {
 
 //    @Test

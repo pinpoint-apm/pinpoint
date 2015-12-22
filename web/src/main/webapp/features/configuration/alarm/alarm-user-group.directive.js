@@ -13,7 +13,7 @@
 	        return {
 	            restrict: 'EA',
 	            replace: true,
-	            templateUrl: 'features/configuration/alarm/alarmUserGroup.html',
+	            templateUrl: 'features/configuration/alarm/alarmUserGroup.html?v=' + G_BUILD_TIME,
 	            scope: true,
 	            link: function (scope, element) {
 	            	scope.prefix = "alarmUserGroup_";
@@ -37,8 +37,8 @@
 	    			var $elTotal = $element.find(".total");
 	    			var $elLoading = $element.find(".some-loading");
 	    			var $elAlert = $element.find(".some-alert");
-	    			var $elFilterInput = $element.find("div.filter-input input");
-	    			var $elFilterEmpty = $element.find("div.filter-input button.trash");
+	    			var $elSearchInput = $element.find("div.filter-input input");
+	    			var $elSearchEmpty = $element.find("div.filter-input button.trash");
 	    			var $elEdit = $element.find(".some-edit-content");
 	    			var $elEditInput = $elEdit.find("input");
 	    			var $elEditGuide = $elEdit.find(".title-message");
@@ -65,6 +65,7 @@
 	    					}
 	    				} else if ( tagName == "span" ) {
 	    					if ( $target.hasClass("remove") ) {
+	    						if ( isRemoving == true ) return;
 	    						isRemoving = true;
 	    	    				$li.addClass("remove").find("span.remove").hide().end().append($removeTemplate);
 	    					} else if ( $target.hasClass("contents") ) {
@@ -82,7 +83,7 @@
 	    			});
 	    			function reset() {
 	    				alarmUtilService.unsetFilterBackground( $elWrapper );
-	    				$elFilterInput.val("");
+	    				$elSearchInput.val("");
 	    			}
 	    			
 	    			function removeConfirm( $el ) {
@@ -160,8 +161,9 @@
 	    					isRemoving = false;					
 	    				}, function( errorData ) {}, $elAlert );
 	    			}
-	    			function loadGroupList( isFirst ) {
-	    				alarmUtilService.sendCRUD( "getUserGroupList", { "userId" : (globalConfig.userId || "") }, function( resultData ) {
+	    			function loadGroupList( isFirst, sParam ) {
+	    				alarmUtilService.sendCRUD( "getUserGroupList", 
+	    						angular.isUndefined(sParam) || sParam == "" ? { "userId" : (globalConfig.userId || "") } : { "userGroupId" : sParam }, function( resultData ) {
 	    					// @TODO
 	    					// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
 	    					isLoadedUserGroupList = true;
@@ -188,7 +190,7 @@
 	    				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_REFRESH_USER_GROUP );
 	    				reset();
 	    				alarmUtilService.showLoading( $elLoading, false );
-	    				loadGroupList( false );
+	    				loadGroupList( false, $.trim( $elSearchInput.val() ) );
 	    			};
 	    			scope.onCreate = function() {
 	    				if ( isRemoving == true ) return;
@@ -212,51 +214,17 @@
 	    				alarmUtilService.show( $elEdit );
 	    				$elEditInput.focus().select();
 	    			};
-	    			scope.onInputFilter = function($event) {
+	    			scope.onSearch = function() {
 	    				if ( isRemoving == true ) return;
-	    				
-	    				if ( $event.keyCode == 13 ) { // Enter
-	    					scope.onFilterGroup();
-	    					return;
-	    				}
-	    				if ($.trim( $elFilterInput.val() ).length >= 3 ) {
-	    					$elFilterEmpty.removeClass("disabled");
-	    				} else {
-	    					$elFilterEmpty.addClass("disabled");
-	    				}
-	    			};
-	    			scope.onFilterGroup = function() {
-	    				if ( isRemoving == true ) return;
-	    				var query = $.trim( $elFilterInput.val() );
+	    				var query = $.trim( $elSearchInput.val() );
 	    				if ( query.length != 0 && query.length < 3 ) {
 	    					alarmUtilService.showLoading( $elLoading, false );
 	    					alarmUtilService.showAlert( $elAlert, "You must enter at least three characters.");
 	    					return;
 	    				}
 	    				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_FILTER_USER_GROUP );
-	    				if ( query == "" ) {
-	    					if ( scope.userGroupList.length != userGroupList.length ) {
-	    						scope.userGroupList = userGroupList;
-	    						alarmUtilService.unsetFilterBackground( $elWrapper );
-	    					}
-	    					$elFilterEmpty.addClass("disabled");
-	    				} else {
-	    					var newFilterUserGroup = [];
-	    					var length = userGroupList.length;
-	    					for( var i = 0 ; i < userGroupList.length ; i++ ) {
-	    						if ( userGroupList[i].id.indexOf( query ) != -1 ) {
-	    							newFilterUserGroup.push( userGroupList[i] );
-	    						}
-	    					}
-	    					scope.userGroupList = newFilterUserGroup;
-	    					alarmUtilService.setFilterBackground( $elWrapper );
-	    				}
-	    			};
-	    			scope.onFilterEmpty = function() {
-	    				if ( isRemoving == true ) return;
-	    				if ( $.trim( $elFilterInput.val() ) == "" ) return;
-	    				$elFilterInput.val("");
-	    				scope.onFilterGroup();
+	    				alarmUtilService.showLoading( $elLoading, false );
+	    				loadGroupList( false, query );
 	    			};
 	    			scope.onInputEdit = function($event) {
 	    				if ( $event.keyCode == 13 ) { // Enter

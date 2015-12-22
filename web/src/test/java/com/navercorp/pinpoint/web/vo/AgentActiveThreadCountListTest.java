@@ -80,4 +80,26 @@ public class AgentActiveThreadCountListTest {
 
     }
 
+    @Test
+    public void testOrderName() throws Exception {
+        String hostName1 = "hostName1";
+        String hostName2 = "hostName2";
+        String hostName3 = "hostName3";
+
+        AgentActiveThreadCount status1 = new AgentActiveThreadCount(hostName1);
+        AgentActiveThreadCount status2 = new AgentActiveThreadCount(hostName2);
+        AgentActiveThreadCount status3 = new AgentActiveThreadCount(hostName3);
+
+        AgentActiveThreadCountList list = new AgentActiveThreadCountList(5);
+        list.add(status2);
+        list.add(status3);
+        list.add(status1);
+
+        final List<AgentActiveThreadCount> sortedList = list.getAgentActiveThreadRepository();
+
+        Assert.assertEquals(sortedList.get(0).getAgentId(), "hostName1");
+        Assert.assertEquals(sortedList.get(1).getAgentId(), "hostName2");
+        Assert.assertEquals(sortedList.get(2).getAgentId(), "hostName3");
+    }
+
 }

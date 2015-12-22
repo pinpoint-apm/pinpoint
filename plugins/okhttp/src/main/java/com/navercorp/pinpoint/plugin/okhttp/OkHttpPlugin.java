@@ -20,9 +20,12 @@ import java.security.ProtectionDomain;
 import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
@@ -32,8 +35,10 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  * @author jaehong.kim
  *
  */
-public class OkHttpPlugin implements ProfilerPlugin {
+public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
+    private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
@@ -41,21 +46,21 @@ public class OkHttpPlugin implements ProfilerPlugin {
         logger.debug("[OkHttp] Initialized config={}", config);
 
         logger.debug("[OkHttp] Add Call class.");
-        addCall(context, config);
+        addCall();
         logger.debug("[OkHttp] Add Dispatcher class.");
-        addDispatcher(context, config);
+        addDispatcher();
         logger.debug("[OkHttp] Add AsyncCall class.");
-        addAsyncCall(context, config);
-        addHttpEngine(context, config);
-        addRequestBuilder(context, config);
+        addAsyncCall();
+        addHttpEngine(config);
+        addRequestBuilder();
     }
 
-    private void addCall(ProfilerPluginSetupContext context, final OkHttpPluginConfig config) {
-        context.addClassFileTransformer("com.squareup.okhttp.Call", new TransformCallback() {
+    private void addCall() {
+        transformTemplate.transform("com.squareup.okhttp.Call", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("execute", "enqueue", "cancel"))) {
                     method.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.CallMethodInterceptor");
@@ -66,19 +71,19 @@ public class OkHttpPlugin implements ProfilerPlugin {
         });
     }
 
-    private void addDispatcher(ProfilerPluginSetupContext context, final OkHttpPluginConfig config) {
-        context.addClassFileTransformer("com.squareup.okhttp.Dispatcher", new TransformCallback() {
+    private void addDispatcher() {
+        transformTemplate.transform("com.squareup.okhttp.Dispatcher", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                for(InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("execute", "cancel"))) {
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("execute", "cancel"))) {
                     logger.debug("[OkHttp] Add Dispatcher.execute | cancel interceptor.");
-                    method.addInterceptor(OkHttpConstants.BASIC_METHOD_INTERCEPTOR, va(OkHttpConstants.OK_HTTP_CLIENT_INTERNAL));
+                    method.addInterceptor(BasicMethodInterceptor.class.getName(), va(OkHttpConstants.OK_HTTP_CLIENT_INTERNAL));
                 }
                 InstrumentMethod enqueueMethod = target.getDeclaredMethod("enqueue", "com.squareup.okhttp.Call$AsyncCall");
-                if(enqueueMethod != null) {
+                if (enqueueMethod != null) {
                     logger.debug("[OkHttp] Add Dispatcher.enqueue interceptor.");
                     enqueueMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.DispatcherEnqueueMethodInterceptor");
                 }
@@ -88,16 +93,16 @@ public class OkHttpPlugin implements ProfilerPlugin {
         });
     }
 
-    private void addAsyncCall(ProfilerPluginSetupContext context, final OkHttpPluginConfig config) {
-        context.addClassFileTransformer("com.squareup.okhttp.Call$AsyncCall", new TransformCallback() {
+    private void addAsyncCall() {
+        transformTemplate.transform("com.squareup.okhttp.Call$AsyncCall", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(AsyncTraceIdAccessor.class.getName());
 
                 InstrumentMethod executeMethod = target.getDeclaredMethod("execute");
-                if(executeMethod != null) {
+                if (executeMethod != null) {
                     logger.debug("[OkHttp] Add AsyncCall.execute interceptor.");
                     executeMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.AsyncCallExecuteMethodInterceptor");
                 }
@@ -107,31 +112,32 @@ public class OkHttpPlugin implements ProfilerPlugin {
         });
     }
 
-    private void addHttpEngine(final ProfilerPluginSetupContext context, final OkHttpPluginConfig config) {
-        context.addClassFileTransformer("com.squareup.okhttp.internal.http.HttpEngine", new TransformCallback() {
+    private void addHttpEngine(final OkHttpPluginConfig config) {
+        transformTemplate.transform("com.squareup.okhttp.internal.http.HttpEngine", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
-                target.addGetter(UserRequestGetter.class.getName(), OkHttpConstants.FIELD_USER_REQUEST);
-                target.addGetter(UserResponseGetter.class.getName(), OkHttpConstants.FIELD_USER_RESPONSE);
-                target.addGetter(ConnectionGetter.class.getName(), OkHttpConstants.FIELD_CONNECTION);
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                target.addGetter(OkHttpConstants.USER_REQUEST_GETTER, OkHttpConstants.FIELD_USER_REQUEST);
+                target.addGetter(OkHttpConstants.USER_RESPONSE_GETTER, OkHttpConstants.FIELD_USER_RESPONSE);
+                target.addGetter(OkHttpConstants.CONNECTION_GETTER, OkHttpConstants.FIELD_CONNECTION);
 
                 InstrumentMethod sendRequestMethod = target.getDeclaredMethod("sendRequest");
-                if(sendRequestMethod != null) {
+                if (sendRequestMethod != null) {
+
                     logger.debug("[OkHttp] Add HttpEngine.sendRequest interceptor.");
-                    final ObjectRecipe objectRecipe = ObjectRecipe.byConstructor("com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig", context.getConfig());
-                    sendRequestMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.HttpEngineSendRequestMethodInterceptor", va(objectRecipe));
+                    final ObjectFactory objectFactory = ObjectFactory.byConstructor("com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig", instrumentor.getProfilerConfig());
+                    sendRequestMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.HttpEngineSendRequestMethodInterceptor", va(objectFactory));
                 }
 
                 InstrumentMethod connectMethod = target.getDeclaredMethod("connect");
-                if(connectMethod != null) {
+                if (connectMethod != null) {
                     logger.debug("[OkHttp] Add HttpEngine.connect interceptor.");
                     connectMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.HttpEngineConnectMethodInterceptor");
                 }
 
                 InstrumentMethod readResponseMethod = target.getDeclaredMethod("readResponse");
-                if(readResponseMethod != null) {
+                if (readResponseMethod != null) {
                     logger.debug("[OkHttp] Add HttpEngine.connect interceptor.");
                     readResponseMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.HttpEngineReadResponseMethodInterceptor", va(config.isStatusCode()));
                 }
@@ -141,22 +147,34 @@ public class OkHttpPlugin implements ProfilerPlugin {
         });
     }
 
-    private void addRequestBuilder(ProfilerPluginSetupContext context, final OkHttpPluginConfig config) {
-        context.addClassFileTransformer("com.squareup.okhttp.Request$Builder", new TransformCallback() {
+    private void addRequestBuilder() {
+        transformTemplate.transform("com.squareup.okhttp.Request$Builder", new TransformCallback() {
 
             @Override
-            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
-                target.addGetter(HttpUrlGetter.class.getName(), OkHttpConstants.FIELD_HTTP_URL);
-
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 InstrumentMethod buildMethod = target.getDeclaredMethod("build");
-                if(buildMethod != null) {
+                if (buildMethod != null) {
                     logger.debug("[OkHttp] Add Request.Builder.build interceptor.");
-                    buildMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.RequestBuilderBuildMethodInterceptor");
+
+                    if(instrumentor.exist(loader, "com.squareup.okhttp.HttpUrl")) {
+                        // over 2.4.0
+                        target.addGetter(OkHttpConstants.HTTP_URL_GETTER, OkHttpConstants.FIELD_HTTP_URL);
+                        buildMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.RequestBuilderBuildMethodInterceptor");
+                    } else {
+                        // 2.0 ~ 2.3
+                        target.addGetter(OkHttpConstants.URL_GETTER, OkHttpConstants.FIELD_HTTP_URL);
+                        buildMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.RequestBuilderBuildMethodBackwardCompatibilityInterceptor");
+                    }
                 }
 
                 return target.toBytecode();
             }
         });
+    }
+
+    @Override
+    public void setTransformTemplate(TransformTemplate transformTemplate) {
+        this.transformTemplate = transformTemplate;
     }
 }

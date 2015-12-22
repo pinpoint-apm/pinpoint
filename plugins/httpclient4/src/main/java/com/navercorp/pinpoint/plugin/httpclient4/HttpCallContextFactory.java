@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.httpclient4;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.group.AttachmentFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.AttachmentFactory;
 
 /**
  * @author emeroad

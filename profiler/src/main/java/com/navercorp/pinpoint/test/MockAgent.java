@@ -23,6 +23,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.profiler.plugin.GuardProfilerPluginContext;
 import org.apache.thrift.TBase;
 
@@ -55,7 +59,8 @@ import com.navercorp.pinpoint.thrift.dto.TAnnotation;
  * @author hyungil.jeong
  */
 public class MockAgent extends DefaultAgent {
-    
+
+
     public static MockAgent of(String configPath) {
         ProfilerConfig profilerConfig = null;
         try {
@@ -63,7 +68,7 @@ public class MockAgent extends DefaultAgent {
             if (resource == null) {
                 throw new FileNotFoundException("pinpoint.config not found. configPath:" + configPath);
             }
-            profilerConfig = ProfilerConfig.load(resource.getPath());
+            profilerConfig = DefaultProfilerConfig.load(resource.getPath());
             profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
         } catch (IOException ex) {
             throw new RuntimeException(ex.getMessage(), ex);
@@ -130,6 +135,7 @@ public class MockAgent extends DefaultAgent {
             final DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(this, classInjector);
             final GuardProfilerPluginContext guard = new GuardProfilerPluginContext(context);
             try {
+                preparePlugin(plugin, context);
                 plugin.setup(guard);
             } finally {
                 guard.close();
@@ -141,6 +147,20 @@ public class MockAgent extends DefaultAgent {
         return pluginContexts;
 
     }
+
+    /**
+     * TODO duplicated code : com/navercorp/pinpoint/profiler/plugin/ProfilerPluginLoader.java
+     * @param plugin
+     * @param context
+     */
+    private void preparePlugin(ProfilerPlugin plugin, InstrumentContext context) {
+
+        if (plugin instanceof TransformTemplateAware) {
+            final TransformTemplate transformTemplate = new TransformTemplate(context);
+            ((TransformTemplateAware) plugin).setTransformTemplate(transformTemplate);
+        }
+    }
+
 
     public static String toString(Span span) {
         StringBuilder builder = new StringBuilder();

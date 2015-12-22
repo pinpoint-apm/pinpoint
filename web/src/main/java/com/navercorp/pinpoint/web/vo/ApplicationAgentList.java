@@ -20,22 +20,60 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.view.ApplicationAgentListSerializer;
 
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * @author minwoo.jung
+ * @author HyunGil Jeong
  */
 @JsonSerialize(using = ApplicationAgentListSerializer.class)
 public class ApplicationAgentList {
 
-    SortedMap<String, List<AgentInfo>> applicationAgentList;
-    
+    public enum Key {
+        APPLICATION_NAME {
+            @Override
+            public String getKey(AgentInfo agentInfo) {
+                return agentInfo.getApplicationName();
+            }
+        },
+        HOST_NAME {
+            @Override
+            public String getKey(AgentInfo agentInfo) {
+                return agentInfo.getHostName();
+            }
+        };
+
+        public abstract String getKey(AgentInfo agentInfo);
+    }
+
+    private final SortedMap<String, List<AgentInfo>> applicationAgentList;
+
+    public ApplicationAgentList() {
+        this.applicationAgentList = new TreeMap<>();
+    }
+
     public ApplicationAgentList(SortedMap<String, List<AgentInfo>> applicationAgentList) {
+        if (applicationAgentList == null) {
+            throw new NullPointerException("applicationAgentList must not be null");
+        }
         this.applicationAgentList = applicationAgentList;
     }
-    
+
+    public void merge(ApplicationAgentList applicationAgentList) {
+        for (Map.Entry<String, List<AgentInfo>> e : applicationAgentList.getApplicationAgentList().entrySet()) {
+            String key = e.getKey();
+            if (this.applicationAgentList.containsKey(key)) {
+                this.applicationAgentList.get(key).addAll(e.getValue());
+            } else {
+                this.applicationAgentList.put(key, e.getValue());
+            }
+        }
+    }
+
     public SortedMap<String, List<AgentInfo>> getApplicationAgentList() {
         return this.applicationAgentList;
     }
-    
+
 }

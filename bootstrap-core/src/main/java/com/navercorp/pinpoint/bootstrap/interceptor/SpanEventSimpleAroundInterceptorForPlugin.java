@@ -35,6 +35,12 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Aroun
     protected final TraceContext traceContext;
 
     protected SpanEventSimpleAroundInterceptorForPlugin(TraceContext traceContext, MethodDescriptor descriptor) {
+        if (traceContext == null) {
+            throw new NullPointerException("traceContext must not be null");
+        }
+        if (descriptor == null) {
+            throw new NullPointerException("descriptor must not be null");
+        }
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
     }

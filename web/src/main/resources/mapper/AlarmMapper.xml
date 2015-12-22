@@ -4,7 +4,7 @@
 <mapper namespace="com.navercorp.pinpoint.web.dao.AlarmDao">
 
     <insert id="insertRule" parameterType="Rule" useGeneratedKeys="true" keyProperty="ruleId">
-        INSERT INTO alarm_rule(application_id, service_type, checker_name, threshold, user_group_id, sms_send, email_send, notes)
+        INSERT INTO alarm_rule (application_id, service_type, checker_name, threshold, user_group_id, sms_send, email_send, notes)
         VALUES
             (#{applicationId}, #{serviceType}, #{checkerName}, #{threshold}, #{userGroupId}, #{smsSend}, #{emailSend}, #{notes})
     </insert>
@@ -38,4 +38,29 @@
         SET application_id = #{applicationId}, service_type = #{serviceType}, checker_name = #{checkerName}, threshold = #{threshold}, user_group_id = #{userGroupId}, sms_send = #{smsSend}, email_send = #{emailSend}, notes = #{notes} 
         WHERE rule_id = #{ruleId}
     </update>
+    
+    <update id="updateUserGroupIdOfRule" parameterType="UserGroup">
+        UPDATE alarm_rule
+        SET user_group_id = #{id} 
+        WHERE user_group_id = (SELECT id FROM user_group WHERE number = #{number})
+    </update>
+    
+    <select id="selectBeforeCheckerResultList" resultType="ChecherResult">
+        SELECT *
+        FROM alarm_history
+        WHERE application_id = #{applicationId}
+    </select>
+    
+    <delete id="deleteCheckerResult" parameterType="ChecherResult">
+        DELETE
+        FROM alarm_history
+        WHERE application_id = #{applicationId} AND checker_name = #{checkerName}
+    </delete>
+    
+    <insert id="insertCheckerResult" parameterType="ChecherResult">
+        INSERT INTO alarm_history (application_id, checker_name, detected, sequence_count, timing_count)
+        VALUES
+            (#{applicationId}, #{checkerName}, #{detected}, #{sequenceCount}, #{timingCount})
+    </insert>
+    
 </mapper>

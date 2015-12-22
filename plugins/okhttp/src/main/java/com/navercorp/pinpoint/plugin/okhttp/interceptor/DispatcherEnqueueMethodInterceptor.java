@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
@@ -38,7 +38,7 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
 
     private TraceContext traceContext;
     private MethodDescriptor methodDescriptor;
-    private InterceptorGroup interceptorGroup;
+    private InterceptorScope interceptorScope;
 
     public DispatcherEnqueueMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
@@ -67,6 +67,7 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
             recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
 
             // set async id.
+            // AsyncTraceIdAccessor typeCheck validate();
             ((AsyncTraceIdAccessor)args[0])._$PINPOINT$_setAsyncTraceId(asyncTraceId);
             if (isDebug) {
                 logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
@@ -77,8 +78,8 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
     }
 
     private boolean validate(Object[] args) {
-        if (args == null || args.length < 1 || !(args[0] instanceof AsyncTraceIdAccessor)) {
-            logger.debug("Invalid args[0] object {}. Need field accessor({}).", args, OkHttpConstants.METADATA_ASYNC_TRACE_ID);
+        if (args == null || args.length < 1 || args[0] == null || !(args[0] instanceof AsyncTraceIdAccessor)) {
+            logger.debug("Invalid args[0] object {}. Need field accessor({}).", args, AsyncTraceIdAccessor.class.getName());
             return false;
         }
 

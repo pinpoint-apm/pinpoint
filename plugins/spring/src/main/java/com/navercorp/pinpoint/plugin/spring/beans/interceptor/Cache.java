@@ -36,7 +36,7 @@ public class Cache {
     }
     
     public boolean contains(Class<?> clazz) {
-        Shard shard = getShard(clazz);
+        final Shard shard = getShard(clazz);
         
         synchronized (shard) {
             return shard.containsKey(clazz);
@@ -44,7 +44,8 @@ public class Cache {
     }
     
     public void put(Class<?> clazz) {
-        Shard shard = getShard(clazz);
+
+        final Shard shard = getShard(clazz);
         synchronized (shard) {
             shard.put(clazz, Boolean.TRUE);
         }
@@ -61,7 +62,7 @@ public class Cache {
     }
     
     @SuppressWarnings("serial")
-    private final class Shard extends LinkedHashMap<Class<?>, Boolean> {
+    private static final class Shard extends LinkedHashMap<Class<?>, Boolean> {
 
         @Override
         protected boolean removeEldestEntry(Entry<Class<?>, Boolean> eldest) {

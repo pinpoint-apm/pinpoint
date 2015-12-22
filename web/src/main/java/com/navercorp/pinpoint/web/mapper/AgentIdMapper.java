@@ -39,7 +39,7 @@ public class AgentIdMapper implements RowMapper<List<String>> {
             return Collections.emptyList();
         }
         final Cell[] rawCells = result.rawCells();
-        final List<String> agentIdList = new ArrayList<String>(rawCells.length);
+        final List<String> agentIdList = new ArrayList<>(rawCells.length);
 
         for (Cell cell : rawCells) {
             final String agentId = Bytes.toString(CellUtil.cloneQualifier(cell));

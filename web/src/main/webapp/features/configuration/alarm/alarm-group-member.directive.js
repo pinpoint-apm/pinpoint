@@ -12,7 +12,7 @@
 	        return {
 	            restrict: 'EA',
 	            replace: true,
-	            templateUrl: 'features/configuration/alarm/alarmGroupMember.html',
+	            templateUrl: 'features/configuration/alarm/alarmGroupMember.html?v=' + G_BUILD_TIME,
 	            scope: true,
 	            link: function (scope, element) {
 
@@ -24,7 +24,7 @@
 	    			var $elFilterInput = $element.find("div.filter-input input");
 	    			var $elFilterEmpty = $element.find("div.filter-input button.trash");
 	    			var $removeTemplate = $([
-	    	           '<span class="right">',
+	    	           '<span class="position:absolute;right;0px">',
 	    	               '<button class="btn btn-danger confirm-cancel"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>',
 	    	               '<button class="btn btn-danger confirm-remove" style="margin-left:2px;"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>',
 	       			   '</span>'
@@ -49,6 +49,7 @@
 	    					}
 	    				} else if ( tagName == "span" ) {
 	    					if ( $target.hasClass("remove") ) {
+	    						if ( isRemoving == true ) return;
 	    						isRemoving = true;
 	    	    				$li.addClass("remove").find("span.remove").hide().end().append($removeTemplate);
 	    					} else if ( $target.hasClass("glyphicon-remove") ) {

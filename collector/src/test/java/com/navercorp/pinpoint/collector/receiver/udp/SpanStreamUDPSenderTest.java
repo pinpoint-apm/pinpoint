@@ -44,6 +44,9 @@ import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.SocketUtils;
 
 /**
  * @author emeroad
@@ -57,14 +60,14 @@ public class SpanStreamUDPSenderTest {
 
     @BeforeClass
     public static void setUp() throws IOException {
-        port = getAvaiableUDPPort(21111);
+        port = SocketUtils.findAvailableUdpPort(21111);
 
         try {
             messageHolder = new MessageHolderDispatchHandler();
-            receiver = new TestUDPReceiver("test", new SpanStreamUDPPacketHandlerFactory<DatagramPacket>(messageHolder, new TestTBaseFilter()), "127.0.0.1",
+            receiver = new TestUDPReceiver("test", new SpanStreamUDPPacketHandlerFactory<>(messageHolder, new TestTBaseFilter()), "127.0.0.1",
                     port, 1024, 1, 10);
             receiver.start();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 
@@ -75,25 +78,6 @@ public class SpanStreamUDPSenderTest {
         }
     }
 
-    private static int getAvaiableUDPPort(int defaultPort) throws IOException {
-        int bindPort = defaultPort;
-
-        DatagramSocket dagagramSocket = null;
-        while (0xFFFF >= bindPort && dagagramSocket == null) {
-            try {
-                dagagramSocket = new DatagramSocket(bindPort);
-            } catch (IOException ex) {
-                bindPort++;
-            }
-        }
-
-        if (dagagramSocket != null) {
-            dagagramSocket.close();
-            return bindPort;
-        }
-
-        throw new IOException("can't find available port.");
-    }
 
     @Test
     public void sendTest1() throws InterruptedException {
@@ -171,7 +155,7 @@ public class SpanStreamUDPSenderTest {
         List<SpanEvent> spanEventList = createSpanEventList(spanEventSize);
         Span span = new Span();
 
-        List<TSpanEvent> tSpanEventList = new ArrayList<TSpanEvent>();
+        List<TSpanEvent> tSpanEventList = new ArrayList<>();
         for (SpanEvent spanEvent : spanEventList) {
             tSpanEventList.add(spanEvent);
         }
@@ -205,7 +189,7 @@ public class SpanStreamUDPSenderTest {
         // Span span = new SpanBo(new TSpan());
         Span span = new Span();
 
-        List<SpanEvent> spanEventList = new ArrayList<SpanEvent>(size);
+        List<SpanEvent> spanEventList = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             SpanEvent spanEvent = new SpanEvent(span);
             spanEvent.markStartTime();
@@ -220,9 +204,11 @@ public class SpanStreamUDPSenderTest {
 
     static class TestTBaseFilter<T> implements TBaseFilter<T> {
 
+        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
         @Override
         public boolean filter(TBase<?, ?> tBase, T remoteHostAddress) {
-            System.out.println("filter");
+            logger.debug("filter");
             return false;
         }
 
@@ -230,11 +216,13 @@ public class SpanStreamUDPSenderTest {
 
     static class MessageHolderDispatchHandler extends AbstractDispatchHandler {
 
-        private List<TBase> messageHolder = new ArrayList<TBase>();
+        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+        private List<TBase> messageHolder = new ArrayList<>();
 
         @Override
         public void dispatchSendMessage(TBase<?, ?> tBase) {
-            System.out.println("dispatchSendMessage");
+            logger.debug("dispatchSendMessage");
         }
 
         @Override

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.*;
 import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
@@ -94,7 +94,7 @@ public class BFSLinkSelectorTest {
         // APP_A -> APP_B
         int callCount_A_B = 10;
         LinkDataMap linkDataMap = new LinkDataMap();
-        linkDataMap.addLinkData(APP_A, "agentA", APP_B, "agentB", 1000, HistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_A_B);
+        linkDataMap.addLinkData(APP_A, "agentA", APP_B, "agentB", 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_A_B);
 
         when(callerDao.selectCaller(eq(APP_A), any(Range.class))).thenReturn(linkDataMap);
         when(calleeDao.selectCallee(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
@@ -118,12 +118,12 @@ public class BFSLinkSelectorTest {
 
         int callCount_A_B = 10;
         LinkDataMap link_A_B = new LinkDataMap();
-        link_A_B.addLinkData(APP_A, "agentA", APP_B, "agentB", 1000, HistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_A_B);
+        link_A_B.addLinkData(APP_A, "agentA", APP_B, "agentB", 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_A_B);
         when(callerDao.selectCaller(eq(APP_A), any(Range.class))).thenReturn(link_A_B);
 
         LinkDataMap link_B_C = new LinkDataMap();
         int callCount_B_C = 20;
-        link_B_C.addLinkData(APP_B, "agentB", APP_C, "agentC", 1000, HistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_B_C);
+        link_B_C.addLinkData(APP_B, "agentB", APP_C, "agentC", 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_B_C);
         when(callerDao.selectCaller(eq(APP_B), any(Range.class))).thenReturn(link_B_C);
 
         when(calleeDao.selectCallee(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
@@ -167,7 +167,7 @@ public class BFSLinkSelectorTest {
         // APP_A -> APP_B
         int callCount_A_B = 10;
         LinkDataMap linkDataMap = new LinkDataMap();
-        linkDataMap.addLinkData(APP_A, "agentA", APP_B, "agentB", 1000, HistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_A_B);
+        linkDataMap.addLinkData(APP_A, "agentA", APP_B, "agentB", 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_A_B);
 
         when(callerDao.selectCaller(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
         when(calleeDao.selectCallee(eq(APP_B), any(Range.class))).thenReturn(linkDataMap);
@@ -195,12 +195,12 @@ public class BFSLinkSelectorTest {
 
         int callCount_A_B = 30;
         LinkDataMap linkDataMap_A_B = new LinkDataMap();
-        linkDataMap_A_B.addLinkData(APP_A, "agentA", APP_B, "agentB", 1000, HistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_A_B);
+        linkDataMap_A_B.addLinkData(APP_A, "agentA", APP_B, "agentB", 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_A_B);
         when(calleeDao.selectCallee(eq(APP_B), any(Range.class))).thenReturn(linkDataMap_A_B);
 
         int callCount_B_C = 40;
         LinkDataMap linkDataMap_B_C = new LinkDataMap();
-        linkDataMap_B_C.addLinkData(APP_B, "agentB", APP_C, "agentC", 1000, HistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_B_C);
+        linkDataMap_B_C.addLinkData(APP_B, "agentB", APP_C, "agentC", 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_B_C);
         when(calleeDao.selectCallee(eq(APP_C), any(Range.class))).thenReturn(linkDataMap_B_C);
 
         when(callerDao.selectCaller(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());

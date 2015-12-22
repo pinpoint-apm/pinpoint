@@ -17,90 +17,63 @@
 package com.navercorp.pinpoint.bootstrap.instrument;
 
 
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 
 /**
  * @author emeroad
  */
 public class GuardInstrumentor implements Instrumentor {
-    private final Instrumentor instrument;
+    private final InstrumentContext instrumentContext;
     private boolean closed = false;
 
-    public GuardInstrumentor(Instrumentor instrument) {
-        if (instrument == null) {
-            throw new NullPointerException("instrument must not be null");
+    public GuardInstrumentor(InstrumentContext instrumentContext) {
+        if (instrumentContext == null) {
+            throw new NullPointerException("instrumentContext must not be null");
         }
-        this.instrument = instrument;
+        this.instrumentContext = instrumentContext;
     }
 
     @Override
-    public TraceContext getTraceContext() {
-        checkOpen();
-        return instrument.getTraceContext();
+    public ProfilerConfig getProfilerConfig() {
+        return instrumentContext.getTraceContext().getProfilerConfig();
     }
 
     @Override
     public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classfileBuffer) {
-        if (className == null) {
-            throw new NullPointerException("className must not be null");
-        }
-
         checkOpen();
-        return instrument.getInstrumentClass(classLoader, className, classfileBuffer);
+        return instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
     }
 
     @Override
     public boolean exist(ClassLoader classLoader, String className) {
-        if (className == null) {
-            throw new NullPointerException("className must not be null");
-        }
         checkOpen();
-        return instrument.exist(classLoader, className);
+        return instrumentContext.exist(classLoader, className);
     }
 
     @Override
-    public InterceptorGroup getInterceptorGroup(String name) {
-        if (name == null) {
-            throw new NullPointerException("name must not be null");
-        }
+    public InterceptorScope getInterceptorScope(String scopeName) {
         checkOpen();
-        return instrument.getInterceptorGroup(name);
+        return instrumentContext.getInterceptorScope(scopeName);
     }
 
     @Override
     public <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className) {
-        if (className == null) {
-            throw new NullPointerException("className must not be null");
-        }
         checkOpen();
-        return instrument.injectClass(targetClassLoader, className);
+        return instrumentContext.injectClass(targetClassLoader, className);
     }
 
     @Override
-    public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, TransformCallback transformCallback) {
-        if (targetClassName == null) {
-            throw new NullPointerException("targetClassName must not be null");
-        }
-        if (transformCallback == null) {
-            throw new NullPointerException("transformCallback must not be null");
-        }
-
+    public void transform(ClassLoader classLoader, String targetClassName, TransformCallback transformCallback) {
         checkOpen();
-        instrument.addClassFileTransformer(classLoader, targetClassName, transformCallback);
+        instrumentContext.addClassFileTransformer(classLoader, targetClassName, transformCallback);
     }
 
     @Override
     public void retransform(Class<?> target, TransformCallback transformCallback) {
-        if (target == null) {
-            throw new NullPointerException("target must not be null");
-        }
-        if (transformCallback == null) {
-            throw new NullPointerException("transformCallback must not be null");
-        }
         checkOpen();
-        instrument.retransform(target, transformCallback);
+        instrumentContext.retransform(target, transformCallback);
     }
 
     public void close() {

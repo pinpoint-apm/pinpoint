@@ -23,13 +23,13 @@ import java.util.Scanner;
  *
  */
 public interface PinpointPluginTestInstance {
-    public String getTestId();
-    public List<String> getClassPath();
-    public List<String> getVmArgs();
-    public String getMainClass();
-    public List<String> getAppArgs();
-    public File getWorkingDirectory();
+    String getTestId();
+    List<String> getClassPath();
+    List<String> getVmArgs();
+    String getMainClass();
+    List<String> getAppArgs();
+    File getWorkingDirectory();
     
-    public Scanner startTest(Process process) throws Throwable;
-    public void endTest(Process process) throws Throwable;
+    Scanner startTest(Process process) throws Throwable;
+    void endTest(Process process) throws Throwable;
 }

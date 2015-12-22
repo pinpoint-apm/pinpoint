@@ -26,23 +26,25 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.jdk.http.ConnectedGetter;
 import com.navercorp.pinpoint.plugin.jdk.http.ConnectingGetter;
 import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpConstants;
+import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpPluginConfig;
 
 /**
  * @author netspider
  * @author emeroad
  */
-@Group("HttpURLConnection")
+@Scope("HttpURLConnection")
 @TargetMethods({
         @TargetMethod(name="connect"),
         @TargetMethod(name="getInputStream"),
@@ -55,12 +57,16 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
 
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
-    private final InterceptorGroup group;
+    private final InterceptorScope scope;
+    private final boolean param;
     
-    public HttpURLConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorGroup group) {
+    public HttpURLConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
-        this.group = group;
+        this.scope = scope;
+
+        final JdkHttpPluginConfig config = new JdkHttpPluginConfig(traceContext.getProfilerConfig());
+        this.param = config.isParam();
     }
 
     @Override
@@ -73,10 +79,16 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
             return;
         }
 
-        HttpURLConnection request = (HttpURLConnection) target;
-        
-        boolean connected = ((ConnectedGetter)target)._$PINPOINT$_isConnected();
-        boolean connecting = (target instanceof ConnectingGetter)  && ((ConnectingGetter)target)._$PINPOINT$_isConnecting();
+        final HttpURLConnection request = (HttpURLConnection) target;
+
+        boolean connected = false;
+        if (target instanceof ConnectedGetter) {
+            connected = ((ConnectedGetter) target)._$PINPOINT$_isConnected();
+        }
+        boolean connecting = false;
+        if (target instanceof ConnectingGetter) {
+            connecting = ((ConnectingGetter) target)._$PINPOINT$_isConnecting();
+        }
         
         if (connected || connecting) {
             return;
@@ -88,7 +100,7 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
             return;
         }
 
-        group.getCurrentInvocation().setAttachment(TRACE_BLOCK_BEGIN_MARKER);
+        scope.getCurrentInvocation().setAttachment(TRACE_BLOCK_BEGIN_MARKER);
         
         SpanEventRecorder recorder = trace.traceBlockBegin();
         TraceId nextId = trace.getTraceId().getNextTraceId();
@@ -115,7 +127,7 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
         
         // Don't record end point because it's same with destination id.
         recorder.recordDestinationId(endpoint);
-        recorder.recordAttribute(AnnotationKey.HTTP_URL, url.toString());
+        recorder.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(url.toString(), param));
     }
 
     private String getEndpoint(String host, int port) {
@@ -141,7 +153,7 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
             return;
         }
         
-        Object marker = group.getCurrentInvocation().getAttachment();
+        Object marker = scope.getCurrentInvocation().getAttachment();
         
         if (marker != TRACE_BLOCK_BEGIN_MARKER) {
             return;

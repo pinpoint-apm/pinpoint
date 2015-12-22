@@ -50,7 +50,7 @@ public class JsonLibJSONArrayIT {
         Method toCollection = null;
         try {
             toCollection = JSONArray.class.getMethod("toCollection", JSONArray.class);
-        } catch (NoSuchMethodException e) {
+        } catch (NoSuchMethodException ignored) {
         }
 
         String json = "[{'string':'JSON'}]";

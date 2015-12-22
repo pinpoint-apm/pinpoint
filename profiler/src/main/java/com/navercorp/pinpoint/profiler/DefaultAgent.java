@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import com.navercorp.pinpoint.profiler.receiver.service.ActiveThreadCountService;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
 
@@ -117,7 +116,20 @@ public class DefaultAgent implements Agent {
         ClassPreLoader.preload();
     }
     public DefaultAgent(AgentOption agentOption) {
-        this(agentOption, new DefaultInterceptorRegistryBinder());
+        this(agentOption, createInterceptorRegistry(agentOption));
+    }
+
+    public static InterceptorRegistryBinder createInterceptorRegistry(AgentOption agentOption) {
+        final int interceptorSize = getInterceptorSize(agentOption);
+        return new DefaultInterceptorRegistryBinder(interceptorSize);
+    }
+
+    private static int getInterceptorSize(AgentOption agentOption) {
+        if (agentOption == null) {
+            return DefaultInterceptorRegistryBinder.DEFAULT_MAX;
+        }
+        final ProfilerConfig profilerConfig = agentOption.getProfilerConfig();
+        return profilerConfig.getInterceptorRegistrySize();
     }
 
     public DefaultAgent(AgentOption agentOption, final InterceptorRegistryBinder interceptorRegistryBinder) {
@@ -191,7 +203,7 @@ public class DefaultAgent implements Agent {
 
         addCommandService(commandDispatcher, traceContext);
 
-        this.agentInfoSender = new AgentInfoSender(tcpDataSender, profilerConfig.getAgentInfoSendRetryInterval(), this.agentInformation);
+        this.agentInfoSender = new AgentInfoSender.Builder(tcpDataSender, this.agentInformation).sendInterval(profilerConfig.getAgentInfoSendRetryInterval()).build();
         this.serverMetaDataHolder.addListener(this.agentInfoSender);
 
         AgentStatCollectorFactory agentStatCollectorFactory = new AgentStatCollectorFactory(this.getTransactionCounter(this.traceContext));
@@ -391,6 +403,10 @@ public class DefaultAgent implements Agent {
 
     @Override
     public void stop() {
+        stop(false);
+    }
+
+    public void stop(boolean staticResourceCleanup) {
         synchronized (this) {
             if (this.agentStatus == AgentStatus.RUNNING) {
                 changeStatus(AgentStatus.STOPPED);
@@ -409,9 +425,11 @@ public class DefaultAgent implements Agent {
         this.statDataSender.stop();
 
         closeTcpDataSender();
-
-        PLoggerFactory.unregister(this.binder);
-        this.interceptorRegistryBinder.unbind();
+        // for testcase
+        if (staticResourceCleanup) {
+            PLoggerFactory.unregister(this.binder);
+            this.interceptorRegistryBinder.unbind();
+        }
     }
 
     private void closeTcpDataSender() {

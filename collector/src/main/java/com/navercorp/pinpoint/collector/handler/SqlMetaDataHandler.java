@@ -23,9 +23,6 @@ import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
 
 /**
  * @author emeroad
@@ -44,10 +41,10 @@ public class SqlMetaDataHandler implements RequestResponseHandler {
             return null;
         }
 
-        TSqlMetaData sqlMetaData = (TSqlMetaData) tbase;
+        final TSqlMetaData sqlMetaData = (TSqlMetaData) tbase;
 
-        if (logger.isInfoEnabled()) {
-            logger.info("Received SqlMetaData:{}", sqlMetaData);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Received SqlMetaData:{}", sqlMetaData);
         }
 
 

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.test.mock;
 
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
@@ -24,7 +25,6 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.context.TraceType;
 
 /**
  * @author emeroad
@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceType;
 public class MockTraceContext implements TraceContext {
 
     private Trace trace;
-    private final ProfilerConfig config = new ProfilerConfig();
+    private final ProfilerConfig config = new DefaultProfilerConfig();
 
     public void setTrace(Trace trace) {
         this.trace = trace;
@@ -62,11 +62,6 @@ public class MockTraceContext implements TraceContext {
 
     @Override
     public Trace newTraceObject() {
-        return trace;
-    }
-
-    @Override
-    public Trace newTraceObject(TraceType traceType) {
         return trace;
     }
 

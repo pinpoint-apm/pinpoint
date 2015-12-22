@@ -22,5 +22,5 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
  *
  */
 public interface MethodRecipe {
-    public void edit(ClassLoader targetClassLoader, InstrumentClass targetClass, InstrumentMethod targetMethod) throws Exception;
+    void edit(ClassLoader targetClassLoader, InstrumentClass targetClass, InstrumentMethod targetMethod) throws Exception;
 }

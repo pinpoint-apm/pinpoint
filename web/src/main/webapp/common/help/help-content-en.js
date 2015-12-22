@@ -8,6 +8,10 @@
 	 */
 	var oHelp = {
 		configuration: {
+			general: {
+				warning: "(User configuration is stored in browser cache. Server-side storage will be supported in a future release.)",
+				empty: "Favorite list empty"
+			},
 			alarmRules: {
 				mainStyle: "",
 				title: "Alarm Rule Type",
@@ -55,6 +59,9 @@
 			}
 		},	
 		navbar : {
+			searchPeriod : {
+				guide: "Search duration may not be greater than {{day}} days."
+			},
 			applicationSelector: {
 				mainStyle: "",
 				title: "Application List",
@@ -129,6 +136,57 @@
 				}]
 			} 
 		},
+		realtime: {
+			"default": {
+				mainStyle: "",
+				title: "Realtime Active Thread Chart",
+				desc: "Shows the Active Thread count of each agent in realtime.",
+				category: [{
+					title: "[Error Messages]",
+					items: [{
+						name: "UNSUPPORTED VERSION",
+						desc: "Agent version too old. (Please upgrade the agent to 1.5.0+)",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					},{
+						name: "CLUSTER OPTION NOTSET",
+						desc: "Option disabled by agent. (Please set profiler.pinpoint.activethread to true in profiler.config)",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					},{
+						name: "TIMEOUT",
+						desc: "Agent connection timed out receiving active thread count. Please contact the administrator if problem persists.",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					},{
+						name: "NOT FOUND",
+						desc: "Agent not found. (If you get this message while the agent is running, please set profiler.tcpdatasender.command.accept.enable to true in profiler.config)",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					},{
+						name: "CLUSTER CHANNEL CLOSED",
+						desc: "Agent session expired.",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					},{
+						name: "PINPOINT INTERNAL ERROR",
+						desc: "Pinpoint internal error. Please contact the administrator.",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					},{
+						name: "No Active Thread",
+						desc: "The agent has no threads that are currently active.",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					},{
+						name: "No Response",
+						desc: "No response from Pinpoint Web. Please contact the administrator.",
+						nameStyle: "width:120px;border-bottom:1px solid gray",
+						descStyle: "border-bottom:1px solid gray"
+					}]
+				}]
+			}
+		},	
 		scatter : {
 			"default": {
 				mainStyle: "",
@@ -237,7 +295,7 @@
 			},
 			nodeServers: {
 				mainStyle: "width:400px;",
-				title: "Server Instances",
+				title: "Server Information",
 				desc: "List of physical servers and their server instances.",
 				category: [{
 					title: "[Legend]",
@@ -355,7 +413,7 @@
 			},
 			linkServers: {
 				mainStyle: "width:350px;",
-				title: "Server Instance",
+				title: "Server Information",
 				desc: "List of physical servers and their server instances.",
 				category: [{
 					title: "[Legend]",
@@ -475,12 +533,24 @@
                 category: [{
                     title: "[Legend]",
                     items: [{
-                        name: "TPS",
-                        desc: "Number of transactions received by the server every second"
+                        name: "Sampled New (S.N)",
+                        desc: "Profiled transactions that started from the current agent"
+                    },{
+                        name: "Sampled Continuation (S.C)",
+                        desc: "Profiled transactions that started from another agent"
+                    },{
+                        name: "Unsampled New (U.N)",
+                        desc: "Unprofiled transactions that started from the current agent"
+                    },{
+                        name: "Unsampled Continuation (U.C)",
+                        desc: "Unprofiled transactions that started from another agent"
+                    },{
+                        name: "Total",
+                        desc: "All transactions"
                     }]
                 }]
             }
-		},
+		},	
 		callTree: {
 			column: {
 				mainStyle: "",
@@ -512,6 +582,12 @@
 		},
 		transactionTable: {
 			log: {}
+		},
+		transactionList: {
+			openError: {
+				noParent: "Scatter data of parent window had been changed.\r\nso can\'t scan the data any more.",
+				noData: "There is no {{application}} scatter data in parent window."
+			}
 		}
 	};
 	pinpointApp.constant('helpContent-en', oHelp );

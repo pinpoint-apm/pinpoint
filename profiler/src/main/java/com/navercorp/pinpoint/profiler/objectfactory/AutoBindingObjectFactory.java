@@ -20,13 +20,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
-import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
-import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe.ByConstructor;
-import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe.ByStaticFactoryMethod;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory.ByConstructor;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory.ByStaticFactoryMethod;
 import com.navercorp.pinpoint.exception.PinpointException;
 
 /**
@@ -37,42 +37,42 @@ public class AutoBindingObjectFactory {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     
-    private final Instrumentor pluginContext;
+    private final InstrumentContext pluginContext;
     private final ClassLoader classLoader;
     private final List<ArgumentProvider> commonProviders;
     
-    public AutoBindingObjectFactory(Instrumentor pluginContext, ClassLoader classLoader, ArgumentProvider... argumentProviders) {
+    public AutoBindingObjectFactory(InstrumentContext pluginContext, ClassLoader classLoader, ArgumentProvider... argumentProviders) {
         this.pluginContext = pluginContext;
         this.classLoader = classLoader;
         this.commonProviders = new ArrayList<ArgumentProvider>(Arrays.asList(argumentProviders));
         this.commonProviders.add(new ProfilerPluginArgumentProvider(pluginContext));
     }
     
-    public Object createInstance(ObjectRecipe recipe, ArgumentProvider... providers) {
-        Class<?> type = pluginContext.injectClass(classLoader, recipe.getClassName());
-        ArgumentsResolver argumentsResolver = getArgumentResolver(recipe, providers);
+    public Object createInstance(ObjectFactory objectFactory, ArgumentProvider... providers) {
+        final Class<?> type = pluginContext.injectClass(classLoader, objectFactory.getClassName());
+        final ArgumentsResolver argumentsResolver = getArgumentResolver(objectFactory, providers);
         
-        if (recipe instanceof ByConstructor) {
-            return byConstructor(type, (ByConstructor)recipe, argumentsResolver);
-        } else if (recipe instanceof ByStaticFactoryMethod) {
-            return byStaticFactoryMethod(type, (ByStaticFactoryMethod)recipe, argumentsResolver);
+        if (objectFactory instanceof ByConstructor) {
+            return byConstructor(type, (ByConstructor) objectFactory, argumentsResolver);
+        } else if (objectFactory instanceof ByStaticFactoryMethod) {
+            return byStaticFactoryMethod(type, (ByStaticFactoryMethod) objectFactory, argumentsResolver);
         }
         
-        throw new IllegalArgumentException("Unknown recipe type: " + recipe);
+        throw new IllegalArgumentException("Unknown objectFactory type: " + objectFactory);
     }
     
-    private Object byConstructor(Class<?> type, ByConstructor recipe, ArgumentsResolver argumentsResolver) {
-        ConstructorResolver resolver = new ConstructorResolver(type, argumentsResolver);
+    private Object byConstructor(Class<?> type, ByConstructor byConstructor, ArgumentsResolver argumentsResolver) {
+        final ConstructorResolver resolver = new ConstructorResolver(type, argumentsResolver);
         
         if (!resolver.resolve()) {
             throw new PinpointException("Cannot find suitable constructor for " + type.getName());
         }
         
-        Constructor<?> constructor = resolver.getResolvedConstructor();
-        Object[] resolvedArguments = resolver.getResolvedArguments();
+        final Constructor<?> constructor = resolver.getResolvedConstructor();
+        final Object[] resolvedArguments = resolver.getResolvedArguments();
         
         if (isDebug) {
-            logger.debug("Create insatnce by constructor {}, with arguments {}", constructor, Arrays.toString(resolvedArguments));
+            logger.debug("Create instance by constructor {}, with arguments {}", constructor, Arrays.toString(resolvedArguments));
         }
         
         try {
@@ -81,35 +81,35 @@ public class AutoBindingObjectFactory {
             throw new PinpointException("Fail to invoke constructor: " + constructor + ", arguments: " + Arrays.toString(resolvedArguments), e);
         }
     }
-    
-    private Object byStaticFactoryMethod(Class<?> type, ByStaticFactoryMethod recipe, ArgumentsResolver argumentsResolver) {
-        StaticMethodResolver resolver = new StaticMethodResolver(type, recipe.getFactoryMethodName(), argumentsResolver);
+
+    private Object byStaticFactoryMethod(Class<?> type, ByStaticFactoryMethod staticFactoryMethod, ArgumentsResolver argumentsResolver) {
+        StaticMethodResolver resolver = new StaticMethodResolver(type, staticFactoryMethod.getFactoryMethodName(), argumentsResolver);
         
         if (!resolver.resolve()) {
-            throw new PinpointException("Cannot find suitable factory method " + type.getName() + "." + recipe.getFactoryMethodName());
+            throw new PinpointException("Cannot find suitable factory method " + type.getName() + "." + staticFactoryMethod.getFactoryMethodName());
         }
         
-        Method method = resolver.getResolvedMethod();
-        Object[] resolvedArguments = resolver.getResolvedArguments();
+        final Method method = resolver.getResolvedMethod();
+        final Object[] resolvedArguments = resolver.getResolvedArguments();
 
         if (isDebug) {
-            logger.debug("Create insatnce by static factory method {}, with arguments {}", method, Arrays.toString(resolvedArguments));
+            logger.debug("Create instance by static factory method {}, with arguments {}", method, Arrays.toString(resolvedArguments));
         }
 
         try {
             return method.invoke(null, resolvedArguments);
         } catch (Exception e) {
-            throw new PinpointException("Fail to invoke factory method: " + type.getName() + "." + recipe.getFactoryMethodName() + ", arguments: " + Arrays.toString(resolvedArguments), e);
+            throw new PinpointException("Fail to invoke factory method: " + type.getName() + "." + staticFactoryMethod.getFactoryMethodName() + ", arguments: " + Arrays.toString(resolvedArguments), e);
         }
 
     }
     
-    private ArgumentsResolver getArgumentResolver(ObjectRecipe recipe, ArgumentProvider[] providers) {
-        List<ArgumentProvider> merged = new ArrayList<ArgumentProvider>(commonProviders);
+    private ArgumentsResolver getArgumentResolver(ObjectFactory objectFactory, ArgumentProvider[] providers) {
+        final List<ArgumentProvider> merged = new ArrayList<ArgumentProvider>(commonProviders);
         merged.addAll(Arrays.asList(providers));
         
-        if (recipe.getArguments() != null) { 
-            merged.add(new OrderedValueProvider(this, recipe.getArguments()));
+        if (objectFactory.getArguments() != null) {
+            merged.add(new OrderedValueProvider(this, objectFactory.getArguments()));
         }
         
         return new ArgumentsResolver(merged);

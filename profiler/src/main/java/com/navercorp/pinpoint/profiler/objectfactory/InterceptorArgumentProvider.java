@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.NoCache;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.util.TypeUtils;
 
@@ -32,7 +32,7 @@ import com.navercorp.pinpoint.profiler.util.TypeUtils;
  */
 public class InterceptorArgumentProvider implements ArgumentProvider {
     private final TraceContext traceContext;
-    private final InterceptorGroup interceptorGroup;
+    private final InterceptorScope interceptorScope;
     private final InstrumentClass targetClass;
     private final InstrumentMethod targetMethod;
 
@@ -40,9 +40,9 @@ public class InterceptorArgumentProvider implements ArgumentProvider {
         this(traceContext, null, targetClass, null);
     }
     
-    public InterceptorArgumentProvider(TraceContext traceContext, InterceptorGroup interceptorGroup, InstrumentClass targetClass, InstrumentMethod targetMethod) {
+    public InterceptorArgumentProvider(TraceContext traceContext, InterceptorScope interceptorScope, InstrumentClass targetClass, InstrumentMethod targetMethod) {
         this.traceContext = traceContext;
-        this.interceptorGroup = interceptorGroup;
+        this.interceptorScope = interceptorScope;
         this.targetClass = targetClass;
         this.targetMethod = targetMethod;
     }
@@ -58,14 +58,14 @@ public class InterceptorArgumentProvider implements ArgumentProvider {
             return Option.withValue(descriptor);
         } else if (type == InstrumentMethod.class) {
             return Option.withValue(targetMethod);
-        } else if (type == InterceptorGroup.class) {
+        } else if (type == InterceptorScope.class) {
             Name annotation = TypeUtils.findAnnotation(annotations, Name.class);
             
             if (annotation == null) {
-                if (interceptorGroup == null) {
-                    throw new PinpointException("Group parameter is not annotated with @Name and the target class is not associated with any Group");
+                if (interceptorScope == null) {
+                    throw new PinpointException("Scope parameter is not annotated with @Name and the target class is not associated with any Scope");
                 } else {
-                    return Option.withValue(interceptorGroup);
+                    return Option.withValue(interceptorScope);
                 }
             } else {
                 return Option.empty();

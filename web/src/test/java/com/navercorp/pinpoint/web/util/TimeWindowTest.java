@@ -44,7 +44,7 @@ public class TimeWindowTest {
         try {
             iterator.next();
             Assert.fail("no more element");
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
         TimeWindow window2 = new TimeWindow(new Range(0L, TimeUnit.MINUTES.toMillis(1)));
@@ -55,7 +55,7 @@ public class TimeWindowTest {
         try {
             iterator2.next();
             Assert.fail("no more element");
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 

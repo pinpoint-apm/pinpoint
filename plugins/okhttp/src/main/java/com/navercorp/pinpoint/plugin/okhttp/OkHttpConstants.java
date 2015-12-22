@@ -33,8 +33,6 @@ public final class OkHttpConstants {
     public static final ServiceType OK_HTTP_CLIENT = ServiceTypeFactory.of(9058, "OK_HTTP_CLIENT", RECORD_STATISTICS);
     public static final ServiceType OK_HTTP_CLIENT_INTERNAL = ServiceTypeFactory.of(9059, "OK_HTTP_CLIENT_INTERNAL", "OK_HTTP_CLIENT");
 
-    public static final String BASIC_METHOD_INTERCEPTOR = "com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor";
-    public static final String METADATA_ASYNC_TRACE_ID = "com.navercorp.pinpoint.bootstrap.interceptor.AsyncTraceIdAccessor";
     public static final String SEND_REQUEST_SCOPE = "SendRequestScope";
     public static final String CALL_SCOPE = "CallScope";
 
@@ -42,4 +40,10 @@ public final class OkHttpConstants {
     public static final String FIELD_USER_RESPONSE = "userResponse";
     public static final String FIELD_CONNECTION = "connection";
     public static final String FIELD_HTTP_URL = "url";
+
+    public static final String CONNECTION_GETTER = "com.navercorp.pinpoint.plugin.okhttp.ConnectionGetter";
+    public static final String HTTP_URL_GETTER = "com.navercorp.pinpoint.plugin.okhttp.HttpUrlGetter";
+    public static final String URL_GETTER = "com.navercorp.pinpoint.plugin.okhttp.UrlGetter";
+    public static final String USER_REQUEST_GETTER = "com.navercorp.pinpoint.plugin.okhttp.UserRequestGetter";
+    public static final String USER_RESPONSE_GETTER = "com.navercorp.pinpoint.plugin.okhttp.UserResponseGetter";
 }

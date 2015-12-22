@@ -57,17 +57,17 @@ public class TestObjectNestedClass {
         new InstanceInner();
     }
     
-    class InstanceInner {};
-    
-    
+    class InstanceInner {}
+
+
     public void localInnerClass() {
-        class LocalInner {};
+        class LocalInner {}
 
         new LocalInner();
     }
     
     public void localInnerClass2() {
-        class LocalInner {};
+        class LocalInner {}
 
         new LocalInner();
     }
@@ -76,12 +76,12 @@ public class TestObjectNestedClass {
         new StaticNested();
     }
     
-    static class StaticNested{};
-    
-    
+    static class StaticNested{}
+
+
     public void enclosingMethod(String s, int i) {
-        class LocalInner {};
-        
+        class LocalInner {}
+
         new LocalInner();
     }
 }

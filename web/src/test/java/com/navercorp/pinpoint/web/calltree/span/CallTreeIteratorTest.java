@@ -23,6 +23,8 @@ import org.junit.Test;
 
 import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -30,6 +32,8 @@ import com.navercorp.pinpoint.common.bo.SpanEventBo;
  *
  */
 public class CallTreeIteratorTest {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private static final boolean SYNC = false;
     private static final boolean ASYNC = true;
     private static final long START_TIME = 1430983914531L;
@@ -52,14 +56,15 @@ public class CallTreeIteratorTest {
 
         CallTreeIterator iterator = callTree.iterator();
         // assertEquals(5, iterator.size());
-
+        final StringBuilder buffer = new StringBuilder("\n");
         while (iterator.hasNext()) {
             CallTreeNode node = iterator.next();
             for (int i = 0; i <= node.getDepth(); i++) {
-                System.out.print("#");
+                buffer.append("#");
             }
-            System.out.println("");
+            buffer.append("\n");
         }
+        logger.debug(buffer.toString());
     }
 
     @Ignore
@@ -79,15 +84,18 @@ public class CallTreeIteratorTest {
 
         CallTreeIterator iterator = callTree.iterator();
         // assertEquals(5, iterator.size());
-
+        final StringBuilder buffer = new StringBuilder("\n");
         while (iterator.hasNext()) {
             CallTreeNode node = iterator.next();
             SpanAlign align = node.getValue();
             for (int i = 0; i <= align.getDepth(); i++) {
-                System.out.print("#");
+                buffer.append("#");
             }
-            System.out.println(" : gap=" + align.getGap());
+            buffer.append(" : gap=");
+            buffer.append(align.getGap());
+            buffer.append("\n");
         }
+        logger.debug(buffer.toString());
     }
     
     @Ignore
@@ -116,15 +124,18 @@ public class CallTreeIteratorTest {
         CallTreeIterator iterator = callTree.iterator();
         // assertEquals(5, iterator.size());
 
-        System.out.println("gapAsync");
+        final StringBuilder buffer = new StringBuilder("gapAsync \n");
         while (iterator.hasNext()) {
             CallTreeNode node = iterator.next();
             SpanAlign align = node.getValue();
             for (int i = 0; i <= align.getDepth(); i++) {
-                System.out.print("#");
+                buffer.append("#");
             }
-            System.out.println(" : gap=" + align.getGap());
+            buffer.append(" : gap=");
+            buffer.append(align.getGap());
+            buffer.append("\n");
         }
+        logger.debug(buffer.toString());
     }
 
     @Test
@@ -160,18 +171,21 @@ public class CallTreeIteratorTest {
         CallTreeIterator iterator = callTree.iterator();
         // assertEquals(5, iterator.size());
 
-        System.out.println("gapComplex");
+        final StringBuilder buffer = new StringBuilder("gapComplex \n");
         while (iterator.hasNext()) {
             CallTreeNode node = iterator.next();
             SpanAlign align = node.getValue();
             for (int i = 0; i <= align.getDepth(); i++) {
-                System.out.print("#");
+                buffer.append("#");
             }
-            System.out.println(" : gap=" + align.getGap());
+            buffer.append(" : gap=");
+            buffer.append(align.getGap());
+            buffer.append("\n");
             if(!node.isRoot()) {
-                assertEquals(1, align.getGap());                
+                assertEquals(1, align.getGap());
             }
         }
+        logger.debug(buffer.toString());
     }
 
     @Ignore
@@ -208,16 +222,19 @@ public class CallTreeIteratorTest {
         CallTreeIterator iterator = callTree.iterator();
         // assertEquals(5, iterator.size());
 
-        System.out.println("executionTime");
+        final StringBuilder buffer = new StringBuilder("executionTime \n");
         while (iterator.hasNext()) {
             CallTreeNode node = iterator.next();
             SpanAlign align = node.getValue();
             for (int i = 0; i <= align.getDepth(); i++) {
-                System.out.print("#");
+                buffer.append("#");
             }
-            System.out.println(" : executionTime=" + align.getExecutionMilliseconds());
+            buffer.append(" : executionTime=");
+            buffer.append(align.getExecutionMilliseconds());
+            buffer.append("\n");
             assertEquals(1, align.getExecutionMilliseconds());
         }
+        logger.debug(buffer.toString());
     }
 
     private SpanAlign makeSpanAlign(long startTime, int elapsed) {

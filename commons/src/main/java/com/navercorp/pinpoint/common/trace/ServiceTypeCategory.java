@@ -24,7 +24,7 @@ public enum ServiceTypeCategory {
     SERVER((short)1000, (short)1999),
     DATABASE((short)2000, (short)2999),
     LIBRARY((short)5000, (short)7999),
-    CACHE_LIBRARY((short)8000, (short)8999, HistogramSchema.FAST_SCHEMA),
+    CACHE_LIBRARY((short)8000, (short)8999, BaseHistogramSchema.FAST_SCHEMA),
     RPC((short)9000, (short)9999);
    
     
@@ -32,11 +32,11 @@ public enum ServiceTypeCategory {
     private final short maxCode;
     private HistogramSchema histogramSchema;
 
-    private ServiceTypeCategory(short minCode, short maxCode) {
-        this(minCode, maxCode, HistogramSchema.NORMAL_SCHEMA);
+    ServiceTypeCategory(short minCode, short maxCode) {
+        this(minCode, maxCode, BaseHistogramSchema.NORMAL_SCHEMA);
     }
     
-    private ServiceTypeCategory(short minCode, short maxCode, HistogramSchema histogramSchema) {
+    ServiceTypeCategory(short minCode, short maxCode, HistogramSchema histogramSchema) {
         this.minCode = minCode;
         this.maxCode = maxCode;
         if (histogramSchema == null) {

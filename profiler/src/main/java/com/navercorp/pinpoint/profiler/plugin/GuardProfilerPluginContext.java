@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
@@ -48,18 +47,6 @@ public class GuardProfilerPluginContext implements ProfilerPluginSetupContext {
     public void addApplicationTypeDetector(ApplicationTypeDetector... detectors) {
         checkOpen();
         this.delegate.addApplicationTypeDetector(detectors);
-    }
-
-    @Override
-    public void addClassFileTransformer(String targetClassName, TransformCallback transformCallback) {
-        if (targetClassName == null) {
-            throw new NullPointerException("targetClassName must not be null");
-        }
-        if (transformCallback == null) {
-            throw new NullPointerException("transformCallback must not be null");
-        }
-        checkOpen();
-        this.delegate.addClassFileTransformer(targetClassName, transformCallback);
     }
 
     private void checkOpen() {

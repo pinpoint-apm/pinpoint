@@ -53,7 +53,7 @@ public class ZookeeperWebClusterManager implements Runnable {
 
     private final AtomicBoolean retryMode = new AtomicBoolean(false);
 
-    private final BlockingQueue<Task> queue = new LinkedBlockingQueue<Task>(1);
+    private final BlockingQueue<Task> queue = new LinkedBlockingQueue<>(1);
 
     private final WorkerStateContext workerState;
     private final Thread workerThread;

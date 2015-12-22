@@ -55,7 +55,7 @@ public class SpanAligner2 {
             throw new NullPointerException("spanList must not be null");
         }
 
-        final List<SpanBo> root = new ArrayList<SpanBo>();
+        final List<SpanBo> root = new ArrayList<>();
         for (SpanBo span : spanList) {
             if (span.getParentSpanId() == ROOT) {
                 root.add(span);
@@ -79,7 +79,7 @@ public class SpanAligner2 {
         // missing root or incomplete root (not arrived yet): meaning on-going process
         // next best thing is to lookup span based on the beginning of time of span it looked up
         // most likely data exist since the data gets extracted from span. non-existent data possible due to hbase insertion failure
-        final List<SpanBo> collectorAcceptTimeMatcher = new ArrayList<SpanBo>();
+        final List<SpanBo> collectorAcceptTimeMatcher = new ArrayList<>();
         for (SpanBo span : spanList) {
             // collectorTime is a hint
             if (span.getCollectorAcceptTime() == collectorAcceptTime) {
@@ -111,12 +111,12 @@ public class SpanAligner2 {
     }
 
     private Map<Long, List<SpanBo>> buildSpanMap(List<SpanBo> spans) {
-        final Map<Long, List<SpanBo>> spanMap = new HashMap<Long, List<SpanBo>>();
+        final Map<Long, List<SpanBo>> spanMap = new HashMap<>();
         for (SpanBo span : spans) {
             final long spanId = span.getSpanId();
             List<SpanBo> spanBoList = spanMap.get(spanId);
             if (spanBoList == null) {
-                spanBoList = new ArrayList<SpanBo>();
+                spanBoList = new ArrayList<>();
                 spanBoList.add(span);
                 spanMap.put(spanId, spanBoList);
             } else {
@@ -238,7 +238,7 @@ public class SpanAligner2 {
             return spanAsyncEventMap;
         }
 
-        final List<SpanEventBo> removeList = new ArrayList<SpanEventBo>();
+        final List<SpanEventBo> removeList = new ArrayList<>();
         for (SpanEventBo spanEvent : spanEventBoList) {
             if (spanAsyncEventMap.add(spanEvent)) {
                 removeList.add(spanEvent);

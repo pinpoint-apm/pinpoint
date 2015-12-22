@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric;
 
-import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,7 +34,7 @@ public class DefaultAcceptHistogram implements AcceptHistogram {
     }
 
     @Override
-    public boolean addResponseTime(String parentApplicationName, short serviceTypeCode, int millis) {
+    public boolean addResponseTime(String parentApplicationName, short serviceTypeCode, int millis, boolean error) {
         if (parentApplicationName == null) {
             throw new NullPointerException("parentApplicationName must not be null");
         }
@@ -48,7 +48,7 @@ public class DefaultAcceptHistogram implements AcceptHistogram {
         // We can infer if we know the type of histogramSchema. Server can determine the server type with code + schemaType. 
         final ResponseKey responseKey = new ResponseKey(parentApplicationName, serviceTypeCode);
         final Histogram histogram = getHistogram(responseKey);
-        histogram.addResponseTime(millis);
+        histogram.addResponseTime(millis, error);
         return true;
     }
 
@@ -57,7 +57,7 @@ public class DefaultAcceptHistogram implements AcceptHistogram {
         if (hit != null) {
             return hit;
         }
-        final Histogram histogram = new LongAdderHistogram(responseKey.getServiceType(), HistogramSchema.NORMAL_SCHEMA);
+        final Histogram histogram = new LongAdderHistogram(responseKey.getServiceType(), BaseHistogramSchema.NORMAL_SCHEMA);
         final Histogram old = map.putIfAbsent(responseKey, histogram);
         if (old != null) {
             return old;

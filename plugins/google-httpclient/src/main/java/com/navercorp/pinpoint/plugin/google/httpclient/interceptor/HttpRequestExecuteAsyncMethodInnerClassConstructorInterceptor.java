@@ -20,10 +20,10 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.google.httpclient.HttpClientConstants;
@@ -33,15 +33,15 @@ import com.navercorp.pinpoint.plugin.google.httpclient.HttpClientConstants;
  * @author jaehong.kim
  *
  */
-@Group(value = HttpClientConstants.EXECUTE_ASYNC_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
+@Scope(value = HttpClientConstants.EXECUTE_ASYNC_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
 public class HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private InterceptorGroup interceptorGroup;
+    private InterceptorScope interceptorScope;
 
-    public HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorGroup interceptorGroup) {
-        this.interceptorGroup = interceptorGroup;
+    public HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope interceptorScope) {
+        this.interceptorScope = interceptorScope;
     }
 
     @Override
@@ -55,9 +55,10 @@ public class HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor imple
                 return;
             }
 
-            final InterceptorGroupInvocation transaction = interceptorGroup.getCurrentInvocation();
+            final InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
             if (transaction != null && transaction.getAttachment() != null) {
                 final AsyncTraceId asyncTraceId = (AsyncTraceId) transaction.getAttachment();
+                // type check validate();
                 ((AsyncTraceIdAccessor)target)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
                 // clear.
                 transaction.removeAttachment();
@@ -69,7 +70,7 @@ public class HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor imple
 
     private boolean validate(final Object target, final Object[] args) {
         if (!(target instanceof AsyncTraceIdAccessor)) {
-            logger.debug("Invalid target object. Need field accessor({}).", HttpClientConstants.METADATA_ASYNC_TRACE_ID);
+            logger.debug("Invalid target object. Need field accessor({}).", AsyncTraceIdAccessor.class.getName());
             return false;
         }
 

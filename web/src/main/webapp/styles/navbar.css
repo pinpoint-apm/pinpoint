@@ -53,8 +53,27 @@
     margin-left: 1px;
 }
 #ui-datepicker-div {
-    font-size: 75%;
+    top: 40px;
+    left: 536px;
+    width: 404px;
+    border: 1px solid #DDD;
+    display:none;
+    padding: 4px 2px;
     z-index: 10 !important;
+    position: fixed;
+    font-size: 75%;
+    text-align: center;
+    background-color: #f2f2f2;
+}
+#ui-datepicker-div .guide {
+    color: rgb(44, 160, 44);
+    font-size: 12px;
+    text-align: center;
+    padding-top: 10px;
+}
+#from-picker, #to-picker {
+    display: inline-block;
+    vertical-align: top;
 }
 .navbar .select2-container .select2-choice {
     height: 30px;

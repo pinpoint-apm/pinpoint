@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.bootstrap.instrument.DefaultInterceptorGroupDefinition;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.AttachmentFactory;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.instrument.DefaultInterceptorScopeDefinition;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.AttachmentFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 
 public class ThreadLocalScopePoolTest {
 
@@ -30,7 +30,7 @@ public class ThreadLocalScopePoolTest {
     public void testGetScope() throws Exception {
 
         ScopePool pool = new ThreadLocalScopePool();
-        InterceptorGroupInvocation scope = pool.getScope(new DefaultInterceptorGroupDefinition("test"));
+        InterceptorScopeInvocation scope = pool.getScope(new DefaultInterceptorScopeDefinition("test"));
         Assert.assertTrue(scope instanceof ThreadLocalScope);
 
         Assert.assertEquals("name", scope.getName(), "test");
@@ -40,7 +40,7 @@ public class ThreadLocalScopePoolTest {
      public void testAttachment() throws Exception {
 
         ScopePool pool = new ThreadLocalScopePool();
-        InterceptorGroupInvocation scope = pool.getScope(new DefaultInterceptorGroupDefinition("test"));
+        InterceptorScopeInvocation scope = pool.getScope(new DefaultInterceptorScopeDefinition("test"));
 
         scope.tryEnter(ExecutionPolicy.BOUNDARY);
         scope.tryEnter(ExecutionPolicy.BOUNDARY);
@@ -61,7 +61,7 @@ public class ThreadLocalScopePoolTest {
     @Test
     public void testGetOrCreate() throws Exception {
         ScopePool pool = new ThreadLocalScopePool();
-        InterceptorGroupInvocation scope= pool.getScope(new DefaultInterceptorGroupDefinition("test"));
+        InterceptorScopeInvocation scope= pool.getScope(new DefaultInterceptorScopeDefinition("test"));
         
         scope.tryEnter(ExecutionPolicy.BOUNDARY);
         scope.tryEnter(ExecutionPolicy.BOUNDARY);
@@ -71,7 +71,7 @@ public class ThreadLocalScopePoolTest {
             @Override
             public Object createAttachment() {
                 return "test";
-            };
+            }
         }), "test");
         
         scope.canLeave(ExecutionPolicy.BOUNDARY);

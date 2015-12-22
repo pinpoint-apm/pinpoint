@@ -20,10 +20,10 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
@@ -32,7 +32,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 /**
  * @author jaehong.kim
  */
-@Group(value=HttpClient4Constants.HTTP_CLIENT4_SCOPE, executionPolicy=ExecutionPolicy.ALWAYS)
+@Scope(value=HttpClient4Constants.HTTP_CLIENT4_SCOPE, executionPolicy=ExecutionPolicy.ALWAYS)
 public class HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -40,19 +40,19 @@ public class HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodIntercept
 
     private final TraceContext traceContext;
     private final MethodDescriptor methodDescriptor;
-    private final InterceptorGroup interceptorGroup;
+    private final InterceptorScope interceptorScope;
 
 
-    public HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup) {
+    public HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
-        this.interceptorGroup = interceptorGroup;
+        this.interceptorScope = interceptorScope;
     }
     
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
-            logger.beforeInterceptor(target, methodDescriptor.getClassName(), methodDescriptor.getMethodName(), "", args);
+            logger.beforeInterceptor(target, args);
         }
 
         final Trace trace = traceContext.currentTraceObject();
@@ -60,22 +60,24 @@ public class HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodIntercept
             return;
         }
 
-        InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
-        if(invocation != null && invocation.getAttachment() != null) {
+        final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
+        if(invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof HttpCallContext) {
             HttpCallContext callContext = (HttpCallContext) invocation.getAttachment();
             if(methodDescriptor.getMethodName().equals("doSendRequest")) {
                 callContext.setWriteBeginTime(System.currentTimeMillis());
             } else {
                 callContext.setReadBeginTime(System.currentTimeMillis());
             }
-            logger.debug("Set call context {}", callContext);
+            if(isDebug) {
+                logger.debug("Set call context {}", callContext);
+            }
         }
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
-            logger.afterInterceptor(target, methodDescriptor.getClassName(), methodDescriptor.getMethodName(), "", args, result, throwable);
+            logger.afterInterceptor(target, args);
         }
 
         final Trace trace = traceContext.currentTraceObject();
@@ -83,8 +85,8 @@ public class HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodIntercept
             return;
         }
 
-        InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
-        if(invocation != null && invocation.getAttachment() != null) {
+        final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
+        if(invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof HttpCallContext) {
             HttpCallContext callContext = (HttpCallContext) invocation.getAttachment();
             if(methodDescriptor.getMethodName().equals("doSendRequest")) {
                 callContext.setWriteEndTime(System.currentTimeMillis());
@@ -93,7 +95,9 @@ public class HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodIntercept
                 callContext.setReadEndTime(System.currentTimeMillis());
                 callContext.setReadFail(throwable != null);
             }
-            logger.debug("Set call context {}", callContext);
+            if(isDebug) {
+                logger.debug("Set call context {}", callContext);
+            }
         }
     }
 }

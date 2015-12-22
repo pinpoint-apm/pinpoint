@@ -29,7 +29,7 @@ public enum JvmVersion {
     private final double version;
     private final int classVersion;
 
-    private JvmVersion(double version, int classVersion) {
+    JvmVersion(double version, int classVersion) {
         this.version = version;
         this.classVersion = classVersion;
     }

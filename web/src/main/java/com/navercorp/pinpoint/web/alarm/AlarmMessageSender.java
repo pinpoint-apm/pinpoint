@@ -22,6 +22,6 @@ import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
  * @author minwoo.jung
  */
 public interface AlarmMessageSender {
-    void sendSms(AlarmChecker checker);
-    void sendEmail(AlarmChecker checker);
+    void sendSms(AlarmChecker checker, int sequenceCount);
+    void sendEmail(AlarmChecker checker, int sequenceCount);
 }

@@ -58,11 +58,11 @@ public class ErrorRateCheckerTest {
                 for (int i=0 ; i < 5; i++) {
                     for (int j=0 ; j < 5; j++) {
                         histogram = new TimeHistogram(ServiceType.STAND_ALONE, timeStamp);
-                        histogram.addCallCountByElapsedTime(1000);
-                        histogram.addCallCountByElapsedTime(3000);
-                        histogram.addCallCountByElapsedTime(-1);
-                        histogram.addCallCountByElapsedTime(-1);
-                        histogram.addCallCountByElapsedTime(-1);
+                        histogram.addCallCountByElapsedTime(1000, false);
+                        histogram.addCallCountByElapsedTime(3000, false);
+                        histogram.addCallCountByElapsedTime(1000, true);
+                        histogram.addCallCountByElapsedTime(1000, true);
+                        histogram.addCallCountByElapsedTime(1000, true);
                         responseTime.addResponseTime("agent_" + i + "_" + j, histogram);
                     }
                     

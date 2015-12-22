@@ -17,8 +17,6 @@ package com.navercorp.pinpoint.web.dao.mysql;
 
 import java.util.List;
 
-import javax.xml.stream.events.Namespace;
-
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -54,6 +52,11 @@ public class MysqlUserGroupDao implements UserGroupDao {
     @Override
     public List<UserGroup> selectUserGroupByUserId(String userId) {
         return sqlSessionTemplate.selectList(NAMESPACE + "selectUserGroupListByUserId", userId);
+    }
+    
+    @Override
+    public List<UserGroup> selectUserGroupByUserGroupId(String userGroupId) {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectUserGroupByUserGroupId", userGroupId);
     }
 
     @Override
@@ -104,9 +107,5 @@ public class MysqlUserGroupDao implements UserGroupDao {
     @Override
     public void updateUserGroupIdOfMember(UserGroup userGroup) {
         sqlSessionTemplate.update(NAMESPACE + "updateUserGroupIdOfMember", userGroup);
-        
     }
-
-
-
 }

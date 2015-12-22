@@ -39,7 +39,7 @@ public class SpanBoTest {
         try {
             check(spanBo, 256);
             Assert.fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
 

@@ -176,7 +176,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
                 responseFilterChain.doEvent(new ResponseEvent(streamEvent, -1, response));
                 consumer.sendData(serialize(response));
             } else {
-                logger.warn("Can route stream data to consumer.(state:{})", stateCode);
+                logger.warn("Can not route stream data to consumer.(state:{})", stateCode);
                 if (StreamChannelStateCode.CONNECT_ARRIVED != stateCode) {
                     close();
                 }

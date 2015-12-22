@@ -18,13 +18,13 @@ package com.navercorp.pinpoint.profiler;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,56 +39,70 @@ import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 import com.navercorp.pinpoint.thrift.dto.TServerMetaData;
 import com.navercorp.pinpoint.thrift.dto.TServiceInfo;
 
-
 /**
  * @author emeroad
  * @author koo.taejin
- * @author hyungil.jeong
+ * @author HyunGil Jeong
  */
 public class AgentInfoSender implements ServerMetaDataListener {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AgentInfoSender.class);
+    // refresh daily
+    public static final long DEFAULT_AGENT_INFO_REFRESH_INTERVAL_MS = 24 * 60 * 60 * 1000L;
+    // retry every 3 seconds
+    public static final long DEFAULT_AGENT_INFO_SEND_INTERVAL_MS = 3 * 1000L;
+    // retry 3 times per attempt
+    public static final int DEFAULT_MAX_TRY_COUNT_PER_ATTEMPT = 3;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgentInfoSender.class);
     private static final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("Pinpoint-agentInfo-sender", true);
-    
-    private final ScheduledExecutorService EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor(THREAD_FACTORY);
-    private final long agentInfoSendIntervalMs; 
+
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(THREAD_FACTORY);
+
     private final EnhancedDataSender dataSender;
+    private final long refreshIntervalMs;
+    private final long sendIntervalMs;
+    private final int maxTryPerAttempt;
     private final AgentInformation agentInformation;
 
-    public AgentInfoSender(EnhancedDataSender dataSender, long agentInfoSendIntervalMs, AgentInformation agentInformation) {
-        if (dataSender == null) {
-            throw new NullPointerException("dataSender must not be null");
-        }
-        if (agentInformation == null) {
-            throw new NullPointerException("agentInformation must not be null");
-        }
-        this.agentInfoSendIntervalMs = agentInfoSendIntervalMs;
-        this.dataSender = dataSender;
-        this.agentInformation = agentInformation;
+    private volatile ServerMetaData serverMetaData;
+
+    private AgentInfoSender(Builder builder) {
+        this.dataSender = builder.dataSender;
+        this.agentInformation = builder.agentInformation;
+        this.refreshIntervalMs = builder.refreshIntervalMs;
+        this.sendIntervalMs = builder.sendIntervalMs;
+        this.maxTryPerAttempt = builder.maxTryPerAttempt;
+    }
+
+    @Override
+    public void publishServerMetaData(ServerMetaData serverMetaData) {
+        this.serverMetaData = serverMetaData;
+        submit(this.maxTryPerAttempt);
     }
 
     public void start() {
-        final TAgentInfo agentInfo = createTAgentInfo();
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("AgentInfoSender started. Sending startup information to Pinpoint server via {}. agentInfo={}", dataSender.getClass().getSimpleName(), agentInfo);
+        submit(Integer.MAX_VALUE);
+        this.executor.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                submit(maxTryPerAttempt);
+            }
+        }, this.refreshIntervalMs, this.refreshIntervalMs, TimeUnit.MILLISECONDS);
+    }
+
+    public void stop() {
+        this.executor.shutdown();
+        try {
+            this.executor.awaitTermination(3000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
-        send(agentInfo);
+        LOGGER.info("AgentInfoSender stopped");
     }
-    
-    @Override
-    public void publishServerMetaData(ServerMetaData serverMetaData) {
-        final TAgentInfo agentInfo = createTAgentInfo(serverMetaData);
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Sending AgentInfo with ServerMetaData. {}", agentInfo);
-        }
-        send(agentInfo);
+
+    private void submit(final int maxTryPerAttempt) {
+        new AgentInfoSendRunnableWrapper(new AgentInfoSendRunnable(), maxTryPerAttempt).repeatWithFixedDelay(this.executor, 0, this.sendIntervalMs, TimeUnit.MILLISECONDS);
     }
-    
-    private void send(final TAgentInfo agentInfo) {
-        final AgentInfoSendRunnable agentInfoSendJob = new AgentInfoSendRunnable(agentInfo);
-        new AgentInfoSendRunnableWrapper(agentInfoSendJob).repeatWithFixedDelay(EXECUTOR_SERVICE, 0, this.agentInfoSendIntervalMs, TimeUnit.MILLISECONDS);
-    }
-    
+
     private TAgentInfo createTAgentInfo() {
         final TAgentInfo agentInfo = new TAgentInfo();
         agentInfo.setIp(this.agentInformation.getHostIp());
@@ -101,31 +115,13 @@ public class AgentInfoSender implements ServerMetaDataListener {
         agentInfo.setServiceType(this.agentInformation.getServerType().getCode());
         agentInfo.setVmVersion(this.agentInformation.getJvmVersion());
         agentInfo.setAgentVersion(Version.VERSION);
-        return agentInfo;
-    }
-    
-    private TAgentInfo createTAgentInfo(final ServerMetaData serverMetaData) {
-        final StringBuilder ports = new StringBuilder();
-        for (Entry<Integer, String> entry : serverMetaData.getConnectors().entrySet()) {
-            ports.append(" ");
-            ports.append(entry.getKey());
+        if (this.serverMetaData != null) {
+            agentInfo.setServerMetaData(createTServiceInfo());
         }
-        final TAgentInfo agentInfo = new TAgentInfo();
-        agentInfo.setIp(this.agentInformation.getHostIp());
-        agentInfo.setHostname(this.agentInformation.getMachineName());
-        agentInfo.setPorts(ports.toString());
-        agentInfo.setAgentId(this.agentInformation.getAgentId());
-        agentInfo.setApplicationName(this.agentInformation.getApplicationName());
-        agentInfo.setPid(this.agentInformation.getPid());
-        agentInfo.setStartTimestamp(this.agentInformation.getStartTime());
-        agentInfo.setServiceType(this.agentInformation.getServerType().getCode());
-        agentInfo.setVmVersion(this.agentInformation.getJvmVersion());
-        agentInfo.setAgentVersion(Version.VERSION);
-        agentInfo.setServerMetaData(createTServiceInfo(serverMetaData));
         return agentInfo;
     }
-    
-    private TServerMetaData createTServiceInfo(final ServerMetaData serverMetaData) {
+
+    private TServerMetaData createTServiceInfo() {
         TServerMetaData tServerMetaData = new TServerMetaData();
         tServerMetaData.setServerInfo(serverMetaData.getServerInfo());
         tServerMetaData.setVmArgs(serverMetaData.getVmArgs());
@@ -139,59 +135,106 @@ public class AgentInfoSender implements ServerMetaDataListener {
         tServerMetaData.setServiceInfos(tServiceInfos);
         return tServerMetaData;
     }
-    
+
     private static class AgentInfoSendRunnableWrapper implements Runnable {
         private final AgentInfoSendRunnable delegate;
-        private ScheduledFuture<?> self;
-        
-        private AgentInfoSendRunnableWrapper(AgentInfoSendRunnable agentInfoSendRunnable) {
+        private final int maxTryCount;
+        private final AtomicInteger tryCount = new AtomicInteger();
+        private volatile ScheduledFuture<?> self;
+
+        private AgentInfoSendRunnableWrapper(AgentInfoSendRunnable agentInfoSendRunnable, int maxTryCount) {
+            if (agentInfoSendRunnable == null) {
+                throw new NullPointerException("agentInfoSendRunnable must not be null");
+            }
+            if (maxTryCount < 0) {
+                throw new IllegalArgumentException("maxTryCount must not be less than 0");
+            }
             this.delegate = agentInfoSendRunnable;
+            this.maxTryCount = maxTryCount;
         }
 
         @Override
         public void run() {
-            // Cancel self when delegated runnable is completed successfully.
-            if (this.delegate.isSuccessful()) {
-                this.self.cancel(true);
+            // Cancel self when delegated runnable is completed successfully, or when max try count has been reached
+            if (this.delegate.isSuccessful() || this.tryCount.getAndIncrement() == this.maxTryCount) {
+                this.self.cancel(false);
             } else {
                 this.delegate.run();
             }
         }
-        
+
         private void repeatWithFixedDelay(ScheduledExecutorService scheduledExecutorService, long initialDelay, long delay, TimeUnit unit) {
             this.self = scheduledExecutorService.scheduleWithFixedDelay(this, initialDelay, delay, unit);
         }
     }
-    
+
     private class AgentInfoSendRunnable implements Runnable {
         private final AtomicBoolean isSuccessful = new AtomicBoolean(false);
         private final AgentInfoSenderListener agentInfoSenderListener = new AgentInfoSenderListener(this.isSuccessful);
         private final TAgentInfo agentInfo;
-        
-        private AgentInfoSendRunnable(TAgentInfo agentInfo) {
-            this.agentInfo = agentInfo;
+
+        private AgentInfoSendRunnable() {
+            this.agentInfo = createTAgentInfo();
         }
-        
+
         @Override
         public void run() {
             if (!isSuccessful.get()) {
-                dataSender.request(agentInfo, this.agentInfoSenderListener);
+                LOGGER.info("Sending AgentInfo {}", agentInfo);
+                dataSender.request(this.agentInfo, this.agentInfoSenderListener);
             }
         }
-        
+
         public boolean isSuccessful() {
             return this.isSuccessful.get();
         }
     }
 
-    public void stop() {
-        EXECUTOR_SERVICE.shutdown();
-        try {
-            EXECUTOR_SERVICE.awaitTermination(3000, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+    public static class Builder {
+        private final EnhancedDataSender dataSender;
+        private final AgentInformation agentInformation;
+        private long refreshIntervalMs = DEFAULT_AGENT_INFO_REFRESH_INTERVAL_MS;
+        private long sendIntervalMs = DEFAULT_AGENT_INFO_SEND_INTERVAL_MS;
+        private int maxTryPerAttempt = DEFAULT_MAX_TRY_COUNT_PER_ATTEMPT;
+
+        public Builder(EnhancedDataSender dataSender, AgentInformation agentInformation) {
+            if (dataSender == null) {
+                throw new NullPointerException("enhancedDataSender must not be null");
+            }
+            if (agentInformation == null) {
+                throw new NullPointerException("agentInformation must not be null");
+            }
+            this.dataSender = dataSender;
+            this.agentInformation = agentInformation;
         }
-        LOGGER.info("AgentInfoSender stopped");
+
+        public Builder refreshInterval(long refreshIntervalMs) {
+            this.refreshIntervalMs = refreshIntervalMs;
+            return this;
+        }
+
+        public Builder sendInterval(long sendIntervalMs) {
+            this.sendIntervalMs = sendIntervalMs;
+            return this;
+        }
+
+        public Builder maxTryPerAttempt(int maxTryCountPerAttempt) {
+            this.maxTryPerAttempt = maxTryCountPerAttempt;
+            return this;
+        }
+
+        public AgentInfoSender build() {
+            if (this.refreshIntervalMs <= 0) {
+                throw new IllegalStateException("agentInfoRefreshIntervalMs must be greater than 0");
+            }
+            if (this.sendIntervalMs <= 0) {
+                throw new IllegalStateException("agentInfoSendIntervalMs must be greater than 0");
+            }
+            if (this.maxTryPerAttempt <= 0) {
+                throw new IllegalStateException("maxTryPerAttempt must be greater than 0");
+            }
+            return new AgentInfoSender(this);
+        }
     }
-    
+
 }

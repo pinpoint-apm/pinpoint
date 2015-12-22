@@ -22,6 +22,14 @@
 		responseCode: {
 			ERROR_BLACK: 111,
 			TIMEOUT: 211
+		},
+		consts: {
+			maxDealyCount: 5,
+			verticalGridCount: 5
+		},
+		message: {
+			NO_ACTIVE_THREAD: "No Active Thread",
+			NO_RESPONSE: "No Response"
 		}
 	});
 	
@@ -68,9 +76,12 @@
             	    var passingQueue = [];
             	    var chartDataQueue = [];
             	    var timeoutCount = 0;
+            	    var delayCount = 0;
+					var verticalGridGap = parseInt( chartInnerWidth / (cfg.consts.verticalGridCount - 1) );
+					var tickCount = 1;
             	    initChartData();
 
-            	    var d3svg, d3svgX, d3svgY, d3grid, d3path, d3area, d3labels, d3totalLabel, d3tooltip, d3tooltipTextGroup, d3tooltipDate, d3errorLabel, d3errorLabelSpan1, d3errorLabelSpan2;
+            	    var d3svg, d3svgX, d3svgY, d3HGrid, d3VGrid, d3VGridLines, d3path, d3area, d3labels, d3totalLabel, d3tooltip, d3tooltipTextGroup, d3tooltipDate, d3errorLabel, d3errorLabelSpan1, d3errorLabelSpan2;
             	    var d3stack = d3.layout.stack().y(function(d) { return d.y; });
             	    var d3transition = d3.select({}).transition().duration(oInnerOption.transaction.duration).ease(oInnerOption.transaction.ease);
             	    d3stack(chartDataQueue);
@@ -104,15 +115,18 @@
             	    	chartDataQueue.length = 0;
             	    	var now = Date.now();
             	        for( var i = 0 ; i < oOuterOption.requestLabel.length ; i++ ) {
-            	            chartDataQueue.push( d3.range(oOuterOption.xAxisCount).map(function() { return { y: 0, d: now  }; }) );
+            	            chartDataQueue.push( d3.range(oOuterOption.xAxisCount).map(function() { return { y: 0, d: now }; }) );
             	        }
             	    }
             	    function initAxis() {
             	        d3svgX = d3.scale.linear().domain(oInnerOption.domain).range([0, chartInnerWidth]);
             	        if ( oOuterOption.showExtraInfo ) {
 	            	        d3svg.append("g").attr("class", "y axis");
-            	        }
-            	        d3grid = d3svg.append("g"); 
+						} else {
+							d3VGrid = d3svg.append("g").attr("class", "v-grid");
+							resetVGrid();
+						}
+            	        d3HGrid = d3svg.append("g").attr("class", "h-grid");
             	        resetYAxis();
             	    }
             	    function resetYAxis() {
@@ -120,10 +134,24 @@
             	        if ( oOuterOption.showExtraInfo ) {
 	            	        d3svg.selectAll("g.y.axis")
 	            	        	.call( d3.svg.axis().scale(d3svgY).ticks(3).orient("left").tickFormat(oInnerOption.yAxisFormat) );
-            	        }
-            	        resetGrid();
+						}
+            	        resetHGrid();
             	    }
-            	    function resetGrid() {
+					function resetVGrid() {
+						var aData = [];
+						for( var i = 0 ; i < cfg.consts.verticalGridCount ; i++ ) {
+							aData.push( verticalGridGap * i );
+						}
+						d3VGridLines = d3VGrid.selectAll("line").data(aData).enter().append("line")
+							.attr("class", "grid").attr({
+								x1: function(d) { return d; },
+								x2: function(d) { return d; },
+								y1: -10,
+								y2: chartInnerHeight
+							})[0];
+
+					}
+            	    function resetHGrid() {
             	    	var gridValue = [];
             	    	var aTarget = d3svg.select("g.y.axis").selectAll("g.tick");
             	    	if ( aTarget.length == 0 ) return;
@@ -131,7 +159,7 @@
             	    	jQuery.each( aTarget[0], function( index, ele ) {
             	    		gridValue.push( parseFloat( ele.getAttribute("transform").replace(/translate\(0,(-?[0-9.]*)\)/, "$1") ) );
             	    	});
-            	    	var elements = d3grid.selectAll("line").data(gridValue);
+            	    	var elements = d3HGrid.selectAll("line").data(gridValue);
             	    	
 	            	    elements.enter()
 	            	    	.append("line")
@@ -150,10 +178,10 @@
 	            	    	.transition()
 	            	    	.attr("x1", 0)
             	    		.attr("x2", chartInnerWidth)
-	        	    		.attr("y1", function(d, i) {
+	        	    		.attr("y1", function(d) {
 	        	    			return d;
 	        	    		})
-	        	    		.attr("y2", function(d, i) {
+	        	    		.attr("y2", function(d) {
 	        	    			return d;
 	        	    		});
 	            	    
@@ -211,7 +239,7 @@
 	        	            .attr("fill", function(d, i) {
 	        	                return oOuterOption.requestColor[i];
 	        	            })
-	        	            .attr("text-acchor", "end")
+	        	            .attr("text-anchor", "end")
 	        	            .text(function(d, i) {
 	        	                return oOuterOption.requestLabel[i];
 	        	            });
@@ -257,7 +285,7 @@
             	        });
             	        d3tooltipDate.text( oInnerOption.timeFormat(new Date(datum[0].d)) );
             	    }
-            	    function initLabels( datum ) {
+            	    function initLabels() {
             	        if ( oOuterOption.showExtraInfo === false ) return;
             	        
             	        d3svg.append("g")
@@ -318,9 +346,7 @@
         	                .attr("fill", function(d, i) {
         	                    return oOuterOption.requestColor[i];
         	                })
-        	                .text(function(d, i) {
-        	                	return "0";
-        	                });
+        	                .text("0");
             	    }
             	    function initErrorLabel() {
             	    	d3errorLabel = d3svg.append("text")
@@ -358,20 +384,34 @@
             	        
             	        d3totalLabel.text(subSum);
             	    }
+					function initDelayCount() {
+						delayCount = 0;
+					}
             	    function tick() {
             	        d3transition = d3transition.each(function() {
-            	            if ( passingQueue.length === 0 ) return;
+            	        	delayCount++;
+            	            if ( passingQueue.length === 0 ) {
+            	            	if ( delayCount > cfg.consts.maxDealyCount && oOuterOption.showExtraInfo == false ) {
+            	            		setErrorMessage( false, [cfg.message.NO_RESPONSE]);
+            	            	}
+            	            	return;
+            	            }
+							initDelayCount();
 
             	            var aNewData = passingQueue.shift();
-            	            resetLabelData( aNewData );
+							resetLabelData( aNewData );
             	            resetYAxis();
+							if ( oOuterOption.showExtraInfo === false ) {
+								redrawVGrid();
+							}
 
             	            var i = 0;
             	            for( i = 0 ; i < chartDataQueue.length ; i++ ) {
             	                chartDataQueue[i].push( aNewData[i] );
             	            }
             	            d3stack(chartDataQueue);
-            	            redrawPath();
+							initArea();
+							redrawPath();
             	            for( i = 0 ; i < chartDataQueue.length ; i++ ) {
             	                chartDataQueue[i].shift();
             	            }
@@ -380,42 +420,48 @@
             	            tick();
             	        });
             	    }
+					function redrawVGrid() {
+						var maxGridX = 0;
+						for( var i = 0 ; i < d3VGridLines.length ; i++ ) {
+							maxGridX = Math.max( maxGridX, parseInt( d3.select(d3VGridLines[i]).attr("x1") ) );
+						}
+
+						var newX = d3svgX(0) * tickCount++;
+						var nextGridX = maxGridX + verticalGridGap;
+						d3VGrid.transition().attr("transform", "translate("+ newX + ")").each("end", function() {
+							for( var i = 0 ; i < d3VGridLines.length ; i++ ) {
+								var d3Elem = d3.select(d3VGridLines[i]);
+								var x1 = parseInt( d3Elem.attr("x1") );
+								if ( x1 < Math.abs( newX ) ) {
+									d3Elem.attr({
+										x1: nextGridX,
+										x2: nextGridX
+									});
+									nextGridX += verticalGridGap;
+								}
+							}
+						});
+					}
             	    function redrawPath() {
-            	        d3path.attr("d", d3area)
+            	        d3path.data(chartDataQueue)
+							.attr("d", d3area)
             	            .attr("transform", null)
             	            .transition()
             	            .attr("transform", "translate(" + d3svgX(0) + ")");
             	    }
             	    tick();
-            	    function checkSleeping() {
-            	    	if ( oOuterOption.showExtraInfo ) return;
-            	    	var bHasData = false;
-            	    	for( var i = 0 ; i < chartDataQueue.length ; i++ ) {
-            	    		var aInner = chartDataQueue[i];
-            	    		for( var j = 0 ; j < aInner.length ; j++ ) {
-            	    			if ( aInner[j].y !== 0 ) {
-            	    				bHasData = true;
-            	    				break;
-            	    			}
-            	    		}
-            	    	}
-            	    	if ( bHasData === false ) {
-            	    		setErrorMessage( false, ["No Active Thread"]);
-            	    	}
-            	    }
 	            	    
 	            	scope.$on('realtimeChartDirective.onData.' + oOuterOption.namespace, function (event, aNewRequestCount, timeStamp, yValue, bAllError) {
 	            		maxY = yValue;
 	            		timeoutCount = 0;
 	            		setErrorMessage(false, ["", ""]);
 	            		if ( bAllError === false ) {
-		            		passingQueue.push( aNewRequestCount.map(function(v, i) {
+		            		passingQueue.push( aNewRequestCount.map(function(v) {
 		            			return {
 		            				y: parseInt( v ),
 		            				d: timeStamp
 		            			}
 		            		}) );
-		            		checkSleeping();
 	            		}
 	    	        });
 	            	scope.$on('realtimeChartDirective.onError.' + oOuterOption.namespace, function (event, oError, timeStamp, yValue) {
@@ -423,12 +469,13 @@
 	            		if ( oError.code === cfg.responseCode.TIMEOUT ) {
 		            		if ( timeoutCount < oOuterOption.timeoutMaxCount ) {
 		            			passingQueue.push( chartDataQueue[chartDataQueue.length - 1] );
-		            			checkSleeping();
 		            		} else {
+								initDelayCount();
 		            			setErrorMessage( true, oError.message.split("_") );
 		            		}
 		            		timeoutCount++;
 	            		} else {
+							initDelayCount();
 	            			setErrorMessage( oError.code !== cfg.responseCode.ERROR_BLACK, oError.message.split("_") );
 	            		}
 	            		
@@ -440,7 +487,7 @@
 	            		element.html("");
 	            		resetLabelData([{}, {}, {}, {}]);
 	            		d3stack(chartDataQueue);
-	            		
+
 	            		initChart();
 	            		initAxis();
 	            	    initArea();

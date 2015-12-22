@@ -11,7 +11,7 @@
 	    return {
 	        restrict: 'EA',
 	        replace: true,
-	        templateUrl: 'features/timeline/timeline.html',
+	        templateUrl: 'features/timeline/timeline.html?v=' + G_BUILD_TIME,
 	        link: function postLink(scope, element, attrs) {
 
 	        	// define private variables of methods

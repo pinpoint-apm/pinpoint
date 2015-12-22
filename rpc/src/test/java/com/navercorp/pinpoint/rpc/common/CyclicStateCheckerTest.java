@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.rpc.common;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.rpc.common.CyclicStateCheckerTest;
-
 /**
  * @author Taejin Koo
  */

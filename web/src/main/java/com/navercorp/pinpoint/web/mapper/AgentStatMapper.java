@@ -119,7 +119,7 @@ public class AgentStatMapper implements RowMapper<List<AgentStat>> {
             agentStat.setUnsampledContinuationCount(Bytes.toLong(qualifierMap.get(AGENT_STAT_COL_TRANSACTION_UNSAMPLED_CONTINUATION)));
         }
 
-        List<AgentStat> agentStats = new ArrayList<AgentStat>();
+        List<AgentStat> agentStats = new ArrayList<>();
         agentStats.add(agentStat);
         return agentStats;
     }
@@ -149,7 +149,7 @@ public class AgentStatMapper implements RowMapper<List<AgentStat>> {
             agentStat.setJvmCpuUsage(agentStatCpuLoadBo.getJvmCpuLoad());
             agentStat.setSystemCpuUsage(agentStatCpuLoadBo.getSystemCpuLoad());
         }
-        List<AgentStat> result = new ArrayList<AgentStat>(1);
+        List<AgentStat> result = new ArrayList<>(1);
         result.add(agentStat);
         return result;
     }
@@ -184,7 +184,7 @@ public class AgentStatMapper implements RowMapper<List<AgentStat>> {
         agentStat.setNonHeapUsed(agentStatMemoryGcBo.getJvmMemoryNonHeapUsed());
         agentStat.setNonHeapMax(agentStatMemoryGcBo.getJvmMemoryNonHeapMax());
 
-        List<AgentStat> result = new ArrayList<AgentStat>(1);
+        List<AgentStat> result = new ArrayList<>(1);
         result.add(agentStat);
         return result;
     }

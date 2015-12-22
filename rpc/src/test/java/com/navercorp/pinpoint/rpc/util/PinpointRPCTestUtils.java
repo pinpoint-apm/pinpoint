@@ -41,31 +41,7 @@ public final class PinpointRPCTestUtils {
 
     private PinpointRPCTestUtils() {
     }
-    
 
-    public static int findAvailablePort() throws IOException {
-        return findAvailablePort(21111);
-    }
-
-    public static int findAvailablePort(int defaultPort) throws IOException {
-        int bindPort = defaultPort;
-
-        ServerSocket serverSocket = null;
-        while (0xFFFF >= bindPort && serverSocket == null) {
-            try {
-                serverSocket = new ServerSocket(bindPort);
-            } catch (IOException ex) {
-                bindPort++;
-            }
-        }
-        
-        if (serverSocket != null) {
-            serverSocket.close();
-            return bindPort;
-        } 
-        
-        throw new IOException("can't find available port.");
-    }
 
     public static PinpointServerAcceptor createPinpointServerFactory(int bindPort) {
         return createPinpointServerFactory(bindPort, null);
@@ -96,11 +72,11 @@ public final class PinpointRPCTestUtils {
         }
     }
     
-    public static PinpointClientFactory createClientFactory(Map param) {
+    public static PinpointClientFactory createClientFactory(Map<String, Object> param) {
         return createClientFactory(param, null);
     }
     
-    public static PinpointClientFactory createClientFactory(Map param, MessageListener messageListener) {
+    public static PinpointClientFactory createClientFactory(Map<String, Object> param, MessageListener messageListener) {
         PinpointClientFactory clientFactory = new PinpointClientFactory();
         clientFactory.setProperties(param);
         clientFactory.addStateChangeEventListener(LoggingStateChangeEventListener.INSTANCE);
@@ -161,8 +137,8 @@ public final class PinpointRPCTestUtils {
         return new EchoClientListener();
     }
 
-    public static Map getParams() {
-        Map properties = new HashMap();
+    public static Map<String, Object> getParams() {
+        Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(AgentHandshakePropertyType.AGENT_ID.getName(), "agent");
         properties.put(AgentHandshakePropertyType.APPLICATION_NAME.getName(), "application");
         properties.put(AgentHandshakePropertyType.HOSTNAME.getName(), "hostname");

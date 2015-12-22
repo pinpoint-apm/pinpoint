@@ -18,19 +18,20 @@
 	        return {
 	            restrict: 'EA',
 	            replace: true,
-	            templateUrl: 'features/navbar/navbar.html',
+	            templateUrl: 'features/navbar/navbar.html?v=' + G_BUILD_TIME,
 	            link: function (scope, element) {
-	
 	                // define private variables
-	                var $application, $fromPicker, $toPicker, oNavbarVoService;
+	                var $application, $fromPicker, $toPicker, oNavbarVoService, $fromToCalendarPopup;
 	
 	                // define private variables of methods
 	                var initialize, initializeDateTimePicker, initializeApplication, setDateTime, getQueryEndTimeFromServer,
 	                    broadcast, getApplicationList, getQueryStartTime, getQueryEndTime, parseApplicationList, emitAsChanged,
 	                    initializeWithStaticApplication, getPeriodType, setPeriodTypeAsCurrent, getDate, startUpdate,
-	                    resetTimeLeft, getRangeFromStorage, setRangeToStorage, getMilliSecondByReadablePeriod, movePeriod;
+	                    resetTimeLeft, getRangeFromStorage, setRangeToStorage, getMilliSecondByReadablePeriod, movePeriod, selectPeriod,
+						toggleCalendarPopup, getPeriodForCalendar;
 	
 	                var applicationResource;
+					var bInitCalendar = false;
 	                /**
 	                 * getRangeFromStorage
 	                 */
@@ -98,7 +99,7 @@
 	                 */
 	                initialize = function (navbarVoService) {
 	                    oNavbarVoService = navbarVoService;
-	
+	                    
 	                    scope.periodType = getPeriodType();
 	                    scope.showNavbar = true;
 	                    scope.showStaticApplication = false;
@@ -113,8 +114,9 @@
 	                    scope.application = oNavbarVoService.getApplication() || '';
 	                    scope.disableApplication = true;
 	                    scope.readablePeriod = oNavbarVoService.getReadablePeriod() || preferenceService.getPeriod();
+						scope.periodCalendar = oNavbarVoService.getReadablePeriod() || preferenceService.getPeriod();
 	                    scope.queryEndTime = oNavbarVoService.getQueryEndTime() || '';
-	
+
 	                    initializeApplication();
 	                    initializeDateTimePicker();
 	                    getApplicationList();
@@ -134,25 +136,39 @@
 	                    scope.application = oNavbarVoService.getApplication() || '';
 	                    scope.applicationName = oNavbarVoService.getApplicationName() || '';
 	                    scope.readablePeriod = oNavbarVoService.getReadablePeriod() || preferenceService.getPeriod();
+						scope.periodCalendar = oNavbarVoService.getReadablePeriod() || preferenceService.getPeriod();
 	                    scope.queryEndTime = oNavbarVoService.getQueryEndTime() || '';
-	
-	                    initializeDateTimePicker();
+
+						if ( bInitCalendar === false ) {
+							initializeDateTimePicker();
+							bInitCalendar = true;
+						}
 	                };
 	
 	                /**
 	                 * initialize date time picker
 	                 */
 	                initializeDateTimePicker = function () {
-	                    $fromPicker = element.find('#from-picker');
+						$fromToCalendarPopup = $("#ui-datepicker-div");
+						$fromToCalendarPopup.find(".guide").html(helpContentService.navbar.searchPeriod.guide.replace(/\{\{day\}\}/, preferenceService.getMaxPeriod() ) );
+						$fromToCalendarPopup.find("button.ui-datepicker-close").on("click", function() {
+							$fromToCalendarPopup.hide();
+						});
+
+						$fromPicker = element.find('#from-picker');
 	                    $fromPicker.datetimepicker({
+							altField: "#from-picker-alt",
+							altFieldTimeOnly: false,
 	                        dateFormat: "yy-mm-dd",
 	                        timeFormat: "HH:mm",
 	                        controlType: "select",
+							showButtonPanel: false,
 	                        onSelect: function () {
 	                        	var momentFrom = moment(getDate($fromPicker));
 	                        	var momentTo = moment(getDate($toPicker));
-	                        	if ( momentTo.isAfter( moment(getDate($fromPicker)).add(2, "days") ) || momentFrom.isAfter(momentTo) ) {
-	                        		setDateTime($toPicker, momentFrom.add(2, "days").format());
+	                        	if ( momentTo.isAfter( moment(getDate($fromPicker)).add(preferenceService.getMaxPeriod(), "days") ) || momentFrom.isAfter(momentTo) ) {
+									var aPeriodTime = getPeriodForCalendar();
+	                        		setDateTime($toPicker, momentFrom.add( aPeriodTime[0], aPeriodTime[1] ).format());
 	                        	}
 	                        },
 	                        onClose: function (currentTime, oTime) {
@@ -169,14 +185,18 @@
 	
 	                    $toPicker = element.find('#to-picker');
 	                    $toPicker.datetimepicker({
+							altField: "#to-picker-alt",
+							altFieldTimeOnly: false,
 	                        dateFormat: "yy-mm-dd",
 	                        timeFormat: "HH:mm",
 	                        controlType: "select",
+							showButtonPanel: false,
 	                        onSelect: function () {
 	                        	var momentFrom = moment(getDate($fromPicker));
 	                        	var momentTo = moment(getDate($toPicker));
-	                        	if ( momentFrom.isBefore(moment(getDate($toPicker)).subtract(2, "days")) || momentFrom.isAfter(momentTo) ) {
-	                        		setDateTime($fromPicker, momentTo.subtract(2, "days").format());
+	                        	if ( momentFrom.isBefore(moment(getDate($toPicker)).subtract(preferenceService.getMaxPeriod(), "days")) || momentFrom.isAfter(momentTo) ) {
+									var aPeriodTime = getPeriodForCalendar();
+	                        		setDateTime($fromPicker, momentTo.subtract(aPeriodTime[0], aPeriodTime[1]).format());
 	                        	}
 	                        },
 	                        onClose: function (currentTime, oTime) {
@@ -190,8 +210,36 @@
 	                        }
 	                    });
 	                    setDateTime($toPicker, oNavbarVoService.getQueryEndTime());
-	
+
+						$("#from-picker-alt").on("click", function() {
+							toggleCalendarPopup();
+						});
+						$("#to-picker-alt").on("click", function() {
+							toggleCalendarPopup();
+						});
+						$(document).mousedown(function(event) {
+							if ( $fromToCalendarPopup.is(":visible") === false ) return;
+							if ( $(event.target).parents("div#ui-datepicker-div").length === 0 ) {
+								$fromToCalendarPopup.hide();
+							}
+						});
 	                };
+					getPeriodForCalendar = function() {
+						var a = [];
+						var s = scope.periodCalendar.substring( scope.periodCalendar.length - 1 );
+						a[0] = parseInt( scope.periodCalendar );
+						a[1] = s == "d" ? "days" : s == "h" ? "hours" : "minutes";
+						return a;
+					}
+
+					toggleCalendarPopup = function() {
+						if ( $fromToCalendarPopup.is(":visible") ) {
+							$fromToCalendarPopup.hide();
+						} else {
+							$fromToCalendarPopup.css("left", $("#navbar_period").offset().left );
+							$fromToCalendarPopup.show();
+						}
+					}
 	
 	                getDate = function ($picker) {
 	                    return $picker.datetimepicker('getDate');
@@ -223,11 +271,7 @@
 	                 * set DateTime
 	                 */
 	                setDateTime = function ($picker, time) {
-	                    var date = new Date();
-	                    if (time) {
-	                        date.setTime(time);
-	                    }
-	                    $picker.datetimepicker('setDate', date);
+						$picker.datetimepicker('setDate', time ? new Date(time) : new Date());
 	                };
 	
 	                /**
@@ -300,7 +344,9 @@
 	                                    if (oNavbarVoService.getApplication()) {
 	                                        $application.select2('val', oNavbarVoService.getApplication());
 	                                        scope.application = oNavbarVoService.getApplication();
-	                                    }
+	                                    } else {
+											$application.select2('open');
+										}
 	                                });
 	                                $rootScope.$broadcast("alarmRule.applications.set", scope.applications);
 	                                $rootScope.$broadcast("configuration.general.applications.set", scope.applications);
@@ -436,6 +482,19 @@
 	                        emitAsChanged();
 	                	}
 	                };
+	                selectPeriod = function( readablePeriod ) {
+	                	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_TIME, readablePeriod);
+	                    scope.periodDelay = true;
+	                    scope.readablePeriod = readablePeriod;
+	                    scope.autoUpdate = false;
+	                    broadcast();
+	                    $timeout(function () {
+	                        scope.periodDelay = false;
+	                        if (!scope.$$phase) {
+	                            scope.$digest();
+	                        }
+	                    }, 1000);
+	                }
 	                
 	
 	                /**
@@ -450,17 +509,7 @@
 	                 * @param readablePeriod
 	                 */
 	                scope.setPeriod = function (readablePeriod) {
-	                	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_TIME, readablePeriod);
-	                    scope.periodDelay = true;
-	                    scope.readablePeriod = readablePeriod;
-	                    scope.autoUpdate = false;
-	                    broadcast();
-	                    $timeout(function () {
-	                        scope.periodDelay = false;
-	                        if (!scope.$$phase) {
-	                            scope.$digest();
-	                        }
-	                    }, 1000);
+	                	selectPeriod(readablePeriod);
 	                };
 	                scope.getPreviousClass = function() {
 	                	return "";
@@ -468,7 +517,10 @@
 	                scope.getNextClass = function() {
 	                	return "";
 	                };
-	
+
+					scope.getPeriodClassInCalendar = function (period) {
+						return ( scope.periodCalendar === period ? "btn-success" : "" );
+					};
 	                /**
 	                 * get period class
 	                 * @param readablePeriod
@@ -517,6 +569,9 @@
 	                resetTimeLeft = function () {
 	                    scope.timeLeft = scope.timeCountDown;
 	                };
+					scope.setPeriodForCalendar = function(period) {
+						scope.periodCalendar = period;
+					};
 	
 	                /**
 	                 * set auto update time
@@ -583,6 +638,11 @@
 	                 */
 	                scope.$on('navbarDirective.initialize', function (event, navbarVo) {
 	                    initialize(navbarVo);
+	                });
+	                scope.$on('navbarDirective.initialize.andReload', function (event, navbarVo) {
+	                    initialize(navbarVo);
+	                    scope.periodType = 'last';
+	                    selectPeriod(preferenceService.getPeriod());
 	                });
 	
 	                /**

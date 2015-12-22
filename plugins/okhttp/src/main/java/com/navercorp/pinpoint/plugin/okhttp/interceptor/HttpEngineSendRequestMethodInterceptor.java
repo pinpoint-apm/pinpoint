@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.plugin.okhttp.interceptor;
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.AttachmentFactory;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.AttachmentFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
@@ -30,31 +30,33 @@ import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.okhttp.*;
-import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.Request;
+
+import java.net.URL;
 
 /**
  * @author jaehong.kim
  */
-@Group(OkHttpConstants.SEND_REQUEST_SCOPE)
+@Scope(OkHttpConstants.SEND_REQUEST_SCOPE)
 public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private TraceContext traceContext;
     private MethodDescriptor methodDescriptor;
-    private InterceptorGroup interceptorGroup;
+    private InterceptorScope interceptorScope;
 
+    private final boolean param;
     private final boolean cookie;
     private final DumpType cookieDumpType;
     private final SimpleSampler cookieSampler;
-    private final boolean statusCode;
 
-    public HttpEngineSendRequestMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup, OkHttpPluginConfig config) {
+    public HttpEngineSendRequestMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope, OkHttpPluginConfig config) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
-        this.interceptorGroup = interceptorGroup;
+        this.interceptorScope = interceptorScope;
 
+        this.param = config.isParam();
         this.cookie = config.isCookie();
         this.cookieDumpType = config.getCookieDumpType();
         if(cookie) {
@@ -62,8 +64,6 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
         } else {
             this.cookieSampler = null;
         }
-
-        statusCode = config.isStatusCode();
     }
 
     @Override
@@ -91,7 +91,7 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
             recorder.recordNextSpanId(nextId.getSpanId());
             recorder.recordServiceType(OkHttpConstants.OK_HTTP_CLIENT);
 
-            InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
+            InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
             if (invocation != null) {
                 invocation.getOrCreateAttachment(new AttachmentFactory() {
                     @Override
@@ -143,17 +143,21 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);
-
+            // typeCheck validate();
             Request request = ((UserRequestGetter) target)._$PINPOINT$_getUserRequest();
             if (request != null) {
-                recorder.recordAttribute(AnnotationKey.HTTP_URL, request.httpUrl().toString());
-                final String endpoint = getDestinationId(request.httpUrl());
-                recorder.recordDestinationId(endpoint);
+                try {
+                    recorder.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(request.urlString(), param));
+                    final String endpoint = getDestinationId(request.url());
+                    recorder.recordDestinationId(endpoint);
+                } catch(Exception ignored) {
+                    logger.warn("Failed to invoke of request.url(). {}", ignored.getMessage());
+                }
                 recordRequest(trace, request, throwable);
             }
 
             // clear attachment.
-            InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
+            InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
             if(invocation != null && invocation.getAttachment() != null) {
                 invocation.removeAttachment();
             }
@@ -162,17 +166,17 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
         }
     }
 
-    private String getDestinationId(HttpUrl httpUrl) {
-        if (httpUrl == null || httpUrl.host() == null) {
+    private String getDestinationId(URL httpUrl) {
+        if (httpUrl == null || httpUrl.getHost() == null) {
             return "UnknownHttpClient";
         }
-        if (httpUrl.port() == HttpUrl.defaultPort(httpUrl.scheme())) {
-            return httpUrl.host();
+        if (httpUrl.getPort() <= 0 || httpUrl.getPort() == httpUrl.getDefaultPort()) {
+            return httpUrl.getHost();
         }
         final StringBuilder sb = new StringBuilder();
-        sb.append(httpUrl.host());
+        sb.append(httpUrl.getHost());
         sb.append(':');
-        sb.append(httpUrl.port());
+        sb.append(httpUrl.getPort());
         return sb.toString();
     }
 

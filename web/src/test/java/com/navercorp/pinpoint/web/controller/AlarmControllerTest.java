@@ -24,13 +24,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.awt.Container;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -203,7 +200,7 @@ public class AlarmControllerTest {
         
         String content = result.getResponse().getContentAsString();
         ObjectMapper objectMapper = new ObjectMapper();
-        List<String> checherList = objectMapper.readValue(content, List.class);
-        Assert.assertNotEquals(checherList.size(), 0);
+        List<String> checkerList = objectMapper.readValue(content, List.class);
+        Assert.assertNotEquals(checkerList.size(), 0);
     }
 }

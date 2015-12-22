@@ -45,9 +45,11 @@ public class ManagedClientConnectionOpenMethodInterceptor extends SpanEventSimpl
                     sb.append(":").append(route.getProxyHost().getPort());
                 }
             } else {
-                sb.append(route.getTargetHost().getHostName());
-                if(route.getTargetHost().getPort() > 0) {
-                    sb.append(":").append(route.getTargetHost().getPort());
+                if(route.getTargetHost() != null) {
+                    sb.append(route.getTargetHost().getHostName());
+                    if(route.getTargetHost().getPort() > 0) {
+                        sb.append(":").append(route.getTargetHost().getPort());
+                    }
                 }
             }
             recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, sb.toString());

@@ -93,7 +93,7 @@ public class ReaderTest {
             @Override
             public java.util.List<Rule> selectRuleByApplicationId(String applicationId) {
                 return new LinkedList<Rule>();
-            };
+            }
         };
         
         AlarmReader reader = new AlarmReader(dataCollectorFactory, applicationIndexDao, alarmService);

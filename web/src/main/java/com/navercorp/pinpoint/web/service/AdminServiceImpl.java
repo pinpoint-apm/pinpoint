@@ -22,15 +22,14 @@ import org.springframework.stereotype.Service;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 
 /**
- * 
  * @author netspider
- * 
+ * @author HyunGil Jeong
  */
 @Service
 public class AdminServiceImpl implements AdminService {
 
     @Autowired
-    ApplicationIndexDao applicationIndexDao;
+    private ApplicationIndexDao applicationIndexDao;
 
     @Override
     public void removeApplicationName(String applicationName) {

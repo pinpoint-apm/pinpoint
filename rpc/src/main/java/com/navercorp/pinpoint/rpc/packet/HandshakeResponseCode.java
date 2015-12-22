@@ -38,7 +38,7 @@ public enum HandshakeResponseCode {
     private final int subCode;
     private final String codeMessage;
 
-    private HandshakeResponseCode(int code, int subCode, String codeMessage) {
+    HandshakeResponseCode(int code, int subCode, String codeMessage) {
         this.code = code;
         this.subCode = subCode;
         this.codeMessage = codeMessage;

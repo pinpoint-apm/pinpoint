@@ -23,13 +23,17 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  */
 public class ThriftPluginConfig {
     private final boolean traceThriftClient;
+    private final boolean traceThriftClientAsync;
     private final boolean traceThriftProcessor;
+    private final boolean traceThriftProcessorAsync;
     private final boolean traceThriftServiceArgs;
     private final boolean traceThriftServiceResult;
     
     public ThriftPluginConfig(ProfilerConfig src) {
         this.traceThriftClient = src.readBoolean("profiler.thrift.client", true);
+        this.traceThriftClientAsync = src.readBoolean("profiler.thrift.client.async", true);
         this.traceThriftProcessor = src.readBoolean("profiler.thrift.processor", true);
+        this.traceThriftProcessorAsync = src.readBoolean("profiler.thrift.processor.async", true);
         this.traceThriftServiceArgs = src.readBoolean("profiler.thrift.service.args", false);
         this.traceThriftServiceResult = src.readBoolean("profiler.thrift.service.result", false);
     }
@@ -37,9 +41,17 @@ public class ThriftPluginConfig {
     public boolean traceThriftClient() {
         return this.traceThriftClient;
     }
+
+    public boolean traceThriftClientAsync() {
+        return this.traceThriftClientAsync;
+    }
     
     public boolean traceThriftProcessor() {
         return this.traceThriftProcessor;
+    }
+
+    public boolean traceThriftProcessorAsync() {
+        return this.traceThriftProcessorAsync;
     }
     
     public boolean traceThriftServiceArgs() {
@@ -54,7 +66,9 @@ public class ThriftPluginConfig {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("ThriftPluginConfig={traceThriftClient=").append(this.traceThriftClient);
+        sb.append(", traceThriftClientAsync=").append(this.traceThriftClientAsync);
         sb.append(", traceThriftProcessor=").append(this.traceThriftProcessor);
+        sb.append(", traceThriftProcessorAsync=").append(this.traceThriftProcessorAsync);
         sb.append(", traceThriftServiceArgs=").append(this.traceThriftServiceArgs);
         sb.append(", traceThriftServiceResult=").append(this.traceThriftServiceResult);
         sb.append("}");

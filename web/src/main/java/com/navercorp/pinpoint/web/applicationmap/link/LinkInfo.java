@@ -60,7 +60,7 @@ public class LinkInfo {
         
         private String name;
         
-        private LinkType(String name) {
+        LinkType(String name) {
             this.name = name;
         }
         

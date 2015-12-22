@@ -18,13 +18,13 @@ package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
 import java.net.URI;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.HttpUriRequest;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
@@ -41,13 +41,13 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author minwoo.jung
  * @author jaehong.kim
  */
-@Group(HttpClient4Constants.HTTP_CLIENT4_SCOPE)
+@Scope(HttpClient4Constants.HTTP_CLIENT4_SCOPE)
 public class HttpClientExecuteMethodWithHttpUriRequestInterceptor extends AbstractHttpClientExecuteMethodInterceptor {
 
     private static final int HTTP_URI_REQUEST_INDEX = 0;
 
-    public HttpClientExecuteMethodWithHttpUriRequestInterceptor(boolean isHasCallbackParam, TraceContext context, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup) {
-        super(HttpClientExecuteMethodWithHttpUriRequestInterceptor.class, isHasCallbackParam, context, methodDescriptor, interceptorGroup);
+    public HttpClientExecuteMethodWithHttpUriRequestInterceptor(boolean isHasCallbackParam, TraceContext context, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
+        super(HttpClientExecuteMethodWithHttpUriRequestInterceptor.class, isHasCallbackParam, context, methodDescriptor, interceptorScope);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class HttpClientExecuteMethodWithHttpUriRequestInterceptor extends Abstra
 
     private HttpUriRequest getHttpUriRequest(Object[] args) {
         final Object arg = args[HTTP_URI_REQUEST_INDEX];
-        if (arg instanceof HttpUriRequest) {
+        if (arg != null && arg instanceof HttpUriRequest) {
             return (HttpUriRequest) arg;
         }
         return null;

@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -29,6 +28,7 @@ import com.navercorp.pinpoint.web.service.AdminService;
 
 /**
  * @author netspider
+ * @author HyunGil Jeong
  */
 @Controller
 @RequestMapping("/admin")
@@ -39,7 +39,7 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
-    @RequestMapping(value = "/removeApplicationName", method = RequestMethod.GET)
+    @RequestMapping(value = "/removeApplicationName")
     @ResponseBody
     public String removeApplicationName(@RequestParam("applicationName") String applicationName) {
         logger.info("remove application name. {}", applicationName);
@@ -52,7 +52,7 @@ public class AdminController {
         }
     }
 
-    @RequestMapping(value = "/removeAgentId", method = RequestMethod.GET)
+    @RequestMapping(value = "/removeAgentId")
     @ResponseBody
     public String removeAgentId(
             @RequestParam(value = "applicationName", required = true) String applicationName,
@@ -66,4 +66,5 @@ public class AdminController {
             return e.getMessage();
         }
     }
+
 }

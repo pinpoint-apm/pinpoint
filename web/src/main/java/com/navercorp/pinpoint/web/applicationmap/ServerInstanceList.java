@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.web.applicationmap;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
-import com.navercorp.pinpoint.web.applicationmap.link.ServerMatcher;
 import com.navercorp.pinpoint.web.view.ServerInstanceListSerializer;
 
 /**
@@ -32,7 +30,7 @@ import com.navercorp.pinpoint.web.view.ServerInstanceListSerializer;
 @JsonSerialize(using = ServerInstanceListSerializer.class)
 public class ServerInstanceList {
 
-    private final Map<String, List<ServerInstance>> serverInstanceList = new TreeMap<String, List<ServerInstance>>();
+    private final Map<String, List<ServerInstance>> serverInstanceList = new TreeMap<>();
 
     public ServerInstanceList() {
     }
@@ -45,7 +43,7 @@ public class ServerInstanceList {
     public List<String> getAgentIdList() {
         final Collection<List<ServerInstance>> serverInstanceValueList = this.serverInstanceList.values();
 
-        final List<String> agentList = new ArrayList<String>();
+        final List<String> agentList = new ArrayList<>();
         for (List<ServerInstance> serverInstanceList : serverInstanceValueList) {
             for (ServerInstance serverInstance : serverInstanceList) {
                 agentList.add(serverInstance.getName());
@@ -75,7 +73,7 @@ public class ServerInstanceList {
     private List<ServerInstance> getServerInstanceList(String hostName) {
         List<ServerInstance> find = serverInstanceList.get(hostName);
         if (find == null) {
-            find = new ArrayList<ServerInstance>();
+            find = new ArrayList<>();
             serverInstanceList.put(hostName, find);
         }
         return find;

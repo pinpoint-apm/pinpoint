@@ -25,11 +25,17 @@ import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry
  */
 public class DefaultInterceptorRegistryBinder implements InterceptorRegistryBinder {
 
-    private final Object lock;
-    private final InterceptorRegistryAdaptor interceptorRegistryAdaptor = new DefaultInterceptorRegistryAdaptor();
+    public final static int DEFAULT_MAX = 8192;
+
+    private final Object lock = new Object();
+    private final InterceptorRegistryAdaptor interceptorRegistryAdaptor;
 
     public DefaultInterceptorRegistryBinder() {
-        this.lock = new Object();
+        this(DEFAULT_MAX);
+    }
+
+    public DefaultInterceptorRegistryBinder(int maxRegistrySize) {
+        this.interceptorRegistryAdaptor = new DefaultInterceptorRegistryAdaptor(maxRegistrySize);
     }
 
     @Override

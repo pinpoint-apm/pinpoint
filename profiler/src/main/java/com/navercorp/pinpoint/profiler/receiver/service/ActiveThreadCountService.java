@@ -19,6 +19,7 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
+import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.SlotType;
@@ -76,12 +77,11 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
         ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.NORMAL);
         ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.SLOW);
         ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.VERY_SLOW);
-        ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.ERROR);
     }
 
     private final ActiveTraceLocator activeTraceLocator;
     private final int activeThreadSlotsCount;
-    private final HistogramSchema histogramSchema = HistogramSchema.NORMAL_SCHEMA;
+    private final HistogramSchema histogramSchema = BaseHistogramSchema.NORMAL_SCHEMA;
 
     public ActiveThreadCountService(ActiveTraceLocator activeTraceLocator) {
         this(activeTraceLocator, DEFAULT_FLUSH_DELAY);
@@ -128,7 +128,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
 
         List<ActiveTraceInfo> collectedActiveTraceInfo = activeTraceLocator.collect();
         for (ActiveTraceInfo activeTraceInfo : collectedActiveTraceInfo) {
-            HistogramSlot slot = histogramSchema.findHistogramSlot((int) (currentTime - activeTraceInfo.getStartTime()));
+            HistogramSlot slot = histogramSchema.findHistogramSlot((int) (currentTime - activeTraceInfo.getStartTime()), false);
             mappedSlot.get(slot.getSlotType()).incrementAndGet();
         }
 
@@ -165,12 +165,14 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
 
         @Override
         public void eventPerformed(ServerStreamChannel streamChannel, StreamChannelStateCode updatedStateCode) throws Exception {
+            logger.info("eventPerformed. ServerStreamChannel:{}, StreamChannelStateCode:{}.", streamChannel, updatedStateCode);
             synchronized (lock) {
                 switch (updatedStateCode) {
                     case CONNECTED:
                         streamChannelRepository.add(streamChannel);
                         boolean turnOn = onTimerTask.compareAndSet(false, true);
                         if (turnOn) {
+                            logger.info("turn on ActiveThreadCountTimerTask.");
                             timer.newTimeout(new ActiveThreadCountTimerTask(), flushDelay, TimeUnit.MILLISECONDS);
                         }
                         break;
@@ -179,6 +181,9 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
                         boolean removed = streamChannelRepository.remove(streamChannel);
                         if (removed && streamChannelRepository.size() == 0) {
                             boolean turnOff = onTimerTask.compareAndSet(true, false);
+                            if (turnOff) {
+                                logger.info("turn off ActiveThreadCountTimerTask.");
+                            }
                         }
                         break;
                 }
@@ -187,6 +192,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
 
         @Override
         public void exceptionCaught(ServerStreamChannel streamChannel, StreamChannelStateCode updatedStateCode, Throwable e) {
+            logger.warn("exceptionCaught caused:{}. ServerStreamChannel:{}, StreamChannelStateCode:{}.", e.getMessage(), streamChannel, updatedStateCode, e);
         }
 
     }
@@ -195,7 +201,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
 
         @Override
         public void run(Timeout timeout) throws Exception {
-            logger.info("ActiveThreadCountService timer started.");
+            logger.debug("ActiveThreadCountTimerTask started. target-streams:{}", streamChannelRepository);
 
             try {
                 TCmdActiveThreadCountRes activeThreadCountResponse = getActiveThreadCountResponse();
@@ -213,5 +219,4 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
         }
 
     }
-
 }

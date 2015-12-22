@@ -17,12 +17,8 @@
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.context.TraceType;
+import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.common.util.Clock;
 import com.navercorp.pinpoint.common.util.SystemClock;
 
@@ -37,7 +33,7 @@ public class MockTrace implements Trace {
     private boolean sampled = true;
 
     private Clock clock = SystemClock.INSTANCE;
-        
+
     public void setClock(Clock clock) {
         this.clock = clock;
     }
@@ -135,7 +131,12 @@ public class MockTrace implements Trace {
 //    }
 
     @Override
-    public TraceType getTraceType() {
-        return TraceType.MOCK;
+    public TraceScope getScope(String name) {
+        return null;
+    }
+
+    @Override
+    public TraceScope addScope(String name) {
+        return null;
     }
 }

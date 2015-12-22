@@ -14,9 +14,11 @@
 	    }
 	});	
 
-	pinpointApp.controller('GeneralCtrl', [ 'GeneralConfig', '$scope', '$rootScope', '$element', '$document', 'PreferenceService', 'AnalyticsService',
-	    function ($config, $scope, $rootScope, $element, $document, preferenceService, analyticsService) {
+	pinpointApp.controller('GeneralCtrl', [ 'GeneralConfig', '$scope', '$rootScope', '$element', '$document', 'PreferenceService', 'AnalyticsService', 'helpContentService',
+	    function ($config, $scope, $rootScope, $element, $document, preferenceService, analyticsService, helpContentService) {
 
+			$element.find("span.general-warning").html(helpContentService.configuration.general.warning);
+			$element.find("div.favorite-empty").html(helpContentService.configuration.general.empty);
 			$scope.$on("general.configuration.show", function() {
 			});
 			$scope.depthList = preferenceService.getDepthList();
@@ -64,6 +66,7 @@
                 }
 			}
 			function initApplicationSelect() {
+				var bClickedSelect = false;
 				$applicationList.select2({
 	                placeholder: "Select an application.",
 	                searchInputPlaceholder: "Input your application name.",
@@ -73,12 +76,17 @@
 	                escapeMarkup: function (m) {
 	                    return m;
 	                }
-	            }).on("change", function (e) {
-	            	addToFavoriteList( $applicationList.select2('val') );
-	            });
-			}
-			
-			
+				}).on("select2-selecting", function(e) {
+					bClickedSelect = true;
+				}).on("select2-close", function(e) {					
+					if ( bClickedSelect === true ) {
+						setTimeout(function() {
+							addToFavoriteList( $applicationList.select2('val') );
+						}, 0);
+					}
+					bClickedSelect = false;
+				});
+			}			
 			$scope.$on("configuration.general.applications.set", function( event, applicationData ) {
 				$scope.applications = applicationData;
 				initApplicationSelect();

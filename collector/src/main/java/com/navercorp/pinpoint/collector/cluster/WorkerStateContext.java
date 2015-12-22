@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class WorkerStateContext {
 
-    private final AtomicReference<WorkerState> currentState = new AtomicReference<WorkerState>();
+    private final AtomicReference<WorkerState> currentState = new AtomicReference<>();
 
     public WorkerStateContext() {
         currentState.set(WorkerState.NEW);
