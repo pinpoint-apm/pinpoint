@@ -39,7 +39,7 @@ public class CorruptedSpanAlignFactory {
 
     private long timeoutMillisec = DEFAULT_TIMEOUT_MILLISEC;
 
-    public SpanAlign get(final SpanBo span, final SpanEventBo spanEvent) {
+    public SpanAlign get(final String title, final SpanBo span, final SpanEventBo spanEvent) {
         final SpanEventBo missedEvent = new SpanEventBo();
         // TODO use invalid event information ?
         missedEvent.setStartElapsed(spanEvent.getStartElapsed());
@@ -66,7 +66,11 @@ public class CorruptedSpanAlignFactory {
         if (System.currentTimeMillis() - span.getStartTime() < timeoutMillisec) {
             argumentAnnotation.setValue("Corrupted(waiting for packet) ");
         } else {
-            argumentAnnotation.setValue("Corrupted");
+            if(title != null) {
+                argumentAnnotation.setValue("Corrupted(" + title + ")");
+            } else {
+                argumentAnnotation.setValue("Corrupted");
+            }
         }
         annotations.add(argumentAnnotation);
 

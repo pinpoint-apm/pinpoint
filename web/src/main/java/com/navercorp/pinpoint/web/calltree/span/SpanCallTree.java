@@ -66,17 +66,17 @@ public class SpanCallTree implements CallTree {
 
     public void add(final int depth, final SpanAlign spanAlign) {
         if (depth < MIN_DEPTH || depth == ROOT_DEPTH) {
-            throw new IllegalArgumentException("invalid depth. depth=" + depth + ", cursor=" + cursor + ", align=" + spanAlign);
+            throw new CorruptedSpanCallTreeNodeException("invalid depth", "invalid depth. depth=" + depth + ", cursor=" + cursor + ", align=" + spanAlign);
         }
 
         if (hasCorrupted(spanAlign)) {
-            throw new CorruptedSpanCallTreeNodeException("corrupted event. depth=" + depth + ", cursor=" + cursor + ", align=" + spanAlign);
+            throw new CorruptedSpanCallTreeNodeException("invalid sequence", "corrupted event. depth=" + depth + ", cursor=" + cursor + ", align=" + spanAlign);
         }
 
         if (depth == LEVEL_DEPTH || depth == cursor.getDepth()) {
             // validate
             if (cursor.isRoot()) {
-                throw new IllegalArgumentException("invalid depth. depth=" + depth + ", cursor=" + cursor + ", align=" + spanAlign);
+                throw new CorruptedSpanCallTreeNodeException("invalid depth", "invalid depth. depth=" + depth + ", cursor=" + cursor + ", align=" + spanAlign);
             }
 
             CallTreeNode sibling = findLastSibling(cursor);
@@ -89,7 +89,7 @@ public class SpanCallTree implements CallTree {
         if (depth > cursor.getDepth()) {
             // validate
             if (depth > cursor.getDepth() + 1) {
-                throw new IllegalArgumentException("invalid depth. depth=" + depth + ", cursor=" + cursor + ", align=" + spanAlign);
+                throw new CorruptedSpanCallTreeNodeException("invalid depth", "invalid depth. depth=" + depth + ", cursor=" + cursor + ", align=" + spanAlign);
             }
 
             if (!cursor.hasChild()) {
@@ -106,7 +106,7 @@ public class SpanCallTree implements CallTree {
 
         // lesser
         if (cursor.getDepth() - depth <= ROOT_DEPTH) {
-            throw new IllegalArgumentException("invalid depth. depth=" + depth + ", cursor=" + cursor + ", align=" + spanAlign);
+            throw new CorruptedSpanCallTreeNodeException("invalid depth", "invalid depth. depth=" + depth + ", cursor=" + cursor + ", align=" + spanAlign);
         }
 
         final CallTreeNode node = findUpperLevelLastSibling(depth, cursor);
