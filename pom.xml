@@ -19,7 +19,7 @@
         <repository>
             <id>spring-maven-repository</id>
             <name>Spring Framework Maven Release Repository</name>
-            <url>http://maven.springframework.org/release</url>
+            <url>http://maven.springframework.org/release/</url>
         </repository>
     </repositories>
 
@@ -27,7 +27,7 @@
         <pluginRepository>
             <id>central</id>
             <name>Maven central plugin repository</name>
-            <url>http://repo1.maven.org/maven2</url>
+            <url>http://repo1.maven.org/maven2/</url>
         </pluginRepository>
     </pluginRepositories>
 
