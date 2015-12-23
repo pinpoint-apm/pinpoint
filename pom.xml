@@ -53,7 +53,7 @@
         <jdk.version>1.6</jdk.version>
         <jdk.home>${env.JAVA_6_HOME}</jdk.home>
         <slf4j.version>1.7.5</slf4j.version>
-        <metrics.version>3.1.2</metrics.version>
+        <metrics.version>3.0.1</metrics.version>
         <spring.version>4.1.8.RELEASE</spring.version>
         <jetty.version>8.1.12.v20130726</jetty.version>
         <codehaus.jackson.version>1.9.13</codehaus.jackson.version>
@@ -251,17 +251,17 @@
 
             <!-- serving performance metrics -->
             <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
+                <groupId>com.codahale.metrics</groupId>
                 <artifactId>metrics-core</artifactId>
                 <version>${metrics.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
+                <groupId>com.codahale.metrics</groupId>
                 <artifactId>metrics-jvm</artifactId>
                 <version>${metrics.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
+                <groupId>com.codahale.metrics</groupId>
                 <artifactId>metrics-servlets</artifactId>
                 <version>${metrics.version}</version>
             </dependency>

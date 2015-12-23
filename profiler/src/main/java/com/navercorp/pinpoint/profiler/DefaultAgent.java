@@ -206,7 +206,7 @@ public class DefaultAgent implements Agent {
         this.agentInfoSender = new AgentInfoSender.Builder(tcpDataSender, this.agentInformation).sendInterval(profilerConfig.getAgentInfoSendRetryInterval()).build();
         this.serverMetaDataHolder.addListener(this.agentInfoSender);
 
-        AgentStatCollectorFactory agentStatCollectorFactory = new AgentStatCollectorFactory(this.getTransactionCounter(this.traceContext), this.profilerConfig);
+        AgentStatCollectorFactory agentStatCollectorFactory = new AgentStatCollectorFactory(this.getTransactionCounter(this.traceContext));
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime(), agentStatCollectorFactory);
         
         InterceptorInvokerHelper.setPropagateException(profilerConfig.isPropagateInterceptorException());
