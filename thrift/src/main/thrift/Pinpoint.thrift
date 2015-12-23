@@ -46,6 +46,19 @@ struct TJvmGc {
     5: i64          jvmMemoryNonHeapMax
     6: i64          jvmGcOldCount
     7: i64          jvmGcOldTime
+    8: optional TJvmGcDetailed    jvmGcDetailed
+
+}
+
+struct TJvmGcDetailed {
+    1: optional i64 jvmGcNewCount
+    2: optional i64 jvmGcNewTime
+    3: optional double jvmPoolCodeCacheUsed
+    4: optional double jvmPoolNewGenUsed
+    5: optional double jvmPoolOldGenUsed
+    6: optional double jvmPoolSurvivorSpaceUsed
+    7: optional double jvmPoolPermGenUsed
+    8: optional double jvmPoolMetaspaceUsed
 }
 
 struct TCpuLoad {

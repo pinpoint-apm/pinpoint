@@ -166,6 +166,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private int ioBufferingBufferSize;
 
     private int profileJvmCollectInterval;
+    private boolean profilerJvmCollectDetailedMetrics;
 
     private Filter<String> profilableClassFilter = new SkipFilter<String>();
 
@@ -321,6 +322,16 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public int getProfileJvmCollectInterval() {
         return profileJvmCollectInterval;
+    }
+
+    @Override
+    public boolean isProfilerJvmCollectDetailedMetrics() {
+        return profilerJvmCollectDetailedMetrics;
+    }
+
+    @Override
+    public void setProfilerJvmCollectDetailedMetrics(boolean profilerJvmCollectDetailedMetrics) {
+        this.profilerJvmCollectDetailedMetrics = profilerJvmCollectDetailedMetrics;
     }
 
     @Override
@@ -647,6 +658,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         // JVM
         this.profileJvmCollectInterval = readInt("profiler.jvm.collect.interval", 1000);
+        this.profilerJvmCollectDetailedMetrics = readBoolean("profiler.jvm.collect.detailed.metrics", false);
 
         this.agentInfoSendRetryInterval = readLong("profiler.agentInfo.send.retry.interval", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
 
@@ -881,4 +893,5 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append("}");
         return builder.toString();
     }
+
 }
