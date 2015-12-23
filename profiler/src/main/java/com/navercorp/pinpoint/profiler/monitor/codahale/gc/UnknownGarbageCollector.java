@@ -29,7 +29,7 @@ public class UnknownGarbageCollector implements GarbageCollector {
 
     @Override
     public int getTypeCode() {
-        return GC_TYPE.getValue();
+        return GC_TYPE.ordinal();
     }
 
     @Override

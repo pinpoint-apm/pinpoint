@@ -148,15 +148,15 @@
 
         <!-- serving performance metrics -->
         <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
+            <groupId>com.codahale.metrics</groupId>
             <artifactId>metrics-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
+            <groupId>com.codahale.metrics</groupId>
             <artifactId>metrics-jvm</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
+            <groupId>com.codahale.metrics</groupId>
             <artifactId>metrics-servlets</artifactId>
         </dependency>
         <dependency>

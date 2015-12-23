@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.monitor;
 
 import static org.junit.Assert.*;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.profiler.context.TestableTransactionCounter;
 import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
@@ -64,7 +63,7 @@ public class AgentStatMonitorTest {
         final long totalTestDurationMs = collectionIntervalMs + collectionIntervalMs * numCollectionsPerBatch * minNumBatchToTest;
         // When
         System.setProperty("pinpoint.log", "test.");
-        AgentStatCollectorFactory agentStatCollectorFactory = new AgentStatCollectorFactory(new TestableTransactionCounter(), new DefaultProfilerConfig());
+        AgentStatCollectorFactory agentStatCollectorFactory = new AgentStatCollectorFactory(new TestableTransactionCounter());
 
         AgentStatMonitor monitor = new AgentStatMonitor(this.dataSender, "agentId", System.currentTimeMillis(),
                 agentStatCollectorFactory, collectionIntervalMs, numCollectionsPerBatch);

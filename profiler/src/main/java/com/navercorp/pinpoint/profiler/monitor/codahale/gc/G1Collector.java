@@ -31,7 +31,6 @@ import static com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValu
  *
  * @author emeroad
  * @author harebox
- * @author dawidmalina
  */
 public class G1Collector implements GarbageCollector {
 
@@ -43,17 +42,15 @@ public class G1Collector implements GarbageCollector {
     private final Gauge<Long> heapNonHeapMax;
     private final Gauge<Long> heapNonHeapUsed;
 
-    private final Gauge<Long> oldGcCount;
-    private final Gauge<Long> oldGcTime;
+    private final Gauge<Long> gcCount;
+    private final Gauge<Long> gcTime;
+
 
     public G1Collector(MetricMonitorRegistry registry) {
-
         if (registry == null) {
             throw new NullPointerException("registry must not be null");
         }
-
         final MetricRegistry metricRegistry = registry.getRegistry();
-        @SuppressWarnings("rawtypes")
         final SortedMap<String, Gauge> gauges = metricRegistry.getGauges();
 
         this.heapMax = getLongGauge(gauges, JVM_MEMORY_HEAP_MAX);
@@ -62,14 +59,13 @@ public class G1Collector implements GarbageCollector {
         this.heapNonHeapMax = getLongGauge(gauges, JVM_MEMORY_NONHEAP_MAX);
         this.heapNonHeapUsed = getLongGauge(gauges, JVM_MEMORY_NONHEAP_USED);
 
-        this.oldGcCount = getLongGauge(gauges, JVM_GC_G1_OLDGEN_COUNT);
-        this.oldGcTime = getLongGauge(gauges, JVM_GC_G1_OLDGEN_TIME);
-
+        this.gcCount = getLongGauge(gauges, JVM_GC_G1_OLD_COUNT);
+        this.gcTime = getLongGauge(gauges, JVM_GC_G1_OLD_TIME);
     }
 
     @Override
     public int getTypeCode() {
-        return GC_TYPE.getValue();
+        return GC_TYPE.ordinal();
     }
 
     @Override
@@ -79,11 +75,12 @@ public class G1Collector implements GarbageCollector {
         gc.setType(GC_TYPE);
         gc.setJvmMemoryHeapMax(heapMax.getValue());
         gc.setJvmMemoryHeapUsed(heapUsed.getValue());
+
         gc.setJvmMemoryNonHeapMax(heapNonHeapMax.getValue());
         gc.setJvmMemoryNonHeapUsed(heapNonHeapUsed.getValue());
-        gc.setJvmGcOldCount(oldGcCount.getValue());
-        gc.setJvmGcOldTime(oldGcTime.getValue());
 
+        gc.setJvmGcOldCount(gcCount.getValue());
+        gc.setJvmGcOldTime(gcTime.getValue());
         return gc;
     }
 
