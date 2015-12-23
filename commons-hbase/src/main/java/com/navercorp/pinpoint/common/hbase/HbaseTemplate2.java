@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
+import com.navercorp.pinpoint.common.util.ExecutorFactory;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.StopWatch;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import com.sematext.hbase.wd.DistributedScanner;
@@ -34,49 +36,56 @@ import org.springframework.util.Assert;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author emeroad
+ * @author HyunGil Jeong
  */
 public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, InitializingBean, DisposableBean {
 
+    private static final int DEFAULT_MAX_THREADS_FOR_PARALLEL_SCANNER = 128;
+    private static final int DEFAULT_MAX_THREADS_PER_PARALLEL_SCAN = 1;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ExecutorService executor = newCachedThreadPool();
+    private ExecutorService executor;
+    private boolean enableParallelScan = false;
+    private int maxThreads = DEFAULT_MAX_THREADS_FOR_PARALLEL_SCANNER;
+    private int maxThreadsPerParallelScan = DEFAULT_MAX_THREADS_PER_PARALLEL_SCAN;
 
     public HbaseTemplate2() {
     }
 
-    public ExecutorService newCachedThreadPool() {
-        return new ThreadPoolExecutor(0, 128,
-                60L, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>());
+    public void setEnableParallelScan(boolean enableParallelScan) {
+        this.enableParallelScan = enableParallelScan;
     }
 
-//    public Executor getExecutor() {
-//        return executor;
-//    }
+    public void setMaxThreads(int maxThreads) {
+        this.maxThreads = maxThreads;
+    }
 
-//    public void setExecutor(Executor executor) {
-//        this.executor = executor;
-//    }
+    public void setMaxThreadsPerParallelScan(int maxThreadsPerParallelScan) {
+        this.maxThreadsPerParallelScan = maxThreadsPerParallelScan;
+    }
 
     public HbaseTemplate2(Configuration configuration) {
         Assert.notNull(configuration);
         setConfiguration(configuration);
     }
 
-
-
     @Override
     public void afterPropertiesSet() {
         Configuration configuration = getConfiguration();
         Assert.notNull(configuration, "configuration is required");
         Assert.notNull(getTableFactory(), "tableFactory is required");
+        PinpointThreadFactory parallelScannerThreadFactory = new PinpointThreadFactory("Pinpoint-parallel-scanner");
+        if (this.maxThreadsPerParallelScan <= 1) {
+            this.enableParallelScan = false;
+            this.executor = Executors.newSingleThreadExecutor(parallelScannerThreadFactory);
+        } else {
+            this.executor = ExecutorFactory.newFixedThreadPool(this.maxThreads, 1024, parallelScannerThreadFactory);
+        }
     }
 
     @Override
@@ -141,60 +150,6 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         return find(tableName, scan, new RowMapperResultsExtractor<>(action));
     }
 
-//    public class ParallelScan<T> {
-//        private String tableName;
-//        private Scan scan;
-//        private RowMapper<T> mapper;
-//
-//        public String getTableName() {
-//            return tableName;
-//        }
-//
-//        public void setTableName(String tableName) {
-//            this.tableName = tableName;
-//        }
-//
-//        public Scan getScan() {
-//            return scan;
-//        }
-//
-//        public void setScan(Scan scan) {
-//            this.scan = scan;
-//        }
-//
-//        public RowMapper<T> getMapper() {
-//            return mapper;
-//        }
-//
-//        public void setMapper(RowMapper<T> action) {
-//            this.mapper = action;
-//        }
-//    }
-//
-//    /**
-//     * API for running a scanner in parallel
-//     * for now comment out, you don't know how scanner's implementation can execute in parallel.
-//     * @return
-//     */
-//    public <T> List<Future<List<T>>> findParallel(final ParallelScan<T> parallelScans) {
-//        Callable<List<T>> tCallable = new Callable<List<T>>() {
-//            @Override
-//            public List<T> call() throws Exception {
-//                return find(parallelScans.getTableName(), parallelScans.getScan(), parallelScans.getMapper());
-//            }
-//        };
-//        ArrayList<Callable<List<T>>> callables = new ArrayList<Callable<List<T>>>();
-//        callables.add(tCallable);
-//
-//        List<Future<List<T>>> futures = null;
-//        try {
-//            futures = this.executor.invokeAll(callables);
-//        } catch (InterruptedException e) {
-//            Thread.currentThread().interrupt();
-//        }
-//        return futures;
-//    }
-
     @Override
     public <T> T get(String tableName, String rowName, final RowMapper<T> mapper) {
         return get(tableName, rowName, null, null, mapper);
@@ -225,7 +180,6 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
             }
         });
     }
-
 
     @Override
     public <T> T get(String tableName, byte[] rowName, RowMapper<T> mapper) {
@@ -283,11 +237,12 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         });
     }
 
-
+    @Override
     public void put(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final byte[] value) {
         put(tableName, rowName, familyName, qualifier, null, value);
     }
 
+    @Override
     public void put(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final byte[] value) {
         execute(tableName, new TableCallback() {
             @Override
@@ -306,10 +261,12 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         });
     }
 
+    @Override
     public <T> void put(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final T value, final ValueMapper<T> mapper) {
         put(tableName, rowName, familyName, qualifier, null, value, mapper);
     }
 
+    @Override
     public <T> void put(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final T value, final ValueMapper<T> mapper) {
         execute(tableName, new TableCallback<T>() {
             @Override
@@ -329,6 +286,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         });
     }
 
+    @Override
     public void put(String tableName, final Put put) {
         execute(tableName, new TableCallback() {
             @Override
@@ -339,6 +297,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         });
     }
 
+    @Override
     public void put(String tableName, final List<Put> puts) {
         execute(tableName, new TableCallback() {
             @Override
@@ -349,6 +308,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         });
     }
 
+    @Override
     public void delete(String tableName, final Delete delete) {
         execute(tableName, new TableCallback() {
             @Override
@@ -359,6 +319,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         });
     }
 
+    @Override
     public void delete(String tableName, final List<Delete> deletes) {
         execute(tableName, new TableCallback() {
             @Override
@@ -394,122 +355,77 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         return find(tableName, scanList, new RowMapperResultsExtractor<>(action));
     }
 
+    @Override
     public <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final RowMapper<T> action) {
         final ResultsExtractor<List<T>> resultsExtractor = new RowMapperResultsExtractor<>(action);
-        return execute(tableName, new TableCallback<List<T>>() {
-            @Override
-            public List<T> doInTable(HTableInterface htable) throws Throwable {
-                final ResultScanner scanner = createDistributeScanner(htable, scan, rowKeyDistributor);
-                try {
-                    return resultsExtractor.extractData(scanner);
-                } finally {
-                    scanner.close();
-                }
-            }
-        });
+        return execute(tableName, new DistributedScannerTableCallback<>(scan, rowKeyDistributor, resultsExtractor));
     }
 
-    public <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action) {
+    @Override
+    public <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final int limit, final RowMapper<T> action) {
         final ResultsExtractor<List<T>> resultsExtractor = new LimitRowMapperResultsExtractor<>(action, limit);
-        return execute(tableName, new TableCallback<List<T>>() {
-            @Override
-            public List<T> doInTable(HTableInterface htable) throws Throwable {
-                final ResultScanner scanner = createDistributeScanner(htable, scan, rowKeyDistributor);
-                try {
-                    return resultsExtractor.extractData(scanner);
-                } finally {
-                    scanner.close();
-                }
-            }
-        });
+        return execute(tableName, new DistributedScannerTableCallback<>(scan, rowKeyDistributor, resultsExtractor));
     }
-    
+
+    @Override
     public <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, final LimitEventHandler limitEventHandler) {
         final LimitRowMapperResultsExtractor<T> resultsExtractor = new LimitRowMapperResultsExtractor<>(action, limit, limitEventHandler);
-        return execute(tableName, new TableCallback<List<T>>() {
-            @Override
-            public List<T> doInTable(HTableInterface htable) throws Throwable {
-                final ResultScanner scanner = createDistributeScanner(htable, scan, rowKeyDistributor);
-                try {
-                    return resultsExtractor.extractData(scanner);
-                } finally {
-                    scanner.close();
-                }
-            }
-        });
+        return execute(tableName, new DistributedScannerTableCallback<>(scan, rowKeyDistributor, resultsExtractor));
     }
-
 
     @Override
     public <T> T find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
-
-        return execute(tableName, new TableCallback<T>() {
-            @Override
-            public T doInTable(HTableInterface htable) throws Throwable {
-                final boolean debugEnabled = logger.isDebugEnabled();
-                StopWatch watch = null;
-                if (debugEnabled) {
-                    watch = new StopWatch();
-                    watch.start();
-                }
-                final ResultScanner scanner = createDistributeScanner(htable, scan, rowKeyDistributor);
-                if (debugEnabled) {
-                    logger.debug("DistributeScanner createTime:{}", watch.stop());
-                }
-                if (debugEnabled) {
-                    watch.start();
-                }
-                try {
-                    return action.extractData(scanner);
-                } finally {
-                    scanner.close();
-                    if (debugEnabled) {
-                        logger.debug("DistributeScanner scanTime:{}", watch.stop());
-                    }
-                }
-            }
-        });
+        return execute(tableName, new DistributedScannerTableCallback<>(scan, rowKeyDistributor, action));
     }
 
-    public ResultScanner createDistributeScanner(HTableInterface htable, Scan originalScan, AbstractRowKeyDistributor rowKeyDistributor) throws IOException {
-
-        Scan[] scans = rowKeyDistributor.getDistributedScans(originalScan);
-        final int length = scans.length;
-        for(int i = 0; i < length; i++) {
-            Scan scan = scans[i];
-            scan.setId(originalScan.getId() + "-" + i);
-            // is it okay to set only a caching?
-            scan.setCaching(originalScan.getCaching());
-        }
-
-        ResultScanner[] scanner = new ResultScanner[length];
-        boolean success = false;
-        try {
-            for (int i = 0; i < length; i++) {
-                scanner[i] = htable.getScanner(scans[i]);
-            }
-            success = true;
-        } finally {
-            if (!success) {
-                closeScanner(scanner);
-            }
-        }
-
-        return new DistributedScanner(rowKeyDistributor, scanner);
-    }
-
-    private void closeScanner(ResultScanner[] scannerList ) {
-        for (ResultScanner scanner : scannerList) {
-            if (scanner != null) {
-                try {
-                    scanner.close();
-                } catch (Exception e) {
-                    logger.warn("Scanner.close() error Caused:{}", e.getMessage(), e);
-                }
-            }
+    @Override
+    public <T> List<T> findParallel(String tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, RowMapper<T> action, int numParallelThreads) {
+        if (!this.enableParallelScan || numParallelThreads <= 1) {
+            // use DistributedScanner if parallel scan is disabled or if called to use a single thread
+            return find(tableName, scan, rowKeyDistributor, action);
+        } else {
+            int numThreadsUsed = numParallelThreads < this.maxThreadsPerParallelScan ? numParallelThreads : this.maxThreadsPerParallelScan;
+            final ResultsExtractor<List<T>> resultsExtractor = new RowMapperResultsExtractor<>(action);
+            return execute(tableName, new ParallelDistributedScannerTableCallback<>(scan, rowKeyDistributor, resultsExtractor, this.executor, numThreadsUsed));
         }
     }
 
+    @Override
+    public <T> List<T> findParallel(String tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, int limit, RowMapper<T> action, int numParallelThreads) {
+        if (!this.enableParallelScan || numParallelThreads <= 1) {
+            // use DistributedScanner if parallel scan is disabled or if called to use a single thread
+            return find(tableName, scan, rowKeyDistributor, limit, action);
+        } else {
+            int numThreadsUsed = numParallelThreads < this.maxThreadsPerParallelScan ? numParallelThreads : this.maxThreadsPerParallelScan;
+            final ResultsExtractor<List<T>> resultsExtractor = new LimitRowMapperResultsExtractor<>(action, limit);
+            return execute(tableName, new ParallelDistributedScannerTableCallback<>(scan, rowKeyDistributor, resultsExtractor, this.executor, numThreadsUsed));
+        }
+    }
+
+    @Override
+    public <T> List<T> findParallel(String tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, int limit, RowMapper<T> action, LimitEventHandler limitEventHandler, int numParallelThreads) {
+        if (!this.enableParallelScan || numParallelThreads <= 1) {
+            // use DistributedScanner if parallel scan is disabled or if called to use a single thread
+            return find(tableName, scan, rowKeyDistributor, limit, action, limitEventHandler);
+        } else {
+            int numThreadsUsed = numParallelThreads < this.maxThreadsPerParallelScan ? numParallelThreads : this.maxThreadsPerParallelScan;
+            final LimitRowMapperResultsExtractor<T> resultsExtractor = new LimitRowMapperResultsExtractor<>(action, limit, limitEventHandler);
+            return execute(tableName, new ParallelDistributedScannerTableCallback<>(scan, rowKeyDistributor, resultsExtractor, this.executor, numThreadsUsed));
+        }
+    }
+
+    @Override
+    public <T> T findParallel(String tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, ResultsExtractor<T> action, int numParallelThreads) {
+        if (!this.enableParallelScan || numParallelThreads <= 1) {
+            // use DistributedScanner if parallel scan is disabled or if called to use a single thread
+            return find(tableName, scan, rowKeyDistributor, action);
+        } else {
+            int numThreadsUsed = numParallelThreads < this.maxThreadsPerParallelScan ? numParallelThreads : this.maxThreadsPerParallelScan;
+            return execute(tableName, new ParallelDistributedScannerTableCallback<>(scan, rowKeyDistributor, action, this.executor, numThreadsUsed));
+        }
+    }
+
+    @Override
     public Result increment(String tableName, final Increment increment) {
         return execute(tableName, new TableCallback<Result>() {
             @Override
@@ -519,6 +435,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         });
     }
 
+    @Override
     public List<Result> increment(final String tableName, final List<Increment> incrementList) {
         return execute(tableName, new TableCallback<List<Result>>() {
             @Override
@@ -543,6 +460,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         });
     }
 
+    @Override
     public long incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount) {
         return execute(tableName, new TableCallback<Long>() {
             @Override
@@ -552,6 +470,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         });
     }
 
+    @Override
     public long incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount, final boolean writeToWAL) {
         return execute(tableName, new TableCallback<Long>() {
             @Override

@@ -50,6 +50,8 @@ import javax.annotation.PostConstruct;
 @Repository
 public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
+    private static final int MAP_STATISTICS_CALLEE_VER2_NUM_PARTITIONS = 32;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private int scanCacheSize = 40;
     private boolean backwardCompatibility = false;
@@ -107,7 +109,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
             // find distributed key.
             final Scan scan = createScan(callerApplication, range, HBaseTables.MAP_STATISTICS_CALLEE_VER2_CF_COUNTER);
             ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(mapStatisticsCallerMapper, new MapStatisticsTimeWindowReducer(timeWindow));
-            LinkDataMap linkDataMap = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE_VER2, scan, rowKeyDistributorByHashPrefix, resultExtractor);
+            LinkDataMap linkDataMap = hbaseOperations2.findParallel(HBaseTables.MAP_STATISTICS_CALLEE_VER2, scan, rowKeyDistributorByHashPrefix, resultExtractor, MAP_STATISTICS_CALLEE_VER2_NUM_PARTITIONS);
             logger.debug("Caller data. {}, {}", linkDataMap, range);
             if(linkDataMap != null && linkDataMap.size() > 0) {
                 return linkDataMap;

@@ -44,6 +44,9 @@ import java.util.*;
  */
 @Repository
 public class HbaseMapResponseTimeDao implements MapResponseDao {
+
+    private static final int MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS = 8;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private int scanCacheSize = 40;
@@ -101,7 +104,7 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
         if (tableExists) {
             Scan scan = createScan(application, range, HBaseTables.MAP_STATISTICS_SELF_VER2_CF_COUNTER);
 
-            List<ResponseTime> responseTimeList = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_SELF_VER2, scan, rowKeyDistributorByHashPrefix, responseTimeMapper);
+            List<ResponseTime> responseTimeList = hbaseOperations2.findParallel(HBaseTables.MAP_STATISTICS_SELF_VER2, scan, rowKeyDistributorByHashPrefix, responseTimeMapper, MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS);
             if (logger.isDebugEnabled()) {
                 logger.debug("Self data {}", responseTimeList);
             }

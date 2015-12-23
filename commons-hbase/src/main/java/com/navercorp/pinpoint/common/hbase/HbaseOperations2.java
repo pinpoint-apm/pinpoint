@@ -86,13 +86,25 @@ public interface HbaseOperations2 extends HbaseOperations {
 
     <T> List<List<T>> find(String tableName, final List<Scan> scans, final RowMapper<T> action);
 
-    <T> List<T> find(String tableName, final Scan scan, AbstractRowKeyDistributor rowKeyDistributor, final RowMapper<T> action);
+    // Distributed scanners
 
-    <T> List<T> find(String tableName, final Scan scan, AbstractRowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action);
+    <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final RowMapper<T> action);
+
+    <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action);
 
     <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, final LimitEventHandler limitEventHandler);
-    
+
     <T> T find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action);
+
+    // Parallel scanners for distributed scans
+
+    <T> List<T> findParallel(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final RowMapper<T> action, int numParallelThreads);
+
+    <T> List<T> findParallel(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, int numParallelThreads);
+
+    <T> List<T> findParallel(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, final LimitEventHandler limitEventHandler, int numParallelThreads);
+
+    <T> T findParallel(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action, int numParallelThreads);
 
     Result increment(String tableName, final Increment increment);
 
