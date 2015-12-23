@@ -94,7 +94,7 @@ public class TransactionInfoViewModel {
 
     @JsonProperty("logPageUrl")
     public String getLogPageUrl() {
-        if (logPageUrl != null || logPageUrl.length() > 0) {
+        if (logPageUrl != null && logPageUrl.length() > 0) {
             try {
                 URL url = new URL(logPageUrl);
                 StringBuilder sb = new StringBuilder();
