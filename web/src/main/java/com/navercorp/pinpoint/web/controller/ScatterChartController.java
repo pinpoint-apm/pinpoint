@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.web.service.ScatterChartService;
 import com.navercorp.pinpoint.web.util.LimitUtils;
 import com.navercorp.pinpoint.web.util.TimeUtils;
 import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.web.view.TransactionMetaDataViewModel;
 import com.navercorp.pinpoint.web.vo.*;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.navercorp.pinpoint.web.vo.scatter.ScatterIndex;
@@ -43,11 +44,13 @@ import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
  * @author netspider
  * @author emeroad
+ * @author jaehong.kim
  */
 @Controller
 public class ScatterChartController {
@@ -270,16 +273,17 @@ public class ScatterChartController {
      * @return
      */
     @RequestMapping(value = "/transactionmetadata", method = RequestMethod.POST)
-    public String transactionmetadata(Model model, HttpServletRequest request, HttpServletResponse response) {
-
+    @ResponseBody
+    public TransactionMetaDataViewModel transactionmetadata(Model model, HttpServletRequest request, HttpServletResponse response) {
+        TransactionMetaDataViewModel viewModel = new TransactionMetaDataViewModel();
         TransactionMetadataQuery query = parseSelectTransaction(request);
+        ModelAndView mv = new ModelAndView();
         if (query.size() > 0) {
             List<SpanBo> metadata = scatter.selectTransactionMetadata(query);
-            model.addAttribute("metadata", metadata);
+            viewModel.setSpanBoList(metadata);
         }
 
-
-        return "transactionmetadata";
+        return viewModel;
     }
 
     private TransactionMetadataQuery parseSelectTransaction(HttpServletRequest request) {
@@ -296,90 +300,6 @@ public class ScatterChartController {
 
             query.addQueryCondition(traceId, Long.parseLong(time), Integer.parseInt(responseTime));
             index++;
-        }
-        logger.debug("query:{}", query);
-        return query;
-    }
-
-    /**
-     * transaction list query for selected points in scatter chart
-     * <p>
-     * <pre>
-     * TEST URL = http://localhost:7080/transactionmetadata2.pinpoint?application=FRONT-WEB&from=1394432299032&to=1394433498269&responseFrom=100&responseTo=200&responseOffset=100&limit=10
-     * </pre>
-     *
-     * @param model
-     * @param request
-     * @param response
-     * @return
-     */
-    @RequestMapping(value = "/transactionmetadata2", method = RequestMethod.GET)
-    public String getTransaction(Model model,
-                                 @RequestParam("application") String applicationName,
-                                 @RequestParam("from") long from,
-                                 @RequestParam("to") long to,
-                                 @RequestParam("responseFrom") int responseFrom,
-                                 @RequestParam("responseTo") int responseTo,
-                                 @RequestParam("limit") int limit,
-                                 @RequestParam(value = "offsetTime", required = false, defaultValue = "-1") long offsetTime,
-                                 @RequestParam(value = "offsetTransactionId", required = false) String offsetTransactionId,
-                                 @RequestParam(value = "offsetTransactionElapsed", required = false, defaultValue = "-1") int offsetTransactionElapsed,
-                                 @RequestParam(value = "filter", required = false) String filterText) {
-
-        limit = LimitUtils.checkRange(limit);
-
-        StopWatch watch = new StopWatch();
-        watch.start("selectScatterData");
-
-        final SelectedScatterArea area = SelectedScatterArea.createUncheckedArea(from, to, responseFrom, responseTo);
-        logger.debug("fetch scatter data. {}, LIMIT={}, FILTER={}", area, limit, filterText);
-
-        if (filterText == null) {
-
-            // query data above "limit" first
-            TransactionId offsetId = null;
-            List<SpanBo> extraMetadata = null;
-            if (offsetTransactionId != null) {
-                offsetId = new TransactionId(offsetTransactionId);
-
-                SelectedScatterArea extraArea = SelectedScatterArea.createUncheckedArea(offsetTime, offsetTime, responseFrom, responseTo);
-                List<Dot> extraAreaDotList = scatter.selectScatterData(applicationName, extraArea, offsetId, offsetTransactionElapsed, limit);
-                extraMetadata = scatter.selectTransactionMetadata(parseSelectTransaction(extraAreaDotList));
-                model.addAttribute("extraMetadata", extraMetadata);
-            }
-
-            // query data up to limit
-            if (extraMetadata == null || extraMetadata.size() < limit) {
-                int newlimit = limit - ((extraMetadata == null) ? 0 : extraMetadata.size());
-                List<Dot> selectedDotList = scatter.selectScatterData(applicationName, area, null, -1, newlimit);
-                List<SpanBo> metadata = scatter.selectTransactionMetadata(parseSelectTransaction(selectedDotList));
-                model.addAttribute("metadata", metadata);
-            }
-        } else {
-            final LimitedScanResult<List<TransactionId>> limitedScanResult = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, area, limit);
-            final List<TransactionId> traceIdList = limitedScanResult.getScanData();
-            logger.trace("submitted transactionId count={}", traceIdList.size());
-
-            // TODO: just sorted?  we need range check based on tree structure
-            SortedSet<TransactionId> traceIdSet = new TreeSet<>(traceIdList);
-            logger.debug("unified traceIdSet size={}", traceIdSet.size());
-
-            List<Dot> dots = scatter.selectScatterData(traceIdSet, applicationName, filterBuilder.build(filterText));
-        }
-
-        watch.stop();
-        logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
-
-        return "transactionmetadata2";
-    }
-
-    private TransactionMetadataQuery parseSelectTransaction(List<Dot> dotList) {
-        TransactionMetadataQuery query = new TransactionMetadataQuery();
-        if (dotList == null) {
-            return query;
-        }
-        for (Dot dot : dotList) {
-            query.addQueryCondition(dot.getTransactionId(), dot.getAcceptedTime(), dot.getElapsedTime());
         }
         logger.debug("query:{}", query);
         return query;
