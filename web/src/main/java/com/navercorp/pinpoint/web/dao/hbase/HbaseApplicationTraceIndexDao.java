@@ -65,6 +65,8 @@ import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 @Repository
 public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
+    private static final int APPLICATION_TRACE_INDEX_NUM_PARTITIONS = 32;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
@@ -104,8 +106,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
         final LimitedScanResult<List<TransactionId>> limitedScanResult = new LimitedScanResult<>();
         LastRowAccessor lastRowAccessor = new LastRowAccessor();
-        List<List<TransactionId>> traceIndexList = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX,
-                scan, traceIdRowKeyDistributor, limit, traceIndexMapper, lastRowAccessor);
+        List<List<TransactionId>> traceIndexList = hbaseOperations2.findParallel(HBaseTables.APPLICATION_TRACE_INDEX,
+                scan, traceIdRowKeyDistributor, limit, traceIndexMapper, lastRowAccessor, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
 
         List<TransactionId> transactionIdSum = new ArrayList<>(128);
         for(List<TransactionId> transactionId: traceIndexList) {
@@ -145,8 +147,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
         final LimitedScanResult<List<TransactionId>> limitedScanResult = new LimitedScanResult<>();
         LastRowAccessor lastRowAccessor = new LastRowAccessor();
-        List<List<TransactionId>> traceIndexList = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX,
-                scan, traceIdRowKeyDistributor, limit, traceIndexMapper, lastRowAccessor);
+        List<List<TransactionId>> traceIndexList = hbaseOperations2.findParallel(HBaseTables.APPLICATION_TRACE_INDEX,
+                scan, traceIdRowKeyDistributor, limit, traceIndexMapper, lastRowAccessor, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
 
         List<TransactionId> transactionIdSum = new ArrayList<>(128);
         for(List<TransactionId> transactionId: traceIndexList) {
@@ -244,7 +246,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         logger.debug("scanTraceScatter");
         Scan scan = createScan(applicationName, range);
 
-        List<List<Dot>> dotListList = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, limit, traceIndexScatterMapper);
+        List<List<Dot>> dotListList = hbaseOperations2.findParallel(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, limit, traceIndexScatterMapper, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
         List<Dot> mergeList = new ArrayList<>(limit + 10);
         for(List<Dot> dotList : dotListList) {
             mergeList.addAll(dotList);
@@ -277,7 +279,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         ResponseTimeRange responseTimeRange = area.getResponseTimeRange();
         TraceIndexScatterMapper2 mapper = new TraceIndexScatterMapper2(responseTimeRange.getFrom(), responseTimeRange.getTo());
 
-        List<List<Dot>> dotListList = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, limit, mapper);
+        List<List<Dot>> dotListList = hbaseOperations2.findParallel(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, limit, mapper, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
 
         List<Dot> result = new ArrayList<>();
         for(List<Dot> dotList : dotListList) {
