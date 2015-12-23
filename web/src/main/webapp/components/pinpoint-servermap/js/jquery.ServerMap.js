@@ -25,7 +25,7 @@
                 "sContainerId": '',
                 "sBigFont": "12pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
                 "sSmallFont": "11pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
-                "sImageDir": './images/',
+                "sImageDir": 'images/',
                 "nBoldKey": null,
                 "htIcons": {
                     'APACHE': 'APACHE.png',
@@ -230,7 +230,7 @@
                         self.$(
                             go.Picture,
                             {
-                                source: sImageDir + sImageName,
+                                source: sImageDir.substring(1) + sImageName,
                                 width: 20,
                                 height: 20,
                                 margin: 1,
@@ -351,7 +351,7 @@
                             self.$(
                                 go.Picture,
                                 {
-                                    source: sImageDir + 'filter.png',
+                                    source: sImageDir.substring(1) + 'filter.png',
                                     width: 14,
                                     height: 14,
                                     margin: 1,

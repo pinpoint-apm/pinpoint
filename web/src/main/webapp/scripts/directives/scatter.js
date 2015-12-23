@@ -2,8 +2,8 @@
 
 pinpointApp.constant('scatterConfig', {
     get: {
-        scatterData: '/getScatterData.pinpoint',
-        lastScatterData: '/getLastScatterData.pinpoint'
+        scatterData: 'getScatterData.pinpoint',
+        lastScatterData: 'getLastScatterData.pinpoint'
     },
     useIntervalForFetching: false,
     nFetchingInterval: 2000,

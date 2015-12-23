@@ -27,7 +27,7 @@
                 "sOverviewId": '',
                 "sBigFont": "11pt avn85,NanumGothic,ng,dotum,AppleGothic,sans-serif",
                 "sSmallFont": "10pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
-                "sImageDir": './images/',
+                "sImageDir": 'images/',
                 "sBoldKey": null,
                 "htIcons": {
                     'APACHE': 'APACHE.png',
@@ -292,7 +292,7 @@
                             self.$(
                                 go.Picture,
                                 {
-                                    source: sImageDir + sImageName,
+                                    source: sImageDir.substring(1) + sImageName,
                                     margin: new go.Margin(18, 0, 5, 0),
                                     desiredSize: new go.Size(80, 40),
                                     imageStretch: go.GraphObject.Uniform
@@ -337,7 +337,7 @@
                             self.$(
                                 go.Picture,
                                 {
-                                    source: sImageDir + 'ERROR.png',
+                                    source: sImageDir.substring(1) + 'ERROR.png',
                                     desiredSize: new go.Size(20, 20),
 //                                    visible: false,
                                     imageStretch: go.GraphObject.Uniform,
@@ -348,7 +348,7 @@
                             self.$(
                                 go.Picture,
                                 {
-                                    source: sImageDir + 'FILTER.png',
+                                    source: sImageDir.substring(1) + 'FILTER.png',
                                     desiredSize: new go.Size(17, 17),
                                     visible: false,
                                     imageStretch: go.GraphObject.Uniform
@@ -404,7 +404,7 @@
                 go.Panel.TableRow,
                 self.$(
                     go.Picture, {
-                        source: sImageDir + 'ERROR.png',
+                        source: sImageDir.substring(1) + 'ERROR.png',
                         margin: new go.Margin(1, 2),
                         desiredSize: new go.Size(10, 10),
                         visible: false,
@@ -558,7 +558,7 @@
                             },
                             self.$(
                                 go.Picture, {
-                                    source: sImageDir + sImageName,
+                                    source: sImageDir.substring(1) + sImageName,
                                     margin: new go.Margin(0, 0, 5, 0),
                                     desiredSize: new go.Size(100, 40),
                                     imageStretch: go.GraphObject.Uniform
@@ -734,7 +734,7 @@
                             self.$(
                                 go.Picture,
                                 {
-                                    source: sImageDir + 'FILTER.png',
+                                    source: sImageDir.substring(1) + 'FILTER.png',
                                     width: 14,
                                     height: 14,
                                     margin: 1,

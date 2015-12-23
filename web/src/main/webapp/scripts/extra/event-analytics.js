@@ -80,7 +80,7 @@
 	global.$at = $at;
 	
 	$.ajax({
-		url: "/configuration.pinpoint"
+		url: "configuration.pinpoint"
 	}).done(function( result ) {
 		bSendAllowed = result.sendUsage;
 	}).fail(function() {

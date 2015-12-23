@@ -1,7 +1,7 @@
 'use strict';
 
 pinpointApp.constant('agentInfoConfig', {
-    agentStatUrl: '/getAgentStat.pinpoint'
+    agentStatUrl: 'getAgentStat.pinpoint'
 });
 
 pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'ProgressBar', 'AgentDao',

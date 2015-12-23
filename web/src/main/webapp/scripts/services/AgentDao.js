@@ -1,7 +1,7 @@
 'use strict';
 
 pinpointApp.constant('agentDaoConfig', {
-    agentStatUrl: '/getAgentStat.pinpoint'
+    agentStatUrl: 'getAgentStat.pinpoint'
 });
 
 pinpointApp.service('AgentDao', [ 'agentDaoConfig',
