@@ -174,7 +174,7 @@ public class SpanAligner2 {
             } catch (CorruptedSpanCallTreeNodeException e) {
                 logger.warn("Find corrupted span event.", e);
                 CorruptedSpanAlignFactory factory = new CorruptedSpanAlignFactory();
-                final CallTree subTree = new SpanCallTree(factory.get(span, spanEventBo));
+                final CallTree subTree = new SpanCallTree(factory.get(e.getTitle(), span, spanEventBo));
                 tree.add(subTree);
                 return tree;
             }
