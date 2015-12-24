@@ -53,6 +53,8 @@
                     'MSSQLSERVER_GROUP': 'MSSQLSERVER.png',
                     'MYSQL': 'MYSQL.png',
                     'MYSQL_GROUP': 'MYSQL.png',
+                    'MARIADB': 'MARIADB.png',
+                    'MARIADB_GROUP': 'MARIADB.png',
                     'POSTGRESQL': 'POSTGRESQL.png',
                     'POSTGRESQL_GROUP': 'POSTGRESQL.png',
                     'NBASE': 'NBASE.png',
