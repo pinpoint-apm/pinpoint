@@ -21,6 +21,11 @@
             <name>Spring Framework Maven Release Repository</name>
             <url>http://maven.springframework.org/release/</url>
         </repository>
+        <repository>
+            <id>spring-maven-release-remote</id>
+            <name>Spring Framework Maven Release Remote Repository</name>
+            <url>http://repo.spring.io/libs-release-remote/</url>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -371,7 +376,11 @@
                 <artifactId>mybatis-spring</artifactId>
                 <version>1.2.2</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.mariadb.jdbc</groupId>
+                <artifactId>mariadb-java-client</artifactId>
+                <version>1.2.1</version>
+            </dependency>
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>

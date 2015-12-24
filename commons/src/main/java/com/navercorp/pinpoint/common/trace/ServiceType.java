@@ -59,6 +59,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>2051</td><td>UNKNOWN_DB_EXECUTE_QUERY</td></tr>
  * <tr><td>2100</td><td>MYSQL</td></tr>
  * <tr><td>2101</td><td>MYSQL_EXECUTE_QUERY</td></tr>
+ * <tr><td>2150</td><td>MARIADB</td></tr>
+ * <tr><td>2151</td><td>MARIADB_EXECUTE_QUERY</td></tr>
  * <tr><td>2200</td><td>MSSQL</td></tr>
  * <tr><td>2201</td><td>MSSQL_EXECUTE_QUERY</td></tr>
  * <tr><td>2300</td><td>ORACLE</td></tr>
