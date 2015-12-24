@@ -13,8 +13,11 @@ import com.navercorp.pinpoint.common.util.ApiDescription;
 import com.navercorp.pinpoint.common.util.ApiDescriptionParser;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeNode;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RecordFactory {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // spans with id = 0 are regarded as root - start at 1
     private int idGen = 1;
@@ -143,9 +146,13 @@ public class RecordFactory {
             final ApiMetaDataBo apiMetaData = (ApiMetaDataBo) annotation.getValue();
             api.title = api.description = getApiInfo(apiMetaData);
             if (apiMetaData.getType() == 0) {
-                ApiDescription apiDescription = apiDescriptionParser.parse(api.description);
-                api.title = apiDescription.getSimpleMethodDescription();
-                api.className = apiDescription.getSimpleClassName();
+                try {
+                    ApiDescription apiDescription = apiDescriptionParser.parse(api.description);
+                    api.title = apiDescription.getSimpleMethodDescription();
+                    api.className = apiDescription.getSimpleClassName();
+                } catch(Exception e) {
+                    logger.warn("Failed to api parse. {}", api.description, e);
+                }
             }
             api.type = apiMetaData.getType();
         } else {
