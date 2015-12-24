@@ -20,7 +20,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
+import com.navercorp.pinpoint.bootstrap.instrument.RequestHandle;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,22 +32,27 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
     private final ConcurrentMap<TransformerKey, ClassFileTransformer> transformerMap = new ConcurrentHashMap<TransformerKey, ClassFileTransformer>();
 
     @Override
-    public void onRetransformRequest(Class<?> target, final ClassFileTransformer transformer) {
+    public RequestHandle onRetransformRequest(Class<?> target, final ClassFileTransformer transformer) {
+        if (target == null) {
+            throw new NullPointerException("target must not be null");
+        }
+        if (transformer == null) {
+            throw new NullPointerException("transformer must not be null");
+        }
+
         final TransformerKey key = createTransformKey(target);
         add(key, transformer);
         if (logger.isInfoEnabled()) {
             logger.info("added retransformer classLoader: {}, class: {}, registry size: {}", target.getClassLoader(), target.getName(), transformerMap.size());
         }
+        return new DefaultRequestHandle(key);
     }
 
-    @Override
-    public ClassFileTransformer onRetransformFail(Class<?> target) {
-        final TransformerKey key = createTransformKey(target);
-        return transformerMap.remove(key);
-    }
+
 
     @Override
     public void onTransformRequest(ClassLoader classLoader, String targetClassName, ClassFileTransformer transformer) {
+
         // TODO fix classLoader null case
 //        if (classLoader== null) {
 //            boot? ext? system?
@@ -104,7 +109,7 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
     }
     
     private static final class TransformerKey {
-        // TODO depends classLoader memory leak
+        // TODO defense classLoader memory leak
         private final ClassLoader classLoader;
         private final String targetClassName;
         
@@ -143,4 +148,25 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
                     '}';
         }
     }
+
+    private class DefaultRequestHandle implements RequestHandle {
+        private final TransformerKey key;
+
+        public DefaultRequestHandle(TransformerKey key) {
+            if (key == null) {
+                throw new NullPointerException("key must not be null");
+            }
+            this.key = key;
+        }
+
+        @Override
+        public boolean cancel() {
+            final ClassFileTransformer remove = transformerMap.remove(key);
+            if (remove == null) {
+                return false;
+            }
+            return true;
+        }
+    }
+
 }

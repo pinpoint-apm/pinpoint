@@ -20,6 +20,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 
+import com.navercorp.pinpoint.bootstrap.instrument.RequestHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,14 +54,14 @@ public class DynamicTransformService implements DynamicTransformTrigger {
         }
         assertClass(target);
 
-        this.dynamicTransformRequestListener.onRetransformRequest(target, transformer);
+        final RequestHandle requestHandle = this.dynamicTransformRequestListener.onRetransformRequest(target, transformer);
         boolean success = false;
         try {
             triggerRetransform(target);
             success = true;
         } finally {
             if (!success) {
-                this.dynamicTransformRequestListener.onRetransformFail(target);
+                requestHandle.cancel();
             }
         }
     }
