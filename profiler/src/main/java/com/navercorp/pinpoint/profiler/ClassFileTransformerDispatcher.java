@@ -21,6 +21,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.instrument.RequestHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,14 +130,10 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
     }
 
     @Override
-    public void onRetransformRequest(Class<?> target, final ClassFileTransformer transformer) {
-        this.dynamicTransformerRegistry.onRetransformRequest(target, transformer);
+    public RequestHandle onRetransformRequest(Class<?> target, final ClassFileTransformer transformer) {
+        return this.dynamicTransformerRegistry.onRetransformRequest(target, transformer);
     }
 
-    @Override
-    public ClassFileTransformer onRetransformFail(Class<?> target) {
-        return this.dynamicTransformerRegistry.onRetransformFail(target);
-    }
 
     @Override
     public void onTransformRequest(ClassLoader classLoader, String targetClassName, ClassFileTransformer transformer) {
