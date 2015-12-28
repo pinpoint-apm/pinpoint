@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.hbase;
+package com.navercorp.pinpoint.common.hbase.parallel;
 
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.springframework.data.hadoop.hbase.HbaseAccessor;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -34,31 +34,67 @@ import java.util.concurrent.ExecutorService;
  */
 public class ParallelResultScanner implements ResultScanner {
 
-    private static final int DEFAULT_SCAN_TASK_QUEUE_SIZE = 100;
-
     private final AbstractRowKeyDistributor keyDistributor;
     private final List<ScanTask> scanTasks;
     private final Result[] nextResults;
     private Result next = null;
 
-    public ParallelResultScanner(ExecutorService executor, int numCaching, AbstractRowKeyDistributor keyDistributor, ResultScanner[] scanners) throws IOException {
+    public ParallelResultScanner(String tableName, HbaseAccessor hbaseAccessor, ExecutorService executor, Scan originalScan, AbstractRowKeyDistributor keyDistributor, int numParallelThreads) throws IOException {
+        if (hbaseAccessor == null) {
+            throw new NullPointerException("hbaseAccessor must not be null");
+        }
         if (executor == null) {
             throw new NullPointerException("executor must not be null");
         }
         if (keyDistributor == null) {
             throw new NullPointerException("keyDistributor must not be null");
         }
-        if (scanners == null) {
-            throw new NullPointerException("scanners must not be null");
+        if (originalScan == null) {
+            throw new NullPointerException("originalScan must not be null");
         }
         this.keyDistributor = keyDistributor;
-        this.nextResults = new Result[scanners.length];
-        this.scanTasks = new ArrayList<>(scanners.length);
-        final int scanTaskQueueSize = numCaching < DEFAULT_SCAN_TASK_QUEUE_SIZE ? numCaching : DEFAULT_SCAN_TASK_QUEUE_SIZE;
-        for (ResultScanner scanner : scanners) {
-            ScanTask scanTask = new ScanTask(scanner, scanTaskQueueSize);
-            this.scanTasks.add(scanTask);
+
+        final ScanTaskConfig scanTaskConfig = new ScanTaskConfig(tableName, hbaseAccessor, keyDistributor, originalScan.getCaching());
+        final Scan[] splitScans = splitScans(originalScan);
+
+        this.scanTasks = createScanTasks(scanTaskConfig, splitScans, numParallelThreads);
+        this.nextResults = new Result[scanTasks.size()];
+        for (ScanTask scanTask : scanTasks) {
             executor.execute(scanTask);
+        }
+    }
+
+    private Scan[] splitScans(Scan originalScan) throws IOException {
+        Scan[] scans = this.keyDistributor.getDistributedScans(originalScan);
+        for (int i = 0; i < scans.length; ++i) {
+            Scan scan = scans[i];
+            scan.setId(originalScan.getId() + "-" + i);
+        }
+        return scans;
+    }
+
+    private List<ScanTask> createScanTasks(ScanTaskConfig scanTaskConfig, Scan[] splitScans, int numParallelThreads) {
+        if (splitScans.length <= numParallelThreads) {
+            List<ScanTask> scanTasks = new ArrayList<>(splitScans.length);
+            for (Scan scan : splitScans) {
+                scanTasks.add(new ScanTask(scanTaskConfig, scan));
+            }
+            return scanTasks;
+        } else {
+            int maxIndividualScans = (splitScans.length + (numParallelThreads - 1)) / numParallelThreads;
+            List<List<Scan>> scanDistributions = new ArrayList<>(numParallelThreads);
+            for (int i = 0; i < numParallelThreads; ++i) {
+                scanDistributions.add(new ArrayList<Scan>(maxIndividualScans));
+            }
+            for (int i = 0; i < splitScans.length; ++i) {
+                scanDistributions.get(i % numParallelThreads).add(splitScans[i]);
+            }
+            List<ScanTask> scanTasks = new ArrayList<>(numParallelThreads);
+            for (List<Scan> scanDistribution : scanDistributions) {
+                Scan[] scansForSingleTask = scanDistribution.toArray(new Scan[scanDistribution.size()]);
+                scanTasks.add(new ScanTask(scanTaskConfig, scansForSingleTask));
+            }
+            return scanTasks;
         }
     }
 
@@ -85,6 +121,8 @@ public class ParallelResultScanner implements ResultScanner {
         int indexOfResultToUse = -1;
         for (int i = 0; i < this.scanTasks.size(); ++i) {
             ScanTask scanTask = this.scanTasks.get(i);
+            // fail fast in case of errors
+            checkTask(scanTask);
             if (nextResults[i] == null) {
                 try {
                     nextResults[i] = scanTask.getResult();
@@ -108,57 +146,10 @@ public class ParallelResultScanner implements ResultScanner {
         return result;
     }
 
-    private static class ScanTask implements Runnable {
-
-        private static final Result END_RESULT = new Result();
-
-        private final ResultScanner scanner;
-        private final BlockingQueue<Result> resultQueue;
-        private volatile boolean isQueueClosed = false;
-        private volatile boolean isFinished = false;
-
-        private ScanTask(ResultScanner scanner, int queueSize) {
-            this.scanner = scanner;
-            this.resultQueue = new ArrayBlockingQueue<>(queueSize);
-        }
-
-        @Override
-        public void run() {
-            try {
-                for (Result result : this.scanner) {
-                    this.resultQueue.put(result);
-                    if (this.isFinished) {
-                        break;
-                    }
-                }
-                this.resultQueue.put(END_RESULT);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                this.resultQueue.clear();
-                this.resultQueue.add(END_RESULT);
-            } finally {
-                this.isFinished = true;
-                this.scanner.close();
-            }
-        }
-
-        public Result getResult() throws InterruptedException {
-            if (this.isQueueClosed) {
-                return null;
-            }
-            Result take = this.resultQueue.take();
-            if (take == END_RESULT) {
-                this.isQueueClosed = true;
-                return null;
-            }
-            return take;
-        }
-
-        public void close() {
-            this.isFinished = true;
-            // signal threads blocked on resultQueue
-            this.resultQueue.clear();
-            this.resultQueue.offer(END_RESULT);
+    private void checkTask(ScanTask scanTask) {
+        Throwable th = scanTask.getThrowable();
+        if (th != null) {
+            throw new ScanTaskException(th);
         }
     }
 
@@ -229,6 +220,5 @@ public class ParallelResultScanner implements ResultScanner {
                 throw new UnsupportedOperationException();
             }
         };
-
     }
 }
