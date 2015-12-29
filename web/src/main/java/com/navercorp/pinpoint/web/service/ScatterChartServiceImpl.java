@@ -120,7 +120,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
         final List<SpanBo> result = new ArrayList<>(query.size());
         int index = 0;
         for (List<SpanBo> spans : selectedSpans) {
-            if (spans.size() == 0) {
+            if (spans.isEmpty()) {
                 // span data does not exist in storage - skip
             } else if (spans.size() == 1) {
                 // case with a single unique span data

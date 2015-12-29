@@ -128,7 +128,7 @@ public class SpanAligner2 {
 
     public CallTree sort() {
         final List<SpanBo> rootList = spanIdMap.remove(rootSpanId);
-        if (rootList == null || rootList.size() == 0) {
+        if (rootList == null || rootList.isEmpty()) {
             throw new IllegalStateException("rootList span not found. rootSpanId=" + rootSpanId + ", map=" + spanIdMap.keySet());
         }
         if (rootList.size() > 1) {

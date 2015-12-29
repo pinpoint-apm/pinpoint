@@ -209,7 +209,7 @@ public class CommandController {
 
         List<String> locks = threadDump.getLockedSynchronizers();
         if (locks != null) {
-            if (locks.size() > 0) {
+            if (!locks.isEmpty()) {
                 sb.append("\n\tNumber of locked synchronizers = ").append(locks.size());
                 sb.append('\n');
                 for (String li : locks) {

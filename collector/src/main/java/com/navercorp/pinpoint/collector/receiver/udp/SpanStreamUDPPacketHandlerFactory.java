@@ -99,7 +99,7 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
                     }
 
                     List<TBase<?, ?>> tbaseList = deserializer.deserializeList(componentData);
-                    if (tbaseList == null || tbaseList.size() == 0) {
+                    if (tbaseList == null || tbaseList.isEmpty()) {
                         continue;
                     }
                     
@@ -145,7 +145,7 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
     }
 
     private List<TSpanEvent> getSpanEventList(List<TBase<?, ?>> tbaseList) {
-        if (tbaseList == null || tbaseList.size() == 0) {
+        if (tbaseList == null || tbaseList.isEmpty()) {
             return new ArrayList<>(0);
         }
 

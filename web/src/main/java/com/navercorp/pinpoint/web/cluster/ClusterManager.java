@@ -116,7 +116,7 @@ public class ClusterManager {
 
         // local ip addresses with all LOOPBACK addresses removed
         List<String> ipList = NetUtils.getLocalV4IpList();
-        if (ipList.size() > 0) {
+        if (!ipList.isEmpty()) {
             return ipList.get(0);
         }
 
@@ -160,7 +160,7 @@ public class ClusterManager {
         List<String> clusterIdList = clusterDataManager.getRegisteredAgentList(applicationName, agentId, startTimeStamp);
 
         // having duplicate AgentName registered is an exceptional case
-        if (clusterIdList.size() == 0) {
+        if (clusterIdList.isEmpty()) {
             logger.warn("{}/{}/{} couldn't find agent.", applicationName, agentId, startTimeStamp);
             return null;
         } else if (clusterIdList.size() > 1) {

@@ -39,7 +39,7 @@ public class PinpointServerRepository {
                 Set<PinpointServer> pinpointServerSet = pinpointServerRepository.get(key);
                 pinpointServerSet.remove(pinpointServer);
 
-                if (pinpointServerSet.size() == 0) {
+                if (pinpointServerSet.isEmpty()) {
                     pinpointServerRepository.remove(key);
                     return true;
                 }

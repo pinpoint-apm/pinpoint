@@ -304,7 +304,7 @@ public class ApplicationMapBuilder {
                 if (fromLink.size() > 1) {
                     logger.warn("Invalid from UserNode:{}", linkList);
                     throw new IllegalArgumentException("Invalid from UserNode.size() :" + fromLink.size());
-                } else if (fromLink.size() == 0) {
+                } else if (fromLink.isEmpty()) {
                     logger.warn("from UserNode not found:{}", userNode);
                     continue;
                 }

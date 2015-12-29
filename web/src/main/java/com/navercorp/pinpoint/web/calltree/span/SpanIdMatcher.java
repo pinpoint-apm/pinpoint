@@ -41,7 +41,7 @@ public class SpanIdMatcher {
     public SpanBo approximateMatch(long spanEventBoStartTime) {
         // TODO: need algorithm for matching
         List<WeightSpanBo> weightSpanList = computeWeight(spanEventBoStartTime);
-        if (weightSpanList.size() == 0) {
+        if (weightSpanList.isEmpty()) {
             return null;
         }
         Collections.sort(weightSpanList, new Comparator<WeightSpanBo>() {
@@ -119,7 +119,7 @@ public class SpanIdMatcher {
 
 
     public List<SpanBo> other() {
-        if (nextSpanBoList.size() == 0) {
+        if (nextSpanBoList.isEmpty()) {
             return null;
         }
         return nextSpanBoList;

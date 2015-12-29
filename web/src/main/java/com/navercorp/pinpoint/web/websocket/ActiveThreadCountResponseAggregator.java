@@ -147,7 +147,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
             }
 
             boolean removed = webSocketSessions.remove(webSocketSession);
-            if (removed && webSocketSessions.size() == 0) {
+            if (removed && webSocketSessions.isEmpty()) {
                 for (ActiveThreadCountWorker activeThreadCountWorker : activeThreadCountWorkerRepository.values()) {
                     activeThreadCountWorker.stop();
                 }

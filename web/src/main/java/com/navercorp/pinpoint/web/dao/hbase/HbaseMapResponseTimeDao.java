@@ -109,7 +109,7 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
                 logger.debug("Self data {}", responseTimeList);
             }
 
-            if (responseTimeList.size() > 0) {
+            if (!responseTimeList.isEmpty()) {
                 return responseTimeList;
             }
         }

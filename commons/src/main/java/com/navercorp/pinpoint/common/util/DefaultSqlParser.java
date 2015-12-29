@@ -466,7 +466,7 @@ public class DefaultSqlParser implements SqlParser {
     }
 
     public String combineBindValues(String sql, List<String> bindValues) {
-        if(sql == null || sql.length() ==0 || bindValues == null || bindValues.size() == 0) {
+        if(sql == null || sql.isEmpty() || bindValues == null || bindValues.isEmpty()) {
             return sql;
         }
 

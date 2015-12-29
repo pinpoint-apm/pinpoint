@@ -55,7 +55,7 @@ public class TReplaceListProtocol extends TProtocol {
             throw new IllegalArgumentException("field name must not be null");
         }
 
-        if (outputs == null || outputs.size() == 0) {
+        if (outputs == null || outputs.isEmpty()) {
             throw new IllegalArgumentException("stream nodes must not be empty");
         }
 

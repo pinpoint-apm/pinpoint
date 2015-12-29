@@ -90,7 +90,7 @@ public class TBaseStream {
         TBaseStreamNode node = null;
         while ((node = nodes.peek()) != null) {
             if (node.size() > maxSize) {
-                if (list.size() == 0) {
+                if (list.isEmpty()) {
                     // first node
                     list.add(node);
                     nodes.poll();

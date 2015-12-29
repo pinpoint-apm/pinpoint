@@ -41,7 +41,7 @@ public class CompositeSpanStreamData {
             throw new NullPointerException("buffer may not be null.");
         }
 
-        if (componentsBufferIndexList == null || componentsBufferIndexList.size() == 0) {
+        if (componentsBufferIndexList == null || componentsBufferIndexList.isEmpty()) {
             throw new NullPointerException("buffer may not be null or zero.");
         }
 

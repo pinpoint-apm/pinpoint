@@ -396,7 +396,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                 crashKey.add(transactionId);
             }
         }
-        if (crashKey.size() != 0) {
+        if (!crashKey.isEmpty()) {
             Set<TransactionId> filteredTransactionId = filterMap.keySet();
             logger.info("transactionId crash found. original:{} filter:{} crashKey:{}", transactionIdList.size(), filteredTransactionId.size(), crashKey);
             return filteredTransactionId;

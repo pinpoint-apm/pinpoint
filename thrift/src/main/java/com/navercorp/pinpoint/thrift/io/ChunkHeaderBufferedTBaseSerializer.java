@@ -125,7 +125,7 @@ public class ChunkHeaderBufferedTBaseSerializer {
 
         // write header
         writeHeader(protocol, locator.headerLookup(base));
-        if (list != null && list.size() > 0) {
+        if (list != null && !list.isEmpty()) {
             protocol.addReplaceField(fieldName, list);
         }
 

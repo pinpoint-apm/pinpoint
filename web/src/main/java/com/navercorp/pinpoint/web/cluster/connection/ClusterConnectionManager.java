@@ -58,7 +58,7 @@ public class ClusterConnectionManager {
         }
 
         String connectAddress = config.getClusterConnectAddress();
-        if (connectAddress != null && connectAddress.trim().length() != 0) {
+        if (connectAddress != null && !connectAddress.trim().isEmpty()) {
             clusterConnector = new ClusterConnector(config.getClusterConnectAddress());
             clusterConnector.start();
         }
@@ -91,7 +91,7 @@ public class ClusterConnectionManager {
 
         // local ip addresses with all LOOPBACK addresses removed
         List<String> ipList = NetUtils.getLocalV4IpList();
-        if (ipList.size() > 0) {
+        if (!ipList.isEmpty()) {
             return ipList.get(0);
         }
 
