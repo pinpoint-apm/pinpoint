@@ -60,6 +60,6 @@ public class Jetty8ServerHandleInterceptor extends AbstractServerHandleIntercept
             }
         }
         return null;
-    };
+    }
 
 }
