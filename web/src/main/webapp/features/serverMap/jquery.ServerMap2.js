@@ -68,6 +68,8 @@
                     'SPRING_BOOT': 'SPRING_BOOT.png',
                     'TOMCAT': 'TOMCAT.png',
                     'TOMCAT_GROUP': 'TOMCAT.png',
+                    'JETTY': 'JETTY.png',
+                    'JETTY_GROUP': 'JETTY.png',
                     'UNDEFINED': 'UNDEFINED.png',
                     'UNDEFINED_GROUP': 'UNDEFINED.png',
                     'UNKNOWN': 'UNKNOWN.png',
