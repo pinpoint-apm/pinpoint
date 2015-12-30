@@ -27,10 +27,10 @@ import com.navercorp.pinpoint.common.bo.SpanEventBo;
  * @author jaehong.kim
  */
 public class SpanAlign {
-    private SpanBo spanBo;
-    private SpanEventBo spanEventBo;
-    private boolean span = true;
-    private boolean hasChild = false;
+    private final SpanBo spanBo;
+    private final SpanEventBo spanEventBo;
+    private final boolean span;
+    private final boolean hasChild;
 
     private int id;
     private long gap;
@@ -42,7 +42,14 @@ public class SpanAlign {
             throw new NullPointerException("spanBo must not be null");
         }
         this.spanBo = spanBo;
+        this.spanEventBo = null;
         this.span = true;
+        List<SpanEventBo> spanEvents = this.spanBo.getSpanEventBoList();
+        if (spanEvents == null || spanEvents.isEmpty()) {
+            this.hasChild = false;
+        } else {
+            this.hasChild = true;
+        }
     }
 
     public SpanAlign(SpanBo spanBo, SpanEventBo spanEventBo) {
@@ -55,10 +62,7 @@ public class SpanAlign {
         this.spanBo = spanBo;
         this.spanEventBo = spanEventBo;
         this.span = false;
-    }
-
-    public void setSpan(boolean span) {
-        this.span = span;
+        this.hasChild = false;
     }
 
     public boolean isSpan() {
@@ -75,10 +79,6 @@ public class SpanAlign {
 
     public boolean isHasChild() {
         return hasChild;
-    }
-
-    public void setHasChild(boolean hasChild) {
-        this.hasChild = hasChild;
     }
 
     public int getId() {
