@@ -27,6 +27,7 @@ import org.apache.thrift.TBase;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.springframework.util.SocketUtils;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author emeroad
  */
 public class UdpDataSenderTest {
+    private final int PORT = SocketUtils.findAvailableUdpPort(9009);
     @BeforeClass
     public static void before() {
         Slf4jLoggerBinderInitializer.beforeClass();
@@ -50,7 +52,7 @@ public class UdpDataSenderTest {
 
     @Test
     public void sendAndFlushCheck() throws InterruptedException {
-        UdpDataSender sender = new UdpDataSender("localhost", 9009, "test", 128, 1000, 1024*64*100);
+        UdpDataSender sender = new UdpDataSender("localhost", PORT, "test", 128, 1000, 1024*64*100);
 
         TAgentInfo agentInfo = new TAgentInfo();
         sender.send(agentInfo);
@@ -97,7 +99,7 @@ public class UdpDataSenderTest {
         final AtomicBoolean limitCounter = new AtomicBoolean(false);
         final CountDownLatch latch = new CountDownLatch(1);
 
-        UdpDataSender sender = new UdpDataSender("localhost", 9009, "test", 128, 1000, 1024*64*100) {
+        UdpDataSender sender = new UdpDataSender("localhost", PORT, "test", 128, 1000, 1024*64*100) {
             @Override
             protected boolean isLimit(int interBufferSize) {
                 boolean limit = super.isLimit(interBufferSize);
