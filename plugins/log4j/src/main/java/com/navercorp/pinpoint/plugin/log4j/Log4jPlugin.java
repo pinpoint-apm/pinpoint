@@ -69,16 +69,19 @@ public class Log4jPlugin implements ProfilerPlugin, TransformTemplateAware {
                     logger.warn("Can not modify. Because constructor to modify not exist at org.apache.log4j.MDC class."
                                 + "\nThere is a strong presumption that your application use under version 1.2.14 log4j."
                                 + "\nconstructor prototype : LoggingEvent(String fqnOfCategoryClass, Category logger, Priority level, Object message, Throwable throwable);");
+                    return null;
                 }
                 if (!target.hasConstructor("java.lang.String", "org.apache.log4j.Category", "long", "org.apache.log4j.Priority", "java.lang.Object", "java.lang.Throwable")) {
                     logger.warn("Can not modify. Because constructor to modify not exist at org.apache.log4j.MDC class."
                                 + "\nThere is a strong presumption that your application use under version 1.2.14 log4j."
                                 + "\nconstructor prototype : LoggingEvent(String fqnOfCategoryClass, Category logger, long timeStamp, Priority level, Object message, Throwable throwable);");
+                    return null;
                 }
                 if (!target.hasConstructor("java.lang.String", "org.apache.log4j.Category", "long", "org.apache.log4j.Level", "java.lang.Object", "java.lang.String", "org.apache.log4j.spi.ThrowableInformation", "java.lang.String", "org.apache.log4j.spi.LocationInfo", "java.util.Map")) {
                     logger.warn("Can not modify. Because constructor to modify not exist at org.apache.log4j.MDC class. "
                                 + "\nThere is a strong presumption that your application use under version 1.2.14 log4j."
                                 + "\nconstructor prototype : LoggingEvent(final String fqnOfCategoryClass, final Category logger, final long timeStamp, final Level level, final Object message, final String threadName, final ThrowableInformation throwable, final String ndc, final LocationInfo info, final java.util.Map properties);");
+                    return null;
                 }
                 
                 target.addInterceptor("com.navercorp.pinpoint.plugin.log4j.interceptor.LoggingEventOfLog4jInterceptor");
