@@ -69,10 +69,12 @@ public class LogbackPlugin implements ProfilerPlugin, TransformTemplateAware {
                 if (!target.hasConstructor()) {
                     logger.warn("Can not modify. Because constructor to modify not exist at ch.qos.logback.classic.spi.LoggingEvent class."
                                 + "\nconstructor prototype : LoggingEvent();");
+                    return null;
                 }
                 if (!target.hasConstructor("java.lang.String", "ch.qos.logback.classic.Logger", "ch.qos.logback.classic.Level", "java.lang.String", "java.lang.Throwable", "java.lang.Object[]")) {
                     logger.warn("Can not modify. Because constructor to modify not exist at ch.qos.logback.classic.spi.LoggingEvent class."
                                 + "\nconstructor prototype : LoggingEvent(String fqcn, Logger logger, Level level, String message, Throwable throwable, Object[] argArray);");
+                    return null;
                 }
                 
                 target.addInterceptor("com.navercorp.pinpoint.plugin.logback.interceptor.LoggingEventOfLogbackInterceptor");
