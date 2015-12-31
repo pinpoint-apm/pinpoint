@@ -30,26 +30,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.collector.receiver.DataReceiver;
+import org.springframework.util.SocketUtils;
 
 /**
  * @author emeroad
  */
 public class UDPReceiverTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final int PORT = SocketUtils.findAvailableUdpPort(10999);
 
     @Test
     @Ignore
     public void startStop() {
         DataReceiver receiver = null;
+
         try {
             receiver = new UDPReceiver("test", new PacketHandlerFactory() {
                 @Override
                 public PacketHandler createPacketHandler() {
                     return null;
                 }
-            }, "127.0.0.1", 10999, 1024, 1, 10, true);
+            }, "127.0.0.1", PORT, 1024, 1, 10, true);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.debug(e.getMessage(), e);
             Assert.fail(e.getMessage());
         } finally {
             if (receiver!= null) {

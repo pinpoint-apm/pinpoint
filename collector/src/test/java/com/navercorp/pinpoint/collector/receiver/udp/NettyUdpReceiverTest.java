@@ -24,6 +24,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -38,7 +39,7 @@ import java.util.concurrent.Executors;
 @Ignore
 public class NettyUdpReceiverTest {
 
-    public static final int PORT = 30011;
+    public static final int PORT = SocketUtils.findAvailableUdpPort(30011);
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     CountDownLatch latch = new CountDownLatch(1);
