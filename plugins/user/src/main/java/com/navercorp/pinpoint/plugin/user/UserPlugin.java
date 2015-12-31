@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.plugin.user;
 
 import java.security.ProtectionDomain;
+import java.util.*;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
@@ -43,30 +44,49 @@ public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
         final UserPluginConfig config = new UserPluginConfig(context.getConfig());
 
-        // add user include methods
+        // merge
+        final Map<String, Set<String>> methods = new HashMap<String, Set<String>>();
         for (String fullQualifiedMethodName : config.getIncludeList()) {
             try {
-                addUserIncludeClass(fullQualifiedMethodName);
+                final String className = toClassName(fullQualifiedMethodName);
+                final String methodName = toMethodName(fullQualifiedMethodName);
+                Set<String> names = methods.get(className);
+                if(names == null) {
+                    names = new HashSet<String>();
+                    methods.put(className, names);
+                }
+                names.add(methodName);
+            } catch (Exception e) {
+                logger.warn("Failed to parse entry point(" + fullQualifiedMethodName + ").", e);
+            }
+        }
+
+        if (logger.isInfoEnabled()) {
+            logger.info("UserPlugin entry points={}", methods);
+        }
+
+        // add user include methods
+        for(Map.Entry<String, Set<String>> entry : methods.entrySet()) {
+            try {
+                addUserIncludeClass(entry.getKey(), entry.getValue());
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Add user include class interceptor {}", fullQualifiedMethodName);
+                    logger.debug("Add user include class interceptor {}.{}", entry.getKey(), entry.getValue());
                 }
             } catch (Exception e) {
-                logger.warn("Failed to add user include class(" + fullQualifiedMethodName + ").", e);
+                logger.warn("Failed to add user include class(" + entry.getKey() + "." + entry.getValue() + ").", e);
             }
         }
     }
 
-    private void addUserIncludeClass(final String fullQualifiedMethodName) {
-        final String className = toClassName(fullQualifiedMethodName);
-        final String methodName = toMethodName(fullQualifiedMethodName);
-
+    private void addUserIncludeClass(final String className, final Set<String> methodNames) {
        transformTemplate.transform(className, new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(methodName))) {
+                final String[] names = methodNames.toArray(new String[methodNames.size()]);
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(names))) {
                     try {
                         method.addInterceptor("com.navercorp.pinpoint.plugin.user.interceptor.UserIncludeMethodInterceptor");
                     } catch (Exception e) {
