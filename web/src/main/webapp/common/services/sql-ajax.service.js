@@ -1,16 +1,16 @@
 (function() {
 	'use strict';
 	/**
-	 * (en)AjaxService 
-	 * @ko AjaxService
+	 * (en)SQLAjaxService
+	 * @ko SQLAjaxService
 	 * @group Service
-	 * @name AjaxService
+	 * @name SQLAjaxService
 	 * @class
 	 */
-	pinpointApp.constant('AjaxServiceConfig', {
+	pinpointApp.constant('SQLAjaxServiceConfig', {
 	});
 	
-	pinpointApp.service('AjaxService', [ 'AjaxServiceConfig', function(cfg) {
+	pinpointApp.service('SQLAjaxService', [ 'SQLAjaxServiceConfig', function(cfg) {
 	
 		var self = this;
 	
