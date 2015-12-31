@@ -60,7 +60,7 @@ public class JettyPlugin implements ProfilerPlugin, TransformTemplateAware {
                 }
 
                 return target.toBytecode();
-            };
+            }
         });
     }
 

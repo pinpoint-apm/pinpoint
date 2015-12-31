@@ -52,5 +52,5 @@ public class PostgreSqlConfig {
     @Override
     public String toString() {
         return "PostgreSqlConfig [profileSetAutoCommit=" + profileSetAutoCommit + ", profileCommit=" + profileCommit + ", profileRollback=" + profileRollback + ", maxSqlBindValueSize=" + maxSqlBindValueSize + "]";
-    };
+    }
 }
