@@ -109,3 +109,70 @@
     border-top-right-radius: 0px;
     border-top-left-radius: 0px;
 }
+.timeSlider .hide {
+    display: none;
+}
+.timeSlider .background {
+    fill: #EEE;
+}
+.timeSlider .selection-zone {
+    fill: #FFF;
+}
+.timeSlider .x-axis {
+    font-size: 12px;
+    text-anchor: middle;
+}
+.timeSlider .x-axis line {
+    stroke: #000;
+    stroke-width: .5;
+    stroke-linecap: square;
+    stroke-dasharray: 1, 1;
+}
+.timeSlider .left-handler rect, .timeSlider .right-handler rect {
+    fill: #FFF;
+}
+.timeSlider .left-handler line, .timeSlider .right-handler line {
+    stroke: #000;
+    stroke-width: 2;
+}
+.timeSlider .guide line {
+    stroke: #F00;
+    stroke-width: .5;
+    stroke-linecap: square;
+    stroke-dasharray: 2, 2;
+}
+.timeSlider .guide circle {
+    stroke: #F00;
+    stroke-width: 2;
+}
+.timeSlider .selection-point line {
+    stroke: #F5A623;
+    stroke-width: 1;
+}
+.timeSlider .selection-point circle {
+    fill: yellow;
+    stroke: #F5A623;
+}
+.timeSlider .events line {
+    stroke: #000;
+    stroke-width: 1;
+}
+.timeSlider image {
+    cursor: pointer;
+}
+.timeSlider .event {
+    cursor: pointer;
+}
+.timeSlider .loading {
+    fill: rgba(170, 170, 170, 0.1);
+}
+.timeSlider .loading rect {
+    stroke-width: 2px;
+}
+.timeSlider .time-left-signboard text, .timeSlider .time-right-signboard text {
+    fill: #4100DE;
+    font-weight: bold;
+}
+.timeSlider .time-series-signboard text {
+    fill: #BBB;
+}

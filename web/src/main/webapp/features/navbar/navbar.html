@@ -35,7 +35,7 @@
                         </div>
                     </li>	
                     <li class="divider-vertical" ng-hide="showStaticApplication"></li>
-                    <li class="for-datetimepicker" id="navbar_period">
+                    <li class="for-datetimepicker" id="navbar_period" ng-hide="showStaticApplication">
                         <div ng-show="periodType != 'range'">
                             <div class="btn-group btn-group-sm" style="margin-top:0px;width:350px;float:left;">
                                 <button type="button" class="btn btn-success" ng-click="togglePeriod('range')"><span class="glyphicon glyphicon-th-list"></span></button>

@@ -491,6 +491,18 @@
 					},{
 						name: "<span class='glyphicon glyphicon-hdd'></span>",
 						desc: "설치된 agent의 agent-id"
+					},{
+						name: "<span class='glyphicon glyphicon-ok-sign' style='color:#40E340'></span>",
+						desc: "정상적으로 실행중인 agent 상태 표시"
+					},{
+						name: "<span class='glyphicon glyphicon-minus-sign' style='color:#F00'></span>",
+						desc: "Shutdown 된 agent 상태 표시"
+					},{
+						name: "<span class='glyphicon glyphicon-remove-sign' style='color:#AAA'></span>",
+						desc: "연결이 끊긴 agent 상태 표시"
+					},{
+						name: "<span class='glyphicon glyphicon-question-sign' style='color:#AAA'></span>",
+						desc: "알수 없는 상태의 agent 상태 표시"
 					}]
 				}]
 			},

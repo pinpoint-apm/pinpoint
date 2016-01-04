@@ -1,0 +1,22 @@
+<div class="agent-list-directive">
+    <div class="control-group" ng-class="{success: searchAgents.name}">
+        <input type="text" ng-model="searchAgents.name" class="searchbox" placeholder="Search Agents"><span class="glyphicon glyphicon-question-sign agentListTooltip" style="position:absolute;right:2px;top:5px;cursor:pointer;font-size:14px;"></span>
+    </div>
+    <ul class="nav nav-list">
+        <li ng-repeat="(key, group) in agentGroup">
+            <h5 class="nav-header" tooltip="{{key}}" tooltip-placement="bottom">
+                <span class="glyphicon glyphicon-home"></span>
+                {{key}}
+            </h5>
+            <ul class="nav nav-pills nav-stacked">
+                <li ng-class="{active: currentAgent == agent}" ng-repeat="agent in group | filter:searchAgents.name">
+                    <a href ng-click="select(agent)">
+                        <span class="glyphicon glyphicon-hdd"></span>
+                        {{agent.agentId}}
+                        <span class="glyphicon glyphicon-{{getState(agent.status.state.code)}}" style="color:{{getStateColor(agent.status.state.code)}}"></span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
