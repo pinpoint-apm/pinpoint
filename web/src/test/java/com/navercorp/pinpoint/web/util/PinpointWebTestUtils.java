@@ -42,7 +42,7 @@ public class PinpointWebTestUtils {
 
         // local ip addresses with all LOOPBACK addresses removed
         List<String> ipList = NetUtils.getLocalV4IpList();
-        if (ipList.size() > 0) {
+        if (!ipList.isEmpty()) {
             return ipList.get(0);
         }
 

@@ -162,7 +162,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
             unbindingResponseAggregator(closeSession);
 
             sessionRepository.remove(closeSession);
-            if (sessionRepository.size() == 0) {
+            if (sessionRepository.isEmpty()) {
                 boolean turnOff = onTimerTask.compareAndSet(true, false);
             }
         }

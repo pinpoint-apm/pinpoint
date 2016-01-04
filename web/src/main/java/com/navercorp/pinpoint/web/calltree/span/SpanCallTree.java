@@ -173,7 +173,7 @@ public class SpanCallTree implements CallTree {
         final List<CallTreeNode> events = new ArrayList<>();
         final LinkedList<CallTreeNode> spans = new LinkedList<>();
         splitChildSiblingNodes(parent, events, spans);
-        if (spans.size() == 0) {
+        if (spans.isEmpty()) {
             // not found span
             return;
         }

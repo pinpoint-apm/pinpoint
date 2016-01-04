@@ -68,7 +68,7 @@ public class AlarmServiceImpl implements AlarmService {
         Map<String, CheckerResult> checkerResults = new HashMap<>();
         List<CheckerResult> CheckerResultList = alarmDao.selectBeforeCheckerResultList(applicationId);
         
-        if (CheckerResultList.size() > 0) {
+        if (!CheckerResultList.isEmpty()) {
             for (CheckerResult checkerResult : CheckerResultList) {
                 checkerResults.put(checkerResult.getCheckerName(), checkerResult);
             }

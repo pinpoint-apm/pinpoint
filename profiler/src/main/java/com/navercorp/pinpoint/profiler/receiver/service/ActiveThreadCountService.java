@@ -179,7 +179,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
                     case CLOSED:
                     case ILLEGAL_STATE:
                         boolean removed = streamChannelRepository.remove(streamChannel);
-                        if (removed && streamChannelRepository.size() == 0) {
+                        if (removed && streamChannelRepository.isEmpty()) {
                             boolean turnOff = onTimerTask.compareAndSet(true, false);
                             if (turnOff) {
                                 logger.info("turn off ActiveThreadCountTimerTask.");

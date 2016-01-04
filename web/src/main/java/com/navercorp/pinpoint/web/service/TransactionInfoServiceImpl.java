@@ -212,7 +212,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     // }
 
     private long getStartTime(List<SpanAlign> spanAlignList) {
-        if (spanAlignList == null || spanAlignList.size() == 0) {
+        if (spanAlignList == null || spanAlignList.isEmpty()) {
             return 0;
         }
         SpanAlign spanAlign = spanAlignList.get(0);
@@ -226,7 +226,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     }
 
     private long getEndTime(List<SpanAlign> spanAlignList) {
-        if (spanAlignList == null || spanAlignList.size() == 0) {
+        if (spanAlignList == null || spanAlignList.isEmpty()) {
             return 0;
         }
         SpanAlign spanAlign = spanAlignList.get(0);
@@ -334,7 +334,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                 }
                 
                 // add annotation record.
-                if(align.getAnnotationBoList().size() > 0) {
+                if(!align.getAnnotationBoList().isEmpty()) {
                     final List<Record> annotations = factory.getAnnotations(record.getTab() + 1, record.getId(), align);
                     recordList.addAll(annotations);
                 }

@@ -216,7 +216,7 @@ public class ZookeeperJobWorker implements Runnable {
 
             long startTimeMillis = System.currentTimeMillis();
 
-            while (jobQueue.size() == 0 && !isOverWaitTime(waitTime, startTimeMillis) && workerState.isStarted()) {
+            while (jobQueue.isEmpty() && !isOverWaitTime(waitTime, startTimeMillis) && workerState.isStarted()) {
                 try {
                     lock.wait(waitUnitTime);
                 } catch (InterruptedException ignore) {
