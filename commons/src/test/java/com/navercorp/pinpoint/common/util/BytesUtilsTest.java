@@ -468,4 +468,13 @@ public class BytesUtilsTest {
         }
 
     }
+
+    @Test
+    public void testShortToUnsignedShort() {
+        Assert.assertEquals(BytesUtils.shortToUnsignedShort((short)0), 0);
+        Assert.assertEquals(BytesUtils.shortToUnsignedShort(Short.MAX_VALUE), 32767);
+        final short maxOver = (short) (Short.MAX_VALUE + 1);
+        Assert.assertEquals(BytesUtils.shortToUnsignedShort(maxOver), 32768);
+        Assert.assertEquals(BytesUtils.shortToUnsignedShort((short)-1), 65535);
+    }
 }
