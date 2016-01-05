@@ -20,12 +20,15 @@ import java.util.Comparator;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.bo.ServerMetaDataBo;
+import com.navercorp.pinpoint.web.view.AgentInfoSerializer;
 
 /**
  * @author HyunGil Jeong
  */
+@JsonSerialize(using = AgentInfoSerializer.class)
 public class AgentInfo {
 
     public static final Comparator<AgentInfo> AGENT_NAME_ASC_COMPARATOR = new Comparator<AgentInfo>() {
@@ -48,11 +51,7 @@ public class AgentInfo {
     private String vmVersion;
     private String agentVersion;
     private ServerMetaDataBo serverMetaData;
-
-    @JsonInclude(Include.NON_DEFAULT)
     private long initialStartTimestamp;
-    
-    @JsonInclude(Include.NON_NULL)
     private AgentStatus status;
 
     public AgentInfo() {
@@ -135,11 +134,11 @@ public class AgentInfo {
     public void setPid(int pid) {
         this.pid = pid;
     }
-    
+
     public String getVmVersion() {
         return vmVersion;
     }
-    
+
     public void setVmVersion(String vmVersion) {
         this.vmVersion = vmVersion;
     }

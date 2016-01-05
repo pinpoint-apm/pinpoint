@@ -20,19 +20,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkInfo;
-import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
-import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
 
 /**
@@ -40,12 +32,6 @@ import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
  * @author HyunGil Jeong
  */
 public class ApplicationAgentListSerializer extends JsonSerializer<ApplicationAgentList> {
-
-    @Autowired(required = false)
-    private List<MatcherGroup> matcherGroupList;
-
-    @Autowired
-    private ServiceTypeRegistryService serviceTypeRegistryService;
 
     @Override
     public void serialize(ApplicationAgentList applicationAgentList, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
@@ -63,52 +49,7 @@ public class ApplicationAgentListSerializer extends JsonSerializer<ApplicationAg
     private void writeAgentList(JsonGenerator jgen, List<AgentInfo> agentList) throws IOException {
         jgen.writeStartArray();
         for (AgentInfo agentInfo : agentList) {
-            jgen.writeStartObject();
-            jgen.writeStringField("applicationName", agentInfo.getApplicationName());
-            jgen.writeStringField("agentId", agentInfo.getAgentId());
-            jgen.writeNumberField("startTime", agentInfo.getStartTimestamp());
-            jgen.writeStringField("hostName", agentInfo.getHostName());
-            jgen.writeStringField("ip", agentInfo.getIp());
-            jgen.writeStringField("ports", agentInfo.getPorts());
-
-            final ServiceType serviceType = serviceTypeRegistryService.findServiceType(agentInfo.getServiceTypeCode());
-            jgen.writeStringField("serviceType", serviceType.getDesc());
-            jgen.writeNumberField("pid", agentInfo.getPid());
-            jgen.writeStringField("vmVersion", agentInfo.getVmVersion());
-            jgen.writeStringField("agentVersion", agentInfo.getAgentVersion());
-            jgen.writeObjectField("serverMetaData", agentInfo.getServerMetaData());
-
-            AgentStatus agentStatus = agentInfo.getStatus();
-            if (agentStatus == null) {
-                jgen.writeNumberField("endTimeStamp", 0);
-                jgen.writeStringField("endStatus", AgentLifeCycleState.UNKNOWN.getDesc());
-            } else {
-                jgen.writeNumberField("endTimeStamp", agentStatus.getEventTimestamp());
-                jgen.writeStringField("endStatus", agentStatus.getState().getDesc());
-            }
-            jgen.writeObjectField("status", agentStatus);
-            
-            jgen.writeNumberField("initialStartTime", agentInfo.getInitialStartTimestamp());
-
-            if (matcherGroupList != null) {
-                jgen.writeFieldName("linkList");
-                jgen.writeStartArray();
-                
-                for (MatcherGroup matcherGroup : matcherGroupList) {
-                    if (matcherGroup.ismatchingType(agentInfo)) {
-                        LinkInfo linkInfo = matcherGroup.makeLinkInfo(agentInfo);
-                        jgen.writeStartObject();
-                        jgen.writeStringField("linkName", linkInfo.getLinkName());
-                        jgen.writeStringField("linkURL", linkInfo.getLinkUrl());
-                        jgen.writeStringField("linkType", linkInfo.getLinktype());
-                        jgen.writeEndObject();
-                    }
-                }
-                
-                jgen.writeEndArray();
-            }
-
-            jgen.writeEndObject();
+            jgen.writeObject(agentInfo);
         }
         jgen.writeEndArray();
     }
