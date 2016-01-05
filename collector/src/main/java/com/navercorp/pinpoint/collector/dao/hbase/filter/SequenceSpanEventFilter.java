@@ -18,13 +18,16 @@
 package com.navercorp.pinpoint.collector.dao.hbase.filter;
 
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.util.BytesUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class SequenceSpanEventFilter implements SpanEventFilter {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static final int MAX_SEQUENCE = Short.MAX_VALUE;
     public static final int DEFAULT_SEQUENCE_LIMIT = 1024*10;
@@ -49,6 +52,9 @@ public class SequenceSpanEventFilter implements SpanEventFilter {
         }
         final int sequence = spanEventBo.getSequence();
         if (sequence > sequenceLimit) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("discard spanEvent:{}", spanEventBo);
+            }
             return REJECT;
         }
         return ACCEPT;
