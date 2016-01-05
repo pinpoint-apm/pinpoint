@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.TracesDao;
+import com.navercorp.pinpoint.collector.dao.hbase.filter.SpanEventFilter;
 import com.navercorp.pinpoint.collector.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.bo.AnnotationBoList;
@@ -62,6 +63,9 @@ public class HbaseTraceDao implements TracesDao {
     private AcceptedTimeService acceptedTimeService;
 
     @Autowired
+    private SpanEventFilter spanEventFilter;
+
+    @Autowired
     @Qualifier("traceDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
 
@@ -101,17 +105,15 @@ public class HbaseTraceDao implements TracesDao {
     }
 
     private void addNestedSpanEvent(Put put, TSpan span) {
-        List<TSpanEvent> spanEventBoList = span.getSpanEventList();
+        final List<TSpanEvent> spanEventBoList = span.getSpanEventList();
         if (CollectionUtils.isEmpty(spanEventBoList)) {
             return;
         }
 
-        long acceptedTime0 = acceptedTimeService.getAcceptedTime();
+
         for (TSpanEvent spanEvent : spanEventBoList) {
-            SpanEventBo spanEventBo = new SpanEventBo(span, spanEvent);
-            byte[] rowId = BytesUtils.add(spanEventBo.getSpanId(), spanEventBo.getSequence(), spanEventBo.getAsyncId(), spanEventBo.getAsyncSequence());
-            byte[] value = spanEventBo.writeValue();
-            put.addColumn(TRACES_CF_TERMINALSPAN, rowId, acceptedTime0, value);
+            final SpanEventBo spanEventBo = new SpanEventBo(span, spanEvent);
+            addColumn(put, spanEventBo);
         }
     }
 
@@ -119,21 +121,36 @@ public class HbaseTraceDao implements TracesDao {
 
     @Override
     public void insertSpanChunk(TSpanChunk spanChunk) {
-        byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(spanChunk));
-        Put put = new Put(rowKey);
+        final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(spanChunk));
+        final Put put = new Put(rowKey);
 
-        long acceptedTime = acceptedTimeService.getAcceptedTime();
-        List<TSpanEvent> spanEventBoList = spanChunk.getSpanEventList();
-        for (TSpanEvent spanEvent : spanEventBoList) {
-            SpanEventBo spanEventBo = new SpanEventBo(spanChunk, spanEvent);
-
-            byte[] value = spanEventBo.writeValue();
-            byte[] rowId = BytesUtils.add(spanEventBo.getSpanId(), spanEventBo.getSequence(), spanEventBo.getAsyncId(), spanEventBo.getAsyncSequence());
-
-            put.addColumn(TRACES_CF_TERMINALSPAN, rowId, acceptedTime, value);
+        final List<TSpanEvent> spanEventBoList = spanChunk.getSpanEventList();
+        if (CollectionUtils.isEmpty(spanEventBoList)) {
+            return;
         }
-        hbaseTemplate.put(TRACES, put);
 
+
+        for (TSpanEvent spanEvent : spanEventBoList) {
+            final SpanEventBo spanEventBo = new SpanEventBo(spanChunk, spanEvent);
+            addColumn(put, spanEventBo);
+        }
+
+        if (!put.isEmpty()) {
+            hbaseTemplate.put(TRACES, put);
+        }
+
+    }
+
+    private void addColumn(Put put, SpanEventBo spanEventBo) {
+        if (!spanEventFilter.filter(spanEventBo)) {
+            return;
+        }
+
+        byte[] rowId = BytesUtils.add(spanEventBo.getSpanId(), spanEventBo.getSequence(), spanEventBo.getAsyncId(), spanEventBo.getAsyncSequence());
+        byte[] value = spanEventBo.writeValue();
+        final long acceptedTime = acceptedTimeService.getAcceptedTime();
+
+        put.addColumn(TRACES_CF_TERMINALSPAN, rowId, acceptedTime, value);
     }
 
     private byte[] writeAnnotation(List<TAnnotation> annotations) {

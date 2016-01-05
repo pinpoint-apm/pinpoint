@@ -353,6 +353,10 @@ public final class BytesUtils {
         }
     }
 
+    public static int shortToUnsignedShort(short value) {
+        return value & 0xffff;
+    }
+
     public static byte[] intToSVar32(int value) {
         return intToVar32(intToZigZag(value));
     }
@@ -532,7 +536,7 @@ public final class BytesUtils {
         writeShort(shortArg, buf, offset);
         return buf;
     }
-    
+
 
     public static byte[] toBytes(final String value) {
         if (value == null) {
