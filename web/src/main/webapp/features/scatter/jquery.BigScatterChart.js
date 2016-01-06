@@ -1648,7 +1648,7 @@ var BigScatterChart = $.Class({
             this.option('htDataSource', htDataSource);
         }
         this.clear();
-        this._abortAjax();
+        this.abortAjax();
         this._nCallCount = 0;
         this._drawWithDataSource();
     },
@@ -1707,7 +1707,7 @@ var BigScatterChart = $.Class({
         this._bRequesting = true; 
     },
 
-    _abortAjax: function () {
+    abortAjax: function () {
         if (this._oAjax) {
             this._oAjax.abort();
         }

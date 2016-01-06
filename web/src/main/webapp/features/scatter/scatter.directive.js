@@ -74,7 +74,6 @@
                 restrict: 'EA',
                 replace: true,
                 link: function (scope, element, attrs) {
-
                     // define private variables
                     var oNavbarVoService, htScatterSet, htLastNode;
 
@@ -327,6 +326,11 @@
                      */
                     scope.$on('scatterDirective.initialize', function (event, navbarVoService) {
                         oNavbarVoService = navbarVoService;
+						if ( htScatterSet !== null ) {
+							for( var p in htScatterSet ) {
+								htScatterSet[p].scatter.abortAjax();
+							}
+						}
                         htScatterSet = {};
                         element.empty();
                     });
