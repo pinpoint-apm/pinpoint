@@ -63,6 +63,8 @@
                     'NGINX_GROUP': 'NGINX.png',
                     'ORACLE': 'ORACLE.png',
                     'ORACLE_GROUP': 'ORACLE.png',
+                    'CASSANDRA': 'CASSANDRA.png',
+                    'CASSANDRA_GROUP': 'CASSANDRA.png',
                     'QUEUE': 'QUEUE.png',
                     'QUEUE_GROUP': 'QUEUE.png',
                     'STAND_ALONE': 'STAND_ALONE.png',
