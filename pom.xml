@@ -75,6 +75,7 @@
         <cloverLicenseLocation>${basedir}/clover.license</cloverLicenseLocation>
         <spring-batch-version>2.2.7.RELEASE</spring-batch-version>
         <docker.maven.plugin.version>0.3.8</docker.maven.plugin.version>
+        <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
     </properties>
 
     <dependencies>
@@ -452,8 +453,11 @@
                 <artifactId>ehcache</artifactId>
                 <version>1.6.2</version>
             </dependency>
-
-
+            <dependency>
+                <groupId>com.datastax.cassandra</groupId>
+                <artifactId>cassandra-driver-core</artifactId>
+                <version>${cassandra.driver.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-redis</artifactId>
