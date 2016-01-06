@@ -53,6 +53,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
+    private static final int HOST_APPLICATION_MAP_VER2_NUM_PARTITIONS = 4;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private int scanCacheSize = 10;
 
@@ -127,7 +129,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
             throw new NullPointerException("fromApplication must not be null");
         }
         final Scan scan = createScan(fromApplication, range);
-        final List<List<AcceptApplication>> result = hbaseOperations2.find(HBaseTables.HOST_APPLICATION_MAP_VER2, scan, acceptApplicationRowKeyDistributor, hostApplicationMapperVer2);
+        final List<List<AcceptApplication>> result = hbaseOperations2.findParallel(HBaseTables.HOST_APPLICATION_MAP_VER2, scan, acceptApplicationRowKeyDistributor, hostApplicationMapperVer2, HOST_APPLICATION_MAP_VER2_NUM_PARTITIONS);
         if (CollectionUtils.isNotEmpty(result)) {
             final Set<AcceptApplication> resultSet = new HashSet<>();
             for (List<AcceptApplication> resultList : result) {
