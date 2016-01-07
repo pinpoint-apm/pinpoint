@@ -193,8 +193,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         }
         AgentLifeCycleBo agentLifeCycleBo = this.agentLifeCycleDao.getAgentLifeCycle(agentId, timestamp);
         if (agentLifeCycleBo == null) {
-            AgentStatus agentStatus = new AgentStatus();
-            agentStatus.setAgentId(agentId);
+            AgentStatus agentStatus = new AgentStatus(agentId);
             agentStatus.setState(AgentLifeCycleState.UNKNOWN);
             return agentStatus;
         } else {
