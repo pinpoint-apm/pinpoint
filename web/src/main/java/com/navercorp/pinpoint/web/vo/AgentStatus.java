@@ -30,41 +30,25 @@ import com.navercorp.pinpoint.web.view.AgentLifeCycleStateSerializer;
  */
 public class AgentStatus {
 
-    private String agentId;
+    private final String agentId;
 
-    @JsonInclude(Include.NON_DEFAULT)
-    private long startTimestamp;
-
-    @JsonInclude(Include.NON_DEFAULT)
     private long eventTimestamp;
 
     @JsonSerialize(using = AgentLifeCycleStateSerializer.class)
-    private AgentLifeCycleState state;
+    private AgentLifeCycleState state = AgentLifeCycleState.UNKNOWN;
 
-    public AgentStatus() {
+    public AgentStatus(String agentId) {
+        this.agentId = agentId;
     }
 
     public AgentStatus(AgentLifeCycleBo agentLifeCycleBo) {
         this.agentId = agentLifeCycleBo.getAgentId();
-        this.startTimestamp = agentLifeCycleBo.getStartTimestamp();
         this.eventTimestamp = agentLifeCycleBo.getEventTimestamp();
         this.state = agentLifeCycleBo.getAgentLifeCycleState();
     }
 
     public String getAgentId() {
         return agentId;
-    }
-
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    public long getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    public void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
     }
 
     public long getEventTimestamp() {
@@ -89,7 +73,6 @@ public class AgentStatus {
         int result = 1;
         result = prime * result + ((agentId == null) ? 0 : agentId.hashCode());
         result = prime * result + (int)(eventTimestamp ^ (eventTimestamp >>> 32));
-        result = prime * result + (int)(startTimestamp ^ (startTimestamp >>> 32));
         result = prime * result + ((state == null) ? 0 : state.hashCode());
         return result;
     }
@@ -110,8 +93,6 @@ public class AgentStatus {
             return false;
         if (eventTimestamp != other.eventTimestamp)
             return false;
-        if (startTimestamp != other.startTimestamp)
-            return false;
         if (state != other.state)
             return false;
         return true;
@@ -119,6 +100,6 @@ public class AgentStatus {
 
     @Override
     public String toString() {
-        return "AgentStatus [agentId=" + agentId + ", startTimestamp=" + startTimestamp + ", eventTimestamp=" + eventTimestamp + ", state=" + state + "]";
+        return "AgentStatus [agentId=" + agentId + ", eventTimestamp=" + eventTimestamp + ", state=" + state + "]";
     }
 }

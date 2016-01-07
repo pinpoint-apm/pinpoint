@@ -27,8 +27,7 @@
                                          com.navercorp.pinpoint.web.mapper,
                                          com.navercorp.pinpoint.web.filter,
                                          com.navercorp.pinpoint.web.alarm,
-                                         com.navercorp.pinpoint.web.config,
-                                         com.navercorp.pinpoint.collector.mapper.thrift" />
+                                         com.navercorp.pinpoint.web.config" />
 	
 	<bean id="alarmController" class="com.navercorp.pinpoint.web.controller.AlarmController"/>
 
@@ -46,10 +45,6 @@
     <import resource="classpath:applicationContext-dao-config.xml" />
     <import resource="classpath:batch/applicationContext-batch.xml" />
 
-    <bean id="trace" class="com.navercorp.pinpoint.collector.dao.hbase.HbaseTraceDao"/>
-    <bean class="com.navercorp.pinpoint.collector.dao.hbase.HbaseAgentInfoDao"/>
-
-
     <bean id="spanMapper" class="com.navercorp.pinpoint.web.mapper.SpanMapper"/>
     <bean id="annotationMapper" class="com.navercorp.pinpoint.web.mapper.AnnotationMapper"/>
     <bean id="spanAnnotationMapper" class="com.navercorp.pinpoint.web.mapper.SpanMapper">
@@ -57,8 +52,6 @@
     </bean>
 
     <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"/>
-
-    <bean class="com.navercorp.pinpoint.collector.util.ThreadLocalAcceptedTimeService"/>
 
     <bean id="rangeFactory" class="com.navercorp.pinpoint.web.vo.RangeFactory"/>
 
