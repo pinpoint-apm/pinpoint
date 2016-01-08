@@ -52,7 +52,7 @@ public class TargetBeanFilterTest {
     }
 
     @Test
-    public void test() {
+    public void beansNamePattern() {
         Properties properties = new Properties();
         properties.put(SpringBeansConfig.SPRING_BEANS_NAME_PATTERN, "Target.*");
         ProfilerConfig config = new DefaultProfilerConfig(properties);
@@ -66,5 +66,68 @@ public class TargetBeanFilterTest {
         assertFalse(filter.isTarget("Target0", String.class));
         assertFalse(filter.isTarget("Target1", String.class));
     }
-    
+
+    @Test
+    public void interception() {
+        // intersection is false - default.
+        Properties properties = new Properties();
+        properties.put(SpringBeansConfig.SPRING_BEANS_NAME_PATTERN, "Target.*");
+        properties.put(SpringBeansConfig.SPRING_BEANS_ANNOTATION, "org.springframework.stereotype.Controller,org.springframework.stereotype.Service,org.springframework.stereotype.Repository");
+        properties.put(SpringBeansConfig.SPRING_BEANS_INTERSECTION, "false");
+        ProfilerConfig config = new DefaultProfilerConfig(properties);
+
+        TargetBeanFilter filter = TargetBeanFilter.of(config);
+        assertTrue(filter.isTarget("Target0", String.class));
+
+        filter.addTransformed(String.class);
+
+        // after transformed
+        assertFalse(filter.isTarget("Target0", String.class));
+        assertFalse(filter.isTarget("Target1", String.class));
+
+        // intersection is true - two condition(halt true).
+        properties = new Properties();
+        properties.put(SpringBeansConfig.SPRING_BEANS_NAME_PATTERN, "Target.*");
+        properties.put(SpringBeansConfig.SPRING_BEANS_ANNOTATION, "org.springframework.stereotype.Controller,org.springframework.stereotype.Service,org.springframework.stereotype.Repository");
+        properties.put(SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN, "java.lang.String");
+        properties.put(SpringBeansConfig.SPRING_BEANS_INTERSECTION, "true");
+        config = new DefaultProfilerConfig(properties);
+        filter = TargetBeanFilter.of(config);
+        assertFalse(filter.isTarget("Target0", String.class));
+
+        filter.addTransformed(String.class);
+
+        // after transformed
+        assertFalse(filter.isTarget("Target0", String.class));
+        assertFalse(filter.isTarget("Target1", String.class));
+
+        // intersection is true. - two condition(all true)
+        properties = new Properties();
+        properties.put(SpringBeansConfig.SPRING_BEANS_NAME_PATTERN, "Target.*");
+        properties.put(SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN, "java.lang.String");
+        properties.put(SpringBeansConfig.SPRING_BEANS_INTERSECTION, "true");
+        config = new DefaultProfilerConfig(properties);
+        filter = TargetBeanFilter.of(config);
+        assertTrue(filter.isTarget("Target0", String.class));
+
+        filter.addTransformed(String.class);
+
+        // after transformed
+        assertFalse(filter.isTarget("Target0", String.class));
+        assertFalse(filter.isTarget("Target1", String.class));
+
+        // intersection is true - one condition.
+        properties = new Properties();
+        properties.put(SpringBeansConfig.SPRING_BEANS_NAME_PATTERN, "Target.*");
+        properties.put(SpringBeansConfig.SPRING_BEANS_INTERSECTION, "true");
+        config = new DefaultProfilerConfig(properties);
+        filter = TargetBeanFilter.of(config);
+        assertTrue(filter.isTarget("Target0", String.class));
+
+        filter.addTransformed(String.class);
+
+        // after transformed
+        assertFalse(filter.isTarget("Target0", String.class));
+        assertFalse(filter.isTarget("Target1", String.class));
+    }
 }

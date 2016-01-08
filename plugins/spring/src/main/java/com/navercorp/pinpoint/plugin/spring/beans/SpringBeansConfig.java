@@ -18,21 +18,24 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 /**
  * @author Jongho Moon
- *
+ * @author jaehong.kim
  */
 public class SpringBeansConfig {
     public static final String SPRING_BEANS_ANNOTATION = "profiler.spring.beans.annotation";
     public static final String SPRING_BEANS_CLASS_PATTERN = "profiler.spring.beans.class.pattern";
     public static final String SPRING_BEANS_NAME_PATTERN = "profiler.spring.beans.name.pattern";
+    public static final String SPRING_BEANS_INTERSECTION = "profiler.spring.beans.intersection";
 
     private final String springBeansNamePatterns;
     private final String springBeansClassPatterns;
     private final String springBeansAnnotations;
+    private final boolean springBeansIntersection;
 
     public SpringBeansConfig(ProfilerConfig config) {
         this.springBeansNamePatterns = config.readString(SPRING_BEANS_NAME_PATTERN, null);
         this.springBeansClassPatterns = config.readString(SPRING_BEANS_CLASS_PATTERN, null);
         this.springBeansAnnotations = config.readString(SPRING_BEANS_ANNOTATION, null);
+        this.springBeansIntersection = config.readBoolean(SPRING_BEANS_INTERSECTION, false);
     }
     
     public String getSpringBeansNamePatterns() {
@@ -47,4 +50,18 @@ public class SpringBeansConfig {
         return springBeansAnnotations;
     }
 
+    public boolean isSpringBeansIntersection() {
+        return springBeansIntersection;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("SpringBeansConfig{");
+        sb.append("springBeansNamePatterns='").append(springBeansNamePatterns).append('\'');
+        sb.append(", springBeansClassPatterns='").append(springBeansClassPatterns).append('\'');
+        sb.append(", springBeansAnnotations='").append(springBeansAnnotations).append('\'');
+        sb.append(", springBeansIntersection=").append(springBeansIntersection);
+        sb.append('}');
+        return sb.toString();
+    }
 }
