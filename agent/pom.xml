@@ -211,6 +211,40 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>${docker.maven.plugin.version}</version>
+                <configuration>
+                    <skipDockerBuild>false</skipDockerBuild>
+                    <imageName>naver/${project.artifactId}:${project.version}</imageName>
+                    <baseImage>alpine:3.2</baseImage>
+                    <entryPoint>
+                        ["/usr/local/bin/configure-agent.sh"]
+                    </entryPoint>
+                    <resources>
+                        <resource>
+                            <targetPath>/assets/pinpoint-agent</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${project.artifactId}-${project.version}.tar.gz</include>
+                        </resource>
+                        <resource>
+                            <targetPath>/usr/local/bin/</targetPath>
+                            <directory>${project.basedir}/</directory>
+                            <include>configure-agent.sh</include>
+                        </resource>
+                    </resources>
+                    <volumes>
+                        <volume>/assets/pinpoint-agent</volume>
+                    </volumes>
+                    <runs>
+                        <run>apk add --update bash</run>
+                        <run>cp -v /assets/pinpoint-agent/pinpoint.config /assets/pinpoint.config</run>
+                        <run>chmod a+x /usr/local/bin/configure-agent.sh</run>
+                        <run>rm /var/cache/apk/*</run>
+                    </runs>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
