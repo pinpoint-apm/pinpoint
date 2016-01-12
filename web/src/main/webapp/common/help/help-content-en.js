@@ -472,6 +472,18 @@
 					},{
 						name: "<span class='glyphicon glyphicon-hdd'></span>",
 						desc: "Agent-id of the installed agent"
+					},{
+						name: "<span class='glyphicon glyphicon-ok-sign' style='color:#40E340'></span>",
+						desc: "Agent was running at the time of query"
+					},{
+						name: "<span class='glyphicon glyphicon-minus-sign' style='color:#F00'></span>",
+						desc: "Agent was shutdown at the time of query"
+					},{
+						name: "<span class='glyphicon glyphicon-remove-sign' style='color:#AAA'></span>",
+						desc: "Agent was disconnected at the time of query"
+					},{
+						name: "<span class='glyphicon glyphicon-question-sign' style='color:#AAA'></span>",
+						desc: "Agent status was unknown at the time of query"
 					}]
 				}]
 			},
