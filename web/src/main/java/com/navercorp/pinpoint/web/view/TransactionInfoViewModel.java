@@ -110,18 +110,10 @@ public class TransactionInfoViewModel {
     @JsonProperty("logPageUrl")
     public String getLogPageUrl() {
         if (logPageUrl != null && logPageUrl.length() > 0) {
-            try {
-                URL url = new URL(logPageUrl);
-                StringBuilder sb = new StringBuilder();
-                sb.append("transactionId=").append(traceId.getFormatString());
-                sb.append("&time=").append(recordSet.getStartTime());
-                if (url.getQuery() != null) {
-                    return logPageUrl + "&" + sb.toString();
-                } else {
-                    return logPageUrl + "?" + sb.toString();
-                }
-            } catch (MalformedURLException ignored) {
-            }
+            StringBuilder sb = new StringBuilder();
+            sb.append("transactionId=").append(traceId.getFormatString());
+            sb.append("&time=").append(recordSet.getStartTime());
+            return logPageUrl + "?" + sb.toString();
         }
 
         return "";
