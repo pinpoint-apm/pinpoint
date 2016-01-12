@@ -16,13 +16,20 @@
 
 package com.navercorp.pinpoint.web.dao;
 
-import com.navercorp.pinpoint.common.bo.AgentLifeCycleBo;
+import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.web.vo.AgentStatus;
+
+import java.util.List;
 
 /**
  * @author HyunGil Jeong
  */
 public interface AgentLifeCycleDao {
 
-    AgentLifeCycleBo getAgentLifeCycle(String agentId, long timestamp);
-    
+    AgentStatus getAgentStatus(String agentId, long timestamp);
+
+    void populateAgentStatus(AgentInfo agentInfo, long timestamp);
+
+    void populateAgentStatuses(List<AgentInfo> agentInfos, long timestamp);
+
 }

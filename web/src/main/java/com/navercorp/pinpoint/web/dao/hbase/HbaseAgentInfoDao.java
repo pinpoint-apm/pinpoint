@@ -16,25 +16,25 @@
 
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
-import com.navercorp.pinpoint.common.bo.ServerMetaDataBo;
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 
+import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
+import com.navercorp.pinpoint.web.mapper.AgentInfoMapper;
+import com.navercorp.pinpoint.web.vo.AgentInfo;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.hadoop.hbase.ResultsExtractor;
 import org.springframework.stereotype.Repository;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author emeroad
@@ -43,13 +43,53 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class HbaseAgentInfoDao implements AgentInfoDao {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final int SCANNER_CACHING = 1;
 
     @Autowired
     private HbaseOperations2 hbaseOperations2;
 
     @Autowired
-    private ServiceTypeRegistryService registry;
+    private AgentLifeCycleDao agentLifeCycleDao;
+
+    @Autowired
+    private AgentInfoMapper agentInfoMapper;
+
+    /**
+     * Returns the very first information of the agent
+     *
+     * @param agentId
+     */
+    @Override
+    public AgentInfo getInitialAgentInfo(final String agentId) {
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+        Scan scan = createScanForInitialAgentInfo(agentId);
+        return this.hbaseOperations2.find(HBaseTables.AGENTINFO, scan, new AgentInfoResultsExtractor());
+    }
+
+    @Override
+    public List<AgentInfo> getInitialAgentInfos(List<String> agentIds) {
+        if (agentIds == null || agentIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<Scan> scans = new ArrayList<>(agentIds.size());
+        for (String agentId : agentIds) {
+            scans.add(createScanForInitialAgentInfo(agentId));
+        }
+        return this.hbaseOperations2.find(HBaseTables.AGENTINFO, scans, new AgentInfoResultsExtractor());
+    }
+
+    private Scan createScanForInitialAgentInfo(String agentId) {
+        Scan scan = new Scan();
+        byte[] agentIdBytes = Bytes.toBytes(agentId);
+        byte[] reverseStartKey = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, Long.MAX_VALUE);
+        scan.setStartRow(reverseStartKey);
+        scan.setReversed(true);
+        scan.setMaxVersions(1);
+        scan.setCaching(SCANNER_CACHING);
+        return scan;
+    }
 
     /**
      * Returns the information of the agent with its start time closest to the given timestamp
@@ -59,46 +99,34 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
      * @return
      */
     @Override
-    public AgentInfoBo getAgentInfo(final String agentId, final long timestamp) {
+    public AgentInfo getAgentInfo(final String agentId, final long timestamp) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
 
-        // TODO need to be cached
         Scan scan = createScan(agentId, timestamp);
-        scan.setMaxVersions(1);
-        scan.setCaching(1);
-        
-        AgentInfoBo result = this.hbaseOperations2.find(HBaseTables.AGENTINFO, scan, new AgentInfoBoResultsExtractor(agentId));
-        if (result == null) {
-            logger.warn("agentInfo not found. agentId={}, time={}", agentId, timestamp);
+
+        AgentInfo agentInfo = this.hbaseOperations2.find(HBaseTables.AGENTINFO, scan, new AgentInfoResultsExtractor());
+        if (agentInfo != null) {
+            this.agentLifeCycleDao.populateAgentStatus(agentInfo, timestamp);
         }
-        return result;
+        return agentInfo;
     }
-    
-    /**
-     * Returns the very first information of the agent
-     *
-     * @param agentId
-     */
+
     @Override
-    public AgentInfoBo getInitialAgentInfo(final String agentId) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+    public List<AgentInfo> getAgentInfos(List<String> agentIds, long timestamp) {
+        if (CollectionUtils.isEmpty(agentIds)) {
+            return Collections.emptyList();
         }
-        Scan scan = new Scan();
-        byte[] agentIdBytes = Bytes.toBytes(agentId);
-        byte[] reverseStartKey = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, Long.MAX_VALUE);
-        scan.setStartRow(reverseStartKey);
-        scan.setReversed(true);
-        scan.setMaxVersions(1);
-        scan.setCaching(1);
-        
-        AgentInfoBo result = this.hbaseOperations2.find(HBaseTables.AGENTINFO, scan, new AgentInfoBoResultsExtractor(agentId));
-        if (result == null) {
-            logger.warn("agentInfo not found. agentId={}, time={}", agentId, 0);
+
+        List<Scan> scans = new ArrayList<>(agentIds.size());
+        for (String agentId : agentIds) {
+            scans.add(createScan(agentId, timestamp));
         }
-        return result;
+
+        List<AgentInfo> agentInfos = this.hbaseOperations2.findParallel(HBaseTables.AGENTINFO, scans, new AgentInfoResultsExtractor());
+        this.agentLifeCycleDao.populateAgentStatuses(agentInfos, timestamp);
+        return agentInfos;
     }
 
     private Scan createScan(String agentId, long currentTime) {
@@ -108,68 +136,27 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         long startTime = TimeUtils.reverseTimeMillis(currentTime);
         byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, startTime);
         byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, Long.MAX_VALUE);
-        
+
         scan.setStartRow(startKeyBytes);
         scan.setStopRow(endKeyBytes);
         scan.addFamily(HBaseTables.AGENTINFO_CF_INFO);
 
+        scan.setMaxVersions(1);
+        scan.setCaching(SCANNER_CACHING);
+
         return scan;
     }
-    
-    private class AgentInfoBoResultsExtractor implements ResultsExtractor<AgentInfoBo> {
-        
-        private final String agentId;
-        
-        private AgentInfoBoResultsExtractor(String agentId) {
-            this.agentId = agentId;
-        }
+
+    private class AgentInfoResultsExtractor implements ResultsExtractor<AgentInfo> {
 
         @Override
-        public AgentInfoBo extractData(ResultScanner results) throws Exception {
-            for (Result next : results) {
-                byte[] row = next.getRow();
-                long reverseStartTime = BytesUtils.bytesToLong(row, HBaseTables.AGENT_NAME_MAX_LEN);
-                long startTime = TimeUtils.recoveryTimeMillis(reverseStartTime);
-                
-                byte[] serializedAgentInfo = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER);
-                byte[] serializedServerMetaData = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_SERVER_META_DATA);
-
-                final AgentInfoBo.Builder agentInfoBoBuilder = createBuilderFromValue(serializedAgentInfo);
-                agentInfoBoBuilder.setAgentId(this.agentId);
-                agentInfoBoBuilder.setStartTime(startTime);
-
-                if (serializedServerMetaData != null) {
-                    agentInfoBoBuilder.setServerMetaData(new ServerMetaDataBo.Builder(serializedServerMetaData).build());
-                }
-                final AgentInfoBo agentInfoBo = agentInfoBoBuilder.build();
-
-                logger.debug("agent:{} startTime value {}", agentId, startTime);
-
-                return agentInfoBo;
+        public AgentInfo extractData(ResultScanner results) throws Exception {
+            int found = 0;
+            for (Result result : results) {
+                return agentInfoMapper.mapRow(result, found++);
             }
-
             return null;
         }
-        
-        private AgentInfoBo.Builder createBuilderFromValue(byte[] serializedAgentInfo) {
-            final Buffer buffer = new FixedBuffer(serializedAgentInfo);
-            final AgentInfoBo.Builder builder = new AgentInfoBo.Builder();
-            builder.setHostName(buffer.readPrefixedString());
-            builder.setIp(buffer.readPrefixedString());
-            builder.setPorts(buffer.readPrefixedString());
-            builder.setApplicationName(buffer.readPrefixedString());
-            builder.setServiceTypeCode(buffer.readShort());
-            builder.setPid(buffer.readInt());
-            builder.setAgentVersion(buffer.readPrefixedString());
-            builder.setStartTime(buffer.readLong());
-            builder.setEndTimeStamp(buffer.readLong());
-            builder.setEndStatus(buffer.readInt());
-            // FIXME - 2015.09 v1.5.0 added vmVersion (check for compatibility)
-            if (buffer.limit() > 0) {
-                builder.setVmVersion(buffer.readPrefixedString());
-            }
-            return builder;
-        }
-        
     }
+
 }

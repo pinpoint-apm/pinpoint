@@ -16,15 +16,21 @@
 
 package com.navercorp.pinpoint.web.dao;
 
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
+import com.navercorp.pinpoint.web.vo.AgentInfo;
+
+import java.util.List;
 
 /**
  * @author emeroad
  * @author HyunGil Jeong
  */
 public interface AgentInfoDao {
-    
-    AgentInfoBo getAgentInfo(String agentId, long timestamp);
-    
-    AgentInfoBo getInitialAgentInfo(String agentId);
+
+    AgentInfo getInitialAgentInfo(String agentId);
+
+    List<AgentInfo> getInitialAgentInfos(List<String> agentIds);
+
+    AgentInfo getAgentInfo(String agentId, long timestamp);
+
+    List<AgentInfo> getAgentInfos(List<String> agentIds, long timestamp);
 }

@@ -176,24 +176,23 @@ public class AgentInfo {
     }
 
     @Override
-    public int hashCode() {
-        int result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + (int) serviceTypeCode;
-        return result;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         AgentInfo agentInfo = (AgentInfo) o;
 
-        if (serviceTypeCode != agentInfo.serviceTypeCode) return false;
-        return !(agentId != null ? !agentId.equals(agentInfo.agentId) : agentInfo.agentId != null);
+        if (startTimestamp != agentInfo.startTimestamp) return false;
+        return agentId != null ? agentId.equals(agentInfo.agentId) : agentInfo.agentId == null;
 
     }
 
+    @Override
+    public int hashCode() {
+        int result = agentId != null ? agentId.hashCode() : 0;
+        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
+        return result;
+    }
 
     @Override
     public String toString() {
