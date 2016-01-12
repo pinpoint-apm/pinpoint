@@ -14,8 +14,8 @@ public interface DubboConstants {
 
     ServiceType DUBBO_PROVIDER_SERVICE_TYPE = ServiceTypeFactory.of(1110, "DUBBO_PROVIDER", RECORD_STATISTICS);
     ServiceType DUBBO_CONSUMER_SERVICE_TYPE = ServiceTypeFactory.of(9110, "DUBBO_CONSUMER", RECORD_STATISTICS);
-    AnnotationKey DUBBO_ARGS_ANNOTATION_KEY = AnnotationKeyFactory.of(996, "dubbo.args");
-    AnnotationKey DUBBO_RESULT_ANNOTATION_KEY = AnnotationKeyFactory.of(997, "dubbo.result");
+    AnnotationKey DUBBO_ARGS_ANNOTATION_KEY = AnnotationKeyFactory.of(90, "dubbo.args");
+    AnnotationKey DUBBO_RESULT_ANNOTATION_KEY = AnnotationKeyFactory.of(91, "dubbo.result");
 
     String META_DO_NOT_TRACE = "_DUBBO_DO_NOT_TRACE";
     String META_TRANSACTION_ID = "_DUBBO_TRASACTION_ID";
