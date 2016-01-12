@@ -9,6 +9,10 @@
 	 * @class
 	 */
 	pinpointApp.constant('TooltipServiceConfig', {
+		"navbar": {
+			"position": "bottom",
+			"trigger": "click"
+		},
 		"agentList": {
 			"position": "bottom",
 			"trigger": "click"
@@ -43,6 +47,8 @@
 
 		function getTooltipStr( type ) {
 			switch( type ) {
+				case "navbar":
+					return function() { return helpContentTemplate(helpContentService.navbar.applicationSelector) + helpContentTemplate(helpContentService.navbar.depth) + helpContentTemplate(helpContentService.navbar.periodSelector); };
 				case "agentList":
 					return function() { return helpContentTemplate(helpContentService.inspector.list); };
 				case "heap":

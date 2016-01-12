@@ -23,13 +23,18 @@
 			});
 			$scope.depthList = preferenceService.getDepthList();
 			$scope.periodTypes = preferenceService.getPeriodTypes();
-			$scope.depth = preferenceService.getDepth();
+			$scope.caller = preferenceService.getCaller();
+			$scope.callee = preferenceService.getCallee();
 			$scope.period = preferenceService.getPeriod();
 			$scope.favoriteList = preferenceService.getFavoriteList();
 			
-			$scope.changeDepth = function() {
-				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_GENERAL_SET_DEPTH, $scope.depth );
-				preferenceService.setDepth( $scope.depth );
+			$scope.changeCaller = function() {
+				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_GENERAL_SET_DEPTH, $scope.caller );
+				preferenceService.setCaller( $scope.caller );
+			};
+			$scope.changeCallee = function() {
+				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_GENERAL_SET_DEPTH, $scope.callee );
+				preferenceService.setCallee( $scope.callee );
 			};
 			$scope.changePeriod = function() {
 				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_GENERAL_SET_PERIOD, $scope.period );

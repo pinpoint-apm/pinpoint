@@ -357,9 +357,26 @@
       					<tr>
       						<td class="col-md-2 title">Search Depth</td>
       						<td class="col-md-3">
-      							<select class="depth form-control" ng-change="changeDepth()" ng-model="depth">
-      								<option ng-repeat="dep in depthList" ng-selected="dep == depth" value="{{dep}}">{{dep}}</option>
-      							</select>
+								<table class="table table-bordered table-condense">
+									<tbody style="background-color:#e9eaed">
+									<tr>
+										<td class="col-md-1">Inbound</td>
+										<td class="col-md-2">
+											<select class="depth form-control" ng-change="changeCaller()" ng-model="caller">
+												<option ng-repeat="dep in depthList" ng-selected="dep == caller" value="{{dep}}">{{dep}}</option>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td class="col-md-1">Outbound</td>
+										<td class="col-md-2">
+											<select class="depth form-control" ng-change="changeCallee()" ng-model="callee">
+												<option ng-repeat="dep in depthList" ng-selected="dep == callee" value="{{dep}}">{{dep}}</option>
+											</select>
+										</td>
+									</tr>
+									</tbody>
+								</table>
       						</td>
       						<td class="col-md-2 title">Search Peroid</td>
       						<td class="col-md-3">

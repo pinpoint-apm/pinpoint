@@ -23,6 +23,9 @@
     height: 100%;
     overflow: auto;
 }
+.inspector-datepicker {
+    width: 190px !important;
+}
 
 .agent-list-directive .searchbox {
     width: 100%;

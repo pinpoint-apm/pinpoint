@@ -363,7 +363,6 @@
 	                    	e.diagram.zoomToRect( node.actualBounds, 1.2);
 	                    };
 	                    options.fOnNodeContextClicked = function (e, node) {
-	                    	console.log("node context click : ", node );
 	                        reset();
 	                        var originalNode = ServerMapDaoService.getNodeDataByKey(htLastMapData.applicationMapData, node.key);
 	                        if (originalNode) {

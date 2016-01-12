@@ -5,10 +5,20 @@
     <div ng-include=" 'loading' "></div>
     <div style="padding-top:20px;">
         <div>
-            <button type="button" class="btn btn-default btn-success btn-sm" ng-click="zoomInTimeSlider()"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span></button>
-            <button type="button" class="btn btn-default btn-success btn-sm" ng-click="zoomOutTimeSlider()"><span class="glyphicon glyphicon-zoom-out" aria-hidden="true"></span></button>
+            <div>
+                <div class="datetimepicker input-group input-group-sm date" style="float:left;width:189px;margin-right:4px;">
+                     <input id="target-picker" type="text" class="form-control">
+                     <span class="input-group-btn">
+                        <button class="btn btn-default btn-success" ng-click="selectTime()">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>
+                     </span>
+                </div>
+                <button type="button" class="btn btn-default btn-success btn-sm" ng-click="zoomInTimeSlider()" style="float:left;margin-right:4px"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+                <button type="button" class="btn btn-default btn-success btn-sm" ng-click="zoomOutTimeSlider()" style="float:left;margin-right:4px"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></button>
+            </div>
         </div>
-        <svg id="timeSlider" class="timeSlider" width="100%" height="90px"></svg>
+        <svg id="timeSlider" class="timeSlider" width="100%" height="90px" style="margin-top:6px"></svg>
     </div>
     <div class="panel panel-info" ng-show="showEventInfo">
         <div class="panel-heading">
@@ -34,7 +44,7 @@
         </div>
     </div>
     <div>
-        <h3>Information</h3>
+        <h3>Information <span style="float:right;font-size:16px;" class="label label-default">{{formatDate(selectTime)}}</span></h3>
 
         <div class="row">
             <div class="col-md-12">
@@ -42,55 +52,55 @@
                     <tbody>
                     <tr>
                         <td class="col-md-2 text-right"><strong>Application Name</strong></td>
-                        <td class="col-md-3 text-left">{{info.applicationName}}</td>
+                        <td class="col-md-3 text-left">{{agent.applicationName}}</td>
                         <td class="col-md-2 text-right"><strong>Agent Version</strong></td>
-                        <td class="col-md-5 text-left">{{info.agentVersion}}</td>
+                        <td class="col-md-5 text-left">{{agent.agentVersion}}</td>
                     </tr>
                     <tr>
                         <td class="text-right"><strong>Agent Id</strong></td>
-                        <td class="text-left">{{info.agentId}}</td>
+                        <td class="text-left">{{agent.agentId}}</td>
                         <td class="text-right"><strong>PID</strong></td>
-                        <td class="text-left">{{info.pid}}</td>
+                        <td class="text-left">{{agent.pid}}</td>
                     </tr>
                     <tr>
                         <td class="text-right"><strong>Hostname</strong></td>
-                        <td class="text-left">{{info.hostName}}&nbsp;
-                        	<ul ng-if="info.linkList" style="padding:0px;margin:0px;display:inline;">	
-		                    	<li ng-repeat="link in info.linkList" style="list-style:none;padding:0px;margin:0px;display:inline;padding-left:4px;">
+                        <td class="text-left">{{agent.hostName}}&nbsp;
+                        	<ul ng-if="agent.linkList" style="padding:0px;margin:0px;display:inline;">
+		                    	<li ng-repeat="link in agent.linkList" style="list-style:none;padding:0px;margin:0px;display:inline;padding-left:4px;">
 		                    		<a ng-if="link.linkType == 'aTag'" class="btn btn-default btn-xs" href="{{link.linkURL}}" target="_blank">{{link.linkName}}</a>	
 		                    	</li>
 		                    </ul>
-                        	<a ng-if="info.linkName" class="btn btn-default btn-xs" href="{{info.linkURL}}" target="_blank" title="System resource monitoring site">{{info.linkName}}</a>
+                        	<a ng-if="agent.linkName" class="btn btn-default btn-xs" href="{{agent.linkURL}}" target="_blank" title="System resource monitoring site">{{agent.linkName}}</a>
                         </td>
                         <td class="text-right"><strong>JVM&nbsp;(GC Type)</strong></td>
-                        <td class="text-left" ng-if="info.vmVersion">{{info.vmVersion}}&nbsp;({{info.jvmGcType}})</td>
-                        <td class="text-left" ng-if="!info.vmVersion">{{info.jvmGcType}}</td>
+                        <td class="text-left" ng-if="agent.vmVersion">{{agent.vmVersion}}&nbsp;({{agent.jvmGcType}})</td>
+                        <td class="text-left" ng-if="!agent.vmVersion">{{agent.jvmGcType}}</td>
                     </tr>
                     <tr>
                         <td class="text-right"><strong>IP</strong></td>
                         <td class="text-left">
-                            <div>{{info.ip}}</div>
+                            <div>{{agent.ip}}</div>
                         </td>
                         <td class="text-right"><strong>Start Time</strong></td>
-                        <td class="text-left">{{agent.startTime || agent.startTimestamp | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
+                        <td class="text-left">{{agent.startTimestamp | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
                     </tr>
                     <tr>
                         <td class="text-right"><strong>Service Type</strong></td>
                         <td class="text-left">
-                            {{info.serviceType}}
-                            <span ng-show="info.serverMetaData">
-                                <span ng-show="info.serverMetaData.serverInfo.length">&nbsp;({{info.serverMetaData.serverInfo}})&nbsp;</span>
-                                <button type="button" class="btn btn-default btn-xs" ng-click="showDetail()" ng-show="info.serverMetaData.vmArgs.length || info.serverMetaData.serviceInfos.length">Detail</button>
+                            {{agent.serviceType}}
+                            <span ng-show="agent.serverMetaData">
+                                <span ng-show="agent.serverMetaData.serverInfo.length">&nbsp;({{agent.serverMetaData.serverInfo}})&nbsp;</span>
+                                <button type="button" class="btn btn-default btn-xs" ng-click="toggleShowDetail()" ng-show="agent.serverMetaData.vmArgs.length || agent.serverMetaData.serviceInfos.length">Detail</button>
                             </span>
                         </td>
                         <td class="text-right"><strong>End Status</strong></td>
-                        <td class="text-left">{{agent.endStatus}} (last checked : {{agent.endTimeStamp | date:'yyyy-MM-dd HH:mm:ss Z'}})</td>
+                        <td class="text-left">{{agent.status.state.desc}} (last checked : {{agent.status.eventTimestamp | date:'yyyy-MM-dd HH:mm:ss Z'}})</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <div ng-show="info.showDetail">
+        <div ng-show="showDetail">
             <h3>Detail</h3>
             <div class="row">
                 <div class="col-md-12">
@@ -99,29 +109,29 @@
                         <tr class="active">
                             <td class="col-md-2 text-right"><strong>Server Info</strong></td>
                             <td class="col-md-10 text-left">
-                                <span ng-show="info.serverMetaData.serverInfo.length">{{info.serverMetaData.serverInfo}}</span>
-                                <span ng-hide="info.serverMetaData.serverInfo.length">N/A</span>
+                                <span ng-show="agent.serverMetaData.serverInfo.length">{{agent.serverMetaData.serverInfo}}</span>
+                                <span ng-hide="agent.serverMetaData.serverInfo.length">N/A</span>
                             </td>
                         </tr>
                         <tr>
                             <td class="text-right"><strong>JVM Arguments</strong></td>
                             <td class="text-left">
-                                <div style="overflow:auto;max-height:200px;" ng-show="info.serverMetaData.vmArgs.length">
+                                <div style="overflow:auto;max-height:200px;" ng-show="agent.serverMetaData.vmArgs.length">
                                     <ul class="list-unstyled">
-                                        <li ng-repeat="vmArg in info.serverMetaData.vmArgs track by $index">{{vmArg}}</li>
+                                        <li ng-repeat="vmArg in agent.serverMetaData.vmArgs track by $index">{{vmArg}}</li>
                                     </ul>
                                 </div>
-                                <span ng-hide="info.serverMetaData.vmArgs.length">N/A</span>
+                                <span ng-hide="agent.serverMetaData.vmArgs.length">N/A</span>
                             </td>
                         </tr>
                         <tr class="active">
                             <td class="text-right"><strong>Services</strong></td>
                             <td class="text-left">
-                                <div class="row" ng-show="info.serverMetaData.serviceInfos.length">
+                                <div class="row" ng-show="agent.serverMetaData.serviceInfos.length">
                                     <div class="col-md-4 service-list">
                                         <div class="list-group">
                                             <a href="" class="list-group-item clearfix" ng-class="{active: currentServiceInfo == serviceInfo, disabled: serviceInfo.serviceLibs.length == 0}"
-                                               ng-repeat="serviceInfo in info.serverMetaData.serviceInfos" style="padding:4px 10px" ng-click="selectServiceInfo(serviceInfo)">
+                                               ng-repeat="serviceInfo in agent.serverMetaData.serviceInfos" style="padding:4px 10px" ng-click="selectServiceInfo(serviceInfo)">
                                                 {{serviceInfo.serviceName}}
                                                 <span class="pull-right" ng-show="serviceInfo.serviceLibs.length > 0">&gt;</span>
                                             </a>
@@ -133,7 +143,7 @@
                                         </ul>
                                     </div>
                                 </div>
-                                <span ng-hide="info.serverMetaData.serviceInfos.length">N/A</span>
+                                <span ng-hide="agent.serverMetaData.serviceInfos.length">N/A</span>
                             </td>
                         </tr>
                         </tbody>

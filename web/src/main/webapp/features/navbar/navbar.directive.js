@@ -1,4 +1,4 @@
-(function() {
+(function( $ ) {
 	'use strict';
 	/**
 	 * (en)navbarDirective 
@@ -13,35 +13,35 @@
 	    periodTypePrefix: '.navbar.periodType'
 	});
 	
-	pinpointApp.directive('navbarDirective', [ 'cfg', '$rootScope', '$http','$document', '$timeout', '$window',  'webStorage', 'helpContentTemplate', 'helpContentService', 'AnalyticsService', 'PreferenceService',
-	    function (cfg, $rootScope, $http, $document, $timeout, $window, webStorage, helpContentTemplate, helpContentService, analyticsService, preferenceService) {
+	pinpointApp.directive('navbarDirective', [ 'cfg', '$rootScope', '$http','$document', '$timeout', '$window',  'webStorage', 'helpContentService', 'AnalyticsService', 'PreferenceService', 'TooltipService',
+	    function (cfg, $rootScope, $http, $document, $timeout, $window, webStorage, helpContentService, analyticsService, preferenceService, tooltipService) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
 	            templateUrl: 'features/navbar/navbar.html?v=' + G_BUILD_TIME,
 	            link: function (scope, element) {
 	                // define private variables
-	                var $application, $fromPicker, $toPicker, oNavbarVoService, $fromToCalendarPopup;
+	                var $application, $fromPicker, $toPicker, oNavbarVoService, $fromToCalendarPopup, bIsClickDepthInnerArea = false, bIsClickDepthInnerBtn = false, prevCaller, prevCallee;
 	
 	                // define private variables of methods
 	                var initialize, initializeDateTimePicker, initializeApplication, setDateTime, getQueryEndTimeFromServer,
 	                    broadcast, getApplicationList, getQueryStartTime, getQueryEndTime, parseApplicationList, emitAsChanged,
 	                    initializeWithStaticApplication, getPeriodType, setPeriodTypeAsCurrent, getDate, startUpdate,
-	                    resetTimeLeft, getRangeFromStorage, setRangeToStorage, getMilliSecondByReadablePeriod, movePeriod, selectPeriod,
+	                    resetTimeLeft, getCallerFromStorage, getCalleeFromStorage, setDepthToStorage, getMilliSecondByReadablePeriod, movePeriod, selectPeriod,
 						toggleCalendarPopup, getPeriodForCalendar;
 	
 	                var applicationResource;
-					var bInitCalendar = false;
-	                /**
-	                 * getRangeFromStorage
-	                 */
-	                getRangeFromStorage = function(app) {
-                		return webStorage.get( app ) || preferenceService.getDepth();
+
+	                getCallerFromStorage = function(app) {
+                		return webStorage.get( app + "+caller" ) || preferenceService.getCaller();
 	                };
+					getCalleeFromStorage = function(app) {
+						return webStorage.get( app + "+callee" ) || preferenceService.getCallee();
+					};
 	                /**
 	                 * setRangeToStorage
 	                 */
-	                setRangeToStorage = function(app, range) {
+					setDepthToStorage = function(app, range) {
 	                	if (angular.isUndefined(app) || app == null || angular.isUndefined(range) || range == null) {
 	                		return;
 	                	}
@@ -71,7 +71,8 @@
 	                        label: '1 minute'
 	                    }
 	                ];
-	                scope.range = getRangeFromStorage(scope.applicatoin);
+	                scope.caller = prevCaller = getCallerFromStorage(scope.application);
+					scope.callee = prevCallee = getCalleeFromStorage(scope.application);
 	                scope.rangeList = preferenceService.getDepthList();
 	                scope.applications = [
 	                    {
@@ -79,20 +80,32 @@
 	                        value: ''
 	                    }
 	                ];
-	
-	
 	                element.bind('selectstart', function (e) {
 	                    return false;
 	                });
-	                
-	                jQuery('.navbarTooltip').tooltipster({
-                    	content: function() {
-                    		return helpContentTemplate(helpContentService.navbar.applicationSelector) + helpContentTemplate(helpContentService.navbar.depth) + helpContentTemplate(helpContentService.navbar.periodSelector);
-                    	},
-                    	position: "bottom",
-                    	trigger: "click"
-                    });
-	
+					tooltipService.init( "navbar" );
+
+					function initDepth() {
+						$("#navbar_depth div").on("show.bs.dropdown", function() {
+						}).on("hide.bs.dropdown", function( event ) {
+							if ( bIsClickDepthInnerArea == true ) {
+								event.preventDefault();
+							} else {
+								if ( bIsClickDepthInnerBtn === false ) {
+									scope.$apply(function () {
+										scope.cancelDepth(false);
+									});
+								}
+							}
+							bIsClickDepthInnerArea = false;
+							bIsClickDepthInnerBtn = false;
+						});
+						$("#navbar_depth .dropdown-menu").on("click", function() {
+							bIsClickDepthInnerArea = true;
+						});
+					}
+					initDepth();
+
 	                /**
 	                 * initialize
 	                 * @param navbarVo
@@ -139,10 +152,11 @@
 						scope.periodCalendar = oNavbarVoService.getReadablePeriod() || preferenceService.getPeriod();
 	                    scope.queryEndTime = oNavbarVoService.getQueryEndTime() || '';
 
-						if ( bInitCalendar === false ) {
-							initializeDateTimePicker();
-							bInitCalendar = true;
-						}
+						$("#ui-datepicker-div").remove();
+						//if ( bInitCalendar === false ) {
+						//	initializeDateTimePicker();
+						//	bInitCalendar = true;
+						//}
 	                };
 	
 	                /**
@@ -283,9 +297,11 @@
 	                    }
 	                    oNavbarVoService.setApplication(scope.application);
 	                    
-	                    scope.range = getRangeFromStorage(scope.application);
-	                    oNavbarVoService.setCallerRange( scope.range );
-	                    oNavbarVoService.setCalleeRange( scope.range );
+	                    scope.caller = getCallerFromStorage(scope.application);
+						scope.callee = getCalleeFromStorage(scope.application);
+
+	                    oNavbarVoService.setCallerRange( scope.caller );
+	                    oNavbarVoService.setCalleeRange( scope.callee );
 	                    
 	                    if (scope.periodType === 'last' && scope.readablePeriod) {
 	                        getQueryEndTimeFromServer(function (currentServerTime) {
@@ -582,12 +598,36 @@
 	                    scope.timeCountDown = time;
 	                    scope.timeLeft = time;
 	                };
-	                scope.setNodeRange = function(range) {
-	                	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_CALLEE_RANGE, range);
-	                	scope.range = range;
-	                	setRangeToStorage(scope.application, range);
-	                	broadcast();
+	                scope.setCaller = function(caller) {
+	                	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_CALLER_RANGE, caller);
+	                	scope.caller = caller;
 	                };
+					scope.setCallee = function(callee) {
+						analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_CALLEE_RANGE, callee);
+						scope.callee = callee;
+					};
+					scope.setDepth = function() {
+						bIsClickDepthInnerArea = false;
+						bIsClickDepthInnerBtn = true;
+						$("#navbar_depth .dropdown-menu").trigger("click.bs.dropdown");
+						if ( prevCaller !== scope.caller || prevCallee !== scope.callee ) {
+							prevCaller = scope.caller;
+							prevCallee = scope.callee;
+							setDepthToStorage(scope.application + "+caller", scope.caller);
+							setDepthToStorage(scope.application + "+callee", scope.callee);
+							broadcast();
+						}
+					};
+					scope.cancelDepth = function( bHide ) {
+						scope.caller = prevCaller;
+						scope.callee = prevCallee;
+						if ( bHide ) {
+							bIsClickDepthInnerArea = false;
+							bIsClickDepthInnerBtn = true;
+							$("#navbar_depth .dropdown-menu").trigger("click.bs.dropdown");
+						}
+					};
+
 	
 	                /**
 	                 * update
@@ -684,4 +724,4 @@
 	        };
 	    }
 	]);
-})();
+})( jQuery );

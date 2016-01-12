@@ -9,16 +9,21 @@
 	 */
 	pinpointApp.constant('PreferenceServiceConfig', {
 		names: {
-			depth: "preference.depth",
+			caller: "preference.caller",
+			callee: "preference.callee",
 			period: "preference.period",
 			favorite: "preference.favorite"
 		},
 		defaults: {
-			depth: 1,
+			caller: 1,
+			callee: 1,
 			period: "5m"
 		},
 		list: [{
-			name: "depth",
+			name: "caller",
+			type: "number"
+		},{
+			name: "callee",
 			type: "number"
 		},{
 			name: "period",
@@ -26,7 +31,7 @@
 		}],
 		cst: {
 			periodTypes: ['5m', '20m', '1h', '3h', '6h', '12h', '1d', '2d'],
-			depthList: [ 1, 2, 3, 4, 5, 6, 7, 8],
+			depthList: [ 1, 2, 3, 4],
 			maxFavorite: 5000,
 			maxPeriod: 2
 		}
@@ -45,16 +50,16 @@
 			}
 			aFavoriteList.push( applicationName );
 			setFavoriteList();
-		}
+		};
 		this.removeFavorite = function( applicationName ) {
 			var index = aFavoriteList.indexOf( applicationName ); 
 			if ( index === -1 ) return;
 			aFavoriteList.splice( index, 1 );
 			setFavoriteList();
-		}
+		};
 		function setFavoriteList() {
 			localStorage.setItem(cfg.names.favorite, JSON.stringify(aFavoriteList) );
-		};
+		}
 		this.getFavoriteList = function() {
 			return aFavoriteList;
 		};
@@ -66,7 +71,7 @@
 		};
 		this.getMaxPeriod = function() {
 			return cfg.cst.maxPeriod;
-		}
+		};
 		
 		
 		function loadPreference() {
