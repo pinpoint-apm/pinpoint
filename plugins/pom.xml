@@ -55,6 +55,7 @@
         <module>resin</module>
         <module>jsp</module>
         <module>rxjava</module>
+        <module>rabbitmq</module>
     </modules>
 
     <dependencies>
@@ -271,6 +272,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-rxjava-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-rabbitmq-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
