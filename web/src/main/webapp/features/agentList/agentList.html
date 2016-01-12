@@ -13,6 +13,7 @@
                     <a href ng-click="select(agent)">
                         <span class="glyphicon glyphicon-hdd"></span>
                         {{agent.agentId}}
+                        <span class="glyphicon glyphicon-{{getState(agent.status.state.code)}}" style="color:{{getStateColor(agent.status.state.code)}}"></span>
                     </a>
                 </li>
             </ul>

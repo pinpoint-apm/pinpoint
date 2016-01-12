@@ -69,6 +69,7 @@
     <script src="components/google-code-prettify/prettify.js?v=${buildTime}"></script>
     <script src="components/google-code-prettify/lang-sql.js?v=${buildTime}"></script>
     <script src="components/gojs/go.js?v=${buildTime}"></script>
+	<script src="components/snap.svg/snap.svg.min.js?v=${buildTime}"></script>
 
     <script src="components/d3/d3.min.js?v=${buildTime}"></script>
 
@@ -105,6 +106,7 @@
 	<script src="components/bootstrap/js/bootstrap-tooltip.js?v=${buildTime}"></script>
 	<script src="components/bootstrap/js/bootstrap-popover.js?v=${buildTime}"></script>
     <script src="features/serverMap/jquery.ServerMap2.js?v=${buildTime}"></script>
+	<script src="components/time-slider/time-slider.min.js?v=${buildTime}"></script>
     <!-- endbuild -->
 
     <!-- build:js scripts/modules.js -->
@@ -355,9 +357,26 @@
       					<tr>
       						<td class="col-md-2 title">Search Depth</td>
       						<td class="col-md-3">
-      							<select class="depth form-control" ng-change="changeDepth()" ng-model="depth">
-      								<option ng-repeat="dep in depthList" ng-selected="dep == depth" value="{{dep}}">{{dep}}</option>
-      							</select>
+								<table class="table table-bordered table-condense">
+									<tbody style="background-color:#e9eaed">
+									<tr>
+										<td class="col-md-1">Inbound</td>
+										<td class="col-md-2">
+											<select class="depth form-control" ng-change="changeCaller()" ng-model="caller">
+												<option ng-repeat="dep in depthList" ng-selected="dep == caller" value="{{dep}}">{{dep}}</option>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td class="col-md-1">Outbound</td>
+										<td class="col-md-2">
+											<select class="depth form-control" ng-change="changeCallee()" ng-model="callee">
+												<option ng-repeat="dep in depthList" ng-selected="dep == callee" value="{{dep}}">{{dep}}</option>
+											</select>
+										</td>
+									</tr>
+									</tbody>
+								</table>
       						</td>
       						<td class="col-md-2 title">Search Peroid</td>
       						<td class="col-md-3">
@@ -468,6 +487,8 @@
 <script src="common/services/realtime-websocket.service.js?v=${buildTime}"></script>
 <script src="common/services/preference.service.js?v=${buildTime}"></script>
 <script src="common/services/sql-ajax.service.js?v=${buildTime}"></script>
+<script src="common/services/agent-ajax.service.js?v=${buildTime}"></script>
+<script src="common/services/tooltip.service.js?v=${buildTime}"></script>
 <script src="common/help/help-content-en.js?v=${buildTime}"></script>
 <script src="common/help/help-content-ko.js?v=${buildTime}"></script>
 <script src="common/help/help-content-template.js?v=${buildTime}"></script>
