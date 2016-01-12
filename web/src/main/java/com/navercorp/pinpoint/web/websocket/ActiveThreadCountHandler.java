@@ -1,20 +1,17 @@
 /*
+ * Copyright 2015 NAVER Corp.
  *
- *  * Copyright 2014 NAVER Corp.
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *     http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.navercorp.pinpoint.web.websocket;
@@ -23,16 +20,12 @@ import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.rpc.util.StringUtils;
-import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessage;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageType;
 import com.navercorp.pinpoint.web.websocket.message.PongMessage;
 import com.navercorp.pinpoint.web.websocket.message.RequestMessage;
-import org.jboss.netty.util.Timeout;
-import org.jboss.netty.util.Timer;
-import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.CloseStatus;
@@ -40,12 +33,16 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -62,52 +59,55 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Object lock = new Object();
-    private final AgentService agentSerivce;
+    private final AgentService agentService;
     private final List<WebSocketSession> sessionRepository = new CopyOnWriteArrayList<>();
     private final Map<String, PinpointWebSocketResponseAggregator> aggregatorRepository = new ConcurrentHashMap<>();
-    private PinpointWebSocketMessageConverter messageConverter = new PinpointWebSocketMessageConverter();
+    private final PinpointWebSocketMessageConverter messageConverter = new PinpointWebSocketMessageConverter();
 
     private static final String DEFAULT_REQUEST_MAPPING = "/agent/activeThread";
     private final String requestMapping;
 
     private final AtomicBoolean onTimerTask = new AtomicBoolean(false);
 
-    private Timer flushTimer;
+    private ExecutorService webSocketFlushThreadPool;
+
+    private java.util.Timer flushTimer;
     private static final long DEFAULT_FLUSH_DELAY = 1000;
-    private static final long DEFAULT_MIN_FLUSH_DELAY = 500;
     private final long flushDelay;
 
-    private Timer  healthCheckTimer;
+    private java.util.Timer healthCheckTimer;
     private static final long DEFAULT_HEALTH_CHECk_DELAY = 60 * 1000;
     private final long healthCheckDelay;
 
-    private Timer reactiveTimer;
+    private java.util.Timer reactiveTimer;
 
-    public ActiveThreadCountHandler(AgentService agentSerivce) {
-        this(DEFAULT_REQUEST_MAPPING, agentSerivce);
+    public ActiveThreadCountHandler(AgentService agentService) {
+        this(DEFAULT_REQUEST_MAPPING, agentService);
     }
 
-    public ActiveThreadCountHandler(String requestMapping, AgentService agentSerivce) {
-        this(requestMapping, agentSerivce, DEFAULT_FLUSH_DELAY);
+    public ActiveThreadCountHandler(String requestMapping, AgentService agentService) {
+        this(requestMapping, agentService, DEFAULT_FLUSH_DELAY);
     }
 
-    public ActiveThreadCountHandler(String requestMapping, AgentService agentSerivce, long flushDelay) {
-        this(requestMapping, agentSerivce, flushDelay, DEFAULT_HEALTH_CHECk_DELAY);
+    public ActiveThreadCountHandler(String requestMapping, AgentService agentService, long flushDelay) {
+        this(requestMapping, agentService, flushDelay, DEFAULT_HEALTH_CHECk_DELAY);
     }
 
-    public ActiveThreadCountHandler(String requestMapping, AgentService agentSerivce, long flushDelay, long healthCheckDelay) {
+    public ActiveThreadCountHandler(String requestMapping, AgentService agentService, long flushDelay, long healthCheckDelay) {
         this.requestMapping = requestMapping;
-        this.agentSerivce = agentSerivce;
+        this.agentService = agentService;
         this.flushDelay = flushDelay;
         this.healthCheckDelay = healthCheckDelay;
     }
 
     @Override
     public void start() {
-        PinpointThreadFactory threadFactory = new PinpointThreadFactory(ClassUtils.simpleClassName(this) + "-Timer", true);
-        this.flushTimer = TimerFactory.createHashedWheelTimer(threadFactory, 100, TimeUnit.MILLISECONDS, 512);
-        this.healthCheckTimer = TimerFactory.createHashedWheelTimer(threadFactory, 100, TimeUnit.MILLISECONDS, 512);
-        this.reactiveTimer = TimerFactory.createHashedWheelTimer(threadFactory, 100, TimeUnit.MILLISECONDS, 512);
+        PinpointThreadFactory flushThreadFactory = new PinpointThreadFactory(ClassUtils.simpleClassName(this) + "-Flush-Thread", true);
+        webSocketFlushThreadPool = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Integer.MAX_VALUE, DEFAULT_HEALTH_CHECk_DELAY, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), flushThreadFactory);
+
+        flushTimer = new java.util.Timer(ClassUtils.simpleClassName(this) + "-Flush-Timer", true);
+        healthCheckTimer = new java.util.Timer(ClassUtils.simpleClassName(this) + "-HealthCheck-Timer", true);
+        reactiveTimer = new java.util.Timer(ClassUtils.simpleClassName(this) + "-Reactive-Timer", true);
     }
 
     @Override
@@ -120,15 +120,19 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         aggregatorRepository.clear();
 
         if (flushTimer != null) {
-            flushTimer.stop();
+            flushTimer.cancel();
         }
 
         if (healthCheckTimer != null) {
-            healthCheckTimer.stop();
+            healthCheckTimer.cancel();
         }
 
         if (reactiveTimer != null) {
-            reactiveTimer.stop();
+            reactiveTimer.cancel();
+        }
+
+        if (webSocketFlushThreadPool != null) {
+            webSocketFlushThreadPool.shutdown();
         }
     }
 
@@ -146,8 +150,8 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
             sessionRepository.add(newSession);
             boolean turnOn = onTimerTask.compareAndSet(false, true);
             if (turnOn) {
-                flushTimer.newTimeout(new ActiveThreadTimerTask(), flushDelay, TimeUnit.MILLISECONDS);
-                healthCheckTimer.newTimeout(new HealthCheckTimerTask(), DEFAULT_HEALTH_CHECk_DELAY, TimeUnit.MILLISECONDS);
+                flushTimer.schedule(new ActiveThreadTimerTask(flushDelay), flushDelay);
+                healthCheckTimer.schedule(new HealthCheckTimerTask(), DEFAULT_HEALTH_CHECk_DELAY);
             }
         }
 
@@ -233,7 +237,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
         PinpointWebSocketResponseAggregator responseAggregator = aggregatorRepository.get(applicationName);
         if (responseAggregator == null) {
-            responseAggregator = new ActiveThreadCountResponseAggregator(applicationName, agentSerivce, reactiveTimer);
+            responseAggregator = new ActiveThreadCountResponseAggregator(applicationName, agentService, reactiveTimer);
             responseAggregator.start();
             aggregatorRepository.put(applicationName, responseAggregator);
         }
@@ -260,42 +264,67 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         }
     }
 
-    private class ActiveThreadTimerTask implements TimerTask {
+    private class ActiveThreadTimerTask extends java.util.TimerTask {
+
+        private final long startTimeMillis;
+        private final long delay;
+
+        private int times = 0;
+
+        public ActiveThreadTimerTask(long delay) {
+            this(System.currentTimeMillis(), delay, 0);
+        }
+
+        public ActiveThreadTimerTask(long startTimeMillis, long delay, int times) {
+            this.startTimeMillis = startTimeMillis;
+            this.delay = delay;
+            this.times = times;
+        }
 
         @Override
-        public void run(Timeout timeout) throws Exception {
-            long startTime = System.currentTimeMillis();
+        public void run() {
             try {
                 logger.info("ActiveThreadTimerTask started.");
 
                 Collection<PinpointWebSocketResponseAggregator> values = aggregatorRepository.values();
-                for (PinpointWebSocketResponseAggregator aggregator : values) {
-                    try {
-                        aggregator.flush();
-                    } catch (Exception e) {
-                        logger.warn(e.getMessage(), e);
-                    }
+                for (final PinpointWebSocketResponseAggregator aggregator : values) {
+                    webSocketFlushThreadPool.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                aggregator.flush();
+                            } catch (Exception e) {
+                                logger.warn(e.getMessage(), e);
+                            }
+                        }
+                    });
                 }
             } finally {
-                if (flushTimer != null && onTimerTask.get()) {
-                    long execTime = System.currentTimeMillis() - startTime;
+                long waitTimeMillis = getWaitTimeMillis();
 
-                    long nextFlushDelay = flushDelay - execTime;
-                    if (nextFlushDelay < DEFAULT_MIN_FLUSH_DELAY) {
-                        flushTimer.newTimeout(this, DEFAULT_MIN_FLUSH_DELAY, TimeUnit.MILLISECONDS);
-                    } else {
-                        flushTimer.newTimeout(this, nextFlushDelay, TimeUnit.MILLISECONDS);
-                    }
+                if (flushTimer != null && onTimerTask.get()) {
+                    flushTimer.schedule(new ActiveThreadTimerTask(startTimeMillis, delay, times), waitTimeMillis);
                 }
             }
         }
 
+        private long getWaitTimeMillis() {
+            long waitTime = -1L;
+
+            long currentTime = System.currentTimeMillis();
+            while (waitTime <= 0) {
+                waitTime = startTimeMillis + (delay * times) - currentTime;
+                times++;
+            }
+
+            return waitTime;
+        }
     }
 
-    private class HealthCheckTimerTask implements TimerTask {
+    private class HealthCheckTimerTask extends java.util.TimerTask {
 
         @Override
-        public void run(Timeout timeout) throws Exception {
+        public void run() {
             try {
                 logger.info("HealthCheckTimerTask started.");
 
@@ -309,14 +338,14 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
                     Object untilWait = session.getAttributes().get(HEALTH_CHECK_WAIT_KEY);
                     if (untilWait != null && untilWait instanceof AtomicBoolean) {
                         if (((AtomicBoolean) untilWait).get()) {
-                            session.close(CloseStatus.SESSION_NOT_RELIABLE);
+                            closeSession(session, CloseStatus.SESSION_NOT_RELIABLE);
                         }
                     } else {
                         session.getAttributes().put(HEALTH_CHECK_WAIT_KEY, new AtomicBoolean(false));
                     }
                 }
 
-                // send healthcheck packet
+                // send healthCheck packet
                 String pingTextMessage = messageConverter.getPingTextMessage();
                 TextMessage pingMessage = new TextMessage(pingTextMessage);
 
@@ -333,12 +362,28 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
                         session.getAttributes().put(HEALTH_CHECK_WAIT_KEY, new AtomicBoolean(true));
                     }
 
-                    session.sendMessage(pingMessage);
+                    sendPingMessage(session, pingMessage);
                 }
             } finally {
                 if (healthCheckTimer != null && onTimerTask.get()) {
-                    healthCheckTimer.newTimeout(this, healthCheckDelay, TimeUnit.MILLISECONDS);
+                    healthCheckTimer.schedule(new HealthCheckTimerTask(), healthCheckDelay);
                 }
+            }
+        }
+
+        private void closeSession(WebSocketSession session, CloseStatus status) {
+            try {
+                session.close(status);
+            } catch (IOException e) {
+                logger.warn(e.getMessage(), e);
+            }
+        }
+
+        private void sendPingMessage(WebSocketSession session, TextMessage pingMessage) {
+            try {
+                session.sendMessage(pingMessage);
+            } catch (IOException e) {
+                logger.warn(e.getMessage(), e);
             }
         }
 
