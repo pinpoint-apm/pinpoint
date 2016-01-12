@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
+import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.hbase.parallel.ParallelResultScanner;
 import com.navercorp.pinpoint.common.hbase.parallel.ScanTaskException;
 import com.navercorp.pinpoint.common.util.ExecutorFactory;
@@ -37,6 +38,7 @@ import org.springframework.util.Assert;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -356,6 +358,55 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     @Override
     public <T> List<List<T>> find(String tableName, List<Scan> scanList, RowMapper<T> action) {
         return find(tableName, scanList, new RowMapperResultsExtractor<>(action));
+    }
+
+    @Override
+    public <T> List<T> findParallel(final String tableName, final List<Scan> scans, final ResultsExtractor<T> action) {
+        if (!this.enableParallelScan || scans.size() == 1) {
+            return find(tableName, scans, action);
+        }
+        List<T> results = new ArrayList<>(scans.size());
+        List<Callable<T>> callables = new ArrayList<>(scans.size());
+        for (final Scan scan : scans) {
+            callables.add(new Callable<T>() {
+                @Override
+                public T call() throws Exception {
+                    return execute(tableName, new TableCallback<T>() {
+                        @Override
+                        public T doInTable(HTableInterface table) throws Throwable {
+                            final ResultScanner scanner = table.getScanner(scan);
+                            try {
+                                return action.extractData(scanner);
+                            } finally {
+                                scanner.close();
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        List<List<Callable<T>>> callablePartitions = Lists.partition(callables, this.maxThreadsPerParallelScan);
+        for (List<Callable<T>> callablePartition : callablePartitions) {
+            try {
+                List<Future<T>> futures = this.executor.invokeAll(callablePartition);
+                for (Future<T> future : futures) {
+                    results.add(future.get());
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                logger.warn("interrupted while findParallel [{}].", tableName);
+                return Collections.emptyList();
+            } catch (ExecutionException e) {
+                logger.warn("findParallel [{}], error : {}", tableName, e);
+                return Collections.emptyList();
+            }
+        }
+        return results;
+    }
+
+    @Override
+    public <T> List<List<T>> findParallel(String tableName, final List<Scan> scans, final RowMapper<T> action) {
+        return findParallel(tableName, scans, new RowMapperResultsExtractor<>(action));
     }
 
     @Override
