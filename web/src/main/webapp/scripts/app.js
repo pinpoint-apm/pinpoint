@@ -23,18 +23,12 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
     }).when('/filteredMap/:application/:readablePeriod/:queryEndDateTime/:filter/:hint', {
         templateUrl: 'pages/filteredMap/filteredMap.html',
         controller: 'FilteredMapCtrl'
-    //}).when('/inspector/:application/:readablePeriod/:queryEndDateTime', {
-    //    templateUrl: 'pages/inspector/inspector.html',
-    //    controller: 'InspectorCtrl'
-    //}).when('/inspector/:application/:readablePeriod/:queryEndDateTime/:agentId', {
-    //    templateUrl: 'pages/inspector/inspector.html',
-    //    controller: 'InspectorCtrl'
     }).when('/inspector/:application/:readablePeriod/:queryEndDateTime', {
-        templateUrl: 'pages/inspector2/inspector2.html',
-        controller: 'InspectorCtrl2'
+        templateUrl: 'pages/inspector/inspector.html',
+        controller: 'InspectorCtrl'
     }).when('/inspector/:application/:readablePeriod/:queryEndDateTime/:agentId', {
-        templateUrl: 'pages/inspector2/inspector2.html',
-        controller: 'InspectorCtrl2'
+        templateUrl: 'pages/inspector/inspector.html',
+        controller: 'InspectorCtrl'
     }).when('/transactionList/:application/:readablePeriod/:queryEndDateTime', {
         templateUrl: 'pages/transactionList/transactionList.html',
         controller: 'TransactionListCtrl'
