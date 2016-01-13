@@ -79,8 +79,18 @@
 			},
 			depth : {
 				mainStyle: "",
-				title: "<span class='glyphicon glyphicon-map-marker' aria-hidden='true'></span> Depth",
-				desc: "서버맵의 탐색 깊이를 설정합니다."
+				title: '<img src="images/inbound.png" width="22px" height="22px" style="margin-top:-4px;"> Inbound 와 <img src="images/outbound.png" width="22px" height="22px" style="margin-top:-4px"> Outbound',
+				desc: "서버맵의 탐색 깊이를 설정합니다.",
+				category : [{
+					title: "[범례]",
+					items: [{
+						name: "Inbound",
+						desc: "선택된 노드를 기준으로 들어오는 탐색깊이"
+					}, {
+						name: "Outbound",
+						desc: "선택된 노드를 기준으로 나가는 탐색 깊이"
+					}]
+				}]
 			},
 			periodSelector: {
 				mainStyle: "",
@@ -491,6 +501,18 @@
 					},{
 						name: "<span class='glyphicon glyphicon-hdd'></span>",
 						desc: "설치된 agent의 agent-id"
+					},{
+						name: "<span class='glyphicon glyphicon-ok-sign' style='color:#40E340'></span>",
+						desc: "정상적으로 실행중인 agent 상태 표시"
+					},{
+						name: "<span class='glyphicon glyphicon-minus-sign' style='color:#F00'></span>",
+						desc: "Shutdown 된 agent 상태 표시"
+					},{
+						name: "<span class='glyphicon glyphicon-remove-sign' style='color:#AAA'></span>",
+						desc: "연결이 끊긴 agent 상태 표시"
+					},{
+						name: "<span class='glyphicon glyphicon-question-sign' style='color:#AAA'></span>",
+						desc: "알수 없는 상태의 agent 상태 표시"
 					}]
 				}]
 			},

@@ -23,8 +23,8 @@
 	        this._sReadablePeriod = false;
 	        this._sQueryEndDateTime = false;
 
-	        this._nCallerRange = preferenceService.getDepth();
-	        this._nCalleeRange = preferenceService.getDepth();
+	        this._nCallerRange = preferenceService.getCaller();
+	        this._nCalleeRange = preferenceService.getCallee();
 	        
 	        this._sHint = false;
 	

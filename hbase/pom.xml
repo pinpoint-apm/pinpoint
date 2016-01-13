@@ -1,0 +1,62 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.navercorp.pinpoint</groupId>
+        <artifactId>pom</artifactId>
+        <version>1.5.2-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>pinpoint-hbase</artifactId>
+    <name>pinpoint-hbase-distribution</name>
+
+    <packaging>pom</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>${docker.maven.plugin.version}</version>
+                <configuration>
+                    <skipDockerBuild>false</skipDockerBuild>
+                    <imageName>naver/${project.artifactId}:${project.version}</imageName>
+                    <baseImage>java:8-jdk</baseImage>
+                    <entryPoint>/opt/hbase/hbase-$HBASE_VERSION/bin/hbase master start</entryPoint>
+                    <env>
+                        <JAVA_HOME>/usr/lib/jvm/java-8-openjdk-amd64</JAVA_HOME>
+                        <HBASE_VERSION>1.0.2</HBASE_VERSION>
+                        <HBASE_HOME>/opt/hbase/hbase-1.0.2</HBASE_HOME>
+                    </env>
+                    <exposes>
+                        <expose>2181</expose>
+                        <expose>60000</expose>
+                        <expose>60010</expose>
+                        <expose>60020</expose>
+                        <expose>60030</expose>
+                    </exposes>
+                    <resources>
+                        <resource>
+                            <targetPath>/opt/hbase/</targetPath>
+                            <directory>${project.basedir}/scripts/</directory>
+                            <include>hbase-create.hbase</include>
+                        </resource>
+                        <resource>
+                            <targetPath>/opt/hbase/</targetPath>
+                            <directory>${project.basedir}/</directory>
+                            <include>hbase-site.xml</include>
+                        </resource>
+                    </resources>
+                    <runs>
+                        <run>curl -SL "http://apache.mirrors.pair.com/hbase/hbase-$HBASE_VERSION/hbase-$HBASE_VERSION-bin.tar.gz" -o hbase.tar.gz</run>
+                        <run>tar xfvz hbase.tar.gz -C /opt/hbase</run>
+                        <run>rm -rf hbase.tar.gz</run>
+                        <run>cp /opt/hbase/hbase-site.xml /opt/hbase/hbase-$HBASE_VERSION/conf/hbase-site.xml</run>
+                        <run>$HBASE_HOME/bin/start-hbase.sh; sleep 10; $HBASE_HOME/bin/hbase shell /opt/hbase/hbase-create.hbase; ${HBASE_HOME}/bin/stop-hbase.sh</run>
+                    </runs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

@@ -46,6 +46,7 @@
         <module>test</module>
         <module>web</module>
         <module>java8-test</module>
+        <module>hbase</module>
     </modules>
 
     <properties>
@@ -62,6 +63,7 @@
         <jedis.version>2.4.2</jedis.version>
         <cloverLicenseLocation>${basedir}/clover.license</cloverLicenseLocation>
         <spring-batch-version>2.2.7.RELEASE</spring-batch-version>
+        <docker.maven.plugin.version>0.3.8</docker.maven.plugin.version>
     </properties>
 
     <dependencies>
@@ -806,6 +808,14 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>${docker.maven.plugin.version}</version>
+                <configuration>
+                    <skipDockerBuild>true</skipDockerBuild>
+                </configuration>
             </plugin>
         </plugins>
     </build>

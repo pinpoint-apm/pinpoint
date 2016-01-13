@@ -79,8 +79,18 @@
 			},
 			depth : {
 				mainStyle: "",
-				title: "<span class='glyphicon glyphicon-map-marker' aria-hidden='true'></span> Depth",
-				desc: "Search-depth of server map"
+				title: '<img src="images/inbound.png" width="22px" height="22px" style="margin-top:-4px;"> Inbound 와 <img src="images/outbound.png" width="22px" height="22px" style="margin-top:-4px"> Outbound',
+				desc: "Search-depth of server map.",
+				category : [{
+					title: "[범례]",
+					items: [{
+						name: "Inbound",
+						desc: "Number of depth to render for requests coming in to the selected node."
+					}, {
+						name: "Outbound",
+						desc: "Number of depth to render for requests going out from the selected node"
+					}]
+				}]
 			},
 			periodSelector: {
 				mainStyle: "",
@@ -472,6 +482,18 @@
 					},{
 						name: "<span class='glyphicon glyphicon-hdd'></span>",
 						desc: "Agent-id of the installed agent"
+					},{
+						name: "<span class='glyphicon glyphicon-ok-sign' style='color:#40E340'></span>",
+						desc: "Agent was running at the time of query"
+					},{
+						name: "<span class='glyphicon glyphicon-minus-sign' style='color:#F00'></span>",
+						desc: "Agent was shutdown at the time of query"
+					},{
+						name: "<span class='glyphicon glyphicon-remove-sign' style='color:#AAA'></span>",
+						desc: "Agent was disconnected at the time of query"
+					},{
+						name: "<span class='glyphicon glyphicon-question-sign' style='color:#AAA'></span>",
+						desc: "Agent status was unknown at the time of query"
 					}]
 				}]
 			},

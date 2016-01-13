@@ -86,6 +86,10 @@ public interface HbaseOperations2 extends HbaseOperations {
 
     <T> List<List<T>> find(String tableName, final List<Scan> scans, final RowMapper<T> action);
 
+    <T> List<T> findParallel(String tableName, final List<Scan> scans, final ResultsExtractor<T> action);
+
+    <T> List<List<T>> findParallel(String tableName, final List<Scan> scans, final RowMapper<T> action);
+
     // Distributed scanners
 
     <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final RowMapper<T> action);

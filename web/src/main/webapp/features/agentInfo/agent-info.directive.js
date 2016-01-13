@@ -1,4 +1,4 @@
-(function() {
+(function( $ ) {
 	'use strict';
 	/**
 	 * (en)agentInfoDirective 
@@ -11,196 +11,244 @@
 	    agentStatUrl: '/getAgentStat.pinpoint'
 	});
 	
-	pinpointApp.directive('agentInfoDirective', [ 'agentInfoConfig', '$timeout', 'AlertsService', 'ProgressBarService', 'AgentDaoService', 'helpContentTemplate', 'helpContentService',
-	    function (cfg, $timeout, AlertsService, ProgressBarService, AgentDaoService, helpContentTemplate, helpContentService) {
+	pinpointApp.directive('agentInfoDirective', [ 'agentInfoConfig', '$timeout', 'AlertsService', 'ProgressBarService', 'AgentDaoService', 'AgentAjaxService', 'TooltipService',
+	    function ( cfg, $timeout, AlertsService, ProgressBarService, AgentDaoService, agentAjaxService, tooltipService ) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
 	            templateUrl: 'features/agentInfo/agentInfo.html?v' + G_BUILD_TIME,
 	            link: function postLink(scope, element, attrs) {
-	
-	                // define private variables
-	                var oNavbarVoService, oAlertService, oProgressBarService, bInitTooltip = false;
-	
-	                // define private variables of methods
-	                var getAgentStat, getLink, initServiceInfo, showCharts, parseMemoryChartDataForAmcharts, parseCpuLoadChartDataForAmcharts,
-	                broadcastToCpuLoadChart, broadcastToTpsChart, resetServerMetaDataDiv, initTooltip;
-	
-	                // initialize
-	                scope.agentInfoTemplate = 'features/agentInfo/agentInfoReady.html?v=' + G_BUILD_TIME;
-	                oAlertService = new AlertsService();
-	                oProgressBarService = new ProgressBarService();
-	                
 
-	                initTooltip = function() {
+	                scope.agentInfoTemplate = 'features/agentInfo/agentInfoReady.html?v=' + G_BUILD_TIME;
+					scope.showEventInfo = false;
+					scope.showDetail = false;
+					scope.selectTime = -1;
+					var oNavbarVoService, timeSlider = null, bInitTooltip = false;
+	                var oAlertService = new AlertsService();
+	                var oProgressBarService = new ProgressBarService();
+					var $targetPicker = null;
+
+					var initTimePicker = function( time ) {
+						if ( $targetPicker === null ) {
+							$targetPicker = $("#target-picker");
+							$targetPicker.datetimepicker({
+								dateFormat: "yy-mm-dd",
+								timeFormat: "HH:mm:ss",
+								controlType: "select",
+								showButtonPanel: true,
+								onSelect: function () {
+									//console.log(moment($targetPicker.datetimepicker('getDate')));
+								},
+								onClose: function (selectedTime) {
+									var time = new Date(selectedTime).valueOf();
+									if ( scope.selectTime !== time ) {
+										timeSlider.setSelectTime( time );
+									}
+								}
+							});
+							$("#ui-datepicker-div").addClass("inspector-datepicker");
+						}
+						setPickerTime( time );
+					};
+					var setPickerTime = function( time ) {
+						$targetPicker.datetimepicker( 'setDate', new Date( time ) );
+					};
+					var initTimeSlider = function( aSelectionFromTo, aFromTo ) {
+						if ( timeSlider !== null ) {
+							timeSlider.emptyData();
+						} else {
+							timeSlider = new TimeSlider( "timeSlider", {
+								"width": $("#timeSlider").width(),
+								"height": 90,
+								"handleSrc": "images/handle.png",
+								"timeSeries": aFromTo ? aFromTo : calcuSliderTimeSeries( aSelectionFromTo ),
+								"handleTimeSeries": aSelectionFromTo,
+								"selectTime": aSelectionFromTo[1],
+								"eventData": []
+							}).addEvent("clickEvent", function( aEvent ) {// [x, y, obj]
+								loadEventInfo(aEvent[2]);
+							}).addEvent("selectTime", function( time ) {
+								scope.selectTime = time;
+								loadAgentInfo( time );
+								setTimeSliderBaseColor();
+								setPickerTime( time );
+							}).addEvent("changeSelectionZone", function( aTime ) {
+								loadChartData( scope.agent.agentId, aTime, getPeriod(aTime[0], aTime[1] ), function() {
+								});
+							}).addEvent("changeSliderTimeSeries", function( aEvents ) {
+							});
+						}
+					};
+					var getPeriod = function( from, to ) {
+						return (to - from) / 1000 / 60;
+					};
+					var setTimeSliderBaseColor = function() {
+						timeSlider.setDefaultStateLineColor( TimeSlider.EventColor[ scope.agent.status.state.code == 100 ? "10100" : "10200"] );
+					};
+
+					var loadChartData = function( agentId, aFromTo, period, callback ) {
+						oProgressBarService.startLoading();
+						oProgressBarService.setLoading(40);
+						agentAjaxService.getAgentStateForChart({
+							"agentId": agentId,
+							"from": aFromTo[0],
+							"to": aFromTo[1],
+							"sampleRate": AgentDaoService.getSampleRate(period)
+						}, function (result) {
+							if ( result.errorCode || result.status ) {
+								oProgressBarService.stopLoading();
+								oAlertService.showError('There is some error.');
+								return;
+							}
+							scope.agentStat = result;
+							if (angular.isDefined(result.type) && result.type) {
+								scope.agent['jvmGcType'] =  result.type;
+							}
+							oProgressBarService.setLoading(80);
+							showCharts(result);
+							$timeout(function () {
+								oProgressBarService.setLoading(100);
+								oProgressBarService.stopLoading();
+							}, 700);
+							callback();
+						});
+					};
+					var loadAgentInfo = function( time ) {
+						oProgressBarService.startLoading();
+						oProgressBarService.setLoading(40);
+						agentAjaxService.getAgentInfo({
+							"agentId": scope.agent.agentId,
+							"timestamp": time
+						}, function( result ) {
+							var jvmGcType = scope.agent.jvmGcType;
+							oProgressBarService.setLoading(80);
+							scope.agent = result;
+							scope.agent.jvmGcType = jvmGcType;
+							scope.currentServiceInfo = initServiceInfo(result);
+							oProgressBarService.setLoading(100);
+							oProgressBarService.stopLoading();
+						});
+					};
+					var loadEventInfo = function( oEvent ) {
+						agentAjaxService.getEvent({
+							"agentId": scope.agent.agentId,
+							"eventTimestamp": oEvent.eventTimestamp,
+							"eventTypeCode": oEvent.eventTypeCode
+						}, function( result ) {
+							if ( result.errorCode || result.status ) {
+								oAlertService.showError('There is some error.');
+							} else {
+								scope.eventInfo = result;
+								scope.showEventInfo = true;
+							}
+						});
+					};
+					var calcuSliderTimeSeries = function( aFromTo ) {
+						var from = aFromTo[0], to = aFromTo[1];
+						var twoDay = 172800000;
+						var fromTo = to - from;
+						if ( fromTo > twoDay  ) {
+							return [to - twoDay, to];
+						} else {
+							return [ to - ( fromTo * 3 ), to ];
+						}
+					};
+
+	                var initTooltip = function() {
 	                	if ( bInitTooltip === false ) {
-	                		jQuery('.heapTooltip').tooltipster({
-			                	content: function() {
-			                		return helpContentTemplate(helpContentService.inspector.heap);
-			                	},
-			                	position: "top",
-			                	trigger: "click"
-			                });
-			                jQuery('.permGenTooltip').tooltipster({
-			                	content: function() {
-			                		return helpContentTemplate(helpContentService.inspector.permGen);
-			                	},
-			                	position: "top",
-			                	trigger: "click"
-			                });
-			                jQuery('.cpuUsageTooltip').tooltipster({
-			                	content: function() {
-			                		return helpContentTemplate(helpContentService.inspector.cpuUsage);
-			                	},
-			                	position: "top",
-			                	trigger: "click"
-			                });
-			                jQuery('.tpsTooltip').tooltipster({
-			                    content: function() {
-			                        return helpContentTemplate(helpContentService.inspector.tps);
-			                    },
-			                    position: "top",
-			                    trigger: "click"
-			                });
+							tooltipService.init( "heap" );
+							tooltipService.init( "permGen" );
+							tooltipService.init( "cpuUsage" );
+							tooltipService.init( "tps" );
+							bInitTooltip = true;
 	                	}
 	                };
-	
-	                /**
-	                 * scope event of agentInfo.initialize
-	                 */
-	                scope.$on('agentInfoDirective.initialize', function (event, navbarVoService, agent) {
-	                    scope.agentInfoTemplate = 'features/agentInfo/agentInfoMain.html?v=' + G_BUILD_TIME;
-	                    scope.agent = agent;
-	                    oNavbarVoService = navbarVoService;
-	                    scope.chartGroup = null;
-	                    scope.info = {
-	                        'agentId': agent.agentId,
-	                        'applicationName': agent.applicationName,
-	                        'hostName': agent.hostName,
-	                        'ip': agent.ip,
-	                        'serviceType': agent.serviceType,
-	                        'pid': agent.pid,
-	                        'agentVersion': agent.agentVersion,
-	                        'vmVersion': agent.vmVersion,
-	                        'jvmGcType': '',
-	                        'serverMetaData': agent.serverMetaData,
-	                        'linkList': agent.linkList
-	                    };
-	                    scope.currentServiceInfo = initServiceInfo(agent);
-	                    
-	                    $timeout(function () {
-	                        getAgentStat(agent.agentId, oNavbarVoService.getQueryStartTime(), oNavbarVoService.getQueryEndTime(), oNavbarVoService.getPeriod());
-	                        scope.$apply();
-	                    });
-	                });
-	                
-	                scope.selectServiceInfo = function(serviceInfo) {
-	                    if (serviceInfo.serviceLibs.length > 0) {
-	                        scope.currentServiceInfo = serviceInfo;
-	                    }
-	                };
-	                
-	                initServiceInfo = function (agent) {
+	                var initServiceInfo = function (agent) {
 	                    if (agent.serverMetaData && agent.serverMetaData.serviceInfos) {
 	                        var serviceInfos = agent.serverMetaData.serviceInfos;
 	                        for (var i = 0; i < serviceInfos.length; ++i) {
 	                            if (serviceInfos[i].serviceLibs.length > 0) {
 	                                return serviceInfos[i];
 	                            }
-	                        } 
+	                        }
 	                    }
 	                    return;
 	                }
-	
+
 	                /**
 	                 * show charts
 	                 * @param agentStat
 	                 */
-	                showCharts = function (agentStat) {
-	
+	                var showCharts = function (agentStat) {
+
 	                    var heap = { id: 'heap', title: 'Heap Usage', span: 'span12', line: [
 	                        { id: 'JVM_MEMORY_HEAP_USED', key: 'Used', values: [], isFgc: false },
 	                        { id: 'JVM_MEMORY_HEAP_MAX', key: 'Max', values: [], isFgc: false },
 	                        { id: 'fgc', key: 'FGC', values: [], bar: true, isFgc: true }
 	                    ]};
-	
+
 	                    var nonheap = { id: 'nonheap', title: 'PermGen Usage', span: 'span12', line: [
 	                        { id: 'JVM_MEMORY_NON_HEAP_USED', key: 'Used', values: [], isFgc: false },
 	                        { id: 'JVM_MEMORY_NON_HEAP_MAX', key: 'Max', values: [], isFgc: false },
 	                        { id: 'fgc', key: 'FGC', values: [], bar: true, isFgc: true }
 	                    ]};
-	                    
+
 	                    var cpuLoad = { id: 'cpuLoad', title: 'JVM/System Cpu Usage', span: 'span12', isAvailable: false};
-	                    
+
 	                    var tps = { id: 'tps', title: 'Transactions Per Second', span: 'span12', isAvailable: false };
-	
+
 	                    scope.memoryGroup = [ heap, nonheap ];
 	                    scope.cpuLoadChart = cpuLoad;
 	                    scope.tpsChart = tps;
-	
+
 	                    scope.$broadcast('jvmMemoryChartDirective.initAndRenderWithData.forHeap', AgentDaoService.parseMemoryChartDataForAmcharts(heap, agentStat), '100%', '270px');
 	                    scope.$broadcast('jvmMemoryChartDirective.initAndRenderWithData.forNonHeap', AgentDaoService.parseMemoryChartDataForAmcharts(nonheap, agentStat), '100%', '270px');
 	                    scope.$broadcast('cpuLoadChartDirective.initAndRenderWithData.forCpuLoad', AgentDaoService.parseCpuLoadChartDataForAmcharts(cpuLoad, agentStat), '100%', '270px');
 	                    scope.$broadcast('tpsChartDirective.initAndRenderWithData.forTps', AgentDaoService.parseTpsChartDataForAmcharts(tps, agentStat), '100%', '270px');
 	                };
-	                
-	                /**
-	                 * get agent stat
-	                 * @param agentId
-	                 * @param from
-	                 * @param to
-	                 */
-	                getAgentStat = function (agentId, from, to, period) {
-	                    oProgressBarService.startLoading();
-	                    var query = {
-	                        agentId: agentId,
-	                        from: from,
-	                        to: to,
-	                        sampleRate: AgentDaoService.getSampleRate(period)
-	                    };
-	                    oProgressBarService.setLoading(40);
-	                    AgentDaoService.getAgentStat(query, function (err, result) {
-	                        if (err || result.exception ) {
-                                oProgressBarService.stopLoading();
-                                if ( err ) {
-                                	oAlertService.showError('There is some error.');
-                                } else {
-                                	oAlertService.showError(result.exception);
-                                }
-                                return;
-                            }
-	                        
-	                        scope.agentStat = result;
-	                        if (angular.isDefined(result.type) && result.type) {
-	                            scope.info['jvmGcType'] =  result.type;
-	                        }
-	                        oProgressBarService.setLoading(80);
-	                        showCharts(result);
-	                        $timeout(function () {
-	                            oProgressBarService.setLoading(100);
-	                            oProgressBarService.stopLoading();
-	                        }, 700);
-	                        scope.$digest();
-	                        
-	                        initTooltip();
-	                    });
-	                };
-	                
-	                broadcastToCpuLoadChart = function(e, event) {
+					var getEventList = function( agentId, aFromTo ) {
+						agentAjaxService.getEventList({
+							"agentId": agentId,
+							"from": aFromTo[0],
+							"to": aFromTo[1]
+						}, function( result ) {
+							if ( result.errorCode || result.status ) {
+								oAlertService.showError('There is some error.');
+							} else {
+								timeSlider.addEventData(result);
+							}
+						});
+					};
+
+	                var broadcastToCpuLoadChart = function(e, event) {
 	                	if (scope.cpuLoadChart.isAvailable) {
 	                        scope.$broadcast('cpuLoadChartDirective.showCursorAt.forCpuLoad', event.index);
 	                	}
-	                }
-	                
-	                broadcastToTpsChart = function(e, event) {
+	                };
+	                var broadcastToTpsChart = function(e, event) {
 	                    if (scope.tpsChart.isAvailable) {
 	                        scope.$broadcast('tpsChartDirective.showCursorAt.forTps', event.index);
 	                    }
-	                }
-	                
-	                scope.openDetail = function() {
-	                	$('#serverMetaDataDiv').modal({});
 	                };
+
+					scope.formatDate = function( time ) {
+						return moment(time).format('YYYY.MM.DD HH:mm:ss');
+					};
+					scope.hideEventInfo = function() {
+						scope.showEventInfo = false;
+					};
+					scope.zoomInTimeSlider = function() {
+						timeSlider.zoomIn();
+					};
+					scope.zoomOutTimeSlider = function() {
+						timeSlider.zoomOut();
+						var aRange = timeSlider.getSliderTimeSeries();
+						getEventList( scope.agent.agentId, aRange );
+					};
+
+					scope.toggleShowDetail = function() {
+						scope.showDetail = !scope.showDetail;
+					};
 	                scope.hasDuplicate = function( libName, index ) {
 	                	var len = scope.currentServiceInfo.serviceLibs.length;
 	                	var bHas = false;
@@ -212,36 +260,60 @@
 	                	}
 	                	return bHas ? "color:red" : "";
 	                };
-	                /**
-	                 * scope event on jvmMemoryChartDirective.cursorChanged.forHeap
-	                 */
+
+					scope.selectServiceInfo = function(serviceInfo) {
+						if (serviceInfo.serviceLibs.length > 0) {
+							scope.currentServiceInfo = serviceInfo;
+						}
+					};
+					scope.$on('agentInfoDirective.initialize', function (event, navbarVoService, agent) {
+						oNavbarVoService = navbarVoService;
+						scope.agentInfoTemplate = 'features/agentInfo/agentInfoMain.html?v=' + G_BUILD_TIME;
+						scope.agent = agent;
+						scope.chartGroup = null;
+						scope.currentServiceInfo = initServiceInfo(agent);
+
+						var aFromTo, period, aSelectionFromTo = [];
+						if ( scope.selectTime === -1 ) {
+							scope.selectTime = oNavbarVoService.getQueryEndTime();
+							aSelectionFromTo[0] = oNavbarVoService.getQueryStartTime();
+							aSelectionFromTo[1] = oNavbarVoService.getQueryEndTime();
+							period = oNavbarVoService.getPeriod();
+						} else {
+							if ( scope.selectTime !== oNavbarVoService.getQueryEndTime() ) {
+								loadAgentInfo( scope.selectTime );
+							}
+							aSelectionFromTo = timeSlider.getSelectionTimeSeries();
+							aFromTo = timeSlider.getSliderTimeSeries();
+							period = getPeriod( aSelectionFromTo[0], aSelectionFromTo[1] );
+						}
+						$timeout(function () {
+							loadChartData(agent.agentId, aSelectionFromTo, period, function() {
+								initTimePicker( scope.selectTime );
+								initTooltip();
+								initTimeSlider( aSelectionFromTo, aFromTo );
+								setTimeSliderBaseColor();
+								getEventList( agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
+							});
+							scope.$apply();
+						});
+
+					});
 	                scope.$on('jvmMemoryChartDirective.cursorChanged.forHeap', function (e, event) {
 	                    scope.$broadcast('jvmMemoryChart.showCursorAt.forNonHeap', event.index);
 	                    broadcastToCpuLoadChart(e, event);
 	                    broadcastToTpsChart(e, event);
 	                });
-	
-	                /**
-	                 * scope event on jvmMemoryChartDirective.cursorChanged.forNonHeap
-	                 */
 	                scope.$on('jvmMemoryChartDirective.cursorChanged.forNonHeap', function (e, event) {
 	                    scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
 	                    broadcastToCpuLoadChart(e, event);
 	                    broadcastToTpsChart(e, event);
 	                });
-	
-	                /**
-	                 * scope event on cpuLoadChart.cursorChanged.forCpuLoad
-	                 */
 	                scope.$on('cpuLoadChartDirective.cursorChanged.forCpuLoad', function (e, event) {
 	                    scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
 	                    scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', event.index);
 	                    broadcastToTpsChart(e, event);
 	                });
-    
-                    /**
-                     * scope event on tpsChart.cursorChanged.forTps
-                     */
                     scope.$on('tpsChartDirective.cursorChanged.forTps', function (e, event) {
                         scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
                         scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', event.index);
@@ -251,4 +323,4 @@
 	        };
 	    }
 	]);
-})();
+})(jQuery);
