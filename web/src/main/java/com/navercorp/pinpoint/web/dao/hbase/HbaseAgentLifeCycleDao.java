@@ -19,12 +19,15 @@ package com.navercorp.pinpoint.web.dao.hbase;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.web.mapper.AgentLifeCycleMapper;
+import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.web.vo.AgentStatus;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.ResultsExtractor;
@@ -43,11 +46,8 @@ import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
  */
 @Repository
 public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
-    
-    private static final int SCAN_CACHING_SIZE = 20;
-    private static final int NUM_LIFE_CYCLES_TO_MATCH = 1;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final int SCANNER_CACHING = 20;
 
     @Autowired
     private HbaseOperations2 hbaseOperations2;
@@ -57,7 +57,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
     private RowMapper<AgentLifeCycleBo> agentLifeCycleMapper;
 
     @Override
-    public AgentLifeCycleBo getAgentLifeCycle(String agentId, long timestamp) {
+    public AgentStatus getAgentStatus(String agentId, long timestamp) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -65,62 +65,104 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
             throw new IllegalArgumentException("timestamp must not be less than 0");
         }
 
-        Scan scan = new Scan();
-        scan.setMaxVersions(1);
-        scan.setCaching(SCAN_CACHING_SIZE);
+        long startRowTimestamp = TimeUtils.reverseTimeMillis(timestamp);
+        long endRowTimestamp = Long.MAX_VALUE;
 
-        long fromTime = TimeUtils.reverseTimeMillis(timestamp);
+        Scan scan = createScan(agentId, startRowTimestamp, endRowTimestamp);
 
-        byte[] agentIdBytes = Bytes.toBytes(agentId);
-        byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, fromTime);
-        byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, Long.MAX_VALUE);
+        AgentLifeCycleBo agentLifeCycleBo = this.hbaseOperations2.find(HBaseTables.AGENT_LIFECYCLE, scan, new AgentLifeCycleResultsExtractor(this.agentLifeCycleMapper, timestamp));
+        return createAgentStatus(agentId, agentLifeCycleBo);
+    }
 
-        scan.setStartRow(startKeyBytes);
-        scan.setStopRow(endKeyBytes);
-        scan.addColumn(HBaseTables.AGENT_LIFECYCLE_CF_STATUS, HBaseTables.AGENT_LIFECYCLE_CF_STATUS_QUALI_STATES);
+    @Override
+    public void populateAgentStatus(AgentInfo agentInfo, long timestamp) {
+        if (agentInfo == null) {
+            return;
+        }
+        if (timestamp < 0) {
+            throw new IllegalArgumentException("timestamp must not be less than 0");
+        }
 
-        try {
-            List<AgentLifeCycleBo> agentLifeCycles = this.hbaseOperations2.find(HBaseTables.AGENT_LIFECYCLE, scan, new AgentLifeCycleResultsExtractor(timestamp));
-            if (agentLifeCycles.isEmpty()) {
-                logger.debug("agentLifeCycle not found for agentId={}, timestamp={}", agentId, timestamp);
-                return null;
+        final String agentId = agentInfo.getAgentId();
+        final long startTimestamp = TimeUtils.reverseTimeMillis(agentInfo.getStartTimestamp());
+        Scan scan = createScan(agentId, startTimestamp, startTimestamp + 1);
+
+        AgentLifeCycleBo agentLifeCycleBo = this.hbaseOperations2.find(HBaseTables.AGENT_LIFECYCLE, scan, new AgentLifeCycleResultsExtractor(this.agentLifeCycleMapper, timestamp));
+        AgentStatus agentStatus = createAgentStatus(agentId, agentLifeCycleBo);
+        agentInfo.setStatus(agentStatus);
+    }
+
+    @Override
+    public void populateAgentStatuses(List<AgentInfo> agentInfos, long timestamp) {
+        if (CollectionUtils.isEmpty(agentInfos)) {
+            return;
+        }
+        if (timestamp < 0) {
+            throw new IllegalArgumentException("timestamp must not be less than 0");
+        }
+
+        List<Scan> scans = new ArrayList<>(agentInfos.size());
+        for (AgentInfo agentInfo : agentInfos) {
+            if (agentInfo != null) {
+                final String agentId = agentInfo.getAgentId();
+                final long startTimestamp = TimeUtils.reverseTimeMillis(agentInfo.getStartTimestamp());
+                scans.add(createScan(agentId, startTimestamp, startTimestamp + 1));
             }
-            
-            AgentLifeCycleBo latestLifeCycle = agentLifeCycles.get(0);
-            logger.debug("agentLifeCycle found for agentId={}, timestamp={}, value={}", agentId, timestamp, latestLifeCycle);
-            return latestLifeCycle;
-        } catch (Exception e) {
-            logger.warn("could not retrieve agentLifeCycle for agentId={}, timestamp={}", agentId, timestamp);
-            return null;
+        }
+        List<AgentLifeCycleBo> agentLifeCycles = this.hbaseOperations2.findParallel(HBaseTables.AGENT_LIFECYCLE, scans, new AgentLifeCycleResultsExtractor(this.agentLifeCycleMapper, timestamp));
+        int idx = 0;
+        for (AgentInfo agentInfo : agentInfos) {
+            if (agentInfo != null) {
+                AgentStatus agentStatus = createAgentStatus(agentInfo.getAgentId(), agentLifeCycles.get(idx++));
+                agentInfo.setStatus(agentStatus);
+            }
         }
     }
 
-    private class AgentLifeCycleResultsExtractor implements ResultsExtractor<List<AgentLifeCycleBo>> {
-        
-        private final long timestamp;
-        
-        private AgentLifeCycleResultsExtractor(long timestamp) {
-            this.timestamp = timestamp;
+    private Scan createScan(String agentId, long startTimestamp, long endTimestamp) {
+        byte[] agentIdBytes = Bytes.toBytes(agentId);
+        byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, startTimestamp);
+        byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, endTimestamp);
+
+        Scan scan = new Scan(startKeyBytes, endKeyBytes);
+        scan.addColumn(HBaseTables.AGENT_LIFECYCLE_CF_STATUS, HBaseTables.AGENT_LIFECYCLE_CF_STATUS_QUALI_STATES);
+        scan.setMaxVersions(1);
+        scan.setCaching(SCANNER_CACHING);
+
+        return scan;
+    }
+
+    private AgentStatus createAgentStatus(String agentId, AgentLifeCycleBo agentLifeCycle) {
+        if (agentLifeCycle == null) {
+            AgentStatus agentStatus = new AgentStatus(agentId);
+            agentStatus.setState(AgentLifeCycleState.UNKNOWN);
+            return agentStatus;
+        } else {
+            return new AgentStatus(agentLifeCycle);
+        }
+    }
+
+    static class AgentLifeCycleResultsExtractor implements ResultsExtractor<AgentLifeCycleBo> {
+
+        private final RowMapper<AgentLifeCycleBo> agentLifeCycleMapper;
+        private final long queryTimestamp;
+
+        AgentLifeCycleResultsExtractor(RowMapper<AgentLifeCycleBo> agentLifeCycleMapper, long queryTimestamp) {
+            this.agentLifeCycleMapper = agentLifeCycleMapper;
+            this.queryTimestamp = queryTimestamp;
         }
 
         @Override
-        public List<AgentLifeCycleBo> extractData(ResultScanner results) throws Exception {
+        public AgentLifeCycleBo extractData(ResultScanner results) throws Exception {
             int found = 0;
-            int matchCnt = 0;
-            List<AgentLifeCycleBo> agentLifeCycles = new ArrayList<>();
             for (Result result : results) {
-                AgentLifeCycleBo agentLifeCycle = agentLifeCycleMapper.mapRow(result, found++);
-                if (agentLifeCycle.getEventTimestamp() < timestamp) {
-                    agentLifeCycles.add(agentLifeCycle);
-                    ++matchCnt;
-                }
-                if (matchCnt >= NUM_LIFE_CYCLES_TO_MATCH) {
-                    break;
+                AgentLifeCycleBo agentLifeCycle = this.agentLifeCycleMapper.mapRow(result, found++);
+                if (agentLifeCycle.getEventTimestamp() < this.queryTimestamp) {
+                    return agentLifeCycle;
                 }
             }
-            return agentLifeCycles;
+            return null;
         }
-
     }
 
 }
