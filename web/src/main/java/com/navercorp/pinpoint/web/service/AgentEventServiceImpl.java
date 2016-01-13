@@ -25,6 +25,7 @@ import java.util.PriorityQueue;
 
 import com.navercorp.pinpoint.common.util.AgentEventTypeCategory;
 import com.navercorp.pinpoint.web.vo.DurationalAgentEvent;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,6 +85,9 @@ public class AgentEventServiceImpl implements AgentEventService {
     }
 
     private List<AgentEvent> createAgentEvents(List<AgentEventBo> agentEventBos, boolean includeEventMessage) {
+        if (CollectionUtils.isEmpty(agentEventBos)) {
+            return Collections.emptyList();
+        }
         List<AgentEvent> agentEvents = new ArrayList<>(agentEventBos.size());
         PriorityQueue<DurationalAgentEvent> durationalAgentEvents = new PriorityQueue<>(agentEventBos.size(), AgentEvent.EVENT_TIMESTAMP_ASC_COMPARATOR);
         for (AgentEventBo agentEventBo : agentEventBos) {
