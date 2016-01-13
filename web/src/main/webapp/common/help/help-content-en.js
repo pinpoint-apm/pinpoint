@@ -79,8 +79,18 @@
 			},
 			depth : {
 				mainStyle: "",
-				title: "<span class='glyphicon glyphicon-map-marker' aria-hidden='true'></span> Depth",
-				desc: "Search-depth of server map"
+				title: '<img src="images/inbound.png" width="22px" height="22px" style="margin-top:-4px;"> Inbound 와 <img src="images/outbound.png" width="22px" height="22px" style="margin-top:-4px"> Outbound',
+				desc: "Search-depth of server map.",
+				category : [{
+					title: "[범례]",
+					items: [{
+						name: "Inbound",
+						desc: "Number of depth to render for requests coming in to the selected node."
+					}, {
+						name: "Outbound",
+						desc: "Number of depth to render for requests going out from the selected node"
+					}]
+				}]
 			},
 			periodSelector: {
 				mainStyle: "",
