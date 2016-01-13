@@ -741,9 +741,9 @@
             </dependency>
 
             <dependency>
-                <groupId>com.rabbitmq</groupId>
-                <artifactId>amqp-client</artifactId>
-                <version>3.4.2</version>
+                <groupId>org.springframework.amqp</groupId>
+                <artifactId>spring-rabbit</artifactId>
+                <version>1.4.4.RELEASE</version>
             </dependency>
 
         </dependencies>
