@@ -174,7 +174,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             throw new NullPointerException("applicationName must not be null");
         }
         if (timestamp < 0) {
-            throw new IllegalArgumentException("timeDiff must not be less than 0");
+            throw new IllegalArgumentException("timestamp must not be less than 0");
         }
         if (timeDiff > timestamp) {
             throw new IllegalArgumentException("timeDiff must not be greater than timestamp");
