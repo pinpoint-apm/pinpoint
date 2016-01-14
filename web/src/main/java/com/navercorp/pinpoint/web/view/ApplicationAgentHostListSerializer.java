@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.view;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
@@ -76,12 +77,12 @@ public class ApplicationAgentHostListSerializer extends JsonSerializer<Applicati
     }
 
     private void writeAgent(AgentInfo agentInfo, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStringField("agentId", agentInfo.getAgentId());
+        jsonGenerator.writeStringField("agentId", StringUtils.defaultString(agentInfo.getAgentId(), ""));
 
         final ServiceType serviceType = serviceTypeRegistryService.findServiceType(agentInfo.getServiceTypeCode());
-        jsonGenerator.writeStringField("serviceType", serviceType.getDesc());
-        jsonGenerator.writeStringField("hostName", agentInfo.getHostName());
-        jsonGenerator.writeStringField("ip", agentInfo.getIp());
+        jsonGenerator.writeStringField("serviceType", StringUtils.defaultString(serviceType.getDesc(), ""));
+        jsonGenerator.writeStringField("hostName", StringUtils.defaultString(agentInfo.getHostName(), ""));
+        jsonGenerator.writeStringField("ip", StringUtils.defaultString(agentInfo.getIp(), ""));
     }
 
 }

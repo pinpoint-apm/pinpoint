@@ -58,17 +58,29 @@ public class ApplicationAgentHostList {
     }
 
     public void put(String applicationName, List<AgentInfo> agentInfoList) {
+        if (applicationName == null) {
+            return;
+        }
+
         List<AgentInfo> value = null;
         if (map.containsKey(applicationName)) {
             value = map.get(applicationName);
         }
 
         if (value == null) {
-            value = new ArrayList<>(agentInfoList.size());
+            value = new ArrayList<>();
             map.put(applicationName, value);
         }
 
-        value.addAll(agentInfoList);
+        if (agentInfoList == null) {
+            return;
+        }
+
+        for (AgentInfo agentInfo : agentInfoList) {
+            if (agentInfo != null) {
+                value.add(agentInfo);
+            }
+        }
     }
 
 }
