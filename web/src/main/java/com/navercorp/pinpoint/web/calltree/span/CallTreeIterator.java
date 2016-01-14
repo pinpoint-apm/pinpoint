@@ -22,9 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * 
  * @author jaehong.kim
- *
  */
 public class CallTreeIterator implements Iterator<CallTreeNode> {
 
@@ -36,11 +34,39 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
             return;
         }
 
-        populate(root);
+        addNode(root);
+        if (root.hasChild()) {
+            populate(root.getChild());
+        }
+
         index = -1;
     }
 
+
     void populate(CallTreeNode node) {
+        if (node == null) {
+            return;
+        }
+
+        addNode(node);
+
+        if (node.hasChild()) {
+            populate(node.getChild());
+        }
+
+        // change logic from recursive to loop, because of avoid call-stack-overflow.
+        CallTreeNode sibling = node.getSibling();
+        while (sibling != null) {
+            addNode(sibling);
+            if (sibling.hasChild()) {
+                populate(sibling.getChild());
+            }
+            sibling = sibling.getSibling();
+        }
+
+    }
+
+    void addNode(CallTreeNode node) {
         nodes.add(node);
         index++;
 
@@ -48,15 +74,8 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         align.setGap(getGap());
         align.setDepth(node.getDepth());
         align.setExecutionMilliseconds(getExecutionTime());
-
-        if (node.hasChild()) {
-            populate(node.getChild());
-        }
-
-        if (node.hasSibling()) {
-            populate(node.getSibling());
-        }
     }
+
 
     public long getGap() {
         final CallTreeNode current = getCurrent();

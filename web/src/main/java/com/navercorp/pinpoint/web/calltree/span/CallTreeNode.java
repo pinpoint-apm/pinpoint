@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.calltree.span;
 
 /**
- * 
+ *
  * @author jaehong.kim
  *
  */
@@ -82,7 +82,15 @@ public class CallTreeNode {
             return 0;
         }
 
-        return parent.getDepth() + 1;
+        // change logic from recursive to loop, because of avoid call-stack-overflow.
+        int depth = 1;
+        CallTreeNode node = parent.getParent();
+        while(node != null) {
+            depth++;
+            node = node.getParent();
+        }
+
+        return depth;
     }
 
     public boolean isRoot() {
