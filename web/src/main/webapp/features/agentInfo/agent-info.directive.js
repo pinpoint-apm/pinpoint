@@ -274,18 +274,21 @@
 						scope.currentServiceInfo = initServiceInfo(agent);
 
 						var aFromTo, period, aSelectionFromTo = [];
-						if ( scope.selectTime === -1 ) {
-							scope.selectTime = oNavbarVoService.getQueryEndTime();
+						if ( timeSlider === null ) {
 							aSelectionFromTo[0] = oNavbarVoService.getQueryStartTime();
 							aSelectionFromTo[1] = oNavbarVoService.getQueryEndTime();
 							period = oNavbarVoService.getPeriod();
 						} else {
+							aSelectionFromTo = timeSlider.getSelectionTimeSeries();
+							aFromTo = timeSlider.getSliderTimeSeries();
+							period = getPeriod(aSelectionFromTo[0], aSelectionFromTo[1]);
+						}
+						if ( scope.selectTime === -1 ) {
+							scope.selectTime = oNavbarVoService.getQueryEndTime();
+						} else {
 							if ( scope.selectTime !== oNavbarVoService.getQueryEndTime() ) {
 								loadAgentInfo( scope.selectTime );
 							}
-							aSelectionFromTo = timeSlider.getSelectionTimeSeries();
-							aFromTo = timeSlider.getSliderTimeSeries();
-							period = getPeriod( aSelectionFromTo[0], aSelectionFromTo[1] );
 						}
 						$timeout(function () {
 							loadChartData(agent.agentId, aSelectionFromTo, period, function() {

@@ -11,8 +11,8 @@
 	    applicationUrl: '/transactionInfo.pinpoint'
 	});
 	
-	pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope', '$rootScope', '$rootElement', 'AlertsService', 'ProgressBarService', '$timeout', '$routeParams', 'TransactionDaoService', 'AgentDaoService', 'AnalyticsService',
-	    function (cfg, $scope, $rootScope, $rootElement, AlertsService, ProgressBarService, $timeout, $routeParams, TransactionDaoService, AgentDaoService, analyticsService) {
+	pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope', '$rootScope', '$rootElement', 'AlertsService', 'ProgressBarService', '$timeout', '$routeParams', 'NavbarVoService', 'TransactionDaoService', 'AgentDaoService', 'AnalyticsService', 'PreferenceService',
+	    function (cfg, $scope, $rootScope, $rootElement, AlertsService, ProgressBarService, $timeout, $routeParams, NavbarVoService, TransactionDaoService, AgentDaoService, analyticsService, preferenceService) {
 			analyticsService.send(analyticsService.CONST.TRANSACTION_VIEW_PAGE);
 	        // define private variables
 	        var oAlertService, oProgressBarService;
@@ -28,7 +28,6 @@
 	        };
 	        oAlertService = new AlertsService($rootElement);
 	        oProgressBarService = new ProgressBarService($rootElement);
-	
 	        /**
 	         * initialize
 	         */
@@ -115,7 +114,10 @@
 	         * show server map
 	         */
 	        showServerMap = function () {
-	            $scope.$broadcast('serverMapDirective.initializeWithMapData', $scope.transactionDetail);
+				var oNavbarVoService = new NavbarVoService();
+				oNavbarVoService.setReadablePeriod(preferenceService.getPeriodTypes()[0]);
+				oNavbarVoService.setQueryEndDateTime(moment(parseInt($routeParams.focusTimestamp)).format('YYYY-MM-DD-HH-mm-ss'));
+	            $scope.$broadcast('serverMapDirective.initializeWithMapData', $scope.transactionDetail, oNavbarVoService);
 	        };
 	
 	        /**

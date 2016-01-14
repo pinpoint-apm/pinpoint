@@ -758,7 +758,7 @@
 	                /**
 	                 * scope event on serverMapDirective.initializeWithMapData
 	                 */
-	                scope.$on('serverMapDirective.initializeWithMapData', function (event, mapData) {
+	                scope.$on('serverMapDirective.initializeWithMapData', function (event, mapData, navbarVoService) {
 	                    reset();
 	                    scope.bShowServerMapStatus = false;
 	                    bUseBackgroundContextMenu = true;
@@ -767,6 +767,7 @@
 	                        applicationName: mapData.applicationId
 	                    };
 	                    htLastMapData = mapData;
+						scope.oNavbarVoService = navbarVoService;
 	                    serverMapCallback(htLastQuery, ServerMapDaoService.extractDataFromApplicationMapData(htLastMapData.applicationMapData), scope.linkRouting, scope.linkCurve);
 	                });
 	
