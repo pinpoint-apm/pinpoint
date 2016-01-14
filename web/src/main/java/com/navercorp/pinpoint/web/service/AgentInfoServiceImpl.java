@@ -16,8 +16,7 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import java.util.*;
-
+import com.google.common.collect.Ordering;
 import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
@@ -25,13 +24,21 @@ import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * @author netspider
@@ -116,6 +123,44 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         logger.info("getApplicationAgentList={}", result);
 
         return new ApplicationAgentList(result);
+    }
+
+    @Override
+    public ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit) {
+        if (offset <= 0 || limit <= 0) {
+            throw new IllegalArgumentException("Value must be greater than 0.");
+        }
+
+        List<String> applicationNameList = getApplicationNameList(applicationIndexDao.selectAllApplicationNames());
+        if (offset > applicationNameList.size()) {
+            return new ApplicationAgentHostList(offset, offset, applicationNameList.size());
+        }
+
+        long timeStamp = System.currentTimeMillis();
+
+        int startIndex = offset - 1;
+        int endIndex = Math.min(startIndex + limit, applicationNameList.size());
+        ApplicationAgentHostList applicationAgentHostList = new ApplicationAgentHostList(offset, endIndex, applicationNameList.size());
+        for (int i = startIndex ; i < endIndex; i++) {
+            String applicationName = applicationNameList.get(i);
+
+            List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
+            List<AgentInfo> agentInfoList = this.agentInfoDao.getAgentInfos(agentIds, timeStamp);
+            applicationAgentHostList.put(applicationName, agentInfoList);
+        }
+        return applicationAgentHostList;
+    }
+
+    private List<String> getApplicationNameList(List<Application> applications) {
+        List<String> applicationNameList = new ArrayList<>(applications.size());
+        for (Application application : applications) {
+            if (!applicationNameList.contains(application.getName())) {
+                applicationNameList.add(application.getName());
+            }
+        }
+
+        Collections.sort(applicationNameList, Ordering.usingToString());
+        return applicationNameList;
     }
 
     @Override
