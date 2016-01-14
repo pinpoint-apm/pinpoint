@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  * @author jaehong.kim
  *
  */
@@ -39,7 +39,6 @@ public class CallTreeIteratorTest {
     private static final long START_TIME = 1430983914531L;
     private static final int ELAPSED = 10;
 
-    @Ignore
     @Test
     public void depth() {
         SpanAlign root = makeSpanAlign(START_TIME, 240);
@@ -67,7 +66,6 @@ public class CallTreeIteratorTest {
         logger.debug(buffer.toString());
     }
 
-    @Ignore
     @Test
     public void gap() {
         SpanAlign root = makeSpanAlign(START_TIME, 240);
@@ -97,8 +95,7 @@ public class CallTreeIteratorTest {
         }
         logger.debug(buffer.toString());
     }
-    
-    @Ignore
+
     @Test
     public void gapAsync() {
         SpanAlign root = makeSpanAlign(START_TIME, 240);
@@ -107,14 +104,14 @@ public class CallTreeIteratorTest {
         callTree.add(2, makeSpanAlign(root.getSpanBo(), SYNC, (short) 1, 2, 1));
         callTree.add(3, makeSpanAlign(root.getSpanBo(), SYNC, (short) 2, 3, 1));
         callTree.add(4, makeSpanAlign(root.getSpanBo(), SYNC, (short) 3, 4, 1, -1, 1));
-        
+
         CallTree subTree = new SpanAsyncCallTree(root);
         subTree.add(1, makeSpanAlign(root.getSpanBo(), ASYNC, (short) 0, 5, 1, 1, -1));
         subTree.add(2, makeSpanAlign(root.getSpanBo(), ASYNC, (short) 1, 6, 1, 1, -1));
         subTree.add(3, makeSpanAlign(root.getSpanBo(), ASYNC, (short) 2, 7, 1, 1, -1));
         subTree.add(4, makeSpanAlign(root.getSpanBo(), ASYNC, (short) 3, 8, 1, 1, -1));
         callTree.add(subTree);
-        
+
         callTree.add(5, makeSpanAlign(root.getSpanBo(), SYNC, (short) 4, 5, 1));
         callTree.add(2, makeSpanAlign(root.getSpanBo(), SYNC, (short) 5, 6, 1));
         callTree.add(3, makeSpanAlign(root.getSpanBo(), SYNC, (short) 6, 7, 1));
@@ -161,7 +158,7 @@ public class CallTreeIteratorTest {
         asyncTree.add(3, makeSpanAlign(root.getSpanBo(), ASYNC, (short) 2, 7, 1, 1, -1));
         asyncTree.add(4, makeSpanAlign(root.getSpanBo(), ASYNC, (short) 3, 8, 1, 1, -1));
         callTree.add(asyncTree);
-        
+
         callTree.add(5, makeSpanAlign(root.getSpanBo(), SYNC, (short) 4, 5, 1));
         callTree.add(2, makeSpanAlign(root.getSpanBo(), SYNC, (short) 5, 3, 1));
         callTree.add(3, makeSpanAlign(root.getSpanBo(), SYNC, (short) 6, 4, 1));
@@ -188,7 +185,6 @@ public class CallTreeIteratorTest {
         logger.debug(buffer.toString());
     }
 
-    @Ignore
     @Test
     public void executionTime() {
         SpanAlign root = makeSpanAlign(START_TIME, 10);
@@ -212,7 +208,7 @@ public class CallTreeIteratorTest {
         asyncTree.add(3, makeSpanAlign(root.getSpanBo(), ASYNC, (short) 2, 7, 2, 1, -1));
         asyncTree.add(4, makeSpanAlign(root.getSpanBo(), ASYNC, (short) 3, 8, 1, 1, -1));
         callTree.add(asyncTree);
-        
+
         callTree.add(5, makeSpanAlign(root.getSpanBo(), SYNC, (short) 4, 5, 1));
         callTree.add(2, makeSpanAlign(root.getSpanBo(), SYNC, (short) 5, 6, 3));
         callTree.add(3, makeSpanAlign(root.getSpanBo(), SYNC, (short) 6, 7, 1));
