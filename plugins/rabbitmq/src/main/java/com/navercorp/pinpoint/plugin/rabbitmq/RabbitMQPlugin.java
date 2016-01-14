@@ -25,7 +25,7 @@ public class RabbitMQPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         this.addPublisher();
-        this.addConsumer();
+//        this.addConsumer();
     }
 
     private void addPublisher() {
