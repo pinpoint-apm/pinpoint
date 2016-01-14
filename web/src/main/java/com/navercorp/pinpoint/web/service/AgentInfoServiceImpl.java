@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.PredicateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -186,6 +187,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         if (unfilteredAgentInfos == null || unfilteredAgentInfos.isEmpty()) {
             return Collections.emptySet();
         }
+        CollectionUtils.filter(unfilteredAgentInfos, PredicateUtils.notNullPredicate());
         this.agentLifeCycleDao.populateAgentStatuses(unfilteredAgentInfos, timestamp);
         Set<AgentInfo> filteredAgentInfos = new HashSet<>();
         for (AgentInfo agentInfo : unfilteredAgentInfos) {
