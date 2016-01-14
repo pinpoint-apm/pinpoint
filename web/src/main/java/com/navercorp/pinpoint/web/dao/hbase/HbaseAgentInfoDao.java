@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 
-import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.mapper.AgentInfoMapper;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.commons.collections.CollectionUtils;
@@ -47,9 +46,6 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
     @Autowired
     private HbaseOperations2 hbaseOperations2;
-
-    @Autowired
-    private AgentLifeCycleDao agentLifeCycleDao;
 
     @Autowired
     private AgentInfoMapper agentInfoMapper;
@@ -106,11 +102,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
         Scan scan = createScan(agentId, timestamp);
 
-        AgentInfo agentInfo = this.hbaseOperations2.find(HBaseTables.AGENTINFO, scan, new AgentInfoResultsExtractor());
-        if (agentInfo != null) {
-            this.agentLifeCycleDao.populateAgentStatus(agentInfo, timestamp);
-        }
-        return agentInfo;
+        return this.hbaseOperations2.find(HBaseTables.AGENTINFO, scan, new AgentInfoResultsExtractor());
     }
 
     @Override
@@ -124,9 +116,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
             scans.add(createScan(agentId, timestamp));
         }
 
-        List<AgentInfo> agentInfos = this.hbaseOperations2.findParallel(HBaseTables.AGENTINFO, scans, new AgentInfoResultsExtractor());
-        this.agentLifeCycleDao.populateAgentStatuses(agentInfos, timestamp);
-        return agentInfos;
+        return this.hbaseOperations2.findParallel(HBaseTables.AGENTINFO, scans, new AgentInfoResultsExtractor());
     }
 
     private Scan createScan(String agentId, long currentTime) {

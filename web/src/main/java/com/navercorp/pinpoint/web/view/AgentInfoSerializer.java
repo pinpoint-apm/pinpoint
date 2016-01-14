@@ -61,11 +61,9 @@ public class AgentInfoSerializer extends JsonSerializer<AgentInfo> {
         jgen.writeObjectField("serverMetaData", agentInfo.getServerMetaData());
 
         AgentStatus status = agentInfo.getStatus();
-        if (status == null) {
-            status = new AgentStatus(agentInfo.getAgentId());
-            status.setState(AgentLifeCycleState.UNKNOWN);
+        if (status != null) {
+            jgen.writeObjectField("status", status);
         }
-        jgen.writeObjectField("status", status);
 
         jgen.writeNumberField("initialStartTimestamp", agentInfo.getInitialStartTimestamp());
 

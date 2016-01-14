@@ -76,27 +76,47 @@ public class ApplicationMapBuilder {
         }
     }
 
-    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService,
+    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoPopulator agentInfoPopulator,
             NodeHistogramDataSource nodeHistogramDataSource) {
         if (linkDataDuplexMap == null) {
             throw new NullPointerException("linkDataMap must not be null");
         }
-        if (agentInfoService == null) {
-            throw new NullPointerException("agentInfoService must not be null");
+        if (agentInfoPopulator == null) {
+            throw new NullPointerException("agentInfoPopulator must not be null");
         }
 
         NodeList nodeList = buildNode(linkDataDuplexMap);
         LinkList linkList = buildLink(nodeList, linkDataDuplexMap);
 
         appendNodeResponseTime(nodeList, linkList, nodeHistogramDataSource);
-        appendAgentInfo(nodeList, linkDataDuplexMap, agentInfoService);
+        appendAgentInfo(nodeList, linkDataDuplexMap, agentInfoPopulator);
 
         final ApplicationMap map = new ApplicationMap(range, nodeList, linkList);
         return map;
     }
 
-    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService,
+    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, final AgentInfoService agentInfoService,
             final MapResponseDao mapResponseDao) {
+        AgentInfoPopulator agentInfoPopulator = new AgentInfoPopulator() {
+            @Override
+            public void addAgentInfos(Node node) {
+                Set<AgentInfo> agentList = agentInfoService.getAgentsByApplicationName(node.getApplication().getName(), range.getTo());
+                if (agentList.isEmpty()) {
+                    logger.warn("agentInfo not found. applicationName:{}", node.getApplication());
+                    // avoid NPE
+                    node.setServerInstanceList(new ServerInstanceList());
+                    return;
+                }
+                logger.debug("add agentInfo. {}, {}", node.getApplication(), agentList);
+                ServerBuilder builder = new ServerBuilder();
+                agentList = filterAgentInfoByResponseData(agentList, node);
+                builder.addAgentInfo(agentList);
+                ServerInstanceList serverInstanceList = builder.build();
+
+                // agentSet exists if the destination is a WAS, and has agent installed
+                node.setServerInstanceList(serverInstanceList);
+            }
+        };
         NodeHistogramDataSource responseSource = new NodeHistogramDataSource() {
             @Override
             public NodeHistogram createNodeHistogram(Application application) {
@@ -105,11 +125,16 @@ public class ApplicationMapBuilder {
                 return nodeHistogram;
             }
         };
-        return this.build(linkDataDuplexMap, agentInfoService, responseSource);
+        return this.build(linkDataDuplexMap, agentInfoPopulator, responseSource);
     }
 
-    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService,
-            final ResponseHistogramBuilder mapHistogramSummary) {
+    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, final ResponseHistogramBuilder mapHistogramSummary) {
+        AgentInfoPopulator emptyPopulator = new AgentInfoPopulator() {
+            @Override
+            public void addAgentInfos(Node node) {
+                node.setServerInstanceList(new ServerInstanceList());
+            }
+        };
         NodeHistogramDataSource responseSource = new NodeHistogramDataSource() {
             @Override
             public NodeHistogram createNodeHistogram(Application application) {
@@ -118,11 +143,15 @@ public class ApplicationMapBuilder {
                 return nodeHistogram;
             }
         };
-        return this.build(linkDataDuplexMap, agentInfoService, responseSource);
+        return this.build(linkDataDuplexMap, emptyPopulator, responseSource);
     }
 
     public interface NodeHistogramDataSource {
         NodeHistogram createNodeHistogram(Application application);
+    }
+
+    public interface AgentInfoPopulator {
+        void addAgentInfos(Node node);
     }
 
     private NodeList buildNode(LinkDataDuplexMap linkDataDuplexMap) {
@@ -380,15 +409,14 @@ public class ApplicationMapBuilder {
         return nodeHistogram;
     }
 
-    public void appendAgentInfo(NodeList nodeList, LinkDataDuplexMap linkDataDuplexMap,
-            AgentInfoService agentInfoService) {
+    public void appendAgentInfo(NodeList nodeList, LinkDataDuplexMap linkDataDuplexMap, AgentInfoPopulator agentInfoPopulator) {
         for (Node node : nodeList.getNodeList()) {
-            appendServerInfo(node, linkDataDuplexMap, agentInfoService);
+            appendServerInfo(node, linkDataDuplexMap, agentInfoPopulator);
         }
 
     }
 
-    private void appendServerInfo(Node node, LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService) {
+    private void appendServerInfo(Node node, LinkDataDuplexMap linkDataDuplexMap, AgentInfoPopulator agentInfoPopulator) {
         final ServiceType nodeServiceType = node.getServiceType();
         if (nodeServiceType.isUnknown()) {
             // we do not know the server info for unknown nodes
@@ -407,22 +435,7 @@ public class ApplicationMapBuilder {
             ServerInstanceList serverInstanceList = builder.build();
             node.setServerInstanceList(serverInstanceList);
         } else if (nodeServiceType.isWas()) {
-            Set<AgentInfo> agentList = agentInfoService.getAgentsByApplicationName(node.getApplication().getName(),
-                    range.getTo());
-            if (agentList.isEmpty()) {
-                logger.warn("agentInfo not found. applicationName:{}", node.getApplication());
-                // avoid NPE
-                node.setServerInstanceList(new ServerInstanceList());
-                return;
-            }
-            logger.debug("add agentInfo. {}, {}", node.getApplication(), agentList);
-            ServerBuilder builder = new ServerBuilder();
-            agentList = filterAgentInfoByResponseData(agentList, node);
-            builder.addAgentInfo(agentList);
-            ServerInstanceList serverInstanceList = builder.build();
-
-            // agentSet exists if the destination is a WAS, and has agent installed
-            node.setServerInstanceList(serverInstanceList);
+            agentInfoPopulator.addAgentInfos(node);
         } else {
             // add empty information
             node.setServerInstanceList(new ServerInstanceList());
@@ -454,7 +467,11 @@ public class ApplicationMapBuilder {
     }
     
     private boolean isAgentRunning(AgentInfo agentInfo) {
-        return agentInfo.getStatus().getState() == AgentLifeCycleState.RUNNING;
+        if (agentInfo.getStatus() != null) {
+            return agentInfo.getStatus().getState() == AgentLifeCycleState.RUNNING;
+        } else {
+            return false;
+        }
     }
     
     
