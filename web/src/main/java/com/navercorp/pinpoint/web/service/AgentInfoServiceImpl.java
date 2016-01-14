@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.web.service;
 
 import java.util.*;
 
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
-import com.navercorp.pinpoint.common.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
@@ -96,6 +94,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         SortedMap<String, List<AgentInfo>> result = new TreeMap<>();
 
         List<AgentInfo> agentInfos = this.agentInfoDao.getAgentInfos(agentIdList, timestamp);
+        this.agentLifeCycleDao.populateAgentStatuses(agentInfos, timestamp);
         for (AgentInfo agentInfo : agentInfos) {
             if (agentInfo != null) {
                 String hostname = applicationAgentListKey.getKey(agentInfo);
@@ -121,23 +120,28 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     @Override
     public Set<AgentInfo> getAgentsByApplicationName(String applicationName, long timestamp) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
-        }
-        List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
-        return new HashSet<>(this.agentInfoDao.getAgentInfos(agentIds, timestamp));
+        return this.getAgentsByApplicationName(applicationName, timestamp, timestamp);
     }
 
     @Override
     public Set<AgentInfo> getAgentsByApplicationName(String applicationName, long timestamp, long timeDiff) {
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
+        }
+        if (timestamp < 0) {
+            throw new IllegalArgumentException("timeDiff must not be less than 0");
+        }
         if (timeDiff > timestamp) {
             throw new IllegalArgumentException("timeDiff must not be greater than timestamp");
         }
         final long eventTimestampFloor = timestamp - timeDiff;
-        Set<AgentInfo> unfilteredAgentInfos = this.getAgentsByApplicationName(applicationName, timestamp);
+
+        List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
+        List<AgentInfo> unfilteredAgentInfos = this.agentInfoDao.getAgentInfos(agentIds, timestamp);
         if (unfilteredAgentInfos == null || unfilteredAgentInfos.isEmpty()) {
             return Collections.emptySet();
         }
+        this.agentLifeCycleDao.populateAgentStatuses(unfilteredAgentInfos, timestamp);
         Set<AgentInfo> filteredAgentInfos = new HashSet<>();
         for (AgentInfo agentInfo : unfilteredAgentInfos) {
             AgentStatus agentStatus = agentInfo.getStatus();
@@ -156,7 +160,11 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         if (timestamp < 0) {
             throw new IllegalArgumentException("timestamp must not be less than 0");
         }
-        return this.agentInfoDao.getAgentInfo(agentId, timestamp);
+        AgentInfo agentInfo = this.agentInfoDao.getAgentInfo(agentId, timestamp);
+        if (agentInfo != null) {
+            this.agentLifeCycleDao.populateAgentStatus(agentInfo, timestamp);
+        }
+        return agentInfo;
     }
 
     @Override

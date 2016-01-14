@@ -60,9 +60,6 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     private ApplicationTraceIndexDao applicationTraceIndexDao;
 
     @Autowired
-    private AgentInfoService agentInfoService;
-    
-    @Autowired
     private ServiceTypeRegistryService registry;
 
     @Autowired
@@ -285,7 +282,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
         ApplicationMapBuilder applicationMapBuilder = new ApplicationMapBuilder(range);
         mapHistogramSummary.build();
-        ApplicationMap map = applicationMapBuilder.build(linkDataDuplexMap, agentInfoService, mapHistogramSummary);
+        ApplicationMap map = applicationMapBuilder.build(linkDataDuplexMap, mapHistogramSummary);
 
         map.setApplicationScatterScanResult(applicationScatterScanResult);
 
