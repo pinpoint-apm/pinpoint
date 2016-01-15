@@ -16,17 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import java.io.IOException;
-import java.net.DatagramSocket;
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
-import java.util.Iterator;
-
-import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.sender.planer.SendDataPlaner;
@@ -34,6 +23,16 @@ import com.navercorp.pinpoint.profiler.sender.planer.SpanChunkStreamSendDataPlan
 import com.navercorp.pinpoint.profiler.util.ByteBufferUtils;
 import com.navercorp.pinpoint.profiler.util.ObjectPool;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import org.apache.thrift.TBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
+import java.util.Iterator;
 
 /**
  * @author Taejin Koo
@@ -65,7 +64,7 @@ public class SpanStreamUdpSender extends AbstractDataSender {
     }
     
     public SpanStreamUdpSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize) {
-        this(host, port, threadName, queueSize, SOCKET_TIMEOUT, SEND_BUFFER_SIZE, DEFAULT_BUFFER_SIZE);
+        this(host, port, threadName, queueSize, timeout, SEND_BUFFER_SIZE, DEFAULT_BUFFER_SIZE);
     }
 
     public SpanStreamUdpSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize, int dataBufferSize) {

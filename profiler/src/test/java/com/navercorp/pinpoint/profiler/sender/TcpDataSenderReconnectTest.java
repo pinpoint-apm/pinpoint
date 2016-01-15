@@ -16,15 +16,22 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
+import com.navercorp.pinpoint.profiler.TestAwaitTaskUtils;
+import com.navercorp.pinpoint.profiler.TestAwaitUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import com.navercorp.pinpoint.rpc.packet.*;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
+import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +49,8 @@ public class TcpDataSenderReconnectTest {
 
     public static final int PORT = SocketUtils.findAvailableTcpPort(50050);
     public static final String HOST = "127.0.0.1";
+
+    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 5000);
 
     private int send;
 
@@ -83,14 +92,15 @@ public class TcpDataSenderReconnectTest {
         PinpointClient client = ClientFactoryUtils.createPinpointClient(HOST, PORT, clientFactory);
 
         TcpDataSender sender = new TcpDataSender(client);
-        Thread.sleep(500);
-        oldAcceptor.close();
+        waitClientConnected(oldAcceptor);
 
-        Thread.sleep(500);
+        oldAcceptor.close();
+        waitClientDisconnected(client);
+
         logger.info("Server start------------------");
         PinpointServerAcceptor serverAcceptor = serverAcceptorStart();
+        waitClientConnected(serverAcceptor);
 
-        Thread.sleep(5000);
         logger.info("sendMessage------------------");
         sender.send(new TApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
 
@@ -109,6 +119,28 @@ public class TcpDataSenderReconnectTest {
         clientFactory.setProperties(Collections.EMPTY_MAP);
 
         return clientFactory;
+    }
+
+    private void waitClientDisconnected(final PinpointClient client) {
+        boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
+            @Override
+            public boolean checkCompleted() {
+                return !client.isConnected();
+            };
+        });
+
+        Assert.assertTrue(pass);
+    }
+
+    private void waitClientConnected(final PinpointServerAcceptor acceptor) {
+        boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
+            @Override
+            public boolean checkCompleted() {
+                return !acceptor.getWritableSocketList().isEmpty();
+            };
+        });
+
+        Assert.assertTrue(pass);
     }
 
 }
