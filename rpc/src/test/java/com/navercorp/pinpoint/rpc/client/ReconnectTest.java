@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.rpc.client;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.TestAwaitTaskUtils;
+import com.navercorp.pinpoint.rpc.TestAwaitUtils;
 import com.navercorp.pinpoint.rpc.TestByteUtils;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.SimpleServerMessageListener;
@@ -44,7 +46,9 @@ public class ReconnectTest {
 
     private static int bindPort;
     private static PinpointClientFactory clientFactory;
-    
+
+    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 1000);
+
     @BeforeClass
     public static void setUp() throws IOException {
         bindPort = SocketUtils.findAvailableTcpPort();
@@ -82,20 +86,13 @@ public class ReconnectTest {
             });
             
             PinpointRPCTestUtils.close(serverAcceptor);
-
             logger.info("server.close()---------------------------");
-            Thread.sleep(1000);
-            try {
-                byte[] response = PinpointRPCTestUtils.request(client, new byte[10]);
-                Assert.fail("expected:exception");
-            } catch (Exception e) {
-                // skip because of expected error
-            }
+            assertClientDisconnected(client);
 
             newServerAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE);
             logger.info("bind server---------------------------");
+            assertClientConnected(client);
 
-            Thread.sleep(3000);
             logger.info("request server---------------------------");
             byte[] randomByte = TestByteUtils.createRandomByte(10);
             byte[] response = PinpointRPCTestUtils.request(client, randomByte);
@@ -123,23 +120,23 @@ public class ReconnectTest {
             logger.info((i + 1) + "th's start.");
             
             PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE);
-            PinpointClient socket = clientFactory.connect("localhost", bindPort);
-            PinpointRPCTestUtils.close(serverAcceptor);
+            PinpointClient client = clientFactory.connect("localhost", bindPort);
 
+            PinpointRPCTestUtils.close(serverAcceptor);
             logger.info("server.close()---------------------------");
-            Thread.sleep(10000);
+            assertClientDisconnected(client);
 
             serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE);
             logger.info("bind server---------------------------");
+            assertClientConnected(client);
 
-            Thread.sleep(10000);
             logger.info("request server---------------------------");
             byte[] randomByte = TestByteUtils.createRandomByte(10);
-            byte[] response = PinpointRPCTestUtils.request(socket, randomByte);
+            byte[] response = PinpointRPCTestUtils.request(client, randomByte);
 
             Assert.assertArrayEquals(randomByte, response);
 
-            PinpointRPCTestUtils.close(socket);
+            PinpointRPCTestUtils.close(client);
             PinpointRPCTestUtils.close(serverAcceptor);
         }
         
@@ -159,8 +156,8 @@ public class ReconnectTest {
             client = clientFactory.scheduledConnect("localhost", bindPort);
 
             serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE);
+            assertClientConnected(client);
 
-            Thread.sleep(2000);
             logger.info("request server---------------------------");
             byte[] randomByte = TestByteUtils.createRandomByte(10);
             byte[] response = PinpointRPCTestUtils.request(client, randomByte);
@@ -260,6 +257,28 @@ public class ReconnectTest {
 
         Thread.sleep(1000 * 3);
         PinpointRPCTestUtils.close(client);
+    }
+
+    private void assertClientDisconnected(final PinpointClient client) {
+        boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
+            @Override
+            public boolean checkCompleted() {
+                return !client.isConnected();
+            }
+        });
+
+        Assert.assertTrue(pass);
+    }
+
+    private void assertClientConnected(final PinpointClient client) {
+        boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
+            @Override
+            public boolean checkCompleted() {
+                return client.isConnected();
+            }
+        });
+
+        Assert.assertTrue(pass);
     }
 
 }

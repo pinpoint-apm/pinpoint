@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.TestAwaitTaskUtils;
+import com.navercorp.pinpoint.rpc.TestAwaitUtils;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.DefaultPinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
@@ -40,6 +42,8 @@ public class PinpointClientStateTest {
 
     private static int bindPort;
 
+    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 2000);
+
     @BeforeClass
     public static void setUp() throws IOException {
         bindPort = SocketUtils.findAvailableTcpPort();
@@ -53,9 +57,7 @@ public class PinpointClientStateTest {
             clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
             handler = connect(clientFactory);
 
-            Thread.sleep(2000);
-
-            Assert.assertEquals(SocketStateCode.CONNECT_FAILED, handler.getCurrentStateCode());
+            assertHandlerState(SocketStateCode.CONNECT_FAILED, handler);
         } finally {
             closeHandler(handler);
             closeSocketFactory(clientFactory);
@@ -72,14 +74,10 @@ public class PinpointClientStateTest {
 
             clientSocketFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
             handler = connect(clientSocketFactory);
-            Thread.sleep(1000);
+            assertHandlerState(SocketStateCode.RUN_DUPLEX, handler);
 
-            Assert.assertEquals(SocketStateCode.RUN_DUPLEX, handler.getCurrentStateCode());
             handler.close();
-
-            Thread.sleep(1000);
-
-            Assert.assertEquals(SocketStateCode.CLOSED_BY_CLIENT, handler.getCurrentStateCode());
+            assertHandlerState(SocketStateCode.CLOSED_BY_CLIENT, handler);
         } finally {
             closeHandler(handler);
             closeSocketFactory(clientSocketFactory);
@@ -97,14 +95,10 @@ public class PinpointClientStateTest {
 
             clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
             handler = connect(clientFactory);
-            Thread.sleep(1000);
+            assertHandlerState(SocketStateCode.RUN_DUPLEX, handler);
 
-            Assert.assertEquals(SocketStateCode.RUN_DUPLEX, handler.getCurrentStateCode());
             serverAcceptor.close();
-
-            Thread.sleep(1000);
-
-            Assert.assertEquals(SocketStateCode.CLOSED_BY_SERVER, handler.getCurrentStateCode());
+            assertHandlerState(SocketStateCode.CLOSED_BY_SERVER, handler);
         } finally {
             closeHandler(handler);
             closeSocketFactory(clientFactory);
@@ -122,14 +116,10 @@ public class PinpointClientStateTest {
 
             clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
             handler = connect(clientFactory);
-            Thread.sleep(1000);
+            assertHandlerState(SocketStateCode.RUN_DUPLEX, handler);
 
-            Assert.assertEquals(SocketStateCode.RUN_DUPLEX, handler.getCurrentStateCode());
             clientFactory.release();
-
-            Thread.sleep(1000);
-
-            Assert.assertEquals(SocketStateCode.UNEXPECTED_CLOSE_BY_CLIENT, handler.getCurrentStateCode());
+            assertHandlerState(SocketStateCode.UNEXPECTED_CLOSE_BY_CLIENT, handler);
         } finally {
             closeHandler(handler);
             closeSocketFactory(clientFactory);
@@ -147,22 +137,28 @@ public class PinpointClientStateTest {
 
             clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
             handler = connect(clientFactory);
-            Thread.sleep(1000);
+            assertHandlerState(SocketStateCode.RUN_DUPLEX, handler);
 
             List<PinpointSocket> pinpointServerList = serverAcceptor.getWritableSocketList();
             PinpointSocket pinpointServer = pinpointServerList.get(0);
-            Assert.assertEquals(SocketStateCode.RUN_DUPLEX, handler.getCurrentStateCode());
-
             ((DefaultPinpointServer) pinpointServer).stop(true);
-
-            Thread.sleep(1000);
-
-            Assert.assertEquals(SocketStateCode.UNEXPECTED_CLOSE_BY_SERVER, handler.getCurrentStateCode());
+            assertHandlerState(SocketStateCode.UNEXPECTED_CLOSE_BY_SERVER, handler);
         } finally {
             closeHandler(handler);
             closeSocketFactory(clientFactory);
             PinpointRPCTestUtils.close(serverAcceptor);
         }
+    }
+
+    private void assertHandlerState(final SocketStateCode stateCode, final DefaultPinpointClientHandler handler) {
+        boolean passed = awaitUtils.await(new TestAwaitTaskUtils() {
+            @Override
+            public boolean checkCompleted() {
+                return handler.getCurrentStateCode() == stateCode;
+            }
+        });
+
+        Assert.assertTrue(passed);
     }
 
     private DefaultPinpointClientHandler connect(PinpointClientFactory factory) {
