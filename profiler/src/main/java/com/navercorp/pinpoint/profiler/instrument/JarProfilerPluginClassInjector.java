@@ -215,7 +215,7 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
             }
         }
         if (logger.isInfoEnabled()) {
-            logger.debug("defineClass pluginClass:{} cl:{}", className, classLoader);
+            logger.info("defineClass pluginClass:{} cl:{}", className, classLoader);
         }
         final byte[] bytes = ct.toBytecode();
         return (Class<?>)DEFINE_CLASS.invoke(classLoader, ct.getName(), bytes, 0, bytes.length);
