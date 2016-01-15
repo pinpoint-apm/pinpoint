@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,35 +16,52 @@ package com.navercorp.pinpoint.plugin.spring.beans;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Jongho Moon
- *
+ * @author jaehong.kim
  */
 public class SpringBeansConfig {
-    public static final String SPRING_BEANS_ANNOTATION = "profiler.spring.beans.annotation";
-    public static final String SPRING_BEANS_CLASS_PATTERN = "profiler.spring.beans.class.pattern";
-    public static final String SPRING_BEANS_NAME_PATTERN = "profiler.spring.beans.name.pattern";
+    public static final String SPRING_BEANS_PREFIX = "profiler.spring.beans.target.";
+    public static final String SPRING_BEANS_ANNOTATION_POSTFIX = ".annotation";
+    public static final String SPRING_BEANS_CLASS_PATTERN_POSTFIX = ".class.pattern";
+    public static final String SPRING_BEANS_NAME_PATTERN_POSTFIX = ".name.pattern";
 
-    private final String springBeansNamePatterns;
-    private final String springBeansClassPatterns;
-    private final String springBeansAnnotations;
+    private final List<SpringBeansTarget> targets = new ArrayList<SpringBeansTarget>();
 
     public SpringBeansConfig(ProfilerConfig config) {
-        this.springBeansNamePatterns = config.readString(SPRING_BEANS_NAME_PATTERN, null);
-        this.springBeansClassPatterns = config.readString(SPRING_BEANS_CLASS_PATTERN, null);
-        this.springBeansAnnotations = config.readString(SPRING_BEANS_ANNOTATION, null);
-    }
-    
-    public String getSpringBeansNamePatterns() {
-        return springBeansNamePatterns;
+
+        int index = 1;
+        while (true) {
+            final String namePatternRegex = config.readString(SPRING_BEANS_PREFIX + index + SPRING_BEANS_NAME_PATTERN_POSTFIX, null);
+            final String classPatternRegex = config.readString(SPRING_BEANS_PREFIX + index + SPRING_BEANS_CLASS_PATTERN_POSTFIX, null);
+            final String annotation = config.readString(SPRING_BEANS_PREFIX + index + SPRING_BEANS_ANNOTATION_POSTFIX, null);
+            if (namePatternRegex == null && classPatternRegex == null && annotation == null) {
+                break;
+            }
+
+            final SpringBeansTarget target = new SpringBeansTarget();
+            target.setNamePattern(namePatternRegex);
+            target.setClassPattern(classPatternRegex);
+            target.setAnnotation(annotation);
+            if (target.isValid()) {
+                targets.add(target);
+            }
+            index++;
+        }
     }
 
-    public String getSpringBeansClassPatterns() {
-        return springBeansClassPatterns;
+    public List<SpringBeansTarget> getTargets() {
+        return targets;
     }
 
-    public String getSpringBeansAnnotations() {
-        return springBeansAnnotations;
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("SpringBeansConfig{");
+        sb.append("targets=").append(targets);
+        sb.append('}');
+        return sb.toString();
     }
-
 }
