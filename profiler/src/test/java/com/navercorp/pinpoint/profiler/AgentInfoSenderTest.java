@@ -30,7 +30,11 @@ import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
-import com.navercorp.pinpoint.rpc.packet.*;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
+import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
@@ -38,19 +42,28 @@ import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
-
 import org.apache.thrift.TException;
+import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class AgentInfoSenderTest {
 
@@ -58,6 +71,8 @@ public class AgentInfoSenderTest {
 
     public static final int PORT = SocketUtils.findAvailableTcpPort(50050);
     public static final String HOST = "127.0.0.1";
+
+    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 60000);
 
     @Test
     public void agentInfoShouldBeSent() throws InterruptedException {
@@ -77,9 +92,7 @@ public class AgentInfoSenderTest {
 
         try {
             agentInfoSender.start();
-            while (requestCount.get() < 1) {
-                Thread.sleep(1000L);
-            }
+            waitExpectedRequestCount(requestCount, 1);
         } finally {
             closeAll(serverAcceptor, agentInfoSender, pinpointClient, clientFactory);
         }
@@ -106,9 +119,7 @@ public class AgentInfoSenderTest {
 
         try {
             agentInfoSender.start();
-            while (requestCount.get() < expectedTriesUntilSuccess) {
-                Thread.sleep(1000L);
-            }
+            waitExpectedRequestCount(requestCount, expectedTriesUntilSuccess);
         } finally {
             closeAll(serverAcceptor, agentInfoSender, pinpointClient, socketFactory);
         }
@@ -135,9 +146,7 @@ public class AgentInfoSenderTest {
 
         try {
             agentInfoSender.start();
-            while (requestCount.get() < expectedTriesUntilSuccess) {
-                Thread.sleep(1000L);
-            }
+            waitExpectedRequestCount(requestCount, expectedTriesUntilSuccess);
         } finally {
             closeAll(serverAcceptor, agentInfoSender, pinpointClient, socketFactory);
         }
@@ -178,17 +187,13 @@ public class AgentInfoSenderTest {
                 .build();
         try {
             agentInfoSender.start();
-            while (successServerRequestCount.get() < expectedSuccessServerTries) {
-                Thread.sleep(agentInfoSendRetryIntervalMs);
-            }
+            waitExpectedRequestCount(successServerRequestCount, expectedSuccessServerTries);
             successServerAcceptor.close();
             Thread.sleep(agentInfoSendRetryIntervalMs * AgentInfoSender.DEFAULT_MAX_TRY_COUNT_PER_ATTEMPT);
             failServerAcceptor = createServerAcceptor(failServerListener);
             // wait till agent reconnects
             agentReconnectLatch.await();
-            while (failServerRequestCount.get() < expectedFailServerTries) {
-                Thread.sleep(agentInfoSendRetryIntervalMs * AgentInfoSender.DEFAULT_MAX_TRY_COUNT_PER_ATTEMPT);
-            }
+            waitExpectedRequestCount(failServerRequestCount, expectedFailServerTries);
             failServerAcceptor.close();
         } finally {
             closeAll(null, agentInfoSender, pinpointClient, socketFactory);
@@ -237,9 +242,7 @@ public class AgentInfoSenderTest {
         try {
             // initial connect
             agentInfoSender.start();
-            while (requestCount.get() < 1) {
-                Thread.sleep(1000L);
-            }
+            waitExpectedRequestCount(requestCount, 1);
             serverAcceptor.close();
             // reconnect
             for (int i = 0; i < expectedReconnectCount; ++i) {
@@ -281,9 +284,7 @@ public class AgentInfoSenderTest {
 
         try {
             agentInfoSender.start();
-            while (requestCount.get() < expectedRefreshCount) {
-                Thread.sleep(1000L);
-            }
+            waitExpectedRequestCount(requestCount, expectedRefreshCount);
         } finally {
             closeAll(serverAcceptor, agentInfoSender, pinpointClient, socketFactory);
         }
@@ -318,7 +319,8 @@ public class AgentInfoSenderTest {
             for (ServerMetaData serverMetaData : serverMetaDataObjects) {
                 agentInfoSender.publishServerMetaData(serverMetaData);
             }
-            Thread.sleep(10000L);
+
+            waitExpectedRequestCount(requestCount, 5);
         } finally {
             closeAll(serverAcceptor, agentInfoSender, pinpointClient, clientFactory);
         }
@@ -374,7 +376,8 @@ public class AgentInfoSenderTest {
         endLatch.await();
         executorService.shutdown();
         try {
-            Thread.sleep(10000L);
+            waitExpectedRequestCount(requestCount, threadCount);
+            waitExpectedRequestCount(successCount, threadCount);
         } finally {
             closeAll(serverAcceptor, agentInfoSender, pinpointClient, clientFactory);
         }
@@ -531,6 +534,17 @@ public class AgentInfoSenderTest {
         clientFactory.setProperties(Collections.<String, Object> emptyMap());
 
         return clientFactory;
+    }
+
+    private void waitExpectedRequestCount(final AtomicInteger requestCount, final int expectedRequestCount) {
+        boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
+            @Override
+            public boolean checkCompleted() {
+                return requestCount.get() == expectedRequestCount;
+            };
+        });
+
+        Assert.assertTrue(pass);
     }
 
 }

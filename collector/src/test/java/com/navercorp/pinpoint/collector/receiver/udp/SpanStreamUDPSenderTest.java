@@ -16,18 +16,8 @@
 
 package com.navercorp.pinpoint.collector.receiver.udp;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.thrift.TBase;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
+import com.navercorp.pinpoint.collector.TestAwaitTaskUtils;
+import com.navercorp.pinpoint.collector.TestAwaitUtils;
 import com.navercorp.pinpoint.collector.receiver.AbstractDispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.DataReceiver;
 import com.navercorp.pinpoint.common.Version;
@@ -44,9 +34,18 @@ import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
+import org.apache.thrift.TBase;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author emeroad
@@ -57,6 +56,8 @@ public class SpanStreamUDPSenderTest {
     private static DataReceiver receiver = null;
 
     private static int port;
+
+    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 6000);
 
     @BeforeClass
     public static void setUp() throws IOException {
@@ -83,15 +84,13 @@ public class SpanStreamUDPSenderTest {
     public void sendTest1() throws InterruptedException {
         SpanStreamUdpSender sender = null;
         try {
-            sender = new SpanStreamUdpSender("127.0.0.1", port, "threadName", 10);
+            sender = new SpanStreamUdpSender("127.0.0.1", port, "threadName", 10, 200, SpanStreamUdpSender.SEND_BUFFER_SIZE);
             sender.send(createSpanChunk(10));
             sender.send(createSpanChunk(3));
 
-            Thread.sleep(6000);
+            awaitMessageReceived(2, messageHolder, TSpanChunk.class);
 
             List<TBase> tBaseList = messageHolder.getMessageHolder();
-            int spanChunkCount = getObjectCount(tBaseList, TSpanChunk.class);
-            Assert.assertEquals(2, spanChunkCount);
             tBaseList.clear();
         } finally {
             if (sender != null) {
@@ -104,15 +103,13 @@ public class SpanStreamUDPSenderTest {
     public void sendTest2() throws InterruptedException {
         SpanStreamUdpSender sender = null;
         try {
-            sender = new SpanStreamUdpSender("127.0.0.1", port, "threadName", 10);
+            sender = new SpanStreamUdpSender("127.0.0.1", port, "threadName", 10, 200, SpanStreamUdpSender.SEND_BUFFER_SIZE);
             sender.send(createSpan(10));
             sender.send(createSpan(3));
 
-            Thread.sleep(6000);
+            awaitMessageReceived(2, messageHolder, TSpan.class);
 
             List<TBase> tBaseList = messageHolder.getMessageHolder();
-            int spanCount = getObjectCount(tBaseList, TSpan.class);
-            Assert.assertEquals(2, spanCount);
             tBaseList.clear();
         } finally {
             if (sender != null) {
@@ -125,20 +122,15 @@ public class SpanStreamUDPSenderTest {
     public void sendTest3() throws InterruptedException {
         SpanStreamUdpSender sender = null;
         try {
-            sender = new SpanStreamUdpSender("127.0.0.1", port, "threadName", 10);
+            sender = new SpanStreamUdpSender("127.0.0.1", port, "threadName", 10, 200, SpanStreamUdpSender.SEND_BUFFER_SIZE);
             sender.send(createSpan(10));
             sender.send(createSpan(3));
             sender.send(createSpanChunk(3));
 
-            Thread.sleep(6000);
+            awaitMessageReceived(2, messageHolder, TSpan.class);
+            awaitMessageReceived(1, messageHolder, TSpanChunk.class);
 
             List<TBase> tBaseList = messageHolder.getMessageHolder();
-            int spanCount = getObjectCount(tBaseList, TSpan.class);
-            int spanChunkCount = getObjectCount(tBaseList, TSpanChunk.class);
-            
-            Assert.assertEquals(2, spanCount);
-            Assert.assertEquals(1, spanChunkCount);
-            
             tBaseList.clear();
         } finally {
             if (sender != null) {
@@ -200,6 +192,41 @@ public class SpanStreamUDPSenderTest {
         }
 
         return spanEventList;
+    }
+
+//    private void waitExpectedRequestCount(final AtomicInteger requestCount, final int expectedRequestCount) {
+//        boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
+//            @Override
+//            public boolean checkCompleted() {
+//                return requestCount.get() == expectedRequestCount;
+//            };
+//        });
+//
+//        Assert.assertTrue(pass);
+//    }
+
+    private void waitMessageReceived(final int receivedCount, final int awaitReceiveCount) {
+        boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
+            @Override
+            public boolean checkCompleted() {
+                return receivedCount == awaitReceiveCount;
+            }
+        });
+
+        Assert.assertTrue(pass);
+    }
+
+    private void awaitMessageReceived(final int receivedCount, final MessageHolderDispatchHandler dispatchHandler, final Class clazz) {
+        boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
+            @Override
+            public boolean checkCompleted() {
+                List<TBase> messageHolder = dispatchHandler.getMessageHolder();
+                int objectCount = getObjectCount(messageHolder, clazz);
+                return receivedCount == objectCount;
+            }
+        });
+
+        Assert.assertTrue(pass);
     }
 
     static class TestTBaseFilter<T> implements TBaseFilter<T> {
