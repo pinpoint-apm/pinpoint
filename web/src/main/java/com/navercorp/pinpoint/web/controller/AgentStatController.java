@@ -163,8 +163,9 @@ public class AgentStatController {
     public List<AgentEvent> getAgentEvents(
             @RequestParam("agentId") String agentId,
             @RequestParam("from") long from,
-            @RequestParam("to") long to) {
+            @RequestParam("to") long to,
+            @RequestParam(value = "exclude", defaultValue = "") int[] excludeEventTypeCodes) {
         Range range = new Range(from, to);
-        return this.agentEventService.getAgentEvents(agentId, range);
+        return this.agentEventService.getAgentEvents(agentId, range, excludeEventTypeCodes);
     }
 }
