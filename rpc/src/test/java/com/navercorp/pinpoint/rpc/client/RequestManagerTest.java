@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.rpc.DefaultFuture;
 import com.navercorp.pinpoint.rpc.Future;
-import com.navercorp.pinpoint.rpc.client.RequestManager;
+import com.navercorp.pinpoint.rpc.TestAwaitTaskUtils;
+import com.navercorp.pinpoint.rpc.TestAwaitUtils;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-
 import org.jboss.netty.util.HashedWheelTimer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,15 +36,20 @@ public class RequestManagerTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-
     @Test
     public void testRegisterRequest() throws Exception {
         HashedWheelTimer timer = getTimer();
         RequestManager requestManager = new RequestManager(timer, 3000);
         try {
             RequestPacket packet = new RequestPacket(new byte[0]);
-            Future future = requestManager.register(packet, 50);
-            Thread.sleep(200);
+            final Future future = requestManager.register(packet, 50);
+
+            TestAwaitUtils.await(new TestAwaitTaskUtils() {
+                @Override
+                public boolean checkCompleted() {
+                    return future.isReady();
+                }
+            }, 10, 200);
 
             Assert.assertTrue(future.isReady());
             Assert.assertFalse(future.isSuccess());
@@ -68,8 +73,6 @@ public class RequestManagerTest {
 
             Future nullFuture = requestManager.removeMessageFuture(packet.getRequestId());
             Assert.assertNull(nullFuture);
-
-
         } finally {
             requestManager.close();
             timer.stop();

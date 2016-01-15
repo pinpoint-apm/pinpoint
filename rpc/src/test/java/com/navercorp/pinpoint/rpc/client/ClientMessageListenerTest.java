@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.TestAwaitTaskUtils;
+import com.navercorp.pinpoint.rpc.TestAwaitUtils;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.SimpleServerMessageListener;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
@@ -31,11 +33,16 @@ import org.springframework.util.SocketUtils;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * @author Taejin Koo
+ */
 public class ClientMessageListenerTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static int bindPort;
+
+    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 2000);
 
     @BeforeClass
     public static void setUp() throws IOException {
@@ -51,13 +58,9 @@ public class ClientMessageListenerTest {
 
         try {
             PinpointClient client = clientSocketFactory.connect("127.0.0.1", bindPort);
-            Thread.sleep(500);
+            assertAvaiableWritableSocket(serverAcceptor, 1);
 
             List<PinpointSocket> writableServerList = serverAcceptor.getWritableSocketList();
-            if (writableServerList.size() != 1) {
-                Assert.fail();
-            }
-
             PinpointSocket writableServer = writableServerList.get(0);
             assertSendMessage(writableServer, "simple", echoMessageListener);
             assertRequestMessage(writableServer, "request", echoMessageListener);
@@ -82,14 +85,9 @@ public class ClientMessageListenerTest {
         try {
             PinpointClient client = clientSocketFactory1.connect("127.0.0.1", bindPort);
             PinpointClient client2 = clientSocketFactory2.connect("127.0.0.1", bindPort);
-
-            Thread.sleep(500);
+            assertAvaiableWritableSocket(serverAcceptor, 2);
 
             List<PinpointSocket> writableServerList = serverAcceptor.getWritableSocketList();
-            if (writableServerList.size() != 2) {
-                Assert.fail();
-            }
-
             PinpointSocket writableServer = writableServerList.get(0);
             assertRequestMessage(writableServer, "socket1", null);
 
@@ -123,5 +121,17 @@ public class ClientMessageListenerTest {
             Assert.assertEquals(message, new String(echoMessageListener.getRequestPacketRepository().get(0).getPayload()));
         }
     }
+
+    private void assertAvaiableWritableSocket(final PinpointServerAcceptor serverAcceptor, final int expectedWritableSocketSize) {
+        boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
+            @Override
+            public boolean checkCompleted() {
+                return serverAcceptor.getWritableSocketList().size() == expectedWritableSocketSize;
+            }
+        });
+
+        Assert.assertTrue(pass);
+    }
+
 
 }
