@@ -99,6 +99,7 @@ public class DefaultAgent implements Agent {
 
     private final AgentInformation agentInformation;
     private final ServerMetaDataHolder serverMetaDataHolder;
+    private final AgentOption agentOption;
 
     private volatile AgentStatus agentStatus;
 
@@ -149,6 +150,7 @@ public class DefaultAgent implements Agent {
         if (interceptorRegistryBinder == null) {
             throw new NullPointerException("interceptorRegistryBinder must not be null");
         }
+        logger.info("AgentOption:{}", agentOption);
 
         this.binder = new Slf4jLoggerBinder();
         bindPLoggerFactory(this.binder);
@@ -164,7 +166,8 @@ public class DefaultAgent implements Agent {
         
         this.profilerConfig = agentOption.getProfilerConfig();
         this.instrumentation = agentOption.getInstrumentation();
-        this.classPool = new JavassistClassPool(interceptorRegistryBinder, agentOption.getBootStrapJarPath());
+        this.agentOption = agentOption;
+        this.classPool = new JavassistClassPool(interceptorRegistryBinder, agentOption.getBootStrapCoreJarPath());
         
         if (logger.isInfoEnabled()) {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
@@ -212,8 +215,13 @@ public class DefaultAgent implements Agent {
         InterceptorInvokerHelper.setPropagateException(profilerConfig.isPropagateInterceptorException());
     }
 
+    public String getBootstrapCoreJar() {
+        return agentOption.getBootStrapCoreJarPath();
+    }
+
     protected List<DefaultProfilerPluginContext> loadPlugins(AgentOption agentOption) {
-        return new ProfilerPluginLoader(this).load(agentOption.getPluginJars());
+        final ProfilerPluginLoader loader = new ProfilerPluginLoader(this);
+        return loader.load(agentOption.getPluginJars());
     }
 
     private void addCommandService(CommandDispatcher commandDispatcher, TraceContext traceContext) {

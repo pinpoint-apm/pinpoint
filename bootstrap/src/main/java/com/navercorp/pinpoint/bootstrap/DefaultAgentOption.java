@@ -31,11 +31,11 @@ public class DefaultAgentOption implements AgentOption {
     private final Instrumentation instrumentation;
     private final ProfilerConfig profilerConfig;
     private final URL[] pluginJars;
-    private final String bootStrapJarPath;
+    private final String bootStrapJarCorePath;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
     private final AnnotationKeyRegistryService annotationKeyRegistryService;
 
-    public DefaultAgentOption(final String agentArgs, final Instrumentation instrumentation, final ProfilerConfig profilerConfig, final URL[] pluginJars, final String bootStrapJarPath, final ServiceTypeRegistryService serviceTypeRegistryService, final AnnotationKeyRegistryService annotationKeyRegistryService) {
+    public DefaultAgentOption(final String agentArgs, final Instrumentation instrumentation, final ProfilerConfig profilerConfig, final URL[] pluginJars, final String bootStrapJarCorePath, final ServiceTypeRegistryService serviceTypeRegistryService, final AnnotationKeyRegistryService annotationKeyRegistryService) {
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
         }
@@ -45,8 +45,8 @@ public class DefaultAgentOption implements AgentOption {
         if (pluginJars == null) {
             throw new NullPointerException("pluginJars must not be null");
         }
-//        if (bootStrapJarPath == null) {
-//            throw new NullPointerException("bootStrapJarPath must not be null");
+//        if (bootStrapJarCorePath == null) {
+//            throw new NullPointerException("bootStrapJarCorePath must not be null");
 //        }
         if (annotationKeyRegistryService == null) {
             throw new NullPointerException("annotationKeyRegistryService must not be null");
@@ -58,7 +58,7 @@ public class DefaultAgentOption implements AgentOption {
         this.instrumentation = instrumentation;
         this.profilerConfig = profilerConfig;
         this.pluginJars = pluginJars;
-        this.bootStrapJarPath = bootStrapJarPath;
+        this.bootStrapJarCorePath = bootStrapJarCorePath;
         this.serviceTypeRegistryService = serviceTypeRegistryService;
         this.annotationKeyRegistryService = annotationKeyRegistryService;
     }
@@ -79,8 +79,8 @@ public class DefaultAgentOption implements AgentOption {
     }
 
     @Override
-    public String getBootStrapJarPath() {
-        return this.bootStrapJarPath;
+    public String getBootStrapCoreJarPath() {
+        return this.bootStrapJarCorePath;
     }
 
     @Override
@@ -96,5 +96,15 @@ public class DefaultAgentOption implements AgentOption {
     @Override
     public AnnotationKeyRegistryService getAnnotationKeyRegistryService() {
         return this.annotationKeyRegistryService;
+    }
+
+    @Override
+    public String toString() {
+        return "DefaultAgentOption{" +
+                "agentArgs='" + agentArgs + '\'' +
+                ", instrumentation=" + instrumentation +
+                ", profilerConfig=" + profilerConfig +
+                ", bootStrapJarCorePath='" + bootStrapJarCorePath +
+                '}';
     }
 }
