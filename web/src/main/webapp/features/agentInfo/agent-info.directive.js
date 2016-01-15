@@ -36,9 +36,7 @@
 								timeFormat: "HH:mm:ss",
 								controlType: "select",
 								showButtonPanel: true,
-								onSelect: function () {
-									//console.log(moment($targetPicker.datetimepicker('getDate')));
-								},
+								onSelect: function () {},
 								onClose: function (selectedTime) {
 									var time = new Date(selectedTime).valueOf();
 									if ( scope.selectTime !== time ) {

@@ -360,7 +360,7 @@
 								<table class="table table-bordered table-condense">
 									<tbody style="background-color:#e9eaed">
 									<tr>
-										<td class="col-md-1">Inbound</td>
+										<td class="col-md-1" style="padding-top:14px"><img src="images/inbound.png" width="24px" height="24px"> Inbound</td>
 										<td class="col-md-2">
 											<select class="depth form-control" ng-change="changeCaller()" ng-model="caller">
 												<option ng-repeat="dep in depthList" ng-selected="dep == caller" value="{{dep}}">{{dep}}</option>
@@ -368,7 +368,7 @@
 										</td>
 									</tr>
 									<tr>
-										<td class="col-md-1">Outbound</td>
+										<td class="col-md-1" style="padding-top:14px"><img src="images/outbound.png" width="24px" height="24px"> Outbound</td>
 										<td class="col-md-2">
 											<select class="depth form-control" ng-change="changeCallee()" ng-model="callee">
 												<option ng-repeat="dep in depthList" ng-selected="dep == callee" value="{{dep}}">{{dep}}</option>

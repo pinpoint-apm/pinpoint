@@ -28,6 +28,7 @@
 			retrieve($config.agentInfo, data, callback);
 		};
 		this.getEventList = function( data, callback ) {
+			data.exclude = "10199";
 			retrieve($config.agentEventList, data, callback);
 		};
 		this.getEvent = function( data, callback ) {
