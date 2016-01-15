@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.dao;
 
 import java.util.List;
+import java.util.Set;
 
 import com.navercorp.pinpoint.common.bo.AgentEventBo;
 import com.navercorp.pinpoint.common.util.AgentEventType;
@@ -29,6 +30,6 @@ public interface AgentEventDao {
 
     AgentEventBo getAgentEvent(String agentId, long eventTimestamp, AgentEventType eventType);
 
-    List<AgentEventBo> getAgentEvents(String agentId, Range range);
-    
+    List<AgentEventBo> getAgentEvents(String agentId, Range range, Set<AgentEventType> excludeEventTypes);
+
 }

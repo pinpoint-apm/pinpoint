@@ -28,6 +28,6 @@ public interface AgentEventService {
 
     AgentEvent getAgentEvent(String agentId, long eventTimestamp, int eventTypeCode);
 
-    List<AgentEvent> getAgentEvents(String agentId, Range range);
+    List<AgentEvent> getAgentEvents(String agentId, Range range, int... excludeEventTypeCodes);
 
 }

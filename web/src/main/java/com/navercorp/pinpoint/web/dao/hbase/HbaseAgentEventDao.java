@@ -18,10 +18,16 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.BinaryComparator;
+import org.apache.hadoop.hbase.filter.CompareFilter;
+import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.filter.QualifierFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +65,7 @@ public class HbaseAgentEventDao implements AgentEventDao {
     private RowMapper<List<AgentEventBo>> agentEventMapper;
 
     @Override
-    public List<AgentEventBo> getAgentEvents(String agentId, Range range) {
+    public List<AgentEventBo> getAgentEvents(String agentId, Range range, Set<AgentEventType> excludeEventTypes) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -75,8 +81,15 @@ public class HbaseAgentEventDao implements AgentEventDao {
         scan.setStopRow(createRowKey(agentId, range.getFrom()));
         scan.addFamily(HBaseTables.AGENT_EVENT_CF_EVENTS);
 
-        List<AgentEventBo> agentEvents = this.hbaseOperations2.find(HBaseTables.AGENT_EVENT, scan,
-                new AgentEventResultsExtractor());
+        if (!CollectionUtils.isEmpty(excludeEventTypes)) {
+            FilterList filterList = new FilterList(FilterList.Operator.MUST_PASS_ALL);
+            for (AgentEventType excludeEventType : excludeEventTypes) {
+                byte[] excludeQualifier = Bytes.toBytes(excludeEventType.getCode());
+                filterList.addFilter(new QualifierFilter(CompareFilter.CompareOp.NOT_EQUAL, new BinaryComparator(excludeQualifier)));
+            }
+            scan.setFilter(filterList);
+        }
+        List<AgentEventBo> agentEvents = this.hbaseOperations2.find(HBaseTables.AGENT_EVENT, scan, new AgentEventResultsExtractor());
         logger.debug("agentEvents found. {}", agentEvents);
         return agentEvents;
     }
