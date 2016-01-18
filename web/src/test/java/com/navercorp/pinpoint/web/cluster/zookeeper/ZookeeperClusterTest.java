@@ -97,6 +97,7 @@ public class ZookeeperClusterTest {
             manager.start();
             awaitClusterManagerConnected(manager);
 
+            awaitCheckAgentRegisted(manager, "a", "b", 1L);
             List<String> agentList = manager.getRegisteredAgentList("a", "b", 1L);
             Assert.assertEquals(1, agentList.size());
             Assert.assertEquals("test", agentList.get(0));
@@ -138,6 +139,7 @@ public class ZookeeperClusterTest {
             manager.start();
             awaitClusterManagerConnected(manager);
 
+            awaitCheckAgentRegisted(manager, "a", "b", 1L);
             List<String> agentList = manager.getRegisteredAgentList("a", "b", 1L);
             Assert.assertEquals(1, agentList.size());
             Assert.assertEquals("test", agentList.get(0));
