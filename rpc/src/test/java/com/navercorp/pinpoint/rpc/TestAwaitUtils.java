@@ -16,11 +16,15 @@
 package com.navercorp.pinpoint.rpc;
 
 import com.navercorp.pinpoint.common.util.StopWatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @Author Taejin Koo
  */
 public class TestAwaitUtils {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(TestAwaitUtils.class);
 
     private final long waitUnitTime;
     private final long maxWaitTime;
@@ -39,8 +43,12 @@ public class TestAwaitUtils {
         stopWatch.start();
 
         while (true) {
-            if (awaitTaskUtils.checkCompleted()) {
-                return true;
+            try {
+                if (awaitTaskUtils.checkCompleted()) {
+                    return true;
+                }
+            } catch (Exception e) {
+                LOGGER.warn(e.getMessage(), e);
             }
 
             try {
