@@ -23,22 +23,26 @@ import com.navercorp.pinpoint.rpc.client.SimpleMessageListener;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager;
 import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterDataManager;
 import com.navercorp.pinpoint.web.config.WebConfig;
+import com.navercorp.pinpoint.web.TestAwaitTaskUtils;
+import com.navercorp.pinpoint.web.TestAwaitUtils;
 import com.navercorp.pinpoint.web.util.PinpointWebTestUtils;
 import org.apache.curator.test.TestingServer;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Taejin Koo
@@ -51,6 +55,8 @@ public class ClusterTest {
 
     // some tests may fail when executed in local environment
     // when failures happen, you have to copy pinpoint-web.properties of resource-test to resource-local. Tests will succeed.
+
+    private static TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 10000);
 
     private static final String DEFAULT_IP = PinpointWebTestUtils.getRepresentationLocalV4Ip();
     static ClusterConnectionManager clusterConnectionManager;
@@ -141,18 +147,15 @@ public class ClusterTest {
         return stringBuilder.toString().getBytes(UTF_8_CHARSET);
     }
 
-    @Before
-    public void before() throws IOException {
-        ts.stop();
+    @After
+    public void after() throws Exception {
+        ts.restart();
     }
 
     @Test
     public void clusterTest1() throws Exception {
-        ts.restart();
-        Thread.sleep(5000);
-
         ZooKeeper zookeeper = new ZooKeeper(zookeeperAddress, 5000, null);
-        getNodeAndCompareContents(zookeeper);
+        awaitZookeeperConnected(zookeeper);
 
         if (zookeeper != null) {
             zookeeper.close();
@@ -161,15 +164,12 @@ public class ClusterTest {
 
     @Test
     public void clusterTest2() throws Exception {
-        ts.restart();
-        Thread.sleep(5000);
-
         ZooKeeper zookeeper = new ZooKeeper(zookeeperAddress, 5000, null);
-        getNodeAndCompareContents(zookeeper);
+        awaitZookeeperConnected(zookeeper);
 
         ts.stop();
 
-        Thread.sleep(5000);
+        awaitZookeeperDisconnected(zookeeper);
         try {
             zookeeper.getData(CLUSTER_NODE_PATH, null, null);
             Assert.fail();
@@ -180,7 +180,6 @@ public class ClusterTest {
         }
 
         ts.restart();
-
         getNodeAndCompareContents(zookeeper);
 
         if (zookeeper != null) {
@@ -190,17 +189,13 @@ public class ClusterTest {
 
     @Test
     public void clusterTest3() throws Exception {
-        ts.restart();
-
         PinpointClientFactory clientFactory = null;
         PinpointClient client = null;
 
         ZooKeeper zookeeper = null;
         try {
-            Thread.sleep(5000);
-
             zookeeper = new ZooKeeper(zookeeperAddress, 5000, null);
-            getNodeAndCompareContents(zookeeper);
+            awaitZookeeperConnected(zookeeper);
 
             Assert.assertEquals(0, clusterConnectionManager.getClusterList().size());
 
@@ -208,8 +203,7 @@ public class ClusterTest {
             clientFactory.setMessageListener(SimpleMessageListener.INSTANCE);
 
             client = clientFactory.connect(DEFAULT_IP, acceptorPort);
-
-            Thread.sleep(1000);
+            awaitPinpointClientConnected(clusterConnectionManager);
 
             Assert.assertEquals(1, clusterConnectionManager.getClusterList().size());
 
@@ -220,6 +214,36 @@ public class ClusterTest {
                 zookeeper.close();
             }
         }
+    }
+
+    private void awaitZookeeperConnected(final ZooKeeper zookeeper) {
+        boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
+            @Override
+            public boolean checkCompleted() {
+                return getNodeAndCompareContents0(zookeeper);
+            }
+        });
+        Assert.assertTrue(pass);
+    }
+
+    private void awaitZookeeperDisconnected(final ZooKeeper zookeeper) {
+        boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
+            @Override
+            public boolean checkCompleted() {
+                return !getNodeAndCompareContents0(zookeeper);
+            }
+        });
+        Assert.assertTrue(pass);
+    }
+
+    private void awaitPinpointClientConnected(final ClusterConnectionManager connectionManager) {
+        boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
+            @Override
+            public boolean checkCompleted() {
+                return !connectionManager.getClusterList().isEmpty();
+            }
+        });
+        Assert.assertTrue(pass);
     }
 
     private void getNodeAndCompareContents(ZooKeeper zookeeper) throws KeeperException, InterruptedException {
@@ -236,6 +260,35 @@ public class ClusterTest {
         for (String ip : registeredIplist) {
             Assert.assertTrue(ipList.contains(ip));
         }
+    }
+
+    private boolean getNodeAndCompareContents0(ZooKeeper zookeeper) {
+        try {
+            LOGGER.info("getNodeAndCompareContents() {}", CLUSTER_NODE_PATH);
+
+            byte[] contents = zookeeper.getData(CLUSTER_NODE_PATH, null, null);
+            if (contents == null) {
+                contents = new byte[0];
+            }
+
+            String[] registeredIplist = new String(contents).split("\r\n");
+
+            List<String> ipList = NetUtils.getLocalV4IpList();
+
+            if (registeredIplist.length != ipList.size()) {
+                return false;
+            }
+
+            for (String ip : registeredIplist) {
+                if (!ipList.contains(ip)) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            LOGGER.warn(e.getMessage(), e);
+        }
+        return false;
     }
 
     private void closePinpointSocket(PinpointClientFactory clientFactory, PinpointClient client) {

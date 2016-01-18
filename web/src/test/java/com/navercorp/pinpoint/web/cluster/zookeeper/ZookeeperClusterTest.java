@@ -21,18 +21,23 @@ import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.web.config.WebConfig;
+import com.navercorp.pinpoint.web.TestAwaitTaskUtils;
+import com.navercorp.pinpoint.web.TestAwaitUtils;
 import com.navercorp.pinpoint.web.util.PinpointWebTestUtils;
 import org.apache.curator.test.TestingServer;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -47,6 +52,8 @@ public class ZookeeperClusterTest {
     private static int acceptorPort;
     private static int zookeeperPort;
     private static WebConfig webConfig;
+
+    private static TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 10000);
 
     private static final String COLLECTOR_NODE_PATH = "/pinpoint-cluster/collector";
     private static final String COLLECTOR_TEST_NODE_PATH = "/pinpoint-cluster/collector/test";
@@ -71,16 +78,14 @@ public class ZookeeperClusterTest {
         closeZookeeperServer(ts);
     }
 
-    @Before
-    public void before() throws IOException {
-        ts.stop();
+    @After
+    public void after() throws Exception {
+        ts.restart();
     }
 
     // test for zookeeper agents to be registered correctly at the cluster as expected
     @Test
     public void clusterTest1() throws Exception {
-        ts.restart();
-
         ZooKeeper zookeeper = null;
         ZookeeperClusterDataManager manager = null;
         try {
@@ -90,7 +95,7 @@ public class ZookeeperClusterTest {
 
             manager = new ZookeeperClusterDataManager(DEFAULT_IP + ":" + zookeeperPort, 5000, 60000);
             manager.start();
-            Thread.sleep(3000);
+            awaitClusterManagerConnected(manager);
 
             List<String> agentList = manager.getRegisteredAgentList("a", "b", 1L);
             Assert.assertEquals(1, agentList.size());
@@ -100,10 +105,15 @@ public class ZookeeperClusterTest {
             Assert.assertEquals(0, agentList.size());
 
             zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "".getBytes(), -1);
-            Thread.sleep(3000);
+            final ZookeeperClusterDataManager finalManager = manager;
+            boolean await = awaitUtils.await(new TestAwaitTaskUtils() {
+                @Override
+                public boolean checkCompleted() {
+                    return finalManager.getRegisteredAgentList("a", "b", 1L).size() == 0;
+                }
+            });
 
-            agentList = manager.getRegisteredAgentList("a", "b", 1L);
-            Assert.assertEquals(0, agentList.size());
+            Assert.assertTrue(await);
         } finally {
             if (zookeeper != null) {
                 zookeeper.close();
@@ -117,8 +127,6 @@ public class ZookeeperClusterTest {
 
     @Test
     public void clusterTest2() throws Exception {
-        ts.restart();
-
         ZooKeeper zookeeper = null;
         ZookeeperClusterDataManager manager = null;
         try {
@@ -128,15 +136,14 @@ public class ZookeeperClusterTest {
 
             manager = new ZookeeperClusterDataManager(DEFAULT_IP + ":" + zookeeperPort, 5000, 60000);
             manager.start();
-            Thread.sleep(3000);
+            awaitClusterManagerConnected(manager);
 
             List<String> agentList = manager.getRegisteredAgentList("a", "b", 1L);
             Assert.assertEquals(1, agentList.size());
             Assert.assertEquals("test", agentList.get(0));
 
             zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1\r\nc:d:2".getBytes(), -1);
-            Thread.sleep(3000);
-
+            awaitCheckAgentRegisted(manager, "c", "d", 2L);
 
             agentList = manager.getRegisteredAgentList("a", "b", 1L);
             Assert.assertEquals(1, agentList.size());
@@ -147,7 +154,7 @@ public class ZookeeperClusterTest {
             Assert.assertEquals("test", agentList.get(0));
 
             zookeeper.delete(COLLECTOR_TEST_NODE_PATH, -1);
-            Thread.sleep(3000);
+            awaitCheckAgentUnRegisted(manager, "a", "b", 1L);
 
             agentList = manager.getRegisteredAgentList("a", "b", 1L);
             Assert.assertEquals(0, agentList.size());
@@ -163,6 +170,36 @@ public class ZookeeperClusterTest {
                 manager.stop();
             }
         }
+    }
+
+    private void awaitClusterManagerConnected(final ZookeeperClusterDataManager manager) {
+        boolean await = awaitUtils.await(new TestAwaitTaskUtils() {
+            @Override
+            public boolean checkCompleted() {
+                return manager.isConnected();
+            }
+        });
+        Assert.assertTrue(await);
+    }
+
+    private void awaitCheckAgentRegisted(final ZookeeperClusterDataManager manager, final String applicationName, final String agentId, final long startTimeStamp) {
+        boolean await = awaitUtils.await(new TestAwaitTaskUtils() {
+            @Override
+            public boolean checkCompleted() {
+                return !manager.getRegisteredAgentList(applicationName, agentId, startTimeStamp).isEmpty();
+            }
+        });
+        Assert.assertTrue(await);
+    }
+
+    private void awaitCheckAgentUnRegisted(final ZookeeperClusterDataManager manager, final String applicationName, final String agentId, final long startTimeStamp) {
+        boolean await = awaitUtils.await(new TestAwaitTaskUtils() {
+            @Override
+            public boolean checkCompleted() {
+                return manager.getRegisteredAgentList(applicationName, agentId, startTimeStamp).isEmpty();
+            }
+        });
+        Assert.assertTrue(await);
     }
 
     private static TestingServer createZookeeperServer(int port) throws Exception {

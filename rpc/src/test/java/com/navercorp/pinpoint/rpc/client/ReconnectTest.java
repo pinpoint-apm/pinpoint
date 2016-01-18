@@ -232,7 +232,7 @@ public class ReconnectTest {
         }
         // close server by force
         PinpointRPCTestUtils.close(serverAcceptor);
-        Thread.sleep(1000*2);
+        assertClientDisconnected(client);
         PinpointRPCTestUtils.close(client);
     }
 
@@ -255,7 +255,7 @@ public class ReconnectTest {
         } catch (Exception e) {
         }
 
-        Thread.sleep(1000 * 3);
+        assertClientDisconnected(client);
         PinpointRPCTestUtils.close(client);
     }
 
