@@ -14,15 +14,16 @@
  */
 package com.navercorp.pinpoint.plugin.spring.beans;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
  * @author jaehong.kim
  */
 public class SpringBeansTarget {
-    private Pattern namePattern;
-    private Pattern classPattern;
-    private String annotation;
+    private List<Pattern> namePattern;
+    private List<Pattern> classPattern;
+    private List<String> annotation;
 
     public boolean isValid() {
         if (namePattern != null || classPattern != null) {

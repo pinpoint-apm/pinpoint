@@ -24,7 +24,11 @@ import java.util.List;
  * @author jaehong.kim
  */
 public class SpringBeansConfig {
-    public static final String SPRING_BEANS_PREFIX = "profiler.spring.beans.target.";
+    public static final String SPRING_BEANS_ANNOTATION = "profiler.spring.beans.annotation";
+    public static final String SPRING_BEANS_CLASS_PATTERN = "profiler.spring.beans.class.pattern";
+    public static final String SPRING_BEANS_NAME_PATTERN = "profiler.spring.beans.name.pattern";
+
+    public static final String SPRING_BEANS_PREFIX = "profiler.spring.beans.";
     public static final String SPRING_BEANS_ANNOTATION_POSTFIX = ".annotation";
     public static final String SPRING_BEANS_CLASS_PATTERN_POSTFIX = ".class.pattern";
     public static final String SPRING_BEANS_NAME_PATTERN_POSTFIX = ".name.pattern";
@@ -32,6 +36,10 @@ public class SpringBeansConfig {
     private final List<SpringBeansTarget> targets = new ArrayList<SpringBeansTarget>();
 
     public SpringBeansConfig(ProfilerConfig config) {
+        final String namePatternRegex =  config.readString(SPRING_BEANS_NAME_PATTERN, null);
+        final String classPatternRegex = config.readString(SPRING_BEANS_CLASS_PATTERN, null);
+        final String annotation = config.readString(SPRING_BEANS_ANNOTATION, null);
+
 
         int index = 1;
         while (true) {
