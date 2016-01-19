@@ -212,4 +212,59 @@ public class TargetBeanFilterTest {
         assertFalse(filter.isTarget("Target0", String.class));
         assertFalse(filter.isTarget("Target1", String.class));
     }
+
+    @Test
+    public void target5() {
+        Properties properties = new Properties();
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "Target1, Target2");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "");
+
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "Target0");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Controller");
+
+        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        TargetBeanFilter filter = TargetBeanFilter.of(config);
+        assertFalse(filter.isTarget("Target0", String.class));
+        assertTrue(filter.isTarget("Target1", String.class));
+        assertTrue(filter.isTarget("Target2", String.class));
+
+        filter.addTransformed(String.class);
+
+        // after transformed
+        assertFalse(filter.isTarget("Target0", String.class));
+        assertFalse(filter.isTarget("Target1", String.class));
+        assertFalse(filter.isTarget("Target2", String.class));
+    }
+
+    @Test
+    public void target6() {
+        Properties properties = new Properties();
+        properties.put(SpringBeansConfig.SPRING_BEANS_NAME_PATTERN, "foo");
+        properties.put(SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN, "java.lang.*");
+        properties.put(SpringBeansConfig.SPRING_BEANS_ANNOTATION, "");
+
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "Target1, Target2");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "");
+
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "Target0");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Controller");
+
+        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        TargetBeanFilter filter = TargetBeanFilter.of(config);
+        assertTrue(filter.isTarget("foo", String.class));
+        assertFalse(filter.isTarget("Target0", String.class));
+        assertTrue(filter.isTarget("Target1", String.class));
+        assertTrue(filter.isTarget("Target2", String.class));
+
+        filter.addTransformed(String.class);
+
+        // after transformed
+        assertFalse(filter.isTarget("foo", String.class));
+        assertFalse(filter.isTarget("Target0", String.class));
+        assertFalse(filter.isTarget("Target1", String.class));
+        assertFalse(filter.isTarget("Target2", String.class));
+    }
+
 }

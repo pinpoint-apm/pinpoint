@@ -55,7 +55,7 @@ public class TargetBeanFilter {
 
         for (SpringBeansTarget target : targets) {
             boolean find = false;
-            if (target.getNamePattern() != null) {
+            if (target.getNamePatterns() != null && !target.getNamePatterns().isEmpty()) {
                 if (isBeanNameTarget(target, beanName)) {
                     find = true;
                 } else {
@@ -63,11 +63,11 @@ public class TargetBeanFilter {
                 }
             }
 
-            if (rejected.contains(clazz)) {
+            if (!find && rejected.contains(clazz)) {
                 continue;
             }
 
-            if (target.getClassPattern() != null) {
+            if (target.getClassPatterns() != null && !target.getClassPatterns().isEmpty()) {
                 if (isClassNameTarget(target, clazz)) {
                     find = true;
                 } else {
@@ -75,7 +75,7 @@ public class TargetBeanFilter {
                 }
             }
 
-            if (target.getAnnotation() != null && !target.getAnnotation().isEmpty()) {
+            if (target.getAnnotations() != null && !target.getAnnotations().isEmpty()) {
                 if (isAnnotationTarget(target, clazz)) {
                     find = true;
                 } else {
@@ -96,23 +96,36 @@ public class TargetBeanFilter {
     }
 
     private boolean isBeanNameTarget(final SpringBeansTarget target, final String beanName) {
-        return target.getNamePattern().matcher(beanName).matches();
+        for(Pattern pattern : target.getNamePatterns()) {
+            if(pattern.matcher(beanName).matches()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private boolean isClassNameTarget(final SpringBeansTarget target, final Class<?> clazz) {
-        return target.getClassPattern().matcher(clazz.getName()).matches();
+        final String className = clazz.getName();
+        for(Pattern pattern : target.getClassPatterns()) {
+            if(pattern.matcher(className).matches()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private boolean isAnnotationTarget(final SpringBeansTarget target, final Class<?> clazz) {
         for (Annotation a : clazz.getAnnotations()) {
-            if (target.getAnnotation().equals(a.annotationType().getName())) {
+            if (target.getAnnotations().contains(a.annotationType().getName())) {
                 return true;
             }
         }
 
         for (Annotation a : clazz.getAnnotations()) {
             for (Annotation ac : a.annotationType().getAnnotations()) {
-                if (target.getAnnotation().equals(ac.annotationType().getName())) {
+                if (target.getAnnotations().contains(ac.annotationType().getName())) {
                     return true;
                 }
             }
@@ -123,24 +136,5 @@ public class TargetBeanFilter {
 
     public void addTransformed(Class<?> clazz) {
         transformed.put(clazz);
-    }
-
-    private static List<String> split(String values) {
-        if (values == null) {
-            return Collections.emptyList();
-        }
-
-        String[] tokens = values.split(",");
-        List<String> result = new ArrayList<String>(tokens.length);
-
-        for (String token : tokens) {
-            String trimmed = token.trim();
-
-            if (!trimmed.isEmpty()) {
-                result.add(trimmed);
-            }
-        }
-
-        return result;
     }
 }

@@ -14,6 +14,8 @@
  */
 package com.navercorp.pinpoint.plugin.spring.beans;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -21,64 +23,87 @@ import java.util.regex.Pattern;
  * @author jaehong.kim
  */
 public class SpringBeansTarget {
-    private List<Pattern> namePattern;
-    private List<Pattern> classPattern;
-    private List<String> annotation;
+    private List<Pattern> namePatterns;
+    private List<Pattern> classPatterns;
+    private List<String> annotations;
 
     public boolean isValid() {
-        if (namePattern != null || classPattern != null) {
+        if (namePatterns != null && !namePatterns.isEmpty()) {
             return true;
         }
 
-        if (annotation != null && !annotation.isEmpty()) {
+        if (classPatterns != null && !classPatterns.isEmpty()) {
+            return true;
+        }
+
+        if (annotations != null && !annotations.isEmpty()) {
             return true;
         }
 
         return false;
     }
 
-    public Pattern getNamePattern() {
-        return namePattern;
+    public void setNamePatterns(String namePatternRegex) {
+        this.namePatterns = compilePattern(split(namePatternRegex));
     }
 
-    public void setNamePattern(String namePatternRegex) {
-        if (namePatternRegex != null) {
-            this.namePattern = Pattern.compile(namePatternRegex.trim());
-        } else {
-            this.namePattern = null;
-        }
+    public List<Pattern> getNamePatterns() {
+        return namePatterns;
     }
 
-    public Pattern getClassPattern() {
-        return classPattern;
+    public void setClassPatterns(String classPatternRegex) {
+        this.classPatterns = compilePattern(split(classPatternRegex));
     }
 
-    public void setClassPattern(String classPatternRegex) {
-        if (classPatternRegex != null) {
-            this.classPattern = Pattern.compile(classPatternRegex.trim());
-        } else {
-            this.classPattern = null;
-        }
-    }
-
-    public String getAnnotation() {
-        return annotation;
+    public List<Pattern> getClassPatterns() {
+        return classPatterns;
     }
 
     public void setAnnotation(String annotation) {
-        if (annotation != null) {
-            this.annotation = annotation.trim();
-        } else {
-            this.annotation = annotation;
+        this.annotations = split(annotation);
+    }
+
+    public List<String> getAnnotations() {
+        return annotations;
+    }
+
+    private List<String> split(String values) {
+        if (values == null) {
+            return Collections.emptyList();
         }
+
+        String[] tokens = values.split(",");
+        List<String> result = new ArrayList<String>(tokens.length);
+
+        for (String token : tokens) {
+            String trimmed = token.trim();
+
+            if (!trimmed.isEmpty()) {
+                result.add(trimmed);
+            }
+        }
+
+        return result;
+    }
+
+    private List<Pattern> compilePattern(List<String> patternStrings) {
+        if (patternStrings == null || patternStrings.isEmpty()) {
+            return null;
+        }
+        List<Pattern> beanNamePatterns = new ArrayList<Pattern>(patternStrings.size());
+        for (String patternString : patternStrings) {
+            Pattern pattern = Pattern.compile(patternString);
+            beanNamePatterns.add(pattern);
+        }
+        return beanNamePatterns;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("SpringBeansTarget{");
-        sb.append("namePattern=").append(namePattern);
-        sb.append(", classPattern=").append(classPattern);
-        sb.append(", annotation='").append(annotation).append('\'');
+        sb.append("namePatterns=").append(namePatterns);
+        sb.append(", classPatterns=").append(classPatterns);
+        sb.append(", annotations=").append(annotations);
         sb.append('}');
         return sb.toString();
     }

@@ -33,31 +33,36 @@ public class SpringBeansConfig {
     public static final String SPRING_BEANS_CLASS_PATTERN_POSTFIX = ".class.pattern";
     public static final String SPRING_BEANS_NAME_PATTERN_POSTFIX = ".name.pattern";
 
+    public static final String SPRING_BEANS_MAX = "profiler.spring.beans.max";
+    public static final int DEFAULT_SPRING_BEANS_MAX = 100;
+
     private final List<SpringBeansTarget> targets = new ArrayList<SpringBeansTarget>();
 
     public SpringBeansConfig(ProfilerConfig config) {
-        final String namePatternRegex =  config.readString(SPRING_BEANS_NAME_PATTERN, null);
-        final String classPatternRegex = config.readString(SPRING_BEANS_CLASS_PATTERN, null);
-        final String annotation = config.readString(SPRING_BEANS_ANNOTATION, null);
+        int max = config.readInt(SPRING_BEANS_MAX, DEFAULT_SPRING_BEANS_MAX);
 
-
-        int index = 1;
-        while (true) {
-            final String namePatternRegex = config.readString(SPRING_BEANS_PREFIX + index + SPRING_BEANS_NAME_PATTERN_POSTFIX, null);
-            final String classPatternRegex = config.readString(SPRING_BEANS_PREFIX + index + SPRING_BEANS_CLASS_PATTERN_POSTFIX, null);
-            final String annotation = config.readString(SPRING_BEANS_PREFIX + index + SPRING_BEANS_ANNOTATION_POSTFIX, null);
-            if (namePatternRegex == null && classPatternRegex == null && annotation == null) {
-                break;
+        for(int i = 0; i < max; i++) {
+            final SpringBeansTarget target = new SpringBeansTarget();
+            if(i == 0) {
+                // backward compatibility
+                final String namePatternRegexs =  config.readString(SPRING_BEANS_NAME_PATTERN, null);
+                final String classPatternRegexs = config.readString(SPRING_BEANS_CLASS_PATTERN, null);
+                final String annotations = config.readString(SPRING_BEANS_ANNOTATION, null);
+                target.setNamePatterns(namePatternRegexs);
+                target.setClassPatterns(classPatternRegexs);
+                target.setAnnotation(annotations);
+            } else {
+                final String namePatternRegexs = config.readString(SPRING_BEANS_PREFIX + i + SPRING_BEANS_NAME_PATTERN_POSTFIX, null);
+                final String classPatternRegexs = config.readString(SPRING_BEANS_PREFIX + i + SPRING_BEANS_CLASS_PATTERN_POSTFIX, null);
+                final String annotations = config.readString(SPRING_BEANS_PREFIX + i + SPRING_BEANS_ANNOTATION_POSTFIX, null);
+                target.setNamePatterns(namePatternRegexs);
+                target.setClassPatterns(classPatternRegexs);
+                target.setAnnotation(annotations);
             }
 
-            final SpringBeansTarget target = new SpringBeansTarget();
-            target.setNamePattern(namePatternRegex);
-            target.setClassPattern(classPatternRegex);
-            target.setAnnotation(annotation);
             if (target.isValid()) {
                 targets.add(target);
             }
-            index++;
         }
     }
 
