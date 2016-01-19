@@ -53,6 +53,11 @@ public class GcCountCheckerTest {
                 
                 return agentStatList;
             }
+
+            @Override
+            public boolean agentStatExists(String agentId, Range range) {
+                return true;
+            }
         };
         
         applicationIndexDao = new ApplicationIndexDao() {

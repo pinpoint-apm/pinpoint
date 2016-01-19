@@ -28,8 +28,6 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorFactory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
-import com.navercorp.pinpoint.web.alarm.checker.AgentChecker;
-import com.navercorp.pinpoint.web.alarm.checker.JvmCpuUsageRateChecker;
 import com.navercorp.pinpoint.web.alarm.collector.AgentStatDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AgentStatDao;
@@ -62,6 +60,11 @@ public class JvmCpuUsageRateCheckerTest {
                 }
                 
                 return agentStatList;
+            }
+
+            @Override
+            public boolean agentStatExists(String agentId, Range range) {
+                return true;
             }
         };
         

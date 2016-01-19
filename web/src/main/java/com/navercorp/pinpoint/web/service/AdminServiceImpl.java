@@ -16,10 +16,22 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.google.common.collect.Ordering;
+import com.navercorp.pinpoint.web.dao.AgentStatDao;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Range;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author netspider
@@ -31,6 +43,9 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     private ApplicationIndexDao applicationIndexDao;
 
+    @Autowired
+    private AgentStatDao agentStatDao;
+
     @Override
     public void removeApplicationName(String applicationName) {
         applicationIndexDao.deleteApplicationName(applicationName);
@@ -39,6 +54,71 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void removeAgentId(String applicationName, String agentId) {
         applicationIndexDao.deleteAgentId(applicationName, agentId);
+    }
+
+    @Override
+    public Map<String, List<String>> getAgentIdMap() {
+        Map<String, List<String>> agentIdMap = new TreeMap<>(Ordering.usingToString());
+        List<Application> applications = this.applicationIndexDao.selectAllApplicationNames();
+        for (Application application : applications) {
+            List<String> agentIds = this.applicationIndexDao.selectAgentIds(application.getName());
+            for (String agentId : agentIds) {
+                if (!agentIdMap.containsKey(agentId)) {
+                    agentIdMap.put(agentId, new ArrayList<String>());
+                }
+                agentIdMap.get(agentId).add(application.toString());
+            }
+        }
+        return agentIdMap;
+    }
+
+    @Override
+    public Map<String, List<String>> getDuplicateAgentIdMap() {
+        Map<String, List<String>> duplicateAgentIdMap = new TreeMap<>(Ordering.usingToString());
+        Map<String, List<String>> agentIdMap = this.getAgentIdMap();
+        for (Map.Entry<String, List<String>> entry : agentIdMap.entrySet()) {
+            String agentId = entry.getKey();
+            List<String> applications = entry.getValue();
+            if (applications.size() > 1) {
+                duplicateAgentIdMap.put(agentId, applications);
+            }
+        }
+        return duplicateAgentIdMap;
+    }
+
+    @Override
+    public Map<String, List<String>> getInactiveAgents(String applicationName, int durationDays) {
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
+        }
+        if (durationDays < 30) {
+            throw new IllegalArgumentException("duration may not be less than 30 days");
+        }
+        if (durationDays > 180) {
+            throw new IllegalArgumentException("duration may not be greater than 180 days");
+        }
+        List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
+        if (CollectionUtils.isEmpty(agentIds)) {
+            return Collections.emptyMap();
+        }
+
+        final long toTimestamp = System.currentTimeMillis();
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, durationDays * -1);
+        final long fromTimestamp = cal.getTimeInMillis();
+        Range queryRange = new Range(fromTimestamp, toTimestamp);
+
+        Map<String, List<String>> agentIdMap = this.getAgentIdMap();
+
+        Map<String, List<String>> inactiveAgentMap = new TreeMap<>(Ordering.usingToString());
+        for (String agentId : agentIds) {
+            boolean dataExists = this.agentStatDao.agentStatExists(agentId, queryRange);
+            if (!dataExists) {
+                List<String> applications = agentIdMap.get(agentId);
+                inactiveAgentMap.put(agentId, applications);
+            }
+        }
+        return inactiveAgentMap;
     }
 
 }

@@ -28,4 +28,6 @@ public interface AgentStatDao {
 
     List<AgentStat> scanAgentStatList(String agentId, Range range);
 
+    boolean agentStatExists(String agentId, Range range);
+
 }
