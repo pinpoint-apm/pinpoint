@@ -159,8 +159,14 @@ public class SpanCallTree implements CallTree {
             travel(node.getChild());
         }
 
-        if (node.hasSibling()) {
-            travel(node.getSibling());
+        // change logic from recursive to loop, because of avoid call-stack-overflow.
+        CallTreeNode sibling = node.getSibling();
+        while(sibling != null) {
+            sortChildSibling(sibling);
+            if(sibling.hasChild()) {
+                travel(sibling.getChild());
+            }
+            sibling = sibling.getSibling();
         }
     }
 
