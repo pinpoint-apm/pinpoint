@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.web.vo.Application;
+
 import java.util.List;
 import java.util.Map;
 
@@ -29,10 +31,10 @@ public interface AdminService {
 
     void removeAgentId(String applicationName, String agentId);
 
-    Map<String, List<String>> getAgentIdMap();
+    Map<String, List<Application>> getAgentIdMap();
 
-    Map<String, List<String>> getDuplicateAgentIdMap();
+    Map<String, List<Application>> getDuplicateAgentIdMap();
 
-    Map<String, List<String>> getInactiveAgents(String applicationName, int durationDays);
+    Map<String, List<Application>> getInactiveAgents(String applicationName, int durationDays);
 
 }
