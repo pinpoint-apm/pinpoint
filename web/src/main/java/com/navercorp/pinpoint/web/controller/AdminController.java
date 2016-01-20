@@ -26,6 +26,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.navercorp.pinpoint.web.service.AdminService;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author netspider
  * @author HyunGil Jeong
@@ -65,6 +68,27 @@ public class AdminController {
             logger.error("error while removing agentId", e);
             return e.getMessage();
         }
+    }
+
+    @RequestMapping(value = "/agentIdMap")
+    @ResponseBody
+    public Map<String, List<String>> agentIdMap() {
+        return this.adminService.getAgentIdMap();
+    }
+
+    @RequestMapping(value = "/duplicateAgentIdMap")
+    @ResponseBody
+    public Map<String, List<String>> duplicateAgentIdMap() {
+        return this.adminService.getDuplicateAgentIdMap();
+    }
+
+    @RequestMapping(value = "/getInactiveAgents")
+    @ResponseBody
+    public Map<String, List<String>> getInactiveAgents(
+            @RequestParam(value = "applicationName", required = true) String applicationName,
+            @RequestParam(value = "durationDays", defaultValue = "30") int durationDays) {
+        logger.info("get inactive agents - applicationName: [{}], duration: {} days.", applicationName, durationDays);
+        return this.adminService.getInactiveAgents(applicationName, durationDays);
     }
 
 }

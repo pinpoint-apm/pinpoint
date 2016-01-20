@@ -30,11 +30,14 @@ import com.navercorp.pinpoint.web.dao.AgentStatDao;
 import com.navercorp.pinpoint.web.vo.AgentStat;
 import com.navercorp.pinpoint.web.vo.Range;
 
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.hadoop.hbase.ResultsExtractor;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -66,6 +69,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
         this.scanCacheSize = scanCacheSize;
     }
 
+    @Override
     public List<AgentStat> scanAgentStatList(String agentId, Range range) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
@@ -84,14 +88,59 @@ public class HbaseAgentStatDao implements AgentStatDao {
 
         List<List<AgentStat>> intermediate = hbaseOperations2.find(HBaseTables.AGENT_STAT, scan, rowKeyDistributor, agentStatMapper);
 
-        int expectedSize = (int)(range.getRange() / 5000); // data for 5 seconds
+        int expectedSize = (int) (range.getRange() / 5000); // data for 5 seconds
         List<AgentStat> merged = new ArrayList<>(expectedSize);
 
-        for(List<AgentStat> each : intermediate) {
+        for (List<AgentStat> each : intermediate) {
             merged.addAll(each);
         }
 
         return merged;
+    }
+
+    @Override
+    public boolean agentStatExists(String agentId, Range range) {
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("checking for stat data existence : agentId={}, {}", agentId, range);
+        }
+
+        Scan scan = createScan(agentId, range);
+        scan.setCaching(1);
+        scan.addFamily(HBaseTables.AGENT_STAT_CF_STATISTICS);
+
+        return hbaseOperations2.find(HBaseTables.AGENT_STAT, scan, rowKeyDistributor, new AgentStatDataExistsResultsExtractor(this.agentStatMapper));
+    }
+
+    private class AgentStatDataExistsResultsExtractor implements ResultsExtractor<Boolean> {
+
+        private final RowMapper<List<AgentStat>> agentStatMapper;
+
+        private AgentStatDataExistsResultsExtractor(RowMapper<List<AgentStat>> agentStatMapper) {
+            this.agentStatMapper = agentStatMapper;
+        }
+
+        @Override
+        public Boolean extractData(ResultScanner results) throws Exception {
+            int matchCnt = 0;
+            for (Result result : results) {
+                if (!result.isEmpty()) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("stat data exists, most recent data : {}", this.agentStatMapper.mapRow(result, matchCnt++));
+                    }
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            return false;
+        }
     }
 
     /**

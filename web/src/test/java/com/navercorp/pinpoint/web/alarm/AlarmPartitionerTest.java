@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.springframework.batch.item.ExecutionContext;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.alarm.AlarmPartitioner;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
 
@@ -55,7 +54,7 @@ public class AlarmPartitionerTest {
                 
                 return apps;
             }
-            
+
             @Override
             public List<String> selectAgentIds(String applicationName) {
                 return null;

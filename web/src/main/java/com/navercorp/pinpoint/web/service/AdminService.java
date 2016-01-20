@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author netspider
  * @author HyunGil Jeong
@@ -25,5 +28,11 @@ public interface AdminService {
     void removeApplicationName(String applicationName);
 
     void removeAgentId(String applicationName, String agentId);
-    
+
+    Map<String, List<String>> getAgentIdMap();
+
+    Map<String, List<String>> getDuplicateAgentIdMap();
+
+    Map<String, List<String>> getInactiveAgents(String applicationName, int durationDays);
+
 }
