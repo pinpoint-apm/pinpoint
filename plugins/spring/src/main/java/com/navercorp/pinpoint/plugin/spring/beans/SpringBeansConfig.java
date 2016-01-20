@@ -15,6 +15,8 @@
 package com.navercorp.pinpoint.plugin.spring.beans;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,16 +38,17 @@ public class SpringBeansConfig {
     public static final String SPRING_BEANS_MAX = "profiler.spring.beans.max";
     public static final int DEFAULT_SPRING_BEANS_MAX = 100;
 
+    private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final List<SpringBeansTarget> targets = new ArrayList<SpringBeansTarget>();
 
     public SpringBeansConfig(ProfilerConfig config) {
         int max = config.readInt(SPRING_BEANS_MAX, DEFAULT_SPRING_BEANS_MAX);
 
-        for(int i = 0; i < max; i++) {
+        for (int i = 0; i <= max; i++) {
             final SpringBeansTarget target = new SpringBeansTarget();
-            if(i == 0) {
+            if (i == 0) {
                 // backward compatibility
-                final String namePatternRegexs =  config.readString(SPRING_BEANS_NAME_PATTERN, null);
+                final String namePatternRegexs = config.readString(SPRING_BEANS_NAME_PATTERN, null);
                 final String classPatternRegexs = config.readString(SPRING_BEANS_CLASS_PATTERN, null);
                 final String annotations = config.readString(SPRING_BEANS_ANNOTATION, null);
                 target.setNamePatterns(namePatternRegexs);
@@ -62,6 +65,9 @@ public class SpringBeansConfig {
 
             if (target.isValid()) {
                 targets.add(target);
+                if (logger.isInfoEnabled()) {
+                    logger.info("Add spring-beans filter {}", target);
+                }
             }
         }
     }

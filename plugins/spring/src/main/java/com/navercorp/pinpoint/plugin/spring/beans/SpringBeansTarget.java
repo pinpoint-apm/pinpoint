@@ -100,7 +100,7 @@ public class SpringBeansTarget {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("SpringBeansTarget{");
+        final StringBuilder sb = new StringBuilder("{");
         sb.append("namePatterns=").append(namePatterns);
         sb.append(", classPatterns=").append(classPatterns);
         sb.append(", annotations=").append(annotations);
