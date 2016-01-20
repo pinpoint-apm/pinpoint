@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.web.vo;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.view.ApplicationSerializer;
 
 /**
  * 
@@ -25,6 +27,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author jaehong.kim
  * 
  */
+@JsonSerialize(using = ApplicationSerializer.class)
 public final class Application {
     private final String name;
     private final ServiceType serviceType;

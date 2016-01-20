@@ -57,28 +57,28 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Map<String, List<String>> getAgentIdMap() {
-        Map<String, List<String>> agentIdMap = new TreeMap<>(Ordering.usingToString());
+    public Map<String, List<Application>> getAgentIdMap() {
+        Map<String, List<Application>> agentIdMap = new TreeMap<>(Ordering.usingToString());
         List<Application> applications = this.applicationIndexDao.selectAllApplicationNames();
         for (Application application : applications) {
             List<String> agentIds = this.applicationIndexDao.selectAgentIds(application.getName());
             for (String agentId : agentIds) {
                 if (!agentIdMap.containsKey(agentId)) {
-                    agentIdMap.put(agentId, new ArrayList<String>());
+                    agentIdMap.put(agentId, new ArrayList<Application>());
                 }
-                agentIdMap.get(agentId).add(application.toString());
+                agentIdMap.get(agentId).add(application);
             }
         }
         return agentIdMap;
     }
 
     @Override
-    public Map<String, List<String>> getDuplicateAgentIdMap() {
-        Map<String, List<String>> duplicateAgentIdMap = new TreeMap<>(Ordering.usingToString());
-        Map<String, List<String>> agentIdMap = this.getAgentIdMap();
-        for (Map.Entry<String, List<String>> entry : agentIdMap.entrySet()) {
+    public Map<String, List<Application>> getDuplicateAgentIdMap() {
+        Map<String, List<Application>> duplicateAgentIdMap = new TreeMap<>(Ordering.usingToString());
+        Map<String, List<Application>> agentIdMap = this.getAgentIdMap();
+        for (Map.Entry<String, List<Application>> entry : agentIdMap.entrySet()) {
             String agentId = entry.getKey();
-            List<String> applications = entry.getValue();
+            List<Application> applications = entry.getValue();
             if (applications.size() > 1) {
                 duplicateAgentIdMap.put(agentId, applications);
             }
@@ -87,7 +87,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Map<String, List<String>> getInactiveAgents(String applicationName, int durationDays) {
+    public Map<String, List<Application>> getInactiveAgents(String applicationName, int durationDays) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
@@ -108,13 +108,13 @@ public class AdminServiceImpl implements AdminService {
         final long fromTimestamp = cal.getTimeInMillis();
         Range queryRange = new Range(fromTimestamp, toTimestamp);
 
-        Map<String, List<String>> agentIdMap = this.getAgentIdMap();
+        Map<String, List<Application>> agentIdMap = this.getAgentIdMap();
 
-        Map<String, List<String>> inactiveAgentMap = new TreeMap<>(Ordering.usingToString());
+        Map<String, List<Application>> inactiveAgentMap = new TreeMap<>(Ordering.usingToString());
         for (String agentId : agentIds) {
             boolean dataExists = this.agentStatDao.agentStatExists(agentId, queryRange);
             if (!dataExists) {
-                List<String> applications = agentIdMap.get(agentId);
+                List<Application> applications = agentIdMap.get(agentId);
                 inactiveAgentMap.put(agentId, applications);
             }
         }

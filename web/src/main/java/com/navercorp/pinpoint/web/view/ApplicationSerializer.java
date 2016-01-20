@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2016 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,21 +23,18 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
- * @author emeroad
+ * @author HyunGil Jeong
  */
-public class ApplicationGroupSerializer extends JsonSerializer<ApplicationGroup> {
+public class ApplicationSerializer extends JsonSerializer<Application> {
 
     @Override
-    public void serialize(ApplicationGroup applicationGroup, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
-        jgen.writeStartArray();
-
-        List<Application> applicationList = applicationGroup.getApplicationList();
-        for (Application application : applicationList) {
-            jgen.writeObject(application);
-        }
-        jgen.writeEndArray();
+    public void serialize(Application application, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+        jgen.writeStartObject();
+        jgen.writeStringField("applicationName", application.getName());
+        jgen.writeStringField("serviceType", application.getServiceType().getDesc());
+        jgen.writeNumberField("code", application.getServiceTypeCode());
+        jgen.writeEndObject();
     }
 }

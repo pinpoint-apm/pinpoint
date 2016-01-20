@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.controller;
 
+import com.navercorp.pinpoint.web.vo.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,19 +73,19 @@ public class AdminController {
 
     @RequestMapping(value = "/agentIdMap")
     @ResponseBody
-    public Map<String, List<String>> agentIdMap() {
+    public Map<String, List<Application>> agentIdMap() {
         return this.adminService.getAgentIdMap();
     }
 
     @RequestMapping(value = "/duplicateAgentIdMap")
     @ResponseBody
-    public Map<String, List<String>> duplicateAgentIdMap() {
+    public Map<String, List<Application>> duplicateAgentIdMap() {
         return this.adminService.getDuplicateAgentIdMap();
     }
 
     @RequestMapping(value = "/getInactiveAgents")
     @ResponseBody
-    public Map<String, List<String>> getInactiveAgents(
+    public Map<String, List<Application>> getInactiveAgents(
             @RequestParam(value = "applicationName", required = true) String applicationName,
             @RequestParam(value = "durationDays", defaultValue = "30") int durationDays) {
         logger.info("get inactive agents - applicationName: [{}], duration: {} days.", applicationName, durationDays);
