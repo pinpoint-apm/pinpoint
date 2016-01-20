@@ -38,7 +38,7 @@
 								showButtonPanel: true,
 								onSelect: function () {},
 								onClose: function (selectedTime) {
-									var time = new Date(selectedTime).valueOf();
+									var time = moment( selectedTime, "YYYY-MM-DD HH:mm:ss").valueOf();
 									if ( scope.selectTime !== time ) {
 										timeSlider.setSelectTime( time );
 									}
