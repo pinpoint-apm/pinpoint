@@ -166,29 +166,39 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     @Override
     public Set<AgentInfo> getAgentsByApplicationName(String applicationName, long timestamp) {
-        return this.getAgentsByApplicationName(applicationName, timestamp, timestamp);
+        Set<AgentInfo> agentInfos = this.getAgentsByApplicationNameWithoutStatus(applicationName, timestamp);
+        this.agentLifeCycleDao.populateAgentStatuses(agentInfos, timestamp);
+        return agentInfos;
     }
 
     @Override
-    public Set<AgentInfo> getAgentsByApplicationName(String applicationName, long timestamp, long timeDiff) {
+    public Set<AgentInfo> getAgentsByApplicationNameWithoutStatus(String applicationName, long timestamp) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
         if (timestamp < 0) {
             throw new IllegalArgumentException("timestamp must not be less than 0");
         }
+
+        List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
+        List<AgentInfo> agentInfos = this.agentInfoDao.getAgentInfos(agentIds, timestamp);
+        CollectionUtils.filter(agentInfos, PredicateUtils.notNullPredicate());
+        if (CollectionUtils.isEmpty(agentInfos)) {
+            return Collections.emptySet();
+        }
+        return new HashSet<>(agentInfos);
+    }
+
+    @Override
+    public Set<AgentInfo> getRecentAgentsByApplicationName(String applicationName, long timestamp, long timeDiff) {
         if (timeDiff > timestamp) {
             throw new IllegalArgumentException("timeDiff must not be greater than timestamp");
         }
+
+        Set<AgentInfo> unfilteredAgentInfos = this.getAgentsByApplicationName(applicationName, timestamp);
+
         final long eventTimestampFloor = timestamp - timeDiff;
 
-        List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
-        List<AgentInfo> unfilteredAgentInfos = this.agentInfoDao.getAgentInfos(agentIds, timestamp);
-        if (unfilteredAgentInfos == null || unfilteredAgentInfos.isEmpty()) {
-            return Collections.emptySet();
-        }
-        CollectionUtils.filter(unfilteredAgentInfos, PredicateUtils.notNullPredicate());
-        this.agentLifeCycleDao.populateAgentStatuses(unfilteredAgentInfos, timestamp);
         Set<AgentInfo> filteredAgentInfos = new HashSet<>();
         for (AgentInfo agentInfo : unfilteredAgentInfos) {
             AgentStatus agentStatus = agentInfo.getStatus();

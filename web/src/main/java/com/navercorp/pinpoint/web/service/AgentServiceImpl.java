@@ -149,7 +149,7 @@ public class AgentServiceImpl implements AgentService {
 
         long currentTime = System.currentTimeMillis();
 
-        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationName(applicationName, currentTime, timeDiff);
+        Set<AgentInfo> agentInfos = agentInfoService.getRecentAgentsByApplicationName(applicationName, currentTime, timeDiff);
         for (AgentInfo agentInfo : agentInfos) {
             ListUtils.addIfValueNotNull(agentInfoList, agentInfo);
         }

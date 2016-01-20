@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
-import com.navercorp.pinpoint.web.mapper.AgentLifeCycleMapper;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import org.apache.commons.collections.CollectionUtils;
@@ -93,7 +93,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
     }
 
     @Override
-    public void populateAgentStatuses(List<AgentInfo> agentInfos, long timestamp) {
+    public void populateAgentStatuses(Collection<AgentInfo> agentInfos, long timestamp) {
         if (CollectionUtils.isEmpty(agentInfos)) {
             return;
         }
