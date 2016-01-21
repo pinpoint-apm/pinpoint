@@ -185,7 +185,7 @@
 	        $("#traceTabs li:nth-child(2) a").bind("click", function (e) {
 	        	analyticsService.send(analyticsService.CONST.CALLSTACK, analyticsService.CONST.CLK_SERVER_MAP);
 	        	initSearchVar();
-	            $scope.$broadcast('serverMapDirective.initializeWithMapData', $scope.transactionDetail);
+	            $scope.$broadcast('serverMapDirective.initializeWithMapData', false, $scope.transactionDetail);
 	        });
 	        var testCount = 0;
 	        $("#traceTabs li:nth-child(3) a").bind("click", function (e) {

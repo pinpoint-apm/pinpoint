@@ -354,7 +354,7 @@
 	                        sLastSelection = 'node';
 	                        htLastNode = node;
 	                        scope.$emit("serverMapDirective.nodeClicked", e, htLastQuery, node, htLastMergedMapData, searchQuery);
-							if ( scope.oNavbarVoService !== null ) {
+							if ( scope.oNavbarVoService ) {
 								$rootScope.$broadcast("realtimeChartController.initialize", node.isWas, node.applicationName, scope.oNavbarVoService.getApplication() + "/" + scope.oNavbarVoService.getReadablePeriod() + "/" + scope.oNavbarVoService.getQueryEndDateTime() + "/" + scope.oNavbarVoService.getCallerRange());
 							}
 	                        reset();
@@ -369,9 +369,9 @@
 	                            node = originalNode;
 	                        }
 	                        htLastNode = node;
-//	                        if (!bUseNodeContextMenu) {
-//	                            return;
-//	                        }
+	                        if (!bUseNodeContextMenu) {
+	                            return;
+	                        }
 	                        if (node.isWas === true) {
 								setNodeContextMenuPosition(e.event.layerY, e.event.layerX, node.applicationName, node.category);
 	                        }
@@ -758,11 +758,12 @@
 	                /**
 	                 * scope event on serverMapDirective.initializeWithMapData
 	                 */
-	                scope.$on('serverMapDirective.initializeWithMapData', function (event, mapData, navbarVoService) {
+	                scope.$on('serverMapDirective.initializeWithMapData', function (event, bAllowNodeContextClick, mapData, navbarVoService) {
 	                    reset();
 	                    scope.bShowServerMapStatus = false;
 	                    bUseBackgroundContextMenu = true;
-	                    bUseNodeContextMenu = bUseLinkContextMenu = false;
+						bUseNodeContextMenu = bAllowNodeContextClick;
+	                    bUseLinkContextMenu = false;
 	                    htLastQuery = {
 	                        applicationName: mapData.applicationId
 	                    };
