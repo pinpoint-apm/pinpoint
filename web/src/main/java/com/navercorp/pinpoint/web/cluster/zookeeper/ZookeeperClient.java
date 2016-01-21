@@ -17,8 +17,16 @@
 package com.navercorp.pinpoint.web.cluster.zookeeper;
 
 
+import com.navercorp.pinpoint.common.util.concurrent.CommonState;
+import com.navercorp.pinpoint.common.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
-import com.navercorp.pinpoint.web.cluster.zookeeper.exception.*;
+import com.navercorp.pinpoint.web.cluster.zookeeper.exception.AuthException;
+import com.navercorp.pinpoint.web.cluster.zookeeper.exception.BadOperationException;
+import com.navercorp.pinpoint.web.cluster.zookeeper.exception.ConnectionException;
+import com.navercorp.pinpoint.web.cluster.zookeeper.exception.NoNodeException;
+import com.navercorp.pinpoint.web.cluster.zookeeper.exception.PinpointZookeeperException;
+import com.navercorp.pinpoint.web.cluster.zookeeper.exception.TimeoutException;
+import com.navercorp.pinpoint.web.cluster.zookeeper.exception.UnknownException;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.KeeperException.Code;
@@ -35,16 +43,19 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
+ *
+ * <strong>Conditional thread safe</strong> <br>
+ * If multiple threads invokes connect, reconnect, or close concurrently; then it is possible for the object's zookeeper field to be out of sync.
+ *
  * @author koo.taejin
  */
 public class ZookeeperClient {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final AtomicBoolean clientState = new AtomicBoolean(true);
+    private final CommonStateContext stateContext;
 
     private final HashedWheelTimer timer;
 
@@ -57,28 +68,37 @@ public class ZookeeperClient {
     private volatile ZooKeeper zookeeper;
 
     // hmm this structure should contain all necessary information
-    public ZookeeperClient(String hostPort, int sessionTimeout, ZookeeperClusterDataManager manager) throws KeeperException, IOException, InterruptedException {
+    public ZookeeperClient(String hostPort, int sessionTimeout, ZookeeperClusterDataManager manager) {
         this(hostPort, sessionTimeout, manager, ZookeeperClusterDataManager.DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED);
     }
     
-    public ZookeeperClient(String hostPort, int sessionTimeout, ZookeeperClusterDataManager zookeeperDataManager, long reconnectDelayWhenSessionExpired) throws KeeperException, IOException, InterruptedException {
+    public ZookeeperClient(String hostPort, int sessionTimeout, ZookeeperClusterDataManager zookeeperDataManager, long reconnectDelayWhenSessionExpired) {
         this.hostPort = hostPort;
         this.sessionTimeout = sessionTimeout;
         this.zookeeperDataManager = zookeeperDataManager;
         this.reconnectDelayWhenSessionExpired = reconnectDelayWhenSessionExpired;
         
-        this.zookeeper = new ZooKeeper(hostPort, sessionTimeout, zookeeperDataManager); // server
-        
+
         this.timer = TimerFactory.createHashedWheelTimer(this.getClass().getSimpleName(), 100, TimeUnit.MILLISECONDS, 512);
+
+        this.stateContext = new CommonStateContext();
     }
 
+    public void connect() throws IOException {
+        if (stateContext.changeStateInitializing()) {
+            this.zookeeper = new ZooKeeper(hostPort, sessionTimeout, zookeeperDataManager); // server
+            stateContext.changeStateStarted();
+        } else {
+            logger.warn("connect() failed. error : Illegal State. State may be {}.", stateContext.getCurrentState());
+        }
+    }
 
     public void reconnectWhenSessionExpired() {
-        if (!clientState.get()) {
+        if (stateContext.getCurrentState() != CommonState.STARTED) {
             logger.warn("ZookeeperClient.reconnectWhenSessionExpired() failed. Error: Already closed.");
             return;
         }
-        
+
         ZooKeeper zookeeper = this.zookeeper;
         if (zookeeper.getState().isConnected()) {
             logger.warn("ZookeeperClient.reconnectWhenSessionExpired() failed. Error: session(0x{}) is connected.", Long.toHexString(zookeeper.getSessionId()));
@@ -156,23 +176,23 @@ public class ZookeeperClient {
     }
 
     // we need deep node inspection for verification purpose (node content)
-    public String createNode(String znodePath, byte[] data, CreateMode createMode) throws PinpointZookeeperException, InterruptedException {
+    public String createNode(String zNodePath, byte[] data, CreateMode createMode) throws PinpointZookeeperException, InterruptedException {
         checkState();
         
         ZooKeeper zookeeper = this.zookeeper;
         try {
-            if (zookeeper.exists(znodePath, false) != null) {
-                return znodePath;
+            if (zookeeper.exists(zNodePath, false) != null) {
+                return zNodePath;
             }
 
-            String pathName = zookeeper.create(znodePath, data, Ids.OPEN_ACL_UNSAFE, createMode);
+            String pathName = zookeeper.create(zNodePath, data, Ids.OPEN_ACL_UNSAFE, createMode);
             return pathName;
         } catch (KeeperException exception) {
             if (exception.code() != Code.NODEEXISTS) {
                 handleException(exception);
             }
         }
-        return znodePath;
+        return zNodePath;
     }
 
     public List<String> getChildren(String path, boolean watch) throws PinpointZookeeperException, InterruptedException {
@@ -239,8 +259,8 @@ public class ZookeeperClient {
     }
 
     private void checkState() throws PinpointZookeeperException {
-        if (!this.zookeeperDataManager.isConnected() || !clientState.get()) {
-            throw new ConnectionException("instance must be connected.");
+        if (!zookeeperDataManager.isConnected() || stateContext.getCurrentState() != CommonState.STARTED) {
+            throw new ConnectionException("Instance must be connected.");
         }
     }
 
@@ -269,11 +289,11 @@ public class ZookeeperClient {
     }
 
     public void close() {
-        if (clientState.compareAndSet(true, false)) {
+        if (stateContext.changeStateDestroying()) {
             if (timer != null) {
                 timer.stop();
             }
-            
+
             if (zookeeper != null) {
                 try {
                     zookeeper.close();
@@ -281,6 +301,9 @@ public class ZookeeperClient {
                     logger.debug(ignore.getMessage(), ignore);
                 }
             }
+            stateContext.changeStateStopped();
+        } else {
+            logger.warn("close failed. error : Illegal State. State may be {}.", stateContext.getCurrentState());
         }
     }
 
