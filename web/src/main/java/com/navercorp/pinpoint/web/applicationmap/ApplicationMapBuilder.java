@@ -57,17 +57,17 @@ public class ApplicationMapBuilder {
         
         Node node = new Node(application);
         Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationName(application.getName(), range.getTo());
-        for (Iterator<AgentInfo> iterator = agentInfos.iterator(); iterator.hasNext();) {
-            AgentInfo agentInfo = iterator.next();
-            if (!isAgentRunning(agentInfo)) {
-                iterator.remove();
+        Set<AgentInfo> runningAgents = new HashSet<>();
+        for (AgentInfo agentInfo : agentInfos) {
+            if (isAgentRunning(agentInfo)) {
+                runningAgents.add(agentInfo);
             }
         }
-        if (agentInfos.isEmpty()) {
+        if (runningAgents.isEmpty()) {
             return new ApplicationMap(range, nodeList, emptyLinkList);
         } else {
             ServerBuilder serverBuilder = new ServerBuilder();
-            serverBuilder.addAgentInfo(agentInfos);
+            serverBuilder.addAgentInfo(runningAgents);
             ServerInstanceList serverInstanceList = serverBuilder.build();
             node.setServerInstanceList(serverInstanceList);
             node.setNodeHistogram(new NodeHistogram(application, range));
@@ -100,7 +100,8 @@ public class ApplicationMapBuilder {
         AgentInfoPopulator agentInfoPopulator = new AgentInfoPopulator() {
             @Override
             public void addAgentInfos(Node node) {
-                Set<AgentInfo> agentList = agentInfoService.getAgentsByApplicationName(node.getApplication().getName(), range.getTo());
+                long timestamp = range.getTo();
+                Set<AgentInfo> agentList = agentInfoService.getAgentsByApplicationNameWithoutStatus(node.getApplication().getName(), timestamp);
                 if (agentList.isEmpty()) {
                     logger.warn("agentInfo not found. applicationName:{}", node.getApplication());
                     // avoid NPE
@@ -109,7 +110,7 @@ public class ApplicationMapBuilder {
                 }
                 logger.debug("add agentInfo. {}, {}", node.getApplication(), agentList);
                 ServerBuilder builder = new ServerBuilder();
-                agentList = filterAgentInfoByResponseData(agentList, node);
+                agentList = filterAgentInfoByResponseData(agentList, timestamp, node, agentInfoService);
                 builder.addAgentInfo(agentList);
                 ServerInstanceList serverInstanceList = builder.build();
 
@@ -447,7 +448,7 @@ public class ApplicationMapBuilder {
      * Filters AgentInfo by whether they actually have response data.
      * For agents that do not have response data, check their status and include those that were alive.
      */
-    private Set<AgentInfo> filterAgentInfoByResponseData(Set<AgentInfo> agentList, Node node) {
+    private Set<AgentInfo> filterAgentInfoByResponseData(Set<AgentInfo> agentList, long timestamp, Node node, AgentInfoService agentInfoService) {
         Set<AgentInfo> filteredAgentInfo = new HashSet<>();
 
         NodeHistogram nodeHistogram = node.getNodeHistogram();
@@ -457,11 +458,14 @@ public class ApplicationMapBuilder {
             if (agentHistogramMap.containsKey(agentId)) {
                 filteredAgentInfo.add(agentInfo);
             } else {
+                AgentStatus status = agentInfoService.getAgentStatus(agentId, timestamp);
+                agentInfo.setStatus(status);
                 if (isAgentRunning(agentInfo)) {
                     filteredAgentInfo.add(agentInfo);
                 }
             }
         }
+
 
         return filteredAgentInfo;
     }
