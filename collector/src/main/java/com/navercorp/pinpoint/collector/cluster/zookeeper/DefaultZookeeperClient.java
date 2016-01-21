@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.NoNodeExcept
 import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.TimeoutException;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.UnknownException;
-import com.navercorp.pinpoint.common.util.concurrent.CommonState;
 import com.navercorp.pinpoint.common.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import org.apache.zookeeper.CreateMode;
@@ -92,7 +91,7 @@ public class DefaultZookeeperClient implements ZookeeperClient {
 
     @Override
     public void reconnectWhenSessionExpired() {
-        if (stateContext.getCurrentState() != CommonState.STARTED) {
+        if (!stateContext.isStarted()) {
             logger.warn("ZookeeperClient.reconnectWhenSessionExpired() failed. Error: Already closed.");
             return;
         }
@@ -111,7 +110,7 @@ public class DefaultZookeeperClient implements ZookeeperClient {
         }
         
         ZooKeeper newZookeeper = createNewZookeeper();
-        if (stateContext.getCurrentState() != CommonState.STARTED) {
+        if (!stateContext.isStarted()) {
             logger.warn("ZookeeperClient.reconnectWhenSessionExpired() failed. Error: Already closed.");
             return;
         }
@@ -277,7 +276,7 @@ public class DefaultZookeeperClient implements ZookeeperClient {
 
     @Override
     public boolean isConnected() {
-        if (!watcher.isConnected() || stateContext.getCurrentState() != CommonState.STARTED) {
+        if (!watcher.isConnected() || !stateContext.isStarted()) {
             return false;
         }
 
