@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.cluster.zookeeper;
 
 
-import com.navercorp.pinpoint.common.util.concurrent.CommonState;
 import com.navercorp.pinpoint.common.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.web.cluster.zookeeper.exception.AuthException;
@@ -94,7 +93,7 @@ public class ZookeeperClient {
     }
 
     public void reconnectWhenSessionExpired() {
-        if (stateContext.getCurrentState() != CommonState.STARTED) {
+        if (!stateContext.isStarted()) {
             logger.warn("ZookeeperClient.reconnectWhenSessionExpired() failed. Error: Already closed.");
             return;
         }
@@ -259,7 +258,7 @@ public class ZookeeperClient {
     }
 
     private void checkState() throws PinpointZookeeperException {
-        if (!zookeeperDataManager.isConnected() || stateContext.getCurrentState() != CommonState.STARTED) {
+        if (!zookeeperDataManager.isConnected() || !stateContext.isStarted()) {
             throw new ConnectionException("Instance must be connected.");
         }
     }
