@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
-import com.navercorp.pinpoint.collector.cluster.WorkerState;
-import com.navercorp.pinpoint.collector.cluster.WorkerStateContext;
 import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnectionManager;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.ConnectionException;
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.util.concurrent.CommonState;
+import com.navercorp.pinpoint.common.util.concurrent.CommonStateContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author koo.taejin
  */
-public class ZookeeperWebClusterManager implements Runnable {
+public class ZookeeperWebClusterManager {
 
     // it is okay for the collector to retry indefinitely, as long as RETRY_INTERVAL is set reasonably
     private static final int DEFAULT_RETRY_INTERVAL = 60000;
@@ -55,7 +55,7 @@ public class ZookeeperWebClusterManager implements Runnable {
 
     private final BlockingQueue<Task> queue = new LinkedBlockingQueue<>(1);
 
-    private final WorkerStateContext workerState;
+    private final CommonStateContext workerState;
     private final Thread workerThread;
 
     // private final Timer timer;
@@ -69,10 +69,10 @@ public class ZookeeperWebClusterManager implements Runnable {
         this.clusterConnectionManager = clusterConnectionManager;
         this.zNodePath = zookeeperClusterPath;
 
-        this.workerState = new WorkerStateContext();
+        this.workerState = new CommonStateContext();
 
         final ThreadFactory threadFactory = new PinpointThreadFactory(this.getClass().getSimpleName(), true);
-        this.workerThread = threadFactory.newThread(this);
+        this.workerThread = threadFactory.newThread(new Worker());
     }
 
     public void start() {
@@ -108,7 +108,7 @@ public class ZookeeperWebClusterManager implements Runnable {
 
     public void stop() {
         if (!(this.workerState.changeStateDestroying())) {
-            WorkerState state = this.workerState.getCurrentState();
+            CommonState state = this.workerState.getCurrentState();
 
             logger.info("{} already {}.", this.getClass().getSimpleName(), state.toString());
             return;
@@ -150,54 +150,61 @@ public class ZookeeperWebClusterManager implements Runnable {
                 logger.info("Invalid Path {}.", path);
             }
         } else {
-            WorkerState state = this.workerState.getCurrentState();
+            CommonState state = this.workerState.getCurrentState();
             logger.info("{} invalid state {}.", this.getClass().getSimpleName(), state.toString());
         }
     }
 
-    @Override
-    public void run() {
-        // if the node does not exist, create a node and retry.
-        // retry on timeout as well.
-        while (workerState.isStarted()) {
-            Task task = null;
+    private class Worker implements Runnable {
 
-            try {
-                task = queue.poll(DEFAULT_RETRY_INTERVAL, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                logger.debug(e.getMessage(), e);
-            }
+        @Override
+        public void run() {
+            // if the node does not exist, create a node and retry.
+            // retry on timeout as well.
+            while (workerState.isStarted()) {
+                Task task = null;
 
-            if (!workerState.isStarted()) {
-                break;
-            }
+                try {
+                    task = queue.poll(DEFAULT_RETRY_INTERVAL, TimeUnit.MILLISECONDS);
+                } catch (InterruptedException e) {
+                    logger.debug(e.getMessage(), e);
+                }
 
-            if (task == null) {
-                if (retryMode.get()) {
-                    boolean success = getAndRegisterTask.handleAndRegisterWatcher0();
-                    if (success) {
-                        retryMode.compareAndSet(true, false);
+                if (!workerState.isStarted()) {
+                    break;
+                }
+
+                if (task == null) {
+                    if (retryMode.get()) {
+                        boolean success = getAndRegisterTask.handleAndRegisterWatcher0();
+                        if (success) {
+                            retryMode.compareAndSet(true, false);
+                        }
                     }
+                } else if (task instanceof GetAndRegisterTask) {
+                    boolean success = ((GetAndRegisterTask) task).handleAndRegisterWatcher0();
+                    if (!success) {
+                        retryMode.compareAndSet(false, true);
+                    }
+                } else if (task instanceof StopTask) {
+                    break;
                 }
-            } else if (task instanceof GetAndRegisterTask) {
-                boolean success = ((GetAndRegisterTask) task).handleAndRegisterWatcher0();
-                if (!success) {
-                    retryMode.compareAndSet(false, true);
-                }
-            } else if (task instanceof StopTask) {
-                break;
             }
+
+            logger.info("{} stopped", this.getClass().getSimpleName());
         }
 
-        logger.info("{} stopped", this.getClass().getSimpleName());
     }
+
 
     interface Task {
 
     }
 
+    @SuppressWarnings("SuspiciousMethodCalls")
     class GetAndRegisterTask implements Task {
 
+        @SuppressWarnings("SuspiciousMethodCalls")
         private boolean handleAndRegisterWatcher0() {
             boolean needNotRetry = false;
             try {
@@ -220,6 +227,7 @@ public class ZookeeperWebClusterManager implements Runnable {
                 }
 
                 for (SocketAddress address : addressList) {
+                    //noinspection SuspiciousMethodCalls,SuspiciousMethodCalls
                     if (!clusterAddressList.contains(address)) {
                         clusterConnectionManager.disconnectPoint(address);
                     }

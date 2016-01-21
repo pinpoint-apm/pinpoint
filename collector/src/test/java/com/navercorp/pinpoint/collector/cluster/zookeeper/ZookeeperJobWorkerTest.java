@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +39,8 @@ public class ZookeeperJobWorkerTest {
     @Test
     public void test1() throws Exception {
         MockZookeeperClient zookeeperClient = new MockZookeeperClient();
+        zookeeperClient.connect();
+
         ZookeeperJobWorker zookeeperWorker = new ZookeeperJobWorker(zookeeperClient, IDENTIFIER);
         zookeeperWorker.start();
 
@@ -57,6 +60,8 @@ public class ZookeeperJobWorkerTest {
     @Test
     public void test2() throws Exception {
         MockZookeeperClient zookeeperClient = new MockZookeeperClient();
+        zookeeperClient.connect();
+
         ZookeeperJobWorker zookeeperWorker = new ZookeeperJobWorker(zookeeperClient, IDENTIFIER);
         zookeeperWorker.start();
 
@@ -76,6 +81,8 @@ public class ZookeeperJobWorkerTest {
     @Test
     public void test3() throws Exception {
         MockZookeeperClient zookeeperClient = new MockZookeeperClient();
+        zookeeperClient.connect();
+
         ZookeeperJobWorker zookeeperWorker = new ZookeeperJobWorker(zookeeperClient, IDENTIFIER);
         zookeeperWorker.start();
 
@@ -97,6 +104,8 @@ public class ZookeeperJobWorkerTest {
     @Test
     public void test4() throws Exception {
         MockZookeeperClient zookeeperClient = new MockZookeeperClient();
+        zookeeperClient.connect();
+
         ZookeeperJobWorker zookeeperWorker = new ZookeeperJobWorker(zookeeperClient, IDENTIFIER);
         zookeeperWorker.start();
 
@@ -164,6 +173,11 @@ public class ZookeeperJobWorkerTest {
         private volatile boolean connected = false;
 
         @Override
+        public void connect() throws IOException {
+            connected = true;
+        }
+
+        @Override
         public synchronized void reconnectWhenSessionExpired() {
             connected = true;
         }
@@ -179,8 +193,8 @@ public class ZookeeperJobWorkerTest {
         }
 
         @Override
-        public synchronized String createNode(String znodePath, byte[] data) throws PinpointZookeeperException, InterruptedException {
-            contents.put(znodePath, data);
+        public synchronized String createNode(String zNodePath, byte[] data) throws PinpointZookeeperException, InterruptedException {
+            contents.put(zNodePath, data);
             return "";
         }
 

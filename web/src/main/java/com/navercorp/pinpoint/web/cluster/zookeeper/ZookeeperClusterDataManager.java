@@ -84,6 +84,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
     public void start() throws Exception {
         this.timer = createTimer();
         this.client = new ZookeeperClient(connectAddress, sessionTimeout, this, DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED);
+        this.client.connect();
     }
 
     @Override
@@ -101,7 +102,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
     // not too much overhead, just logging
     @Override
     public boolean registerWebCluster(String zNodeName, byte[] contents) {
-        String zNodePath = clusterDataManagerHelper.bindingPathAndZnode(PINPOINT_WEB_CLUSTER_PATh, zNodeName);
+        String zNodePath = clusterDataManagerHelper.bindingPathAndZNode(PINPOINT_WEB_CLUSTER_PATh, zNodeName);
 
         logger.info("registerWebCluster() started. create UniqPath={}.", zNodePath);
 
@@ -267,7 +268,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
 
     private boolean pushCollectorClusterData(String id) {
         logger.info("pushCollectorClusterData() started.");
-        String path = clusterDataManagerHelper.bindingPathAndZnode(PINPOINT_COLLECTOR_CLUSTER_PATH, id);
+        String path = clusterDataManagerHelper.bindingPathAndZNode(PINPOINT_COLLECTOR_CLUSTER_PATH, id);
         synchronized (this) {
             try {
                 byte[] data = client.getData(path, true);
@@ -287,12 +288,12 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
     }
 
     class PushWebClusterJob implements TimerTask {
-        private final String znodeName;
+        private final String zNodeName;
         private final byte[] contents;
         private final int retryInterval;
 
-        public PushWebClusterJob(String znodeName, byte[] contents, int retryInterval) {
-            this.znodeName = znodeName;
+        public PushWebClusterJob(String zNodeName, byte[] contents, int retryInterval) {
+            this.zNodeName = zNodeName;
             this.contents = contents;
             this.retryInterval = retryInterval;
         }
@@ -310,8 +311,8 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
             }
         }
 
-        public String getZnodePath() {
-            return znodeName;
+        public String getZNodePath() {
+            return zNodeName;
         }
 
         public byte[] getContents() {
@@ -324,11 +325,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
 
         @Override
         public String toString() {
-            StringBuilder toString = new StringBuilder();
-            toString.append(ClassUtils.simpleClassName(this));
-            toString.append(", Znode=").append(getZnodePath());
-
-            return toString.toString();
+            return ClassUtils.simpleClassName(this) + ", ZNode=" + getZNodePath();
         }
 
     }

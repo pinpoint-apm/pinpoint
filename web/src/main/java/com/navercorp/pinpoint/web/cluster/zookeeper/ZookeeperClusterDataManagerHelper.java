@@ -48,7 +48,7 @@ public class ZookeeperClusterDataManagerHelper {
             Map<String, byte[]> map = new HashMap<>();
 
             for (String collector : collectorList) {
-                String node = bindingPathAndZnode(path, collector);
+                String node = bindingPathAndZNode(path, collector);
 
                 byte[] data = client.getData(node, true);
                 map.put(node, data);
@@ -62,14 +62,14 @@ public class ZookeeperClusterDataManagerHelper {
         return Collections.emptyMap();
     }
 
-    String bindingPathAndZnode(String path, String znodeName) {
+    String bindingPathAndZNode(String path, String zNodeName) {
         StringBuilder fullPath = new StringBuilder();
 
         fullPath.append(path);
         if (!path.endsWith(PATH_SEPARATOR)) {
             fullPath.append(PATH_SEPARATOR);
         }
-        fullPath.append(znodeName);
+        fullPath.append(zNodeName);
 
         return fullPath.toString();
     }
@@ -92,7 +92,7 @@ public class ZookeeperClusterDataManagerHelper {
             return false;
         }
         
-        String zNodePath = job.getZnodePath();
+        String zNodePath = job.getZNodePath();
         byte[] contents = job.getContents();
 
         try {

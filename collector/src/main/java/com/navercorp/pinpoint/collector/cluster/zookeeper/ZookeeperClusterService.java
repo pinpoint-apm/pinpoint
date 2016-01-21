@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import com.navercorp.pinpoint.collector.cluster.AbstractClusterService;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRouter;
-import com.navercorp.pinpoint.collector.cluster.WorkerState;
-import com.navercorp.pinpoint.collector.cluster.WorkerStateContext;
+import com.navercorp.pinpoint.common.util.concurrent.CommonState;
+import com.navercorp.pinpoint.common.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.collector.cluster.connection.*;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
@@ -56,7 +56,7 @@ public class ZookeeperClusterService extends AbstractClusterService {
     // shouldn't be too big of a problem, but will change to MAC or IP if it becomes problematic.
     private final String serverIdentifier = CollectorUtils.getServerIdentifier();
 
-    private final WorkerStateContext serviceState;
+    private final CommonStateContext serviceState;
 
     private CollectorClusterConnectionManager clusterConnectionManager;
 
@@ -71,7 +71,7 @@ public class ZookeeperClusterService extends AbstractClusterService {
     public ZookeeperClusterService(CollectorConfiguration config, ClusterPointRouter clusterPointRouter) {
         super(config, clusterPointRouter);
 
-        this.serviceState = new WorkerStateContext();
+        this.serviceState = new CommonStateContext();
         if (config.isClusterEnable()) {
             CollectorClusterConnectionRepository clusterRepository = new CollectorClusterConnectionRepository();
             CollectorClusterConnectionFactory clusterConnectionFactory = new CollectorClusterConnectionFactory(serverIdentifier, clusterPointRouter, clusterPointRouter);
@@ -103,6 +103,7 @@ public class ZookeeperClusterService extends AbstractClusterService {
 
                     ClusterManagerWatcher watcher = new ClusterManagerWatcher();
                     this.client = new DefaultZookeeperClient(config.getClusterAddress(), config.getClusterSessionTimeout(), watcher);
+                    this.client.connect();
 
                     this.profilerClusterManager = new ZookeeperProfilerClusterManager(client, serverIdentifier, clusterPointRouter.getTargetClusterPointRepository());
                     this.profilerClusterManager.start();
@@ -145,7 +146,7 @@ public class ZookeeperClusterService extends AbstractClusterService {
         }
 
         if (!(this.serviceState.changeStateDestroying())) {
-            WorkerState state = this.serviceState.getCurrentState();
+            CommonState state = this.serviceState.getCurrentState();
 
             logger.info("{} already {}.", this.getClass().getSimpleName(), state.toString());
             return;
@@ -219,7 +220,6 @@ public class ZookeeperClusterService extends AbstractClusterService {
             }
 
             if (serviceState.isStarted() && connected.get()) {
-
                 // duplicate event possible - but the logic does not change
                 if (ZookeeperUtils.isConnectedEvent(state, eventType)) {
                     profilerClusterManager.initZookeeperClusterData();

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRepository;
 import com.navercorp.pinpoint.collector.cluster.PinpointServerClusterPoint;
-import com.navercorp.pinpoint.collector.cluster.WorkerStateContext;
+import com.navercorp.pinpoint.common.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
@@ -47,7 +47,7 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
 
     private final ZookeeperJobWorker worker;
 
-    private final WorkerStateContext workerState;
+    private final CommonStateContext workerState;
 
     private final ClusterPointRepository profileCluster;
 
@@ -56,7 +56,7 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
     // keep it simple - register on RUN, remove on FINISHED, skip otherwise
     // should only be instantiated when cluster is enabled.
     public ZookeeperProfilerClusterManager(ZookeeperClient client, String serverIdentifier, ClusterPointRepository profileCluster) {
-        this.workerState = new WorkerStateContext();
+        this.workerState = new CommonStateContext();
         this.profileCluster = profileCluster;
 
         this.worker = new ZookeeperJobWorker(client, serverIdentifier);
@@ -141,10 +141,11 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
             return Collections.emptyList();
         }
 
-        List<String> result = new ArrayList<>();
 
         String clusterData = new String(contents, charset);
         String[] allClusterData = clusterData.split(PROFILER_SEPARATOR);
+
+        List<String> result = new ArrayList<>(allClusterData.length);
         for (String eachClusterData : allClusterData) {
             if (!StringUtils.isBlank(eachClusterData)) {
                 result.add(eachClusterData);

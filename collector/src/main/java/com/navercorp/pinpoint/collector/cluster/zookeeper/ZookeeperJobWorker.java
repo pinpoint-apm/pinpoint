@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
-import com.navercorp.pinpoint.collector.cluster.WorkerStateContext;
+import com.navercorp.pinpoint.common.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.job.ZookeeperJob;
 import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
@@ -36,7 +36,7 @@ public class ZookeeperJobWorker implements Runnable {
 
     private final Object lock = new Object();
 
-    private final WorkerStateContext workerState;
+    private final CommonStateContext workerState;
     private final String collectorUniqPath;
     private final ZookeeperClient zookeeperClient;
     private final PinpointServerRepository pinpointServerRepository = new PinpointServerRepository();
@@ -46,9 +46,9 @@ public class ZookeeperJobWorker implements Runnable {
     public ZookeeperJobWorker(ZookeeperClient zookeeperClient, String serverIdentifier) {
         this.zookeeperClient = zookeeperClient;
 
-        this.workerState = new WorkerStateContext();
+        this.workerState = new CommonStateContext();
 
-        this.collectorUniqPath = bindingPathAndZnode(PINPOINT_COLLECTOR_CLUSTER_PATH, serverIdentifier);
+        this.collectorUniqPath = bindingPathAndZNode(PINPOINT_COLLECTOR_CLUSTER_PATH, serverIdentifier);
     }
 
     public void start() {
@@ -102,14 +102,14 @@ public class ZookeeperJobWorker implements Runnable {
         logger.info("stop() completed.");
     }
 
-    private String bindingPathAndZnode(String path, String znodeName) {
-        StringBuilder fullPath = new StringBuilder(StringUtils.length(path) + StringUtils.length(znodeName) + 1);
+    private String bindingPathAndZNode(String path, String zNodeName) {
+        StringBuilder fullPath = new StringBuilder(StringUtils.length(path) + StringUtils.length(zNodeName) + 1);
 
         fullPath.append(path);
         if (!path.endsWith(PATH_SEPARATOR)) {
             fullPath.append(PATH_SEPARATOR);
         }
-        fullPath.append(znodeName);
+        fullPath.append(zNodeName);
 
         return fullPath.toString();
     }
@@ -171,7 +171,7 @@ public class ZookeeperJobWorker implements Runnable {
         ZookeeperJob latestHeadJob = null;
 
         // Things to consider
-        // spinlock possible when events are not deleted
+        // spinLock possible when events are not deleted
         // may lead to PinpointServer leak when events are left unresolved
         while (workerState.isStarted()) {
             boolean eventExists = awaitJob(60000, 200);
@@ -179,7 +179,7 @@ public class ZookeeperJobWorker implements Runnable {
                 ZookeeperJob headJob = jobQueue.peek();
 
                 if (latestHeadJob != null && latestHeadJob == headJob) {
-                    // for defence spinlock.
+                    // for defence spinLock.
                     await(1000);
                 }
 
