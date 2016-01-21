@@ -117,7 +117,7 @@
 				var oNavbarVoService = new NavbarVoService();
 				oNavbarVoService.setReadablePeriod(preferenceService.getPeriodTypes()[0]);
 				oNavbarVoService.setQueryEndDateTime(moment(parseInt($routeParams.focusTimestamp)).format('YYYY-MM-DD-HH-mm-ss'));
-	            $scope.$broadcast('serverMapDirective.initializeWithMapData', $scope.transactionDetail, oNavbarVoService);
+	            $scope.$broadcast('serverMapDirective.initializeWithMapData', true, $scope.transactionDetail, oNavbarVoService);
 	        };
 	
 	        /**
