@@ -22,9 +22,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
-import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +65,9 @@ import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
 import com.navercorp.pinpoint.profiler.util.ApplicationServerTypeResolver;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.rpc.ClassPreLoader;
+import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
 
 /**
  * @author emeroad
