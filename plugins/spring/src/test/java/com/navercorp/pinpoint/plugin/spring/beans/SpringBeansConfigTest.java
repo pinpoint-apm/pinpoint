@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import org.junit.Test;
 
+import java.util.Map;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
@@ -95,4 +96,34 @@ public class SpringBeansConfigTest {
         assertEquals(2, springBeansConfig.getTargets().size());
     }
 
+    @Test
+    public void pattern() {
+        Properties properties = new Properties();
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "Target.*");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Controller");
+        // empty
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "");
+
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 6 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 6 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
+
+        // old
+        properties.put(SpringBeansConfig.SPRING_BEANS_NAME_PATTERN, "com.navercorp.*");
+
+        // wrong number
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + "A" + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + "A" + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
+
+        // not found number
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
+
+        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
+
+        for(SpringBeansTarget target : springBeansConfig.getTargets()) {
+            System.out.println(target);
+        }
+    }
 }

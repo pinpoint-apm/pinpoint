@@ -19,7 +19,10 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Jongho Moon
@@ -37,43 +40,95 @@ public class SpringBeansConfig {
 
     public static final String SPRING_BEANS_MAX = "profiler.spring.beans.max";
     public static final int DEFAULT_SPRING_BEANS_MAX = 100;
+    public static final String ENABLE = "profiler.spring.beans";
+
+    private static final String PATTERN_REGEX = SpringBeansConfig.SPRING_BEANS_PREFIX + "[0-9]+" + "(" + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX + "|" + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX + "|" + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX + ")";
 
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
-    private final List<SpringBeansTarget> targets = new ArrayList<SpringBeansTarget>();
+    private final Map<Integer, SpringBeansTarget> targets = new HashMap<Integer, SpringBeansTarget>();
 
     public SpringBeansConfig(ProfilerConfig config) {
-        int max = config.readInt(SPRING_BEANS_MAX, DEFAULT_SPRING_BEANS_MAX);
-
-        for (int i = 0; i <= max; i++) {
-            final SpringBeansTarget target = new SpringBeansTarget();
-            if (i == 0) {
-                // backward compatibility
-                final String namePatternRegexs = config.readString(SPRING_BEANS_NAME_PATTERN, null);
-                final String classPatternRegexs = config.readString(SPRING_BEANS_CLASS_PATTERN, null);
-                final String annotations = config.readString(SPRING_BEANS_ANNOTATION, null);
-                target.setNamePatterns(namePatternRegexs);
-                target.setClassPatterns(classPatternRegexs);
-                target.setAnnotation(annotations);
-            } else {
-                final String namePatternRegexs = config.readString(SPRING_BEANS_PREFIX + i + SPRING_BEANS_NAME_PATTERN_POSTFIX, null);
-                final String classPatternRegexs = config.readString(SPRING_BEANS_PREFIX + i + SPRING_BEANS_CLASS_PATTERN_POSTFIX, null);
-                final String annotations = config.readString(SPRING_BEANS_PREFIX + i + SPRING_BEANS_ANNOTATION_POSTFIX, null);
-                target.setNamePatterns(namePatternRegexs);
-                target.setClassPatterns(classPatternRegexs);
-                target.setAnnotation(annotations);
+        boolean enable = config.readBoolean(ENABLE, true);
+        if (!enable) {
+            if (logger.isInfoEnabled()) {
+                logger.info("Disable spring-beans plugin");
             }
+            return;
+        }
 
-            if (target.isValid()) {
-                targets.add(target);
-                if (logger.isInfoEnabled()) {
-                    logger.info("Add spring-beans filter {}", target);
+        // backward compatibility
+        addBackwardCompatibilityTarget(config);
+
+        // read pattern
+        addTarget(config);
+
+        if (logger.isInfoEnabled()) {
+            logger.info("Add spring-beans targets {}", targets);
+        }
+    }
+
+    private void addBackwardCompatibilityTarget(ProfilerConfig config) {
+        final String namePatternRegexs = config.readString(SPRING_BEANS_NAME_PATTERN, null);
+        final String classPatternRegexs = config.readString(SPRING_BEANS_CLASS_PATTERN, null);
+        final String annotations = config.readString(SPRING_BEANS_ANNOTATION, null);
+        final SpringBeansTarget target = new SpringBeansTarget();
+        target.setNamePatterns(namePatternRegexs);
+        target.setClassPatterns(classPatternRegexs);
+        target.setAnnotation(annotations);
+        if(target.isValid()) {
+            targets.put(-1, target);
+        }
+    }
+
+    private void addTarget(ProfilerConfig config) {
+        Map<String, String> result = config.readPattern(PATTERN_REGEX);
+        for (Map.Entry<String, String> entry : result.entrySet()) {
+            try {
+                final String key = entry.getKey();
+                if (key == null || !key.startsWith(SPRING_BEANS_PREFIX)) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Invalid key format of spring-beans target {}", key);
+                    }
+                    continue;
                 }
+                final int point = key.indexOf('.', SPRING_BEANS_PREFIX.length());
+                if (point < 0) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Not found key number of spring-beans target {}", key);
+                    }
+                    continue;
+                }
+
+                final int number = Integer.parseInt(key.substring(SPRING_BEANS_PREFIX.length(), point));
+                SpringBeansTarget target = targets.get(number);
+                if (target == null) {
+                    target = new SpringBeansTarget();
+                    targets.put(number, target);
+                }
+
+                if (key.endsWith(SPRING_BEANS_NAME_PATTERN_POSTFIX)) {
+                    target.setNamePatterns(entry.getValue());
+                } else if (key.endsWith(SPRING_BEANS_CLASS_PATTERN_POSTFIX)) {
+                    target.setClassPatterns(entry.getValue());
+                } else if (key.endsWith(SPRING_BEANS_ANNOTATION_POSTFIX)) {
+                    target.setAnnotation(entry.getValue());
+                } else {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Unknown key format of spring-beans target {}", key);
+                    }
+                    continue;
+                }
+            } catch (Exception e) {
+                if (logger.isInfoEnabled()) {
+                    logger.info("Invalid target of spring-beans target {}={}", entry.getKey(), entry.getValue());
+                }
+                continue;
             }
         }
     }
 
-    public List<SpringBeansTarget> getTargets() {
-        return targets;
+    public Collection<SpringBeansTarget> getTargets() {
+        return targets.values();
     }
 
     @Override

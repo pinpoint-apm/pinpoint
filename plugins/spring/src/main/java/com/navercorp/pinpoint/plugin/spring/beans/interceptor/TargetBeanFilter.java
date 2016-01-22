@@ -44,8 +44,8 @@ public class TargetBeanFilter {
         return new TargetBeanFilter(config.getTargets());
     }
 
-    private TargetBeanFilter(List<SpringBeansTarget> targets) {
-        this.targets = targets;
+    private TargetBeanFilter(Collection<SpringBeansTarget> targets) {
+        this.targets = new ArrayList<SpringBeansTarget>(targets);
     }
 
     public boolean isTarget(String beanName, Class<?> clazz) {
