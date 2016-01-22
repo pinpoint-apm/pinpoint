@@ -69,6 +69,10 @@ public interface InstrumentClass {
 
     void addGetter(String getterTypeName, String fieldName) throws InstrumentException;
 
+    void addSetter(String setterTypeName, String fieldName) throws InstrumentException;
+
+    void addSetter(String setterTypeName, String fieldName, boolean removeFinal) throws InstrumentException;
+
 
     int addInterceptor(String interceptorClassName) throws InstrumentException;
 
