@@ -22,12 +22,16 @@ import com.navercorp.pinpoint.common.util.PropertyUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
  * @author emeroad
@@ -82,7 +86,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private boolean profileEnable = false;
 
-    private int interceptorRegistrySize = 1024*8;
+    private int interceptorRegistrySize = 1024 * 8;
 
     private String collectorSpanServerIp = DEFAULT_IP;
     private int collectorSpanServerPort = 9996;
@@ -102,7 +106,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private int statDataSenderSocketSendBufferSize = 1024 * 64 * 16;
     private int statDataSenderSocketTimeout = 1000 * 3;
     private int statDataSenderChunkSize = 1024 * 16;
-    
+
     private boolean tcpDataSenderCommandAcceptEnable = false;
 
     private boolean traceAgentActiveThread = true;
@@ -138,7 +142,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private DumpType apacheHttpClient3ProfileEntityDumpType = DumpType.EXCEPTION;
     private int apacheHttpClient3ProfileEntitySamplingRate = 1;
     private boolean apacheHttpClient3ProfileIo = true;
-    
+
     /**
      * apache http client 4
      */
@@ -178,7 +182,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private List<String> disabledPlugins = Collections.emptyList();
     private boolean log4jLoggingTransactionInfo;
     private boolean logbackLoggingTransactionInfo;
-    
+
     private boolean propagateInterceptorException = false;
 
     public DefaultProfilerConfig() {
@@ -376,7 +380,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public boolean isApacheHttpClient3Profile() {
         return apacheHttpClient3Profile;
     }
-    
+
     @Override
     public boolean isApacheHttpClient3ProfileCookie() {
         return apacheHttpClient3ProfileCookie;
@@ -406,12 +410,12 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public int getApacheHttpClient3ProfileEntitySamplingRate() {
         return apacheHttpClient3ProfileEntitySamplingRate;
     }
-    
+
     @Override
     public boolean isApacheHttpClient3ProfileIo() {
         return apacheHttpClient3ProfileIo;
     }
-    
+
     //-----------------------------------------
     // http apache client 4
     @Override
@@ -448,12 +452,12 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public int getApacheHttpClient4ProfileEntitySamplingRate() {
         return apacheHttpClient4ProfileEntitySamplingRate;
     }
-    
+
     @Override
     public boolean isApacheHttpClient4ProfileStatusCode() {
         return apacheHttpClient4ProfileStatusCode;
     }
-    
+
     @Override
     public boolean isApacheHttpClient4ProfileIo() {
         return apacheHttpClient4ProfileIo;
@@ -490,12 +494,12 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public Filter<String> getProfilableClassFilter() {
         return profilableClassFilter;
     }
-    
+
     @Override
     public List<String> getApplicationTypeDetectOrder() {
         return applicationTypeDetectOrder;
     }
-    
+
     @Override
     public List<String> getDisabledPlugins() {
         return disabledPlugins;
@@ -515,18 +519,18 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public void setApplicationServerType(String applicationServerType) {
         this.applicationServerType = applicationServerType;
     }
-    
+
     @Override
     public boolean isLog4jLoggingTransactionInfo() {
         return this.log4jLoggingTransactionInfo;
     }
-    
+
 
     @Override
     public boolean isLogbackLoggingTransactionInfo() {
         return this.logbackLoggingTransactionInfo;
     }
-    
+
     @Override
     public int getCallStackMaxDepth() {
         return callStackMaxDepth;
@@ -536,7 +540,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public void setCallStackMaxDepth(int callStackMaxDepth) {
         this.callStackMaxDepth = callStackMaxDepth;
     }
-    
+
     @Override
     public boolean isPropagateInterceptorException() {
         return propagateInterceptorException;
@@ -549,7 +553,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         this.profileEnable = readBoolean("profiler.enable", true);
 
-        this.interceptorRegistrySize = readInt("profiler.interceptorregistry.size", 1024*8);
+        this.interceptorRegistrySize = readInt("profiler.interceptorregistry.size", 1024 * 8);
 
         this.collectorSpanServerIp = readString("profiler.collector.span.ip", DEFAULT_IP, placeHolderResolver);
         this.collectorSpanServerPort = readInt("profiler.collector.span.port", 9996);
@@ -576,10 +580,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         // CallStck
         this.callStackMaxDepth = readInt("profiler.callstack.max.depth", 64);
-        if(this.callStackMaxDepth < 2) {
+        if (this.callStackMaxDepth < 2) {
             this.callStackMaxDepth = 2;
         }
-        
+
         // JDBC
         this.jdbcSqlCacheSize = readInt("profiler.jdbc.sqlcachesize", 1024);
         this.traceSqlBindValue = readBoolean("profiler.jdbc.tracesqlbindvalue", false);
@@ -633,12 +637,12 @@ public class DefaultProfilerConfig implements ProfilerConfig {
          * log4j
          */
         this.log4jLoggingTransactionInfo = readBoolean("profiler.log4j.logging.transactioninfo", false);
-        
+
         /**
          * logback
          */
         this.logbackLoggingTransactionInfo = readBoolean("profiler.logback.logging.transactioninfo", false);
-        
+
         // redis & nBase-ARC
         this.redis = readBoolean("profiler.redis", true);
         this.redisPipeline = readBoolean("profiler.redis.pipeline", true);
@@ -667,9 +671,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         // application type detector order
         this.applicationTypeDetectOrder = readList("profiler.type.detect.order");
-        
+
         this.disabledPlugins = readList("profiler.plugin.disable");
-        
+
         // TODO have to remove        
         // profile package included in order to test "call stack view".
         // this config must not be used in service environment because the size of  profiling information will get heavy.
@@ -678,7 +682,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         if (!profilableClass.isEmpty()) {
             this.profilableClassFilter = new ProfilableClassFilter(profilableClass);
         }
-        
+
         this.propagateInterceptorException = readBoolean("profiler.interceptor.exception.propagate", false);
 
         logger.info("configuration loaded successfully.");
@@ -760,6 +764,28 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         }
         return result;
     }
+
+    @Override
+    public Map<String, String> readPattern(String propertyNamePatternRegex) {
+        final Pattern pattern = Pattern.compile(propertyNamePatternRegex);
+        final Map<String, String> result = new HashMap<String, String>();
+        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+            if (entry.getKey() instanceof String && entry.getValue() instanceof String) {
+                final String key = (String) entry.getKey();
+                if (pattern.matcher(key).matches()) {
+                    final String value = (String) entry.getValue();
+                    result.put(key, value);
+                }
+            }
+        }
+
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info(propertyNamePatternRegex + "=" + result);
+        }
+
+        return result;
+    }
+
 
     @Override
     public String toString() {
