@@ -216,7 +216,8 @@
 	         * fetch start
 	         */
 	        fetchStart = function ( bHasTransactionInfo ) {
-	            getTransactionList(getQuery(), function (data) {
+				var query = getQuery();
+	            getTransactionList(query, function (data) {
 	                if (data.metadata.length === 0) {
 	                    $scope.$emit('timeSliderDirective.disableMore');
 	                    $scope.$emit('timeSliderDirective.changeMoreToDone');
@@ -255,18 +256,15 @@
 	         * @param cb
 	         */
 	        getTransactionList = function (query, cb) {
-	            $http
-	                .post(cfg.applicationUrl, query.join(""), {
-	                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-	                })
-	                .success(function (data, status) {
-	                    if (angular.isFunction(cb)) {
-	                        cb(data);
-	                    }
-	                })
-	                .error(function (data, status) {
-	                    $window.alert("Failed to fetching the request information.");
-	                });
+	            $http.post(cfg.applicationUrl, query.join(""), {
+					headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+				}).success(function (data, status) {
+					if (angular.isFunction(cb)) {
+						cb(data);
+					}
+				}).error(function (data, status) {
+					$window.alert("Failed to fetching the request information.");
+				});
 	        };
 	
 	        /**
@@ -278,7 +276,9 @@
 	            var transactionDetailUrl = 'index.html#/transactionDetail'; // the filename should be existing, if not it's doesn't work on ie and firefox
 	            if (transaction.traceId && transaction.collectorAcceptTime) {
 	                transactionDetailUrl += '/' + $window.encodeURIComponent(transaction.traceId) + '/' + transaction.collectorAcceptTime;
-	                $scope.transactionDetailUrl = transactionDetailUrl;
+					$timeout(function() {
+						$scope.transactionDetailUrl = transactionDetailUrl;
+					});
 	            }
 	        };
 	
