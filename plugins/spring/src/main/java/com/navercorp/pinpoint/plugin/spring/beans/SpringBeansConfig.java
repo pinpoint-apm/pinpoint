@@ -65,14 +65,30 @@ public class SpringBeansConfig {
 
     private void addBackwardCompatibilityTarget(ProfilerConfig config) {
         final String namePatternRegexs = config.readString(SPRING_BEANS_NAME_PATTERN, null);
+        if (namePatternRegexs != null && !namePatternRegexs.isEmpty()) {
+            final SpringBeansTarget target = new SpringBeansTarget();
+            target.setNamePatterns(namePatternRegexs);
+            if (target.isValid()) {
+                targets.put(-1, target);
+            }
+        }
+
         final String classPatternRegexs = config.readString(SPRING_BEANS_CLASS_PATTERN, null);
+        if(classPatternRegexs != null && !classPatternRegexs.isEmpty()) {
+            final SpringBeansTarget target = new SpringBeansTarget();
+            target.setClassPatterns(classPatternRegexs);
+            if (target.isValid()) {
+                targets.put(-2, target);
+            }
+        }
+
         final String annotations = config.readString(SPRING_BEANS_ANNOTATION, null);
-        final SpringBeansTarget target = new SpringBeansTarget();
-        target.setNamePatterns(namePatternRegexs);
-        target.setClassPatterns(classPatternRegexs);
-        target.setAnnotations(annotations);
-        if(target.isValid()) {
-            targets.put(-1, target);
+        if(annotations != null && !annotations.isEmpty()) {
+            final SpringBeansTarget target = new SpringBeansTarget();
+            target.setAnnotations(annotations);
+            if (target.isValid()) {
+                targets.put(-3, target);
+            }
         }
     }
 

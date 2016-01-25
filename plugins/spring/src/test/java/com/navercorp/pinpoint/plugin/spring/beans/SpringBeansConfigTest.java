@@ -31,7 +31,7 @@ public class SpringBeansConfigTest {
     public void backwardCompatibility() {
         Properties properties = new Properties();
         properties.put(SpringBeansConfig.SPRING_BEANS_NAME_PATTERN, "");
-        properties.put(SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN, "");
+        properties.put(SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN, "com.navercorp.*");
         properties.put(SpringBeansConfig.SPRING_BEANS_ANNOTATION, "org.springframework.stereotype.Controller, org.springframework.stereotype.Servicem, org.springframework.stereotype.Repository");
 
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "Target.*");
@@ -44,7 +44,7 @@ public class SpringBeansConfigTest {
         SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
 
         // backward compatiblity.
-        assertEquals(4, springBeansConfig.getTargets().size());
+        assertEquals(5, springBeansConfig.getTargets().size());
     }
 
     @Test

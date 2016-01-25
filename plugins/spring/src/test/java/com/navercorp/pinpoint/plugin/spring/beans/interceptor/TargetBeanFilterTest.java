@@ -241,8 +241,6 @@ public class TargetBeanFilterTest {
     public void target6() {
         Properties properties = new Properties();
         properties.put(SpringBeansConfig.SPRING_BEANS_NAME_PATTERN, "foo");
-        properties.put(SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN, "java.lang.*");
-        properties.put(SpringBeansConfig.SPRING_BEANS_ANNOTATION, "");
 
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "Target1, Target2");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "");
