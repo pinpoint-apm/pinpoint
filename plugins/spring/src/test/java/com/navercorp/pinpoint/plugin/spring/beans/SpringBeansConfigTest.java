@@ -27,7 +27,6 @@ public class SpringBeansConfigTest {
         assertEquals(3, springBeansConfig.getTargets().size());
     }
 
-
     @Test
     public void backwardCompatibility() {
         Properties properties = new Properties();
@@ -46,26 +45,6 @@ public class SpringBeansConfigTest {
 
         // backward compatiblity.
         assertEquals(4, springBeansConfig.getTargets().size());
-    }
-
-    @Test
-    public void max() {
-        Properties properties = new Properties();
-        properties.put(SpringBeansConfig.SPRING_BEANS_MAX, "10");
-
-        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "Target.*");
-        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Controller");
-
-        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 9 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
-        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 9 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
-
-        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 100 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Repository");
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
-
-        SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
-
-        // max.
-        assertEquals(2, springBeansConfig.getTargets().size());
     }
 
     @Test
@@ -91,9 +70,7 @@ public class SpringBeansConfigTest {
         ProfilerConfig config = new DefaultProfilerConfig(properties);
 
         SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
-
-        // excluded empty.
-        assertEquals(2, springBeansConfig.getTargets().size());
+        assertEquals(6, springBeansConfig.getTargets().size());
     }
 
     @Test
@@ -121,9 +98,23 @@ public class SpringBeansConfigTest {
 
         ProfilerConfig config = new DefaultProfilerConfig(properties);
         SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
-
-        for(SpringBeansTarget target : springBeansConfig.getTargets()) {
-            System.out.println(target);
-        }
+        assertEquals(4, springBeansConfig.getTargets().size());
     }
+
+    @Test
+    public void invalid() {
+        Properties properties = new Properties();
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + "foo", "Target.*");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + "bar", "org.springframework.stereotype.Controller");
+        // empty
+        properties.put("foo" + 2 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "");
+        properties.put("bar" + 2 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "");
+
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 6.12 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 6.12 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
+
+        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
+        assertEquals(0, springBeansConfig.getTargets().size());
+   }
 }

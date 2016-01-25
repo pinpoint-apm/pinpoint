@@ -266,5 +266,4 @@ public class TargetBeanFilterTest {
         assertFalse(filter.isTarget("Target1", String.class));
         assertFalse(filter.isTarget("Target2", String.class));
     }
-
 }
