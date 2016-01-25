@@ -18,10 +18,8 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,8 +36,6 @@ public class SpringBeansConfig {
     public static final String SPRING_BEANS_CLASS_PATTERN_POSTFIX = ".class.pattern";
     public static final String SPRING_BEANS_NAME_PATTERN_POSTFIX = ".name.pattern";
 
-    public static final String SPRING_BEANS_MAX = "profiler.spring.beans.max";
-    public static final int DEFAULT_SPRING_BEANS_MAX = 100;
     public static final String ENABLE = "profiler.spring.beans";
 
     private static final String PATTERN_REGEX = SpringBeansConfig.SPRING_BEANS_PREFIX + "[0-9]+" + "(" + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX + "|" + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX + "|" + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX + ")";
@@ -74,7 +70,7 @@ public class SpringBeansConfig {
         final SpringBeansTarget target = new SpringBeansTarget();
         target.setNamePatterns(namePatternRegexs);
         target.setClassPatterns(classPatternRegexs);
-        target.setAnnotation(annotations);
+        target.setAnnotations(annotations);
         if(target.isValid()) {
             targets.put(-1, target);
         }
@@ -111,7 +107,7 @@ public class SpringBeansConfig {
                 } else if (key.endsWith(SPRING_BEANS_CLASS_PATTERN_POSTFIX)) {
                     target.setClassPatterns(entry.getValue());
                 } else if (key.endsWith(SPRING_BEANS_ANNOTATION_POSTFIX)) {
-                    target.setAnnotation(entry.getValue());
+                    target.setAnnotations(entry.getValue());
                 } else {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Unknown key format of spring-beans target {}", key);
@@ -133,7 +129,7 @@ public class SpringBeansConfig {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("SpringBeansConfig{");
+        final StringBuilder sb = new StringBuilder("{");
         sb.append("targets=").append(targets);
         sb.append('}');
         return sb.toString();

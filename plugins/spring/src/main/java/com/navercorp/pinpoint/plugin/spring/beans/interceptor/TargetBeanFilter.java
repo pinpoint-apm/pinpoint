@@ -64,6 +64,7 @@ public class TargetBeanFilter {
             }
 
             if (!find && rejected.contains(clazz)) {
+                // not found bean names and class contains rejected.
                 continue;
             }
 

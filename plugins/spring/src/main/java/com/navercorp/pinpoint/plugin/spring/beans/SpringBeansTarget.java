@@ -59,8 +59,8 @@ public class SpringBeansTarget {
         return classPatterns;
     }
 
-    public void setAnnotation(String annotation) {
-        this.annotations = split(annotation);
+    public void setAnnotations(String annotations) {
+        this.annotations = split(annotations);
     }
 
     public List<String> getAnnotations() {
