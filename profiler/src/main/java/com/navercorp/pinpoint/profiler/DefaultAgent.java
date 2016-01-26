@@ -35,8 +35,8 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInvokerHelper;
-import com.navercorp.pinpoint.bootstrap.logging.BootLoggerBinder;
-import com.navercorp.pinpoint.bootstrap.logging.BootLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.JavaLoggerBinder;
+import com.navercorp.pinpoint.bootstrap.logging.JavaLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -137,7 +137,7 @@ public class DefaultAgent implements Agent {
 
     public DefaultAgent(AgentOption agentOption, final InterceptorRegistryBinder interceptorRegistryBinder) {
         //binder unistanll 해야됨. Slf4jLoggerBinder가 그렇게 구현되있음.
-        bindJavaLoggerFactory(new BootLoggerBinder());
+        bindJavaLoggerFactory(new JavaLoggerBinder());
         
         if (agentOption == null) {
             throw new NullPointerException("agentOption must not be null");
@@ -301,13 +301,13 @@ public class DefaultAgent implements Agent {
         PLoggerFactory.initialize(binder);
     }
     
-    private void bindJavaLoggerFactory(BootLoggerBinder binder) {
+    private void bindJavaLoggerFactory(JavaLoggerBinder binder) {
         final String binderClassName = binder.getClass().getName();
         PLogger pLogger = binder.getLogger(binder.getClass().getName());
         pLogger.info("PLoggerFactory.initialize() bind:{} cl:{}", binderClassName, binder.getClass().getClassLoader());
         // Set binder to static LoggerFactory
         // Should we unset binder at shutdown hook or stop()?
-        BootLoggerFactory.initialize(binder);
+        JavaLoggerFactory.initialize(binder);
     }
 
     private TraceContext createTraceContext() {
