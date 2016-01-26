@@ -24,10 +24,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
  * @author emeroad
@@ -758,6 +761,27 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         if (logger.isLoggable(Level.INFO)) {
             logger.info(propertyName + "=" + result);
         }
+        return result;
+    }
+
+    @Override
+    public Map<String, String> readPattern(String propertyNamePatternRegex) {
+        final Pattern pattern = Pattern.compile(propertyNamePatternRegex);
+        final Map<String, String> result = new HashMap<String, String>();
+        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+            if (entry.getKey() instanceof String && entry.getValue() instanceof String) {
+                final String key = (String) entry.getKey();
+                if (pattern.matcher(key).matches()) {
+                    final String value = (String) entry.getValue();
+                    result.put(key, value);
+                }
+            }
+        }
+
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info(propertyNamePatternRegex + "=" + result);
+        }
+
         return result;
     }
 
