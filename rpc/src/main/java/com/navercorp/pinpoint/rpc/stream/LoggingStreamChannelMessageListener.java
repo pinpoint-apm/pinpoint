@@ -52,7 +52,7 @@ public class LoggingStreamChannelMessageListener {
 
         @Override
         public void handleStreamData(ClientStreamChannelContext streamChannelContext, StreamResponsePacket packet) {
-            LOGGER.info("handleStreamData StreamChannel:{}, Packet:{}", streamChannelContext, packet);
+            LOGGER.debug("handleStreamData StreamChannel:{}, Packet:{}", streamChannelContext, packet);
         }
 
         @Override
