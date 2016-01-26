@@ -196,7 +196,7 @@ public class BFSLinkSelector implements LinkSelector {
     }
 
     private List<LinkData> createVirtualLinkData(LinkData linkData, Application toApplication, Set<AcceptApplication> acceptApplicationList) {
-        logger.warn("ono to N replaced. node:{}->host:{} accept:{}", linkData.getFromApplication(), toApplication.getName(), acceptApplicationList);
+        logger.warn("one to N replaced. node:{}->host:{} accept:{}", linkData.getFromApplication(), toApplication.getName(), acceptApplicationList);
 
         List<LinkData> emulationLink = new ArrayList<>();
         for (AcceptApplication acceptApplication : acceptApplicationList) {
@@ -234,7 +234,7 @@ public class BFSLinkSelector implements LinkSelector {
         return acceptApplication;
     }
 
-    private void fillEmulationLink(LinkDataDuplexMap linkDataDuplexMap) {
+    private void fillEmulationLink(LinkDataDuplexMap linkDataDuplexMap, Range range) {
         // TODO need to be reimplemented - virtual node creation logic needs an overhaul.
         // Currently, only the reversed relationship node is displayed. We need to create a virtual node and convert the rpc data appropriately.
         logger.debug("this.emulationLinkMarker:{}", this.emulationLinkMarker);
@@ -248,10 +248,18 @@ public class BFSLinkSelector implements LinkSelector {
             LinkKey findLinkKey = new LinkKey(emulationLinkData.getFromApplication(), emulationLinkData.getToApplication());
             LinkData targetLinkData = linkDataDuplexMap.getTargetLinkData(findLinkKey);
             if (targetLinkData == null) {
-                // There has been a case where targetLinkData was null, but exact event could not be captured for analysis.
-                // Logging the case for further analysis should it happen again in the future.
-                logger.error("targetLinkData not found findLinkKey:{}", findLinkKey);
-                continue;
+                // This is a case where the emulation target node has been only "partially" visited, (ie. does not have a target link data)
+                // Most likely due to the limit imposed by inbound search depth.
+                // Must go fetch the target link data here.
+                final Application targetApplication = emulationLinkData.getToApplication();
+                final LinkDataMap callee = mapStatisticsCalleeDao.selectCallee(targetApplication, range);
+                targetLinkData = callee.getLinkData(findLinkKey);
+                if (targetLinkData == null) {
+                    // There has been a case where targetLinkData was null, but exact event could not be captured for analysis.
+                    // Logging the case for further analysis should it happen again in the future.
+                    logger.error("targetLinkData not found findLinkKey:{}", findLinkKey);
+                    continue;
+                }
             }
 
             // create reversed link data - convert data accepted by the target to target's call data
@@ -332,7 +340,7 @@ public class BFSLinkSelector implements LinkSelector {
             logger.debug("Link emulation size:{}", emulationLinkMarker.size());
             // special case
             checkUnsearchEmulationCalleeNode(linkDataDuplexMap, range);
-            fillEmulationLink(linkDataDuplexMap);
+            fillEmulationLink(linkDataDuplexMap, range);
         }
 
         return linkDataDuplexMap;
