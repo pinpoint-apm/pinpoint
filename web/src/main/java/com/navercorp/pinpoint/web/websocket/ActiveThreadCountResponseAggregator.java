@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +36,7 @@ import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Author Taejin Koo
@@ -48,6 +48,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
     private static final String TIME_STAMP = "timeStamp";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final String applicationName;
     private final AgentService agentService;
     private final Timer timer;
@@ -58,6 +59,9 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
 
     private final Object aggregatorLock = new Object();
     private final PinpointWebSocketMessageConverter messageConverter;
+
+    private final AtomicInteger flushCount = new AtomicInteger(0);
+    private final int flushLogRecordRate = 60;
 
     private volatile boolean isStopped = false;
     private WorkerActiveManager workerActiveManager;
@@ -201,7 +205,9 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
 
     @Override
     public void flush() throws Exception {
-        logger.info("flush started. applicationName:{}", applicationName);
+        if ((flushCount.getAndIncrement() % flushLogRecordRate) == 0) {
+            logger.info("flush started. applicationName:{}", applicationName);
+        }
 
         if (isStopped) {
             return;
@@ -234,12 +240,12 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
                 try {
                     logger.debug("flush webSocketSession:{}, response:{}", webSocketSession, responseTextMessage);
                     webSocketSession.sendMessage(responseTextMessage);
-                } catch (IOException e) {
-                    logger.warn(e.getMessage(), e);
+                } catch (Exception e) {
+                    logger.warn("failed while flush message(applicationName:{}, session:{}). Error:{}", webSocketSession, applicationName, e.getMessage(), e);
                 }
             }
         } catch (JsonProcessingException e) {
-            logger.warn("json convert failed. original:{}, message:{}.", resultMap, e.getMessage(), e);
+            logger.warn("failed while convert message. applicationName:{}, original:{}, message:{}.", applicationName, resultMap, e.getMessage(), e);
         }
     }
 

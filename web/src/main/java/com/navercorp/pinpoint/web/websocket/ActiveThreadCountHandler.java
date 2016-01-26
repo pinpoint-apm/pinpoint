@@ -33,7 +33,6 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -374,7 +373,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         private void closeSession(WebSocketSession session, CloseStatus status) {
             try {
                 session.close(status);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 logger.warn(e.getMessage(), e);
             }
         }
@@ -382,8 +381,9 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         private void sendPingMessage(WebSocketSession session, TextMessage pingMessage) {
             try {
                 session.sendMessage(pingMessage);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 logger.warn(e.getMessage(), e);
+                closeSession(session, CloseStatus.SERVER_ERROR);
             }
         }
 
