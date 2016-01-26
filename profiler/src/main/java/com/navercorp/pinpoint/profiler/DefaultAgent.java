@@ -136,9 +136,6 @@ public class DefaultAgent implements Agent {
     }
 
     public DefaultAgent(AgentOption agentOption, final InterceptorRegistryBinder interceptorRegistryBinder) {
-        //binder unistanll 해야됨. Slf4jLoggerBinder가 그렇게 구현되있음.
-        bindJavaLoggerFactory(new JavaLoggerBinder());
-        
         if (agentOption == null) {
             throw new NullPointerException("agentOption must not be null");
         }
@@ -299,15 +296,6 @@ public class DefaultAgent implements Agent {
         // Set binder to static LoggerFactory
         // Should we unset binder at shutdown hook or stop()?
         PLoggerFactory.initialize(binder);
-    }
-    
-    private void bindJavaLoggerFactory(JavaLoggerBinder binder) {
-        final String binderClassName = binder.getClass().getName();
-        PLogger pLogger = binder.getLogger(binder.getClass().getName());
-        pLogger.info("PLoggerFactory.initialize() bind:{} cl:{}", binderClassName, binder.getClass().getClassLoader());
-        // Set binder to static LoggerFactory
-        // Should we unset binder at shutdown hook or stop()?
-        JavaLoggerFactory.initialize(binder);
     }
 
     private TraceContext createTraceContext() {
