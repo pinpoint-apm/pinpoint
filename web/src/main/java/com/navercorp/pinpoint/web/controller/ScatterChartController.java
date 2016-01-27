@@ -172,65 +172,61 @@ public class ScatterChartController {
         mv.addObject("resultFrom", range.getFrom());
         mv.addObject("resultTo", range.getTo());
         mv.addObject("scatterIndex", ScatterIndex.MATA_DATA);
-        if(version <= 2) {
-            mv.addObject("scatter", scatterData);
-        } else {
-            final Map<String, List<Dot>> scatterAgentData = new HashMap<>();
-            for(Dot dot : scatterData) {
-                List<Dot> list = scatterAgentData.get(dot.getAgentId());
-                if(list == null) {
+        final Map<String, List<Dot>> scatterAgentData = new HashMap<>();
+        for (Dot dot : scatterData) {
+            List<Dot> list = scatterAgentData.get(dot.getAgentId());
+            if (list == null) {
+                list = new ArrayList<>();
+                scatterAgentData.put(dot.getAgentId(), list);
+            }
+            list.add(dot);
+        }
+
+        if (version == 4) {
+            TimeWindow timeWindow = new TimeWindow(range);
+            TreeMap<Long, List<Dot>> sortedMap = new TreeMap<>();
+            for (Dot dot : scatterData) {
+                long key = timeWindow.refineTimestamp(dot.getAcceptedTime());
+                List<Dot> list = sortedMap.get(key);
+                if (list == null) {
                     list = new ArrayList<>();
-                    scatterAgentData.put(dot.getAgentId(), list);
+                    sortedMap.put(key, list);
                 }
                 list.add(dot);
             }
 
-            if(version == 4) {
-                TimeWindow timeWindow = new TimeWindow(range);
-                TreeMap<Long, List<Dot>> sortedMap = new TreeMap<>();
-                for(Dot dot : scatterData) {
-                    long key = timeWindow.refineTimestamp(dot.getAcceptedTime());
-                    List<Dot> list = sortedMap.get(key);
-                    if(list == null) {
-                        list = new ArrayList<>();
-                        sortedMap.put(key, list);
+            // average
+            // max
+            // min
+            List<Dot> averageList = new ArrayList<>();
+            List<Dot> maxList = new ArrayList<>();
+            List<Dot> minList = new ArrayList<>();
+            for (Map.Entry<Long, List<Dot>> entry : sortedMap.entrySet()) {
+                Dot max = null;
+                Dot min = null;
+                int totalTime = 0;
+                for (Dot dot : entry.getValue()) {
+                    if (max == null || dot.getElapsedTime() > max.getElapsedTime()) {
+                        max = dot;
                     }
-                    list.add(dot);
-                }
 
-                // average
-                // max
-                // min
-                List<Dot> averageList = new ArrayList<>();
-                List<Dot> maxList = new ArrayList<>();
-                List<Dot> minList = new ArrayList<>();
-                for(Map.Entry<Long, List<Dot>> entry : sortedMap.entrySet()) {
-                    Dot max = null;
-                    Dot min = null;
-                    int totalTime = 0;
-                    for(Dot dot : entry.getValue()) {
-                        if(max == null || dot.getElapsedTime() > max.getElapsedTime()) {
-                            max = dot;
-                        }
-
-                        if(min == null || dot.getElapsedTime() < min.getElapsedTime()) {
-                            min = dot;
-                        }
-
-                        totalTime += dot.getElapsedTime();
+                    if (min == null || dot.getElapsedTime() < min.getElapsedTime()) {
+                        min = dot;
                     }
-                    int averageTime = totalTime / entry.getValue().size();
-                    averageList.add(new Dot(new TransactionId("", 0, 0), entry.getKey(), averageTime, 0, ""));
-                    maxList.add(new Dot(new TransactionId(max.getTransactionId()), entry.getKey(), max.getElapsedTime(), max.getExceptionCode(), max.getAgentId()));
-                    minList.add(new Dot(new TransactionId(min.getTransactionId()), entry.getKey(), min.getElapsedTime(), min.getExceptionCode(), min.getAgentId()));
+
+                    totalTime += dot.getElapsedTime();
                 }
-                scatterAgentData.put("_#AverageAgent", averageList);
-                scatterAgentData.put("_#MaxAgent", maxList);
-                scatterAgentData.put("_#MinAgent", minList);
+                int averageTime = totalTime / entry.getValue().size();
+                averageList.add(new Dot(new TransactionId("", 0, 0), entry.getKey(), averageTime, 0, ""));
+                maxList.add(new Dot(new TransactionId(max.getTransactionId()), entry.getKey(), max.getElapsedTime(), max.getExceptionCode(), max.getAgentId()));
+                minList.add(new Dot(new TransactionId(min.getTransactionId()), entry.getKey(), min.getElapsedTime(), min.getExceptionCode(), min.getAgentId()));
             }
-
-            mv.addObject("scatter", scatterAgentData);
+            scatterAgentData.put("_#AverageAgent", averageList);
+            scatterAgentData.put("_#MaxAgent", maxList);
+            scatterAgentData.put("_#MinAgent", minList);
         }
+
+        mv.addObject("scatter", scatterAgentData);
 
         if (jsonpCallback == null) {
             mv.setViewName("jsonView");

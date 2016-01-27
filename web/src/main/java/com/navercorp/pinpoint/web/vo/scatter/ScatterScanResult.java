@@ -20,8 +20,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.navercorp.pinpoint.web.vo.scatter.ScatterIndex;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * To be used with @ResponseBody.
@@ -76,7 +79,17 @@ public class ScatterScanResult {
     }
 
     @JsonProperty("scatter")
-    public List<Dot> getScatter() {
-        return scatter;
+    public Map<String, List<Dot>> getScatter() {
+        final Map<String, List<Dot>> scatterAgentData = new HashMap<>();
+        for(Dot dot : scatter) {
+            List<Dot> list = scatterAgentData.get(dot.getAgentId());
+            if(list == null) {
+                list = new ArrayList<>();
+                scatterAgentData.put(dot.getAgentId(), list);
+            }
+            list.add(dot);
+        }
+
+        return scatterAgentData;
     }
 }
