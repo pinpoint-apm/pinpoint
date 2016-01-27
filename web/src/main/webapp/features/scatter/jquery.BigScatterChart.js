@@ -1388,6 +1388,7 @@ var BigScatterChart = $.Class({
 
 	//@@eye 범위(영역)내에 속한 데이터를 뽑아냄
     getDataByXY: function (nXFrom, nXTo, nYFrom, nYTo) {
+        var self = this;
         var aBubbleStep = this._aBubbleStep,
             aBubbles = this._aBubbles,
             aData = [],
