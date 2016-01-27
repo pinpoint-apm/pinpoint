@@ -610,17 +610,19 @@
 						bIsClickDepthInnerArea = false;
 						bIsClickDepthInnerBtn = true;
 						$("#navbar_depth .dropdown-menu").trigger("click.bs.dropdown");
-						if ( prevCaller !== scope.caller || prevCallee !== scope.callee ) {
-							prevCaller = scope.caller;
+						console.log( "previous :", prevCallee, prevCaller, ", current :", scope.callee, scope.caller );
+						if ( prevCallee !== scope.callee || prevCaller !== scope.caller ) {
 							prevCallee = scope.callee;
-							setDepthToStorage(scope.application + "+caller", scope.caller);
+							prevCaller = scope.caller;
 							setDepthToStorage(scope.application + "+callee", scope.callee);
+							setDepthToStorage(scope.application + "+caller", scope.caller);
+
 							broadcast();
 						}
 					};
 					scope.cancelDepth = function( bHide ) {
-						scope.caller = prevCaller;
 						scope.callee = prevCallee;
+						scope.caller = prevCaller;
 						if ( bHide ) {
 							bIsClickDepthInnerArea = false;
 							bIsClickDepthInnerBtn = true;

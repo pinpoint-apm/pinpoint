@@ -73,7 +73,8 @@
 	            filter: query.filter,
 	            limit: cfg.FILTER_FETCH_LIMIT,
 				callerRange: query.callerRange,
-				calleeRange: query.calleeRange
+				calleeRange: query.calleeRange,
+				v: 3
 	        };
 	        if ( isNaN( parseInt( query.serviceTypeName ) ) ) {
 	    		data.serviceTypeName = query.serviceTypeName; 

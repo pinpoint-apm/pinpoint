@@ -37,7 +37,12 @@
 	            }
 	            oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 	            $scope.$emit('scatterDirective.initialize', oNavbarVoService);
-	            $scope.$emit('scatterDirective.initializeWithNode', {applicationName: oNavbarVoService.getApplicationName()}, 800, 600)
+	            $scope.$emit('scatterDirective.initializeWithNode', {
+					key: oNavbarVoService.getApplicationName() + "^" + oNavbarVoService.getServiceTypeName(),
+					serviceType: oNavbarVoService.getServiceTypeName(),
+					applicationName: oNavbarVoService.getApplicationName(),
+					agentList : $routeParams.agentList.split(",")
+				}, 800, 600)
 	        }, 500);
 	    }
 	]);
