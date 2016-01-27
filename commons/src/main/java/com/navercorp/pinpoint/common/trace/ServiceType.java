@@ -48,6 +48,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>1031</td><td>JETTY_METHOD</td></tr>
  * <tr><td>1100</td><td>THRIFT_SERVER</td></tr>
  * <tr><td>1101</td><td>THRIFT_SERVER_INTERNAL</td></tr>
+ * <tr><td>1110</td><td>DUBBO_PROVIDER</td></tr>
  * </table>
  * 
  * <h3>Server Sandbox (1900 ~ 1999)</h3>
@@ -125,6 +126,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9070</td><td><i>RESERVED</i></td></tr>
  * <tr><td>9100</td><td>THRIFT_CLIENT</td></tr>
  * <tr><td>9101</td><td>THRIFT_CLIENT_INTERNAL</td></tr>
+ * <tr><td>9110</td><td>DUBBO_CONSUMER</td></tr>
  * </table>
  * 
  * <h3>RPC Sandbox (9900 ~ 9999)</h3>
