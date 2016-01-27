@@ -204,7 +204,7 @@ var BigScatterChart = $.Class({
             "height": this.option("nHeight")
         }).addClass("bigscatterchart");
 
-        this._welAgentSelect = $("<select>").attr("class", "form-control").css({
+        this._welAgentSelect = $("<select>").css({
             "width": "140px",
             "height": "19px",
             "z-index": 10,
