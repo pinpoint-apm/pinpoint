@@ -205,6 +205,9 @@
 	            self._nQueryStartTime = self._nQueryEndTime - self._nQueryPeriod;
 	            return self;
 	        };
+			this.getPartialURL = function( bAddApplication, bAddFilter) {
+				return (bAddApplication ? self.getApplication() + "/" : "" ) + self.getReadablePeriod() + "/" + self.getQueryEndDateTime() + ( bAddFilter ? ( self.getFilter() ? "/" + self.getFilter() : "" ) : "" );
+			}
 	    };
 	}]);
 })();

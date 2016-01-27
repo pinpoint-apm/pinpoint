@@ -9,6 +9,10 @@
 	 * @class
 	 */
 	pinpointApp.constant('TooltipServiceConfig', {
+		"scatter": {
+			"position": "bottom",
+			"trigger": "click"
+		},
 		"navbar": {
 			"position": "bottom",
 			"trigger": "click"
@@ -47,6 +51,8 @@
 
 		function getTooltipStr( type ) {
 			switch( type ) {
+				case "scatter":
+					return function() { return helpContentTemplate(helpContentService.scatter["default"]); };
 				case "navbar":
 					return function() { return helpContentTemplate(helpContentService.navbar.applicationSelector) + helpContentTemplate(helpContentService.navbar.depth) + helpContentTemplate(helpContentService.navbar.periodSelector); };
 				case "agentList":
@@ -61,6 +67,5 @@
 					return function() { return helpContentTemplate(helpContentService.inspector.tps); };
 			}
 		}
-
 	}]);
 })(jQuery);

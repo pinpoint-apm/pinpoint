@@ -909,19 +909,19 @@
             });
             this._oDiagram.addDiagramListener("BackgroundSingleClicked", function (e) {
                 var fOnBackgroundClicked = self.option('fOnBackgroundClicked');
-                if (_.isFunction(fOnBackgroundClicked)) {
+                if (angular.isFunction(fOnBackgroundClicked)) {
                     fOnBackgroundClicked.call(self, e);
                 }
             });
             this._oDiagram.addDiagramListener("BackgroundDoubleClicked", function (e) {
                 var fOnBackgroundDoubleClicked = self.option('fOnBackgroundDoubleClicked');
-                if (_.isFunction(fOnBackgroundDoubleClicked)) {
+                if (angular.isFunction(fOnBackgroundDoubleClicked)) {
                     fOnBackgroundDoubleClicked.call(self, e);
                 }
             });
             this._oDiagram.addDiagramListener("BackgroundContextClicked", function (e) {
                 var fOnBackgroundContextClicked = self.option('fOnBackgroundContextClicked');
-                if (_.isFunction(fOnBackgroundContextClicked)) {
+                if (angular.isFunction(fOnBackgroundContextClicked)) {
                     fOnBackgroundContextClicked.call(self, e);
                 }
             });
@@ -1035,6 +1035,13 @@
                 var part = this._oDiagram.findPartForKey(sKey);
                 this._oDiagram.select(part);
                 this._updateHightlights(node);
+                //console.log( this._oDiagram.documentBounds, this._oDiagram.scale );
+                //this._oDiagram.zoomToRect( {
+                //    x: part.actualBounds.x - part.actualBounds.width * 3,
+                //    y: part.actualBounds.y - part.actualBounds.height * 3,
+                //    width: part.actualBounds.width * 6,
+                //    height: part.actualBounds.height * 6,
+                //}, this._oDiagram.UniformToFill );
             }
         },
 
@@ -1249,7 +1256,7 @@
         _onNodeSubGroupClicked: function(e, obj, unknownKey, fromName) {
             var node = obj.part,
             fOnNodeSubGroupClicked = this.option('fOnNodeSubGroupClicked');
-	        if (_.isFunction(fOnNodeSubGroupClicked)) {
+	        if (angular.isFunction(fOnNodeSubGroupClicked)) {
 	        	this.analyticsService.send(this.analyticsService.CONST.MAIN, this.analyticsService.CONST.CLK_NODE);
 	        	fOnNodeSubGroupClicked.call(this, e, node, unknownKey, fromName);
 	        }
@@ -1266,7 +1273,7 @@
             var node = obj.part,
                 htData = node.data,
                 fOnNodeClicked = this.option('fOnNodeClicked');
-            if (_.isFunction(fOnNodeClicked)) {
+            if (angular.isFunction(fOnNodeClicked)) {
             	this.analyticsService.send(this.analyticsService.CONST.MAIN, this.analyticsService.CONST.CLK_NODE);
                 fOnNodeClicked.call(this, e, htData, unknownKey, query);
             }
@@ -1282,7 +1289,7 @@
             var node = obj.part,
             htData = node.data,
             fOnNodeDoubleClicked = this.option('fOnNodeDoubleClicked');
-	        if (_.isFunction(fOnNodeDoubleClicked)) {
+	        if (angular.isFunction(fOnNodeDoubleClicked)) {
 	            fOnNodeDoubleClicked.call(this, e, node, htData);
 	        }        	
         },
@@ -1298,7 +1305,7 @@
             var node = obj.part,
                 htData = node.data,
                 fOnNodeContextClicked = this.option('fOnNodeContextClicked');
-            if (_.isFunction(fOnNodeContextClicked)) {
+            if (angular.isFunction(fOnNodeContextClicked)) {
                 fOnNodeContextClicked.call(this, e, htData);
             }
         },
@@ -1314,7 +1321,7 @@
             var link = obj.part,
                 htData = link.data,
                 fOnLinkClicked = this.option('fOnLinkClicked');
-            if (_.isFunction(fOnLinkClicked)) {
+            if (angular.isFunction(fOnLinkClicked)) {
             	this.analyticsService.send(this.analyticsService.CONST.MAIN, this.analyticsService.CONST.CLK_LINK);
                 htData.fromNode = obj.fromNode.part.data;
                 htData.toNode = obj.toNode.part.data;
@@ -1333,7 +1340,7 @@
             var link = obj.part,
                 htData = link.data,
                 fOnLinkContextClicked = this.option('fOnLinkContextClicked');
-            if (_.isFunction(fOnLinkContextClicked)) {
+            if (angular.isFunction(fOnLinkContextClicked)) {
                 htData.fromNode = obj.fromNode.part.data;
                 htData.toNode = obj.toNode.part.data;
                 fOnLinkContextClicked.call(this, e, htData);
