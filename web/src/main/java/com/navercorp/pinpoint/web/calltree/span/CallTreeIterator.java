@@ -79,56 +79,49 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
 
     public long getGap() {
         final CallTreeNode current = getCurrent();
-        final long lastExecuteTime = getLastExecuteTime();
-        final SpanAlign currentAlign = current.getValue();
-        if (currentAlign.isSpan()) {
-            return currentAlign.getStartTime() - lastExecuteTime;
+        if (current.isRoot()) {
+            return 0;
         }
 
-        if (currentAlign.isAsyncFirst()) {
+        if (current.getValue().isAsyncFirst()) {
             final CallTreeNode parent = getAsyncParent(current);
             if (parent == null) {
                 return 0;
             }
-            final SpanAlign parentAlign = parent.getValue();
-            return currentAlign.getStartTime() - parentAlign.getStartTime();
+            // skip sibling.
+            return current.getValue().getStartTime() - parent.getValue().getStartTime();
         }
 
-        return currentAlign.getStartTime() - lastExecuteTime;
-    }
-
-    public long getLastExecuteTime() {
-        final CallTreeNode current = getCurrent();
-        final SpanAlign currentAlign = current.getValue();
-        if (current.isRoot()) {
-            return currentAlign.getStartTime();
-        }
-
-        CallTreeNode prev = getPrev();
+        final CallTreeNode prev = getPrev();
         if (prev == null) {
             throw new IllegalStateException("A non-root CallTreeNode must have a previous node");
         }
-        final SpanAlign prevAlign = prev.getValue();
-        if (!currentAlign.isAsync() && !prevAlign.isSpan() && prevAlign.isAsync()) {
-            // skip sub(async) call tree.
-            prev = current.getParent();
+
+        return current.getValue().getStartTime() - getLastExecuteTime(current, prev);
+    }
+
+
+    public long getLastExecuteTime(final CallTreeNode current, final CallTreeNode prev) {
+        if (prev.getDepth() < current.getDepth()) {
+            // push and not closed.
+            return prev.getValue().getStartTime();
         }
 
-        if (prev.getDepth() == current.getDepth()) {
-            // equal
-            final SpanAlign align = prev.getValue();
-            return align.getLastTime();
-        }
-
+        CallTreeNode node = prev;
         if (prev.getDepth() > current.getDepth()) {
-            // less, back step
-            CallTreeNode sibling = getPrevSibling(current);
-            final SpanAlign align = sibling.getValue();
-            return align.getStartTime();
-        } else {
-            // bigger
-            final SpanAlign align = prev.getValue();
-            return align.getStartTime();
+            // pop prev sibling.
+            node = getPrevSibling(current);
+        }
+        while (true) {
+            if (!node.getValue().isAsyncFirst()) {
+                // not async first.
+                return node.getValue().getLastTime();
+            } else if (isFirstChild(node)) {
+                // first child
+                return node.getParent().getValue().getStartTime();
+            }
+            // pop prev sibling.
+            node = getPrevSibling(node);
         }
     }
 
@@ -136,15 +129,22 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         CallTreeNode sibling = node.getParent().getChild();
         while (node != sibling.getSibling()) {
             sibling = sibling.getSibling();
+            if(sibling == null) {
+                throw new IllegalStateException("Not found prev sibling " + node);
+            }
         }
 
         return sibling;
     }
 
+    boolean isFirstChild(final CallTreeNode node) {
+        return node.getParent().getChild() == node;
+    }
+
     CallTreeNode getAsyncParent(final CallTreeNode node) {
         final int asyncId = node.getValue().getSpanEventBo().getAsyncId();
         CallTreeNode parent = node.getParent();
-        while (!parent.isRoot()) {
+        while (parent != null && !parent.isRoot()) {
             if (!parent.getValue().isSpan() && asyncId == parent.getValue().getSpanEventBo().getNextAsyncId()) {
                 return parent;
             }
