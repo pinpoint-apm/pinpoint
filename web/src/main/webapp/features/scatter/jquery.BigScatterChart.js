@@ -1084,6 +1084,10 @@ var BigScatterChart = $.Class({
             htDataIndex = htDataSource.index,
             htDataType = htDataSource.type;
 
+        jQuery.each( htDataType, function( sVal, sKey ) {
+            htTypeCount[sKey] = 0;
+        });
+
 		for (var i = 0, nLen = aBubbles.length; i < nLen; i++) {
 			if (jQuery.isNumeric(htTypeCount[htDataType[aBubbles[i][htDataIndex.type]]]) === false) {
 				htTypeCount[htDataType[aBubbles[i][htDataIndex.type]]] = 0;
