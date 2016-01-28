@@ -156,7 +156,7 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
     }
 
     public void initZookeeperClusterData() {
-        profileCluster.clear();
+        worker.clear();
 
         synchronized (lock) {
             List clusterPointList = profileCluster.getClusterPointList();
