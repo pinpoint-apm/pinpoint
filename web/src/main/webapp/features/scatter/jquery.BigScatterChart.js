@@ -1762,7 +1762,7 @@ var BigScatterChart = $.Class({
 			});
 		});
 		jQuery.each( htTypeCount, function( sKey, nVal ) {
-			self._htwelTypeLi[sKey].find("span").html( nVal );
+			self._htwelTypeSpan[sKey].html( self._addComma( parseInt(nVal) ) );
 		});
 	}
 });
