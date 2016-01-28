@@ -48,6 +48,7 @@ import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -62,10 +63,9 @@ public class AgentServiceImpl implements AgentService {
 
     private static final long DEFAULT_FUTURE_TIMEOUT = 3000;
 
-    private static final long DEFAULT_TIME_DIFF_DAYS = 7;
-    private static final long DEFAULT_TIME_DIFF_MS = TimeUnit.MILLISECONDS.convert(DEFAULT_TIME_DIFF_DAYS, TimeUnit.DAYS);
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private long timeDiffMs;
 
     @Autowired
     private AgentInfoService agentInfoService;
@@ -78,6 +78,11 @@ public class AgentServiceImpl implements AgentService {
 
     @Autowired
     private DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
+
+    @Value("#{pinpointWebProps['web.activethread.activeAgent.duration.days'] ?: 7}")
+    private void setTimeDiffMs(int durationDays) {
+        this.timeDiffMs = TimeUnit.MILLISECONDS.convert(durationDays, TimeUnit.DAYS);
+    }
 
     @Override
     public AgentInfo getAgentInfo(String applicationName, String agentId) {
@@ -140,7 +145,7 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     public List<AgentInfo> getRecentAgentInfoList(String applicationName) {
-        return this.getRecentAgentInfoList(applicationName, DEFAULT_TIME_DIFF_MS);
+        return this.getRecentAgentInfoList(applicationName, this.timeDiffMs);
     }
 
     @Override
