@@ -18,7 +18,10 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
@@ -85,6 +88,34 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     }
 
     @Override
+    public void deleteAgentIds(Map<String, List<String>> applicationAgentIdMap) {
+        if (MapUtils.isEmpty(applicationAgentIdMap)) {
+            return;
+        }
+
+        List<Delete> deletes = new ArrayList<>(applicationAgentIdMap.size());
+
+        for (Map.Entry<String, List<String>> entry : applicationAgentIdMap.entrySet()) {
+            String applicationName = entry.getKey();
+            List<String> agentIds = entry.getValue();
+            if (StringUtils.isEmpty(applicationName) || CollectionUtils.isEmpty(agentIds)) {
+                continue;
+            }
+            Delete delete = new Delete(Bytes.toBytes(applicationName));
+            for (String agentId : agentIds) {
+                if (!StringUtils.isEmpty(agentId)) {
+                    delete.addColumns(HBaseTables.APPLICATION_INDEX_CF_AGENTS, Bytes.toBytes(agentId));
+                }
+            }
+            // don't delete if nothing has been specified except row
+            if (!delete.getFamilyCellMap().isEmpty()) {
+                deletes.add(delete);
+            }
+        }
+        hbaseOperations2.delete(HBaseTables.APPLICATION_INDEX, deletes);
+    }
+
+    @Override
     public void deleteAgentId(String applicationName, String agentId) {
         if (StringUtils.isEmpty(applicationName)) {
             throw new IllegalArgumentException("applicationName cannot be empty");
@@ -95,7 +126,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         byte[] rowKey = Bytes.toBytes(applicationName);
         Delete delete = new Delete(rowKey);
         byte[] qualifier = Bytes.toBytes(agentId);
-        delete.addColumn(HBaseTables.APPLICATION_INDEX_CF_AGENTS, qualifier);
+        delete.addColumns(HBaseTables.APPLICATION_INDEX_CF_AGENTS, qualifier);
         hbaseOperations2.delete(HBaseTables.APPLICATION_INDEX, delete);
     }
 }

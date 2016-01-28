@@ -20,6 +20,7 @@ import static org.junit.Assert.*;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -88,6 +89,11 @@ public class JvmCpuUsageRateCheckerTest {
 
             @Override
             public void deleteApplicationName(String applicationName) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public void deleteAgentIds(Map<String, List<String>> applicationAgentIdMap) {
                 throw new UnsupportedOperationException();
             }
 

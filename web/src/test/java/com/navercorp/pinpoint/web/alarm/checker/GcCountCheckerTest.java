@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.alarm.checker;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.BeforeClass;
 
@@ -34,9 +35,9 @@ public class GcCountCheckerTest {
     private static final String SERVICE_TYPE = "tomcat";
 
     private static ApplicationIndexDao applicationIndexDao;
-    
+
     private static AgentStatDao agentStatDao;
-    
+
     @BeforeClass
     public static void before() {
         agentStatDao = new AgentStatDao() {
@@ -59,7 +60,7 @@ public class GcCountCheckerTest {
                 return true;
             }
         };
-        
+
         applicationIndexDao = new ApplicationIndexDao() {
 
             @Override
@@ -74,7 +75,7 @@ public class GcCountCheckerTest {
                     agentIds.add("local_tomcat");
                     return agentIds;
                 }
-                
+
                 throw new IllegalArgumentException();
             }
 
@@ -84,10 +85,15 @@ public class GcCountCheckerTest {
             }
 
             @Override
+            public void deleteAgentIds(Map<String, List<String>> applicationAgentIdMap) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
             public void deleteAgentId(String applicationName, String agentId) {
                 throw new UnsupportedOperationException();
             }
-            
+
         };
     }
 

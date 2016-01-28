@@ -31,6 +31,8 @@ public interface AdminService {
 
     void removeAgentId(String applicationName, String agentId);
 
+    void removeInactiveAgents(int durationDays);
+
     Map<String, List<Application>> getAgentIdMap();
 
     Map<String, List<Application>> getDuplicateAgentIdMap();

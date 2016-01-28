@@ -65,6 +65,10 @@ public class AlarmPartitionerTest {
             }
 
             @Override
+            public void deleteAgentIds(Map<String, List<String>> applicationAgentIdMap) {
+            }
+
+            @Override
             public void deleteAgentId(String applicationName, String agentId) {
             }
         };
