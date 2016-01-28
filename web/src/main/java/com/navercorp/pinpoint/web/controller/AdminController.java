@@ -71,6 +71,19 @@ public class AdminController {
         }
     }
 
+    @RequestMapping(value = "/removeInactiveAgents")
+    @ResponseBody
+    public String removeInactiveAgents(@RequestParam(value = "durationDays", defaultValue = "30") int durationDays) {
+        logger.info("removing inactive agents for the last {} days.", durationDays);
+        try {
+            this.adminService.removeInactiveAgents(durationDays);
+            return "OK";
+        } catch (Exception e) {
+            logger.error("error while removing inactive agents for the last " + durationDays + " days.", e);
+            return e.getMessage();
+        }
+    }
+
     @RequestMapping(value = "/agentIdMap")
     @ResponseBody
     public Map<String, List<Application>> agentIdMap() {
