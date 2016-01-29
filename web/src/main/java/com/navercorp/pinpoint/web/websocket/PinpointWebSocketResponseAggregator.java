@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.web.vo.AgentActiveThreadCount;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.concurrent.ExecutorService;
+
 /**
  * @Author Taejin Koo
  */
@@ -33,6 +35,8 @@ public interface PinpointWebSocketResponseAggregator {
     void stop();
 
     void flush() throws Exception;
+
+    void flush(ExecutorService executorService) throws Exception;
 
     void response(AgentActiveThreadCount activeThreadCount);
 
