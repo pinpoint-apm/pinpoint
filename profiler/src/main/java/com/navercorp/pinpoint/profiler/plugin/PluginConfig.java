@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +30,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
-import java.util.jar.Attributes;
 import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -50,15 +47,14 @@ public class PluginConfig {
     private String pluginJarURLExternalForm;
 
     private final ProfilerPlugin plugin;
-    private final Manifest manifest;
 
     private final Instrumentation instrumentation;
     private final InstrumentClassPool classPool;
     private final String bootstrapCoreJarPath;
-    private final ClassNameFilter pluginPackageFilter;
-    private final ClassNameFilter profilerPackageFilter;
 
-    public PluginConfig(URL pluginJar, ProfilerPlugin plugin, Instrumentation instrumentation, InstrumentClassPool classPool, String bootstrapCoreJarPath) {
+    private final ClassNameFilter pluginPackageFilter;
+
+    public PluginConfig(URL pluginJar, ProfilerPlugin plugin, Instrumentation instrumentation, InstrumentClassPool classPool, String bootstrapCoreJarPath, ClassNameFilter pluginPackageFilter) {
         if (pluginJar == null) {
             throw new NullPointerException("pluginJar must not be null");
         }
@@ -68,37 +64,16 @@ public class PluginConfig {
         this.pluginJar = pluginJar;
         this.pluginJarFile = createJarFile(pluginJar);
         this.plugin = plugin;
-        this.manifest = this.getManifest();
 
         this.instrumentation = instrumentation;
         this.classPool = classPool;
         this.bootstrapCoreJarPath = bootstrapCoreJarPath;
 
-        final List<String> pluginPackageList = getPluginPackage(manifest);
-        if (logger.isInfoEnabled()) {
-            logger.info("{} Plugin Package:{}", plugin.getClass(), pluginPackageList);
-        }
-        this.pluginPackageFilter = new PluginPackageFilter(pluginPackageList);
-        this.profilerPackageFilter = new PinpointProfilerPackageFilter();
+        this.pluginPackageFilter = pluginPackageFilter;
     }
 
-    private Manifest getManifest() {
-        try {
-            return pluginJarFile.getManifest();
-        } catch (IOException e) {
-            // return empty
-            return new Manifest();
-        }
-    }
 
-    public List<String> getPluginPackage(Manifest manifest) {
-        final Attributes attributes = manifest.getMainAttributes();
-        final String pluginPackage = attributes.getValue(PINPOINT_PLUGIN_PACKAGE);
-        if (pluginPackage == null) {
-            return DEFAULT_PINPOINT_PLUGIN_PACKAGE_NAME;
-        }
-        return StringUtils.splitAndTrim(pluginPackage, ",");
-    }
+
 
     public ProfilerPlugin getPlugin() {
         return plugin;
@@ -146,7 +121,5 @@ public class PluginConfig {
         return pluginPackageFilter;
     }
 
-    public ClassNameFilter getProfilerPackageFilter() {
-        return profilerPackageFilter;
-    }
+
 }
