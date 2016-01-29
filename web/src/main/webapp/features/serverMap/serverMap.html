@@ -1,7 +1,7 @@
 <div class="servermap">
     <div id="servermap" style="width:100%;height:100%;position: relative;"></div>
     <div id="servermapOverview"></div>
-    <div class="servermap-toolbar" ng-show="bShowServerMapStatus">
+    <div class="servermap-toolbar" ng-show="bShowServerMapStatus" style="top:-55px">
     	<span class="glyphicon glyphicon-question-sign serverMapTooltip"></span>
 	    <div class="servermap-status" style="right:420px">
 	    	<input type="text" class="form-control" ng-keydown="searchNodeByEnter($event)" ng-model="searchNodeQuery" placeholder="Enter node name" style="display:inline-block;;width:147px"/>
@@ -20,7 +20,7 @@
 	    </div>
     </div>
     <div class="servermap-toolbar-handle" ng-show="bShowServerMapStatus">
-    	<button type="button" class="btn btn-xs btn-default btn-info" ng-click="toggleToolbar()" style="height:54px"><span class="glyphicon glyphicon-chevron-up"></span></button>
+    	<button type="button" class="btn btn-xs btn-default btn-info" ng-click="toggleToolbar()" style="height:54px"><span class="glyphicon glyphicon-chevron-down"></span></button>
     </div>   
     <div ng-include=" 'error' "></div>
     <div ng-include=" 'warning' "></div>
