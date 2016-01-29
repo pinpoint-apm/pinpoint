@@ -8,8 +8,6 @@
 	 * @class
 	 */	
 	pinpointApp.constant('nodeInfoDetailsDirectiveConfig', {
-	    applicationStatisticsUrl: '/applicationStatistics.pinpoint',
-	    myColors: ["#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034"],
 	    maxTimeToShowLoadAsDefaultForUnknown: 60 * 60 * 12 // 12h
 	});
 	
@@ -111,16 +109,12 @@
                         } else if ( /_GROUP$/.test( node.serviceType ) ){
                             scope.showNodeResponseSummaryForUnknown = (scope.oNavbarVoService.getPeriod() <= cfg.maxTimeToShowLoadAsDefaultForUnknown) ? false : true;
                             renderAllChartWhichIsVisible(node);
-//                            scope.htLastUnknownNode = angular.copy(node);
                             scope.htLastUnknownNode = node;
 
                             $timeout(function () {
                                 element.find('[data-toggle="tooltip"]').tooltip('destroy').tooltip();
                             });
                         }
-//                        if (!scope.$$phase) {
-//                            scope.$digest();
-//                        }
                         if (!(scope.$$phase == '$apply' || scope.$$phase == '$digest') ) {
                         	if (!(scope.$root.$$phase == '$apply' || scope.$root.$$phase == '$digest') ) {
                         		scope.$digest();

@@ -62,6 +62,7 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
 //    $sceProvider.enabled(false);
 }]);
 
+pinpointApp.value("responseTypeColor", [ "#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034" ]);
 pinpointApp.value("globalConfig", {});
 
 pinpointApp.run([ '$rootScope', '$window', '$timeout', '$modal', '$location', '$route', '$cookies', '$interval', '$http', 'globalConfig',
