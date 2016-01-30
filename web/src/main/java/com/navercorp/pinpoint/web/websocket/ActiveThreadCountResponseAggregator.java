@@ -36,6 +36,7 @@ import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -205,6 +206,11 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
 
     @Override
     public void flush() throws Exception {
+        flush(null);
+    }
+
+    @Override
+    public void flush(ExecutorService executorService) throws Exception {
         if ((flushCount.getAndIncrement() % flushLogRecordRate) == 0) {
             logger.info("flush started. applicationName:{}", applicationName);
         }
@@ -228,24 +234,46 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
             activeThreadCountMap = new HashMap<>(activeThreadCountWorkerRepository.size());
         }
 
-        flush0(response);
+        TextMessage webSocketTextMessage = createWebSocketTextMessage(response);
+        if (webSocketTextMessage != null) {
+            if (executorService == null) {
+                flush0(webSocketTextMessage);
+            } else {
+                flushAsync0(webSocketTextMessage, executorService);
+            }
+        }
+
     }
 
-    private void flush0(AgentActiveThreadCountList activeThreadCountList) {
+    private TextMessage createWebSocketTextMessage(AgentActiveThreadCountList activeThreadCountList) {
         Map resultMap = createResultMap(activeThreadCountList, System.currentTimeMillis());
         try {
             TextMessage responseTextMessage = new TextMessage(messageConverter.getResponseTextMessage(ActiveThreadCountHandler.API_ACTIVE_THREAD_COUNT, resultMap));
-
-            for (WebSocketSession webSocketSession : webSocketSessions) {
-                try {
-                    logger.debug("flush webSocketSession:{}, response:{}", webSocketSession, responseTextMessage);
-                    webSocketSession.sendMessage(responseTextMessage);
-                } catch (Exception e) {
-                    logger.warn("failed while flush message(applicationName:{}, session:{}). Error:{}", webSocketSession, applicationName, e.getMessage(), e);
-                }
-            }
+            return responseTextMessage;
         } catch (JsonProcessingException e) {
-            logger.warn("failed while convert message. applicationName:{}, original:{}, message:{}.", applicationName, resultMap, e.getMessage(), e);
+            logger.warn("failed while to convert message. applicationName:{}, original:{}, message:{}.", applicationName, resultMap, e.getMessage(), e);
+        }
+        return null;
+    }
+
+    private void flush0(TextMessage webSocketMessage) {
+        for (WebSocketSession webSocketSession : webSocketSessions) {
+            try {
+                logger.debug("flush webSocketSession:{}, response:{}", webSocketSession, webSocketMessage);
+                webSocketSession.sendMessage(webSocketMessage);
+            } catch (Exception e) {
+                logger.warn("failed while flushing message to webSocket. session:{}, message:{}, error:{}", webSocketSession, webSocketMessage, e.getMessage(), e);
+            }
+        }
+    }
+
+    private void flushAsync0(TextMessage webSocketMessage, ExecutorService executorService) {
+        for (WebSocketSession webSocketSession : webSocketSessions) {
+            if (webSocketSession == null) {
+                logger.warn("failed caused webSocketSession is null. applicationName:{}", applicationName);
+                continue;
+            }
+            executorService.execute(new OrderedWebSocketFlushRunnable(webSocketSession, webSocketMessage));
         }
     }
 
@@ -265,7 +293,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
     }
 
     private String createEmptyResponseMessage(String applicationName, long timeStamp) {
-        StringBuilder emptyJsonMessage = new StringBuilder();
+        StringBuilder emptyJsonMessage = new StringBuilder(32);
         emptyJsonMessage.append("{");
         emptyJsonMessage.append("\"").append(APPLICATION_NAME).append("\"").append(":").append("\"").append(applicationName).append("\"").append(",");
         emptyJsonMessage.append("\"").append(ACTIVE_THREAD_COUNTS).append("\"").append(":").append("{}").append(",");

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.websocket;
 
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.util.concurrent.OrderedThreadPoolExecutor;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.rpc.util.StringUtils;
@@ -39,9 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -68,7 +66,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
     private final AtomicBoolean onTimerTask = new AtomicBoolean(false);
 
-    private ExecutorService webSocketFlushThreadPool;
+    private OrderedThreadPoolExecutor<String> flushActiveThreadCountExecutor;
 
     private java.util.Timer flushTimer;
     private static final long DEFAULT_FLUSH_DELAY = 1000;
@@ -102,7 +100,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     @Override
     public void start() {
         PinpointThreadFactory flushThreadFactory = new PinpointThreadFactory(ClassUtils.simpleClassName(this) + "-Flush-Thread", true);
-        webSocketFlushThreadPool = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Integer.MAX_VALUE, DEFAULT_HEALTH_CHECk_DELAY, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), flushThreadFactory);
+        flushActiveThreadCountExecutor = new OrderedThreadPoolExecutor(String.class, Runtime.getRuntime().availableProcessors(), 32, DEFAULT_HEALTH_CHECk_DELAY, TimeUnit.MILLISECONDS, flushThreadFactory);
 
         flushTimer = new java.util.Timer(ClassUtils.simpleClassName(this) + "-Flush-Timer", true);
         healthCheckTimer = new java.util.Timer(ClassUtils.simpleClassName(this) + "-HealthCheck-Timer", true);
@@ -130,8 +128,8 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
             reactiveTimer.cancel();
         }
 
-        if (webSocketFlushThreadPool != null) {
-            webSocketFlushThreadPool.shutdown();
+        if (flushActiveThreadCountExecutor != null) {
+            flushActiveThreadCountExecutor.shutdown();
         }
     }
 
@@ -287,16 +285,11 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
                 Collection<PinpointWebSocketResponseAggregator> values = aggregatorRepository.values();
                 for (final PinpointWebSocketResponseAggregator aggregator : values) {
-                    webSocketFlushThreadPool.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                aggregator.flush();
-                            } catch (Exception e) {
-                                logger.warn(e.getMessage(), e);
-                            }
-                        }
-                    });
+                    try {
+                        aggregator.flush(flushActiveThreadCountExecutor);
+                    } catch (Exception e) {
+                        logger.warn("failed while flushing ActiveThreadCount to aggregator. applicationName:{}, message:{}", aggregator.getApplicationName(), e.getMessage(), e);
+                    }
                 }
             } finally {
                 long waitTimeMillis = getWaitTimeMillis();
@@ -370,20 +363,15 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
             }
         }
 
+        private void sendPingMessage(final WebSocketSession session, final TextMessage pingMessage) {
+            flushActiveThreadCountExecutor.execute(new OrderedWebSocketFlushRunnable(session, pingMessage, true));
+        }
+
         private void closeSession(WebSocketSession session, CloseStatus status) {
             try {
                 session.close(status);
             } catch (Exception e) {
                 logger.warn(e.getMessage(), e);
-            }
-        }
-
-        private void sendPingMessage(WebSocketSession session, TextMessage pingMessage) {
-            try {
-                session.sendMessage(pingMessage);
-            } catch (Exception e) {
-                logger.warn(e.getMessage(), e);
-                closeSession(session, CloseStatus.SERVER_ERROR);
             }
         }
 
