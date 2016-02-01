@@ -25,11 +25,13 @@ import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
 import com.navercorp.pinpoint.profiler.monitor.CounterMonitor;
 import com.navercorp.pinpoint.profiler.monitor.EventRateMonitor;
 import com.navercorp.pinpoint.profiler.monitor.HistogramMonitor;
 import com.navercorp.pinpoint.profiler.monitor.MonitorName;
 import com.navercorp.pinpoint.profiler.monitor.MonitorRegistry;
+import com.navercorp.pinpoint.profiler.monitor.codahale.activetrace.metric.ActiveTraceMetricSet;
 import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.CpuLoadMetricSetSelector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.CpuLoadMetricSet;
 import com.navercorp.pinpoint.profiler.monitor.codahale.tps.metric.TransactionMetricSet;
@@ -97,6 +99,11 @@ public class MetricMonitorRegistry implements MonitorRegistry {
     public TransactionMetricSet registerTpsMonitor(MonitorName monitorName, TransactionCounter transactionCounter) {
         validateMonitorName(monitorName);
         return this.delegate.register(monitorName.getName(), new TransactionMetricSet(transactionCounter));
+    }
+
+    public ActiveTraceMetricSet registerActiveTraceMetricSet(MonitorName monitorName, ActiveTraceLocator activeTraceLocator) {
+        validateMonitorName(monitorName);
+        return this.delegate.register(monitorName.getName(), new ActiveTraceMetricSet(activeTraceLocator));
     }
 
     public ThreadStatesGaugeSet registerJvmThreadStatesMonitor(MonitorName monitorName) {

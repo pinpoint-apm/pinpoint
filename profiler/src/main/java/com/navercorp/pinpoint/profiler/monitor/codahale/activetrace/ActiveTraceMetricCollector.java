@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.monitor.codahale.tps;
+package com.navercorp.pinpoint.profiler.monitor.codahale.activetrace;
 
 import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollector;
-import com.navercorp.pinpoint.thrift.dto.TTransaction;
+import com.navercorp.pinpoint.thrift.dto.TActiveTrace;
 
 /**
  * @author HyunGil Jeong
  */
-public interface TransactionMetricCollector extends AgentStatCollector<TTransaction> {
+public interface ActiveTraceMetricCollector extends AgentStatCollector<TActiveTrace> {
 
-    TransactionMetricCollector EMPTY_TRANSACTION_METRIC_COLLECTOR = new TransactionMetricCollector() {
+    ActiveTraceMetricCollector EMPTY_ACTIVE_TRACE_COLLECTOR = new ActiveTraceMetricCollector() {
         @Override
-        public TTransaction collect() {
+        public TActiveTrace collect() {
             return null;
         }
     };

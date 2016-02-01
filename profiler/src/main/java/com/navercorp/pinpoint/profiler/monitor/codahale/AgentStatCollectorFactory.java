@@ -16,9 +16,17 @@
 
 package com.navercorp.pinpoint.profiler.monitor.codahale;
 
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
 import com.navercorp.pinpoint.profiler.monitor.MonitorName;
+import com.navercorp.pinpoint.profiler.monitor.codahale.activetrace.DefaultActiveTraceMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.codahale.activetrace.ActiveTraceMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.codahale.activetrace.metric.ActiveTraceMetricSet;
+import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.DefaultCpuLoadCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.CpuLoadCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.CpuLoadMetricSet;
 import com.navercorp.pinpoint.profiler.monitor.codahale.gc.CmsCollector;
@@ -31,6 +39,7 @@ import com.navercorp.pinpoint.profiler.monitor.codahale.gc.ParallelDetailedMetri
 import com.navercorp.pinpoint.profiler.monitor.codahale.gc.SerialCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.gc.SerialDetailedMetricsCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.gc.UnknownGarbageCollector;
+import com.navercorp.pinpoint.profiler.monitor.codahale.tps.DefaultTransactionMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.tps.TransactionMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.tps.metric.TransactionMetricSet;
 
@@ -53,12 +62,21 @@ public class AgentStatCollectorFactory {
     private final GarbageCollector garbageCollector;
     private final CpuLoadCollector cpuLoadCollector;
     private final TransactionMetricCollector transactionMetricCollector;
+    private final ActiveTraceMetricCollector activeTraceMetricCollector;
 
-    public AgentStatCollectorFactory(TransactionCounter transactionCounter, ProfilerConfig profilerConfig) {
+    public AgentStatCollectorFactory(TraceContext traceContext) {
+        if (traceContext == null) {
+            throw new NullPointerException("traceContext must not be null");
+        }
+        ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
+        if (profilerConfig == null) {
+            profilerConfig = new DefaultProfilerConfig();
+        }
         this.monitorRegistry = createRegistry();
         this.garbageCollector = createGarbageCollector(profilerConfig.isProfilerJvmCollectDetailedMetrics());
         this.cpuLoadCollector = createCpuLoadCollector();
-        this.transactionMetricCollector = createTransactionMetricCollector(transactionCounter);
+        this.transactionMetricCollector = createTransactionMetricCollector(traceContext);
+        this.activeTraceMetricCollector = createActiveTraceCollector(traceContext, profilerConfig.isTraceAgentActiveThread());
     }
 
     private MetricMonitorRegistry createRegistry() {
@@ -110,15 +128,39 @@ public class AgentStatCollectorFactory {
         if (logger.isInfoEnabled()) {
             logger.info("loaded : {}", cpuLoadMetricSet);
         }
-        return new CpuLoadCollector(cpuLoadMetricSet);
+        return new DefaultCpuLoadCollector(cpuLoadMetricSet);
     }
 
-    private TransactionMetricCollector createTransactionMetricCollector(TransactionCounter transactionCounter) {
-        TransactionMetricSet transactionMetricSet = this.monitorRegistry.registerTpsMonitor(new MonitorName(MetricMonitorValues.TRANSACTION), transactionCounter);
-        if (logger.isInfoEnabled()) {
-            logger.info("loaded : {}", transactionMetricSet);
+    private TransactionMetricCollector createTransactionMetricCollector(TraceContext traceContext) {
+        if (traceContext instanceof DefaultTraceContext) {
+            TransactionCounter transactionCounter = ((DefaultTraceContext) traceContext).getTransactionCounter();
+            TransactionMetricSet transactionMetricSet = this.monitorRegistry.registerTpsMonitor(new MonitorName(MetricMonitorValues.TRANSACTION), transactionCounter);
+            if (logger.isInfoEnabled()) {
+                logger.info("loaded : {}", transactionMetricSet);
+            }
+            return new DefaultTransactionMetricCollector(transactionMetricSet);
+        } else {
+            return TransactionMetricCollector.EMPTY_TRANSACTION_METRIC_COLLECTOR;
         }
-        return new TransactionMetricCollector(transactionMetricSet);
+    }
+
+    private ActiveTraceMetricCollector createActiveTraceCollector(TraceContext traceContext, boolean isTraceAgentActiveThread) {
+        if (!isTraceAgentActiveThread) {
+            return ActiveTraceMetricCollector.EMPTY_ACTIVE_TRACE_COLLECTOR;
+        }
+        if (traceContext instanceof DefaultTraceContext) {
+            ActiveTraceLocator activeTraceLocator = ((DefaultTraceContext) traceContext).getActiveTraceLocator();
+            if (activeTraceLocator != null) {
+                ActiveTraceMetricSet activeTraceMetricSet = this.monitorRegistry.registerActiveTraceMetricSet(new MonitorName(MetricMonitorValues.ACTIVE_TRACE), activeTraceLocator);
+                if (logger.isInfoEnabled()) {
+                    logger.info("loaded : {}", activeTraceMetricSet);
+                }
+                return new DefaultActiveTraceMetricCollector(activeTraceMetricSet);
+            } else {
+                logger.warn("agent set to trace active threads but no ActiveTraceLocator found");
+            }
+        }
+        return ActiveTraceMetricCollector.EMPTY_ACTIVE_TRACE_COLLECTOR;
     }
 
     public GarbageCollector getGarbageCollector() {
@@ -131,6 +173,10 @@ public class AgentStatCollectorFactory {
 
     public TransactionMetricCollector getTransactionMetricCollector() {
         return this.transactionMetricCollector;
+    }
+
+    public ActiveTraceMetricCollector getActiveTraceMetricCollector() {
+        return this.activeTraceMetricCollector;
     }
 
 }

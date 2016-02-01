@@ -19,11 +19,8 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
-import com.navercorp.pinpoint.common.trace.HistogramSchema;
-import com.navercorp.pinpoint.common.trace.HistogramSlot;
-import com.navercorp.pinpoint.common.trace.SlotType;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceInfo;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramFactory;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramFactory.ActiveTraceHistogram;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
 import com.navercorp.pinpoint.profiler.receiver.CommandSerializer;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
@@ -44,10 +41,7 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -70,18 +64,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
 
     private final List<ServerStreamChannel> streamChannelRepository = new CopyOnWriteArrayList<ServerStreamChannel>();
 
-
-    private static final List<SlotType> ACTIVE_THREAD_SLOTS_ORDER = new ArrayList<SlotType>();
-    static {
-        ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.FAST);
-        ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.NORMAL);
-        ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.SLOW);
-        ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.VERY_SLOW);
-    }
-
-    private final ActiveTraceLocator activeTraceLocator;
-    private final int activeThreadSlotsCount;
-    private final HistogramSchema histogramSchema = BaseHistogramSchema.NORMAL_SCHEMA;
+    private final ActiveTraceHistogramFactory activeTraceHistogramFactory;
 
     public ActiveThreadCountService(ActiveTraceLocator activeTraceLocator) {
         this(activeTraceLocator, DEFAULT_FLUSH_DELAY);
@@ -91,9 +74,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
         if (activeTraceLocator == null) {
             throw new NullPointerException("activeTraceLocator");
         }
-        this.activeTraceLocator = activeTraceLocator;
-        this.activeThreadSlotsCount = ACTIVE_THREAD_SLOTS_ORDER.size();
-
+        this.activeTraceHistogramFactory = new ActiveTraceHistogramFactory(activeTraceLocator);
         this.flushDelay = flushDelay;
     }
 
@@ -119,46 +100,14 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
     }
 
     private TCmdActiveThreadCountRes getActiveThreadCountResponse() {
-        Map<SlotType, IntAdder> mappedSlot = new LinkedHashMap<SlotType, IntAdder>(activeThreadSlotsCount);
-        for (SlotType slotType : ACTIVE_THREAD_SLOTS_ORDER) {
-            mappedSlot.put(slotType, new IntAdder(0));
-        }
-
-        long currentTime = System.currentTimeMillis();
-
-        List<ActiveTraceInfo> collectedActiveTraceInfo = activeTraceLocator.collect();
-        for (ActiveTraceInfo activeTraceInfo : collectedActiveTraceInfo) {
-            HistogramSlot slot = histogramSchema.findHistogramSlot((int) (currentTime - activeTraceInfo.getStartTime()), false);
-            mappedSlot.get(slot.getSlotType()).incrementAndGet();
-        }
-
-        List<Integer> activeThreadCount = new ArrayList<Integer>(activeThreadSlotsCount);
-        for (IntAdder statusCount : mappedSlot.values()) {
-            activeThreadCount.add(statusCount.get());
-        }
+        ActiveTraceHistogram activeTraceHistogram = this.activeTraceHistogramFactory.createHistogram();
 
         TCmdActiveThreadCountRes response = new TCmdActiveThreadCountRes();
-        response.setHistogramSchemaType(histogramSchema.getTypeCode());
-        response.setActiveThreadCount(activeThreadCount);
+        response.setHistogramSchemaType(activeTraceHistogram.getHistogramSchema().getTypeCode());
+        response.setActiveThreadCount(activeTraceHistogram.getActiveTraceCounts());
         response.setTimeStamp(System.currentTimeMillis());
 
         return response;
-    }
-
-    private static class IntAdder {
-        private int value = 0;
-
-        public IntAdder(int defaultValue) {
-            this.value = defaultValue;
-        }
-
-        public int incrementAndGet() {
-            return ++value;
-        }
-
-        public int get() {
-            return this.value;
-        }
     }
 
     private class ActiveThreadCountStreamChannelStateChangeEventHandler implements StreamChannelStateChangeEventHandler<ServerStreamChannel> {

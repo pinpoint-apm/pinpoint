@@ -104,12 +104,15 @@ public final class MetricMonitorValues {
     public static final String CPU_LOAD_JVM = CPU_LOAD + ".jvm";
     // CPU Load (System)
     public static final String CPU_LOAD_SYSTEM = CPU_LOAD + ".system";
-    
+
     public static final String TRANSACTION = "transaction";
     public static final String TRANSACTION_SAMPLED_NEW = TRANSACTION + ".sampled.new";
     public static final String TRANSACTION_SAMPLED_CONTINUATION = TRANSACTION + ".sampled.continuation";
     public static final String TRANSACTION_UNSAMPLED_NEW = TRANSACTION + ".unsampled.new";
     public static final String TRANSACTION_UNSAMPLED_CONTINUATION = TRANSACTION + ".unsampled.continuation";
+
+    public static final String ACTIVE_TRACE = "active.trace";
+    public static final String ACTIVE_TRACE_COUNT = ACTIVE_TRACE + ".count";
 
     private MetricMonitorValues() {
     }
@@ -153,7 +156,7 @@ public final class MetricMonitorValues {
         }
         Gauge<T> gauge = null;
         try {
-            gauge = (Gauge<T>)gauges.get(key);
+            gauge = (Gauge<T>) gauges.get(key);
             if (gauge == null) {
                 LOGGER.warn("key:{} not found", key);
                 return defaultGauge;
@@ -165,7 +168,7 @@ public final class MetricMonitorValues {
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public static Gauge<Long> getLongGauge(final SortedMap<String, Gauge> gauges, String key) {
         if (gauges == null) {
             throw new NullPointerException("gauges must not be null");
@@ -187,7 +190,7 @@ public final class MetricMonitorValues {
         return LONG_ZERO;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public static Gauge<Double> getDoubleGauge(final SortedMap<String, Gauge> gauges, String key) {
         if (gauges == null) {
             throw new NullPointerException("gauges must not be null");
