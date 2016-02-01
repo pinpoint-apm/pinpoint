@@ -16,11 +16,10 @@ var BigScatterChart = $.Class({
 	 * @param {Object} option option object
 	 * @param {Service} helpContentService angularjs service object
 	 */			
-    $init: function (htOption, aAgentList, tooltipService, webStorage, analyticsService) {
-		this._consts = {
-			"ALL": "All"
-		};
+    $init: function (htOption, aAgentList, tooltipService, webStorage, analyticsService, CONST_SET) {
+		this._constSet = CONST_SET;
     	this.analyticsService = analyticsService;
+		this._currentAgent = this._constSet.AGENT_ALL;
         this._aAgentList = aAgentList;
         this.option({
             "sContainerId": "",
@@ -212,12 +211,6 @@ var BigScatterChart = $.Class({
             "font-size": "12px",
             "margin-top": "5px"
         });
-
-		this._welAgentSelect.append('<option value="' + this._consts.ALL + '" selected>' + this._consts.ALL + '</option>');
-        jQuery.each( this._aAgentList, function( index, value ) {
-            self._welAgentSelect.append('<option value="'+ value + '">' + value + '</option>');
-        });
-        this._welAgentSelect.appendTo( this._welContainer );
 
         // guide
         this._welGuideCanvas = $("<canvas>")
@@ -699,15 +692,14 @@ var BigScatterChart = $.Class({
             	}
             	
                 e.preventDefault();
-				var currentAgent = self._welAgentSelect.val();
-				if ( currentAgent === self._consts.ALL ) {
+				if ( self._currentAgent === self._constSet.AGENT_ALL ) {
 					jQuery.each( self._htwelChartCanvas, function( k, obj ) {
 						if ( k.endsWith( sKey ) ) {
 							obj.toggle();
 						}
 					});
 				} else {
-					self._htwelChartCanvas[currentAgent + "-" + sPrefix + sKey].toggle();
+					self._htwelChartCanvas[self._currentAgent + "-" + sPrefix + sKey].toggle();
 				}
 
                 if (!welTypeLi.hasClass("unchecked")) {
@@ -748,10 +740,6 @@ var BigScatterChart = $.Class({
                     self._hideGuideLine();
                 }
             }
-        });
-
-        this._welAgentSelect.on("change", function() {
-            self.selectAgent( $(this).val() );
         });
     },
     fireDragEvent: function( oParam ) {
@@ -1416,7 +1404,7 @@ var BigScatterChart = $.Class({
         for (var i = 0, nLen = aBubbleStep.length; i < nLen; i++) {
 			var oBubbleStep = aBubbleStep[i];
 			for( var p in oBubbleStep ) {
-				if ( currentAgent === self._consts.ALL || currentAgent == p ) {
+				if ( currentAgent === self._constSet.AGENT_ALL || currentAgent == p ) {
 					var aBubbleStepData = oBubbleStep[p];
 					for (var j = 0, nLen2 = aBubbleStepData.nLength; j < nLen2; j++) {
 						var oBubbleData = aBubbles[i][p][j];
@@ -1721,12 +1709,22 @@ var BigScatterChart = $.Class({
         this._bPause = false;
         this._drawWithDataSource();
     },
-	selectAgent: function( agentName ) {
+	selectAgent: function( agentName, bInitCheck ) {
 		var self = this;
-		var bIsAll = agentName === this._consts.ALL;
+		var bIsAll = agentName === this._constSet.AGENT_ALL;
 		var sPrefix = this.option("sPrefix");
-		var viewSuccess = this._htwelTypeLi["Success"].hasClass("unchecked") === false;
-		var viewFail = this._htwelTypeLi["Failed"].hasClass("unchecked") === false;
+
+		var viewSuccess = true;
+		var viewFail = true;
+		if ( bInitCheck === true) {
+			var htCheckBoxImage = this.option("htCheckBoxImage");
+			self._htwelTypeLi["Success"].removeClass("unchecked").css("background-image", "url(" + htCheckBoxImage.checked + ")");
+			self._htwelTypeLi["Failed"].removeClass("unchecked").css("background-image", "url(" + htCheckBoxImage.checked + ")");
+		} else {
+			viewSuccess = this._htwelTypeLi["Success"].hasClass("unchecked") === false;
+			viewFail = this._htwelTypeLi["Failed"].hasClass("unchecked") === false;
+		}
+		this._currentAgent = agentName;
 
 		jQuery.each( this._htwelChartCanvas, function( sKey, sVal ) {
 			if ( bIsAll ) {
@@ -1762,7 +1760,7 @@ var BigScatterChart = $.Class({
 			});
 		});
 		jQuery.each( htTypeCount, function( sKey, nVal ) {
-			self._htwelTypeLi[sKey].find("span").html( nVal );
+			self._htwelTypeSpan[sKey].html( self._addComma( parseInt(nVal) ) );
 		});
 	}
 });

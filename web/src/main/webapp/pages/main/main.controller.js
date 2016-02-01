@@ -175,7 +175,7 @@
 	                $scope.hasScatter = false;
 	            }
 	            $scope.hasFilter = false;
-	            $scope.$broadcast('sidebarTitleDirective.initialize.forMain', oSidebarTitleVoService);
+	            $scope.$broadcast('sidebarTitleDirective.initialize.forMain', oSidebarTitleVoService, node);
 	            $scope.$broadcast('nodeInfoDetailsDirective.initialize', e, query, node, data, oNavbarVoService, null, searchQuery);
 	            $scope.$broadcast('linkInfoDetailsDirective.hide');
 	
@@ -269,7 +269,7 @@
 	        $scope.$on('nodeInfoDetailDirective.showDetailInformationClicked', function (event, query, node) {
 	            $scope.hasScatter = false;
 	            var oSidebarTitleVoService = new SidebarTitleVoService;
-	
+
 	            oSidebarTitleVoService
 	                .setImageType(node.serviceType);
 	            if (node.unknownNodeGroup) {
@@ -279,11 +279,11 @@
 	                oSidebarTitleVoService.setTitle(node.applicationName);
 	                $scope.hasScatter = false;
 	            }
-	
+
 	            $scope.$broadcast('sidebarTitleDirective.initialize.forMain', oSidebarTitleVoService);
 	            $scope.$broadcast('linkInfoDetailsDirective.hide');
 	        });
-	
+
 	        $scope.loadingOption = {
 	        	hideTip : "init"
 	        };
