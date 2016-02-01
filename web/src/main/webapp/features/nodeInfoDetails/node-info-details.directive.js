@@ -1,5 +1,5 @@
 (function() {
-	'use strict';
+	"use strict";
 	/**
 	 * (en)nodeInfoDetailsDirective 
 	 * @ko nodeInfoDetailsDirective
@@ -7,16 +7,16 @@
 	 * @name nodeInfoDetailsDirective
 	 * @class
 	 */	
-	pinpointApp.constant('nodeInfoDetailsDirectiveConfig', {
+	pinpointApp.constant("nodeInfoDetailsDirectiveConfig", {
 	    maxTimeToShowLoadAsDefaultForUnknown: 60 * 60 * 12 // 12h
 	});
 	
-	pinpointApp.directive('nodeInfoDetailsDirective', [ 'nodeInfoDetailsDirectiveConfig', '$filter', '$timeout', 'isVisibleService', '$window', 'helpContentTemplate', 'helpContentService', 'AnalyticsService',
-        function (cfg, $filter, $timeout, isVisibleService, $window, helpContentTemplate, helpContentService, analyticsService) {
+	pinpointApp.directive("nodeInfoDetailsDirective", [ "nodeInfoDetailsDirectiveConfig", "$filter", "$timeout", "isVisibleService", "$window", "helpContentTemplate", "helpContentService", "AnalyticsService", "CONST_SET",
+        function (cfg, $filter, $timeout, isVisibleService, $window, helpContentTemplate, helpContentService, analyticsService, CONST_SET) {
             return {
-                restrict: 'EA',
+                restrict: "EA",
                 replace: true,
-                templateUrl: 'features/nodeInfoDetails/nodeInfoDetails.html?v=' + G_BUILD_TIME,
+                templateUrl: "features/nodeInfoDetails/nodeInfoDetails.html?v=" + G_BUILD_TIME,
                 scope: {},
                 link: function postLink(scope, element) {
 
@@ -32,15 +32,15 @@
                     bShown = false;
                     scope.htLastUnknownNode = false;
 
-                    angular.element($window).bind('resize',function(e) {
+                    angular.element($window).bind("resize",function(e) {
                         if (bShown && /_GROUP$/.test( htLastNode.category ) ) {
                             renderAllChartWhichIsVisible(htLastNode);
                         }
                     });
 
                     element
-                        .find('.unknown-list')
-                        .bind('scroll', function (e) {
+                        .find(".unknown-list")
+                        .bind("scroll", function (e) {
                             renderAllChartWhichIsVisible(htLastNode);
                         });
 
@@ -52,6 +52,7 @@
                         htUnknownLoad = {};
                         htAgentChartRendered = {};
                         htQuery = false;
+						scope.currentAgent = CONST_SET.AGENT_ALL;
                         scope.showNodeInfoDetails = false;
                         scope.node = false;
                         scope.unknownNodeGroup = null;
@@ -63,13 +64,13 @@
                         scope.showNodeResponseSummary = false;
                         scope.showNodeLoad = false;
                         scope.agentHistogram = false;
-                        scope.nodeOrderBy = 'totalCount';
-                        scope.nodeOrderByNameClass = '';
-                        scope.nodeOrderByCountClass = 'glyphicon-sort-by-order-alt';
+                        scope.nodeOrderBy = "totalCount";
+                        scope.nodeOrderByNameClass = "";
+                        scope.nodeOrderByCountClass = "glyphicon-sort-by-order-alt";
                         scope.nodeOrderByDesc = true;
 
-                        if (!(scope.$$phase == '$apply' || scope.$$phase == '$digest') ) {
-                        	if (!(scope.$root.$$phase == '$apply' || scope.$root.$$phase == '$digest') ) {
+                        if (!(scope.$$phase == "$apply" || scope.$$phase == "$digest") ) {
+                        	if (!(scope.$root.$$phase == "$apply" || scope.$root.$$phase == "$digest") ) {
                         		scope.$digest();
                         	}
                         }
@@ -104,19 +105,19 @@
                             scope.showNodeResponseSummary = true;
                             scope.showNodeLoad = true;
 
-                            renderResponseSummary('forNode', node.applicationName, node.histogram, '100%', '150px');
-                            renderLoad('forNode', node.applicationName, node.timeSeriesHistogram, '100%', '220px', true);
+                            renderResponseSummary("forNode", node.applicationName, node.histogram, "100%", "150px");
+                            renderLoad("forNode", node.applicationName, node.timeSeriesHistogram, "100%", "220px", true);
                         } else if ( /_GROUP$/.test( node.serviceType ) ){
                             scope.showNodeResponseSummaryForUnknown = (scope.oNavbarVoService.getPeriod() <= cfg.maxTimeToShowLoadAsDefaultForUnknown) ? false : true;
                             renderAllChartWhichIsVisible(node);
                             scope.htLastUnknownNode = node;
 
                             $timeout(function () {
-                                element.find('[data-toggle="tooltip"]').tooltip('destroy').tooltip();
+                                element.find('[data-toggle="tooltip"]').tooltip("destroy").tooltip();
                             });
                         }
-                        if (!(scope.$$phase == '$apply' || scope.$$phase == '$digest') ) {
-                        	if (!(scope.$root.$$phase == '$apply' || scope.$root.$$phase == '$digest') ) {
+                        if (!(scope.$$phase == "$apply" || scope.$$phase == "$digest") ) {
+                        	if (!(scope.$root.$$phase == "$apply" || scope.$root.$$phase == "$digest") ) {
                         		scope.$digest();
                         	}
                         }
@@ -130,21 +131,21 @@
                         $timeout(function () {
                             angular.forEach(node.unknownNodeGroup, function (node){
                                 var applicationName = node.applicationName,
-                                    className = $filter('applicationNameToClassName')(applicationName);
+                                    className = $filter("applicationNameToClassName")(applicationName);
                                 if (angular.isDefined(htUnknownResponseSummary[applicationName])) return;
                                 if (angular.isDefined(htUnknownLoad[applicationName])) return;
 
-                                var elQuery = '.nodeInfoDetails .summaryCharts_' + className,
+                                var elQuery = ".nodeInfoDetails .summaryCharts_" + className,
                                     el = angular.element(elQuery);
                                 var visible = isVisibleService(el.get(0), 1);
                                 if (!visible) return;
 
                                 if (scope.showNodeResponseSummaryForUnknown) {
                                     htUnknownResponseSummary[applicationName] = true;
-                                    renderResponseSummary(null, applicationName, node.histogram, '360px', '180px');
+                                    renderResponseSummary(null, applicationName, node.histogram, "360px", "180px");
                                 } else {
                                     htUnknownLoad[applicationName] = true;
-                                    renderLoad(null, applicationName, node.timeSeriesHistogram, '360px', '200px', true);
+                                    renderLoad(null, applicationName, node.timeSeriesHistogram, "360px", "200px", true);
                                 }
                             });
                         });
@@ -159,9 +160,9 @@
                      * @param h
                      */
                     renderResponseSummary = function (namespace, toApplicationName, histogram, w, h) {
-                        var className = $filter('applicationNameToClassName')(toApplicationName),
-                            namespace = namespace || 'forNode_' + className;
-                        scope.$broadcast('responseTimeChartDirective.initAndRenderWithData.' + namespace, histogram, w, h, false, true);
+                        var className = $filter("applicationNameToClassName")(toApplicationName),
+                            namespace = namespace || "forNode_" + className;
+                        scope.$broadcast("responseTimeChartDirective.initAndRenderWithData." + namespace, histogram, w, h, false, true);
                     };
 
                     /**
@@ -174,9 +175,9 @@
                      * @param useChartCursor
                      */
                     renderLoad = function (namespace, toApplicationName, timeSeriesHistogram, w, h, useChartCursor) {
-                        var className = $filter('applicationNameToClassName')(toApplicationName),
-                            namespace = namespace || 'forNode_' + className;
-                        scope.$broadcast('loadChartDirective.initAndRenderWithData.' + namespace, timeSeriesHistogram, w, h, useChartCursor);
+                        var className = $filter("applicationNameToClassName")(toApplicationName),
+                            namespace = namespace || "forNode_" + className;
+                        scope.$broadcast("loadChartDirective.initAndRenderWithData." + namespace, timeSeriesHistogram, w, h, useChartCursor);
                     };
                     
                     getUnknownNode = function( key ) {
@@ -213,7 +214,7 @@
                     scope.showNodeDetailInformation = function (key) {
                         htLastNode = getUnknownNode(key);//htLastNode.unknownNodeGroup[index];
                         showDetailInformation(htLastNode);
-                        scope.$emit('nodeInfoDetail.showDetailInformationClicked', htQuery, htLastNode);
+                        scope.$emit("nodeInfoDetail.showDetailInformationClicked", htQuery, htLastNode);
                     };
 
                     /**
@@ -224,7 +225,7 @@
                         htUnknownResponseSummary = {};
                         htUnknownLoad = {};
                         showDetailInformation(htLastNode);
-                        scope.$emit('nodeInfoDetail.showDetailInformationClicked', htQuery, htLastNode);
+                        scope.$emit("nodeInfoDetail.showDetailInformationClicked", htQuery, htLastNode);
                     };
 
                     /**
@@ -235,7 +236,7 @@
                     scope.renderNodeResponseSummary = function (applicationName, key) {
                         if (angular.isUndefined(htUnknownResponseSummary[applicationName])) {
                             htUnknownResponseSummary[applicationName] = true;
-                            renderResponseSummary(null, applicationName, getUnknownNode(key).histogram, '360px', '180px');
+                            renderResponseSummary(null, applicationName, getUnknownNode(key).histogram, "360px", "180px");
                         }
                     };
 
@@ -247,7 +248,7 @@
                     scope.renderNodeLoad = function (applicationName, key) { 
                         if (angular.isUndefined(htUnknownLoad[applicationName])) {
                             htUnknownLoad[applicationName] = true;
-                            renderLoad(null, applicationName, getUnknownNode(key).timeSeriesHistogram, '360px', '200px', true);
+                            renderLoad(null, applicationName, getUnknownNode(key).timeSeriesHistogram, "360px", "200px", true);
                         }
                     };
 
@@ -259,8 +260,8 @@
                     	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_SHOW_GRAPH);
                         if (angular.isDefined(htAgentChartRendered[applicationName])) return;
                         htAgentChartRendered[applicationName] = true;
-                        renderResponseSummary(null, applicationName, htLastNode.agentHistogram[applicationName], '100%', '150px');
-                        renderLoad(null, applicationName, htLastNode.agentTimeSeriesHistogram[applicationName], '100%', '200px', true);
+                        renderResponseSummary(null, applicationName, htLastNode.agentHistogram[applicationName], "100%", "150px");
+                        renderLoad(null, applicationName, htLastNode.agentTimeSeriesHistogram[applicationName], "100%", "200px", true);
                     };
 
                     /**
@@ -274,18 +275,18 @@
                      * scope node order by name
                      */
                     scope.nodeOrderByName = function () {
-                        if (scope.nodeOrderBy === 'applicationName') {
+                        if (scope.nodeOrderBy === "applicationName") {
                             scope.nodeOrderByDesc = !scope.nodeOrderByDesc;
-                            if (scope.nodeOrderByNameClass === 'glyphicon-sort-by-alphabet-alt') {
-                                scope.nodeOrderByNameClass = 'glyphicon-sort-by-alphabet';
+                            if (scope.nodeOrderByNameClass === "glyphicon-sort-by-alphabet-alt") {
+                                scope.nodeOrderByNameClass = "glyphicon-sort-by-alphabet";
                             } else {
-                                scope.nodeOrderByNameClass = 'glyphicon-sort-by-alphabet-alt';
+                                scope.nodeOrderByNameClass = "glyphicon-sort-by-alphabet-alt";
                             }
                         } else {
-                            scope.nodeOrderByNameClass = 'glyphicon-sort-by-alphabet-alt';
-                            scope.nodeOrderByCountClass = '';
+                            scope.nodeOrderByNameClass = "glyphicon-sort-by-alphabet-alt";
+                            scope.nodeOrderByCountClass = "";
                             scope.nodeOrderByDesc = true;
-                            scope.nodeOrderBy = 'applicationName';
+                            scope.nodeOrderBy = "applicationName";
                         }
                         renderAllChartWhichIsVisible(htLastNode);
                     };
@@ -294,18 +295,18 @@
                      * scope node order by count
                      */
                     scope.nodeOrderByCount = function () {
-                        if (scope.nodeOrderBy === 'totalCount') {
+                        if (scope.nodeOrderBy === "totalCount") {
                             scope.nodeOrderByDesc = !scope.nodeOrderByDesc;
-                            if (scope.nodeOrderByCountClass === 'glyphicon-sort-by-order-alt') {
-                                scope.nodeOrderByCountClass = 'glyphicon-sort-by-order';
+                            if (scope.nodeOrderByCountClass === "glyphicon-sort-by-order-alt") {
+                                scope.nodeOrderByCountClass = "glyphicon-sort-by-order";
                             } else {
-                                scope.nodeOrderByCountClass = 'glyphicon-sort-by-order-alt';
+                                scope.nodeOrderByCountClass = "glyphicon-sort-by-order-alt";
                             }
                         } else {
-                            scope.nodeOrderByCountClass = 'glyphicon-sort-by-order-alt';
-                            scope.nodeOrderByNameClass = '';
+                            scope.nodeOrderByCountClass = "glyphicon-sort-by-order-alt";
+                            scope.nodeOrderByNameClass = "";
                             scope.nodeOrderByDesc = true;
-                            scope.nodeOrderBy = 'totalCount';
+                            scope.nodeOrderBy = "totalCount";
                         }
                         renderAllChartWhichIsVisible(htLastNode);
                     };
@@ -335,11 +336,11 @@
                     /**
                      * scope event on nodeInfoDetailsDirective.initialize
                      */
-                    scope.$on('nodeInfoDetailsDirective.initialize', function (event, e, query, node, mapData, navbarVoService, reloadOnly, searchQuery) {
+                    scope.$on("nodeInfoDetailsDirective.initialize", function (event, e, query, node, mapData, navbarVoService, reloadOnly, searchQuery) {
                         show();
                         // DISABLE node Cache
                         //if (angular.equals(sLastKey, node.key) && !reloadOnly) {
-                        //    if (htLastNode.category === 'UNKNOWN_GROUP') {
+                        //    if (htLastNode.category === "UNKNOWN_GROUP") {
                         //        renderAllChartWhichIsVisible(htLastNode);
                         //    }
                         //    return;
@@ -358,29 +359,42 @@
                     /**
                      * scope event on nodeInfoDetailsDirective.hide
                      */
-                    scope.$on('nodeInfoDetailsDirective.hide', function (event) {
+                    scope.$on("nodeInfoDetailsDirective.hide", function (event) {
                         hide();
                     });
 
                     /**
                      * scope event on nodeInfoDetailsDirective.lazyRendering
                      */
-                    scope.$on('nodeInfoDetailsDirective.lazyRendering', function (event, e) {
+                    scope.$on("nodeInfoDetailsDirective.lazyRendering", function (event, e) {
                         renderAllChartWhichIsVisible(htLastNode);
                     });
 
-                    scope.$on('responseTimeChartDirective.itemClicked.forNode', function (event, data) {
-//                        console.log('on responseTimeChartDirective.itemClicked.forNode', data);
+                    scope.$on("responseTimeChartDirective.itemClicked.forNode", function (event, data) {
+//                        console.log("on responseTimeChartDirective.itemClicked.forNode", data);
                     });
+					scope.$on("changedCurrentAgent", function( event, agentName ) {
+						var responseSummaryData = null;
+						var loadData = null;
+						if ( agentName === "All" ) {
+							responseSummaryData = scope.node.histogram;
+							loadData = scope.node.timeSeriesHistogram;
+						} else {
+							responseSummaryData = scope.node.agentHistogram[agentName];
+							loadData = scope.node.agentTimeSeriesHistogram[agentName];
+						}
+						renderResponseSummary("forNode", scope.node.applicationName, responseSummaryData, "100%", "150px");
+						renderLoad("forNode", scope.node.applicationName, loadData, "100%", "220px", true);
+					});
 
-                    jQuery('.responseSummaryChartTooltip').tooltipster({
+                    jQuery(".responseSummaryChartTooltip").tooltipster({
                     	content: function() {
                     		return helpContentTemplate(helpContentService.nodeInfoDetails.responseSummary);
                     	},
                     	position: "top",
                     	trigger: "click"
                     });
-                    jQuery('.loadChartTooltip').tooltipster({
+                    jQuery(".loadChartTooltip").tooltipster({
                     	content: function() {
                     		return helpContentTemplate(helpContentService.nodeInfoDetails.load);
                     	},

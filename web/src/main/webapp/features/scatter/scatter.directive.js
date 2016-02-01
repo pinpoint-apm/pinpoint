@@ -63,8 +63,8 @@
 	    }
 	});
 	
-	pinpointApp.directive("scatterDirective", ["scatterDirectiveConfig", "$rootScope", "$compile", "$timeout", "webStorage", "$window", "TooltipService", "AnalyticsService",
-        function (cfg, $rootScope, $compile, $timeout, webStorage, $window, tooltipService, analyticsService) {
+	pinpointApp.directive("scatterDirective", ["scatterDirectiveConfig", "$rootScope", "$compile", "$timeout", "webStorage", "$window", "TooltipService", "AnalyticsService", "CONST_SET",
+        function (cfg, $rootScope, $compile, $timeout, webStorage, $window, tooltipService, analyticsService, CONST_SET) {
             return {
                 template: cfg.template,
                 restrict: "EA",
@@ -93,13 +93,11 @@
                             $window.open( "#/scatterFullScreenMode/" + htLastNode.applicationName + "@" + htLastNode.serviceType + "/" + oNavbarVoService.getPartialURL( false, true ) + "/" + getAgentList().join(","), "width=900, height=700, resizable=yes");
                         };
 
-                        var oScatterChart = new BigScatterChart(options, getAgentList(scatterData), tooltipService, webStorage, analyticsService);
+                        var oScatterChart = new BigScatterChart(options, getAgentList(scatterData), tooltipService, webStorage, analyticsService, CONST_SET);
                         $timeout(function () {
                             if (angular.isUndefined(scatterData)) {
-								// 주는 데이터가 없으면 기반 정보를 기반으로 로딩
                                 oScatterChart.drawWithDataSource(getDataSource(applicationName, start, end, filter));
                             } else {
-								// 주는 데이터가 있으면 그걸로 끝.
                                 oScatterChart.addBubbleAndMoveAndDraw(scatterData.scatter, scatterData.resultFrom);
                             }
                             $window.htoScatter[application] = oScatterChart;
@@ -113,6 +111,7 @@
                         if (angular.isDefined(htScatterSet[application])) {
                             htScatterSet[application].target.show();
                             htScatterSet[application].scatter.resume();
+							htScatterSet[application].scatter.selectAgent(CONST_SET.AGENT_ALL, true);
                         } else {
 							makeNewScatter( application, w, h );
                         }
@@ -139,6 +138,7 @@
                         element.children().hide();
                         if (angular.isDefined(htScatterSet[application])) {
                             htScatterSet[application].target.show();
+							htScatterSet[application].scatter.selectAgent(CONST_SET.AGENT_ALL, true);
                         }
                     }
 
@@ -235,6 +235,7 @@
                         element.empty();
                     });
                     scope.$on("scatterDirective.initializeWithNode", function (event, node, w, h) {
+						scope.currentAgent = CONST_SET.AGENT_ALL;
 						htLastNode = node;
                         showScatter(node.key, w, h);
                     });
@@ -242,7 +243,8 @@
 						var aSplit = application.split("^");
                         htLastNode = {
                             applicationName: aSplit[0],
-							serviceType: aSplit[1]
+							serviceType: aSplit[1],
+							key: application
                         };
                         showScatterWithData(application, null, null, data);
                     });
@@ -251,7 +253,7 @@
                         showScatterBy(node.key);
                     });
                     scope.$on("responseTimeChartDirective.showErrorTransacitonList", function() {
-                    	$window.htoScatter[htLastNode.applicationName].selectFailedOnly().fireDragEvent({
+                    	$window.htoScatter[htLastNode.key].selectFailedOnly().fireDragEvent({
 							animate: function() {},
 							css : function( param ) {
 								return ( param === "left" ) ? "51px" : "40px";
@@ -264,6 +266,9 @@
 							}
 						});
                     });
+					scope.$on("changedCurrentAgent", function( event, selectedAgentName ) {
+						htScatterSet[htLastNode.key].scatter.selectAgent( selectedAgentName );
+					});
                 }
             };
         } 
