@@ -102,9 +102,7 @@ We welcome any documentation contribution.
 ## Contribution
 We welcome any and all suggestions.
 
-For plugin development, take a look at our [plugin samples](https://github.com/naver/pinpoint-plugin-sample "Pinpoint Plugin Samples project") project to get an idea of how we do instrumentation. The samples will provide you with example codes to help you get started. You can also join Gitter below for any questions regarding plugin development.
-
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/naver/pinpoint-plugin-sample?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+For plugin development, take a look at our [plugin samples](https://github.com/naver/pinpoint-plugin-sample "Pinpoint Plugin Samples project") project to get an idea of how we do instrumentation. The samples will provide you with example codes to help you get started.
 
 Please make a pull-request against our `master` branch for contributions.
 
