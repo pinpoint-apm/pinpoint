@@ -39,13 +39,12 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         MariaDBConfig config = new MariaDBConfig(context.getConfig());
-        if (config.isPluginEnabled()) {
-            addConnectionTransformer(config);
-            addDriverTransformer();
-            addPreparedStatementTransformer(config);
-            addPreparedStatementBindVariableTransformer(config);
-            addStatementTransformer();
-        }
+
+        addConnectionTransformer(config);
+        addDriverTransformer();
+        addPreparedStatementTransformer(config);
+        addPreparedStatementBindVariableTransformer(config);
+        addStatementTransformer();
     }
 
     private void addConnectionTransformer(final MariaDBConfig config) {

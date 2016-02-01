@@ -24,14 +24,12 @@ public class MariaDBConfig extends JdbcConfig {
     private final boolean profileSetAutoCommit;
     private final boolean profileCommit;
     private final boolean profileRollback;
-    private final boolean pluginEnabled;
 
     public MariaDBConfig(ProfilerConfig config) {
         super(config.readBoolean("profiler.jdbc.mariadb.tracesqlbindvalue", config.isTraceSqlBindValue()), config.getMaxSqlBindValueSize());
         this.profileSetAutoCommit = config.readBoolean("profiler.jdbc.mariadb.setautocommit", false);
         this.profileCommit = config.readBoolean("profiler.jdbc.mariadb.commit", false);
         this.profileRollback = config.readBoolean("profiler.jdbc.mariadb.rollback", false);
-        this.pluginEnabled = config.readBoolean("profiler.jdbc.mariadb", false);
     }
 
     public boolean isProfileSetAutoCommit() {
@@ -46,14 +44,11 @@ public class MariaDBConfig extends JdbcConfig {
         return profileRollback;
     }
 
-    public boolean isPluginEnabled() {
-        return pluginEnabled;
-    }
 
     @Override
     public String toString() {
         return "MariaDBConfig [profileSetAutoCommit=" + profileSetAutoCommit + ", profileCommit=" + profileCommit
-                + ", profileRollback=" + profileRollback + ", pluginEnabled=" + pluginEnabled + "]";
+                + ", profileRollback=" + profileRollback + "]";
     }
 
 }
