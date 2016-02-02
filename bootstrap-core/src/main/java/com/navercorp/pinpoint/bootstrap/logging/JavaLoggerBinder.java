@@ -22,6 +22,9 @@ import java.util.logging.Handler;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+/**
+ * @author minwoo.jung
+ */
 public class JavaLoggerBinder {
     
     public final static Handler[] handlers = LogManager.getLogManager().getLogger("").getHandlers();

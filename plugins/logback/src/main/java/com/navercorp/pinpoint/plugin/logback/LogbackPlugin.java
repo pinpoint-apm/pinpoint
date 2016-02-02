@@ -44,6 +44,14 @@ public class LogbackPlugin implements ProfilerPlugin, TransformTemplateAware {
     
     @Override
     public void setup(ProfilerPluginSetupContext context) {
+        
+        LogbackConfig config = new LogbackConfig(context.getConfig());
+        
+        if (!config.isLogbackLoggingTransactionInfo()) {
+            logger.info("Logback plugin is not executed because logback transform enable config value is false.");
+            return;
+        }
+        
         transformTemplate.transform("ch.qos.logback.classic.spi.LoggingEvent", new TransformCallback() {
             
             @Override
