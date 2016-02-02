@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 
 import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
+import com.navercorp.pinpoint.collector.mapper.thrift.ActiveTraceHistogramBoMapper;
+import com.navercorp.pinpoint.common.bo.ActiveTraceHistogramBo;
+import com.navercorp.pinpoint.thrift.dto.TActiveTrace;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +40,6 @@ import com.navercorp.pinpoint.thrift.dto.TTransaction;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 
 /**
- * 
  * @author harebox
  * @author emeroad
  * @author HyunGil Jeong
@@ -51,6 +53,9 @@ public class HbaseAgentStatDao implements AgentStatDao {
     @Autowired
     @Qualifier("agentStatRowKeyDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
+
+    @Autowired
+    private ActiveTraceHistogramBoMapper activeTraceHistogramBoMapper;
 
     public void insert(final TAgentStat agentStat) {
         if (agentStat == null) {
@@ -94,6 +99,14 @@ public class HbaseAgentStatDao implements AgentStatDao {
             put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_COL_TRANSACTION_SAMPLED_CONTINUATION, Bytes.toBytes(transaction.getSampledContinuationCount()));
             put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_COL_TRANSACTION_UNSAMPLED_NEW, Bytes.toBytes(transaction.getUnsampledNewCount()));
             put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_COL_TRANSACTION_UNSAMPLED_CONTINUATION, Bytes.toBytes(transaction.getUnsampledContinuationCount()));
+        }
+        // Active Trace
+        if (agentStat.isSetActiveTrace()) {
+            TActiveTrace activeTrace = agentStat.getActiveTrace();
+            if (activeTrace.isSetHistogram()) {
+                ActiveTraceHistogramBo activeTraceHistogramBo = this.activeTraceHistogramBoMapper.map(activeTrace.getHistogram());
+                put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_COL_ACTIVE_TRACE_HISTOGRAM, activeTraceHistogramBo.writeValue());
+            }
         }
         return put;
     }
