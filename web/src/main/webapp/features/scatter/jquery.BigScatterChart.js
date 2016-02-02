@@ -203,15 +203,6 @@ var BigScatterChart = $.Class({
             "height": this.option("nHeight")
         }).addClass("bigscatterchart");
 
-        this._welAgentSelect = $("<select>").css({
-            "width": "140px",
-            "height": "19px",
-            "z-index": 10,
-            "position": "absolute",
-            "font-size": "12px",
-            "margin-top": "5px"
-        });
-
         // guide
         this._welGuideCanvas = $("<canvas>")
             .attr({
@@ -1400,11 +1391,10 @@ var BigScatterChart = $.Class({
             }
         });
 
-		var currentAgent = this._welAgentSelect.val();
         for (var i = 0, nLen = aBubbleStep.length; i < nLen; i++) {
 			var oBubbleStep = aBubbleStep[i];
 			for( var p in oBubbleStep ) {
-				if ( currentAgent === self._constSet.AGENT_ALL || currentAgent == p ) {
+				if ( self._currentAgent === self._constSet.AGENT_ALL || self._currentAgent == p ) {
 					var aBubbleStepData = oBubbleStep[p];
 					for (var j = 0, nLen2 = aBubbleStepData.nLength; j < nLen2; j++) {
 						var oBubbleData = aBubbles[i][p][j];
