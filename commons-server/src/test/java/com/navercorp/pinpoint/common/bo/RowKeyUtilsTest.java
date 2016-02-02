@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.util;
+package com.navercorp.pinpoint.common.bo;
 
 import com.navercorp.pinpoint.common.bo.SqlMetaDataBo;
 
@@ -35,7 +35,6 @@ public class RowKeyUtilsTest {
 
         SqlMetaDataBo sqlId = new SqlMetaDataBo();
         sqlId.readRowKey(agents);
-
         Assert.assertEquals(sqlId.getAgentId(), "agent");
         Assert.assertEquals(sqlId.getHashCode(), 1);
         Assert.assertEquals(sqlId.getStartTime(), startTime);
