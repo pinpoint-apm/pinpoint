@@ -18,12 +18,12 @@ package com.navercorp.pinpoint.collector.receiver.tcp;
 
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.receiver.UdpDispatchHandler;
-import com.navercorp.pinpoint.collector.receiver.tcp.TCPReceiver;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.SocketUtils;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -37,9 +37,11 @@ public class TCPReceiverTest {
     @Test
     public void server() throws InterruptedException {
         TCPReceiver tcpReceiver = new TCPReceiver(createConfiguration(), new UdpDispatchHandler());
-        tcpReceiver.start();
-        Thread.sleep(1000);
-        tcpReceiver.stop();
+        try {
+            tcpReceiver.start();
+        } finally {
+            tcpReceiver.stop();
+        }
     }
 
     @Test
@@ -59,11 +61,12 @@ public class TCPReceiverTest {
         Assert.assertEquals(splitEmpty.length, 1);
 
     }
-    
+
     private CollectorConfiguration createConfiguration() {
         CollectorConfiguration configuration = new CollectorConfiguration();
         configuration.setTcpListenIp("0.0.0.0");
-        configuration.setTcpListenPort(9099);
+        final int availableTcpPort = SocketUtils.findAvailableTcpPort(19099);
+        configuration.setTcpListenPort(availableTcpPort);
         configuration.setTcpWorkerThread(8);
         configuration.setTcpWorkerQueueSize(1024);
         return configuration;
