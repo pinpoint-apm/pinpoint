@@ -22,10 +22,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 
 @RunWith(PinpointPluginTestSuite.class)
 @Dependency({"log4j:log4j:[1.2.16,)"})
+@PinpointConfig("pinpoint-spring-bean-test.config")
 public class Log4jIT {
 
     @Test
