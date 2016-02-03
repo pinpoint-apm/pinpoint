@@ -51,8 +51,8 @@
 		}
 	});
 	
-	pinpointApp.controller('RealtimeChartCtrl', ['RealtimeChartCtrlConfig', '$scope', '$element', '$rootScope', '$compile', '$window', 'globalConfig', 'RealtimeWebsocketService', '$location', 'AnalyticsService', 'helpContentTemplate', 'helpContentService',
-	    function (cfg, $scope, $element, $rootScope, $compile, $window, globalConfig, websocketService, $location, analyticsService, helpContentTemplate, helpContentService) {
+	pinpointApp.controller('RealtimeChartCtrl', ['RealtimeChartCtrlConfig', '$scope', '$element', '$rootScope', '$compile', '$timeout', '$window', 'globalConfig', 'RealtimeWebsocketService', '$location', 'AnalyticsService', 'helpContentTemplate', 'helpContentService',
+	    function (cfg, $scope, $element, $rootScope, $compile, $timeout, $window, globalConfig, websocketService, $location, analyticsService, helpContentTemplate, helpContentService) {
 			
 	    	$element = $($element);
 			//@TODO will move to preference-service 
@@ -89,6 +89,7 @@
 		    	o[cfg.keys.PARAMETERS] = {};
 		    	return o;
 	    	})();
+			var timeoutResult = null;
 	    	
 	    	jQuery('.realtimeTooltip').tooltipster({
             	content: function() {
@@ -109,14 +110,18 @@
 			$(document).on("visibilitychange", function() {
 				switch ( document.visibilityState ) {
 					case "hidden":
-						websocketService.close();
-						//stopReceive();
-						//stopChart();
+						timeoutResult = $timeout(function() {
+							websocketService.close();
+							timeoutResult = null;
+						}, 60000);
 						break;
 					case "visible":
-						$scope.retryConnection();
-						//waitingConnection();
-						//initReceive();
+						if ( timeoutResult !== null ) {
+							$timeout.cancel( timeoutResult );
+						} else {
+							$scope.retryConnection();
+						}
+						timeoutResult = null;
 						break;
 				}
 			});
