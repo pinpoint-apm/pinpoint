@@ -72,7 +72,9 @@ public class AgentInfoSenderTest {
     public static final int PORT = SocketUtils.findAvailableTcpPort(50050);
     public static final String HOST = "127.0.0.1";
 
-    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 60000);
+    private final int testAwaitTimeMs = 50;
+
+    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(this.testAwaitTimeMs, 60000);
 
     @Test
     public void agentInfoShouldBeSent() throws InterruptedException {
@@ -541,7 +543,7 @@ public class AgentInfoSenderTest {
             @Override
             public boolean checkCompleted() {
                 return requestCount.get() == expectedRequestCount;
-            };
+            }
         });
 
         Assert.assertTrue(pass);
