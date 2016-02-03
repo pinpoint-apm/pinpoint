@@ -64,12 +64,10 @@ public class StreamChannelManagerTest {
             ClientStreamChannelContext clientContext = client.openStream(new byte[0], clientListener);
 
             int sendCount = 4;
-
             for (int i = 0; i < sendCount; i++) {
                 sendRandomBytes(bo);
             }
-
-            Thread.sleep(100);
+            clientListener.getLatch().await();
 
             Assert.assertEquals(sendCount, clientListener.getReceivedMessage().size());
 
@@ -97,34 +95,27 @@ public class StreamChannelManagerTest {
             RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
             ClientStreamChannelContext clientContext = client.openStream(new byte[0], clientListener);
 
-            RecordedStreamChannelMessageListener clientListener2 = new RecordedStreamChannelMessageListener(4);
+            RecordedStreamChannelMessageListener clientListener2 = new RecordedStreamChannelMessageListener(8);
             ClientStreamChannelContext clientContext2 = client.openStream(new byte[0], clientListener2);
-
 
             int sendCount = 4;
             for (int i = 0; i < sendCount; i++) {
                 sendRandomBytes(bo);
             }
 
-            Thread.sleep(100);
-
+            clientListener.getLatch().await();
             Assert.assertEquals(sendCount, clientListener.getReceivedMessage().size());
-            Assert.assertEquals(sendCount, clientListener2.getReceivedMessage().size());
 
             clientContext.getStreamChannel().close();
-
-            Thread.sleep(100);
 
             sendCount = 4;
             for (int i = 0; i < sendCount; i++) {
                 sendRandomBytes(bo);
             }
-
-            Thread.sleep(100);
+            clientListener2.getLatch().await();
 
             Assert.assertEquals(sendCount, clientListener.getReceivedMessage().size());
             Assert.assertEquals(8, clientListener2.getReceivedMessage().size());
-
 
             clientContext2.getStreamChannel().close();
 
@@ -160,12 +151,10 @@ public class StreamChannelManagerTest {
                 ClientStreamChannelContext clientContext = ((PinpointServer)writableServer).openStream(new byte[0], clientListener);
 
                 int sendCount = 4;
-
                 for (int i = 0; i < sendCount; i++) {
                     sendRandomBytes(bo);
                 }
-
-                Thread.sleep(100);
+                clientListener.getLatch().await();
 
                 Assert.assertEquals(sendCount, clientListener.getReceivedMessage().size());
 
@@ -193,9 +182,6 @@ public class StreamChannelManagerTest {
             RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
 
             ClientStreamChannelContext clientContext = client.openStream(new byte[0], clientListener);
-
-            Thread.sleep(100);
-
             StreamCreateFailPacket createFailPacket = clientContext.getCreateFailPacket();
             if (createFailPacket == null) {
                 Assert.fail();
@@ -226,8 +212,6 @@ public class StreamChannelManagerTest {
             RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
 
             ClientStreamChannelContext clientContext = client.openStream(new byte[0], clientListener);
-            Thread.sleep(100);
-
             Assert.assertEquals(1, bo.getStreamChannelContextSize());
 
             clientContext.getStreamChannel().close();
@@ -270,15 +254,13 @@ public class StreamChannelManagerTest {
 
                 ClientStreamChannelContext clientContext = ((PinpointServer)writableServer).openStream(new byte[0], clientListener);
 
+                StreamChannelContext streamChannelContext = client.findStreamChannel(2);
 
-                StreamChannelContext aaa = client.findStreamChannel(2);
-
-                aaa.getStreamChannel().close();
+                streamChannelContext.getStreamChannel().close();
 
                 sendRandomBytes(bo);
 
                 Thread.sleep(100);
-
 
                 clientContext.getStreamChannel().close();
             } else {

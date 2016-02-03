@@ -121,7 +121,14 @@ public class PinpointServerStateTest {
             Socket socket = new Socket("127.0.0.1", bindPort);
             socket.getOutputStream().write(createHandshakePayload(PinpointRPCTestUtils.getParams()));
             socket.getOutputStream().flush();
-            Thread.sleep(1000);
+
+            final PinpointServerAcceptor ImmutableServerAcceptor = serverAcceptor;
+            awaitUtils.await(new TestAwaitTaskUtils() {
+                @Override
+                public boolean checkCompleted() {
+                    return ImmutableServerAcceptor.getWritableSocketList().size() == 1;
+                }
+            });
 
             List<PinpointSocket> pinpointServerList = serverAcceptor.getWritableSocketList();
             PinpointSocket pinpointServer = pinpointServerList.get(0);

@@ -16,19 +16,23 @@
 
 package com.navercorp.pinpoint.plugin.thrift.common.server;
 
-import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-
-import org.apache.thrift.TException;
-import org.apache.thrift.async.AsyncMethodCallback;
-import org.apache.thrift.server.TServer;
-import org.apache.thrift.transport.TTransportException;
-
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
 import com.navercorp.pinpoint.plugin.thrift.common.client.AsyncEchoTestClient;
 import com.navercorp.pinpoint.plugin.thrift.common.client.SyncEchoTestClient;
 import com.navercorp.pinpoint.plugin.thrift.dto.EchoService;
+import org.apache.thrift.TException;
+import org.apache.thrift.async.AsyncMethodCallback;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.server.ServerContext;
+import org.apache.thrift.server.TServer;
+import org.apache.thrift.server.TServerEventHandler;
+import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TTransportException;
+
+import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author HyunGil Jeong
@@ -75,14 +79,18 @@ public abstract class EchoTestServer<T extends TServer> {
         if (this.server.isServing()) {
             return;
         }
+
+        CountDownLatch waitToServeLatch = new CountDownLatch(1);
+        server.setServerEventHandler(new WaitToServeHandler(waitToServeLatch));
+
         executor.execute(new Runnable() {
             @Override
             public void run() {
                 server.serve();
             }
         });
-        // give a chance for the server to initialize
-        Thread.sleep(500L);
+
+        waitToServeLatch.await();
     }
 
     public void stop() {
@@ -98,5 +106,35 @@ public abstract class EchoTestServer<T extends TServer> {
     public abstract SyncEchoTestClient getSynchronousClient() throws TTransportException;
 
     public abstract AsyncEchoTestClient getAsynchronousClient() throws IOException;
+
+
+    private class WaitToServeHandler implements TServerEventHandler {
+
+        private final CountDownLatch waitToServeLatch;
+
+        public WaitToServeHandler(CountDownLatch waitToServeLatch) {
+            this.waitToServeLatch = waitToServeLatch;
+        }
+
+        @Override
+        public void preServe() {
+            waitToServeLatch.countDown();
+        }
+
+        @Override
+        public ServerContext createContext(TProtocol tProtocol, TProtocol tProtocol1) {
+            return null;
+        }
+
+        @Override
+        public void deleteContext(ServerContext serverContext, TProtocol tProtocol, TProtocol tProtocol1) {
+
+        }
+
+        @Override
+        public void processContext(ServerContext serverContext, TTransport tTransport, TTransport tTransport1) {
+
+        }
+    }
 
 }
