@@ -286,7 +286,9 @@ public class AgentInfoSenderTest {
 
         try {
             agentInfoSender.start();
-            waitExpectedRequestCount(requestCount, expectedRefreshCount);
+            while (requestCount.get() < expectedRefreshCount) {
+                Thread.sleep(1000L);
+            }
         } finally {
             closeAll(serverAcceptor, agentInfoSender, pinpointClient, socketFactory);
         }

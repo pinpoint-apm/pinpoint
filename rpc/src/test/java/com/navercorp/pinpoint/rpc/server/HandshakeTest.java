@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.rpc.server;
 
 import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.TestAwaitTaskUtils;
+import com.navercorp.pinpoint.rpc.TestAwaitUtils;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientHandshaker;
@@ -44,7 +46,10 @@ public class HandshakeTest {
     private static Timer timer = null;
 
     private static int bindPort;
-    
+
+    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(10, 500);
+
+
     @BeforeClass
     public static void setUp() throws IOException {
         timer = TimerFactory.createHashedWheelTimer(HandshakeTest.class.getSimpleName(), 100, TimeUnit.MILLISECONDS, 512);
@@ -61,7 +66,7 @@ public class HandshakeTest {
     // simple test
     @Test
     public void handshakeTest1() throws InterruptedException {
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_INSTANCE);
+        final PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_INSTANCE);
 
         PinpointClientFactory clientFactory1 = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
         PinpointClientFactory clientFactory2 = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), null);
@@ -69,7 +74,13 @@ public class HandshakeTest {
             PinpointClient client = clientFactory1.connect("127.0.0.1", bindPort);
             PinpointClient client2 = clientFactory2.connect("127.0.0.1", bindPort);
 
-            Thread.sleep(500);
+            awaitUtils.await(new TestAwaitTaskUtils() {
+                @Override
+                public boolean checkCompleted() {
+                    List<PinpointSocket> writableServerList = serverAcceptor.getWritableSocketList();
+                    return writableServerList.size() == 2;
+                }
+            });
 
             List<PinpointSocket> writableServerList = serverAcceptor.getWritableSocketList();
             if (writableServerList.size() != 2) {
@@ -87,7 +98,7 @@ public class HandshakeTest {
 
     @Test
     public void handshakeTest2() throws InterruptedException {
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_INSTANCE);
+        final PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_INSTANCE);
 
         Map<String, Object> params = PinpointRPCTestUtils.getParams();
         
@@ -95,7 +106,13 @@ public class HandshakeTest {
 
         try {
             PinpointClient client = clientFactory1.connect("127.0.0.1", bindPort);
-            Thread.sleep(500);
+            awaitUtils.await(new TestAwaitTaskUtils() {
+                @Override
+                public boolean checkCompleted() {
+                    List<PinpointSocket> writableServerList = serverAcceptor.getWritableSocketList();
+                    return writableServerList.size() == 1;
+                }
+            });
 
             PinpointSocket writableServer = getWritableServer("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()), serverAcceptor.getWritableSocketList());
             Assert.assertNotNull(writableServer);

@@ -126,7 +126,7 @@ public class TcpDataSenderReconnectTest {
             @Override
             public boolean checkCompleted() {
                 return !client.isConnected();
-            };
+            }
         });
 
         Assert.assertTrue(pass);
@@ -137,7 +137,7 @@ public class TcpDataSenderReconnectTest {
             @Override
             public boolean checkCompleted() {
                 return !acceptor.getWritableSocketList().isEmpty();
-            };
+            }
         });
 
         Assert.assertTrue(pass);

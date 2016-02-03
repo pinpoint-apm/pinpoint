@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.TestByteUtils;
+import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.SimpleServerMessageListener;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
@@ -33,6 +35,7 @@ import org.springframework.util.SocketUtils;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.CountDownLatch;
 
 
 /**
@@ -95,11 +98,18 @@ public class PinpointClientFactoryTest {
 
     @Test
     public void pingInternal() throws IOException, InterruptedException {
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort);
+
+        final CountDownLatch pingLatch = new CountDownLatch(1);
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new PinpointRPCTestUtils.EchoServerListener() {
+            @Override
+            public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
+                pingLatch.countDown();
+            }
+        });
 
         try {
             PinpointClient client = clientFactory.connect("127.0.0.1", bindPort);
-            Thread.sleep(1000);
+            pingLatch.await();
             PinpointRPCTestUtils.close(client);
         } finally {
             PinpointRPCTestUtils.close(serverAcceptor);
