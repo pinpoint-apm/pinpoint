@@ -218,10 +218,10 @@
 			<span class="glyphicon glyphicon-question-sign realtimeTooltip tooltipstered" style="float:right;cursor:pointer;color:#FFF;font-size:17px;padding-right:6px;"></span>
 		</div>
 		<div class="agent-sum-chart">
-			<div>{{currentApplicationName}} ({{currentAgentCount == 0 ? "..." : currentAgentCount}})</div>
+			<div><span></span> (<span></span>)</div>
 		</div>
 		<div class="agent-chart-list"></div>
-		<div class="connection-message" ng-show="hasCriticalError">
+		<div class="connection-message">
 			<h4></h4>
 			<button type="button" class="btn btn-warning" style="display:none" ng-click="retryConnection()"><span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> Retry</button>
 		</div>
