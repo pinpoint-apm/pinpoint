@@ -1391,27 +1391,31 @@ var BigScatterChart = $.Class({
             }
         });
 
-        for (var i = 0, nLen = aBubbleStep.length; i < nLen; i++) {
+		for (var i = 0, nLen = aBubbleStep.length; i < nLen; i++) {
 			var oBubbleStep = aBubbleStep[i];
-			for( var p in oBubbleStep ) {
+			for (var p in oBubbleStep) {
 				if ( self._currentAgent === self._constSet.AGENT_ALL || self._currentAgent == p ) {
 					var aBubbleStepData = oBubbleStep[p];
 					for (var j = 0, nLen2 = aBubbleStepData.nLength; j < nLen2; j++) {
 						var oBubbleData = aBubbles[i][p][j];
-						if (oBubbleData[htDataIndex.x] >= nXFrom && oBubbleData[htDataIndex.x] <= nXTo
-							&& _.indexOf(aVisibleType, htDataType[oBubbleData[htDataIndex.type]]) >= 0) {
-
-							if (oBubbleData[htDataIndex.y] >= nYFrom && oBubbleData[htDataIndex.y] <= nYTo
-								|| nYTo === this._nYMax && nYTo < oBubbleData[htDataIndex.y]) {
+						if ( self._isInnerData( oBubbleData[htDataIndex.x], nXFrom, nXTo ) && _.indexOf(aVisibleType, htDataType[oBubbleData[htDataIndex.type]]) >= 0) {
+							if ( self._isInnerData( oBubbleData[htDataIndex.y], nYFrom, nYTo ) || nYTo === this._nYMax && nYTo < oBubbleData[htDataIndex.y] ) {
 								aData.push(oBubbleData);
 							}
 						}
 					}
 				}
 			}
-        }
+		}
+		aData.sort( function( o1, o2 ) {
+			return o1[htDataIndex.x] <= o2[htDataIndex.x];
+		});
+
         return aData;
     },
+	_isInnerData: function( value, from, to ) {
+		return value >= from && value <= to;
+	},
 
     hasDataByXY: function (nXFrom, nXTo, nYFrom, nYTo) {
         var aBubbleStep = this._aBubbleStep,
