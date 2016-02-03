@@ -16,25 +16,23 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-import java.util.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.DateUtils;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
+import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.service.FilteredMapService;
 import com.navercorp.pinpoint.web.service.ScatterChartService;
 import com.navercorp.pinpoint.web.util.LimitUtils;
 import com.navercorp.pinpoint.web.util.TimeUtils;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.view.TransactionMetaDataViewModel;
-import com.navercorp.pinpoint.web.vo.*;
+import com.navercorp.pinpoint.web.vo.LimitedScanResult;
+import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.TransactionId;
+import com.navercorp.pinpoint.web.vo.TransactionMetadataQuery;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.navercorp.pinpoint.web.vo.scatter.ScatterIndex;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +44,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * @author netspider
@@ -218,8 +226,8 @@ public class ScatterChartController {
                 }
                 int averageTime = totalTime / entry.getValue().size();
                 averageList.add(new Dot(new TransactionId("", 0, 0), entry.getKey(), averageTime, 0, ""));
-                maxList.add(new Dot(new TransactionId(max.getTransactionId()), entry.getKey(), max.getElapsedTime(), max.getExceptionCode(), max.getAgentId()));
-                minList.add(new Dot(new TransactionId(min.getTransactionId()), entry.getKey(), min.getElapsedTime(), min.getExceptionCode(), min.getAgentId()));
+                maxList.add(new Dot(new TransactionId(max.getTransactionIdAsString()), entry.getKey(), max.getElapsedTime(), max.getExceptionCode(), max.getAgentId()));
+                minList.add(new Dot(new TransactionId(min.getTransactionIdAsString()), entry.getKey(), min.getElapsedTime(), min.getExceptionCode(), min.getAgentId()));
             }
             scatterAgentData.put("_#AverageAgent", averageList);
             scatterAgentData.put("_#MaxAgent", maxList);
@@ -273,7 +281,6 @@ public class ScatterChartController {
     public TransactionMetaDataViewModel transactionmetadata(Model model, HttpServletRequest request, HttpServletResponse response) {
         TransactionMetaDataViewModel viewModel = new TransactionMetaDataViewModel();
         TransactionMetadataQuery query = parseSelectTransaction(request);
-        ModelAndView mv = new ModelAndView();
         if (query.size() > 0) {
             List<SpanBo> metadata = scatter.selectTransactionMetadata(query);
             viewModel.setSpanBoList(metadata);
@@ -300,4 +307,60 @@ public class ScatterChartController {
         logger.debug("query:{}", query);
         return query;
     }
+
+
+    /**
+     * @param applicationName
+     * @param from
+     * @param to
+     * @param limit           max number of data return. if the requested data exceed this limit, we need additional calls to
+     *                        fetch the rest of the data
+     * @return
+     */
+    @RequestMapping(value = "/getScatterDataMadeOfDotGroup", method = RequestMethod.GET)
+    public ModelAndView getScatterDataMadeOfDotGroup(
+            @RequestParam("application") String applicationName,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestParam("xGroupUnit") int xGroupUnit,
+            @RequestParam("yGroupUnit") int yGroupUnit,
+            @RequestParam("limit") int limit,
+            @RequestParam(value = "_callback", required = false) String jsonpCallback,
+            @RequestParam(value = "v", required = false, defaultValue = "0") int version) {
+        limit = LimitUtils.checkRange(limit);
+
+        StopWatch watch = new StopWatch();
+        watch.start("getScatterDataMadeOfDotGroup");
+
+        // TODO range check verification exception occurs. "from" is bigger than "to"
+        final Range range = Range.createUncheckedRange(from, to);
+        logger.debug("fetch scatter data made of dot group. RANGE={}, LIMIT={}, X-Group-Unit:{}, Y-Group-Unit:{}", range, limit, xGroupUnit, yGroupUnit);
+
+        ModelAndView mv = selectScatterDataMadeOfDotGroup(applicationName, range, xGroupUnit, yGroupUnit, limit);
+        if (jsonpCallback == null) {
+            mv.setViewName("jsonView");
+        } else {
+            mv.setViewName("jsonpView");
+        }
+
+        watch.stop();
+
+        logger.info("Fetch scatterDataMadeOfDotGroup time : {}ms", watch.getLastTaskTimeMillis());
+
+        return mv;
+    }
+
+    private ModelAndView selectScatterDataMadeOfDotGroup(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit) {
+        final ScatterData scatterData = scatter.selectScatterDataMadeOfDotGroup(applicationName, range, xGroupUnit, yGroupUnit, limit);
+
+        ModelAndView mv = new ModelAndView();
+
+        mv.addObject("from", range.getFrom());
+        mv.addObject("to", range.getTo());
+        mv.addObject("resultFrom", scatterData.getOldestAcceptedTime());
+        mv.addObject("resultTo", scatterData.getLatestAcceptedTime());
+        mv.addObject("scatter", scatterData);
+        return mv;
+    }
+
 }

@@ -16,24 +16,24 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
+import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.SelectedScatterArea;
 import com.navercorp.pinpoint.web.vo.TransactionId;
 import com.navercorp.pinpoint.web.vo.TransactionMetadataQuery;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author netspider
@@ -144,5 +144,16 @@ public class ScatterChartServiceImpl implements ScatterChartService {
         }
 
         return result;
+    }
+
+    @Override
+    public ScatterData selectScatterDataMadeOfDotGroup(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit) {
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
+        }
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
+        return applicationTraceIndexDao.scanTraceScatterDataMadeOfDotGroup(applicationName, range, xGroupUnit, yGroupUnit, limit);
     }
 }

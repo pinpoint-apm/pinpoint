@@ -16,13 +16,14 @@
 
 package com.navercorp.pinpoint.web.dao;
 
-import java.util.List;
-
+import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.SelectedScatterArea;
 import com.navercorp.pinpoint.web.vo.TransactionId;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
+
+import java.util.List;
 
 /**
  * @author emeroad
@@ -48,4 +49,7 @@ public interface ApplicationTraceIndexDao {
      * @return
      */
     List<Dot> scanTraceScatter(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransactionElapsed, int limit);
+
+    ScatterData scanTraceScatterDataMadeOfDotGroup(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit);
+
 }

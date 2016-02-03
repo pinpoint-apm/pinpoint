@@ -40,6 +40,7 @@ public class Dot {
      * @param elapsedTime
      * @param exceptionCode 0 : success, 1 : error
      */
+
     public Dot(TransactionId transactionId, long acceptedTime, int elapsedTime, int exceptionCode, String agentId) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
@@ -54,7 +55,11 @@ public class Dot {
         this.agentId = agentId;
     }
 
-    public String getTransactionId() {
+    public TransactionId getTransactionId() {
+        return transactionId;
+    }
+
+    public String getTransactionIdAsString() {
         return transactionId.getFormatString();
     }
 
@@ -92,7 +97,7 @@ public class Dot {
     public String toString() {
         final StringBuilder sb = new StringBuilder(64);
         sb.append("Dot{");
-        sb.append("transactionId=").append(transactionId);
+        sb.append("transactionId=").append(getTransactionIdAsString());
         sb.append(", acceptedTime=").append(acceptedTime);
         sb.append(", elapsedTime=").append(elapsedTime);
         sb.append(", exceptionCode=").append(exceptionCode);
