@@ -14,14 +14,11 @@
  */
 package com.navercorp.pinpoint.plugin.json_lib;
 
-import java.lang.reflect.Modifier;
-import java.security.ProtectionDomain;
-
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
@@ -30,6 +27,9 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+
+import java.lang.reflect.Modifier;
+import java.security.ProtectionDomain;
 
 /**
  * @author Sangyoon Lee
@@ -47,9 +47,14 @@ public class JsonLibPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        addJSONSerializerInterceptor("net.sf.json.JSONSerializer");
-        addJSONObjectInterceptor("net.sf.json.JSONObject");
-        addJSONArrayInterceptor("net.sf.json.JSONArray");
+        JsonLibConfig config = new JsonLibConfig(context.getConfig());
+        logger.debug("[JsonLib] Initialized config={}", config);
+
+        if (config.isProfile()) {
+            addJSONSerializerInterceptor("net.sf.json.JSONSerializer");
+            addJSONObjectInterceptor("net.sf.json.JSONObject");
+            addJSONArrayInterceptor("net.sf.json.JSONArray");
+        }
     }
     
     private void addJSONSerializerInterceptor(String clazzName) {

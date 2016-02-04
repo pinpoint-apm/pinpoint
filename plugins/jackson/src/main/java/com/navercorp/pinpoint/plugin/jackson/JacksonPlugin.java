@@ -14,13 +14,11 @@
  */
 package com.navercorp.pinpoint.plugin.jackson;
 
-import java.security.ProtectionDomain;
-
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
@@ -28,8 +26,9 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
+
+import java.security.ProtectionDomain;
 
 /**
  * @author Sungkook Kim
@@ -48,13 +47,18 @@ public class JacksonPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        addObjectMapperEditor("com.fasterxml.jackson.databind.ObjectMapper");
-        addObjectReaderEditor("com.fasterxml.jackson.databind.ObjectReader");
-        addObjectWriterEditor("com.fasterxml.jackson.databind.ObjectWriter");
+        JacksonConfig config = new JacksonConfig(context.getConfig());
+        logger.debug("[Jackson] Initialized config={}", config);
 
-        addObjectMapper_1_X_Editor("org.codehaus.jackson.map.ObjectMapper");
-        addObjectReaderEditor("org.codehaus.jackson.map.ObjectReader");
-        addObjectWriterEditor("org.codehaus.jackson.map.ObjectWriter");
+        if (config.isProfile()) {
+            addObjectMapperEditor("com.fasterxml.jackson.databind.ObjectMapper");
+            addObjectReaderEditor("com.fasterxml.jackson.databind.ObjectReader");
+            addObjectWriterEditor("com.fasterxml.jackson.databind.ObjectWriter");
+
+            addObjectMapper_1_X_Editor("org.codehaus.jackson.map.ObjectMapper");
+            addObjectReaderEditor("org.codehaus.jackson.map.ObjectReader");
+            addObjectWriterEditor("org.codehaus.jackson.map.ObjectWriter");
+        }
     }
 
     private void addObjectMapperEditor(String clazzName) {
