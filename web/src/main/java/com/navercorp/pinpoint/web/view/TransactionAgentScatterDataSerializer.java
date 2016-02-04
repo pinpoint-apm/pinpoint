@@ -71,10 +71,7 @@ public class TransactionAgentScatterDataSerializer extends JsonSerializer<Transa
         jgen.writeNumber(dot.getAcceptedTime() - x);
         jgen.writeNumber(dot.getElapsedTime() - y);
         jgen.writeNumber(dot.getTransactionId().getTransactionSequence());
-
-        if (dot.getSimpleExceptionCode() != Dot.SUCCESS_STATE) {
-            jgen.writeNumber(dot.getSimpleExceptionCode());
-        }
+        jgen.writeNumber(dot.getSimpleExceptionCode());
     }
 
 }
