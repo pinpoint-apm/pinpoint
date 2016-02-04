@@ -16,9 +16,6 @@
 
 package com.navercorp.pinpoint.web.vo.linechart;
 
-import java.math.BigDecimal;
-import java.util.List;
-
 import com.navercorp.pinpoint.web.util.TimeWindow;
 
 /**
@@ -26,45 +23,8 @@ import com.navercorp.pinpoint.web.util.TimeWindow;
  */
 public class SampledTimeSeriesDoubleChartBuilder extends SampledTimeSeriesChartBuilder<Double> {
 
-    private static final Double DEFAULT_VALUE = 0D;
-    private static final int DEFAULT_SCALE = 2;
-
-    private final int scale;
-
-    public SampledTimeSeriesDoubleChartBuilder(TimeWindow timeWindow) {
-        this(timeWindow, DEFAULT_VALUE, DEFAULT_SCALE);
-    }
-
-    public SampledTimeSeriesDoubleChartBuilder(TimeWindow timeWindow, double defaultValue) {
-        this(timeWindow, defaultValue, DEFAULT_SCALE);
-    }
-
-    public SampledTimeSeriesDoubleChartBuilder(TimeWindow timeWindow, double defaultValue, int scale) {
-        super(timeWindow, defaultValue);
-        if (scale < 1) {
-            this.scale = DEFAULT_SCALE;
-        } else {
-            this.scale = scale;
-        }
-    }
-
-    @Override
-    protected Double sampleMin(List<Double> sampleBuffer) {
-        return roundToScale(DownSamplers.MIN.sampleDouble(sampleBuffer));
-    }
-
-    @Override
-    protected Double sampleMax(List<Double> sampleBuffer) {
-        return roundToScale(DownSamplers.MAX.sampleDouble(sampleBuffer));
-    }
-
-    @Override
-    protected Double sampleAvg(List<Double> sampleBuffer) {
-        return roundToScale(DownSamplers.AVG.sampleDouble(sampleBuffer));
-    }
-
-    private double roundToScale(double value) {
-        return new BigDecimal(value).setScale(this.scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+    public SampledTimeSeriesDoubleChartBuilder(DownSampler<Double> downSampler, TimeWindow timeWindow) {
+        super(downSampler, timeWindow);
     }
 
 }

@@ -63,7 +63,7 @@ public class AgentStatDataCollector extends DataCollector {
         List<String> agentIds = applicationIndexDao.selectAgentIds(application.getName());
 
         for(String agentId : agentIds) {
-            List<AgentStat> scanAgentStatList = agentStatDao.scanAgentStatList(agentId, range);
+            List<AgentStat> scanAgentStatList = agentStatDao.getAgentStatList(agentId, range);
             int listSize = scanAgentStatList.size();
             long totalHeapSize = 0;
             long usedHeapSize = 0;

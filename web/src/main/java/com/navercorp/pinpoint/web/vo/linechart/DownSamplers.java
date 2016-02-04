@@ -16,10 +16,8 @@
 
 package com.navercorp.pinpoint.web.vo.linechart;
 
-import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ZERO;
-import static org.apache.commons.lang3.math.NumberUtils.LONG_ZERO;
-import static org.apache.commons.lang3.math.NumberUtils.DOUBLE_ZERO;
-
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -27,81 +25,59 @@ import org.apache.commons.collections.CollectionUtils;
 
 /**
  * Down samples consecutive data points, such as a time-series dataset.
- * 
+ *
  * @author harebox
  * @author HyunGil Jeong
  */
 public class DownSamplers {
 
-    public static final DownSampler MIN = new Min();
-    public static final DownSampler MAX = new Max();
-    public static final DownSampler AVG = new Avg();
-
     private DownSamplers() {
     }
 
-    static class Min implements DownSampler {
+    public static DownSampler<Integer> getIntegerDownSampler(int defaultValue) {
+        return new IntegerDownSampler(defaultValue);
+    }
 
-        @Override
-        public int sampleInt(Collection<Integer> values) {
-            if (CollectionUtils.isEmpty(values)) {
-                return INTEGER_ZERO;
-            }
-            return Collections.min(values);
-        }
+    public static DownSampler<Long> getLongDownSampler(long defaultValue) {
+        return new LongDownSampler(defaultValue);
+    }
 
-        @Override
-        public long sampleLong(Collection<Long> values) {
-            if (CollectionUtils.isEmpty(values)) {
-                return LONG_ZERO;
-            }
-            return Collections.min(values);
-        }
+    public static DownSampler<Double> getDoubleDownSampler(double defaultValue) {
+        return new DoubleDownSampler(defaultValue);
+    }
 
-        @Override
-        public double sampleDouble(Collection<Double> values) {
-            if (CollectionUtils.isEmpty(values)) {
-                return DOUBLE_ZERO;
-            }
-            return Collections.min(values);
+    public static DownSampler<Double> getDoubleDownSampler(double defaultValue, int scale) {
+        return new DoubleDownSampler(defaultValue, scale);
+    }
+
+    private static abstract class AbstractDownSampler<T extends Number> implements DownSampler<T> {
+
+        protected final T defaultValue;
+
+        private AbstractDownSampler(T defaultValue) {
+            this.defaultValue = defaultValue;
         }
 
     }
 
-    static class Max implements DownSampler {
+    private static class IntegerDownSampler extends AbstractDownSampler<Integer> {
 
-        @Override
-        public int sampleInt(Collection<Integer> values) {
-            if (CollectionUtils.isEmpty(values)) {
-                return INTEGER_ZERO;
-            }
-            return Collections.max(values);
+        private IntegerDownSampler(Integer defaultValue) {
+            super(defaultValue);
         }
 
         @Override
-        public long sampleLong(Collection<Long> values) {
+        public Integer sampleMin(Collection<Integer> values) {
             if (CollectionUtils.isEmpty(values)) {
-                return LONG_ZERO;
+                return this.defaultValue;
             }
-            return Collections.max(values);
+            return Collections.min(values);
         }
 
         @Override
-        public double sampleDouble(Collection<Double> values) {
+        public Integer sampleAvg(Collection<Integer> values) {
             if (CollectionUtils.isEmpty(values)) {
-                return DOUBLE_ZERO;
-            }
-            return Collections.max(values);
-        }
-
-    }
-
-    static class Avg implements DownSampler {
-
-        @Override
-        public int sampleInt(Collection<Integer> values) {
-            if (CollectionUtils.isEmpty(values)) {
-                return INTEGER_ZERO;
+                return this.defaultValue;
             }
             double avg = 0;
             int cnt = 1;
@@ -109,13 +85,36 @@ public class DownSamplers {
                 avg += (value - avg) / cnt;
                 ++cnt;
             }
-            return (int)Math.round(avg);
+            return (int) Math.round(avg);
         }
 
         @Override
-        public long sampleLong(Collection<Long> values) {
+        public Integer sampleMax(Collection<Integer> values) {
             if (CollectionUtils.isEmpty(values)) {
-                return LONG_ZERO;
+                return this.defaultValue;
+            }
+            return Collections.max(values);
+        }
+    }
+
+    private static class LongDownSampler extends AbstractDownSampler<Long> {
+
+        private LongDownSampler(Long defaultValue) {
+            super(defaultValue);
+        }
+
+        @Override
+        public Long sampleMin(Collection<Long> values) {
+            if (CollectionUtils.isEmpty(values)) {
+                return this.defaultValue;
+            }
+            return Collections.min(values);
+        }
+
+        @Override
+        public Long sampleAvg(Collection<Long> values) {
+            if (CollectionUtils.isEmpty(values)) {
+                return this.defaultValue;
             }
             double avg = 0;
             int cnt = 1;
@@ -123,13 +122,44 @@ public class DownSamplers {
                 avg += (value - avg) / cnt;
                 ++cnt;
             }
-            return (long)Math.round(avg);
+            return Math.round(avg);
         }
 
         @Override
-        public double sampleDouble(Collection<Double> values) {
+        public Long sampleMax(Collection<Long> values) {
             if (CollectionUtils.isEmpty(values)) {
-                return DOUBLE_ZERO;
+                return this.defaultValue;
+            }
+            return Collections.max(values);
+        }
+    }
+
+    private static class DoubleDownSampler extends AbstractDownSampler<Double> {
+
+        private static final int DEFAULT_SCALE = 2;
+        private final int scale;
+
+        private DoubleDownSampler(Double defaultValue) {
+            this(defaultValue, DEFAULT_SCALE);
+        }
+
+        private DoubleDownSampler(Double defaultValue, int scale) {
+            super(defaultValue);
+            this.scale = scale;
+        }
+
+        @Override
+        public Double sampleMin(Collection<Double> values) {
+            if (CollectionUtils.isEmpty(values)) {
+                return this.defaultValue;
+            }
+            return roundToScale(Collections.min(values));
+        }
+
+        @Override
+        public Double sampleAvg(Collection<Double> values) {
+            if (CollectionUtils.isEmpty(values)) {
+                return this.defaultValue;
             }
             double avg = 0;
             int cnt = 1;
@@ -137,9 +167,20 @@ public class DownSamplers {
                 avg += (value - avg) / cnt;
                 ++cnt;
             }
-            return avg;
+            return roundToScale(avg);
         }
 
+        @Override
+        public Double sampleMax(Collection<Double> values) {
+            if (CollectionUtils.isEmpty(values)) {
+                return this.defaultValue;
+            }
+            return roundToScale(Collections.max(values));
+        }
+
+        private double roundToScale(double value) {
+            return new BigDecimal(value).setScale(this.scale, RoundingMode.HALF_UP).doubleValue();
+        }
     }
 
 }

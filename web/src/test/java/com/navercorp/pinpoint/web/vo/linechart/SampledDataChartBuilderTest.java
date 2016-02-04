@@ -23,10 +23,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.web.vo.linechart.Chart;
-import com.navercorp.pinpoint.web.vo.linechart.DataPoint;
-import com.navercorp.pinpoint.web.vo.linechart.SampledDataDoubleChartBuilder;
-import com.navercorp.pinpoint.web.vo.linechart.SampledDataLongChartBuilder;
 import com.navercorp.pinpoint.web.vo.linechart.Chart.ChartBuilder;
 
 public class SampledDataChartBuilderTest {
@@ -36,13 +32,14 @@ public class SampledDataChartBuilderTest {
     @Test
     public void testSampledLongDataChart() throws Exception {
         // Given
+        final long defaultValue = 0L;
         final int sampleRate = 60;
         final int totalPoints = 10000;
         final int expectedNumPoints = getExpectedNumPoints(sampleRate, totalPoints);
         // When
-        ChartBuilder<Long, Long> longDataChartBuilder = new SampledDataLongChartBuilder(sampleRate);
+        ChartBuilder<Long, Long> longDataChartBuilder = new SampledDataLongChartBuilder(DownSamplers.getLongDownSampler(defaultValue), sampleRate);
         for (long i = 0; i < totalPoints; ++i) {
-            longDataChartBuilder.addDataPoint(new DataPoint<Long, Long>(i, i));
+            longDataChartBuilder.addDataPoint(new DataPoint<>(i, i));
         }
         Chart lineChart = longDataChartBuilder.buildChart();
         // Then
@@ -55,13 +52,14 @@ public class SampledDataChartBuilderTest {
     @Test
     public void testSampledDoubleLineChart() throws Exception {
         // Given
+        final double defaultValue = 0D;
         int sampleRate = 60;
         int totalPoints = 10000;
         final int expectedNumPoints = getExpectedNumPoints(sampleRate, totalPoints);
         // When
-        ChartBuilder<Long, Double> doubleLineChartBuilder = new SampledDataDoubleChartBuilder(sampleRate);
+        ChartBuilder<Long, Double> doubleLineChartBuilder = new SampledDataDoubleChartBuilder(DownSamplers.getDoubleDownSampler(defaultValue, 1), sampleRate);
         for (long i = 0; i < totalPoints; ++i) {
-            doubleLineChartBuilder.addDataPoint(new DataPoint<Long, Double>(i, (double)i));
+            doubleLineChartBuilder.addDataPoint(new DataPoint<>(i, (double)i));
         }
         Chart lineChart = doubleLineChartBuilder.buildChart();
         // Then

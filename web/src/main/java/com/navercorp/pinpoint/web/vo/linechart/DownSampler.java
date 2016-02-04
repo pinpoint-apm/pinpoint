@@ -22,12 +22,12 @@ import java.util.Collection;
  * @author harebox
  * @author HyunGil Jeong
  */
-public interface DownSampler {
+public interface DownSampler<T extends Number> {
 
-    int sampleInt(Collection<Integer> values);
+    T sampleMin(Collection<T> values);
 
-    long sampleLong(Collection<Long> values);
+    T sampleAvg(Collection<T> values);
 
-    double sampleDouble(Collection<Double> values);
+    T sampleMax(Collection<T> values);
 
 }

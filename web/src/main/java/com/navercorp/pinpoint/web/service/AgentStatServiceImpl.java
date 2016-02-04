@@ -39,7 +39,7 @@ public class AgentStatServiceImpl implements AgentStatService {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
-        return agentStatDao.scanAgentStatList(agentId, range);
+        return agentStatDao.getAgentStatList(agentId, range);
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2016 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,30 +16,13 @@
 
 package com.navercorp.pinpoint.web.vo.linechart;
 
-import java.util.List;
-
 /**
  * @author hyungil.jeong
  */
 public final class SampledDataLongChartBuilder extends SampledDataChartBuilder<Long, Long> {
 
-    public SampledDataLongChartBuilder(int sampleRate) {
-        super(sampleRate);
-    }
-
-    @Override
-    protected Long sampleMin(List<Long> sampleBuffer) {
-        return DownSamplers.MIN.sampleLong(sampleBuffer);
-    }
-
-    @Override
-    protected Long sampleMax(List<Long> sampleBuffer) {
-        return DownSamplers.MAX.sampleLong(sampleBuffer);
-    }
-
-    @Override
-    protected Long sampleAvg(List<Long> sampleBuffer) {
-        return DownSamplers.AVG.sampleLong(sampleBuffer);
+    public SampledDataLongChartBuilder(DownSampler<Long> downSampler, int sampleRate) {
+        super(downSampler, sampleRate);
     }
 
 }
