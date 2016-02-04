@@ -1408,7 +1408,7 @@ var BigScatterChart = $.Class({
 			}
 		}
 		aData.sort( function( o1, o2 ) {
-			return o1[htDataIndex.x] <= o2[htDataIndex.x];
+			return o2[htDataIndex.x] - o1[htDataIndex.x];
 		});
 
         return aData;

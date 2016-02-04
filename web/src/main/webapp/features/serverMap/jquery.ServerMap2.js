@@ -185,6 +185,7 @@
                 }
             );
             this._oDiagram.animationManager.isEnabled = false;
+			this._oDiagram.scrollMode = go.Diagram.InfiniteScroll;
         },
 
         /**
