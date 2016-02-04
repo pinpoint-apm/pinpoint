@@ -16,18 +16,23 @@
 
 package com.navercorp.pinpoint.web.vo;
 
+import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.SlotType;
+
+import java.util.Map;
+
 /**
  * @author HyunGil Jeong
  */
 public class AgentStat {
-    
+
     public static final int NOT_COLLECTED = -1;
-    
+
     private final String agentId;
     private final long timestamp;
 
     private long collectInterval;
-    
+
     private String gcType;
     private long gcOldCount = NOT_COLLECTED;
     private long gcOldTime = NOT_COLLECTED;
@@ -35,15 +40,18 @@ public class AgentStat {
     private long heapMax = NOT_COLLECTED;
     private long nonHeapUsed = NOT_COLLECTED;
     private long nonHeapMax = NOT_COLLECTED;
-    
+
     private double jvmCpuUsage = NOT_COLLECTED;
     private double systemCpuUsage = NOT_COLLECTED;
-    
+
     private long sampledNewCount = NOT_COLLECTED;
     private long sampledContinuationCount = NOT_COLLECTED;
     private long unsampledNewCount = NOT_COLLECTED;
     private long unsampledContinuationCount = NOT_COLLECTED;
-    
+
+    private HistogramSchema histogramSchema;
+    private Map<SlotType, Integer> activeTraceCounts;
+
     public AgentStat(String agentId, long timestamp) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
@@ -54,19 +62,19 @@ public class AgentStat {
         this.agentId = agentId;
         this.timestamp = timestamp;
     }
-    
+
     public String getAgentId() {
         return this.agentId;
     }
-    
+
     public long getTimestamp() {
         return this.timestamp;
     }
-    
+
     public long getCollectInterval() {
         return this.collectInterval;
     }
-    
+
     public void setCollectInterval(long collectInterval) {
         this.collectInterval = collectInterval;
     }
@@ -175,14 +183,31 @@ public class AgentStat {
         this.unsampledContinuationCount = unsampledContinuationCount;
     }
 
+    public HistogramSchema getHistogramSchema() {
+        return histogramSchema;
+    }
+
+    public void setHistogramSchema(HistogramSchema histogramSchema) {
+        this.histogramSchema = histogramSchema;
+    }
+
+    public Map<SlotType, Integer> getActiveTraceCounts() {
+        return activeTraceCounts;
+    }
+
+    public void setActiveTraceCounts(Map<SlotType, Integer> activeTraceCounts) {
+        this.activeTraceCounts = activeTraceCounts;
+    }
+
     @Override
     public String toString() {
         return "AgentStat [agentId=" + agentId + ", timestamp=" + timestamp + ", collectInterval=" + collectInterval
                 + ", gcType=" + gcType + ", gcOldCount=" + gcOldCount + ", gcOldTime=" + gcOldTime
                 + ", heapUsed=" + heapUsed + ", heapMax=" + heapMax + ", nonHeapUsed=" + nonHeapUsed
-                + ", nonHeapMax=" + nonHeapMax + ", jvmCpuUsage=" + jvmCpuUsage + ", systemCpuUsage="+ systemCpuUsage
+                + ", nonHeapMax=" + nonHeapMax + ", jvmCpuUsage=" + jvmCpuUsage + ", systemCpuUsage=" + systemCpuUsage
                 + ", sampledNewCount=" + sampledNewCount + ", sampledContinuationCount=" + sampledContinuationCount
-                + ", unsampledNewCount=" + unsampledNewCount + ", unsampledContinuationCount=" + unsampledContinuationCount + "]";
+                + ", unsampledNewCount=" + unsampledNewCount + ", unsampledContinuationCount=" + unsampledContinuationCount
+                + ", histogramSchemaTypeCode=" + histogramSchema.getTypeCode() + ", activeTraceCounts=" + activeTraceCounts + "]";
     }
 
 }

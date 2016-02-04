@@ -21,13 +21,17 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.SlotType;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.AgentStat;
 import com.navercorp.pinpoint.web.vo.linechart.Chart;
 import com.navercorp.pinpoint.web.vo.linechart.DataPoint;
 import com.navercorp.pinpoint.web.vo.linechart.SampledTimeSeriesDoubleChartBuilder;
+import com.navercorp.pinpoint.web.vo.linechart.SampledTimeSeriesIntegerChartBuilder;
 import com.navercorp.pinpoint.web.vo.linechart.SampledTimeSeriesLongChartBuilder;
 import com.navercorp.pinpoint.web.vo.linechart.Chart.ChartBuilder;
+import com.navercorp.pinpoint.web.vo.linechart.TitledDataPoint;
 
 /**
  * @author harebox
@@ -48,7 +52,11 @@ public class AgentStatChartGroup {
         TPS_SAMPLED_CONTINUATION,
         TPS_UNSAMPLED_NEW,
         TPS_UNSAMPLED_CONTINUATION,
-        TPS_TOTAL
+        TPS_TOTAL,
+        ACTIVE_TRACE_FAST,
+        ACTIVE_TRACE_NORMAL,
+        ACTIVE_TRACE_SLOW,
+        ACTIVE_TRACE_VERY_SLOW
     }
 
     private static final int UNCOLLECTED_DATA = AgentStat.NOT_COLLECTED;
@@ -74,6 +82,10 @@ public class AgentStatChartGroup {
         this.chartBuilders.put(ChartType.TPS_UNSAMPLED_NEW, new SampledTimeSeriesDoubleChartBuilder(timeWindow, UNCOLLECTED_DATA, 1));
         this.chartBuilders.put(ChartType.TPS_UNSAMPLED_CONTINUATION, new SampledTimeSeriesDoubleChartBuilder(timeWindow, UNCOLLECTED_DATA, 1));
         this.chartBuilders.put(ChartType.TPS_TOTAL, new SampledTimeSeriesDoubleChartBuilder(timeWindow, UNCOLLECTED_DATA, 1));
+        this.chartBuilders.put(ChartType.ACTIVE_TRACE_FAST, new SampledTimeSeriesIntegerChartBuilder(timeWindow, UNCOLLECTED_DATA));
+        this.chartBuilders.put(ChartType.ACTIVE_TRACE_NORMAL, new SampledTimeSeriesIntegerChartBuilder(timeWindow, UNCOLLECTED_DATA));
+        this.chartBuilders.put(ChartType.ACTIVE_TRACE_SLOW, new SampledTimeSeriesIntegerChartBuilder(timeWindow, UNCOLLECTED_DATA));
+        this.chartBuilders.put(ChartType.ACTIVE_TRACE_VERY_SLOW, new SampledTimeSeriesIntegerChartBuilder(timeWindow, UNCOLLECTED_DATA));
         this.charts = new EnumMap<>(ChartType.class);
     }
 
@@ -83,6 +95,7 @@ public class AgentStatChartGroup {
                 addMemoryGcData(agentStat);
                 addCpuLoadData(agentStat);
                 addTransactionData(agentStat);
+                addActiveTraceData(agentStat);
             }
         }
     }
@@ -126,6 +139,26 @@ public class AgentStatChartGroup {
             ((SampledTimeSeriesDoubleChartBuilder) this.chartBuilders.get(ChartType.TPS_UNSAMPLED_NEW)).addDataPoint(new DataPoint<>(timestamp, unsampledNewTps));
             ((SampledTimeSeriesDoubleChartBuilder) this.chartBuilders.get(ChartType.TPS_UNSAMPLED_CONTINUATION)).addDataPoint(new DataPoint<>(timestamp, unsampledContinuationTps));
             ((SampledTimeSeriesDoubleChartBuilder) this.chartBuilders.get(ChartType.TPS_TOTAL)).addDataPoint(new DataPoint<>(timestamp, totalTps));
+        }
+    }
+
+    private void addActiveTraceData(AgentStat agentStat) {
+        long timestamp = agentStat.getTimestamp();
+        HistogramSchema schema = agentStat.getHistogramSchema();
+        if (schema != null) {
+            Map<SlotType, Integer> activeTraceCounts = agentStat.getActiveTraceCounts();
+
+            DataPoint fastDataPoint = new TitledDataPoint<>(schema.getFastSlot().getSlotName(), timestamp, activeTraceCounts.get(SlotType.FAST));
+            this.chartBuilders.get(ChartType.ACTIVE_TRACE_FAST).addDataPoint(fastDataPoint);
+
+            DataPoint normalDataPoint = new TitledDataPoint<>(schema.getNormalSlot().getSlotName(), timestamp, activeTraceCounts.get(SlotType.NORMAL));
+            this.chartBuilders.get(ChartType.ACTIVE_TRACE_NORMAL).addDataPoint(normalDataPoint);
+
+            DataPoint slowDataPoint = new TitledDataPoint<>(schema.getSlowSlot().getSlotName(), timestamp, activeTraceCounts.get(SlotType.SLOW));
+            this.chartBuilders.get(ChartType.ACTIVE_TRACE_SLOW).addDataPoint(slowDataPoint);
+
+            DataPoint verySlowDataPoint = new TitledDataPoint<>(schema.getVerySlowSlot().getSlotName(), timestamp, activeTraceCounts.get(SlotType.VERY_SLOW));
+            this.chartBuilders.get(ChartType.ACTIVE_TRACE_VERY_SLOW).addDataPoint(verySlowDataPoint);
         }
     }
 
