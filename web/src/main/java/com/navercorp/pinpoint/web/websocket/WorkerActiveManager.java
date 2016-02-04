@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.vo.AgentStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -97,7 +98,7 @@ public class WorkerActiveManager {
             reactiveWorkerRepository.add(agentId);
 
             boolean turnOn = onReconnectTimerTask.compareAndSet(false, true);
-            logger.info("addReactiveWorker turnon:{}", turnOn);
+            logger.info("addReactiveWorker turnOn:{}", turnOn);
             if (turnOn) {
                 timer.schedule(new ReactiveTimerTask(), DEFAULT_RECONNECT_DELAY);
             }
@@ -127,9 +128,13 @@ public class WorkerActiveManager {
             }
 
             for (String agentId : reactiveWorkerCandidates) {
-                AgentInfo newAgentInfo = agentService.getAgentInfo(applicationName, agentId);
-                if (newAgentInfo != null) {
-                    responseAggregator.addActiveWorker(newAgentInfo);
+                try {
+                    AgentInfo newAgentInfo = agentService.getAgentInfo(applicationName, agentId);
+                    if (newAgentInfo != null) {
+                        responseAggregator.addActiveWorker(newAgentInfo);
+                    }
+                } catch (Exception e) {
+                    logger.warn("failed while to get AgentInfo(applicationName:{}, agentId:{}). error:{}.", applicationName, agentId, e.getMessage(), e);
                 }
             }
         }
@@ -142,8 +147,14 @@ public class WorkerActiveManager {
         public void run() {
             logger.info("AgentCheckTimerTask started.");
 
+            List<AgentInfo> agentInfoList = Collections.emptyList();
             try {
-                List<AgentInfo> agentInfoList = agentService.getRecentAgentInfoList(applicationName);
+                agentInfoList = agentService.getRecentAgentInfoList(applicationName);
+            } catch (Exception e) {
+                logger.warn("failed while to get RecentAgentInfoList(applicationName:{}). error:{}.", applicationName, e.getMessage(), e);
+            }
+
+            try {
                 for (AgentInfo agentInfo : agentInfoList) {
                     String agentId = agentInfo.getAgentId();
                     if (defaultAgentIdList.contains(agentId)) {
@@ -152,17 +163,24 @@ public class WorkerActiveManager {
 
                     AgentStatus agentStatus = agentInfo.getStatus();
                     if (agentStatus != null && agentStatus.getState() != AgentLifeCycleState.UNKNOWN) {
-                        responseAggregator.addActiveWorker(agentInfo);
-                        defaultAgentIdList.add(agentId);
+                        addActiveWorker(agentInfo);
                     } else if (agentService.isConnected(agentInfo)) {
-                        responseAggregator.addActiveWorker(agentInfo);
-                        defaultAgentIdList.add(agentId);
+                        addActiveWorker(agentInfo);
                     }
                 }
             } finally {
                 if (timer != null && onAgentCheckTimerTask.get() && !isStopped.get()) {
                     timer.schedule(new AgentCheckTimerTask(), DEFAULT_AGENT_CHECk_DELAY);
                 }
+            }
+        }
+
+        private void addActiveWorker(AgentInfo agentInfo) {
+            try {
+                responseAggregator.addActiveWorker(agentInfo);
+                defaultAgentIdList.add(agentInfo.getAgentId());
+            } catch (Exception e) {
+                logger.warn("failed while adding active worker. error:{}", e.getMessage(), e);
             }
         }
 
