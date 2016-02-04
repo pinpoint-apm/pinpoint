@@ -15,22 +15,24 @@
  */
 package com.navercorp.pinpoint.plugin.gson;
 
-import java.security.ProtectionDomain;
-
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+
+import java.security.ProtectionDomain;
 
 /**
  * @author ChaYoung You
@@ -41,27 +43,34 @@ public class GsonPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private static final String GSON_SCOPE = "GSON_SCOPE";
 
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
     private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        transformTemplate.transform("com.google.gson.Gson", new TransformCallback() {
-            
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+        GsonConfig config = new GsonConfig(context.getConfig());
+        logger.debug("[Gson] Initialized config={}", config);
 
-                for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("fromJson"))) {
-                    m.addScopedInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.FromJsonInterceptor", GSON_SCOPE);
+        if (config.isProfile()) {
+            transformTemplate.transform("com.google.gson.Gson", new TransformCallback() {
+
+                @Override
+                public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                    InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+                    for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("fromJson"))) {
+                        m.addScopedInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.FromJsonInterceptor", GSON_SCOPE);
+                    }
+
+                    for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("toJson"))) {
+                        m.addScopedInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.ToJsonInterceptor", GSON_SCOPE);
+                    }
+
+                    return target.toBytecode();
                 }
-                
-                for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("toJson"))) {
-                    m.addScopedInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.ToJsonInterceptor", GSON_SCOPE);
-                }
-                
-                return target.toBytecode();
-            }
-        });
+            });
+        }
     }
 
 
