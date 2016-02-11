@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.monitor.codahale.gc;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.profiler.context.TestableTransactionCounter;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
-import com.navercorp.pinpoint.profiler.monitor.codahale.gc.GarbageCollector;
+import com.navercorp.pinpoint.test.MockTraceContextFactory;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
 
 import org.junit.Test;
@@ -33,8 +32,8 @@ public class GarbageCollectorFactoryTest {
 
     @Test
     public void test() {
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        GarbageCollector collector = new AgentStatCollectorFactory(new TestableTransactionCounter(), profilerConfig).getGarbageCollector();
+        TraceContext mockTraceContext = new MockTraceContextFactory().create();
+        GarbageCollector collector = new AgentStatCollectorFactory(mockTraceContext).getGarbageCollector();
 
         logger.debug("collector.getType():{}", collector);
         TJvmGc collect1 = collector.collect();
@@ -46,9 +45,10 @@ public class GarbageCollectorFactoryTest {
 
     @Test
     public void testDetailedMetrics() {
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        profilerConfig.setProfilerJvmCollectDetailedMetrics(true);
-        GarbageCollector collector = new AgentStatCollectorFactory(new TestableTransactionCounter(), profilerConfig).getGarbageCollector();
+        TraceContext testTraceContext = new MockTraceContextFactory().create();
+        ProfilerConfig testProfilerConfig = testTraceContext.getProfilerConfig();
+        testProfilerConfig.setProfilerJvmCollectDetailedMetrics(true);
+        GarbageCollector collector = new AgentStatCollectorFactory(testTraceContext).getGarbageCollector();
 
         logger.debug("collector.getType():{}", collector);
         TJvmGc collect1 = collector.collect();

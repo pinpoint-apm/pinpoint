@@ -70,7 +70,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
     }
 
     @Override
-    public List<AgentStat> scanAgentStatList(String agentId, Range range) {
+    public List<AgentStat> getAgentStatList(String agentId, Range range) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }

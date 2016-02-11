@@ -17,12 +17,26 @@
 package com.navercorp.pinpoint.web.vo.linechart;
 
 /**
- * @author hyungil.jeong
+ * @author HyunGil Jeong
  */
-public final class SampledDataLongChartBuilder extends SampledDataChartBuilder<Long, Long> {
+public class TitledDataPoint<X extends Number, Y extends Number> extends DataPoint<X, Y> {
 
-    public SampledDataLongChartBuilder(DownSampler<Long> downSampler, int sampleRate) {
-        super(downSampler, sampleRate);
+    private final String title;
+
+    public TitledDataPoint(String title, X xVal, Y yVal) {
+        super(xVal, yVal);
+        this.title = title;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(title);
+        sb.append(":");
+        sb.append(super.toString());
+        return sb.toString();
+    }
 }

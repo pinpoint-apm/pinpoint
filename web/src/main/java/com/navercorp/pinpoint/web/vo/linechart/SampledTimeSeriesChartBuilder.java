@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.vo.linechart;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.linechart.Chart.Point;
 import com.navercorp.pinpoint.web.vo.linechart.Chart.Points;
@@ -26,42 +27,42 @@ import com.navercorp.pinpoint.web.vo.linechart.Chart.Points;
 /**
  * @author hyungil.jeong
  */
-public abstract class SampledTimeSeriesChartBuilder<Y extends Number> extends SampledChartBuilder<Long, Y> {
+public class SampledTimeSeriesChartBuilder<Y extends Number> extends SampledChartBuilder<Long, Y> {
 
     private final TimeWindow timeWindow;
-    private final Y defaultValue;
     private final List<List<Y>> timeslots;
-    
-    protected SampledTimeSeriesChartBuilder(TimeWindow timeWindow, Y defaultValue) {
-        this.defaultValue = defaultValue;
-        this.timeWindow = timeWindow;
-        if (this.timeWindow.getWindowRangeCount() > Integer.MAX_VALUE) {
+
+    public SampledTimeSeriesChartBuilder(DownSampler<Y> downSampler, TimeWindow timeWindow) {
+        super(downSampler);
+        if (timeWindow.getWindowRangeCount() > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("range yields too many timeslots");
         }
-        int numTimeslots = (int)(long)this.timeWindow.getWindowRangeCount();
+        this.timeWindow = timeWindow;
+        int numTimeslots = (int) this.timeWindow.getWindowRangeCount();
         this.timeslots = new ArrayList<>(numTimeslots);
         initializeTimeslots(numTimeslots);
     }
-    
+
     private void initializeTimeslots(int numTimeslots) {
         for (int i = 0; i < numTimeslots; ++i) {
             this.timeslots.add(new ArrayList<Y>());
         }
     }
-    
+
     @Override
-    protected Points makePoints(List<DataPoint<Long, Y>> dataPoints) {
+    public Points makePoints(List<DataPoint<Long, Y>> dataPoints) {
         Points points = new Points();
         allocateDataPoints(dataPoints);
         int timeSlotIndex = 0;
         for (Long timestamp : this.timeWindow) {
-            List<Y> dataPointsToSample = this.timeslots.get(timeSlotIndex);
-            points.addPoint(makePoint(timestamp, dataPointsToSample));
+            List<Y> samples = this.timeslots.get(timeSlotIndex);
+            Point point = new Point(timestamp, sampleMin(samples), sampleMax(samples), sampleAvg(samples));
+            points.addPoint(point);
             ++timeSlotIndex;
         }
         return points;
     }
-    
+
     private void allocateDataPoints(List<DataPoint<Long, Y>> dataPoints) {
         for (DataPoint<Long, Y> dataPoint : dataPoints) {
             int timeslotIndex = this.timeWindow.getWindowIndex(dataPoint.getxVal());
@@ -71,20 +72,9 @@ public abstract class SampledTimeSeriesChartBuilder<Y extends Number> extends Sa
             }
         }
     }
-    
-    private Point makePoint(Long xVal, List<Y> sampleBuffer) {
-        if (sampleBuffer.isEmpty()) {
-            return new Point(xVal, this.defaultValue, this.defaultValue, this.defaultValue);
-        } else {
-            Y minVal = sampleMin(sampleBuffer);
-            Y maxVal = sampleMax(sampleBuffer);
-            Y avgVal = sampleAvg(sampleBuffer);
-            return new Point(xVal, minVal, maxVal, avgVal);
-        }
-    }
-    
+
     private boolean isValidIndex(int timeslot) {
         return timeslot >= 0 && timeslot < this.timeslots.size();
     }
-    
+
 }

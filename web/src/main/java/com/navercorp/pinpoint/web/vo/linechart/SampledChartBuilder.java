@@ -25,9 +25,25 @@ import com.navercorp.pinpoint.web.vo.linechart.Chart.ChartBuilder;
  */
 public abstract class SampledChartBuilder<X extends Number, Y extends Number> extends ChartBuilder<X, Y> {
 
-    protected abstract Y sampleMin(List<Y> sampleBuffer);
+    private final DownSampler<Y> downSampler;
 
-    protected abstract Y sampleMax(List<Y> sampleBuffer);
+    protected SampledChartBuilder(DownSampler<Y> downSampler) {
+        if (downSampler == null) {
+            throw new NullPointerException("downSampler must not be null");
+        }
+        this.downSampler = downSampler;
+    }
 
-    protected abstract Y sampleAvg(List<Y> sampleBuffer);
+    protected final Y sampleMin(List<Y> sampleBuffer) {
+        return this.downSampler.sampleMin(sampleBuffer);
+    }
+
+    protected final Y sampleMax(List<Y> sampleBuffer) {
+        return this.downSampler.sampleMax(sampleBuffer);
+    }
+
+    protected final Y sampleAvg(List<Y> sampleBuffer) {
+        return this.downSampler.sampleAvg(sampleBuffer);
+    }
+
 }

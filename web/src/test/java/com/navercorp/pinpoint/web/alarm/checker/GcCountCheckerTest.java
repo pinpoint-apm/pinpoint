@@ -43,7 +43,7 @@ public class GcCountCheckerTest {
         agentStatDao = new AgentStatDao() {
 
             @Override
-            public List<AgentStat> scanAgentStatList(String agentId, Range range) {
+            public List<AgentStat> getAgentStatList(String agentId, Range range) {
                 List<AgentStat> agentStatList = new LinkedList<AgentStat>();
                 
                 for (int i = 36; i > 0; i--) {

@@ -26,10 +26,11 @@ import com.navercorp.pinpoint.web.vo.linechart.Chart.Points;
  * @author hyungil.jeong
  */
 public abstract class SampledDataChartBuilder<X extends Number, Y extends Number> extends SampledChartBuilder<X, Y> {
-    
+
     private final int sampleRate;
 
-    protected SampledDataChartBuilder(int sampleRate) {
+    protected SampledDataChartBuilder(DownSampler<Y> downSampler, int sampleRate) {
+        super(downSampler);
         this.sampleRate = sampleRate;
     }
 
@@ -44,9 +45,9 @@ public abstract class SampledDataChartBuilder<X extends Number, Y extends Number
         }
         return points;
     }
-    
+
     private Point makePoint(List<DataPoint<X, Y>> sampleDataPoints) {
-        X xVal = sampleDataPoints.get(sampleDataPoints.size()-1).getxVal();
+        X xVal = sampleDataPoints.get(sampleDataPoints.size() - 1).getxVal();
         List<Y> sampleBuffer = new ArrayList<>(sampleDataPoints.size());
         for (DataPoint<X, Y> sampleDataPoint : sampleDataPoints) {
             sampleBuffer.add(sampleDataPoint.getyVal());
@@ -56,5 +57,5 @@ public abstract class SampledDataChartBuilder<X extends Number, Y extends Number
         Y avgVal = sampleAvg(sampleBuffer);
         return new Point(xVal, minVal, maxVal, avgVal);
     }
-    
+
 }

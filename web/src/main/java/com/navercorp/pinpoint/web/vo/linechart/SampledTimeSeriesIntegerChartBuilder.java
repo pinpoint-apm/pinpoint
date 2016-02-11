@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.web.vo.linechart;
 
-import java.util.List;
-
 import com.navercorp.pinpoint.web.util.TimeWindow;
 
 /**
@@ -25,28 +23,8 @@ import com.navercorp.pinpoint.web.util.TimeWindow;
  */
 public class SampledTimeSeriesIntegerChartBuilder extends SampledTimeSeriesChartBuilder<Integer> {
 
-    private static final int DEFAULT_VALUE = 0;
-
-    public SampledTimeSeriesIntegerChartBuilder(TimeWindow timeWindow) {
-        super(timeWindow, DEFAULT_VALUE);
+    public SampledTimeSeriesIntegerChartBuilder(DownSampler<Integer> downSampler, TimeWindow timeWindow) {
+        super(downSampler, timeWindow);
     }
 
-    public SampledTimeSeriesIntegerChartBuilder(TimeWindow timeWindow, int defaultValue) {
-        super(timeWindow, defaultValue);
-    }
-
-    @Override
-    protected Integer sampleMin(List<Integer> sampleBuffer) {
-        return DownSamplers.MIN.sampleInt(sampleBuffer);
-    }
-
-    @Override
-    protected Integer sampleMax(List<Integer> sampleBuffer) {
-        return DownSamplers.MAX.sampleInt(sampleBuffer);
-    }
-
-    @Override
-    protected Integer sampleAvg(List<Integer> sampleBuffer) {
-        return DownSamplers.AVG.sampleInt(sampleBuffer);
-    }
 }

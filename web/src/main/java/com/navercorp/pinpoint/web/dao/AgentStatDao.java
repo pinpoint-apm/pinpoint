@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.web.vo.Range;
  */
 public interface AgentStatDao {
 
-    List<AgentStat> scanAgentStatList(String agentId, Range range);
+    List<AgentStat> getAgentStatList(String agentId, Range range);
 
     boolean agentStatExists(String agentId, Range range);
 

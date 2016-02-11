@@ -27,7 +27,7 @@ public class Chart {
     private Chart(Points points) {
         this.points = points;
     }
-    
+
     public List<Point> getPoints() {
         return this.points.getPoints();
     }
@@ -35,22 +35,22 @@ public class Chart {
     public static abstract class ChartBuilder<X extends Number, Y extends Number> {
 
         protected abstract Points makePoints(List<DataPoint<X, Y>> dataPoints);
-        
+
         private final List<DataPoint<X, Y>> dataPoints;
-        
+
         protected ChartBuilder() {
             this.dataPoints = new ArrayList<>();
         }
-        
+
         public void addDataPoint(DataPoint<X, Y> dataPoint) {
             this.dataPoints.add(dataPoint);
         }
-        
+
         public Chart buildChart() {
             Points points = makePoints(this.dataPoints);
             return new Chart(points);
         }
-        
+
         public int numDataPoints() {
             return this.dataPoints.size();
         }

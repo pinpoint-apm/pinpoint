@@ -73,6 +73,16 @@ struct TTransaction {
     5: optional i64     unsampledContinuationCount
 }
 
+struct TActiveTraceHistogram {
+    1:          i16         version = 0
+	2: optional i32         histogramSchemaType
+	3: optional list<i32>   activeTraceCount
+}
+
+struct TActiveTrace {
+	1: optional TActiveTraceHistogram   histogram
+}
+
 struct TAgentStat {
     1: optional string      agentId
     2: optional i64         startTimestamp
@@ -81,6 +91,7 @@ struct TAgentStat {
     10: optional TJvmGc     gc
     20: optional TCpuLoad   cpuLoad
     30: optional TTransaction   transaction
+    40: optional TActiveTrace   activeTrace
     200: optional string    metadata    
 }
 

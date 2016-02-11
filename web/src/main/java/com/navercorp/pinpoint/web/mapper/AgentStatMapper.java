@@ -24,8 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 
+import com.navercorp.pinpoint.common.bo.ActiveTraceHistogramBo;
 import com.navercorp.pinpoint.common.bo.AgentStatCpuLoadBo;
 import com.navercorp.pinpoint.common.bo.AgentStatMemoryGcBo;
+import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
@@ -117,6 +119,11 @@ public class AgentStatMapper implements RowMapper<List<AgentStat>> {
         }
         if (qualifierMap.containsKey(AGENT_STAT_COL_TRANSACTION_UNSAMPLED_CONTINUATION)) {
             agentStat.setUnsampledContinuationCount(Bytes.toLong(qualifierMap.get(AGENT_STAT_COL_TRANSACTION_UNSAMPLED_CONTINUATION)));
+        }
+        if (qualifierMap.containsKey(AGENT_STAT_COL_ACTIVE_TRACE_HISTOGRAM)) {
+            ActiveTraceHistogramBo activeTraceHistogramBo = new ActiveTraceHistogramBo(qualifierMap.get(AGENT_STAT_COL_ACTIVE_TRACE_HISTOGRAM));
+            agentStat.setHistogramSchema(BaseHistogramSchema.getDefaultHistogramSchemaByTypeCode(activeTraceHistogramBo.getHistogramSchemaType()));
+            agentStat.setActiveTraceCounts(activeTraceHistogramBo.getActiveTraceCountMap());
         }
 
         List<AgentStat> agentStats = new ArrayList<>();
