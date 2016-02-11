@@ -239,7 +239,7 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Arou
                         recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(entityString, 1024));
                     }
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 logger.debug("HttpEntityEnclosingRequest entity record fail. Caused:{}", e.getMessage(), e);
             }
         }
@@ -261,7 +261,7 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Arou
      *             if an error occurs reading the input stream
      */
     @SuppressWarnings("deprecation")
-    public static String entityUtilsToString(final HttpEntity entity, final String defaultCharset, int maxLength) throws IOException, ParseException {
+    public static String entityUtilsToString(final HttpEntity entity, final String defaultCharset, int maxLength) throws Exception {
         if (entity == null) {
             throw new IllegalArgumentException("HTTP entity may not be null");
         }
