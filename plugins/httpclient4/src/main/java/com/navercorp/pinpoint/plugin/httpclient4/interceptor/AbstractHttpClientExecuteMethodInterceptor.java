@@ -17,15 +17,7 @@
 package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
-import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
-import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContextFactory;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -44,14 +36,20 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
+import com.navercorp.pinpoint.bootstrap.util.FixedByteArrayOutputStream;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContextFactory;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
@@ -236,10 +234,10 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Arou
                     if (entitySampler.isSampling()) {
                         final String entityString = entityUtilsToString(entity, "UTF8", 1024);
                         final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-                        recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(entityString, 1024));
+                        recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, entityString);
                     }
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 logger.debug("HttpEntityEnclosingRequest entity record fail. Caused:{}", e.getMessage(), e);
             }
         }
@@ -261,39 +259,41 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Arou
      *             if an error occurs reading the input stream
      */
     @SuppressWarnings("deprecation")
-    public static String entityUtilsToString(final HttpEntity entity, final String defaultCharset, int maxLength) throws IOException, ParseException {
+    public static String entityUtilsToString(final HttpEntity entity, final String defaultCharset, int maxLength) throws Exception {
         if (entity == null) {
             throw new IllegalArgumentException("HTTP entity may not be null");
         }
-        final InputStream instream = entity.getContent();
-        if (instream == null) {
-            return null;
+        if (entity.getContentLength() > Integer.MAX_VALUE) {
+            return "HTTP entity is too large to be buffered in memory length:" + entity.getContentLength();
         }
-        try {
-            if (entity.getContentLength() > Integer.MAX_VALUE) {
-                return "HTTP entity too large to be buffered in memory length:" + entity.getContentLength();
-            }
-            String charset = getContentCharSet(entity);
-            if (charset == null) {
-                charset = defaultCharset;
-            }
-            if (charset == null) {
-                charset = HTTP.DEFAULT_CONTENT_CHARSET;
-            }
-            Reader reader = new InputStreamReader(instream, charset);
-            final StringBuilder buffer = new StringBuilder(maxLength * 2);
-            char[] tmp = new char[1024];
-            int l;
-            while ((l = reader.read(tmp)) != -1) {
-                buffer.append(tmp, 0, l);
-                if (buffer.length() >= maxLength) {
-                    break;
-                }
-            }
-            return buffer.toString();
-        } finally {
-            instream.close();
+        if (entity.getContentType().getValue().startsWith("multipart/form-data")) {
+            return "content type is multipart/form-data. content length:" + entity.getContentLength();
         }
+        
+        String charset = getContentCharSet(entity);
+        
+        if (charset == null) {
+            charset = defaultCharset;
+        }
+        if (charset == null) {
+            charset = HTTP.DEFAULT_CONTENT_CHARSET;
+        }
+        
+        FixedByteArrayOutputStream outStream = new FixedByteArrayOutputStream(maxLength);
+        entity.writeTo(outStream);
+        
+        String entityValue = outStream.toString(charset);
+        
+        if (entity.getContentLength() > maxLength) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(entityValue);
+            sb.append("HTTP entity large length: ");
+            sb.append(entity.getContentLength());
+            sb.append(" )");
+            return sb.toString();
+        }
+        
+        return entityValue;
     }
 
     /**
