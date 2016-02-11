@@ -16,19 +16,19 @@
 
 package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
-import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContextFactory;
-import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3PluginConfig;
-import org.apache.commons.httpclient.*;
+import org.apache.commons.httpclient.HttpConnection;
+import org.apache.commons.httpclient.HttpConstants;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.protocol.Protocol;
 
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.context.Header;
@@ -38,19 +38,23 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.navercorp.pinpoint.bootstrap.util.FixedByteArrayOutputStream;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContext;
+import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContextFactory;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
-import org.apache.commons.httpclient.protocol.Protocol;
+import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3PluginConfig;
 
 /**
  * @author Minwoo Jung
@@ -336,13 +340,12 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
                         if (charSet == null || charSet.isEmpty()) {
                             charSet = HttpConstants.DEFAULT_CONTENT_CHARSET;
                         }
-                        if (entity instanceof ByteArrayRequestEntity) {
-                            entityValue = readByteArray((ByteArrayRequestEntity) entity, charSet);
-                        } else if (entity instanceof StringRequestEntity) {
-                            entityValue = readString((StringRequestEntity) entity);
+                        
+                        if (entity instanceof ByteArrayRequestEntity || entity instanceof StringRequestEntity) {
+                            entityValue = entityUtilsToString(entity, charSet);
                         } else {
                             entityValue = entity.getClass() + " (ContentType:" + entity.getContentType() + ")";
-                        }
+                        } 
 
                         final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
                         recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, entityValue);
@@ -354,23 +357,22 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         }
     }
 
-    private String readString(StringRequestEntity entity) {
-        return StringUtils.drop(entity.getContent(), MAX_READ_SIZE);
-    }
-
-    private String readByteArray(ByteArrayRequestEntity entity, String charSet) throws UnsupportedEncodingException {
-        if (entity.getContent() == null) {
-            return "";
+    private String entityUtilsToString(RequestEntity entity, String charSet) throws Exception {
+        FixedByteArrayOutputStream outStream = new FixedByteArrayOutputStream(MAX_READ_SIZE);
+        entity.writeRequest(outStream);
+        
+        String entityValue = outStream.toString(charSet);
+        
+        if (entity.getContentLength() > MAX_READ_SIZE) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(entityValue);
+            sb.append(" (HTTP entity is large. length: ");
+            sb.append(entity.getContentLength());
+            sb.append(" )");
+            return sb.toString();
         }
-
-        final int length = entity.getContent().length > MAX_READ_SIZE ? MAX_READ_SIZE : entity.getContent().length;
-
-        if (length <= 0) {
-            return "";
-        }
-
-        return new String(entity.getContent(), 0, length, charSet);
-
+        
+        return entityValue;
     }
 
     private void recordCookie(HttpMethod httpMethod, Trace trace) {
