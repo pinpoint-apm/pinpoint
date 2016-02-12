@@ -18,11 +18,14 @@ package com.navercorp.pinpoint.web.scatter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.view.ScatterDataSerializer;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
+import com.navercorp.pinpoint.web.vo.scatter.DotAgentInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @Author Taejin Koo
@@ -32,12 +35,13 @@ public class ScatterData {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-
     private final long from;
     private final int xGroupUnitMillis;
     private final int yGroupUnitMillis;
 
-    private final Map<ScatterAgentInfo, AgentScatterData> agentScatterDataMap = new HashMap<>();
+    private final ScatterAgentMetadataRepository scatterAgentMetadataRepository = new ScatterAgentMetadataRepository();
+    private final Map<Long, DotGroups> scatterData = new HashMap<>();
+
     private long oldestAcceptedTime = Long.MAX_VALUE;
     private long latestAcceptedTime = Long.MIN_VALUE;
 
@@ -52,13 +56,6 @@ public class ScatterData {
             return;
         }
 
-        ScatterAgentInfo agentInfo = new ScatterAgentInfo(dot.getAgentId());
-        AgentScatterData agentScatterData = agentScatterDataMap.get(agentInfo);
-        if (agentScatterData == null) {
-            agentScatterData = new AgentScatterData(agentInfo);
-            agentScatterDataMap.put(agentInfo, agentScatterData);
-        }
-
         long acceptedTimeDiff = dot.getAcceptedTime() - from;
         long x = acceptedTimeDiff - (acceptedTimeDiff  % xGroupUnitMillis);
         if (x < 0) {
@@ -67,7 +64,8 @@ public class ScatterData {
         int y = dot.getElapsedTime() - (dot.getElapsedTime() % yGroupUnitMillis);
 
         Coordinates coordinates = new Coordinates(x, y);
-        agentScatterData.addDot(coordinates, new Dot(dot.getTransactionId(), acceptedTimeDiff, dot.getElapsedTime(), dot.getExceptionCode(), dot.getAgentId()));
+        addDot(coordinates, new Dot(dot.getTransactionId(), acceptedTimeDiff, dot.getElapsedTime(), dot.getExceptionCode(), dot.getAgentId()));
+
         if (oldestAcceptedTime > dot.getAcceptedTime()) {
             oldestAcceptedTime = dot.getAcceptedTime();
         }
@@ -77,23 +75,36 @@ public class ScatterData {
         }
     }
 
+    private void addDot(Coordinates coordinates, Dot dot) {
+        DotGroups dotGroups = scatterData.get(coordinates.getX());
+        if (dotGroups == null) {
+            dotGroups = new DotGroups(coordinates.getX());
+            scatterData.put(coordinates.getX(), dotGroups);
+        }
+
+        dotGroups.addDot(coordinates, dot);
+
+        scatterAgentMetadataRepository.addDotAgentInfo(new DotAgentInfo(dot));
+    }
+
     public void merge(ScatterData scatterData) {
         if (scatterData == null) {
             return;
         }
 
-        Map<ScatterAgentInfo, AgentScatterData> agentScatterDataMap = scatterData.getAgentScatterDataMap();
+        Map<Long, DotGroups> scatterDataMap = scatterData.getScatterDataMap();
+        for (Map.Entry<Long, DotGroups> entry : scatterDataMap.entrySet()) {
+            Long key = entry.getKey();
 
-        for (Map.Entry<ScatterAgentInfo, AgentScatterData> entry : agentScatterDataMap.entrySet()) {
-            ScatterAgentInfo key = entry.getKey();
-
-            AgentScatterData agentScatterData = this.agentScatterDataMap.get(key);
-            if (agentScatterData == null) {
-                this.agentScatterDataMap.put(key, entry.getValue());
+            DotGroups dotGroups = this.scatterData.get(key);
+            if (dotGroups == null) {
+                this.scatterData.put(key, entry.getValue());
             } else {
-                agentScatterData.merge(entry.getValue());
+                dotGroups.merge(entry.getValue());
             }
         }
+
+        scatterAgentMetadataRepository.merge(scatterData.getScatterAgentMetadataRepository());
 
         if (oldestAcceptedTime > scatterData.getOldestAcceptedTime()) {
             oldestAcceptedTime = scatterData.getOldestAcceptedTime();
@@ -104,9 +115,25 @@ public class ScatterData {
         }
     }
 
-    public Map<ScatterAgentInfo, AgentScatterData> getAgentScatterDataMap() {
-        return agentScatterDataMap;
+    ScatterAgentMetadataRepository getScatterAgentMetadataRepository() {
+        return scatterAgentMetadataRepository;
     }
+
+    public ScatterAgentMetaData getScatterAgentMetadata() {
+        return new ScatterAgentMetaData(scatterAgentMetadataRepository);
+    }
+
+    public Map<Long, DotGroups> getScatterDataMap() {
+        return scatterData;
+    }
+
+    public Map<Long, DotGroups> getSortedScatterDataMap() {
+        TreeMap<Long, DotGroups> sortedMap = new TreeMap<>(new XCoordinatesComparator());
+        sortedMap.putAll(scatterData);
+
+        return sortedMap;
+    }
+
 
     public long getOldestAcceptedTime() {
         return oldestAcceptedTime;
@@ -114,6 +141,15 @@ public class ScatterData {
 
     public long getLatestAcceptedTime() {
         return latestAcceptedTime;
+    }
+
+    private class XCoordinatesComparator implements Comparator<Long> {
+
+        @Override
+        public int compare(Long o1, Long o2) {
+            return Long.compare(o2, o1);
+        }
+
     }
 
 }

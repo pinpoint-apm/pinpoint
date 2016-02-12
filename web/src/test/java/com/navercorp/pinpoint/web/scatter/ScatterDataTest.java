@@ -21,7 +21,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -39,6 +41,7 @@ public class ScatterDataTest {
 
         ScatterData scatterData = new ScatterData(from, xGroupUnit, yGroupUnit);
         List<Dot> dotList = createDotList("agent", "transactionAgent", count, from);
+
         for (Dot dot : dotList) {
             scatterData.addDot(dot);
         }
@@ -71,7 +74,7 @@ public class ScatterDataTest {
         long currentTime = System.currentTimeMillis();
 
         List<TransactionId> transactionIdList = new ArrayList<>(createSize);
-        for (int i = 0; i<createSize; i++) {
+        for (int i = 0; i < createSize; i++) {
             transactionIdList.add(new TransactionId(transactionAgentId, currentTime, i));
         }
 
@@ -79,42 +82,23 @@ public class ScatterDataTest {
         int executionTime = (int) Math.abs(ThreadLocalRandom.current().nextLong(60 * 1000));
 
         List<Dot> dotList = new ArrayList<>(createSize);
-        for (int i = 0; i<createSize; i++) {
-            dotList.add(new Dot(transactionIdList.get(i), acceptedTime, executionTime, Dot.EXCEPTION_NONE, agentId));
+        for (int i = 0; i < createSize; i++) {
+            dotList.add(new Dot(transactionIdList.get(i), Math.max(Math.abs(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE)), from), executionTime, Dot.EXCEPTION_NONE, agentId));
         }
+
+        long seed = System.nanoTime();
+        Collections.shuffle(dotList, new Random(seed));
 
         return dotList;
     }
 
     private List<Dot> extractDotList(ScatterData scatterData) {
         List<Dot> dotList = new ArrayList<>();
-        for (AgentScatterData eachAgentScatterData : scatterData.getAgentScatterDataMap().values()) {
-            dotList.addAll(extractDotList(eachAgentScatterData));
+
+        for (DotGroups dotGroups : scatterData.getScatterDataMap().values()) {
+            dotList.addAll(dotGroups.getSortedDotSet());
         }
 
-        return dotList;
-    }
-
-    private List<Dot> extractDotList(AgentScatterData agentScatterData) {
-        List<Dot> dotList = new ArrayList<>();
-        for (TransactionAgentScatterData transactionAgentScatterData : agentScatterData.getTransactionAgentScatterDataMap().values()) {
-            dotList.addAll(extractDotList(transactionAgentScatterData));
-        }
-
-        return dotList;
-    }
-
-    private List<Dot> extractDotList(TransactionAgentScatterData transactionAgentScatterData) {
-        List<Dot> dotList = new ArrayList<>();
-        for (DotGroup dotGroup : transactionAgentScatterData.getDotGroupMap().values()) {
-            dotList.addAll(extractDotList(dotGroup));
-        }
-
-        return dotList;
-    }
-
-    private List<Dot> extractDotList(DotGroup dotGroup) {
-        List<Dot> dotList = dotGroup.getDotList();
         return dotList;
     }
 

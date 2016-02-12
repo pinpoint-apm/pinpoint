@@ -17,20 +17,18 @@ package com.navercorp.pinpoint.web.scatter;
 
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @Author Taejin Koo
  */
 public class DotGroup {
 
-    private static final DotComparator DOT_COMPARATOR = new DotComparator();
-
     private final Coordinates coordinates;
-    private final List<Dot> dotList = new ArrayList<>();
+    private final Set<Dot> dotSet = new HashSet<>();
+
+    private Dot dotLeader;
 
     public DotGroup(Coordinates coordinates) {
         this.coordinates = coordinates;
@@ -41,16 +39,11 @@ public class DotGroup {
     }
 
     void addDot(Dot dot) {
-        dotList.add(dot);
-    }
+        dotSet.add(dot);
 
-    public List<Dot> getSortedDotList() {
-        Collections.sort(dotList, DOT_COMPARATOR);
-        return dotList;
-    }
-
-    public List<Dot> getDotList() {
-        return dotList;
+        if (dotLeader == null) {
+            dotLeader = dot;
+        }
     }
 
     void merge(DotGroup dotGroup) {
@@ -58,20 +51,24 @@ public class DotGroup {
             return;
         }
 
-        dotList.addAll(dotGroup.getDotList());
+        dotSet.addAll(dotGroup.getDotSet());
     }
 
-    private static class DotComparator implements Comparator<Dot> {
+    public Set<Dot> getDotSet() {
+        return dotSet;
+    }
 
-        @Override
-        public int compare(Dot o1, Dot o2) {
-            return Long.compare(o2.getAcceptedTime(), o1.getAcceptedTime());
-        }
+    public int getDotSize() {
+        return dotSet.size();
+    }
 
+    public Dot getDotLeader() {
+        return dotLeader;
     }
 
     @Override
     public String toString() {
-        return "DotGroup{" + "coordinates=" + coordinates + ", dotList=" + dotList + '}';
+        return "DotGroup{" + "coordinates=" + coordinates + ", dotSet=" + dotSet + '}';
     }
+
 }
