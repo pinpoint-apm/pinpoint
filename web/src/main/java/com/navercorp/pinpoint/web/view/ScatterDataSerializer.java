@@ -18,12 +18,15 @@ package com.navercorp.pinpoint.web.view;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.navercorp.pinpoint.web.scatter.AgentScatterData;
-import com.navercorp.pinpoint.web.scatter.ScatterAgentInfo;
+import com.navercorp.pinpoint.web.scatter.DotGroup;
+import com.navercorp.pinpoint.web.scatter.DotGroups;
+import com.navercorp.pinpoint.web.scatter.ScatterAgentMetaData;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
+import com.navercorp.pinpoint.web.vo.scatter.Dot;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @Author Taejin Koo
@@ -32,20 +35,63 @@ public class ScatterDataSerializer extends JsonSerializer<ScatterData> {
 
     @Override
     public void serialize(ScatterData value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-        jgen.writeStartArray();
-        writeAgentDotGroupMap(value, jgen);
+        jgen.writeStartObject();
+
+        ScatterAgentMetaData metadata = value.getScatterAgentMetadata();
+        writeScatterAgentMetaData(metadata, jgen);
+        wrtieScatterData(value, metadata, jgen);
+
+        jgen.writeEndObject();
+    }
+
+    private void writeScatterAgentMetaData(ScatterAgentMetaData metaData, JsonGenerator jgen) throws IOException {
+        jgen.writeObjectField("metadata", metaData);
+    }
+
+    private void wrtieScatterData(ScatterData scatterData, ScatterAgentMetaData metaData, JsonGenerator jgen) throws IOException {
+        jgen.writeArrayFieldStart("dotList");
+
+        Map<Long, DotGroups> sortedScatterDataMap = scatterData.getSortedScatterDataMap();
+        for (Map.Entry<Long, DotGroups> entry : sortedScatterDataMap.entrySet()) {
+            DotGroups dotGroups = entry.getValue();
+            writeDotSet(dotGroups, metaData, jgen);
+        }
+
         jgen.writeEndArray();
     }
 
-    private void writeAgentDotGroupMap(ScatterData scatterData, JsonGenerator jgen) throws IOException {
-        for (Map.Entry<ScatterAgentInfo, AgentScatterData> entry : scatterData.getAgentScatterDataMap().entrySet()) {
-            jgen.writeStartObject();
+    private void writeDotSet(DotGroups dotGroups, ScatterAgentMetaData metaData, JsonGenerator jgen) throws IOException {
+        Map<Dot, DotGroup> dotGroupLeaders = dotGroups.getDotGroupLeaders();
 
-            ScatterAgentInfo agent = entry.getKey();
-            jgen.writeObjectField(agent.getAgentId(), entry.getValue());
-
-            jgen.writeEndObject();
+        Set<Dot> dotSet = dotGroups.getSortedDotSet();
+        for (Dot dot : dotSet) {
+            if (dotGroupLeaders.containsKey(dot)) {
+                writeDot(dot, dotGroupLeaders.get(dot).getDotSize(), metaData, jgen);
+            } else {
+                writeDot(dot, 0, metaData, jgen);
+            }
         }
+    }
+
+    private void writeDot(Dot dot, int thick, ScatterAgentMetaData metaData, JsonGenerator jgen) throws IOException {
+        jgen.writeStartArray();
+
+        jgen.writeNumber(dot.getAcceptedTime());
+        jgen.writeNumber(dot.getElapsedTime());
+
+        int agentId = metaData.getId(dot);
+        jgen.writeNumber(agentId);
+
+        if (agentId == -1) {
+            jgen.writeString(dot.getTransactionIdAsString());
+        } else {
+            jgen.writeNumber(dot.getTransactionId().getTransactionSequence());
+        }
+
+        jgen.writeNumber(dot.getSimpleExceptionCode());
+        jgen.writeNumber(thick);
+
+        jgen.writeEndArray();
     }
 
 }
