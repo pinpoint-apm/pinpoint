@@ -57,6 +57,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.ResultFutureGetter;
 
 /**
  * 
+ * @author minwoo.jung
  * @author jaehong.kim
  *
  */
