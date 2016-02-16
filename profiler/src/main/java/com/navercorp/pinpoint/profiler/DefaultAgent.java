@@ -205,10 +205,12 @@ public class DefaultAgent implements Agent {
 
         addCommandService(commandDispatcher, traceContext);
 
-        this.agentInfoSender = new AgentInfoSender.Builder(tcpDataSender, this.agentInformation).sendInterval(profilerConfig.getAgentInfoSendRetryInterval()).build();
-        this.serverMetaDataHolder.addListener(this.agentInfoSender);
-
         AgentStatCollectorFactory agentStatCollectorFactory = new AgentStatCollectorFactory(this.traceContext);
+
+        JvmInformationFactory jvmInformationFactory = new JvmInformationFactory(agentStatCollectorFactory.getGarbageCollector());
+
+        this.agentInfoSender = new AgentInfoSender.Builder(tcpDataSender, this.agentInformation, jvmInformationFactory.createJvmInformation()).sendInterval(profilerConfig.getAgentInfoSendRetryInterval()).build();
+        this.serverMetaDataHolder.addListener(this.agentInfoSender);
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime(), agentStatCollectorFactory);
         
         InterceptorInvokerHelper.setPropagateException(profilerConfig.isPropagateInterceptorException());
