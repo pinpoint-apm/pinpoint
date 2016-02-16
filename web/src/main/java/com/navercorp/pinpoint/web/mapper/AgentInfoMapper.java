@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
+import com.navercorp.pinpoint.common.bo.JvmInfoBo;
 import com.navercorp.pinpoint.common.bo.ServerMetaDataBo;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
@@ -45,6 +46,7 @@ public class AgentInfoMapper implements RowMapper<AgentInfo> {
 
         byte[] serializedAgentInfo = result.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER);
         byte[] serializedServerMetaData = result.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_SERVER_META_DATA);
+        byte[] serializedJvmInfo = result.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_JVM);
 
         final AgentInfoBo.Builder agentInfoBoBuilder = createBuilderFromValue(serializedAgentInfo);
         agentInfoBoBuilder.setAgentId(agentId);
@@ -52,6 +54,9 @@ public class AgentInfoMapper implements RowMapper<AgentInfo> {
 
         if (serializedServerMetaData != null) {
             agentInfoBoBuilder.setServerMetaData(new ServerMetaDataBo.Builder(serializedServerMetaData).build());
+        }
+        if (serializedJvmInfo != null) {
+            agentInfoBoBuilder.setJvmInfo(new JvmInfoBo(serializedJvmInfo));
         }
         return new AgentInfo(agentInfoBoBuilder.build());
     }

@@ -57,6 +57,7 @@ public class AgentInfoBo {
 
     // Should be serialized separately
     private final ServerMetaDataBo serverMetaData;
+    private final JvmInfoBo jvmInfo;
 
     private AgentInfoBo(Builder builder) {
         this.hostName = builder.hostName;
@@ -72,6 +73,7 @@ public class AgentInfoBo {
         this.endTimeStamp = builder.endTimeStamp;
         this.endStatus = builder.endStatus;
         this.serverMetaData = builder.serverMetaData;
+        this.jvmInfo = builder.jvmInfo;
     }
 
     public String getIp() {
@@ -125,6 +127,10 @@ public class AgentInfoBo {
     
     public ServerMetaDataBo getServerMetaData() {
         return this.serverMetaData;
+    }
+
+    public JvmInfoBo getJvmInfo() {
+        return this.jvmInfo;
     }
 
     public byte[] writeValue() {
@@ -207,6 +213,7 @@ public class AgentInfoBo {
         
         // Should be serialized separately
         private ServerMetaDataBo serverMetaData;
+        private JvmInfoBo jvmInfo;
 
         public Builder() {
         }
@@ -239,7 +246,6 @@ public class AgentInfoBo {
             return serviceTypeCode;
         }
 
-
         public void setPid(int pid) {
             this.pid = pid;
         }
@@ -266,6 +272,10 @@ public class AgentInfoBo {
         
         public void setServerMetaData(ServerMetaDataBo serverMetaData) {
             this.serverMetaData = serverMetaData;
+        }
+
+        public void setJvmInfo(JvmInfoBo jvmInfo) {
+            this.jvmInfo = jvmInfo;
         }
 
         public AgentInfoBo build() {

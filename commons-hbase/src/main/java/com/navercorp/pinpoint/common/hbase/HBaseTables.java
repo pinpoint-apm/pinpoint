@@ -69,6 +69,7 @@ public final class HBaseTables {
     public static final byte[] AGENTINFO_CF_INFO = Bytes.toBytes("Info");
     public static final byte[] AGENTINFO_CF_INFO_IDENTIFIER = Bytes.toBytes("i");
     public static final byte[] AGENTINFO_CF_INFO_SERVER_META_DATA = Bytes.toBytes("m");
+    public static final byte[] AGENTINFO_CF_INFO_JVM = Bytes.toBytes("j");
 
     public static final String AGENT_LIFECYCLE = "AgentLifeCycle";
     public static final byte[] AGENT_LIFECYCLE_CF_STATUS = Bytes.toBytes("S"); // agent lifecycle column family
