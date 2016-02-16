@@ -64,10 +64,60 @@ public class SpanCallTree implements CallTree {
         sibling.setSibling(node);
     }
 
-    public void add(final int depth, final SpanAlign spanAlign) {
-        if (depth < MIN_DEPTH || depth == ROOT_DEPTH) {
-            throw new CorruptedSpanCallTreeNodeException("invalid depth", "invalid depth. depth=" + depth + ", cursor=" + cursor + ", align=" + spanAlign);
+    // test only
+    public void add(final int parentDepth, final CallTree tree) {
+        if (parentDepth < MIN_DEPTH) {
+            throw new CorruptedSpanCallTreeNodeException("invalid depth", "invalid parent depth. parent depth=" + parentDepth + ", cursor=" + cursor + ", tree=" + tree);
         }
+
+        final CallTreeNode node = tree.getRoot();
+        if (node == null) {
+            // skip
+            return;
+        }
+
+        if (parentDepth == LEVEL_DEPTH || parentDepth == cursor.getDepth()) {
+            // validate
+            if (cursor.isRoot()) {
+                throw new CorruptedSpanCallTreeNodeException("invalid depth", "invalid depth. depth=" + parentDepth + ", cursor=" + cursor + ", tree=" + tree);
+            }
+
+            if (!cursor.hasChild()) {
+                node.setParent(cursor);
+                cursor.setChild(node);
+                return;
+            }
+
+            CallTreeNode sibling = findLastSibling(cursor.getChild());
+            node.setParent(cursor);
+            sibling.setSibling(node);
+            return;
+        }
+
+        // greater
+        if (parentDepth > cursor.getDepth()) {
+            throw new CorruptedSpanCallTreeNodeException("invalid depth", "invalid depth. depth=" + parentDepth + ", cursor=" + cursor + ", align=" + tree);
+        }
+
+        // lesser
+        if (cursor.getDepth() - parentDepth < ROOT_DEPTH) {
+            throw new CorruptedSpanCallTreeNodeException("invalid depth", "invalid depth. depth=" + parentDepth + ", cursor=" + cursor + ", align=" + tree);
+        }
+
+        final CallTreeNode parent = findUpperLevelLastSibling(parentDepth, cursor);
+        cursor = parent;
+        if (!cursor.hasChild()) {
+            node.setParent(cursor);
+            cursor.setChild(node);
+            return;
+        }
+
+        CallTreeNode sibling = findLastSibling(cursor.getChild());
+        node.setParent(cursor);
+        sibling.setSibling(node);
+    }
+
+    public void add(final int depth, final SpanAlign spanAlign) {
 
         if (hasCorrupted(spanAlign)) {
             throw new CorruptedSpanCallTreeNodeException("invalid sequence", "corrupted event. depth=" + depth + ", cursor=" + cursor + ", align=" + spanAlign);

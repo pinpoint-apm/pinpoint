@@ -31,6 +31,8 @@ public interface CallTree extends Iterable<CallTreeNode> {
 
     void add(CallTree tree);
 
+    void add(int parentDepth, CallTree tree);
+
     void add(final int depth, final SpanAlign spanAlign);
     
     void sort();
