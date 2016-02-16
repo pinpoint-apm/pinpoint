@@ -26,6 +26,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
+import com.navercorp.pinpoint.thrift.dto.TJvmInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,12 +64,14 @@ public class AgentInfoSender implements ServerMetaDataListener {
     private final long sendIntervalMs;
     private final int maxTryPerAttempt;
     private final AgentInformation agentInformation;
+    private final JvmInformation jvmInformation;
 
     private volatile ServerMetaData serverMetaData;
 
     private AgentInfoSender(Builder builder) {
         this.dataSender = builder.dataSender;
         this.agentInformation = builder.agentInformation;
+        this.jvmInformation = builder.jvmInformation;
         this.refreshIntervalMs = builder.refreshIntervalMs;
         this.sendIntervalMs = builder.sendIntervalMs;
         this.maxTryPerAttempt = builder.maxTryPerAttempt;
@@ -118,6 +122,7 @@ public class AgentInfoSender implements ServerMetaDataListener {
         if (this.serverMetaData != null) {
             agentInfo.setServerMetaData(createTServiceInfo());
         }
+        agentInfo.setJvmInfo(createTJvmInfo());
         return agentInfo;
     }
 
@@ -134,6 +139,17 @@ public class AgentInfoSender implements ServerMetaDataListener {
         }
         tServerMetaData.setServiceInfos(tServiceInfos);
         return tServerMetaData;
+    }
+
+    private TJvmInfo createTJvmInfo() {
+        TJvmInfo tJvmInfo = new TJvmInfo();
+        tJvmInfo.setVmVersion(this.jvmInformation.getJvmVersion());
+        TJvmGcType gcType = TJvmGcType.findByValue(this.jvmInformation.getGcTypeCode());
+        if (gcType == null) {
+            gcType = TJvmGcType.UNKNOWN;
+        }
+        tJvmInfo.setGcType(gcType);
+        return tJvmInfo;
     }
 
     private static class AgentInfoSendRunnableWrapper implements Runnable {
@@ -193,19 +209,28 @@ public class AgentInfoSender implements ServerMetaDataListener {
     public static class Builder {
         private final EnhancedDataSender dataSender;
         private final AgentInformation agentInformation;
+        private final JvmInformation jvmInformation;
         private long refreshIntervalMs = DEFAULT_AGENT_INFO_REFRESH_INTERVAL_MS;
         private long sendIntervalMs = DEFAULT_AGENT_INFO_SEND_INTERVAL_MS;
         private int maxTryPerAttempt = DEFAULT_MAX_TRY_COUNT_PER_ATTEMPT;
 
-        public Builder(EnhancedDataSender dataSender, AgentInformation agentInformation) {
+        Builder(EnhancedDataSender dataSender, AgentInformation agentInformation) {
+            this(dataSender, agentInformation, new JvmInformationFactory().createJvmInformation());
+        }
+
+        public Builder(EnhancedDataSender dataSender, AgentInformation agentInformation, JvmInformation jvmInformation) {
             if (dataSender == null) {
                 throw new NullPointerException("enhancedDataSender must not be null");
             }
             if (agentInformation == null) {
                 throw new NullPointerException("agentInformation must not be null");
             }
+            if (jvmInformation == null) {
+                throw new NullPointerException("jvmInformation must not be null");
+            }
             this.dataSender = dataSender;
             this.agentInformation = agentInformation;
+            this.jvmInformation = jvmInformation;
         }
 
         public Builder refreshInterval(long refreshIntervalMs) {

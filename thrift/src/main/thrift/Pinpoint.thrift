@@ -1,5 +1,13 @@
 namespace java com.navercorp.pinpoint.thrift.dto
 
+enum TJvmGcType {
+    UNKNOWN,
+    SERIAL,
+    PARALLEL,
+    CMS,
+    G1
+}
+
 struct TServiceInfo {
     1: optional string          serviceName
     2: optional list<string>    serviceLibs
@@ -9,6 +17,12 @@ struct TServerMetaData {
     1: optional string              serverInfo
     2: optional list<string>        vmArgs
     10: optional list<TServiceInfo>  serviceInfos
+}
+
+struct TJvmInfo {
+    1:          i16         version = 0
+    2: optional string      vmVersion
+    3: optional TJvmGcType  gcType = TJvmGcType.UNKNOWN
 }
 
 struct TAgentInfo {
@@ -28,14 +42,8 @@ struct TAgentInfo {
 	12: optional i32     endStatus
 	
 	20: optional TServerMetaData   serverMetaData
-}
 
-enum TJvmGcType {
-    UNKNOWN,
-    SERIAL,
-    PARALLEL,
-    CMS,
-    G1    
+	30: optional TJvmInfo   jvmInfo
 }
 
 struct TJvmGc {

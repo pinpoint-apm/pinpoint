@@ -19,12 +19,14 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
 import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
+import com.navercorp.pinpoint.common.bo.JvmInfoBo;
 import com.navercorp.pinpoint.common.bo.ServerMetaDataBo;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
+import com.navercorp.pinpoint.thrift.dto.TJvmInfo;
 import com.navercorp.pinpoint.thrift.dto.TServerMetaData;
 
 import org.apache.hadoop.hbase.client.Put;
@@ -49,13 +51,18 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     @Autowired
     @Qualifier("agentInfoBoMapper")
     private ThriftBoMapper<AgentInfoBo, TAgentInfo> agentInfoBoMapper;
-    
+
     @Autowired
     @Qualifier("serverMetaDataBoMapper")
     private ThriftBoMapper<ServerMetaDataBo, TServerMetaData> serverMetaDataBoMapper;
 
+    @Autowired
+    @Qualifier("jvmInfoBoMapper")
+    private ThriftBoMapper<JvmInfoBo, TJvmInfo> jvmInfoBoMapper;
+
     @Override
     public void insert(TAgentInfo agentInfo) {
+
         if (agentInfo == null) {
             throw new NullPointerException("agentInfo must not be null");
         }
@@ -78,6 +85,12 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
             ServerMetaDataBo serverMetaDataBo = this.serverMetaDataBoMapper.map(agentInfo.getServerMetaData());
             byte[] serverMetaDataBoValue = serverMetaDataBo.writeValue();
             put.addColumn(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_SERVER_META_DATA, serverMetaDataBoValue);
+        }
+
+        if (agentInfo.isSetJvmInfo()) {
+            JvmInfoBo jvmInfoBo = this.jvmInfoBoMapper.map(agentInfo.getJvmInfo());
+            byte[] jvmInfoBoValue = jvmInfoBo.writeValue();
+            put.addColumn(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_JVM, jvmInfoBoValue);
         }
 
         hbaseTemplate.put(HBaseTables.AGENTINFO, put);
