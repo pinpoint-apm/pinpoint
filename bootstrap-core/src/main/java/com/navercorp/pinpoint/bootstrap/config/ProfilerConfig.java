@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.config;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -174,4 +175,5 @@ public interface ProfilerConfig {
 
     boolean readBoolean(String propertyName, boolean defaultValue);
 
+    Map<String, String> readPattern(String propertyNamePatternRegex);
 }
