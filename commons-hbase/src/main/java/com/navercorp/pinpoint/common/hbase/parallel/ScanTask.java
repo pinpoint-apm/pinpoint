@@ -93,7 +93,7 @@ public class ScanTask implements Runnable {
             this.resultQueue.clear();
             this.resultQueue.offer(END_RESULT);
         } finally {
-            HbaseUtils.releaseTable(this.tableName, table);
+            HbaseUtils.releaseTable(this.tableName, table, this.tableFactory);
         }
     }
 
