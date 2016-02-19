@@ -45,6 +45,7 @@
 		            oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 		            $scope.$broadcast('navbarDirective.initialize', oNavbarVoService);
 		            $scope.$broadcast('scatterDirective.initialize', oNavbarVoService);
+					$scope.$broadcast('scatterDirective2.initialize', oNavbarVoService);
 		            $scope.$broadcast('serverMapDirective.initialize', oNavbarVoService);
 	            }
 	        }, 500);
@@ -144,6 +145,7 @@
 	            $scope.$broadcast('nodeInfoDetailsDirective.hide');
 	            $scope.$broadcast('linkInfoDetailsDirective.hide');
 	            $scope.$broadcast('scatterDirective.initialize', oNavbarVoService);
+				$scope.$broadcast('scatterDirective2.initialize', oNavbarVoService);
 	            $scope.$broadcast('serverMapDirective.initialize', oNavbarVoService);
 	            $scope.$broadcast('sidebarTitleDirective.empty.forMain');
 	        });
@@ -153,6 +155,7 @@
 	         */
 	        $scope.$on('serverMapDirective.passingTransactionResponseToScatterChart', function (event, node) {
 	            $scope.$broadcast('scatterDirective.initializeWithNode', node);
+				$scope.$broadcast('scatterDirective2.initializeWithNode', node);
 	        });
 	
 	        /**
@@ -167,6 +170,7 @@
 	                $scope.hasScatter = true;
 	                oSidebarTitleVoService.setTitle(node.applicationName);
 	                $scope.$broadcast('scatterDirective.initializeWithNode', node);
+					$scope.$broadcast('scatterDirective2.initializeWithNode', node);
 	            } else if (node.unknownNodeGroup) {
 	                oSidebarTitleVoService.setTitle( node.serviceType.replace( "_", " " ) );
 	                $scope.hasScatter = false;

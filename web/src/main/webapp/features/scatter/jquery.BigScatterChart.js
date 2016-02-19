@@ -1001,7 +1001,7 @@ var BigScatterChart = $.Class({
             if (jQuery.isFunction(fXAxisFormat)) {
                 el.html(fXAxisFormat.call(self, nXStep, i));
             } else {
-                el.html((xstep * i + self._nXMin).round());
+                el.html((nXStep * i + self._nXMin).round());
             }
         });
 
@@ -1369,7 +1369,6 @@ var BigScatterChart = $.Class({
 		});
     },
 
-	//@@eye 범위(영역)내에 속한 데이터를 뽑아냄
     getDataByXY: function (nXFrom, nXTo, nYFrom, nYTo) {
         var self = this;
         var aBubbleStep = this._aBubbleStep,
@@ -1418,6 +1417,7 @@ var BigScatterChart = $.Class({
 	},
 
     hasDataByXY: function (nXFrom, nXTo, nYFrom, nYTo) {
+		console.log( arguments );
         var aBubbleStep = this._aBubbleStep,
             aBubbles = this._aBubbles,
             htDataSource = this.option("htDataSource"),

@@ -36,8 +36,8 @@
 	                oNavbarVoService.setQueryEndDateTime($routeParams.queryEndDateTime);
 	            }
 	            oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
-	            $scope.$emit('scatterDirective.initialize', oNavbarVoService);
-	            $scope.$emit('scatterDirective.initializeWithNode', {
+	            $scope.$emit('scatterDirective2.initialize', oNavbarVoService);
+	            $scope.$emit('scatterDirective2.initializeWithNode', {
 					key: oNavbarVoService.getApplicationName() + "^" + oNavbarVoService.getServiceTypeName(),
 					serviceType: oNavbarVoService.getServiceTypeName(),
 					applicationName: oNavbarVoService.getApplicationName(),
