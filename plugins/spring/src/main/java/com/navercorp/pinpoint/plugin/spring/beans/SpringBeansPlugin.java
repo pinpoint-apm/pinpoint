@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,11 +37,17 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
 public class SpringBeansPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     public static final String SPRING_BEANS_MARK_ERROR = "profiler.spring.beans.mark.error";
+    public static final String ENABLE = "profiler.spring.beans";
 
     private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
+        final boolean enable = context.getConfig().readBoolean(ENABLE, true);
+        if (!enable) {
+            return;
+        }
+
         addAbstractAutowireCapableBeanFactoryTransformer(context);
     }
 
@@ -54,10 +60,10 @@ public class SpringBeansPlugin implements ProfilerPlugin, TransformTemplateAware
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                
+
                 final BeanMethodTransformer beanTransformer = new BeanMethodTransformer(errorMark);
                 final ObjectFactory beanFilterFactory = ObjectFactory.byStaticFactory("com.navercorp.pinpoint.plugin.spring.beans.interceptor.TargetBeanFilter", "of", config);
-                
+
                 final InstrumentMethod createBeanInstance = target.getDeclaredMethod("createBeanInstance", "java.lang.String", "org.springframework.beans.factory.support.RootBeanDefinition", "java.lang.Object[]");
                 createBeanInstance.addInterceptor("com.navercorp.pinpoint.plugin.spring.beans.interceptor.CreateBeanInstanceInterceptor", va(beanTransformer, beanFilterFactory));
 

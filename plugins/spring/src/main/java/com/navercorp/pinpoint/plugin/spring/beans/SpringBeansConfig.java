@@ -36,22 +36,12 @@ public class SpringBeansConfig {
     public static final String SPRING_BEANS_CLASS_PATTERN_POSTFIX = ".class.pattern";
     public static final String SPRING_BEANS_NAME_PATTERN_POSTFIX = ".name.pattern";
 
-    public static final String ENABLE = "profiler.spring.beans";
-
     private static final String PATTERN_REGEX = SpringBeansConfig.SPRING_BEANS_PREFIX + "[0-9]+" + "(" + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX + "|" + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX + "|" + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX + ")";
 
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final Map<Integer, SpringBeansTarget> targets = new HashMap<Integer, SpringBeansTarget>();
 
     public SpringBeansConfig(ProfilerConfig config) {
-        boolean enable = config.readBoolean(ENABLE, true);
-        if (!enable) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Disable spring-beans plugin");
-            }
-            return;
-        }
-
         // backward compatibility
         addBackwardCompatibilityTarget(config);
 
