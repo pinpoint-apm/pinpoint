@@ -9,7 +9,6 @@
 		this._initVariables();
 		this._initInnerFeature();
 		this._initElements();
-		this._initTypeCount();
 		this._initPlugin( aPlugins );
 		this._initInnerPlugin();
 	}
@@ -93,7 +92,6 @@
 	BigScatterChart2.prototype._initVariables = function( bIsRedrawing ) {
 		if (bIsRedrawing !== true) {
 			this._aBubbles = [];
-			this._aBubbleStep = [];
 		}
 		var oPadding = this.option("padding");
 		var	bubbleSize = this.option("bubbleSize");
@@ -111,8 +109,6 @@
 
 		this._maxZ = this.option("maxZ");
 		this._minZ = this.option("minZ");
-
-		this._oCountByType = {};
 
 		this._bDestroied = false;
 		this._bPause = false;
@@ -149,7 +145,7 @@
 			"width": oPadding.right + "px",
 			"height": this.option("height") + "px",
 			"z-index": 510,
-			"position": "absolute",
+			"position": "absolute"
 		}).appendTo( this._$elContainer );
 	};
 	BigScatterChart2.prototype._initInnerFeature = function() {
@@ -183,105 +179,44 @@
 	};
 	BigScatterChart2.prototype.fireDragEvent = function( oParam ) {
 		this._oDragManager.triggerDrag( oParam );
-		//var fOnSelect = this.option("fOnSelect");
-		//if ( $.isFunction(fOnSelect) ) {
-		//	var htPosition = this._adjustSelectBoxForChart(oParam),
-		//		htXY = this._parseCoordinatesToXY(htPosition);
-		//
-		//	if ( this.hasDataByXY(htXY.nXFrom, htXY.nXTo, htXY.nYFrom, htXY.nYTo)) {
-		//		fOnSelect.call(this, htPosition, htXY);
-		//	}
-		//}
 	};
 	BigScatterChart2.prototype.selectType = function( type ) {
-		//var type = "Fail";
-		this._oCanvasManager.selectType( type );
 		this._oTypeManager.selectType( type );
+		this._oCanvasManager.selectType( this._currentAgent, type );
 		return this;
 	};
 	BigScatterChart2.prototype.setBubbles = function( aBubbles ) {
 		this._aBubbles = [];
-		this._aBubbleStep = [];
 		this.addBubbles(aBubbles);
 	};
 	BigScatterChart2.prototype.addBubbles = function( oBubbles ) {
 		if ( $.isArray( this._aBubbles ) === false ) {
 			return;
 		}
-		var self = this;
-		this._aBubbles.push(oBubbles);
-
-		var oPropertyIndex = this.option( "propertyIndex" );
-		var oBubbleSum = {};
-		for( var p in oBubbles ) {
-			var aBubbles = oBubbles[p];
-			var oTypeCount = self._countPerType( aBubbles );
-
-			var oBubble = {
-				"minX": aBubbles[0][oPropertyIndex.x],
-				"maxX": aBubbles[aBubbles.length - 1][oPropertyIndex.x],
-				"minY": BigScatterChart2.Util.compare( aBubbles, oPropertyIndex.y, BigScatterChart2.Util.min ),
-				"maxY": BigScatterChart2.Util.compare( aBubbles, oPropertyIndex.y, BigScatterChart2.Util.max ),
-				"size": aBubbles.length,
-				"countOfType": {}
-			};
-			$.each( self.option( "typeInfo" ) , function ( key, aValue ) {
-				oBubble.countOfType[aValue[0]] = oTypeCount[aValue[0]];
-			});
-			oBubbleSum[p] = oBubble;
-		}
-		this._aBubbleStep.push(oBubbleSum);
+		this._aBubbles.push( new BigScatterChart2.BlockData( oBubbles, this.option( "propertyIndex" ), this.option( "typeInfo" ) ) );
 	};
-	BigScatterChart2.prototype._initTypeCount = function() {
+	BigScatterChart2.prototype._getSumCountByType = function() {
 		var self = this;
-		this._oCountByType = {};
-		$.each( this.option("typeInfo"), function ( key, aValue ) {
-			self._oCountByType[ aValue[0] ] = 0;
+		var oSum = {};
+		$.each( this.option( "typeInfo" ), function( key, oValue ) {
+			oSum[oValue[0]] = 0;
 		});
-	};
-	BigScatterChart2.prototype._countPerType = function( aBubbles ) {
-		var self = this;
-		var oCountOfType = {};
-		var oPropertyIndex = this.option( "propertyIndex" );
-		var oTypeInfo = this.option( "typeInfo" );
-
-		$.each( oTypeInfo, function( key, aValue ) {
-			oCountOfType[aValue[0]] = 0;
-		});
-
-		for (var i = 0, nLen = aBubbles.length; i < nLen; i++) {
-			var typeName =  oTypeInfo[aBubbles[i][oPropertyIndex.type]][0];
-			if ( $.isNumeric( oCountOfType[ typeName ] ) === false ) {
-				oCountOfType[ typeName ] = 0;
-			}
-			oCountOfType[ typeName ] += 1;
-		}
-		$.each( oCountOfType, function ( key, value ) {
-			self._oCountByType[key] += value;
-		});
-		return oCountOfType;
-	};
-	BigScatterChart2.prototype._recountAllPerType = function() {
-		var self = this;
-		var aBubbles = this._aBubbles;
-		var oTypeInfo = this.option( "typeInfo" );
-		var oPropertyIndex = this.option( "propertyIndex" );
-
-		this._initTypeCount();
-		for (var i = 0, nLen = aBubbles.length; i < nLen; i++) {
-			var oBubbles = aBubbles[i];
-			for( var p in oBubbles ) {
-				var aSectionBubble = oBubbles[p];
-				var nLen2 = aSectionBubble.length;
-				for (var j = 0 ; j < nLen2; j++) {
-					self._oCountByType[oTypeInfo[aSectionBubble[j][oPropertyIndex.type]][0]] += 1;
+		for( var i = 0 ; i < this._aBubbles.length ; i++ ) {
+			var oBlockData = this._aBubbles[i];
+			$.each( this._aAgentList, function( index,  agentName ) {
+				if ( self._currentAgent === self._AGENT_ALL || self._currentAgent === agentName ) {
+					$.each( oSum, function( type ) {
+						//if ( self._oTypeManager.isChecked( type ) ) {
+							oSum[type] += oBlockData.getCount( agentName, type );
+						//}
+					});
 				}
-			}
+			});
 		}
+		return oSum;
 	};
 	BigScatterChart2.prototype.redrawBubbles = function() {
-		this._recountAllPerType();
-		this._oTypeManager.showTypeCount( this._oCountByType );
+		this._oTypeManager.showTypeCount( this._getSumCountByType() );
 
 		if (this._aBubbles.length > 0) {
 			this._oMessage.hide();
@@ -291,12 +226,10 @@
 		}
 	};
 	BigScatterChart2.prototype.clear = function() {
-		this._initTypeCount();
 		this._oCanvasManager.clear();
-		this._oTypeManager.showTypeCount( this._oCountByType );
-		this._oDragManager.hide();
 		this._aBubbles = [];
-		this._aBubbleStep = [];
+		this._oTypeManager.showTypeCount( this._getSumCountByType() );
+		this._oDragManager.hide();
 		this._oMessage.show( this.option( "noDataStr" ) );
 	};
 	BigScatterChart2.prototype.addBubbleAndDraw = function( aBubbles ) {
@@ -308,33 +241,39 @@
 		}
 
 		this.addBubbles(aBubbles);
-		this._oTypeManager.showTypeCount( this._oCountByType );
+		this._oTypeManager.showTypeCount( this._getSumCountByType() );
 		this._drawBubbles(aBubbles);
 	};
-	BigScatterChart2.prototype._drawBubbles = function( oBubbles ) {
+	BigScatterChart2.prototype._drawBubbles = function() {
 		var self = this;
-		var aBubbleTypeInfo = this.option("typeInfo");
+		var oTypeInfo = this.option("typeInfo");
 		var bubbleRadius = this.option("bubbleRadius");
 		var oPropertyIndex = this.option( "propertyIndex" );
 		var sPrefix = this.option("sPrefix");
+		var oBlockData = this._aBubbles[ this._aBubbles.length - 1 ];
 
 		setTimeout(function () {
-			$.each( oBubbles, function( agentName , aBubbleData ) {
-				for (var i = 0, nLen = aBubbleData.length; i < nLen && !self._bDestroied; i++) {
-					var x = self._parseXDataToXChart( BigScatterChart2.Util.getBoundaryValue( self._maxX, self._minX, aBubbleData[i][oPropertyIndex.x] ) );
-					var y = self._parseYDataToYChart( BigScatterChart2.Util.getBoundaryValue( self._maxY, self._minY, aBubbleData[i][oPropertyIndex.y]));
-					var r = self._parseZDataToZChart(aBubbleData[i].r || bubbleRadius);
-					var a = aBubbleData[i][oPropertyIndex.y] / self._maxY * 0.7;
-					var aBubbleType = aBubbleTypeInfo[aBubbleData[i][oPropertyIndex.type]];
-					var key = BigScatterChart2.Util.makeKey( agentName, sPrefix, aBubbleType[0] );
+			$.each(self._aAgentList, function (index, agentName) {
+				for (var i = 0, nLen = oBlockData.countByAgent( agentName ); i < nLen && !self._bDestroied; i++) {
+					var aAgentBubbleData = oBlockData.getDataByAgent(agentName, i);
+					var groupCount = aAgentBubbleData[oPropertyIndex.groupCount];
+					if ( groupCount !== 0 ) {
+						var x = self._parseXDataToXChart(BigScatterChart2.Util.getBoundaryValue(self._maxX, self._minX, aAgentBubbleData[oPropertyIndex.x]));
+						var y = self._parseYDataToYChart(BigScatterChart2.Util.getBoundaryValue(self._maxY, self._minY, aAgentBubbleData[oPropertyIndex.y]));
+						var r = self._parseZDataToZChart(aAgentBubbleData.r || bubbleRadius);
+						var a = aAgentBubbleData[oPropertyIndex.y] / self._maxY * 0.7 * groupCount;
+						var aBubbleType = oTypeInfo[aAgentBubbleData[oPropertyIndex.type]];
+						var key = BigScatterChart2.Util.makeKey(agentName, sPrefix, aBubbleType[0]);
 
-					self._oCanvasManager.drawBubble( key, aBubbleType[1], x, y, r, a );
-					aBubbleData[i].realx = x;
-					aBubbleData[i].realy = y;
-					aBubbleData[i].realz = r;
+						self._oCanvasManager.drawBubble(key, aBubbleType[1], x, y, r, a);
+						//aAgentBubbleData[i].realx = x;
+						//aAgentBubbleData[i].realy = y;
+						//aAgentBubbleData[i].realz = r;
+					}
 				}
+
 			});
-		});
+		}, 0);
 	};
 	BigScatterChart2.prototype._parseXDataToXChart = function( x ) {
 		return Math.round(((x - this._minX) / (this._maxX - this._minX)) * this._widthOfWork) + this.option("padding").left + this.option( "bubbleSize" );
@@ -345,8 +284,8 @@
 	BigScatterChart2.prototype._parseZDataToZChart = function( nZ ) {
 		return Math.round(((nZ - this._minZ) / (this._maxZ - this._minZ)) * this.option("bubbleSize"));
 	};
-	BigScatterChart2.prototype.addBubbleAndMoveAndDraw = function( oBubbles, maxX ) {
-		if ($.isPlainObject(oBubbles) === false || BigScatterChart2.Util.isEmpty( oBubbles ) ) {
+	BigScatterChart2.prototype.addBubbleAndMoveAndDraw = function( oBubbleData ) { //oBubbles, maxX ) {
+		if ( BigScatterChart2.Util.isEmpty( oBubbleData.scatter.dotList ) ) {
 			return;
 		} else {
 			this._oMessage.hide();
@@ -354,6 +293,7 @@
 
 		var	width = this.option("width");
 		var height = this.option("height");
+		var maxX = oBubbleData.resultFrom;
 		if (maxX > this._maxX) {
 			var gapX = maxX - this._maxX;
 			var x = gapX + this._minX;
@@ -364,9 +304,9 @@
 			this._minX += gapX;
 			this._removeOldDataLessThan(this._minX);
 		}
-		this.addBubbles( oBubbles );
-		this._oTypeManager.showTypeCount( this._oCountByType );
-		this._drawBubbles( oBubbles ); // takes on average 33 ~ 45 ms
+		this.addBubbles( oBubbleData );
+		this._oTypeManager.showTypeCount( this._getSumCountByType() );
+		this._drawBubbles(); // takes on average 33 ~ 45 ms
 		this._oCanvasManager.updateXYAxis();
 	};
 	BigScatterChart2.prototype._removeOldDataLessThan = function( nX ) {
@@ -427,29 +367,29 @@
 
 		var aVisibleType = this._oTypeManager.getVisibleType();
 
-		for (var i = 0, nLen = this._aBubbleStep.length; i < nLen; i++) {
-			var oBubbleStep = this._aBubbleStep[i];
-			for (var p in oBubbleStep) {
-				if ( this._currentAgent === this._AGENT_ALL || this._currentAgent == p ) {
-					var aBubbleStepData = oBubbleStep[p];
-					for (var j = 0, nLen2 = aBubbleStepData.size; j < nLen2; j++) {
-						var oBubbleData = this._aBubbles[i][p][j];
-						var bubbleX = oBubbleData[oPropertyIndex.x];
-						var bubbleType = oTypeInfo[oBubbleData[oPropertyIndex.type]][0];
-						if ( BigScatterChart2.Util.isInRange( fromX, toX, bubbleX ) && BigScatterChart2.Util.indexOf( aVisibleType, bubbleType ) >= 0) {
-							var bubbleY = oBubbleData[oPropertyIndex.y];
-							if ( BigScatterChart2.Util.isInRange( fromY, toY, bubbleY ) || toY === this._maxY && toY < bubbleY ) {
-								aData.push(oBubbleData);
-							}
+		for (var i = 0, nLen = this._aBubbles.length; i < nLen; i++) {
+			var oBlockData = this._aBubbles[i];
+			for (var j = 0, nLen2 = oBlockData.count() ; j < nLen2; j++ ) {
+				var aBubbleData = oBlockData.getData( j );
+				var agentName = oBlockData.getAgentName( aBubbleData );
+				if ( this._currentAgent === this._AGENT_ALL || this._currentAgent === agentName  ) {
+					var bubbleX = aBubbleData[oPropertyIndex.x];
+					var bubbleType = oTypeInfo[aBubbleData[oPropertyIndex.type]][0];
+					if ( BigScatterChart2.Util.isInRange( fromX, toX, bubbleX ) && BigScatterChart2.Util.indexOf( aVisibleType, bubbleType ) >= 0) {
+						var bubbleY = aBubbleData[oPropertyIndex.y];
+						if ( BigScatterChart2.Util.isInRange( fromY, toY, bubbleY ) || toY === this._maxY && toY < bubbleY ) {
+							aData.push( [
+								oBlockData.getTransactionID( aBubbleData ),
+								aBubbleData[oPropertyIndex.x],
+								aBubbleData[oPropertyIndex.y]
+							]);
 						}
 					}
 				}
+
 			}
 		}
-		aData.sort( function( o1, o2 ) {
-			return o2[oPropertyIndex.x] - o1[oPropertyIndex.x];
-		});
-
+		console.log( "count : ", aData.length );
 		return aData;
 	};
 	BigScatterChart2.prototype.hasDataByXY = function( fromX, toX, fromY, toY ) {
@@ -463,20 +403,18 @@
 
 		var aVisibleType = this._oTypeManager.getVisibleType();
 
-		for (var i = 0, nLen = this._aBubbleStep.length; i < nLen; i++) {
-			var oBubbleStep = this._aBubbleStep[i];
-			for( var p in oBubbleStep ) {
-				if ( this._currentAgent === this._AGENT_ALL || this._currentAgent == p ) {
-					var aBubbleStepData = oBubbleStep[p];
-					for (var j = 0, nLen2 = aBubbleStepData.size; j < nLen2; j++) {
-						var oBubbleData = this._aBubbles[i][p][j];
-						var bubbleX = oBubbleData[oPropertyIndex.x];
-						var bubbleType = oTypeInfo[oBubbleData[oPropertyIndex.type]][0];
-						if (BigScatterChart2.Util.isInRange(fromX, toX, bubbleX) && BigScatterChart2.Util.indexOf(aVisibleType, bubbleType) >= 0) {
-							var bubbleY = oBubbleData[oPropertyIndex.y];
-							if (BigScatterChart2.Util.isInRange(fromY, toY, bubbleY) || toY === this._maxY && toY < bubbleY) {
-								return true;
-							}
+		for (var i = 0, nLen = this._aBubbles.length; i < nLen; i++) {
+			var oBlockData = this._aBubbles[i];
+			for (var j = 0, nLen2 = oBlockData.count() ; j < nLen2; j++ ) {
+				var aBubbleData = oBlockData.getData( j );
+				var agentName = oBlockData.getAgentName( aBubbleData );
+				if ( this._currentAgent === this._AGENT_ALL || this._currentAgent === agentName  ) {
+					var bubbleX = aBubbleData[oPropertyIndex.x];
+					var bubbleType = oTypeInfo[aBubbleData[oPropertyIndex.type]][0];
+					if ( BigScatterChart2.Util.isInRange( fromX, toX, bubbleX ) && BigScatterChart2.Util.indexOf( aVisibleType, bubbleType ) >= 0) {
+						var bubbleY = aBubbleData[oPropertyIndex.y];
+						if ( BigScatterChart2.Util.isInRange( fromY, toY, bubbleY ) || toY === this._maxY && toY < bubbleY ) {
+							return true;
 						}
 					}
 				}
@@ -523,8 +461,9 @@
 		this._oDataManager.loadData( function() {
 			self._bRequesting = false;
 		}, function( oResultData, hasNextData ) {
-			if ( BigScatterChart2.Util.isEmpty( oResultData.scatter ) === false ) {
-				self.addBubbleAndMoveAndDraw( oResultData.scatter, oResultData.resultFrom );
+
+			if ( oResultData.scatter.dotList.length !== 0  ) {
+				self.addBubbleAndMoveAndDraw( oResultData );
 			}
 			if ( hasNextData > -1 ) {
 				setTimeout(function () {
@@ -570,20 +509,7 @@
 		}
 		this._currentAgent = agentName;
 		this._oCanvasManager.showSelectedAgent( bIsAll, agentName, oTypeCheckInfo );
-		var oCountOfType = {};
-		$.each( aBubbleTypeInfo, function( index, aValue ) {
-			oCountOfType[ aValue[0] ] = 1;
-		});
-		$.each( this._aBubbleStep, function( index, obj ) {
-			$.each( obj, function( key, innerObj ) {
-				if ( bIsAll || agentName === key ) {
-					$.each( oCountOfType, function( k, v ) {
-						oCountOfType[k] += innerObj.countOfType[k];
-					})
-				}
-			});
-		});
-		this._oTypeManager.showTypeCount( oCountOfType );
+		this._oTypeManager.showTypeCount( this._getSumCountByType() );
 	};
 
 	global.BigScatterChart2 = BigScatterChart2;

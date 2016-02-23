@@ -104,9 +104,9 @@
 		var oCheckBoxImageData = this.option("checkBoxImage");
 		$.each( this._oReferenceLI, function( key, $elLI ) {
 			if ( key === type ) {
-				$elLI.addClass("unchecked").css("background-image", "url(" + oCheckBoxImageData.unchecked + ")");
-			} else {
 				$elLI.removeClass("unchecked").css("background-image", "url(" + oCheckBoxImageData.checked + ")");
+			} else {
+				$elLI.addClass("unchecked").css("background-image", "url(" + oCheckBoxImageData.unchecked + ")");
 			}
 		});
 	};

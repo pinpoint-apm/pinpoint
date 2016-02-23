@@ -149,8 +149,8 @@
 		}
 	};
 	DragManager.prototype.triggerDrag = function( welFakeSelectBox ) {
-		var oDragAreaPosition = self._adjustSelectBoxForChart( welFakeSelectBox );
-		this._oCallback.onSelect( oDragAreaPosition, self._parseCoordinatesToXY( oDragAreaPosition ) );
+		var oDragAreaPosition = this._adjustSelectBoxForChart( welFakeSelectBox );
+		this._oCallback.onSelect( oDragAreaPosition, this._parseCoordinatesToXY( oDragAreaPosition ) );
 	};
 	DragManager.prototype._adjustSelectBoxForChart = function(welSelectBox) {
 		var oPadding = this.option( "padding" );

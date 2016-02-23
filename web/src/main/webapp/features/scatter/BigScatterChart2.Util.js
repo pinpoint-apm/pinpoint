@@ -72,6 +72,18 @@
 		},
 		isString: function( v ) {
 			return typeof v === "string";
+		},
+		endsWith: function( str, value ) {
+			var index = str.indexOf( value );
+			if ( index !== -1 ) {
+				if ( str.length - index === value.length ) {
+					return true;
+				}
+			}
+			return false;
+		},
+		startsWith: function( str, value ) {
+			return str.indexOf( value ) === 0;
 		}
 
 	};

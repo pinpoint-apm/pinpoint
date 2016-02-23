@@ -9,13 +9,7 @@
 	 */
 	pinpointApp.constant('TransactionListConfig', {
 	    applicationUrl: '/transactionmetadata.pinpoint',
-	    MAX_FETCH_BLOCK_SIZE: 100,
-	    transactionIndex: {
-	        x: 0,
-	        y: 1,
-	        transactionId: 2,
-	        type: 3
-	    }
+	    MAX_FETCH_BLOCK_SIZE: 100
 	});
 	
 	pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$location', '$routeParams', '$rootScope', '$timeout', '$window', '$http', 'webStorage', 'TimeSliderVoService', 'TransactionDaoService', 'AnalyticsService', 'helpContentService',
@@ -170,9 +164,9 @@
 	                if (i > 0) {
 	                    query.push("&");
 	                }
-	                query = query.concat(["I", j, "=", htTransactionData[i][cfg.transactionIndex.transactionId]]);
-	                query = query.concat(["&T", j, "=", htTransactionData[i][cfg.transactionIndex.x]]);
-	                query = query.concat(["&R", j, "=", htTransactionData[i][cfg.transactionIndex.y]]);
+	                query = query.concat(["I", j, "=", htTransactionData[i][0]]);
+	                query = query.concat(["&T", j, "=", htTransactionData[i][1]]);
+	                query = query.concat(["&R", j, "=", htTransactionData[i][2]]);
 	                nLastFetchedIndex++;
 	            }
 	            nFetchCount++;
