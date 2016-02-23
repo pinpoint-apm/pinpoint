@@ -136,10 +136,16 @@ public class ScatterData {
 
 
     public long getOldestAcceptedTime() {
+        if (oldestAcceptedTime == Long.MAX_VALUE) {
+            return -1;
+        }
         return oldestAcceptedTime;
     }
 
     public long getLatestAcceptedTime() {
+        if (latestAcceptedTime == Long.MIN_VALUE) {
+            return -1;
+        }
         return latestAcceptedTime;
     }
 
