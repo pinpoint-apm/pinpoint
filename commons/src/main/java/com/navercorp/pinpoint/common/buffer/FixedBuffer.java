@@ -520,7 +520,7 @@ public class FixedBuffer implements Buffer {
         try {
             return new String(buffer, offset, size, UTF8);
         } catch (UnsupportedEncodingException ue) {
-            throw new RuntimeException(ue.getMessage(), ue);
+            return new String(buffer, offset, size, UTF8_CHARSET);
         }
     }
 

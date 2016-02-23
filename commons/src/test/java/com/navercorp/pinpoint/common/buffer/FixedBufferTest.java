@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Random;
@@ -34,6 +33,7 @@ import java.util.Random;
  * @author emeroad
  */
 public class FixedBufferTest {
+    public static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private Random random = new Random();
@@ -47,10 +47,10 @@ public class FixedBufferTest {
         testPutPrefixedBytes("", endExpected);
     }
 
-    private void testPutPrefixedBytes(String test, int expected) throws UnsupportedEncodingException {
+    private void testPutPrefixedBytes(String test, int expected) {
         Buffer buffer = new FixedBuffer(1024);
         if (test != null) {
-            buffer.putPrefixedBytes(test.getBytes("UTF-8"));
+            buffer.putPrefixedBytes(test.getBytes(UTF8_CHARSET));
         } else {
             buffer.putPrefixedString(null);
         }
@@ -215,14 +215,14 @@ public class FixedBufferTest {
 
     }
 
-    private void checkPut2PrefixedBytes(String test, int expected) throws UnsupportedEncodingException {
+    private void checkPut2PrefixedBytes(String test, int expected) {
         checkPut2PrefixedBytes(test, expected, 1024);
     }
 
-    private void checkPut2PrefixedBytes(String test, int expected, int bufferSize) throws UnsupportedEncodingException {
+    private void checkPut2PrefixedBytes(String test, int expected, int bufferSize) {
         Buffer buffer = new FixedBuffer(bufferSize);
         if (test != null) {
-            buffer.put2PrefixedBytes(test.getBytes("UTF-8"));
+            buffer.put2PrefixedBytes(test.getBytes(UTF8_CHARSET));
         } else {
             buffer.put2PrefixedBytes(null);
         }
@@ -249,10 +249,10 @@ public class FixedBufferTest {
 
     }
 
-    private void checkPut4PrefixedBytes(String test, int expected) throws UnsupportedEncodingException {
+    private void checkPut4PrefixedBytes(String test, int expected) {
         Buffer buffer = new FixedBuffer(1024);
         if (test != null) {
-            buffer.put4PrefixedBytes(test.getBytes("UTF-8"));
+            buffer.put4PrefixedBytes(test.getBytes(UTF8_CHARSET));
         } else {
             buffer.put4PrefixedBytes(null);
         }
