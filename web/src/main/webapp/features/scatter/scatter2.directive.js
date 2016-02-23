@@ -42,10 +42,12 @@
 				"1": ["Success", "#2ca02c", 10]
 			},
 			"propertyIndex": {
-				x: 0,
-				y: 1,
-				transactionId: 2,
-				type: 3
+				"x": 0,
+				"y": 1,
+				"meta": 2,
+				"transactionId": 3,
+				"type": 4,
+				"groupCount": 5
 			},
 			"checkBoxImage": {
 				"checked" : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6ODk0MjRENUI2Qjk2MTFFM0E3NkNCRkIyQTkxMjZFQjMiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6ODk0MjRENUM2Qjk2MTFFM0E3NkNCRkIyQTkxMjZFQjMiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo4OTQyNEQ1OTZCOTYxMUUzQTc2Q0JGQjJBOTEyNkVCMyIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo4OTQyNEQ1QTZCOTYxMUUzQTc2Q0JGQjJBOTEyNkVCMyIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PkJ02akAAAEfSURBVHjalJI/aoRQEMbnrU8RRVYsBAXJASxEtLGRXEDIJXKTpPcOHiDl1gsp1QvEIiD2AbGLmpm3f7Is68YMjOOb9/0Y/Rg2zzPEcTzDP6IsS7Y5QXTAsibFIH4BQVVVi1Mcx9liyTFN13W/+JpPI0iSpL1hGEHf9+E0TSBAxtifkGVZgSzLgBkMwwCbNZNOEIVpmo3v+78gigLMt+O/3IR0XW/yPH/uuu4AEqQoComeSIznhyUoDMP3cRwPoKZpLyjaqqoKJOacfy5B6Mc39QRYFMUrOtbQO4lt24Z70BlMkqSkSxJdmrMEiYiiSGwOrh6v6/oxTdMP6lGlM/Wv3RYMPY55hrMs292DKNn1kqOb4HketG0L5N5CsB8BBgCZjoUNsxfiYwAAAABJRU5ErkJggg==",
@@ -98,8 +100,8 @@
 							loadFromStorage: function( key ) {
 								return webStorage.get( key );
 							},
-							onSelect: function( htPosition, htXY ) {
-								var token = application + "|" + htXY.fromX + "|" + htXY.toX + "|" + htXY.fromY + "|" + htXY.toY;
+							onSelect: function( oDragAreaPosition, oDragXY ) {
+								var token = application + "|" + oDragXY.fromX + "|" + oDragXY.toX + "|" + oDragXY.fromY + "|" + oDragXY.toY;
 								$window.open("#/transactionList/" + oNavbarVoService.getPartialURL( true, false ), token);
 							}
 						}, CONST_SET.AGENT_ALL );
@@ -109,9 +111,8 @@
 								console.log( "1. Type - load data" );
 								console.log( applicationName, start, end, filter );
 								console.log("-----------------------------------");
-								//oScatterChart.drawWithDataSource(getDataSource(applicationName, start, end, filter));
 								oScatterChart.drawWithDataSource( new BigScatterChart2.DataManager( applicationName, start, end, filter, {
-									"url": "/getScatterData.pinpoint",
+									"url": "/getScatterDataMadeOfDotGroup.pinpoint",
 									"nFetchLimit": 5000,
 									"nFetchingInterval": 2000,
 									"useIntervalForFetching": false
@@ -167,58 +168,6 @@
 							scatterSet.scatter.pause();
 						});
 					};
-					function getDataSource(application, from, to, filter) {
-						var bDrawOnceAll = false;
-						var htDataSource = {
-							sUrl: function (nFetchIndex) {
-								return cfg.get.scatterData;
-							},
-							htParam: function (nFetchIndex, htLastFetchedData) {
-								// calculate parameter
-								var htData = {
-									"v": 3,
-									"to": nFetchIndex === 0 ? to : htLastFetchedData.resultFrom - 1,
-									"from": from,
-									"limit": cfg.nFetchLimit,
-									"application": application
-								};
-								if (filter) {
-									htData.filter = filter;
-								}
-								return htData;
-							},
-							nFetch: function (htLastFetchedData) {
-								if (htLastFetchedData.resultFrom - 1 > from) {
-									if (cfg.useIntervalForFetching) {
-										bDrawOnceAll = true;
-										return cfg.nFetchingInterval;
-									}
-									// TO THE NEXT
-									return 0;
-								}
-
-								// STOP
-								return -1;
-							},
-							htOption: {
-								headers: {
-									accept: "application/json"
-								},
-								dataType: "json"
-							},
-							index: {
-								x: 0,
-								y: 1,
-								transactionId: 2,
-								type: 3
-							},
-							type: {
-								"0": "Failed",
-								"1": "Success"
-							}
-						};
-						return htDataSource;
-					}
 					function initScatterHash() {
 						for (var p in htScatterSet) {
 							htScatterSet[p].scatter.abortAjax();
@@ -276,10 +225,10 @@
 						showScatterBy(node.key);
 					});
 					scope.$on("responseTimeChartDirective.showErrorTransacitonList", function() {
-						$window.htoScatter[htLastNode.key].selectFailedOnly().fireDragEvent({
+						$window.htoScatter[htLastNode.key].selectType( "Failed" ).fireDragEvent({
 							animate: function() {},
-							css : function( param ) {
-								return ( param === "left" ) ? "51px" : "40px";
+							css : function() {
+								return 0;
 							},
 							width: function() {
 								return 320;

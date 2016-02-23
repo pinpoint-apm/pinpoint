@@ -338,18 +338,18 @@
 			ctx.clearRect( 0, 0, width, height );
 		});
 	};
-	CanvasManager.prototype.selectType = function( type ) {
+	CanvasManager.prototype.selectType = function( agentName, type ) {
 		$.each( this._oElCanvas, function( key, $elCanvas ) {
-			if ( key.endsWith( type ) !== -1 ) {
-				$elCanvas.hide();
-			} else {
+			if ( BigScatterChart2.Util.endsWith( key, type ) ) {
 				$elCanvas.show();
+			} else {
+				$elCanvas.hide();
 			}
 		});
 	};
 	CanvasManager.prototype.toggle = function( type ) {
 		$.each( this._oElCanvas, function( key, $elCanvas ) {
-			if ( key.endsWith( type ) ) {
+			if ( BigScatterChart2.Util.endsWith( key, type ) ) {
 				$elCanvas.toggle();
 			}
 		});
@@ -360,7 +360,7 @@
 			if ( bIsAll ) {
 				$elCanvas[ self._visible( key.split("-"), oTypeCheckInfo ) ? "show" : "hide" ]();
 			} else {
-				if ( key.startsWith( agentName ) ) {
+				if ( BigScatterChart2.Util.startsWith( key, agentName ) ) {
 					$elCanvas[ self._visible( key.split("-"), oTypeCheckInfo ) ? "show" : "hide" ]();
 				} else {
 					$elCanvas.hide();

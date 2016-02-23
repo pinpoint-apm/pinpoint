@@ -1,6 +1,7 @@
 (function(global, $) {
 	'use strict';
 	function DataManager( application, from, to, filter, option ) {
+		console.log( application, from, to );
 		this._option = option;
 		this._application = application;
 		this._from = from;
@@ -35,14 +36,18 @@
 				callbackComplete();
 			},
 			"success": function( oResultData ) {
-				self._callCount += 1;
-				self._lastLoadFrom = oResultData.resultFrom;
-				callbackSuccess( oResultData, self.hasNextData( oResultData.resultFrom ) );
+				if ( oResultData.exception ) {
+
+				} else {
+					self._callCount += 1;
+					self._lastLoadFrom = oResultData.resultFrom;
+					callbackSuccess(oResultData, self._hasNextData());
+				}
 			}
 		});
 	};
-	DataManager.prototype.hasNextData = function( resultFrom ) {
-		if ( resultFrom - 1 > this._from ) {
+	DataManager.prototype._hasNextData = function() {
+		if ( this._lastLoadFrom - 1 > this._from ) {
 			if (this.option( "useIntervalForFetching" ) ) {
 				return this.option( "nFetchingInterval" );
 			}
