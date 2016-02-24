@@ -16,11 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
-import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
-import com.navercorp.pinpoint.web.applicationmap.LinkList;
-import com.navercorp.pinpoint.web.applicationmap.NodeList;
 import com.navercorp.pinpoint.web.vo.Range;
-
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -37,7 +33,7 @@ public class ApplicationMapTest {
 
     @Test
     public void root() throws IOException {
-        ApplicationMap app = new ApplicationMap(new Range(0, 1), new NodeList(), new LinkList());
+        ApplicationMap app = new DefaultApplicationMap(new Range(0, 1), new NodeList(), new LinkList());
         String s = MAPPER.writeValueAsString(app);
         logger.debug(s);
 

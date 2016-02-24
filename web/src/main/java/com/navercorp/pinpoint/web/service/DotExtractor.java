@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.vo.*;
 import com.navercorp.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
@@ -39,7 +40,7 @@ public class DotExtractor {
     private final Range range;
     private final ApplicationFactory applicationFactory;
 
-    private Map<Application, List<Dot>> dotMap = new HashMap<>();
+    private final Map<Application, List<Dot>> dotMap = new HashMap<>();
 
 
     public DotExtractor(Range range, ApplicationFactory applicationFactory) {
@@ -86,4 +87,19 @@ public class DotExtractor {
         }
         return applicationScatterScanResult;
     }
+
+    public Map<Application, ScatterData> getApplicationScatterData(long from, long to, int xGroupUnitMillis, int yGroupUnitMillis) {
+        Map<Application, ScatterData> applicationScatterDataMap = new HashMap<>();
+        for (Map.Entry<Application, List<Dot>> entry : this.dotMap.entrySet()) {
+            Application application = entry.getKey();
+            List<Dot> dotList = entry.getValue();
+
+            ScatterData scatterData = new ScatterData(from, to, xGroupUnitMillis, yGroupUnitMillis);
+            scatterData.addDot(dotList);
+
+            applicationScatterDataMap.put(application, scatterData);
+        }
+        return applicationScatterDataMap;
+    }
+
 }
