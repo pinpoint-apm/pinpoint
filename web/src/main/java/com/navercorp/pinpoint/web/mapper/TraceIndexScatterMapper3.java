@@ -33,11 +33,13 @@ import org.springframework.data.hadoop.hbase.RowMapper;
 public class TraceIndexScatterMapper3 implements RowMapper<ScatterData> {
 
     private final long from;
+    private final long to;
     private final int xGroupUnit;
     private final int yGroupUnit;
 
-    public TraceIndexScatterMapper3(long from, int xGroupUnit, int yGroupUnit) {
+    public TraceIndexScatterMapper3(long from, long to, int xGroupUnit, int yGroupUnit) {
         this.from = from;
+        this.to = to;
         this.xGroupUnit = xGroupUnit;
         this.yGroupUnit = yGroupUnit;
     }
@@ -45,10 +47,10 @@ public class TraceIndexScatterMapper3 implements RowMapper<ScatterData> {
     @Override
     public ScatterData mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
-            return new ScatterData(from, xGroupUnit, yGroupUnit);
+            return new ScatterData(from, to, xGroupUnit, yGroupUnit);
         }
 
-        ScatterData scatterData = new ScatterData(from, xGroupUnit, yGroupUnit);
+        ScatterData scatterData = new ScatterData(from, to, xGroupUnit, yGroupUnit);
 
         Cell[] rawCells = result.rawCells();
         for (Cell cell : rawCells) {

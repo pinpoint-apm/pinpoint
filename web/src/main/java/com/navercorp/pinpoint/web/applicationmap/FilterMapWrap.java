@@ -18,9 +18,6 @@ package com.navercorp.pinpoint.web.applicationmap;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.view.FilterMapWrapSerializer;
-import com.navercorp.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
-
-import java.util.List;
 
 /**
  * @author emeroad
@@ -47,7 +44,4 @@ public class FilterMapWrap {
         return lastFetchedTimestamp;
     }
 
-    public List<ApplicationScatterScanResult> getApplicationScatterScanResult() {
-        return this.applicationMap.getApplicationScatterScanResultList();
-    }
 }

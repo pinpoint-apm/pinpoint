@@ -20,13 +20,17 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterData;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterScanResult;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWrap;
 import com.navercorp.pinpoint.web.applicationmap.Node;
+import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author emeroad
@@ -37,20 +41,45 @@ public class FilterMapWrapSerializer extends JsonSerializer<FilterMapWrap> {
         jgen.writeStartObject();
 
         jgen.writeObjectField("applicationMapData", wrap.getApplicationMap());
-
         jgen.writeNumberField("lastFetchedTimestamp", wrap.getLastFetchedTimestamp());
 
-        final List<ApplicationScatterScanResult> applicationScatterScanResult = wrap.getApplicationScatterScanResult();
+        if (wrap.getApplicationMap() instanceof ApplicationMapWithScatterScanResult) {
+            final List<ApplicationScatterScanResult> applicationScatterScanResult = ((ApplicationMapWithScatterScanResult) wrap.getApplicationMap()).getApplicationScatterScanResultList();
 
-        jgen.writeFieldName("applicationScatterScanResult");
-        jgen.writeStartObject();
-        for (ApplicationScatterScanResult scatterScanResult : applicationScatterScanResult) {
-            Application application = scatterScanResult.getApplication();
-            String name = application.getName() + Node.NODE_DELIMITER + application.getServiceType().toString();
-            jgen.writeObjectField(name, scatterScanResult.getScatterScanResult());
+            jgen.writeFieldName("applicationScatterScanResult");
+            jgen.writeStartObject();
+            for (ApplicationScatterScanResult scatterScanResult : applicationScatterScanResult) {
+                Application application = scatterScanResult.getApplication();
+                String name = application.getName() + Node.NODE_DELIMITER + application.getServiceType().toString();
+                jgen.writeObjectField(name, scatterScanResult.getScatterScanResult());
+            }
+            jgen.writeEndObject();
         }
-        jgen.writeEndObject();
 
+        if (wrap.getApplicationMap() instanceof ApplicationMapWithScatterData) {
+            Map<Application, ScatterData> applicationScatterDataMap = ((ApplicationMapWithScatterData) wrap.getApplicationMap()).getApplicationScatterDataMap();
+
+            jgen.writeFieldName("applicationScatterData");
+            jgen.writeStartObject();
+
+            for (Map.Entry<Application, ScatterData> entry : applicationScatterDataMap.entrySet()) {
+                Application application = entry.getKey();
+                String name = application.getName() + Node.NODE_DELIMITER + application.getServiceType().toString();
+                jgen.writeFieldName(name);
+
+                ScatterData scatterData = entry.getValue();
+
+                jgen.writeStartObject();
+                jgen.writeObjectField("from", scatterData.getFrom());
+                jgen.writeObjectField("to", scatterData.getTo());
+                jgen.writeObjectField("resultFrom", scatterData.getOldestAcceptedTime());
+                jgen.writeObjectField("resultTo", scatterData.getLatestAcceptedTime());
+                jgen.writeObjectField("scatter", scatterData);
+                jgen.writeEndObject();
+            }
+
+            jgen.writeEndObject();
+        }
 
         jgen.writeEndObject();
     }
