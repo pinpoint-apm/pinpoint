@@ -42,6 +42,7 @@ public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
         addConnectionTransformer(config);
         addDriverTransformer();
         addPreparedStatementTransformer(config);
+        addCallableStatementTransformer();
         addStatementTransformer();
     }
 
@@ -109,6 +110,24 @@ public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
                 if (config.isTraceSqlBindValue()) {
                     target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", JtdsConstants.JTDS_SCOPE);
                 }
+
+                return target.toBytecode();
+            }
+        });
+    }
+
+    private void addCallableStatementTransformer() {
+        transformTemplate.transform("net.sourceforge.jtds.jdbc.JtdsCallableStatement", new TransformCallback() {
+
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
+                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
+                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor");
+
+                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementRegisterOutParameterInterceptor", JtdsConstants.JTDS_SCOPE);
 
                 return target.toBytecode();
             }
