@@ -37,6 +37,8 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
     private static final String CLASS_STATEMENT = "oracle.jdbc.driver.OracleStatement";
     private static final String CLASS_PREPARED_STATEMENT_WRAPPER = "oracle.jdbc.driver.OraclePreparedStatementWrapper";
     private static final String CLASS_PREPARED_STATEMENT = "oracle.jdbc.driver.OraclePreparedStatement";
+    private static final String CLASS_CALLABLE_STATEMENT_WRAPPER = "oracle.jdbc.driver.OracleCallableStatementWrapper";
+    private static final String CLASS_CALLABLE_STATEMENT = "oracle.jdbc.driver.OracleCallableStatement";
 
     private TransformTemplate transformTemplate;
 
@@ -47,6 +49,7 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
         addConnectionTransformer(config);
         addDriverTransformer();
         addPreparedStatementTransformer(config);
+        addCallableStatementTransformer();
         addStatementTransformer();
     }
 
@@ -126,6 +129,32 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
 
         transformTemplate.transform(CLASS_PREPARED_STATEMENT, transformer);
         transformTemplate.transform(CLASS_PREPARED_STATEMENT_WRAPPER, transformer);
+    }
+
+    private void addCallableStatementTransformer() {
+        TransformCallback transformer = new TransformCallback() {
+
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                if (className.equals(CLASS_CALLABLE_STATEMENT)) {
+                    if (instrumentor.exist(loader, CLASS_CALLABLE_STATEMENT_WRAPPER)) {
+                        return null;
+                    }
+                }
+
+                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
+                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
+                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor");
+
+                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementRegisterOutParameterInterceptor", OracleConstants.ORACLE_SCOPE);
+
+                return target.toBytecode();
+            }
+        };
+
+        transformTemplate.transform(CLASS_CALLABLE_STATEMENT, transformer);
+        transformTemplate.transform(CLASS_CALLABLE_STATEMENT_WRAPPER, transformer);
     }
 
     private void addStatementTransformer() {
