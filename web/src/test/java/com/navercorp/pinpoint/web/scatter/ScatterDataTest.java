@@ -36,10 +36,11 @@ public class ScatterDataTest {
         int count = 100;
 
         long from = 1000;
+        long to = 10000;
         int xGroupUnit = 100;
         int yGroupUnit = 100;
 
-        ScatterData scatterData = new ScatterData(from, xGroupUnit, yGroupUnit);
+        ScatterData scatterData = new ScatterData(from, to, xGroupUnit, yGroupUnit);
         List<Dot> dotList = createDotList("agent", "transactionAgent", count, from);
 
         for (Dot dot : dotList) {
@@ -55,13 +56,14 @@ public class ScatterDataTest {
         int count = 100;
 
         long from = 1000;
+        long to = 10000;
         int xGroupUnit = 100;
         int yGroupUnit = 100;
 
-        ScatterData scatterData = new ScatterData(from, xGroupUnit, yGroupUnit);
+        ScatterData scatterData = new ScatterData(from, to, xGroupUnit, yGroupUnit);
         List<Dot> dotList = createDotList("agent", "transactionAgent", count, from);
         for (Dot dot : dotList) {
-            ScatterData newScatterData = new ScatterData(from, xGroupUnit, yGroupUnit);
+            ScatterData newScatterData = new ScatterData(from, to, xGroupUnit, yGroupUnit);
             newScatterData.addDot(dot);
             scatterData.merge(newScatterData);
         }

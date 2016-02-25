@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -36,6 +37,7 @@ public class ScatterData {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final long from;
+    private final long to;
     private final int xGroupUnitMillis;
     private final int yGroupUnitMillis;
 
@@ -45,10 +47,24 @@ public class ScatterData {
     private long oldestAcceptedTime = Long.MAX_VALUE;
     private long latestAcceptedTime = Long.MIN_VALUE;
 
-    public ScatterData(long from, int xGroupUnitMillis, int yGroupUnitMillis) {
+    public ScatterData(long from, long to, int xGroupUnitMillis, int yGroupUnitMillis) {
+        if (from <= 0) {
+            throw new IllegalArgumentException("from value must be higher than 0");
+        }
+        if (from > to) {
+            throw new IllegalArgumentException("from value must be lower or equal to to value");
+        }
+
         this.from = from;
+        this.to = to;
         this.xGroupUnitMillis = xGroupUnitMillis;
         this.yGroupUnitMillis = yGroupUnitMillis;
+    }
+
+    public void addDot(List<Dot> dotList) {
+        for (Dot dot : dotList) {
+            addDot(dot);
+        }
     }
 
     public void addDot(Dot dot) {
@@ -134,6 +150,13 @@ public class ScatterData {
         return sortedMap;
     }
 
+    public long getFrom() {
+        return from;
+    }
+
+    public long getTo() {
+        return to;
+    }
 
     public long getOldestAcceptedTime() {
         if (oldestAcceptedTime == Long.MAX_VALUE) {
