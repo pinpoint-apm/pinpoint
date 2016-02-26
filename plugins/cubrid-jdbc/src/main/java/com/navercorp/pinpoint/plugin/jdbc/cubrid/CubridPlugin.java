@@ -43,6 +43,7 @@ public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
         addCUBRIDConnectionTransformer(config);
         addCUBRIDDriverTransformer();
         addCUBRIDPreparedStatementTransformer(config);
+        addCUBRIDCallableStatementTransformer();
         addCUBRIDStatementTransformer();
     }
 
@@ -108,6 +109,24 @@ public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
                 if (config.isTraceSqlBindValue()) {
                     target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", CubridConstants.CUBRID_SCOPE);
                 }
+
+                return target.toBytecode();
+            }
+        });
+    }
+
+    private void addCUBRIDCallableStatementTransformer() {
+        transformTemplate.transform("cubrid.jdbc.driver.CUBRIDCallableStatement", new TransformCallback() {
+
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
+                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
+                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor");
+
+                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementRegisterOutParameterInterceptor", CubridConstants.CUBRID_SCOPE);
 
                 return target.toBytecode();
             }

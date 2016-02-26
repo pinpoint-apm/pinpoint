@@ -44,7 +44,12 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
         addDriverTransformer();
         addPreparedStatementTransformer(config);
         addPreparedStatementBindVariableTransformer(config);
+        addCallableStatementTransformer();
         addStatementTransformer();
+
+        // MariaDb 1.3.x's CallableStatements are completely separated from PreparedStatements (similar to MySQL)
+        // Separate interceptors must be injected.
+        add_1_3_x_CallableStatementTransformer(config);
     }
 
     private void addConnectionTransformer(final MariaDBConfig config) {
@@ -204,6 +209,54 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         transformTemplate.transform("org.mariadb.jdbc.MariaDbStatement", transformer);
 
+    }
+
+    private void addCallableStatementTransformer() {
+        TransformCallback transformer = new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
+                                        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+                                        byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
+                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
+                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor");
+
+                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementRegisterOutParameterInterceptor", MariaDBConstants.MARIADB_SCOPE);
+
+                return target.toBytecode();
+            }
+        };
+
+        transformTemplate.transform("org.mariadb.jdbc.AbstractCallableProcedureStatement", transformer);
+        transformTemplate.transform("org.mariadb.jdbc.AbstractCallableFunctionStatement", transformer);
+    }
+
+    private void add_1_3_x_CallableStatementTransformer(final MariaDBConfig config) {
+        transformTemplate.transform("org.mariadb.jdbc.MariaDbCallableStatement", new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
+                                        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+                                        byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
+                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
+                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor");
+
+                int maxBindValueSize = config.getMaxSqlBindValueSize();
+
+                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementExecuteQueryInterceptor", va(maxBindValueSize), MariaDBConstants.MARIADB_SCOPE);
+                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementRegisterOutParameterInterceptor", MariaDBConstants.MARIADB_SCOPE);
+
+                if (config.isTraceSqlBindValue()) {
+                    target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementBindVariableInterceptor", MariaDBConstants.MARIADB_SCOPE);
+                }
+
+                return target.toBytecode();
+            }
+        });
     }
 
     @Override
