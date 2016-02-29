@@ -38,7 +38,10 @@ import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
         @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int[]" }),
         @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "java.lang.String[]" }),
         @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int", "int" }),
-        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int", "int", "int" })
+        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int", "int", "int" }),
+        @TargetMethod(name="prepareCall", paramTypes={ "java.lang.String" }),
+        @TargetMethod(name="prepareCall", paramTypes={ "java.lang.String", "int", "int" }),
+        @TargetMethod(name="prepareCall", paramTypes={ "java.lang.String", "int", "int", "int" })
 })
 public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 

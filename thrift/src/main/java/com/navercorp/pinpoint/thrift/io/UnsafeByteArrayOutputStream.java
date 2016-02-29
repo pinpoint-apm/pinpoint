@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.thrift.io;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 
 /**
@@ -27,6 +28,7 @@ import java.util.Arrays;
 public class UnsafeByteArrayOutputStream extends ResettableByteArrayOutputStream {
 
     private static final String UTF8 = "UTF8";
+    private static final Charset UTF8_CHARSET = Charset.forName(UTF8);
 
 	private final boolean autoExpand;
 
@@ -168,7 +170,7 @@ public class UnsafeByteArrayOutputStream extends ResettableByteArrayOutputStream
         try {
             return toString(UTF8);
         } catch (UnsupportedEncodingException ex) {
-            throw new RuntimeException("toString() fail. Caused:" + ex.getMessage(), ex);
+            return new String(buf, 0, count, UTF8_CHARSET);
         }
     }
 

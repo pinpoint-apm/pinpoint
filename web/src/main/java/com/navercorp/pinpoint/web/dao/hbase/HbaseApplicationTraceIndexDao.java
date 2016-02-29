@@ -305,11 +305,11 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         logger.debug("scanTraceScatterDataMadeOfDotGroup");
         Scan scan = createScan(applicationName, range);
 
-        TraceIndexScatterMapper3 mapper = new TraceIndexScatterMapper3(range.getFrom(), xGroupUnit, yGroupUnit);
+        TraceIndexScatterMapper3 mapper = new TraceIndexScatterMapper3(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
         List<ScatterData> dotGroupList = hbaseOperations2.findParallel(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, limit, mapper, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
 
         if (ListUtils.isEmpty(dotGroupList)) {
-            return new ScatterData(range.getFrom(), xGroupUnit, yGroupUnit);
+            return new ScatterData(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
         } else {
             ScatterData firstScatterData = dotGroupList.get(0);
             for (int i = 1; i < dotGroupList.size(); i++) {

@@ -18,8 +18,7 @@ package com.navercorp.pinpoint.common.util;
 
 
 import java.io.UnsupportedEncodingException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.nio.charset.Charset;
 
 /**
  * @author emeroad
@@ -35,7 +34,7 @@ public final class BytesUtils {
 
     private static final byte[] EMPTY_BYTES = new byte[0];
     private static final String UTF8 = "UTF-8";
-    private static final Logger LOGGER = Logger.getLogger(BytesUtils.class.getName());
+    private static final Charset UTF8_CHARSET = Charset.forName(UTF8);
 
     private BytesUtils() {
     }
@@ -457,11 +456,6 @@ public final class BytesUtils {
     }
 
 
-    private static Logger getLogger() {
-        return Logger.getLogger(BytesUtils.class.getName());
-    }
-
-
     private static int writeSecondLong0(final long value, final byte[] buf, int offset) {
         buf[8 + offset] = (byte) (value >> 56);
         buf[9 + offset] = (byte) (value >> 48);
@@ -545,9 +539,7 @@ public final class BytesUtils {
         try {
             return value.getBytes(UTF8);
         } catch (UnsupportedEncodingException e) {
-            final Logger logger = getLogger();
-            logger.log(Level.SEVERE, "String encoding fail. value:" + value + " Caused:" + e.getMessage(), e);
-            return EMPTY_BYTES;
+            return value.getBytes(UTF8_CHARSET);
         }
     }
 
@@ -648,8 +640,7 @@ public final class BytesUtils {
         try {
             return new String(bytes, offset, length, UTF8);
         } catch (UnsupportedEncodingException e) {
-            LOGGER.log(Level.SEVERE, "UTF-8 encoding fail.", e);
-            return null;
+            return new String(bytes, offset, length, UTF8_CHARSET);
         }
     }
 

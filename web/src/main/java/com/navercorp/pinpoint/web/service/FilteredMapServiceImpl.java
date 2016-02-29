@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterData;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterScanResult;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
@@ -31,8 +33,13 @@ import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
-import com.navercorp.pinpoint.web.vo.*;
-import com.navercorp.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.LimitedScanResult;
+import com.navercorp.pinpoint.web.vo.LoadFactor;
+import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.ResponseHistogramBuilder;
+import com.navercorp.pinpoint.web.vo.SelectedScatterArea;
+import com.navercorp.pinpoint.web.vo.TransactionId;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -41,7 +48,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author netspider
@@ -197,12 +210,40 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
         final List<List<SpanBo>> filterList = selectFilteredSpan(transactionIdList, filter);
 
+        DotExtractor dotExtractor = createDotExtractor(scanRange, filterList);
         ApplicationMap map = createMap(originalRange, scanRange, filterList);
+
+        ApplicationMapWithScatterScanResult applicationMapWithScatterScanResult = new ApplicationMapWithScatterScanResult(map, dotExtractor.getApplicationScatterScanResult());
 
         watch.stop();
         logger.debug("Select filtered application map elapsed. {}ms", watch.getTotalTimeMillis());
 
-        return map;
+        return applicationMapWithScatterScanResult;
+    }
+
+    @Override
+    public ApplicationMap selectApplicationMapWithScatterData(List<TransactionId> transactionIdList, Range originalRange, Range scanRange, int xGroupUnit, int yGroupUnit, Filter filter) {
+        if (transactionIdList == null) {
+            throw new NullPointerException("transactionIdList must not be null");
+        }
+        if (filter == null) {
+            throw new NullPointerException("filter must not be null");
+        }
+
+        StopWatch watch = new StopWatch();
+        watch.start();
+
+        final List<List<SpanBo>> filterList = selectFilteredSpan(transactionIdList, filter);
+
+        DotExtractor dotExtractor = createDotExtractor(scanRange, filterList);
+        ApplicationMap map = createMap(originalRange, scanRange, filterList);
+
+        ApplicationMapWithScatterData applicationMapWithScatterData = new ApplicationMapWithScatterData(map, dotExtractor.getApplicationScatterData(originalRange.getFrom(), originalRange.getTo(), xGroupUnit, yGroupUnit));
+
+        watch.stop();
+        logger.debug("Select filtered application map elapsed. {}ms", watch.getTotalTimeMillis());
+
+        return applicationMapWithScatterData;
     }
 
     private List<List<SpanBo>> selectFilteredSpan(List<TransactionId> transactionIdList, Filter filter) {
@@ -216,6 +257,23 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return filterList2(originalList, filter);
     }
 
+    private DotExtractor createDotExtractor(Range scanRange, List<List<SpanBo>> filterList) {
+        final DotExtractor dotExtractor = new DotExtractor(scanRange, applicationFactory);
+
+        for (List<SpanBo> transaction : filterList) {
+            for (SpanBo span : transaction) {
+                final Application spanApplication = this.applicationFactory.createApplication(span.getApplicationId(), span.getApplicationServiceType());
+                if (!spanApplication.getServiceType().isRecordStatistics() || spanApplication.getServiceType().isRpcClient()) {
+                    continue;
+                }
+
+                dotExtractor.addDot(span);
+            }
+        }
+
+        return dotExtractor;
+    }
+
     private ApplicationMap createMap(Range range, Range scanRange, List<List<SpanBo>> filterList) {
 
         // TODO inject TimeWindow from elsewhere 
@@ -224,7 +282,6 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
         final LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
 
-        final DotExtractor dotExtractor = new DotExtractor(scanRange, applicationFactory);
         final ResponseHistogramBuilder mapHistogramSummary = new ResponseHistogramBuilder(range);
         /**
          * Convert to statistical data
@@ -275,16 +332,12 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
 
                 addNodeFromSpanEvent(span, window, linkDataDuplexMap, transactionSpanMap);
-                dotExtractor.addDot(span);
             }
         }
-        List<ApplicationScatterScanResult> applicationScatterScanResult = dotExtractor.getApplicationScatterScanResult();
 
         ApplicationMapBuilder applicationMapBuilder = new ApplicationMapBuilder(range);
         mapHistogramSummary.build();
         ApplicationMap map = applicationMapBuilder.build(linkDataDuplexMap, mapHistogramSummary);
-
-        map.setApplicationScatterScanResult(applicationScatterScanResult);
 
         return map;
     }

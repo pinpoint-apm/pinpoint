@@ -44,10 +44,12 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
         addDriverTransformer();
         addStatementTransformer();
         addPreparedStatementTransformer(config);
+        addCallableStatementTransformer(config);
 
         // From MySQL driver 5.1.x, backward compatibility is broken.
         // Driver returns not com.mysql.jdbc.Connection but com.mysql.jdbc.JDBC4Connection which extends com.mysql.jdbc.ConnectionImpl from 5.1.x
         addJDBC4PreparedStatementTransformer(config);
+        addJDBC4CallableStatementTransformer(config);
     }
 
     private void addConnectionTransformer(final MySqlConfig config) {
@@ -127,6 +129,32 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
+    private void addCallableStatementTransformer(final MySqlConfig config) {
+        transformTemplate.transform("com.mysql.jdbc.CallableStatement", new TransformCallback() {
+
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
+                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
+                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor");
+
+                int maxBindValueSize = config.getMaxSqlBindValueSize();
+
+                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementExecuteQueryInterceptor", va(maxBindValueSize), MySqlConstants.MYSQL_SCOPE);
+                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementRegisterOutParameterInterceptor", MySqlConstants.MYSQL_SCOPE);
+
+                if (config.isTraceSqlBindValue()) {
+                    final PreparedStatementBindingMethodFilter excludes = PreparedStatementBindingMethodFilter.excludes("setRowId", "setNClob", "setSQLXML");
+                    target.addScopedInterceptor(excludes, "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementBindVariableInterceptor", MySqlConstants.MYSQL_SCOPE, ExecutionPolicy.BOUNDARY);
+                }
+
+                return target.toBytecode();
+            }
+        });
+    }
+
     private void addJDBC4PreparedStatementTransformer(final MySqlConfig config) {
         transformTemplate.transform("com.mysql.jdbc.JDBC4PreparedStatement", new TransformCallback() {
 
@@ -144,6 +172,22 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
+    private void addJDBC4CallableStatementTransformer(final MySqlConfig config) {
+        transformTemplate.transform("com.mysql.jdbc.JDBC4CallableStatement", new TransformCallback() {
+
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+                if (config.isTraceSqlBindValue()) {
+                    final PreparedStatementBindingMethodFilter includes = PreparedStatementBindingMethodFilter.includes("setRowId", "setNClob", "setSQLXML");
+                    target.addScopedInterceptor(includes, "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementBindVariableInterceptor", MySqlConstants.MYSQL_SCOPE, ExecutionPolicy.BOUNDARY);
+                }
+
+                return target.toBytecode();
+            }
+        });
+    }
 
     private void addStatementTransformer() {
         TransformCallback transformer = new TransformCallback() {

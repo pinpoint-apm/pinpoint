@@ -64,7 +64,7 @@ public class ApplicationMapBuilder {
             }
         }
         if (runningAgents.isEmpty()) {
-            return new ApplicationMap(range, nodeList, emptyLinkList);
+            return new DefaultApplicationMap(range, nodeList, emptyLinkList);
         } else {
             ServerBuilder serverBuilder = new ServerBuilder();
             serverBuilder.addAgentInfo(runningAgents);
@@ -72,7 +72,7 @@ public class ApplicationMapBuilder {
             node.setServerInstanceList(serverInstanceList);
             node.setNodeHistogram(new NodeHistogram(application, range));
             nodeList.addNode(node);
-            return new ApplicationMap(range, nodeList, emptyLinkList);
+            return new DefaultApplicationMap(range, nodeList, emptyLinkList);
         }
     }
 
@@ -91,7 +91,7 @@ public class ApplicationMapBuilder {
         appendNodeResponseTime(nodeList, linkList, nodeHistogramDataSource);
         appendAgentInfo(nodeList, linkDataDuplexMap, agentInfoPopulator);
 
-        final ApplicationMap map = new ApplicationMap(range, nodeList, linkList);
+        final ApplicationMap map = new DefaultApplicationMap(range, nodeList, linkList);
         return map;
     }
 

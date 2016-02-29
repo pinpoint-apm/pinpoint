@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.collector.config;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.SystemProperty;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -28,7 +27,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 import java.io.FileNotFoundException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -316,7 +315,12 @@ public class CollectorConfiguration implements InitializingBean {
         if (l4Ips == null) {
             this.l4IpList = Collections.emptyList();
         } else {
-            this.l4IpList = Arrays.asList(l4Ips);
+            this.l4IpList = new ArrayList<>(l4Ips.length);
+            for (String l4Ip : l4Ips) {
+                if (!StringUtils.isEmpty(l4Ip)) {
+                    this.l4IpList.add(StringUtils.trim(l4Ip));
+                }
+            }
         }
         
         this.clusterEnable = readBoolean(properties, "cluster.enable");

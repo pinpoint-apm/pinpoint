@@ -201,13 +201,21 @@ public class AgentStat {
 
     @Override
     public String toString() {
-        return "AgentStat [agentId=" + agentId + ", timestamp=" + timestamp + ", collectInterval=" + collectInterval
-                + ", gcType=" + gcType + ", gcOldCount=" + gcOldCount + ", gcOldTime=" + gcOldTime
-                + ", heapUsed=" + heapUsed + ", heapMax=" + heapMax + ", nonHeapUsed=" + nonHeapUsed
-                + ", nonHeapMax=" + nonHeapMax + ", jvmCpuUsage=" + jvmCpuUsage + ", systemCpuUsage=" + systemCpuUsage
-                + ", sampledNewCount=" + sampledNewCount + ", sampledContinuationCount=" + sampledContinuationCount
-                + ", unsampledNewCount=" + unsampledNewCount + ", unsampledContinuationCount=" + unsampledContinuationCount
-                + ", histogramSchemaTypeCode=" + histogramSchema.getTypeCode() + ", activeTraceCounts=" + activeTraceCounts + "]";
+        StringBuilder sb = new StringBuilder("AgentStat [");
+        sb.append("agentId=" + agentId + ", timestamp=" + timestamp + ", collectInterval=" + collectInterval);
+        sb.append(", gcType=" + gcType + ", gcOldCount=" + gcOldCount + ", gcOldTime=" + gcOldTime);
+        sb.append(", heapUsed=" + heapUsed + ", heapMax=" + heapMax + ", nonHeapUsed=" + nonHeapUsed);
+        sb.append(", nonHeapMax=" + nonHeapMax + ", jvmCpuUsage=" + jvmCpuUsage + ", systemCpuUsage=" + systemCpuUsage);
+        sb.append(", sampledNewCount=" + sampledNewCount + ", sampledContinuationCount=" + sampledContinuationCount);
+        sb.append(", unsampledNewCount=" + unsampledNewCount + ", unsampledContinuationCount=" + unsampledContinuationCount);
+        if (histogramSchema != null) {
+            sb.append(", histogramSchemaTypeCode=" + histogramSchema.getTypeCode());
+        }
+        if (activeTraceCounts != null) {
+            sb.append(", activeTraceCounts=" + activeTraceCounts);
+        }
+        sb.append("]");
+        return sb.toString();
     }
 
 }
