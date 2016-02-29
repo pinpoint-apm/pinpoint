@@ -15,6 +15,8 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Collection;
 
 /**
@@ -22,8 +24,11 @@ import java.util.Collection;
  */
 public interface ApplicationMap {
 
+
+    @JsonProperty("nodeDataArray")
     Collection<Node> getNodes();
 
+    @JsonProperty("linkDataArray")
     Collection<Link> getLinks();
 
 }
