@@ -15,10 +15,11 @@
 	BlockData.prototype._splitDataByAgent = function( oPropertyIndex, oTypeInfo ) {
 		var self = this;
 		this._oPropertyIndex = oPropertyIndex;
+		this._oTypeInfo = oTypeInfo;
 		this._oAgentData = {};
 		this._oCountOfType = {};
 		$.each( this._oAgentMetaInfo, function( key, oValue ) {
-			var agentName = oValue[1];
+			var agentName = oValue[0];
 			self._oAgentData[agentName] = [];
 			self._oCountOfType[agentName] = {};
 			$.each( oTypeInfo, function( key, aValue ) {
@@ -35,15 +36,15 @@
 			aValue[0] += self._from;
 			self._oAgentData[ agentName ].push( aValue );
 			self._oCountOfType[agentName][ oTypeInfo[aValue[oPropertyIndex.type] + "" ][0] ]++;
-
 		});
+
 		this._minX = this._aAllData[0][oPropertyIndex.x];
 		this._maxX = this._aAllData[this._aAllData.length - 1][oPropertyIndex.x];
 		this._minY = minY;
 		this._maxY = maxY;
 	};
 	BlockData.prototype._getAgentName = function( key ) {
-		return this._oAgentMetaInfo[ key ][1];
+		return this._oAgentMetaInfo[ key ][0];
 	};
 	BlockData.prototype.getDataByAgent = function( agent, index ) {
 		return this._oAgentData[agent][index];
@@ -55,20 +56,43 @@
 		return this._aAllData.length;
 	};
 	BlockData.prototype.countByAgent = function( agent ) {
-		return this._oAgentData[agent].length;
+		if ( this._oAgentData[agent] ) {
+			return this._oAgentData[agent].length;
+		} else {
+			return 0;
+		}
 	};
-	BlockData.prototype.getCountByType = function( type ) {
+	//BlockData.prototype.getCountByType = function( type ) {
+	//	var sum = 0;
+	//	$.each( this._oCountOfType, function( agentName, oCountData ) {
+	//		sum += oCountData[type];
+	//	});
+	//	return sum;
+	//};
+	BlockData.prototype.getCount = function( agentName, type, minX, maxX ) {
+		if ( arguments.length === 2 || minX <= this._minX && this._maxX <= maxX ) {
+			if (this._oCountOfType[agentName]) {
+				return this._oCountOfType[agentName][type];
+			} else {
+				return 0;
+			}
+		} else {
+			return this._getRealtimeCount( agentName, type, minX, maxX );
+		}
+	};
+	BlockData.prototype._getRealtimeCount = function( agentName, type, minX, maxX ) {
+		var self = this;
 		var sum = 0;
-		$.each( this._oCountOfType, function( agentName, oCountData ) {
-			sum += oCountData[type];
+		$.each( this._aAllData, function( index, aValue ) {
+			if ( agentName === self._getAgentName( aValue[2] + "" ) ) {
+				if ( type === self._oTypeInfo[aValue[self._oPropertyIndex.type] + ""] ) {
+					if ( aValue[0] >= minX && aValue[1] <= maxX ) {
+						sum++;
+					}
+				}
+			}
 		});
 		return sum;
-	};
-	BlockData.prototype.getCount = function( agentName, type ) {
-		return this._oCountOfType[agentName][type];
-	};
-	BlockData.prototype.isSameAgent = function( aData, agentName ) {
-		return this._oAgentMetaInfo[ aData[this._oPropertyIndex.meta + ""][1] ] === agentName;
 	};
 	BlockData.prototype.getTransactionID = function( aBlockData ) {
 		var oMeta = this._oAgentMetaInfo[ aBlockData[this._oPropertyIndex.meta] + "" ];
@@ -76,7 +100,7 @@
 	};
 	BlockData.prototype.getAgentName = function( aBlockData ) {
 		var oMeta = this._oAgentMetaInfo[ aBlockData[this._oPropertyIndex.meta] + "" ];
-		return oMeta[1];
+		return oMeta[0];
 	};
 
 	global.BigScatterChart2.BlockData = BlockData;

@@ -70,8 +70,8 @@
 	                 * scope on sidebarTitle.initialize.namespace
 	                 */
 	                scope.$on("sidebarTitleDirective.initialize." + scope.namespace, function (event, oSidebarTitleVoService, node) {
-						initializeAgentList( node );
 	                    initialize(oSidebarTitleVoService);
+						initializeAgentList( node );
 	                });
 	
 	                /**

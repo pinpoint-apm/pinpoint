@@ -1,7 +1,8 @@
 (function(global, $) {
 	'use strict';
-	function DragManager( option, $elContainer, oCallback ) {
+	function DragManager( option, oSizeCoordinateManager, $elContainer, oCallback ) {
 		this._option = option;
+		this._oSCManager = oSizeCoordinateManager;
 		this._oCallback = oCallback;
 		this._$elContainer = $elContainer;
 		this._initVariable();
@@ -12,31 +13,17 @@
 		return this._option[key];
 	};
 	DragManager.prototype._initVariable = function() {
-		var oPadding = this.option( "padding" );
-		var bubbleSize = this.option( "bubbleSize" );
-
-		this._oArea = {
-			"minX": this.option("minX"),
-			"maxX": this.option("maxX"),
-			"minY": this.option("minY"),
-			"maxY": this.option("maxY"),
-			"width": this.option("width"),
-			"height": this.option("height"),
-			"widthOfDraggable": ( this.option("width") - ( oPadding.left + oPadding.right ) ) - bubbleSize * 2,
-			"heightOfDraggable": ( this.option("height") - ( oPadding.top + oPadding.bottom ) ) - bubbleSize * 2
-		};
 	};
 	DragManager.prototype._initElement = function( $elContainer ) {
-		var oPadding = this.option( "padding" );
+		var oPadding = this._oSCManager.getPadding();
 		var lineColor = this.option( "lineColor" );
-		var bubbleSize = this.option( "bubbleSize" );
 		var axisLabelStyle = this.option( "axisLabelStyle" );
 
 		this._$element = $("<div>").css({
 			"top": "0px",
 			"left": "0px",
-			"width": this._oArea.width + "px",
-			"height": this._oArea.height + "px",
+			"width": this._oSCManager.getWidth() + "px",
+			"height": this._oSCManager.getHeight() + "px",
 			"cursor": "crosshair",
 			"z-index": 500,
 			"position": "absolute",
@@ -45,7 +32,7 @@
 
 		this._welXGuideNumber = $("<div>")
 			.css({
-				"top": ( this._oArea.height - oPadding.bottom + 10) + "px",
+				"top": ( this._oSCManager.getHeight() - oPadding.bottom + 10) + "px",
 				"left": "0px",
 				"color": lineColor,
 				"width": "56px",
@@ -134,8 +121,8 @@
 		});
 	};
 	DragManager.prototype._checkMouseXYInChart = function( x, y ) {
-		var oPadding = this.option( "padding" );
-		var bubbleSize = this.option( "bubbleSize" );
+		var oPadding = this._oSCManager.getPadding();
+		var bubbleSize = this._oSCManager.getBubbleSize();
 		var oContainerOffset = this._$elContainer.offset();
 		var minX = oContainerOffset.left + oPadding.left + bubbleSize;
 		var maxX = oContainerOffset.left + this._$elContainer.width() - oPadding.right - bubbleSize;
@@ -153,12 +140,12 @@
 		this._oCallback.onSelect( oDragAreaPosition, this._parseCoordinatesToXY( oDragAreaPosition ) );
 	};
 	DragManager.prototype._adjustSelectBoxForChart = function(welSelectBox) {
-		var oPadding = this.option( "padding" );
-		var bubbleSize = this.option( "bubbleSize" );
+		var oPadding = this._oSCManager.getPadding();
+		var bubbleSize = this._oSCManager.getBubbleSize();
 		var nMinTop =  oPadding.top + bubbleSize;
 		var nMinLeft = oPadding.left + bubbleSize;
-		var nMaxRight = this._oArea.width - oPadding.right - bubbleSize ;
-		var nMaxBottom = this._oArea.height - oPadding.bottom - bubbleSize;
+		var nMaxRight = this._oSCManager.getWidth() - oPadding.right - bubbleSize ;
+		var nMaxBottom = this._oSCManager.getHeight() - oPadding.bottom - bubbleSize;
 
 		var nLeft = parseInt(welSelectBox.css("left"), 10);
 		var nRight = nLeft + welSelectBox.width();
@@ -180,41 +167,28 @@
 		return oNextInfo;
 	};
 	DragManager.prototype._parseCoordinatesToXY = function( oPosition ) {
-		var oPadding = this.option( "padding" );
-		var bubbleSize = this.option( "bubbleSize" );
+		var oPadding = this._oSCManager.getPadding();
+		var bubbleSize = this._oSCManager.getBubbleSize();
 		return {
-			"fromX": this._parseMouseXToXData( oPosition.left - oPadding.left - bubbleSize ),
-			"toX": this._parseMouseXToXData( oPosition.left + oPosition.width - oPadding.left - bubbleSize ),
-			"fromY": this._parseMouseYToYData( this._oArea.height - ( oPadding.bottom + bubbleSize ) - ( oPosition.top + oPosition.height ) ),
-			"toY": this._parseMouseYToYData( this._oArea.height - ( oPadding.bottom + bubbleSize ) - oPosition.top )
+			"fromX": this._oSCManager.parseMouseXToXData( oPosition.left - oPadding.left - bubbleSize ),
+			"toX": this._oSCManager.parseMouseXToXData( oPosition.left + oPosition.width - oPadding.left - bubbleSize ),
+			"fromY": this._oSCManager.parseMouseYToYData( this._oSCManager.getHeight() - ( oPadding.bottom + bubbleSize ) - ( oPosition.top + oPosition.height ) ),
+			"toY": this._oSCManager.parseMouseYToYData( this._oSCManager.getHeight() - ( oPadding.bottom + bubbleSize ) - oPosition.top )
 		};
-	};
-	DragManager.prototype._parseXDataToXChart = function( x ) {
-		return Math.round(((x - this._oArea.minX) / (this._oArea.maxX - this._oArea.minX)) * this._oArea.widthOfDraggable) + this.option("padding").left + this.option( "bubbleSize" );
-	};
-	DragManager.prototype._parseMouseXToXData = function( x ) {
-		return Math.round((x / this._oArea.widthOfDraggable) * (this._oArea.maxX - this._oArea.minX)) + this._oArea.minX;
-	};
-
-	DragManager.prototype._parseYDataToYChart = function( y ) {
-		return Math.round(this._oArea.heightOfDraggable - (((y - this._oArea.minY) / (this._oArea.maxY - this._oArea.minY)) * this._oArea.heightOfDraggable)) + this.option("padding").top + this.option( "bubbleSize" );
-	};
-	DragManager.prototype._parseMouseYToYData = function( y ) {
-		return Math.round((y / this._oArea.heightOfDraggable) * (this._oArea.maxY - this._oArea.minY));
 	};
 	DragManager.prototype._showGuideValue = function() {
 		this._welXGuideNumber.show();
 		this._welYGuideNumber.show();
 	};
 	DragManager.prototype._moveGuideValue = function( x, y ) {
-		var oPadding = this.option("padding");
-		var bubbleSize = this.option( "bubbleSize" );
+		var oPadding = this._oSCManager.getPadding();
+		var bubbleSize = this._oSCManager.getBubbleSize();
 		var oContainerOffset = this._$elContainer.offset();
 		var coordinateX = x - oContainerOffset.left;
 		var coordinateY = y - oContainerOffset.top;
 
-		this._welXGuideNumber.css("left", coordinateX ).find("span").text( moment( this._parseMouseXToXData( coordinateX - oPadding.left, bubbleSize ) ).format("HH:mm:ss"));
-		this._welYGuideNumber.css( "top", coordinateY ).find("span").text( BigScatterChart2.Util.addComma( this._parseMouseYToYData( this._oArea.height - coordinateY - oPadding.bottom - bubbleSize )));
+		this._welXGuideNumber.css("left", coordinateX ).find("span").text( moment( this._oSCManager.parseMouseXToXData( coordinateX - oPadding.left, bubbleSize ) ).format("HH:mm:ss"));
+		this._welYGuideNumber.css( "top", coordinateY ).find("span").text( BigScatterChart2.Util.addComma( this._oSCManager.parseMouseYToYData( this._oSCManager.getHeight() - coordinateY - oPadding.bottom - bubbleSize )));
 	};
 	DragManager.prototype._hideGuideValue = function() {
 		this._welXGuideNumber.hide();
@@ -223,12 +197,12 @@
 	DragManager.prototype.moveDragArea = function( nXGap ) {
 		if ( !this._$elDragArea || this._$elDragArea.width() < 2 ) return;
 
-		var nPositionXGap = ( nXGap / ( this._oArea.maxX - this._oArea.minX ) ) * this._oArea.widthOfDraggable;
+		var nPositionXGap = ( nXGap / ( this._oSCManager.getGapX() ) ) * this._oSCManager.getWidthOfChartSpace();
 
 		var dragAreaOffsetLeft = parseInt( this._$elDragArea.css( "left" ), 10 );
 		var drawAreaWidth = this._$elDragArea.width();
-		var bubbleSize = this.option( "bubbleSize" );
-		var minX = this.option( "padding" ).left + bubbleSize;
+		var bubbleSize = this._oSCManager.getBubbleSize();
+		var minX = this._oSCManager.getPadding().left + bubbleSize;
 		var newOffsetLeft = dragAreaOffsetLeft - nPositionXGap;
 
 		if ( dragAreaOffsetLeft > minX ) {
@@ -245,10 +219,6 @@
 		if ( dragAreaOffsetLeft - nPositionXGap > minX ) {
 			this._$elDragArea.css( "left", dragAreaOffsetLeft - nPositionXGap );
 		}
-	};
-	DragManager.prototype.setRangeOfY = function( min, max ) {
-		this._oArea.minY = min;
-		this._oArea.maxY = max;
 	};
 	DragManager.prototype.hide = function() {
 		this._hideGuideValue();

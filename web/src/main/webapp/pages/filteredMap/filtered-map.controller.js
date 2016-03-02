@@ -56,7 +56,7 @@
 	            $timeout(function () {
 	                $scope.$broadcast('timeSliderDirective.initialize', oTimeSliderVoService);
 	                $scope.$broadcast('serverMapDirective.initialize', oNavbarVoService);
-	                $scope.$broadcast('scatterDirective2.initialize', oNavbarVoService);
+	                $scope.$broadcast('scatterDirective.initialize', oNavbarVoService);
 	            });
 	
 	        }, 500);
@@ -73,12 +73,12 @@
 	
 	        /**
 	         * broadcast scatter scan result to scatter
-	         * @param applicationScatterScanResult
+	         * @param applicationScatterData
 	         */
-	        broadcastScatterScanResultToScatter = function (applicationScatterScanResult) {
-	            if (angular.isDefined(applicationScatterScanResult)) {
-	                angular.forEach(applicationScatterScanResult, function (val, key) {
-	                    $scope.$broadcast('scatterDirective2.initializeWithData', key, val);
+	        broadcastScatterScanResultToScatter = function (applicationScatterData) {
+	            if (angular.isDefined(applicationScatterData)) {
+	                angular.forEach(applicationScatterData, function (val, key) {
+	                    $scope.$broadcast('scatterDirective.initializeWithData', key, val);
 	                });
 	            }
 	        };
@@ -131,7 +131,7 @@
 	            reloadOnlyForNode = true;
 	            reloadOnlyForLink = true;
 	            $scope.$broadcast('timeSliderDirective.setInnerFromTo', oTimeSliderVoService);
-	            broadcastScatterScanResultToScatter(mapData.applicationScatterScanResult);
+	            broadcastScatterScanResultToScatter(mapData.applicationScatterData);
 	
 	            // auto trying fetch
 	            if (mapData.applicationMapData.nodeDataArray.length === 0 && mapData.applicationMapData.linkDataArray.length === 0) {
@@ -154,7 +154,7 @@
 	            $scope.$broadcast('timeSliderDirective.changeMoreToDone');
 	            $scope.$broadcast('timeSliderDirective.disableMore');
 	
-	            broadcastScatterScanResultToScatter(mapData.applicationScatterScanResult);
+	            broadcastScatterScanResultToScatter(mapData.applicationScatterData);
 	        });
 	
 	        /**
@@ -190,7 +190,7 @@
 	            if (node.isWas === true) {
 	                $scope.hasScatter = true;
 	                oSidebarTitleVoService.setTitle(node.applicationName);
-	                $scope.$broadcast('scatterDirective2.showByNode', node);
+	                $scope.$broadcast('scatterDirective.showByNode', node);
 	            } else if (node.unknownNodeGroup) {
 	            	oSidebarTitleVoService.setTitle( node.serviceType.replace( "_", " " ) );
 	                $scope.hasScatter = false;
@@ -199,7 +199,7 @@
 	                $scope.hasScatter = false;
 	            }
 	            $scope.hasFilter = false;
-	            $scope.$broadcast('sidebarTitleDirective.initialize.forFilteredMap', oSidebarTitleVoService);
+	            $scope.$broadcast('sidebarTitleDirective.initialize.forFilteredMap', oSidebarTitleVoService, node);
 	            $scope.$broadcast('nodeInfoDetailsDirective.initialize', e, query, node, data, oNavbarVoService, reloadOnlyForNode);
 	            $scope.$broadcast('linkInfoDetailsDirective.hide', e, query, node, data, oNavbarVoService);
 	            reloadOnlyForNode = false;
@@ -295,7 +295,7 @@
 	            oSidebarTitleVoService
 	                .setImageType(node.serviceType)
 	                .setTitle(node.applicationName);
-	            $scope.$broadcast('sidebarTitleDirective.initialize.forMain', oSidebarTitleVoService);
+	            $scope.$broadcast('sidebarTitleDirective.initialize.forMain', oSidebarTitleVoService, node);
 	            $scope.$broadcast('linkInfoDetailsDirective.hide');
 	        });
 	    }

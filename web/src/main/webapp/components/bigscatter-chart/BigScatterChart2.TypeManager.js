@@ -1,7 +1,8 @@
 (function(global, $) {
 	'use strict';
-	function TypeManager( option, $elContainer, oCallback ) {
+	function TypeManager( option, oSizeCoordinateManager, $elContainer, oCallback ) {
 		this._option = option;
+		this._oSCManager = oSizeCoordinateManager;
 		this._oCallback = oCallback;
 		this._initVar();
 		this._initElements( $elContainer );
@@ -16,17 +17,17 @@
 	};
 	TypeManager.prototype._initElements = function( $elContainer ) {
 		var self = this;
-		var oPadding = this.option("padding");
+		var oPadding = this._oSCManager.getPadding();
 
 		this._$element = $("<div>").css({
 			"top": 0,
-			"width": this.option("width") - oPadding.right,
+			"width": this._oSCManager.getWidth() - oPadding.right,
 			"height": oPadding.top,
 			"cursor": "pointer",
 			"z-index": 510,
 			"position": "absolute",
 			"background-color": "rgba(0,0,0,0)" // for ie10
-		}).addClass("overlay");
+		}).addClass("bubble-type");
 
 		this._$elTypeUL = $("<ul>").css({
 			"top": "5px",

@@ -8,9 +8,14 @@
 	 * @class
 	 */	
 	pinpointApp.constant('cfg', {
-	    applicationUrl: '/applications.pinpoint',
-	    serverTimeUrl: '/serverTime.pinpoint',
-	    periodTypePrefix: '.navbar.periodType'
+	    applicationUrl: "/applications.pinpoint",
+	    serverTimeUrl: "/serverTime.pinpoint",
+	    periodTypePrefix: ".navbar.periodType",
+		periodType: {
+			"RANGE": "range",
+			"LAST": "last",
+			"REALTIME": "realtime"
+		}
 	});
 	
 	pinpointApp.directive('navbarDirective', [ 'cfg', '$rootScope', '$http','$document', '$timeout', '$window',  'webStorage', 'helpContentService', 'AnalyticsService', 'PreferenceService', 'TooltipService',
@@ -268,10 +273,10 @@
 	                    if ($window.name && webStorage.get($window.name + cfg.periodTypePrefix)) {
 	                        periodType = webStorage.get($window.name + cfg.periodTypePrefix);
 	                    } else {
-	                        periodType = oNavbarVoService.getApplication() ? 'range' : 'last';
+	                        periodType = oNavbarVoService.getApplication() ? cfg.periodType.RANGE : cfg.periodType.LAST;
 	                    }
 	                    if (oNavbarVoService.getReadablePeriod() && _.indexOf(scope.aReadablePeriodList, oNavbarVoService.getReadablePeriod()) < 0) {
-	                        periodType = 'range';
+	                        periodType = cfg.periodType.RANGE;
 	                    }
 	                    return periodType;
 	                };
@@ -303,16 +308,29 @@
 	                    oNavbarVoService.setCallerRange( scope.caller );
 	                    oNavbarVoService.setCalleeRange( scope.callee );
 	                    
-	                    if (scope.periodType === 'last' && scope.readablePeriod) {
-	                        getQueryEndTimeFromServer(function (currentServerTime) {
-	                            oNavbarVoService.setReadablePeriod(scope.readablePeriod);
-	                            oNavbarVoService.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
-	                            oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
-	                            emitAsChanged();
-	                            setDateTime($fromPicker, oNavbarVoService.getQueryStartTime());
-	                            setDateTime($toPicker, oNavbarVoService.getQueryEndTime());
-	                        });
+	                    if (scope.periodType === cfg.periodType.LAST && scope.readablePeriod) {
+							oNavbarVoService.setPeriodType( cfg.periodType.LAST );
+							getQueryEndTimeFromServer(function (currentServerTime) {
+								oNavbarVoService.setReadablePeriod(scope.readablePeriod);
+								oNavbarVoService.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
+								oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
+								emitAsChanged();
+								setDateTime($fromPicker, oNavbarVoService.getQueryStartTime());
+								setDateTime($toPicker, oNavbarVoService.getQueryEndTime());
+							});
+						} else if ( scope.periodType === cfg.periodType.REALTIME ) {
+							oNavbarVoService.setPeriodType( cfg.periodType.REALTIME );
+							getQueryEndTimeFromServer(function (currentServerTime) {
+								//oNavbarVoService.setReadablePeriod(scope.aReadablePeriodList[0]);
+								oNavbarVoService.setReadablePeriod("1m");
+								oNavbarVoService.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
+								oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
+								emitAsChanged();
+								setDateTime($fromPicker, oNavbarVoService.getQueryStartTime());
+								setDateTime($toPicker, oNavbarVoService.getQueryEndTime());
+							});
 	                    } else if (getQueryStartTime() && getQueryEndTime()) {
+							oNavbarVoService.setPeriodType( cfg.periodType.RANGE );
 	                        oNavbarVoService.setQueryStartTime(getQueryStartTime());
 	                        oNavbarVoService.setQueryEndTime(getQueryEndTime());
 	                        oNavbarVoService.autoCalcultateByQueryStartTimeAndQueryEndTime();
@@ -483,7 +501,7 @@
 	                	return time;
 	                };
 	                movePeriod = function( movedTime ) {
-	                	if ( scope.periodType === "last" ) {
+	                	if ( scope.periodType === cfg.periodType.LAST ) {
 		                	oNavbarVoService.setQueryEndDateTime(moment(oNavbarVoService.getQueryEndTime() + movedTime).format('YYYY-MM-DD-HH-mm-ss'));
 		                    oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 		                    emitAsChanged();
@@ -525,6 +543,7 @@
 	                 * @param readablePeriod
 	                 */
 	                scope.setPeriod = function (readablePeriod) {
+						scope.periodType = cfg.periodType.LAST;
 	                	selectPeriod(readablePeriod);
 	                };
 	                scope.getPreviousClass = function() {
@@ -543,13 +562,16 @@
 	                 * @returns {string}
 	                 */
 	                scope.getPeriodClass = function (readablePeriod) {
-	                    var periodClass = '';
+	                    var periodClass = "";
+						if ( scope.periodType !== cfg.periodType.LAST ) {
+							return periodClass;
+						}
 	                    if (scope.readablePeriod === readablePeriod) {
-	                        periodClass += 'btn-info';
+	                        periodClass += "btn-info";
 	                    }
 	
 	                    if (scope.periodDelay) {
-	                        periodClass += ' wait';
+	                        periodClass += " wait";
 	                    }
 	
 	                    return periodClass;
@@ -658,6 +680,12 @@
 	                    scope.periodType = type;
 	                    scope.autoUpdate = false;
 	                };
+					scope.setRealtime = function () {
+						//analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.TG_DATE, type);
+						scope.periodType = cfg.periodType.REALTIME;
+						scope.autoUpdate = false;
+						broadcast();
+					};
 	                
 	                scope.showConfig = function() {
 	                	$rootScope.$broadcast("configuration.show");
@@ -683,7 +711,7 @@
 	                });
 	                scope.$on('navbarDirective.initialize.andReload', function (event, navbarVo) {
 	                    initialize(navbarVo);
-	                    scope.periodType = 'last';
+	                    scope.periodType = cfg.periodType.LAST;
 	                    selectPeriod(preferenceService.getPeriod());
 	                });
 	
@@ -695,7 +723,7 @@
 	                });
 	                
 	                scope.$on('navbarDirective.moveThePast', function (event) {
-	                	if ( scope.periodType === "last" ) {
+	                	if ( scope.periodType === cfg.periodType.LAST ) {
 	                		movePeriod(-getMilliSecondByReadablePeriod( scope.readablePeriod ));
 	                	} else {
 	                		movePeriod(-(oNavbarVoService.getQueryEndTime() - oNavbarVoService.getQueryStartTime()));
@@ -703,7 +731,7 @@
 	                });
 	                
 	                scope.$on('navbarDirective.moveTheFuture', function (event) {
-	                	if ( scope.periodType === "last" ) {
+	                	if ( scope.periodType === cfg.periodType.LAST ) {
 	                		movePeriod(getMilliSecondByReadablePeriod( scope.readablePeriod ));
 	                	} else {
 	                		movePeriod(oNavbarVoService.getQueryEndTime() - oNavbarVoService.getQueryStartTime());
