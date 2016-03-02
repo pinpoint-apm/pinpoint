@@ -49,12 +49,7 @@ public class SlowCountToCalleCheckerTest {
     @BeforeClass
     public static void before() {
         dao = new MapStatisticsCallerDao() {
-            
-            @Override
-            public List<LinkDataMap> selectCallerStatistics(Application callerApplication, Application calleeApplication, Range range) {
-                return null;
-            }
-            
+
             @Override
             public LinkDataMap selectCaller(Application callerApplication, Range range) {
                 long timeStamp = 1409814914298L;
