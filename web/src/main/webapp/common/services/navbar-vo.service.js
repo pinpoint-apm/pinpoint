@@ -12,6 +12,7 @@
 	        // define and initialize private variables;
 	        var self = this;
 	        this._sApplication = false;
+			this._periodType = "";
 	        this._nPeriod = false;
 	        this._nQueryEndTime = false;
 	        this._sFilter = false;
@@ -207,7 +208,14 @@
 	        };
 			this.getPartialURL = function( bAddApplication, bAddFilter) {
 				return (bAddApplication ? self.getApplication() + "/" : "" ) + self.getReadablePeriod() + "/" + self.getQueryEndDateTime() + ( bAddFilter ? ( self.getFilter() ? "/" + self.getFilter() : "" ) : "" );
-			}
+			};
+			this.setPeriodType = function( type ) {
+				this._periodType = type;
+			};
+			this.getPeriodType = function() {
+				return this._periodType;
+			};
+
 	    };
 	}]);
 })();

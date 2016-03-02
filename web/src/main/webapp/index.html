@@ -60,78 +60,30 @@
     <!-- endbuild -->
 
     <!-- build:js scripts/plugins.js -->
-    <script src="components/jquery/dist/jquery.js?v=${buildTime}"></script>
-    <script src="components/jquery-ui/ui/jquery-ui.js?v=${buildTime}"></script>
-    <script src="components/moment/moment.js?v=${buildTime}"></script>
-    <script src="components/angular/angular.js?v=${buildTime}"></script>
-    <script src="components/underscore/underscore-min.js?v=${buildTime}"></script>
-    <script src="components/bootstrap/dist/js/bootstrap.min.js?v=${buildTime}"></script>
-    <script src="components/google-code-prettify/prettify.js?v=${buildTime}"></script>
-    <script src="components/google-code-prettify/lang-sql.js?v=${buildTime}"></script>
-    <script src="components/gojs/go.js?v=${buildTime}"></script>
-	<script src="components/snap.svg/snap.svg.min.js?v=${buildTime}"></script>
+	<script src="lib/js/base-lib.js?v=${buildTime}"></script>
+	<script src="lib/js/angular-lib.js?v=${buildTime}"></script>
+	<script src="lib/js/draw-lib.js?v=${buildTime}"></script>
+	<script src="lib/js/util-lib.js?v=${buildTime}"></script>
+	<!--script src="lib/js/BigScatterChart2.min.js?v=${buildTime}"></script-->
+	<script src="components/bigscatter-chart/BigScatterChart2.js?v=${buildTime}"></script>
+	<script src="components/bigscatter-chart/BigScatterChart2.BlockData.js?v=${buildTime}"></script>
+	<script src="components/bigscatter-chart/BigScatterChart2.CanvasManager.js?v=${buildTime}"></script>
+	<script src="components/bigscatter-chart/BigScatterChart2.DataManager.js?v=${buildTime}"></script>
+	<script src="components/bigscatter-chart/BigScatterChart2.DownloadFeature.js?v=${buildTime}"></script>
+	<script src="components/bigscatter-chart/BigScatterChart2.DragManager.js?v=${buildTime}"></script>
+	<script src="components/bigscatter-chart/BigScatterChart2.HelpFeature.js?v=${buildTime}"></script>
+	<script src="components/bigscatter-chart/BigScatterChart2.MessageFeature.js?v=${buildTime}"></script>
+	<script src="components/bigscatter-chart/BigScatterChart2.SettingFeature.js?v=${buildTime}"></script>
+	<script src="components/bigscatter-chart/BigScatterChart2.SizeCoordinateManager.js?v=${buildTime}"></script>
+	<script src="components/bigscatter-chart/BigScatterChart2.TypeManager.js?v=${buildTime}"></script>
+	<script src="components/bigscatter-chart/BigScatterChart2.Util.js?v=${buildTime}"></script>
+	<script src="components/bigscatter-chart/BigScatterChart2.WideOpenFeature.js?v=${buildTime}"></script>
 
-    <script src="components/d3/d3.min.js?v=${buildTime}"></script>
-
-    <script src="components/select2/select2.min.js?v=${buildTime}"></script>
-    <script src="components/select2/select2_locale_ko.js?v=${buildTime}"></script>
-    <script src="components/jquery-class/jquery.Class.js?v=${buildTime}"></script>
-    <script src="components/jquery.layout/dist/jquery.layout-latest.js?v=${buildTime}"></script>
-    <script src="components/dragToSelect/jquery.dragToSelect.js?v=${buildTime}"></script>
-    <script src="features/scatter/jquery.BigScatterChart.js?v=${buildTime}"></script>
-	<script src="features/scatter/BigScatterChart2.js?v=${buildTime}"></script>
-	<script src="features/scatter/BigScatterChart2.BlockData.js?v=${buildTime}"></script>
-	<script src="features/scatter/BigScatterChart2.CanvasManager.js?v=${buildTime}"></script>
-	<script src="features/scatter/BigScatterChart2.DataManager.js?v=${buildTime}"></script>
-	<script src="features/scatter/BigScatterChart2.DragManager.js?v=${buildTime}"></script>
-	<script src="features/scatter/BigScatterChart2.TypeManager.js?v=${buildTime}"></script>
-	<script src="features/scatter/BigScatterChart2.MessageFeature.js?v=${buildTime}"></script>
-	<script src="features/scatter/BigScatterChart2.SettingFeature.js?v=${buildTime}"></script>
-	<script src="features/scatter/BigScatterChart2.DownloadFeature.js?v=${buildTime}"></script>
-	<script src="features/scatter/BigScatterChart2.WideOpenFeature.js?v=${buildTime}"></script>
-	<script src="features/scatter/BigScatterChart2.HelpFeature.js?v=${buildTime}"></script>
-	<script src="features/scatter/BigScatterChart2.Util.js?v=${buildTime}"></script>
-    <script src="components/jquery-timepicker-addon/jquery-ui-timepicker-addon.js?v=${buildTime}"></script>
-    <script src="components/jquery.jslider/js/draggable-0.1.js?v=${buildTime}"></script>
-    <script src="components/jquery.jslider/js/jshashtable-2.1_src.js?v=${buildTime}"></script>
-    <script src="components/jquery.jslider/js/jquery.dependClass-0.1.js?v=${buildTime}"></script>
-    <script src="components/jquery.jslider/js/jquery.numberformatter-1.2.3.js?v=${buildTime}"></script>
-    <script src="components/jquery.jslider/js/tmpl.js?v=${buildTime}"></script>
-    <script src="components/jquery.jslider/js/jquery.jslider.js?v=${buildTime}"></script>
-    <script src="components/jquery-ui-tabs-paging/js/ui.tabs.paging.js?v=${buildTime}"></script>
-    <script src="components/angular-slider/angular-slider.min.js?v=${buildTime}"></script>
-    <script src="components/slickgrid/lib/jquery.event.drag-2.2.js?v=${buildTime}"></script>
-    <script src="components/slickgrid/slick.core.js?v=${buildTime}"></script>
-    <script src="components/slickgrid/slick.formatters.js?v=${buildTime}"></script>
-    <script src="components/slickgrid/slick.editors.js?v=${buildTime}"></script>
-    <script src="components/slickgrid/slick.grid.js?v=${buildTime}"></script>
-    <script src="components/slickgrid/slick.dataview.js?v=${buildTime}"></script>
-    <script src="components/slickgrid/plugins/slick.rowselectionmodel.js?v=${buildTime}"></script>
-    <script src="components/angular-base64/angular-base64.min.js?v=${buildTime}"></script>
-    <script src="components/amcharts/amcharts.js?v=${buildTime}"></script>
-    <script src="components/amcharts/serial.js?v=${buildTime}"></script>
-    <script src="components/amcharts/themes/light.js?v=${buildTime}"></script>
-    <script src="components/tooltipster/js/jquery.tooltipster.min.js?v=${buildTime}"></script>
-    <script src="components/handlebars/handlebars.min.js?v=${buildTime}"></script>
-    <script src="components/infiniteCircularScroll/InfiniteCircularScroll.js?v=${buildTime}"></script>
-	<script src="components/bootstrap/js/bootstrap-modal.js?v=${buildTime}"></script>
-	<script src="components/bootstrap/js/bootstrap-tooltip.js?v=${buildTime}"></script>
-	<script src="components/bootstrap/js/bootstrap-popover.js?v=${buildTime}"></script>
+	<script src="lib/js/time-slider.min.js?v=${buildTime}"></script>
+	<script src="lib/js/InfiniteCircularScroll.js?v=${buildTime}"></script>
     <script src="features/serverMap/jquery.ServerMap2.js?v=${buildTime}"></script>
-	<script src="components/time-slider/time-slider.min.js?v=${buildTime}"></script>
     <!-- endbuild -->
 
-    <!-- build:js scripts/modules.js -->
-    <script src="components/angular-resource/angular-resource.js?v=${buildTime}"></script>
-    <script src="components/angular-cookies/angular-cookies.js?v=${buildTime}"></script>
-    <script src="components/angular-webstorage/angular-webstorage.js?v=${buildTime}"></script>
-    <script src="components/angular-strap/dist/angular-strap.min.js?v=${buildTime}"></script>
-    <script src="components/angular-strap/dist/angular-strap.tpl.min.js?v=${buildTime}"></script>
-    <script src="components/angular-animate/angular-animate.min.js?v=${buildTime}"></script>
-    <script src="components/angular-route/angular-route.js?v=${buildTime}"></script>
-    <script src="components/angular-sanitize/angular-sanitize.min.js?v=${buildTime}"></script>
-    <script src="components/angular-timer/dist/angular-timer.min.js?v=${buildTime}"></script>
-    <!-- endbuild -->
 
 	<!-- analytics -->
 	<script src="scripts/extra/google-analytics.js"></script>
@@ -509,7 +461,6 @@
 <script src="features/serverMap/server-map.directive.js?v=${buildTime}"></script>
 <script src="features/realtimeChart/realtime-chart.directive.js?v=${buildTime}"></script>
 <script src="features/scatter/scatter.directive.js?v=${buildTime}"></script>
-<script src="features/scatter/scatter2.directive.js?v=${buildTime}"></script>
 <script src="features/nodeInfoDetails/node-info-details.directive.js?v=${buildTime}"></script>
 <script src="features/linkInfoDetails/link-info-details.directive.js?v=${buildTime}"></script>
 <script src="features/serverList/server-list.directive.js?v=${buildTime}"></script>

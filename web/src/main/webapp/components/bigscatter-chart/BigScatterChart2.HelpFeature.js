@@ -8,6 +8,7 @@
 		this._aCallback = [];
 	};
 	HelpFeature.prototype.initElement = function( $elParent, $elPlugin ) {
+		var self = this;
 		this._$element = $("<div>")
 		.css({
 			"padding": "4px 0px 4px 20px"
@@ -15,7 +16,9 @@
 		.append( $("<span>").addClass("glyphicon glyphicon-question-sign scatterTooltip").css("cursor", "pointer") )
 		.appendTo( $elPlugin );
 
-		this._tooltipService.init("scatter");
+		setTimeout(function() {
+			self._tooltipService.init("scatter");
+		},0);
 		return this;
 	};
 	HelpFeature.prototype.initEvent = function( oChart ) {

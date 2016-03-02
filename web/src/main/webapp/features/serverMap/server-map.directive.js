@@ -354,7 +354,7 @@
 	                        sLastSelection = 'node';
 	                        htLastNode = node;
 	                        scope.$emit("serverMapDirective.nodeClicked", e, htLastQuery, node, htLastMergedMapData, searchQuery);
-							if ( scope.oNavbarVoService ) {
+							if ( scope.oNavbarVoService && scope.oNavbarVoService.getPeriodType() === "realtime" ) {
 								$rootScope.$broadcast("realtimeChartController.initialize", node.isWas, node.applicationName, scope.oNavbarVoService.getApplication() + "/" + scope.oNavbarVoService.getReadablePeriod() + "/" + scope.oNavbarVoService.getQueryEndDateTime() + "/" + scope.oNavbarVoService.getCallerRange());
 							}
 	                        reset();
@@ -363,6 +363,9 @@
 	                    	e.diagram.zoomToRect( node.actualBounds, 1.2);
 	                    };
 	                    options.fOnNodeContextClicked = function (e, node) {
+							if ( scope.oNavbarVoService.getPeriodType() === "realtime" ) {
+								return;
+							}
 	                        reset();
 	                        var originalNode = ServerMapDaoService.getNodeDataByKey(htLastMapData.applicationMapData, node.key);
 	                        if (originalNode) {
@@ -378,6 +381,9 @@
 //	                        scope.$emit("serverMapDirective.nodeContextClicked", e, query, node, applicationMapData);
 	                    };
 	                    options.fOnLinkClicked = function (e, link) {
+							if ( scope.oNavbarVoService.getPeriodType() === "realtime" ) {
+								return;
+							}
 	                        var originalLink;
 	                        if (angular.isDefined(link.unknownLinkGroup)) {
 	                            link.unknownLinkGroup = ServerMapDaoService.getUnknownLinkDataByUnknownLinkGroup(htLastMapData.applicationMapData, link.unknownLinkGroup);

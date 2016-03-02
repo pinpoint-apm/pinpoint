@@ -54,8 +54,8 @@
 			}
 			return -1;
 		},
-		getBoundaryValue: function( max, min, value ) {
-			return Math.min( max, Math.max( min, value ) );
+		getBoundaryValue: function( oRange, value ) {
+			return Math.min( oRange.max, Math.max( oRange.min, value ) );
 		},
 		isInRange: function( from, to, value ) {
 			return value >= from && value <= to;

@@ -1,7 +1,8 @@
 (function(global, $) {
 	'use strict';
-	function CanvasManager( option, aAgentList, $elContainer ) {
+	function CanvasManager( option, oSizeCoordinateManager, aAgentList, $elContainer ) {
 		this._option = option;
+		this._oSCManager = oSizeCoordinateManager;
 		this._aAgentList = aAgentList;
 		this._$elWrapper = $elContainer;
 		this._initVariable();
@@ -17,23 +18,11 @@
 		return this._option[v];
 	};
 	CanvasManager.prototype._initVariable = function() {
-		this._oElCanvas = {};
-		this._oCtx = {};
+		this._oElScrollCanvas = {};
+		this._oScrollCtx = {};
 
-		var oPadding = this.option( "padding" );
-		var bubbleSize = this.option( "bubbleSize" );
 		this._ticksOfX = this.option("ticksOfX") - 1;
 		this._ticksOfY = this.option("ticksOfY") - 1;
-
-		this._widthForDraw = ( this.option( "width" ) - ( oPadding.left + oPadding.right ) ) - bubbleSize * 2;
-		this._heightForDraw = ( this.option( "height" ) - ( oPadding.top + oPadding.bottom ) ) - bubbleSize * 2;
-
-		this._maxX = this.option("maxX");
-		this._minX = this.option("minX");
-		this._maxY = this.option("maxY");
-		this._minY = this.option("minY");
-		this._maxZ = this.option("maxZ");
-		this._minZ = this.option("minZ");
 
 		this._aElAxisX = [];
 		this._aElAxisY = [];
@@ -46,8 +35,8 @@
 	};
 	CanvasManager.prototype._makeGridCanvas = function() {
 		this._$elGuideCanvas = $("<canvas>").attr({
-			"width": this.option( "width" ),
-			"height": this.option( "height" )
+			"width": this._oSCManager.getWidth(),
+			"height": this._oSCManager.getHeight()
 		}).css({
 			"top": 0,
 			"z-index": 0,
@@ -58,8 +47,8 @@
 	};
 	CanvasManager.prototype._makeAxisCanvas = function() {
 		this._$elAxisCanvas = $("<canvas>").attr({
-			"width": this.option("width"),
-			"height": this.option("height")
+			"width": this._oSCManager.getWidth(),
+			"height": this._oSCManager.getHeight()
 		}).css({
 			"top": 0,
 			"z-index": 10,
@@ -71,20 +60,20 @@
 	CanvasManager.prototype._getNotSupportMarkup = function() {
 		return $("<div>Your browser does not support the canvas element, get a better one!</div>").css({
 			"color": "#fff",
-			"width": this.option( "width" ),
-			"height": this.option( "height" ),
+			"width": this._oSCManager.getWidth(),
+			"height": this._oSCManager.getHeight(),
 			"text-align": "center",
 			"background-color": "#8b2e19"
 		});
 	};
 	CanvasManager.prototype._drawGridLine = function() {
 
-		var width = this.option("width");
-		var height = this.option("height");
-		var oPadding = this.option("padding");
-		var bubbleSize = this.option( "bubbleSize" );
-		var tickX = this._widthForDraw / this._ticksOfX;
-		var tickY = this._heightForDraw / this._ticksOfY;
+		var width = this._oSCManager.getWidth();
+		var height = this._oSCManager.getHeight();
+		var oPadding = this._oSCManager.getPadding();
+		var bubbleSize = this._oSCManager.getBubbleSize();
+		var tickX = this._oSCManager.getWidthOfChartSpace() / this._ticksOfX;
+		var tickY = this._oSCManager.getHeightOfChartSpace() / this._ticksOfY;
 		var i = 0, mov = 0;
 
 		this._setStyle( this._oCtxGrid, this.option("gridAxisStyle") );
@@ -106,14 +95,14 @@
 	};
 
 	CanvasManager.prototype._drawAxisLine = function() {
-		var width = this.option( "width" );
-		var height = this.option( "height" );
-		var oPadding = this.option( "padding" );
+		var width = this._oSCManager.getWidth();
+		var height = this._oSCManager.getHeight();
+		var oPadding = this._oSCManager.getPadding();
+		var bubbleSize = this._oSCManager.getBubbleSize();
 		var lineColor = this.option( "lineColor" );
-		var bubbleSize = this.option( "bubbleSize" );
 		var gridAxisStyle = this.option( "gridAxisStyle" );
-		var tickX = this._widthForDraw / this._ticksOfX;
-		var tickY = this._heightForDraw / this._ticksOfY;
+		var tickX = this._oSCManager.getWidthOfChartSpace() / this._ticksOfX;
+		var tickY = this._oSCManager.getHeightOfChartSpace() / this._ticksOfY;
 		var i = 0, mov = 0;
 
 		this._oCtxAxis.lineWidth = gridAxisStyle.lineWidth;
@@ -171,14 +160,15 @@
 		ctx.lineTo(x, y);
 	};
 	CanvasManager.prototype._drawAxisValue = function() {
-		var tickX = this._widthForDraw / this._ticksOfX;
-		var tickY = this._heightForDraw / this._ticksOfY;
-		var width = this.option( "width" );
-		var height = this.option( "height" );
+		var tickX = this._oSCManager.getWidthOfChartSpace() / this._ticksOfX;
+		var tickY = this._oSCManager.getHeightOfChartSpace() / this._ticksOfY;
+		var width = this._oSCManager.getWidth();
+		var height = this._oSCManager.getHeight();
+		var oPadding = this._oSCManager.getPadding();
+		var bubbleSize = this._oSCManager.getBubbleSize();
+
 		var sPrefix = this.option( "sPrefix" );
-		var oPadding = this.option( "padding" );
 		var lineColor = this.option( "lineColor" );
-		var bubbleSize = this.option( "bubbleSize" );
 		var axisLabelStyle = this.option( "axisLabelStyle" );
 		var i = 0;
 
@@ -227,7 +217,7 @@
 			.text(labelX )
 			.css( axisLabelStyle )
 			.css({
-				"top": ( this._oArea.height - oPadding.bottom + 10) + "px",
+				"top": ( height - oPadding.bottom + 10) + "px",
 				"right": 0,
 				"color": lineColor,
 				"position": "absolute",
@@ -254,135 +244,227 @@
 	};
 	CanvasManager.prototype._makeDataCanvas = function() {
 		var self = this;
-		var width = this.option("width");
-		var height = this.option("height");
+		var bubbleSize = this._oSCManager.getBubbleSize();
 		var sPrefix = this.option("sPrefix");
-		var zIndex = 20;
+		var zIndex = 100;
 		var aBubbleTypeInfo = this.option("typeInfo");
-		// make canvas : (agent count * type count)
-		$.each(this._aAgentList, function( index, agentName ) {
-			$.each( aBubbleTypeInfo, function ( index, aValue ) {
-				var key = BigScatterChart2.Util.makeKey( agentName, sPrefix, aValue[0] );
-				self._oElCanvas[key] = $("<canvas>").attr({
-					"width": width,
-					"height": height,
-					"data-key": key
-				}).css({
-					"top": 0,
-					"z-index": zIndex++,
-					"position": "absolute"
-				}).appendTo(self._$elWrapper);
 
-				self._oCtx[key] = self._oElCanvas[key].get(0).getContext("2d");
+		var widthOfChartSpace = this._oSCManager.getWidthOfChartSpace();
+		var heightOfChartSpace = this._oSCManager.getHeightOfChartSpace();
+		var canvasWidth = this._oSCManager.getCanvasWidth();
+		this._$elScroller = $("<div>").css({
+			"top": "0px",
+			"left": "0px",
+			"height": ( heightOfChartSpace + bubbleSize * 2 ) + "px",
+			"position": "absolute",
+			"background-color": "gray"
+		}).addClass( "canvas-scroller" );
+
+		$("<div>").css({
+			"top": this._oSCManager.getTopOfChartSpace() + "px",
+			"left": ( this._oSCManager.getLeftOfChartSpace() + bubbleSize ) + "px",
+			"width": widthOfChartSpace + "px",
+			"height": ( heightOfChartSpace + bubbleSize * 2 ) + "px",
+			"z-index": zIndex++,
+			"overflow": "hidden",
+			"position": "absolute"
+		}).addClass( "canvas-wrapper" ).append( this._$elScroller ).appendTo( this._$elWrapper );
+
+		$.each( this._aAgentList, function( index, agentName ) {
+			$.each( aBubbleTypeInfo, function( index, aValue ) {
+				var key = BigScatterChart2.Util.makeKey( agentName, sPrefix, aValue[0] );
+				self._oElScrollCanvas[key] = [
+					$("<canvas>").attr({
+						"width": canvasWidth,
+						"height": ( heightOfChartSpace + bubbleSize * 2 ) + "px",
+						"data-key": key
+					}).css({
+						"top": "0px",
+						"left": "0px",
+						"z-index": zIndex++,
+						"position": "absolute"
+					}).appendTo( self._$elScroller ),
+					$("<canvas>").attr({
+						"width": canvasWidth,
+						"height": ( heightOfChartSpace + bubbleSize * 2 ) + "px",
+						"data-key": key
+					}).css({
+						"top": "0px",
+						"left": canvasWidth + "px",
+						//"background-color": "rgba( 240, 240, 240, 0.3 )",
+						"z-index": zIndex++,
+						"position": "absolute"
+					}).appendTo( self._$elScroller )
+				];
+
+				self._oScrollCtx[key] = [
+					self._oElScrollCanvas[key][0].get(0).getContext("2d"),
+					self._oElScrollCanvas[key][1].get(0).getContext("2d")
+				];
 			});
 		});
+		this._oScrollIndexOrder = [ 0, 1 ];
+
 	};
 	CanvasManager.prototype.getChartAsImage = function( type, oElType ) {
 		return this._mergeAllDisplay( oElType ).get(0).toDataURL("image/" + type.toLowerCase() );
 	};
-	CanvasManager.prototype.moveChartLeftwardly = function( x, y, width, height ) {
-		var self = this;
-		var sPrefix = this.option("sPrefix");
-		var bubbleSize = this.option( "bubbleSize" );
-		var paddingLeft = this.option("padding").left;
-		var aBubbleTypeInfo = this.option("typeInfo");
-
-		$.each(this._aAgentList, function( index, agentName ) {
-			$.each( aBubbleTypeInfo, function ( innerIndex, aValue ) {
-				var key = BigScatterChart2.Util.makeKey( agentName, sPrefix, aValue[0] );
-				self._oCtx[key].putImageData( self._oCtx[key].getImageData(x, y, width, height), paddingLeft + bubbleSize, 0 );
-			});
-		});
-	};
 	CanvasManager.prototype.updateXYAxis = function( minX, maxX, minY, maxY ) {
 		var self = this;
 		if ($.isNumeric(minX)) {
-			this._minX = this.option("minX", minX);
+			//this._minX = this.option("minX", minX);
 		}
 		if ($.isNumeric(maxX)) {
-			this._maxX = this.option("minX", maxX);
+			//this._maxX = this.option("minX", maxX);
 		}
 		if ($.isNumeric(minY)) {
-			this._minY = this.option("minY", minY);
+			//this._minY = this.option("minY", minY);
 		}
-		if ($.isNumeric(minY)) {
-			this._maxY = this.option("maxY", maxY);
+		if ($.isNumeric(maxY)) {
+			//this._maxY = this.option("maxY", maxY);
 		}
 
-		console.log( "updateXYAxis", minX, maxX, minY, maxY );
 		var fnXAxisFormat = this.option("fXAxisFormat");
-		var tickX = (this._maxX - this._minX) / this._ticksOfX;
+		var oRangeX = this._oSCManager.getX();
+		var tickX = ( this._oSCManager.getGapX() ) / this._ticksOfX;
 		$.each( this._aElAxisX, function ( index, $el ) {
 			if ( $.isFunction( fnXAxisFormat ) ) {
-				$el.html( fnXAxisFormat.call( self, tickX, index ) );
+				$el.html( fnXAxisFormat.call( self, tickX, index, oRangeX.min ) );
 			} else {
-				$el.html( ( tickX * index + self._minX ).round() );
+				$el.html( ( tickX * index + oRangeX.min ).round() );
 			}
 		});
 
 		var fnYAxisFormat = this.option("fYAxisFormat");
-		var tickY = (this._maxY - this._minY) / this._ticksOfY;
+		var oRangeY = this._oSCManager.getY();
+		var tickY = ( this._oSCManager.getGapY() ) / this._ticksOfY;
 		$.each( this._aElAxisY, function ( index, $el ) {
 			if ( $.isFunction( fnYAxisFormat ) ) {
-				$el.html( fnYAxisFormat.call( self, tickY, index ) );
+				$el.html( fnYAxisFormat.call( self, tickY, index, oRangeY.min, oRangeY.max ) );
 			} else {
-				$el.html( BigScatterChart2.Util.addComma( ( self._maxY + self._minY ) - ( ( tickY * index ) + self._minY ) ) );
+				$el.html( BigScatterChart2.Util.addComma( ( oRangeY.max + oRangeY.min ) - ( ( tickY * index ) + oRangeY.min ) ) );
 			}
 		});
 	};
 	CanvasManager.prototype.clear = function() {
-		var	width = this.option("width");
-		var	height = this.option("height");
+		var width = this._oSCManager.getCanvasWidth();
+		var height = this._oSCManager.getHeight();
 
-		$.each( this._oCtx, function( key, ctx ) {
-			ctx.clearRect( 0, 0, width, height );
+		$.each( this._oScrollCtx, function( key, aCtx ) {
+			$.each( aCtx, function( i, ctx ) {
+				ctx.clearRect(0, 0, width, height);
+			});
 		});
 	};
 	CanvasManager.prototype.selectType = function( agentName, type ) {
-		$.each( this._oElCanvas, function( key, $elCanvas ) {
-			if ( BigScatterChart2.Util.endsWith( key, type ) ) {
-				$elCanvas.show();
-			} else {
-				$elCanvas.hide();
-			}
+		$.each( this._oElScrollCanvas, function( key, aCanvas ) {
+			$.each( aCanvas, function( i, $elCanvas ) {
+				if (BigScatterChart2.Util.endsWith(key, type)) {
+					$elCanvas.show();
+				} else {
+					$elCanvas.hide();
+				}
+			});
 		});
 	};
 	CanvasManager.prototype.toggle = function( type ) {
-		$.each( this._oElCanvas, function( key, $elCanvas ) {
-			if ( BigScatterChart2.Util.endsWith( key, type ) ) {
-				$elCanvas.toggle();
-			}
+		$.each( this._oElScrollCanvas, function( key, aCanvas ) {
+			$.each( aCanvas, function( i, $elCanvas ) {
+				if (BigScatterChart2.Util.endsWith(key, type)) {
+					$elCanvas.toggle();
+				}
+			});
 		});
 	};
 	CanvasManager.prototype.showSelectedAgent = function( bIsAll, agentName, oTypeCheckInfo ) {
 		var self = this;
-		$.each( this._oElCanvas, function( key, $elCanvas ) {
+		$.each( this._oElScrollCanvas, function( key, aCanvas ) {
 			if ( bIsAll ) {
-				$elCanvas[ self._visible( key.split("-"), oTypeCheckInfo ) ? "show" : "hide" ]();
+				var visibleCmd = self._visible( key.split("-"), oTypeCheckInfo ) ? "show" : "hide";
+				$.each( aCanvas, function( i, $elCanvas ) {
+					$elCanvas[ visibleCmd ]();
+				});
 			} else {
-				if ( BigScatterChart2.Util.startsWith( key, agentName ) ) {
-					$elCanvas[ self._visible( key.split("-"), oTypeCheckInfo ) ? "show" : "hide" ]();
-				} else {
-					$elCanvas.hide();
-				}
+				$.each( aCanvas, function( i, $elCanvas ) {
+					if (BigScatterChart2.Util.startsWith(key, agentName)) {
+						$elCanvas[self._visible(key.split("-"), oTypeCheckInfo) ? "show" : "hide"]();
+					} else {
+						$elCanvas.hide();
+					}
+				});
 			}
 		});
 	};
 	CanvasManager.prototype._visible = function( aData, oTypeCheckInfo ) {
 		return oTypeCheckInfo[aData[ aData.length - 1 ]];
 	};
-	CanvasManager.prototype.drawBubble = function( key, color, x, y, r, a ) {
-		this._oCtx[key].beginPath();
-		this._oCtx[key].fillStyle = color;
-		this._oCtx[key].strokeStyle = color;
-		this._oCtx[key].arc(x, y, r, 0, Math.PI * 2, true);
-		this._oCtx[key].globalAlpha = 0.3 + a;
-		this._oCtx[key].fill();
+	CanvasManager.prototype.drawBubble = function( key, color, aBubbleData ) {
+		var oPropertyIndex = this.option( "propertyIndex" );
+		var bubbleRadius = this.option( "bubbleRadius" );
+		var oRangeY = this._oSCManager.getY();
+
+		var x = ( aBubbleData[oPropertyIndex.x] - this._oSCManager.getStartX() ) * this._oSCManager.getPixelPerTime();
+		var y = this._oSCManager.parseYDataToYChart( BigScatterChart2.Util.getBoundaryValue( oRangeY, aBubbleData[oPropertyIndex.y]), false );
+		var r = this._oSCManager.parseZDataToZChart( aBubbleData.r || bubbleRadius );
+
+		var canvasWidth = this._oSCManager.getCanvasWidth();
+		var ctxIndex = this._oScrollIndexOrder[0];
+		var zeroLeft = parseInt( this._oElScrollCanvas[key][ctxIndex].css( "left" ) );
+		var currentMaxX = zeroLeft + canvasWidth;
+		if ( x > currentMaxX ) {
+			ctxIndex = this._oScrollIndexOrder[1];
+			x -= currentMaxX;
+		} else {
+			x -= zeroLeft;
+		}
+
+		this._oScrollCtx[key][ctxIndex].beginPath();
+		this._oScrollCtx[key][ctxIndex].fillStyle = color;
+		this._oScrollCtx[key][ctxIndex].strokeStyle = color;
+		this._oScrollCtx[key][ctxIndex].arc( x, y, r, 0, Math.PI * 2, true );
+		this._oScrollCtx[key][ctxIndex].globalAlpha = 0.3 + ( 0.1 * aBubbleData[oPropertyIndex.groupCount] );
+		this._oScrollCtx[key][ctxIndex].fill();
+	};
+	CanvasManager.prototype.moveChart = function( moveXValue ) {
+		var self = this;
+		var canvasWidth = this._oSCManager.getCanvasWidth();
+		var height = this._oSCManager.getHeight();
+		var nextLeft = parseInt( this._$elScroller.css( "left" ), 10 ) - moveXValue;
+		this._$elScroller.animate({
+			"left": nextLeft
+		}, 1000, function() {
+			var temp = self._oScrollIndexOrder[0];
+			var bOverBoundary = false;
+			$.each( self._oElScrollCanvas, function( key, aCanvas ) {
+				if ( Math.abs( nextLeft ) > ( parseInt( aCanvas[self._oScrollIndexOrder[0]].css( "left" ) ) + canvasWidth ) ) {
+					bOverBoundary = true;
+					aCanvas[self._oScrollIndexOrder[0]].css( "left", parseInt( aCanvas[self._oScrollIndexOrder[1]].css( "left" ) ) + canvasWidth );
+					self._oScrollCtx[key][self._oScrollIndexOrder[0]].clearRect( 0, 0, canvasWidth, height );
+				}
+			});
+			if ( bOverBoundary ) {
+				self._oScrollIndexOrder[0] = self._oScrollIndexOrder[1];
+				self._oScrollIndexOrder[1] = temp;
+			}
+		});
+	};
+	CanvasManager.prototype.reset = function() {
+		var canvasWidth = this._oSCManager.getCanvasWidth();
+		this._$elScroller.css( "left", 0 );
+		this._oScrollIndexOrder = [ 0, 1 ];
+		$.each( this._oElScrollCanvas, function( key, aCanvas ) {
+			$.each( aCanvas, function( index, $elCanvas ) {
+				$elCanvas.css( "left", index * canvasWidth );
+			});
+		});
+		this.clear();
 	};
 	CanvasManager.prototype._mergeAllDisplay = function( oElType )  {
 		var self = this;
-		var width = this.option("width");
-		var height = this.option("height");
+		var oPadding = this._oSCManager.getPadding();
+		var bubbleSize = this._oSCManager.getBubbleSize();
+		var width = this._oSCManager.getWidth();
+		var height = this._oSCManager.getHeight();
 
 		var $elDownloadCanvas = $("<canvas>").attr({
 			"width": width,
@@ -396,10 +478,12 @@
 		oCtx.drawImage(this._$elGuideCanvas.get(0), 0, 0);
 
 		// scatter
-		$.each( this._oElCanvas, function( key, $elCanvas ) {
-			if ( $elCanvas.is(":visible") ) {
-				oCtx.drawImage( $elCanvas.get(0), 0, 0 );
-			}
+		$.each( this._oElScrollCanvas, function( key, aCanvas ) {
+			$.each( aCanvas, function( i, $elCanvas ) {
+				if ( $elCanvas.is(":visible") ) {
+					oCtx.drawImage( $elCanvas.get(0), oPadding.left + bubbleSize, oPadding.top );
+				}
+			});
 		});
 
 		// xy axis
