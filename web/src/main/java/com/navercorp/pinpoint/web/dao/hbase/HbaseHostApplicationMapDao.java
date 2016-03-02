@@ -31,12 +31,10 @@ import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.service.map.AcceptApplication;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.RangeFactory;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,15 +60,8 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     private HbaseOperations2 hbaseOperations2;
 
     @Autowired
-    @Qualifier("hostApplicationMapper")
-    private RowMapper<Application> hostApplicationMapper;
-
-    @Autowired
     @Qualifier("hostApplicationMapperVer2")
     private RowMapper<List<AcceptApplication>> hostApplicationMapperVer2;
-
-    @Autowired
-    private RangeFactory rangeFactory;
 
     @Autowired
     private TimeSlot timeSlot;
@@ -79,49 +70,6 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     @Qualifier("acceptApplicationRowKeyDistributor")
     private AbstractRowKeyDistributor acceptApplicationRowKeyDistributor;
 
-
-    @Override
-    @Deprecated
-    public Set<AcceptApplication> findAcceptApplicationName(String host, Range range) {
-        if (host == null) {
-            throw new NullPointerException("host must not be null");
-        }
-        final Scan scan = createScan(host, range);
-        final List<Application> result = hbaseOperations2.find(HBaseTables.HOST_APPLICATION_MAP, scan, hostApplicationMapper);
-        if (CollectionUtils.isNotEmpty(result)) {
-            Set<AcceptApplication> resultSet = new HashSet<>();
-            for (Application application : result) {
-                resultSet.add(new AcceptApplication(host, application));
-            }
-            return resultSet;
-        } else {
-            return Collections.emptySet();
-        }
-    }
-
-    private Scan createScan(String host, Range range) {
-        if (host == null) {
-            throw new NullPointerException("host must not be null");
-        }
-        if (logger.isDebugEnabled()) {
-            logger.debug("scan range:{}", range);
-        }
-        long startTime = TimeUtils.reverseTimeMillis(timeSlot.getTimeSlot(range.getFrom()));
-        long endTime = TimeUtils.reverseTimeMillis(timeSlot.getTimeSlot(range.getTo()) + 1);
-
-        // start key is replaced by end key because timestamp has been reversed
-        byte[] startKey = Bytes.toBytes(endTime);
-        byte[] endKey = Bytes.toBytes(startTime);
-
-        Scan scan = new Scan();
-        scan.setCaching(this.scanCacheSize);
-        scan.setStartRow(startKey);
-        scan.setStopRow(endKey);
-        scan.addColumn(HBaseTables.HOST_APPLICATION_MAP_CF_MAP, Bytes.toBytes(host));
-        scan.setId("HostApplicationScan");
-
-        return scan;
-    }
 
     @Override
     public Set<AcceptApplication> findAcceptApplicationName(Application fromApplication, Range range) {

@@ -16,13 +16,8 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import java.util.*;
-
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
-import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.*;
 import com.navercorp.pinpoint.web.dao.*;
 import com.navercorp.pinpoint.web.vo.*;
@@ -96,58 +91,4 @@ public class MapServiceImpl implements MapService {
     }
 
 
-    @Override
-    @Deprecated
-    public NodeHistogram linkStatistics(Application sourceApplication, Application destinationApplication, Range range) {
-        if (sourceApplication == null) {
-            throw new NullPointerException("sourceApplication must not be null");
-        }
-        if (destinationApplication == null) {
-            throw new NullPointerException("destinationApplication must not be null");
-        }
-
-        List<LinkDataMap> list = selectLink(sourceApplication, destinationApplication, range);
-        logger.debug("Fetched statistics data size={}", list.size());
-
-        ResponseHistogramBuilder responseHistogramSummary = new ResponseHistogramBuilder(range);
-        for (LinkDataMap entry : list) {
-            for (LinkData linkData : entry.getLinkDataList()) {
-                AgentHistogramList sourceList = linkData.getSourceList();
-                Collection<AgentHistogram> agentHistogramList = sourceList.getAgentHistogramList();
-                for (AgentHistogram histogram : agentHistogramList) {
-                    for (TimeHistogram timeHistogram : histogram.getTimeHistogram()) {
-                        Application toApplication = linkData.getToApplication();
-                        if (toApplication.getServiceType().isRpcClient()) {
-                            toApplication = this.applicationFactory.createApplication(toApplication.getName(), ServiceType.UNKNOWN);
-                        }
-                        responseHistogramSummary.addLinkHistogram(toApplication, histogram.getId(), timeHistogram);
-                    }
-                }
-            }
-        }
-        responseHistogramSummary.build();
-        List<ResponseTime> responseTimeList = responseHistogramSummary.getResponseTimeList(destinationApplication);
-        final NodeHistogram histogramSummary = new NodeHistogram(destinationApplication, range, responseTimeList);
-        return histogramSummary;
-    }
-
-    @Deprecated
-    private List<LinkDataMap> selectLink(Application sourceApplication, Application destinationApplication, Range range) {
-        if (sourceApplication.getServiceType().isUser()) {
-            logger.debug("Find 'client -> any' link statistics");
-            // client is recorded as applicationName + serviceType.client
-            // Therefore, src and dest are both identical to dest
-            Application userApplication = new Application(destinationApplication.getName(), sourceApplication.getServiceType());
-            return mapStatisticsCallerDao.selectCallerStatistics(userApplication, destinationApplication, range);
-        } else if (destinationApplication.getServiceType().isWas()) {
-            logger.debug("Find 'any -> was' link statistics");
-            // for cases where the destination is a WAS, client events may be weaved in the middle.
-            // we therefore need to look through the list of callees with the same caller.
-            return mapStatisticsCalleeDao.selectCalleeStatistics(sourceApplication, destinationApplication, range);
-        } else {
-            logger.debug("Find 'was -> terminal' link statistics");
-            // query for WAS -> Terminal statistics
-            return mapStatisticsCallerDao.selectCallerStatistics(sourceApplication, destinationApplication, range);
-        }
-    }
 }

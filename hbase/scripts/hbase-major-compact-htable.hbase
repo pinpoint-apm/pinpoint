@@ -7,21 +7,15 @@ major_compact 'ApplicationIndex'
 major_compact 'StringMetaData'
 major_compact 'ApiMetaData'
 
-major_compact 'SqlMetaData'
 major_compact 'SqlMetaData_Ver2'
 
 major_compact 'ApplicationTraceIndex'
 major_compact 'Traces'
 
-major_compact 'ApplicationMapStatisticsCaller'
-major_compact 'ApplicationMapStatisticsCallee'
-major_compact 'ApplicationMapStatisticsSelf'
-
 major_compact 'ApplicationMapStatisticsCaller_Ver2'
 major_compact 'ApplicationMapStatisticsCallee_Ver2'
 major_compact 'ApplicationMapStatisticsSelf_Ver2'
 
-major_compact 'HostApplicationMap'
 major_compact 'HostApplicationMap_Ver2'
 
 exit

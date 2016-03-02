@@ -84,10 +84,6 @@ public final class HBaseTables {
     public static final byte[] AGENTID_APPLICATION_INDEX_CF_APPLICATION = Bytes.toBytes("Application");
 
 
-    public static final String SQL_METADATA = "SqlMetaData";
-    public static final byte[] SQL_METADATA_CF_SQL = Bytes.toBytes("Sql");
-    public static final byte[] SQL_METADATA_CF_SQL_QUALI_SQLSTATEMENT = Bytes.toBytes("P_sql_statement");
-    
     public static final String SQL_METADATA_VER2 = "SqlMetaData_Ver2";
     public static final byte[] SQL_METADATA_VER2_CF_SQL = Bytes.toBytes("Sql");
     public static final byte[] SQL_METADATA_VER2_CF_SQL_QUALI_SQLSTATEMENT = Bytes.toBytes("P_sql_statement");
@@ -100,28 +96,15 @@ public final class HBaseTables {
     public static final byte[] API_METADATA_CF_API = Bytes.toBytes("Api");
     public static final byte[] API_METADATA_CF_API_QUALI_SIGNATURE = Bytes.toBytes("P_api_signature");
 
-    public static final String MAP_STATISTICS_CALLER = "ApplicationMapStatisticsCaller";
-    public static final byte[] MAP_STATISTICS_CALLER_CF_COUNTER = Bytes.toBytes("C");
-
     public static final String MAP_STATISTICS_CALLER_VER2 = "ApplicationMapStatisticsCaller_Ver2";
     public static final byte[] MAP_STATISTICS_CALLER_VER2_CF_COUNTER = Bytes.toBytes("C");
-
-    public static final String MAP_STATISTICS_CALLEE = "ApplicationMapStatisticsCallee";
-    // to be removed - use ver2 instead. remove relevant code as well.
-    public static final byte[] MAP_STATISTICS_CALLEE_CF_COUNTER = Bytes.toBytes("C");
-    public static final byte[] MAP_STATISTICS_CALLEE_CF_VER2_COUNTER = Bytes.toBytes("D");
 
     public static final String MAP_STATISTICS_CALLEE_VER2 = "ApplicationMapStatisticsCallee_Ver2";
     public static final byte[] MAP_STATISTICS_CALLEE_VER2_CF_COUNTER = Bytes.toBytes("C");
 
-    public static final String MAP_STATISTICS_SELF = "ApplicationMapStatisticsSelf";
-    public static final byte[] MAP_STATISTICS_SELF_CF_COUNTER = Bytes.toBytes("C");
 
     public static final String MAP_STATISTICS_SELF_VER2 = "ApplicationMapStatisticsSelf_Ver2";
     public static final byte[] MAP_STATISTICS_SELF_VER2_CF_COUNTER = Bytes.toBytes("C");
-
-    public static final String HOST_APPLICATION_MAP = "HostApplicationMap";
-    public static final byte[] HOST_APPLICATION_MAP_CF_MAP = Bytes.toBytes("M");
 
     public static final String HOST_APPLICATION_MAP_VER2 = "HostApplicationMap_Ver2";
     public static final byte[] HOST_APPLICATION_MAP_VER2_CF_MAP = Bytes.toBytes("M");
