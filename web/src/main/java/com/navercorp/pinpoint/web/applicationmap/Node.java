@@ -16,14 +16,10 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
-import java.io.IOException;
-
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.view.NodeSerializer;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import org.slf4j.Logger;
@@ -47,15 +43,6 @@ public class Node {
     private ServerInstanceList serverInstanceList = new ServerInstanceList();
 
     private NodeHistogram nodeHistogram;
-
-    // temporary
-    @Deprecated
-    private static ObjectMapper MAPPER;
-
-    @Deprecated
-    static void setObjectMapper(ObjectMapper objectMapper) {
-        MAPPER = objectMapper;
-    }
 
     public Node(Application application) {
         if (application == null) {
@@ -91,15 +78,6 @@ public class Node {
         return serverInstanceList;
     }
 
-    @Deprecated
-    @JsonIgnore
-    public String getNodeJson() {
-        try {
-            return MAPPER.writeValueAsString(this);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex.getMessage(), ex);
-        }
-    }
 
     public String getJson() {
         StringBuilder sb = new StringBuilder();
