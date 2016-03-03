@@ -67,6 +67,9 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
+    private AgentInfoService agentInfoService;
+
+    @Autowired
     private TraceDao traceDao;
 
     @Autowired
@@ -337,7 +340,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
         ApplicationMapBuilder applicationMapBuilder = new ApplicationMapBuilder(range);
         mapHistogramSummary.build();
-        ApplicationMap map = applicationMapBuilder.build(linkDataDuplexMap, mapHistogramSummary);
+        ApplicationMap map = applicationMapBuilder.build(linkDataDuplexMap, agentInfoService, mapHistogramSummary);
 
         return map;
     }
