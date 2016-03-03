@@ -44,7 +44,6 @@
 		});
 	};
 	DataManager.prototype.loadRealtimeData = function( callbackRealtimeSuccess, widthOfPixel, heightOfPixel ) {
-		console.log( "-----------------loadRealtimeData");
 		var self = this;
 
 		var start = Date.now();

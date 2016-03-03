@@ -7,8 +7,8 @@
 	 * @name distributedCallFlowDirective
 	 * @class
 	 */	
-	pinpointApp.directive('distributedCallFlowDirective', [ '$filter', '$timeout', 'SQLAjaxService',
-	    function ($filter, $timeout, sqlAjaxService) {
+	pinpointApp.directive('distributedCallFlowDirective', [ '$filter', '$timeout', 'CommonAjaxService',
+	    function ($filter, $timeout, commonAjaxService) {
 	        return {
 	            restrict: 'E',
 	            replace: true,
@@ -333,7 +333,7 @@
 	                        	
 	                        	if ( angular.isDefined( itemNext ) && itemNext.method === "SQL-BindValue" ) {
 	                        		data += "&bind=" + encodeURIComponent( itemNext.argument );
-	                        		sqlAjaxService.getSQLBind( "/sqlBind.pinpoint", data, function( result ) {
+	                        		commonAjaxService.getSQLBind( "/sqlBind.pinpoint", data, function( result ) {
 		                        		$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html(
 		                        				'<h4>Binded SQL <button class="btn btn-default btn-xs sql">Copy</button></h4>' + 
 		                        				'<div style="position:absolute;left:10000px">' + result + '</div>' +
