@@ -8,8 +8,6 @@
 	 * @class
 	 */	
 	pinpointApp.constant('cfg', {
-	    applicationUrl: "/applications.pinpoint",
-	    serverTimeUrl: "/serverTime.pinpoint",
 	    periodTypePrefix: ".navbar.periodType",
 		periodType: {
 			"RANGE": "range",
@@ -18,8 +16,8 @@
 		}
 	});
 	
-	pinpointApp.directive('navbarDirective', [ 'cfg', '$rootScope', '$http','$document', '$timeout', '$window',  'webStorage', 'helpContentService', 'AnalyticsService', 'PreferenceService', 'TooltipService',
-	    function (cfg, $rootScope, $http, $document, $timeout, $window, webStorage, helpContentService, analyticsService, preferenceService, tooltipService) {
+	pinpointApp.directive('navbarDirective', [ "cfg", "$rootScope", "$http","$document", "$timeout", "$window",  "webStorage", "helpContentService", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService",
+	    function (cfg, $rootScope, $http, $document, $timeout, $window, webStorage, helpContentService, analyticsService, preferenceService, tooltipService, commonAjaxService) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -352,45 +350,43 @@
 	                 * @param cb
 	                 */
 	                getQueryEndTimeFromServer = function (cb) {
-	                    $http.get(cfg.serverTimeUrl).success(function (data, status) {
-	                        cb(data.currentServerTime);
-	                    }).error(function (data, status) {
-	
-	                    });
+						commonAjaxService.getServerTime( function( serverTime ) {
+							cb( serverTime );
+						});
 	                };
 	
 	                /**
 	                 * get Application List
 	                 */
 	                getApplicationList = function () {
-	                    $http.get(cfg.applicationUrl).success(function (data, status) {
-	                        if (angular.isArray(data) === false || data.length === 0) {
-	                            scope.applications[0].text = 'Application not found.';
-	                            $rootScope.$broadcast("alarmRule.applications.set", scope.applications);
-	                            $rootScope.$broadcast("configuration.general.applications.set", scope.applications);
-	                        } else {
-	                        	applicationResource = data;
-	                            parseApplicationList(applicationResource, function () {
-	                                scope.disableApplication = false;
-	                                $timeout(function () { // it should be apply after pushing data, so
-	                                    // it should work like nextTick
-	//                                    initializeApplication();
-	                                    if (oNavbarVoService.getApplication()) {
-	                                        $application.select2('val', oNavbarVoService.getApplication());
-	                                        scope.application = oNavbarVoService.getApplication();
-	                                    } else {
+						commonAjaxService.getApplicationList( function( data ) {
+							if (angular.isArray(data) === false || data.length === 0) {
+								scope.applications[0].text = 'Application not found.';
+								$rootScope.$broadcast("alarmRule.applications.set", scope.applications);
+								$rootScope.$broadcast("configuration.general.applications.set", scope.applications);
+							} else {
+								applicationResource = data;
+								parseApplicationList(applicationResource, function () {
+									scope.disableApplication = false;
+									$timeout(function () { // it should be apply after pushing data, so
+										// it should work like nextTick
+										//                                    initializeApplication();
+										if (oNavbarVoService.getApplication()) {
+											$application.select2('val', oNavbarVoService.getApplication());
+											scope.application = oNavbarVoService.getApplication();
+										} else {
 											$application.select2('open');
 										}
-	                                });
-	                                $rootScope.$broadcast("alarmRule.applications.set", scope.applications);
-	                                $rootScope.$broadcast("configuration.general.applications.set", scope.applications);
-	                            });
-	                        }
-	                        scope.hideFakeApplication = true;
-	                    }).error(function (data, status) {
-	                        scope.applications[0].text = 'Application error.';
-	                        scope.hideFakeApplication = true;
-	                    });
+									});
+									$rootScope.$broadcast("alarmRule.applications.set", scope.applications);
+									$rootScope.$broadcast("configuration.general.applications.set", scope.applications);
+								});
+							}
+							scope.hideFakeApplication = true;
+						}, function() {
+							scope.applications[0].text = 'Application error.';
+							scope.hideFakeApplication = true;
+						});
 	                };
 	
 	                /**

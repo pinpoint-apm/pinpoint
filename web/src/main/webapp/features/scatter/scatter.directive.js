@@ -57,8 +57,8 @@
 		}
 	});
 
-	pinpointApp.directive("scatterDirective", ["scatterDirectiveConfig", "$rootScope", "$compile", "$timeout", "webStorage", "$window", "$http", "TooltipService", "AnalyticsService", "CONST_SET",
-		function (cfg, $rootScope, $compile, $timeout, webStorage, $window, $http, tooltipService, analyticsService, CONST_SET) {
+	pinpointApp.directive("scatterDirective", ["scatterDirectiveConfig", "$rootScope", "$compile", "$timeout", "webStorage", "$window", "$http", "CommonAjaxService", "TooltipService", "AnalyticsService", "CONST_SET",
+		function (cfg, $rootScope, $compile, $timeout, webStorage, $window, $http, commonAjaxService, tooltipService, analyticsService, CONST_SET) {
 			return {
 				template: cfg.template,
 				restrict: "EA",
@@ -80,7 +80,6 @@
 						options.minX = start;
 						options.maxX = end;
 						options.realtime = isRealtime();
-						console.log( "realtime : ", options.realtime );
 
 						var oScatterChart = new BigScatterChart2(options, getAgentList(scatterData), [
 							new BigScatterChart2.SettingFeature( cfg.images.config ).addCallback( function( oChart, oValue ) {
@@ -130,24 +129,20 @@
 					function showScatter (application, w, h) {
 						element.children().hide();
 						pauseScatterAll();
-						console.log( application );
 						if (angular.isDefined(htScatterSet[application])) {
 							htScatterSet[application].target.show();
 							if ( isRealtime() ) {
 
-									$http.get( "/serverTime.pinpoint" ).success(function (data, status) {
-										htScatterSet[application].scatter.resume( data.currentServerTime - 300000, data.currentServerTime );
-										htScatterSet[application].scatter.selectAgent(CONST_SET.AGENT_ALL, true);
-									}).error(function (data, status) {
-
-									});
+								commonAjaxService.getServerTime( function( serverTime ) {
+									htScatterSet[application].scatter.resume( serverTime - 300000, serverTime );
+									htScatterSet[application].scatter.selectAgent(CONST_SET.AGENT_ALL, true);
+								});
 							} else {
 								htScatterSet[application].scatter.resume();
 								htScatterSet[application].scatter.selectAgent(CONST_SET.AGENT_ALL, true);
 							}
 
 						} else {
-							console.log( "makeNewScatter" );
 							makeNewScatter( application, w, h );
 						}
 					}
