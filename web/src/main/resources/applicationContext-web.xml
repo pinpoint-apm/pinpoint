@@ -59,8 +59,6 @@
 
     <bean id="jsonObjectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean">
     </bean>
-    <bean id="nodeObjectMapperInitializer" class="com.navercorp.pinpoint.web.applicationmap.NodeObjectMapperInitializer">
-    </bean>
     
     <bean id="rangeFactory" class="com.navercorp.pinpoint.web.vo.RangeFactory">
     </bean>
