@@ -24,13 +24,11 @@ import com.navercorp.pinpoint.web.view.LinkSerializer;
 import com.navercorp.pinpoint.web.view.ResponseTimeViewModel;
 import com.navercorp.pinpoint.web.vo.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -61,8 +59,6 @@ public class Link {
     private final LinkCallDataMap sourceLinkCallDataMap = new LinkCallDataMap();
 
     private final LinkCallDataMap targetLinkCallDataMap = new LinkCallDataMap();
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private Histogram linkHistogram;
 
@@ -125,14 +121,6 @@ public class Link {
         return targetLinkCallDataMap;
     }
 
-    @JsonIgnore
-    public String getJson() {
-        try {
-            return MAPPER.writeValueAsString(this);
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
 
     public AgentHistogramList getTargetList() {
         return sourceLinkCallDataMap.getTargetList();
