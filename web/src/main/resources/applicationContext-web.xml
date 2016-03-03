@@ -59,8 +59,6 @@
 
     <bean id="jsonObjectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean">
     </bean>
-    <bean id="nodeObjectMapperInitializer" class="com.navercorp.pinpoint.web.applicationmap.NodeObjectMapperInitializer">
-    </bean>
     
     <bean id="rangeFactory" class="com.navercorp.pinpoint.web.vo.RangeFactory">
     </bean>
@@ -105,23 +103,14 @@
     </bean>
     
     <bean id="spanServiceImpl" class="com.navercorp.pinpoint.web.service.SpanServiceImpl">
-        <property name="sqlMetaDataDao" ref="hbaseSqlMetaDataCompatibility"/>
-    </bean>
-    
-    <bean id="hbaseSqlMetaDataCompatibility" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlMetaDataCompatibility">
-        <property name="hbaseSqlMetaDataDao" ref="hbaseSqlMetaDataDao"/>
-        <property name="hbaseSqlMetaDataPastVersionDao" ref="hbaseSqlMetaDataPastVersionDao"/>
+        <property name="sqlMetaDataDao" ref="hbaseSqlMetaDataDao"/>
     </bean>
     
     <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlMetaDataDao">
         <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor2"></property>
         <property name="sqlMetaDataMapper" ref="sqlMetaDataMapper2"></property>
     </bean>
-    <bean id="hbaseSqlMetaDataPastVersionDao" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlMetaDataPastVersionDao">
-        <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor"></property>
-        <property name="sqlMetaDataMapper" ref="sqlMetaDataMapper"></property>
-    </bean>
-    
+
     <bean id="sqlMetaDataMapper" class="com.navercorp.pinpoint.web.mapper.SqlMetaDataMapper">
         <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor"></property>
     </bean>
