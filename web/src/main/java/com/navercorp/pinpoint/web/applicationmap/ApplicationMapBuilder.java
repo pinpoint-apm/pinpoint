@@ -137,6 +137,10 @@ public class ApplicationMapBuilder {
 
     private ServerInstanceList getServerInstanceList(final Node node, final AgentInfoService agentInfoService) {
         long timestamp = range.getTo();
+        if (timestamp < 0) {
+            return new ServerInstanceList();
+        }
+
         Set<AgentInfo> agentList = agentInfoService.getAgentsByApplicationNameWithoutStatus(node.getApplication().getName(), timestamp);
         if (agentList.isEmpty()) {
             logger.warn("agentInfo not found. applicationName:{}", node.getApplication());
