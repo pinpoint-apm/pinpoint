@@ -79,18 +79,6 @@ public class Node {
     }
 
 
-    public String getJson() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{ ");
-        sb.append("\"applicationName\" : \"").append(getApplicationTextName()).append("\",");
-        sb.append("\"serviceType\" : \"").append(application.getServiceType()).append("\",");
-        sb.append("\"serviceTypeCode\" : \"").append(application.getServiceTypeCode()).append("\"");
-        sb.append(" }");
-        return sb.toString();
-    }
-
-
-
     public Application getApplication() {
         return application;
     }
