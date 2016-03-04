@@ -1,6 +1,6 @@
 (function(global, $) {
 	'use strict';
-	function TypeManager( option, oSizeCoordinateManager, $elContainer, oCallback ) {
+	function BubbleTypeManager( option, oSizeCoordinateManager, $elContainer, oCallback ) {
 		this._option = option;
 		this._oSCManager = oSizeCoordinateManager;
 		this._oCallback = oCallback;
@@ -8,14 +8,14 @@
 		this._initElements( $elContainer );
 		this._initEvents();
 	}
-	TypeManager.prototype.option = function( key ) {
+	BubbleTypeManager.prototype.option = function( key ) {
 		return this._option[key];
 	};
-	TypeManager.prototype._initVar = function() {
+	BubbleTypeManager.prototype._initVar = function() {
 		this._oReferenceLI = {};
 		this._oReferenceSpan = {};
 	};
-	TypeManager.prototype._initElements = function( $elContainer ) {
+	BubbleTypeManager.prototype._initElements = function( $elContainer ) {
 		var self = this;
 		var oPadding = this._oSCManager.getPadding();
 
@@ -52,7 +52,7 @@
 		});
 		this._$element.append( this._$elTypeUL).appendTo( $elContainer );
 	};
-	TypeManager.prototype._sortTypeInfo = function() {
+	BubbleTypeManager.prototype._sortTypeInfo = function() {
 		var aOriginal = [];
 		$.each( this.option("typeInfo"), function( key, a ) {
 			aOriginal.push( a );
@@ -68,7 +68,7 @@
 			return aOriginal[ o.index ];
 		});
 	};
-	TypeManager.prototype._initEvents = function() {
+	BubbleTypeManager.prototype._initEvents = function() {
 		var self = this;
 		var oCheckBoxImageData = this.option("checkBoxImage");
 
@@ -86,13 +86,13 @@
 			self._oCallback.onSend( type, !bChecked );
 		});
 	};
-	TypeManager.prototype.showTypeCount = function( oTypeCount ) {
+	BubbleTypeManager.prototype.showTypeCount = function( oTypeCount ) {
 		var self = this;
 		$.each( oTypeCount, function (sKey, sVal) {
 			self._oReferenceSpan[sKey].text( BigScatterChart2.Util.addComma( sVal ) );
 		});
 	};
-	TypeManager.prototype.getVisibleType = function() {
+	BubbleTypeManager.prototype.getVisibleType = function() {
 		var a = [];
 		$.each(this._oReferenceLI, function( sKey, $elTypeLI ) {
 			if ( $elTypeLI.hasClass("unchecked") === false ) {
@@ -101,7 +101,7 @@
 		});
 		return a;
 	};
-	TypeManager.prototype.selectType = function( type ) {
+	BubbleTypeManager.prototype.selectType = function( type ) {
 		var oCheckBoxImageData = this.option("checkBoxImage");
 		$.each( this._oReferenceLI, function( key, $elLI ) {
 			if ( key === type ) {
@@ -111,18 +111,18 @@
 			}
 		});
 	};
-	TypeManager.prototype.selectAll = function() {
+	BubbleTypeManager.prototype.selectAll = function() {
 		var oCheckBoxImageData = this.option("checkBoxImage");
 		$.each( this._oReferenceLI, function( key, $elLI ) {
 			$elLI.removeClass("unchecked").css("background-image", "url(" + oCheckBoxImageData.checked + ")");
 		})
 	};
-	TypeManager.prototype.isChecked = function( type ) {
+	BubbleTypeManager.prototype.isChecked = function( type ) {
 		return this._oReferenceLI[type].hasClass("unchecked") === false;
 	};
-	TypeManager.prototype.getElementLI = function() {
+	BubbleTypeManager.prototype.getElementLI = function() {
 		return this._oReferenceLI;
 	};
 
-	global.BigScatterChart2.TypeManager = TypeManager;
+	global.BigScatterChart2.BubbleTypeManager = BubbleTypeManager;
 })(window, jQuery);

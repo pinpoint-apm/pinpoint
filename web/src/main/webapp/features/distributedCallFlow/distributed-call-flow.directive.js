@@ -460,7 +460,9 @@
 	                 * scope event on distributedCallFlowDirective.resize
 	                 */
 	                scope.$on('distributedCallFlowDirective.resize.' + scope.namespace, function (event) {
-	                    grid.resizeCanvas();
+						if ( grid ) {
+							grid.resizeCanvas();
+						}
 	                });
 	                scope.$on("distributedCallFlowDirective.selectRow." + scope.namespace, function( event, rowId ) {
 	                	var gridRow = rowId - 1;

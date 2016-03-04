@@ -1,12 +1,12 @@
 (function(global, $) {
 	'use strict';
-	function MessageFeature() {
+	function MessagePlugin() {
 		this._init();
 	}
-	MessageFeature.prototype._init = function() {
+	MessagePlugin.prototype._init = function() {
 		this._aCallback = [];
 	};
-	MessageFeature.prototype.initElement = function( $elParent, $elPlugin, option ) {
+	MessagePlugin.prototype.initElement = function( $elParent, $elPlugin, option ) {
 		this._$element = $("<div>")
 		.css({
 			"top": 0,
@@ -32,18 +32,18 @@
 
 		return this;
 	};
-	MessageFeature.prototype.initEvent = function( /* oChart */ ) {
+	MessagePlugin.prototype.initEvent = function( /* oChart */ ) {
 		return this;
 	};
-	MessageFeature.prototype.addCallback = function( fn ) {
+	MessagePlugin.prototype.addCallback = function( fn ) {
 		this._aCallback.push( fn );
 	};
-	MessageFeature.prototype.show = function( message ) {
+	MessagePlugin.prototype.show = function( message ) {
 		this._$element.find("> div").html( message).end().show();
 	};
-	MessageFeature.prototype.hide = function() {
+	MessagePlugin.prototype.hide = function() {
 		this._$element.hide();
 	};
 
-	global.BigScatterChart2.MessageFeature = MessageFeature;
+	global.BigScatterChart2.MessagePlugin = MessagePlugin;
 })(window, jQuery);

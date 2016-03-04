@@ -37,6 +37,7 @@
 				var bHasParent = hasParent();
 				var bHasValidParam = hasValidParam();
 				var bHasTransactionInfo = !angular.isUndefined( $routeParams.transactionInfo );
+				console.log( bHasParent, bHasValidParam, bHasTransactionInfo );
 				if ( bHasTransactionInfo ) {
 					var i2 = $routeParams.transactionInfo.lastIndexOf("-");
 					var i1 = $routeParams.transactionInfo.lastIndexOf("-", i2 -1);
@@ -91,11 +92,20 @@
 			hasValidParam = function() {
 				if ( $window.opener == null ) return false;
 				var $parentParams = $window.opener.$routeParams;
-				return angular.isDefined($routeParams) &&
-						angular.isDefined($parentParams) &&
-						angular.equals($routeParams.application, $parentParams.application) &&
-						angular.equals($routeParams.readablePeriod, $parentParams.readablePeriod) &&
-						angular.equals($routeParams.queryEndDateTime, $parentParams.queryEndDateTime);
+				if ( angular.isDefined($routeParams) && angular.isDefined($parentParams) ) {
+					if ( $parentParams.readablePeriod === "realtime" ) {
+						if ( angular.equals($routeParams.application, $parentParams.application ) ) {
+							return true;
+						}
+					} else {
+						if ( angular.equals($routeParams.application, $parentParams.application) &&
+							angular.equals($routeParams.readablePeriod, $parentParams.readablePeriod) &&
+							angular.equals($routeParams.queryEndDateTime, $parentParams.queryEndDateTime) ) {
+							return true;
+						}
+					}
+				}
+				return false;
 			};
 
 	        /**

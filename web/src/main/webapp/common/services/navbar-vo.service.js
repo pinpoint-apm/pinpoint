@@ -121,9 +121,6 @@
 	        this.getHint = function () {
 	            return self._sHint;
 	        };
-	        this.getHintAsJson = function () {
-	            return JSON.parse(self._sHint);
-	        };
 	
 	        this.setAgentId = function (agentId) {
 	            if (angular.isString(agentId)) {
@@ -164,9 +161,18 @@
 	                        self.setPeriod(period);
 	                        break;
 	                }
-	            }
+	            } else {
+					if ( readablePeriod === "realtime" ) {
+						self.setPeriodType( "realtime" );
+						self._sReadablePeriod = "1m";
+						self.setPeriod( 300 );
+					}
+				}
 	            return self;
 	        };
+			this.isRealtime = function() {
+				return this._periodType === "realtime";
+			};
 	        this.getReadablePeriod = function () {
 	            return self._sReadablePeriod;
 	        };

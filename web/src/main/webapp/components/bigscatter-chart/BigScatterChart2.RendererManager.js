@@ -1,10 +1,11 @@
 (function(global, $) {
 	'use strict';
-	function CanvasManager( option, oSizeCoordinateManager, aAgentList, $elContainer ) {
+	function RendererManager( option, oSizeCoordinateManager, aAgentList, $elContainer ) {
 		this._option = option;
 		this._oSCManager = oSizeCoordinateManager;
 		this._aAgentList = aAgentList;
 		this._$elWrapper = $elContainer;
+
 		this._initVariable();
 		this._makeGridCanvas();
 		this._makeAxisCanvas();
@@ -14,10 +15,10 @@
 		this.updateXYAxis();
 		this._makeDataCanvas();
 	}
-	CanvasManager.prototype.option = function( v ) {
+	RendererManager.prototype.option = function( v ) {
 		return this._option[v];
 	};
-	CanvasManager.prototype._initVariable = function() {
+	RendererManager.prototype._initVariable = function() {
 		this._oElScrollCanvas = {};
 		this._oScrollCtx = {};
 
@@ -33,7 +34,7 @@
 		this._oUncheckedBoxImage = new Image();
 		this._oUncheckedBoxImage.src = oCheckboxImageData.unchecked;
 	};
-	CanvasManager.prototype._makeGridCanvas = function() {
+	RendererManager.prototype._makeGridCanvas = function() {
 		this._$elGuideCanvas = $("<canvas>").attr({
 			"width": this._oSCManager.getWidth(),
 			"height": this._oSCManager.getHeight()
@@ -45,7 +46,7 @@
 
 		this._oCtxGrid = this._$elGuideCanvas.get(0).getContext("2d");
 	};
-	CanvasManager.prototype._makeAxisCanvas = function() {
+	RendererManager.prototype._makeAxisCanvas = function() {
 		this._$elAxisCanvas = $("<canvas>").attr({
 			"width": this._oSCManager.getWidth(),
 			"height": this._oSCManager.getHeight()
@@ -57,7 +58,7 @@
 
 		this._oCtxAxis = this._$elAxisCanvas.get(0).getContext("2d");
 	};
-	CanvasManager.prototype._getNotSupportMarkup = function() {
+	RendererManager.prototype._getNotSupportMarkup = function() {
 		return $("<div>Your browser does not support the canvas element, get a better one!</div>").css({
 			"color": "#fff",
 			"width": this._oSCManager.getWidth(),
@@ -66,7 +67,7 @@
 			"background-color": "#8b2e19"
 		});
 	};
-	CanvasManager.prototype._drawGridLine = function() {
+	RendererManager.prototype._drawGridLine = function() {
 
 		var width = this._oSCManager.getWidth();
 		var height = this._oSCManager.getHeight();
@@ -94,7 +95,7 @@
 		}
 	};
 
-	CanvasManager.prototype._drawAxisLine = function() {
+	RendererManager.prototype._drawAxisLine = function() {
 		var width = this._oSCManager.getWidth();
 		var height = this._oSCManager.getHeight();
 		var oPadding = this._oSCManager.getPadding();
@@ -132,7 +133,7 @@
 			this._oCtxAxis.stroke();
 		}
 	};
-	CanvasManager.prototype._setStyle = function( ctx, oStyle ) {
+	RendererManager.prototype._setStyle = function( ctx, oStyle ) {
 		$.each( oStyle, function( key, value ) {
 			if ( key === "lineDash" ) {
 				ctx.setLineDash( value );
@@ -141,7 +142,7 @@
 			}
 		});
 	};
-	CanvasManager.prototype._moveTo = function( ctx, x, y ) {
+	RendererManager.prototype._moveTo = function( ctx, x, y ) {
 		if (x  % 1 === 0) {
 			x += 0.5;
 		}
@@ -150,7 +151,7 @@
 		}
 		ctx.moveTo(x, y);
 	};
-	CanvasManager.prototype._lineTo = function( ctx, x, y ) {
+	RendererManager.prototype._lineTo = function( ctx, x, y ) {
 		if (x  % 1 === 0) {
 			x += 0.5;
 		}
@@ -159,7 +160,7 @@
 		}
 		ctx.lineTo(x, y);
 	};
-	CanvasManager.prototype._drawAxisValue = function() {
+	RendererManager.prototype._drawAxisValue = function() {
 		var tickX = this._oSCManager.getWidthOfChartSpace() / this._ticksOfX;
 		var tickY = this._oSCManager.getHeightOfChartSpace() / this._ticksOfY;
 		var width = this._oSCManager.getWidth();
@@ -242,7 +243,7 @@
 			}).appendTo( this._welCoordinate );
 		}
 	};
-	CanvasManager.prototype._makeDataCanvas = function() {
+	RendererManager.prototype._makeDataCanvas = function() {
 		var self = this;
 		var bubbleSize = this._oSCManager.getBubbleSize();
 		var sPrefix = this.option("sPrefix");
@@ -306,10 +307,10 @@
 		this._oScrollIndexOrder = [ 0, 1 ];
 
 	};
-	CanvasManager.prototype.getChartAsImage = function( type, oElType ) {
+	RendererManager.prototype.getChartAsImage = function( type, oElType ) {
 		return this._mergeAllDisplay( oElType ).get(0).toDataURL("image/" + type.toLowerCase() );
 	};
-	CanvasManager.prototype.updateXYAxis = function( minX, maxX, minY, maxY ) {
+	RendererManager.prototype.updateXYAxis = function( minX, maxX, minY, maxY ) {
 		var self = this;
 		if ($.isNumeric(minX)) {
 			//this._minX = this.option("minX", minX);
@@ -324,7 +325,7 @@
 			//this._maxY = this.option("maxY", maxY);
 		}
 
-		var fnXAxisFormat = this.option("fXAxisFormat");
+		var fnXAxisFormat = this.option( "fnXAxisFormat" );
 		var oRangeX = this._oSCManager.getX();
 		var tickX = ( this._oSCManager.getGapX() ) / this._ticksOfX;
 		$.each( this._aElAxisX, function ( index, $el ) {
@@ -335,7 +336,7 @@
 			}
 		});
 
-		var fnYAxisFormat = this.option("fYAxisFormat");
+		var fnYAxisFormat = this.option( "fnYAxisFormat" );
 		var oRangeY = this._oSCManager.getY();
 		var tickY = ( this._oSCManager.getGapY() ) / this._ticksOfY;
 		$.each( this._aElAxisY, function ( index, $el ) {
@@ -346,7 +347,7 @@
 			}
 		});
 	};
-	CanvasManager.prototype.clear = function() {
+	RendererManager.prototype.clear = function() {
 		var width = this._oSCManager.getCanvasWidth();
 		var height = this._oSCManager.getHeight();
 
@@ -356,7 +357,7 @@
 			});
 		});
 	};
-	CanvasManager.prototype.selectType = function( agentName, type ) {
+	RendererManager.prototype.selectType = function( agentName, type ) {
 		$.each( this._oElScrollCanvas, function( key, aCanvas ) {
 			$.each( aCanvas, function( i, $elCanvas ) {
 				if (BigScatterChart2.Util.endsWith(key, type)) {
@@ -367,7 +368,7 @@
 			});
 		});
 	};
-	CanvasManager.prototype.toggle = function( type ) {
+	RendererManager.prototype.toggle = function( type ) {
 		$.each( this._oElScrollCanvas, function( key, aCanvas ) {
 			$.each( aCanvas, function( i, $elCanvas ) {
 				if (BigScatterChart2.Util.endsWith(key, type)) {
@@ -376,7 +377,7 @@
 			});
 		});
 	};
-	CanvasManager.prototype.showSelectedAgent = function( bIsAll, agentName, oTypeCheckInfo ) {
+	RendererManager.prototype.showSelectedAgent = function( bIsAll, agentName, oTypeCheckInfo ) {
 		var self = this;
 		$.each( this._oElScrollCanvas, function( key, aCanvas ) {
 			if ( bIsAll ) {
@@ -395,10 +396,10 @@
 			}
 		});
 	};
-	CanvasManager.prototype._visible = function( aData, oTypeCheckInfo ) {
+	RendererManager.prototype._visible = function( aData, oTypeCheckInfo ) {
 		return oTypeCheckInfo[aData[ aData.length - 1 ]];
 	};
-	CanvasManager.prototype.drawBubble = function( key, color, aBubbleData ) {
+	RendererManager.prototype.drawBubble = function( key, color, aBubbleData ) {
 		var oPropertyIndex = this.option( "propertyIndex" );
 		var bubbleRadius = this.option( "bubbleRadius" );
 		var oRangeY = this._oSCManager.getY();
@@ -425,7 +426,7 @@
 		this._oScrollCtx[key][ctxIndex].globalAlpha = 0.3 + ( 0.1 * aBubbleData[oPropertyIndex.groupCount] );
 		this._oScrollCtx[key][ctxIndex].fill();
 	};
-	CanvasManager.prototype.moveChart = function( moveXValue ) {
+	RendererManager.prototype.moveChart = function( moveXValue ) {
 		var self = this;
 		var canvasWidth = this._oSCManager.getCanvasWidth();
 		var height = this._oSCManager.getHeight();
@@ -448,7 +449,7 @@
 			}
 		});
 	};
-	CanvasManager.prototype.reset = function() {
+	RendererManager.prototype.reset = function() {
 		var canvasWidth = this._oSCManager.getCanvasWidth();
 		this._$elScroller.css( "left", 0 );
 		this._oScrollIndexOrder = [ 0, 1 ];
@@ -459,7 +460,7 @@
 		});
 		this.clear();
 	};
-	CanvasManager.prototype._mergeAllDisplay = function( oElType )  {
+	RendererManager.prototype._mergeAllDisplay = function( oElType )  {
 		var self = this;
 		var oPadding = this._oSCManager.getPadding();
 		var bubbleSize = this._oSCManager.getBubbleSize();
@@ -567,5 +568,5 @@
 		return $elDownloadCanvas;
 	};
 
-	global.BigScatterChart2.CanvasManager = CanvasManager;
+	global.BigScatterChart2.RendererManager = RendererManager;
 })(window, jQuery);

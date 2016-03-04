@@ -7,7 +7,7 @@
 
 		this._setOption( htOption );
 		this._initVariables();
-		this._initInnerFeature();
+		this._initManager();
 		this._initElements();
 		this._initPlugin( aPlugins );
 		this._initInnerPlugin();
@@ -32,7 +32,7 @@
 	};
 	BigScatterChart2.prototype._setOption = function( htOption ) {
 		this.option({
-			"sContainerId": "",
+			"containerId": "",
 			"sPrefix": "bigscatterchart",
 			"width": 600,
 			"height": 400,
@@ -76,12 +76,12 @@
 				"checked": "data:image/gif;base64,R0lGODlhDgANANU7APf6/QBoAO31+wBEAABZABSmDfj7/kLFLM/k9CpFeCA7bBs1ZiU/cWDZQBgxYvL4/PD2/ABLAKzQ6wBTAPn8/vD3/FLPNgBzAO30/J/J6JKgu1/YPzBLfzVQhQBvAO31/EhknURgmNTn9NPm9Orz+9fc51LQNztWjfX5/e/2++72+9vh7Njp9kBbk9jp9aCvzd3r+QB3AABhAKXM6SGvFTG5IEtnoBUuXuLu+v//zP///wAAAAAAAAAAAAAAAAAAACH5BAEAADsALAAAAAAOAA0AAAaHwJ1tSCS+VrsdSMdsOmOxXUiHq1ohlFguF2vpMAYDBvYxXDaNxuWkA3gCABIgYLGYAruOTraVoWQHgTIlOxw6BDWJiIoUGjsJOg8TNJSUEw8QCTsMOiwVEQWhERUuOAw7CjoSIykDrioiEjgKOws6MzMIArsIuDgLOw4ZVsRWDkk3ycrLN0lBADs=",
 				"unchecked": "data:image/gif;base64,R0lGODlhDgANAPcbANnZ2X9/f3Nzc4eHh4ODg5GRkfDw8IqKim1tbXt7e46Ojnd3d3BwcOzs7NPT09jY2O/v7+3t7eHh4eXl5dXV1enp6d3d3Wtra5OTk/Ly8v///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4wLWMwNjEgNjQuMTQwOTQ5LCAyMDEwLzEyLzA3LTEwOjU3OjAxICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1LjEgTWFjaW50b3NoIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjYxQjZBNkRCQUVEQTExRTI5Q0M1REU5NjlFRThGRDZBIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjYxQjZBNkRDQUVEQTExRTI5Q0M1REU5NjlFRThGRDZBIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6NjFCNkE2RDlBRURBMTFFMjlDQzVERTk2OUVFOEZENkEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NjFCNkE2REFBRURBMTFFMjlDQzVERTk2OUVFOEZENkEiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4B//79/Pv6+fj39vX08/Lx8O/u7ezr6uno5+bl5OPi4eDf3t3c29rZ2NfW1dTT0tHQz87NzMvKycjHxsXEw8LBwL++vby7urm4t7a1tLOysbCvrq2sq6qpqKempaSjoqGgn56dnJuamZiXlpWUk5KRkI+OjYyLiomIh4aFhIOCgYB/fn18e3p5eHd2dXRzcnFwb25tbGtqaWhnZmVkY2JhYF9eXVxbWllYV1ZVVFNSUVBPTk1MS0pJSEdGRURDQkFAPz49PDs6OTg3NjU0MzIxMC8uLSwrKikoJyYlJCMiISAfHh0cGxoZGBcWFRQTEhEQDw4NDAsKCQgHBgUEAwIBAAAh+QQBAAAbACwAAAAADgANAAAIgwA3YBhIsCCGDRsKaFjIsGGGAhsUaMhAsaJFBRsOaIDAkaMBAxwzHNgwQEOEkygbnMwwYAMBDRViypSZgcCGABom6Ny5M0OADQk0SBhKlGiGBBsWaLDAtGnTDAs2CNDw4AEAq1WvZhCwgYEGCmDDhs3AYAMCBxbTZkCA8ILbt3AvIAwIADs="
 			},
-			"fXAxisFormat": function ( tickX, i, minX ) {
-				var oMoment = moment(tickX * i + minX);
-				return oMoment.format("MM-DD") + "<br>" + oMoment.format("HH:mm:ss");
+			"fnXAxisFormat": function ( tickX, i, minX ) {
+				var oMoment = moment( tickX * i + minX );
+				return oMoment.format( "MM-DD" ) + "<br>" + oMoment.format( "HH:mm:ss" );
 			},
-			"fYAxisFormat": function ( tickY, i, minY, maxY ) {
-				return BigScatterChart2.Util.addComma(( maxY + minY) - ((tickY * i) + minY));
+			"fnYAxisFormat": function ( tickY, i, minY, maxY ) {
+				return BigScatterChart2.Util.addComma(( maxY + minY ) - (( tickY * i ) + minY ));
 			},
 			"fOnSelect": function() {}
 		});
@@ -89,20 +89,16 @@
 		this.option( "minY", this._oExternal.loadFromStorage( "scatter-y-min" ) || this.option("minY") );
 		this.option( "maxY", this._oExternal.loadFromStorage( "scatter-y-max" ) || this.option("maxY") );
 	};
-	BigScatterChart2.prototype._initVariables = function( bIsRedrawing ) {
-		if (bIsRedrawing !== true) {
-			this._aBubbles = [];
-		}
+	BigScatterChart2.prototype._initVariables = function() {
+		this._aBubbles = [];
 		this._oSCManager = new BigScatterChart2.SizeCoordinateManager( this.option() );
-
-		this._bDestroied = false;
 		this._bPause = false;
+		this._bDestroied = false;
 		this._bRequesting = false;
-
 		this._getContainer();
 	};
 	BigScatterChart2.prototype._getContainer = function() {
-		var vContainer = this.option("sContainerId");
+		var vContainer = this.option( "containerId" );
 		switch( typeof vContainer ) {
 			case "string":
 				this._$elContainer = $("#" + vContainer);
@@ -119,10 +115,29 @@
 			"width": this._oSCManager.getWidth(),
 			"height": this._oSCManager.getHeight(),
 			"position": "relative"
-		}).addClass("bigscatterchart");
+		}).addClass( this.option( "containerClass" ) );
+	};
+	BigScatterChart2.prototype._initManager = function() {
+		var self = this;
+
+		this._oBubbleTypeManager = new BigScatterChart2.BubbleTypeManager( this.option(), this._oSCManager, this._$elContainer, {
+			"onChange": function( type ) {
+				self._oRendererManager.toggle( type );
+			},
+			"onSend": function( type, bChecked ) {
+				self._oExternal.sendAnalytics( type, bChecked );
+			}
+		});
+		this._oRendererManager = new BigScatterChart2.RendererManager( this.option(), this._oSCManager, this._aAgentList, this._$elContainer );
+		this._oDragManager = new BigScatterChart2.DragManager( this.option(), this._oSCManager, this._$elContainer, {
+			"onSelect": function( oDragAreaPosition, oDragXY ) {
+				if ( self.hasDataByXY( oDragXY.fromX, oDragXY.toX, oDragXY.fromY, oDragXY.toY ) ) {
+					self._oExternal.onSelect( oDragAreaPosition, oDragXY );
+				}
+			}
+		});
 	};
 	BigScatterChart2.prototype._initElements = function() {
-
 		this._$elPluginArea = $("<div>").css({
 			"top": "0px",
 			"left": this._oSCManager.getLeftOfPluginArea() + "px",
@@ -132,52 +147,26 @@
 			"position": "absolute"
 		}).addClass( "plugins" ).appendTo( this._$elContainer );
 	};
-	BigScatterChart2.prototype._initInnerFeature = function() {
+	BigScatterChart2.prototype._initPlugin = function( aPluginList ) {
 		var self = this;
-		this._oTypeManager = new BigScatterChart2.TypeManager( this.option(), this._oSCManager, this._$elContainer, {
-			"onChange": function( type ) {
-				self._oCanvasManager.toggle( type );
-			},
-			"onSend": function( type, bChecked ) {
-				self._oExternal.sendAnalytics( type, bChecked );
-			}
-		});
-		this._oCanvasManager = new BigScatterChart2.CanvasManager( this.option(), this._oSCManager, this._aAgentList, this._$elContainer );
-		this._oDragManager = new BigScatterChart2.DragManager( this.option(), this._oSCManager, this._$elContainer, {
-			"onSelect": function( oDragAreaPosition, oDragXY ) {
-				if ( self.hasDataByXY( oDragXY.fromX, oDragXY.toX, oDragXY.fromY, oDragXY.toY ) ) {
-					self._oExternal.onSelect( oDragAreaPosition, oDragXY );
-				}
-			}
-		});
-	};
-	BigScatterChart2.prototype._initPlugin = function( aFeatureList ) {
-		var self = this;
-		$.each( aFeatureList, function( index, oFeature ) {
-			oFeature.initElement( self._$elContainer, self._$elPluginArea, self.option() ).initEvent( self );
+		$.each( aPluginList, function( index, oPlugin ) {
+			oPlugin.initElement( self._$elContainer, self._$elPluginArea, self.option() ).initEvent( self );
 		});
 	};
 	BigScatterChart2.prototype._initInnerPlugin = function() {
-		this._oMessage = new BigScatterChart2.MessageFeature();
+		this._oMessage = new BigScatterChart2.MessagePlugin();
 		this._oMessage.initElement( this._$elContainer, this._$elPluginArea, this.option() ).initEvent( self );
 	};
 	BigScatterChart2.prototype.fireDragEvent = function( oParam ) {
 		this._oDragManager.triggerDrag( oParam );
 	};
 	BigScatterChart2.prototype.selectType = function( type ) {
-		this._oTypeManager.selectType( type );
-		this._oCanvasManager.selectType( this._currentAgent, type );
+		this._oBubbleTypeManager.selectType( type );
+		this._oRendererManager.selectType( this._currentAgent, type );
 		return this;
 	};
-	BigScatterChart2.prototype.setBubbles = function( aBubbles ) {
-		this._aBubbles = [];
-		this.addBubbles(aBubbles);
-	};
 	BigScatterChart2.prototype.addBubbles = function( oBubbles ) {
-		if ( $.isArray( this._aBubbles ) === false ) {
-			return;
-		}
-		this._aBubbles.push( new BigScatterChart2.BlockData( oBubbles, this.option( "propertyIndex" ), this.option( "typeInfo" ) ) );
+		this._aBubbles.push( new BigScatterChart2.DataBlock( oBubbles, this.option( "propertyIndex" ), this.option( "typeInfo" ) ) );
 	};
 	BigScatterChart2.prototype._getSumCountByType = function() {
 		var self = this;
@@ -187,12 +176,12 @@
 			oSum[oValue[0]] = 0;
 		});
 		for( var i = 0 ; i < this._aBubbles.length ; i++ ) {
-			var oBlockData = this._aBubbles[i];
+			var oDataBlock = this._aBubbles[i];
 			$.each( this._aAgentList, function( index,  agentName ) {
 				if ( self._currentAgent === self._AGENT_ALL || self._currentAgent === agentName ) {
 					$.each( oSum, function( type ) {
-						//if ( self._oTypeManager.isChecked( type ) ) {
-							oSum[type] += oBlockData.getCount( agentName, type, oRangeX.min, oRangeX.max );
+						//if ( self._oBubbleTypeManager.isChecked( type ) ) {
+							oSum[type] += oDataBlock.getCount( agentName, type, oRangeX.min, oRangeX.max );
 						//}
 					});
 				}
@@ -201,7 +190,7 @@
 		return oSum;
 	};
 	BigScatterChart2.prototype.redrawBubbles = function() {
-		this._oTypeManager.showTypeCount( this._getSumCountByType() );
+		this._oBubbleTypeManager.showTypeCount( this._getSumCountByType() );
 
 		if (this._aBubbles.length > 0) {
 			this._oMessage.hide();
@@ -211,13 +200,13 @@
 		}
 	};
 	BigScatterChart2.prototype.clear = function() {
-		this._oCanvasManager.clear();
+		this._oRendererManager.clear();
 		this._aBubbles = [];
-		this._oTypeManager.showTypeCount( this._getSumCountByType() );
+		this._oBubbleTypeManager.showTypeCount( this._getSumCountByType() );
 		this._oDragManager.hide();
 		this._oMessage.show( this.option( "noDataStr" ) );
 	};
-	BigScatterChart2.prototype._drawBubbles = function( oBlockData ) {
+	BigScatterChart2.prototype._drawBubbles = function( oDataBlock ) {
 		var self = this;
 		var oTypeInfo = this.option("typeInfo");
 		var oPropertyIndex = this.option( "propertyIndex" );
@@ -225,12 +214,12 @@
 
 		setTimeout(function () {
 			$.each(self._aAgentList, function (index, agentName) {
-				for (var i = 0, nLen = oBlockData.countByAgent( agentName ); i < nLen && !self._bDestroied; i++) {
-					var aAgentBubbleData = oBlockData.getDataByAgent(agentName, i);
+				for (var i = 0, nLen = oDataBlock.countByAgent( agentName ); i < nLen && !self._bDestroied; i++) {
+					var aAgentBubbleData = oDataBlock.getDataByAgent(agentName, i);
 					var groupCount = aAgentBubbleData[oPropertyIndex.groupCount];
 					if ( groupCount !== 0 ) {
 						var aBubbleType = oTypeInfo[aAgentBubbleData[oPropertyIndex.type]];
-						self._oCanvasManager.drawBubble( BigScatterChart2.Util.makeKey( agentName, sPrefix, aBubbleType[0] ), aBubbleType[1], aAgentBubbleData );
+						self._oRendererManager.drawBubble( BigScatterChart2.Util.makeKey( agentName, sPrefix, aBubbleType[0] ), aBubbleType[1], aAgentBubbleData );
 						//aAgentBubbleData[i].realx = oPosition.x;
 						//aAgentBubbleData[i].realy = oPosition.y;
 						//aAgentBubbleData[i].realz = r;
@@ -248,10 +237,10 @@
 		}
 
 		this.addBubbles( oBubbleData );
-		this._oTypeManager.showTypeCount( this._getSumCountByType() );
+		this._oBubbleTypeManager.showTypeCount( this._getSumCountByType() );
 		this._drawBubbles( this._aBubbles[ this._aBubbles.length - 1 ] ); // takes on average 33 ~ 45 ms
 		this._moveChart( oBubbleData );
-		this._oCanvasManager.updateXYAxis();
+		this._oRendererManager.updateXYAxis();
 	};
 	BigScatterChart2.prototype._moveChart = function( oBubbleData ) {
 		var oRangeX = this._oSCManager.getX();
@@ -259,7 +248,7 @@
 			var moveXTime = oBubbleData.resultTo - oRangeX.max;
 			var moveXValue = moveXTime * this._oSCManager.getPixelPerTime();
 			this._oSCManager.setX( oRangeX.min + moveXTime, oRangeX.max + moveXTime );
-			this._oCanvasManager.moveChart( moveXValue );
+			this._oRendererManager.moveChart( moveXValue );
 		}
 	};
 
@@ -274,13 +263,13 @@
 		toY = parseInt(toY, 10);
 
 		var oRangeY = this._oSCManager.getY();
-		var aVisibleType = this._oTypeManager.getVisibleType();
+		var aVisibleType = this._oBubbleTypeManager.getVisibleType();
 
 		for (var i = 0, nLen = this._aBubbles.length; i < nLen; i++) {
-			var oBlockData = this._aBubbles[i];
-			for (var j = 0, nLen2 = oBlockData.count() ; j < nLen2; j++ ) {
-				var aBubbleData = oBlockData.getData( j );
-				var agentName = oBlockData.getAgentName( aBubbleData );
+			var oDataBlock = this._aBubbles[i];
+			for (var j = 0, nLen2 = oDataBlock.count() ; j < nLen2; j++ ) {
+				var aBubbleData = oDataBlock.getData( j );
+				var agentName = oDataBlock.getAgentName( aBubbleData );
 				if ( this._currentAgent === this._AGENT_ALL || this._currentAgent === agentName  ) {
 					var bubbleX = aBubbleData[oPropertyIndex.x];
 					var bubbleType = oTypeInfo[aBubbleData[oPropertyIndex.type]][0];
@@ -288,7 +277,7 @@
 						var bubbleY = aBubbleData[oPropertyIndex.y];
 						if ( BigScatterChart2.Util.isInRange( fromY, toY, bubbleY ) || toY === oRangeY.max && toY < bubbleY ) {
 							aData.push( [
-								oBlockData.getTransactionID( aBubbleData ),
+								oDataBlock.getTransactionID( aBubbleData ),
 								aBubbleData[oPropertyIndex.x],
 								aBubbleData[oPropertyIndex.y]
 							]);
@@ -310,13 +299,13 @@
 		toY = parseInt(toY, 10);
 
 		var oRangeY = this._oSCManager.getY();
-		var aVisibleType = this._oTypeManager.getVisibleType();
+		var aVisibleType = this._oBubbleTypeManager.getVisibleType();
 
 		for (var i = 0, nLen = this._aBubbles.length; i < nLen; i++) {
-			var oBlockData = this._aBubbles[i];
-			for (var j = 0, nLen2 = oBlockData.count() ; j < nLen2; j++ ) {
-				var aBubbleData = oBlockData.getData( j );
-				var agentName = oBlockData.getAgentName( aBubbleData );
+			var oDataBlock = this._aBubbles[i];
+			for (var j = 0, nLen2 = oDataBlock.count() ; j < nLen2; j++ ) {
+				var aBubbleData = oDataBlock.getData( j );
+				var agentName = oDataBlock.getAgentName( aBubbleData );
 				if ( this._currentAgent === this._AGENT_ALL || this._currentAgent === agentName  ) {
 					var bubbleX = aBubbleData[oPropertyIndex.x];
 					var bubbleType = oTypeInfo[aBubbleData[oPropertyIndex.type]][0];
@@ -349,14 +338,14 @@
 	//	jQuery(document).unbind("mousemove").unbind("mouseup");
 	//};
 	BigScatterChart2.prototype.getChartAsImage = function( type ) {
-		return this._oCanvasManager.getChartAsImage( type, this._oTypeManager.getElementLI() );
+		return this._oRendererManager.getChartAsImage( type, this._oBubbleTypeManager.getElementLI() );
 	};
-	BigScatterChart2.prototype.drawWithDataSource = function( oDataManager ) {
-		this._oDataManager = oDataManager;
-		this._oDataManager.abort();
-		this._oDataManager.initCallCount();
+	BigScatterChart2.prototype.drawWithDataSource = function( oDataLoadManager ) {
+		this._oDataLoadManager = oDataLoadManager;
+		this._oDataLoadManager.abort();
+		this._oDataLoadManager.initCallCount();
 		this._drawWithDataSource();
-		if ( this._oDataManager.hasRealtime() ) {
+		if ( this.option( "realtime" ) ) {
 			this._invokeLoadRealtimeData();
 		}
 	};
@@ -364,7 +353,7 @@
 		var self = this;
 		setTimeout(function() {
 			self._drawWithRealtimeDataSource();
-		}, this._oDataManager.getRealtimeInterval() );
+		}, this._oDataLoadManager.getRealtimeInterval() );
 	};
 	BigScatterChart2.prototype._drawWithDataSource = function() {
 		var self = this;
@@ -372,10 +361,10 @@
 		if (this._bPause || this._bRequesting) {
 			return;
 		}
-		if ( this._oDataManager.isFirstRequest() ) {
-			this._oMessage.show( this.option("loadingStr") );
+		if ( this._oDataLoadManager.isFirstRequest() ) {
+			this._oMessage.show( this.option( "loadingStr" ) );
 		}
-		this._oDataManager.loadData( function() {
+		this._oDataLoadManager.loadData( function() {
 			self._bRequesting = false;
 		}, function( oResultData, hasNextData ) {
 
@@ -387,17 +376,19 @@
 					self._drawWithDataSource();
 				}, hasNextData );
 			} else if (!self._aBubbles || self._aBubbles.length === 0) {
-				self._oMessage.show( self.option("noDataStr") );
+				self._oMessage.show( self.option( "noDataStr" ) );
 			}
-		}, this._oSCManager.getXOfPixel(), this._oSCManager.getYOfPixel() );
+		}, function() {
+			// fail
+		}, this._oSCManager.getXOfPixel(), this._oSCManager.getYOfPixel()
+		);
 		this._bRequesting = true;
 	};
 	BigScatterChart2.prototype._drawWithRealtimeDataSource = function() {
 		var self = this;
-		this._oDataManager.loadRealtimeData( function( oResultData, nextRequestTime ) {
+		this._oDataLoadManager.loadRealtimeData( function( oResultData, nextRequestTime ) {
 			self.addBubbleAndMoveAndDraw( oResultData );
 			setTimeout(function () {
-				console.log( self._aAgentList, self._bPause, oResultData );
 				if( self._bPause === false ) {
 					self._drawWithRealtimeDataSource();
 				}
@@ -405,17 +396,17 @@
 		}, this._oSCManager.getXOfPixel(), this._oSCManager.getYOfPixel() );
 	};
 	BigScatterChart2.prototype.redraw = function() {
-		this._oCanvasManager.clear();
-		this._oCanvasManager.updateXYAxis();
+		this._oRendererManager.clear();
+		this._oRendererManager.updateXYAxis();
 		this.redrawBubbles();
 	};
 	BigScatterChart2.prototype.abort = function() {
-		this._oDataManager.abort();
+		this._oDataLoadManager.abort();
 	};
 	BigScatterChart2.prototype.pause = function() {
 		this._bPause = true;
 		if ( this.option( "realtime" ) ) {
-			this._oCanvasManager.reset();
+			this._oRendererManager.reset();
 		}
 	};
 	BigScatterChart2.prototype.resume = function( start, end ) {
@@ -424,7 +415,7 @@
 		if ( this.option( "realtime" ) ) {
 			this._aBubbles = [];
 			this._oSCManager.setX( start, end, true );
-			this._oCanvasManager.updateXYAxis();
+			this._oRendererManager.updateXYAxis();
 			this._invokeLoadRealtimeData();
 		}
 	};
@@ -438,18 +429,18 @@
 		var oTypeCheckInfo = {};
 
 		if ( bInitCheck === true) {
-			this._oTypeManager.selectAll();
+			this._oBubbleTypeManager.selectAll();
 			$.each( aBubbleTypeInfo, function( key, aValue ) {
 				oTypeCheckInfo[ aValue[0] ] = true;
 			});
 		} else {
 			$.each( aBubbleTypeInfo, function( index, aValue ) {
-				oTypeCheckInfo[ aValue[0] ] = self._oTypeManager.isChecked( aValue[0] );
+				oTypeCheckInfo[ aValue[0] ] = self._oBubbleTypeManager.isChecked( aValue[0] );
 			});
 		}
 		this._currentAgent = agentName;
-		this._oCanvasManager.showSelectedAgent( bIsAll, agentName, oTypeCheckInfo );
-		this._oTypeManager.showTypeCount( this._getSumCountByType() );
+		this._oRendererManager.showSelectedAgent( bIsAll, agentName, oTypeCheckInfo );
+		this._oBubbleTypeManager.showTypeCount( this._getSumCountByType() );
 	};
 
 	global.BigScatterChart2 = BigScatterChart2;

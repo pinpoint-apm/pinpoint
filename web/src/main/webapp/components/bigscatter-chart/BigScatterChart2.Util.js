@@ -10,26 +10,6 @@
 			}
 			return sNumber;
 		},
-		//min: function( aData, dataIndex ) {
-		//	var minIndex = 0;
-		//	for( var i = 1, len = aData.length ; i < len ; i++ ) {
-		//		var result = a[minIndex][dataIndex] - a[i][dataIndex];
-		//		if ( result > 0 ) {
-		//			minIndex = i;
-		//		}
-		//	}
-		//	return a[minIndex][dataIndex];
-		//},
-		//max: function( aData, dataIndex ) {
-		//	var maxIndex = 0;
-		//	for( var i = 1, len = aData.length ; i < len ; i++ ) {
-		//		var result = a[maxIndex][dataIndex] - a[i][dataIndex];
-		//		if ( result < 0 ) {
-		//			maxIndex = i;
-		//		}
-		//	}
-		//	return a[maxIndex][dataIndex];
-		//},
 		compare: function( aData, dataIndex, fnCompare ) {
 			var targetIndex = 0;
 			for( var i = 1, len = aData.length ; i < len ; i++ ) {

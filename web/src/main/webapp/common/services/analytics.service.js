@@ -49,6 +49,7 @@
 		this.CONST.CLK_RESPONSE_GRAPH = "ClickResponseGraph";
 		this.CONST.CLK_LOAD_GRAPH = "ClickLoadGraph";
 		this.CONST.CLK_SHOW_GRAPH = "ClickShowGraph";
+		this.CONST.CLK_SHOW_SERVER_LIST = "ClickShowServerList";
 		this.CONST.CLK_FILTER_TRANSACTION = "ClickFilterTransaction";
 		this.CONST.CLK_FILTER_TRANSACTION_WIZARD = "ClickFilterTransactionWizard";
 		this.CONST.CLK_MORE = "ClickMore";

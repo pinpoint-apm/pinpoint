@@ -20,7 +20,7 @@
 	        $rootScope.wrapperStyle = {
 	            'padding-top': '0px'
 	        };
-	
+
 	        /**
 	         * initialize
 	         */
@@ -35,9 +35,9 @@
 	            if ($routeParams.queryEndDateTime) {
 	                oNavbarVoService.setQueryEndDateTime($routeParams.queryEndDateTime);
 	            }
-	            oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
-	            $scope.$emit('scatterDirective.initialize', oNavbarVoService);
-	            $scope.$emit('scatterDirective.initializeWithNode', {
+				oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
+				$scope.$emit('scatterDirective.initialize', oNavbarVoService);
+				$scope.$emit('scatterDirective.initializeWithNode', {
 					key: oNavbarVoService.getApplicationName() + "^" + oNavbarVoService.getServiceTypeName(),
 					serviceType: oNavbarVoService.getServiceTypeName(),
 					applicationName: oNavbarVoService.getApplicationName(),
