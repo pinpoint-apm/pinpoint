@@ -110,6 +110,7 @@ public class ScatterChartController {
             @RequestParam("from") long from,
             @RequestParam("to") long to,
             @RequestParam("limit") int limit,
+            @RequestParam(value = "backwardDirection", required = false, defaultValue = "true") boolean backwardDirection,
             @RequestParam(value = "filter", required = false) String filterText,
             @RequestParam(value = "_callback", required = false) String jsonpCallback,
             @RequestParam(value = "v", required = false, defaultValue = "2") int version) {
@@ -120,13 +121,13 @@ public class ScatterChartController {
 
         // TODO range check verification exception occurs. "from" is bigger than "to"
         final Range range = Range.createUncheckedRange(from, to);
-        logger.debug("fetch scatter data. {}, LIMIT={}, FILTER={}", range, limit, filterText);
+        logger.debug("fetch scatter data. {}, LIMIT={}, FILTER={}, BACKWARD_DIRECTION={}", range, limit, filterText, backwardDirection);
 
         ModelAndView mv;
         if (filterText == null) {
-            mv = selectScatterData(applicationName, range, limit, jsonpCallback, version);
+            mv = selectScatterData(applicationName, range, limit, backwardDirection, jsonpCallback, version);
         } else {
-            mv = selectFilterScatterDataData(applicationName, range, filterText, limit, jsonpCallback, version);
+            mv = selectFilterScatterDataData(applicationName, range, filterText, limit, backwardDirection, jsonpCallback, version);
         }
 
         watch.stop();
@@ -136,9 +137,8 @@ public class ScatterChartController {
         return mv;
     }
 
-    private ModelAndView selectFilterScatterDataData(String applicationName, Range range, String filterText, int limit, String jsonpCallback, int version) {
-
-        final LimitedScanResult<List<TransactionId>> limitedScanResult = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
+    private ModelAndView selectFilterScatterDataData(String applicationName, Range range, String filterText, int limit, boolean backwardDirection, String jsonpCallback, int version) {
+        final LimitedScanResult<List<TransactionId>> limitedScanResult = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit, backwardDirection);
 
         final List<TransactionId> traceIdList = limitedScanResult.getScanData();
         logger.trace("submitted transactionId count={}", traceIdList.size());
@@ -150,8 +150,8 @@ public class ScatterChartController {
         Filter filter = filterBuilder.build(filterText);
         List<Dot> scatterData = scatter.selectScatterData(traceIdSet, applicationName, filter);
         if (logger.isDebugEnabled()) {
-            logger.debug("getScatterData range scan(limited:{}) from ~ to:{} ~ {}, limited:{}, filterDataSize:{}",
-                    limit, DateUtils.longToDateStr(range.getFrom()), DateUtils.longToDateStr(range.getTo()), DateUtils.longToDateStr(limitedScanResult.getLimitedTime()), traceIdList.size());
+            logger.debug("getScatterData range scan(limited:{}, backwardDirection:{}) from ~ to:{} ~ {}, limited:{}, filterDataSize:{}",
+                    limit, backwardDirection, DateUtils.longToDateStr(range.getFrom()), DateUtils.longToDateStr(range.getTo()), DateUtils.longToDateStr(limitedScanResult.getLimitedTime()), traceIdList.size());
         }
 
         Range resultRange;
@@ -163,9 +163,8 @@ public class ScatterChartController {
         return createModelAndView(resultRange, jsonpCallback, scatterData, version);
     }
 
-    private ModelAndView selectScatterData(String applicationName, Range range, int limit, String jsonpCallback, int version) {
-
-        final List<Dot> scatterData = scatter.selectScatterData(applicationName, range, limit);
+    private ModelAndView selectScatterData(String applicationName, Range range, int limit, boolean backwardDirection, String jsonpCallback, int version) {
+        final List<Dot> scatterData = scatter.selectScatterData(applicationName, range, limit, backwardDirection);
         Range resultRange;
         if (scatterData.isEmpty()) {
             resultRange = new Range(-1, -1);
@@ -257,6 +256,7 @@ public class ScatterChartController {
             @RequestParam("period") long period,
             @RequestParam("limit") int limit,
             @RequestParam(value = "filter", required = false) String filterText,
+            @RequestParam(value = "backwardDirection", required = false, defaultValue = "true") boolean backwardDirection,
             @RequestParam(value = "_callback", required = false) String jsonpCallback,
             @RequestParam(value = "v", required = false, defaultValue = "1") int version) {
         limit = LimitUtils.checkRange(limit);
@@ -265,7 +265,7 @@ public class ScatterChartController {
         long from = to - period;
 
         // TODO versioning is temporary. to sync template change and server dev
-        return getScatterData(applicationName, from, to, limit, filterText, jsonpCallback, version);
+        return getScatterData(applicationName, from, to, limit, backwardDirection, filterText, jsonpCallback, version);
     }
 
     /**
@@ -325,6 +325,7 @@ public class ScatterChartController {
             @RequestParam("xGroupUnit") int xGroupUnit,
             @RequestParam("yGroupUnit") int yGroupUnit,
             @RequestParam("limit") int limit,
+            @RequestParam(value = "backwardDirection", required = false, defaultValue = "true") boolean backwardDirection,
             @RequestParam(value = "_callback", required = false) String jsonpCallback,
             @RequestParam(value = "v", required = false, defaultValue = "0") int version) {
         limit = LimitUtils.checkRange(limit);
@@ -334,9 +335,9 @@ public class ScatterChartController {
 
         // TODO range check verification exception occurs. "from" is bigger than "to"
         final Range range = Range.createUncheckedRange(from, to);
-        logger.debug("fetch scatter data made of dot group. RANGE={}, LIMIT={}, X-Group-Unit:{}, Y-Group-Unit:{}", range, limit, xGroupUnit, yGroupUnit);
+        logger.debug("fetch scatter data made of dot group. RANGE={}, LIMIT={}, BACKWARD_DIRECTION:{}, X-Group-Unit:{}, Y-Group-Unit:{}", range, limit, backwardDirection, xGroupUnit, yGroupUnit);
 
-        ModelAndView mv = selectScatterDataMadeOfDotGroup(applicationName, range, xGroupUnit, yGroupUnit, limit);
+        ModelAndView mv = selectScatterDataMadeOfDotGroup(applicationName, range, xGroupUnit, yGroupUnit, limit, backwardDirection);
         if (jsonpCallback == null) {
             mv.setViewName("jsonView");
         } else {
@@ -350,8 +351,8 @@ public class ScatterChartController {
         return mv;
     }
 
-    private ModelAndView selectScatterDataMadeOfDotGroup(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit) {
-        final ScatterData scatterData = scatter.selectScatterDataMadeOfDotGroup(applicationName, range, xGroupUnit, yGroupUnit, limit);
+    private ModelAndView selectScatterDataMadeOfDotGroup(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection) {
+        final ScatterData scatterData = scatter.selectScatterDataMadeOfDotGroup(applicationName, range, xGroupUnit, yGroupUnit, limit, backwardDirection);
 
         ModelAndView mv = new ModelAndView();
 

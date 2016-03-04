@@ -51,14 +51,14 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     private TraceDao traceDao;
 
     @Override
-    public List<Dot> selectScatterData(String applicationName, Range range, int limit) {
+    public List<Dot> selectScatterData(String applicationName, Range range, int limit, boolean backwardDirection) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
-        return applicationTraceIndexDao.scanTraceScatter(applicationName, range, limit);
+        return applicationTraceIndexDao.scanTraceScatter(applicationName, range, limit, backwardDirection);
     }
 
     @Override
@@ -147,13 +147,14 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     }
 
     @Override
-    public ScatterData selectScatterDataMadeOfDotGroup(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit) {
+    public ScatterData selectScatterDataMadeOfDotGroup(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
-        return applicationTraceIndexDao.scanTraceScatterDataMadeOfDotGroup(applicationName, range, xGroupUnit, yGroupUnit, limit);
+        return applicationTraceIndexDao.scanTraceScatterDataMadeOfDotGroup(applicationName, range, xGroupUnit, yGroupUnit, limit, backwardDirection);
     }
+
 }

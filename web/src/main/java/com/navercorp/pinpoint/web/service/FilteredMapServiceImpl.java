@@ -85,6 +85,11 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
     @Override
     public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, Range range, int limit) {
+        return selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit, true);
+    }
+
+    @Override
+    public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, Range range, int limit, boolean backwardDirection) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
@@ -95,9 +100,9 @@ public class FilteredMapServiceImpl implements FilteredMapService {
             logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {}, {}", applicationName, range);
         }
 
-        return this.applicationTraceIndexDao.scanTraceIndex(applicationName, range, limit);
+        return this.applicationTraceIndexDao.scanTraceIndex(applicationName, range, limit, backwardDirection);
     }
-    
+
     @Override
     public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, SelectedScatterArea area, int limit) {
         if (applicationName == null) {
