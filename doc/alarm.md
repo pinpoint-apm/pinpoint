@@ -129,7 +129,7 @@ jdbc.password=admin
 ```
 Create tables by running *[CreateTableStatement-mysql.sql](../web/src/main/resources/sql/CreateTableStatement-mysql.sql)*, and *[SpringBatchJobReositorySchema-mysql.sql](../web/src/main/resources/sql/SpringBatchJobReositorySchema-mysql.sql)*.
 
-### 3) Others
+### 4) Others
 **1) You may start the alarm batch in a separate process** - Simply start the spring batch job using the *[applicationContext-alarmJob.xml](../web/src/main/resources/batch/applicationContext-alarmJob.xml)* file inside the Pinpoint-web module.
 
 **2) You may change the batch execution period by modifying the cron expression in *[applicationContext-batch-schedule.xml](../web/src/main/resources/batch/applicationContext-batch-schedule.xml)* file**
@@ -155,6 +155,13 @@ If there are a lot of alarms registered to applications, you may set the `alarmS
 </step>
 <task:executor id="poolTaskExecutorForStep" pool-size="10" />
 ```
+
+**4) use quickstart's web** - 
+Pinpoint Web uses Mysql to persist users, user groups, and alarm configurations.<br/>
+However Quickstart uses MockDAO to reduce memory usage.<br/>
+Therefore if you want to use Mysql for Quickstart, please refer to Pinpoint Web's [applicationContext-dao-config.xml
+](../web/src/main/resources/applicationContext-dao-config.xml
+), [jdbc.properties](../web/src/main/resources/jdbc.properties).  
 
 ---
 
@@ -325,4 +332,10 @@ application 각각마다 등록된 alarm의 개수가 많다면 *[applicationCon
     </tasklet>
 </step>
 <task:executor id="poolTaskExecutorForStep" pool-size="10" />
-```	
+```
+
+**4) pinpoint web을 사용한다면.**
+pinpoint web은 mockDAO를 사용하기 때문에 pinpont web의 설정들을 참고해서 기능을 사용해야한다.
+[applicationContext-dao-config.xml
+](../web/src/main/resources/applicationContext-dao-config.xml
+), [jdbc.properties](../web/src/main/resources/jdbc.properties).  
