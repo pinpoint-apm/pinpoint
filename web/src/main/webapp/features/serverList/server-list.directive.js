@@ -7,7 +7,8 @@
 	 * @name serverListDirective
 	 * @class
 	 */
-	pinpointApp.directive('serverListDirective', [ '$timeout', '$window', '$filter', 'helpContentTemplate', 'helpContentService', function ($timeout, $window, $filter, helpContentTemplate, helpContentService) {
+	pinpointApp.directive('serverListDirective', [ '$timeout', '$window', '$filter', 'helpContentTemplate', 'helpContentService', "AnalyticsService",
+		function ($timeout, $window, $filter, helpContentTemplate, helpContentService, analyticsService ) {
             return {
                 restrict: 'A',
                 link: function postLink(scope, element) {
@@ -73,6 +74,10 @@
                     		showChart( scope.node.sourceHistogram[instanceName], scope.node.sourceTimeSeriesHistogram[instanceName] );
                 		}
                 	};
+					scope.openInspector = function( node, instance ) {
+						analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_OPEN_INSPECTOR );
+						$window.open("#/inspector/" + node.applicationName + "@" + node.serviceType + "/" + scope.oNavbarVoService.getReadablePeriod() + "/" + scope.oNavbarVoService.getQueryEndDateTime() + "/" + instance.name );
+					};
                 	
                     scope.$on('serverListDirective.show', function ( event, bIsNodeServerList, node, oNavbarVoService ) {
                     	bIsNode = bIsNodeServerList;
