@@ -10,7 +10,7 @@
 	pinpointApp.constant('agentListConfig', {
 	});
 	
-	pinpointApp.directive('agentListDirective', [ 'agentListConfig', '$rootScope', 'AgentAjaxService', 'TooltipService', function (cfg, $rootScope, agentAjaxService, tooltipService) {
+	pinpointApp.directive('agentListDirective', [ 'agentListConfig', '$rootScope', 'AgentAjaxService', 'TooltipService', "AnalyticsService", function (cfg, $rootScope, agentAjaxService, tooltipService, analyticsService ) {
 	    return {
 	        restrict: 'EA',
 	        replace: true,
@@ -60,6 +60,7 @@
 	            };
 	
 	            scope.select = function (agent) {
+					analyticsService.send( analyticsService.CONST.INSPECTOR, analyticsService.CONST.CLK_CHANGE_AGENT );
 	                scope.currentAgent = agent;
 	                scope.$emit('agentListDirective.agentChanged', agent);
 	            };

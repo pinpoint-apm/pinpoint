@@ -19,15 +19,6 @@
 					ga( 'send', 'event', category, name, label, count, options );
 				}
 			};
-		} else if ( typeof wcs !== "undefined" ) {
-			this.send = function( category, name, label ) {
-				if ( globalConfig.sendAllowed == false ) return;
-				if ( arguments.length == 1 ) return;
-				if ( typeof label !== "undefined" || typeof label !== "null"  )  {
-					name = name + "_" + label;
-				}
-				wcs.event( category, name );
-			};
 		}
 		
 		this.CONST = {};
@@ -35,6 +26,7 @@
 		this.CONST.CONTEXT = "Context";
 		this.CONST.CALLSTACK = "CallStack";
 		this.CONST.MIXEDVIEW = "MixedView";
+		this.CONST.INSPECTOR = "Inspector";
 
 		this.CONST.CLK_APPLICATION = "ClickApplication";
 		this.CONST.CLK_TIME = "ClickTime";
@@ -50,6 +42,7 @@
 		this.CONST.CLK_LOAD_GRAPH = "ClickLoadGraph";
 		this.CONST.CLK_SHOW_GRAPH = "ClickShowGraph";
 		this.CONST.CLK_SHOW_SERVER_LIST = "ClickShowServerList";
+		this.CONST.CLK_OPEN_INSPECTOR = "ClickOpenInspector";
 		this.CONST.CLK_FILTER_TRANSACTION = "ClickFilterTransaction";
 		this.CONST.CLK_FILTER_TRANSACTION_WIZARD = "ClickFilterTransactionWizard";
 		this.CONST.CLK_MORE = "ClickMore";
@@ -65,8 +58,10 @@
 		this.CONST.CLK_CALLEE_RANGE = "ClickCalleeRange";
 		this.CONST.CLK_CALLER_RANGE = "ClickCallerRange";
 		this.CONST.CLK_REALTIME_CHART_HIDE = "ClickRealtimeChartHide";
-		this.CONST.CLK_REALTIME_CHART_SHOW = "ClickRealtimeChartShow";		
-		
+		this.CONST.CLK_REALTIME_CHART_SHOW = "ClickRealtimeChartShow";
+		this.CONST.CLK_SHOW_SERVER_TYPE_DETAIL = "ClickShowServerTypeDetail";
+		this.CONST.CLK_CHANGE_AGENT = "ClickChangeAgent";
+
 		this.CONST.CLK_CONFIGURATION = "ClickConfiguration";
 		this.CONST.CLK_GENERAL = "ClickConfigurationGeneral";
 		this.CONST.CLK_ALARM = "ClickConfigurationAlarm";

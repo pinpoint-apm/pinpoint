@@ -123,7 +123,7 @@
 			                            <span class="glyphicon glyphicon-hdd" style="padding-left:10px;color:{{node.agentHistogram[instance.name].Error > 0 ? 'red':''}}"></span>
 			                            {{instance.name}}
 		                            </label>
-		                            <a style="float:right" class="btn btn-default btn-xs" ng-show="instance.hasInspector" ng-href="#/inspector/{{node.applicationName}}@{{node.serviceType}}/{{oNavbarVoService.getReadablePeriod()}}/{{oNavbarVoService.getQueryEndDateTime()}}/{{instance.name}}" target="_blank" title="Inspect Agents" alt="Inspect Agents">Inspector</a>
+									<button style="float:right" ng-show="instance.hasInspector" class="btn btn-default btn-xs" ng-click="openInspector(node, instance)">Inspector</button>
 		                        </li>
 		                    </ul>
 		                </li>
