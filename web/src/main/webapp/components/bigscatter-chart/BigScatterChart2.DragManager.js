@@ -1,10 +1,12 @@
 (function(global, $) {
 	'use strict';
+	var DRAG_TO_SELECT_COMPONENT_CLASS = "jquery-drag-to-select";
 	function DragManager( option, oSizeCoordinateManager, $elContainer, oCallback ) {
 		this._option = option;
-		this._oSCManager = oSizeCoordinateManager;
 		this._oCallback = oCallback;
+		this._oSCManager = oSizeCoordinateManager;
 		this._$elContainer = $elContainer;
+
 		this._initVariable();
 		this._initElement( $elContainer );
 		this._initEvent();
@@ -91,13 +93,14 @@
 		var bGuideLineStart = false;
 
 		this._$element.dragToSelect({
-			className: "jquery-drag-to-select",
+			className: DRAG_TO_SELECT_COMPONENT_CLASS,
 			onHide: function ( $elDragArea ) {
 				var oDragAreaPosition = self._adjustSelectBoxForChart( $elDragArea );
 				self._oCallback.onSelect( oDragAreaPosition, self._parseCoordinatesToXY( oDragAreaPosition ) );
-				(self._$elDragArea = $elDragArea).hide();
-				bGuideLineStart = false;
+				self._$elDragArea = $elDragArea;
+				self._$elDragArea.hide();
 				self._hideGuideValue();
+				bGuideLineStart = false;
 			},
 			onMove: function (e) {
 				if (!self.option( "bUseMouseGuideLine" ) ) {
@@ -194,35 +197,35 @@
 		this._welXGuideNumber.hide();
 		this._welYGuideNumber.hide();
 	};
-	DragManager.prototype.moveDragArea = function( nXGap ) {
-		if ( !this._$elDragArea || this._$elDragArea.width() < 2 ) return;
-
-		var nPositionXGap = ( nXGap / ( this._oSCManager.getGapX() ) ) * this._oSCManager.getWidthOfChartSpace();
-
-		var dragAreaOffsetLeft = parseInt( this._$elDragArea.css( "left" ), 10 );
-		var drawAreaWidth = this._$elDragArea.width();
-		var bubbleSize = this._oSCManager.getBubbleSize();
-		var minX = this._oSCManager.getPadding().left + bubbleSize;
-		var newOffsetLeft = dragAreaOffsetLeft - nPositionXGap;
-
-		if ( dragAreaOffsetLeft > minX ) {
-			if ( newOffsetLeft > minX ) {
-				this._$elDragArea.css( "left", newOffsetLeft );
-			} else {
-				this._$elDragArea.css( "left", minX );
-				this._$elDragArea.width( drawAreaWidth + newOffsetLeft );
-			}
-		} else {
-			this._$elDragArea.width( drawAreaWidth - nPositionXGap );
-		}
-
-		if ( dragAreaOffsetLeft - nPositionXGap > minX ) {
-			this._$elDragArea.css( "left", dragAreaOffsetLeft - nPositionXGap );
-		}
-	};
+	//DragManager.prototype.moveDragArea = function( nXGap ) {
+	//	if ( !this._$elDragArea || this._$elDragArea.width() < 2 ) return;
+	//
+	//	var nPositionXGap = ( nXGap / ( this._oSCManager.getGapX() ) ) * this._oSCManager.getWidthOfChartSpace();
+	//
+	//	var dragAreaOffsetLeft = parseInt( this._$elDragArea.css( "left" ), 10 );
+	//	var drawAreaWidth = this._$elDragArea.width();
+	//	var bubbleSize = this._oSCManager.getBubbleSize();
+	//	var minX = this._oSCManager.getPadding().left + bubbleSize;
+	//	var newOffsetLeft = dragAreaOffsetLeft - nPositionXGap;
+	//
+	//	if ( dragAreaOffsetLeft > minX ) {
+	//		if ( newOffsetLeft > minX ) {
+	//			this._$elDragArea.css( "left", newOffsetLeft );
+	//		} else {
+	//			this._$elDragArea.css( "left", minX );
+	//			this._$elDragArea.width( drawAreaWidth + newOffsetLeft );
+	//		}
+	//	} else {
+	//		this._$elDragArea.width( drawAreaWidth - nPositionXGap );
+	//	}
+	//
+	//	if ( dragAreaOffsetLeft - nPositionXGap > minX ) {
+	//		this._$elDragArea.css( "left", dragAreaOffsetLeft - nPositionXGap );
+	//	}
+	//};
 	DragManager.prototype.hide = function() {
 		this._hideGuideValue();
-		this._$elContainer.find( ".jquery-drag-to-select" ).hide();
+		this._$elContainer.find( "." + DRAG_TO_SELECT_COMPONENT_CLASS ).hide();
 	};
 
 	global.BigScatterChart2.DragManager = DragManager;

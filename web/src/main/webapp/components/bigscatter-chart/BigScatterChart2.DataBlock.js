@@ -1,23 +1,24 @@
 (function(global, $) {
 	'use strict';
-	function BlockData( oData, oPropertyIndex, oTypeInfo ) {
+	function DataBlock( oData, oPropertyIndex, oTypeInfo ) {
 		this._initData( oData );
 		this._splitDataByAgent( oPropertyIndex, oTypeInfo );
 	}
-	BlockData.prototype._initData = function( oData ) {
-		this._resultFrom = oData.resultFrom;
-		this._resultTo = oData.resultTo;
+	DataBlock.prototype._initData = function( oData ) {
 		this._from = oData.from;
 		this._to = oData.to;
+		this._resultFrom = oData.resultFrom;
+		this._resultTo = oData.resultTo;
 		this._oAgentMetaInfo = oData.scatter.metadata;
 		this._aAllData = oData.scatter.dotList;
+
+		this._oAgentData = {};
+		this._oCountOfType = {};
 	};
-	BlockData.prototype._splitDataByAgent = function( oPropertyIndex, oTypeInfo ) {
+	DataBlock.prototype._splitDataByAgent = function( oPropertyIndex, oTypeInfo ) {
 		var self = this;
 		this._oPropertyIndex = oPropertyIndex;
 		this._oTypeInfo = oTypeInfo;
-		this._oAgentData = {};
-		this._oCountOfType = {};
 		$.each( this._oAgentMetaInfo, function( key, oValue ) {
 			var agentName = oValue[0];
 			self._oAgentData[agentName] = [];
@@ -43,33 +44,26 @@
 		this._minY = minY;
 		this._maxY = maxY;
 	};
-	BlockData.prototype._getAgentName = function( key ) {
+	DataBlock.prototype._getAgentName = function( key ) {
 		return this._oAgentMetaInfo[ key ][0];
 	};
-	BlockData.prototype.getDataByAgent = function( agent, index ) {
+	DataBlock.prototype.getDataByAgent = function( agent, index ) {
 		return this._oAgentData[agent][index];
 	};
-	BlockData.prototype.getData = function( index ) {
+	DataBlock.prototype.getData = function( index ) {
 		return this._aAllData[index];
 	};
-	BlockData.prototype.count = function() {
+	DataBlock.prototype.count = function() {
 		return this._aAllData.length;
 	};
-	BlockData.prototype.countByAgent = function( agent ) {
+	DataBlock.prototype.countByAgent = function( agent ) {
 		if ( this._oAgentData[agent] ) {
 			return this._oAgentData[agent].length;
 		} else {
 			return 0;
 		}
 	};
-	//BlockData.prototype.getCountByType = function( type ) {
-	//	var sum = 0;
-	//	$.each( this._oCountOfType, function( agentName, oCountData ) {
-	//		sum += oCountData[type];
-	//	});
-	//	return sum;
-	//};
-	BlockData.prototype.getCount = function( agentName, type, minX, maxX ) {
+	DataBlock.prototype.getCount = function( agentName, type, minX, maxX ) {
 		if ( arguments.length === 2 || minX <= this._minX && this._maxX <= maxX ) {
 			if (this._oCountOfType[agentName]) {
 				return this._oCountOfType[agentName][type];
@@ -80,7 +74,7 @@
 			return this._getRealtimeCount( agentName, type, minX, maxX );
 		}
 	};
-	BlockData.prototype._getRealtimeCount = function( agentName, type, minX, maxX ) {
+	DataBlock.prototype._getRealtimeCount = function( agentName, type, minX, maxX ) {
 		var self = this;
 		var sum = 0;
 		$.each( this._aAllData, function( index, aValue ) {
@@ -94,14 +88,14 @@
 		});
 		return sum;
 	};
-	BlockData.prototype.getTransactionID = function( aBlockData ) {
-		var oMeta = this._oAgentMetaInfo[ aBlockData[this._oPropertyIndex.meta] + "" ];
-		return oMeta[1] + "^" + oMeta[2] + "^" + aBlockData[this._oPropertyIndex.transactionId];
+	DataBlock.prototype.getTransactionID = function( aDataBlock ) {
+		var oMeta = this._oAgentMetaInfo[ aDataBlock[this._oPropertyIndex.meta] + "" ];
+		return oMeta[1] + "^" + oMeta[2] + "^" + aDataBlock[this._oPropertyIndex.transactionId];
 	};
-	BlockData.prototype.getAgentName = function( aBlockData ) {
-		var oMeta = this._oAgentMetaInfo[ aBlockData[this._oPropertyIndex.meta] + "" ];
+	DataBlock.prototype.getAgentName = function( aDataBlock ) {
+		var oMeta = this._oAgentMetaInfo[ aDataBlock[this._oPropertyIndex.meta] + "" ];
 		return oMeta[0];
 	};
 
-	global.BigScatterChart2.BlockData = BlockData;
+	global.BigScatterChart2.DataBlock = DataBlock;
 })(window, jQuery);

@@ -267,15 +267,19 @@
 	                 * @returns {*}
 	                 */
 	                getPeriodType = function () {
-	                    var periodType;
+						if ( oNavbarVoService.isRealtime() ) {
+							return cfg.periodType.REALTIME;
+						}
+	                    var periodType = cfg.periodType.LAST;
 	                    if ($window.name && webStorage.get($window.name + cfg.periodTypePrefix)) {
-	                        periodType = webStorage.get($window.name + cfg.periodTypePrefix);
+							periodType = webStorage.get($window.name + cfg.periodTypePrefix);
 	                    } else {
-	                        periodType = oNavbarVoService.getApplication() ? cfg.periodType.RANGE : cfg.periodType.LAST;
+							periodType = oNavbarVoService.getApplication() ? cfg.periodType.RANGE : cfg.periodType.LAST;
 	                    }
-	                    if (oNavbarVoService.getReadablePeriod() && _.indexOf(scope.aReadablePeriodList, oNavbarVoService.getReadablePeriod()) < 0) {
-	                        periodType = cfg.periodType.RANGE;
-	                    }
+
+						if (oNavbarVoService.getReadablePeriod() && _.indexOf(scope.aReadablePeriodList, oNavbarVoService.getReadablePeriod()) < 0) {
+							periodType = cfg.periodType.RANGE;
+						}
 	                    return periodType;
 	                };
 	
@@ -578,8 +582,7 @@
 	                 * @returns {boolean}
 	                 */
 	                scope.showUpdate = function () {
-	                    return (_.indexOf(['5m', '20m', '1h', '3h'], scope.readablePeriod) >= 0)
-	                        && scope.application ? true : false
+	                    return scope.periodType === cfg.periodType.LAST && (_.indexOf(['5m', '20m', '1h', '3h'], scope.readablePeriod) >= 0) && scope.application ? true : false;
 	                };
 	
 	                /**
@@ -710,6 +713,11 @@
 	                    scope.periodType = cfg.periodType.LAST;
 	                    selectPeriod(preferenceService.getPeriod());
 	                });
+					scope.$on('navbarDirective.initialize.realtime.andReload', function (event, navbarVo) {
+						initialize(navbarVo);
+						scope.periodType = cfg.periodType.REALTIME;
+						selectPeriod(preferenceService.getPeriod());
+					});
 	
 	                /**
 	                 * scope event on navbarDirective.initializeWithStaticApplication

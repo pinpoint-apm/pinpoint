@@ -11,8 +11,8 @@
 	    maxTimeToShowLoadAsDefaultForUnknown:  60 * 60 * 12 // 12h
 	});
 	
-	pinpointApp.directive('linkInfoDetailsDirective', [ 'linkInfoDetailsDirectiveConfig', '$filter', 'ServerMapFilterVoService',  'filteredMapUtilService', '$timeout', 'isVisibleService', 'ServerMapHintVoService', '$window',
-	    function (cfg, $filter, ServerMapFilterVoService, filteredMapUtilService, $timeout, isVisibleService, ServerMapHintVoService, $window) {
+	pinpointApp.directive('linkInfoDetailsDirective', [ 'linkInfoDetailsDirectiveConfig', '$filter', 'ServerMapFilterVoService',  'filteredMapUtilService', '$timeout', 'isVisibleService', 'ServerMapHintVoService', "AnalyticsService", '$window',
+	    function (cfg, $filter, ServerMapFilterVoService, filteredMapUtilService, $timeout, isVisibleService, ServerMapHintVoService, analyticsService, $window) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -358,6 +358,7 @@
 	                    element.show();
 	                };
 	                scope.showServerList = function() {
+						analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_SHOW_SERVER_LIST);
                     	scope.$emit("serverListDirective.show", false, htLastLink, scope.oNavbarVoService);
                     };
 	

@@ -8,6 +8,7 @@
 	 * @class
 	 */
 	pinpointApp.constant("scatterDirectiveConfig", {
+		"scatterDataUrl": "/getScatterDataMadeOfDotGroup.pinpoint",
 		template: "<div id='scatter'></div>",
 		images: {
 			"config": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QTI2NzMzRDI2QTlGMTFFM0E1RENBRjZGODkwRDBCMEIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QTI2NzMzRDM2QTlGMTFFM0E1RENBRjZGODkwRDBCMEIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpBMjY3MzNEMDZBOUYxMUUzQTVEQ0FGNkY4OTBEMEIwQiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpBMjY3MzNEMTZBOUYxMUUzQTVEQ0FGNkY4OTBEMEIwQiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Pn/ejkcAAAFwSURBVHjanFKxSsNQFE2CFEtaTNsMCbSQ4lA6GSghi2igo/o/GVz6AfmD/EFGJ7cKDiVLO0hFEByzpG1EA5LUxntC80jFKhi4LzfnnnPfzXmPz7KM+9ezT6iq6gnF+T4Nny88/110VK1WbwRB4OM4vgyC4PVXIQlW9JqRwGo2mzm2XC65zWYzplSnBo1CeFDu1Ov1XhaLhVWpVBimKAqXJInVarWmJGQ42xHjybIcQSSK4rNt29cgOI5jR1Gkk5gLw1DC2LkvWGBCu90eDwaDDOF53hXhhwjf908LHByYBo2ArqZpfnY6HbEYw3XdJ5riAzEajR4LHJxut6syhyhq5c6apt1hdER5EnCIKzFzqPM7fUwkSZrhf+r1+lmaphFqjUZuJIeaYRgT4q7ZqFvxmn7+GAQYBDcRyIGhBs6PN4dyjKLP5/OL4XA4RSAHhlpZs3OO1PF+W3ggwxQ6u7d+v3+7s9Nfd3VrQm3fXf0SYADyptv3yy4A0QAAAABJRU5ErkJggg==",
@@ -15,7 +16,8 @@
 			"fullscreen": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QkMwOTc3QTg2QTlGMTFFMzk5MzhBOTM4OEFCMzg3MTciIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QkMwOTc3QTk2QTlGMTFFMzk5MzhBOTM4OEFCMzg3MTciPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpCQzA5NzdBNjZBOUYxMUUzOTkzOEE5Mzg4QUIzODcxNyIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpCQzA5NzdBNzZBOUYxMUUzOTkzOEE5Mzg4QUIzODcxNyIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PvZjiPIAAAE/SURBVHjanFKxaoRAEHXhbM4UopViGWzv0C5VUvsJqdP7A/6Dfb7DMmCVSuRCunClaKUYSKUQM2+zY1SsMjDuuDtv9u3ME9M0af+xAz6u687opmnENslxnFX1uq6FhhvDMKRluofvVeczuMr9vREmhMhRmRy/F3IukhOjM7Mh4B9VNkqQq67rR9u25VnbtsdxHPkZ6zcWRfFAN2qGYVzx3/e9X1XVC2LLsnzTNK8MQK5kCL4AwcqylPTiOH4m8C1igNI0fUIcBEGu3rwGRlFkK3qvRM9XtD+I9h3iLMvaXaDneRdF78T0cHPXdW+Iif6ZgavmALClB9q0nBRw3RyMAa0mWnJzGIbvJEneOeb9hRgEK0e2mjtG9kX+qeJH8hs163lkh2UlVWAruYIlp8ShzeNYqEQqaE9ym638R4ABADZiqF446UJLAAAAAElFTkSuQmCC"
 		},
 		options: {
-			"sContainerId": "",
+			"containerId": "",
+			"containerClass": "bigscatterchart",
 			"width": 400,
 			"height": 250,
 			"minX": 0, maxX: 1000,
@@ -74,7 +76,7 @@
 						var options = {};
 						angular.copy(cfg.options, options);
 						options.sPrefix = "BigScatterChart2-" + parseInt( Math.random() * 100000 );
-						options.sContainerId = target;
+						options.containerId = target;
 						options.width = w ? w : 400;
 						options.height = h ? h : 250;
 						options.minX = start;
@@ -82,19 +84,20 @@
 						options.realtime = isRealtime();
 
 						var oScatterChart = new BigScatterChart2(options, getAgentList(scatterData), [
-							new BigScatterChart2.SettingFeature( cfg.images.config ).addCallback( function( oChart, oValue ) {
+							new BigScatterChart2.SettingPlugin( cfg.images.config ).addCallback( function( oChart, oValue ) {
 								webStorage.add( "scatter-y-min", oValue.min );
 								webStorage.add( "scatter-y-max", oValue.max );
 								oChart.changeRangeOfY( oValue );
 								oChart.redraw();
 							}),
-							new BigScatterChart2.DownloadFeature( cfg.images.download, "PNG" ).addCallback( function( oChart ) {
+							new BigScatterChart2.DownloadPlugin( cfg.images.download, "PNG" ).addCallback( function( oChart ) {
 								analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_DOWNLOAD_SCATTER );
 							}),
-							new BigScatterChart2.WideOpenFeature( cfg.images.fullscreen ).addCallback( function() {
-								$window.open( "#/scatterFullScreenMode/" + htLastNode.applicationName + "@" + htLastNode.serviceType + "/" + oNavbarVoService.getPartialURL( false, true ) + "/" + getAgentList().join(","), "width=900, height=700, resizable=yes");
+							new BigScatterChart2.WideOpenPlugin( cfg.images.fullscreen ).addCallback( function() {
+								var partialURL = oNavbarVoService.isRealtime() ? "realtime/" + oNavbarVoService.getQueryEndDateTime() : oNavbarVoService.getPartialURL( false, true );
+								$window.open( "#/scatterFullScreenMode/" + htLastNode.applicationName + "@" + htLastNode.serviceType + "/" + partialURL + "/" + getAgentList().join(","), "width=900, height=700, resizable=yes");
 							}),
-							new BigScatterChart2.HelpFeature( tooltipService )
+							new BigScatterChart2.HelpPlugin( tooltipService )
 						], {
 							sendAnalytics: function( type, bChecked ) {
 								analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST[type === "Success" ? "TG_SCATTER_SUCCESS" : "TG_SCATTER_FAILED"], analyticsService.CONST[bChecked ? "ON" : "OFF"] );
@@ -110,13 +113,15 @@
 
 						$timeout(function () {
 							if (angular.isUndefined(scatterData)) {
-								oScatterChart.drawWithDataSource( new BigScatterChart2.DataManager( applicationName, start, end, filter, {
-									"url": "/getScatterDataMadeOfDotGroup.pinpoint",
+								oScatterChart.drawWithDataSource( new BigScatterChart2.DataLoadManager( applicationName, start, end, filter, {
+									"url": cfg.scatterDataUrl,
 									"realtime": isRealtime(),
 									"realtimeInterval": 5000,
 									"fetchLimit": 5000,
 									"fetchingInterval": 2000,
 									"useIntervalForFetching": false
+								}, function( lastTime ) {
+									oNavbarVoService.setQueryEndDateTime( lastTime );
 								}));
 							} else {
 								oScatterChart.addBubbleAndMoveAndDraw( scatterData );

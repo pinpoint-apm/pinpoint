@@ -330,6 +330,7 @@
                         }
                     };
                     scope.showServerList = function() {
+						analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_SHOW_SERVER_LIST);
                     	scope.$emit("serverListDirective.show", true, htLastNode, scope.oNavbarVoService);
                     };
 

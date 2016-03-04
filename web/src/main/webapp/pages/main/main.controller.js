@@ -38,15 +38,19 @@
 	            if ($routeParams.queryEndDateTime) {
 	                oNavbarVoService.setQueryEndDateTime($routeParams.queryEndDateTime);
 	            }
-	            if ( angular.isDefined( $routeParams.application) && angular.isUndefined( $routeParams.readablePeriod ) && angular.isUndefined( $routeParams.readablePeriod ) ) {
-		            $scope.$broadcast('navbarDirective.initialize.andReload', oNavbarVoService);	            	
-	            } else {
-		            $window.$routeParams = $routeParams;
-		            oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
-		            $scope.$broadcast('navbarDirective.initialize', oNavbarVoService);
-		            $scope.$broadcast('scatterDirective.initialize', oNavbarVoService);
-		            $scope.$broadcast('serverMapDirective.initialize', oNavbarVoService);
-	            }
+				if ( oNavbarVoService.isRealtime() ) {
+					$scope.$broadcast('navbarDirective.initialize.realtime.andReload', oNavbarVoService);
+				} else {
+					if (angular.isDefined($routeParams.application) && angular.isUndefined($routeParams.readablePeriod) && angular.isUndefined($routeParams.readablePeriod)) {
+						$scope.$broadcast('navbarDirective.initialize.andReload', oNavbarVoService);
+					} else {
+						$window.$routeParams = $routeParams;
+						oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
+						$scope.$broadcast('navbarDirective.initialize', oNavbarVoService);
+						$scope.$broadcast('scatterDirective.initialize', oNavbarVoService);
+						$scope.$broadcast('serverMapDirective.initialize', oNavbarVoService);
+					}
+				}
 	        }, 500);
 	
 	        /**
@@ -61,19 +65,28 @@
 	         * change location
 	         */
 	        changeLocation = function () {
-	            var url = '/' + getFirstPathOfLocation() + '/' + oNavbarVoService.getApplication() + '/' + oNavbarVoService.getReadablePeriod() +
-	                '/' + oNavbarVoService.getQueryEndDateTime();
+				var url = '/' + getFirstPathOfLocation() + '/' + oNavbarVoService.getApplication() + '/';
+				if ( oNavbarVoService.isRealtime() ) {
+					url += oNavbarVoService.getPeriodType();
+
+					$window.$routeParams = {
+						application: oNavbarVoService.getApplication(),
+						readablePeriod: oNavbarVoService.getPeriodType()
+					};
+				} else {
+					url += oNavbarVoService.getReadablePeriod() + '/' + oNavbarVoService.getQueryEndDateTime();
+				}
 	            if (locationService.path() !== url) {
 	                if (locationService.path() === '/main') {
 	                	locationService.path(url).replace();
 	                } else {
 	                	locationService.skipReload().path(url).replace();
 	                }
-	                $window.$routeParams = {
-	                    application: oNavbarVoService.getApplication(),
-	                    readablePeriod: (oNavbarVoService.getReadablePeriod()).toString(),
-	                    queryEndDateTime: (oNavbarVoService.getQueryEndDateTime()).toString()
-	                };
+					$window.$routeParams = {
+						application: oNavbarVoService.getApplication(),
+						readablePeriod: (oNavbarVoService.getReadablePeriod()).toString(),
+						queryEndDateTime: (oNavbarVoService.getQueryEndDateTime()).toString()
+					};
 	                if (!$scope.$$phase) {
 	                    $scope.$apply();
 	                }

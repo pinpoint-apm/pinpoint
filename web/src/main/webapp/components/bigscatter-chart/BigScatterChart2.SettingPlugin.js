@@ -1,13 +1,13 @@
 (function(global, $) {
 	'use strict';
-	function SettingFeature( sImage ) {
+	function SettingPlugin( sImage ) {
 		this._init( sImage );
 	}
-	SettingFeature.prototype._init = function( sImage ) {
+	SettingPlugin.prototype._init = function( sImage ) {
 		this._featureImage = sImage;
 		this._aCallback = [];
 	};
-	SettingFeature.prototype.initElement = function( $elParent, $elPlugin, option ) {
+	SettingPlugin.prototype.initElement = function( $elParent, $elPlugin, option ) {
 		var width = option["width"];
 		var height = option["height"];
 
@@ -71,13 +71,13 @@
 
 		return this;
 	};
-	SettingFeature.prototype.hide = function() {
+	SettingPlugin.prototype.hide = function() {
 		this._$element.hide();
 	};
-	SettingFeature.prototype.show = function() {
+	SettingPlugin.prototype.show = function() {
 		this._$element.show();
 	};
-	SettingFeature.prototype.initEvent = function( oChart ) {
+	SettingPlugin.prototype.initEvent = function( oChart ) {
 		var self = this;
 
 		this._$elConfigButton.click(function() {
@@ -102,10 +102,10 @@
 		});
 		return this;
 	};
-	SettingFeature.prototype.addCallback = function( fn ) {
+	SettingPlugin.prototype.addCallback = function( fn ) {
 		this._aCallback.push( fn );
 		return this;
 	};
 
-	global.BigScatterChart2.SettingFeature = SettingFeature;
+	global.BigScatterChart2.SettingPlugin = SettingPlugin;
 })(window, jQuery);

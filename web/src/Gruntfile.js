@@ -154,18 +154,18 @@ module.exports = function (grunt) {
 				},
 				src: [
 					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.js',
-					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.BlockData.js',
-					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.CanvasManager.js',
+					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.DataBlock.js',
 					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.DataManager.js',
-					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.DownloadFeature.js',
 					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.DragManager.js',
-					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.HelpFeature.js',
-					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.MessageFeature.js',
-					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.SettingFeature.js',
+					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.RendererManager.js',
+					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.BubbleTypeManager.js',
 					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.SizeCoordinateManager.js',
-					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.TypeManager.js',
 					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.Util.js',
-					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.WideOpenFeature.js'
+					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.HelpPlugin.js',
+					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.MessagePlugin.js',
+					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.SettingPlugin.js',
+					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.DownloadPlugin.js',
+					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.WideOpenPlugin.js'
 				],
 				dest: 'main/webapp/lib/js/BigScatterChart2.js'
 			},
