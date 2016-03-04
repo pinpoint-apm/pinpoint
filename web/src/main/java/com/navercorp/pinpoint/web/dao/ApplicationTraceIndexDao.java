@@ -31,11 +31,11 @@ import java.util.List;
  */
 public interface ApplicationTraceIndexDao {
 
-    LimitedScanResult<List<TransactionId>> scanTraceIndex(String applicationName, Range range, int limit);
+    LimitedScanResult<List<TransactionId>> scanTraceIndex(String applicationName, Range range, int limit, boolean backwardDirection);
 
     LimitedScanResult<List<TransactionId>> scanTraceIndex(String applicationName, SelectedScatterArea range, int limit);
 
-    List<Dot> scanTraceScatter(String applicationName, Range range, int limit);
+    List<Dot> scanTraceScatter(String applicationName, Range range, int limit, boolean scanBackward);
 
     /**
      *
@@ -50,6 +50,6 @@ public interface ApplicationTraceIndexDao {
      */
     List<Dot> scanTraceScatter(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransactionElapsed, int limit);
 
-    ScatterData scanTraceScatterDataMadeOfDotGroup(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit);
+    ScatterData scanTraceScatterDataMadeOfDotGroup(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean scanBackward);
 
 }
