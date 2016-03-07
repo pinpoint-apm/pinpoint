@@ -358,7 +358,7 @@
 	BigScatterChart2.prototype._drawWithDataSource = function() {
 		var self = this;
 
-		if (this._bPause || this._bRequesting) {
+		if (this._bPause || this._bRequesting || this._oDataLoadManager.isCompleted() ) {
 			return;
 		}
 		if ( this._oDataLoadManager.isFirstRequest() ) {
@@ -366,15 +366,15 @@
 		}
 		this._oDataLoadManager.loadData( function() {
 			self._bRequesting = false;
-		}, function( oResultData, hasNextData ) {
+		}, function( oResultData, bHasNextData, intervalTime ) {
 
 			if ( oResultData.scatter.dotList.length !== 0  ) {
 				self.addBubbleAndMoveAndDraw( oResultData );
 			}
-			if ( hasNextData > -1 ) {
+			if ( bHasNextData === true ) {
 				setTimeout(function () {
 					self._drawWithDataSource();
-				}, hasNextData );
+				}, intervalTime );
 			} else if (!self._aBubbles || self._aBubbles.length === 0) {
 				self._oMessage.show( self.option( "noDataStr" ) );
 			}
@@ -411,12 +411,13 @@
 	};
 	BigScatterChart2.prototype.resume = function( start, end ) {
 		this._bPause = false;
-		this._drawWithDataSource();
 		if ( this.option( "realtime" ) ) {
 			this._aBubbles = [];
 			this._oSCManager.setX( start, end, true );
 			this._oRendererManager.updateXYAxis();
 			this._invokeLoadRealtimeData();
+		} else {
+			this._drawWithDataSource();
 		}
 	};
 	BigScatterChart2.prototype.changeRangeOfY = function( oNewRangeY ) {

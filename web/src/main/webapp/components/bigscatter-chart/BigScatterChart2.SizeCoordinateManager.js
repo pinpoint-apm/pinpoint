@@ -119,7 +119,5 @@
 		return this.option( "maxZ" ) - this.option( "minZ" );
 	};
 
-
-
 	global.BigScatterChart2.SizeCoordinateManager = SizeCoordinateManager;
 })(window, jQuery);
