@@ -433,7 +433,7 @@
 		var nextLeft = parseInt( this._$elScroller.css( "left" ), 10 ) - moveXValue;
 		this._$elScroller.animate({
 			"left": nextLeft
-		}, 1000, function() {
+		}, 300, function() {
 			var temp = self._oScrollIndexOrder[0];
 			var bOverBoundary = false;
 			$.each( self._oElScrollCanvas, function( key, aCanvas ) {
