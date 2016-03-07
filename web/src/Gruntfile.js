@@ -155,8 +155,8 @@ module.exports = function (grunt) {
 				src: [
 					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.js',
 					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.DataBlock.js',
-					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.DataManager.js',
 					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.DragManager.js',
+					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.DataLoadManager.js',
 					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.RendererManager.js',
 					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.BubbleTypeManager.js',
 					COMPONENT_PATH + 'bigscatter-chart/BigScatterChart2.SizeCoordinateManager.js',
