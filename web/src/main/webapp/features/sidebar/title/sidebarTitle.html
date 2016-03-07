@@ -9,7 +9,7 @@
             <img ng-src="{{stImage2}}" style="height:25px;" ng-if="stImage2Show"/>
             <span>{{stTitle2}}</span>
         </span>
-        <select ng-show="stTitle2 === false" ng-model="currentAgent" ng-change="changeAgent()" class="form-control" style="float:right;width:160px;margin-top:10px;padding:2px 4px;height:24px;line-height:1;font-size:12px">
+        <select ng-show="isWas" ng-model="currentAgent" ng-change="changeAgent()" class="form-control" style="float:right;width:160px;margin-top:10px;padding:2px 4px;height:24px;line-height:1;font-size:12px">
             <option value="All" selected>All</option>
             <option ng-repeat="agentName in agentList" value="{{agentName}}">{{agentName}}</option>
         </select>

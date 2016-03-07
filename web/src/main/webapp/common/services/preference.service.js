@@ -30,7 +30,7 @@
 			type: "string"
 		}],
 		cst: {
-			periodTypes: ['5m', '20m', '1h', '3h', '6h', '12h', '1d', '2d'],
+			periodTypes: [ '5m', '20m', '1h', '3h', '6h', '12h', '1d', '2d'],
 			depthList: [ 1, 2, 3, 4],
 			maxFavorite: 5000,
 			maxPeriod: 2

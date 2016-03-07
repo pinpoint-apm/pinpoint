@@ -12,6 +12,7 @@
 	        // define and initialize private variables;
 	        var self = this;
 	        this._sApplication = false;
+			this._periodType = "";
 	        this._nPeriod = false;
 	        this._nQueryEndTime = false;
 	        this._sFilter = false;
@@ -120,9 +121,6 @@
 	        this.getHint = function () {
 	            return self._sHint;
 	        };
-	        this.getHintAsJson = function () {
-	            return JSON.parse(self._sHint);
-	        };
 	
 	        this.setAgentId = function (agentId) {
 	            if (angular.isString(agentId)) {
@@ -163,9 +161,18 @@
 	                        self.setPeriod(period);
 	                        break;
 	                }
-	            }
+	            } else {
+					if ( readablePeriod === "realtime" ) {
+						self.setPeriodType( "realtime" );
+						self._sReadablePeriod = "1m";
+						self.setPeriod( 300 );
+					}
+				}
 	            return self;
 	        };
+			this.isRealtime = function() {
+				return this._periodType === "realtime";
+			};
 	        this.getReadablePeriod = function () {
 	            return self._sReadablePeriod;
 	        };
@@ -207,7 +214,14 @@
 	        };
 			this.getPartialURL = function( bAddApplication, bAddFilter) {
 				return (bAddApplication ? self.getApplication() + "/" : "" ) + self.getReadablePeriod() + "/" + self.getQueryEndDateTime() + ( bAddFilter ? ( self.getFilter() ? "/" + self.getFilter() : "" ) : "" );
-			}
+			};
+			this.setPeriodType = function( type ) {
+				this._periodType = type;
+			};
+			this.getPeriodType = function() {
+				return this._periodType;
+			};
+
 	    };
 	}]);
 })();

@@ -9,13 +9,7 @@
 	 */
 	pinpointApp.constant('TransactionListConfig', {
 	    applicationUrl: '/transactionmetadata.pinpoint',
-	    MAX_FETCH_BLOCK_SIZE: 100,
-	    transactionIndex: {
-	        x: 0,
-	        y: 1,
-	        transactionId: 2,
-	        type: 3
-	    }
+	    MAX_FETCH_BLOCK_SIZE: 100
 	});
 	
 	pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$location', '$routeParams', '$rootScope', '$timeout', '$window', '$http', 'webStorage', 'TimeSliderVoService', 'TransactionDaoService', 'AnalyticsService', 'helpContentService',
@@ -43,6 +37,7 @@
 				var bHasParent = hasParent();
 				var bHasValidParam = hasValidParam();
 				var bHasTransactionInfo = !angular.isUndefined( $routeParams.transactionInfo );
+				console.log( bHasParent, bHasValidParam, bHasTransactionInfo );
 				if ( bHasTransactionInfo ) {
 					var i2 = $routeParams.transactionInfo.lastIndexOf("-");
 					var i1 = $routeParams.transactionInfo.lastIndexOf("-", i2 -1);
@@ -97,11 +92,20 @@
 			hasValidParam = function() {
 				if ( $window.opener == null ) return false;
 				var $parentParams = $window.opener.$routeParams;
-				return angular.isDefined($routeParams) &&
-						angular.isDefined($parentParams) &&
-						angular.equals($routeParams.application, $parentParams.application) &&
-						angular.equals($routeParams.readablePeriod, $parentParams.readablePeriod) &&
-						angular.equals($routeParams.queryEndDateTime, $parentParams.queryEndDateTime);
+				if ( angular.isDefined($routeParams) && angular.isDefined($parentParams) ) {
+					if ( $parentParams.readablePeriod === "realtime" ) {
+						if ( angular.equals($routeParams.application, $parentParams.application ) ) {
+							return true;
+						}
+					} else {
+						if ( angular.equals($routeParams.application, $parentParams.application) &&
+							angular.equals($routeParams.readablePeriod, $parentParams.readablePeriod) &&
+							angular.equals($routeParams.queryEndDateTime, $parentParams.queryEndDateTime) ) {
+							return true;
+						}
+					}
+				}
+				return false;
 			};
 
 	        /**
@@ -170,9 +174,9 @@
 	                if (i > 0) {
 	                    query.push("&");
 	                }
-	                query = query.concat(["I", j, "=", htTransactionData[i][cfg.transactionIndex.transactionId]]);
-	                query = query.concat(["&T", j, "=", htTransactionData[i][cfg.transactionIndex.x]]);
-	                query = query.concat(["&R", j, "=", htTransactionData[i][cfg.transactionIndex.y]]);
+	                query = query.concat(["I", j, "=", htTransactionData[i][0]]);
+	                query = query.concat(["&T", j, "=", htTransactionData[i][1]]);
+	                query = query.concat(["&R", j, "=", htTransactionData[i][2]]);
 	                nLastFetchedIndex++;
 	            }
 	            nFetchCount++;

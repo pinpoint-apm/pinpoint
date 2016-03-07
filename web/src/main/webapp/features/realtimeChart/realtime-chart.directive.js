@@ -33,8 +33,8 @@
 		}
 	});
 	
-	pinpointApp.directive('realtimeChartDirective', [ 'realtimeChartDirectiveConfig', '$location',  
-	    function (cfg, $location) {
+	pinpointApp.directive('realtimeChartDirective', [ 'realtimeChartDirectiveConfig',
+	    function ( cfg ) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,

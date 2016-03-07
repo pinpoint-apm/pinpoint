@@ -41,7 +41,8 @@
 						scope.agentList = aAgentList;
 					}
 	
-	                function initialize(oSidebarTitleVoService) {
+	                function initialize( oSidebarTitleVoService, node ) {
+						scope.isWas = node.isWas;
 	                    scope.stImage = oSidebarTitleVoService.getImage();
 	                    scope.stImageShow = oSidebarTitleVoService.getImage() ? true : false;
 	                    scope.stTitle = oSidebarTitleVoService.getTitle();
@@ -61,6 +62,7 @@
 	                    scope.stImage2 = false;
 	                    scope.stTitle2 = false;
 	                    scope.stImage2Show = false;
+						scope.isWas = false;
 						scope.agentList = [];
 	                }
 					scope.changeAgent = function() {
@@ -70,8 +72,8 @@
 	                 * scope on sidebarTitle.initialize.namespace
 	                 */
 	                scope.$on("sidebarTitleDirective.initialize." + scope.namespace, function (event, oSidebarTitleVoService, node) {
+	                    initialize( oSidebarTitleVoService, node );
 						initializeAgentList( node );
-	                    initialize(oSidebarTitleVoService);
 	                });
 	
 	                /**

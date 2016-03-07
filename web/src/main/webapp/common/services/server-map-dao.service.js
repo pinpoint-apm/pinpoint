@@ -9,7 +9,7 @@
 	 */
 	pinpointApp.constant('serverMapDaoServiceConfig', {
 	    serverMapDataUrl: '/getServerMapData.pinpoint',
-	    filteredServerMapDataUrl: '/getFilteredServerMapData.pinpoint',
+	    filteredServerMapDataUrl: '/getFilteredServerMapDataMadeOfDotGroup.pinpoint',
 	    filtermapUrl: '/filtermap.pinpoint',
 	    lastTransactionListUrl: '/lastTransactionList.pinpoint',
 	    transactionListUrl: '/transactionList.pinpoint',
@@ -74,7 +74,9 @@
 	            limit: cfg.FILTER_FETCH_LIMIT,
 				callerRange: query.callerRange,
 				calleeRange: query.calleeRange,
-				v: 3
+				v: 3,
+				xGroupUnit: 987,
+				yGroupUnit: 57
 	        };
 	        if ( isNaN( parseInt( query.serviceTypeName ) ) ) {
 	    		data.serviceTypeName = query.serviceTypeName; 

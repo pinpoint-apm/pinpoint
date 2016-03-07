@@ -11,8 +11,8 @@
 	    agentStatUrl: '/getAgentStat.pinpoint'
 	});
 	
-	pinpointApp.directive('agentInfoDirective', [ 'agentInfoConfig', '$timeout', 'AlertsService', 'ProgressBarService', 'AgentDaoService', 'AgentAjaxService', 'TooltipService',
-	    function ( cfg, $timeout, AlertsService, ProgressBarService, AgentDaoService, agentAjaxService, tooltipService ) {
+	pinpointApp.directive('agentInfoDirective', [ 'agentInfoConfig', '$timeout', 'AlertsService', 'ProgressBarService', 'AgentDaoService', 'AgentAjaxService', 'TooltipService', "AnalyticsService",
+	    function ( cfg, $timeout, AlertsService, ProgressBarService, AgentDaoService, agentAjaxService, tooltipService, analyticsService ) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -245,6 +245,7 @@
 					};
 
 					scope.toggleShowDetail = function() {
+						analyticsService.send( analyticsService.CONST.INSPECTOR, analyticsService.CONST.CLK_SHOW_SERVER_TYPE_DETAIL );
 						scope.showDetail = !scope.showDetail;
 					};
 	                scope.hasDuplicate = function( libName, index ) {
