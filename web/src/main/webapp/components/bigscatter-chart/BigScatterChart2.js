@@ -401,6 +401,7 @@
 		this.redrawBubbles();
 	};
 	BigScatterChart2.prototype.abort = function() {
+		this._bPause = true;
 		this._oDataLoadManager.abort();
 	};
 	BigScatterChart2.prototype.pause = function() {
@@ -414,6 +415,7 @@
 		if ( this.option( "realtime" ) ) {
 			this._aBubbles = [];
 			this._oSCManager.setX( start, end, true );
+			this._oDataLoadManager.setRealtimeTimeRange( start, end );
 			this._oRendererManager.updateXYAxis();
 			this._invokeLoadRealtimeData();
 		} else {
