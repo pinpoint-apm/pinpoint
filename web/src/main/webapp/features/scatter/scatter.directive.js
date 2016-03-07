@@ -116,7 +116,7 @@
 								oScatterChart.drawWithDataSource( new BigScatterChart2.DataLoadManager( applicationName, start, end, filter, {
 									"url": cfg.scatterDataUrl,
 									"realtime": isRealtime(),
-									"realtimeInterval": 5000,
+									"realtimeInterval": 2000,
 									"fetchLimit": 5000,
 									"fetchingInterval": 2000,
 									"useIntervalForFetching": false

@@ -59,7 +59,8 @@
 				"filter": "",
 				"application": this._application,
 				"xGroupUnit": widthOfPixel,
-				"yGroupUnit": heightOfPixel
+				"yGroupUnit": heightOfPixel,
+				"backwardDirection": false
 			},
 			"headers": { "accept": "application/json" },
 			"dataType": "json"
@@ -76,6 +77,10 @@
 		}).fail(function() {
 			self.loadRealtimeData( callbackRealtimeSuccess, widthOfPixel, heightOfPixel );
 		});
+	};
+	DataLoadManager.prototype.setRealtimeTimeRange = function( from, to ) {
+		this._nextFrom = from;
+		this._nextTo = to;
 	};
 	DataLoadManager.prototype._getIntervalTime = function() {
 		if (this.option( "useIntervalForFetching" ) ) {
