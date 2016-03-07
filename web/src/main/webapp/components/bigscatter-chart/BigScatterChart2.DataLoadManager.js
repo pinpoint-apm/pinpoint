@@ -11,7 +11,8 @@
 	}
 	DataLoadManager.prototype._initVar = function() {
 		this._callCount = 0;
-		this._lastLoadFrom = 0;
+		this._bLoadCompleted = false;
+		this._lastLoadTime = -1;
 	};
 	DataLoadManager.prototype.option = function( k ) {
 		return this._option[k];
@@ -22,7 +23,7 @@
 		this._oAjax = $.ajax({
 			"url": this.getUrl(),
 			"data": {
-				"to": this._callCount === 0 ? this._to : this._lastLoadFrom - 1,
+				"to": this._callCount === 0 ? this._to : this._lastLoadTime - 1,
 				"from": this._from,
 				"limit": this.option( "fetchLimit" ),
 				"filter": this._filter || "",
@@ -37,8 +38,9 @@
 				cbFail();
 			} else {
 				self._callCount += 1;
-				self._lastLoadFrom = oResultData.resultFrom;
-				cbSuccess(oResultData, self._hasNextData());
+				self._bLoadCompleted = oResultData.complete;
+				self._lastLoadTime = oResultData.resultTo;
+				cbSuccess(oResultData, !this._bLoadCompleted, self._getIntervalTime() );
 			}
 		}).always(function() {
 			cbComplete();
@@ -65,7 +67,7 @@
 			if ( oResultData.exception ) {
 
 			} else {
-				self._nextFrom = oResultData.resultTo;
+				self._nextFrom = oResultData.complete ? oResultData.to : oResultData.resultTo;
 				self._nextTo = self._nextFrom + self.option( "realtimeInterval" );
 
 				callbackRealtimeSuccess( oResultData, self.option( "realtimeInterval" ) - ( Date.now() - start ) );
@@ -75,14 +77,11 @@
 			self.loadRealtimeData( callbackRealtimeSuccess, widthOfPixel, heightOfPixel );
 		});
 	};
-	DataLoadManager.prototype._hasNextData = function() {
-		if ( this._lastLoadFrom - 1 > this._from ) {
-			if (this.option( "useIntervalForFetching" ) ) {
-				return this.option( "fetchingInterval" );
-			}
-			return 0;
+	DataLoadManager.prototype._getIntervalTime = function() {
+		if (this.option( "useIntervalForFetching" ) ) {
+			return this.option( "fetchingInterval" );
 		}
-		return -1;
+		return 0;
 	};
 	DataLoadManager.prototype.getRealtimeInterval = function() {
 		return this.option( "realtimeInterval" );
@@ -96,6 +95,9 @@
 	};
 	DataLoadManager.prototype.isFirstRequest = function() {
 		return this._callCount === 0;
+	};
+	DataLoadManager.prototype.isCompleted = function() {
+		return this._bLoadCompleted;
 	};
 	DataLoadManager.prototype.abort = function() {
 		if ( this._oAjax ) {

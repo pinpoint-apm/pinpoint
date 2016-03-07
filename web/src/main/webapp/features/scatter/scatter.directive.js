@@ -134,10 +134,9 @@
 					function showScatter (application, w, h) {
 						element.children().hide();
 						pauseScatterAll();
-						if (angular.isDefined(htScatterSet[application])) {
+						if ( angular.isDefined(htScatterSet[application]) ) {
 							htScatterSet[application].target.show();
 							if ( isRealtime() ) {
-
 								commonAjaxService.getServerTime( function( serverTime ) {
 									htScatterSet[application].scatter.resume( serverTime - 300000, serverTime );
 									htScatterSet[application].scatter.selectAgent(CONST_SET.AGENT_ALL, true);
