@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.web.vo.scatter.DotAgentInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -148,6 +149,19 @@ public class ScatterData {
         sortedMap.putAll(scatterData);
 
         return sortedMap;
+    }
+
+    public int getDotSize() {
+        int totalDotSize = 0;
+
+        Collection<DotGroups> dotGroupsList = scatterData.values();
+        for (DotGroups dotGroups : dotGroupsList) {
+            Collection<DotGroup> dotGroupList = dotGroups.getDotGroupMap().values();
+            for (DotGroup dotGroup : dotGroupList) {
+                totalDotSize += dotGroup.getDotSize();
+            }
+        }
+        return totalDotSize;
     }
 
     public long getFrom() {

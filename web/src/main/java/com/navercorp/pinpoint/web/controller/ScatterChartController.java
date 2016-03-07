@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.web.service.ScatterChartService;
 import com.navercorp.pinpoint.web.util.LimitUtils;
 import com.navercorp.pinpoint.web.util.TimeUtils;
 import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.web.view.ServerTime;
 import com.navercorp.pinpoint.web.view.TransactionMetaDataViewModel;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -143,6 +144,8 @@ public class ScatterChartController {
         final List<TransactionId> traceIdList = limitedScanResult.getScanData();
         logger.trace("submitted transactionId count={}", traceIdList.size());
 
+        boolean requestComplete = traceIdList.size() < limit;
+
         // TODO just need sorted?  we need range check with tree-based structure.
         SortedSet<TransactionId> traceIdSet = new TreeSet<>(traceIdList);
         logger.debug("unified traceIdSet size={}", traceIdSet.size());
@@ -160,7 +163,7 @@ public class ScatterChartController {
         } else {
             resultRange = new Range(limitedScanResult.getLimitedTime(), range.getTo());
         }
-        return createModelAndView(resultRange, jsonpCallback, scatterData, version);
+        return createModelAndView(resultRange, jsonpCallback, scatterData, requestComplete, version);
     }
 
     private ModelAndView selectScatterData(String applicationName, Range range, int limit, boolean backwardDirection, String jsonpCallback, int version) {
@@ -171,10 +174,13 @@ public class ScatterChartController {
         } else {
             resultRange = new Range(scatterData.get(scatterData.size() - 1).getAcceptedTime(), range.getTo());
         }
-        return createModelAndView(resultRange, jsonpCallback, scatterData, version);
+
+        boolean requestComplete = scatterData.size() < limit;
+
+        return createModelAndView(resultRange, jsonpCallback, scatterData, requestComplete, version);
     }
 
-    private ModelAndView createModelAndView(Range range, String jsonpCallback, List<Dot> scatterData, int version) {
+    private ModelAndView createModelAndView(Range range, String jsonpCallback, List<Dot> scatterData, boolean requestComplete, int version) {
         ModelAndView mv = new ModelAndView();
         mv.addObject("resultFrom", range.getFrom());
         mv.addObject("resultTo", range.getTo());
@@ -233,6 +239,7 @@ public class ScatterChartController {
             scatterAgentData.put("_#MinAgent", minList);
         }
 
+        mv.addObject("complete", requestComplete);
         mv.addObject("scatter", scatterAgentData);
 
         if (jsonpCallback == null) {
@@ -356,11 +363,16 @@ public class ScatterChartController {
 
         ModelAndView mv = new ModelAndView();
 
+        mv.addObject("currentServerTime", new ServerTime().getCurrentServerTime());
         mv.addObject("from", range.getFrom());
         mv.addObject("to", range.getTo());
         mv.addObject("resultFrom", scatterData.getOldestAcceptedTime());
         mv.addObject("resultTo", scatterData.getLatestAcceptedTime());
+
+        boolean requestComplete = scatterData.getDotSize() < limit;
+        mv.addObject("complete", requestComplete);
         mv.addObject("scatter", scatterData);
+
         return mv;
     }
 
