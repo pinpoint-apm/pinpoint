@@ -59,8 +59,8 @@
 		}
 	});
 
-	pinpointApp.directive("scatterDirective", ["scatterDirectiveConfig", "$rootScope", "$compile", "$timeout", "webStorage", "$window", "$http", "CommonAjaxService", "TooltipService", "AnalyticsService", "CONST_SET",
-		function (cfg, $rootScope, $compile, $timeout, webStorage, $window, $http, commonAjaxService, tooltipService, analyticsService, CONST_SET) {
+	pinpointApp.directive("scatterDirective", ["scatterDirectiveConfig", "$rootScope", "$compile", "$timeout", "webStorage", "$window", "$http", "CommonAjaxService", "TooltipService", "AnalyticsService", "PreferenceService", "CONST_SET",
+		function (cfg, $rootScope, $compile, $timeout, webStorage, $window, $http, commonAjaxService, tooltipService, analyticsService, preferenceService, CONST_SET) {
 			return {
 				template: cfg.template,
 				restrict: "EA",
@@ -69,8 +69,8 @@
 					var oNavbarVoService = null, htScatterSet = {}, htLastNode = null;
 
 					function makeScatter(target, application, w, h, scatterData) {
-						var start = oNavbarVoService.getQueryStartTime();
-						var end = oNavbarVoService.getQueryEndTime();
+						var from = oNavbarVoService.getQueryStartTime();
+						var to = oNavbarVoService.getQueryEndTime();
 						var filter = oNavbarVoService.getFilter();
 						var applicationName = application.split("^")[0];
 						var options = {};
@@ -79,8 +79,8 @@
 						options.containerId = target;
 						options.width = w ? w : 400;
 						options.height = h ? h : 250;
-						options.minX = start;
-						options.maxX = end;
+						options.minX = from;
+						options.maxX = to;
 						options.realtime = isRealtime();
 
 						var oScatterChart = new BigScatterChart2(options, getAgentList(scatterData), [
@@ -113,7 +113,7 @@
 
 						$timeout(function () {
 							if (angular.isUndefined(scatterData)) {
-								oScatterChart.drawWithDataSource( new BigScatterChart2.DataLoadManager( applicationName, start, end, filter, {
+								oScatterChart.drawWithDataSource( new BigScatterChart2.DataLoadManager( applicationName, filter, {
 									"url": cfg.scatterDataUrl,
 									"realtime": isRealtime(),
 									"realtimeInterval": 2000,
@@ -138,7 +138,7 @@
 							htScatterSet[application].target.show();
 							if ( isRealtime() ) {
 								commonAjaxService.getServerTime( function( serverTime ) {
-									htScatterSet[application].scatter.resume( serverTime - 300000, serverTime );
+									htScatterSet[application].scatter.resume( serverTime - preferenceService.getRealtimeScatterPeriod(), serverTime );
 									htScatterSet[application].scatter.selectAgent(CONST_SET.AGENT_ALL, true);
 								});
 							} else {

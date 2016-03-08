@@ -33,7 +33,8 @@
 			periodTypes: [ '5m', '20m', '1h', '3h', '6h', '12h', '1d', '2d'],
 			depthList: [ 1, 2, 3, 4],
 			maxFavorite: 5000,
-			maxPeriod: 2
+			maxPeriod: 2,
+			realtimeScatterPeriod: 5 * 60 * 1000//5m
 		}
 	});
 	
@@ -71,6 +72,12 @@
 		};
 		this.getMaxPeriod = function() {
 			return cfg.cst.maxPeriod;
+		};
+		this.getRealtimeScatterPeriod = function() {
+			return cfg.cst.realtimeScatterPeriod;
+		};
+		this.getRealtimeScatterPeriodStr = function() {
+			return (cfg.cst.realtimeScatterPeriod / 1000 / 60) + "m";
 		};
 		
 		
