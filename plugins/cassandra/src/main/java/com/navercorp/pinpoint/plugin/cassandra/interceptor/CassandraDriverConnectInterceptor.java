@@ -35,8 +35,6 @@ import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.plugin.cassandra.CassandraConstants;
 
 /**
- * must be used with ExecutionPolicy.ALWAYS
- * 
  * @author dawidmalina
  */
 @TargetMethod(name = "connect", paramTypes = { "java.lang.String" })
@@ -76,9 +74,11 @@ public class CassandraDriverConnectInterceptor extends SpanEventSimpleAroundInte
         List<String> hostList = new ArrayList<String>();
         if (target instanceof Cluster) {
             Cluster cluster = (Cluster) target;
-            Set<Host> hosts = cluster.getMetadata().getAllHosts();
+            final Set<Host> hosts = cluster.getMetadata().getAllHosts();
+            final int port = cluster.getConfiguration().getProtocolOptions().getPort();
             for (Host host : hosts) {
-                hostList.add(host.toString().replace("/", ""));
+                final String hostAddress = host.getAddress().getHostAddress() + ":" + port;
+                hostList.add(hostAddress);
             }
         }
         if (args == null) {
