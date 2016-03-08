@@ -22,8 +22,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
-
 import java.lang.management.ThreadInfo;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
@@ -37,6 +35,12 @@ public class ThreadMXBeanUtilsTest {
 
         Assert.assertNotNull(threadInfos);
         logger.trace("thread:{}", Arrays.toString(threadInfos));
+    }
+
+    @Test
+    public void testOption() {
+        final String option = ThreadMXBeanUtils.getOption();
+        logger.debug("ThreadMXBean option:{}", option);
     }
 
     @Test
