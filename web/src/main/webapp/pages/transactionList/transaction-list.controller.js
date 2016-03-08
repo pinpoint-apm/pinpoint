@@ -37,7 +37,6 @@
 				var bHasParent = hasParent();
 				var bHasValidParam = hasValidParam();
 				var bHasTransactionInfo = !angular.isUndefined( $routeParams.transactionInfo );
-				console.log( bHasParent, bHasValidParam, bHasTransactionInfo );
 				if ( bHasTransactionInfo ) {
 					var i2 = $routeParams.transactionInfo.lastIndexOf("-");
 					var i1 = $routeParams.transactionInfo.lastIndexOf("-", i2 -1);

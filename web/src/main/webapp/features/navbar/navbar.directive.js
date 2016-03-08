@@ -323,8 +323,7 @@
 						} else if ( scope.periodType === cfg.periodType.REALTIME ) {
 							oNavbarVoService.setPeriodType( cfg.periodType.REALTIME );
 							getQueryEndTimeFromServer(function (currentServerTime) {
-								oNavbarVoService.setReadablePeriod(scope.aReadablePeriodList[0]);
-								//oNavbarVoService.setReadablePeriod("1m");
+								oNavbarVoService.setReadablePeriod( preferenceService.getRealtimeScatterPeriodStr() );
 								oNavbarVoService.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
 								oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 								emitAsChanged();
