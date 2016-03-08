@@ -1,0 +1,26 @@
+cluster_name: Test Cluster
+memtable_allocation_type: offheap_objects
+commitlog_sync: batch
+commitlog_sync_batch_window_in_ms: 1.0
+commitlog_segment_size_in_mb: 5
+partitioner: org.apache.cassandra.dht.ByteOrderedPartitioner
+listen_address: 127.0.0.1
+storage_port: 7010
+start_native_transport: true
+native_transport_port: 9042
+start_rpc: false
+rpc_port: 9170
+ssl_storage_port: 7011
+column_index_size_in_kb: 4
+disk_access_mode: mmap
+seed_provider:
+    - class_name: org.apache.cassandra.locator.SimpleSeedProvider
+      parameters:
+          - seeds: "127.0.0.1"
+endpoint_snitch: org.apache.cassandra.locator.SimpleSnitch
+dynamic_snitch: true
+request_scheduler: org.apache.cassandra.scheduler.RoundRobinScheduler
+request_scheduler_id: keyspace
+concurrent_compactors: 1
+compaction_throughput_mb_per_sec: 16
+auto_snapshot: false

@@ -169,6 +169,19 @@
             <artifactId>dubbo</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.datastax.cassandra</groupId>
+            <artifactId>cassandra-driver-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cassandra</groupId>
+            <artifactId>cassandra-all</artifactId>
+            <version>2.1.13</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
