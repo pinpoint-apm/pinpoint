@@ -1,8 +1,6 @@
 (function(global, $) {
 	'use strict';
-	function DataLoadManager( application, from, to, filter, option, cbLoaded ) {
-		this._to = to;
-		this._from = from;
+	function DataLoadManager( application, filter, option, cbLoaded ) {
 		this._filter = filter;
 		this._option = option;
 		this._application = application;
@@ -19,12 +17,13 @@
 	};
 	DataLoadManager.prototype.loadData = function( cbComplete, cbSuccess, cbFail, widthOfPixel, heightOfPixel ) {
 		var self = this;
+		var oFromTo = this._oSCManager.getX();
 
 		this._oAjax = $.ajax({
 			"url": this.getUrl(),
 			"data": {
-				"to": this._callCount === 0 ? this._to : this._lastLoadTime - 1,
-				"from": this._from,
+				"to": this._callCount === 0 ? oFromTo.max : this._lastLoadTime - 1,
+				"from": oFromTo.min,
 				"limit": this.option( "fetchLimit" ),
 				"filter": this._filter || "",
 				"application": this._application,
@@ -48,13 +47,14 @@
 	};
 	DataLoadManager.prototype.loadRealtimeData = function( callbackRealtimeSuccess, widthOfPixel, heightOfPixel ) {
 		var self = this;
+		var oFromTo = this._oSCManager.getX();
 
 		var start = Date.now();
 		this._oRealtimeAjax = $.ajax({
 			"url": this.getUrl(),
 			"data": {
-				"to": this._nextTo ||  this._to + this.option( "realtimeInterval" ),
-				"from": this._nextFrom || this._to,
+				"to": this._nextTo ||  oFromTo.max + this.option( "realtimeInterval" ),
+				"from": this._nextFrom || oFromTo.max,
 				"limit": this.option( "fetchLimit" ),
 				"filter": "",
 				"application": this._application,
@@ -78,9 +78,9 @@
 			self.loadRealtimeData( callbackRealtimeSuccess, widthOfPixel, heightOfPixel );
 		});
 	};
-	DataLoadManager.prototype.setRealtimeTimeRange = function( from, to ) {
+	DataLoadManager.prototype.setRealtimeFrom = function( from ) {
 		this._nextFrom = from;
-		this._nextTo = to;
+		this._nextTo = from + this.option( "realtimeInteraval" );
 	};
 	DataLoadManager.prototype._getIntervalTime = function() {
 		if (this.option( "useIntervalForFetching" ) ) {
@@ -112,6 +112,14 @@
 			this._oRealtimeAjax.abort();
 		}
 	};
+	DataLoadManager.prototype.setTimeManager = function( oSCManager ) {
+		this._oSCManager = oSCManager;
+	};
+	DataLoadManager.prototype.reset = function() {
+		this._bLoadCompleted = false;
+		this.initCallCount();
+	};
+
 
 	global.BigScatterChart2.DataLoadManager = DataLoadManager;
 })(window, jQuery);

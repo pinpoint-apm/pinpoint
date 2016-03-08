@@ -186,11 +186,18 @@ module.exports = function (grunt) {
 			}
 		},
 		watch: {
-			files: [
-				COMPONENT_PATH + 'time-slider/*.js',
-				COMPONENT_PATH + 'bigscatter-chart/*.js'
-			],
-			tasks: [ 'buildLib' ]
+			cssDev: {
+				files: [],
+				tasks: []
+			},
+			jsDev: {
+				files: [
+					COMPONENT_PATH + 'time-slider/*.js',
+					COMPONENT_PATH + 'bigscatter-chart/*.js',
+					COMPONENT_PATH + 'infiniteCircularScroll/*.js',
+				],
+				tasks: ['buildDev']
+			}
 		},
         karma: {
         	unit: {
@@ -242,5 +249,9 @@ module.exports = function (grunt) {
 		'concat:drawLib',
 		'concat:utilLib',
 		'concat:angularLib'
+	]);
+	grunt.registerTask('watchDev', 'Watch js, css', [
+		'watch:jsDev',
+		'watch:cssDev'
 	]);
 };

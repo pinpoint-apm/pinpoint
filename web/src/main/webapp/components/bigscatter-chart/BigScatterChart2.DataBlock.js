@@ -7,10 +7,11 @@
 	DataBlock.prototype._initData = function( oData ) {
 		this._from = oData.from;
 		this._to = oData.to;
-		this._resultFrom = oData.resultFrom;
-		this._resultTo = oData.resultTo;
+		this._resultFrom = oData.complete ? oData.from : oData.resultFrom;
+		this._resultTo = oData.complete ? oData.to : oData.resultTo;
 		this._oAgentMetaInfo = oData.scatter.metadata;
 		this._aAllData = oData.scatter.dotList;
+		this._bLoadComplete = oData.complete;
 
 		this._oAgentData = {};
 		this._oCountOfType = {};
@@ -39,8 +40,8 @@
 			self._oCountOfType[agentName][ oTypeInfo[aValue[oPropertyIndex.type] + "" ][0] ]++;
 		});
 
-		this._minX = this._aAllData[0][oPropertyIndex.x];
-		this._maxX = this._aAllData[this._aAllData.length - 1][oPropertyIndex.x];
+		this._minX = this._bLoadComplete ? this._from : this._resultFrom;
+		this._maxX = this._bLoadComplete ? this._to : this._resultTo;
 		this._minY = minY;
 		this._maxY = maxY;
 	};
@@ -64,7 +65,7 @@
 		}
 	};
 	DataBlock.prototype.getCount = function( agentName, type, minX, maxX ) {
-		if ( arguments.length === 2 || minX <= this._minX && this._maxX <= maxX ) {
+		if ( arguments.length === 2 ) {
 			if (this._oCountOfType[agentName]) {
 				return this._oCountOfType[agentName][type];
 			} else {
@@ -78,9 +79,9 @@
 		var self = this;
 		var sum = 0;
 		$.each( this._aAllData, function( index, aValue ) {
-			if ( agentName === self._getAgentName( aValue[2] + "" ) ) {
-				if ( type === self._oTypeInfo[aValue[self._oPropertyIndex.type] + ""] ) {
-					if ( aValue[0] >= minX && aValue[1] <= maxX ) {
+			if ( agentName === self._getAgentName( aValue[self._oPropertyIndex.meta] + "" ) ) {
+				if ( type === self._oTypeInfo[aValue[self._oPropertyIndex.type] + ""][0] ) {
+					if ( aValue[self._oPropertyIndex.x] >= minX && aValue[self._oPropertyIndex.x] <= maxX ) {
 						sum++;
 					}
 				}
@@ -95,6 +96,12 @@
 	DataBlock.prototype.getAgentName = function( aDataBlock ) {
 		var oMeta = this._oAgentMetaInfo[ aDataBlock[this._oPropertyIndex.meta] + "" ];
 		return oMeta[0];
+	};
+	DataBlock.prototype.getX = function() {
+		return {
+			"min": this._minX,
+			"max": this._maxX
+		};
 	};
 
 	global.BigScatterChart2.DataBlock = DataBlock;
