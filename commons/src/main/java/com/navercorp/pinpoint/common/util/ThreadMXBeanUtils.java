@@ -22,8 +22,6 @@ import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author emeroad
@@ -46,22 +44,19 @@ public final class ThreadMXBeanUtils {
         OBJECT_MONITOR_USAGE_SUPPORT = THREAD_MX_BEAN.isObjectMonitorUsageSupported();
         SYNCHRONIZER_USAGE_SUPPORT =  THREAD_MX_BEAN.isSynchronizerUsageSupported();
         CONTENTION_MONITORING_SUPPORT = THREAD_MX_BEAN.isThreadContentionMonitoringSupported();
-        logOption();
     }
 
-    private static void logOption() {
-        final Logger logger = Logger.getLogger(ThreadMXBeanUtils.class.getName());
-        if (logger.isLoggable(Level.INFO)) {
-            final StringBuilder builder = new StringBuilder();
-            builder.append("ThreadMXBean SupportOption:{OBJECT_MONITOR_USAGE_SUPPORT=");
-            builder.append(OBJECT_MONITOR_USAGE_SUPPORT);
-            builder.append("}, {SYNCHRONIZER_USAGE_SUPPORT=");
-            builder.append(SYNCHRONIZER_USAGE_SUPPORT);
-            builder.append("}, {CONTENTION_MONITORING_SUPPORT=");
-            builder.append(CONTENTION_MONITORING_SUPPORT);
-            builder.append('}');
-            logger.info(builder.toString());
-        }
+    // for test
+    static String getOption() {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("ThreadMXBean SupportOption:{OBJECT_MONITOR_USAGE_SUPPORT=");
+        builder.append(OBJECT_MONITOR_USAGE_SUPPORT);
+        builder.append("}, {SYNCHRONIZER_USAGE_SUPPORT=");
+        builder.append(SYNCHRONIZER_USAGE_SUPPORT);
+        builder.append("}, {CONTENTION_MONITORING_SUPPORT=");
+        builder.append(CONTENTION_MONITORING_SUPPORT);
+        builder.append('}');
+        return builder.toString();
     }
 
     public static ThreadInfo[] dumpAllThread() {
