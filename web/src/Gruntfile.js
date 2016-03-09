@@ -11,7 +11,7 @@ module.exports = function (grunt) {
 
         clean: {
 			doc: [ DOC_PATH ],
-			lib: [ '<%= concat.timeSlider.dest %>','<%= concat.bigscatter.dest %>'  ]
+			lib: [ '<%= concat.timeSlider.dest %>','<%= concat.bigscatter.dest %>', '<%= concat.infiniteScroll.dest %>'  ]
 		},
         jsdoc: {
             dist: {
@@ -38,7 +38,7 @@ module.exports = function (grunt) {
 					separator: '\n'
 				},
 				src: [
-					COMPONENT_PATH + 'jquery/dist/jquery.js',
+					COMPONENT_PATH + 'jquery/dist/jquery.min.js',
 					COMPONENT_PATH + 'jquery-ui/ui/jquery-ui.js',
 					COMPONENT_PATH + 'underscore/underscore-min.js'
 				],
@@ -181,7 +181,7 @@ module.exports = function (grunt) {
 				files: {
 					'main/webapp/lib/js/time-slider.min.js': 'main/webapp/lib/js/time-slider.js',
 					'main/webapp/lib/js/BigScatterChart2.min.js': 'main/webapp/lib/js/BigScatterChart2.js',
-					'main/webapp/lib.js/InfiniteCircularScroll.min.js': 'main/webapp/lib/js/InfiniteCircularScroll.js'
+					'main/webapp/lib/js/InfiniteCircularScroll.min.js': 'main/webapp/lib/js/InfiniteCircularScroll.js'
 				}
 			}
 		},

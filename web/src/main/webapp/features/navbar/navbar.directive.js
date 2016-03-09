@@ -323,7 +323,7 @@
 						} else if ( scope.periodType === cfg.periodType.REALTIME ) {
 							oNavbarVoService.setPeriodType( cfg.periodType.REALTIME );
 							getQueryEndTimeFromServer(function (currentServerTime) {
-								oNavbarVoService.setReadablePeriod( preferenceService.getRealtimeScatterPeriodStr() );
+								oNavbarVoService.setReadablePeriod( preferenceService.getRealtimeScatterXRangeStr() );
 								oNavbarVoService.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
 								oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 								emitAsChanged();
@@ -679,7 +679,7 @@
 	                    scope.autoUpdate = false;
 	                };
 					scope.setRealtime = function () {
-						//analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.TG_DATE, type);
+						analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_START_REALTIME );
 						scope.periodType = cfg.periodType.REALTIME;
 						scope.autoUpdate = false;
 						broadcast();

@@ -61,6 +61,7 @@
 		this.CONST.CLK_REALTIME_CHART_SHOW = "ClickRealtimeChartShow";
 		this.CONST.CLK_SHOW_SERVER_TYPE_DETAIL = "ClickShowServerTypeDetail";
 		this.CONST.CLK_CHANGE_AGENT = "ClickChangeAgent";
+		this.CONST.CLK_START_REALTIME = "ClickStartRealtime";
 
 		this.CONST.CLK_CONFIGURATION = "ClickConfiguration";
 		this.CONST.CLK_GENERAL = "ClickConfigurationGeneral";
