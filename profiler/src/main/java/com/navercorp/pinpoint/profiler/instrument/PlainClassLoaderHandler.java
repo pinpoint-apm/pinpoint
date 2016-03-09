@@ -34,6 +34,7 @@ import java.util.Collection;
 
 /**
  * @author Woonduk Kang(emeroad)
+ * @author jaehong.kim
  */
 public class PlainClassLoaderHandler implements ClassInjector {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -52,7 +53,6 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
     private final PluginConfig pluginConfig;
 
-
     public PlainClassLoaderHandler(PluginConfig pluginConfig) {
         if (pluginConfig == null) {
             throw new NullPointerException("pluginConfig must not be null");
@@ -64,13 +64,12 @@ public class PlainClassLoaderHandler implements ClassInjector {
     @SuppressWarnings("unchecked")
     public <T> Class<? extends T> injectClass(ClassLoader classLoader, String className) {
         try {
-             return (Class<T>)injectClass0(classLoader, className);
+            return (Class<T>) injectClass0(classLoader, className);
         } catch (Exception e) {
             logger.warn("Failed to load plugin class {} with classLoader {}", className, classLoader, e);
             throw new PinpointException("Failed to load plugin class " + className + " with classLoader " + classLoader, e);
         }
     }
-
 
     private Class<?> injectClass0(ClassLoader classLoader, String className) throws NotFoundException, IllegalArgumentException, IOException, CannotCompileException, IllegalAccessException, InvocationTargetException {
         if (isDebug) {
@@ -83,6 +82,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
         // TODO ClassLoader + ClassName key?
         // TODO concurrent class loading
         final ClassLoadingChecker classLoadingChecker = new ClassLoadingChecker();
+        classLoadingChecker.isFirstLoad(className);
         return injectClass0(pool, classLoader, className, classLoadingChecker);
     }
 
@@ -100,19 +100,6 @@ public class PlainClassLoaderHandler implements ClassInjector {
     }
 
     private Class<?> injectClass0(ClassPool pool, ClassLoader classLoader, String className, ClassLoadingChecker classLoadingChecker) throws NotFoundException, IOException, CannotCompileException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-        if (!pluginConfig.getPluginPackageFilter().accept(className)) {
-            if (isDebug) {
-                logger.debug("PluginFilter skip class:{}", className);
-            }
-            return null;
-        }
-        if (!classLoadingChecker.isFirstLoad(className)) {
-            if (isDebug) {
-                logger.debug("skip already loaded class:{}", className);
-            }
-            return null;
-        }
-
         Class<?> c = null;
         try {
             c = classLoader.loadClass(className);
@@ -136,15 +123,21 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
         final CtClass superClass = ct.getSuperclass();
         if (superClass != null) {
-            if ("java.lang.Object".equals(superClass.getName())) {
-                return null;
+            if (!"java.lang.Object".equals(superClass.getName())) {
+                if (!isSkipClass(superClass.getName(), classLoadingChecker)) {
+                    injectClass0(pool, classLoader, superClass.getName(), classLoadingChecker);
+                }
             }
-            injectClass0(pool, classLoader, superClass.getName(), classLoadingChecker);
         }
 
         final CtClass[] interfaces = ct.getInterfaces();
         for (CtClass ctInterface : interfaces) {
-            injectClass0(pool, classLoader, ctInterface.getName(), classLoadingChecker);
+            if (!isSkipClass(ctInterface.getName(), classLoadingChecker)) {
+                if(isDebug) {
+                    logger.debug("interface : {}", ctInterface.getName());
+                }
+                injectClass0(pool, classLoader, ctInterface.getName(), classLoadingChecker);
+            }
         }
         @SuppressWarnings("unchecked")
         final Collection<String> referenceClassList = ct.getRefClasses();
@@ -153,7 +146,12 @@ public class PlainClassLoaderHandler implements ClassInjector {
         }
         for (String referenceClass : referenceClassList) {
             try {
-                injectClass0(pool, classLoader, referenceClass, classLoadingChecker);
+                if (!isSkipClass(referenceClass, classLoadingChecker)) {
+                    if(isDebug) {
+                        logger.debug("reference : {}", referenceClass);
+                    }
+                    injectClass0(pool, classLoader, referenceClass, classLoadingChecker);
+                }
             } catch (NotFoundException e) {
                 logger.warn("Skip a referenced class because of NotFoundException : {}", e.getMessage(), e);
             }
@@ -162,6 +160,23 @@ public class PlainClassLoaderHandler implements ClassInjector {
             logger.info("defineClass pluginClass:{} cl:{}", className, classLoader);
         }
         final byte[] bytes = ct.toBytecode();
-        return (Class<?>)DEFINE_CLASS.invoke(classLoader, ct.getName(), bytes, 0, bytes.length);
+        return (Class<?>) DEFINE_CLASS.invoke(classLoader, ct.getName(), bytes, 0, bytes.length);
+    }
+
+    private boolean isSkipClass(final String className, final ClassLoadingChecker classLoadingChecker) {
+        if (!pluginConfig.getPluginPackageFilter().accept(className)) {
+            if (isDebug) {
+                logger.debug("PluginFilter skip class:{}", className);
+            }
+            return true;
+        }
+        if (!classLoadingChecker.isFirstLoad(className)) {
+            if (isDebug) {
+                logger.debug("skip already loaded class:{}", className);
+            }
+            return true;
+        }
+
+        return false;
     }
 }
