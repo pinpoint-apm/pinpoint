@@ -234,7 +234,7 @@
 			});
 		}, 0);
 	};
-	BigScatterChart2.prototype.addBubbleAndMoveAndDraw = function( oBubbleData, bRealtime ) { //oBubbles, maxX ) {
+	BigScatterChart2.prototype.addBubbleAndMoveAndDraw = function( oBubbleData, bRealtime, nextRequestTime ) {
 		if ( bRealtime === false ) {
 			if (BigScatterChart2.Util.isEmpty( oBubbleData.scatter.dotList ) ) {
 				return;
@@ -245,26 +245,26 @@
 		var oDataBlock = new BigScatterChart2.DataBlock( oBubbleData, this.option( "propertyIndex" ), this.option( "typeInfo" ) );
 		this.addBubbles( oDataBlock );
 		this._oBubbleTypeManager.showTypeCount( this._getSumCountByType( bRealtime ) );
-		this._drawBubbles( oDataBlock ); // takes on average 33 ~ 45 ms
-		this._moveChart( oDataBlock );
+		this._drawBubbles( oDataBlock );
+		this._moveChart( oDataBlock, nextRequestTime );
 		this._oRendererManager.updateXYAxis();
 		this._removeBubble();
 	};
-	BigScatterChart2.prototype._moveChart = function( oDataBlock ) {
+	BigScatterChart2.prototype._moveChart = function( oDataBlock, nextRequestTime ) {
 		var oRangeX = this._oSCManager.getX();
 		var oDataBlockRangeX = oDataBlock.getX();
+		var animationTime = this.option( "chartAnimationTime" );
 
 		if ( oDataBlockRangeX.min >= oRangeX.max ) {
 			var moveXTime = oDataBlockRangeX.max - oRangeX.max;
 			var moveXValue = moveXTime * this._oSCManager.getPixelPerTime();
 			this._oSCManager.setX( oRangeX.min + moveXTime, oRangeX.max + moveXTime );
-			this._oRendererManager.moveChart( parseInt( moveXValue, 10 ) );
+			this._oRendererManager.moveChart( parseInt( moveXValue, 10 ), nextRequestTime < animationTime ? 0 : animationTime ); // 300 or 0
 		}
 	};
 	BigScatterChart2.prototype._removeBubble = function() {
 		var minX = this._oSCManager.getX().min;
 
-		var beforeLen = this._aBubbles.length;
 		for( var i = 0 ; i < this._aBubbles.length ; i++ ) {
 			var oDataBlock = this._aBubbles[i];
 			if ( oDataBlock.getX().max < minX ) {
@@ -274,9 +274,7 @@
 				break;
 			}
 		}
-		console.log( "removeData : ", beforeLen + ">" + this._aBubbles.length );
 	};
-
 
 	BigScatterChart2.prototype.getDataByXY = function( fromX, toX, fromY, toY ) {
 		var aData = [];
@@ -396,7 +394,7 @@
 		}, function( oResultData, bHasNextData, intervalTime ) {
 
 			if ( oResultData.scatter.dotList.length !== 0  ) {
-				self.addBubbleAndMoveAndDraw( oResultData, false );
+				self.addBubbleAndMoveAndDraw( oResultData, false, 0 );
 			}
 			if ( bHasNextData === true ) {
 				setTimeout(function () {
@@ -413,13 +411,24 @@
 	};
 	BigScatterChart2.prototype._drawWithRealtimeDataSource = function() {
 		var self = this;
-		this._oDataLoadManager.loadRealtimeData( function( oResultData, nextRequestTime ) {
-			self.addBubbleAndMoveAndDraw( oResultData, true );
-			setTimeout(function () {
-				if( self._bPause === false ) {
-					self._drawWithRealtimeDataSource();
-				}
-			}, nextRequestTime );
+		this._oDataLoadManager.loadRealtimeData( function( oResultData, nextRequestTime, bResetRealtime, currentServerTime ) {
+			console.log( "다음 요청 delay : ", nextRequestTime );
+			if ( bResetRealtime ) {
+				console.warn( "지연 문제로 리셋 :", bResetRealtime );
+			}
+			console.log( "현재 서버 시간  : ", new Date( currentServerTime ) );
+			if ( bResetRealtime ) {
+				console.log("------------reset Realtime", currentServerTime );
+				self.pause();
+				self.resume( currentServerTime - self._oSCManager.getGapX(), currentServerTime );
+			} else {
+				self.addBubbleAndMoveAndDraw( oResultData, true, nextRequestTime );
+				setTimeout(function () {
+					if( self._bPause === false ) {
+						self._drawWithRealtimeDataSource();
+					}
+				}, nextRequestTime );
+			}
 		}, this._oSCManager.getXOfPixel(), this._oSCManager.getYOfPixel() );
 	};
 	BigScatterChart2.prototype.redraw = function() {

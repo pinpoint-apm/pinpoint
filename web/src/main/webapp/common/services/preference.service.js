@@ -73,10 +73,10 @@
 		this.getMaxPeriod = function() {
 			return cfg.cst.maxPeriod;
 		};
-		this.getRealtimeScatterPeriod = function() {
+		this.getRealtimeScatterXRange = function() {
 			return cfg.cst.realtimeScatterPeriod;
 		};
-		this.getRealtimeScatterPeriodStr = function() {
+		this.getRealtimeScatterXRangeStr = function() {
 			return (cfg.cst.realtimeScatterPeriod / 1000 / 60) + "m";
 		};
 		
