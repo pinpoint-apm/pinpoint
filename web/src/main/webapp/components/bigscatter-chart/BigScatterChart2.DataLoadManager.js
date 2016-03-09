@@ -38,7 +38,7 @@
 			} else {
 				self._callCount += 1;
 				self._bLoadCompleted = oResultData.complete;
-				self._lastLoadTime = oResultData.resultTo;
+				self._lastLoadTime = oResultData.resultFrom;
 				cbSuccess(oResultData, !this._bLoadCompleted, self._getIntervalTime() );
 			}
 		}).always(function() {
@@ -49,7 +49,8 @@
 		var self = this;
 		var oFromTo = this._oSCManager.getX();
 
-		var start = Date.now();
+		var beforeRequest = Date.now();
+
 		this._oRealtimeAjax = $.ajax({
 			"url": this.getUrl(),
 			"data": {
@@ -68,15 +69,32 @@
 			if ( oResultData.exception ) {
 
 			} else {
+
 				self._nextFrom = oResultData.complete ? oResultData.to : oResultData.resultTo;
 				self._nextTo = self._nextFrom + self.option( "realtimeInterval" );
 
-				callbackRealtimeSuccess( oResultData, self.option( "realtimeInterval" ) - ( Date.now() - start ) );
+				callbackRealtimeSuccess( oResultData, self._calcuRealtimeIntervalTime( oResultData.currentServerTime, Date.now() - beforeRequest ), self._isResetRealtime( oResultData.currentServerTime ), oResultData.currentServerTime );
 				self._cbLoaded( self._nextFrom );
 			}
 		}).fail(function() {
 			self.loadRealtimeData( callbackRealtimeSuccess, widthOfPixel, heightOfPixel );
 		});
+	};
+	DataLoadManager.prototype._isResetRealtime = function( currentServerTime ) {
+		return ( currentServerTime - this._nextTo ) >= this.option( "realtimeResetTimeGap" );
+	};
+	DataLoadManager.prototype._calcuRealtimeIntervalTime = function( currentServerTime, requestGap ) {
+		var interval = parseInt( this.option( "realtimeInterval" ), 0 );
+		if ( requestGap > interval ) {
+			return 0;
+		} else {
+			var gapTime = ( currentServerTime - this._nextTo ) - this.option( "realtimeDefaultTimeGap" );
+			if ( gapTime < 0 ) {
+				return Math.max( interval - requestGap - gapTime, interval );
+			} else {
+				return Math.max( interval - requestGap - gapTime, 0 );
+			}
+		}
 	};
 	DataLoadManager.prototype.setRealtimeFrom = function( from ) {
 		this._nextFrom = from;
@@ -89,7 +107,7 @@
 		return 0;
 	};
 	DataLoadManager.prototype.getRealtimeInterval = function() {
-		return this.option( "realtimeInterval" );
+		return this.option( "realtimeDefaultTimeGap" );
 	}
 	DataLoadManager.prototype.getUrl = function() {
 		return this.option( "url" );

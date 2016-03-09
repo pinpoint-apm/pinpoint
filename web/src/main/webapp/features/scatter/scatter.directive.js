@@ -27,6 +27,7 @@
 			"labelX": "",
 			"labelY": "(ms)",
 			"realtime": false,
+			"chartAnimationTime": 300,
 			"gridAxisStyle": {
 				"lineWidth": 1,
 				"lineDash": [1, 0],
@@ -117,6 +118,8 @@
 									"url": cfg.scatterDataUrl,
 									"realtime": isRealtime(),
 									"realtimeInterval": 2000,
+									"realtimeDefaultTimeGap": 5000,
+									"realtimeResetTimeGap": 20000,
 									"fetchLimit": 5000,
 									"fetchingInterval": 2000,
 									"useIntervalForFetching": false
@@ -138,7 +141,7 @@
 							htScatterSet[application].target.show();
 							if ( isRealtime() ) {
 								commonAjaxService.getServerTime( function( serverTime ) {
-									htScatterSet[application].scatter.resume( serverTime - preferenceService.getRealtimeScatterPeriod(), serverTime );
+									htScatterSet[application].scatter.resume( serverTime - preferenceService.getRealtimeScatterXRange(), serverTime );
 									htScatterSet[application].scatter.selectAgent(CONST_SET.AGENT_ALL, true);
 								});
 							} else {

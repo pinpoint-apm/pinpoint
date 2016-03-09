@@ -183,7 +183,8 @@
         this.oEvents.reset();
     };
     TimeSlider.prototype._resize = function() {
-        this.oPositionManager.setWidth( this.$snap.width() );
+        //this.oPositionManager.setWidth( this.$snap.width() );
+		this.oPositionManager.setWidth( this.$snap.get(0).getBoundingClientRect().width );
         this.oBackground.reset();
         // this.oTimeSeriesSignboard.resize();
         this.reset();

@@ -56,7 +56,7 @@
 							timeSlider.emptyData();
 						} else {
 							timeSlider = new TimeSlider( "timeSlider", {
-								"width": $("#timeSlider").width(),
+								"width": $("#timeSlider").get(0).getBoundingClientRect().width,
 								"height": 90,
 								"handleSrc": "images/handle.png",
 								"timeSeries": aFromTo ? aFromTo : calcuSliderTimeSeries( aSelectionFromTo ),

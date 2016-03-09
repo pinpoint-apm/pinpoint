@@ -103,6 +103,9 @@
 			"max": this._maxX
 		};
 	};
+	DataBlock.prototype.isEmpty = function() {
+		return this._aAllData.length === 0;
+	};
 
 	global.BigScatterChart2.DataBlock = DataBlock;
 })(window, jQuery);

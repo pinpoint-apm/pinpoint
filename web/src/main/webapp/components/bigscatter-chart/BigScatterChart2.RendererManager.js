@@ -426,14 +426,14 @@
 		this._oScrollCtx[key][ctxIndex].globalAlpha = 0.3 + ( 0.1 * aBubbleData[oPropertyIndex.groupCount] );
 		this._oScrollCtx[key][ctxIndex].fill();
 	};
-	RendererManager.prototype.moveChart = function( moveXValue ) {
+	RendererManager.prototype.moveChart = function( moveXValue, aniTime ) {
 		var self = this;
 		var canvasWidth = this._oSCManager.getCanvasWidth();
 		var height = this._oSCManager.getHeight();
 		var nextLeft = parseInt( this._$elScroller.css( "left" ), 10 ) - moveXValue;
 		this._$elScroller.animate({
 			"left": nextLeft
-		}, 300, function() {
+		}, aniTime, function() {
 			var temp = self._oScrollIndexOrder[0];
 			var bOverBoundary = false;
 			$.each( self._oElScrollCanvas, function( key, aCanvas ) {
@@ -518,7 +518,7 @@
 		$.each(this._aElAxisX, function ( index, $elAxis) {
 			oCtx.font = $elAxis.css("font");
 			oCtx.fillStyle = $elAxis.css("color");
-			oCtx.fillText( $elAxis.text(), parseInt( $elAxis.css( "left" ), 10 ) + $elAxis.width() / 2, parseInt( $elAxis.css( "top" ), 10 ) );
+			oCtx.fillText( $elAxis.text(), parseInt( $elAxis.css( "left" ), 10 ) + $elAxis.get(0).getBoundingClientRect().width / 2, parseInt( $elAxis.css( "top" ), 10 ) );
 		});
 
 		// y axis
@@ -526,7 +526,7 @@
 		$.each(this._aElAxisY, function (index, $elAxis) {
 			oCtx.font = $elAxis.css("font");
 			oCtx.fillStyle = $elAxis.css("color");
-			oCtx.fillText( $elAxis.text(), parseInt( $elAxis.css( "left" ), 10 ) + $elAxis.width(), parseInt($elAxis.css("top"), 10) );
+			oCtx.fillText( $elAxis.text(), parseInt( $elAxis.css( "left" ), 10 ) + $elAxis.get(0).getBoundingClientRect().width, parseInt($elAxis.css("top"), 10) );
 		});
 
 		/*
