@@ -23,9 +23,9 @@ import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.MapService;
 import com.navercorp.pinpoint.web.util.Limiter;
 import com.navercorp.pinpoint.web.util.TimeUtils;
+import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
-
 import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author emeroad
- * @author netspider
+ * @author netspid
  * @author jaehong.kim
  */
 @Controller
@@ -216,4 +216,22 @@ public class MapController {
         Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
         return selectApplicationMap(application, range, searchOption);
     }
+
+    @RequestMapping(value = "/getResponseTimeHistogramData", method = RequestMethod.GET, params = "serviceTypeName")
+    @ResponseBody
+    public ApplicationTimeHistogramViewModel getResponseTimeHistogramData(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam("serviceTypeName") String serviceTypeName,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to) {
+        final Range range = new Range(from, to);
+        dateLimit.limit(range);
+
+        Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+
+        ApplicationTimeHistogramViewModel applicationTimeHistogramViewModel = mapService.selectResponseTimeHistogramData(application, range);
+
+        return applicationTimeHistogramViewModel;
+    }
+
 }
