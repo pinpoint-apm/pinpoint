@@ -11,8 +11,9 @@
 	    myColors: ["#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034"]
 	});
 	
-	pinpointApp.directive('responseTimeChartDirective', ['responseTimeChartDirectiveConfig', 'responseTypeColor', '$timeout', 'AnalyticsService',
-        function (cfg, responseTypeColor, $timeout, analyticsService) {
+	pinpointApp.directive('responseTimeChartDirective', ['responseTimeChartDirectiveConfig', '$timeout', 'AnalyticsService', 'PreferenceService',
+        function (cfg, $timeout, analyticsService, preferenceService ) {
+			var responseTypeColor = preferenceService.getResponseTypeColor();
             return {
                 template: '<div></div>',
                 replace: true,

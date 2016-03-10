@@ -9,7 +9,8 @@
 	 */	
 	pinpointApp.constant('loadChartDirectiveConfig', {});
 	
-	pinpointApp.directive('loadChartDirective', ['loadChartDirectiveConfig', 'responseTypeColor', '$timeout', 'AnalyticsService', function (cfg, responseTypeColor, $timeout, analyticsService) {
+	pinpointApp.directive('loadChartDirective', ['loadChartDirectiveConfig', '$timeout', 'AnalyticsService', 'PreferenceService', function (cfg, $timeout, analyticsService, preferenceService ) {
+		var responseTypeColor = preferenceService.getResponseTypeColor();
         return {
             template: '<div style="text-align:center"></div>',
             replace: true,
@@ -314,6 +315,7 @@
                             }
                         }
                     }
+					console.log( newData );
                     return newData;
                 };
 

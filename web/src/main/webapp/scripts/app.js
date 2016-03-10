@@ -65,11 +65,7 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
 //    $sceProvider.enabled(false);
 }]);
 
-pinpointApp.value("responseTypeColor", [ "#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034" ]);
 pinpointApp.value("globalConfig", {});
-pinpointApp.value("CONST_SET", {
-	AGENT_ALL: "All"
-});
 pinpointApp.run([ '$rootScope', '$window', '$timeout', '$modal', '$location', '$route', '$cookies', '$interval', '$http', 'globalConfig',
     function ($rootScope, $window, $timeout, $modal, $location, $route, $cookies, $interval, $http, globalConfig) {
         var original = $location.path;

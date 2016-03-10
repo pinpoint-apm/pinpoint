@@ -11,8 +11,8 @@
 	    maxTimeToShowLoadAsDefaultForUnknown: 60 * 60 * 12 // 12h
 	});
 	
-	pinpointApp.directive("nodeInfoDetailsDirective", [ "nodeInfoDetailsDirectiveConfig", "$filter", "$timeout", "isVisibleService", "$window", "helpContentTemplate", "helpContentService", "AnalyticsService", "CONST_SET",
-        function (cfg, $filter, $timeout, isVisibleService, $window, helpContentTemplate, helpContentService, analyticsService, CONST_SET) {
+	pinpointApp.directive("nodeInfoDetailsDirective", [ "nodeInfoDetailsDirectiveConfig", "$filter", "$timeout", "isVisibleService", "$window", "helpContentTemplate", "helpContentService", "AnalyticsService", "PreferenceService",
+        function (cfg, $filter, $timeout, isVisibleService, $window, helpContentTemplate, helpContentService, analyticsService, preferenceService ) {
             return {
                 restrict: "EA",
                 replace: true,
@@ -52,7 +52,7 @@
                         htUnknownLoad = {};
                         htAgentChartRendered = {};
                         htQuery = false;
-						scope.currentAgent = CONST_SET.AGENT_ALL;
+						scope.currentAgent = preferenceService.getAgentAllStr();
                         scope.showNodeInfoDetails = false;
                         scope.node = false;
                         scope.unknownNodeGroup = null;
