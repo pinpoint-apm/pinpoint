@@ -134,6 +134,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9100</td><td>THRIFT_CLIENT</td></tr>
  * <tr><td>9101</td><td>THRIFT_CLIENT_INTERNAL</td></tr>
  * <tr><td>9110</td><td>DUBBO_CONSUMER</td></tr>
+ * <tr><td>9120</td><td>HYSTRIX_COMMAND</td></tr>
  * </table>
  * 
  * <h3>RPC Sandbox (9900 ~ 9999)</h3>
