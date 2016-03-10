@@ -18,15 +18,24 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.*;
-import com.navercorp.pinpoint.web.dao.*;
-import com.navercorp.pinpoint.web.vo.*;
-
+import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
+import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
+import com.navercorp.pinpoint.web.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.dao.MapStatisticsCalleeDao;
+import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
+import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.ResponseTime;
+import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
+
+import java.util.List;
 
 /**
  * @author netspider
@@ -90,5 +99,10 @@ public class MapServiceImpl implements MapService {
         return map;
     }
 
+    @Override
+    public ApplicationTimeHistogramViewModel selectResponseTimeHistogramData(Application application, Range range) {
+        List<ResponseTime> responseTimes = mapResponseDao.selectResponseTime(application, range);
+        return new ApplicationTimeHistogramViewModel(application, range, new AgentHistogramList(application, responseTimes));
+    }
 
 }
