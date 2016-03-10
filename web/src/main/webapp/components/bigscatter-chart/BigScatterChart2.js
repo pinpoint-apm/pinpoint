@@ -412,13 +412,7 @@
 	BigScatterChart2.prototype._drawWithRealtimeDataSource = function() {
 		var self = this;
 		this._oDataLoadManager.loadRealtimeData( function( oResultData, nextRequestTime, bResetRealtime, currentServerTime ) {
-			console.log( "다음 요청 delay : ", nextRequestTime );
 			if ( bResetRealtime ) {
-				console.warn( "지연 문제로 리셋 :", bResetRealtime );
-			}
-			console.log( "현재 서버 시간  : ", new Date( currentServerTime ) );
-			if ( bResetRealtime ) {
-				console.log("------------reset Realtime", currentServerTime );
 				self.pause();
 				self.resume( currentServerTime - self._oSCManager.getGapX(), currentServerTime );
 			} else {
