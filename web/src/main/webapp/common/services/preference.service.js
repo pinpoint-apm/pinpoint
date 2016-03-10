@@ -15,8 +15,8 @@
 			favorite: "preference.favorite"
 		},
 		defaults: {
-			caller: 1,
 			callee: 1,
+			caller: 1,
 			period: "5m"
 		},
 		list: [{
@@ -34,7 +34,9 @@
 			depthList: [ 1, 2, 3, 4],
 			maxFavorite: 5000,
 			maxPeriod: 2,
-			realtimeScatterPeriod: 5 * 60 * 1000//5m
+			realtimeScatterPeriod: 5 * 60 * 1000,//5m
+			responseTypeColor: [ "#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034" ],
+			agentAllStr: "All"
 		}
 	});
 	
@@ -79,6 +81,12 @@
 		this.getRealtimeScatterXRangeStr = function() {
 			return (cfg.cst.realtimeScatterPeriod / 1000 / 60) + "m";
 		};
+		this.getResponseTypeColor = function() {
+			return cfg.cst.responseTypeColor;
+		}
+		this.getAgentAllStr = function() {
+			return cfg.cst.agentAllStr;
+		}
 		
 		
 		function loadPreference() {

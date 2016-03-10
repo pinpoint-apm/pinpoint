@@ -60,8 +60,8 @@
 		}
 	});
 
-	pinpointApp.directive("scatterDirective", ["scatterDirectiveConfig", "$rootScope", "$compile", "$timeout", "webStorage", "$window", "$http", "CommonAjaxService", "TooltipService", "AnalyticsService", "PreferenceService", "CONST_SET",
-		function (cfg, $rootScope, $compile, $timeout, webStorage, $window, $http, commonAjaxService, tooltipService, analyticsService, preferenceService, CONST_SET) {
+	pinpointApp.directive("scatterDirective", ["scatterDirectiveConfig", "$rootScope", "$compile", "$timeout", "webStorage", "$window", "$http", "CommonAjaxService", "TooltipService", "AnalyticsService", "PreferenceService",
+		function ( cfg, $rootScope, $compile, $timeout, webStorage, $window, $http, commonAjaxService, tooltipService, analyticsService, preferenceService ) {
 			return {
 				template: cfg.template,
 				restrict: "EA",
@@ -110,7 +110,7 @@
 								var token = application + "|" + oDragXY.fromX + "|" + oDragXY.toX + "|" + oDragXY.fromY + "|" + oDragXY.toY;
 								$window.open("#/transactionList/" + oNavbarVoService.getPartialURL( true, false ), token);
 							}
-						}, CONST_SET.AGENT_ALL );
+						}, preferenceService.getAgentAllStr() );
 
 						$timeout(function () {
 							if (angular.isUndefined(scatterData)) {
@@ -142,11 +142,11 @@
 							if ( isRealtime() ) {
 								commonAjaxService.getServerTime( function( serverTime ) {
 									htScatterSet[application].scatter.resume( serverTime - preferenceService.getRealtimeScatterXRange(), serverTime );
-									htScatterSet[application].scatter.selectAgent(CONST_SET.AGENT_ALL, true);
+									htScatterSet[application].scatter.selectAgent( preferenceService.getAgentAllStr(), true);
 								});
 							} else {
 								htScatterSet[application].scatter.resume();
-								htScatterSet[application].scatter.selectAgent(CONST_SET.AGENT_ALL, true);
+								htScatterSet[application].scatter.selectAgent( preferenceService.getAgentAllStr(), true);
 							}
 
 						} else {
@@ -175,7 +175,7 @@
 						element.children().hide();
 						if (angular.isDefined(htScatterSet[application])) {
 							htScatterSet[application].target.show();
-							htScatterSet[application].scatter.selectAgent(CONST_SET.AGENT_ALL, true);
+							htScatterSet[application].scatter.selectAgent( preferenceService.getAgentAllStr(), true);
 						}
 					}
 
@@ -223,12 +223,12 @@
 						element.empty();
 					});
 					scope.$on("scatterDirective.initializeWithNode", function (event, node, w, h) {
-						scope.currentAgent = CONST_SET.AGENT_ALL;
+						scope.currentAgent = preferenceService.getAgentAllStr();
 						htLastNode = node;
 						showScatter(node.key, w, h);
 					});
 					scope.$on("scatterDirective.initializeWithData", function (event, application, data) {
-						scope.currentAgent = CONST_SET.AGENT_ALL;
+						scope.currentAgent = preferenceService.getAgentAllStr();
 						var aSplit = application.split("^");
 						htLastNode = {
 							applicationName: aSplit[0],

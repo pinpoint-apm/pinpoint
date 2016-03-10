@@ -820,12 +820,12 @@
 	                scope.toggleShowAntStyleHint = function() {
 	                	scope.showAntStyleHint = !scope.showAntStyleHint; 
 	                };
-	                scope.moveThePast = function() {
-	                	scope.$emit("navbarDirective.moveThePast");
+	                scope.moveToPast = function() {
+	                	scope.$emit("navbarDirective.moveToPast");
 	                	$serverMapTime.effect("highlight", { color: "#FFFF00" }, 1000);
 	                };
-	                scope.moveTheFuture = function() {
-	                	scope.$emit("navbarDirective.moveTheFuture");
+	                scope.moveToFuture = function() {
+	                	scope.$emit("navbarDirective.moveToFuture");
 	                	$serverMapTime.effect("highlight", { color: "#FFFF00" }, 1000);
 	                };
 	                scope.toggleToolbar = function() {
