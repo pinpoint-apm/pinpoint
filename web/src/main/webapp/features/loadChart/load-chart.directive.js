@@ -315,7 +315,6 @@
                             }
                         }
                     }
-					console.log( newData );
                     return newData;
                 };
 

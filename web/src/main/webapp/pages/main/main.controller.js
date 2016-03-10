@@ -150,6 +150,7 @@
 	        	bNoData = false;
 	            oNavbarVoService = navbarVo;
 	            changeLocation(oNavbarVoService);
+				// if url changed that below code is not excuted.
 	            $window.htoScatter = {};
 	            $scope.hasScatter = false;
 	            $scope.sidebarLoading = true;

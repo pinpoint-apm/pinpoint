@@ -24,8 +24,8 @@
 	        this._sReadablePeriod = false;
 	        this._sQueryEndDateTime = false;
 
+			this._nCalleeRange = preferenceService.getCallee();
 	        this._nCallerRange = preferenceService.getCaller();
-	        this._nCalleeRange = preferenceService.getCallee();
 	        
 	        this._sHint = false;
 	
@@ -72,17 +72,17 @@
 	        this.getServiceTypeName = function () {
 	            return self._sApplication.split('@')[1];
 	        };
+			this.getCalleeRange = function() {
+				return self._nCalleeRange;
+			};
 	        this.getCallerRange = function() {
 	        	return self._nCallerRange;
 	        };
-	        this.getCalleeRange = function() {
-	        	return self._nCalleeRange;
-	        };
+			this.setCalleeRange = function( calleeRange ) {
+				self._nCalleeRange = calleeRange;
+			};
 	        this.setCallerRange = function( callerRange ) {
 	        	self._nCallerRange = callerRange;
-	        };
-	        this.setCalleeRange = function( calleeRange ) {
-	        	self._nCalleeRange = calleeRange;
 	        };
 	        this.setQueryStartTime = function (queryStartTime) {
 	            if (angular.isNumber(queryStartTime) && queryStartTime > 0) {
