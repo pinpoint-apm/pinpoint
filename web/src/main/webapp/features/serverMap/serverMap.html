@@ -9,7 +9,7 @@
 	    	<button class="btn btn-info" style="margin-top:-4px" ng-click="clearSearchNode()"><span class="glyphicon glyphicon-trash"></span></button>
 	    </div>
 	    <div class="servermap-status">
-	    	<button type="button" class="btn btn-default btn-info" style="margin-top:-4px" ng-click="moveThePast()"><span class="glyphicon glyphicon-chevron-left"></span></button><button type="button" class="btn btn-default btn-info" style="margin-top:-4px" ng-click="moveTheFuture()"><span class="glyphicon glyphicon-chevron-right"></span></button><div class="alert alert-info serverMapTime" style="min-height: 30px;display:inline-block;padding-bottom:9px;padding-top:10px">
+	    	<button type="button" class="btn btn-default btn-info" style="margin-top:-4px" ng-click="moveToPast()"><span class="glyphicon glyphicon-chevron-left"></span></button><button type="button" class="btn btn-default btn-info" style="margin-top:-4px" ng-click="moveToFuture()"><span class="glyphicon glyphicon-chevron-right"></span></button><div class="alert alert-info serverMapTime" style="min-height: 30px;display:inline-block;padding-bottom:9px;padding-top:10px">
 	            <h6 ng-show="oNavbarVoService.getQueryStartTime() && oNavbarVoService.getQueryEndTime()">{{oNavbarVoService.getQueryStartTime() |
 	                date:'yyyy-MM-dd HH:mm:ss'}} ~ {{oNavbarVoService.getQueryEndTime() | date:'yyyy-MM-dd HH:mm:ss'}}</h6>
 	        </div>

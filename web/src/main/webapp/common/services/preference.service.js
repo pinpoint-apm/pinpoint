@@ -15,8 +15,8 @@
 			favorite: "preference.favorite"
 		},
 		defaults: {
-			caller: 1,
 			callee: 1,
+			caller: 1,
 			period: "5m"
 		},
 		list: [{
