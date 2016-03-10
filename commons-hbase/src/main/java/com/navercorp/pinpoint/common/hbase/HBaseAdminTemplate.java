@@ -32,10 +32,11 @@ import org.springframework.data.hadoop.hbase.HbaseSystemException;
 public class HBaseAdminTemplate {
 
     private final Admin admin;
+    private final Connection connection;
 
     public HBaseAdminTemplate(Configuration configuration) {
         try {
-            Connection connection = ConnectionFactory.createConnection(configuration);
+            connection = ConnectionFactory.createConnection(configuration);
             admin = connection.getAdmin();
         } catch (Exception e) {
             throw new HbaseSystemException(e);
@@ -89,6 +90,7 @@ public class HBaseAdminTemplate {
     public void close() {
         try {
             this.admin.close();
+            this.connection.close();
         } catch (IOException e) {
             throw new HbaseSystemException(e);
         }
