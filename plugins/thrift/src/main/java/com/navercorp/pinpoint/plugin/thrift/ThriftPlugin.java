@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.thrift;
 import java.security.ProtectionDomain;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -146,12 +147,8 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                                         ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                target.addField(AsyncTraceIdAccessor.class.getName());
                 target.addField(ThriftConstants.FIELD_ACCESSOR_SOCKET_ADDRESS);
-                target.addField(ThriftConstants.FIELD_ACCESSOR_ASYNC_MARKER_FLAG);
-                target.addField(ThriftConstants.FIELD_ACCESSOR_ASYNC_TRACE_ID);
-                target.addField(ThriftConstants.FIELD_ACCESSOR_ASYNC_NEXT_SPAN_ID);
-                target.addField(ThriftConstants.FIELD_ACCESSOR_ASYNC_CALL_END_FLAG);
-                target.addField(ThriftConstants.FIELD_ACCESSOR_ASYNC_CALL_REMOTE_ADDRESS);
                 target.addGetter(ThriftConstants.FIELD_GETTER_T_NON_BLOCKING_TRANSPORT, ThriftConstants.T_ASYNC_METHOD_CALL_FIELD_TRANSPORT);
 
                 // TAsyncMethodCall(TAsyncClient, TProtocolFactory, TNonblockingTransport, AsyncMethodCallback<T>, boolean)
@@ -161,48 +158,6 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                 if (constructor != null) {
                     String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallConstructInterceptor";
                     constructor.addInterceptor(interceptor);
-                }
-
-                // TAsyncMethodCall.start(Selector)
-                final InstrumentMethod start = target.getDeclaredMethod("start", "java.nio.channels.Selector");
-                if (start != null) {
-                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallStartInterceptor";
-                    start.addInterceptor(interceptor);
-                }
-
-                // TAsyncMethodCall.doConnecting(SelectionKey)
-                final InstrumentMethod doConnecting = target.getDeclaredMethod("doConnecting", "java.nio.channels.SelectionKey");
-                if (doConnecting != null) {
-                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallInternalMethodInterceptor";
-                    doConnecting.addInterceptor(interceptor);
-                }
-
-                // TAsyncMethodCall.doWritingRequestSize()
-                final InstrumentMethod doWritingRequestSize = target.getDeclaredMethod("doWritingRequestSize");
-                if (doWritingRequestSize != null) {
-                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallInternalMethodInterceptor";
-                    doWritingRequestSize.addInterceptor(interceptor);
-                }
-
-                // TAsyncMethodCall.doWritingRequestBody(SelectionKey)
-                final InstrumentMethod doWritingRequestBody = target.getDeclaredMethod("doWritingRequestBody", "java.nio.channels.SelectionKey");
-                if (doWritingRequestBody != null) {
-                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallDoWritingRequestBodyInterceptor";
-                    doWritingRequestBody.addInterceptor(interceptor);
-                }
-
-                // TAsyncMethodCall.doReadingResponseSize()
-                final InstrumentMethod doReadingResponseSize = target.getDeclaredMethod("doReadingResponseSize");
-                if (doReadingResponseSize != null) {
-                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallInternalMethodInterceptor";
-                    doReadingResponseSize.addInterceptor(interceptor);
-                }
-
-                // TAsyncMethodCall.doReadingResponseBody(SelectionKey)
-                final InstrumentMethod doReadingResponseBody = target.getDeclaredMethod("doReadingResponseBody", "java.nio.channels.SelectionKey");
-                if (doReadingResponseBody != null) {
-                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallDoReadingResponseBodyInterceptor";
-                    doReadingResponseBody.addInterceptor(interceptor);
                 }
 
                 // TAsyncMethodCall.cleanUpAndFireCallback(SelectionKey)

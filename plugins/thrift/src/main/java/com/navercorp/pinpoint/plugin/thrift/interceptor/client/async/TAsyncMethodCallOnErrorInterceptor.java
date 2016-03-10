@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 NAVER Corp.
+ * Copyright 2016 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,43 +16,36 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.client.async;
 
+import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 
 /**
  * @author HyunGil Jeong
  */
-public class TAsyncMethodCallOnErrorInterceptor extends TAsyncMethodCallInternalMethodInterceptor {
+public class TAsyncMethodCallOnErrorInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
 
     public TAsyncMethodCallOnErrorInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        super.after(target, args, result, throwable);
-
-        // End async trace block
-        final Trace trace = super.traceContext.currentTraceObject();
-        // shouldn't be null
-        if (trace == null) {
-            return;
-        }
-
-        if (trace.isAsync() && trace.isRootStack()) {
-            trace.close();
-            super.traceContext.removeTraceObject();
-        }
+    protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncTraceId asyncTraceId, Object target, Object[] args) {
+        // Do nothing
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, final Object target, final Object[] args) {
-        if (args.length == 1) {
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        if (args != null && args.length == 1) {
             recorder.recordAttribute(AnnotationKey.ARGS0, args[0]);
         }
+        recorder.recordServiceType(ThriftConstants.THRIFT_CLIENT_INTERNAL);
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(throwable);
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 NAVER Corp.
+ * Copyright 2016 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,41 +16,32 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.client.async;
 
+import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncCallEndFlagFieldAccessor;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 
 /**
  * @author HyunGil Jeong
  */
-public class TAsyncMethodCallCleanUpAndFireCallbackInterceptor extends TAsyncMethodCallInternalMethodInterceptor {
-    
-    public TAsyncMethodCallCleanUpAndFireCallbackInterceptor(
-            TraceContext traceContext,
-            MethodDescriptor methodDescriptor) {
+public class TAsyncMethodCallCleanUpAndFireCallbackInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
+
+    public TAsyncMethodCallCleanUpAndFireCallbackInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        super.after(target, args, result, throwable);
-
-        // Set a flag to end async trace block if this method completed successfully
-        if (throwable != null) {
-            return;
-        }
-        ((AsyncCallEndFlagFieldAccessor)target)._$PINPOINT$_setAsyncCallEndFlag(true);
+    protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncTraceId asyncTraceId, Object target, Object[] args) {
+        // Do nothing
     }
 
     @Override
-    protected boolean validate(Object target) {
-        if (!(target instanceof AsyncCallEndFlagFieldAccessor)) {
-            if (isDebug) {
-                logger.debug("Invalid target object. Need field accessor({}).", AsyncCallEndFlagFieldAccessor.class.getName());
-            }
-            return false;
-        }
-        return super.validate(target);
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordServiceType(ThriftConstants.THRIFT_CLIENT_INTERNAL);
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(throwable);
     }
-    
+
 }

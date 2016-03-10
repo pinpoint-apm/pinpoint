@@ -20,6 +20,7 @@ import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.THRIFT_CLIENT_SCO
 
 import java.net.SocketAddress;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -37,10 +38,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 import com.navercorp.pinpoint.plugin.thrift.ThriftRequestProperty;
 import com.navercorp.pinpoint.plugin.thrift.ThriftUtils;
-import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncCallRemoteAddressFieldAccessor;
-import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncNextSpanIdFieldAccessor;
-import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncTraceIdFieldAccessor;
 import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketAddressFieldAccessor;
+import org.apache.thrift.async.TAsyncMethodCall;
 
 /**
  * @author HyunGil Jeong
@@ -90,8 +89,6 @@ public class TAsyncClientManagerCallInterceptor implements AroundInterceptor {
                 // inject async trace info to AsyncMethodCall object
                 final AsyncTraceId asyncTraceId = injectAsyncTraceId(asyncMethodCallObj, trace);
 
-                recorder.recordServiceType(ThriftConstants.THRIFT_CLIENT_INTERNAL);
-
                 // retrieve connection information
                 String remoteAddress = getRemoteAddress(asyncMethodCallObj);
 
@@ -109,8 +106,14 @@ public class TAsyncClientManagerCallInterceptor implements AroundInterceptor {
                 parentTraceInfo.setParentApplicationType(this.traceContext.getServerTypeCode());
                 parentTraceInfo.setAcceptorHost(remoteAddress);
 
-                ((AsyncCallRemoteAddressFieldAccessor)asyncMethodCallObj)._$PINPOINT$_setAsyncCallRemoteAddress(remoteAddress);
-                ((AsyncNextSpanIdFieldAccessor)asyncMethodCallObj)._$PINPOINT$_setAsyncNextSpanId(nextSpanId);
+
+                recorder.recordServiceType(ThriftConstants.THRIFT_CLIENT);
+                recorder.recordNextSpanId(nextSpanId);
+                recorder.recordDestinationId(remoteAddress);
+
+                String methodUri = ThriftUtils.getAsyncMethodCallName((TAsyncMethodCall<?>) asyncMethodCallObj);
+                String thriftUrl = remoteAddress + "/" + methodUri;
+                recorder.recordAttribute(ThriftConstants.THRIFT_URL, thriftUrl);
             }
             InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
             currentTransaction.setAttachment(parentTraceInfo);
@@ -154,23 +157,9 @@ public class TAsyncClientManagerCallInterceptor implements AroundInterceptor {
             return false;
         }
 
-        if (!(asyncMethodCallObj instanceof AsyncTraceIdFieldAccessor)) {
+        if (!(asyncMethodCallObj instanceof AsyncTraceIdAccessor)) {
             if (isDebug) {
-                logger.debug("Invalid target object. Need field accessor({}).", AsyncTraceIdFieldAccessor.class.getName());
-            }
-            return false;
-        }
-
-        if (!(asyncMethodCallObj instanceof AsyncNextSpanIdFieldAccessor)) {
-            if (isDebug) {
-                logger.debug("Invalid target object. Need field accessor({}).", AsyncNextSpanIdFieldAccessor.class.getName());
-            }
-            return false;
-        }
-
-        if (!(asyncMethodCallObj instanceof AsyncCallRemoteAddressFieldAccessor)) {
-            if (isDebug) {
-                logger.debug("Invalid target object. Need field accessor({}).", AsyncCallRemoteAddressFieldAccessor.class.getName());
+                logger.debug("Invalid target object. Need field accessor({}).", AsyncTraceIdAccessor.class.getName());
             }
             return false;
         }
@@ -182,7 +171,7 @@ public class TAsyncClientManagerCallInterceptor implements AroundInterceptor {
         final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
         SpanEventRecorder recorder = trace.currentSpanEventRecorder();
         recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
-        ((AsyncTraceIdFieldAccessor)asyncMethodCallObj)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+        ((AsyncTraceIdAccessor) asyncMethodCallObj)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
         if (isDebug) {
             logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
         }
@@ -194,7 +183,7 @@ public class TAsyncClientManagerCallInterceptor implements AroundInterceptor {
             return ThriftConstants.UNKNOWN_ADDRESS;
         }
         SocketAddress socketAddress = ((SocketAddressFieldAccessor)asyncMethodCallObj)._$PINPOINT$_getSocketAddress();
-        return ThriftUtils.getHostPort((SocketAddress)socketAddress);
+        return ThriftUtils.getHostPort(socketAddress);
     }
 
 }
