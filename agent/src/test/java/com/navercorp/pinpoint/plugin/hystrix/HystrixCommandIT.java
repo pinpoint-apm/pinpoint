@@ -36,7 +36,6 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  * @author Jiaqi Feng
  */
 @RunWith(PinpointPluginTestSuite.class)
-@PinpointAgent(HystrixTestConstants.AGENT_PATH)
 @Dependency({"com.netflix.hystrix:hystrix-core:1.3.20","com.netflix.hystrix:hystrix-metrics-event-stream:1.1.2"})
 public class HystrixCommandIT {
 
