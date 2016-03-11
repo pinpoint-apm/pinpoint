@@ -12,12 +12,10 @@ import com.navercorp.pinpoint.plugin.hystrix.HystrixPluginConstants;
 public class HystrixCommandQueueInterceptor implements AroundInterceptor1 {
     private final MethodDescriptor descriptor;
     private final TraceContext traceContext;
-    private final InterceptorScope scope;
 
-    public HystrixCommandQueueInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
+    public HystrixCommandQueueInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
-        this.scope = scope;
     }
 
     @Override

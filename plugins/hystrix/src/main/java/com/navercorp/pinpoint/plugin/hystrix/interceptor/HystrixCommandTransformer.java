@@ -33,38 +33,16 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  */
 
 public class HystrixCommandTransformer implements TransformCallback {
-    private static final String SCOPE_NAME = "Hystrix";
 
     @Override
     public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-        InterceptorScope scope = instrumentor.getInterceptorScope(SCOPE_NAME);
-        // TODO this could not printout in mvn integration test
-        System.out.println("scope="+scope);
 
         InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
         target.addField("com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor");
 
-        InstrumentMethod constructor = target.getConstructor(
-                "com.netflix.hystrix.HystrixCommandGroupKey",
-                "com.netflix.hystrix.HystrixCommandKey",
-                "com.netflix.hystrix.HystrixThreadPoolKey",
-                "com.netflix.hystrix.HystrixCircuitBreaker",
-                "com.netflix.hystrix.HystrixThreadPool",
-                "com.netflix.hystrix.HystrixCommandProperties$Setter",
-                "com.netflix.hystrix.HystrixThreadPoolProperties$Setter",
-                "com.netflix.hystrix.HystrixCommandMetrics",
-                "com.netflix.hystrix.HystrixCommand$TryableSemaphore",
-                "com.netflix.hystrix.HystrixCommand$TryableSemaphore",
-                "com.netflix.hystrix.strategy.properties.HystrixPropertiesStrategy",
-                "com.netflix.hystrix.strategy.executionhook.HystrixCommandExecutionHook");
-
-        constructor.addScopedInterceptor("com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixCommandConstructorInterceptor",
-                scope,
-                ExecutionPolicy.INTERNAL);
-
         InstrumentMethod queue = target.getDeclaredMethod("queue");
-        queue.addScopedInterceptor("com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixCommandQueueInterceptor", scope);
+        queue.addInterceptor("com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixCommandQueueInterceptor");
 
         InstrumentMethod executeCommand = target.getDeclaredMethod("executeCommand");
         executeCommand.addInterceptor("com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixCommandExecuteCommandInterceptor");
