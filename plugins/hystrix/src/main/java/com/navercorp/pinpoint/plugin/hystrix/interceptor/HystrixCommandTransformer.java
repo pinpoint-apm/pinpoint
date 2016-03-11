@@ -63,8 +63,8 @@ public class HystrixCommandTransformer implements TransformCallback {
                 scope,
                 ExecutionPolicy.INTERNAL);
 
-        InstrumentMethod execute = target.getDeclaredMethod("execute");
-        execute.addScopedInterceptor("com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixCommandExecuteInterceptor", scope);
+        InstrumentMethod queue = target.getDeclaredMethod("queue");
+        queue.addScopedInterceptor("com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixCommandQueueInterceptor", scope);
 
         InstrumentMethod executeCommand = target.getDeclaredMethod("executeCommand");
         executeCommand.addInterceptor("com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixCommandExecuteCommandInterceptor");

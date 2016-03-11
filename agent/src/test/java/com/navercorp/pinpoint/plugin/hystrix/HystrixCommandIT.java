@@ -15,6 +15,7 @@
 package com.navercorp.pinpoint.plugin.hystrix;
 
 import java.lang.reflect.Method;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import com.netflix.hystrix.Hystrix;
@@ -45,7 +46,7 @@ public class HystrixCommandIT {
     }
 
     @Test
-    public void test() throws Exception {
+    public void testSyncCall() throws Exception {
         String name = "Pinpoint";
 
         SayHelloCommand cmd = new SayHelloCommand(name);
@@ -56,13 +57,38 @@ public class HystrixCommandIT {
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
 
-        Method execute    = HystrixCommand.class.getMethod("execute");
+        Method queue    = HystrixCommand.class.getMethod("queue");
         Method executeCmd = HystrixCommand.class.getDeclaredMethod("executeCommand");
 
         verifier.verifyTrace(Expectations.async(
-                Expectations.event("PluginHystrix", execute),
+                Expectations.event("HYSTRIX_COMMAND", queue),
                 Expectations.event("ASYNC", "Asynchronous Invocation"),
-                Expectations.event("PluginHystrix", executeCmd)));
+                Expectations.event("HYSTRIX_COMMAND", executeCmd)));
+
+        // no more traces
+        verifier.verifyTraceCount(0);
+    }
+
+    @Test
+    public void testAsyncCall() throws Exception {
+        String name = "Pinpoint";
+
+        SayHelloCommand cmd = new SayHelloCommand(name);
+        Future<String> future = cmd.queue();
+        String result = future.get(100, TimeUnit.MILLISECONDS);
+
+        Assert.assertEquals("Hello Pinpoint!", result);
+
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printCache();
+
+        Method queue    = HystrixCommand.class.getMethod("queue");
+        Method executeCmd = HystrixCommand.class.getDeclaredMethod("executeCommand");
+
+        verifier.verifyTrace(Expectations.async(
+                Expectations.event("HYSTRIX_COMMAND", queue),
+                Expectations.event("ASYNC", "Asynchronous Invocation"),
+                Expectations.event("HYSTRIX_COMMAND", executeCmd)));
 
         // no more traces
         verifier.verifyTraceCount(0);
