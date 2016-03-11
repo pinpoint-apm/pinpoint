@@ -32,19 +32,11 @@ public class HystrixPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        addApplicationTypeDetector(context);
         addTransformers();
     }
 
     private void addTransformers() {
         transformTemplate.transform("com.netflix.hystrix.HystrixCommand", new HystrixCommandTransformer());
-    }
-
-    /**
-     * Pinpoint profiler agent uses this detector to find out the service type of current application.
-     */
-    private void addApplicationTypeDetector(ProfilerPluginSetupContext context) {
-        //context.addApplicationTypeDetector(new HystrixServerDetector());
     }
 
     @Override

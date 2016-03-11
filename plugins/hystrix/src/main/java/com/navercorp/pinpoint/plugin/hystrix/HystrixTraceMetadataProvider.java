@@ -29,11 +29,6 @@ public class HystrixTraceMetadataProvider implements TraceMetadataProvider {
      */
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(HystrixPluginConstants.HYSTRIX_SERVICE_TYPE, AnnotationKeyMatchers.exact(HystrixPluginConstants.ANNOTATION_KEY_HYSTRIX_VALUE));
-        context.addAnnotationKey(HystrixPluginConstants.ANNOTATION_KEY_HYSTRIX_VALUE);
-
-        context.addAnnotationKey(HystrixPluginConstants.HYSTRIX_RPC_PROCEDURE_ANNOTATION_KEY);
-        context.addAnnotationKey(HystrixPluginConstants.HYSTRIX_RPC_ARGUMENT_ANNOTATION_KEY);
-        context.addAnnotationKey(HystrixPluginConstants.HYSTRIX_RPC_RESULT_ANNOTATION_KEY);
+        context.addServiceType(HystrixPluginConstants.HYSTRIX_SERVICE_TYPE);
     }
 }

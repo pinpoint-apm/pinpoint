@@ -24,15 +24,7 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
  *
  */
 public interface HystrixPluginConstants {
-    // TODO I just add offset to each constants below, while these should be changed laterly after consideration
-    static final int OFFSET=2;
-    //TODO it seems no need for hystrix server & client type
     public static final ServiceType HYSTRIX_SERVICE_TYPE = ServiceTypeFactory.of(9120, "HYSTRIX_COMMAND");
-    public static final AnnotationKey ANNOTATION_KEY_HYSTRIX_VALUE = AnnotationKeyFactory.of(998+OFFSET, "HYSTRIXValue");
-
-    public static final AnnotationKey HYSTRIX_RPC_ARGUMENT_ANNOTATION_KEY = AnnotationKeyFactory.of(995+OFFSET, "HYSTRIX_ARGUMENT");
-    public static final AnnotationKey HYSTRIX_RPC_PROCEDURE_ANNOTATION_KEY = AnnotationKeyFactory.of(996+OFFSET, "HYSTRIX_PROCEDURE");
-    public static final AnnotationKey HYSTRIX_RPC_RESULT_ANNOTATION_KEY = AnnotationKeyFactory.of(997+OFFSET, "HYSTRIX_RESULT");
 
     public static final String META_DO_NOT_TRACE = "_Hystrix_DO_NOT_TRACE";
     public static final String META_TRANSACTION_ID = "_Hystrix_TRASACTION_ID";
