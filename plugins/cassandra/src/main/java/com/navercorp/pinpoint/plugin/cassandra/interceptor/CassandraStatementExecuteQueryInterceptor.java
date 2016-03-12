@@ -20,10 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.datastax.driver.core.BoundStatement;
-import com.datastax.driver.core.ColumnDefinitions;
-import com.datastax.driver.core.DataType;
 import com.datastax.driver.core.RegularStatement;
-import com.datastax.driver.core.ColumnDefinitions.Definition;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
@@ -46,6 +43,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue.BindValueUtils;
  */
 @TargetMethods({
     @TargetMethod(name = "execute", paramTypes = { "java.lang.String" }),
+    @TargetMethod(name = "execute", paramTypes = { "java.lang.String", "java.lang.Object[]" }),
     @TargetMethod(name = "execute", paramTypes = { "com.datastax.driver.core.Statement" })
 })
 public class CassandraStatementExecuteQueryInterceptor implements AroundInterceptor {
@@ -58,18 +56,16 @@ public class CassandraStatementExecuteQueryInterceptor implements AroundIntercep
     private final MethodDescriptor descriptor;
     private final TraceContext traceContext;
     private final int maxSqlBindValueLength;
-    private final boolean traceSqlBindValue;
 
     public CassandraStatementExecuteQueryInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        this(traceContext, descriptor, DEFAULT_BIND_VALUE_LENGTH, false);
+        this(traceContext, descriptor, DEFAULT_BIND_VALUE_LENGTH);
     }
 
     public CassandraStatementExecuteQueryInterceptor(TraceContext traceContext, MethodDescriptor descriptor,
-            int maxSqlBindValueLength, boolean traceSqlBindValue) {
+            int maxSqlBindValueLength) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
         this.maxSqlBindValueLength = maxSqlBindValueLength;
-        this.traceSqlBindValue = traceSqlBindValue;
     }
 
     @Override
@@ -115,24 +111,9 @@ public class CassandraStatementExecuteQueryInterceptor implements AroundIntercep
                 }
             }
 
-            Map<Integer, String> bindValue = null;
-            if (bindValue == null) {
-                bindValue = new HashMap<Integer, String>();
-                ((BindValueAccessor) target)._$PINPOINT$_setBindValue(bindValue);
-            }
-
-            if (traceSqlBindValue && args[0] instanceof BoundStatement) {
-                final BoundStatement bs = (BoundStatement) args[0];
-                final ColumnDefinitions variables = bs.preparedStatement().getVariables();
-                int index = 0;
-                for (Definition variable : variables) {
-                    final DataType type = variable.getType();
-                    final Object value = bs.getObject(index++);
-                    final String s = type.format(value);
-                    bindValue.put(index, s);
-                }
-            }
-
+            Map<Integer, String> bindValue = ((BindValueAccessor) target)._$PINPOINT$_getBindValue();
+            // TODO Add bind variable interceptors to BoundStatement's setter methods and bind method and pass it down
+            // Extracting bind variables from already-serialized is too risky
             if (bindValue != null && !bindValue.isEmpty()) {
                 String bindString = toBindVariable(bindValue);
                 recorder.recordSqlParsingResult(parsingResult, bindString);
@@ -148,7 +129,6 @@ public class CassandraStatementExecuteQueryInterceptor implements AroundIntercep
                 logger.warn(e.getMessage(), e);
             }
         }
-
     }
 
     private void clean(Object target) {

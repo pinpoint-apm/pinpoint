@@ -33,6 +33,10 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
  */
 public class CassandraPlugin implements ProfilerPlugin, TransformTemplateAware {
 
+    // AbstractSession got added in 2.0.9
+    private static final String CLASS_SESSION_MANAGER = "com.datastax.driver.core.SessionManager";
+    private static final String CLASS_ABSTRACT_SESSION = "com.datastax.driver.core.AbstractSession";
+
     private TransformTemplate transformTemplate;
 
     @Override
@@ -40,13 +44,13 @@ public class CassandraPlugin implements ProfilerPlugin, TransformTemplateAware {
         CassandraConfig config = new CassandraConfig(context.getConfig());
 
         if (config.isCassandra()) {
-            addDefaultPreparedStatementTransformer(config);
+            addDefaultPreparedStatementTransformer();
             addSessionTransformer(config);
             addClusterTransformer();
         }
     }
 
-    private void addDefaultPreparedStatementTransformer(final CassandraConfig config) {
+    private void addDefaultPreparedStatementTransformer() {
         TransformCallback transformer = new TransformCallback() {
 
             @Override
@@ -73,7 +77,7 @@ public class CassandraPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private void addSessionTransformer(final CassandraConfig config) {
 
-        transformTemplate.transform("com.datastax.driver.core.AbstractSession", new TransformCallback() {
+        TransformCallback transformer = new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
@@ -83,6 +87,12 @@ public class CassandraPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 if (!target.isInterceptable()) {
                     return null;
+                }
+
+                if (className.equals(CLASS_SESSION_MANAGER)) {
+                    if (instrumentor.exist(loader, CLASS_ABSTRACT_SESSION)) {
+                        return null;
+                    }
                 }
 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
@@ -98,11 +108,14 @@ public class CassandraPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 target.addScopedInterceptor(
                         "com.navercorp.pinpoint.plugin.cassandra.interceptor.CassandraStatementExecuteQueryInterceptor",
-                        va(config.getMaxSqlBindValueSize(), config.isTraceSqlBindValue()), CassandraConstants.CASSANDRA_SCOPE, ExecutionPolicy.ALWAYS);
+                        va(config.getMaxSqlBindValueSize()), CassandraConstants.CASSANDRA_SCOPE);
 
                 return target.toBytecode();
             }
-        });
+        };
+
+        transformTemplate.transform(CLASS_SESSION_MANAGER, transformer);
+        transformTemplate.transform(CLASS_ABSTRACT_SESSION, transformer);
 
     }
 
