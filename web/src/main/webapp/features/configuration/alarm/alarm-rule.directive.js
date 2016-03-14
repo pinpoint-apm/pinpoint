@@ -8,8 +8,8 @@
 	 * @class
 	 */	
 	
-	pinpointApp.directive('alarmRuleDirective', [ '$rootScope', '$document', '$timeout', 'helpContentTemplate', 'helpContentService', 'AlarmUtilService', 'AnalyticsService',
-	    function ($rootScope, $document, $timeout, helpContentTemplate, helpContentService, alarmUtilService, analyticsService) {
+	pinpointApp.directive( "alarmRuleDirective", [ "$rootScope", "$document", "$timeout", "AlarmUtilService", "AnalyticsService", "TooltipService",
+	    function ($rootScope, $document, $timeout, alarmUtilService, analyticsService, tooltipService) {
         return {
             restrict: 'EA',
             replace: true,
@@ -74,15 +74,8 @@
     					}	
     				}
     			});
-    			
-    			$element.find(".ruleTooltip").tooltipster({
-                	content: function() {
-                		return helpContentTemplate(helpContentService.configuration.alarmRules);
-                	},
-                	offsetY : -105,
-                	position: "left",
-                	trigger: "click"
-                });
+
+				tooltipService.init( "alarmRules" );
     			function reset() {
     				if ( isRemoving == true ) {
     					$element.find("tr.remove").each( function() {

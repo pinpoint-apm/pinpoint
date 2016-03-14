@@ -45,17 +45,19 @@
 			cbComplete();
 		});
 	};
-	DataLoadManager.prototype.loadRealtimeData = function( callbackRealtimeSuccess, widthOfPixel, heightOfPixel ) {
+	DataLoadManager.prototype.loadRealtimeData = function( callbackRealtimeSuccess, callbackRealtimeFail, widthOfPixel, heightOfPixel ) {
 		var self = this;
 		var oFromTo = this._oSCManager.getX();
 
 		var beforeRequest = Date.now();
+		var currentFrom = this._nextFrom || oFromTo.max;
+		var currentTo = this._nextTo ||  oFromTo.max + this.option( "realtimeInterval" );
 
 		this._oRealtimeAjax = $.ajax({
 			"url": this.getUrl(),
 			"data": {
-				"to": this._nextTo ||  oFromTo.max + this.option( "realtimeInterval" ),
-				"from": this._nextFrom || oFromTo.max,
+				"to": currentTo,
+				"from": currentFrom,
 				"limit": this.option( "fetchLimit" ),
 				"filter": "",
 				"application": this._application,
@@ -67,17 +69,17 @@
 			"dataType": "json"
 		}).done(function( oResultData ) {
 			if ( oResultData.exception ) {
-
+				callbackRealtimeFail();
 			} else {
 
 				self._nextFrom = oResultData.complete ? oResultData.to : oResultData.resultTo;
 				self._nextTo = self._nextFrom + self.option( "realtimeInterval" );
 
 				callbackRealtimeSuccess( oResultData, self._calcuRealtimeIntervalTime( oResultData.currentServerTime, Date.now() - beforeRequest ), self._isResetRealtime( oResultData.currentServerTime ), oResultData.currentServerTime );
-				self._cbLoaded( self._nextFrom );
+				self._cbLoaded( self._oSCManager.getX(), self._nextFrom, self._nextTo );
 			}
 		}).fail(function() {
-			self.loadRealtimeData( callbackRealtimeSuccess, widthOfPixel, heightOfPixel );
+			self.loadRealtimeData( callbackRealtimeSuccess, callbackRealtimeFail, widthOfPixel, heightOfPixel );
 		});
 	};
 	DataLoadManager.prototype._isResetRealtime = function( currentServerTime ) {
