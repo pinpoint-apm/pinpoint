@@ -41,17 +41,6 @@ public interface ScatterChartService {
     List<Dot> selectScatterData(Collection<TransactionId> traceIds, String applicationName, Filter filter);
 
     /**
-     * Queries for data using time range.
-     *
-     * @param applicationName
-     * @param range
-     * @param limit
-     * @param backwardDirection
-     * @return
-     */
-    List<Dot> selectScatterData(String applicationName, Range range, int limit, boolean backwardDirection);
-
-    /**
      * @param applicationName
      * @param area
      * @param offsetTransactionId
@@ -73,6 +62,8 @@ public interface ScatterChartService {
 //  List<TransactionId> selectScatterTraceIdList(String applicationName, long from, long to, int limit);
     List<SpanBo> selectTransactionMetadata(TransactionMetadataQuery query);
 
-    ScatterData selectScatterDataMadeOfDotGroup(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection);
+    ScatterData selectScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection);
+
+    ScatterData selectScatterData(Collection<TransactionId> transactionIdList, String applicationName, Range range, int xGroupUnit, int yGroupUnit, Filter filter);
 
 }
