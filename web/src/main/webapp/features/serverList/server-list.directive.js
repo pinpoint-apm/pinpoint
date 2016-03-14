@@ -7,8 +7,8 @@
 	 * @name serverListDirective
 	 * @class
 	 */
-	pinpointApp.directive('serverListDirective', [ '$timeout', '$window', '$filter', 'helpContentTemplate', 'helpContentService', "AnalyticsService",
-		function ($timeout, $window, $filter, helpContentTemplate, helpContentService, analyticsService ) {
+	pinpointApp.directive( "serverListDirective", [ "$timeout", "$window", "$filter", "AnalyticsService", "TooltipService",
+		function ( $timeout, $window, $filter, analyticsService, tooltipService ) {
             return {
                 restrict: 'A',
                 link: function postLink(scope, element) {
@@ -111,13 +111,7 @@
                 		bInitialized = true;
                     });
 
-                    $element.find('.serverListTooltip').tooltipster({
-                    	content: function() {
-                    		return helpContentTemplate(helpContentService.nodeInfoDetails.nodeServers);
-                    	},
-                    	position: "bottom",
-                    	trigger: "click"
-                    });	
+					tooltipService.init( "serverList" );
                 }
             };
 	    }

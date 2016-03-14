@@ -381,7 +381,7 @@
 //	                        scope.$emit("serverMapDirective.nodeContextClicked", e, query, node, applicationMapData);
 	                    };
 	                    options.fOnLinkClicked = function (e, link) {
-							if ( scope.oNavbarVoService.getPeriodType() === "realtime" ) {
+							if ( scope.oNavbarVoService.isRealtime() ) {
 								return;
 							}
 	                        var originalLink;

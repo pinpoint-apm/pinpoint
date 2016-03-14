@@ -11,8 +11,8 @@
 	    maxTimeToShowLoadAsDefaultForUnknown: 60 * 60 * 12 // 12h
 	});
 	
-	pinpointApp.directive("nodeInfoDetailsDirective", [ "nodeInfoDetailsDirectiveConfig", "$filter", "$timeout", "isVisibleService", "$window", "helpContentTemplate", "helpContentService", "AnalyticsService", "PreferenceService",
-        function (cfg, $filter, $timeout, isVisibleService, $window, helpContentTemplate, helpContentService, analyticsService, preferenceService ) {
+	pinpointApp.directive("nodeInfoDetailsDirective", [ "nodeInfoDetailsDirectiveConfig", "$filter", "$timeout", "isVisibleService", "$window", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService",
+        function (cfg, $filter, $timeout, isVisibleService, $window, analyticsService, preferenceService, tooltipService, commonAjaxService ) {
             return {
                 restrict: "EA",
                 replace: true,
@@ -26,7 +26,7 @@
 
                     // define private variables of methods
                     var reset, showDetailInformation, renderAllChartWhichIsVisible, hide, show, renderResponseSummary,
-                        renderLoad;
+                        renderLoad, bRequesting = false;
 
                     // bootstrap
                     bShown = false;
@@ -206,6 +206,41 @@
                         bShown = true;
                         element.show();
                     };
+					function mergeSummaryData( oData ) {
+						var oSummarySum = {};
+						$.each( oData, function (agentName, oValue ) {
+							$.each(oValue, function (innerKey, value) {
+								if (angular.isUndefined(oSummarySum[innerKey])) {
+									oSummarySum[innerKey] = 0;
+								}
+								oSummarySum[innerKey] += value;
+							})
+						});
+						return oSummarySum;
+					}
+					function mergeLoadData( oData ) {
+						var aLoadSum = [];
+						$.each( oData, function (agentName, aData) {
+							for (var i = 0; i < aData.length; i++) {
+								var aSet = aData[i];
+								if (aLoadSum.length < i + 1) {
+									aLoadSum[i] = {
+										"key": aSet.key,
+										"values": []
+									};
+								}
+								for (var j = 0; j < aSet.values.length; j++) {
+									if (aLoadSum[i].values.length < j + 1) {
+										aLoadSum[i].values[j] = [
+											aSet.values[j][0], 0
+										];
+									}
+									aLoadSum[i].values[j][1] += aSet.values[j][1];
+								}
+							}
+						});
+						return aLoadSum;
+					}
 
                     /**
                      * show node detail information of scope
@@ -374,10 +409,33 @@
                     scope.$on("responseTimeChartDirective.itemClicked.forNode", function (event, data) {
 //                        console.log("on responseTimeChartDirective.itemClicked.forNode", data);
                     });
+					scope.$on("responseTimeChartDirective.loadRealtime", function (event, applicationName, agentName, from, to ) {
+
+						if ( bRequesting === false ) {
+							bRequesting = true;
+							commonAjaxService.getResponseTimeHistogramData( {
+								"applicationName": scope.node.applicationName,
+								"serviceTypeName": scope.node.category,
+								"from": from,
+								"to": to
+							}, function (oResult) {
+								if (agentName === preferenceService.getAgentAllStr()) {
+									renderResponseSummary("forNode", scope.node.applicationName, mergeSummaryData( oResult.summary ), "100%", "150px");
+									renderLoad("forNode", scope.node.applicationName, mergeLoadData( oResult.timeSeries ), "100%", "220px", true);
+								} else {
+									renderResponseSummary("forNode", scope.node.applicationName, oResult.summary[agentName], "100%", "150px");
+									renderLoad("forNode", scope.node.applicationName, oResult.timeSeries[agentName], "100%", "220px", true);
+								}
+								bRequesting = false;
+							}, function() {
+								bRequesting = false;
+							});
+						}
+					});
 					scope.$on("changedCurrentAgent", function( event, agentName ) {
 						var responseSummaryData = null;
 						var loadData = null;
-						if ( agentName === "All" ) {
+						if ( agentName === preferenceService.getAgentAllStr() ) {
 							responseSummaryData = scope.node.histogram;
 							loadData = scope.node.timeSeriesHistogram;
 						} else {
@@ -388,20 +446,8 @@
 						renderLoad("forNode", scope.node.applicationName, loadData, "100%", "220px", true);
 					});
 
-                    jQuery(".responseSummaryChartTooltip").tooltipster({
-                    	content: function() {
-                    		return helpContentTemplate(helpContentService.nodeInfoDetails.responseSummary);
-                    	},
-                    	position: "top",
-                    	trigger: "click"
-                    });
-                    jQuery(".loadChartTooltip").tooltipster({
-                    	content: function() {
-                    		return helpContentTemplate(helpContentService.nodeInfoDetails.load);
-                    	},
-                    	position: "top",
-                    	trigger: "click"
-                    });
+					tooltipService.init( "responseSummaryChart" );
+					tooltipService.init( "loadChart" );
                 }
             };
 	    }

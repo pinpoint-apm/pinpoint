@@ -51,8 +51,8 @@
 		}
 	});
 	
-	pinpointApp.controller('RealtimeChartCtrl', ['RealtimeChartCtrlConfig', '$scope', '$element', '$rootScope', '$compile', '$timeout', '$window', 'globalConfig', 'RealtimeWebsocketService', '$location', 'AnalyticsService', 'helpContentTemplate', 'helpContentService',
-	    function (cfg, $scope, $element, $rootScope, $compile, $timeout, $window, globalConfig, websocketService, $location, analyticsService, helpContentTemplate, helpContentService) {
+	pinpointApp.controller( "RealtimeChartCtrl", [ "RealtimeChartCtrlConfig", "$scope", "$element", "$rootScope", "$compile", "$timeout", "$window", "globalConfig", "$location", "RealtimeWebsocketService", "AnalyticsService", "TooltipService",
+	    function (cfg, $scope, $element, $rootScope, $compile, $timeout, $window, globalConfig, $location, websocketService, analyticsService, tooltipService) {
 			
 	    	$element = $($element);
 			//@TODO will move to preference-service 
@@ -90,14 +90,8 @@
 		    	return o;
 	    	})();
 			var timeoutResult = null;
-	    	
-	    	jQuery('.realtimeTooltip').tooltipster({
-            	content: function() {
-            		return helpContentTemplate(helpContentService.realtime["default"]);
-            	},
-            	position: "top",
-            	trigger: "click"
-            });
+
+			tooltipService.init( "realtime" );
 
 	    	$scope.sumChartColor 	= ["rgba(44, 160, 44, 1)", 	"rgba(60, 129, 250, 1)", 	"rgba(248, 199, 49, 1)", 	"rgba(246, 145, 36, 1)" ];
 	    	$scope.agentChartColor 	= ["rgba(44, 160, 44, .8)", "rgba(60, 129, 250, .8)", 	"rgba(248, 199, 49, .8)", 	"rgba(246, 145, 36, .8)"];

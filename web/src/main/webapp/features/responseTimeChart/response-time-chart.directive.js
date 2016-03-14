@@ -60,7 +60,7 @@
                                 "type": "serial",
                                 "theme": "none",
                                 "dataProvider": data,
-                                "startDuration": 1,
+                                "startDuration": 0,
                                 "valueAxes": [
                                     {
                                         "gridAlpha": 0.1,
@@ -101,7 +101,7 @@
                             oChart.addListener('clickGraphItem', function(event) {
                             	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_RESPONSE_GRAPH);
                             	if ( event.item.category == "Error" ) {
-                            		scope.$emit('responseTimeChartDirective.showErrorTransacitonList' );
+                            		scope.$emit('responseTimeChartDirective.showErrorTransacitonList', event.item.category );
                             	}
                             	if ( useFilterTransaction ) {
                             		scope.$emit('responseTimeChartDirective.itemClicked.' + scope.namespace, event.item.serialDataItem.dataContext);

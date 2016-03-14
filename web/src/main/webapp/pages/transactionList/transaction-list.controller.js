@@ -114,13 +114,22 @@
 	         */
 			getTransactionInfoFromWindow = function (windowName) {
 	            var t = windowName.split('|');
-	            return {
-	                applicationName: t[0],
-	                nXFrom: t[1],
-	                nXTo: t[2],
-	                nYFrom: t[3],
-	                nYTo: t[4]
-	            };
+				if (t.length === 4 ) {
+					return {
+						applicationName: t[0],
+						type: t[1],
+						min: t[2],
+						max: t[3]
+					};
+				} else {
+					return {
+						applicationName: t[0],
+						nXFrom: t[1],
+						nXTo: t[2],
+						nYFrom: t[3],
+						nYTo: t[4]
+					};
+				}
 	        };
 			getTransactionInfoFromURL = function() {
 				return {
@@ -148,7 +157,12 @@
 	         */
 	        getDataByTransactionInfo = function (t) {
 	            var oScatter = $window.opener.htoScatter[t.applicationName];
-	            return oScatter.getDataByXY(t.nXFrom, t.nXTo, t.nYFrom, t.nYTo);
+				if ( t.type ) {
+					return oScatter.getDataByRange( t.type, t.min, t.max );
+				} else {
+					return oScatter.getDataByXY( t.nXFrom, t.nXTo, t.nYFrom, t.nYTo );
+				}
+
 	        };
 	
 	        /**
