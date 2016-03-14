@@ -35,8 +35,6 @@ public interface ApplicationTraceIndexDao {
 
     LimitedScanResult<List<TransactionId>> scanTraceIndex(String applicationName, SelectedScatterArea range, int limit);
 
-    List<Dot> scanTraceScatter(String applicationName, Range range, int limit, boolean scanBackward);
-
     /**
      *
      * select transactions in a selection range(box) in the scatter chart.
@@ -50,6 +48,6 @@ public interface ApplicationTraceIndexDao {
      */
     List<Dot> scanTraceScatter(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransactionElapsed, int limit);
 
-    ScatterData scanTraceScatterDataMadeOfDotGroup(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean scanBackward);
+    ScatterData scanTraceScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean scanBackward);
 
 }
