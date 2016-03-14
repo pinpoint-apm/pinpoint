@@ -51,17 +51,6 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     private TraceDao traceDao;
 
     @Override
-    public List<Dot> selectScatterData(String applicationName, Range range, int limit, boolean backwardDirection) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
-        }
-        if (range == null) {
-            throw new NullPointerException("range must not be null");
-        }
-        return applicationTraceIndexDao.scanTraceScatter(applicationName, range, limit, backwardDirection);
-    }
-
-    @Override
     public List<Dot> selectScatterData(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransactionElapsed, int limit) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
@@ -147,14 +136,46 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     }
 
     @Override
-    public ScatterData selectScatterDataMadeOfDotGroup(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection) {
+    public ScatterData selectScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
-        return applicationTraceIndexDao.scanTraceScatterDataMadeOfDotGroup(applicationName, range, xGroupUnit, yGroupUnit, limit, backwardDirection);
+        return applicationTraceIndexDao.scanTraceScatterData(applicationName, range, xGroupUnit, yGroupUnit, limit, backwardDirection);
+    }
+
+    @Override
+    public ScatterData selectScatterData(Collection<TransactionId> transactionIdList, String applicationName, Range range, int xGroupUnit, int yGroupUnit, Filter filter) {
+        if (transactionIdList == null) {
+            throw new NullPointerException("transactionIdList must not be null");
+        }
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
+        }
+        if (filter == null) {
+            throw new NullPointerException("filter must not be null");
+        }
+
+        final List<List<SpanBo>> traceList = traceDao.selectAllSpans(transactionIdList);
+
+        ScatterData scatterData = new ScatterData(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
+        for (List<SpanBo> trace : traceList) {
+            if (!filter.include(trace)) {
+                continue;
+            }
+
+            for (SpanBo span : trace) {
+                if (applicationName.equals(span.getApplicationId())) {
+                    final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
+                    final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
+                    scatterData.addDot(dot);
+                }
+            }
+        }
+
+        return scatterData;
     }
 
 }
