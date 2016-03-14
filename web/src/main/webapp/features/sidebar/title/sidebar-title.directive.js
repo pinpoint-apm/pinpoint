@@ -42,7 +42,7 @@
 					}
 	
 	                function initialize( oSidebarTitleVoService, node ) {
-						scope.isWas = node.isWas;
+						scope.isWas = angular.isDefined( node ) ? ( angular.isDefined( node.isWas ) ? node.isWas : false ) : false;
 	                    scope.stImage = oSidebarTitleVoService.getImage();
 	                    scope.stImageShow = oSidebarTitleVoService.getImage() ? true : false;
 	                    scope.stTitle = oSidebarTitleVoService.getTitle();
