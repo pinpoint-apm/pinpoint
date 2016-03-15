@@ -18,8 +18,14 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('package.json'),
 
         clean: {
-			doc: [ DOC_PATH ],
-			lib: [ '<%= concat.timeSlider.dest %>','<%= concat.bigscatter.dest %>', '<%= concat.infiniteScroll.dest %>'  ]
+			vendorJS: [
+				'<%= concat.baseLib.dest %>',
+				'<%= concat.utilLib.dest %>'
+			],
+			pinpointComponentJS: [
+				DEST_LIB_PATH + 'js/*.js',
+				'!' + DEST_LIB_PATH + 'js/*.min.js'
+			]
 		},
         jsdoc: {
             dist: {
@@ -42,7 +48,7 @@ module.exports = function (grunt) {
 			baseLib: {
 				options: {
 					stripBanner: true,
-					//banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ''<%= grunt.template.today("yyyy-mm-dd") %> */',
+					banner: '/*! @preserve <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd")%> - jquery + jquery.ui + underscore*/',
 					separator: '\n'
 				},
 				src: makePath([
@@ -55,7 +61,7 @@ module.exports = function (grunt) {
 			drawLib: {
 				options: {
 					stripBanner: true,
-					//banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ''<%= grunt.template.today("yyyy-mm-dd") %> */',
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd")%> - go + snap.svg + d3 + amcharts*/',
 					separator: '\n'
 				},
 				src: makePath( [
@@ -66,12 +72,12 @@ module.exports = function (grunt) {
 					'amcharts/serial.js',
 					'amcharts/themes/light.js'
 				], COMPONENT_PATH ),
-				dest: DEST_LIB_PATH + 'js/draw-lib.js'
+				dest: DEST_LIB_PATH + 'js/draw-lib.min.js'
 			},
 			utilLib: {
 				options: {
 					stripBanner: true,
-					//banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ''<%= grunt.template.today("yyyy-mm-dd") %> */',
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> - bootstrap, preffify, moment, select2, jquery.Class, jquery.layout, jslider, slickgrid, tooltipster, handlebars */',
 					separator: '\n'
 				},
 				src: makePath( [
@@ -110,29 +116,29 @@ module.exports = function (grunt) {
 			angularLib: {
 				options: {
 					stripBanner: true,
-					//banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ''<%= grunt.template.today("yyyy-mm-dd") %> */',
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> - angular + -resource + -cookies + -webstorage + -strap + -animate + -route + -sanitize + -slider + -base64 + -timer */',
 					separator: '\n'
 				},
 				src: makePath( [
-					'angular/angular.js',
-					'angular-resource/angular-resource.js',
-					'angular-cookies/angular-cookies.js',
+					'angular/angular.min.js',
+					'angular-resource/angular-resource.min.js',
+					'angular-cookies/angular-cookies.min.js',
 					'angular-webstorage/angular-webstorage.js',
 					'angular-strap/dist/angular-strap.min.js',
 					'angular-strap/dist/angular-strap.tpl.min.js',
 					'angular-animate/angular-animate.min.js',
-					'angular-route/angular-route.js',
+					'angular-route/angular-route.min.js',
 					'angular-sanitize/angular-sanitize.min.js',
 					'angular-slider/angular-slider.min.js',
 					'angular-base64/angular-base64.min.js',
 					'angular-timer/dist/angular-timer.min.js'
 				], COMPONENT_PATH ),
-				dest: DEST_LIB_PATH + 'js/angular-lib.js'
+				dest: DEST_LIB_PATH + 'js/angular-lib.min.js'
 			},
 			timeSlider: {
 				options: {
 					stripBanner: true,
-					//banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ''<%= grunt.template.today("yyyy-mm-dd") %> */',
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> */',
 					separator: '\n'
 				},
 				src: makePath( [
@@ -154,34 +160,52 @@ module.exports = function (grunt) {
 				], COMPONENT_PATH ),
 				dest: DEST_LIB_PATH + 'js/time-slider.js'
 			},
-			bigscatter: {
+			bigScatter: {
 				options: {
 					stripBanner: true,
-					//banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ''<%= grunt.template.today("yyyy-mm-dd") %> */',
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> */',
 					separator: '\n'
 				},
 				src: makePath( [
-					'bigscatter-chart/BigScatterChart2.js',
-					'bigscatter-chart/BigScatterChart2.DataBlock.js',
-					'bigscatter-chart/BigScatterChart2.DragManager.js',
-					'bigscatter-chart/BigScatterChart2.DataLoadManager.js',
-					'bigscatter-chart/BigScatterChart2.RendererManager.js',
-					'bigscatter-chart/BigScatterChart2.BubbleTypeManager.js',
-					'bigscatter-chart/BigScatterChart2.SizeCoordinateManager.js',
-					'bigscatter-chart/BigScatterChart2.Util.js',
-					'bigscatter-chart/BigScatterChart2.HelpPlugin.js',
-					'bigscatter-chart/BigScatterChart2.MessagePlugin.js',
-					'bigscatter-chart/BigScatterChart2.SettingPlugin.js',
-					'bigscatter-chart/BigScatterChart2.DownloadPlugin.js',
-					'bigscatter-chart/BigScatterChart2.WideOpenPlugin.js'
+					'big-scatter-chart/BigScatterChart2.js',
+					'big-scatter-chart/BigScatterChart2.DataBlock.js',
+					'big-scatter-chart/BigScatterChart2.DragManager.js',
+					'big-scatter-chart/BigScatterChart2.DataLoadManager.js',
+					'big-scatter-chart/BigScatterChart2.RendererManager.js',
+					'big-scatter-chart/BigScatterChart2.BubbleTypeManager.js',
+					'big-scatter-chart/BigScatterChart2.SizeCoordinateManager.js',
+					'big-scatter-chart/BigScatterChart2.Util.js',
+					'big-scatter-chart/BigScatterChart2.HelpPlugin.js',
+					'big-scatter-chart/BigScatterChart2.MessagePlugin.js',
+					'big-scatter-chart/BigScatterChart2.SettingPlugin.js',
+					'big-scatter-chart/BigScatterChart2.DownloadPlugin.js',
+					'big-scatter-chart/BigScatterChart2.WideOpenPlugin.js'
 				], COMPONENT_PATH ),
-				dest: 'main/webapp/lib/js/BigScatterChart2.js'
+				dest: DEST_LIB_PATH + 'js/big-scatter-chart2.js'
 			},
 			infiniteScroll: {
+				options: {
+					stripBanner: true,
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> */',
+					separator: '\n'
+				},
 				src: [
 					COMPONENT_PATH + 'infiniteCircularScroll/InfiniteCircularScroll.js'
 				],
-				dest: DEST_LIB_PATH + 'js/InfiniteCircularScroll.js'
+				dest: DEST_LIB_PATH + 'js/infinite-circular-scroll.js'
+			},
+			pinpointComponent: {
+				options: {
+					stripBanner: true,
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> - TimeSlider + BigScatterChart2 + InfiniteCircularScroll*/',
+					separator: '\n'
+				},
+				src: makePath( [
+					'js/time-slider.js',
+					'js/big-scatter-chart2.js',
+					'js/infinite-circular-scroll.js'
+				], DEST_LIB_PATH ),
+				dest: DEST_LIB_PATH + 'js/pinpoint-component.min.js'
 			},
 			vernderCSS: {
 				options: {
@@ -190,12 +214,16 @@ module.exports = function (grunt) {
 					separator: '\n'
 				},
 				src: makePath( [
-					//'jquery-ui/themes/smoothness/jquery-ui.css',
-					//'bootstrap/dist/css/bootstrap.min.css',
-					//'jquery.jslider/css/jslider.css',
-					//'jquery.jslider/css/jslider.round.plastic.css',
-					//'select2/select2.css',
-					//'slickgrid/slick.grid.css',
+					// need components/bootstrap/fonts...
+					'bootstrap/dist/css/bootstrap.min.css',
+					'jquery.jslider/css/jslider.css',
+					// need components/jquery.jslider/img/jslider.round.plastic.png, jslider.blue.png, slider.plastic.png, jslider.png, jslider.round.png
+					'jquery.jslider/css/jslider.round.plastic.css',
+					// need components/jquery-ui/themes/smoothness/images/files...
+					'jquery-ui/themes/smoothness/jquery-ui.css',
+					// need components/select2/select2.png, select2-spinner.gif, select2x2.png
+					'select2/select2.css',
+					'slickgrid/slick.grid.css',
 					'jquery-timepicker-addon/jquery-ui-timepicker-addon.css',
 					'jquery.layout/dist/layout-default-latest.css',
 					'dragToSelect/jquery.dragToSelect.css',
@@ -236,14 +264,49 @@ module.exports = function (grunt) {
 			}
 		},
 		uglify: {
-			options: {
-				sourceMap: true
-			},
-			dist: {
+			baseLib: {
+				options: {
+					preserveComments: false,
+					banner: '/*! @preserve <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> - jquery + jquery.ui + underscore*/'
+				},
 				files: {
-					'main/webapp/lib/js/time-slider.min.js': 'main/webapp/lib/js/time-slider.js',
-					'main/webapp/lib/js/BigScatterChart2.min.js': 'main/webapp/lib/js/BigScatterChart2.js',
-					'main/webapp/lib/js/InfiniteCircularScroll.min.js': 'main/webapp/lib/js/InfiniteCircularScroll.js'
+					'main/webapp/lib/js/base-lib.min.js': 'main/webapp/lib/js/base-lib.js'
+				}
+			},
+			utilLib: {
+				options: {
+					preserveComments: false,
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> - bootstrap, preffify, moment, select2, jquery.Class, jquery.layout, jslider, slickgrid, tooltipster, handlebars */'
+				},
+				files: {
+					'main/webapp/lib/js/util-lib.min.js': 'main/webapp/lib/js/util-lib.js'
+				}
+			},
+			timeSlider : {
+				options: {
+					preserveComments: false,
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>*/'
+				},
+				files: {
+					'main/webapp/lib/js/time-slider.min.js': 'main/webapp/lib/js/time-slider.js'
+				}
+			},
+			bigScatter : {
+				options: {
+					preserveComments: false,
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>*/'
+				},
+				files: {
+					'main/webapp/lib/js/big-scatter-chart2.min.js': 'main/webapp/lib/js/big-scatter-chart2.js'
+				}
+			},
+			infiniteScroll : {
+				options: {
+					preserveComments: false,
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>*/'
+				},
+				files: {
+					'main/webapp/lib/js/infinite-circular-scroll.min.js': 'main/webapp/lib/js/infinite-circular-scroll.js'
 				}
 			}
 		},
@@ -257,10 +320,10 @@ module.exports = function (grunt) {
 			jsDev: {
 				files: makePath([
 					'time-slider/*.js',
-					'bigscatter-chart/*.js',
-					'infiniteCircularScroll/*.js',
+					'big-scatter-chart/*.js',
+					'infiniteCircularScroll/*.js'
 				], COMPONENT_PATH),
-				tasks: ['buildDev']
+				tasks: ['buildPinpointComponentJS' ]
 			}
 		},
         karma: {
@@ -294,38 +357,71 @@ module.exports = function (grunt) {
         grunt.loadNpmTasks(taskName);
     });
 
-    grunt.registerTask('jsdocClean', 'Clear document folder', [ 'clean' ]);
-
-    grunt.registerTask('jsdocBuild', 'Create documentations', [
-        'clean:doc',
-        'copy:plugin',
-        'jsdoc:dist'
-    ]);
-	grunt.registerTask('buildDev', 'Create lib file', [
-		'concat:timeSlider',
-		'concat:bigscatter',
-		'concat:infiniteScroll',
-		'uglify',
-		'clean:lib'
-	]);
-	grunt.registerTask('buildLib', 'Create lib file', [
+    //grunt.registerTask('jsdocClean', 'Clear document folder', [ 'clean' ]);
+	//
+    //grunt.registerTask('jsdocBuild', 'Create documentations', [
+    //    'clean:doc',
+    //    'copy:plugin',
+    //    'jsdoc:dist'
+    //]);
+	grunt.registerTask('buildBaseLibJS', '', [
 		'concat:baseLib',
-		'concat:drawLib',
+		'uglify:baseLib'
+	]);
+	grunt.registerTask('buildDrawLibJS', '', [
+		'concat:drawLib'
+	]);
+	grunt.registerTask('buildUtilLibJS', '', [
 		'concat:utilLib',
+		'uglify:utilLib'
+	]);
+	grunt.registerTask('buildAngularJS', '', [
 		'concat:angularLib'
 	]);
-	grunt.registerTask('watchDev', 'Watch js, css', [
-		'watch:jsDev',
-		'watch:cssDev'
+	grunt.registerTask('buildTimeSlider', '', [
+		'concat:timeSlider',
+		'uglify:timeSlider'
 	]);
-	grunt.registerTask('buildCSS', 'Create css file', [
+	grunt.registerTask('buildBigScatter', '', [
+		'concat:bigScatter',
+		'uglify:bigScatter'
+	]);
+	grunt.registerTask('buildInfiniteScroll', '', [
+		'concat:infiniteScroll',
+		'uglify:infiniteScroll'
+	]);
+
+	grunt.registerTask('buildAllJS', 'Create js file', [
+		'buildVendorJS',
+		'buildPinpointComponentJS'
+	]);
+	grunt.registerTask('buildVendorJS', 'Create vendor js file', [
+		'buildBaseLibJS',
+		'buildDrawLibJS',
+		'buildUtilLibJS',
+		'buildAngularJS',
+		'clean:vendorJS'
+	]);
+	grunt.registerTask('buildPinpointComponentJS', 'Create pinpoint js file', [
+		'buildTimeSlider',
+		'buildBigScatter',
+		'buildInfiniteScroll',
+		'concat:pinpointComponent',
+		'clean:pinpointComponentJS'
+	]);
+
+	grunt.registerTask('buildAllCSS', 'Create css file', [
 		'concat:vernderCSS',
 		'concat:pinpointCSS'
 	]);
-	grunt.registerTask('buildVernderCSS', 'Create css file', [
+	grunt.registerTask('buildVendorCSS', 'Create css file', [
 		'concat:vernderCSS'
 	]);
 	grunt.registerTask('buildPinpointCSS', 'Create css file', [
 		'concat:pinpointCSS'
+	]);
+	grunt.registerTask('watchDev', 'Watch js, css', [
+		'watch:jsDev',
+		'watch:cssDev'
 	]);
 };
