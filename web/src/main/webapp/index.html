@@ -1,12 +1,5 @@
 <!doctype html>
-<!--[if lt IE 7]>
-<html lang="en-US" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>
-<html lang="en-US" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>
-<html lang="en-US" class="no-js lt-ie9""> <![endif]-->
-<!--[if gt IE 8]><!-->
-<html lang="en-US" class="no-js"> <!--<![endif]-->
+<html lang="en-US" class="no-js">
 <head>
     <title>PINPOINT</title>
     <meta charset="utf-8">
@@ -17,56 +10,20 @@
     <link rel="shortcut icon" href="favicon.png" type="image/png">
     <link rel="icon" href="favicon.png" type="image/png">
 
-	<!--<link href="//fonts.googleapis.com/css?family=Arimo:400italic,400,700italic,700" rel="stylesheet" type="text/css">-->
 	<link href='//fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-
-	<link rel="stylesheet" href="components/bootstrap/dist/css/bootstrap.min.css?v=${buildTime}">
-	<link rel="stylesheet" href="components/jquery.jslider/css/jslider.css?v=${buildTime}">
-	<link rel="stylesheet" href="components/jquery.jslider/css/jslider.round.plastic.css?v=${buildTime}">
-	<link rel="stylesheet" href="components/jquery-ui/themes/smoothness/jquery-ui.css?v=${buildTime}">
-	<link rel="stylesheet" href="components/select2/select2.css?v=${buildTime}">
-	<link rel="stylesheet" href="components/slickgrid/slick.grid.css?v=${buildTime}">
-
 	<link rel="stylesheet" href="lib/css/vendor.css?v=${buildTime}">
 	<link rel="stylesheet" href="lib/css/pinpoint.css?v=${buildTime}">
 
+	<script src="lib/js/base-lib.min.js?v=${buildTime}"></script>
+	<script src="lib/js/angular-lib.min.js?v=${buildTime}"></script>
+	<script src="lib/js/draw-lib.min.js?v=${buildTime}"></script>
+	<script src="lib/js/util-lib.min.js?v=${buildTime}"></script>
+	<script src="lib/js/pinpoint-component.min.js?v=${buildTime}"></script>
 
-    <!-- build:js scripts/plugins.js -->
-	<script src="lib/js/base-lib.js?v=${buildTime}"></script>
-	<script src="lib/js/angular-lib.js?v=${buildTime}"></script>
-	<script src="lib/js/draw-lib.js?v=${buildTime}"></script>
-	<script src="lib/js/util-lib.js?v=${buildTime}"></script>
-	<!--script src="lib/js/BigScatterChart2.min.js?v=${buildTime}"></script-->
-	<script src="components/bigscatter-chart/BigScatterChart2.js?v=${buildTime}"></script>
-	<script src="components/bigscatter-chart/BigScatterChart2.DataBlock.js?v=${buildTime}"></script>
-	<script src="components/bigscatter-chart/BigScatterChart2.DragManager.js?v=${buildTime}"></script>
-	<script src="components/bigscatter-chart/BigScatterChart2.RendererManager.js?v=${buildTime}"></script>
-	<script src="components/bigscatter-chart/BigScatterChart2.DataLoadManager.js?v=${buildTime}"></script>
-	<script src="components/bigscatter-chart/BigScatterChart2.BubbleTypeManager.js?v=${buildTime}"></script>
-	<script src="components/bigscatter-chart/BigScatterChart2.SizeCoordinateManager.js?v=${buildTime}"></script>
-	<script src="components/bigscatter-chart/BigScatterChart2.Util.js?v=${buildTime}"></script>
-	<script src="components/bigscatter-chart/BigScatterChart2.HelpPlugin.js?v=${buildTime}"></script>
-	<script src="components/bigscatter-chart/BigScatterChart2.MessagePlugin.js?v=${buildTime}"></script>
-	<script src="components/bigscatter-chart/BigScatterChart2.SettingPlugin.js?v=${buildTime}"></script>
-	<script src="components/bigscatter-chart/BigScatterChart2.DownloadPlugin.js?v=${buildTime}"></script>
-	<script src="components/bigscatter-chart/BigScatterChart2.WideOpenPlugin.js?v=${buildTime}"></script>
-
-	<script src="lib/js/time-slider.min.js?v=${buildTime}"></script>
-	<script src="lib/js/InfiniteCircularScroll.min.js?v=${buildTime}"></script>
     <script src="features/serverMap/jquery.ServerMap2.js?v=${buildTime}"></script>
-    <!-- endbuild -->
-
-
-	<!-- analytics -->
 	<script src="scripts/extra/google-analytics.js?v=${buildTime}"></script>
-	<!-- end -->
 </head>
 <body ng-app="pinpointApp">
-<!--[if lt IE 7]>
-<p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser
-    today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better
-    experience this site.</p>
-<![endif]-->
 
 <!--[if lt IE 9]>
 <script src="bower_components/es5-shim/es5-shim.js?v=${buildTime}"></script>
@@ -458,6 +415,7 @@
 <script src="features/configuration/alarm/alarm-group-member.directive.js?v=${buildTime}"></script>
 <script src="features/configuration/alarm/alarm-pinpoint-user.directive.js?v=${buildTime}"></script>
 <script src="features/configuration/alarm/alarm-rule.directive.js?v=${buildTime}"></script>
+<script src="features/realtimeChart/realtime-chart.controller.js?v=${buildTime}"></script>
 
 <script src="pages/main/main.controller.js?v=${buildTime}"></script>
 <script src="pages/inspector/inspector.controller.js?v=${buildTime}"></script>
@@ -466,7 +424,6 @@
 <script src="pages/filteredMap/filtered-map.controller.js?v=${buildTime}"></script>
 <script src="pages/transactionView/transaction-view.controller.js?v=${buildTime}"></script>
 <script src="pages/scatterFullScreenMode/scatter-full-screen-mode.controller.js?v=${buildTime}"></script>
-<script src="features/realtimeChart/realtime-chart.controller.js?v=${buildTime}"></script>
 <script>
 	G_BUILD_TIME = "${buildTime}";
 </script>
