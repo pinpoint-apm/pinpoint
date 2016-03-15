@@ -26,5 +26,5 @@ public interface TransformOperations {
 
 //    void transform(Matcher className, TransformCallback transformCallback);
 
-
+    void retransform(Class<?> target, TransformCallback transformCallback);
 }

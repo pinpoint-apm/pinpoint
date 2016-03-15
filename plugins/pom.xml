@@ -50,6 +50,7 @@
         <module>jboss</module>
         <module>vertx</module>
         <module>resin</module>
+        <module>jdk-exec</module>
     </modules>
 
     <dependencies>

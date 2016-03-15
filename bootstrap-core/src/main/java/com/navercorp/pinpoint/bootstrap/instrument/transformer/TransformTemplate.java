@@ -43,4 +43,15 @@ public class TransformTemplate implements TransformOperations {
         this.instrumentContext.addClassFileTransformer(className, transformCallback);
     }
 
+    @Override
+    public void retransform(Class<?> target, TransformCallback transformCallback) {
+        if (target == null) {
+            throw new NullPointerException("target must not be null");
+        }
+        if (transformCallback == null) {
+            throw new NullPointerException("transformCallback must not be null");
+        }
+        this.instrumentContext.retransform(target, transformCallback);
+    }
+
 }
