@@ -53,7 +53,7 @@
                 			a.push( p );
                 		}
                 		return a.sort()[0];
-                	}
+                	};
                 	
                 	var showChart = function( histogram, timeSeriesHistogram ) {
                 		if ( bInitialized ) {
@@ -64,7 +64,7 @@
                     		scope.$broadcast('loadChartDirective.initAndRenderWithData.forServerList', timeSeriesHistogram, '360px', '200px', false, true);
                 		}
                 		
-                	}
+                	};
                 	scope.showNodeServer = false;
                 	scope.showLinkServer = false;
                 	scope.selectServer = function( instanceName ) {

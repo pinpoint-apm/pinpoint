@@ -17,7 +17,7 @@
 		};
 		this.sendLoadPinpointUser = function( userDepartment ) {
 			$rootScope.$broadcast( "alarmPinpointUser.configuration.load", userDepartment );
-		}
+		};
 		// from userGroup
 		this.sendReloadWithUserGroupID = function( userGroupID, willBeAddedUser ) {
 			$rootScope.$broadcast( "alarmGroupMember.configuration.load", userGroupID, willBeAddedUser );
@@ -43,6 +43,6 @@
 		// pinpointUser - > groupMember
 		this.sendUserRemoved = function( userID ) {
 			$rootScope.$broadcast( "alarmGroupMember.configuration.removeUser", userID );
-		}
+		};
 	}]);
 })(jQuery);

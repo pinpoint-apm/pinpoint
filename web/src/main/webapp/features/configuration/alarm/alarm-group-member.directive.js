@@ -49,7 +49,7 @@
 	    					}
 	    				} else if ( tagName == "span" ) {
 	    					if ( $target.hasClass("remove") ) {
-	    						if ( isRemoving == true ) return;
+	    						if ( isRemoving === true ) return;
 	    						isRemoving = true;
 	    	    				$li.addClass("remove").find("span.remove").hide().end().append($removeTemplate);
 	    					} else if ( $target.hasClass("glyphicon-remove") ) {
@@ -68,8 +68,9 @@
 						isRemoving = false;
 	    			}
 	    			function updateFromList( oUser ) {
+						var i = 0;
 	    				if ( scope.groupMemberList != groupMemberList ) {
-	    					for( var i = 0 ; i < groupMemberList.length ; i++ ) {
+	    					for( i = 0 ; i < groupMemberList.length ; i++ ) {
 	    						if ( groupMemberList[i].memberId == oUser.userId ) {
 	    							groupMemberList[i].name = oUser.name;
 	    							groupMemberList[i].department = oUser.department;
@@ -77,7 +78,7 @@
 	    						}
 	    					}	
 	    				}
-	    				for( var i = 0 ; i < scope.groupMemberList.length ; i++ ) {
+	    				for( i = 0 ; i < scope.groupMemberList.length ; i++ ) {
 	    					if ( scope.groupMemberList[i].memberId == oUser.userId ) {
 	    						scope.groupMemberList[i].name = oUser.name;
 	    						scope.groupMemberList[i].department = oUser.department;
@@ -86,15 +87,16 @@
 	    				}
 	    			}
 	    			function removeFromList( memberID ) {
+						var i = 0;
 	    				if ( scope.groupMemberList != groupMemberList ) {
-	    					for( var i = 0 ; i < groupMemberList.length ; i++ ) {
+	    					for( i = 0 ; i < groupMemberList.length ; i++ ) {
 	    						if ( groupMemberList[i].memberId == memberID ) {
 	    							groupMemberList.splice(i, 1);
 	    							break;
 	    						}
 	    					}	
 	    				}
-	    				for( var i = 0 ; i < scope.groupMemberList.length ; i++ ) {
+	    				for( i = 0 ; i < scope.groupMemberList.length ; i++ ) {
 	    					if ( scope.groupMemberList[i].memberId == memberID ) {
 	    						scope.groupMemberList.splice(i, 1);
 	    						break;
@@ -102,7 +104,7 @@
 	    				}
 	    			}
 	    			function reset() {
-	    				if ( isRemoving == true ) {
+	    				if ( isRemoving === true ) {
 	    					$element.find("li.remove").each( function() {
 	    						removeCancel( $(this) );
 	    					});
@@ -150,13 +152,13 @@
 	    					if ( angular.isDefined( willBeAddedUser ) ) {
 	    						addMember( willBeAddedUser );
 	    					}
-	    				}, function( errorData ) {}, $elAlert );		
-	    			};
+	    				}, function( errorData ) {}, $elAlert );
+	    			}
 	    			function hasUser( userID ) {
 	    				return $( "#" + scope.prefix + userID ).length > 0;
 	    			}
 	    			function selectedUserGroupID() {
-	    				if ( currentUserGroupID == "" ) {
+	    				if ( currentUserGroupID === "" ) {
 		    				alarmUtilService.showLoading( $elLoading, false );
 	    					alarmUtilService.showAlert( $elAlert, "Not selected User Group.", true );
 	    					return false;
@@ -166,16 +168,16 @@
 	    			
 	    			scope.prefix = "alarmGroupMember_"; 
 	    			scope.onRefresh = function() {
-	    				if ( isRemoving == true ) return;
+	    				if ( isRemoving === true ) return;
 	    				
-	    				if ( selectedUserGroupID() == false ) return;
+	    				if ( selectedUserGroupID() === false ) return;
 	    				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_REFRESH_USER );
 	    				$elFilterInput.val("");
 	    				alarmUtilService.showLoading( $elLoading, false );
 	    				loadList();
 	    			};
 	    			scope.onInputFilter = function($event) {
-	    				if ( isRemoving == true ) return;
+	    				if ( isRemoving === true ) return;
 	    				
 	    				if ( $event.keyCode == 13 ) { // Enter
 	    					scope.onFilterGroup();
@@ -188,16 +190,16 @@
 	    				}
 	    			};
 	    			scope.onFilterGroup = function() {
-	    				if ( isRemoving == true ) return;
-	    				if ( selectedUserGroupID() == false ) return;
+	    				if ( isRemoving === true ) return;
+	    				if ( selectedUserGroupID() === false ) return;
 	    				var query = $.trim( $elFilterInput.val() );
-	    				if ( query.length != 0 && query.length < 3 ) {
+	    				if ( query.length !== 0 && query.length < 3 ) {
 	    					alarmUtilService.showLoading( $elLoading, false );
 	    					alarmUtilService.showAlert( $elAlert, "You must enter at least three characters.");
 	    					return;
 	    				}
 	    				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_FILTER_USER );
-	    				if ( query == "" ) {
+	    				if ( query === "" ) {
 	    					if ( scope.groupMemberList.length != groupMemberList.length ) {
 	    						scope.groupMemberList = groupMemberList;
 	    						alarmUtilService.unsetFilterBackground( $elWrapper );
@@ -216,8 +218,8 @@
 	    				}
 	    			};
 	    			scope.onFilterEmpty = function() {
-	    				if ( isRemoving == true ) return;
-	    				if ( $.trim( $elFilterInput.val() ) == "" ) return;
+	    				if ( isRemoving === true ) return;
+	    				if ( $.trim( $elFilterInput.val() ) === "" ) return;
 	    				$elFilterInput.val("");
 	    				scope.onFilterGroup();
 	    			};
@@ -235,12 +237,12 @@
 	    			});
 	    			scope.$on("alarmGroupMember.configuration.addUser", function( event, oUser )  {
 	    				
-	    				if ( selectedUserGroupID() == false ) {
+	    				if ( selectedUserGroupID() === false ) {
 	    					alarmBroadcastService.sendCallbackAddedUser( false );
 	    					return;
 	    				}
 	    				alarmUtilService.showLoading( $elLoading, false );
-	    				if ( hasUser( oUser.userId ) == false ) {
+	    				if ( hasUser( oUser.userId ) === false ) {
 	    					analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_ADD_USER );
 	    					reset();
 	    					addMember( oUser );

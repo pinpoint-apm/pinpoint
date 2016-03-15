@@ -117,7 +117,7 @@
 	        	}
 	        };
 	        $scope.viewLog = function( url ) {
-	        	if ( $scope.loggingTransactionInfo == false ) {
+	        	if ( $scope.loggingTransactionInfo === false ) {
 	        		$("#customLogPopup").find("h4").html("Notice").end().find("div.modal-body").html( $scope.logDisableMessage ).end().modal("show");
 	        		return false;
 	        	} else {
@@ -155,17 +155,17 @@
 	        		$scope.calltreeSearchIndex = 1;
 	        	} else {
 	        		$scope.searchMessage = message.replace("{time}", $scope.searchMinTime);
-	        		if ( message == "" ) {
+	        		if ( message === "" ) {
 	            		$scope.calltreeSearchIndex++;
 	        		}
 	        	}
 	        });
 	        $scope.$on("transactionDetail.timelineSearchCallResult", function(event, message) {
-	        	if ( message == "Loop" ) {
+	        	if ( message === "Loop" ) {
 	        		$scope.timelineSearchIndex = 1;
 	        	} else {
 	        		$scope.searchMessage = message.replace("{time}", $scope.searchMinTime);
-	        		if ( message == "" ) {
+	        		if ( message === "" ) {
 	            		$scope.timelineSearchIndex++;
 	        		}
 	        	}

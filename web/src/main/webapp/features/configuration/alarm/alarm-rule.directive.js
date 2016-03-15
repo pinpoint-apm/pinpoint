@@ -62,7 +62,7 @@
     					}
     				} else if ( tagName == "span" ) {
     					if ( $target.hasClass("remove") ) {
-    						if ( isRemoving == true ) return;
+    						if ( isRemoving === true ) return;
     						isRemoving = true;
     	    				$tr.addClass("remove").find("td:last-child").addClass("remove").find("span.remove").hide().end().append($removeTemplate);		
     					} else if( $target.hasClass("glyphicon-edit") ) {
@@ -77,7 +77,7 @@
 
 				tooltipService.init( "alarmRules" );
     			function reset() {
-    				if ( isRemoving == true ) {
+    				if ( isRemoving === true ) {
     					$element.find("tr.remove").each( function() {
     						removeCancel( $(this) );
     					});
@@ -233,7 +233,7 @@
     						initPopover();	
     					});
     				}, function( errorData ) {}, $elAlert );		
-    			};
+    			}
     			function loadRuleSet() {
     				if ( scope.ruleSets.length > 1 ) return;
     				
@@ -246,18 +246,18 @@
     						});
     					}
     				}, function( errorData ) {}, $elAlert );			
-    			};
+    			}
     			
     			scope.ruleSets = [ {"text": ""} ];
     			scope.onRefresh = function() {
-    				if ( isRemoving == true ) return;
+    				if ( isRemoving === true ) return;
     				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_REFRESH_RULE );
     				reset();
     				alarmUtilService.showLoading( $elLoading, false );
     				loadList( false );
     			};
     			scope.onCreate = function() {
-    				if ( isRemoving == true ) return;
+    				if ( isRemoving === true ) return;
     				
     				isCreate = true;
     				$elEditGuide.html( "Create new pinpoint user" );
@@ -270,7 +270,7 @@
     				alarmUtilService.show( $elEdit );
     			};
     			scope.onUpdate = function($event) {
-    				if ( isRemoving == true ) return;
+    				if ( isRemoving === true ) return;
     				
     				isCreate = false;
     				var $el = $( $event.toElement || $event.target ).parents("tr");
@@ -288,7 +288,7 @@
     				alarmUtilService.show( $elEdit );
     			};
     			scope.onInputFilter = function($event) {
-    				if ( isRemoving == true ) return;
+    				if ( isRemoving === true ) return;
     				
     				if ( $event.keyCode == 13 ) { // Enter
     					scope.onFilterGroup();
@@ -301,17 +301,17 @@
     				}
     			};
     			scope.onFilterGroup = function() {
-    				if ( isRemoving == true ) return;
+    				if ( isRemoving === true ) return;
     				var queryApplication = $.trim( $elFilterInputApplication.val() );
     				var queryRule = $.trim( $elFilterInputRule.val() );
     				
-    				if ( (queryApplication.length != 0 && queryApplication.length < 3) || (queryRule.length != 0 && queryRule.length < 3)  ) {
+    				if ( (queryApplication.length !== 0 && queryApplication.length < 3) || (queryRule.length !== 0 && queryRule.length < 3)  ) {
     					alarmUtilService.showLoading( $elLoading, false );
     					alarmUtilService.showAlert( $elAlert, "You must enter at least three characters.");
     					return;
     				}
     				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_FILTER_RULE );
-    				if ( queryApplication == "" && queryRule == "" ) {
+    				if ( queryApplication === "" && queryRule === "" ) {
     					if ( scope.ruleList.length != ruleList.length ) {
     						scope.ruleList = ruleList;
     						alarmUtilService.unsetFilterBackground( $elWrapper );
@@ -321,11 +321,11 @@
     					var newFilterRules = [];
     					var length = ruleList.length;
     					for( var i = 0 ; i < ruleList.length ; i++ ) {
-    						if ( queryApplication == "" ) {
+    						if ( queryApplication === "" ) {
     							if ( ruleList[i].checkerName.indexOf( queryRule ) != -1 ) {
     								newFilterRules.push( ruleList[i] );
     							}
-    						} else if ( queryRule == "" ) {
+    						} else if ( queryRule === "" ) {
     							if ( ruleList[i].applicationId.indexOf( queryApplication ) != -1 ) {
     								newFilterRules.push( ruleList[i] );
     							}							
@@ -340,8 +340,8 @@
     				}
     			};
     			scope.onFilterEmpty = function() {
-    				if ( isRemoving == true ) return;
-    				if ( $.trim( $elFilterInputApplication.val() ) == "" && $.trim( $elFilterInputRule.val() ) == "" ) return;
+    				if ( isRemoving === true ) return;
+    				if ( $.trim( $elFilterInputApplication.val() ) === "" && $.trim( $elFilterInputRule.val() ) === "" ) return;
     				$elFilterInputApplication.val("");
     				$elFilterInputRule.val("");
     				scope.onFilterGroup();
@@ -363,7 +363,7 @@
     				var email = $elEditCheckboxEmail.prop("checked");	
     				var notes = $elEditTextareaNotes.val();
     				
-    				if ( applicationNServiceType[0] == "" || ruleID == "" ) {
+    				if ( applicationNServiceType[0] === "" || ruleID === "" ) {
     					alarmUtilService.showLoading( $elLoading, true );
     					alarmUtilService.showAlert( $elAlert, "Select application name and rule.");	
     					return;
@@ -371,8 +371,8 @@
     				
     				alarmUtilService.showLoading( $elLoading, true );
     				if ( alarmUtilService.hasDuplicateItem( ruleList, function( rule ) {
-    					return rule.applicationId == applicationNServiceType[0] && rule.checkerName == ruleID;
-    				}) && isCreate == true) {
+    					return rule.applicationId === applicationNServiceType[0] && rule.checkerName === ruleID;
+    				}) && isCreate === true) {
     					alarmUtilService.showAlert( $elAlert, "Exist a same rule set in the lists" );
     					return;
     				}

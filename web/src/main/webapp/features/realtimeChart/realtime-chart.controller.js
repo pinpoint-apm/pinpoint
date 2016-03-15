@@ -230,7 +230,7 @@
 	        	return JSON.stringify(wsMessageTemplate);
 	        }
 	        function checkAgentChart( agentName, agentIndexAndCount ) {
-	        	if ( hasAgentChart( agentName ) == false ) {
+	        	if ( hasAgentChart( agentName ) === false ) {
         			if ( hasNotUseChart( agentIndexAndCount ) ) {
         				linkNamespaceToIndex(agentName, agentIndexAndCount);
         			} else {
@@ -279,7 +279,7 @@
 	        	websocketService.send( makeRequest( currentApplicationName) );
 	        }
 	        function initReceive() {
-	        	if ( websocketService.isOpened() == false ) {
+	        	if ( websocketService.isOpened() === false ) {
 	        		initSend();
 	        	} else {
 	        		startReceive();
@@ -340,7 +340,7 @@
 	        });
 	        $scope.$on('realtimeChartController.initialize', function (event, was, applicationName, urlParam ) {
 	        	if ( bIsPinned === true && preUrlParam === urlParam ) return;
-	        	if ( /^\/main/.test( $location.path() ) == false ) return;
+	        	if ( /^\/main/.test( $location.path() ) === false ) return;
 	        	bIsWas = angular.isUndefined( was ) ? false : was;
 	        	applicationName = angular.isUndefined( applicationName ) ? "" : applicationName;
 	        	preUrlParam = urlParam;
@@ -390,7 +390,7 @@
 	        		$elAgentChartListWrapper.css("height", (popupHeight - cfg.css.titleHeight) + "px");
 	        	}
 	        	bIsFullWindow = !bIsFullWindow;
-	        }
+	        };
 	        $scope.toggleRealtime = function() {
 	        	if ( bIsWas === false ) return;
 	        	
@@ -407,7 +407,7 @@
 	        		initReceive();
 	        		bShowRealtimeChart = true;
 	        	}
-	        }
+	        };
 	        
 	        $scope.closePopup = function() {
 	        	stopReceive();
@@ -415,7 +415,7 @@
 				$elWarningMessage.hide();
 				$elTitle.html( currentApplicationName = "" );
 				$elSumChartCount.html("0");
-	        }
+	        };
 	        $($window).on("resize", function() {
 	        	adjustWidth();
 	        });

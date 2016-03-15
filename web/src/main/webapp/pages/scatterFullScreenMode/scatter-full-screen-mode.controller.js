@@ -42,7 +42,7 @@
 					serviceType: oNavbarVoService.getServiceTypeName(),
 					applicationName: oNavbarVoService.getApplicationName(),
 					agentList : $routeParams.agentList.split(",")
-				}, 800, 600)
+				}, 800, 600);
 	        }, 500);
 	    }
 	]);

@@ -185,7 +185,7 @@
                      * scope event on jvmMemoryChartDirective.showCursorAt.namespace
                      */
                     scope.$on('jvmMemoryChartDirective.showCursorAt.' + scope.namespace, function (event, category) {
-                        showCursorAt(category)
+                        showCursorAt(category);
                     });
 
                     /**

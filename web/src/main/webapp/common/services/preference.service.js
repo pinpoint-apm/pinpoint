@@ -83,10 +83,10 @@
 		};
 		this.getResponseTypeColor = function() {
 			return cfg.cst.responseTypeColor;
-		}
+		};
 		this.getAgentAllStr = function() {
 			return cfg.cst.agentAllStr;
-		}
+		};
 		
 		
 		function loadPreference() {
@@ -110,7 +110,7 @@
 				};
 			});
 			aFavoriteList = JSON.parse( localStorage.getItem(cfg.names.favorite) || "[]");
-		};
+		}
 		
 	}]);
 })();

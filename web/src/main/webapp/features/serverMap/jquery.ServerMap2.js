@@ -233,7 +233,7 @@
             );
             var calcuResponseSummaryCircleSize = function( sum, value ) {
             	var size = 0;
-            	if ( value == 0 ) return 0;
+            	if ( value === 0 ) return 0;
     			var percentage = ( 100 * value ) /sum;
     			if ( percentage < calcuResponseSummaryCircleSize.minPercentage ) {
     				size = parseInt((calcuResponseSummaryCircleSize.maxSize * calcuResponseSummaryCircleSize.minPercentage) / 100);
@@ -322,7 +322,7 @@
                     	},
                     	new go.Binding("visible", "isWas"),
                     	new go.Binding("geometry", "histogram", function(histogram) {
-                    		if ( histogram["Slow"] == 0 ) return go.Geometry.parse("M30 0");
+                    		if ( histogram["Slow"] === 0 ) return go.Geometry.parse("M30 0");
                     		var sum = 0;
                     		jQuery.each( histogram, function( key, value ) {
                 				sum += value;
@@ -1097,6 +1097,7 @@
             if (shapeNode === null || textNode === null) {
                 return;
             }
+			var i = 0;
             if (theme) {
             	shapeNode.stroke = this.option('htHighlightNode').borderColor;
             	shapeNode.strokeWidth = 2;
@@ -1105,16 +1106,16 @@
             	var reg = new RegExp( this._query, "i" );
             	var highlightFont = this.option('htHighlightNode').fontColor;
             	var defaultFont = this.option('htNodeTheme')["default"].fontColor;
-                if ( this._query != "" ) {
+                if ( this._query !== "" ) {
 	                if ( angular.isDefined( textNode.rowCount ) ) {
-	                	for( var i = 0 ; i < textNode.rowCount ; i++ ) {
+	                	for( i = 0 ; i < textNode.rowCount ; i++ ) {
 	                		var innerTextNode = textNode.elt(i).elt(2);
 	                		innerTextNode.stroke = reg.test( innerTextNode.text ) ? highlightFont : defaultFont;
 	                	}
 	                	
 	                	var nodeSubTextNode = textNode.panel.findObject("NODE_SUB_TEXT");
 	                	var length = nodeSubTextNode.elements.count;
-	                	for( var i = 0 ; i < length ; i++ ) {
+	                	for( i = 0 ; i < length ; i++ ) {
 	                		var innerTableNode = nodeSubTextNode.elt(i).elt(1); 
                 			for( var j = 0 ; j < innerTableNode.elements.count ; j++ ) {
                 				var innerSubTextNode = innerTableNode.elt(j).elt(2);
@@ -1132,7 +1133,7 @@
                 shapeNode.part.isShadowed = false;
 
                 if ( angular.isDefined( textNode.rowCount ) ) {                	
-                	for( var i = 0 ; i < textNode.rowCount ; i++ ) {
+                	for( i = 0 ; i < textNode.rowCount ; i++ ) {
                 		textNode.elt(i).elt(2).stroke = this.option('htNodeTheme')[type].fontColor;
                 	}
                 } else {
