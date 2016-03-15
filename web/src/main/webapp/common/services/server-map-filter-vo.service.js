@@ -52,13 +52,13 @@
 	                throw new Error('mainServiceTypeName should be string in ServerMapFilterVo. : ', mainServiceTypeName);
 	            }
 	            return self;
-	        }
+	        };
 	        this.getMainServiceTypeCode = function () {
 	            return self._nMainServiceTypeCode;
 	        };
 	        this.getMainServiceTypeName = function() {
 	        	return self._sMainServiceTypeName;
-	        }
+	        };
 	
 	        this.setFromApplication = function (fromApplication) {
 	            if (angular.isString(fromApplication)) {
@@ -198,7 +198,7 @@
 	                ie: self._bIncludeException
 	            };
 	
-	            if (!(self._sResponseFrom == 0 && self._sResponseTo === 'max')) {
+	            if (!(self._sResponseFrom === 0 && self._sResponseTo === 'max')) {
 	                filter.rf = self._sResponseFrom;
 	                filter.rt = self._sResponseTo;
 	            }

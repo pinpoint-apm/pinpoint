@@ -169,7 +169,7 @@
                      * scope event on cpuLoadChartDirective.showCursorAt.namespace
                      */
                     scope.$on('cpuLoadChartDirective.showCursorAt.' + scope.namespace, function (event, category) {
-                        showCursorAt(category)
+                        showCursorAt(category);
                     });
 
                     /**

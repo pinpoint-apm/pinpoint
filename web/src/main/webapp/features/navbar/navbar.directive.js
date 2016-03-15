@@ -50,7 +50,7 @@
 						}
 	                };
 					var setDepthToStorage = function(app, depth) {
-	                	if (angular.isUndefined(app) || app == null || angular.isUndefined(depth) || depth == null) {
+	                	if (angular.isUndefined(app) || app === null || angular.isUndefined(depth) || depth === null) {
 	                		return;
 	                	}
 	                	webStorage.add(app, depth);
@@ -96,7 +96,7 @@
 					function initDepth() {
 						$("#navbar_depth div").on("show.bs.dropdown", function() {
 						}).on("hide.bs.dropdown", function( event ) {
-							if ( bIsClickDepthInnerArea == true ) {
+							if ( bIsClickDepthInnerArea === true ) {
 								event.preventDefault();
 							} else {
 								if ( bIsClickDepthInnerBtn === false ) {
@@ -265,7 +265,7 @@
 							$fromToCalendarPopup.css("left", $("#navbar_period").offset().left );
 							$fromToCalendarPopup.show();
 						}
-					}
+					};
 	
 	                getDate = function ($picker) {
 	                    return $picker.datetimepicker('getDate');
@@ -536,7 +536,7 @@
 	                            scope.$digest();
 	                        }
 	                    }, 1000);
-	                }
+	                };
 	                
 	
 	                /**

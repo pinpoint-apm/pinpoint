@@ -154,7 +154,7 @@
             	    function resetHGrid() {
             	    	var gridValue = [];
             	    	var aTarget = d3svg.select("g.y.axis").selectAll("g.tick");
-            	    	if ( aTarget.length == 0 ) return;
+            	    	if ( aTarget.length === 0 ) return;
             	    	
             	    	jQuery.each( aTarget[0], function( index, ele ) {
             	    		gridValue.push( parseFloat( ele.getAttribute("transform").replace(/translate\(0,(-?[0-9.]*)\)/, "$1") ) );
@@ -391,7 +391,7 @@
             	        d3transition = d3transition.each(function() {
             	        	delayCount++;
             	            if ( passingQueue.length === 0 ) {
-            	            	if ( delayCount > cfg.consts.maxDealyCount && oOuterOption.showExtraInfo == false ) {
+            	            	if ( delayCount > cfg.consts.maxDealyCount && oOuterOption.showExtraInfo === false ) {
             	            		setErrorMessage( false, [cfg.message.NO_RESPONSE]);
             	            	}
             	            	return;
@@ -460,7 +460,7 @@
 		            			return {
 		            				y: parseInt( v ),
 		            				d: timeStamp
-		            			}
+		            			};
 		            		}) );
 	            		}
 	    	        });

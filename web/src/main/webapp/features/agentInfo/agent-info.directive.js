@@ -171,7 +171,7 @@
 	                        }
 	                    }
 	                    return;
-	                }
+	                };
 
 	                /**
 	                 * show charts

@@ -174,7 +174,7 @@
 	         */
 	        $scope.$on('serverMapDirective.nodeClicked', function (event, e, query, node, data, searchQuery) {
 	            bNodeSelected = true;
-	            var oSidebarTitleVoService = new SidebarTitleVoService;
+	            var oSidebarTitleVoService = new SidebarTitleVoService();
 	            oSidebarTitleVoService.setImageType(node.serviceType);
 	
 	            if (node.isWas === true) {
@@ -201,7 +201,7 @@
 	         */
 	        $scope.$on('serverMapDirective.linkClicked', function (event, e, query, link, data) {
 	            bNodeSelected = false;
-	            var oSidebarTitleVoService = new SidebarTitleVoService;
+	            var oSidebarTitleVoService = new SidebarTitleVoService();
 	            if (link.unknownLinkGroup) {
 	                oSidebarTitleVoService
 	                    .setImageType(link.sourceInfo.serviceType)
@@ -267,7 +267,7 @@
 	         */
 	        $scope.$on('linkInfoDetailsDirective.showDetailInformationClicked', function (event, query, link) {
 	            $scope.hasScatter = false;
-	            var oSidebarTitleVoService = new SidebarTitleVoService;
+	            var oSidebarTitleVoService = new SidebarTitleVoService();
 	            oSidebarTitleVoService
 	                .setImageType(link.sourceInfo.serviceType)
 	                .setTitle(link.sourceInfo.applicationName)
@@ -282,7 +282,7 @@
 	         */
 	        $scope.$on('nodeInfoDetailDirective.showDetailInformationClicked', function (event, query, node) {
 	            $scope.hasScatter = false;
-	            var oSidebarTitleVoService = new SidebarTitleVoService;
+	            var oSidebarTitleVoService = new SidebarTitleVoService();
 
 	            oSidebarTitleVoService
 	                .setImageType(node.serviceType);

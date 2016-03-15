@@ -12,7 +12,7 @@
 	pinpointApp.service('AnalyticsService', [ '$rootScope', 'globalConfig', function ($rootScope, globalConfig) {
 		if ( typeof ga !== "undefined" ) {
 			this.send = function( category, name, label, count, options ) {
-				if ( globalConfig.sendAllowed == false ) return;
+				if ( globalConfig.sendAllowed === false ) return;
 				if ( arguments.length == 1 ) {
 					ga( 'send', 'pageview', arguments[0] );
 				} else {

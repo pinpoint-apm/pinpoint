@@ -326,6 +326,14 @@ module.exports = function (grunt) {
 				tasks: ['buildPinpointComponentJS' ]
 			}
 		},
+		jshint: {
+			options: {
+				sub: true,
+				newcap: false,
+				loopfunc: true
+			},
+			files: ['main/webapp/common/**/*.js', 'main/webapp/features/**/*.js', 'main/webapp/pages/**/*.js']
+		},
         karma: {
         	unit: {
         		configFile: 'karma.conf.js',
@@ -351,6 +359,7 @@ module.exports = function (grunt) {
 		'grunt-contrib-watch',
      	'grunt-contrib-clean',
      	'grunt-contrib-copy',
+		'grunt-contrib-jshint',
         'grunt-jsdoc',
         'grunt-karma'
     ].forEach(function (taskName) {
@@ -423,5 +432,8 @@ module.exports = function (grunt) {
 	grunt.registerTask('watchDev', 'Watch js, css', [
 		'watch:jsDev',
 		'watch:cssDev'
+	]);
+	grunt.registerTask('jshintDev', '', [
+		'jshint'
 	]);
 };

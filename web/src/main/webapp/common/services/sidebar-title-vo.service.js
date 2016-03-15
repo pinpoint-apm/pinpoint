@@ -41,7 +41,6 @@
 	                return imageUrl;
 	            } else {
 	                throw 'ImageType should be string in SidebarTitleVo';
-	                return false;
 	            }
 	        };
 	        this.getImageType = function () {
@@ -57,7 +56,7 @@
 	                throw 'Title should be string in SidebarTitleVo';
 	            }
 	            return self;
-	        }
+	        };
 	        this.getTitle = function () {
 	            return self._sTitle;
 	        };
@@ -88,6 +87,6 @@
 	        this.getTitle2 = function () {
 	            return self._sTitle2;
 	        };
-	    }
+	    };
 	}]);
 })();

@@ -34,9 +34,10 @@
 	                 */
 	                getColorByString = function(str) {
 	                	// str to hash
-	                    for (var i = 0, hash = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash));
+						var i = 0, hash = 0, colour = "#";
+	                    for ( i = 0, hash = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash));
 	                    // int/hash to hex
-	                    for (var i = 0, colour = "#"; i < 3; colour += ("00" + ((hash >> i++ * 8) & 0xFF).toString(16)).slice(-2));
+	                    for ( i = 0, colour = "#"; i < 3; colour += ("00" + ((hash >> i++ * 8) & 0xFF).toString(16)).slice(-2));
 	                    return colour;
 	                };
 	
@@ -118,7 +119,7 @@
 	                 */
 	                treeFilter = function (item) {
 	                    var result = true;
-	                    if (item.parent != null) {
+	                    if ( angular.isDefined( item.parent ) && item.parent !== null ) {
 	                        var parent = window.callStacks[item.parent];
 	                        while (parent) {
 	
@@ -158,7 +159,7 @@
 	                	
 	                    var html = [];
 	                    html.push('<a class="btn btn-default btn-xs"');
-	                    html.push('href="')
+	                    html.push('href="');
 	                    html.push(value);
 	                    html.push('" target="_blank">');
 	
@@ -194,7 +195,7 @@
 	                 * @returns {string}
 	                 */
 	                progressBarFormatter = function (row, cell, value, columnDef, dataContext) {
-	                    if (value == null || value === "" || value == 0) {
+	                    if ( angular.isUndefined( value ) || value === null || value === "" || value === 0) {
 	                        return "";
 	                    }
 	                    var color;
@@ -314,8 +315,9 @@
 	
 	                    var isSingleClick = true, clickTimeout = false;
 	                    grid.onClick.subscribe(function (e, args) {
+							var item;
 	                        if ($(e.target).hasClass("toggle")) {
-	                            var item = dataView.getItem(args.row);
+	                            item = dataView.getItem(args.row);
 	                            if (item) {
 	                                if (!item._collapsed) {
 	                                    item._collapsed = true;
@@ -327,7 +329,7 @@
 	                            e.stopImmediatePropagation();
 	                        }
 	                        if ( $(e.target).hasClass("sql") ) {
-	                        	var item = dataView.getItem(args.row);
+	                        	item = dataView.getItem(args.row);
 	                        	var itemNext = dataView.getItem(args.row+1);
 	                        	var data = "sql=" + encodeURIComponent( item.argument );
 	                        	

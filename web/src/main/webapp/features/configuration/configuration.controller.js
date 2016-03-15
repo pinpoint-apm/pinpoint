@@ -59,7 +59,7 @@
 						$scope.descriptionOfCurrentTab = "";
 						break;	
 				}
-			}
+			};
 			$scope.$on("configuration.show", function() {
 				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_CONFIGURATION );
 				$element.modal('show');

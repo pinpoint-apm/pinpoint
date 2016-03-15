@@ -70,11 +70,11 @@
 				oHandlers.onclose(event);
 				checkRetry();
 			};
-		};
+		}
 	    
 	    function startTimeoutChecker() {
     		refInterval = setInterval(function() {
-	    		if ( lastReceiveTime == null ) {
+	    		if ( lastReceiveTime === null ) {
 	    			return;
 	    		}
 	    		if ( Date.now() - lastReceiveTime < cfg.wsTimeout ) {
@@ -82,10 +82,10 @@
 	    		}
 	    		oHandlers.ondelay();
 	    	}, 1000);
-    	};
+    	}
     	function stopTimeoutChecker() {
     		clearInterval( refInterval );
-    	};
+    	}
 		function checkRetry() {
 			if ( connectTime !== null && connectTime === lastReceiveTime && ( Date.now() - connectTime < cfg.retryTimeout ) ) {
 				if ( retryCount < cfg.maxRetryCount ) {
@@ -94,6 +94,6 @@
 					oHandlers.retry();
 				}
 			}
-		};
+		}
 	}]);
 })();

@@ -25,7 +25,7 @@
 	    			var userGroupList = scope.userGroupList = [];
 	    			
 	            	function addSelectClass( newSelectedGroupNumber ) {
-	    				if ( selectedGroupNumber != "" ) {
+	    				if ( selectedGroupNumber !== "" ) {
 	    					$( "#" + scope.prefix + selectedGroupNumber ).removeClass("selected");
 	    				}
 	    				$( "#" + scope.prefix + newSelectedGroupNumber ).addClass("selected");
@@ -55,7 +55,7 @@
 	    				var tagName = $target.get(0).tagName.toLowerCase();
 	    				var $li = $target.parents("li");
 	    				
-	    				if ( tagName == "button" ) {
+	    				if ( tagName === "button" ) {
 	    					if ( $target.hasClass("edit") ) {
 	    						scope.onUpdate( $event );
 	    					} else if ( $target.hasClass("confirm-remove") ) {
@@ -63,9 +63,9 @@
 	    					} else if ( $target.hasClass("confirm-cancel") ) {
 	    						revmoeCancel( $li );
 	    					}
-	    				} else if ( tagName == "span" ) {
+	    				} else if ( tagName === "span" ) {
 	    					if ( $target.hasClass("remove") ) {
-	    						if ( isRemoving == true ) return;
+	    						if ( isRemoving === true ) return;
 	    						isRemoving = true;
 	    	    				$li.addClass("remove").find("span.remove").hide().end().append($removeTemplate);
 	    					} else if ( $target.hasClass("contents") ) {
@@ -77,7 +77,7 @@
 	    					} else if ( $target.hasClass("glyphicon-ok") ) {
 	    						removeConfirm( $li );
 	    					}
-	    				} else if( tagName == "li" ) {
+	    				} else if( tagName === "li" ) {
 	    					selectGroup( $target );
 	    				}
 	    			});
@@ -95,7 +95,7 @@
 	    				isRemoving = false;
 	    			}
 	    			function selectGroup( $el ) {
-	    				if ( isRemoving == true ) return;
+	    				if ( isRemoving === true ) return;
 	    				addSelectClass( alarmUtilService.extractID( $el ) );
 	    				alarmBroadcastService.sendReloadWithUserGroupID( $el.find("span.contents").html() );
 	    			}
@@ -163,7 +163,7 @@
 	    			}
 	    			function loadGroupList( isFirst, sParam ) {
 	    				alarmUtilService.sendCRUD( "getUserGroupList", 
-	    						angular.isUndefined(sParam) || sParam == "" ? { "userId" : (globalConfig.userId || "") } : { "userGroupId" : sParam }, function( resultData ) {
+	    						angular.isUndefined(sParam) || sParam === "" ? { "userId" : (globalConfig.userId || "") } : { "userGroupId" : sParam }, function( resultData ) {
 	    					// @TODO
 	    					// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
 	    					isLoadedUserGroupList = true;
@@ -184,16 +184,16 @@
 	    					}
 	    				}, function( errorData ) {}, $elAlert );			
 
-	    			};
+	    			}
 	    			scope.onRefresh = function() {
-	    				if ( isRemoving == true ) return;
+	    				if ( isRemoving === true ) return;
 	    				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_REFRESH_USER_GROUP );
 	    				reset();
 	    				alarmUtilService.showLoading( $elLoading, false );
 	    				loadGroupList( false, $.trim( $elSearchInput.val() ) );
 	    			};
 	    			scope.onCreate = function() {
-	    				if ( isRemoving == true ) return;
+	    				if ( isRemoving === true ) return;
 	    				
 	    				isCreate = true;
 	    				$elEditGuide.html( "Create new alarm group" );
@@ -202,7 +202,7 @@
 	    				$elEditInput.focus();
 	    			};
 	    			scope.onUpdate = function($event) {
-	    				if ( isRemoving == true ) return;
+	    				if ( isRemoving === true ) return;
 	    				
 	    				isCreate = false;
 	    				var $el = $( $event.toElement || $event.target ).parents("li");
@@ -215,9 +215,9 @@
 	    				$elEditInput.focus().select();
 	    			};
 	    			scope.onSearch = function() {
-	    				if ( isRemoving == true ) return;
+	    				if ( isRemoving === true ) return;
 	    				var query = $.trim( $elSearchInput.val() );
-	    				if ( query.length != 0 && query.length < 3 ) {
+	    				if ( query.length !== 0 && query.length < 3 ) {
 	    					alarmUtilService.showLoading( $elLoading, false );
 	    					alarmUtilService.showAlert( $elAlert, "You must enter at least three characters.");
 	    					return;
@@ -239,7 +239,7 @@
 	    			};
 	    			scope.onApplyEdit = function() {
 	    				var groupName = $.trim( $elEditInput.val() );
-	    				if ( groupName == "" ) {
+	    				if ( groupName === "" ) {
 	    					alarmUtilService.showLoading( $elLoading, true );
 	    					alarmUtilService.showAlert( $elAlert, "Input group id.");	    					
 	    					return;
@@ -248,7 +248,7 @@
 	    				alarmUtilService.showLoading( $elLoading, true );
 	    				if ( alarmUtilService.hasDuplicateItem( userGroupList, function( userGroup ) {
 	    					return userGroup.id == groupName;
-	    				}) && isCreate == true ) {
+	    				}) && isCreate === true ) {
 	    					alarmUtilService.showAlert( $elAlert, "Exist a same group name in the lists." );
 	    					return;
 	    				}

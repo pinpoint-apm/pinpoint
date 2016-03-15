@@ -160,8 +160,8 @@
                      * @param h
                      */
                     renderResponseSummary = function (namespace, toApplicationName, histogram, w, h) {
-                        var className = $filter("applicationNameToClassName")(toApplicationName),
-                            namespace = namespace || "forNode_" + className;
+                        var className = $filter("applicationNameToClassName")(toApplicationName);
+						namespace = namespace || "forNode_" + className;
                         scope.$broadcast("responseTimeChartDirective.initAndRenderWithData." + namespace, histogram, w, h, false, true);
                     };
 
@@ -175,8 +175,8 @@
                      * @param useChartCursor
                      */
                     renderLoad = function (namespace, toApplicationName, timeSeriesHistogram, w, h, useChartCursor) {
-                        var className = $filter("applicationNameToClassName")(toApplicationName),
-                            namespace = namespace || "forNode_" + className;
+                        var className = $filter("applicationNameToClassName")(toApplicationName);
+						namespace = namespace || "forNode_" + className;
                         scope.$broadcast("loadChartDirective.initAndRenderWithData." + namespace, timeSeriesHistogram, w, h, useChartCursor);
                     };
                     
@@ -214,7 +214,7 @@
 									oSummarySum[innerKey] = 0;
 								}
 								oSummarySum[innerKey] += value;
-							})
+							});
 						});
 						return oSummarySum;
 					}

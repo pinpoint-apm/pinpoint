@@ -214,7 +214,7 @@
 	                toApplication: filter.ta,
 	                toKey: this.findNodeKeyByApplicationName(filter.ta, applicationMapData),
 	                nodeKey: '' // for node filtering in the future,,,,
-	            })
+	            });
 	        }, this);
 	        return aFilter;
 	    };
@@ -252,6 +252,7 @@
 	        }
 	
 	        var thisNode = applicationMapData.nodeDataArray[nodeKey];
+			var key, innerKey;
 	
 	        thisNode.errorCount += node.errorCount;
 	        thisNode.slowCount += node.slowCount;
@@ -262,7 +263,7 @@
 	
 	        if (angular.isDefined(node.histogram)) {
 	            if (angular.isDefined(thisNode.histogram)) {
-	                for (var key in node.histogram) {
+	                for ( key in node.histogram) {
 	                    if (angular.isDefined(thisNode.histogram[key])) {
 	                        thisNode.histogram[key] += node.histogram[key];
 	                    } else {
@@ -275,9 +276,9 @@
 	        }
 	
 	        if (angular.isDefined(node.agentHistogram)) {
-	            for (var key in node.agentHistogram) {
+	            for ( key in node.agentHistogram) {
 	                if (angular.isDefined(thisNode.agentHistogram[key])) {
-	                    for (var innerKey in node.agentHistogram[key]) {
+	                    for ( innerKey in node.agentHistogram[key]) {
 	                        if (angular.isDefined(thisNode.agentHistogram[key][innerKey])) {
 	                            thisNode.agentHistogram[key][innerKey] += node.agentHistogram[key][innerKey];
 	                        } else {
@@ -291,11 +292,11 @@
 	        }
 	
 	        if (angular.isDefined(node.timeSeriesHistogram)) {
-	            for (var key in node.timeSeriesHistogram) {
+	            for ( key in node.timeSeriesHistogram) {
 	                if (angular.isDefined(thisNode.timeSeriesHistogram)) {
 	                    var aTemp = [];
 	                    outer:
-	                    for (var innerKey in node.timeSeriesHistogram[key].values) {
+	                    for ( innerKey in node.timeSeriesHistogram[key].values) {
 	                        for (var innerInnerKey in thisNode.timeSeriesHistogram[key].values) {
 	                            if (thisNode.timeSeriesHistogram[key].values[innerInnerKey][0] === node.timeSeriesHistogram[key].values[innerKey][0]) {
 	                                thisNode.timeSeriesHistogram[key].values[innerInnerKey][1] += node.timeSeriesHistogram[key].values[innerKey][1];
@@ -312,10 +313,10 @@
 	        }
 	
 	        if (angular.isDefined(node.agentTimeSeriesHistogram)) {
-	            for (var key in node.agentTimeSeriesHistogram) {
+	            for ( key in node.agentTimeSeriesHistogram) {
 	                if (angular.isDefined(thisNode.agentTimeSeriesHistogram)) {
 	                    if (angular.isDefined(thisNode.agentTimeSeriesHistogram[key])) {
-	                        for (var innerKey in node.agentTimeSeriesHistogram[key]) {
+	                        for ( innerKey in node.agentTimeSeriesHistogram[key]) {
 	                            if (angular.isDefined(thisNode.agentTimeSeriesHistogram[key][innerKey])) {
 	                                thisNode.agentTimeSeriesHistogram[key][innerKey].values = node.agentTimeSeriesHistogram[key][innerKey].values.concat(thisNode.agentTimeSeriesHistogram[key][innerKey].values);
 	                            } else {
@@ -332,9 +333,9 @@
 	        }
 	
 	        if (angular.isDefined(node.serverList)) {
-	            for (var key in node.serverList) {
+	            for ( key in node.serverList) {
 	                if (thisNode.serverList[key]) {
-	                    for (var innerKey in node.serverList[key].instanceList) {
+	                    for ( innerKey in node.serverList[key].instanceList) {
 	                        if (thisNode.serverList[key].instanceList[innerKey]) {
 	                            for (var insideKey in node.serverList[key].instanceList[innerKey].histogram) {
 	                                if (thisNode.serverList[key].instanceList[innerKey].histogram[insideKey]) {
@@ -363,13 +364,14 @@
 	     * @returns {*}
 	     */
 	    this.mergeLinkData = function (applicationMapData, linkKey, link) {
-	
+
 	        if (angular.isUndefined(applicationMapData.linkDataArray[linkKey])) {
 	            applicationMapData.linkDataArray[linkKey] = link;
 	            return  applicationMapData;
 	        }
 	
 	        var thisLink =  applicationMapData.linkDataArray[linkKey];
+			var key, innerKey;
 	
 	        thisLink.errorCount += link.errorCount;
 	        thisLink.slowCount += link.slowCount;
@@ -379,7 +381,7 @@
 	        }
 	
 	        if (angular.isDefined(link.histogram)) {
-	            for (var key in link.histogram) {
+	            for ( key in link.histogram) {
 	                if (thisLink.histogram[key]) {
 	                    thisLink.histogram[key] += link.histogram[key];
 	                } else {
@@ -389,11 +391,11 @@
 	        }
 	
 	        if (angular.isDefined(link.timeSeriesHistogram)) {
-	            for (var key in link.timeSeriesHistogram) {
+	            for ( key in link.timeSeriesHistogram) {
 	                if (angular.isDefined(thisLink.timeSeriesHistogram)) {
 	                    var aTemp = [];
 	                    outer:
-	                        for (var innerKey in link.timeSeriesHistogram[key].values) {
+	                        for ( innerKey in link.timeSeriesHistogram[key].values) {
 	                            for (var innerInnerKey in thisLink.timeSeriesHistogram[key].values) {
 	                                if (thisLink.timeSeriesHistogram[key].values[innerInnerKey][0] === link.timeSeriesHistogram[key].values[innerKey][0]) {
 	                                    thisLink.timeSeriesHistogram[key].values[innerInnerKey][1] += link.timeSeriesHistogram[key].values[innerKey][1];
@@ -410,9 +412,9 @@
 	        }
 	
 	        if (angular.isDefined(link.sourceHistogram)) {
-	            for (var key in link.sourceHistogram) {
+	            for ( key in link.sourceHistogram) {
 	                if (angular.isDefined(thisLink.sourceHistogram[key])) {
-	                    for (var innerKey in link.sourceHistogram[key]) {
+	                    for ( innerKey in link.sourceHistogram[key]) {
 	                        if (thisLink.sourceHistogram[key][innerKey]) {
 	                            thisLink.sourceHistogram[key][innerKey] += link.sourceHistogram[key][innerKey];
 	                        } else {
@@ -427,9 +429,9 @@
 	        }
 	
 	        if (angular.isDefined(link.targetHistogram)) {
-	            for (var key in link.targetHistogram) {
+	            for ( key in link.targetHistogram) {
 	                if (angular.isDefined(thisLink.targetHistogram[key])) {
-	                    for (var innerKey in link.targetHistogram[key]) {
+	                    for ( innerKey in link.targetHistogram[key]) {
 	                        if (thisLink.targetHistogram[key][innerKey]) {
 	                            thisLink.targetHistogram[key][innerKey] += link.targetHistogram[key][innerKey];
 	                        } else {
@@ -601,7 +603,7 @@
 				targetNodeList.push( node );
 			});
 			return targetNodeList;
-	    }
+	    };
 	    this._getFromNodes = function( links, nodeKey ) {
 	    	var fromNodeArray = [];
 	    	links.forEach( function( link ) {
@@ -646,8 +648,9 @@
 					if ( fromNodeArray.length !== fromNodeArrayOfInner.length ) {
 						return;
 					}
+					var i = 0;
 					
-					for( var i = 0 ; i < fromNodeArray.length ; i++ ) {
+					for( i = 0 ; i < fromNodeArray.length ; i++ ) {
 						if ( fromNodeArrayOfInner.indexOf( fromNodeArray[i] ) === -1 ) {
 							return;
 						}
@@ -659,7 +662,7 @@
 	                }
 	                if (newLinks === null) {
 	                	newLinks = [];
-	                	for( var i = 0 ; i < fromNodeArrayOfInner.length ; i++ ) {
+	                	for( i = 0 ; i < fromNodeArrayOfInner.length ; i++ ) {
 	                		newLinks.push( self._createNewLink( fromNodeArrayOfInner[i], newNodeKey ) );
 	                	}
 	                }
@@ -680,7 +683,7 @@
 	                			groupIndex = index;
 	                		}
 	                	});
-	                	if ( hasSubGroupNode == false ) {
+	                	if ( hasSubGroupNode === false ) {
 	                		subGroupItem = {
 		                		applicationName: aFrom[1],
 		                		groups: [],
@@ -720,7 +723,7 @@
 	                			groupIndex = index;
 	                		}
 	                	});
-	                	if ( hasSubGroupNode == false ) {
+	                	if ( hasSubGroupNode === false ) {
 	                		subGroupItem = {
 		                		applicationName: aFrom[1],
 		                		groups: [],
