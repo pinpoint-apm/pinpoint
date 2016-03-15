@@ -62,7 +62,7 @@
     					}
     				} else if ( tagName == "span" ) {
     					if ( $target.hasClass("remove") ) {
-    						if ( isRemoving == true ) return;
+    						if ( isRemoving === true ) return;
     	    				isRemoving = true;
     	    				$li.addClass("remove").find("span.remove").hide().end().find("button.move").addClass("disabled").end().append($removeTemplate);
     					} else if ( $target.hasClass("contents") ) {
@@ -169,7 +169,7 @@
     					alarmUtilService.setTotal( $elTotal, pinpointUserList.length );
     					alarmUtilService.hide( $elLoading );
     				}, function( errorData ) {}, $elAlert );			
-    			};
+    			}
     			function validateEmail( email ) {
     				var reg = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
     			    return reg.test(email);
@@ -181,7 +181,7 @@
     			
     			scope.isAllowedCreate = globalConfig.editUserInfo;
     			scope.onCreate = function() {
-    				if ( isRemoving == true ) return;
+    				if ( isRemoving === true ) return;
     				
     				isCreate = true;
     				$elEditGuide.html( "Create new pinpoint user" );
@@ -195,7 +195,7 @@
     				$elEditInputUserID.focus();
     			};
     			scope.onUpdate = function($event) {
-    				if ( isRemoving == true ) return;
+    				if ( isRemoving === true ) return;
     				
     				isCreate = false;
     				var $el = $( $event.toElement || $event.target ).parents("li");
@@ -212,7 +212,7 @@
     				$elEditInputName.focus().select();
     			};
     			scope.onInputSearch = function($event) {
-    				if ( isRemoving == true ) return;
+    				if ( isRemoving === true ) return;
     				
     				if ( $event.keyCode == 13 ) { // Enter
     					scope.onSearch();
@@ -220,10 +220,10 @@
     				}
     			};
     			scope.onSearch = function() {
-    				if ( isRemoving == true ) return;
+    				if ( isRemoving === true ) return;
     				var searchType = $elSearchType.val();
     				var query = $.trim( $elSearchInput.val() );
-    				if ( query.length != 0 && query.length < 3 ) {
+    				if ( query.length !== 0 && query.length < 3 ) {
     					alarmUtilService.showLoading( $elLoading, false );
     					alarmUtilService.showAlert( $elAlert, "You must enter at least three characters.");
     					return;
@@ -252,7 +252,7 @@
     				var userPhone = $.trim( $elEditInputPhone.val() );
     				var userEmail = $.trim( $elEditInputEmail.val() );
     				
-    				if ( userID == "" || userName == "" ) {
+    				if ( userID === "" || userName === "" ) {
     					alarmUtilService.showLoading( $elLoading, true );
     					alarmUtilService.showAlert( $elAlert, "You must input user id and user name.");	
     					return;
@@ -260,15 +260,15 @@
     				alarmUtilService.showLoading( $elLoading, true );
     				if ( alarmUtilService.hasDuplicateItem( pinpointUserList, function( pinpointUser ) {
     					return pinpointUser.userId == userID;
-    				}) && isCreate == true) {
+    				}) && isCreate === true) {
     					alarmUtilService.showAlert( $elAlert, "Exist a same user id in the lists." );
     					return;
     				}
-    				if ( validatePhone( userPhone ) == false ) {
+    				if ( validatePhone( userPhone ) === false ) {
     					alarmUtilService.showAlert( $elAlert, "You can only input numbers." );
     					return;
     				}
-    				if ( validateEmail( userEmail ) == false ) {
+    				if ( validateEmail( userEmail ) === false ) {
     					alarmUtilService.showAlert( $elAlert, "Invalid email format." );
     					return;
     				}
@@ -284,7 +284,7 @@
     			};
     			scope.$on("alarmPinpointUser.configuration.load", function( event, department ) {
     				if ( isLoadedPinpointUserList === false ) {
-    					loadList( department == "" ? {} : {
+    					loadList( department === "" ? {} : {
     						department: department
     					});
     				}

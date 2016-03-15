@@ -15,7 +15,7 @@
 	        link: function postLink(scope, element, attrs) {
 
 	        	// define private variables of methods
-	            var initialize, getColorByString, filterCallStacks, viewAreaHeight, initBarCount, renderCallStack, searchTime, searchStartIndex, searchSuccess;
+	            var initialize, filterCallStacks, searchTime, searchStartIndex, searchSuccess;
 	            var colorSet = [
 	                "#66CCFF", "#FFCCFF", "#66CC00", "#FFCC33", "#669999", "#FF9999", "#6666FF", "#FF6633", "#66FFCC", "#006666",
 	                "#FFFF00", "#66CCCC", "#FFCCCC", "#6699FF", "#FF99FF", "#669900", "#FF9933", "#66FFFF", "#996600", "#66FF00" 
@@ -131,7 +131,7 @@
 	            scope.$on("timelineDirective.searchCall", function( event, time, index ) {
 	            	var resultIndex = searchTime( searchStartIndex, -1, time );
 	            	if ( resultIndex == -1 ) {
-	            		if ( searchStartIndex == 0 ) {
+	            		if ( searchStartIndex === 0 ) {
 	            			scope.$emit("transactionDetail.timelineSearchCallResult", "No call took longer than {time}ms." );
 	            		} else {
 		            		resultIndex = searchTime( 0, searchStartIndex, time );
@@ -160,7 +160,7 @@
             		}).moveByRow( resultIndex );
             		searchStartIndex = resultIndex + 1;
             		scope.$emit("transactionDetail.timelineSearchCallResult", message );
-	            }
+	            };
 	        }
 	    };
 	}]);

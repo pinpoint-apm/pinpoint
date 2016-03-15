@@ -78,7 +78,7 @@
 	        	}
 	        	str.push("</table>");
 	        	return str.join("");
-	        }
+	        };
 	    };
 	}]);
 })();

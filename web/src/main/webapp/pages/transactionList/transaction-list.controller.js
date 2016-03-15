@@ -86,10 +86,10 @@
 			};
 
 			hasParent = function() {
-				return !($window.opener == null);
+				return angular.isDefined( $window.opener );
 			};
 			hasValidParam = function() {
-				if ( $window.opener == null ) return false;
+				if ( angular.isUndefined( $window.opener ) || $window.opener === null ) return false;
 				var $parentParams = $window.opener.$routeParams;
 				if ( angular.isDefined($routeParams) && angular.isDefined($parentParams) ) {
 					if ( $parentParams.readablePeriod === "realtime" ) {
@@ -179,7 +179,7 @@
 	         */
 	        getQuery = function () {
 	            if (!htTransactionData) {
-	                $window.alert("Query failed - Query parameter cache deleted.\n\nPossibly due to scatter chart being refreshed.")
+	                $window.alert("Query failed - Query parameter cache deleted.\n\nPossibly due to scatter chart being refreshed.");
 	                return false;
 	            }
 	            var query = [];

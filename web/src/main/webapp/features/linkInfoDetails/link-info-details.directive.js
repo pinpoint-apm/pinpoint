@@ -156,8 +156,8 @@
 	                 * @param h
 	                 */
 	                renderResponseSummaryWithHistogram = function (namespace, toApplicationName, histogram, w, h) {
-	                    var className = $filter('applicationNameToClassName')(toApplicationName),
-	                        namespace = namespace || 'forLink_' + className;
+	                    var className = $filter('applicationNameToClassName')(toApplicationName);
+						namespace = namespace || 'forLink_' + className;
 	                    if (namespace === 'forLink' && bResponseSummaryForLinkRendered) {
 	                        scope.$broadcast('responseTimeChartDirective.updateData.' + namespace, histogram);
 	                    } else {
@@ -203,7 +203,7 @@
 	
 	                            var oServerMapHintVoService = new ServerMapHintVoService();
 	                            if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
-	                                oServerMapHintVoService.setHint(htLastLink.targetInfo.applicationName, htLastLink.filterTargetRpcList)
+	                                oServerMapHintVoService.setHint(htLastLink.targetInfo.applicationName, htLastLink.filterTargetRpcList);
 	                            }
 	                            scope.$emit('linkInfoDetailsDirective.ResponseSummary.barClicked', oServerMapFilterVoService, oServerMapHintVoService);
 	                        });
@@ -211,8 +211,8 @@
 	                };
 	
 	                renderResponseSummaryWithLink = function (namespace, link, w, h) {
-	                    var className = $filter('applicationNameToClassName')(link.targetInfo.applicationName),
-	                        namespace = namespace || 'forLink_' + className;
+	                    var className = $filter('applicationNameToClassName')(link.targetInfo.applicationName);
+						namespace = namespace || 'forLink_' + className;
 	
 	                    if (namespace === 'forLink' && bResponseSummaryForLinkRendered) {
 	                        scope.$broadcast('responseTimeChartDirective.updateData.' + namespace, link.histogram);
@@ -259,7 +259,7 @@
 	
 	                            var oServerMapHintVoService = new ServerMapHintVoService();
 	                            if (link.sourceInfo.isWas && link.targetInfo.isWas) {
-	                                oServerMapHintVoService.setHint(link.targetInfo.applicationName, link.filterTargetRpcList)
+	                                oServerMapHintVoService.setHint(link.targetInfo.applicationName, link.filterTargetRpcList);
 	                            }
 	                            scope.$emit('linkInfoDetailsDirective.ResponseSummary.barClicked', oServerMapFilterVoService, oServerMapHintVoService);
 	                        });
@@ -275,8 +275,8 @@
 	                 * @param useChartCursor
 	                 */
 	                renderLoad = function (namespace, toApplicationName, timeSeriesHistogram, w, h, useChartCursor) {
-	                    var className = $filter('applicationNameToClassName')(toApplicationName),
-	                        namespace = namespace || 'forLink_' + className;
+	                    var className = $filter('applicationNameToClassName')(toApplicationName);
+						namespace = namespace || 'forLink_' + className;
 	                    if (namespace === 'forLink' && bLoadForLinkRendered) {
 	                        scope.$broadcast('loadChartDirective.updateData.' + namespace, timeSeriesHistogram);
 	                    } else {
@@ -438,7 +438,7 @@
 	
 	                    var oServerMapHintVoService = new ServerMapHintVoService();
 	                    if (link.sourceInfo.isWas && link.targetInfo.isWas) {
-	                        oServerMapHintVoService.setHint(link.toNode.applicationName, link.filterTargetRpcList)
+	                        oServerMapHintVoService.setHint(link.toNode.applicationName, link.filterTargetRpcList);
 	                    }
 	                    //scope.$broadcast('linkInfoDetailsDirective.openFilteredMap', oServerMapFilterVoService, oServerMapHintVoService);
 	                    scope.$emit('linkInfoDetailsDirective.openFilteredMap', oServerMapFilterVoService, oServerMapHintVoService);
