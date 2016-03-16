@@ -48,7 +48,7 @@ public class BeanMethodInterceptor implements ApiIdAwareAroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
@@ -63,14 +63,14 @@ public class BeanMethodInterceptor implements ApiIdAwareAroundInterceptor {
             logger.afterInterceptor(target, args);
         }
 
-        Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
 
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(new DummyMethodDescriptor(apiId));
+            recorder.recordApiId(apiId);
             recorder.recordException(markError, throwable);
         } finally {
             trace.traceBlockEnd();
