@@ -31,14 +31,11 @@ public class AsyncInitiatorInterceptor implements AroundInterceptor1 {
     private final MethodDescriptor descriptor;
     private final TraceContext traceContext;
     private final InterceptorScope scope;
-    private final CacheMap asyncIdCacheMap;
 
-    public AsyncInitiatorInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope,
-                                     CacheMap asyncIdCacheMap) {
+    public AsyncInitiatorInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
         this.scope = scope;
-        this.asyncIdCacheMap = asyncIdCacheMap;
     }
 
     @Override
