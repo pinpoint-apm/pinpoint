@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.vo.linechart;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.linechart.Chart.Point;
 import com.navercorp.pinpoint.web.vo.linechart.Chart.Points;

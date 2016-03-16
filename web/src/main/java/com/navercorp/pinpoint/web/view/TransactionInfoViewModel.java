@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.web.applicationmap.Node;
 import com.navercorp.pinpoint.web.vo.TransactionId;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.simple.JSONObject;
 
 import java.net.MalformedURLException;

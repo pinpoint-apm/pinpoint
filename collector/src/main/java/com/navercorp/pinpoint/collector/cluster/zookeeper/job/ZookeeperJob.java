@@ -42,7 +42,7 @@ public class ZookeeperJob {
         return key;
     }
 
-    public static enum Type {
+    public enum Type {
         ADD,
         REMOVE,
         CLEAR
