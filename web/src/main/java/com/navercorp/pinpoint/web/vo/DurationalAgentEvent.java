@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.vo;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.common.bo.AgentEventBo;
-import com.navercorp.pinpoint.common.util.AgentEventType;
 
 /**
  * @author HyunGil Jeong

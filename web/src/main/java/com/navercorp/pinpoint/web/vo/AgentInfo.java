@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.web.vo;
 
 import java.util.Comparator;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.bo.JvmInfoBo;

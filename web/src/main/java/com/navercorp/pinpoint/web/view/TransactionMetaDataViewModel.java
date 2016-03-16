@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.bo.SpanBo;
 
 import java.util.ArrayList;
