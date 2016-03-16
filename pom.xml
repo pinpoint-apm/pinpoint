@@ -840,6 +840,21 @@
                     <skipDockerBuild>true</skipDockerBuild>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.6</version>
+                <configuration>
+                    <linkXRef>true</linkXRef>
+                    <sourceEncoding>${encoding}</sourceEncoding>
+                    <targetJdk>${jdk.version}</targetJdk>
+                    <excludes>
+                        <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -871,7 +886,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>3.6</version>
                 <configuration>
                     <linkXRef>true</linkXRef>
                     <sourceEncoding>${encoding}</sourceEncoding>
