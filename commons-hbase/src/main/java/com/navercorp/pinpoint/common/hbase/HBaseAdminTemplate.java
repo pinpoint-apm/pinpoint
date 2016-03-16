@@ -24,7 +24,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.springframework.data.hadoop.hbase.HbaseSystemException;
 
 /**
  * @author emeroad

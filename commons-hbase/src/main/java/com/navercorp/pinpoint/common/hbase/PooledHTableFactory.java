@@ -18,14 +18,13 @@ package com.navercorp.pinpoint.common.hbase;
 
 import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.apache.hadoop.hbase.client.HConnection;
-import org.apache.hadoop.hbase.client.HTableInterface;
-import org.apache.hadoop.hbase.client.HTableInterfaceFactory;
+import org.apache.hadoop.hbase.client.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.data.hadoop.hbase.HbaseSystemException;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,8 +35,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * HTableInterfaceFactory based on HTablePool.
  * @author emeroad
+ * @autor minwoo.jung
  */
-public class PooledHTableFactory implements HTableInterfaceFactory, DisposableBean {
+public class PooledHTableFactory implements TableFactory, DisposableBean {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -46,7 +46,7 @@ public class PooledHTableFactory implements HTableInterfaceFactory, DisposableBe
     public static final boolean DEFAULT_PRESTART_THREAD_POOL = false;
 
     private final ExecutorService executor;
-    private final HConnection connection;
+    private final Connection connection;
 
 
     public PooledHTableFactory(Configuration config) {
@@ -56,7 +56,7 @@ public class PooledHTableFactory implements HTableInterfaceFactory, DisposableBe
     public PooledHTableFactory(Configuration config, int poolSize, int workerQueueSize, boolean prestartThreadPool) {
         this.executor = createExecutorService(poolSize, workerQueueSize, prestartThreadPool);
         try {
-            this.connection = (HConnection)ConnectionFactory.createConnection(config, executor);
+            this.connection = ConnectionFactory.createConnection(config, executor);
         } catch (IOException e) {
             throw new HbaseSystemException(e);
         }
@@ -77,7 +77,7 @@ public class PooledHTableFactory implements HTableInterfaceFactory, DisposableBe
 
 
     @Override
-    public HTableInterface createHTableInterface(Configuration config, byte[] tableName) {
+    public Table getTable(TableName tableName) {
         try {
             return connection.getTable(tableName, executor);
         } catch (IOException e) {
@@ -86,9 +86,15 @@ public class PooledHTableFactory implements HTableInterfaceFactory, DisposableBe
     }
 
     @Override
-    public void releaseHTableInterface(HTableInterface table) throws IOException {
-        if (table != null) {
+    public void releaseTable(Table table) {
+        if (table == null) {
+            return;
+        }
+
+        try {
             table.close();
+        } catch (IOException ex) {
+            throw new HbaseSystemException(ex);
         }
     }
 
@@ -96,6 +102,7 @@ public class PooledHTableFactory implements HTableInterfaceFactory, DisposableBe
     @Override
     public void destroy() throws Exception {
         logger.info("PooledHTableFactory.destroy()");
+        
         if (connection != null) {
             try {
                 this.connection.close();

@@ -25,15 +25,13 @@ import com.navercorp.pinpoint.common.util.StopWatch;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import com.sematext.hbase.wd.DistributedScanner;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.data.hadoop.hbase.HbaseTemplate;
-import org.springframework.data.hadoop.hbase.ResultsExtractor;
-import org.springframework.data.hadoop.hbase.RowMapper;
-import org.springframework.data.hadoop.hbase.TableCallback;
+import org.springframework.dao.DataAccessException;
 import org.springframework.util.Assert;
 
 import java.io.IOException;
@@ -45,8 +43,9 @@ import java.util.concurrent.*;
 /**
  * @author emeroad
  * @author HyunGil Jeong
+ * @author minwoo.jung
  */
-public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, InitializingBean, DisposableBean {
+public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, InitializingBean, DisposableBean {
 
     private static final int DEFAULT_MAX_THREADS_FOR_PARALLEL_SCANNER = 128;
     private static final int DEFAULT_MAX_THREADS_PER_PARALLEL_SCAN = 1;
@@ -58,10 +57,14 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     private boolean enableParallelScan = false;
     private int maxThreads = DEFAULT_MAX_THREADS_FOR_PARALLEL_SCANNER;
     private int maxThreadsPerParallelScan = DEFAULT_MAX_THREADS_PER_PARALLEL_SCAN;
-
+    
     public HbaseTemplate2() {
     }
-
+    
+    private Table getTable(String tableName) {
+        return getTableFactory().getTable(TableName.valueOf(tableName));
+    }
+    
     public void setEnableParallelScan(boolean enableParallelScan) {
         this.enableParallelScan = enableParallelScan;
     }
@@ -72,11 +75,6 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
 
     public void setMaxThreadsPerParallelScan(int maxThreadsPerParallelScan) {
         this.maxThreadsPerParallelScan = maxThreadsPerParallelScan;
-    }
-
-    public HbaseTemplate2(Configuration configuration) {
-        Assert.notNull(configuration);
-        setConfiguration(configuration);
     }
 
     @Override
@@ -125,8 +123,8 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     public <T> T find(String tableName, final Scan scan, final ResultsExtractor<T> action) {
         return execute(tableName, new TableCallback<T>() {
             @Override
-            public T doInTable(HTableInterface htable) throws Throwable {
-                final ResultScanner scanner = htable.getScanner(scan);
+            public T doInTable(Table table) throws Throwable {
+                final ResultScanner scanner = table.getScanner(scan);
                 try {
                     return action.extractData(scanner);
                 } finally {
@@ -169,7 +167,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     public <T> T get(String tableName, final String rowName, final String familyName, final String qualifier, final RowMapper<T> mapper) {
         return execute(tableName, new TableCallback<T>() {
             @Override
-            public T doInTable(HTableInterface htable) throws Throwable {
+            public T doInTable(Table table) throws Throwable {
                 Get get = new Get(rowName.getBytes(getCharset()));
                 if (familyName != null) {
                     byte[] family = familyName.getBytes(getCharset());
@@ -180,7 +178,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
                         get.addFamily(family);
                     }
                 }
-                Result result = htable.get(get);
+                Result result = table.get(get);
                 return mapper.mapRow(result, 0);
             }
         });
@@ -200,7 +198,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     public <T> T get(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final RowMapper<T> mapper) {
         return execute(tableName, new TableCallback<T>() {
             @Override
-            public T doInTable(HTableInterface htable) throws Throwable {
+            public T doInTable(Table table) throws Throwable {
                 Get get = new Get(rowName);
                 if (familyName != null) {
                     if (qualifier != null) {
@@ -209,7 +207,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
                         get.addFamily(familyName);
                     }
                 }
-                Result result = htable.get(get);
+                Result result = table.get(get);
                 return mapper.mapRow(result, 0);
             }
         });
@@ -219,8 +217,8 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     public <T> T get(String tableName, final Get get, final RowMapper<T> mapper) {
         return execute(tableName, new TableCallback<T>() {
             @Override
-            public T doInTable(HTableInterface htable) throws Throwable {
-                Result result = htable.get(get);
+            public T doInTable(Table table) throws Throwable {
+                Result result = table.get(get);
                 return mapper.mapRow(result, 0);
             }
         });
@@ -230,8 +228,8 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     public <T> List<T> get(String tableName, final List<Get> getList, final RowMapper<T> mapper) {
         return execute(tableName, new TableCallback<List<T>>() {
             @Override
-            public List<T> doInTable(HTableInterface htable) throws Throwable {
-                Result[] result = htable.get(getList);
+            public List<T> doInTable(Table table) throws Throwable {
+                Result[] result = table.get(getList);
                 List<T> list = new ArrayList<>(result.length);
                 for (int i = 0; i < result.length; i++) {
                     T t = mapper.mapRow(result[i], i);
@@ -251,7 +249,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     public void put(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final byte[] value) {
         execute(tableName, new TableCallback() {
             @Override
-            public Object doInTable(HTableInterface htable) throws Throwable {
+            public Object doInTable(Table table) throws Throwable {
                 Put put = new Put(rowName);
                 if (familyName != null) {
                     if (timestamp == null) {
@@ -260,7 +258,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
                         put.addColumn(familyName, qualifier, timestamp, value);
                     }
                 }
-                htable.put(put);
+                table.put(put);
                 return null;
             }
         });
@@ -275,7 +273,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     public <T> void put(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final T value, final ValueMapper<T> mapper) {
         execute(tableName, new TableCallback<T>() {
             @Override
-            public T doInTable(HTableInterface htable) throws Throwable {
+            public T doInTable(Table table) throws Throwable {
                 Put put = new Put(rowName);
                 byte[] bytes = mapper.mapValue(value);
                 if (familyName != null) {
@@ -285,7 +283,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
                         put.add(familyName, qualifier, timestamp, bytes);
                     }
                 }
-                htable.put(put);
+                table.put(put);
                 return null;
             }
         });
@@ -295,8 +293,8 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     public void put(String tableName, final Put put) {
         execute(tableName, new TableCallback() {
             @Override
-            public Object doInTable(HTableInterface htable) throws Throwable {
-                htable.put(put);
+            public Object doInTable(Table table) throws Throwable {
+                table.put(put);
                 return null;
             }
         });
@@ -306,8 +304,8 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     public void put(String tableName, final List<Put> puts) {
         execute(tableName, new TableCallback() {
             @Override
-            public Object doInTable(HTableInterface htable) throws Throwable {
-                htable.put(puts);
+            public Object doInTable(Table table) throws Throwable {
+                table.put(puts);
                 return null;
             }
         });
@@ -317,8 +315,8 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     public void delete(String tableName, final Delete delete) {
         execute(tableName, new TableCallback() {
             @Override
-            public Object doInTable(HTableInterface htable) throws Throwable {
-                htable.delete(delete);
+            public Object doInTable(Table table) throws Throwable {
+                table.delete(delete);
                 return null;
             }
         });
@@ -328,8 +326,8 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     public void delete(String tableName, final List<Delete> deletes) {
         execute(tableName, new TableCallback() {
             @Override
-            public Object doInTable(HTableInterface htable) throws Throwable {
-                htable.delete(deletes);
+            public Object doInTable(Table table) throws Throwable {
+                table.delete(deletes);
                 return null;
             }
         });
@@ -339,10 +337,10 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     public <T> List<T> find(String tableName, final List<Scan> scanList, final ResultsExtractor<T> action) {
         return execute(tableName, new TableCallback<List<T>>() {
             @Override
-            public List<T> doInTable(HTableInterface htable) throws Throwable {
+            public List<T> doInTable(Table table) throws Throwable {
                 List<T> result = new ArrayList<>(scanList.size());
                 for (Scan scan : scanList) {
-                    final ResultScanner scanner = htable.getScanner(scan);
+                    final ResultScanner scanner = table.getScanner(scan);
                     try {
                         T t = action.extractData(scanner);
                         result.add(t);
@@ -373,7 +371,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
                 public T call() throws Exception {
                     return execute(tableName, new TableCallback<T>() {
                         @Override
-                        public T doInTable(HTableInterface table) throws Throwable {
+                        public T doInTable(Table table) throws Throwable {
                             final ResultScanner scanner = table.getScanner(scan);
                             try {
                                 return action.extractData(scanner);
@@ -435,7 +433,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     protected final <T> T executeDistributedScan(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
         return execute(tableName, new TableCallback<T>() {
             @Override
-            public T doInTable(HTableInterface table) throws Throwable {
+            public T doInTable(Table table) throws Throwable {
                 StopWatch watch = null;
                 if (debugEnabled) {
                     watch = new StopWatch();
@@ -459,7 +457,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         });
     }
 
-    private ResultScanner[] splitScan(HTableInterface htable, Scan originalScan, AbstractRowKeyDistributor rowKeyDistributor) throws IOException {
+    private ResultScanner[] splitScan(Table table, Scan originalScan, AbstractRowKeyDistributor rowKeyDistributor) throws IOException {
         Scan[] scans = rowKeyDistributor.getDistributedScans(originalScan);
         final int length = scans.length;
         for(int i = 0; i < length; i++) {
@@ -472,7 +470,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         boolean success = false;
         try {
             for (int i = 0; i < length; i++) {
-                scanners[i] = htable.getScanner(scans[i]);
+                scanners[i] = table.getScanner(scans[i]);
             }
             success = true;
         } finally {
@@ -573,7 +571,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
             if (throwable instanceof RuntimeException) {
                 throw ((RuntimeException) th);
             }
-            throw convertHbaseAccessException((Exception) throwable);
+            throw new HbaseSystemException((Exception) throwable);
         }
     }
 
@@ -581,8 +579,8 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     public Result increment(String tableName, final Increment increment) {
         return execute(tableName, new TableCallback<Result>() {
             @Override
-            public Result doInTable(HTableInterface htable) throws Throwable {
-                return htable.increment(increment);
+            public Result doInTable(Table table) throws Throwable {
+                return table.increment(increment);
             }
         });
     }
@@ -591,13 +589,13 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     public List<Result> increment(final String tableName, final List<Increment> incrementList) {
         return execute(tableName, new TableCallback<List<Result>>() {
             @Override
-            public List<Result> doInTable(HTableInterface htable) throws Throwable {
+            public List<Result> doInTable(Table table) throws Throwable {
                 final List<Result> resultList = new ArrayList<>(incrementList.size());
 
                 Exception lastException = null;
                 for (Increment increment : incrementList) {
                     try {
-                        Result result = htable.increment(increment);
+                        Result result = table.increment(increment);
                         resultList.add(result);
                     } catch (IOException e) {
                         logger.warn("{} increment error Caused:{}", tableName, e.getMessage(), e);
@@ -616,8 +614,8 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     public long incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount) {
         return execute(tableName, new TableCallback<Long>() {
             @Override
-            public Long doInTable(HTableInterface htable) throws Throwable {
-                return htable.incrementColumnValue(rowName, familyName, qualifier, amount);
+            public Long doInTable(Table table) throws Throwable {
+                return table.incrementColumnValue(rowName, familyName, qualifier, amount);
             }
         });
     }
@@ -626,11 +624,37 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     public long incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount, final boolean writeToWAL) {
         return execute(tableName, new TableCallback<Long>() {
             @Override
-            public Long doInTable(HTableInterface htable) throws Throwable {
-                return htable.incrementColumnValue(rowName, familyName, qualifier, amount, writeToWAL);
+            public Long doInTable(Table table) throws Throwable {
+                return table.incrementColumnValue(rowName, familyName, qualifier, amount, writeToWAL? Durability.SKIP_WAL: Durability.USE_DEFAULT);
             }
         });
     }
+    
+    @Override
+    public <T> T execute(String tableName, TableCallback<T> action) {
+        Assert.notNull(action, "Callback object must not be null");
+        Assert.notNull(tableName, "No table specified");
 
+        Table table = getTable(tableName);
+
+        try {
+            T result = action.doInTable(table);
+            return result;
+        } catch (Throwable e) {
+            if (e instanceof Error) {
+                throw ((Error) e);
+            }
+            if (e instanceof RuntimeException) {
+                throw ((RuntimeException) e);
+            }
+            throw new HbaseSystemException((Exception) e);
+        } finally {
+            releaseTable(table);
+        }
+    }
+    
+    private void releaseTable(Table table) {
+        getTableFactory().releaseTable(table);
+    }
 
 }

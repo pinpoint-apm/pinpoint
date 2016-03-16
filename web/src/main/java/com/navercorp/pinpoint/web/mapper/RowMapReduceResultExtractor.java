@@ -2,10 +2,10 @@ package com.navercorp.pinpoint.web.mapper;
 
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
-import org.springframework.data.hadoop.hbase.ResultsExtractor;
-import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.util.Assert;
 
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.RowReducer;
 
 public class RowMapReduceResultExtractor<T> implements ResultsExtractor<T>{

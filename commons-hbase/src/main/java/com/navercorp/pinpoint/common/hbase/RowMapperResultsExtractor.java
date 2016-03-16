@@ -17,8 +17,6 @@ package com.navercorp.pinpoint.common.hbase;
 
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
-import org.springframework.data.hadoop.hbase.ResultsExtractor;
-import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;

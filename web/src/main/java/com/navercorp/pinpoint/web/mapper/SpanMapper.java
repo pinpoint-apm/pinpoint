@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.web.vo.TransactionId;
 
 import org.apache.hadoop.hbase.Cell;
@@ -28,7 +29,6 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
