@@ -59,7 +59,7 @@ public abstract class AbstractRecorder {
         if (methodDescriptor.getApiId() == 0) {
             recordAttribute(AnnotationKey.API, methodDescriptor.getFullName());
         } else {
-            recordApiId(methodDescriptor.getApiId());
+            setApiId0(methodDescriptor.getApiId());
         }
     }
     
@@ -83,8 +83,8 @@ public abstract class AbstractRecorder {
         recordSingleCachedString(args, index);
     }
 
-    abstract void recordApiId(final int apiId);
-    
+    abstract void setApiId0(final int apiId);
+
     private void recordArgs(Object[] args, int start, int end) {
         if (args != null) {
             int max = Math.min(Math.min(args.length, AnnotationKey.MAX_ARGS_SIZE), end);
