@@ -33,18 +33,18 @@ public final class WeakAtomicReferenceArray<T> {
 //        this.array = (T[]) Array.newInstance(clazz, length);
     }
 
-    public final void set(int index, T newValue) {
+    public void set(int index, T newValue) {
         this.atomicArray.set(index, newValue);
         // need TestCase ~~
 //        this.array[index] = newValue;
     }
 
-    public final int length() {
+    public int length() {
         return length;
     }
 
 
-    public final T get(int index) {
+    public T get(int index) {
         // try not thread safe read  -> fail -> thread safe read
 //        final T unsafeValue = this.array[index];
 //        if (unsafeValue != null) {
