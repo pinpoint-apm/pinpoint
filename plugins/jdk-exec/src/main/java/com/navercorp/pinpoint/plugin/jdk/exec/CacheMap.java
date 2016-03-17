@@ -53,8 +53,8 @@ public class CacheMap {
         map.put(key, pair);
     }
 
-    public Object get(Object key){
-        ValuePair pair = map.get(key);
+    public Object remove(Object key){
+        ValuePair pair = map.remove(key);
         if( pair == null)
         {
             return null;

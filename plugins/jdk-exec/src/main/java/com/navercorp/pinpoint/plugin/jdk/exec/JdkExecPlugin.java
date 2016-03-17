@@ -11,6 +11,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.resolver.condition.MainClassCondition;
 import com.navercorp.pinpoint.bootstrap.util.jdk.ThreadLocalRandom;
 import com.navercorp.pinpoint.plugin.jdk.exec.interceptor.JustRetransform;
 
@@ -34,7 +35,8 @@ public class JdkExecPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-       String mainClass = "analyzer2.web.Application";
+       String mainClass = new MainClassCondition().getValue();
+       logger.info("main class: " + mainClass);
        transformTemplate.transform(mainClass, new TransformCallback() {
            @Override
            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -59,10 +61,8 @@ public class JdkExecPlugin implements ProfilerPlugin, TransformTemplateAware {
                    }
                };
 
-               for(InstrumentMethod method: target.getDeclaredMethods(MethodFilters.name("main"))) {
-                   method.addInterceptor(JustRetransform.class.getName(), va(transformer1, transformer2));
-               }
-
+               InstrumentMethod method = target.getDeclaredMethod("main", "java.lang.String[]");
+               method.addInterceptor(JustRetransform.class.getName(), va(transformer1, transformer2));
                return target.toBytecode();
            }
        });

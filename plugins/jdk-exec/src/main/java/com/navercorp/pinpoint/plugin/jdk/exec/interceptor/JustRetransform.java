@@ -6,6 +6,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor1;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
 import java.security.ProtectionDomain;
 import java.util.concurrent.FutureTask;
@@ -15,7 +17,7 @@ import java.util.concurrent.FutureTask;
  */
 public class JustRetransform implements StaticAroundInterceptor {
     private final Instrumentor instrumentor;
-
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     TransformCallback transformer1;
     TransformCallback transformer2;
@@ -27,8 +29,10 @@ public class JustRetransform implements StaticAroundInterceptor {
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+        logger.info("calling retransform");
         instrumentor.retransform(java.util.concurrent.AbstractExecutorService.class, transformer1);
         instrumentor.retransform(FutureTask.class, transformer2);
+        logger.info("retransform done");
     }
 
     @Override
