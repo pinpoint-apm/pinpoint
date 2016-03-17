@@ -14,17 +14,22 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
+import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * @author Jongho Moon
  *
  */
 public class PinpointPluginTestRunner extends BlockJUnit4ClassRunner {
+    private final ConcurrentHashMap<FrameworkMethod, Description> methodDescriptions = new ConcurrentHashMap<FrameworkMethod, Description>();
+
     private final PinpointPluginTestContext context;
     private final PinpointPluginTestInstance testCase;
 
@@ -49,4 +54,17 @@ public class PinpointPluginTestRunner extends BlockJUnit4ClassRunner {
     protected Statement classBlock(RunNotifier notifier) {
         return new PinpointPluginTestStatement(this, notifier, context, testCase);
     }
+
+    @Override
+    protected Description describeChild(FrameworkMethod method) {
+        Description description = methodDescriptions.get(method);
+
+        if (description == null) {
+            description = Description.createTestDescription(getTestClass().getJavaClass(), method.getName(), method.getAnnotations());
+            methodDescriptions.putIfAbsent(method, description);
+        }
+
+        return description;
+    }
+
 }
