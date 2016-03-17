@@ -27,7 +27,7 @@ import java.util.logging.Logger;
  */
 public class JavaLoggerBinder {
     
-    public final static Handler[] handlers = LogManager.getLogManager().getLogger("").getHandlers();
+    private final static Handler[] handlers = LogManager.getLogManager().getLogger("").getHandlers();
 
     private ConcurrentMap<String, Logger> loggerCache = new ConcurrentHashMap<String, Logger>(256, 0.75f, 128);
 
