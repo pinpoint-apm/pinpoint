@@ -7,7 +7,7 @@
 	 * @name UserLocalesService
 	 * @class
 	 */
-	pinpointApp.factory("UserLocalesService", function( $window) {
+	pinpointApp.factory("UserLocalesService", [ "$window", function( $window ) {
 		var defaultLocale = "en";
 	    // May not be the best way to get locale.
 	    var localeCode = $window.navigator.userLanguage || $window.navigator.language;
@@ -20,5 +20,5 @@
 	    	"userLocale" : localeCode, 
 	    	"defaultLocale" : defaultLocale 
 	    };
-	});
+	}]);
 })();

@@ -14,30 +14,37 @@
 	});
 	
 	pinpointApp.service( "CommonAjaxService", [ "CommonAjaxServiceConfig", "$http", function( cfg, $http ) {
-	
+
 		this.getSQLBind = function(url, data, cb) {
-			$http.post( url, data).success( function( result ) {
-				cb( result );
-			}).error( function( error ) {
-				cb( error );
-			});
-			//jQuery.ajax({
-			//	type: 'POST',
-			//	url: url,
-			//	data: data,
-			//	cache: false,
-			//	dataType: 'json',
-			//	success: function (result) {
-			//		if (angular.isFunction(cb)) {
-			//			cb(result);
-			//		}
+			//$http({
+			//	"url": url,
+			//	"method": "POST",
+			//	"headers": {
+			//		"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
 			//	},
-			//	error: function (xhr, status, error) {
-			//		if (angular.isFunction(cb)) {
-			//			cb(error);
-			//		}
-			//	}
+			//	"data": data
+			//}).then(function(result) {
+			//	cb( result );
+			//}, function( error ) {
+			//	cb( error );
 			//});
+			jQuery.ajax({
+				type: 'POST',
+				url: url,
+				data: data,
+				cache: false,
+				dataType: 'json',
+				success: function (result) {
+					if (angular.isFunction(cb)) {
+						cb(result);
+					}
+				},
+				error: function (xhr, status, error) {
+					if (angular.isFunction(cb)) {
+						cb(error);
+					}
+				}
+			});
 		};
 
 		this.getServerTime = function( cb ) {
