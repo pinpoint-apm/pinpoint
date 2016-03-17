@@ -36,7 +36,6 @@ public class HttpEngineReadResponseMethodInterceptor implements AroundIntercepto
 
     private TraceContext traceContext;
     private MethodDescriptor methodDescriptor;
-    private InterceptorScope interceptorScope;
     private final boolean statusCode;
 
     public HttpEngineReadResponseMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, boolean statusCode) {

@@ -186,7 +186,7 @@ public class ScatterData {
         return latestAcceptedTime;
     }
 
-    private class XCoordinatesComparator implements Comparator<Long> {
+    private static class XCoordinatesComparator implements Comparator<Long> {
 
         @Override
         public int compare(Long o1, Long o2) {
