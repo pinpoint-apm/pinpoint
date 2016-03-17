@@ -244,6 +244,11 @@
             <artifactId>pinpoint-resin-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+		<dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-jdk-exec-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

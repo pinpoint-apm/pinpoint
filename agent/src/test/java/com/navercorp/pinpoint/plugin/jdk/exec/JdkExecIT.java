@@ -26,32 +26,33 @@ import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.*;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author lisn
  *
  */
 @RunWith(PinpointPluginTestSuite.class)
-@JvmVersion({6, 7, 8})
+//@JvmVersion({6, 7, 8})
+@JvmVersion({7})
 public class JdkExecIT {
 
     @Test
     public void test() throws Exception {
 
         ExecutorService exec = Executors.newCachedThreadPool();
-        exec.submit(new Callable<Integer>() {
+        Future<Integer> future = exec.submit(new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
                 return 1;
             }
         });
+
+        assertEquals(Integer.valueOf(1), future.get());
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
@@ -59,7 +60,6 @@ public class JdkExecIT {
         Class<?> targetClass = Class.forName("java.util.concurrent.FutureTask");
         Method run = targetClass.getMethod("run");
 
-        verifier.verifyTraceCount(1);
         verifier.verifyTrace(event("JDK_EXEC", run));
     }
 }
