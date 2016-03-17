@@ -14,7 +14,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInterceptor {
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
-    protected final String SCOPE_NAME = "##ASYNC_TRACE_SCOPE";
+    protected static final String SCOPE_NAME = "##ASYNC_TRACE_SCOPE";
 
     protected final MethodDescriptor methodDescriptor;
     protected final TraceContext traceContext;
