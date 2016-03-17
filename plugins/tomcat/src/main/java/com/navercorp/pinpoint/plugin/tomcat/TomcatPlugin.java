@@ -177,16 +177,17 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-                // Tomcat 6 - org.apache.catalina.loader.WebappLoader.start()
-                InstrumentMethod startEditor = target.getDeclaredMethod("start");
-                if (startEditor != null) {
-                    startEditor.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.WebappLoaderStartInterceptor");
+                InstrumentMethod startMethod = null;
+                if (target.hasDeclaredMethod("start")) {
+                    // Tomcat 6 - org.apache.catalina.loader.WebappLoader.start()
+                    startMethod = target.getDeclaredMethod("start");
+                } else if (target.hasDeclaredMethod("startInternal")) {
+                    // Tomcat 7, 8 - org.apache.catalina.loader.WebappLoader.startInternal()
+                    startMethod = target.getDeclaredMethod("startInternal");
                 }
 
-                // Tomcat 7, 8 - org.apache.catalina.loader.WebappLoader.startInternal()
-                InstrumentMethod startInternalEditor = target.getDeclaredMethod("startInternal");
-                if (startInternalEditor != null) {
-                    startInternalEditor.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.WebappLoaderStartInterceptor");
+                if (startMethod != null) {
+                    startMethod.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.WebappLoaderStartInterceptor");
                 }
 
                 return target.toBytecode();

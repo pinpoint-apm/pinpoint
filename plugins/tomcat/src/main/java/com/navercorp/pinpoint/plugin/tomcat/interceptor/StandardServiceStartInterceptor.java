@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import org.apache.catalina.util.ServerInfo;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -50,8 +51,8 @@ public class StandardServiceStartInterceptor implements AroundInterceptor {
         }
 
         String serverInfo = ServerInfo.getServerInfo();
-        this.traceContext.getServerMetaDataHolder().setServerName(serverInfo);
-        // Service started. Publish server meta data.
-        this.traceContext.getServerMetaDataHolder().publishServerMetaData();
+        ServerMetaDataHolder holder = this.traceContext.getServerMetaDataHolder();
+        holder.setServerName(serverInfo);
+        holder.notifyListeners();
     }
 }

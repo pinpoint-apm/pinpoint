@@ -359,13 +359,15 @@ public class AgentInfoSenderTest {
         metaDataContext.addListener(agentInfoSender);
         // When
         for (int i = 0; i < threadCount; ++i) {
+            final String serviceName = "/name" + i;
             executorService.submit(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
                     initLatch.countDown();
                     try {
                         startLatch.await();
-                        metaDataContext.publishServerMetaData();
+                        metaDataContext.addServiceInfo(serviceName, Collections.<String>emptyList());
+                        metaDataContext.notifyListeners();
                     } catch (final Throwable t) {
                         exceptions.add(t);
                     } finally {
