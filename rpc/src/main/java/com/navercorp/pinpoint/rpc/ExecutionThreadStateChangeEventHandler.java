@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.rpc;
 
 import java.util.concurrent.Executor;
 
-import com.navercorp.pinpoint.rpc.PinpointSocket;
-import com.navercorp.pinpoint.rpc.StateChangeEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

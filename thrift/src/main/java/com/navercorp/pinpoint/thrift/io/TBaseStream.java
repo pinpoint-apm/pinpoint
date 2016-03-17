@@ -25,8 +25,6 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 
-import com.navercorp.pinpoint.thrift.io.UnsafeByteArrayOutputStream;
-
 /**
  * TBase stream(byte arrays)
  * 
