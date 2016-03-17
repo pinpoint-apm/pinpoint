@@ -20,7 +20,6 @@
 	<script src="lib/js/util-lib.min.js?v=${buildTime}"></script>
 	<script src="lib/js/pinpoint-component.min.js?v=${buildTime}"></script>
 
-    <script src="features/serverMap/jquery.ServerMap2.js?v=${buildTime}"></script>
 	<script src="scripts/extra/google-analytics.js?v=${buildTime}"></script>
 </head>
 <body ng-app="pinpointApp">
@@ -353,77 +352,8 @@
 
 <!-- build:js({.tmp,app}) scripts/scripts.js -->
 <script src="scripts/app.js?v=${buildTime}"></script>
-<script src="scripts/extra/checkLoginSession.js"></script>
-
-<script src="common/filters/icon-url.filter.js?v=${buildTime}"></script>
-<script src="common/filters/application-name-to-class-name.filter.js?v=${buildTime}"></script>
-<script src="common/services/time-slider-vo.service.js?v=${buildTime}"></script>
-<script src="common/services/alerts.service.js?v=${buildTime}"></script>
-<script src="common/services/progress-bar.service.js?v=${buildTime}"></script>
-<script src="common/services/navbar-vo.service.js?v=${buildTime}"></script>
-<script src="common/services/transaction-dao.service.js?v=${buildTime}"></script>
-<script src="common/services/location.service.js?v=${buildTime}"></script>
-<script src="common/services/server-map-dao.service.js?v=${buildTime}"></script>
-<script src="common/services/agent-dao.service.js?v=${buildTime}"></script>
-<script src="common/services/sidebar-title-vo.service.js?v=${buildTime}"></script>
-<script src="common/services/filtered-map-util.service.js?v=${buildTime}"></script>
-<script src="common/services/filter.config.js?v=${buildTime}"></script>
-<script src="common/services/server-map-filter-vo.service.js?v=${buildTime}"></script>
-<script src="common/services/alarm-ajax.service.js?v=${buildTime}"></script>
-<script src="common/services/alarm-util.service.js?v=${buildTime}"></script>
-<script src="common/services/alarm-broadcast.service.js?v=${buildTime}"></script>
-<script src="common/services/server-map-hint-vo.service.js?v=${buildTime}"></script>
-<script src="common/services/is-visible.service.js?v=${buildTime}"></script>
-<script src="common/services/user-locales.service.js?v=${buildTime}"></script>
-<script src="common/services/help-content.service.js?v=${buildTime}"></script>
-<script src="common/services/analytics.service.js?v=${buildTime}"></script>
-<script src="common/services/realtime-websocket.service.js?v=${buildTime}"></script>
-<script src="common/services/preference.service.js?v=${buildTime}"></script>
-<script src="common/services/common-ajax.service.js?v=${buildTime}"></script>
-<script src="common/services/agent-ajax.service.js?v=${buildTime}"></script>
-<script src="common/services/tooltip.service.js?v=${buildTime}"></script>
-<script src="common/help/help-content-en.js?v=${buildTime}"></script>
-<script src="common/help/help-content-ko.js?v=${buildTime}"></script>
-<script src="common/help/help-content-template.js?v=${buildTime}"></script>
-
-<script src="features/navbar/navbar.directive.js?v=${buildTime}"></script>
-<script src="features/serverMap/server-map.directive.js?v=${buildTime}"></script>
-<script src="features/realtimeChart/realtime-chart.directive.js?v=${buildTime}"></script>
-<script src="features/scatter/scatter.directive.js?v=${buildTime}"></script>
-<script src="features/nodeInfoDetails/node-info-details.directive.js?v=${buildTime}"></script>
-<script src="features/linkInfoDetails/link-info-details.directive.js?v=${buildTime}"></script>
 <script src="features/serverList/server-list.directive.js?v=${buildTime}"></script>
-<script src="features/agentList/agent-list.directive.js?v=${buildTime}"></script>
-<script src="features/agentInfo/agent-info.directive.js?v=${buildTime}"></script>
-<script src="features/timeSlider/time-slider.directive.js?v=${buildTime}"></script>
-<script src="features/transactionTable/transaction-table.directive.js?v=${buildTime}"></script>
-<script src="features/timeline/timeline.directive.js?v=${buildTime}"></script>
-<script src="features/agentChartGroup/agent-chart-group.directive.js?v=${buildTime}"></script>
-<script src="features/sidebar/title/sidebar-title.directive.js?v=${buildTime}"></script>
-<script src="features/sidebar/filter/filter-information.directive.js?v=${buildTime}"></script>
-<script src="features/distributedCallFlow/distributed-call-flow.directive.js?v=${buildTime}"></script>
-<script src="features/responseTimeChart/response-time-chart.directive.js?v=${buildTime}"></script>
-<script src="features/loadChart/load-chart.directive.js?v=${buildTime}"></script>
-<script src="features/jvmMemoryChart/jvm-memory-chart.directive.js?v=${buildTime}"></script>
-<script src="features/cpuLoadChart/cpu-load-chart.directive.js?v=${buildTime}"></script>
-<script src="features/tpsChart/tps-chart.directive.js?v=${buildTime}"></script>
-<script src="features/loading/loading.directive.js?v=${buildTime}"></script>
-<script src="features/configuration/configuration.controller.js?v=${buildTime}"></script>
-<script src="features/configuration/help/help.controller.js?v=${buildTime}"></script>
-<script src="features/configuration/general/general.controller.js?v=${buildTime}"></script>
-<script src="features/configuration/alarm/alarm-user-group.directive.js?v=${buildTime}"></script>
-<script src="features/configuration/alarm/alarm-group-member.directive.js?v=${buildTime}"></script>
-<script src="features/configuration/alarm/alarm-pinpoint-user.directive.js?v=${buildTime}"></script>
-<script src="features/configuration/alarm/alarm-rule.directive.js?v=${buildTime}"></script>
-<script src="features/realtimeChart/realtime-chart.controller.js?v=${buildTime}"></script>
-
-<script src="pages/main/main.controller.js?v=${buildTime}"></script>
-<script src="pages/inspector/inspector.controller.js?v=${buildTime}"></script>
-<script src="pages/transactionList/transaction-list.controller.js?v=${buildTime}"></script>
-<script src="pages/transactionDetail/transaction-detail.controller.js?v=${buildTime}"></script>
-<script src="pages/filteredMap/filtered-map.controller.js?v=${buildTime}"></script>
-<script src="pages/transactionView/transaction-view.controller.js?v=${buildTime}"></script>
-<script src="pages/scatterFullScreenMode/scatter-full-screen-mode.controller.js?v=${buildTime}"></script>
+<script src="lib/js/pinpoint.min.js?v=${buildTime}"></script>
 <script>
 	G_BUILD_TIME = "${buildTime}";
 </script>

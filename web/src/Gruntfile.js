@@ -22,10 +22,8 @@ module.exports = function (grunt) {
 				'<%= concat.baseLib.dest %>',
 				'<%= concat.utilLib.dest %>'
 			],
-			pinpointComponentJS: [
-				DEST_LIB_PATH + 'js/*.js',
-				'!' + DEST_LIB_PATH + 'js/*.min.js'
-			]
+			pinpointComponentJS: [ DEST_LIB_PATH + 'js/*.js', '!' + DEST_LIB_PATH + 'js/*.min.js' ],
+			pinpointSrc: [ DEST_LIB_PATH + 'js/*.js', '!' + DEST_LIB_PATH + 'js/*.min.js' ]
 		},
         jsdoc: {
             dist: {
@@ -190,9 +188,20 @@ module.exports = function (grunt) {
 					separator: '\n'
 				},
 				src: [
-					COMPONENT_PATH + 'infiniteCircularScroll/InfiniteCircularScroll.js'
+					COMPONENT_PATH + 'infinite-circular-scroll/InfiniteCircularScroll.js'
 				],
 				dest: DEST_LIB_PATH + 'js/infinite-circular-scroll.js'
+			},
+			serverMap: {
+				options: {
+					stripBanner: true,
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> */',
+					separator: '\n'
+				},
+				src: [
+					COMPONENT_PATH + 'server-map2/jquery.ServerMap2.js'
+				],
+				dest: DEST_LIB_PATH + 'js/server-map2.js'
 			},
 			pinpointComponent: {
 				options: {
@@ -201,11 +210,92 @@ module.exports = function (grunt) {
 					separator: '\n'
 				},
 				src: makePath( [
-					'js/time-slider.js',
-					'js/big-scatter-chart2.js',
-					'js/infinite-circular-scroll.js'
+					'js/time-slider.min.js',
+					'js/big-scatter-chart2.min.js',
+					'js/infinite-circular-scroll.min.js',
+					'js/server-map2.min.js'
 				], DEST_LIB_PATH ),
 				dest: DEST_LIB_PATH + 'js/pinpoint-component.min.js'
+			},
+			pinpointSrc: {
+				options: {
+					stripBanner: true,
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>*/',
+					separator: '\n'
+				},
+				src: makePath( [ 
+					'common/filters/icon-url.filter.js',
+					'common/filters/application-name-to-class-name.filter.js',
+					'common/services/time-slider-vo.service.js',
+					'common/services/alerts.service.js',
+					'common/services/progress-bar.service.js',
+					'common/services/navbar-vo.service.js',
+					'common/services/transaction-dao.service.js',
+					'common/services/location.service.js',
+					'common/services/server-map-dao.service.js',
+					'common/services/agent-dao.service.js',
+					'common/services/sidebar-title-vo.service.js',
+					'common/services/filtered-map-util.service.js',
+					'common/services/filter.config.js',
+					'common/services/server-map-filter-vo.service.js',
+					'common/services/alarm-ajax.service.js',
+					'common/services/alarm-util.service.js',
+					'common/services/alarm-broadcast.service.js',
+					'common/services/server-map-hint-vo.service.js',
+					'common/services/is-visible.service.js',
+					'common/services/user-locales.service.js',
+					'common/help/help-content-en.js',
+					'common/help/help-content-ko.js',
+					'common/help/help-content-template.js',
+					'common/services/help-content.service.js',
+					'common/services/analytics.service.js',
+					'common/services/realtime-websocket.service.js',
+					'common/services/preference.service.js',
+					'common/services/common-ajax.service.js',
+					'common/services/agent-ajax.service.js',
+					'common/services/tooltip.service.js',
+
+					'features/navbar/navbar.directive.js',
+					'features/serverMap/server-map.directive.js',
+					'features/realtimeChart/realtime-chart.directive.js',
+					'features/scatter/scatter.directive.js',
+					'features/nodeInfoDetails/node-info-details.directive.js',
+					'features/linkInfoDetails/link-info-details.directive.js',
+					//'features/serverList/server-list.directive.js',
+					'features/agentList/agent-list.directive.js',
+					'features/agentInfo/agent-info.directive.js',
+					'features/timeSlider/time-slider.directive.js',
+					'features/transactionTable/transaction-table.directive.js',
+					'features/timeline/timeline.directive.js',
+					'features/agentChartGroup/agent-chart-group.directive.js',
+					'features/sidebar/title/sidebar-title.directive.js',
+					'features/sidebar/filter/filter-information.directive.js',
+					'features/distributedCallFlow/distributed-call-flow.directive.js',
+					'features/responseTimeChart/response-time-chart.directive.js',
+					'features/loadChart/load-chart.directive.js',
+					'features/jvmMemoryChart/jvm-memory-chart.directive.js',
+					'features/cpuLoadChart/cpu-load-chart.directive.js',
+					'features/tpsChart/tps-chart.directive.js',
+					'features/loading/loading.directive.js',
+					'features/configuration/configuration.controller.js',
+					'features/configuration/help/help.controller.js',
+					'features/configuration/general/general.controller.js',
+					'features/configuration/alarm/alarm-user-group.directive.js',
+					'features/configuration/alarm/alarm-group-member.directive.js',
+					'features/configuration/alarm/alarm-pinpoint-user.directive.js',
+					'features/configuration/alarm/alarm-rule.directive.js',
+					'features/realtimeChart/realtime-chart.controller.js',
+
+					'pages/main/main.controller.js',
+					'pages/inspector/inspector.controller.js',
+					'pages/transactionList/transaction-list.controller.js',
+					'pages/transactionDetail/transaction-detail.controller.js',
+					'pages/filteredMap/filtered-map.controller.js',
+					'pages/transactionView/transaction-view.controller.js',
+					'pages/scatterFullScreenMode/scatter-full-screen-mode.controller.js'
+
+				], 'main/webapp/' ),
+				dest: DEST_LIB_PATH + 'js/pinpoint.js'
 			},
 			vernderCSS: {
 				options: {
@@ -308,27 +398,69 @@ module.exports = function (grunt) {
 				files: {
 					'main/webapp/lib/js/infinite-circular-scroll.min.js': 'main/webapp/lib/js/infinite-circular-scroll.js'
 				}
+			},
+			serverMap : {
+				options: {
+					preserveComments: false,
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>*/'
+				},
+				files: {
+					'main/webapp/lib/js/server-map2.min.js': 'main/webapp/lib/js/server-map2.js'
+				}
+			},
+			pinpointSrc: {
+				options: {
+					preserveComments: false,
+					sourceMap: true,
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>*/'
+				},
+				files: {
+					'main/webapp/lib/js/pinpoint.min.js': 'main/webapp/lib/js/pinpoint.js'
+				}
 			}
 		},
 		watch: {
-			cssDev: {
+			pinpoint: {
+				files: makePath([
+					'styles/*.css',
+					'components/time-slider/*.js',
+					'components/big-scatter-chart/*.js',
+					'components/infinite-circular-scroll/*.js',
+					'components/server-map2/*.js',
+					'common/**/*.js',
+					'features/**/*.js',
+					'pages/**/*.js'
+				], 'main/webapp/' ),
+				tasks: [ 'buildPinpointCSS', 'buildPinpointComponentJS', 'buildPinpointSrc' ]
+			},
+			pinpointCSS: {
 				files: makePath([
 					'*.js'
 				], STYLE_PATH ),
 				tasks: [ 'buildPinpointCSS']
 			},
-			jsDev: {
+			pinpointComponent: {
 				files: makePath([
 					'time-slider/*.js',
 					'big-scatter-chart/*.js',
-					'infiniteCircularScroll/*.js'
+					'infinite-circular-scroll/*.js',
+					'server-map2/*.js'
 				], COMPONENT_PATH),
 				tasks: ['buildPinpointComponentJS' ]
+			},
+			pinpointSrc: {
+				files: makePath([
+					'common/**/*.js',
+					'features/**/*.js',
+					'pages/**/*.js'
+				], 'main/webapp/' ),
+				tasks: ['buildPinpointSrc' ]
 			}
 		},
 		jshint: {
 			options: {
 				sub: true,
+				boss: true,
 				newcap: false,
 				loopfunc: true
 			},
@@ -399,10 +531,20 @@ module.exports = function (grunt) {
 		'concat:infiniteScroll',
 		'uglify:infiniteScroll'
 	]);
+	grunt.registerTask('buildServerMap', '', [
+		'concat:serverMap',
+		'uglify:serverMap'
+	]);
+	grunt.registerTask('buildPinpointSrc', 'Create pinpoint js file', [
+		'concat:pinpointSrc',
+		'uglify:pinpointSrc',
+		'clean:pinpointSrc'
+	]);
 
 	grunt.registerTask('buildAllJS', 'Create js file', [
 		'buildVendorJS',
-		'buildPinpointComponentJS'
+		'buildPinpointComponentJS',
+		'buildPinpointSrc'
 	]);
 	grunt.registerTask('buildVendorJS', 'Create vendor js file', [
 		'buildBaseLibJS',
@@ -411,10 +553,11 @@ module.exports = function (grunt) {
 		'buildAngularJS',
 		'clean:vendorJS'
 	]);
-	grunt.registerTask('buildPinpointComponentJS', 'Create pinpoint js file', [
+	grunt.registerTask('buildPinpointComponentJS', 'Create pinpoint component js file', [
 		'buildTimeSlider',
 		'buildBigScatter',
 		'buildInfiniteScroll',
+		'buildServerMap',
 		'concat:pinpointComponent',
 		'clean:pinpointComponentJS'
 	]);
@@ -423,15 +566,15 @@ module.exports = function (grunt) {
 		'concat:vernderCSS',
 		'concat:pinpointCSS'
 	]);
-	grunt.registerTask('buildVendorCSS', 'Create css file', [
+	grunt.registerTask('buildVendorCSS', 'Create vendor css file', [
 		'concat:vernderCSS'
 	]);
-	grunt.registerTask('buildPinpointCSS', 'Create css file', [
+	grunt.registerTask('buildPinpointCSS', 'Create pinpoint css file', [
 		'concat:pinpointCSS'
 	]);
-	grunt.registerTask('watchDev', 'Watch js, css', [
-		'watch:jsDev',
-		'watch:cssDev'
+	grunt.registerTask('watchDev', 'Watch your source', [
+		'jshint',
+		'watch:pinpoint'
 	]);
 	grunt.registerTask('jshintDev', '', [
 		'jshint'
