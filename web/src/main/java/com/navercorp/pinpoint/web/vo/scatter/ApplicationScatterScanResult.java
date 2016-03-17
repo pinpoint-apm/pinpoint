@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.vo.scatter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.view.ApplicationScatterScanResultSerializer;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.scatter.ScatterScanResult;
 
 /**
  * @author emeroad
