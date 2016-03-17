@@ -38,7 +38,6 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
 
     private TraceContext traceContext;
     private MethodDescriptor methodDescriptor;
-    private InterceptorScope interceptorScope;
 
     public DispatcherEnqueueMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
