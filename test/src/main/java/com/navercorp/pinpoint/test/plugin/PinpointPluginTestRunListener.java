@@ -16,7 +16,6 @@ package com.navercorp.pinpoint.test.plugin;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
 import org.junit.runner.Description;

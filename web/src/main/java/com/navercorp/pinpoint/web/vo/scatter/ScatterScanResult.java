@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.web.vo.scatter;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.navercorp.pinpoint.web.vo.scatter.Dot;
-import com.navercorp.pinpoint.web.vo.scatter.ScatterIndex;
 
 import java.util.ArrayList;
 import java.util.Collections;
