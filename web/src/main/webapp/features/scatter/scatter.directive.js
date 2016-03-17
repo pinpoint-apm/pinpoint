@@ -137,7 +137,7 @@
 									$rootScope.$broadcast( "responseTimeChartDirective.loadRealtime", applicationName, oScatterChart.getCurrentAgent(), oChartXRange.min, oChartXRange.max );
 								}));
 							} else {
-								oScatterChart.addBubbleAndMoveAndDraw( scatterData );
+								oScatterChart.addBubbleAndMoveAndDraw( oScatterChart.createDataBlock( scatterData ) );
 							}
 							$window.htoScatter[application] = oScatterChart;
 						}, 100);
@@ -158,14 +158,13 @@
 								htScatterSet[application].scatter.resume();
 								htScatterSet[application].scatter.selectAgent( preferenceService.getAgentAllStr(), true);
 							}
-
 						} else {
 							makeNewScatter( application, w, h );
 						}
 					}
 					function showScatterWithData(application, w, h, data) {
 						if (angular.isDefined(htScatterSet[application])) {
-							htScatterSet[application].scatter.addBubbleAndMoveAndDraw( data );
+							htScatterSet[application].scatter.addBubbleAndMoveAndDraw( htScatterSet[application].scatter.createDataBlocK( data ) );
 						} else {
 							makeNewScatter(application, w, h, data).hide();
 						}
