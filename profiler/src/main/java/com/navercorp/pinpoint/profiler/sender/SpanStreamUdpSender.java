@@ -167,23 +167,24 @@ public class SpanStreamUdpSender extends AbstractDataSender {
 
     @Override
     protected void sendPacket(Object message) {
-        logger.info("sendPacket message:{}", message);
-
-        if (message instanceof TBase) {
-            final TBase<?, ?> dto = (TBase<?, ?>) message;
-
-            if (dto instanceof Span) {
-                handleSpan((Span) message);
-            } else if (dto instanceof SpanChunk) {
-                handleSpanChunk((SpanChunk) message);
-            } else {
-                logger.warn("sendPacket fail. invalid type:{}", message.getClass());
-                return;
-            }
-        } else {
-            logger.warn("sendPacket fail. invalid type:{}", message != null ? message.getClass() : null);
-            return;
+        if (logger.isDebugEnabled()) {
+            logger.debug("sendPacket message:{}", message);
         }
+
+        if (message instanceof Span) {
+            handleSpan((Span) message);
+        } else if (message instanceof SpanChunk) {
+            handleSpanChunk((SpanChunk) message);
+        } else {
+            logger.info("sendPacket fail. invalid type:{}", messageToString(message));
+        }
+    }
+
+    private String messageToString(Object message) {
+        if(message == null) {
+            return null;
+        }
+        return message.getClass().toString();
     }
 
     private void handleSpan(Span span) {

@@ -32,11 +32,13 @@ import org.junit.runners.model.Statement;
 
 import com.navercorp.pinpoint.common.util.SystemProperty;
 
+import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.*;
+
 /**
  * @author Jongho Moon
  *
  */
-public class PinpointPluginTestStatement extends Statement implements PinpointPluginTestConstants {
+public class PinpointPluginTestStatement extends Statement {
     private static final String JUNIT_OUTPUT_DELIMITER_REGEXP = Pattern.quote(JUNIT_OUTPUT_DELIMITER);
 
     private final PinpointPluginTestRunner runner;
@@ -114,7 +116,7 @@ public class PinpointPluginTestStatement extends Statement implements PinpointPl
             try {        
                 testCase.endTest(process);
             } finally {
-                
+
                 Timer timer = new Timer();
                 timer.schedule(new TimerTask() {
 
@@ -124,7 +126,7 @@ public class PinpointPluginTestStatement extends Statement implements PinpointPl
                     }
                     
                 }, 10 * 1000);
-                
+
                 try {
                     process.waitFor();
                 } catch (InterruptedException e) {
@@ -148,7 +150,7 @@ public class PinpointPluginTestStatement extends Statement implements PinpointPl
         
         list.add("-Dpinpoint.agentId=build.test.0");
         list.add("-Dpinpoint.applicationName=test");
-        list.add("-D" + PinpointPluginTestConstants.PINPOINT_TEST_ID + "=" + testCase.getTestId());
+        list.add("-D" + PINPOINT_TEST_ID + "=" + testCase.getTestId());
 
         for (String arg : context.getJvmArguments()) {
             list.add(arg);

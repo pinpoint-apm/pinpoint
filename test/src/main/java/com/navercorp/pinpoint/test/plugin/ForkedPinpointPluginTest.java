@@ -31,7 +31,9 @@ import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 import org.junit.runners.model.InitializationError;
 
-public class ForkedPinpointPluginTest implements PinpointPluginTestConstants {
+import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.*;
+
+public class ForkedPinpointPluginTest {
     private static boolean forked = false;
     
     public static boolean isForked() {
@@ -52,7 +54,7 @@ public class ForkedPinpointPluginTest implements PinpointPluginTestConstants {
             classLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]), classLoader);
         }
         
-        String testId = System.getProperty(PinpointPluginTestConstants.PINPOINT_TEST_ID, "");
+        String testId = System.getProperty(PINPOINT_TEST_ID, "");
 
         ClassLoader old = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
