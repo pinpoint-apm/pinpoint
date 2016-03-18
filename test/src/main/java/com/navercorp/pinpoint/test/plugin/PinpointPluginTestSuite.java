@@ -28,11 +28,13 @@ import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.junit.runners.model.InitializationError;
 
+import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.*;
+
 /**
  * @author Jongho Moon
  *
  */
-public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite implements PinpointPluginTestConstants {
+public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
     private static final String DEFAULT_ENCODING = "UTF-8";
 
     private final boolean testOnSystemClassLoader;
