@@ -12,6 +12,9 @@ We're happy to announce the release of Pinpoint **v1.5.1**. <br/>
 Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.5.1)<br/>
 We're now focusing on developing **v1.5.2**.
 
+### Plugin Development Guide (2016/03/18)
+We now have a [plugin development guide](https://github.com/naver/pinpoint/wiki/Pinpoint-Plugin-Developer-Guide "Pinpoint Plugin Development Guide"). Yay!
+
 ## Overview
 Services nowadays often consist of many different components, communicating amongst themselves as well as making API calls to external services. How each and every transaction gets executed is often left as a blackbox. Pinpoint traces transaction flows between these components and provides a clear view to identify problem areas and potential bottlenecks.<br/>
 For a more intimate guide, please check out our *[Introduction to Pinpoint](https://github.com/naver/pinpoint/wiki#video-clips)* video clip.
@@ -102,9 +105,12 @@ We welcome any documentation contribution.
 ## Contribution
 We welcome any and all suggestions.
 
-For plugin development, take a look at our [plugin samples](https://github.com/naver/pinpoint-plugin-sample "Pinpoint Plugin Samples project") project to get an idea of how we do instrumentation. The samples will provide you with example codes to help you get started.
+For plugin development, take a look at our [plugin development guide](https://github.com/naver/pinpoint/wiki/Pinpoint-Plugin-Developer-Guide "Pinpoint Plugin Development Guide"), along with [plugin samples](https://github.com/naver/pinpoint-plugin-sample "Pinpoint Plugin Samples project") project to get an idea of how we do instrumentation. The samples will provide you with example codes to help you get started.
 
-Please make a pull-request against our `master` branch for contributions.
+**Please follow our [guideline](https://github.com/naver/pinpoint/wiki/Pinpoint-Plugin-Developer-Guide#iii-plugin-contribution-guideline "Plugin PR Guideline") when making pull-requests for new plugins.**
+For everything else, please make a pull-request against our `master` branch.
+
+Please note that you will have to complete a  [CLA](https://docs.google.com/forms/d/1oDX26pwmVZSoDfL9MwvwLsM23dHqc5pvgoZCp7jM940/viewform?c=0&w=1 "Contributor License Agreement") for your first pull-request.
 
 We would love to see additional tracing support for libraries such as [Storm](https://storm.apache.org "Apache Storm"), [HBase](http://hbase.apache.org "Apache HBase"), as well as profiler support for additional languages (.NET, C++).
 
