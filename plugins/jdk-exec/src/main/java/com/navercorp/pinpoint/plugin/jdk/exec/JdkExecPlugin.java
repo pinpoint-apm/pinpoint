@@ -37,7 +37,7 @@ public class JdkExecPlugin implements ProfilerPlugin, TransformTemplateAware {
        }else{
            logger.info("JdkExec: use main class strategy");
        }
-       final boolean finalIntegrationTesting = integrationTesting;
+       final boolean isIntegrationTesting = integrationTesting;
         
        final JdkExecConfig config = new JdkExecConfig(context.getConfig());
        if(!config.isProfile()){
@@ -77,7 +77,7 @@ public class JdkExecPlugin implements ProfilerPlugin, TransformTemplateAware {
                 };
 
                 InstrumentMethod method = null;
-                if(  finalIntegrationTesting ) {
+                if(  isIntegrationTesting ) {
                     logger.info("JdkExec: instrument org.junit.runner.Runner ctor");
                     method = target.getConstructor();
                 }else{
@@ -89,7 +89,7 @@ public class JdkExecPlugin implements ProfilerPlugin, TransformTemplateAware {
                 return target.toBytecode();
             }
         };
-       if( finalIntegrationTesting ) {
+       if( isIntegrationTesting ) {
            transformTemplate.transform("org.junit.runner.Runner", transformCallback);
        }else{
            transformTemplate.transform(mainClass, transformCallback);

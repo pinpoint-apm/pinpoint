@@ -1,5 +1,8 @@
 package com.navercorp.pinpoint.plugin.jdk.exec;
 
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -7,9 +10,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author hamlet-lee
  */
 public class CacheMap {
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     static class ValuePair{
         Object val;
         long ts;
+        long threadId;
     }
 
     static HashMap<String, CacheMap> maps = new HashMap<String, CacheMap>();
@@ -29,15 +34,15 @@ public class CacheMap {
                 @Override
                 public void run() {
                     //auto clear every 10 secs
-                    if( map.size() < 100) {
+                    if( sharedMap.size() < 100) {
                         //do nothing if the map is not big
                         return;
                     }
                     long maxAge = System.currentTimeMillis() - 1000*10;
-                    for (Map.Entry<Object, ValuePair> entry : map.entrySet()){
+                    for (Map.Entry<Object, ValuePair> entry : sharedMap.entrySet()){
                         if(entry.getValue().ts < maxAge)
                         {
-                            map.remove(entry.getKey());
+                            sharedMap.remove(entry.getKey());
                         }
                     }
                 }
@@ -45,20 +50,78 @@ public class CacheMap {
             }, new Date(), 1000*10);
         }
     }
-    private Map<Object, ValuePair> map = new ConcurrentHashMap<Object, ValuePair>();
+    private Map<Object, ValuePair> sharedMap = new ConcurrentHashMap<Object, ValuePair>();
+    private ThreadLocal<LocalCache> threadLocalCache = new ThreadLocal<LocalCache>(){
+        @Override
+        protected LocalCache initialValue() {
+            return new LocalCache();
+        }
+    };
+
     public void put(Object key, Object val){
         ValuePair pair = new ValuePair();
         pair.val = val;
         pair.ts = System.currentTimeMillis();
-        map.put(key, pair);
+        pair.threadId = Thread.currentThread().getId();
+        sharedMap.put(key, pair);
     }
 
     public Object get(Object key){
-        ValuePair pair = map.get(key);
-        if( pair == null)
-        {
-            return null;
+        ValuePair pair = sharedMap.get(key);
+        if( pair != null){
+            if( Thread.currentThread().getId() != pair.threadId ){
+                //move to thread local map, so will not be cleared before task end
+                sharedMap.remove(key);
+                threadLocalCache.get().push( key, pair.val);
+            }
+            return pair.val;
+        }else{
+            Object v = threadLocalCache.get().getAndRemoveNewer(key);
+            if( v != null){
+                if( logger.isDebugEnabled()) {
+                    logger.debug("not found in thread local cache!", new Throwable("show stack"));
+                }
+                return v;
+            }else{
+                return null;
+            }
         }
-        return pair.val;
+    }
+
+    public static class LocalCache {
+        private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+        private ArrayList<Object> arrayList = new ArrayList<Object>();
+        private HashMap<Object, Integer> hashMap = new HashMap<Object, Integer>();
+        public void push(Object key, Object val){
+            //size check
+            if( arrayList.size() > 100) {
+                //nested 100 layers, should never happen
+                if( logger.isDebugEnabled() ) {
+                    logger.debug("local cache size too large," +
+                            " something happened!", new Throwable());
+                }
+                arrayList.clear();
+                hashMap.clear();
+            }
+
+            //add at tail
+            arrayList.add(val);
+            //record position
+            hashMap.put(val, arrayList.size() - 1);
+        }
+        public Object getAndRemoveNewer(Object key){
+            Integer pos = hashMap.get(key);
+            if( pos != null) {
+                //found
+                Object value = arrayList.get(pos);
+                //remove newer
+                while( pos < arrayList.size() - 1) {
+                    arrayList.remove( arrayList.size() - 1);
+                }
+                return value;
+            }else{
+                return null;
+            }
+        }
     }
 }
