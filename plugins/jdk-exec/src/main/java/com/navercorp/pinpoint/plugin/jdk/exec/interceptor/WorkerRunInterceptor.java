@@ -30,6 +30,13 @@ public class WorkerRunInterceptor extends SpanAsyncEventSimpleAroundInterceptor 
 
     @Override
     protected AsyncTraceId getAsyncTraceId(Object target) {
-        return (AsyncTraceId)CacheMap.getInstance(JdkExecConstants.ASYNC_ID_MAP).remove(target.hashCode());
+        AsyncTraceId asyncTraceId = (AsyncTraceId)CacheMap.getInstance(JdkExecConstants.ASYNC_ID_MAP).get(target.hashCode());
+        if( logger.isDebugEnabled() ) {
+            logger.debug("JdkExec: getting asyncId " + target.hashCode() + " -> " + asyncTraceId);
+            if( asyncTraceId == null) {
+                logger.error("JdkExec: null path", new Exception("show stacktrace"));
+            }
+        }
+        return asyncTraceId;
     }
 }

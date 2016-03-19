@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -36,33 +37,38 @@ public class JdkExecPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
        String mainClass = new MainClassCondition().getValue();
-       logger.info("main class: " + mainClass);
+       logger.info("JdkExec: main class: " + mainClass);
        transformTemplate.transform(mainClass, new TransformCallback() {
            @Override
            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-               TransformCallback transformer1 = new TransformCallback() {
+               TransformCallback transformer = new TransformCallback() {
                    @Override
                    public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                       logger.info("JdkExec: register retransform FutureTask");
                        InterceptorScope scope = instrumentor.getInterceptorScope(SCOPE_NAME);
                        InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                       for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("newTaskFor"))) {
+
+                       InstrumentMethod ctor1 = target.getConstructor(Callable.class.getCanonicalName());
+                       InstrumentMethod ctor2 = target.getConstructor(Runnable.class.getCanonicalName(), Object.class.getCanonicalName());
+
+                       //constructing async task
+                       for(InstrumentMethod method: new InstrumentMethod[]{ctor1, ctor2}) {
+                           logger.info("JdkExec: instrumenting constructor: " + method.getName()
+                                   + ", arg num: " + method.getParameterTypes().length);
                            method.addScopedInterceptor("com.navercorp.pinpoint.plugin.jdk.exec.interceptor.AsyncInitiatorInterceptor", scope);
                        }
-                       return target.toBytecode();
-                   }
-               };
-               TransformCallback transformer2 = new TransformCallback() {
-                   @Override
-                   public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                       InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+                       //running async task
                        target.getDeclaredMethod("run").addInterceptor("com.navercorp.pinpoint.plugin.jdk.exec.interceptor.WorkerRunInterceptor");
+
+                       logger.info("JdkExec: register retransform FutureTask done");
                        return target.toBytecode();
                    }
                };
 
                InstrumentMethod method = target.getDeclaredMethod("main", "java.lang.String[]");
-               method.addInterceptor(JustRetransform.class.getName(), va(transformer1, transformer2));
+               method.addInterceptor(JustRetransform.class.getName(), va(transformer));
                return target.toBytecode();
            }
        });

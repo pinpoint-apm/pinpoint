@@ -19,20 +19,17 @@ public class JustRetransform implements StaticAroundInterceptor {
     private final Instrumentor instrumentor;
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    TransformCallback transformer1;
-    TransformCallback transformer2;
-    public JustRetransform(Instrumentor instrumentor, TransformCallback transformer1, TransformCallback transformer2) {
+    TransformCallback transformer;
+    public JustRetransform(Instrumentor instrumentor, TransformCallback transformer) {
         this.instrumentor = instrumentor;
-        this.transformer1 = transformer1;
-        this.transformer2 = transformer2;
+        this.transformer = transformer;
     }
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        logger.info("calling retransform");
-        instrumentor.retransform(java.util.concurrent.AbstractExecutorService.class, transformer1);
-        instrumentor.retransform(FutureTask.class, transformer2);
-        logger.info("retransform done");
+        logger.info("JdkExec: calling retransform");
+        instrumentor.retransform(FutureTask.class, transformer);
+        logger.info("JdkExec: calling retransform done");
     }
 
     @Override

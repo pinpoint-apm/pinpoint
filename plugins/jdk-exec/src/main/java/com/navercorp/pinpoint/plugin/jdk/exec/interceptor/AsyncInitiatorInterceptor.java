@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor1;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.jdk.exec.CacheMap;
 import com.navercorp.pinpoint.plugin.jdk.exec.JdkExecConstants;
 
@@ -31,6 +33,7 @@ public class AsyncInitiatorInterceptor implements AroundInterceptor1 {
     private final MethodDescriptor descriptor;
     private final TraceContext traceContext;
     private final InterceptorScope scope;
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     public AsyncInitiatorInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
         this.traceContext = traceContext;
@@ -74,7 +77,10 @@ public class AsyncInitiatorInterceptor implements AroundInterceptor1 {
         AsyncTraceId asyncTraceId = (AsyncTraceId)scope.getCurrentInvocation().getAttachment();
 
         //save by hashCode to avoid
-        CacheMap.getInstance(JdkExecConstants.ASYNC_ID_MAP).put(result.hashCode(), asyncTraceId);
+        if( logger.isDebugEnabled() ) {
+            logger.debug("JdkExec: putting asyncId " + target.hashCode() + " -> " + asyncTraceId.toString());
+        }
+        CacheMap.getInstance(JdkExecConstants.ASYNC_ID_MAP).put(target.hashCode(), asyncTraceId);
 
         try {
             if (throwable != null) {
