@@ -37,6 +37,15 @@ public class JdkExecPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
        String mainClass = new MainClassCondition().getValue();
+
+       final JdkExecConfig config = new JdkExecConfig(context.getConfig());
+       if(!config.isProfile()){
+           logger.info("JdkExec: not enabled");
+           return;
+       }else{
+           logger.info("JdkExec: enabled");
+       }
+
        logger.info("JdkExec: main class: " + mainClass);
        transformTemplate.transform(mainClass, new TransformCallback() {
            @Override
