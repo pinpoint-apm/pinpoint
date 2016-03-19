@@ -16,16 +16,14 @@ package com.navercorp.pinpoint.plugin.jdk.exec;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.lang.reflect.Field;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.concurrent.*;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
@@ -37,8 +35,7 @@ import static org.junit.Assert.assertEquals;
  *
  */
 @RunWith(PinpointPluginTestSuite.class)
-//@JvmVersion({6, 7, 8})
-@JvmVersion({7})
+@JvmVersion({6, 7, 8})
 public class JdkExecIT {
 
     @Test
@@ -59,7 +56,8 @@ public class JdkExecIT {
 
         Class<?> targetClass = Class.forName("java.util.concurrent.FutureTask");
         Method run = targetClass.getMethod("run");
+        Constructor<?> ctor = targetClass.getConstructor( Callable.class );
 
-        verifier.verifyTrace(event("JDK_EXEC", run));
+        verifier.verifyTrace(event("JDK_EXEC", ctor, annotation("args[0]", "com.navercorp.pinpoint.plugin.jdk.exec.JdkExecIT$1")));
     }
 }

@@ -50,7 +50,7 @@ public class AsyncInitiatorInterceptor implements AroundInterceptor1 {
 
         SpanEventRecorder recorder = trace.traceBlockBegin();
         recorder.recordServiceType(JdkExecConstants.SERVICE_TYPE);
-        recorder.recordApi(descriptor, new Object[] { arg0 });
+        recorder.recordApi(descriptor, new Object[] { arg0.getClass().getName() });
 
         // To trace async invocations, you have to get async trace id like below.
         AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
