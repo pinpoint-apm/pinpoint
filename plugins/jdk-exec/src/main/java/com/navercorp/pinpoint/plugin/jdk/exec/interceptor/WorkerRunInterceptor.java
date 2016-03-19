@@ -8,7 +8,7 @@ import com.navercorp.pinpoint.plugin.jdk.exec.CacheMap;
 import com.navercorp.pinpoint.plugin.jdk.exec.JdkExecConstants;
 
 /**
- * @author lisn
+ * @author hamlet-lee
  */
 public class WorkerRunInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
 

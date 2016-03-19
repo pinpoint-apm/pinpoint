@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author lisn
+ * @author hamlet-lee
  */
 public class CacheMap {
     static class ValuePair{

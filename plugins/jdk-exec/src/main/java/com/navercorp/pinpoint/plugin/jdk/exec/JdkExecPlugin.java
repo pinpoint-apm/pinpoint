@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 /**
- * @author lisn
+ * @author hamlet-lee
  */
 public class JdkExecPlugin implements ProfilerPlugin, TransformTemplateAware {
     private TransformTemplate transformTemplate;

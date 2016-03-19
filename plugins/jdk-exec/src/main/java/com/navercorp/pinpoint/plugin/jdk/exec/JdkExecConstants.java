@@ -4,7 +4,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 /**
- * @author lisn
+ * @author hamlet-lee
  */
 public class JdkExecConstants {
     private JdkExecConstants() {

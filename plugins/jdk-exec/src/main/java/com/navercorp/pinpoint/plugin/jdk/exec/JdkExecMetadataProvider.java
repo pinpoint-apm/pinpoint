@@ -6,7 +6,7 @@ import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
 /**
- * @author lisn
+ * @author hamlet-lee
  */
 public class JdkExecMetadataProvider implements TraceMetadataProvider {
     @Override

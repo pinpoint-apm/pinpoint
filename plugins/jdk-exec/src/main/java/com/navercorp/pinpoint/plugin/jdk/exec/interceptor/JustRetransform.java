@@ -13,7 +13,7 @@ import java.security.ProtectionDomain;
 import java.util.concurrent.FutureTask;
 
 /**
- * @author lisn
+ * @author hamlet-lee
  */
 public class JustRetransform implements StaticAroundInterceptor {
     private final Instrumentor instrumentor;
