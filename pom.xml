@@ -74,7 +74,7 @@
         <jedis.version>2.4.2</jedis.version>
         <cloverLicenseLocation>${basedir}/clover.license</cloverLicenseLocation>
         <spring-batch-version>2.2.7.RELEASE</spring-batch-version>
-        <docker.maven.plugin.version>0.3.8</docker.maven.plugin.version>
+        <docker.maven.plugin.version>0.4.3</docker.maven.plugin.version>
     </properties>
 
     <dependencies>
