@@ -92,7 +92,7 @@
 				case "responseSummaryChart":
 					return function() { return helpContentTemplate(helpContentService.nodeInfoDetails.responseSummary); };
 				case "loadChart":
-					return function() { return helpContentTemplate(helpContentService.nodeInfoDetails.loadChart); };
+					return function() { return helpContentTemplate(helpContentService.nodeInfoDetails.load); };
 				case "serverList":
 					return function() { return helpContentTemplate(helpContentService.nodeInfoDetails.nodeServers); };
 				case "callTree":
