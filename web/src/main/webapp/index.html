@@ -13,14 +13,6 @@
 	<link href='//fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="lib/css/vendor.css?v=${buildTime}">
 	<link rel="stylesheet" href="lib/css/pinpoint.css?v=${buildTime}">
-
-	<script src="lib/js/base-lib.min.js?v=${buildTime}"></script>
-	<script src="lib/js/angular-lib.min.js?v=${buildTime}"></script>
-	<script src="lib/js/draw-lib.min.js?v=${buildTime}"></script>
-	<script src="lib/js/util-lib.min.js?v=${buildTime}"></script>
-	<script src="lib/js/pinpoint-component.min.js?v=${buildTime}"></script>
-
-	<script src="scripts/extra/google-analytics.js?v=${buildTime}"></script>
 </head>
 <body ng-app="pinpointApp">
 
@@ -350,13 +342,18 @@
 </div>
 
 
-<!-- build:js({.tmp,app}) scripts/scripts.js -->
+<script src="lib/js/base-lib.min.js?v=${buildTime}"></script>
+<script src="lib/js/angular-lib.min.js?v=${buildTime}"></script>
+<script src="lib/js/draw-lib.min.js?v=${buildTime}"></script>
+<script src="lib/js/util-lib.min.js?v=${buildTime}"></script>
+<script src="lib/js/pinpoint-component.min.js?v=${buildTime}"></script>
+
+<script src="scripts/extra/google-analytics.js?v=${buildTime}"></script>
 <script src="scripts/app.js?v=${buildTime}"></script>
 <script src="features/serverList/server-list.directive.js?v=${buildTime}"></script>
 <script src="lib/js/pinpoint.min.js?v=${buildTime}"></script>
 <script>
 	G_BUILD_TIME = "${buildTime}";
 </script>
-<!-- endbuild -->
 </body>
 </html>
