@@ -142,7 +142,7 @@
                      */
                     parseHistogramForAmcharts = function (data) {
                     	if ( angular.isUndefined( data ) ) {
-                    		data = {"1s": 0, "3s": 0, "5s": 0, "Slow": 0, "Error": 0};
+                    		data = preferenceService.getResponseTypeFormat();
                     	}
                         var newData = [],
                             alpha = [0.2, 0.3, 0.4, 0.6, 0.6],

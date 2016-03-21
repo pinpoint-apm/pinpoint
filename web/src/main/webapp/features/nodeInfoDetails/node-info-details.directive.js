@@ -207,12 +207,9 @@
                         element.show();
                     };
 					function mergeSummaryData( oData ) {
-						var oSummarySum = {};
+						var oSummarySum = preferenceService.getResponseTypeFormat();
 						$.each( oData, function (agentName, oValue ) {
 							$.each(oValue, function (innerKey, value) {
-								if (angular.isUndefined(oSummarySum[innerKey])) {
-									oSummarySum[innerKey] = 0;
-								}
 								oSummarySum[innerKey] += value;
 							});
 						});

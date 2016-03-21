@@ -35,6 +35,7 @@
 			maxFavorite: 5000,
 			maxPeriod: 2,
 			realtimeScatterPeriod: 5 * 60 * 1000,//5m
+			reponseType: [ "1s", "3s", "5s", "Slow", "Error" ],
 			responseTypeColor: [ "#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034" ],
 			agentAllStr: "All"
 		}
@@ -86,6 +87,13 @@
 		};
 		this.getAgentAllStr = function() {
 			return cfg.cst.agentAllStr;
+		};
+		this.getResponseTypeFormat = function() {
+			var o = {};
+			jQuery.each( cfg.cst.responseType, function( index, value ) {
+				o[value] = 0;
+			});
+			return o;
 		};
 		
 		

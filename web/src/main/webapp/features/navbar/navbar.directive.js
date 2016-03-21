@@ -16,8 +16,8 @@
 		}
 	});
 	
-	pinpointApp.directive('navbarDirective', [ "cfg", "$rootScope", "$http","$document", "$timeout", "$window",  "webStorage", "helpContentService", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService",
-	    function (cfg, $rootScope, $http, $document, $timeout, $window, webStorage, helpContentService, analyticsService, preferenceService, tooltipService, commonAjaxService) {
+	pinpointApp.directive('navbarDirective', [ "cfg", "$route", "$rootScope", "$http","$document", "$timeout", "$window",  "webStorage", "helpContentService", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService",
+	    function (cfg, $route, $rootScope, $http, $document, $timeout, $window, webStorage, helpContentService, analyticsService, preferenceService, tooltipService, commonAjaxService) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -646,7 +646,8 @@
 							setDepthToStorage( scope.application + "+callee", scope.callee );
 							setDepthToStorage( scope.application + "+caller", scope.caller );
 
-							broadcast();
+							$route.reload();
+							//broadcast();
 						}
 					};
 					scope.cancelDepth = function( bHide ) {

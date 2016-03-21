@@ -31,8 +31,7 @@
 	};
 	DownloadPlugin.prototype.initEvent = function( oChart ) {
 		var self = this;
-		this._$element.find("a").on("click", function( event ) {
-			event.preventDefault();
+		this._$element.find("a").on("click", function() {
 			if ( self._bDisabled ) return;
 			$(this).attr({
 				"href": oChart.getChartAsImage( "png" ),

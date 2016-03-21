@@ -215,7 +215,7 @@ module.exports = function (grunt) {
 					'js/infinite-circular-scroll.min.js',
 					'js/server-map2.min.js'
 				], DEST_LIB_PATH ),
-				dest: DEST_LIB_PATH + 'js/pinpoint-component.min.js'
+				dest: DEST_LIB_PATH + 'js/pinpoint-component.js'
 			},
 			pinpointSrc: {
 				options: {
@@ -408,6 +408,16 @@ module.exports = function (grunt) {
 					'main/webapp/lib/js/server-map2.min.js': 'main/webapp/lib/js/server-map2.js'
 				}
 			},
+			pinpointComponent: {
+				options: {
+					preserveComments: false,
+					sourceMap: true,
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>*/'
+				},
+				files: {
+					'main/webapp/lib/js/pinpoint-component.min.js': 'main/webapp/lib/js/pinpoint-component.js'
+				}
+			},
 			pinpointSrc: {
 				options: {
 					preserveComments: false,
@@ -559,6 +569,7 @@ module.exports = function (grunt) {
 		'buildInfiniteScroll',
 		'buildServerMap',
 		'concat:pinpointComponent',
+		'uglify:pinpointComponent',
 		'clean:pinpointComponentJS'
 	]);
 
