@@ -68,8 +68,12 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>2301</td><td>ORACLE_EXECUTE_QUERY</td></tr>
  * <tr><td>2400</td><td>CUBRID</td></tr>
  * <tr><td>2401</td><td>CUBRID_EXECUTE_QUERY</td></tr>
+ * <tr><td>2410</td><td>NBASET</td></tr>
+ * <tr><td>2411</td><td>NBASET_EXECUTE_QUERY</td></tr>
+ * <tr><td>2412</td><td>NBASET_INTERNAL</td></tr>
  * <tr><td>2500</td><td>POSTGRESQL</td></tr>
  * <tr><td>2501</td><td>POSTGRESQL_EXECUTE_QUERY</td></tr>
+ *
  * </table>
  *
  * <h3>Database Sandbox (2900 ~ 2999)</h3>

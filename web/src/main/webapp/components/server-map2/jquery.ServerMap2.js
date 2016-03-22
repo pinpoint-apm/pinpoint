@@ -84,6 +84,8 @@
                     'REDIS_GROUP': 'REDIS.png',
                     'NBASE_ARC': 'NBASE_ARC.png',
                     'NBASE_ARC_GROUP': 'NBASE_ARC.png',
+                    'NBASE_T': 'NBASE_T.png',
+                    'NBASE_T_GROUP': 'NBASE_T.png',
                     'USER': 'USER.png',
                     'USER_GROUP': 'USER.png'
                 },
