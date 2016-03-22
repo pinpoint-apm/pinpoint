@@ -73,7 +73,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>2412</td><td>NBASET_INTERNAL</td></tr>
  * <tr><td>2500</td><td>POSTGRESQL</td></tr>
  * <tr><td>2501</td><td>POSTGRESQL_EXECUTE_QUERY</td></tr>
- *
+ * <tr><td>2600</td><td>CASSANDRA</td></tr>
+ * <tr><td>2601</td><td>CASSANDRA_EXECUTE_QUERY</td></tr>
  * </table>
  *
  * <h3>Database Sandbox (2900 ~ 2999)</h3>
