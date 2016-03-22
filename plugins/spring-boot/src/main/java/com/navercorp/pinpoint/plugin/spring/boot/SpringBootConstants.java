@@ -32,4 +32,6 @@ public final class SpringBootConstants {
     public static final ServiceType SERVICE_TYPE = ServiceTypeFactory.of(1210, NAME, RECORD_STATISTICS);
 
     public static final String BOOTSTRAP_MAIN_PREFIX = "org.springframework.boot.loader.";
+
+    public static final String ROOT_CONTEXT_KEY = "Spring Boot";
 }

@@ -33,7 +33,7 @@ public interface ServerMetaDataHolder {
     
     void removeListener(ServerMetaDataListener listener);
     
-    void publishServerMetaData();
+    void notifyListeners();
     
     interface ServerMetaDataListener {
         

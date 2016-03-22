@@ -90,8 +90,9 @@ public class MainClassCondition implements Condition<String>, ConditionValue<Str
             logger.warn("Error retrieving main class from [{}]", property.getClass().getName());
             return NOT_FOUND;
         } else {
+            JarFile executableArchive = null;
             try {
-                JarFile executableArchive = new JarFile(javaCommand);
+                executableArchive = new JarFile(javaCommand);
                 return extractMainClassFromArchive(executableArchive);
             } catch (IOException e) {
                 // If it's not a valid java archive, VM shouldn't start in the first place.
@@ -101,6 +102,14 @@ public class MainClassCondition implements Condition<String>, ConditionValue<Str
                 // fail-safe, application shouldn't not start because of this
                 logger.warn("Error retrieving main class from java command : [{}]", javaCommand, e);
                 return NOT_FOUND;
+            } finally {
+                if (executableArchive != null) {
+                    try {
+                        executableArchive.close();
+                    } catch (IOException e) {
+                        logger.warn("Error closing jarFile : [{}]", executableArchive.getName(), e);
+                    }
+                }
             }
         }
     }

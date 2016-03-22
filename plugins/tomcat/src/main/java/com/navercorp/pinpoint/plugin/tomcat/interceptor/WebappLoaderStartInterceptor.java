@@ -18,12 +18,15 @@ package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
@@ -139,19 +142,24 @@ public class WebappLoaderStartInterceptor implements AroundInterceptor {
         }
         List<String> libJarNames = new ArrayList<String>(urls.length);
         for (URL url : urls) {
-            String libJarName = extractLibJarName(url);
-            if (libJarName.length() > 0) {
-                libJarNames.add(libJarName);
+            try {
+                URI uri =  url.toURI();
+                String libJarName = extractLibJarName(uri);
+                if (libJarName.length() > 0) {
+                    libJarNames.add(libJarName);
+                }
+            } catch (URISyntaxException e) {
+                // ignore invalid formats
+                logger.warn("Invalid library url found : [{}]", url, e);
+            } catch (Exception e) {
+                logger.warn("Error extracting library name", e);
             }
         }
         return libJarNames;
     }
     
-    private String extractLibJarName(URL url) {
-        if (url == null) {
-            return "";
-        }
-        String jarName = url.toString();
+    private String extractLibJarName(URI uri) {
+        String jarName = uri.toString();
         if (jarName == null) {
             return "";
         }
@@ -164,7 +172,9 @@ public class WebappLoaderStartInterceptor implements AroundInterceptor {
     }
     
     private void dispatchLibJars(String contextKey, List<String> libJars) {
-        this.traceContext.getServerMetaDataHolder().addServiceInfo(contextKey, libJars);
+        ServerMetaDataHolder holder = this.traceContext.getServerMetaDataHolder();
+        holder.addServiceInfo(contextKey, libJars);
+        holder.notifyListeners();
     }
 
 }
