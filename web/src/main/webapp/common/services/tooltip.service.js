@@ -65,7 +65,7 @@
 
 	pinpointApp.service('TooltipService', [ 'TooltipServiceConfig', 'helpContentTemplate', 'helpContentService', function ( $config, helpContentTemplate, helpContentService ) {
 
-		this.init = function(type) {
+		this.init = function( type ) {
 			$("." + type + "Tooltip").tooltipster({
 				content: getTooltipStr( type ),
 				position: $config[type].position,
