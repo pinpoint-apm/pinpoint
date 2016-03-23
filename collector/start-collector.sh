@@ -3,6 +3,7 @@ set -e
 set -x
 
 CLUSTER_ENABLE=${CLUSTER_ENABLE:-false}
+CLUSTER_ZOOKEEPER_ADDRESS=${CLUSTER_ZOOKEEPER_ADDRESS:-localhost}
 
 COLLECTOR_TCP_PORT=${COLLECTOR_TCP_PORT:-9994}
 COLLECTOR_UDP_STAT_LISTEN_PORT=${COLLECTOR_UDP_STAT_LISTEN_PORT:-9995}
@@ -17,6 +18,7 @@ cp /assets/pinpoint-collector.properties /usr/local/tomcat/webapps/ROOT/WEB-INF/
 cp /assets/hbase.properties /usr/local/tomcat/webapps/ROOT/WEB-INF/classes/hbase.properties
 
 sed -i "s/cluster.enable=true/cluster.enable=${CLUSTER_ENABLE}/g" /usr/local/tomcat/webapps/ROOT/WEB-INF/classes/pinpoint-collector.properties
+sed -i "s/cluster.zookeeper.address=localhost/cluster.zookeeper.address=${CLUSTER_ZOOKEEPER_ADDRESS}/g" /usr/local/tomcat/webapps/ROOT/WEB-INF/classes/pinpoint-collector.properties
 
 sed -i "s/collector.tcpListenPort=9994/collector.tcpListenPort=${COLLECTOR_TCP_PORT}/g" /usr/local/tomcat/webapps/ROOT/WEB-INF/classes/pinpoint-collector.properties
 sed -i "s/collector.udpStatListenPort=9995/collector.udpStatListenPort=${COLLECTOR_UDP_STAT_LISTEN_PORT}/g" /usr/local/tomcat/webapps/ROOT/WEB-INF/classes/pinpoint-collector.properties

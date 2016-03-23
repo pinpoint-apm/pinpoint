@@ -29,7 +29,8 @@ pinpoint-collector:
     COLLECTOR_TCP_PORT: 9994
     COLLECTOR_UDP_STAT_LISTEN_PORT: 9995
     COLLECTOR_UDP_SPAN_LISTEN_PORT: 9996
-    CLUSTER_ENABLE: 'false'
+    CLUSTER_ENABLE: 'true'
+    CLUSTER_ZOOKEEPER_ADDRESS: hbase
     DISABLE_DEBUG: 'true'
   links:
     - pinpoint-hbase:hbase
@@ -46,7 +47,8 @@ pinpoint-web:
   environment:
     HBASE_HOST: hbase
     HBASE_PORT: 2181
-    CLUSTER_ENABLE: 'false'
+    CLUSTER_ENABLE: 'true'
+    CLUSTER_ZOOKEEPER_ADDRESS: hbase
     ADMIN_PASSWORD: admin123
     DISABLE_DEBUG: 'true'
   links:
