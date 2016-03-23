@@ -879,7 +879,7 @@
                     <excludes>
                         <exclude>src/main/webapp/components</exclude>
                     </excludes>
-                    <reporter>jslint</reporter>
+                    <reporter>checkstyle</reporter>
                     <reportFile>${project.build.directory}/jshint.xml</reportFile>
                     <failOnError>false</failOnError>
                 </configuration>
