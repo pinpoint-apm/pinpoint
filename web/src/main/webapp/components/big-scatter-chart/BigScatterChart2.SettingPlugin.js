@@ -19,7 +19,8 @@
 		var randomMaxID = "setting-max-" + parseInt( Math.random() * 100000 );
 
 		this._$elConfigButton = $("<div>").css({
-			"padding": "4px 0px 4px 20px"
+			"padding": "4px 0px 4px 20px",
+			"cursor": "pointer"
 		}).append( $("<img>").attr({
 			"src": this._featureImage,
 			"alt" : "Open Config",

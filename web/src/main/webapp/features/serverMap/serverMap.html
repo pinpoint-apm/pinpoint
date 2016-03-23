@@ -15,7 +15,7 @@
 	        </div>
 	    </div>
 	    <div class="servermap-status search-result" ng-show="bShowServerMapStatus">
-	    	<span style="inline-block" class="label label-{{ searchNodeIndex == $index ? 'success' : 'info'}}" ng-repeat="sNode in searchNodeList" ng-click="searchNodeWithCategory($index)">{{sNode.applicationName}}({{sNode.serviceType}})</span>
+	    	<span style="display:inline-block" class="label label-{{ searchNodeIndex == $index ? 'success' : 'info'}}" ng-repeat="sNode in searchNodeList" ng-click="searchNodeWithCategory($index)">{{sNode.applicationName}}({{sNode.serviceType}})</span>
 	    	<div class="count">Result : 0</div>
 	    </div>
     </div>
