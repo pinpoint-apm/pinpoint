@@ -47,7 +47,7 @@ public class CassandraTestHelper {
     }
 
     public static String getHost() {
-        return DatabaseDescriptor.getListenAddress().getHostName();
+        return DatabaseDescriptor.getListenAddress().getHostAddress();
     }
 
     public static int getNativeTransportPort() {
