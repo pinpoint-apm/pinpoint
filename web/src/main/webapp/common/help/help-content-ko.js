@@ -590,7 +590,15 @@
                         desc: "모든 트랜잭션"
                     }]
                 }]
-            }
+            },
+			wrongApp: [
+				"<div style='font-size:12px'>해당 agent는 {{application1}}이 아닌 {{application2}}에 포함되어 있습니다.<br>",
+				"원인은 다음 중 하나입니다.<hr>",
+				"1. 해당 agent가 {{application1}}에서 {{application2}}으로 이동한 경우<br>",
+				"2.{{agentId}}의 agent가 {{application2}}에도 등록 된 경우<hr>",
+				"1의 경우 {{application1}}과 {{agentId}}간의 매핑 저보를 삭제해야 합니다<br>",
+				"2의 경우 중복 등록 된 agent의 id를 변경해야 합니다.</div>"
+			].join("")
 		},
 		callTree: {
 			column: {

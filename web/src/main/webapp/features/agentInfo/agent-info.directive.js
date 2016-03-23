@@ -11,8 +11,8 @@
 	    agentStatUrl: '/getAgentStat.pinpoint'
 	});
 	
-	pinpointApp.directive('agentInfoDirective', [ 'agentInfoConfig', '$timeout', 'AlertsService', 'ProgressBarService', 'AgentDaoService', 'AgentAjaxService', 'TooltipService', "AnalyticsService",
-	    function ( cfg, $timeout, AlertsService, ProgressBarService, AgentDaoService, agentAjaxService, tooltipService, analyticsService ) {
+	pinpointApp.directive('agentInfoDirective', [ 'agentInfoConfig', '$timeout', 'AlertsService', 'ProgressBarService', 'AgentDaoService', 'AgentAjaxService', 'TooltipService', "AnalyticsService", 'helpContentService',
+	    function ( cfg, $timeout, AlertsService, ProgressBarService, AgentDaoService, agentAjaxService, tooltipService, analyticsService, helpContentService ) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -228,6 +228,19 @@
 	                        scope.$broadcast('tpsChartDirective.showCursorAt.forTps', event.index);
 	                    }
 	                };
+					scope.toggleHelp = function() {
+						$("._wrongApp").popover({
+							"title": "<span class='label label-info'>" + oNavbarVoService.getApplicationName() + "</span> <span class='glyphicon glyphicon-resize-horizontal'></span> <span class='label label-info'>" + scope.agent.applicationName + "</span>",
+							"content": helpContentService.inspector.wrongApp
+								.replace(/\{\{application1\}\}/g, oNavbarVoService.getApplicationName() )
+								.replace(/\{\{application2\}\}/g, scope.agent.applicationName )
+								.replace(/\{\{agentId\}\}/g, scope.agent.agentId ),
+							"html": true
+						}).popover("toggle");
+					};
+					scope.isSameApplication = function() {
+						return scope.agent.applicationName === oNavbarVoService.getApplicationName();
+					};
 
 					scope.formatDate = function( time ) {
 						return moment(time).format('YYYY.MM.DD HH:mm:ss');

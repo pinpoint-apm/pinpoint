@@ -52,7 +52,8 @@
                     <tbody>
                     <tr>
                         <td class="col-md-2 text-right"><strong>Application Name</strong></td>
-                        <td class="col-md-3 text-left">{{agent.applicationName}}</td>
+                        <td class="col-md-3 text-left" ng-show="isSameApplication()">{{agent.applicationName}}</td>
+						<td class="col-md-3 text-left" ng-hide="isSameApplication()"><span style="color:red">{{agent.applicationName}}</span> <button type="button" class="btn btn-xs btn-danger _wrongApp" ng-click="toggleHelp(this)" style="font-size:10px;float:right" data-toggle="popover" data-container="body" data-trigger="manual"  data-placement="bottom"><span class="glyphicon glyphicon-exclamation-sign"></span></button></td>
                         <td class="col-md-2 text-right"><strong>Agent Version</strong></td>
                         <td class="col-md-5 text-left">{{agent.agentVersion}}</td>
                     </tr>
