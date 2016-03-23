@@ -46,7 +46,7 @@ module.exports = function (grunt) {
 			baseLib: {
 				options: {
 					stripBanner: true,
-					banner: '/*! @preserve <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd")%> - jquery + jquery.ui + underscore*/',
+					banner: '/*! @preserve <%= pkg.name %> - v<%= pkg.version %> - jquery + jquery.ui + underscore*/',
 					separator: '\n'
 				},
 				src: makePath([
@@ -59,7 +59,7 @@ module.exports = function (grunt) {
 			drawLib: {
 				options: {
 					stripBanner: true,
-					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd")%> - go + snap.svg + d3 + amcharts*/',
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - go + snap.svg + d3 + amcharts*/',
 					separator: '\n'
 				},
 				src: makePath( [
@@ -75,7 +75,7 @@ module.exports = function (grunt) {
 			utilLib: {
 				options: {
 					stripBanner: true,
-					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> - bootstrap, preffify, moment, select2, jquery.Class, jquery.layout, jslider, slickgrid, tooltipster, handlebars */',
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - bootstrap, preffify, moment, select2, jquery.Class, jquery.layout, jslider, slickgrid, tooltipster, handlebars */',
 					separator: '\n'
 				},
 				src: makePath( [
@@ -114,7 +114,7 @@ module.exports = function (grunt) {
 			angularLib: {
 				options: {
 					stripBanner: true,
-					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> - angular + -resource + -cookies + -webstorage + -strap + -animate + -route + -sanitize + -slider + -base64 + -timer */',
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - angular + -resource + -cookies + -webstorage + -strap + -animate + -route + -sanitize + -slider + -base64 + -timer */',
 					separator: '\n'
 				},
 				src: makePath( [
@@ -136,7 +136,7 @@ module.exports = function (grunt) {
 			timeSlider: {
 				options: {
 					stripBanner: true,
-					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> */',
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> */',
 					separator: '\n'
 				},
 				src: makePath( [
@@ -161,7 +161,7 @@ module.exports = function (grunt) {
 			bigScatter: {
 				options: {
 					stripBanner: true,
-					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> */',
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> */',
 					separator: '\n'
 				},
 				src: makePath( [
@@ -184,7 +184,7 @@ module.exports = function (grunt) {
 			infiniteScroll: {
 				options: {
 					stripBanner: true,
-					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> */',
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> */',
 					separator: '\n'
 				},
 				src: [
@@ -195,7 +195,7 @@ module.exports = function (grunt) {
 			serverMap: {
 				options: {
 					stripBanner: true,
-					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> */',
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> */',
 					separator: '\n'
 				},
 				src: [
@@ -206,7 +206,7 @@ module.exports = function (grunt) {
 			pinpointComponent: {
 				options: {
 					stripBanner: true,
-					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> - TimeSlider + BigScatterChart2 + InfiniteCircularScroll*/',
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - TimeSlider + BigScatterChart2 + InfiniteCircularScroll*/',
 					separator: '\n'
 				},
 				src: makePath( [
@@ -220,7 +220,7 @@ module.exports = function (grunt) {
 			pinpointSrc: {
 				options: {
 					stripBanner: true,
-					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>*/',
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> */',
 					separator: '\n'
 				},
 				src: makePath( [ 

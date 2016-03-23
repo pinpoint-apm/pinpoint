@@ -552,6 +552,16 @@ canvas {outline:none}
     padding-top: 4px;
     padding-bottom: 4px;
 }
+@keyframes blinkKeyframe {
+    0% { color: #FFF }
+    50% { color: #000  }
+    100% { color: #FFF }
+}
+.blinkblink {
+    animation-name: blinkKeyframe;
+    animation-duration: 4s;
+    animation-iteration-count: infinite;
+}
 .nodeInfoDetails {
     /*padding: 5px 15px 30px;*/
     /*padding: 0;*/

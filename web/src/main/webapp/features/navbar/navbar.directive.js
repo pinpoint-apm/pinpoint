@@ -694,6 +694,9 @@
 						scope.autoUpdate = false;
 						broadcast();
 					};
+					scope.isRealtime = function() {
+						return ( typeof oNavbarVoService === "undefined" || oNavbarVoService === null ? false : oNavbarVoService.isRealtime() );
+					};
 	                
 	                scope.showConfig = function() {
 	                	$rootScope.$broadcast("configuration.show");

@@ -243,6 +243,7 @@
 			}
 		}
 		this.addBubbles( oDataBlock );
+		if( this._bPause === true ) return;
 		this._oBubbleTypeManager.showTypeCount( this._getSumCountByType( bRealtime ) );
 		this._drawBubbles( oDataBlock );
 		this._moveChart( oDataBlock, nextRequestTime );

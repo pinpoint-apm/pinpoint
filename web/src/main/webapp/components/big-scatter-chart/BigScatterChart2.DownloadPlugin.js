@@ -31,8 +31,11 @@
 	};
 	DownloadPlugin.prototype.initEvent = function( oChart ) {
 		var self = this;
-		this._$element.find("a").on("click", function() {
-			if ( self._bDisabled ) return;
+		this._$element.find("a").on("click", function(event) {
+			if ( self._bDisabled ) {
+				event.preventDefault();
+				return;
+			}
 			$(this).attr({
 				"href": oChart.getChartAsImage( "png" ),
 				"download": "Pinpoint_Scatter_Chart[" + moment( oChart.option( "minX" ) ).format( "YYYYMMDD_HHmm" ) + "~" + moment( oChart.option( "maxX" ) ).format( "YYYYMMDD_HHmm" ) + "]"
