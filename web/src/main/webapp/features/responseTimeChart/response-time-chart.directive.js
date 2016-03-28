@@ -27,8 +27,7 @@
                     var id, oChart;
 
                     // define variables of methods
-                    var setIdAutomatically, setWidthHeight, render, clickGraphItemListener, updateData,
-                        parseHistogramForAmcharts, renderEmpty;
+                    var setIdAutomatically, setWidthHeight, render, clickGraphItemListener, updateData, parseHistogramForAmcharts;
 
                     /**
                      * set id automatically
