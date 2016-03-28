@@ -25,8 +25,9 @@
                         htAgentChartRendered, bShown, sLastKey, getUnknownNode;
 
                     // define private variables of methods
-                    var reset, showDetailInformation, renderAllChartWhichIsVisible, hide, show, renderResponseSummary,
-                        renderLoad, bRequesting = false;
+                    var reset, showDetailInformation, renderAllChartWhichIsVisible, hide, show,
+						renderResponseSummary, updateResponseSummary, renderLoad, updateLoad,
+						bRequesting = false;
 
                     // bootstrap
                     bShown = false;
@@ -164,6 +165,11 @@
 						namespace = namespace || "forNode_" + className;
                         scope.$broadcast("responseTimeChartDirective.initAndRenderWithData." + namespace, histogram, w, h, false, true);
                     };
+					updateResponseSummary = function (namespace, toApplicationName, histogram, w, h) {
+						var className = $filter("applicationNameToClassName")(toApplicationName);
+						namespace = namespace || "forNode_" + className;
+						scope.$broadcast( "responseTimeChartDirective.updateData." + namespace, histogram );
+					};
 
                     /**
                      * render load
@@ -179,6 +185,11 @@
 						namespace = namespace || "forNode_" + className;
                         scope.$broadcast("loadChartDirective.initAndRenderWithData." + namespace, timeSeriesHistogram, w, h, useChartCursor);
                     };
+					updateLoad = function (namespace, toApplicationName, timeSeriesHistogram, w, h, useChartCursor) {
+						var className = $filter("applicationNameToClassName")(toApplicationName);
+						namespace = namespace || "forNode_" + className;
+						scope.$broadcast("loadChartDirective.updateData." + namespace, timeSeriesHistogram);
+					};
                     
                     getUnknownNode = function( key ) {
 	                	var node = null;
@@ -417,11 +428,11 @@
 								"to": to
 							}, function (oResult) {
 								if (agentName === preferenceService.getAgentAllStr()) {
-									renderResponseSummary("forNode", scope.node.applicationName, mergeSummaryData( oResult.summary ), "100%", "150px");
-									renderLoad("forNode", scope.node.applicationName, mergeLoadData( oResult.timeSeries ), "100%", "220px", true);
+									updateResponseSummary("forNode", scope.node.applicationName, mergeSummaryData( oResult.summary ) );
+									updateLoad("forNode", scope.node.applicationName, mergeLoadData( oResult.timeSeries ) );
 								} else {
-									renderResponseSummary("forNode", scope.node.applicationName, oResult.summary[agentName], "100%", "150px");
-									renderLoad("forNode", scope.node.applicationName, oResult.timeSeries[agentName], "100%", "220px", true);
+									updateResponseSummary("forNode", scope.node.applicationName, oResult.summary[agentName]);
+									updateLoad("forNode", scope.node.applicationName, oResult.timeSeries[agentName]);
 								}
 								bRequesting = false;
 							}, function() {

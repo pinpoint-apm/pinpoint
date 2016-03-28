@@ -357,7 +357,7 @@ module.exports = function (grunt) {
 			baseLib: {
 				options: {
 					preserveComments: false,
-					banner: '/*! @preserve <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> - jquery + jquery.ui + underscore*/'
+					banner: '/*! @preserve <%= pkg.name %> - v<%= pkg.version %> - jquery + jquery.ui + underscore*/'
 				},
 				files: {
 					'main/webapp/lib/js/base-lib.min.js': 'main/webapp/lib/js/base-lib.js'
@@ -366,7 +366,7 @@ module.exports = function (grunt) {
 			utilLib: {
 				options: {
 					preserveComments: false,
-					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> - bootstrap, preffify, moment, select2, jquery.Class, jquery.layout, jslider, slickgrid, tooltipster, handlebars */'
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - bootstrap, preffify, moment, select2, jquery.Class, jquery.layout, jslider, slickgrid, tooltipster, handlebars */'
 				},
 				files: {
 					'main/webapp/lib/js/util-lib.min.js': 'main/webapp/lib/js/util-lib.js'
@@ -375,7 +375,7 @@ module.exports = function (grunt) {
 			timeSlider : {
 				options: {
 					preserveComments: false,
-					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>*/'
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> */'
 				},
 				files: {
 					'main/webapp/lib/js/time-slider.min.js': 'main/webapp/lib/js/time-slider.js'
@@ -384,7 +384,7 @@ module.exports = function (grunt) {
 			bigScatter : {
 				options: {
 					preserveComments: false,
-					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>*/'
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> */'
 				},
 				files: {
 					'main/webapp/lib/js/big-scatter-chart2.min.js': 'main/webapp/lib/js/big-scatter-chart2.js'
@@ -393,7 +393,7 @@ module.exports = function (grunt) {
 			infiniteScroll : {
 				options: {
 					preserveComments: false,
-					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>*/'
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> */'
 				},
 				files: {
 					'main/webapp/lib/js/infinite-circular-scroll.min.js': 'main/webapp/lib/js/infinite-circular-scroll.js'
@@ -402,7 +402,7 @@ module.exports = function (grunt) {
 			serverMap : {
 				options: {
 					preserveComments: false,
-					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>*/'
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> */'
 				},
 				files: {
 					'main/webapp/lib/js/server-map2.min.js': 'main/webapp/lib/js/server-map2.js'
@@ -412,7 +412,7 @@ module.exports = function (grunt) {
 				options: {
 					preserveComments: false,
 					sourceMap: true,
-					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>*/'
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> */'
 				},
 				files: {
 					'main/webapp/lib/js/pinpoint-component.min.js': 'main/webapp/lib/js/pinpoint-component.js'
@@ -422,7 +422,7 @@ module.exports = function (grunt) {
 				options: {
 					preserveComments: false,
 					sourceMap: true,
-					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>*/'
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> */'
 				},
 				files: {
 					'main/webapp/lib/js/pinpoint.min.js': 'main/webapp/lib/js/pinpoint.js'

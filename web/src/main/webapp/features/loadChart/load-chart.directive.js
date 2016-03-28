@@ -265,20 +265,22 @@
                  * @param data
                  */
                 updateData = function (data) {
-//                    oChart.dataProvider = data;
-                	if ( angular.isDefined( oChart ) ) {
-	                    oChart.clear();
-                	}
-                    element.empty();
-                    $timeout(function () {
-//                        oChart.validateData();
-                    	if( data.length === 0 ) {
-                    		renderEmpty();
-                    	} else {
-                    		render(data, true);
-                    	}
-                    });
-                };
+//                 	if ( angular.isDefined( oChart ) ) {
+// 	                    oChart.clear();
+//                 	}
+//                     element.empty();
+//                     $timeout(function () {
+//                     	if( data.length === 0 ) {
+//                     		renderEmpty();
+//                     	} else {
+//                     		render(data, true);
+//                     	}
+//                     });
+					oChart.dataProvider = data;
+					$timeout(function () {
+						oChart.validateData();
+					});
+				};
 
                 /**
                  * parse time series histogram for amcharts
