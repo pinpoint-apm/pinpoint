@@ -59,6 +59,8 @@
 		this.CONST.CLK_CALLER_RANGE = "ClickCallerRange";
 		this.CONST.CLK_REALTIME_CHART_HIDE = "ClickRealtimeChartHide";
 		this.CONST.CLK_REALTIME_CHART_SHOW = "ClickRealtimeChartShow";
+		this.CONST.CLK_REALTIME_CHART_PIN_ON = "ClickRealtimeChartPinOn";
+		this.CONST.CLK_REALTIME_CHART_PIN_OFF = "ClickRealtimeChartPinOff";
 		this.CONST.CLK_SHOW_SERVER_TYPE_DETAIL = "ClickShowServerTypeDetail";
 		this.CONST.CLK_CHANGE_AGENT = "ClickChangeAgent";
 		this.CONST.CLK_START_REALTIME = "ClickStartRealtime";

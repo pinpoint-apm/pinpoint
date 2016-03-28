@@ -370,6 +370,7 @@
 	        };
 	        $scope.pin = function() {
 	        	bIsPinned = !bIsPinned;
+				analyticsService.send( analyticsService.CONST.MAIN, bIsPinned ? analyticsService.CONST.CLK_REALTIME_CHART_PIN_ON : analyticsService.CONST.CLK_REALTIME_CHART_PIN_OFF );
 	        	setPinColor();
 	        };
 	        $scope.resizePopup = function() {
