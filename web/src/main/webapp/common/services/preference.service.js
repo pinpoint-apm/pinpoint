@@ -41,7 +41,7 @@
 		}
 	});
 	
-	pinpointApp.service('PreferenceService', [ 'PreferenceServiceConfig', function(cfg) {
+	pinpointApp.service( "PreferenceService", [ "PreferenceServiceConfig", "webStorage", function( cfg, webStorage ) {
 		var self = this;
 		var oDefault = {};
 		var aFavoriteList = [];
@@ -94,6 +94,20 @@
 				o[value] = 0;
 			});
 			return o;
+		};
+		this.getCalleeFromStorage = function(app) {
+			if ( angular.isUndefined( app ) ) {
+				return this.getCallee();
+			} else {
+				return webStorage.get( app + "+callee" ) || this.getCallee();
+			}
+		};
+		this.getCallerFromStorage = function(app) {
+			if ( angular.isUndefined( app ) ) {
+				return this.getCaller();
+			} else {
+				return webStorage.get(app + "+caller") || this.getCaller();
+			}
 		};
 		
 		
