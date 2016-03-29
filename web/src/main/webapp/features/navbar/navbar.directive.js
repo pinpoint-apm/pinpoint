@@ -35,20 +35,6 @@
 	
 	                var applicationResource;
 
-					var getCalleeFromStorage = function(app) {
-						if ( angular.isUndefined( app ) ) {
-							return preferenceService.getCallee();
-						} else {
-							return webStorage.get( app + "+callee" ) || preferenceService.getCallee();
-						}
-					};
-	                var getCallerFromStorage = function(app) {
-						if ( angular.isUndefined( app ) ) {
-							return preferenceService.getCaller();
-						} else {
-							return webStorage.get(app + "+caller") || preferenceService.getCaller();
-						}
-	                };
 					var setDepthToStorage = function(app, depth) {
 	                	if (angular.isUndefined(app) || app === null || angular.isUndefined(depth) || depth === null) {
 	                		return;
@@ -79,8 +65,8 @@
 	                        label: '1 minute'
 	                    }
 	                ];
-					scope.callee = prevCallee = getCalleeFromStorage( scope.application );
-	                scope.caller = prevCaller = getCallerFromStorage( scope.application );
+					scope.callee = prevCallee = preferenceService.getCalleeFromStorage( scope.application );
+	                scope.caller = prevCaller = preferenceService.getCallerFromStorage( scope.application );
 	                scope.rangeList = preferenceService.getDepthList();
 	                scope.applications = [
 	                    {
@@ -134,8 +120,8 @@
 	                    ];
 	                    scope.application = oNavbarVoService.getApplication() || "";
 						if ( scope.application !== "" ) {
-							scope.callee = prevCallee = getCalleeFromStorage( scope.application );
-							scope.caller = prevCaller = getCallerFromStorage( scope.application );
+							scope.callee = prevCallee = preferenceService.getCalleeFromStorage( scope.application );
+							scope.caller = prevCaller = preferenceService.getCallerFromStorage( scope.application );
 						}
 	                    scope.disableApplication = true;
 	                    scope.readablePeriod = oNavbarVoService.getReadablePeriod() || preferenceService.getPeriod();
@@ -313,8 +299,8 @@
 	                    }
 	                    oNavbarVoService.setApplication(scope.application);
 
-						scope.callee = getCalleeFromStorage(scope.application);
-	                    scope.caller = getCallerFromStorage(scope.application);
+						scope.callee = preferenceService.getCalleeFromStorage(scope.application);
+	                    scope.caller = preferenceService.getCallerFromStorage(scope.application);
 
 						oNavbarVoService.setCalleeRange( scope.callee );
 	                    oNavbarVoService.setCallerRange( scope.caller );
