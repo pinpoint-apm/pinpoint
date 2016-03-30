@@ -127,7 +127,7 @@
 									"url": cfg.scatterDataUrl,
 									"realtime": isRealtime(),
 									"realtimeInterval": 2000,
-									"realtimeDefaultTimeGap": 5000,
+									"realtimeDefaultTimeGap": 3000,
 									"realtimeResetTimeGap": 20000,
 									"fetchLimit": 5000,
 									"fetchingInterval": 2000,
@@ -151,6 +151,7 @@
 							htScatterSet[application].target.show();
 							if ( isRealtime() ) {
 								commonAjaxService.getServerTime( function( serverTime ) {
+									// serverTime -= 3000;
 									htScatterSet[application].scatter.resume( serverTime - preferenceService.getRealtimeScatterXRange(), serverTime );
 									htScatterSet[application].scatter.selectAgent( preferenceService.getAgentAllStr(), true);
 								});

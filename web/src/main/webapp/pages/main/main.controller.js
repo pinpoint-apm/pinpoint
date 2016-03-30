@@ -44,7 +44,7 @@
 				if ( oNavbarVoService.isRealtime() ) {
 					$scope.$broadcast('navbarDirective.initialize.realtime.andReload', oNavbarVoService);
 				} else {
-					if (angular.isDefined($routeParams.application) && angular.isUndefined($routeParams.readablePeriod) && angular.isUndefined($routeParams.readablePeriod)) {
+					if ( angular.isDefined($routeParams.application) && angular.isUndefined($routeParams.readablePeriod) ) {
 						$scope.$broadcast('navbarDirective.initialize.andReload', oNavbarVoService);
 					} else {
 						$window.$routeParams = $routeParams;
