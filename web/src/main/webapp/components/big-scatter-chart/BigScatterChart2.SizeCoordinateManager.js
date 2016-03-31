@@ -98,16 +98,16 @@
 		return this.option("width") - this.option("padding").right;
 	};
 	SizeCoordinateManager.prototype.getXOfPixel = function() {
-		return Math.round( ( this.option("maxX") - this.option("minX") ) / this._widthOfChartSpace );
+		return Math.round( this.getGapX() / this._widthOfChartSpace );
 	};
 	SizeCoordinateManager.prototype.getYOfPixel = function() {
-		return Math.round( ( this.option("maxY") - this.option("minY") ) / this._heightOfChartSpace );
+		return Math.round( this.getGapY() / this._heightOfChartSpace );
 	};
 	SizeCoordinateManager.prototype.parseMouseXToXData = function( x ) {
 		return Math.round((x / this._widthOfChartSpace ) * this.getGapX() ) + this.option( "minX" );
 	};
 	SizeCoordinateManager.prototype.parseMouseYToYData = function( y ) {
-		return Math.round( ( y / this._heightOfChartSpace) * this.getGapY() );
+		return Math.round( this.option("minY") + ( ( y / this._heightOfChartSpace) * this.getGapY() ) );
 	};
 	SizeCoordinateManager.prototype.getGapX = function() {
 		return this.option( "maxX" ) - this.option( "minX" );
