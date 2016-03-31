@@ -445,6 +445,7 @@
 	BigScatterChart2.prototype._drawWithRealtimeDataSource = function() {
 		var self = this;
 		this._oDataLoadManager.loadRealtimeData( function( oResultData, nextRequestTime, bResetRealtime, currentServerTime ) {
+			self._oMessage.hide();
 			self._hideServerError();
 			if ( bResetRealtime ) {
 				self.pause();

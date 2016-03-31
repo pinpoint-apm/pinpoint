@@ -632,8 +632,8 @@
 							prevCaller = scope.caller;
 							setDepthToStorage( scope.application + "+callee", scope.callee );
 							setDepthToStorage( scope.application + "+caller", scope.caller );
-
-							$route.reload();
+							
+							window.location.reload(true);
 							//broadcast();
 						}
 					};

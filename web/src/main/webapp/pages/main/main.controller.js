@@ -7,8 +7,8 @@
 	 * @name MainCtrl
 	 * @class
 	 */
-	pinpointApp.controller( "MainCtrl", [ "filterConfig", "$scope", "$timeout", "$routeParams", "locationService", "NavbarVoService", "$window", "SidebarTitleVoService", "filteredMapUtilService", "$rootElement", "AnalyticsService", "PreferenceService",
-	    function (cfg, $scope, $timeout, $routeParams, locationService, NavbarVoService, $window, SidebarTitleVoService, filteredMapUtilService, $rootElement, analyticsService, preferenceService) {
+	pinpointApp.controller( "MainCtrl", [ "filterConfig", "$route",  "$scope", "$timeout", "$routeParams", "locationService", "NavbarVoService", "$window", "SidebarTitleVoService", "filteredMapUtilService", "$rootElement", "AnalyticsService", "PreferenceService",
+	    function (cfg, $route, $scope, $timeout, $routeParams, locationService, NavbarVoService, $window, SidebarTitleVoService, filteredMapUtilService, $rootElement, analyticsService, preferenceService) {
 			analyticsService.send(analyticsService.CONST.MAIN_PAGE);
 	        // define private variables
 	        var oNavbarVoService, bNodeSelected, bNoData;
@@ -79,7 +79,7 @@
 				} else {
 					url += oNavbarVoService.getReadablePeriod() + '/' + oNavbarVoService.getQueryEndDateTime();
 				}
-	            if (locationService.path() !== url) {
+	            if (locationService.path() !== url ) {
 	                if (locationService.path() === '/main') {
 	                	locationService.path(url).replace();
 	                } else {
@@ -157,6 +157,10 @@
 	            $window.htoScatter = {};
 	            $scope.hasScatter = false;
 	            $scope.sidebarLoading = true;
+
+				if ( oNavbarVoService.isRealtime() ) {
+					$scope.$broadcast("realtimeChartController.close");
+				}
 	            $scope.$broadcast('sidebarTitleDirective.empty.forMain');
 	            $scope.$broadcast('nodeInfoDetailsDirective.hide');
 	            $scope.$broadcast('linkInfoDetailsDirective.hide');

@@ -48,7 +48,6 @@
 	            replace: true,
 	            templateUrl: 'features/serverMap/serverMap.html?v=' + G_BUILD_TIME,
 	            link: function postLink(scope, element, attrs) {
-	
 	                // define private variables
 	                var bUseNodeContextMenu, bUseLinkContextMenu, htLastQuery,
 	                    bUseBackgroundContextMenu, oServerMap, oAlertService, oProgressBarService, htLastMapData, htLastLink, htLastNode,

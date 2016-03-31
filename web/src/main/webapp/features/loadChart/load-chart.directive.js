@@ -276,10 +276,17 @@
 //                     		render(data, true);
 //                     	}
 //                     });
-					oChart.dataProvider = data;
-					$timeout(function () {
-						oChart.validateData();
-					});
+
+					if ( angular.isUndefined( oChart ) ) {
+						if ( data.length !== 0 ) {
+							render(data, true);
+						}
+					} else {
+						oChart.dataProvider = data;
+						$timeout(function () {
+							oChart.validateData();
+						});
+					}
 				};
 
                 /**

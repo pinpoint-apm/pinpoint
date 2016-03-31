@@ -418,7 +418,9 @@
 //                        console.log("on responseTimeChartDirective.itemClicked.forNode", data);
                     });
 					scope.$on("responseTimeChartDirective.loadRealtime", function (event, applicationName, agentName, from, to ) {
-
+						if ( angular.isUndefined( scope.node ) || ( scope.node.applicationName !== applicationName ) ) {
+							return;
+						}
 						if ( bRequesting === false ) {
 							bRequesting = true;
 							commonAjaxService.getResponseTimeHistogramData( {
