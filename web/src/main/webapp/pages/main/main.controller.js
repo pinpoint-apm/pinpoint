@@ -7,8 +7,8 @@
 	 * @name MainCtrl
 	 * @class
 	 */
-	pinpointApp.controller( "MainCtrl", [ "filterConfig", "$route",  "$scope", "$timeout", "$routeParams", "locationService", "NavbarVoService", "$window", "SidebarTitleVoService", "filteredMapUtilService", "$rootElement", "AnalyticsService", "PreferenceService",
-	    function (cfg, $route, $scope, $timeout, $routeParams, locationService, NavbarVoService, $window, SidebarTitleVoService, filteredMapUtilService, $rootElement, analyticsService, preferenceService) {
+	pinpointApp.controller( "MainCtrl", [ "filterConfig", "$scope", "$timeout", "$routeParams", "locationService", "NavbarVoService", "$window", "SidebarTitleVoService", "filteredMapUtilService", "$rootElement", "AnalyticsService", "PreferenceService",
+	    function (cfg, $scope, $timeout, $routeParams, locationService, NavbarVoService, $window, SidebarTitleVoService, filteredMapUtilService, $rootElement, analyticsService, preferenceService) {
 			analyticsService.send(analyticsService.CONST.MAIN_PAGE);
 	        // define private variables
 	        var oNavbarVoService, bNodeSelected, bNoData;
@@ -38,8 +38,8 @@
 	            if ($routeParams.queryEndDateTime) {
 	                oNavbarVoService.setQueryEndDateTime($routeParams.queryEndDateTime);
 	            }
-				oNavbarVoService.setCalleeRange( preferenceService.getCalleeFromStorage($routeParams.application) );
-				oNavbarVoService.setCallerRange( preferenceService.getCallerFromStorage($routeParams.application) );
+				oNavbarVoService.setCalleeRange( preferenceService.getCalleeByApp($routeParams.application) );
+				oNavbarVoService.setCallerRange( preferenceService.getCallerByApp($routeParams.application) );
 
 				if ( oNavbarVoService.isRealtime() ) {
 					$scope.$broadcast('navbarDirective.initialize.realtime.andReload', oNavbarVoService);

@@ -9,9 +9,6 @@
 	 */
 	pinpointApp.constant('PreferenceServiceConfig', {
 		names: {
-			caller: "preference.caller",
-			callee: "preference.callee",
-			period: "preference.period",
 			favorite: "preference.favorite"
 		},
 		defaults: {
@@ -62,7 +59,7 @@
 			setFavoriteList();
 		};
 		function setFavoriteList() {
-			localStorage.setItem(cfg.names.favorite, JSON.stringify(aFavoriteList) );
+			webStorage.add(cfg.names.favorite, JSON.stringify(aFavoriteList) );
 		}
 		this.getFavoriteList = function() {
 			return aFavoriteList;
@@ -95,28 +92,34 @@
 			});
 			return o;
 		};
-		this.getCalleeFromStorage = function(app) {
+		this.getCalleeByApp = function(app) {
 			if ( angular.isUndefined( app ) ) {
 				return this.getCallee();
 			} else {
 				return webStorage.get( app + "+callee" ) || this.getCallee();
 			}
 		};
-		this.getCallerFromStorage = function(app) {
+		this.getCallerByApp = function(app) {
 			if ( angular.isUndefined( app ) ) {
 				return this.getCaller();
 			} else {
 				return webStorage.get(app + "+caller") || this.getCaller();
 			}
 		};
+		this.setDepthByApp = function( app, depth ) {
+			if (angular.isUndefined(app) || app === null || angular.isUndefined(depth) || depth === null) {
+				return;
+			}
+			webStorage.add(app, depth);
+		};
 		
 		
 		function loadPreference() {
-			// set value of localStoraget or default
-			// and set getter and setter function
+			// set value of webStorage or default
+			// and make getter and setter function
 			jQuery.each( cfg.list, function( index, value ) {
 				var name = value.name;
-				oDefault[name] = localStorage.getItem( name ) || cfg.defaults[name];
+				oDefault[name] = webStorage.get( name ) || cfg.defaults[name];
 				switch( value.type ) {
 					case "number":
 						oDefault[name] = parseInt( oDefault[name] );
@@ -127,11 +130,11 @@
 					return oDefault[name];
 				};
 				self["set" + fnPostfix] = function(v) {
-					localStorage.setItem(name, v);
+					webStorage.add(name, v);
 					oDefault[name] = v;
 				};
 			});
-			aFavoriteList = JSON.parse( localStorage.getItem(cfg.names.favorite) || "[]");
+			aFavoriteList = webStorage.get(cfg.names.favorite) || [];
 		}
 		
 	}]);
