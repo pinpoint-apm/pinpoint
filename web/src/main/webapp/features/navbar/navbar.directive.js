@@ -573,6 +573,9 @@
 	                scope.showUpdate = function () {
 	                    return scope.periodType === cfg.periodType.LAST && (_.indexOf(['5m', '20m', '1h', '3h'], scope.readablePeriod) >= 0) && scope.application ? true : false;
 	                };
+					scope.changeUpdateSetting = function() {
+						analyticsService.send(analyticsService.CONST.MAIN, scope.autoUpdate ? analyticsService.CONST.TG_UPDATE_OFF : analyticsService.CONST.TG_UPDATE_ON );
+					};
 	
 	                /**
 	                 * start update
@@ -689,7 +692,6 @@
 	                 */
 	                scope.$watch('autoUpdate', function (newVal, oldVal) {
 	                    if (newVal) {
-	                    	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.TG_UPDATE_ON);
 	                        $timeout(startUpdate, 1000);
 	                    } else {
 	                        resetTimeLeft();

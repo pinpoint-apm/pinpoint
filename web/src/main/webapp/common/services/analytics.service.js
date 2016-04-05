@@ -88,6 +88,7 @@
 
 		this.CONST.TG_DATE = "ToggleDate";
 		this.CONST.TG_UPDATE_ON = "ToggleUpdateOn";
+		this.CONST.TG_UPDATE_OFF = "ToggleUpdateOff";
 		this.CONST.TG_NODE_VIEW = "ToggleNodeView";
 		this.CONST.TG_SCATTER_SUCCESS = "ToggleScatterSuccess";
 		this.CONST.TG_SCATTER_FAILED = "ToggleScatterFailed";
