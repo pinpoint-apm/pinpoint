@@ -60,7 +60,7 @@
 	            };
 	
 	            scope.select = function (agent) {
-					analyticsService.send( analyticsService.CONST.INSPECTOR, analyticsService.CONST.CLK_CHANGE_AGENT );
+					analyticsService.send( analyticsService.CONST.INSPECTOR, analyticsService.CONST.CLK_CHANGE_AGENT_INSPECTOR );
 	                scope.currentAgent = agent;
 	                scope.$emit('agentListDirective.agentChanged', agent);
 	            };

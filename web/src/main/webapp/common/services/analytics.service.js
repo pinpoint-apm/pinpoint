@@ -62,7 +62,8 @@
 		this.CONST.CLK_REALTIME_CHART_PIN_ON = "ClickRealtimeChartPinOn";
 		this.CONST.CLK_REALTIME_CHART_PIN_OFF = "ClickRealtimeChartPinOff";
 		this.CONST.CLK_SHOW_SERVER_TYPE_DETAIL = "ClickShowServerTypeDetail";
-		this.CONST.CLK_CHANGE_AGENT = "ClickChangeAgent";
+		this.CONST.CLK_CHANGE_AGENT_INSPECTOR = "ClickChangeAgentInspector";
+		this.CONST.CLK_CHANGE_AGENT_MAIN = "ClickChangeAgentMain";
 		this.CONST.CLK_START_REALTIME = "ClickStartRealtime";
 
 		this.CONST.CLK_CONFIGURATION = "ClickConfiguration";
