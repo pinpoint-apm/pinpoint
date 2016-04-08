@@ -83,7 +83,7 @@ Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.1.x
 1.0.x | yes | no | no | no
 1.1.x | no | not tested | yes | not tested
 1.5.x | no | not tested | yes | not tested
-1.6.x | no |  |  | 
+1.6.x | no | not tested | yes | not tested
 
 
 **Installation**
