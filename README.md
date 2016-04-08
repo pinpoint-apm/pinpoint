@@ -12,6 +12,11 @@ We're happy to announce the release of Pinpoint **v1.5.2**. <br/>
 Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.5.2)<br/>
 We're now focusing on developing **v1.6.0**.
 
+Special shout out to dawidmalina, majinkai, jart and many others for your contribution and feedback.<br/>
+Without your help, we would not have been able to reach our current level of product maturity. We are extremely grateful for all your help and will continue to try our very best to provide you with the best possible experience using Pinpoint.<br/>
+We look forward to working with you as we enter the next chapter in development.<br/>
+Thank you.
+
 ### Plugin Development Guide (2016/03/18)
 We now have a [plugin development guide](https://github.com/naver/pinpoint/wiki/Pinpoint-Plugin-Developer-Guide "Pinpoint Plugin Development Guide"). Yay!
 
