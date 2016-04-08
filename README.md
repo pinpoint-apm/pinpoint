@@ -7,10 +7,10 @@
 * Install agents without changing a single line of code
 * Minimal impact on performance (approximately 3% increase in resource usage)
 
-## Latest Release (2015/12/11)
-We're happy to announce the release of Pinpoint **v1.5.1**. <br/>
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.5.1)<br/>
-We're now focusing on developing **v1.5.2**.
+## Latest Release (2016/04/08)
+We're happy to announce the release of Pinpoint **v1.5.2**. <br/>
+Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.5.2)<br/>
+We're now focusing on developing **v1.6.0**.
 
 ### Plugin Development Guide (2016/03/18)
 We now have a [plugin development guide](https://github.com/naver/pinpoint/wiki/Pinpoint-Plugin-Developer-Guide "Pinpoint Plugin Development Guide"). Yay!
@@ -41,9 +41,9 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 * Tomcat 6/7/8, Jetty 8/9
 * Spring, Spring Boot
 * Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient
-* Thrift Client, Thrift Service
-* MySQL, Oracle, MSSQL, CUBRID, DBCP, POSTGRESQL
-* Arcus, Memcached, Redis
+* Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER
+* MySQL, Oracle, MSSQL, CUBRID, DBCP, POSTGRESQL, MARIA
+* Arcus, Memcached, Redis, CASSANDRA
 * iBATIS, MyBatis
 * gson, Jackson, Json Lib
 * log4j, Logback
