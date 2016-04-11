@@ -432,7 +432,7 @@
 				setTimeout(function () {
 					self._drawWithDataSource();
 				}, intervalTime );
-			} else if (!self._aBubbles || self._aBubbles.length === 0) {
+			} else if ( self._aBubbles && self._aBubbles.length === 0 ) {
 				self._oMessage.show( self.option( "noDataStr" ) );
 			}
 		}, function() {

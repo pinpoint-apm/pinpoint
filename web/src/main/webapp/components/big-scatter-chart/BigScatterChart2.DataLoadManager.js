@@ -39,7 +39,7 @@
 				self._callCount += 1;
 				self._bLoadCompleted = oResultData.complete;
 				self._lastLoadTime = oResultData.resultFrom;
-				cbSuccess(oResultData, !this._bLoadCompleted, self._getIntervalTime() );
+				cbSuccess(oResultData, !self._bLoadCompleted, self._getIntervalTime() );
 			}
 		}).always(function() {
 			cbComplete();

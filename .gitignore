@@ -1,9 +1,11 @@
 /.project
 /.settings/
 /.idea
-/*.iml
 /deploy
 /target
 /build/
 **/node_modules
 **/jsdoc
+/**/.idea
+*.iml
+out/
