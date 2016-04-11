@@ -7,10 +7,15 @@
 * Install agents without changing a single line of code
 * Minimal impact on performance (approximately 3% increase in resource usage)
 
-## Latest Release (2015/12/11)
-We're happy to announce the release of Pinpoint **v1.5.1**. <br/>
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.5.1)<br/>
-We're now focusing on developing **v1.5.2**.
+## Latest Release (2016/04/08)
+We're happy to announce the release of Pinpoint **v1.5.2**. <br/>
+Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.5.2)<br/>
+We're now focusing on developing **v1.6.0**.
+
+Special shout out to dawidmalina, majinkai, jart and many others for your contribution and feedback.<br/>
+Without your help, we would not have been able to reach our current level of product maturity. We are extremely grateful for all your help and will continue to try our very best to provide you with the best possible experience using Pinpoint.<br/>
+We look forward to working with you as we enter the next chapter in development.<br/>
+Thank you.
 
 ### Plugin Development Guide (2016/03/18)
 We now have a [plugin development guide](https://github.com/naver/pinpoint/wiki/Pinpoint-Plugin-Developer-Guide "Pinpoint Plugin Development Guide"). Yay!
@@ -41,9 +46,9 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 * Tomcat 6/7/8, Jetty 8/9
 * Spring, Spring Boot
 * Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient
-* Thrift Client, Thrift Service
-* MySQL, Oracle, MSSQL, CUBRID, DBCP, POSTGRESQL
-* Arcus, Memcached, Redis
+* Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER
+* MySQL, Oracle, MSSQL, CUBRID, DBCP, POSTGRESQL, MARIA
+* Arcus, Memcached, Redis, CASSANDRA
 * iBATIS, MyBatis
 * gson, Jackson, Json Lib
 * log4j, Logback
@@ -74,6 +79,7 @@ Pinpoint Version | Agent | Collector | Web
 1.0.x | 6+ | 6+ | 6+
 1.1.x | 6+ | 7+ | 7+
 1.5.x | 6+ | 7+ | 7+
+1.6.x | 6+ | 8+ | 8+
 
 HBase compatibility table:
 
@@ -82,6 +88,7 @@ Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.1.x
 1.0.x | yes | no | no | no
 1.1.x | no | not tested | yes | not tested
 1.5.x | no | not tested | yes | not tested
+1.6.x | no | not tested | yes | not tested
 
 
 **Installation**
