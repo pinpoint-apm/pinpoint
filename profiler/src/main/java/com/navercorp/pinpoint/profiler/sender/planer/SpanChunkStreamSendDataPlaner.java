@@ -16,38 +16,38 @@
 
 package com.navercorp.pinpoint.profiler.sender.planer;
 
-import java.nio.ByteBuffer;
-
-import com.navercorp.pinpoint.profiler.sender.CompositeSpanStreamData;
+import com.navercorp.pinpoint.profiler.sender.PartitionedByteBufferLocator;
 import com.navercorp.pinpoint.profiler.sender.SpanStreamSendDataFactory;
+
+import java.nio.ByteBuffer;
 
 /**
  * @author Taejin Koo
  */
 public class SpanChunkStreamSendDataPlaner extends AbstractSpanStreamSendDataPlaner {
 
-    private final int componentsLastIndex;
+    private final int lastPartitionIndex;
 
-    public SpanChunkStreamSendDataPlaner(CompositeSpanStreamData compositeSpanStreamData, SpanStreamSendDataFactory spanStreamSendDataFactory) {
+    public SpanChunkStreamSendDataPlaner(PartitionedByteBufferLocator compositeSpanStreamData, SpanStreamSendDataFactory spanStreamSendDataFactory) {
         super(compositeSpanStreamData, spanStreamSendDataFactory);
 
-        int componentsCount = compositeSpanStreamData.getComponentsCount();
+        int partitionedCount = compositeSpanStreamData.getPartitionedCount();
 
-        if (componentsCount <= 0) {
-            throw new IllegalArgumentException("compositeSpanStreamData.getComponentsCount()=" + componentsCount);
+        if (partitionedCount <= 0) {
+            throw new IllegalArgumentException("PartitionedByteBufferLocator.getPartitionedCount()=" + partitionedCount);
         } else {
-            componentsLastIndex = componentsCount - 1;
+            lastPartitionIndex = partitionedCount - 1;
         }
     }
 
     @Override
     protected int getSpanChunkLength() {
-        return compositeSpanStreamData.getComponentBufferLength(componentsLastIndex);
+        return partitionedByteBufferLocator.getByteBufferCapacity(lastPartitionIndex);
     }
 
     @Override
     protected ByteBuffer getSpanChunkBuffer() {
-        return compositeSpanStreamData.getByteBuffer(componentsLastIndex);
+        return partitionedByteBufferLocator.getByteBuffer(lastPartitionIndex);
     }
 
 }

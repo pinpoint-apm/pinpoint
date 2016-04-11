@@ -16,20 +16,19 @@
 
 package com.navercorp.pinpoint.profiler.sender.planer;
 
+import com.navercorp.pinpoint.profiler.sender.PartitionedByteBufferLocator;
+import com.navercorp.pinpoint.profiler.sender.SpanStreamSendData;
+import com.navercorp.pinpoint.profiler.sender.SpanStreamSendDataFactory;
+import com.navercorp.pinpoint.profiler.sender.SpanStreamSendDataMode;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.profiler.sender.CompositeSpanStreamData;
-import com.navercorp.pinpoint.profiler.sender.SpanStreamSendData;
-import com.navercorp.pinpoint.profiler.sender.SpanStreamSendDataFactory;
-import com.navercorp.pinpoint.profiler.sender.SpanStreamSendDataMode;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 
 /**
  * @author Taejin Koo
@@ -38,12 +37,12 @@ public abstract class AbstractSpanStreamSendDataPlaner implements SendDataPlaner
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    protected CompositeSpanStreamData compositeSpanStreamData;
+    protected PartitionedByteBufferLocator partitionedByteBufferLocator;
 
     private final SpanStreamSendDataFactory spanStreamSendDataFactory;
 
-    public AbstractSpanStreamSendDataPlaner(CompositeSpanStreamData compositeSpanStreamData, SpanStreamSendDataFactory spanStreamSendDataFactory) {
-        this.compositeSpanStreamData = compositeSpanStreamData;
+    public AbstractSpanStreamSendDataPlaner(PartitionedByteBufferLocator partitionedByteBufferLocator, SpanStreamSendDataFactory spanStreamSendDataFactory) {
+        this.partitionedByteBufferLocator = partitionedByteBufferLocator;
         this.spanStreamSendDataFactory = spanStreamSendDataFactory;
     }
 
@@ -71,30 +70,30 @@ public abstract class AbstractSpanStreamSendDataPlaner implements SendDataPlaner
             currentSpanStreamSendData = spanStreamSendDataFactory.create();
         }
 
-        int buffersLength = compositeSpanStreamData.getComponentsBufferCapacity();
-        if (currentSpanStreamSendData.isAvailableBufferCapacity(buffersLength)) {
+        int byteBufferCapacity = partitionedByteBufferLocator.getTotalByteBufferCapacity();
+        if (currentSpanStreamSendData.isAvailableBufferCapacity(byteBufferCapacity)) {
             if (currentSpanStreamSendData.getAvailableGatheringComponentsCount() < 2) {
                 currentSpanStreamSendData.setFlushMode();
             }
             
-            currentSpanStreamSendData.addBuffer(compositeSpanStreamData.getByteBuffer(), serializer);
+            currentSpanStreamSendData.addBuffer(partitionedByteBufferLocator.getByteBuffer(), serializer);
             
             spanStreamSendDataList.add(currentSpanStreamSendData);
         } else {
-            int markStartComponentIndex = 0;
-            int markEndComponentIndex = -1;
+            int markFromPartitionIndex = 0;
+            int markToPartitionIndex = -1;
 
-            int flushBufferSize = 0;
-            for (int i = 0; i < compositeSpanStreamData.getComponentsCount(); i++) {
+            int flushBufferCapacity = 0;
+            for (int i = 0; i < partitionedByteBufferLocator.getPartitionedCount(); i++) {
                 
                 int appendBufferSize = 0;
-                if (!compositeSpanStreamData.isLastComponentIndex(i)) {
+                if (!partitionedByteBufferLocator.isLastPartitionIndex(i)) {
                     appendBufferSize = getSpanChunkLength();
                 }
 
-                flushBufferSize += compositeSpanStreamData.getComponentBufferLength(i);
-                if (needFlush(currentSpanStreamSendData, flushBufferSize, appendBufferSize)) {
-                    ByteBuffer addBuffer = createByteBuffer(compositeSpanStreamData, markStartComponentIndex, markEndComponentIndex);
+                flushBufferCapacity += partitionedByteBufferLocator.getByteBufferCapacity(i);
+                if (needFlush(currentSpanStreamSendData, flushBufferCapacity, appendBufferSize)) {
+                    ByteBuffer addBuffer = getByteBuffer(partitionedByteBufferLocator, markFromPartitionIndex, markToPartitionIndex);
                     if (addBuffer != null) {
                         ByteBuffer[] byteBufferArray = new ByteBuffer[2];
                         byteBufferArray[0] = addBuffer;
@@ -108,14 +107,14 @@ public abstract class AbstractSpanStreamSendDataPlaner implements SendDataPlaner
 
                     currentSpanStreamSendData = spanStreamSendDataFactory.create();
                     
-                    markStartComponentIndex = i;
-                    flushBufferSize = compositeSpanStreamData.getComponentBufferLength(i);
+                    markFromPartitionIndex = i;
+                    flushBufferCapacity = partitionedByteBufferLocator.getByteBufferCapacity(i);
                 } 
 
-                markEndComponentIndex = i;
+                markToPartitionIndex = i;
 
-                if (compositeSpanStreamData.isLastComponentIndex(i)) {
-                    ByteBuffer addBuffer = createByteBuffer(compositeSpanStreamData, markStartComponentIndex, markEndComponentIndex);
+                if (partitionedByteBufferLocator.isLastPartitionIndex(i)) {
+                    ByteBuffer addBuffer = getByteBuffer(partitionedByteBufferLocator, markFromPartitionIndex, markToPartitionIndex);
                     currentSpanStreamSendData.addBuffer(addBuffer, serializer);
                     
                     spanStreamSendDataList.add(currentSpanStreamSendData);
@@ -127,25 +126,25 @@ public abstract class AbstractSpanStreamSendDataPlaner implements SendDataPlaner
     }
 
     private FlushMode plan(SpanStreamSendData spanStreamSendData) {
-        int buffersLength = compositeSpanStreamData.getComponentsBufferCapacity();
+        int byteBufferCapacity = partitionedByteBufferLocator.getTotalByteBufferCapacity();
 
-        if (buffersLength < spanStreamSendData.getAvailableBufferCapacity()) {
+        if (byteBufferCapacity < spanStreamSendData.getAvailableBufferCapacity()) {
             return FlushMode.NORMAL;
-        } else if (buffersLength < spanStreamSendData.getMaxBufferCapacity()) {
+        } else if (byteBufferCapacity < spanStreamSendData.getMaxBufferCapacity()) {
             return FlushMode.FLUSH_FIRST;
         } else {
             ByteBuffer spanChunkBuffer = getSpanChunkBuffer();
 
-            for (int i = 0; i < compositeSpanStreamData.getComponentsCount(); i++) {
-                int currentComponentBufferLength = compositeSpanStreamData.getComponentBufferLength(i);
+            for (int i = 0; i < partitionedByteBufferLocator.getPartitionedCount(); i++) {
+                int currentBufferCapacity = partitionedByteBufferLocator.getByteBufferCapacity(i);
 
-                if (compositeSpanStreamData.isLastComponentIndex(i)) {
-                    if (currentComponentBufferLength > spanStreamSendData.getMaxBufferCapacity()) {
-                        throw new IllegalStateException("BufferList has over size buffer. buffer length:" + currentComponentBufferLength);
+                if (partitionedByteBufferLocator.isLastPartitionIndex(i)) {
+                    if (currentBufferCapacity > spanStreamSendData.getMaxBufferCapacity()) {
+                        throw new IllegalStateException("BufferList has over size buffer. buffer length:" + currentBufferCapacity);
                     }
                 } else {
-                    if (currentComponentBufferLength + spanChunkBuffer.remaining() > spanStreamSendData.getMaxBufferCapacity()) {
-                        throw new IllegalStateException("BufferList has over size buffer. buffer length:" + currentComponentBufferLength + ", maxCapacity:" + spanStreamSendData.getMaxBufferCapacity());
+                    if (currentBufferCapacity + spanChunkBuffer.remaining() > spanStreamSendData.getMaxBufferCapacity()) {
+                        throw new IllegalStateException("BufferList has over size buffer. buffer length:" + currentBufferCapacity + ", maxCapacity:" + spanStreamSendData.getMaxBufferCapacity());
                     }
                 }
             }
@@ -166,49 +165,37 @@ public abstract class AbstractSpanStreamSendDataPlaner implements SendDataPlaner
     }
 
     private int calculateWithUsingCurrentSendData(SpanStreamSendData spanStreamSendData) {
-        int chunkCount = 1;
+        int chunkCount = 0;
+        int availableBufferCapacity = spanStreamSendData.getAvailableBufferCapacity();
 
-        int availableBufferSize = spanStreamSendData.getAvailableBufferCapacity();
-
-        for (int i = 0; i < compositeSpanStreamData.getComponentsCount(); i++) {
-            int currentComponentBufferLength = compositeSpanStreamData.getComponentBufferLength(i);
-
-            if (compositeSpanStreamData.isLastComponentIndex(i)) {
-                if (currentComponentBufferLength > availableBufferSize) {
-                    chunkCount++;
-                }
-            } else {
-                if (currentComponentBufferLength + getSpanChunkLength() < availableBufferSize) {
-                    availableBufferSize -= currentComponentBufferLength;
-                } else {
-                    chunkCount++;
-                    availableBufferSize = spanStreamSendData.getMaxBufferCapacity();
-                    availableBufferSize -= currentComponentBufferLength;
-                }
-            }
-        }
-        return chunkCount;
+        return chunkCount + getNeedsChunkCount(spanStreamSendData, availableBufferCapacity);
     }
 
     private int calculateWithoutUsingCurrentSendData(SpanStreamSendData spanStreamSendData) {
-        int chunkCount = 2;
+        int chunkCount = 1;
+        int availableBufferCapacity = spanStreamSendData.getMaxBufferCapacity();
 
-        int availableBufferSize = spanStreamSendData.getMaxBufferCapacity();
+        return chunkCount + getNeedsChunkCount(spanStreamSendData, availableBufferCapacity);
+    }
 
-        for (int i = 0; i < compositeSpanStreamData.getComponentsCount(); i++) {
-            int currentComponentBufferLength = compositeSpanStreamData.getComponentBufferLength(i);
+    private int getNeedsChunkCount(SpanStreamSendData spanStreamSendData, int availableCurrentBufferCapacity) {
+        int chunkCount = 1;
+        int availableBufferCapacity = availableCurrentBufferCapacity;
 
-            if (compositeSpanStreamData.isLastComponentIndex(i)) {
-                if (currentComponentBufferLength > availableBufferSize) {
+        for (int i = 0; i < partitionedByteBufferLocator.getPartitionedCount(); i++) {
+            int partitionByteBufferCapacity = partitionedByteBufferLocator.getByteBufferCapacity(i);
+
+            if (partitionedByteBufferLocator.isLastPartitionIndex(i)) {
+                if (partitionByteBufferCapacity > availableBufferCapacity) {
                     chunkCount++;
                 }
             } else {
-                if (currentComponentBufferLength + getSpanChunkLength() < availableBufferSize) {
-                    availableBufferSize -= currentComponentBufferLength;
+                if (partitionByteBufferCapacity + getSpanChunkLength() < availableBufferCapacity) {
+                    availableBufferCapacity -= partitionByteBufferCapacity;
                 } else {
                     chunkCount++;
-                    availableBufferSize = spanStreamSendData.getMaxBufferCapacity();
-                    availableBufferSize -= currentComponentBufferLength;
+                    availableBufferCapacity = spanStreamSendData.getMaxBufferCapacity();
+                    availableBufferCapacity -= partitionByteBufferCapacity;
                 }
             }
         }
@@ -232,12 +219,12 @@ public abstract class AbstractSpanStreamSendDataPlaner implements SendDataPlaner
         return false;
     }
 
-    private ByteBuffer createByteBuffer(CompositeSpanStreamData compositeSpanStreamData, int fromComponentBufferIndex, int toComponentBufferIndex) {
-        if (toComponentBufferIndex == -1) {
+    private ByteBuffer getByteBuffer(PartitionedByteBufferLocator partitionedByteBufferLocator, int fromPartitionIndex, int toPartitionIndex) {
+        if (toPartitionIndex == -1) {
             return null;
         }
 
-        return compositeSpanStreamData.getByteBuffer(fromComponentBufferIndex, toComponentBufferIndex);
+        return partitionedByteBufferLocator.getByteBuffer(fromPartitionIndex, toPartitionIndex);
     }
 
     abstract protected int getSpanChunkLength();

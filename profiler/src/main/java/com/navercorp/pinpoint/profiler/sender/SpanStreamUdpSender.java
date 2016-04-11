@@ -193,13 +193,13 @@ public class SpanStreamUdpSender extends AbstractDataSender {
         }
 
         HeaderTBaseSerializer serializer = serializerPool.getObject();
-        CompositeSpanStreamData compositeSpanStreamData = spanStreamSendDataSerializer.serializeSpanStream(serializer, span);
-        if (compositeSpanStreamData == null) {
+        PartitionedByteBufferLocator partitionedByteBufferLocator = spanStreamSendDataSerializer.serializeSpanStream(serializer, span);
+        if (partitionedByteBufferLocator == null) {
             serializerPool.returnObject(serializer);
             return;
         }
         
-        doAddAndFlush(compositeSpanStreamData, serializer);
+        doAddAndFlush(partitionedByteBufferLocator, serializer);
     }
 
     // streaming
@@ -209,17 +209,17 @@ public class SpanStreamUdpSender extends AbstractDataSender {
         }
 
         HeaderTBaseSerializer serializer = serializerPool.getObject();
-        CompositeSpanStreamData compositeSpanStreamData = spanStreamSendDataSerializer.serializeSpanChunkStream(serializer, spanChunk);
-        if (compositeSpanStreamData == null) {
+        PartitionedByteBufferLocator partitionedByteBufferLocator = spanStreamSendDataSerializer.serializeSpanChunkStream(serializer, spanChunk);
+        if (partitionedByteBufferLocator == null) {
             serializerPool.returnObject(serializer);
             return;
         }
 
-        doAddAndFlush(compositeSpanStreamData, serializer);
+        doAddAndFlush(partitionedByteBufferLocator, serializer);
     }
 
-    private void doAddAndFlush(CompositeSpanStreamData compositeSpanStreamData, HeaderTBaseSerializer serializer) {
-        logger.debug("CompositeSpanStreamData {}.", compositeSpanStreamData);
+    private void doAddAndFlush(PartitionedByteBufferLocator partitionedByteBufferLocator, HeaderTBaseSerializer serializer) {
+        logger.debug("PartitionedByteBufferLocator {}.", partitionedByteBufferLocator);
 
         SpanStreamSendData currentSpanStreamSendData = standbySpanStreamDataSendWorker.getStandbySpanStreamSendData();
         if (currentSpanStreamSendData == null) {
@@ -227,8 +227,8 @@ public class SpanStreamUdpSender extends AbstractDataSender {
         }
 
         try {
-            if (!currentSpanStreamSendData.addBuffer(compositeSpanStreamData.getByteBuffer())) {                
-                SendDataPlaner sendDataPlaner = new SpanChunkStreamSendDataPlaner(compositeSpanStreamData, spanStreamSendDataFactory);
+            if (!currentSpanStreamSendData.addBuffer(partitionedByteBufferLocator.getByteBuffer())) {
+                SendDataPlaner sendDataPlaner = new SpanChunkStreamSendDataPlaner(partitionedByteBufferLocator, spanStreamSendDataFactory);
                 
                 Iterator<SpanStreamSendData> sendDataIterator = sendDataPlaner.getSendDataIterator(currentSpanStreamSendData, serializer);
                 while (sendDataIterator.hasNext()) {
@@ -243,7 +243,10 @@ public class SpanStreamUdpSender extends AbstractDataSender {
                     }
                 }
             } else {
-                standbySpanStreamDataSendWorker.addStandbySpanStreamData(currentSpanStreamSendData);
+                boolean isAdded = standbySpanStreamDataSendWorker.addStandbySpanStreamData(currentSpanStreamSendData);
+                if (!isAdded) {
+                    flush(currentSpanStreamSendData);
+                }
             }
         } catch (IOException e) {
             logger.warn("UDPChannel write fail.", e);
