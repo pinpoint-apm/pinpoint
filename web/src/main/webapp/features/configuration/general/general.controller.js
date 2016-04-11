@@ -17,7 +17,7 @@
 	pinpointApp.controller('GeneralCtrl', [ 'GeneralConfig', '$scope', '$rootScope', '$element', '$document', 'PreferenceService', 'AnalyticsService', 'helpContentService',
 	    function ($config, $scope, $rootScope, $element, $document, preferenceService, analyticsService, helpContentService) {
 
-			$element.find("span.general-warning").html(helpContentService.configuration.general.warning);
+			$element.find("div.general-warning").html(helpContentService.configuration.general.warning);
 			$element.find("div.favorite-empty").html(helpContentService.configuration.general.empty);
 			$scope.$on("general.configuration.show", function() {
 			});

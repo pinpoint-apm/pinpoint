@@ -57,30 +57,33 @@
   	*border-right-color: #ffffff;
 }
 
-#pinpoint-configuration .modal-header .modal-title {
-	font-weight: bold;
-	font-size: 22px;
+#pinpoint-configuration .modal-header {
+    background-color: #384258 !important;
+    color: #FFF;
 }
-#pinpoint-configuration .modal-header ul {
+#pinpoint-configuration .modal-title {
+	font-size: 20px;
+}
+#pinpoint-configuration .modal-menu {
+    font-size: 16px;
+    height:36px;
+    color: #a2a2a2;
+    border-bottom: 1px solid #E5E5E5;
+}
+#pinpoint-configuration .modal-menu ul {
 	list-style-type: none;
-	padding: 0px;
-	
+	padding: 0px 0px 0px 8px;
 }
-#pinpoint-configuration .modal-header li {
+#pinpoint-configuration .modal-menu li {
 	float: left;
 	padding: 2px 10px 2px 10px;
 	cursor: pointer;
 }
-#pinpoint-configuration .modal-header li.description {
-	color: #46D030;
-	font-size: 12px;
-}
-#pinpoint-configuration .modal-header li.active {
-	background-color:gray;
-	color: white;
+#pinpoint-configuration .modal-menu li.active {
+	color: #686868;
 }
 #pinpoint-configuration .modal-body {
-	background-color: #e9eaed;
+	background-color: #FFF;
 }
 #pinpoint-configuration .modal-body > div {
 	height: 500px;
@@ -456,22 +459,74 @@
 	width: 100%;
 	margin-left: -2px;
 }
-#config-help .link-title {
-	font-size: 18px;
-	margin-right: 30px;
+#config-help .left-sub-menu {
+    float: left;
+    width: 240px;
+    border-right: 1px solid #D2D2D2;
+}
+#config-help .left-sub-menu ul {
+    padding-left: 0px;
+}
+#config-help .left-sub-menu li {
+    height: 164px;
+    padding: 60px 24px 0px 24px;
+    text-align: center;
+    margin-right: 12px;
+    border-bottom: 1px solid #D2D2D2;
+}
+#config-help .left-sub-menu li:last-child {
+    border-bottom: 0px solid #D2D2D2;
+}
+#config-help .left-sub-menu a {
+    font-size: 24px;
+    margin-right: 4px;
+}
+#config-help .right-contents {
+    float: left;
+    margin-left: 40px;
+}
+#config-help .right-contents {
+    color: #666666;
+}
+
+#config-help .right-contents table tr:first-child {
+    background-color: #999999;
+    font-size: 16px;
+    color: #FFF;
+}
+#config-help .right-contents table tr:first-child td {
+    padding: 10px 0px 10px 26px;
+}
+#config-help .right-contents table tr:first-child td:last-child {
+    padding-left: 70px;
+}
+
+#config-help .right-contents table td {
+    border: 0px solid #FFF;
+}
+#config-help .right-contents table ul {
+    padding: 20px 20px 20px 26px;
+}
+#config-help .right-contents table td:last-child ul {
+    padding-left: 70px;
+}
+
+#config-help .right-contents table li {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+#config-help .right-contents > div {
+    padding: 20px 0px 10px 0px;
 }
 #config-help li {
 	list-style: none;
 }
-#config-help li span.glyphicon {
-	margin-right: 4px;
-	margin-top: 4px;
-}
+
 #config-help a:hover {
 	color: rgb(43, 46, 74);
 }
 #config-help a:link {
-	color: rgb(144, 55, 73);
+	color: rgb(73, 166, 232);
 }
 #config-help a:visited {
 	color: rgb(232, 69, 69);
@@ -479,10 +534,15 @@
 #config-help a:active {
 	color: rgb(83, 53, 74);
 }
+#config-general table td {
+    border: 1px solid #D2D2D2;
+}
 #config-general table td.title {
-	font-weight: bold;
-	padding-top: 10px;
-	padding-bottom: 0px;
+    color: #FFF;
+	padding: 10px 0px 10px 20px;
+    font-size: 18px;
+	text-align: left;
+    background-color: #999999;
 }
 #config-general .favorite-list-wrapper {
 	overflow: auto;
@@ -504,7 +564,9 @@
 	margin-right: 2px;
 }
 #config-general .general-warning {
-	color: #F0AD4E;
-	font-size: 12px;
-	padding-left: 10px
+	color: #C2C2C2;
+	font-size: 14px;
+    text-align: left;
+    padding-bottom: 4px;
+
 }

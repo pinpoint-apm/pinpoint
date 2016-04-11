@@ -218,127 +218,144 @@
 </div>
 
 <div class="modal fade" tabindex="-1" role="dialog" ng-controller="ConfigurationCtrl">
-  <div class="modal-dialog" role="document" style="width:1000px">
-    <div class="modal-content" id="pinpoint-configuration">
-      <div class="modal-header" style="text-align:center">
-      	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Pinpoint Configuration</h4>
-        <ul>
-        	<li ng-class="{true: 'active'}[isGeneral()]" ng-click="setCurrentTab('general')">General</li>
-        	<li ng-class="{true: 'active'}[isAlarm()]" ng-click="setCurrentTab('alarm')">Alarm</li>
-        	<li class="description">{{descriptionOfCurrentTab}}</li>
-        	<li ng-class="{true: 'active'}[isHelp()]" ng-click="setCurrentTab('help')" style="float:right">Help</li>
-        </ul>
-      </div>
-      <div class="modal-body">
-      	<div id="config-general" ng-show="isGeneral()" ng-controller="GeneralCtrl">
-      		<h4>General Configuration <span class="general-warning"></span></h4>
-      		<div style="text-align:center;font-family:verdana;">
-      			<table class="table table-bordered table-condensed">
-      				<tbody>
-      					<tr>
-      						<td class="col-md-10 title" colspan="4" style="padding-top:0px;background-color:white">ServerMap</td>
-      					<tr>
-      						<td class="col-md-2 title">Search Depth</td>
-      						<td class="col-md-3">
-								<table class="table table-bordered table-condense">
-									<tbody style="background-color:#e9eaed">
-									<tr>
-										<td class="col-md-1" style="padding-top:14px"><img src="images/inbound.png" width="24px" height="24px"> Inbound</td>
-										<td class="col-md-2">
-											<select class="depth form-control" ng-change="changeCallee()" ng-model="callee">
-												<option ng-repeat="dep in depthList" ng-selected="dep == callee" value="{{dep}}">{{dep}}</option>
-											</select>
-										</td>
-									</tr>
-									<tr>
-										<td class="col-md-1" style="padding-top:14px"><img src="images/outbound.png" width="24px" height="24px"> Outbound</td>
-										<td class="col-md-2">
-											<select class="depth form-control" ng-change="changeCaller()" ng-model="caller">
-												<option ng-repeat="dep in depthList" ng-selected="dep == caller" value="{{dep}}">{{dep}}</option>
-											</select>
-										</td>
-									</tr>
-									</tbody>
-								</table>
-      						</td>
-      						<td class="col-md-2 title">Search Peroid</td>
-      						<td class="col-md-3">
-      							<select class="period form-control" ng-change="changePeriod()" ng-model="period">
-      								<option ng-repeat="per in periodTypes" ng-selected="per == period" value="{{per}}">{{per}}</option>
-      							</select>
-      						</td>
-      					</tr>
-      				</tbody>
-      			</table>
-      			<table class="table table-bordered table-condensed">
-      				<tbody>
-      					<tr>
-      						<td class="col-md-10 title" colspan="4" style="padding-top:0px;background-color:white">Application</td>
-      					<tr>
-      					<tr>
-      						<td class="col-md-2 title">Application<br/>Favorite</td>
-      						<td  class="col-md-3">
-      							<select class="applicationList" style="width:100%">
-					                <option ng-repeat="app in applications" value="{{app.text}}">{{app.text}}</option>
-					            </select>
-      						</td>
-      						<td class="col-md-5" colspan="2">
-      							<div class="favorite-list-wrapper">
-	      							<ul class="favorite-list">
-	      								<li ng-repeat="favorite in favoriteList"><img ng-src='/images/icons/{{favorite.split("@")[1]}}.png' height="25px"/> {{favorite.split('@')[0]}} <button class="btn btn-danger btn-xs" style="float:right" ng-click="removeFavorite(favorite)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></li>
-	      							</ul>
-	      							<div ng-show="favoriteList.length == 0" style="color:#F00" class="favorite-empty"></div>
-      							</div>
-      						</td>
-      					</tr>
-      				</tbody>
-      			</table>
-      		</div>
-      	</div>
-      	<div id="config-alram" ng-show="isAlarm()" style="margin-top:10px;">
-      		<alarm-user-group-directive></alarm-user-group-directive>
-	      	<div class="tabbable tabs-left" style="padding-left:20px;">
-	          	<ul class="nav nav-tabs">
-	            	<li class="active"><div href="#userListInGroup" data-toggle="tab">Member</div></li>
-	            	<li><div href="#alarmInGroup" data-toggle="tab">Alarm</div></li>
-	          	</ul>
-	          	<div class="tab-content" style="float:left;width:590px;">
-	            	<div class="tab-pane active" id="userListInGroup">
-		            	<alarm-group-member-directive></alarm-group-member-directive>
-	            		<alarm-pinpoint-user-directive></alarm-pinpoint-user-directive>
-		            </div>
-	            	<div class="tab-pane" id="alarmInGroup">
-	            		<alarm-rule-directive></alarm-rule-directive>
-	            	</div>
-	        	</div>
-	        </div>
-	      	<div style="clear:both;display:block;"></div>
-	      </div>
-	    <div id="config-help" ng-show="isHelp()" ng-controller="HelpCtrl">
-      		<div style="font-family:verdana;">
-      			<a href="https://github.com/naver/pinpoint/wiki/FAQ" target="_blank" class="link-title"><i class="xi-clip"></i> FAQ</a>
-      			<a href="https://github.com/naver/pinpoint/issues" class="link-title"><i class="xi-info-circle"></i> Issues</a></h4>
-      			<a href="https://groups.google.com/forum/#!forum/pinpoint_user" class="link-title"><i class="xi-pen"></i> User Group</a>
-      			<hr/>
-      			<h4>English</h4>
-      			<ul>
-      				<li ng-repeat="helpLink in enHelpList">
-      					<a href="{{helpLink.link}}" target="_balnk"><span class="glyphicon glyphicon-file" aria-hidden="true"></span>{{helpLink.title}}</a>
-      				</li>
-      			</ul>
-      			<hr/>
-      			<h4>한글</h4>
-      			<ul>
-      				<li ng-repeat="helpLink in koHelpList">
-      					<a href="{{helpLink.link}}" target="_balnk"><span class="glyphicon glyphicon-file" aria-hidden="true"></span>{{helpLink.title}}</a>
-      				</li>
-      			</ul>
-      		</div>
-      	</div>
-      </div>
-    </div>
-  </div>
+	<div class="modal-dialog" role="document" style="width:1000px">
+		<div class="modal-content" id="pinpoint-configuration">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:#FFF;opacity:1;"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Pinpoint Configuration</h4>
+			</div>
+			<div class="modal-menu">
+				<ul>
+					<li ng-class="{true: 'active'}[isGeneral()]" ng-click="setCurrentTab('general')">General Configuration</li>
+					<li>|</li>
+					<li ng-class="{true: 'active'}[isAlarm()]" ng-click="setCurrentTab('alarm')">Alarm Setting</li>
+					<li>|</li>
+					<li ng-class="{true: 'active'}[isHelp()]" ng-click="setCurrentTab('help')">Help</li>
+				</ul>
+			</div>
+			<div class="modal-body">
+				<div id="config-general" ng-show="isGeneral()" ng-controller="GeneralCtrl">
+					<div style="text-align:center;font-family:verdana;">
+						<div class="general-warning"></div>
+						<table class="table table-bordered table-condensed">
+							<tbody>
+								<tr>
+									<td class="col-md-10 title" colspan="4">ServerMap</td>
+								</tr>
+								<tr>
+									<td class="col-md-2">Search Depth</td>
+									<td class="col-md-3">
+										<table class="table table-bordered table-condense">
+											<tbody style="background-color:#e9eaed">
+												<tr>
+													<td class="col-md-1" style="padding-top:14px"><img src="images/inbound.png" width="24px" height="24px"> Inbound</td>
+													<td class="col-md-2">
+														<select class="depth form-control" ng-change="changeCallee()" ng-model="callee">
+														<option ng-repeat="dep in depthList" ng-selected="dep == callee" value="{{dep}}">{{dep}}</option>
+														</select>
+													</td>
+												</tr>
+												<tr>
+													<td class="col-md-1" style="padding-top:14px"><img src="images/outbound.png" width="24px" height="24px"> Outbound</td>
+													<td class="col-md-2">
+														<select class="depth form-control" ng-change="changeCaller()" ng-model="caller">
+														<option ng-repeat="dep in depthList" ng-selected="dep == caller" value="{{dep}}">{{dep}}</option>
+														</select>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</td>
+									<td class="col-md-2">Search Peroid</td>
+									<td class="col-md-3">
+										<select class="period form-control" ng-change="changePeriod()" ng-model="period">
+										<option ng-repeat="per in periodTypes" ng-selected="per == period" value="{{per}}">{{per}}</option>
+										</select>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<table class="table table-bordered table-condensed">
+							<tbody>
+								<tr>
+									<td class="col-md-10 title" colspan="4">Application</td>
+								</tr>
+								<tr>
+									<td class="col-md-2">Application<br/>Favorite</td>
+									<td  class="col-md-3">
+										<select class="applicationList" style="width:100%">
+										<option ng-repeat="app in applications" value="{{app.text}}">{{app.text}}</option>
+										</select>
+									</td>
+									<td class="col-md-5" colspan="2">
+										<div class="favorite-list-wrapper">
+											<ul class="favorite-list">
+												<li ng-repeat="favorite in favoriteList"><img ng-src='/images/icons/{{favorite.split("@")[1]}}.png' height="25px"/> {{favorite.split('@')[0]}} <button class="btn btn-danger btn-xs" style="float:right" ng-click="removeFavorite(favorite)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></li>
+											</ul>
+											<div ng-show="favoriteList.length == 0" style="color:#F00" class="favorite-empty"></div>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div id="config-alram" ng-show="isAlarm()" style="margin-top:10px;">
+					<alarm-user-group-directive></alarm-user-group-directive>
+					<div class="tabbable tabs-left" style="padding-left:20px;">
+						<ul class="nav nav-tabs">
+							<li class="active"><div href="#userListInGroup" data-toggle="tab">Member</div></li>
+							<li><div href="#alarmInGroup" data-toggle="tab">Alarm</div></li>
+						</ul>
+						<div class="tab-content" style="float:left;width:590px;">
+							<div class="tab-pane active" id="userListInGroup">
+								<alarm-group-member-directive></alarm-group-member-directive>
+								<alarm-pinpoint-user-directive></alarm-pinpoint-user-directive>
+							</div>
+							<div class="tab-pane" id="alarmInGroup">
+								<alarm-rule-directive></alarm-rule-directive>
+							</div>
+						</div>
+					</div>
+					<div style="clear:both;display:block;"></div>
+				</div>
+				<div id="config-help" ng-show="isHelp()" ng-controller="HelpCtrl">
+					<div class="left-sub-menu">
+						<ul>
+							<li><a href="https://github.com/naver/pinpoint/wiki/FAQ" target="_blank" class="link-title">FAQ</a><i class="xi-external-link"></i></li>
+							<li><a href="https://github.com/naver/pinpoint/issues" target="_blank" class="link-title">Issues</a><i class="xi-external-link"></i></li>
+							<li><a href="https://groups.google.com/forum/#!forum/pinpoint_user" target="_blank" class="link-title">User Group</a><i class="xi-external-link"></i></i></li>
+						</ul>
+					</div>
+					<div class="right-contents">
+						<div>Document & Guide</div>
+						<table class="table table-bordered table-condensed">
+							<tr>
+								<td>English</td>
+								<td>한국어</td>
+							</tr>
+							<tr>
+								<td>
+									<ul>
+										<li ng-repeat="helpLink in enHelpList">
+											<a href="{{helpLink.link}}" target="_blank"><span class="glyphicon glyphicon-file" aria-hidden="true"></span>{{helpLink.title}}</a>
+										</li>
+									</ul>
+								</td>
+								<td>
+									<ul>
+										<li ng-repeat="helpLink in koHelpList">
+											<a href="{{helpLink.link}}" target="_blank"><span class="glyphicon glyphicon-file" aria-hidden="true"></span>{{helpLink.title}}</a>
+										</li>
+									</ul>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 

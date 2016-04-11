@@ -19,7 +19,6 @@
 	    function ($scope, $element, $constant, analyticsService) {
 
 			var $elBody = $element.find(".modal-body");
-			$scope.descriptionOfCurrentTab = "Set your option";
 			$scope.currentTab = $constant.menu.GENERAL;
 			
 			// define isGeneral(), isAlram()... func. 
@@ -44,20 +43,17 @@
 					case $constant.menu.GENERAL:
 						analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_GENERAL );
 						$elBody.css("background-color", "#e9eaed");
-						$scope.descriptionOfCurrentTab = "Set your option";
 						$scope.$broadcast( "general.configuration.show");
 						break;
 					case $constant.menu.ALARM:
 						analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM );
 						$elBody.css("background-color", "#e9eaed");
-						$scope.descriptionOfCurrentTab = "Set your alarm rules";
 						$scope.$broadcast( "alarmUserGroup.configuration.show");
 						break;
 					case $constant.menu.HELP:
 						analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_HELP );
 						$elBody.css("background-color", "#FFF");
-						$scope.descriptionOfCurrentTab = "";
-						break;	
+						break;
 				}
 			};
 			$scope.$on("configuration.show", function() {
