@@ -16,19 +16,18 @@
 
 package com.navercorp.pinpoint.profiler.sender.planer;
 
-import java.nio.ByteBuffer;
-import java.util.Collections;
-
-import org.apache.thrift.TException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.profiler.sender.CompositeSpanStreamData;
+import com.navercorp.pinpoint.profiler.sender.PartitionedByteBufferLocator;
 import com.navercorp.pinpoint.profiler.sender.SpanStreamSendDataFactory;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
+import org.apache.thrift.TException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.nio.ByteBuffer;
+import java.util.Collections;
 
 /**
  * @author Taejin Koo
@@ -42,8 +41,8 @@ public class SpanStreamSendDataPlaner extends AbstractSpanStreamSendDataPlaner {
     private byte[] spanChunkBuffer;
     private int spanChunkSize;
 
-    public SpanStreamSendDataPlaner(CompositeSpanStreamData compositeSpanStreamData, SpanStreamSendDataFactory spanStreamSendDataFactory, TSpan span) {
-        super(compositeSpanStreamData, spanStreamSendDataFactory);
+    public SpanStreamSendDataPlaner(PartitionedByteBufferLocator partitionedByteBufferLocator, SpanStreamSendDataFactory spanStreamSendDataFactory, TSpan span) {
+        super(partitionedByteBufferLocator, spanStreamSendDataFactory);
 
         this.span = span;
     }

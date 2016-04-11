@@ -1,16 +1,5 @@
 package com.navercorp.pinpoint.profiler.sender.planer;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.JvmUtils;
@@ -20,8 +9,8 @@ import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.sender.CompositeSpanStreamData;
 import com.navercorp.pinpoint.profiler.sender.HeaderTBaseSerializerPoolFactory;
+import com.navercorp.pinpoint.profiler.sender.PartitionedByteBufferLocator;
 import com.navercorp.pinpoint.profiler.sender.SpanStreamSendData;
 import com.navercorp.pinpoint.profiler.sender.SpanStreamSendDataFactory;
 import com.navercorp.pinpoint.profiler.sender.SpanStreamSendDataSerializer;
@@ -31,6 +20,16 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
+import org.apache.thrift.TBase;
+import org.apache.thrift.TException;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class SpanChunkStreamSendDataPlanerTest {
 
@@ -60,13 +59,13 @@ public class SpanChunkStreamSendDataPlanerTest {
         List<SpanEvent> originalSpanEventList = createSpanEventList(spanEventSize);
         SpanChunk spanChunk = spanChunkFactory.create(originalSpanEventList);
 
-        CompositeSpanStreamData spanData = serializer.serializeSpanChunkStream(headerTBaseSerializerFactory.createSerializer(), spanChunk);
+        PartitionedByteBufferLocator partitionedByteBufferLocator = serializer.serializeSpanChunkStream(headerTBaseSerializerFactory.createSerializer(), spanChunk);
         SpanStreamSendDataFactory factory = new SpanStreamSendDataFactory(100, 50, objectPool);
-        List<TSpanEvent> spanEventList = getSpanEventList(spanData, factory);
+        List<TSpanEvent> spanEventList = getSpanEventList(partitionedByteBufferLocator, factory);
 
-        spanData = serializer.serializeSpanChunkStream(headerTBaseSerializerFactory.createSerializer(), spanChunk);
+        partitionedByteBufferLocator = serializer.serializeSpanChunkStream(headerTBaseSerializerFactory.createSerializer(), spanChunk);
         factory = new SpanStreamSendDataFactory(objectPool);
-        List<TSpanEvent> spanEventList2 = getSpanEventList(spanData, factory);
+        List<TSpanEvent> spanEventList2 = getSpanEventList(partitionedByteBufferLocator, factory);
 
         Assert.assertEquals(spanEventSize, spanEventList.size());
         Assert.assertEquals(spanEventSize, spanEventList2.size());
@@ -88,7 +87,7 @@ public class SpanChunkStreamSendDataPlanerTest {
         return spanEventList;
     }
 
-    private List<TSpanEvent> getSpanEventList(CompositeSpanStreamData spanData, SpanStreamSendDataFactory factory) throws Exception {
+    private List<TSpanEvent> getSpanEventList(PartitionedByteBufferLocator spanData, SpanStreamSendDataFactory factory) throws Exception {
         List<TSpanEvent> spanEventList = new ArrayList<TSpanEvent>();
 
         SpanChunkStreamSendDataPlaner planer = new SpanChunkStreamSendDataPlaner(spanData, factory);

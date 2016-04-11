@@ -16,19 +16,18 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import java.nio.ByteBuffer;
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.thrift.TException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.SpanStreamConstants;
+import org.apache.thrift.TException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Taejin Koo
@@ -58,17 +57,8 @@ public class SpanStreamSendDataSerializer {
         return endBuffer;
     }
 
-    ByteBuffer createByteBuffer(int capacity) {
-        return ByteBuffer.allocate(capacity);
-    }
-
-    void putShort(ByteBuffer byteBuffer, short value) {
-        byteBuffer.put((byte) (value >> 8));
-        byteBuffer.put((byte) (value));
-    }
-
-    public CompositeSpanStreamData serializeSpanStream(HeaderTBaseSerializer serializer, TSpan span) {
-        CompositeSpanStreamData.Builder compositeSpanStreamDataBuilder = new CompositeSpanStreamData.Builder();
+    public PartitionedByteBufferLocator serializeSpanStream(HeaderTBaseSerializer serializer, TSpan span) {
+        PartitionedByteBufferLocator.Builder partitionedByteBufferLocatorBuilder = new PartitionedByteBufferLocator.Builder();
 
         List<TSpanEvent> spanEventList = span.getSpanEventList();
         if (spanEventList != null) {
@@ -78,7 +68,7 @@ public class SpanStreamSendDataSerializer {
                     byte[] buffer = serializer.continueSerialize(spanEvent);
                     int bufferEndIndex = serializer.getInterBufferSize();
 
-                    compositeSpanStreamDataBuilder.addComponentsIndex(bufferStartIndex, bufferEndIndex);
+                    partitionedByteBufferLocatorBuilder.addIndex(bufferStartIndex, bufferEndIndex);
                 } catch (TException e) {
                     logger.warn("Serialize fail. value:{}.", spanEvent, e);
                     serializer.reset(bufferStartIndex);
@@ -92,11 +82,11 @@ public class SpanStreamSendDataSerializer {
             byte[] buffer = serializer.continueSerialize(copiedSpan);
             int bufferEndIndex = serializer.getInterBufferSize();
 
-            compositeSpanStreamDataBuilder.addComponentsIndex(bufferStartIndex, bufferEndIndex);
+            partitionedByteBufferLocatorBuilder.addIndex(bufferStartIndex, bufferEndIndex);
 
-            compositeSpanStreamDataBuilder.setBuffer(buffer);
+            partitionedByteBufferLocatorBuilder.setBuffer(buffer);
 
-            return compositeSpanStreamDataBuilder.build();
+            return partitionedByteBufferLocatorBuilder.build();
         } catch (TException e) {
             logger.warn("Serialize fail. value:{}.", copiedSpan, e);
         }
@@ -110,8 +100,8 @@ public class SpanStreamSendDataSerializer {
         return copiedSpan;
     }
 
-    public CompositeSpanStreamData serializeSpanChunkStream(HeaderTBaseSerializer serializer, TSpanChunk spanChunk) {
-        CompositeSpanStreamData.Builder compositeSpanStreamDataBuilder = new CompositeSpanStreamData.Builder();
+    public PartitionedByteBufferLocator serializeSpanChunkStream(HeaderTBaseSerializer serializer, TSpanChunk spanChunk) {
+        PartitionedByteBufferLocator.Builder partitionedByteBufferLocatorBuilder = new PartitionedByteBufferLocator.Builder();
 
         List<TSpanEvent> spanEventList = spanChunk.getSpanEventList();
         if (spanEventList != null) {
@@ -121,7 +111,7 @@ public class SpanStreamSendDataSerializer {
                     byte[] buffer = serializer.continueSerialize(spanEvent);
                     int bufferEndIndex = serializer.getInterBufferSize();
 
-                    compositeSpanStreamDataBuilder.addComponentsIndex(bufferStartIndex, bufferEndIndex);
+                    partitionedByteBufferLocatorBuilder.addIndex(bufferStartIndex, bufferEndIndex);
                 } catch (TException e) {
                     logger.warn("Serialize fail. value:{}.", spanEvent, e);
                     serializer.reset(bufferStartIndex);
@@ -136,11 +126,11 @@ public class SpanStreamSendDataSerializer {
             byte[] buffer = serializer.continueSerialize(copiedSpanChunk);
             int bufferEndIndex = serializer.getInterBufferSize();
 
-            compositeSpanStreamDataBuilder.addComponentsIndex(bufferStartIndex, bufferEndIndex);
+            partitionedByteBufferLocatorBuilder.addIndex(bufferStartIndex, bufferEndIndex);
 
-            compositeSpanStreamDataBuilder.setBuffer(buffer);
+            partitionedByteBufferLocatorBuilder.setBuffer(buffer);
 
-            return compositeSpanStreamDataBuilder.build();
+            return partitionedByteBufferLocatorBuilder.build();
         } catch (TException e) {
             logger.warn("Serialize fail. value:{}.", copiedSpanChunk, e);
         }

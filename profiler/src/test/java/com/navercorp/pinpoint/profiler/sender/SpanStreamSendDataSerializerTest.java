@@ -16,15 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.thrift.TException;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.JvmUtils;
@@ -41,6 +32,14 @@ import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
+import org.apache.thrift.TException;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Taejin Koo
@@ -65,14 +64,14 @@ public class SpanStreamSendDataSerializerTest {
         HeaderTBaseSerializerFactory factory = new HeaderTBaseSerializerFactory();
 
         SpanChunk spanChunk = spanChunkFactory.create(createSpanEventList(spanEventSize));
-        CompositeSpanStreamData spanData = serializer.serializeSpanChunkStream(factory.createSerializer(), spanChunk);
+        PartitionedByteBufferLocator partitionedByteBufferLocator = serializer.serializeSpanChunkStream(factory.createSerializer(), spanChunk);
 
-        Assert.assertEquals(spanEventSize + 1, spanData.getComponentsCount());
+        Assert.assertEquals(spanEventSize + 1, partitionedByteBufferLocator.getPartitionedCount());
 
         HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializerFactory().createDeserializer();
 
-        for (int i = 0; i < spanData.getComponentsCount(); i++) {
-            ByteBuffer byteBuffer = spanData.getByteBuffer(i);
+        for (int i = 0; i < partitionedByteBufferLocator.getPartitionedCount(); i++) {
+            ByteBuffer byteBuffer = partitionedByteBufferLocator.getByteBuffer(i);
 
             byte[] readBuffer = new byte[byteBuffer.remaining()];
 
@@ -101,14 +100,14 @@ public class SpanStreamSendDataSerializerTest {
         HeaderTBaseSerializerFactory factory = new HeaderTBaseSerializerFactory();
 
         Span span = createSpan(createSpanEventList(spanEventSize));
-        CompositeSpanStreamData spanData = serializer.serializeSpanStream(factory.createSerializer(), span);
+        PartitionedByteBufferLocator partitionedByteBufferLocator = serializer.serializeSpanStream(factory.createSerializer(), span);
 
-        Assert.assertEquals(spanEventSize + 1, spanData.getComponentsCount());
+        Assert.assertEquals(spanEventSize + 1, partitionedByteBufferLocator.getPartitionedCount());
 
         HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializerFactory().createDeserializer();
 
-        for (int i = 0; i < spanData.getComponentsCount(); i++) {
-            ByteBuffer byteBuffer = spanData.getByteBuffer(i);
+        for (int i = 0; i < partitionedByteBufferLocator.getPartitionedCount(); i++) {
+            ByteBuffer byteBuffer = partitionedByteBufferLocator.getByteBuffer(i);
 
             byte[] readBuffer = new byte[byteBuffer.remaining()];
 
