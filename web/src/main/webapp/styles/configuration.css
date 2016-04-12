@@ -536,6 +536,8 @@
 }
 #config-general table td {
     border: 1px solid #D2D2D2;
+    padding: 10px 1px 10px 26px;
+    text-align: left;
 }
 #config-general table td.title {
     color: #FFF;
@@ -544,9 +546,61 @@
 	text-align: left;
     background-color: #999999;
 }
+#config-general span.sub-title {
+    color: rgb(73, 166, 232);
+    font-size: 16px;
+    padding-right: 30px;
+}
+#config-general .inout-bound .dropdown-menu {
+    width: 192px;
+    margin: 0px 0px 0px -1px;
+    padding-top: 0px;
+}
+#config-general .inout-bound li {
+    cursor: pointer;
+    text-align: center;
+}
+#config-general .inout-bound li.selected {
+    color: #FFF;
+    background-color: #48A948;
+}
+
+#config-general .inbound {
+    float: left;
+    width: 95px;
+    list-style: none;
+    padding-left: 0px;
+    border-right: 1px solid #D2D2D2;
+    border-bottom: 1px solid #D2D2D2;
+}
+#config-general .inbound li.inbound-title {
+    text-align: center;
+    font-weight: bold;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+#config-general .outbound {
+    float: right;
+    width: 95px;
+    list-style: none;
+    padding-left: 0px;
+    border-bottom: 1px solid #D2D2D2;
+}
+#config-general .outbound li.outbound-title {
+    text-align: center;
+    font-weight: bold;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+#config-general .favorite-application tr:last-child  td:first-child {
+    padding-right: 26px;
+}
+#config-general .favorite-application tr:last-child  td:last-child{
+    background-color: #F1F1F1;
+}
 #config-general .favorite-list-wrapper {
 	overflow: auto;
-	max-height: 320px;
+	max-height: 280px;
 }
 #config-general .favorite-list {
 	list-style:none;

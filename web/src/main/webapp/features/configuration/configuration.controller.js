@@ -18,7 +18,6 @@
 	pinpointApp.controller('ConfigurationCtrl', [ '$scope','$element', 'ConfigurationConfig', 'AnalyticsService',
 	    function ($scope, $element, $constant, analyticsService) {
 
-			var $elBody = $element.find(".modal-body");
 			$scope.currentTab = $constant.menu.GENERAL;
 			
 			// define isGeneral(), isAlram()... func. 
@@ -34,6 +33,7 @@
 			$($element).on("hidden.bs.modal", function(e) {
 				$scope.currentTab = $constant.menu.GENERAL;
 				$scope.$broadcast("configuration.alarm.initClose");
+				$scope.$broadcast("configuration.general.initClose");
 			});
 			
 			$scope.setCurrentTab = function( tab ) {
@@ -42,17 +42,14 @@
 				switch( tab ) {
 					case $constant.menu.GENERAL:
 						analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_GENERAL );
-						$elBody.css("background-color", "#e9eaed");
 						$scope.$broadcast( "general.configuration.show");
 						break;
 					case $constant.menu.ALARM:
 						analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM );
-						$elBody.css("background-color", "#e9eaed");
 						$scope.$broadcast( "alarmUserGroup.configuration.show");
 						break;
 					case $constant.menu.HELP:
 						analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_HELP );
-						$elBody.css("background-color", "#FFF");
 						break;
 				}
 			};
