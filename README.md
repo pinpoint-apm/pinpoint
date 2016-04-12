@@ -93,7 +93,7 @@ Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.1.x
 Agent compatibility table:
 
 Agent Version | Collector 1.0.x | Collector 1.1.x | Collector 1.5.x | Collector 1.6.x
-------+------ | --------------- | --------------- | --------------- | --------------- 
+------------- | --------------- | --------------- | --------------- | --------------- 
 1.0.x | yes | yes | yes | yes
 1.1.x | not tested | yes | yes | yes
 1.5.x | no | no | yes | Yes
