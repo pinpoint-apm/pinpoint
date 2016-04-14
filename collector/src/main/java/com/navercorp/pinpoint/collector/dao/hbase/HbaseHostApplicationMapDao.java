@@ -100,10 +100,16 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         byte[] columnName = createColumnName(host, bindApplicationName, bindServiceType);
 
         try {
-            hbaseTemplate.put(HBaseTables.HOST_APPLICATION_MAP_VER2, rowKey, HBaseTables.HOST_APPLICATION_MAP_VER2_CF_MAP, columnName, null);
+            boolean success = hbaseTemplate.asyncPut(HBaseTables.HOST_APPLICATION_MAP_VER2, rowKey, HBaseTables.HOST_APPLICATION_MAP_VER2_CF_MAP, columnName, null);
+            if (!success) {
+                hbaseTemplate.put(HBaseTables.HOST_APPLICATION_MAP_VER2, rowKey, HBaseTables.HOST_APPLICATION_MAP_VER2_CF_MAP, columnName, null);
+            }
         } catch (Exception ex) {
             logger.warn("retry one. Caused:{}", ex.getCause(), ex);
-            hbaseTemplate.put(HBaseTables.HOST_APPLICATION_MAP_VER2, rowKey, HBaseTables.HOST_APPLICATION_MAP_VER2_CF_MAP, columnName, null);
+            boolean success = hbaseTemplate.asyncPut(HBaseTables.HOST_APPLICATION_MAP_VER2, rowKey, HBaseTables.HOST_APPLICATION_MAP_VER2_CF_MAP, columnName, null);
+            if (!success) {
+                hbaseTemplate.put(HBaseTables.HOST_APPLICATION_MAP_VER2, rowKey, HBaseTables.HOST_APPLICATION_MAP_VER2_CF_MAP, columnName, null);
+            }
         }
     }
 

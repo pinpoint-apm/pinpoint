@@ -69,7 +69,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
         put.addColumn(APPLICATION_TRACE_INDEX_CF_TRACE, makeQualifier(span) , acceptedTime, value);
 
-        hbaseTemplate.put(APPLICATION_TRACE_INDEX, put);
+        boolean success = hbaseTemplate.asyncPut(APPLICATION_TRACE_INDEX, put);
+        if (!success) {
+            hbaseTemplate.put(APPLICATION_TRACE_INDEX, put);
+        }
     }
 
     private byte[] makeQualifier(final TSpan span) {

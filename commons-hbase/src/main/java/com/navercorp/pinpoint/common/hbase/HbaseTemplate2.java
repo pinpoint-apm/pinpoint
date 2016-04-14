@@ -26,19 +26,31 @@ import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import com.sematext.hbase.wd.DistributedScanner;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.Durability;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Increment;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.client.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.dao.DataAccessException;
 import org.springframework.util.Assert;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author emeroad
@@ -57,7 +69,9 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     private boolean enableParallelScan = false;
     private int maxThreads = DEFAULT_MAX_THREADS_FOR_PARALLEL_SCANNER;
     private int maxThreadsPerParallelScan = DEFAULT_MAX_THREADS_PER_PARALLEL_SCAN;
-    
+
+    private HBaseAsyncOperation asyncOperation = new DisabledHBaseAsyncOperation();
+
     public HbaseTemplate2() {
     }
     
@@ -75,6 +89,10 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     public void setMaxThreadsPerParallelScan(int maxThreadsPerParallelScan) {
         this.maxThreadsPerParallelScan = maxThreadsPerParallelScan;
+    }
+
+    public void setAsyncOperation(HBaseAsyncOperation asyncOperation) {
+        this.asyncOperation = asyncOperation;
     }
 
     @Override
@@ -250,14 +268,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
         execute(tableName, new TableCallback() {
             @Override
             public Object doInTable(Table table) throws Throwable {
-                Put put = new Put(rowName);
-                if (familyName != null) {
-                    if (timestamp == null) {
-                        put.addColumn(familyName, qualifier, value);
-                    } else {
-                        put.addColumn(familyName, qualifier, timestamp, value);
-                    }
-                }
+                Put put = createPut(rowName, familyName, timestamp, qualifier, value);
                 table.put(put);
                 return null;
             }
@@ -274,15 +285,8 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
         execute(tableName, new TableCallback<T>() {
             @Override
             public T doInTable(Table table) throws Throwable {
-                Put put = new Put(rowName);
                 byte[] bytes = mapper.mapValue(value);
-                if (familyName != null) {
-                    if (timestamp == null) {
-                        put.add(familyName, qualifier, bytes);
-                    } else {
-                        put.add(familyName, qualifier, timestamp, bytes);
-                    }
-                }
+                Put put = createPut(rowName, familyName, timestamp, qualifier, bytes);
                 table.put(put);
                 return null;
             }
@@ -309,6 +313,51 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
                 return null;
             }
         });
+    }
+
+    @Override
+    public boolean asyncPut(String tableName, byte[] rowName, byte[] familyName, byte[] qualifier, byte[] value) {
+        return asyncPut(tableName, rowName, familyName, qualifier, null, value);
+    }
+
+    @Override
+    public boolean asyncPut(String tableName, byte[] rowName, byte[] familyName, byte[] qualifier, Long timestamp, byte[] value) {
+        Put put = createPut(rowName, familyName, timestamp, qualifier, value);
+        return asyncPut(tableName, put);
+    }
+
+    @Override
+    public <T> boolean asyncPut(String tableName, byte[] rowName, byte[] familyName, byte[] qualifier, T value, ValueMapper<T> mapper) {
+        return asyncPut(tableName, rowName, familyName, qualifier, null, value, mapper);
+    }
+
+    @Override
+    public <T> boolean asyncPut(String tableName, byte[] rowName, byte[] familyName, byte[] qualifier, Long timestamp, T value, ValueMapper<T> mapper) {
+        byte[] bytes = mapper.mapValue(value);
+        Put put = createPut(rowName, familyName, timestamp, qualifier, bytes);
+        return asyncPut(tableName, put);
+    }
+
+    @Override
+    public boolean asyncPut(String tableName, Put put) {
+        return asyncOperation.put(tableName, put);
+    }
+
+    @Override
+    public List<Put> asyncPut(String tableName, List<Put> puts) {
+        return asyncOperation.put(tableName, puts);
+    }
+
+    private Put createPut(byte[] rowName, byte[] familyName, Long timestamp, byte[] qualifier, byte[] value) {
+        Put put = new Put(rowName);
+        if (familyName != null) {
+            if (timestamp == null) {
+                put.addColumn(familyName, qualifier, value);
+            } else {
+                put.addColumn(familyName, qualifier, timestamp, value);
+            }
+        }
+        return put;
     }
 
     @Override
@@ -460,7 +509,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     private ResultScanner[] splitScan(Table table, Scan originalScan, AbstractRowKeyDistributor rowKeyDistributor) throws IOException {
         Scan[] scans = rowKeyDistributor.getDistributedScans(originalScan);
         final int length = scans.length;
-        for(int i = 0; i < length; i++) {
+        for (int i = 0; i < length; i++) {
             Scan scan = scans[i];
             // other properties are already set upon construction
             scan.setId(scan.getId() + "-" + i);
@@ -481,7 +530,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
         return scanners;
     }
 
-    private void closeScanner(ResultScanner[] scannerList ) {
+    private void closeScanner(ResultScanner[] scannerList) {
         for (ResultScanner scanner : scannerList) {
             if (scanner != null) {
                 try {

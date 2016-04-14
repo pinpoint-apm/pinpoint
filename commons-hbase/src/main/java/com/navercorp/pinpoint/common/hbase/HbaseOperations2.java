@@ -16,10 +16,15 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
-import java.util.List;
-
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
-import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Increment;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.Scan;
+
+import java.util.List;
 
 /**
  * @author emeroad
@@ -58,54 +63,42 @@ public interface HbaseOperations2 {
      * @return object mapping the target row
      */
     <T> T get(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final RowMapper<T> mapper);
-
     <T> T get(String tableName, final Get get, final RowMapper<T> mapper);
-
     <T> List<T> get(String tableName, final List<Get> get, final RowMapper<T> mapper);
 
-
     void put(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final byte[] value);
-
     void put(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final byte[] value);
-
     <T> void put(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final T value, final ValueMapper<T> mapper);
-
     <T> void put(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final T value, final ValueMapper<T> mapper);
-
     void put(String tableName, final Put put);
-
     void put(String tableName, final List<Put> puts);
 
-    void delete(String tableName, final Delete delete);
+    boolean asyncPut(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final byte[] value);
+    boolean asyncPut(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final byte[] value);
+    <T> boolean asyncPut(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final T value, final ValueMapper<T> mapper);
+    <T> boolean asyncPut(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final T value, final ValueMapper<T> mapper);
+    boolean asyncPut(String tableName, final Put put);
+    List<Put> asyncPut(String tableName, final List<Put> puts);
 
+    void delete(String tableName, final Delete delete);
     void delete(String tableName, final List<Delete> deletes);
 
     <T> List<T> find(String tableName, final List<Scan> scans, final ResultsExtractor<T> action);
-
     <T> List<List<T>> find(String tableName, final List<Scan> scans, final RowMapper<T> action);
 
     <T> List<T> findParallel(String tableName, final List<Scan> scans, final ResultsExtractor<T> action);
-
     <T> List<List<T>> findParallel(String tableName, final List<Scan> scans, final RowMapper<T> action);
 
     // Distributed scanners
-
     <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final RowMapper<T> action);
-
     <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action);
-
     <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, final LimitEventHandler limitEventHandler);
-
     <T> T find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action);
 
     // Parallel scanners for distributed scans
-
     <T> List<T> findParallel(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final RowMapper<T> action, int numParallelThreads);
-
     <T> List<T> findParallel(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, int numParallelThreads);
-
     <T> List<T> findParallel(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, final LimitEventHandler limitEventHandler, int numParallelThreads);
-
     <T> T findParallel(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action, int numParallelThreads);
 
     Result increment(String tableName, final Increment increment);
@@ -122,9 +115,7 @@ public interface HbaseOperations2 {
     List<Result> increment(String tableName, final List<Increment> incrementList);
 
     long incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount);
-
     long incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount, final boolean writeToWAL);
-
 
     /**
      * Executes the given action against the specified table handling resource management.
