@@ -25,10 +25,10 @@ import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.springframework.data.hadoop.hbase.RowMapper;
 
 import com.navercorp.pinpoint.common.bo.SqlMetaDataBo;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
 
 /**
  * @author emeroad

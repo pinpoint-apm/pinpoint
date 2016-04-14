@@ -20,6 +20,8 @@ import static org.mockito.Mockito.*;
 
 import com.navercorp.pinpoint.common.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
@@ -31,8 +33,6 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.data.hadoop.hbase.ResultsExtractor;
-import org.springframework.data.hadoop.hbase.RowMapper;
 
 import java.util.Arrays;
 import java.util.List;

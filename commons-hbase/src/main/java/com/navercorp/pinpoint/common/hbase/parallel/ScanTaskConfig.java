@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.common.hbase.parallel;
 
+import com.navercorp.pinpoint.common.hbase.HbaseAccessor;
+import com.navercorp.pinpoint.common.hbase.TableFactory;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HConstants;
-import org.apache.hadoop.hbase.client.HTableInterfaceFactory;
-import org.springframework.data.hadoop.hbase.HbaseAccessor;
 
 import java.nio.charset.Charset;
 
@@ -32,7 +32,7 @@ public class ScanTaskConfig {
     private final String tableName;
     private final Configuration configuration;
     private final Charset charset;
-    private final HTableInterfaceFactory tableFactory;
+    private final TableFactory tableFactory;
 
     private final AbstractRowKeyDistributor rowKeyDistributor;
     private final int scanTaskQueueSize;
@@ -41,7 +41,7 @@ public class ScanTaskConfig {
         this(tableName, hbaseAccessor.getConfiguration(), hbaseAccessor.getCharset(), hbaseAccessor.getTableFactory(), rowKeyDistributor, scanCaching);
     }
 
-    public ScanTaskConfig(String tableName, Configuration configuration, Charset charset, HTableInterfaceFactory tableFactory, AbstractRowKeyDistributor rowKeyDistributor, int scanCaching) {
+    public ScanTaskConfig(String tableName, Configuration configuration, Charset charset, TableFactory tableFactory, AbstractRowKeyDistributor rowKeyDistributor, int scanCaching) {
         if (tableName == null) {
             throw new NullPointerException("No table specified");
         }
@@ -74,7 +74,7 @@ public class ScanTaskConfig {
         return charset;
     }
 
-    public HTableInterfaceFactory getTableFactory() {
+    public TableFactory getTableFactory() {
         return tableFactory;
     }
 
