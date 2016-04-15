@@ -10,8 +10,12 @@ import java.util.List;
  */
 public interface HBaseAsyncOperation {
 
+    boolean isAvailable();
+
     boolean put(TableName tableName, final Put put);
 
     List<Put> put(TableName tableName, final List<Put> puts);
+
+    Long getCurrentPutOpsCount();
 
 }

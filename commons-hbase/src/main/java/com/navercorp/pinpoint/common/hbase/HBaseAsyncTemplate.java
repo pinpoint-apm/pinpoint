@@ -20,6 +20,11 @@ public class HBaseAsyncTemplate implements HBaseAsyncOperation {
     }
 
     @Override
+    public boolean isAvailable() {
+        return true;
+    }
+
+    @Override
     public boolean put(TableName tableName, Put put) {
         return hTableMultiplexer.put(tableName, put);
     }
@@ -27,6 +32,11 @@ public class HBaseAsyncTemplate implements HBaseAsyncOperation {
     @Override
     public List<Put> put(TableName tableName, List<Put> puts) {
         return hTableMultiplexer.put(tableName, puts);
+    }
+
+    @Override
+    public Long getCurrentPutOpsCount() {
+        return hTableMultiplexer.getHTableMultiplexerStatus().getTotalBufferedCounter();
     }
 
 }

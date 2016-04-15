@@ -28,7 +28,7 @@ public class HBaseAsyncOperationFactory {
     public static HBaseAsyncOperation create(Configuration configuration) throws IOException {
         boolean enableAsyncMethod = configuration.getBoolean(ENABLE_ASYNC_METHOD, DEFAULT_ENABLE_ASYNC_METHOD);
         if (!enableAsyncMethod) {
-            return new DisabledHBaseAsyncOperation();
+            return DisabledHBaseAsyncOperation.INSTANCE;
         }
 
         int queueSize = configuration.getInt(ASYNC_IN_QUEUE_SIZE, DEFAULT_ASYNC_IN_QUEUE_SIZE);
