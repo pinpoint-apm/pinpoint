@@ -39,10 +39,10 @@
         <property name="configLocation" value="classpath:/mybatis-config.xml"/>
 
         <!-- typeAliases -->
-        <property name="typeAliasesPackage" value="com.navercorp.pinpoint.web.alarm.vo" />
+        <property name="typeAliasesPackage" value="com.navercorp.pinpoint.web.vo,com.navercorp.pinpoint.web.alarm.vo" />
 
         <!-- setting the location of mapper -->
-        <property name="mapperLocations" value="classpath:/mapper/*Mapper.xml"/>
+        <property name="mapperLocations" value="classpath:mapper/*Mapper.xml"/>
  
         <!-- set "true" in order to catch the errors of declaration of statement more quickly -->
         <property name="failFast" value="true"/>
