@@ -20,13 +20,13 @@ public class HBaseAsyncTemplate implements HBaseAsyncOperation {
     }
 
     @Override
-    public boolean put(String tableName, Put put) {
-        return hTableMultiplexer.put(TableName.valueOf(tableName), put);
+    public boolean put(TableName tableName, Put put) {
+        return hTableMultiplexer.put(tableName, put);
     }
 
     @Override
-    public List<Put> put(String tableName, List<Put> puts) {
-        return hTableMultiplexer.put(TableName.valueOf(tableName), puts);
+    public List<Put> put(TableName tableName, List<Put> puts) {
+        return hTableMultiplexer.put(tableName, puts);
     }
 
 }

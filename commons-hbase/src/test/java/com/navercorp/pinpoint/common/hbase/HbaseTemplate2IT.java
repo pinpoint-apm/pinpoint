@@ -21,6 +21,7 @@ import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.TableNotFoundException;
 import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
 import org.junit.AfterClass;
@@ -64,7 +65,7 @@ public class HbaseTemplate2IT {
     @Ignore
     public void notExist() throws Exception {
         try {
-            hbaseTemplate2.put("NOT_EXIST", new byte[] {0, 0, 0}, "familyName".getBytes(), "columnName".getBytes(), new byte[]{0, 0, 0});
+            hbaseTemplate2.put(TableName.valueOf("NOT_EXIST"), new byte[] {0, 0, 0}, "familyName".getBytes(), "columnName".getBytes(), new byte[]{0, 0, 0});
             Assert.fail("exceptions");
         } catch (HbaseSystemException e) {
             RetriesExhaustedWithDetailsException exception = (RetriesExhaustedWithDetailsException)(e.getCause());

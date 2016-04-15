@@ -75,8 +75,8 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     public HbaseTemplate2() {
     }
     
-    private Table getTable(String tableName) {
-        return getTableFactory().getTable(TableName.valueOf(tableName));
+    private Table getTable(TableName tableName) {
+        return getTableFactory().getTable(tableName);
     }
     
     public void setEnableParallelScan(boolean enableParallelScan) {
@@ -124,21 +124,21 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public <T> T find(String tableName, String family, final ResultsExtractor<T> action) {
+    public <T> T find(TableName tableName, String family, final ResultsExtractor<T> action) {
         Scan scan = new Scan();
         scan.addFamily(family.getBytes(getCharset()));
         return find(tableName, scan, action);
     }
 
     @Override
-    public <T> T find(String tableName, String family, String qualifier, final ResultsExtractor<T> action) {
+    public <T> T find(TableName tableName, String family, String qualifier, final ResultsExtractor<T> action) {
         Scan scan = new Scan();
         scan.addColumn(family.getBytes(getCharset()), qualifier.getBytes(getCharset()));
         return find(tableName, scan, action);
     }
 
     @Override
-    public <T> T find(String tableName, final Scan scan, final ResultsExtractor<T> action) {
+    public <T> T find(TableName tableName, final Scan scan, final ResultsExtractor<T> action) {
         return execute(tableName, new TableCallback<T>() {
             @Override
             public T doInTable(Table table) throws Throwable {
@@ -153,36 +153,36 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public <T> List<T> find(String tableName, String family, final RowMapper<T> action) {
+    public <T> List<T> find(TableName tableName, String family, final RowMapper<T> action) {
         Scan scan = new Scan();
         scan.addFamily(family.getBytes(getCharset()));
         return find(tableName, scan, action);
     }
 
     @Override
-    public <T> List<T> find(String tableName, String family, String qualifier, final RowMapper<T> action) {
+    public <T> List<T> find(TableName tableName, String family, String qualifier, final RowMapper<T> action) {
         Scan scan = new Scan();
         scan.addColumn(family.getBytes(getCharset()), qualifier.getBytes(getCharset()));
         return find(tableName, scan, action);
     }
 
     @Override
-    public <T> List<T> find(String tableName, final Scan scan, final RowMapper<T> action) {
+    public <T> List<T> find(TableName tableName, final Scan scan, final RowMapper<T> action) {
         return find(tableName, scan, new RowMapperResultsExtractor<>(action));
     }
 
     @Override
-    public <T> T get(String tableName, String rowName, final RowMapper<T> mapper) {
+    public <T> T get(TableName tableName, String rowName, final RowMapper<T> mapper) {
         return get(tableName, rowName, null, null, mapper);
     }
 
     @Override
-    public <T> T get(String tableName, String rowName, String familyName, final RowMapper<T> mapper) {
+    public <T> T get(TableName tableName, String rowName, String familyName, final RowMapper<T> mapper) {
         return get(tableName, rowName, familyName, null, mapper);
     }
 
     @Override
-    public <T> T get(String tableName, final String rowName, final String familyName, final String qualifier, final RowMapper<T> mapper) {
+    public <T> T get(TableName tableName, final String rowName, final String familyName, final String qualifier, final RowMapper<T> mapper) {
         return execute(tableName, new TableCallback<T>() {
             @Override
             public T doInTable(Table table) throws Throwable {
@@ -203,17 +203,17 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public <T> T get(String tableName, byte[] rowName, RowMapper<T> mapper) {
+    public <T> T get(TableName tableName, byte[] rowName, RowMapper<T> mapper) {
         return get(tableName, rowName, null, null, mapper);
     }
 
     @Override
-    public <T> T get(String tableName, byte[] rowName, byte[] familyName, RowMapper<T> mapper) {
+    public <T> T get(TableName tableName, byte[] rowName, byte[] familyName, RowMapper<T> mapper) {
         return get(tableName, rowName, familyName, null, mapper);
     }
 
     @Override
-    public <T> T get(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final RowMapper<T> mapper) {
+    public <T> T get(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final RowMapper<T> mapper) {
         return execute(tableName, new TableCallback<T>() {
             @Override
             public T doInTable(Table table) throws Throwable {
@@ -232,7 +232,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public <T> T get(String tableName, final Get get, final RowMapper<T> mapper) {
+    public <T> T get(TableName tableName, final Get get, final RowMapper<T> mapper) {
         return execute(tableName, new TableCallback<T>() {
             @Override
             public T doInTable(Table table) throws Throwable {
@@ -243,7 +243,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public <T> List<T> get(String tableName, final List<Get> getList, final RowMapper<T> mapper) {
+    public <T> List<T> get(TableName tableName, final List<Get> getList, final RowMapper<T> mapper) {
         return execute(tableName, new TableCallback<List<T>>() {
             @Override
             public List<T> doInTable(Table table) throws Throwable {
@@ -259,12 +259,12 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public void put(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final byte[] value) {
+    public void put(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final byte[] value) {
         put(tableName, rowName, familyName, qualifier, null, value);
     }
 
     @Override
-    public void put(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final byte[] value) {
+    public void put(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final byte[] value) {
         execute(tableName, new TableCallback() {
             @Override
             public Object doInTable(Table table) throws Throwable {
@@ -276,12 +276,12 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public <T> void put(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final T value, final ValueMapper<T> mapper) {
+    public <T> void put(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final T value, final ValueMapper<T> mapper) {
         put(tableName, rowName, familyName, qualifier, null, value, mapper);
     }
 
     @Override
-    public <T> void put(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final T value, final ValueMapper<T> mapper) {
+    public <T> void put(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final T value, final ValueMapper<T> mapper) {
         execute(tableName, new TableCallback<T>() {
             @Override
             public T doInTable(Table table) throws Throwable {
@@ -294,7 +294,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public void put(String tableName, final Put put) {
+    public void put(TableName tableName, final Put put) {
         execute(tableName, new TableCallback() {
             @Override
             public Object doInTable(Table table) throws Throwable {
@@ -305,7 +305,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public void put(String tableName, final List<Put> puts) {
+    public void put(TableName tableName, final List<Put> puts) {
         execute(tableName, new TableCallback() {
             @Override
             public Object doInTable(Table table) throws Throwable {
@@ -316,35 +316,35 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public boolean asyncPut(String tableName, byte[] rowName, byte[] familyName, byte[] qualifier, byte[] value) {
+    public boolean asyncPut(TableName tableName, byte[] rowName, byte[] familyName, byte[] qualifier, byte[] value) {
         return asyncPut(tableName, rowName, familyName, qualifier, null, value);
     }
 
     @Override
-    public boolean asyncPut(String tableName, byte[] rowName, byte[] familyName, byte[] qualifier, Long timestamp, byte[] value) {
+    public boolean asyncPut(TableName tableName, byte[] rowName, byte[] familyName, byte[] qualifier, Long timestamp, byte[] value) {
         Put put = createPut(rowName, familyName, timestamp, qualifier, value);
         return asyncPut(tableName, put);
     }
 
     @Override
-    public <T> boolean asyncPut(String tableName, byte[] rowName, byte[] familyName, byte[] qualifier, T value, ValueMapper<T> mapper) {
+    public <T> boolean asyncPut(TableName tableName, byte[] rowName, byte[] familyName, byte[] qualifier, T value, ValueMapper<T> mapper) {
         return asyncPut(tableName, rowName, familyName, qualifier, null, value, mapper);
     }
 
     @Override
-    public <T> boolean asyncPut(String tableName, byte[] rowName, byte[] familyName, byte[] qualifier, Long timestamp, T value, ValueMapper<T> mapper) {
+    public <T> boolean asyncPut(TableName tableName, byte[] rowName, byte[] familyName, byte[] qualifier, Long timestamp, T value, ValueMapper<T> mapper) {
         byte[] bytes = mapper.mapValue(value);
         Put put = createPut(rowName, familyName, timestamp, qualifier, bytes);
         return asyncPut(tableName, put);
     }
 
     @Override
-    public boolean asyncPut(String tableName, Put put) {
+    public boolean asyncPut(TableName tableName, Put put) {
         return asyncOperation.put(tableName, put);
     }
 
     @Override
-    public List<Put> asyncPut(String tableName, List<Put> puts) {
+    public List<Put> asyncPut(TableName tableName, List<Put> puts) {
         return asyncOperation.put(tableName, puts);
     }
 
@@ -361,7 +361,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public void delete(String tableName, final Delete delete) {
+    public void delete(TableName tableName, final Delete delete) {
         execute(tableName, new TableCallback() {
             @Override
             public Object doInTable(Table table) throws Throwable {
@@ -372,7 +372,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public void delete(String tableName, final List<Delete> deletes) {
+    public void delete(TableName tableName, final List<Delete> deletes) {
         execute(tableName, new TableCallback() {
             @Override
             public Object doInTable(Table table) throws Throwable {
@@ -383,7 +383,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public <T> List<T> find(String tableName, final List<Scan> scanList, final ResultsExtractor<T> action) {
+    public <T> List<T> find(TableName tableName, final List<Scan> scanList, final ResultsExtractor<T> action) {
         return execute(tableName, new TableCallback<List<T>>() {
             @Override
             public List<T> doInTable(Table table) throws Throwable {
@@ -403,12 +403,12 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public <T> List<List<T>> find(String tableName, List<Scan> scanList, RowMapper<T> action) {
+    public <T> List<List<T>> find(TableName tableName, List<Scan> scanList, RowMapper<T> action) {
         return find(tableName, scanList, new RowMapperResultsExtractor<>(action));
     }
 
     @Override
-    public <T> List<T> findParallel(final String tableName, final List<Scan> scans, final ResultsExtractor<T> action) {
+    public <T> List<T> findParallel(final TableName tableName, final List<Scan> scans, final ResultsExtractor<T> action) {
         if (!this.enableParallelScan || scans.size() == 1) {
             return find(tableName, scans, action);
         }
@@ -452,34 +452,34 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public <T> List<List<T>> findParallel(String tableName, final List<Scan> scans, final RowMapper<T> action) {
+    public <T> List<List<T>> findParallel(TableName tableName, final List<Scan> scans, final RowMapper<T> action) {
         return findParallel(tableName, scans, new RowMapperResultsExtractor<>(action));
     }
 
     @Override
-    public <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final RowMapper<T> action) {
+    public <T> List<T> find(TableName tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final RowMapper<T> action) {
         final ResultsExtractor<List<T>> resultsExtractor = new RowMapperResultsExtractor<>(action);
         return executeDistributedScan(tableName, scan, rowKeyDistributor, resultsExtractor);
     }
 
     @Override
-    public <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final int limit, final RowMapper<T> action) {
+    public <T> List<T> find(TableName tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final int limit, final RowMapper<T> action) {
         final ResultsExtractor<List<T>> resultsExtractor = new LimitRowMapperResultsExtractor<>(action, limit);
         return executeDistributedScan(tableName, scan, rowKeyDistributor, resultsExtractor);
     }
 
     @Override
-    public <T> List<T> find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, final LimitEventHandler limitEventHandler) {
+    public <T> List<T> find(TableName tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, final LimitEventHandler limitEventHandler) {
         final LimitRowMapperResultsExtractor<T> resultsExtractor = new LimitRowMapperResultsExtractor<>(action, limit, limitEventHandler);
         return executeDistributedScan(tableName, scan, rowKeyDistributor, resultsExtractor);
     }
 
     @Override
-    public <T> T find(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
+    public <T> T find(TableName tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
         return executeDistributedScan(tableName, scan, rowKeyDistributor, action);
     }
 
-    protected final <T> T executeDistributedScan(String tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
+    protected final <T> T executeDistributedScan(TableName tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
         return execute(tableName, new TableCallback<T>() {
             @Override
             public T doInTable(Table table) throws Throwable {
@@ -543,7 +543,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public <T> List<T> findParallel(String tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, RowMapper<T> action, int numParallelThreads) {
+    public <T> List<T> findParallel(TableName tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, RowMapper<T> action, int numParallelThreads) {
         if (!this.enableParallelScan || numParallelThreads <= 1) {
             // use DistributedScanner if parallel scan is disabled or if called to use a single thread
             return find(tableName, scan, rowKeyDistributor, action);
@@ -555,7 +555,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public <T> List<T> findParallel(String tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, int limit, RowMapper<T> action, int numParallelThreads) {
+    public <T> List<T> findParallel(TableName tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, int limit, RowMapper<T> action, int numParallelThreads) {
         if (!this.enableParallelScan || numParallelThreads <= 1) {
             // use DistributedScanner if parallel scan is disabled or if called to use a single thread
             return find(tableName, scan, rowKeyDistributor, limit, action);
@@ -567,7 +567,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public <T> List<T> findParallel(String tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, int limit, RowMapper<T> action, LimitEventHandler limitEventHandler, int numParallelThreads) {
+    public <T> List<T> findParallel(TableName tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, int limit, RowMapper<T> action, LimitEventHandler limitEventHandler, int numParallelThreads) {
         if (!this.enableParallelScan || numParallelThreads <= 1) {
             // use DistributedScanner if parallel scan is disabled or if called to use a single thread
             return find(tableName, scan, rowKeyDistributor, limit, action, limitEventHandler);
@@ -579,7 +579,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public <T> T findParallel(String tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, ResultsExtractor<T> action, int numParallelThreads) {
+    public <T> T findParallel(TableName tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, ResultsExtractor<T> action, int numParallelThreads) {
         if (!this.enableParallelScan || numParallelThreads <= 1) {
             // use DistributedScanner if parallel scan is disabled or if called to use a single thread
             return find(tableName, scan, rowKeyDistributor, action);
@@ -589,7 +589,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
         }
     }
 
-    protected final <T> T executeParallelDistributedScan(String tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, ResultsExtractor<T> action, int numParallelThreads) {
+    protected final <T> T executeParallelDistributedScan(TableName tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, ResultsExtractor<T> action, int numParallelThreads) {
         try {
             StopWatch watch = null;
             if (debugEnabled) {
@@ -625,7 +625,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public Result increment(String tableName, final Increment increment) {
+    public Result increment(TableName tableName, final Increment increment) {
         return execute(tableName, new TableCallback<Result>() {
             @Override
             public Result doInTable(Table table) throws Throwable {
@@ -635,7 +635,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public List<Result> increment(final String tableName, final List<Increment> incrementList) {
+    public List<Result> increment(final TableName tableName, final List<Increment> incrementList) {
         return execute(tableName, new TableCallback<List<Result>>() {
             @Override
             public List<Result> doInTable(Table table) throws Throwable {
@@ -660,7 +660,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public long incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount) {
+    public long incrementColumnValue(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount) {
         return execute(tableName, new TableCallback<Long>() {
             @Override
             public Long doInTable(Table table) throws Throwable {
@@ -670,7 +670,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public long incrementColumnValue(String tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount, final boolean writeToWAL) {
+    public long incrementColumnValue(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount, final boolean writeToWAL) {
         return execute(tableName, new TableCallback<Long>() {
             @Override
             public Long doInTable(Table table) throws Throwable {
@@ -680,7 +680,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
     
     @Override
-    public <T> T execute(String tableName, TableCallback<T> action) {
+    public <T> T execute(TableName tableName, TableCallback<T> action) {
         Assert.notNull(action, "Callback object must not be null");
         Assert.notNull(tableName, "No table specified");
 

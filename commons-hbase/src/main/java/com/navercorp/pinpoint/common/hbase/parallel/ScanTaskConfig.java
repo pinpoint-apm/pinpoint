@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.hbase.TableFactory;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HConstants;
+import org.apache.hadoop.hbase.TableName;
 
 import java.nio.charset.Charset;
 
@@ -29,7 +30,7 @@ import java.nio.charset.Charset;
  */
 public class ScanTaskConfig {
 
-    private final String tableName;
+    private final TableName tableName;
     private final Configuration configuration;
     private final Charset charset;
     private final TableFactory tableFactory;
@@ -37,11 +38,11 @@ public class ScanTaskConfig {
     private final AbstractRowKeyDistributor rowKeyDistributor;
     private final int scanTaskQueueSize;
 
-    public ScanTaskConfig(String tableName, HbaseAccessor hbaseAccessor, AbstractRowKeyDistributor rowKeyDistributor, int scanCaching) {
+    public ScanTaskConfig(TableName tableName, HbaseAccessor hbaseAccessor, AbstractRowKeyDistributor rowKeyDistributor, int scanCaching) {
         this(tableName, hbaseAccessor.getConfiguration(), hbaseAccessor.getCharset(), hbaseAccessor.getTableFactory(), rowKeyDistributor, scanCaching);
     }
 
-    public ScanTaskConfig(String tableName, Configuration configuration, Charset charset, TableFactory tableFactory, AbstractRowKeyDistributor rowKeyDistributor, int scanCaching) {
+    public ScanTaskConfig(TableName tableName, Configuration configuration, Charset charset, TableFactory tableFactory, AbstractRowKeyDistributor rowKeyDistributor, int scanCaching) {
         if (tableName == null) {
             throw new NullPointerException("No table specified");
         }
@@ -62,7 +63,7 @@ public class ScanTaskConfig {
         }
     }
 
-    public String getTableName() {
+    public TableName getTableName() {
         return tableName;
     }
 

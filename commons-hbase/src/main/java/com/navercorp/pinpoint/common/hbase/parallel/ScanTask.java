@@ -36,7 +36,7 @@ public class ScanTask implements Runnable {
 
     private static final Result END_RESULT = new Result();
 
-    private final String tableName;
+    private final TableName tableName;
     private final TableFactory tableFactory;
     private final AbstractRowKeyDistributor rowKeyDistributor;
 
@@ -68,7 +68,7 @@ public class ScanTask implements Runnable {
     public void run() {
         Table table = null;
         try {
-            table = tableFactory.getTable(TableName.valueOf(this.tableName));
+            table = tableFactory.getTable(this.tableName);
             ResultScanner scanner = createResultScanner(table);
             try {
                 for (Result result : scanner) {
