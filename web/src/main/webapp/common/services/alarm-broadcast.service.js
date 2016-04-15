@@ -9,14 +9,20 @@
 	 * @class
 	 */	
 	
-	pinpointApp.service('AlarmBroadcastService', [ '$rootScope', function ($rootScope) {
+	pinpointApp.service("AlarmBroadcastService", [ "$rootScope", "globalConfig", function ( $rootScope, globalConfig ) {
 		var self = this;
 		// from userGroup
-		this.sendInit = function( userGroupID, willBeAddedUser ) {
-			self.sendReloadWithUserGroupID( userGroupID, willBeAddedUser );
+		this.sendInit = function( userGroupID ) {
+			self.sendReloadWithUserGroupID( userGroupID, globalConfig.userId ? {
+				userId: globalConfig.userId,
+				name: globalConfig.userName,
+				department: globalConfig.userDepartment
+			} : {} );
 		};
-		this.sendLoadPinpointUser = function( userDepartment ) {
-			$rootScope.$broadcast( "alarmPinpointUser.configuration.load", userDepartment );
+		this.sendLoadPinpointUser = function() {
+			if ( globalConfig.userId ) {
+				$rootScope.$broadcast("alarmPinpointUser.configuration.load", globalConfig.userDepartment );
+			}
 		};
 		// from userGroup
 		this.sendReloadWithUserGroupID = function( userGroupID, willBeAddedUser ) {
