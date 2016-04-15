@@ -62,7 +62,11 @@ public class HbaseAgentStatDao implements AgentStatDao {
             throw new NullPointerException("agentStat must not be null");
         }
         Put put = createPut(agentStat);
-        hbaseTemplate.put(AGENT_STAT, put);
+
+        boolean success = hbaseTemplate.asyncPut(AGENT_STAT, put);
+        if (!success) {
+            hbaseTemplate.put(AGENT_STAT, put);
+        }
     }
 
     private Put createPut(TAgentStat agentStat) {

@@ -103,7 +103,6 @@ public final class HBaseTables {
     public static final TableName MAP_STATISTICS_CALLEE_VER2 = TableName.valueOf("ApplicationMapStatisticsCallee_Ver2");
     public static final byte[] MAP_STATISTICS_CALLEE_VER2_CF_COUNTER = Bytes.toBytes("C");
 
-
     public static final TableName MAP_STATISTICS_SELF_VER2 = TableName.valueOf("ApplicationMapStatisticsSelf_Ver2");
     public static final byte[] MAP_STATISTICS_SELF_VER2_CF_COUNTER = Bytes.toBytes("C");
 

@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.common.hbase;
 
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
-
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
@@ -75,11 +74,29 @@ public interface HbaseOperations2 {
     void put(TableName tableName, final Put put);
     void put(TableName tableName, final List<Put> puts);
 
+    /**
+     * If asyncOperation is not set, then execute put method instead of asyncPut method.
+     */
     boolean asyncPut(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final byte[] value);
+    /**
+     * If asyncOperation is not set, then execute put method instead of asyncPut method.
+     */
     boolean asyncPut(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final byte[] value);
+    /**
+     * If asyncOperation is not set, then execute put method instead of asyncPut method.
+     */
     <T> boolean asyncPut(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final T value, final ValueMapper<T> mapper);
+    /**
+     * If asyncOperation is not set, then execute put method instead of asyncPut method.
+     */
     <T> boolean asyncPut(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final T value, final ValueMapper<T> mapper);
+    /**
+     * If asyncOperation is not set, then execute put method instead of asyncPut method.
+     */
     boolean asyncPut(TableName tableName, final Put put);
+    /**
+     * If asyncOperation is not set, then execute put method instead of asyncPut method.
+     */
     List<Put> asyncPut(TableName tableName, final List<Put> puts);
 
     void delete(TableName tableName, final Delete delete);
