@@ -51,7 +51,7 @@ To run these scripts, feed them into the HBase shell like below:
 
 `$HBASE_HOME/bin/hbase shell hbase-create.hbase`
 
-See [here](../scripts/ "Pinpoint HBase scripts") for a complete list of scripts.
+See [here](../hbase/scripts/ "Pinpoint HBase scripts") for a complete list of scripts.
 
 ## Building Pinpoint
 
