@@ -28,7 +28,7 @@
 	    			var bIsRemoving = false;
 					var bIsUpdating = false;
 	    			var bIsLoaded = false;
-	    			var userGroupList = scope.userGroupList = [];
+	    			scope.userGroupList = [];
 
 					var $element = element;
 	    			var $elTotal = $element.find(".total");
@@ -48,10 +48,11 @@
 						}
 	    			});
 					function loadData( sParam ) {
+						alarmUtilService.show( $elLoading );
 						alarmUtilService.sendCRUD( "getUserGroupList", sParam, function( aServerData ) {
 							bIsLoaded = true;
-							userGroupList = scope.userGroupList = aServerData;
-							alarmUtilService.setTotal( $elTotal, userGroupList.length );
+							scope.userGroupList = aServerData;
+							alarmUtilService.setTotal( $elTotal, scope.userGroupList.length );
 							alarmUtilService.hide( $elLoading );
 							alarmBroadcastService.sendLoadPinpointUser();
 						}, function( oServerError ) {
@@ -107,13 +108,13 @@
 							return;
 						}
 						alarmUtilService.sendCRUD( "createUserGroup", { "id": groupId }, function( oServerData ) {
-							userGroupList.push({
+							scope.userGroupList.push({
 								id: oServerData.id,
 								number: oServerData.number
 							});
 
 							alarmBroadcastService.sendInit( name );
-							alarmUtilService.setTotal( $elTotal, userGroupList.length );
+							alarmUtilService.setTotal( $elTotal, scope.userGroupList.length );
 							cancelAddUserGroup();
 							alarmUtilService.hide( $elLoading );
 						}, function( oServerError ) {
@@ -164,21 +165,21 @@
 								alarmUtilService.hide( $elLoading );
 								bIsRemoving = true;
 							} else {
-								$elLoading.show();
+								alarmUtilService.show( $elLoading );
 								var groupNumber = alarmUtilService.extractID($parent);
 								alarmUtilService.sendCRUD("removeUserGroup", {"id": groupNumber}, function () {
-									scope.$apply(function () {
-										for (var i = 0; i < userGroupList.length; i++) {
-											if (userGroupList[i].number == groupNumber) {
-												userGroupList.splice(i, 1);
+									// scope.$apply(function () {
+										for (var i = 0; i < scope.userGroupList.length; i++) {
+											if (scope.userGroupList[i].number == groupNumber) {
+												scope.userGroupList.splice(i, 1);
 												break;
 											}
 										}
 										alarmBroadcastService.sendSelectionEmpty();
-									});
+									// });
 									bIsRemoving = false;
 									$workingNode = null;
-									alarmUtilService.setTotal($elTotal, userGroupList.length);
+									alarmUtilService.setTotal($elTotal, scope.userGroupList.length);
 									alarmUtilService.hide( $elLoading );
 								}, function (oServerError) {
 									alarmUtilService.hide( $elLoading );
@@ -195,9 +196,14 @@
 						alarmUtilService.show( $parent.find(".edit") );
 						$parent.find("span.remove").removeClass("remove-confirm");
 					}
+					function isSameNode( $current ) {
+						return alarmUtilService.extractID( $workingNode ) === alarmUtilService.extractID( $current );
+					}
 					scope.onRemoveUserGroup = function( $event ) {
-						cancelPreviousWork();
-						$workingNode = getNode( $event );;
+						if ( $workingNode !== null && isSameNode( getNode( $event ) ) === false ) {
+							cancelPreviousWork(getNode($event));
+						}
+						$workingNode = getNode( $event );
 						removeUserGroup( $workingNode );
 					};
 					scope.onCancelRemoveUserGroup = function() {
@@ -222,7 +228,7 @@
 							return;
 						}
 						alarmUtilService.show( $elLoading );
-						if ( alarmUtilService.hasDuplicateItem( userGroupList, function( userGroup ) {
+						if ( alarmUtilService.hasDuplicateItem( scope.userGroupList, function( userGroup ) {
 							return userGroup.id === groupName;
 						}) ) {
 							alarmUtilService.hide( $elLoading );
@@ -231,12 +237,15 @@
 						}
 						analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_CREATE_USER_GROUP );
 						alarmUtilService.sendCRUD( "updateUserGroup", { "number": groupNumber, "id": groupName }, function() {
-							for( var i = 0 ; i < userGroupList.length ; i++ ) {
-								if ( userGroupList[i].number === groupNumber ) {
-									userGroupList[i].id = groupName;
+							$workingNode.find("input").val( groupName );
+							scope.$apply(function() {
+								for (var i = 0; i < scope.userGroupList.length; i++) {
+									if (scope.userGroupList[i].number === groupNumber) {
+										scope.userGroupList[i].id = groupName;
+									}
 								}
-							}
-							cancelUpdate( $parent );
+							});
+							cancelUpdate( $workingNode );
 							alarmUtilService.hide( $elLoading );
 						}, function( oServerError ) {
 							alarmUtilService.hide( $elLoading );

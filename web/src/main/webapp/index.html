@@ -302,24 +302,21 @@
 						</table>
 					</div>
 				</div>
-				<div id="config-alram" ng-show="isAlarm()" style="margin-top:10px;">
+				<div id="config-alram" ng-show="isAlarm()">
 					<alarm-user-group-directive></alarm-user-group-directive>
-					<div class="tabbable tabs-left" style="padding-left:20px;">
-						<ul class="nav nav-tabs">
-							<li class="active"><div href="#userListInGroup" data-toggle="tab">Member</div></li>
-							<li><div href="#alarmInGroup" data-toggle="tab">Alarm</div></li>
-						</ul>
-						<div class="tab-content" style="float:left;width:590px;">
-							<div class="tab-pane active" id="userListInGroup">
-								<alarm-group-member-directive></alarm-group-member-directive>
-								<alarm-pinpoint-user-directive></alarm-pinpoint-user-directive>
-							</div>
-							<div class="tab-pane" id="alarmInGroup">
-								<alarm-rule-directive></alarm-rule-directive>
-							</div>
+					<div style="float:left;padding-left:20px;">
+						<div class="btn-group" role="group" style="margin-bottom: 7px;">
+							<button type="button" class="btn btn-primary" style="width:110px">Member</button>
+							<button type="button" class="btn btn-default" style="width:110px">Alarm</button>
 						</div>
+						<div id="userListInGroup">
+							<alarm-group-member-directive></alarm-group-member-directive>
+							<!--alarm-pinpoint-user-directive></alarm-pinpoint-user-directive-->
+						</div>
+						<!--div class="tab-pane" id="alarmInGroup">
+							<alarm-rule-directive></alarm-rule-directive>
+						</div-->
 					</div>
-					<div style="clear:both;display:block;"></div>
 				</div>
 				<div id="config-help" ng-show="isHelp()" ng-controller="HelpCtrl">
 					<div class="left-sub-menu">
@@ -370,6 +367,8 @@
 <script src="scripts/extra/google-analytics.js?v=${buildTime}"></script>
 <script src="scripts/app.js?v=${buildTime}"></script>
 <script src="features/serverList/server-list.directive.js?v=${buildTime}"></script>
+<script src="common/help/help-content-en.js?v=${buildTime}"></script>
+<script src="common/help/help-content-ko.js?v=${buildTime}"></script>
 <script src="lib/js/pinpoint.min.js?v=${buildTime}"></script>
 <script>
 	G_BUILD_TIME = "${buildTime}";

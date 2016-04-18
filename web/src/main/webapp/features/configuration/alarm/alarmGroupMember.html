@@ -1,26 +1,22 @@
-<div class="some-list" style="width:240px">
-	<div class="some-list-header header-sky">
-		<button class="btn btn-info left" ng-click="onRefresh()"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
-		<span class="title">Group Member<span class="total"></span></span>
-		<button class="btn btn-info right" style="visibility:hidden;"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+<div class="some-list" style="width:280px;height:459px">
+	<div class="some-list-header" style="background-color:#9A9A9A;color:#FFF;">
+		<span class="title">Group Member <span class="total"></span></span>
+		<span class="glyphicon glyphicon-sort right" style="cursor:pointer" ng-click="onSortGroupMember()"></span>
 	</div>
-   	<div class="some-list-content">
+	<div class="some-list-content" style="color:#9A9A9A;">
 		<div class="wrapper"><ul>
 			<li ng-repeat="groupMember in groupMemberList" id="{{prefix + groupMember.memberId}}">
-				<span class="contents">({{groupMember.department}}){{groupMember.name}}</span><span class="remove">x</span>
+				<span class="contents">({{groupMember.department}}){{groupMember.name}}</span>
+				<span class="glyphicon glyphicon-remove remove" aria-hidden="true" ng-click="onRemoveGroupMember($event)"></span>
+				<span class="glyphicon glyphicon-arrow-left remove-cancel hide-me" aria-hidden="true" ng-click="onCancelRemoveGroupMember()"></span>
 			</li>
 		</ul></div>
-		<div class="filter-input">
-			<input type="text" placeholder="Filter group member" ng-keydown="onInputFilter($event)"/> 
-			<button class="btn btn-info disabled trash" ng-click="onFilterEmpty()"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
-			<button class="btn btn-info" ng-click="onFilterGroup()" style="margin-right:2px"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
-		</div>
 	</div>
-	<div class="some-loading has-not-edit">
+	<div class="some-loading hide-me" style="height:416px;">
 		<div class="timer-loader"></div>
-		<div class="some-alert hide-me">
-			<span class="message"></span>
-			<span class="close-alert" ng-click="onCloseAlert()">X</span>
-		</div>
-   	</div>
+	</div>
+	<div class="some-alert hide-me">
+		<span class="message">Select a 'User Group'<br/>to enable here</span>
+		<span class="close-alert" style="color:#FFF;" ng-click="onCloseAlert()">X</span>
+	</div>
 </div>
