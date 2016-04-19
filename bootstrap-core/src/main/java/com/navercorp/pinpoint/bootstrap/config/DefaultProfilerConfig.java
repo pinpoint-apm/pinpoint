@@ -16,6 +16,11 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
+import com.navercorp.pinpoint.bootstrap.logging.JavaLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
+import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
+import com.navercorp.pinpoint.common.util.PropertyUtils;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
@@ -27,11 +32,6 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-
-import com.navercorp.pinpoint.bootstrap.logging.JavaLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
-import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
-import com.navercorp.pinpoint.common.util.PropertyUtils;
 
 /**
  * @author emeroad
@@ -90,9 +90,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private String collectorSpanServerIp = DEFAULT_IP;
     private int collectorSpanServerPort = 9996;
+    private String collectorSpanSocketType = "OIO";
 
     private String collectorStatServerIp = DEFAULT_IP;
     private int collectorStatServerPort = 9995;
+    private String collectorStatSocketType = "OIO";
 
     private String collectorTcpServerIp = DEFAULT_IP;
     private int collectorTcpServerPort = 9994;
@@ -213,6 +215,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
+    public String getCollectorSpanSocketType() {
+        return collectorSpanSocketType;
+    }
+
+    @Override
     public String getCollectorStatServerIp() {
         return collectorStatServerIp;
     }
@@ -220,6 +227,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public int getCollectorStatServerPort() {
         return collectorStatServerPort;
+    }
+
+    @Override
+    public String getCollectorStatSocketType() {
+        return collectorStatSocketType;
     }
 
     @Override
@@ -557,9 +569,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         this.collectorSpanServerIp = readString("profiler.collector.span.ip", DEFAULT_IP, placeHolderResolver);
         this.collectorSpanServerPort = readInt("profiler.collector.span.port", 9996);
+        this.collectorSpanSocketType = readString("profiler.collector.span.socket.type", "OIO", placeHolderResolver);
 
         this.collectorStatServerIp = readString("profiler.collector.stat.ip", DEFAULT_IP, placeHolderResolver);
         this.collectorStatServerPort = readInt("profiler.collector.stat.port", 9995);
+        this.collectorStatSocketType = readString("profiler.collector.stat.socket.type", "OIO", placeHolderResolver);
 
         this.collectorTcpServerIp = readString("profiler.collector.tcp.ip", DEFAULT_IP, placeHolderResolver);
         this.collectorTcpServerPort = readInt("profiler.collector.tcp.port", 9994);
@@ -801,10 +815,14 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append(collectorSpanServerIp);
         builder.append(", collectorSpanServerPort=");
         builder.append(collectorSpanServerPort);
+        builder.append(", collectorSpanSocketType=");
+        builder.append(collectorSpanSocketType);
         builder.append(", collectorStatServerIp=");
         builder.append(collectorStatServerIp);
         builder.append(", collectorStatServerPort=");
         builder.append(collectorStatServerPort);
+        builder.append(", collectorStatSocketType=");
+        builder.append(collectorStatSocketType);
         builder.append(", collectorTcpServerIp=");
         builder.append(collectorTcpServerIp);
         builder.append(", collectorTcpServerPort=");

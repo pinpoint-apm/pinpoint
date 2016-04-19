@@ -17,11 +17,12 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
-import com.navercorp.pinpoint.profiler.sender.BufferedUdpDataSender;
-
+import com.navercorp.pinpoint.rpc.PinpointDatagramSocket;
+import com.navercorp.pinpoint.rpc.PinpointOioDatagramSocketFactory;
 import org.junit.Assert;
-
 import org.junit.Test;
+
+import java.net.InetSocketAddress;
 
 
 public class BufferedUdpDataSenderTest {
@@ -35,8 +36,11 @@ public class BufferedUdpDataSenderTest {
 
     @Test
     public void testStop_StopFlushThread() throws Exception {
+        PinpointOioDatagramSocketFactory datagramSocketFactory = new PinpointOioDatagramSocketFactory();
+        PinpointDatagramSocket datagramSocket = datagramSocketFactory.createSocket();
+        datagramSocket.connect(new InetSocketAddress("localhost", 9999));
 
-        final BufferedUdpDataSender sender = new BufferedUdpDataSender("localhost", 9999, "testUdpSender", 100);
+        final BufferedUdpDataSender sender = new BufferedUdpDataSender(datagramSocket, "testUdpSender", 100);
 
         final String flushThreadName = sender.getFlushThreadName();
 

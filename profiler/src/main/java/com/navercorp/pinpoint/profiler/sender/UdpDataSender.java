@@ -16,20 +16,18 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
+import com.navercorp.pinpoint.rpc.PinpointDatagramSocket;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
+import com.navercorp.pinpoint.thrift.io.NetworkAvailabilityCheckPacket;
+import org.apache.thrift.TBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.Arrays;
-
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
-import com.navercorp.pinpoint.thrift.io.NetworkAvailabilityCheckPacket;
-
-import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author netspider
@@ -46,39 +44,24 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
     public static final int UDP_MAX_PACKET_LENGTH = 65507;
 
     // Caution. not thread safe
-    protected final DatagramPacket reusePacket = new DatagramPacket(new byte[1], 1);
-
-    protected final DatagramSocket udpSocket;
+    protected final PinpointDatagramSocket datagramSocket;
 
     // Caution. not thread safe
     private final HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory(false, UDP_MAX_PACKET_LENGTH, false).createSerializer();
 
     private final AsyncQueueingExecutor<Object> executor;
 
-    public UdpDataSender(String host, int port, String threadName, int queueSize) {
-        this(host, port, threadName, queueSize, SOCKET_TIMEOUT, SEND_BUFFER_SIZE);
-    }
-
-    public UdpDataSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize) {
-        if (host == null ) {
-            throw new NullPointerException("host must not be null");
-        }
+    public UdpDataSender(PinpointDatagramSocket datagramSocket, String threadName, int queueSize) {
         if (threadName == null) {
             throw new NullPointerException("threadName must not be null");
         }
         if (queueSize <= 0) {
             throw new IllegalArgumentException("queueSize");
         }
-        if (timeout <= 0) {
-            throw new IllegalArgumentException("timeout");
-        }
-        if (sendBufferSize <= 0) {
-            throw new IllegalArgumentException("sendBufferSize");
-        }
 
         // TODO If fail to create socket, stop agent start
-        logger.info("UdpDataSender initialized. host={}, port={}", host, port);
-        this.udpSocket = createSocket(host, port, timeout, sendBufferSize);
+        logger.info("UdpDataSender initialized. PinpointDatagramSocket={}", datagramSocket);
+        this.datagramSocket = datagramSocket;
 
         this.executor = createAsyncQueueingExecutor(queueSize, threadName);
     }
@@ -90,6 +73,12 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
 
     @Override
     public void stop() {
+        try {
+            datagramSocket.close();
+        } catch (Exception e) {
+            // ignore
+        }
+
         executor.stop();
     }
 
@@ -98,23 +87,21 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
         try {
             final byte[] interBufferData = serialize(serializer, dto);
             final int interBufferSize = serializer.getInterBufferSize();
-            reusePacket.setData(interBufferData, 0, interBufferSize);
-            udpSocket.send(reusePacket);
-            
+            datagramSocket.send(interBufferData, 0, interBufferSize);
+
             if (logger.isInfoEnabled()) {
                 logger.info("Data sent. {}", dto);
             }
 
             final byte[] receiveData = new byte[NetworkAvailabilityCheckPacket.DATA_OK.length];
-            final DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-            udpSocket.receive(receivePacket);
+            datagramSocket.receive(receiveData);
 
             if (logger.isInfoEnabled()) {
-                logger.info("Data received. {}", Arrays.toString(receivePacket.getData()));
+                logger.info("Data received. {}", Arrays.toString(receiveData));
             }
 
             return Arrays.equals(NetworkAvailabilityCheckPacket.DATA_OK , receiveData);
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.warn("packet send error {}", dto, e);
             return false;
         }
@@ -157,15 +144,13 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
                 logger.warn("discard packet. Caused:too large message. size:{}, {}", internalBufferSize, dto);
                 return;
             }
-            // it's safe to reuse because it's single threaded
-            reusePacket.setData(internalBufferData, 0, internalBufferSize);
 
             try {
-                udpSocket.send(reusePacket);
+                datagramSocket.send(internalBufferData, 0, internalBufferSize);
                 if (isDebug) {
                     logger.debug("Data sent. size:{}, {}", internalBufferSize, dto);
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 logger.info("packet send error. size:{}, {}", internalBufferSize, dto, e);
             }
         } else {

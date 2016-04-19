@@ -16,15 +16,6 @@
 
 package com.navercorp.pinpoint.profiler;
 
-import java.lang.instrument.Instrumentation;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
@@ -65,9 +56,21 @@ import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
 import com.navercorp.pinpoint.profiler.util.ApplicationServerTypeResolver;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.rpc.ClassPreLoader;
+import com.navercorp.pinpoint.rpc.PinpointDatagramSocket;
+import com.navercorp.pinpoint.rpc.PinpointDatagramSocketFactory;
+import com.navercorp.pinpoint.rpc.PinpointDatagramSocketFactoryLocator;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.instrument.Instrumentation;
+import java.net.InetSocketAddress;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * @author emeroad
@@ -364,11 +367,19 @@ public class DefaultAgent implements Agent {
     }
 
     protected DataSender createUdpStatDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
-        return new UdpDataSender(this.profilerConfig.getCollectorStatServerIp(), port, threadName, writeQueueSize, timeout, sendBufferSize);
+        PinpointDatagramSocketFactory factory = PinpointDatagramSocketFactoryLocator.getFactory(profilerConfig.getCollectorStatSocketType());
+        PinpointDatagramSocket statSocket = factory.createSocket(timeout, sendBufferSize);
+        statSocket.connect(new InetSocketAddress(this.profilerConfig.getCollectorStatServerIp(), port));
+
+        return new UdpDataSender(statSocket, threadName, writeQueueSize);
     }
     
     protected DataSender createUdpSpanDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
-        return new UdpDataSender(this.profilerConfig.getCollectorSpanServerIp(), port, threadName, writeQueueSize, timeout, sendBufferSize);
+        PinpointDatagramSocketFactory factory = PinpointDatagramSocketFactoryLocator.getFactory(profilerConfig.getCollectorSpanSocketType());
+        PinpointDatagramSocket spanSocket = factory.createSocket(timeout, sendBufferSize);
+        spanSocket.connect(new InetSocketAddress(this.profilerConfig.getCollectorSpanServerIp(), port));
+
+        return new UdpDataSender(spanSocket, threadName, writeQueueSize);
     }
 
     protected EnhancedDataSender getTcpDataSender() {
