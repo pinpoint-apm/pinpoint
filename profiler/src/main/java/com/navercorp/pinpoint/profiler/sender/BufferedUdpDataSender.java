@@ -16,17 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import java.io.IOException;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
-
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.rpc.PinpointDatagramSocket;
 import com.navercorp.pinpoint.thrift.io.ChunkHeaderBufferedTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.ChunkHeaderBufferedTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.io.ChunkHeaderBufferedTBaseSerializerFlushHandler;
+import org.apache.thrift.TBase;
+import org.apache.thrift.TException;
+
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 /**
  * split & buffering
@@ -46,12 +45,12 @@ public class BufferedUdpDataSender extends UdpDataSender {
     private final Thread flushThread;
 
 
-    public BufferedUdpDataSender(String host, int port, String threadName, int queueSize) {
-        this(host, port, threadName, queueSize, SOCKET_TIMEOUT, SEND_BUFFER_SIZE, CHUNK_SIZE);
+    public BufferedUdpDataSender(PinpointDatagramSocket datagramSocket, String threadName, int queueSize) {
+        this(datagramSocket, threadName, queueSize, CHUNK_SIZE);
     }
 
-    public BufferedUdpDataSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize, int chunkSize) {
-        super(host, port, threadName, queueSize, timeout, sendBufferSize);
+    public BufferedUdpDataSender(final PinpointDatagramSocket datagramSocket, String threadName, int queueSize, int chunkSize) {
+        super(datagramSocket, threadName, queueSize);
 
         chunkHeaderBufferedSerializer.setChunkSize(chunkSize);
         chunkHeaderBufferedSerializer.setFlushHandler(new ChunkHeaderBufferedTBaseSerializerFlushHandler() {
@@ -67,15 +66,13 @@ public class BufferedUdpDataSender extends UdpDataSender {
                     logger.warn("discard packet. Caused:too large message. size:{}", internalBufferSize);
                     return;
                 }
-                // We can reuse this because this runs in single thread
-                reusePacket.setData(buffer, 0, internalBufferSize);
 
                 try {
-                    udpSocket.send(reusePacket);
+                    datagramSocket.send(buffer, 0, internalBufferSize);
                     if (isDebug) {
                         logger.debug("Data sent. {size={}}", internalBufferSize);
                     }
-                } catch (IOException e) {
+                } catch (Exception e) {
                     logger.warn("packet send error. size:{}", internalBufferSize, e);
                 }
             }

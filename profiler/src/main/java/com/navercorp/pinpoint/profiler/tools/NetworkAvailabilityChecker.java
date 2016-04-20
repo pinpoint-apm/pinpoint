@@ -21,12 +21,15 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
+import com.navercorp.pinpoint.rpc.PinpointDatagramSocket;
+import com.navercorp.pinpoint.rpc.PinpointOioDatagramSocketFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.util.Collections;
 
 /**
@@ -52,16 +55,29 @@ public class NetworkAvailabilityChecker implements PinpointTools {
 
         PinpointClientFactory clientFactory = null;
         PinpointClient client = null;
+
+        PinpointDatagramSocket socket1 = null;
+        PinpointDatagramSocket socket2 = null;
         try {
             ProfilerConfig profilerConfig = DefaultProfilerConfig.load(configPath);
 
             String collectorStatIp = profilerConfig.getCollectorStatServerIp();
             int collectorStatPort = profilerConfig.getCollectorStatServerPort();
-            udpStatSender = new UdpDataSender(collectorStatIp, collectorStatPort, "UDP-STAT", 10);
+
+            PinpointOioDatagramSocketFactory factory = new PinpointOioDatagramSocketFactory();
+
+            socket1 = factory.createSocket();
+            socket1.connect(new InetSocketAddress(collectorStatIp, collectorStatPort));
+
+            udpStatSender = new UdpDataSender(socket1, "UDP-STAT", 10);
 
             String collectorSpanIp = profilerConfig.getCollectorSpanServerIp();
             int collectorSpanPort = profilerConfig.getCollectorSpanServerPort();
-            udpSpanSender = new UdpDataSender(collectorSpanIp, collectorSpanPort, "UDP-SPAN", 10);
+
+            socket2 = factory.createSocket();
+            socket2.connect(new InetSocketAddress(collectorStatIp, collectorStatPort));
+
+            udpSpanSender = new UdpDataSender(socket2, "UDP-SPAN", 10);
 
             String collectorTcpIp = profilerConfig.getCollectorTcpServerIp();
             int collectorTcpPort = profilerConfig.getCollectorTcpServerPort();
@@ -88,6 +104,14 @@ public class NetworkAvailabilityChecker implements PinpointTools {
             closeDataSender(udpSpanSender);
             closeDataSender(tcpSender);
             System.out.println("END.");
+
+            if (socket1 != null) {
+                socket1.close();
+            }
+
+            if (socket2 != null) {
+                socket2.close();
+            }
 
             if (client != null) {
                 client.close();

@@ -17,18 +17,18 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
-import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
+import com.navercorp.pinpoint.rpc.PinpointDatagramSocket;
+import com.navercorp.pinpoint.rpc.PinpointOioDatagramSocketFactory;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
-
-import org.junit.Assert;
-
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.thrift.TBase;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.util.SocketUtils;
 
+import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -52,7 +52,11 @@ public class UdpDataSenderTest {
 
     @Test
     public void sendAndFlushCheck() throws InterruptedException {
-        UdpDataSender sender = new UdpDataSender("localhost", PORT, "test", 128, 1000, 1024*64*100);
+        PinpointOioDatagramSocketFactory datagramSocketFactory = new PinpointOioDatagramSocketFactory();
+        PinpointDatagramSocket datagramSocket = datagramSocketFactory.createSocket(1000, 1024*64*100);
+        datagramSocket.connect(new InetSocketAddress("localhost", PORT));
+
+        UdpDataSender sender = new UdpDataSender(datagramSocket, "test", 128);
 
         TAgentInfo agentInfo = new TAgentInfo();
         sender.send(agentInfo);
@@ -99,7 +103,11 @@ public class UdpDataSenderTest {
         final AtomicBoolean limitCounter = new AtomicBoolean(false);
         final CountDownLatch latch = new CountDownLatch(1);
 
-        UdpDataSender sender = new UdpDataSender("localhost", PORT, "test", 128, 1000, 1024*64*100) {
+        PinpointOioDatagramSocketFactory datagramSocketFactory = new PinpointOioDatagramSocketFactory();
+        PinpointDatagramSocket datagramSocket = datagramSocketFactory.createSocket(1000, 1024*64*100);
+        datagramSocket.connect(new InetSocketAddress("localhost", PORT));
+
+        UdpDataSender sender = new UdpDataSender(datagramSocket, "test", 128) {
             @Override
             protected boolean isLimit(int interBufferSize) {
                 boolean limit = super.isLimit(interBufferSize);

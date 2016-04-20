@@ -29,9 +29,13 @@ public interface ProfilerConfig {
 
     int getCollectorSpanServerPort();
 
+    String getCollectorSpanSocketType();
+
     String getCollectorStatServerIp();
 
     int getCollectorStatServerPort();
+
+    String getCollectorStatSocketType();
 
     String getCollectorTcpServerIp();
 
