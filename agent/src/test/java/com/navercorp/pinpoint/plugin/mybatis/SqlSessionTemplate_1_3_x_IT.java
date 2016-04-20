@@ -22,17 +22,14 @@ import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import org.junit.runner.RunWith;
 
-import static org.mockito.Mockito.mock;
-
 /**
- * Tests against mybatis-spring 1.1.0 ~ 1.2.x (1.3.0+ requires mybatis 3.4.0 or higher)
- * Prior versions do not handle mocked SqlSession proxies well.
- * 
+ * Tests against mybatis-spring 1.3.x (1.3.x requires mybatis 3.4.0 or higher)
+ *
  * @author HyunGil Jeong
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent("agent/target/pinpoint-agent-" + Version.VERSION)
-@Dependency({ "org.mybatis:mybatis-spring:[1.2.0,1.2.max)", "org.mybatis:mybatis:3.2.7",
+@Dependency({ "org.mybatis:mybatis-spring:[1.3.0,1.3.max)", "org.mybatis:mybatis:3.4.0",
         "org.springframework:spring-jdbc:[4.1.7.RELEASE]", "org.mockito:mockito-all:1.8.4" })
 public class SqlSessionTemplate_1_3_x_IT extends SqlSessionTemplateITBase {
 }

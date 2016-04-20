@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 NAVER Corp.
+ * Copyright 2016 Naver Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,106 +16,20 @@
 
 package com.navercorp.pinpoint.plugin.mybatis;
 
-import static org.mockito.Mockito.*;
-
-import javax.sql.DataSource;
-
-import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.transaction.TransactionFactory;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mybatis.spring.SqlSessionTemplate;
-
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import org.junit.runner.RunWith;
 
 /**
- * Tests against mybatis-spring 1.1.0 ~ 1.2.x (1.3.0+ requires mybatis 3.4.0 or higher)
- * Prior versions do not handle mocked SqlSession proxies well.
- * 
+ * Tests against mybatis-spring 1.2.x (1.2.x requires mybatis 3.1.0 or higher)
+ *
  * @author HyunGil Jeong
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent("agent/target/pinpoint-agent-" + Version.VERSION)
-@Dependency({ "org.mybatis:mybatis-spring:[1.1.0,1.1.max)", "org.mybatis:mybatis:3.2.7",
+@Dependency({ "org.mybatis:mybatis-spring:[1.2.0,1.2.max)", "org.mybatis:mybatis:3.2.7",
         "org.springframework:spring-jdbc:[4.1.7.RELEASE]", "org.mockito:mockito-all:1.8.4" })
-public class SqlSessionTemplate_1_2_x_IT extends SqlSessionTestBase {
-
-    private static final ExecutorType EXECUTOR_TYPE = ExecutorType.SIMPLE;
-
-    @Mock
-    private SqlSessionFactory sqlSessionFactory;
-
-    @Mock
-    private SqlSession sqlSessionProxy;
-
-    private SqlSessionTemplate sqlSessionTemplate;
-
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-        Configuration configuration = mock(Configuration.class);
-        TransactionFactory transactionFactory = mock(TransactionFactory.class);
-        DataSource dataSource = mock(DataSource.class);
-        Environment environment = new Environment("test", transactionFactory, dataSource);
-        when(configuration.getEnvironment()).thenReturn(environment);
-        when(this.sqlSessionFactory.getConfiguration()).thenReturn(configuration);
-        when(this.sqlSessionFactory.openSession(EXECUTOR_TYPE)).thenReturn(this.sqlSessionProxy);
-        this.sqlSessionTemplate = new SqlSessionTemplate(this.sqlSessionFactory, EXECUTOR_TYPE);
-    }
-
-    @Override
-    protected SqlSession getSqlSession() {
-        return this.sqlSessionTemplate;
-    }
-
-    @Test
-    public void methodCallWithNullSqlIdShouldOnlyTraceMethodName() throws Exception {
-        super.testAndVerifyInsertWithNullParameter();
-    }
-
-    @Test
-    public void selectShouldBeTraced() throws Exception {
-        super.testAndVerifySelect();
-    }
-
-    @Test
-    public void selectOneShouldBeTraced() throws Exception {
-        super.testAndVerifySelectOne();
-    }
-
-    @Test
-    public void selectListShouldBeTraced() throws Exception {
-        super.testAndVerifySelectList();
-    }
-
-    @Test
-    public void selectMapShouldBeTraced() throws Exception {
-        super.testAndVerifySelectMap();
-    }
-
-    @Test
-    public void insertShouldBeTraced() throws Exception {
-        super.testAndVerifyInsert();
-    }
-
-    @Test
-    public void updateShouldBeTraced() throws Exception {
-        super.testAndVerifyUpdate();
-    }
-
-    @Test
-    public void deleteShouldBeTraced() throws Exception {
-        super.testAndVerifyDelete();
-    }
-
+public class SqlSessionTemplate_1_2_x_IT extends SqlSessionTemplateITBase {
 }
