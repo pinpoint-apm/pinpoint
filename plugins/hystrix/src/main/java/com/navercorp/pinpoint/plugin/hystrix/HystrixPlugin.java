@@ -14,11 +14,21 @@
  */
 package com.navercorp.pinpoint.plugin.hystrix;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixCommandTransformer;
+
+import java.security.ProtectionDomain;
+import java.util.List;
 
 /**
  * Any Pinpoint profiler plugin must implement ProfilerPlugin interface.
@@ -28,6 +38,7 @@ import com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixCommandTransform
  * @author Jiaqi Feng
  */
 public class HystrixPlugin implements ProfilerPlugin, TransformTemplateAware {
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private TransformTemplate transformTemplate;
 
     @Override
@@ -37,6 +48,29 @@ public class HystrixPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private void addTransformers() {
         transformTemplate.transform("com.netflix.hystrix.HystrixCommand", new HystrixCommandTransformer());
+        transformTemplate.transform("com.netflix.hystrix.HystrixCommand$1", new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+                InstrumentMethod executeCommand = target.getDeclaredMethod("call", "rx.Subscriber");
+                if (executeCommand != null) {
+                    System.out.println("HystrixPlugin: new OnSubscribe HystrixCommand$1 ----------------------------------- found call method");
+                    int id=executeCommand.addInterceptor("com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixObservableCallInterceptor");
+                    System.out.println("HystrixPlugin: new OnSubscribe HystrixCommand$1 ----------------------------------- found intercept queue return "+id);
+                } else {
+                    System.out.println("HystrixPlugin: new OnSubscribe HystrixCommand$1 ----------------------------------- not found, no intercept queue return ");
+                }
+                List<InstrumentMethod> methods=target.getDeclaredMethods();
+                for (InstrumentMethod method : methods) {
+                    System.out.println("HystrixPlugin: new OnSubscribe HystrixCommand$1 ----------------------------------- find method="+method.getName()+", ="+method.toString());
+                    for (String type : method.getParameterTypes())
+                        System.out.println("HystrixPlugin: new OnSubscribe HystrixCommand$1 ----------------------------------- find method="+method.getName()+", types="+type);
+                }
+
+                return target.toBytecode();
+            }
+        });
     }
 
     @Override

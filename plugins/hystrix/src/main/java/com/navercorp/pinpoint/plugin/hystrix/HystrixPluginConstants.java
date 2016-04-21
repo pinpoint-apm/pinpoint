@@ -18,6 +18,7 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
 
 /**
  * @author Jiaqi Feng
@@ -25,6 +26,7 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
  */
 public interface HystrixPluginConstants {
     public static final ServiceType HYSTRIX_SERVICE_TYPE = ServiceTypeFactory.of(9120, "HYSTRIX_COMMAND");
+    AnnotationKey HYSTRIX_SUBCLASS_ANNOTATION_KEY = AnnotationKeyFactory.of(98, "hystrix.subclass", VIEW_IN_RECORD_SET);
 
     public static final String META_DO_NOT_TRACE = "_Hystrix_DO_NOT_TRACE";
     public static final String META_TRANSACTION_ID = "_Hystrix_TRASACTION_ID";

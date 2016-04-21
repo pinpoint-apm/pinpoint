@@ -20,6 +20,7 @@ public class HystrixCommandQueueInterceptor implements AroundInterceptor1 {
 
     @Override
     public void before(Object target, Object arg0) {
+        System.out.println("HystrixCommandQueueInterceptor:-----------------------------------before "+target.getClass().getSimpleName());
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
