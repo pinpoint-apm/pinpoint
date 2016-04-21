@@ -16,9 +16,12 @@ import com.navercorp.pinpoint.plugin.hystrix.HystrixPluginConstants;
 import java.lang.reflect.Field;
 
 /**
- * TODO: this file just rewrite getAsyncTraceId of SpanAsyncEventSimpleAroundInterceptor, its better change the base type
+ * for hystrix-core above 1.4
+ *
  * Created by jack on 4/21/16.
  */
+
+//TODO: this file just rewrite getAsyncTraceId of SpanAsyncEventSimpleAroundInterceptor, its better change the base type
 public class HystrixObservableCallInterceptor implements AroundInterceptor {
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();

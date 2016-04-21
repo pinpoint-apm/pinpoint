@@ -42,13 +42,13 @@ public class HystrixCommandTransformer implements TransformCallback {
         target.addField("com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor");
 
         InstrumentMethod queue = target.getDeclaredMethod("queue");
-        int id=queue.addInterceptor("com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixCommandQueueInterceptor");
-        System.out.println("HystrixCommandTransformer:----------------------------------- intercept queue return "+id);
+        if (queue != null) {
+            queue.addInterceptor("com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixCommandQueueInterceptor");
+        }
 
         InstrumentMethod executeCommand = target.getDeclaredMethod("executeCommand");
         if (executeCommand != null) {
-            id = executeCommand.addInterceptor("com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixCommandExecuteCommandInterceptor");
-            System.out.println("HystrixCommandTransformer:----------------------------------- intercept queue return " + id);
+            executeCommand.addInterceptor("com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixCommandExecuteCommandInterceptor");
         }
 
         return target.toBytecode();

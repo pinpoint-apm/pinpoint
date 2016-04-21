@@ -8,6 +8,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundIn
 import com.navercorp.pinpoint.plugin.hystrix.HystrixPluginConstants;
 
 /**
+ * for hystrix-core 1.3
  * @author Jiaqi Feng
  */
 public class HystrixCommandExecuteCommandInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
