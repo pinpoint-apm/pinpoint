@@ -30,5 +30,6 @@ public class HystrixTraceMetadataProvider implements TraceMetadataProvider {
     @Override
     public void setup(TraceMetadataSetupContext context) {
         context.addServiceType(HystrixPluginConstants.HYSTRIX_SERVICE_TYPE);
+        context.addAnnotationKey(HystrixPluginConstants.HYSTRIX_SUBCLASS_ANNOTATION_KEY);
     }
 }

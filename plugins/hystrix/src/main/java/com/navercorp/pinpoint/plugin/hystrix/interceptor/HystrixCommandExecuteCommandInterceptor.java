@@ -27,5 +27,7 @@ public class HystrixCommandExecuteCommandInterceptor extends SpanAsyncEventSimpl
         recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_SERVICE_TYPE);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
+        if (target != null)
+            recorder.recordAttribute(HystrixPluginConstants.HYSTRIX_SUBCLASS_ANNOTATION_KEY, target.getClass().getSimpleName());
     }
 }

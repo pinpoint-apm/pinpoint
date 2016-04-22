@@ -133,9 +133,12 @@ public class HystrixObservableCallInterceptor implements AroundInterceptor {
         recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_SERVICE_TYPE);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
+        target=getRealTarget(target);
+        if (target != null)
+            recorder.recordAttribute(HystrixPluginConstants.HYSTRIX_SUBCLASS_ANNOTATION_KEY, target.getClass().getSimpleName());
     }
 
-    private AsyncTraceId getAsyncTraceId(Object target) {
+    private Object getRealTarget(Object target) {
         Object cmd=null;
 
         try {
@@ -147,6 +150,7 @@ public class HystrixObservableCallInterceptor implements AroundInterceptor {
                 if (isDebug) {
                     logger.debug("got outclass name is {}", cmd.getClass().getName());
                 }
+                return cmd;
             }
         } catch (NoSuchFieldException e) {
             if (isDebug) {
@@ -157,7 +161,11 @@ public class HystrixObservableCallInterceptor implements AroundInterceptor {
                 logger.debug("got IllegalAccessException exception when access outer class this$0");
             }
         }
-        target=cmd;
+        return cmd;
+    }
+
+    private AsyncTraceId getAsyncTraceId(Object target) {
+        target=getRealTarget(target);
         return target != null && target instanceof AsyncTraceIdAccessor ? ((AsyncTraceIdAccessor) target)._$PINPOINT$_getAsyncTraceId() : null;
     }
 
