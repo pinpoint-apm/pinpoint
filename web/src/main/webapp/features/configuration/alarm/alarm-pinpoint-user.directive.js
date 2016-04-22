@@ -315,8 +315,7 @@
 				};
 				scope.$on("alarmPinpointUser.configuration.load", function( event, department ) {
 					if ( bIsLoaded === false ) {
-						loadData( { "department": "OxygenTF" } );
-						// loadData( angular.isUndefined( department ) ? {} : { "department": department } );
+						loadData( angular.isUndefined( department ) ? {} : { "department": department } );
 					}
 				});
             }
