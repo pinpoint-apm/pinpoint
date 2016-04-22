@@ -1,36 +1,49 @@
-<div class="some-list">
-	<div class="some-list-header header-blue">
-		<button class="btn btn-primary left" ng-click="onRefresh()"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
-		<span class="title">User Group<span class="total"></span></span>
-		<button class="btn btn-primary right" ng-click="onCreate()"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+<div class="some-list" style="width:300px">
+	<div class="some-list-header">
+		<span class="title">User Group <span class="total"></span></span>
+		<span class="right" style="text-decoration: underline;cursor:pointer" ng-click="onAddUserGroup()">+ Add</span>
+	</div>
+	<div class="some-list-search">
+		<div class="input-group">
+			<input type="text" class="form-control" placeholder="Enter at least 4 letters to search" ng-keydown="onSearchKeydown()"/>
+			<span class="input-group-btn">
+				<button class="btn btn-default" type="button" ng-click="onSearch()">
+					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+				</button>
+			</span>
+		</div>
 	</div>
 	<div class="some-list-content">
 		<div class="wrapper"><ul>
+			<li class="new-group hide-me">
+				<span class="contents"></span>
+				<input type="text" placeholder="New Group" ng-keydown="onAddUserGroupKeydown($event)"/>
+				<span class="glyphicon glyphicon-remove remove" aria-hidden="true" ng-click="onCancelAddUserGroup()"></span>
+				<span class="glyphicon glyphicon-pencil edit" aria-hidden="true" ng-click="onApplyAddUserGroup()"></span>
+			</li>
 			<li ng-repeat="userGroup in userGroupList" id="{{prefix + userGroup.number}}">
-				<button class="btn btn-primary left edit"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>
-				<span class="contents">{{userGroup.id}}</span><span class="remove">x</span>
+				<span class="contents">{{userGroup.id}}</span>
+				<input type="text" ng-keydown="onUpdateuserGroupKeydown($event)"/>
+				<div style="float:right" class="_normal">
+					<span class="glyphicon glyphicon-remove remove" aria-hidden="true" ng-click="onRemoveUserGroup($event)"></span>
+					<span class="glyphicon glyphicon-pencil edit" aria-hidden="true" ng-click="onUpdateUserGroup($event)"></span>
+				</div>
+				<div style="float:right" class="_remove hide-me">
+					<span class="glyphicon glyphicon-remove remove remove-confirm" aria-hidden="true" ng-click="onApplyRemoveUserGroup($event)"></span>
+					<span class="glyphicon glyphicon-arrow-left remove-cancel" aria-hidden="true" ng-click="onCancelRemoveUserGroup()"></span>
+				</div>
+				<div style="float:right" class="_edit hide-me">
+					<span class="glyphicon glyphicon-remove remove" aria-hidden="true" ng-click="onCancelUpdateUserGroup()"></span>
+					<span class="glyphicon glyphicon-ok edit-confirm" aria-hidden="true" ng-click="onApplyUpdateUserGroup()"></span>
+				</div>
 			</li>
 		</ul></div>
-		<div class="filter-input">
-			<input type="text" placeholder="Search user group"/> 
-			<button class="btn btn-primary" ng-click="onSearch()" style="margin-right:2px"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>	       				
-		</div>
 	</div>
-	<div class="some-edit-content hide-me">
-		<div>
-			<div class="title-message">Create new alarm group</div>
-			<input type="text" placeholder="Create New Alarm Group" ng-keydown="onInputEdit($event)"/>
-			<div style="padding-top:10px;">
-				<button class="btn btn-primary left" style="margin-left:5%" ng-click="onCancelEdit()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
-				<button class="btn btn-primary right" style="margin-right:5%" ng-click="onApplyEdit()"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
-			</div>
-		</div>
-	</div>
-	<div class="some-loading  has-not-edit">
+	<div class="some-loading">
 		<div class="timer-loader"></div>
-		<div class="some-alert hide-me">
-			<span class="message"></span>
-			<span class="close-alert" ng-click="onCloseAlert()">X</span>
-		</div>
+	</div>
+	<div class="some-alert hide-me">
+		<span class="message"></span>
+		<span class="close-alert" style="color:#FFF;" ng-click="onCloseAlert()">X</span>
 	</div>
 </div>

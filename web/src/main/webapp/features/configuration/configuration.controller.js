@@ -11,15 +11,14 @@
 	    menu: {
 	    	GENERAL: "general",
 	    	ALARM: "alarm",
-	    	HELP: "help",
+	    	HELP: "help"
 	    }
 	});	
 
 	pinpointApp.controller('ConfigurationCtrl', [ '$scope','$element', 'ConfigurationConfig', 'AnalyticsService',
 	    function ($scope, $element, $constant, analyticsService) {
 
-			var $elBody = $element.find(".modal-body");
-			$scope.descriptionOfCurrentTab = "Set your option";
+			$scope.selectMember = false;
 			$scope.currentTab = $constant.menu.GENERAL;
 			
 			// define isGeneral(), isAlram()... func. 
@@ -35,6 +34,7 @@
 			$($element).on("hidden.bs.modal", function(e) {
 				$scope.currentTab = $constant.menu.GENERAL;
 				$scope.$broadcast("configuration.alarm.initClose");
+				$scope.$broadcast("configuration.general.initClose");
 			});
 			
 			$scope.setCurrentTab = function( tab ) {
@@ -43,23 +43,29 @@
 				switch( tab ) {
 					case $constant.menu.GENERAL:
 						analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_GENERAL );
-						$elBody.css("background-color", "#e9eaed");
-						$scope.descriptionOfCurrentTab = "Set your option";
 						$scope.$broadcast( "general.configuration.show");
 						break;
 					case $constant.menu.ALARM:
 						analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM );
-						$elBody.css("background-color", "#e9eaed");
-						$scope.descriptionOfCurrentTab = "Set your alarm rules";
 						$scope.$broadcast( "alarmUserGroup.configuration.show");
 						break;
 					case $constant.menu.HELP:
 						analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_HELP );
-						$elBody.css("background-color", "#FFF");
-						$scope.descriptionOfCurrentTab = "";
-						break;	
+						break;
 				}
 			};
+			$scope.getMemberButtonStyle = function() {
+				return $scope.selectMember ? "btn-primary" : "btn-default";
+			};
+			$scope.getAlarmButtonStyle = function() {
+				return $scope.selectMember ? "btn-default" : "btn-primary";
+			};
+			$scope.showMember = function() {
+				$scope.selectMember = true;
+			};
+			$scope.showAlarm = function() {
+				$scope.selectMember = false;
+			}
 			$scope.$on("configuration.show", function() {
 				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_CONFIGURATION );
 				$element.modal('show');

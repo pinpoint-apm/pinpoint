@@ -9,7 +9,7 @@
 	var oHelp = {
 		configuration: {
 			general: {
-				warning: "(설정 정보는 브라우저 캐쉬에 저장합니다. 서버 측 저장은 추후 지원 할 예정입니다.)",
+				warning: "* 설정 정보는 브라우저 캐쉬에 저장합니다. 서버 측 저장은 추후 지원 할 예정입니다.",
 				empty: "등록된 목록이 없습니다."
 			},
 			alarmRules: {

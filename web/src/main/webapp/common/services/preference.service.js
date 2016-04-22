@@ -1,4 +1,4 @@
-(function() {
+(function( $ ) {
 	'use strict';
 	/**
 	 * (en)PreferenceService 
@@ -44,9 +44,9 @@
 		var aFavoriteList = [];
 		
 		loadPreference();
-		
+
 		this.addFavorite = function( applicationName ) {
-			if ( aFavoriteList.length == cfg.cst.maxFavorite || aFavoriteList.indexOf( applicationName ) !== -1 ) {
+			if ( aFavoriteList.length === cfg.cst.maxFavorite || aFavoriteList.indexOf( applicationName ) !== -1 ) {
 				return;
 			}
 			aFavoriteList.push( applicationName );
@@ -87,7 +87,7 @@
 		};
 		this.getResponseTypeFormat = function() {
 			var o = {};
-			jQuery.each( cfg.cst.responseType, function( index, value ) {
+			$.each( cfg.cst.responseType, function( index, value ) {
 				o[value] = 0;
 			});
 			return o;
@@ -117,7 +117,7 @@
 		function loadPreference() {
 			// set value of webStorage or default
 			// and make getter and setter function
-			jQuery.each( cfg.list, function( index, value ) {
+			$.each( cfg.list, function( index, value ) {
 				var name = value.name;
 				oDefault[name] = webStorage.get( name ) || cfg.defaults[name];
 				switch( value.type ) {
@@ -134,8 +134,8 @@
 					oDefault[name] = v;
 				};
 			});
-			aFavoriteList = webStorage.get(cfg.names.favorite) || [];
+			aFavoriteList = JSON.parse( webStorage.get(cfg.names.favorite) || "[]" );
 		}
 		
 	}]);
-})();
+})( jQuery );
