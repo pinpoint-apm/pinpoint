@@ -14,7 +14,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 		http://www.springframework.org/schema/hadoop http://www.springframework.org/schema/hadoop/spring-hadoop.xsd">
 
-    <bean id="hbaseConfiguration" class="org.springframework.data.hadoop.hbase.HbaseConfigurationFactoryBean">
+    <bean id="hbaseConfiguration" class="com.navercorp.pinpoint.common.hbase.HbaseConfigurationFactoryBean">
         <property name="properties">
             <props>
                 <prop key="hbase.zookeeper.quorum">${hbase.client.host}</prop>
@@ -31,9 +31,14 @@
                 <prop key="hbase.ipc.client.socket.timeout.read">${hbase.ipc.client.socket.timeout.read}</prop>
                 <!-- socket write timeout. hbase default: 600000-->
                 <prop key="hbase.ipc.client.socket.timeout.write">${hbase.ipc.client.socket.timeout.write}</prop>
+
+                <!-- hbase async put operation. -->
+                <prop key="hbase.client.async.enable">${hbase.client.async.enable:false}</prop>
+                <prop key="hbase.client.async.in.queuesize">${hbase.client.async.in.queuesize:10000}</prop>
+                <prop key="hbase.tablemultiplexer.flush.period.ms">${hbase.client.async.flush.period.ms:100}</prop>
+                <prop key="hbase.client.max.retries.in.queue">${hbase.client.async.max.retries.in.queue:10}</prop>
             </props>
         </property>
-        <property name="deleteConnection" value="false"/>
     </bean>
 
     <bean id="connectionFactory" class="com.navercorp.pinpoint.common.hbase.PooledHTableFactory">
@@ -43,9 +48,14 @@
         <constructor-arg value="${hbase.client.threadPool.prestart}"/>
     </bean>
 
-    <bean id="hbaseTemplate" class="com.navercorp.pinpoint.common.hbase.HbaseTemplate2">
+    <bean id="asyncOperation" class="com.navercorp.pinpoint.common.hbase.HBaseAsyncOperationFactory" factory-method="create">
+        <constructor-arg ref="hbaseConfiguration"/>
+    </bean>
+
+    <bean id="hbaseTemplate" class="com.navercorp.pinpoint.common.hbase.HbaseTemplate2" destroy-method="destroy">
         <property name="configuration" ref="hbaseConfiguration"/>
         <property name="tableFactory" ref="connectionFactory"/>
+        <property name="asyncOperation" ref="asyncOperation"/>
     </bean>
     
     <bean id="hBaseAdminTemplate" class="com.navercorp.pinpoint.common.hbase.HBaseAdminTemplate" destroy-method="close">

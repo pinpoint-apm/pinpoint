@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.SpanUtils;
@@ -33,7 +34,6 @@ import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -45,8 +45,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
 /**
  * @author emeroad
@@ -96,8 +94,10 @@ public class HbaseTraceDao implements TracesDao {
 
         addNestedSpanEvent(put, span);
 
-        hbaseTemplate.put(TRACES, put);
-
+        boolean success = hbaseTemplate.asyncPut(TRACES, put);
+        if (!success) {
+            hbaseTemplate.put(TRACES, put);
+        }
     }
 
     private byte[] getDistributeRowKey(byte[] transactionId) {
@@ -117,8 +117,6 @@ public class HbaseTraceDao implements TracesDao {
         }
     }
 
-
-
     @Override
     public void insertSpanChunk(TSpanChunk spanChunk) {
         final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(spanChunk));
@@ -136,9 +134,11 @@ public class HbaseTraceDao implements TracesDao {
         }
 
         if (!put.isEmpty()) {
-            hbaseTemplate.put(TRACES, put);
+            boolean success = hbaseTemplate.asyncPut(TRACES, put);
+            if (!success) {
+                hbaseTemplate.put(TRACES, put);
+            }
         }
-
     }
 
     private void addColumn(Put put, SpanEventBo spanEventBo) {

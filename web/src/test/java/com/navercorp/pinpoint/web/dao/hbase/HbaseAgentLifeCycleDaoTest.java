@@ -20,10 +20,14 @@ import static org.mockito.Mockito.*;
 
 import com.navercorp.pinpoint.common.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
+
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.junit.Assert;
 import org.junit.Before;
@@ -31,8 +35,6 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.data.hadoop.hbase.ResultsExtractor;
-import org.springframework.data.hadoop.hbase.RowMapper;
 
 import java.util.Arrays;
 import java.util.List;
@@ -64,7 +66,7 @@ public class HbaseAgentLifeCycleDaoTest {
         final AgentLifeCycleState expectedAgentLifeCycleState = AgentLifeCycleState.RUNNING;
 
         final AgentLifeCycleBo scannedLifeCycleBo = createAgentLifeCycleBo(expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
-        when(this.hbaseOperations2.find(anyString(), any(Scan.class), any(ResultsExtractor.class))).thenReturn(scannedLifeCycleBo);
+        when(this.hbaseOperations2.find(any(TableName.class), any(Scan.class), any(ResultsExtractor.class))).thenReturn(scannedLifeCycleBo);
         // When
         AgentStatus agentStatus = this.agentLifeCycleDao.getAgentStatus(expectedAgentId, expectedTimestamp);
         // Then
@@ -81,7 +83,7 @@ public class HbaseAgentLifeCycleDaoTest {
         final AgentLifeCycleState expectedAgentLifeCycleState = AgentLifeCycleState.UNKNOWN;
 
         final AgentLifeCycleBo scannedLifeCycleBo = null;
-        when(this.hbaseOperations2.find(anyString(), any(Scan.class), any(ResultsExtractor.class))).thenReturn(scannedLifeCycleBo);
+        when(this.hbaseOperations2.find(any(TableName.class), any(Scan.class), any(ResultsExtractor.class))).thenReturn(scannedLifeCycleBo);
         // When
         AgentStatus agentStatus = this.agentLifeCycleDao.getAgentStatus(expectedAgentId, expectedTimestamp);
         // Then
@@ -98,7 +100,7 @@ public class HbaseAgentLifeCycleDaoTest {
         final AgentLifeCycleState expectedAgentLifeCycleState = AgentLifeCycleState.RUNNING;
 
         final AgentLifeCycleBo scannedLifeCycleBo = createAgentLifeCycleBo(expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
-        when(this.hbaseOperations2.find(anyString(), any(Scan.class), any(ResultsExtractor.class))).thenReturn(scannedLifeCycleBo);
+        when(this.hbaseOperations2.find(any(TableName.class), any(Scan.class), any(ResultsExtractor.class))).thenReturn(scannedLifeCycleBo);
         // When
         AgentInfo givenAgentInfo = new AgentInfo();
         givenAgentInfo.setAgentId(expectedAgentId);
@@ -119,7 +121,7 @@ public class HbaseAgentLifeCycleDaoTest {
         final AgentLifeCycleState expectedAgentLifeCycleState = AgentLifeCycleState.UNKNOWN;
 
         final AgentLifeCycleBo scannedLifeCycleBo = null;
-        when(this.hbaseOperations2.find(anyString(), any(Scan.class), any(ResultsExtractor.class))).thenReturn(scannedLifeCycleBo);
+        when(this.hbaseOperations2.find(any(TableName.class), any(Scan.class), any(ResultsExtractor.class))).thenReturn(scannedLifeCycleBo);
 
         AgentInfo givenAgentInfo = new AgentInfo();
         givenAgentInfo.setAgentId(expectedAgentId);
@@ -141,7 +143,7 @@ public class HbaseAgentLifeCycleDaoTest {
         final AgentLifeCycleState expectedAgentLifeCycleState = AgentLifeCycleState.RUNNING;
 
         final AgentLifeCycleBo scannedLifeCycleBo = createAgentLifeCycleBo(expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
-        when(this.hbaseOperations2.findParallel(anyString(), anyListOf(Scan.class), any(ResultsExtractor.class))).thenReturn(Arrays.asList(scannedLifeCycleBo, scannedLifeCycleBo));
+        when(this.hbaseOperations2.findParallel(any(TableName.class), anyListOf(Scan.class), any(ResultsExtractor.class))).thenReturn(Arrays.asList(scannedLifeCycleBo, scannedLifeCycleBo));
 
         AgentInfo nonNullAgentInfo = new AgentInfo();
         nonNullAgentInfo.setAgentId(expectedAgentId);

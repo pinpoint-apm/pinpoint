@@ -16,18 +16,16 @@
 
 package com.navercorp.pinpoint.common.hbase.parallel;
 
+import com.navercorp.pinpoint.common.hbase.TableFactory;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import com.sematext.hbase.wd.DistributedScanner;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.client.HTableInterface;
-import org.apache.hadoop.hbase.client.HTableInterfaceFactory;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
-import org.springframework.data.hadoop.hbase.HbaseUtils;
+import org.apache.hadoop.hbase.client.Table;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -38,10 +36,8 @@ public class ScanTask implements Runnable {
 
     private static final Result END_RESULT = new Result();
 
-    private final String tableName;
-    private final Configuration configuration;
-    private final Charset charset;
-    private final HTableInterfaceFactory tableFactory;
+    private final TableName tableName;
+    private final TableFactory tableFactory;
     private final AbstractRowKeyDistributor rowKeyDistributor;
 
     private final Scan[] scans;
@@ -62,8 +58,6 @@ public class ScanTask implements Runnable {
             throw new IllegalArgumentException("scans must not be empty");
         }
         this.tableName = scanTaskConfig.getTableName();
-        this.configuration = scanTaskConfig.getConfiguration();
-        this.charset = scanTaskConfig.getCharset();
         this.tableFactory = scanTaskConfig.getTableFactory();
         this.rowKeyDistributor = scanTaskConfig.getRowKeyDistributor();
         this.scans = scans;
@@ -72,9 +66,9 @@ public class ScanTask implements Runnable {
 
     @Override
     public void run() {
-        HTableInterface table = null;
+        Table table = null;
         try {
-            table = HbaseUtils.getHTable(this.tableName, this.configuration, this.charset, this.tableFactory);
+            table = tableFactory.getTable(this.tableName);
             ResultScanner scanner = createResultScanner(table);
             try {
                 for (Result result : scanner) {
@@ -93,11 +87,11 @@ public class ScanTask implements Runnable {
             this.resultQueue.clear();
             this.resultQueue.offer(END_RESULT);
         } finally {
-            HbaseUtils.releaseTable(this.tableName, table, this.tableFactory);
+            tableFactory.releaseTable(table);
         }
     }
 
-    private ResultScanner createResultScanner(HTableInterface table) throws IOException {
+    private ResultScanner createResultScanner(Table table) throws IOException {
         if (scans.length == 1) {
             Scan scan = scans[0];
             return table.getScanner(scan);

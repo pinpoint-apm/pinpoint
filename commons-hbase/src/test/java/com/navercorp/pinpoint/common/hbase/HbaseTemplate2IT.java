@@ -19,31 +19,26 @@ package com.navercorp.pinpoint.common.hbase;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.junit.Assert;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.TableNotFoundException;
+import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.hadoop.hbase.HbaseConfigurationFactoryBean;
-import org.springframework.data.hadoop.hbase.HbaseSystemException;
 
-import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 
 
 /**
  * @author emeroad
+ * @author minwoo.jung
  */
 public class HbaseTemplate2IT {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    private static HbaseConfigurationFactoryBean hbaseConfigurationFactoryBean;
+    private static HbaseTemplate2 hbaseTemplate2;
 
     @BeforeClass
     public static void beforeClass() throws IOException {
@@ -52,39 +47,32 @@ public class HbaseTemplate2IT {
         Configuration cfg = HBaseConfiguration.create();
         cfg.set("hbase.zookeeper.quorum", properties.getProperty("hbase.client.host"));
         cfg.set("hbase.zookeeper.property.clientPort", properties.getProperty("hbase.client.port"));
-        hbaseConfigurationFactoryBean = new HbaseConfigurationFactoryBean();
-        hbaseConfigurationFactoryBean.setConfiguration(cfg);
-        hbaseConfigurationFactoryBean.afterPropertiesSet();
+        
+        hbaseTemplate2 = new HbaseTemplate2();
+        hbaseTemplate2.setConfiguration(cfg);
+        hbaseTemplate2.setTableFactory(new PooledHTableFactory(cfg));
+        hbaseTemplate2.afterPropertiesSet();
     }
 
     @AfterClass
-    public static void afterClass() {
-        if (hbaseConfigurationFactoryBean != null) {
-            hbaseConfigurationFactoryBean.destroy();
+    public static void afterClass() throws Exception {
+        if (hbaseTemplate2 != null) {
+            hbaseTemplate2.destroy();
         }
-
     }
-
 
     @Test
     @Ignore
     public void notExist() throws Exception {
-
-        HbaseTemplate2 hbaseTemplate2 = new HbaseTemplate2();
-        hbaseTemplate2.setConfiguration(hbaseConfigurationFactoryBean.getObject());
-        hbaseTemplate2.afterPropertiesSet();
-
         try {
-            hbaseTemplate2.put("NOT_EXIST", new byte[0], "familyName".getBytes(), "columnName".getBytes(), new byte[0]);
+            hbaseTemplate2.put(TableName.valueOf("NOT_EXIST"), new byte[] {0, 0, 0}, "familyName".getBytes(), "columnName".getBytes(), new byte[]{0, 0, 0});
             Assert.fail("exceptions");
         } catch (HbaseSystemException e) {
-            if (!(e.getCause().getCause() instanceof TableNotFoundException)) {
-                Assert.fail("unexpected exception :" + e.getCause());
+            RetriesExhaustedWithDetailsException exception = (RetriesExhaustedWithDetailsException)(e.getCause());
+            if (!(exception.getCause(0) instanceof TableNotFoundException)) {
+                Assert.fail("unexpected exception :" + e.getCause()); 
             }
-        } finally {
-            hbaseTemplate2.destroy();
         }
-
 
     }
 }

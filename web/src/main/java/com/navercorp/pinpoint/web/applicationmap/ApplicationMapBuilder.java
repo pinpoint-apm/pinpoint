@@ -362,8 +362,8 @@ public class ApplicationMapBuilder {
                 final NodeHistogram nodeHistogram = new NodeHistogram(userNode, range);
                 final List<Link> fromLink = linkList.findFromLink(userNode);
                 if (fromLink.size() > 1) {
-                    logger.warn("Invalid from UserNode:{}", linkList);
-                    throw new IllegalArgumentException("Invalid from UserNode.size() :" + fromLink.size());
+                    // used first(0) link.
+                    logger.warn("Invalid from UserNode:{}", linkList.getLinkList());
                 } else if (fromLink.isEmpty()) {
                     logger.warn("from UserNode not found:{}", userNode);
                     continue;

@@ -20,8 +20,9 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
+
+import com.navercorp.pinpoint.common.hbase.RowMapper;
 
 import java.util.ArrayList;
 import java.util.Collections;
