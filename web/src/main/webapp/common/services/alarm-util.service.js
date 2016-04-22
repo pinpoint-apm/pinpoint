@@ -13,7 +13,7 @@
 		"hasNotEditClass": "has-not-edit"
 	});
 	
-	pinpointApp.service('AlarmUtilService', [ 'AlarmUtilServiceConfig', 'AlarmAjaxService', function ($config, $ajaxService) {
+	pinpointApp.service( "AlarmUtilService", [ "AlarmUtilServiceConfig", "AlarmAjaxService", "globalConfig", function ( $config, $ajaxService, globalConfig ) {
 		var self = this;
 		this.show = function( $el ) {
 			$el.removeClass( $config.hideClass );
@@ -23,33 +23,92 @@
 				arguments[i].addClass( $config.hideClass );
 			}
 		};
-		this.showLoading = function( $elLoading, isEdit ) {
-			$elLoading[ isEdit ? "removeClass" : "addClass" ]( $config.hasNotEditClass );
-			$elLoading.removeClass( $config.hideClass );
-		};
+		// this.showLoading = function( $elLoading, isEdit ) {
+		// 	$elLoading[ isEdit ? "removeClass" : "addClass" ]( $config.hasNotEditClass );
+		// 	$elLoading.removeClass( $config.hideClass );
+		// };
 		this.showAlert = function( $elAlert, message ) {
 			$elAlert.find(".message").html( message ).end().removeClass( $config.hideClass ).animate({
 				height: 300
 			}, 500, function() {});
 		};
-		this.sendCRUD = function( funcName, data, successCallback, failCallback, $elAlert ) {
+		this.sendCRUD = function( funcName, data, successCallback, failCallback ) {
+			if ( ( angular.isUndefined( data ) || data === "" ) ) {
+				data = {
+					"userId" : ( globalConfig.userId || "" )
+				}; 
+			}
+
 			$ajaxService[funcName]( data, function( resultData ) {
 				if ( resultData.errorCode || resultData.status ) {
-					self.showAlert( $elAlert, resultData.errorMessage || resultData.statusText );
 					failCallback( resultData );
 				} else {
 					successCallback( resultData );
 				}
 			});
+			/*
+			switch( funcName ) {
+				case "getGroupMemberListInGroup":
+					successCallback([{
+						memberId: 1,
+						department: "Paas",
+						name: "정민우"
+					},{
+						memberId: 2,
+						department: "Paas",
+						name: "정현길"
+					}]);
+					break;
+				case "removeMemberInGroup":
+					successCallback();
+					break;
+				case "getUserGroupList":
+					successCallback([{
+						number: 1,
+						id: "pinpoint-monitor-group"
+					}, {
+						number: 2,
+						id: "pinpoint-dev-group"
+					}]);
+					break;
+				case "getPinpointUserList":
+					successCallback([{
+						userId: 1,
+						department: "PaaS",
+						name: "김성관"
+					},{
+						userId: 2,
+						department: "PaaS",
+						name: "문성호"
+					},{
+						userId: 3,
+						department: "PaaS",
+						name: "송효종"
+					},{
+						userId: 4,
+						department: "PaaS",
+						name: "정민우"
+					}]);
+					break;
+				case "createUserGroup":
+					successCallback({
+						id: data.id,
+						number: parseInt( Math.random() * 10000 )
+					});
+					break;
+				case "updateUserGroup":
+					successCallback();
+					break;
+				case "removeUserGroup":
+					successCallback();
+					break;
+				default:
+					break;
+			}
+			*/
 		};
 		this.setTotal = function( $elTotal, n ) {
 			$elTotal.html( "(" + n + ")");
-		};
-		this.setFilterBackground = function( $elWrapper ) {
-			$elWrapper.css("background-color", "#FFFFF1");
-		};
-		this.unsetFilterBackground = function( $elWrapper ) {
-			$elWrapper.css("background-color", "#FFF");
 		};
 		this.hasDuplicateItem = function( list, func ) {
 			var len = list.length;

@@ -105,10 +105,19 @@
 	padding: 5px 0px 0px 10px;
     background-color:#FAFAFA;
 }
-#pinpoint-configuration .some-list-content li input {
+#pinpoint-configuration .some-list-content li input[type=text] {
     width: 220px;
     color: #000;
     display: inline-block;
+    display: none;
+}
+#pinpoint-configuration .some-list-content li input[type=checkbox] {
+    float: right;
+    margin-top: 4px;
+    line-height: 12px;
+    margin-right: 10px;
+    padding-left: 4px;
+    padding-right: 4px;
 }
 
 #pinpoint-configuration .some-list-content li.selected {
@@ -121,18 +130,24 @@
 #pinpoint-configuration .some-list-content li.selected span.edit {
     display:none;
 }
-#pinpoint-configuration .some-list-content li span.remove,
-#pinpoint-configuration .some-list-content li span.remove-cancel,
-#pinpoint-configuration .some-list-content li span.edit,
-#pinpoint-configuration .some-list-content li span.edit-confirm {
+#pinpoint-configuration .some-list-content span.remove,
+#pinpoint-configuration .some-list-content span.remove-cancel,
+#pinpoint-configuration .some-list-content span.edit,
+#pinpoint-configuration .some-list-content span.edit-confirm {
     float: right;
     color: #999999;
     cursor: pointer;
-    margin-top: 4px;
+    margin-top: 6px;
     margin-right: 6px;
     line-height: 12px;
     padding-left: 4px;
     padding-right: 4px;
+}
+#pinpoint-configuration .some-list-content table span.remove,
+#pinpoint-configuration .some-list-content table span.remove-cancel,
+#pinpoint-configuration .some-list-content table span.edit,
+#pinpoint-configuration .some-list-content table span.edit-confirm {
+    float: none;
 }
 #pinpoint-configuration .some-list-content li span.remove-confirm {
     color: #F00 !important;
@@ -146,9 +161,6 @@
 }
 #pinpoint-configuration .some-list-content li:hover span.edit {
     color: #000;
-}
-#pinpoint-configuration .some-list-content li input {
-    display: none;
 }
 #pinpoint-configuration .some-list-content li.new-group {
     background-color: #F3FBFF;
@@ -164,7 +176,7 @@
     display: none;
 }
 #pinpoint-configuration .some-list-content li.new-group input {
-    width: 220px;
+    width: 210px;
     color: #000;
     border: 0px solid #FFF;
     display: inline-block;
@@ -184,6 +196,9 @@
 #pinpoint-configuration .some-list-content.move-some-where li span {
 	margin-left: 4px;
 }
+#pinpoint-configuration ._disable-check li input[type=checkbox] {
+    display: none;
+}
 #pinpoint-configuration .some-loading {
 	position:relative;
 	bottom: 470px;
@@ -192,6 +207,17 @@
 	height: 416px;
 	text-align: center;
 	background: rgba(256, 256, 256, 0.8);
+}
+#pinpoint-configuration .some-guide {
+    left: 0px;
+    color: #46BCFD;
+    width: 100%;
+    height: 416px;
+    bottom: 470px;
+    position: relative;
+    font-size: 14px;
+    text-align: center;
+    padding-top: 40%;
 }
 #pinpoint-configuration .some-alert {
     position:relative;
@@ -221,88 +247,8 @@
 #pinpoint-configuration .some-loading div {
 	margin-top: 50%;
 }
-#pinpoint-configuration .some-edit-content {
-	position:relative;
-	bottom: 500px;
-	left: 0px;
-	width: 100%;
-	height: 100%;
-	background: rgba(0, 0, 0, 0.7);
-}
-#pinpoint-configuration .some-edit-content > div:first-child {
-	padding-top: 50%;
-	text-align:center;
-}
-#pinpoint-configuration .some-edit-content .title-message {
-	color: #46D030;;
-	font-size: 12px;
-	padding-bottom: 4px;
-}
-#pinpoint-configuration .some-edit-content input[type=text] {
-	width: 90%;
-	height: 28px;
-	border: none;
-	font-size: 16px;
-	text-align: center;
-	margin-top: 1px;
-	border-radius: 4px;
-}
-#pinpoint-configuration .some-edit-content input[type=number], #pinpoint-configuration .some-edit-content textarea {
-	font-size: 16px;
-	border-radius: 4px;
-	border: none;
-}
-#pinpoint-configuration .some-edit-content input[type=checkbox] {
-	font-size: 30px;
-}
-#pinpoint-configuration .some-edit-content label {
-	font-weight: normal;
-	padding-left: 4px;
-	color: #FFF;
-}
-#pinpoint-configuration .some-edit-content.pinpoint .edit-wrapper {
-	text-align: right;
-}
-#pinpoint-configuration .some-edit-content.pinpoint input[type=text] {
-	width: 70%;
-	position:relative;
-	right: 0px;
-	margin-right: 4px;
-}
-#pinpoint-configuration .some-edit-content.pinpoint span.title {
-	color: #FFF;
-	margin-right: 4px;
-}
-/*
-#pinpoint-configuration .some-list-content li:nth-child(even) {
-	background-color: #F8F8F8;
-}
-*/
 #pinpoint-configuration .some-list-content li span.right {
 	margin-top: -2px;
-}
-#pinpoint-configuration .some-list .filter-input {
-	position: relative;
-	bottom: -16px;
-	width: 100%;
-	background-color: #EEE;
-}
-#pinpoint-configuration .some-list .filter-input input {
-	width: 66%;
-	height: 25px;
-	padding: 1px 0px 1px 0px;
-	margin-left: -1px;
-}
-#pinpoint-configuration .some-list .filter-input button {
-	float: right;
-	padding : 0px 9px 0px 9px;
-	margin-top: 0px;
-}
-#pinpoint-configuration .some-list .filter-input select {
-	height: 22px;
-	margin-top: 1px;
-	margin-left: -1px;
-	border-radius: 0px 0px 0px 0px;
 }
 #pinpoint-configuration .pinpoint-user-list {
 	float: right;
@@ -310,9 +256,6 @@
 }
 
 /* 테이블 관련 */
-#pinpoint-configuration .tabbable {
-	float: left;
-}
 #pinpoint-configuration .some-table {
 	display: block;
 	width: 100%;
@@ -321,86 +264,50 @@
 	display: block;
 	width: 100%;
 	table-layout: fixed;
-	padding-right: 8px;
+    padding-left: 2px;
+	padding-right: 2px;
 }
 #pinpoint-configuration .some-table .some-list-content thead tr {
 	height: 34px;
 	font-size: 14px;
-	color: #5bc0de;
+	color: #9A9A9A;
 	padding-right: 10px;
 	line-height: 32px;
 }
 #pinpoint-configuration .some-table .some-list-content thead th {
 	font-weight: normal !important;
+    text-align: left;
+    padding-left: 1px;
 }
 #pinpoint-configuration .some-table .some-list-content tbody tr {
-	height: 30px;
-	padding-right: 10px;
-	border-bottom: 1px solid #F8F8F8;
+	height: 32px;
+    color: #9A9A9A;
 	cursor: pointer;
+    background-color: #FAFAFA;
 }
-#pinpoint-configuration .some-table .some-list-content .wrapper tbody tr:hover {
-	background-color: #928484;
-	color: #FFF;
+#pinpoint-configuration .some-table .some-list-content tr:hover,
+#pinpoint-configuration .some-list-content tr:hover span.remove,
+#pinpoint-configuration .some-list-content tr:hover span.remove-cancel,
+#pinpoint-configuration .some-list-content tr:hover span.edit,
+#pinpoint-configuration .some-list-content tr:hover span.edit-confirm {
+    color: #000;
 }
-#pinpoint-configuration .some-table .some-list-content .wrapper tbody tr td:first-child {
-	text-align: left;
-	padding-left: 4px;
-}
-#pinpoint-configuration .some-table .some-list-content .wrapper tbody tr td:last-child {
-	padding-right: 10px;
-	padding-left: 5px;
-}
-#pinpoint-configuration .some-table .some-list-content .wrapper tbody tr.remove {
-	background-color: #EFABAB;
-	text-decoration: line-through;
-}
-#pinpoint-configuration .some-table .some-list-content .wrapper tbody td.remove {
-	position: absolute;
-	right: 24px;
-}
-#pinpoint-configuration .some-table .some-list-content .wrapper tbody button.edit {
-	padding: 6px 3px 7px 4px;
-	font-size: 6px;
-	margin-top: -2px;
-	margin-left: -4px;
-	margin-right: 2px;
+#pinpoint-configuration .some-list-content tr span.remove-confirm {
+    color: #F00 !important;
 }
 
-#pinpoint-configuration .some-table .filter-input {
-	position: relative;
-	bottom: -14px;
-	width: 100%;
+#pinpoint-configuration .some-table .some-list-content tbody td {
+    padding: 0px 0px 4px 1px;
+    text-align: left;
 }
-#pinpoint-configuration .some-table .filter-input tbody tr {
-	height: 24px;
-}
-
-#pinpoint-configuration div.popover {
-	color: #000;
-}
-#pinpoint-configuration div.popover .popover-title{
-	display: none;
-}
-#pinpoint-configuration .some-table .some-list-content th, #pinpoint-configuration .some-table .some-list-content td {
+#pinpoint-configuration .some-table .some-list-content th,
+#pinpoint-configuration .some-table .some-list-content td {
 	overflow: hidden;
 	word-wrap: normal;
 	text-align: center;
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	vertical-align: bottom;
-}
-#pinpoint-configuration .some-table .some-list-content .remove {
-	color: #AAA;
-	cursor: pointer;
-}
-#pinpoint-configuration .some-table .some-list-content .remove:hover {
-	color: red;
-	font-weight: bold;
-}
-#pinpoint-configuration .some-table .some-list-content input {
-	width: 100%;
-	margin-left: -2px;
 }
 #config-help .left-sub-menu {
     float: left;

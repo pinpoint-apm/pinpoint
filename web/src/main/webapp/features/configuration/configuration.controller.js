@@ -11,13 +11,14 @@
 	    menu: {
 	    	GENERAL: "general",
 	    	ALARM: "alarm",
-	    	HELP: "help",
+	    	HELP: "help"
 	    }
 	});	
 
 	pinpointApp.controller('ConfigurationCtrl', [ '$scope','$element', 'ConfigurationConfig', 'AnalyticsService',
 	    function ($scope, $element, $constant, analyticsService) {
 
+			$scope.selectMember = false;
 			$scope.currentTab = $constant.menu.GENERAL;
 			
 			// define isGeneral(), isAlram()... func. 
@@ -53,6 +54,18 @@
 						break;
 				}
 			};
+			$scope.getMemberButtonStyle = function() {
+				return $scope.selectMember ? "btn-primary" : "btn-default";
+			};
+			$scope.getAlarmButtonStyle = function() {
+				return $scope.selectMember ? "btn-default" : "btn-primary";
+			};
+			$scope.showMember = function() {
+				$scope.selectMember = true;
+			};
+			$scope.showAlarm = function() {
+				$scope.selectMember = false;
+			}
 			$scope.$on("configuration.show", function() {
 				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_CONFIGURATION );
 				$element.modal('show');
