@@ -116,7 +116,7 @@
 						alarmUtilService.show( $elGuide );
 	    			});
 	    			scope.$on("alarmGroupMember.configuration.addUser", function( event, oUser )  {
-						if ( currentUserGroupId == "" ) {
+						if ( currentUserGroupId === "" ) {
 							alarmBroadcastService.sendCallbackAddedUser( false );
 							return;
 						}
@@ -137,7 +137,7 @@
 								message: CONSTS.EXIST_A_SAME
 							});
 							alarmBroadcastService.sendCallbackAddedUser( true );
-						})
+						});
 	    			});
 	    			scope.$on("alarmGroupMember.configuration.updateUser", function( event, oUser )  {
 	    				if ( hasUser( oUser.userId ) ) {
@@ -186,7 +186,7 @@
 					cbSuccess( oUser );
 					alarmUtilService.hide( $elLoading );
 				}, function( oServerError ) {
-					cbFail( oServerError )
+					cbFail( oServerError );
 				} );
 			}
 		}

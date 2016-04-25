@@ -56,6 +56,6 @@
 		};
 		this.sendGroupMemberRemoved = function( oGroupMemberList, userId ) {
 			$rootScope.$broadcast( "alarmPinpointUser.configuration.groupUserRemoved", oGroupMemberList, userId );
-		}
+		};
 	}]);
 })(jQuery);
