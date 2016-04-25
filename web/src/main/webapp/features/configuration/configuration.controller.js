@@ -65,13 +65,13 @@
 			};
 			$scope.showAlarm = function() {
 				$scope.selectMember = false;
-			}
+			};
 			$scope.$on("configuration.show", function() {
 				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_CONFIGURATION );
 				$element.modal('show');
 				
 			});
-		}
+		} 
 	]);
 })(jQuery);
 	

@@ -129,7 +129,7 @@
 								return "sms";
 							}
 							if ( oRule.emailSend ) {
-								return "email"
+								return "email";
 							}
 						}
 						return "";
@@ -297,7 +297,7 @@
 							return "Email";
 						}
 					}
-				}
+				};
             }
         };
     }]);
