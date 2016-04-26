@@ -306,8 +306,7 @@
 				scope.$on("alarmPinpointUser.configuration.load", function( event, department ) {
 					cancelPreviousWork();
 					if ( bIsLoaded === false ) {
-						loadData( { "department": "OxygenTF" } );
-						// loadData( angular.isUndefined( department ) ? {} : { "department": department } );
+						loadData( angular.isUndefined( department ) ? {} : { "department": department } );
 					}
 				});
             }
