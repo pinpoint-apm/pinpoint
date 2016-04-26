@@ -134,7 +134,12 @@
 					oDefault[name] = v;
 				};
 			});
-			aFavoriteList = JSON.parse( webStorage.get(cfg.names.favorite) || "[]" );
+			try {
+				aFavoriteList = JSON.parse(webStorage.get(cfg.names.favorite) || "[]");
+			}catch(e){
+				aFavoriteList = [];
+				console.log( e );
+			}
 		}
 		
 	}]);

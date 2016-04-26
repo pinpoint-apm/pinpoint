@@ -33,8 +33,10 @@
     			var oPinpointUserList = [];
 				var oGroupMemberList = [];
 				scope.pinpointUserList = [];
-				scope.bIsAllowedCreate = globalConfig.editUserInfo;
-
+				
+				scope.getCreateAllow = function() {
+					return globalConfig.editUserInfo;
+				};
 				function cancelPreviousWork() {
 					AddPinpointUser.cancelAction( hideEditArea );
 					RemovePinpointUser.cancelAction( alarmUtilService, $workingNode );
@@ -71,7 +73,7 @@
 					for( var i = len ; i >= 0 ; i-- ) {
 						$ul.prepend( aEditNode[i] );
 					}
-					aEditNode[0].find("input").attr("disabled", "");
+					aEditNode[0].find("input").removeAttr("disabled");
 					alarmUtilService.hide( aEditNode[len].find( CONSTS.DIV_EDIT ) );
 					alarmUtilService.show( aEditNode[len].find( CONSTS.DIV_ADD ) );
 					$.each( aEditNode, function( index, $el ) {
