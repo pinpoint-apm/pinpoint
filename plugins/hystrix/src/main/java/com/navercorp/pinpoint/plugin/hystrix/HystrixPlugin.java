@@ -49,6 +49,17 @@ public class HystrixPlugin implements ProfilerPlugin, TransformTemplateAware {
     private void addTransformers() {
         transformTemplate.transform("com.netflix.hystrix.HystrixCommand", new HystrixCommandTransformer());
 
+        /*
+         * After com.netflix.hystrix:hystrix-core:1.4.1 the api changed. The run() in subclass will be called
+         * by com.netflix.hystrix.HystrixCommand$1.call() which is an inner class of HystrixCommand.
+         * The HystrixCommand$1's type is Observable from rxjava package.
+         * I choose HystrixCommand$1 to interceptor just because I found it in the call stack trace and it works.
+         * Maybe there is a better way to do it.
+         *
+         * There is one drawback to intercept HystrixCommand$1, when the caller get the result, this call method
+         * maybe still running some cleanup. This will cause HystrixCommand_1_4_x_IT integration test failure for the async trace
+         * was not generated when verify. Though I think this doesn't matter for real app.
+         */
         transformTemplate.transform("com.netflix.hystrix.HystrixCommand$1", new TransformCallback() {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {

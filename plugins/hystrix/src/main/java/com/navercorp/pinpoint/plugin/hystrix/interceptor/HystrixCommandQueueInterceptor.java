@@ -2,14 +2,19 @@ package com.navercorp.pinpoint.plugin.hystrix.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
 import com.navercorp.pinpoint.bootstrap.context.*;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor1;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.hystrix.HystrixPluginConstants;
 
 /**
  * @author Jiaqi Feng
  */
-public class HystrixCommandQueueInterceptor implements AroundInterceptor1 {
+public class HystrixCommandQueueInterceptor implements AroundInterceptor {
+    protected final PLogger logger = PLoggerFactory.getLogger(getClass());
+    protected final boolean isDebug = logger.isDebugEnabled();
+
     private final MethodDescriptor descriptor;
     private final TraceContext traceContext;
 
@@ -19,8 +24,11 @@ public class HystrixCommandQueueInterceptor implements AroundInterceptor1 {
     }
 
     @Override
-    public void before(Object target, Object arg0) {
-        System.out.println("HystrixCommandQueueInterceptor:-----------------------------------before "+target.getClass().getSimpleName());
+    public void before(Object target, Object[] args) {
+        if (isDebug) {
+            logger.beforeInterceptor(target,args);
+        }
+
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -41,7 +49,11 @@ public class HystrixCommandQueueInterceptor implements AroundInterceptor1 {
     }
 
     @Override
-    public void after(Object target, Object arg0, Object result, Throwable throwable) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        if (isDebug) {
+            logger.afterInterceptor(target, args, result, throwable);
+        }
+
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;

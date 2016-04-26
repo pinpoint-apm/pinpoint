@@ -88,6 +88,9 @@ public class HystrixObservableCallInterceptor implements AroundInterceptor {
     }
 
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncTraceId asyncTraceId, Object target, Object[] arqgs) {
+        if (isDebug) {
+            logger.debug("doInBeforeTrace()");
+        }
     }
 
     @Override
@@ -130,6 +133,9 @@ public class HystrixObservableCallInterceptor implements AroundInterceptor {
     }
 
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        if (isDebug) {
+            logger.debug("doInAfterTrace()");
+        }
         recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_SERVICE_TYPE);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
@@ -143,7 +149,6 @@ public class HystrixObservableCallInterceptor implements AroundInterceptor {
 
         try {
             Field field = target.getClass().getDeclaredField("this$0");
-            System.out.println("HystrixObservableCallInterceptor.getAsyncTraceId():  ----------------------------------- get this$0");
             if (field != null ) {
                 field.setAccessible(true);
                 cmd = field.get(target);

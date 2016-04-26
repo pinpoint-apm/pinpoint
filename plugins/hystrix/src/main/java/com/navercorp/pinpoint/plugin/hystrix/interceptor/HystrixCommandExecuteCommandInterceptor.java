@@ -5,6 +5,8 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.hystrix.HystrixPluginConstants;
 
 /**
@@ -12,6 +14,8 @@ import com.navercorp.pinpoint.plugin.hystrix.HystrixPluginConstants;
  * @author Jiaqi Feng
  */
 public class HystrixCommandExecuteCommandInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
+    protected final PLogger logger = PLoggerFactory.getLogger(getClass());
+    protected final boolean isDebug = logger.isDebugEnabled();
 
     public HystrixCommandExecuteCommandInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
@@ -19,11 +23,16 @@ public class HystrixCommandExecuteCommandInterceptor extends SpanAsyncEventSimpl
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncTraceId asyncTraceId, Object target, Object[] args) {
-        // do nothing
+        if (isDebug) {
+            logger.debug("HystrixCommandExecuteCommandInterceptor.doInBeforeTrace()");
+        }
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        if (isDebug) {
+            logger.debug("HystrixCommandExecuteCommandInterceptor.doInAfterTrace()");
+        }
         recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_SERVICE_TYPE);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
