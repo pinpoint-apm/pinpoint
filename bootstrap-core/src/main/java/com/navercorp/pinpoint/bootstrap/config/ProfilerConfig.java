@@ -43,6 +43,8 @@ public interface ProfilerConfig {
 
     int getStatDataSenderSocketTimeout();
 
+    String getStatDataSenderSocketType();
+
     int getSpanDataSenderWriteQueueSize();
 
     int getSpanDataSenderSocketSendBufferSize();
@@ -52,6 +54,8 @@ public interface ProfilerConfig {
     boolean isTraceAgentActiveThread();
 
     int getSpanDataSenderSocketTimeout();
+
+    String getSpanDataSenderSocketType();
 
     int getSpanDataSenderChunkSize();
 
