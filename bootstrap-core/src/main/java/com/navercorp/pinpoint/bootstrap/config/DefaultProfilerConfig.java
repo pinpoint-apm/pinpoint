@@ -16,6 +16,11 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
+import com.navercorp.pinpoint.bootstrap.logging.JavaLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
+import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
+import com.navercorp.pinpoint.common.util.PropertyUtils;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
@@ -27,11 +32,6 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-
-import com.navercorp.pinpoint.bootstrap.logging.JavaLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
-import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
-import com.navercorp.pinpoint.common.util.PropertyUtils;
 
 /**
  * @author emeroad
@@ -101,12 +101,14 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private int spanDataSenderSocketSendBufferSize = 1024 * 64 * 16;
     private int spanDataSenderSocketTimeout = 1000 * 3;
     private int spanDataSenderChunkSize = 1024 * 16;
+    private String spanDataSenderSocketType = "OIO";
 
     private int statDataSenderWriteQueueSize = 1024 * 5;
     private int statDataSenderSocketSendBufferSize = 1024 * 64 * 16;
     private int statDataSenderSocketTimeout = 1000 * 3;
     private int statDataSenderChunkSize = 1024 * 16;
-    
+    private String statDataSenderSocketType = "OIO";
+
     private boolean tcpDataSenderCommandAcceptEnable = false;
 
     private boolean traceAgentActiveThread = true;
@@ -248,6 +250,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
+    public String getStatDataSenderSocketType() {
+        return statDataSenderSocketType;
+    }
+
+    @Override
     public int getSpanDataSenderWriteQueueSize() {
         return spanDataSenderWriteQueueSize;
     }
@@ -270,6 +277,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public int getSpanDataSenderSocketTimeout() {
         return spanDataSenderSocketTimeout;
+    }
+
+    @Override
+    public String getSpanDataSenderSocketType() {
+        return spanDataSenderSocketType;
     }
 
     @Override
@@ -568,11 +580,13 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.spanDataSenderSocketSendBufferSize = readInt("profiler.spandatasender.socket.sendbuffersize", 1024 * 64 * 16);
         this.spanDataSenderSocketTimeout = readInt("profiler.spandatasender.socket.timeout", 1000 * 3);
         this.spanDataSenderChunkSize = readInt("profiler.spandatasender.chunk.size", 1024 * 16);
+        this.spanDataSenderSocketType = readString("profiler.spandatasender.socket.type", "OIO");
 
         this.statDataSenderWriteQueueSize = readInt("profiler.statdatasender.write.queue.size", 1024 * 5);
         this.statDataSenderSocketSendBufferSize = readInt("profiler.statdatasender.socket.sendbuffersize", 1024 * 64 * 16);
         this.statDataSenderSocketTimeout = readInt("profiler.statdatasender.socket.timeout", 1000 * 3);
         this.statDataSenderChunkSize = readInt("profiler.statdatasender.chunk.size", 1024 * 16);
+        this.statDataSenderSocketType = readString("profiler.statdatasender.socket.type", "OIO");
 
         this.tcpDataSenderCommandAcceptEnable = readBoolean("profiler.tcpdatasender.command.accept.enable", false);
 
@@ -817,6 +831,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append(spanDataSenderSocketTimeout);
         builder.append(", spanDataSenderChunkSize=");
         builder.append(spanDataSenderChunkSize);
+        builder.append(", spanDataSenderSocketType=");
+        builder.append(spanDataSenderSocketType);
         builder.append(", statDataSenderWriteQueueSize=");
         builder.append(statDataSenderWriteQueueSize);
         builder.append(", statDataSenderSocketSendBufferSize=");
@@ -825,6 +841,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append(statDataSenderSocketTimeout);
         builder.append(", statDataSenderChunkSize=");
         builder.append(statDataSenderChunkSize);
+        builder.append(", statDataSenderSocketType=");
+        builder.append(statDataSenderSocketType);
         builder.append(", tcpDataSenderCommandAcceptEnable=");
         builder.append(tcpDataSenderCommandAcceptEnable);
         builder.append(", traceAgentActiveThread=");
