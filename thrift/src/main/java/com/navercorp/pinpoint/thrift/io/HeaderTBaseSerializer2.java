@@ -13,7 +13,7 @@ import java.io.OutputStream;
  *
  * @Author Taejin Koo
  */
-public class HeaderTBaseSerializer2 implements PinpointTBaseSerializer {
+public class HeaderTBaseSerializer2 {
 
     private static final String UTF8 = "UTF8";
 
@@ -27,7 +27,6 @@ public class HeaderTBaseSerializer2 implements PinpointTBaseSerializer {
         this.tBaseLocator = tBaseLocator;
     }
 
-    @Override
     public void serialize(TBase<?, ?> base, OutputStream outputStream) throws TException {
         tOutputStreamTransport.open(outputStream);
         try {
