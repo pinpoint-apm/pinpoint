@@ -32,8 +32,8 @@
 				scope.ruleSets = [];
 
 				function cancelPreviousWork() {
-					AddAlarm.cancelAction( alarmUtilService, aEditNodes );
-					RemoveAlarm.cancelAction( alarmUtilService, $workingNode );
+					AddAlarm.cancelAction( hideEditArea );
+					RemoveAlarm.cancelAction( alarmUtilService, $workingNode, hideEditArea );
 					UpdateAlarm.cancelAction( alarmUtilService, $workingNode, aEditNodes );
 				}
 				function isSameNode( $current ) {
@@ -109,6 +109,7 @@
 					}).on("change", function (e) {});
 				}
 				function showAddArea() {
+					$elWrapper.find("tbody").prepend( aEditNodes[1] ).prepend( aEditNodes[0] );
 					alarmUtilService.hide( aEditNodes[0].find( CONSTS.DIV_EDIT ) );
 					alarmUtilService.show( aEditNodes[0].find( CONSTS.DIV_ADD ) );
 					$.each( aEditNodes, function( index, $el ) {
@@ -168,9 +169,6 @@
 					}
 					return oRule;
 				}
-				function getNode( $event ) {
-					return $( $event.toElement || $event.target ).parents("tr");
-				}
 				function searchRule( ruleId ) {
 					for( var i = 0 ; i < oRuleList.length ; i++ ) {
 						if ( oRuleList[i].ruleId == ruleId ) {
@@ -192,9 +190,8 @@
 					}
 					cancelPreviousWork();
 					AddAlarm.onAction( function() {
-						$elWrapper.find("tbody").prepend( aEditNodes[1] ).prepend( aEditNodes[0] );
 						showAddArea();
-					} );
+					});
 				};
 				scope.onApplyAddAlarm = function() {
 					AddAlarm.applyAction( alarmUtilService, getNewRule(), $elLoading, function( application, rule ) {
@@ -210,12 +207,10 @@
 					}, showAlert );
 				};
 				scope.onCancelAddAlarm = function() {
-					AddAlarm.cancelAction( function() {
-						hideEditArea();
-					});
+					AddAlarm.cancelAction( hideEditArea );
 				};
 				scope.onRemoveAlarm = function( $event ) {
-					var $node = getNode( $event );
+					var $node = alarmUtilService.getNode( $event, "tr" );
 					if ( $workingNode !== null && isSameNode( $node ) === false ) {
 						cancelPreviousWork( $node );
 					}
@@ -239,16 +234,14 @@
 				};
 				scope.onUpdateAlarm = function( $event ) {
 					cancelPreviousWork();
-					$workingNode = getNode( $event );
+					$workingNode = alarmUtilService.getNode( $event, "tr" );
 					UpdateAlarm.onAction( alarmUtilService, $workingNode, function( ruleId ) {
 						$workingNode.after( aEditNodes[1] ).after( aEditNodes[0] );
 						showEditArea( searchRule( ruleId ) );
 					});
 				};
 				scope.onCancelUpdateAlarm = function() {
-					UpdateAlarm.cancelAction( alarmUtilService, $workingNode, function() {
-						hideEditArea();
-					});
+					UpdateAlarm.cancelAction( alarmUtilService, $workingNode, hideEditArea );
 				};
 				scope.onApplyUpdateAlarm = function() {
 					UpdateAlarm.applyAction( alarmUtilService, getNewRule( alarmUtilService.extractID( $workingNode ) ), $workingNode, $elLoading, function( ruleId, application, rule ) {
@@ -350,11 +343,13 @@
 		_bIng: false,
 		onAction: function( alarmUtilService, $node ) {
 			this._bIng = true;
+			$node.addClass("remove");
 			alarmUtilService.hide( $node.find( CONSTS.DIV_NORMAL ) );
 			alarmUtilService.show( $node.find( CONSTS.DIV_REMOVE ) );
 		},
 		cancelAction: function( alarmUtilService, $node ) {
 			if ( this._bIng === true ) {
+				$node.removeClass("remove");
 				alarmUtilService.hide($node.find( CONSTS.DIV_REMOVE ));
 				alarmUtilService.show($node.find( CONSTS.DIV_NORMAL ));
 				this._bIng = false;

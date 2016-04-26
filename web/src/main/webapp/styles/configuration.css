@@ -49,14 +49,6 @@
 	width: 100%;
 	height: 100%;
 }
-/*
-#pinpoint-configuration .some-list .btn{
-	border-radius: 0px;
-	font-size: 16px;
-	padding-top: 3px;
-	padding-bottom: 3px;
-}
-*/
 #pinpoint-configuration .some-list-header {
 	height: 41px;
     padding: 10px 10px 0px 10px;
@@ -71,13 +63,6 @@
     padding: 3px 4px 0px 4px;
     border-bottom: 1px solid #E2E2E2;
     vertical-align: middle;
-}
-#pinpoint-configuration .some-list-search input {
-    border: 1px solid #46BCFD;
-}
-
-#pinpoint-configuration .some-list-header .title {
-
 }
 #pinpoint-configuration .left { 
 	float: left;
@@ -95,9 +80,9 @@
 	height: 416px;
 	overflow-y: auto;
 }
-#pinpoint-configuration .some-list-content ul { 
-	list-style-type: none;
+#pinpoint-configuration .some-list-content ul {
 	padding:0px 0px 4px 0px;
+    list-style-type: none;
 }
 #pinpoint-configuration .some-list-content li {
 	cursor: pointer;
@@ -108,17 +93,23 @@
 #pinpoint-configuration .some-list-content li input[type=text] {
     width: 220px;
     color: #000;
-    display: inline-block;
     display: none;
 }
 #pinpoint-configuration .some-list-content li input[type=checkbox] {
-    float: right;
+    float: left;
     margin-top: 4px;
     line-height: 12px;
-    margin-right: 10px;
-    padding-left: 4px;
-    padding-right: 4px;
 }
+#pinpoint-configuration .some-list-content li.remove {
+    background-color: #FEF4F4;
+}
+#pinpoint-configuration .some-list-content li.edit {
+    background-color: #F3FBFF;
+}
+#pinpoint-configuration .some-list-content li.remove span.contents {
+    color: #EF4B55;
+}
+
 
 #pinpoint-configuration .some-list-content li.selected {
 	background-color: #46BCFD;
@@ -178,14 +169,8 @@
 #pinpoint-configuration .some-list-content li.new-group input {
     width: 210px;
     color: #000;
-    border: 0px solid #FFF;
     display: inline-block;
-    background-color: #F3FBFF;
-}
-
-#pinpoint-configuration .some-list-content li.remove:hover {
-	background-color: #EFABAB;
-	color: #000;
+    border: 1px solid #CCC;
 }
 #pinpoint-configuration .some-list-content .wrapper .empty-list {
 	text-align: center;
@@ -285,12 +270,19 @@
 	cursor: pointer;
     background-color: #FAFAFA;
 }
-#pinpoint-configuration .some-table .some-list-content tr:hover,
-#pinpoint-configuration .some-list-content tr:hover span.remove,
-#pinpoint-configuration .some-list-content tr:hover span.remove-cancel,
-#pinpoint-configuration .some-list-content tr:hover span.edit,
-#pinpoint-configuration .some-list-content tr:hover span.edit-confirm {
+#pinpoint-configuration .some-list-content tbody tr:hover,
+#pinpoint-configuration .some-list-content tbody tr:hover span.remove,
+#pinpoint-configuration .some-list-content tbody tr:hover span.remove-cancel,
+#pinpoint-configuration .some-list-content tbody tr:hover span.edit,
+#pinpoint-configuration .some-list-content tbody tr:hover span.edit-confirm {
     color: #000;
+}
+#pinpoint-configuration .some-list-content tr.remove {
+    background-color: #FEF4F4;
+}
+#pinpoint-configuration .some-list-content tr.remove td {
+    background-color: #FEF4F4;
+    color: #EF4B55;
 }
 #pinpoint-configuration .some-list-content tr span.remove-confirm {
     color: #F00 !important;
@@ -472,5 +464,14 @@
 	font-size: 14px;
     text-align: left;
     padding-bottom: 4px;
-
 }
+.blink-blink {
+    animation: back-blink 1s;
+    animation-iteration-count: infinite;
+}
+@keyframes back-blink {
+    0% {background-color: #F3FBFF;}
+    50% {background-color: #F00;}
+    100% {background-color: #FF0 }
+}
+
