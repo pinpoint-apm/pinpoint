@@ -5,7 +5,7 @@
 	</div>
 	<div class="some-list-search">
 		<div class="input-group">
-			<input type="text" class="form-control" placeholder="Enter at least 4 letters to search" ng-keydown="onSearchKeydown()"/>
+			<input type="text" class="form-control" placeholder="Enter at least 3 letters to search" ng-keydown="onSearchKeydown($event)"/>
 			<span class="input-group-btn">
 				<button class="btn btn-default" type="button" ng-click="onSearch()">
 					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
@@ -17,13 +17,13 @@
 		<div class="wrapper"><ul>
 			<li class="new-group hide-me">
 				<span class="contents"></span>
-				<input type="text" placeholder="New Group" ng-keydown="onAddUserGroupKeydown($event)"/>
+				<input type="text" placeholder="New Group" style="height:22px" ng-keydown="onAddUserGroupKeydown($event)"/>
 				<span class="glyphicon glyphicon-remove remove" aria-hidden="true" ng-click="onCancelAddUserGroup()"></span>
-				<span class="glyphicon glyphicon-pencil edit" aria-hidden="true" ng-click="onApplyAddUserGroup()"></span>
+				<span class="glyphicon glyphicon-ok edit" aria-hidden="true" ng-click="onApplyAddUserGroup()"></span>
 			</li>
 			<li ng-repeat="userGroup in userGroupList" id="{{prefix + userGroup.number}}">
 				<span class="contents">{{userGroup.id}}</span>
-				<input type="text" ng-keydown="onUpdateuserGroupKeydown($event)"/>
+				<input type="text" style="height:22px" ng-keydown="onUpdateuserGroupKeydown($event)"/>
 				<div style="float:right" class="_normal">
 					<span class="glyphicon glyphicon-remove remove" aria-hidden="true" ng-click="onRemoveUserGroup($event)"></span>
 					<span class="glyphicon glyphicon-pencil edit" aria-hidden="true" ng-click="onUpdateUserGroup($event)"></span>

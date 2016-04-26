@@ -9,8 +9,7 @@
 	 * @class
 	 */	
 	pinpointApp.constant('AlarmUtilServiceConfig', {
-		"hideClass": "hide-me",
-		"hasNotEditClass": "has-not-edit"
+		"hideClass": "hide-me"
 	});
 	
 	pinpointApp.service( "AlarmUtilService", [ "AlarmUtilServiceConfig", "AlarmAjaxService", "globalConfig", function ( $config, $ajaxService, globalConfig ) {
@@ -22,15 +21,6 @@
 			for( var i = 0 ; i < arguments.length ; i++ ) {
 				arguments[i].addClass( $config.hideClass );
 			}
-		};
-		// this.showLoading = function( $elLoading, isEdit ) {
-		// 	$elLoading[ isEdit ? "removeClass" : "addClass" ]( $config.hasNotEditClass );
-		// 	$elLoading.removeClass( $config.hideClass );
-		// };
-		this.showAlert = function( $elAlert, message ) {
-			$elAlert.find(".message").html( message ).end().removeClass( $config.hideClass ).animate({
-				height: 300
-			}, 500, function() {});
 		};
 		this.sendCRUD = function( funcName, data, successCallback, failCallback ) {
 			if ( ( angular.isUndefined( data ) || data === "" ) ) {
@@ -46,66 +36,6 @@
 					successCallback( resultData );
 				}
 			});
-			/*
-			switch( funcName ) {
-				case "getGroupMemberListInGroup":
-					successCallback([{
-						memberId: 1,
-						department: "Paas",
-						name: "정민우"
-					},{
-						memberId: 2,
-						department: "Paas",
-						name: "정현길"
-					}]);
-					break;
-				case "removeMemberInGroup":
-					successCallback();
-					break;
-				case "getUserGroupList":
-					successCallback([{
-						number: 1,
-						id: "pinpoint-monitor-group"
-					}, {
-						number: 2,
-						id: "pinpoint-dev-group"
-					}]);
-					break;
-				case "getPinpointUserList":
-					successCallback([{
-						userId: 1,
-						department: "PaaS",
-						name: "김성관"
-					},{
-						userId: 2,
-						department: "PaaS",
-						name: "문성호"
-					},{
-						userId: 3,
-						department: "PaaS",
-						name: "송효종"
-					},{
-						userId: 4,
-						department: "PaaS",
-						name: "정민우"
-					}]);
-					break;
-				case "createUserGroup":
-					successCallback({
-						id: data.id,
-						number: parseInt( Math.random() * 10000 )
-					});
-					break;
-				case "updateUserGroup":
-					successCallback();
-					break;
-				case "removeUserGroup":
-					successCallback();
-					break;
-				default:
-					break;
-			}
-			*/
 		};
 		this.setTotal = function( $elTotal, n ) {
 			$elTotal.html( "(" + n + ")");
@@ -113,7 +43,7 @@
 		this.hasDuplicateItem = function( list, func ) {
 			var len = list.length;
 			var has = false;
-			for( var i = 0 ; i < list.length ; i++ ) {
+			for( var i = 0 ; i < len ; i++ ) {
 				if ( func( list[i] ) ) {
 					has = true;
 					break;
@@ -130,6 +60,9 @@
 		};
 		this.extractID = function( $el ) {
 			return $el.prop("id").split("_")[1];
+		};
+		this.getNode = function( $event, tagName ) {
+			return $( $event.toElement || $event.target ).parents( tagName );
 		};
 	}]);
 })(jQuery);

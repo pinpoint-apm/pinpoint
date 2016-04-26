@@ -18,7 +18,7 @@
 	pinpointApp.controller('ConfigurationCtrl', [ '$scope','$element', 'ConfigurationConfig', 'AnalyticsService',
 	    function ($scope, $element, $constant, analyticsService) {
 
-			$scope.selectMember = false;
+			$scope.selectMember = true;
 			$scope.currentTab = $constant.menu.GENERAL;
 			
 			// define isGeneral(), isAlram()... func. 

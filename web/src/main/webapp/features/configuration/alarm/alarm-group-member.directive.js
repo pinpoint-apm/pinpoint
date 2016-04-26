@@ -31,9 +31,6 @@
 					function cancelPreviousWork() {
 						RemoveGroupMember.cancelAction( alarmUtilService, $workingNode );
 					}
-					function getNode( $event ) {
-						return $( $event.toElement || $event.target ).parents("li");
-					}
 					function showAlert( oServerError ) {
 						$elAlert.find( ".message" ).html( oServerError.errorMessage );
 						alarmUtilService.hide( $elLoading );
@@ -42,6 +39,7 @@
 					function initData() {
 						oGroupMemberList = [];
 						scope.groupMemberList = [];
+						alarmUtilService.setTotal( $elTotal, oGroupMemberList.length );
 					}
 					function hasUser( userID ) {
 						return $( "#" + scope.prefix + userID ).length > 0;
@@ -66,10 +64,10 @@
 
 					// remove process
 					scope.onRemoveGroupMember = function( $event ) {
-						if ( $workingNode !== null && isSameNode( getNode( $event ) ) === false ) {
+						if ( $workingNode !== null && isSameNode( alarmUtilService.getNode( $event, "li" ) ) === false ) {
 							cancelPreviousWork();
 						}
-						$workingNode = getNode( $event );
+						$workingNode = alarmUtilService.getNode( $event, "li" );
 						RemoveGroupMember.onAction( alarmUtilService, $workingNode );
 					};
 					scope.onApplyRemoveGroupMember = function() {
@@ -96,7 +94,15 @@
 
 					// sort
 					scope.onSortGroupMember = function() {
-						console.log( "sort group member ");
+						if ( currentUserGroupId === "" ) return;
+
+						var oSortedGroupMemberList = [];
+						var len = oGroupMemberList.length - 1;
+						for( var j = 0, i = len ; i >= 0 ; j++, i-- ) {
+							oSortedGroupMemberList[j] = oGroupMemberList[i];
+						}
+						oGroupMemberList = oSortedGroupMemberList;
+						scope.groupMemberList = oGroupMemberList;
 					};
 
 					// other
