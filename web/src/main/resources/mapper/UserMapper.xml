@@ -41,13 +41,15 @@
     <select id="selectUserByDepartment" resultType="User">
         SELECT *
         FROM puser
-        WHERE department = #{department}
+        WHERE department = #{department} 
+        ORDER BY name
     </select>
 
     <select id="selectUserByUserName" resultType="User">
         SELECT *
         FROM puser
-        WHERE name = #{name}
+        WHERE name = #{name} 
+        ORDER BY department
     </select>
     
     <update id="updateUser" parameterType="User">

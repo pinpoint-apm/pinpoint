@@ -85,16 +85,16 @@ public class UserController {
     
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public Object getUser(@RequestParam(value="userId", required=false) String userId, @RequestParam(value="userName", required=false) String userName, @RequestParam(value="department", required=false) String department) {
+    public Object getUser(@RequestParam(value="userId", required=false) String userId, @RequestParam(value="searchKey", required=false) String searchKey) {
         try {
             if(userId != null) {
                 List<User> users = new ArrayList<>(1);
                 users.add(userService.selectUserByUserId(userId));
                 return users;
-            } else if (userName != null) {
-                return userService.selectUserByUserName(userName);
-            } else if (department != null) {
-                return userService.selectUserByDepartment(department);
+            } else if (searchKey != null) {
+                List<User> users = userService.selectUserByDepartment(searchKey);
+                users.addAll(userService.selectUserByUserName(searchKey));
+                return users;
             } else {
                 return userService.selectUser();
             }
