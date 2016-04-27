@@ -466,12 +466,17 @@
     padding-bottom: 4px;
 }
 .blink-blink {
+    background-color: rgba( 255, 0, 0, 0.4 ) !important;
+    /*
     animation: back-blink 1s;
-    animation-iteration-count: infinite;
+    animation-iteration-count: 2;
+    */
 }
+/*
 @keyframes back-blink {
-    0% {background-color: #F3FBFF;}
-    50% {background-color: #F00;}
-    100% {background-color: #FF0 }
+    0% {background-color: rgba( 255, 0, 0, 0.2 )}
+    50% {background-color: rgba( 255, 0, 0, 0.5 ) }
+    100% {background-color: rgba( 255, 0, 0, 0.2 ) }
 }
+*/
 

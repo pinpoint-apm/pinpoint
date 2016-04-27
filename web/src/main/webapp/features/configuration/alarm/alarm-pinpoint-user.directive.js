@@ -38,8 +38,9 @@
 					return globalConfig.editUserInfo;
 				};
 				function cancelPreviousWork() {
-					AddPinpointUser.cancelAction( hideEditArea );
+					AddPinpointUser.cancelAction( aEditNode, hideEditArea );
 					RemovePinpointUser.cancelAction( alarmUtilService, $workingNode );
+					UpdatePinpointUser.cancelAction( alarmUtilService, aEditNode, $workingNode, hideEditArea );
 				}
 				function showAlert( oServerError ) {
 					$elAlert.find( ".message" ).html( oServerError.errorMessage );
@@ -79,7 +80,7 @@
 					$.each( aEditNode, function( index, $el ) {
 						alarmUtilService.show( $el );
 					});
-					aEditNode[0].focus();
+					aEditNode[0].find("input").focus();
 				}
 				function showEditArea( oPinpointUser ) {
 					var len = aEditNode.length - 1;
@@ -122,14 +123,6 @@
 					};
 					return oPinpointUser;
 				}
-				function validateEmail( email ) {
-					var reg = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-					return reg.test(email);
-				}
-				function validatePhone( phone ) {
-					var reg = /^\d+$/;
-					return reg.test(phone);
-				}
 				function isSameNode( $current ) {
 					return alarmUtilService.extractID( $workingNode ) === alarmUtilService.extractID( $current );
 				}
@@ -152,7 +145,7 @@
 					});
 				};
 				scope.onCancelAddPinpointUser = function() {
-					AddPinpointUser.cancelAction( function() {
+					AddPinpointUser.cancelAction( aEditNode, function() {
 						hideEditArea();
 					});
 				};
@@ -160,12 +153,12 @@
 					applyAddPinpointUser();
 				};
 				function applyAddPinpointUser() {
-					AddPinpointUser.applyAction( alarmUtilService, getNewPinpointUser(), $elLoading, function( oNewPinpointUser  ) {
+					AddPinpointUser.applyAction( alarmUtilService, getNewPinpointUser(), aEditNode, $elLoading, function( oNewPinpointUser  ) {
 						analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_CREATE_PINPOINT_USER );
 						oPinpointUserList.push( oNewPinpointUser );
 						scope.pinpointUserList = oPinpointUserList;
 						hideEditArea();
-						alarmUtilService.setTotal( $elTotal, oPinpointUserList.length );
+						alarmUtilService.setTotal( $elTotal, getTotal() );
 					}, showAlert );
 				}
 				// remove
@@ -188,8 +181,10 @@
 								break;
 							}
 						}
-						scope.pinpointUserList = oPinpointUserList;
-						alarmUtilService.setTotal( $elTotal, oPinpointUserList.length );
+						scope.$apply(function() {
+							scope.pinpointUserList = oPinpointUserList;
+						});
+						alarmUtilService.setTotal( $elTotal, getTotal() );
 						alarmBroadcastService.sendUserRemoved( userId );
 					}, showAlert );
 				};
@@ -202,10 +197,10 @@
 					});
 				};
 				scope.onCancelUpdatePinpointUser = function() {
-					UpdatePinpointUser.cancelAction( alarmUtilService, $workingNode, hideEditArea );
+					UpdatePinpointUser.cancelAction( alarmUtilService, aEditNode, $workingNode, hideEditArea );
 				};
 				scope.onApplyUpdatePinpointUser = function() {
-					UpdatePinpointUser.applyAction( alarmUtilService, getNewPinpointUser(), $workingNode, $elLoading, function( oPinpointUser ) {
+					UpdatePinpointUser.applyAction( alarmUtilService, getNewPinpointUser(), aEditNode, $workingNode, $elLoading, function( oPinpointUser ) {
 
 						for( var i = 0 ; i < oPinpointUserList.length ; i++ ) {
 							if ( oPinpointUserList[i].userId == oPinpointUser.userId ) {
@@ -217,10 +212,27 @@
 							}
 						}
 						scope.pinpointUserList = oPinpointUserList;
+						hideEditArea();
 						alarmBroadcastService.sendUserUpdated( oPinpointUser );
 					}, showAlert );
 				};
 
+				scope.onEditPinpointUserKeydown = function( $event ) {
+					if ( $event.keyCode == 13 ) { // Enter
+						if ( AddPinpointUser.isOn() ) {
+							scope.onApplyAddPinpointUser();
+						} else {
+							scope.onApplyUpdatePinpointUser();
+						}
+					} else if ( $event.keyCode == 27 ) { // ESC
+						if ( AddPinpointUser.isOn() ) {
+							scope.onCancelAddPinpointUser();
+						} else {
+							scope.onCancelUpdatePinpointUser();
+						}
+						$event.stopPropagation();
+					}
+				};
 				scope.onSearchKeydown = function( $event ) {
 					if ( $event.keyCode == 13 ) { // Enter
 						scope.onSearch();
@@ -232,14 +244,13 @@
 					cancelPreviousWork();
 					var query = $.trim( $elSearch.val() );
 
-					if ( query.length < 3 ) {
+					if ( query.length < CONSTS.MIN_SEARCH_LENGTH ) {
 						$elSearch.focus();
 						return;
 					}
 					alarmUtilService.show( $elLoading );
 					analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_FILTER_PINPOINT_USER );
-					loadData({ "userName": query });
-					// { "department" :query }
+					loadData({ "searchKey": query });
 				};
 				scope.checkUser = function( $event ) {
 					alarmUtilService.show( $elLoading );
@@ -252,16 +263,7 @@
 					}
 				};
 				scope.$on("alarmPinpointUser.configuration.groupUserRemoved", function( event, list, userId ) {
-					oGroupMemberList = list;
-					$.each( oPinpointUserList, function( index, oPinpointUser ) {
-						oPinpointUser.has = false;
-						for( var i = 0 ; i < oGroupMemberList.length ; i++ ) {
-							if ( oPinpointUser.userId == oGroupMemberList[i].memberId ) {
-								oPinpointUser.has = true;
-								break;
-							}
-						}
-					});
+					resetList( list );
 					scope.$apply(function() {
 						scope.pinpointUserList = oPinpointUserList;
 					});
@@ -269,6 +271,12 @@
 				});
 				scope.$on("alarmPinpointUser.configuration.groupLoaded", function( event, list ) {
 					$elWrapper.removeClass( "_disable-check" );
+					console.log( list );
+					resetList( list );
+					scope.pinpointUserList = oPinpointUserList;
+					alarmUtilService.setTotal( $elTotal, getTotal() );
+				});
+				function resetList( list ) {
 					oGroupMemberList = list;
 					$.each( oPinpointUserList, function( index, oPinpointUser ) {
 						oPinpointUser.has = false;
@@ -279,9 +287,7 @@
 							}
 						}
 					});
-					scope.pinpointUserList = oPinpointUserList;
-					alarmUtilService.setTotal( $elTotal, getTotal() );
-				});
+				}
 				scope.$on("alarmPinpointUser.configuration.selectNone", function() {
 					$elWrapper.addClass( "_disable-check" );
 					$.each( oPinpointUserList, function( index, oPinpointUser ) {
@@ -292,11 +298,6 @@
 					alarmUtilService.setTotal( $elTotal, getTotal() );
 				});
 				scope.$on("alarmPinpointUser.configuration.addUserCallback", function( event, list ) {
-					if ( list.length > oGroupMemberList.length ) {
-						//success
-					} else {
-						//fail
-					}
 					oGroupMemberList = list;
 					alarmUtilService.setTotal( $elTotal, getTotal() );
 
@@ -308,7 +309,7 @@
 				scope.$on("alarmPinpointUser.configuration.load", function( event, department ) {
 					cancelPreviousWork();
 					if ( bIsLoaded === false ) {
-						loadData( angular.isUndefined( department ) ? {} : { "department": department } );
+						loadData( angular.isUndefined( department ) ? {} : { "searchKey": department } );
 					}
 				});
             }
@@ -316,6 +317,7 @@
     }]);
 
 	var CONSTS = {
+		MIN_SEARCH_LENGTH : 2,
 		INPUT_USERID_AND_NAME: "Input user id and name",
 		INPUT_PHONE_OR_EMAIL: "Input phone number or email",
 		YOU_CAN_ONLY_INPUT_NUMBERS: "You can only input numbers",
@@ -335,28 +337,33 @@
 			this._bIng = true;
 			cb();
 		},
-		cancelAction: function( cbCancel ) {
+		cancelAction: function( aEditNode, cbCancel ) {
 			if ( this._bIng === true ) {
+				removeBlink(aEditNode );
 				cbCancel();
 				this._bIng = false;
 			}
 		},
-		applyAction: function( alarmUtilService, oNewPinpointUser, $elLoading, cbSuccess, cbFail ) {
+		applyAction: function( alarmUtilService, oNewPinpointUser, aEditNode, $elLoading, cbSuccess, cbFail ) {
 			var self = this;
 			alarmUtilService.show( $elLoading );
 			if ( oNewPinpointUser.userId === "" || oNewPinpointUser.name === "" ) {
+				addBlink( aEditNode );
 				cbFail({ errorMessage: CONSTS.INPUT_USERID_AND_NAME });
 				return;
 			}
 			if ( oNewPinpointUser.phoneNumber === "" && oNewPinpointUser.email === "" ) {
+				addBlink( aEditNode );
 				cbFail({ errorMessage: CONSTS.INPUT_PHONE_OR_EMAIL });
 				return;
 			}
-			if ( oNewPinpointUser.phoneNumber !== "" && validatePhone( oNewPinpointUser.phoneNumber ) ) {
+			if ( oNewPinpointUser.phoneNumber !== "" && validatePhone( oNewPinpointUser.phoneNumber ) === false ) {
+				addBlink( aEditNode );
 				cbFail({ errorMessage: CONSTS.YOU_CAN_ONLY_INPUT_NUMBERS });
 				return;
 			}
-			if ( oNewPinpointUser.email !== "" && validateEmail( oNewPinpointUser.email ) ) {
+			if ( oNewPinpointUser.email !== "" && validateEmail( oNewPinpointUser.email ) === false ) {
+				addBlink( aEditNode );
 				cbFail({ errorMessage: CONSTS.INVALID_EMAIL_FORMAT });
 				return;
 			}
@@ -364,7 +371,7 @@
 			alarmUtilService.sendCRUD( "createPinpointUser", oNewPinpointUser, function( oServerData ) {
 				oNewPinpointUser.number = oServerData.number;
 				cbSuccess( oNewPinpointUser );
-				self.cancelAction( function() {} );
+				self.cancelAction( aEditNode, function() {} );
 				alarmUtilService.hide( $elLoading );
 			}, function( oServerError ) {
 				cbFail( oServerError );
@@ -395,7 +402,7 @@
 			var userId = alarmUtilService.extractID( $node );
 			alarmUtilService.sendCRUD( "removePinpointUser", { "userId": userId }, function( oServerData ) {
 				cbSuccess( userId );
-				self.cancel( alarmUtilService, $node );
+				self.cancelAction( alarmUtilService, $node );
 				alarmUtilService.hide( $elLoading );
 			}, function( oServerError ) {
 				cbFail( oServerError );
@@ -412,41 +419,65 @@
 			alarmUtilService.hide( $node );
 			cb( alarmUtilService.extractID( $node ) );
 		},
-		cancelAction: function( alarmUtilService, $node, cbCancel ) {
+		cancelAction: function( alarmUtilService, aEditNode, $node, cbCancel ) {
 			if ( this._bIng === true ) {
 				cbCancel();
+				removeBlink( aEditNode );
 				alarmUtilService.show( $node );
 				this._bIng = false;
 			}
 		},
-		applyAction: function (alarmUtilService, oPinpointUser, $node, $elLoading, cbSuccess, cbFail) {
+		applyAction: function (alarmUtilService, oPinpointUser, aEditNode, $node, $elLoading, cbSuccess, cbFail) {
 			var self = this;
 			alarmUtilService.show($elLoading);
 
 			if ( oPinpointUser.name === "" ) {
+				addBlink( aEditNode );
 				cbFail({ errorMessage: CONSTS.INPUT_USERID_AND_NAME });
 				return;
 			}
 			if ( oPinpointUser.phoneNumber === "" && oPinpointUser.email === "" ) {
+				addBlink( aEditNode );
 				cbFail({ errorMessage: CONSTS.INPUT_PHONE_OR_EMAIL });
 				return;
 			}
-			if ( oPinpointUser.phoneNumber !== "" && validatePhone( oPinpointUser.phoneNumber ) ) {
+			if ( oPinpointUser.phoneNumber !== "" && validatePhone( oPinpointUser.phoneNumber ) === false ) {
+				addBlink( aEditNode );
 				cbFail({ errorMessage: CONSTS.YOU_CAN_ONLY_INPUT_NUMBERS });
 				return;
 			}
-			if ( oPinpointUser.email !== "" && validateEmail( oPinpointUser.email ) ) {
+			if ( oPinpointUser.email !== "" && validateEmail( oPinpointUser.email ) === false ) {
+				addBlink( aEditNode );
 				cbFail({ errorMessage: CONSTS.INVALID_EMAIL_FORMAT });
 				return;
 			}
 
 			alarmUtilService.sendCRUD( "updatePinpointUser", oPinpointUser, function( oServerData ) {
-				self.cancelAction( alarmUtilService, $node, function () {});
+				self.cancelAction( alarmUtilService, aEditNode, $node, function () {});
 				cbSuccess( oPinpointUser );
 				alarmUtilService.hide($elLoading);
 			}, function( oServerError ) {
 				cbFail( oServerError );
 			} );
 		}
+	};
+	function validateEmail( email ) {
+		var reg = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+		return reg.test(email);
 	}
+	function validatePhone( phone ) {
+		var reg = /^\d+$/;
+		return reg.test(phone);
+	}
+	function addBlink( a ) {
+		$.each( a, function( index, $el ) {
+			$el.addClass("blink-blink");
+		});
+	}
+	function removeBlink( a ) {
+		$.each( a, function( index, $el ) {
+			$el.removeClass("blink-blink");
+		});
+	}
+
 })(jQuery);

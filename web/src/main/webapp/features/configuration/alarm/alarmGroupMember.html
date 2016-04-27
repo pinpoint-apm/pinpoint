@@ -1,7 +1,7 @@
 <div class="some-list" style="width:300px;height:459px">
 	<div class="some-list-header" style="background-color:#9A9A9A;color:#FFF;">
 		<span class="title">Group Member <span class="total"></span></span>
-		<span class="glyphicon glyphicon-sort right" style="cursor:pointer" ng-click="onSortGroupMember()"></span>
+		<span class="glyphicon glyphicon-sort right" style="cursor:pointer;opacity:{{canSort()}}" ng-click="onSortGroupMember()"></span>
 	</div>
 	<div class="some-list-content" style="color:#9A9A9A;">
 		<div class="wrapper"><ul>

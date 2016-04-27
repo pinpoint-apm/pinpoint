@@ -84,13 +84,17 @@
 						alarmUtilService.show( $elLoading );
 						cancelPreviousWork();
 						var query = $.trim( $elSearchInput.val() );
-						if ( query.length < CONSTS.MIN_GROUPNAME_LENGTH ) {
-							$elSearchInput.val("");
-							alarmUtilService.hide( $elLoading );
-							return;
+						if ( query === "" ) {
+							loadData();
+						} else {
+							if ( query.length < CONSTS.MIN_GROUPNAME_LENGTH ) {
+								$elSearchInput.val("");
+								alarmUtilService.hide( $elLoading );
+								return;
+							}
+							analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_FILTER_USER_GROUP );
+							loadData( { "userGroupId": query } );
 						}
-						analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_FILTER_USER_GROUP );
-						loadData( { "userGroupId": query } );
 					};
 
 					// add process
@@ -212,11 +216,11 @@
 	]);
 	var CONSTS = {
 		MIN_GROUPNAME_LENGTH : 3,
-		ENTER_AT_LEAST: "Enter at least 3 letters to search",
-		EXIST_A_SAME: "Exist a same group name",
 		NEW_GROUP: "New Group",
-		DIV_NORMAL: "div._normal",
+		EXIST_A_SAME: "Exist a same group name",
+		ENTER_AT_LEAST: "Enter at least 3 letters to search",
 		DIV_EDIT: "div._edit",
+		DIV_NORMAL: "div._normal",
 		DIV_REMOVE: "div._remove"
 	};
 
@@ -311,7 +315,7 @@
 			var groupNumber = alarmUtilService.extractID( $node );
 			var groupName = $node.find("input").val();
 
-			if ( groupName === "" || groupName.length < CONST.MIN_GROUPNAME_LENGTH ) {
+			if ( groupName.length < CONSTS.MIN_GROUPNAME_LENGTH ) {
 				alarmUtilService.hide( $elLoading );
 				$node.addClass("blink-blink");
 				$node.find("input").attr("placeholder", CONSTS.ENTER_AT_LEAST).val("").focus();
