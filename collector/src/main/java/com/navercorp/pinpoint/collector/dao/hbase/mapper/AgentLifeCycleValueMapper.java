@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.dao.hbase.mapper;
 
 import org.springframework.stereotype.Component;
 
-import com.navercorp.pinpoint.common.bo.AgentLifeCycleBo;
+import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.ValueMapper;

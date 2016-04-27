@@ -25,11 +25,11 @@ import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.stereotype.Component;
 
-import com.navercorp.pinpoint.common.bo.AgentEventBo;
+import com.navercorp.pinpoint.common.server.bo.AgentEventBo;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.util.AgentEventType;
+import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
 /**

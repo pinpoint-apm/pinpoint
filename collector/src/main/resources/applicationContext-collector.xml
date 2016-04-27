@@ -108,7 +108,7 @@
         <constructor-arg index="3" value="true"/>
     </bean>
     
-    <bean id="agentEventMessageSerializer" class="com.navercorp.pinpoint.common.util.AgentEventMessageSerializer">
+    <bean id="agentEventMessageSerializer" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializer">
         <constructor-arg ref="commandHeaderTBaseSerializerFactory"/>
     </bean>
 

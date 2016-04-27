@@ -26,7 +26,7 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.navercorp.pinpoint.common.bo.SqlMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 

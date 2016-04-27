@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.filter;
 
-import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import org.apache.hadoop.hbase.util.Base64;
 import org.junit.Assert;
 import org.junit.Test;

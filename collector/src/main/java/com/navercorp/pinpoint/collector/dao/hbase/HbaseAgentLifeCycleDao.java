@@ -24,7 +24,7 @@ import org.springframework.stereotype.Repository;
 
 import com.navercorp.pinpoint.collector.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.collector.dao.hbase.mapper.AgentLifeCycleValueMapper;
-import com.navercorp.pinpoint.common.bo.AgentLifeCycleBo;
+import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.util.BytesUtils;

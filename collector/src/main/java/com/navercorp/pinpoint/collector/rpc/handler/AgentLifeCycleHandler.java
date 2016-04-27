@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.navercorp.pinpoint.collector.dao.AgentLifeCycleDao;
-import com.navercorp.pinpoint.common.bo.AgentLifeCycleBo;
-import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
+import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 

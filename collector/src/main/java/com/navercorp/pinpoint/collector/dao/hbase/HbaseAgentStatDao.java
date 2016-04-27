@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
 import com.navercorp.pinpoint.collector.mapper.thrift.ActiveTraceHistogramBoMapper;
-import com.navercorp.pinpoint.common.bo.ActiveTraceHistogramBo;
+import com.navercorp.pinpoint.common.server.bo.ActiveTraceHistogramBo;
 import com.navercorp.pinpoint.thrift.dto.TActiveTrace;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;

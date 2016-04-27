@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 
-import com.navercorp.pinpoint.common.bo.ActiveTraceHistogramBo;
-import com.navercorp.pinpoint.common.bo.AgentStatCpuLoadBo;
-import com.navercorp.pinpoint.common.bo.AgentStatMemoryGcBo;
+import com.navercorp.pinpoint.common.server.bo.ActiveTraceHistogramBo;
+import com.navercorp.pinpoint.common.server.bo.AgentStatCpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.AgentStatMemoryGcBo;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.util.BytesUtils;

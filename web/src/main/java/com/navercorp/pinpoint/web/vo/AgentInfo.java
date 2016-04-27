@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.web.vo;
 import java.util.Comparator;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
-import com.navercorp.pinpoint.common.bo.JvmInfoBo;
-import com.navercorp.pinpoint.common.bo.ServerMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
+import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
+import com.navercorp.pinpoint.common.server.bo.ServerMetaDataBo;
 import com.navercorp.pinpoint.web.view.AgentInfoSerializer;
 
 /**

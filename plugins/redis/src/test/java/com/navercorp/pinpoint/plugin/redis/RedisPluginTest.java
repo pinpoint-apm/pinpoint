@@ -12,7 +12,7 @@ import redis.clients.jedis.Client;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
 
-import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
 
 public class RedisPluginTest extends BasePinpointTest {

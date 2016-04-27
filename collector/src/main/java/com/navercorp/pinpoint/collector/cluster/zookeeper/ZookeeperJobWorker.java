@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
-import com.navercorp.pinpoint.common.util.concurrent.CommonStateContext;
+import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.job.ZookeeperJob;
 import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;

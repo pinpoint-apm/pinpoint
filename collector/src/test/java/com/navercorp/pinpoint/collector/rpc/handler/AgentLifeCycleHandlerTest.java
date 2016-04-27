@@ -37,8 +37,8 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.collector.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
-import com.navercorp.pinpoint.common.bo.AgentLifeCycleBo;
-import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
+import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 
 /**

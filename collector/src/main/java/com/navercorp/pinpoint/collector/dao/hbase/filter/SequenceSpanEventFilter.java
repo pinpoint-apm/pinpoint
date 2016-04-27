@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.filter;
 
-import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

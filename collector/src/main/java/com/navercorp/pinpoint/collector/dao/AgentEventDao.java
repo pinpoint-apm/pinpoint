@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.dao;
 
-import com.navercorp.pinpoint.common.bo.AgentEventBo;
+import com.navercorp.pinpoint.common.server.bo.AgentEventBo;
 
 /**
  * @author HyunGil Jeong

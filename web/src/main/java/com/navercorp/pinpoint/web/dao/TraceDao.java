@@ -20,7 +20,7 @@ package com.navercorp.pinpoint.web.dao;
 import java.util.Collection;
 import java.util.List;
 
-import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.web.vo.TransactionId;
 
 /**

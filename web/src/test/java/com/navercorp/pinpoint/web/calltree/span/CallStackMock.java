@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.web.calltree.span;
 
-import com.navercorp.pinpoint.common.bo.SpanBo;
-import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 
 /**
  * @author jaehong.kim

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
-import com.navercorp.pinpoint.common.bo.StringMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;

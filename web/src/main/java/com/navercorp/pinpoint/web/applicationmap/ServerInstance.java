@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.view.AgentLifeCycleStateSerializer;
 import com.navercorp.pinpoint.web.view.ServerInstanceSerializer;
 import com.navercorp.pinpoint.web.vo.AgentInfo;

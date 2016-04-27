@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.mapper.thrift;
 
-import com.navercorp.pinpoint.common.bo.ActiveTraceHistogramBo;
+import com.navercorp.pinpoint.common.server.bo.ActiveTraceHistogramBo;
 import com.navercorp.pinpoint.thrift.dto.TActiveTraceHistogram;
 import org.springframework.stereotype.Component;
 

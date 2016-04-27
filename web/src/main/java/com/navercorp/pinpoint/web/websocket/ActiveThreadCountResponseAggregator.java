@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.websocket;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCount;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;

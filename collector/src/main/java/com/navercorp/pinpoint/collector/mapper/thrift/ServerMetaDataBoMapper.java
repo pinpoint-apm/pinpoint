@@ -22,8 +22,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.navercorp.pinpoint.common.bo.ServerMetaDataBo;
-import com.navercorp.pinpoint.common.bo.ServiceInfoBo;
+import com.navercorp.pinpoint.common.server.bo.ServerMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.ServiceInfoBo;
 import com.navercorp.pinpoint.thrift.dto.TServerMetaData;
 import com.navercorp.pinpoint.thrift.dto.TServiceInfo;
 
