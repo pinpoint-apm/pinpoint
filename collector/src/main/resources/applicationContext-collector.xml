@@ -5,16 +5,14 @@
        xmlns:jee="http://www.springframework.org/schema/jee" xmlns:lang="http://www.springframework.org/schema/lang"
        xmlns:beans="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p"
        xmlns:util="http://www.springframework.org/schema/util" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-       xmlns:hdp="http://www.springframework.org/schema/hadoop"
        xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
-		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
-		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-		http://www.springframework.org/schema/hadoop http://www.springframework.org/schema/hadoop/spring-hadoop.xsd">
+        http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <context:annotation-config/>
+<context:annotation-config/>
 
     <context:component-scan
             base-package="com.navercorp.pinpoint.collector.dao.hbase,
@@ -44,13 +42,13 @@
     <import resource="classpath:applicationContext-hbase.xml"/>
 
     <bean id="daoAutoFlusher" class="com.navercorp.pinpoint.collector.dao.AutoFlusher" init-method="initialize" destroy-method="shutdown">
-    	<beans:property name="cachedStatisticsDaoList">
-    		<beans:list>
-    			<beans:ref bean="hbaseMapStatisticsCallerDao"/>
-    			<beans:ref bean="hbaseMapStatisticsCalleeDao"/>
+        <beans:property name="cachedStatisticsDaoList">
+            <beans:list>
+                <beans:ref bean="hbaseMapStatisticsCallerDao"/>
+                <beans:ref bean="hbaseMapStatisticsCalleeDao"/>
                 <beans:ref bean="hbaseMapResponseTimeDao"/>
-    		</beans:list>
-    	</beans:property>
+            </beans:list>
+        </beans:property>
         <property name="flushPeriod" value="${statistics.flushPeriod}"/>
     </bean>
     
@@ -60,13 +58,13 @@
     <bean id="collectorMetric" class="com.navercorp.pinpoint.collector.monitor.CollectorMetric">
     </bean>
 
-	<!-- Manager-related Beans -->    
+    <!-- Manager-related Beans -->
     <bean id="jmxCollectorManager" class="com.navercorp.pinpoint.collector.manage.jmx.JMXCollectorManager">
     </bean>
 
     <bean id="jmxCollectorManagerList" class="com.navercorp.pinpoint.collector.manage.jmx.JMXCollectorManagerList">
     </bean>
-	
+
     <bean id="handlerManager" class="com.navercorp.pinpoint.collector.manage.HandlerManager">
     </bean>
 
@@ -78,17 +76,17 @@
     <!-- DispatchHandler-related Beans -->
     <bean id="tcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.TcpDispatchHandler"/>
     <bean id="tcpDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
-    	<constructor-arg ref="tcpDispatchHandler"/>
+        <constructor-arg ref="tcpDispatchHandler"/>
     </bean>
     
     <bean id="udpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.UdpDispatchHandler"/>
     <bean id="udpDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
-    	<constructor-arg ref="udpDispatchHandler"/>
+        <constructor-arg ref="udpDispatchHandler"/>
     </bean>
 
     <bean id="udpSpanDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.UdpSpanDispatchHandler"/>
     <bean id="udpSpanDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
-    	<constructor-arg ref="udpSpanDispatchHandler"/>
+        <constructor-arg ref="udpSpanDispatchHandler"/>
     </bean>
 
     <!-- Serializer Factory Beans -->
