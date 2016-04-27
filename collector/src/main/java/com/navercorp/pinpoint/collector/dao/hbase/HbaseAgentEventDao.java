@@ -24,10 +24,10 @@ import org.springframework.stereotype.Repository;
 
 import com.navercorp.pinpoint.collector.dao.AgentEventDao;
 import com.navercorp.pinpoint.collector.dao.hbase.mapper.AgentEventValueMapper;
-import com.navercorp.pinpoint.common.bo.AgentEventBo;
+import com.navercorp.pinpoint.common.server.bo.AgentEventBo;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.util.AgentEventType;
+import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;

@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
-import com.navercorp.pinpoint.common.bo.JvmInfoBo;
-import com.navercorp.pinpoint.common.bo.ServerMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
+import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
+import com.navercorp.pinpoint.common.server.bo.ServerMetaDataBo;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;

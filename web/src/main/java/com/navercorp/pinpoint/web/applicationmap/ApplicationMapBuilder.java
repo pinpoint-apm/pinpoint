@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogramBuilder;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.vo.*;
 import com.navercorp.pinpoint.web.vo.scatter.ApplicationScatterScanResult;

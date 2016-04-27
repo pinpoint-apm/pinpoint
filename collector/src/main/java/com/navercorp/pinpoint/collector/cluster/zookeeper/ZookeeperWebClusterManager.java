@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConne
 import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.ConnectionException;
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.common.util.concurrent.CommonState;
-import com.navercorp.pinpoint.common.util.concurrent.CommonStateContext;
+import com.navercorp.pinpoint.common.server.util.concurrent.CommonState;
+import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

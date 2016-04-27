@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.dao;
 
-import com.navercorp.pinpoint.common.bo.StringMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 
 import java.util.List;
 

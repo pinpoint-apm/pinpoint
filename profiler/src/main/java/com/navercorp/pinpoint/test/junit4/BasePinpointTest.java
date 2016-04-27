@@ -30,8 +30,8 @@ import org.junit.runner.RunWith;
 
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import com.navercorp.pinpoint.common.bo.SpanBo;
-import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.test.TBaseRecorder;

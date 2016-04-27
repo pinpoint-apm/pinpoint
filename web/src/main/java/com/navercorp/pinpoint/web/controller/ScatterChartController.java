@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.DateUtils;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;

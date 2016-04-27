@@ -21,8 +21,8 @@ import java.util.Comparator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.navercorp.pinpoint.common.bo.AgentEventBo;
-import com.navercorp.pinpoint.common.util.AgentEventType;
+import com.navercorp.pinpoint.common.server.bo.AgentEventBo;
+import com.navercorp.pinpoint.common.server.util.AgentEventType;
 
 /**
  * @author HyunGil Jeong

@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.web.calltree.span;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.navercorp.pinpoint.common.bo.AnnotationBo;
-import com.navercorp.pinpoint.common.bo.ApiMetaDataBo;
-import com.navercorp.pinpoint.common.bo.SpanBo;
-import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.MethodType;
 import com.navercorp.pinpoint.common.trace.ServiceType;

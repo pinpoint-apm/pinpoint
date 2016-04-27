@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.NoNodeExcept
 import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.TimeoutException;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.UnknownException;
-import com.navercorp.pinpoint.common.util.concurrent.CommonStateContext;
+import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;

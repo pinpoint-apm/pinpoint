@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
-import com.navercorp.pinpoint.common.bo.AnnotationBo;
-import com.navercorp.pinpoint.common.bo.AnnotationBoList;
+import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.AnnotationBoList;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;

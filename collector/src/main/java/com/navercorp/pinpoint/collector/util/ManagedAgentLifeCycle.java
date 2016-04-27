@@ -22,8 +22,8 @@ import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.navercorp.pinpoint.common.util.AgentEventType;
-import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.server.util.AgentEventType;
+import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 
 public enum ManagedAgentLifeCycle {

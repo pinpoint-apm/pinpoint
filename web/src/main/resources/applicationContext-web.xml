@@ -89,7 +89,7 @@
         <constructor-arg ref="config" />
     </bean>
 
-    <bean id="agentEventMessageDeserializer" class="com.navercorp.pinpoint.common.util.AgentEventMessageDeserializer">
+    <bean id="agentEventMessageDeserializer" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializer">
         <constructor-arg ref="commandHeaderTBaseDeserializerFactory"/>
     </bean>
 

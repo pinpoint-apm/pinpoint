@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRepository;
 import com.navercorp.pinpoint.collector.cluster.PinpointServerClusterPoint;
-import com.navercorp.pinpoint.common.util.concurrent.CommonStateContext;
+import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;

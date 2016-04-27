@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.vo;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 
 /**

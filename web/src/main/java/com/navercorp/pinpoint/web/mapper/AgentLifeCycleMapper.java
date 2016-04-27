@@ -21,12 +21,12 @@ import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.stereotype.Component;
 
-import com.navercorp.pinpoint.common.bo.AgentLifeCycleBo;
+import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 
 /**
  * @author HyunGil Jeong
