@@ -17,6 +17,7 @@
             scope: true,
             link: function (scope, element) {
 				var $element = $(element);
+				var $elGuide = $element.find(".some-guide");
 				var $elWrapper = $element.find(".wrapper");
 				var $elTotal = $element.find(".total");
 				var $elLoading = $element.find(".some-loading");
@@ -32,15 +33,12 @@
 				scope.ruleSets = [];
 
 				function cancelPreviousWork() {
-					AddAlarm.cancelAction( hideEditArea );
+					AddAlarm.cancelAction( aEditNodes, hideEditArea );
 					RemoveAlarm.cancelAction( alarmUtilService, $workingNode, hideEditArea );
-					UpdateAlarm.cancelAction( alarmUtilService, $workingNode, aEditNodes );
+					UpdateAlarm.cancelAction( alarmUtilService, $workingNode, aEditNodes, hideEditArea );
 				}
 				function isSameNode( $current ) {
 					return alarmUtilService.extractID( $workingNode ) === alarmUtilService.extractID( $current );
-				}
-				function reset() {
-					cancelPreviousWork();
 				}
 				function showAlert( oServerError ) {
 					$elAlert.find( ".message" ).html( oServerError.errorMessage );
@@ -151,17 +149,23 @@
 					aEditNodes[1].find("input").val( "" );
 				}
 				function getNewRule( ruleId ) {
+
+					var oApplicationData = aEditNodes[0].find("select[name=application]").select2("data");
+					var ruleData = aEditNodes[0].find("select[name=rule]").select2("data");
+					var aApplication = oApplicationData === null || oApplicationData === undefined ? [ "", "" ] : oApplicationData.id.split("@");
+					ruleData = ruleData === null || ruleData === undefined ? "" : ruleData.id;
+
 					var application = aEditNodes[0].find("select[name=application]").select2("val").split("@");
-					var type = aEditNodes[0].find("select[name=type]").val();
+					var notificationType = aEditNodes[0].find("select[name=type]").val();
 
 					var oRule = {
-						"applicationId": application[0],
-						"serviceType": application[1],
+						"applicationId": aApplication[0],
+						"serviceType": aApplication[1],
 						"userGroupId": currentUserGroupId,
-						"checkerName": aEditNodes[0].find("select[name=rule]").select2( "val" ),
+						"checkerName": ruleData,
 						"threshold":  aEditNodes[0].find("input[name=threshold]").val(),
-						"smsSend": ( type === "all" || type === "sms" ? true : false ),
-						"emailSend": ( type === "all" || type === "email" ? true : false ),
+						"smsSend": ( notificationType === "all" || notificationType === "sms" ? true : false ),
+						"emailSend": ( notificationType === "all" || notificationType === "email" ? true : false ),
 						"notes": aEditNodes[1].find("input").val()
 					};
 					if ( angular.isUndefined( ruleId ) === false ) {
@@ -179,10 +183,12 @@
 				}
 
 				scope.$on("alarmRule.configuration.selectNone", function( event ) {
-					reset();
+					cancelPreviousWork();
 					currentUserGroupId = "";
 					oRuleList = [];
 					scope.ruleList = [];
+					alarmUtilService.show( $elGuide );
+					alarmUtilService.setTotal( $elTotal, oRuleList.length );
 				});
 				scope.onAddAlarm = function() {
 					if ( currentUserGroupId === "" || AddAlarm.isOn() ) {
@@ -194,7 +200,7 @@
 					});
 				};
 				scope.onApplyAddAlarm = function() {
-					AddAlarm.applyAction( alarmUtilService, getNewRule(), $elLoading, function( application, rule ) {
+					AddAlarm.applyAction( alarmUtilService, getNewRule(), aEditNodes, $elLoading, function( application, rule ) {
 						return alarmUtilService.hasDuplicateItem( oRuleList, function( oRule ) {
 							return oRule.applicationId === application && oRule.checkerName === rule;
 						});
@@ -207,7 +213,7 @@
 					}, showAlert );
 				};
 				scope.onCancelAddAlarm = function() {
-					AddAlarm.cancelAction( hideEditArea );
+					AddAlarm.cancelAction( aEditNodes, hideEditArea );
 				};
 				scope.onRemoveAlarm = function( $event ) {
 					var $node = alarmUtilService.getNode( $event, "tr" );
@@ -241,10 +247,10 @@
 					});
 				};
 				scope.onCancelUpdateAlarm = function() {
-					UpdateAlarm.cancelAction( alarmUtilService, $workingNode, hideEditArea );
+					UpdateAlarm.cancelAction( alarmUtilService, $workingNode, aEditNodes, hideEditArea );
 				};
 				scope.onApplyUpdateAlarm = function() {
-					UpdateAlarm.applyAction( alarmUtilService, getNewRule( alarmUtilService.extractID( $workingNode ) ), $workingNode, $elLoading, function( ruleId, application, rule ) {
+					UpdateAlarm.applyAction( alarmUtilService, getNewRule( alarmUtilService.extractID( $workingNode ) ), aEditNodes, $workingNode, $elLoading, function( ruleId, application, rule ) {
 						return alarmUtilService.hasDuplicateItem( oRuleList, function( oRule ) {
 							return ( oRule.applicationId === application && oRule.checkerName === rule ) && oRule.ruleId != ruleId;
 						});
@@ -270,7 +276,8 @@
 				});
 				scope.$on("alarmRule.configuration.load", function( event, userGroupID ) {
 					currentUserGroupId = userGroupID;
-					reset();
+					cancelPreviousWork();
+					alarmUtilService.hide( $elGuide );
 					loadData( true );
 					loadRuleSet();
 				});
@@ -312,27 +319,36 @@
 			this._bIng = true;
 			cb();
 		},
-		cancelAction: function( cbCancel ) {
+		cancelAction: function( aEditNodes, cbCancel ) {
 			if ( this._bIng === true ) {
+				$.each( aEditNodes, function( index, $el ) {
+					$el.removeClass("blink-blink");
+				});
 				cbCancel();
 				this._bIng = false;
 			}
 		},
-		applyAction: function( alarmUtilService, oNewRule, $elLoading, cbHasAlarm, cbSuccess, cbFail ) {
+		applyAction: function( alarmUtilService, oNewRule, aEditNodes, $elLoading, cbHasAlarm, cbSuccess, cbFail ) {
 			var self = this;
 			alarmUtilService.show( $elLoading );
 			if ( oNewRule.applicationId === "" || oNewRule.checkerName === "" ) {
+				$.each( aEditNodes, function( index, $el ) {
+					$el.addClass("blink-blink");
+				});
 				cbFail({ errorMessage: CONSTS.SELECT_APP_OR_RULE });
 				return;
 			}
 			if ( cbHasAlarm( oNewRule.applicationId, oNewRule.checkerName ) ) {
+				$.each( aEditNodes, function( index, $el ) {
+					$el.addClass("blink-blink");
+				});
 				cbFail({ errorMessage: CONSTS.EXIST_A_SAME });
 				return;
 			}
 			alarmUtilService.sendCRUD( "createRule", oNewRule, function( oServerData ) {
 				oNewRule.ruleId = oServerData.ruleId;
 				cbSuccess( oNewRule );
-				self.cancelAction( function() {} );
+				self.cancelAction( aEditNodes, function() {} );
 				alarmUtilService.hide( $elLoading );
 			}, function( oServerError ) {
 				cbFail( oServerError );
@@ -375,17 +391,23 @@
 			alarmUtilService.hide( $node );
 			cb( alarmUtilService.extractID( $node ) );
 		},
-		cancelAction: function( alarmUtilService, $node, cbCancel ) {
+		cancelAction: function( alarmUtilService, $node, aEditNodes, cbCancel ) {
 			if ( this._bIng === true ) {
 				cbCancel();
+				$.each( aEditNodes, function( index, $el ) {
+					$el.removeClass("blink-blink");
+				});
 				alarmUtilService.show( $node );
 				this._bIng = false;
 			}
 		},
-		applyAction: function( alarmUtilService, oUpdateRule, $node, $elLoading, cbHasAlarm, cbSuccess, cbFail ) {
+		applyAction: function( alarmUtilService, oUpdateRule, aEditNodes, $node, $elLoading, cbHasAlarm, cbSuccess, cbFail ) {
 			var self = this;
 			alarmUtilService.show($elLoading);
 			if ( cbHasAlarm( oUpdateRule.ruleId, oUpdateRule.applicationId, oUpdateRule.checkerName ) ) {
+				$.each( aEditNodes, function( index, $el ) {
+					$el.addClass("blink-blink");
+				});
 				cbFail({errorMessage: CONSTS.EXIST_A_SAME});
 				return;
 			}

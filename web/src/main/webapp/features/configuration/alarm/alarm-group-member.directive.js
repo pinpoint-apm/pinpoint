@@ -96,6 +96,7 @@
 					scope.onSortGroupMember = function() {
 						if ( currentUserGroupId === "" ) return;
 
+						cancelPreviousWork();
 						var oSortedGroupMemberList = [];
 						var len = oGroupMemberList.length - 1;
 						for( var j = 0, i = len ; i >= 0 ; j++, i-- ) {
@@ -109,6 +110,9 @@
 					scope.onCloseAlert = function() {
 						alarmUtilService.closeAlert( $elAlert, $elLoading );
 					};
+					scope.canSort = function() {
+						return currentUserGroupId === "" ? "0.5" : "1.0";
+					}
 					scope.$on("alarmGroupMember.configuration.load", function( event, userGroupID, willBeAddedUser )  {
 						currentUserGroupId = userGroupID;
 						cancelPreviousWork();
@@ -129,12 +133,13 @@
 						cancelPreviousWork();
 						AddGroupMember.applyAction( alarmUtilService, oUser, currentUserGroupId, $elLoading, hasUser, function( oUser ) {
 							analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_ADD_USER );
-							scope.groupMemberList.push({
+							oGroupMemberList.push({
 								"name": oUser.name,
 								"memberId": oUser.userId,
 								"department": oUser.department,
 								"userGroupId": currentUserGroupId
 							});
+							scope.groupMemberList = oGroupMemberList;
 							alarmBroadcastService.sendCallbackAddedUser( true );
 							alarmUtilService.setTotal( $elTotal, oGroupMemberList.length );
 							alarmUtilService.hide( $elLoading );
@@ -161,11 +166,11 @@
 						}
 						scope.groupMemberList = oGroupMemberList;
 					}
-	    			scope.$on("alarmGroupMember.configuration.removeUser", function( event, userID )  {
-	    				if ( hasUser( userID ) ) {
+	    			scope.$on("alarmGroupMember.configuration.removeUser", function( event, userId )  {
+	    				if ( hasUser( userId ) ) {
 							cancelPreviousWork();
 	    					// scope.$apply(function() {
-	    						removeGroupMember( userID );
+	    						removeGroupMember( userId );
 	    					// });
 	    				}
 	    			});
@@ -202,11 +207,13 @@
 		_bIng: false,
 		onAction: function( alarmUtilService, $node ) {
 			this._bIng = true;
+			$node.addClass( "remove" );
 			alarmUtilService.hide( $node.find( CONSTS.DIV_NORMAL ) );
 			alarmUtilService.show( $node.find( CONSTS.DIV_REMOVE ) );
 		},
 		cancelAction: function( alarmUtilService, $node ) {
 			if ( this._bIng === true ) {
+				$node.removeClass( "remove" );
 				alarmUtilService.hide($node.find( CONSTS.DIV_REMOVE ));
 				alarmUtilService.show($node.find( CONSTS.DIV_NORMAL ));
 				this._bIng = false;
