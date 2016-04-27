@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.common.util;
 
 
-import com.navercorp.pinpoint.common.bo.IntStringValue;
-import com.navercorp.pinpoint.common.util.AnnotationTranscoder;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
 
 import org.apache.thrift.TException;

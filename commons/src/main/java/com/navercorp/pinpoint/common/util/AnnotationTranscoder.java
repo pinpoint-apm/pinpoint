@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.common.util;
 
 
-import com.navercorp.pinpoint.common.bo.IntStringStringValue;
-import com.navercorp.pinpoint.common.bo.IntStringValue;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
