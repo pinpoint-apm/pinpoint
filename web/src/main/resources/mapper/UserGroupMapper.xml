@@ -63,6 +63,7 @@
         FROM user_group_member a
         INNER JOIN puser b ON a.member_id = b.user_id
         WHERE a.user_group_id =  #{userGroupId}
+        ORDER BY b.department, b.name
     </select>
     
     <update id="updateMember" parameterType="UserGroupMember">
