@@ -47,7 +47,7 @@ public class CubridJdbcUrlParser extends JdbcUrlParser {
 
         final Matcher matcher = PATTERN.matcher(url);
         if (!matcher.find()) {
-            logger.warn("Cubrid connectionString parse fail. url:{}", url);
+            logger.info("Cubrid connectionString parse fail. url:{}", url);
             return UnKnownDatabaseInfo.createUnknownDataBase(CubridConstants.CUBRID, CubridConstants.CUBRID_EXECUTE_QUERY, url);
         }
 
