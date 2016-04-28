@@ -8,8 +8,8 @@
 	 * @class
 	 */	
 	
-	pinpointApp.directive('alarmPinpointUserDirective', [ '$rootScope', '$timeout', 'helpContentTemplate', 'helpContentService', 'AlarmUtilService', 'AlarmBroadcastService', 'AnalyticsService', 'globalConfig',
-	    function ($rootScope, helpContentTemplate, $timeout, helpContentService, alarmUtilService, alarmBroadcastService, analyticsService, globalConfig) {
+	pinpointApp.directive('alarmPinpointUserDirective', [ '$rootScope', 'helpContentTemplate', 'helpContentService', 'AlarmUtilService', 'AlarmBroadcastService', 'AnalyticsService', 'globalConfig',
+	    function ($rootScope, helpContentTemplate, helpContentService, alarmUtilService, alarmBroadcastService, analyticsService, globalConfig) {
         return {
             restrict: 'EA',
             replace: true,
@@ -49,14 +49,14 @@
 				}
 				function loadData( oParam ) {
 					alarmUtilService.show( $elLoading );
-					alarmUtilService.sendCRUD( "getPinpointUserList", oParam || {}, function( oServerData ) {
-						$.each( oServerData, function( index, obj ) {
+					alarmUtilService.sendCRUD("getPinpointUserList", oParam || {}, function (oServerData) {
+						$.each(oServerData, function (index, obj) {
 							obj["has"] = false;
 						});
 						oPinpointUserList = scope.pinpointUserList = oServerData;
-						alarmUtilService.setTotal( $elTotal, getTotal() );
-						alarmUtilService.hide( $elLoading );
-					}, showAlert );
+						alarmUtilService.setTotal($elTotal, getTotal());
+						alarmUtilService.hide($elLoading);
+					}, showAlert);
 				}
 				function getTotal() {
 					return oGroupMemberList.length + "/" + oPinpointUserList.length;
@@ -271,7 +271,6 @@
 				});
 				scope.$on("alarmPinpointUser.configuration.groupLoaded", function( event, list ) {
 					$elWrapper.removeClass( "_disable-check" );
-					console.log( list );
 					resetList( list );
 					scope.pinpointUserList = oPinpointUserList;
 					alarmUtilService.setTotal( $elTotal, getTotal() );
@@ -309,7 +308,7 @@
 				scope.$on("alarmPinpointUser.configuration.load", function( event, department ) {
 					cancelPreviousWork();
 					if ( bIsLoaded === false ) {
-						loadData( angular.isUndefined( department ) ? {} : { "searchKey": department } );
+						loadData(angular.isUndefined(department) ? {} : {"searchKey": department});
 					}
 				});
             }

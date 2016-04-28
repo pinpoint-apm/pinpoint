@@ -12,7 +12,7 @@
 		"hideClass": "hide-me"
 	});
 	
-	pinpointApp.service( "AlarmUtilService", [ "AlarmUtilServiceConfig", "AlarmAjaxService", "globalConfig", function ( $config, $ajaxService, globalConfig ) {
+	pinpointApp.service( "AlarmUtilService", [ "AlarmUtilServiceConfig", "$timeout", "AlarmAjaxService", "globalConfig", function ( $config, $timeout, $ajaxService, globalConfig ) {
 		var self = this;
 		this.show = function( $el ) {
 			$el.removeClass( $config.hideClass );
@@ -29,12 +29,14 @@
 				}; 
 			}
 
-			$ajaxService[funcName]( data, function( resultData ) {
-				if ( resultData.errorCode || resultData.status ) {
-					failCallback( resultData );
-				} else {
-					successCallback( resultData );
-				}
+			$timeout(function() {
+				$ajaxService[funcName](data, function (resultData) {
+					if (resultData.errorCode || resultData.status) {
+						failCallback(resultData);
+					} else {
+						successCallback(resultData);
+					}
+				});
 			});
 		};
 		this.setTotal = function( $elTotal, n ) {
