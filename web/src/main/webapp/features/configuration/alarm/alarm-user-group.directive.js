@@ -164,7 +164,13 @@
 					function applyUpdateUserGroup() {
 						UpdateUserGroup.applyAction( alarmUtilService, $workingNode, $elLoading, function( groupNumber, groupName ) {
 							return alarmUtilService.hasDuplicateItem( oUserGroupList, function( userGroup ) {
-								return ( ( userGroup.number != groupNumber ) && userGroup.id == groupName ) || ( userGroup.number == groupNumber && userGroup.id == groupName );
+								if ( userGroup.id == groupName ) {
+									if ( userGroup.number == groupNumber ) {
+										return false;
+									}
+									return true;
+								}
+								return false;
 							});
 						}, function( groupNumber, groupName ) {
 							analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_CREATE_USER_GROUP );
