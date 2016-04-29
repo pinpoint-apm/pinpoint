@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.util;
+package com.navercorp.pinpoint.common.server.util;
 
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.stereotype.Component;

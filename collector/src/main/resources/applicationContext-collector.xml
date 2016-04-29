@@ -20,7 +20,9 @@
                         com.navercorp.pinpoint.collector.manage,
                         com.navercorp.pinpoint.collector.mapper,
                         com.navercorp.pinpoint.collector.util,
-                        com.navercorp.pinpoint.collector.config" />
+                        com.navercorp.pinpoint.collector.config,
+                        com.navercorp.pinpoint.common.server.util,
+                        com.navercorp.pinpoint.common.server.bo.serializer" />
 
     <bean id="propertyConfigurer"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">

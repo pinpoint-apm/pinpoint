@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.bo;
+package com.navercorp.pinpoint.common.server.bo.serializer;
 
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.trace.LoggingInfo;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -31,22 +33,27 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 public class SpanBoTest {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final SpanSerializer spanSerializer = new SpanSerializer();
+
     @Test
     public void testVersion() {
         SpanBo spanBo = new SpanBo();
-        check(spanBo, 0);
-        check(spanBo, 254);
-        check(spanBo, 255);
+        checkVersion(spanBo, 0);
+        checkVersion(spanBo, 254);
+        checkVersion(spanBo, 255);
         try {
-            check(spanBo, 256);
+            checkVersion(spanBo, 256);
             Assert.fail();
         } catch (Exception ignored) {
         }
 
+        byte byteVersion = 2;
+        spanBo.setVersion(byteVersion);
+        Assert.assertTrue(spanBo.getRawVersion() == byteVersion);
 
     }
 
-    private void check(SpanBo spanBo, int v) {
+    private void checkVersion(SpanBo spanBo, int v) {
         spanBo.setVersion(v);
         int version = spanBo.getVersion();
 
@@ -54,8 +61,8 @@ public class SpanBoTest {
     }
 
     @Test
-    public void serialize() {
-        SpanBo spanBo = new SpanBo();
+    public void serialize_V1() {
+        final SpanBo spanBo = new SpanBo();
         spanBo.setAgentId("agentId");
         spanBo.setApplicationId("applicationId");
         spanBo.setEndPoint("end");
@@ -71,12 +78,20 @@ public class SpanBoTest {
 
 
         spanBo.setServiceType(ServiceType.STAND_ALONE.getCode());
-        byte[] bytes = spanBo.writeValue();
-        logger.info("length:{}", bytes.length);
+
+        spanBo.setLoggingTransactionInfo(LoggingInfo.INFO.getCode());
+
+        spanBo.setExceptionInfo(1000, "Exception");
+
+        byte[] bytes = spanSerializer.writeColumnValue(spanBo);
+        byte[] deprecated = spanBo.writeValue();
+
+        logger.debug("length:{}", bytes.length);
+        Assert.assertArrayEquals(bytes, deprecated);
 
         SpanBo newSpanBo = new SpanBo();
         int i = newSpanBo.readValue(bytes, 0);
-        logger.info("length:{}", i);
+        logger.debug("length:{}", i);
         Assert.assertEquals(bytes.length, i);
         Assert.assertEquals(newSpanBo.getAgentId(), spanBo.getAgentId());
         Assert.assertEquals(newSpanBo.getApplicationId(), spanBo.getApplicationId());
@@ -96,11 +111,17 @@ public class SpanBoTest {
 
         Assert.assertEquals(newSpanBo.getVersion(), spanBo.getVersion());
 
+        Assert.assertEquals(newSpanBo.getLoggingTransactionInfo(), spanBo.getLoggingTransactionInfo());
+
+
+        Assert.assertEquals(newSpanBo.getExceptionId(), spanBo.getExceptionId());
+        Assert.assertEquals(newSpanBo.getExceptionMessage(), spanBo.getExceptionMessage());
+
 
     }
 
     @Test
-    public void serialize2() {
+    public void serialize2_V1() {
         SpanBo spanBo = new SpanBo();
         spanBo.setAgentId("agent");
         String service = createString(5);
@@ -113,12 +134,14 @@ public class SpanBoTest {
         spanBo.setServiceType(ServiceType.STAND_ALONE.getCode());
         spanBo.setApplicationServiceType(ServiceType.UNKNOWN.getCode());
 
-        byte[] bytes = spanBo.writeValue();
-        logger.info("length:{}", bytes.length);
+        final byte[] bytes = spanSerializer.writeColumnValue(spanBo);
+        byte[] deprecated = spanBo.writeValue();
+        logger.debug("length:{}", bytes.length);
+        Assert.assertArrayEquals(bytes, deprecated);
 
         SpanBo newSpanBo = new SpanBo();
         int i = newSpanBo.readValue(bytes, 0);
-        logger.info("length:{}", i);
+        logger.debug("length:{}", i);
         Assert.assertEquals(bytes.length, i);
         
         Assert.assertEquals(spanBo.getServiceType(), spanBo.getServiceType());
@@ -126,11 +149,7 @@ public class SpanBoTest {
     }
 
     private String createString(int size) {
-        StringBuilder sb = new StringBuilder(size);
-        for (int i = 0; i < size; i++) {
-            sb.append('a');
-        }
-        return sb.toString();
+        return RandomStringUtils.random(size);
     }
 
 }

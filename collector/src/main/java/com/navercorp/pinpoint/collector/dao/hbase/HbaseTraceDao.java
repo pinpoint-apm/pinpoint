@@ -18,7 +18,8 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.TracesDao;
 import com.navercorp.pinpoint.collector.dao.hbase.filter.SpanEventFilter;
-import com.navercorp.pinpoint.collector.util.AcceptedTimeService;
+import com.navercorp.pinpoint.common.server.bo.serializer.SpanSerializer;
+import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBoList;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -64,6 +65,9 @@ public class HbaseTraceDao implements TracesDao {
     private SpanEventFilter spanEventFilter;
 
     @Autowired
+    private SpanSerializer spanSerializer;
+
+    @Autowired
     @Qualifier("traceDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
 
@@ -73,18 +77,16 @@ public class HbaseTraceDao implements TracesDao {
             throw new NullPointerException("span must not be null");
         }
 
-        SpanBo spanBo = new SpanBo(span);
-        final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(span));
-        Put put = new Put(rowKey);
+        final SpanBo spanBo = new SpanBo(span);
 
-        byte[] spanValue = spanBo.writeValue();
+        final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(span));
+        final Put put = new Put(rowKey);
+
+        this.spanSerializer.serialize(spanBo, put, null);
 
         // TODO  if we can identify whether the columnName is duplicated or not,
         // we can also know whether the span id is duplicated or not.
-        byte[] spanId = Bytes.toBytes(spanBo.getSpanId());
-
-        long acceptedTime = acceptedTimeService.getAcceptedTime();
-        put.addColumn(TRACES_CF_SPAN, spanId, acceptedTime, spanValue);
+        final byte[] spanId = Bytes.toBytes(spanBo.getSpanId());
 
         List<TAnnotation> annotations = span.getAnnotations();
         if (CollectionUtils.isNotEmpty(annotations)) {
