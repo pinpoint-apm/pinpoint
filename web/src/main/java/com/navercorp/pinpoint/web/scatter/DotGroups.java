@@ -34,17 +34,19 @@ public class DotGroups {
     private static final DotComparator DOT_COMPARATOR = new DotComparator();
 
     private final long xCoordinates;
-    private final Map<Coordinates, DotGroup> dotGroupMap = new HashMap<>();
+    private final Map<Key, DotGroup> dotGroupMap = new HashMap<>();
 
     public DotGroups(long xCoordinates) {
         this.xCoordinates = xCoordinates;
     }
 
     void addDot(Coordinates coordinates, Dot dot) {
-        DotGroup dotGroup = dotGroupMap.get(coordinates);
+        Key key = new Key(coordinates, dot.getSimpleExceptionCode());
+
+        DotGroup dotGroup = dotGroupMap.get(key);
         if (dotGroup == null) {
             dotGroup = new DotGroup(coordinates);
-            dotGroupMap.put(coordinates, dotGroup);
+            dotGroupMap.put(key, dotGroup);
         }
 
         dotGroup.addDot(dot);
@@ -55,9 +57,9 @@ public class DotGroups {
             return;
         }
 
-        Map<Coordinates, DotGroup> dotGroupMap = dotGroups.getDotGroupMap();
-        for (Map.Entry<Coordinates, DotGroup> entry : dotGroupMap.entrySet()) {
-            Coordinates key = entry.getKey();
+        Map<Key, DotGroup> dotGroupMap = dotGroups.getDotGroupMap();
+        for (Map.Entry<Key, DotGroup> entry : dotGroupMap.entrySet()) {
+            Key key = entry.getKey();
 
             DotGroup dotGroup = this.dotGroupMap.get(key);
             if (dotGroup == null) {
@@ -72,7 +74,7 @@ public class DotGroups {
         return xCoordinates;
     }
 
-    public Map<Coordinates, DotGroup> getDotGroupMap() {
+    public Map<Key, DotGroup> getDotGroupMap() {
         return dotGroupMap;
     }
 
@@ -142,8 +144,56 @@ public class DotGroups {
 
             return compare;
         }
-
     }
 
+    class Key {
+
+        private final Coordinates coordinates;
+        private final int code;
+
+        public Key(Coordinates coordinates, int code) {
+            this.coordinates = coordinates;
+            this.code = code;
+        }
+
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+
+            Key that = (Key) obj;
+
+            if (!coordinates.equals(that.coordinates)) {
+                return false;
+            }
+
+            if (code != that.code) {
+                return false;
+            }
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = coordinates != null ? coordinates.hashCode() : 0;
+            result = 31 * result + code;
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "Key{" +
+                    "coordinates=" + coordinates +
+                    ", code=" + code +
+                    '}';
+        }
+
+    }
 
 }

@@ -21,8 +21,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -30,6 +32,9 @@ import java.util.concurrent.ThreadLocalRandom;
  * @Author Taejin Koo
  */
 public class ScatterDataTest {
+
+    String agentId = "agent";
+    String transactionAgentId = "transactionAgent";
 
     @Test
     public void addDotTest() throws Exception {
@@ -41,7 +46,7 @@ public class ScatterDataTest {
         int yGroupUnit = 100;
 
         ScatterData scatterData = new ScatterData(from, to, xGroupUnit, yGroupUnit);
-        List<Dot> dotList = createDotList("agent", "transactionAgent", count, from);
+        List<Dot> dotList = createDotList(agentId, transactionAgentId, count, from);
 
         for (Dot dot : dotList) {
             scatterData.addDot(dot);
@@ -50,6 +55,42 @@ public class ScatterDataTest {
         List<Dot> dots = extractDotList(scatterData);
         Assert.assertEquals(count, dots.size());
     }
+
+    @Test
+    public void addDotTest2() throws Exception {
+        long from = 1000;
+        long to = 10000;
+        int xGroupUnit = 100;
+        int yGroupUnit = 100;
+
+        ScatterData scatterData = new ScatterData(from, to, xGroupUnit, yGroupUnit);
+
+        long currentTime = System.currentTimeMillis();
+
+        TransactionId transactionId1 = new TransactionId(transactionAgentId, currentTime, 1);
+        TransactionId transactionId2 = new TransactionId(transactionAgentId, currentTime, 2);
+
+        long acceptedTime = Math.max(Math.abs(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE)), from);
+        int executionTime = (int) Math.abs(ThreadLocalRandom.current().nextLong(60 * 1000));
+
+        long acceptedTime2 = Math.max(Math.abs(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE)), from);
+
+        Dot dot1 = new Dot(transactionId1, acceptedTime2, executionTime, 0, agentId);
+        Dot dot2 = new Dot(transactionId2, acceptedTime2, executionTime, 1, agentId);
+
+        scatterData.addDot(dot1);
+        scatterData.addDot(dot2);
+
+        Map<Long, DotGroups> scatterDataMap = scatterData.getScatterDataMap();
+        Collection<DotGroups> values = scatterDataMap.values();
+        Assert.assertTrue(values.size() == 1);
+
+        for (DotGroups dotGroups : values) {
+            Map<Dot, DotGroup> dotGroupLeaders = dotGroups.getDotGroupLeaders();
+            Assert.assertTrue(dotGroupLeaders.keySet().size() == 2);
+        }
+    }
+
 
     @Test
     public void mergeTest() throws Exception {
@@ -61,7 +102,7 @@ public class ScatterDataTest {
         int yGroupUnit = 100;
 
         ScatterData scatterData = new ScatterData(from, to, xGroupUnit, yGroupUnit);
-        List<Dot> dotList = createDotList("agent", "transactionAgent", count, from);
+        List<Dot> dotList = createDotList(agentId, transactionAgentId, count, from);
         for (Dot dot : dotList) {
             ScatterData newScatterData = new ScatterData(from, to, xGroupUnit, yGroupUnit);
             newScatterData.addDot(dot);
@@ -85,7 +126,8 @@ public class ScatterDataTest {
 
         List<Dot> dotList = new ArrayList<>(createSize);
         for (int i = 0; i < createSize; i++) {
-            dotList.add(new Dot(transactionIdList.get(i), Math.max(Math.abs(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE)), from), executionTime, Dot.EXCEPTION_NONE, agentId));
+            int exceptionCode = ThreadLocalRandom.current().nextInt(0, 2);
+            dotList.add(new Dot(transactionIdList.get(i), Math.max(Math.abs(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE)), from), executionTime, exceptionCode, agentId));
         }
 
         long seed = System.nanoTime();
