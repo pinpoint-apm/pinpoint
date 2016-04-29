@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.navercorp.pinpoint.collector.handler.Handler;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.collector.util.AcceptedTimeService;
+import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 
 /**
  * @author emeroad

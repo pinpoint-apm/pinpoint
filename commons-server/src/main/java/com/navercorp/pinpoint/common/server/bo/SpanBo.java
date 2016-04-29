@@ -70,8 +70,7 @@ public class SpanBo implements Span {
     private String exceptionMessage;
     private String exceptionClass;
     
-    private boolean hasApplicationServiceType = false;
-    private short applicationServiceType;
+    private Short applicationServiceType;
 
     
     private String remoteAddr; // optional
@@ -116,7 +115,6 @@ public class SpanBo implements Span {
         // FIXME (2015.03) Legacy - applicationServiceType added in v1.1.0
         // applicationServiceType is not saved for older versions where applicationServiceType does not exist.
         if (span.isSetApplicationServiceType()) {
-            this.hasApplicationServiceType = true;
             this.applicationServiceType = span.getApplicationServiceType();
         }
 
@@ -151,6 +149,11 @@ public class SpanBo implements Span {
 
     public int getVersion() {
         return version & 0xFF;
+    }
+
+
+    public byte getRawVersion() {
+        return version;
     }
 
     public void setVersion(int version) {
@@ -258,7 +261,7 @@ public class SpanBo implements Span {
         this.parentSpanId = parentSpanId;
     }
 
-    public int getFlag() {
+    public short getFlag() {
         return flag;
     }
 
@@ -363,6 +366,13 @@ public class SpanBo implements Span {
         return exceptionMessage;
     }
 
+    public void setExceptionInfo(int exceptionId, String exceptionMessage) {
+        this.hasException = true;
+        this.exceptionId = exceptionId;
+        this.exceptionMessage = exceptionMessage;
+    }
+
+
     public String getExceptionClass() {
         return exceptionClass;
     }
@@ -371,13 +381,16 @@ public class SpanBo implements Span {
         this.exceptionClass = exceptionClass;
     }
     
-    public void setApplicationServiceType(short applicationServiceType) {
-        this.hasApplicationServiceType = true;
+    public void setApplicationServiceType(Short applicationServiceType) {
         this.applicationServiceType  = applicationServiceType;
     }
-    
+
+    public boolean hasApplicationServiceType() {
+        return applicationServiceType != null;
+    }
+
     public short getApplicationServiceType() {
-        if (this.hasApplicationServiceType) {
+        if (hasApplicationServiceType()) {
             return this.applicationServiceType;
         } else {
             return this.serviceType;
@@ -388,11 +401,9 @@ public class SpanBo implements Span {
         return loggingTransactionInfo;
     }
 
-    public void setLoggingTransactionInfo(byte loggingTransactionInfo) {
-        this.loggingTransactionInfo = loggingTransactionInfo;
-    }
-
     // Variable encoding has been added in case of write io operation. The data size can be reduced by about 10%.
+    // for test
+    @Deprecated
     public byte[] writeValue() {
         /*
            It is difficult to calculate the size of buffer. It's not impossible.
@@ -402,9 +413,6 @@ public class SpanBo implements Span {
         final Buffer buffer = new AutomaticBuffer(256);
 
         buffer.put(version);
-
-        // buffer.put(mostTraceID);
-        // buffer.put(leastTraceID);
 
         buffer.putPrefixedString(agentId);
 
@@ -438,17 +446,22 @@ public class SpanBo implements Span {
         }
 
         buffer.put(flag);
-        
-        if (this.hasApplicationServiceType) {
+
+        if (hasApplicationServiceType()) {
             buffer.put(true);
             buffer.put(this.applicationServiceType);
         } else {
             buffer.put(false);
         }
-        
+
         buffer.put(loggingTransactionInfo);
 
         return buffer.getBuffer();
+    }
+
+
+    public void setLoggingTransactionInfo(byte loggingTransactionInfo) {
+        this.loggingTransactionInfo = loggingTransactionInfo;
     }
 
     public int readValue(byte[] bytes, int offset) {
@@ -488,8 +501,8 @@ public class SpanBo implements Span {
         // FIXME (2015.03) Legacy - applicationServiceType added in v1.1.0
         // Defaults to span's service type for older versions where applicationServiceType does not exist.
         if (buffer.limit() > 0) {
-            this.hasApplicationServiceType = buffer.readBoolean();
-            if (this.hasApplicationServiceType) {
+            final boolean hasApplicationServiceType = buffer.readBoolean();
+            if (hasApplicationServiceType) {
                 this.applicationServiceType = buffer.readShort();
             }
         }
@@ -500,6 +513,7 @@ public class SpanBo implements Span {
 
         return buffer.getOffset();
     }
+
 
     @Override
     public String toString() {
@@ -529,10 +543,7 @@ public class SpanBo implements Span {
         sb.append(", exceptionId=").append(exceptionId);
         sb.append(", exceptionMessage='").append(exceptionMessage).append('\'');
         sb.append(", remoteAddr='").append(remoteAddr).append('\'');
-        sb.append(", hasApplicationServiceType=").append(hasApplicationServiceType);
-        if (hasApplicationServiceType) {
-            sb.append(", applicationServiceType=").append(applicationServiceType);
-        }
+        sb.append(", applicationServiceType=").append(applicationServiceType);
         sb.append('}');
         return sb.toString();
     }
