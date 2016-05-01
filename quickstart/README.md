@@ -27,7 +27,7 @@ The following script downloads HBase standalone from [Apache download site](http
 
 > **For Windows**, you'll have to download HBase manually from [Apache download site](http://apache.mirror.cdnetworks.com/hbase/).
 > 
-> Download `HBase-1.0.1-bin.tar.gz` and unzip it.
+> Download `HBase-1.0.3-bin.tar.gz` and unzip it.
 > 
 > Rename the directory to `hbase` so that the final HBase directory looks like `quickstart\hbase\hbase`.
 > 
@@ -78,6 +78,6 @@ Pinpoint Web uses Mysql to persist users, user groups, and alarm configurations.
 However Quickstart uses MockDAO to reduce memory usage.<br/>
 Therefore if you want to use Mysql for Quickstart, please refer to Pinpoint Web's [applicationContext-dao-config.xml
 ](../web/src/main/resources/applicationContext-dao-config.xml
-), [jdbc.properties](../web/src/main/resources/jdbc.properties).  
+), [jdbc.properties](../web/src/main/resources/jdbc.properties).
 
-Additionally, if you would like to enable alerts, you need to implement additional logic. Please ref this [link](../doc/alarm.md) 
+Additionally, if you would like to enable alerts, you need to implement additional logic. Please ref this [link](../doc/alarm.md)
