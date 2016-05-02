@@ -7,15 +7,15 @@
 	 * @name GeneralCtrl
 	 * @class
 	 */
-	pinpointApp.constant('GeneralConfig', {
+	pinpointApp.constant( "GeneralConfig", {
 	    menu: {
 	    	GENERAL: "general",
 	    	ALRAM: "alram"
 	    }
 	});	
 
-	pinpointApp.controller('GeneralCtrl', [ 'GeneralConfig', '$scope', '$rootScope', '$element', '$document', 'PreferenceService', 'AnalyticsService', 'helpContentService',
-	    function ($config, $scope, $rootScope, $element, $document, preferenceService, analyticsService, helpContentService) {
+	pinpointApp.controller( "GeneralCtrl", [ "GeneralConfig", "$scope", "$rootScope", "$timeout", "$element", "$document", "PreferenceService", "AnalyticsService", "helpContentService",
+	    function ($config, $scope, $rootScope, $timeout, $element, $document, preferenceService, analyticsService, helpContentService) {
 
 			$element.find("div.general-warning").html(helpContentService.configuration.general.warning);
 			$element.find("div.favorite-empty").html(helpContentService.configuration.general.empty);
@@ -62,40 +62,37 @@
 				});
 			}
 			function formatOptionText(state) {
-                if (!state.id) {
-                    return state.text;
-                }
-                var chunk = state.text.split("@");
-                if (chunk.length > 1) {
-                    var img = $document.get(0).createElement("img");
-                    img.src = "/images/icons/" + chunk[1] + ".png";
-                    img.style.height = "25px";
-                    img.style.paddingRight = "3px";
-                    return img.outerHTML + chunk[0];
-                } else {
-                    return state.text;
-                }
+				if (!state.id) {
+					return state.text;
+				}
+				var chunk = state.text.split("@");
+				if (chunk.length > 1) {
+					var $img = $("<img>").attr({
+						"src":"images/icons/" + chunk[1] + ".png"
+					}).css({
+						"height": "25px",
+						"paddingRight": "3px"
+					});
+					return $img.get(0).outerHTML + "<span>" + chunk[0] + "</span>";
+				} else {
+					return state.text;
+				}
 			}
 			function initApplicationSelect() {
-				var bClickedSelect = false;
 				$applicationList.select2({
 	                placeholder: "Select an application.",
 	                searchInputPlaceholder: "Input your application name.",
 	                allowClear: false,
-	                formatResult: formatOptionText,
-	                formatSelection: formatOptionText,
+	                templateResult: formatOptionText,
+	                templateSelection: formatOptionText,
 	                escapeMarkup: function (m) {
 	                    return m;
 	                }
-				}).on("select2-selecting", function(e) {
-					bClickedSelect = true;
-				}).on("select2-close", function(e) {					
-					if ( bClickedSelect === true ) {
-						setTimeout(function() {
-							addToFavoriteList( $applicationList.select2('val') );
-						}, 0);
-					}
-					bClickedSelect = false;
+				});
+				$applicationList.on("select2:select", function(e) {
+					$timeout(function() {
+						addToFavoriteList( $applicationList.val() );
+					});
 				});
 
 				$depthPopup.on("hide.bs.dropdown", function( event ) {

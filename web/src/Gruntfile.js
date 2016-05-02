@@ -83,8 +83,8 @@ module.exports = function (grunt) {
 					'google-code-prettify/prettify.js',
 					'google-code-prettify/lang-sql.js',
 					'moment/moment.js',
-					'select2/select2.min.js',
-					'select2/select2_locale_ko.js',
+					'select2/dist/js/select2.full.min.js',
+					//'select2/select2_locale_ko.js',
 					'jquery-class/jquery.Class.js',
 					'jquery.layout/dist/jquery.layout-latest.js',
 					'dragToSelect/jquery.dragToSelect.js',
@@ -312,7 +312,7 @@ module.exports = function (grunt) {
 					// need components/jquery-ui/themes/smoothness/images/files...
 					'jquery-ui/themes/smoothness/jquery-ui.css',
 					// need components/select2/select2.png, select2-spinner.gif, select2x2.png
-					'select2/select2.css',
+					'select2/dist/css/select2.min.css',
 					'slickgrid/slick.grid.css',
 					'jquery-timepicker-addon/jquery-ui-timepicker-addon.css',
 					'jquery.layout/dist/layout-default-latest.css',
