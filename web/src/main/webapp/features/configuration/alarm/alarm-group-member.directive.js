@@ -112,7 +112,7 @@
 					};
 					scope.canSort = function() {
 						return currentUserGroupId === "" ? "0.5" : "1.0";
-					}
+					};
 					scope.$on("alarmGroupMember.configuration.load", function( event, userGroupID, willBeAddedUser )  {
 						currentUserGroupId = userGroupID;
 						cancelPreviousWork();

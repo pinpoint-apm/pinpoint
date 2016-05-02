@@ -24,6 +24,10 @@
 				var aEditNodes = [ $element.find("tr._edit1"), $element.find("tr._edit2") ];
 				var $elAlert = $element.find(".some-alert");
 				var $workingNode = null;
+				var $selectApp = $element.find("select[name=application]");
+				var $selectRule = $element.find("select[name=rule]");
+				var selectedApplication = "";
+				var selectedRule = "";
 
 				var currentUserGroupId = "";
 				var bIsLoaded = false;
@@ -83,28 +87,34 @@
 					}
 				}
 				function initApplicationSelect() {
-					$element.find("select[name=application]").select2({
+					$selectApp.select2({
 						placeholder: "Select an application.",
 						searchInputPlaceholder: "Input your application name.",
 						allowClear: false,
-						formatResult: formatOptionText,
-						formatSelection: formatOptionText,
+						templateResult: formatOptionText,
+						templateSelection: formatOptionText,
 						escapeMarkup: function (m) {
 							return m;
 						}
-					}).on("change", function (e) {});
+					});
+					$selectApp.on("select2:select", function() {
+						selectedApplication = $selectApp.val();
+					});
 				}
 				function initRuleSelect() {
-					$element.find("select[name=rule]").select2({
+					$selectRule.select2({
 						searchInputPlaceholder: "Input your rule name.",
 						placeholder: "Select an rule.",
 						allowClear: false,
-						formatResult: formatOptionText,
-						formatSelection: formatOptionText,
+						templateResult: formatOptionText,
+						templateSelection: formatOptionText,
 						escapeMarkup: function (m) {
 							return m;
 						}
-					}).on("change", function (e) {});
+					});
+					$selectRule.on("select2:select", function() {
+						selectedRule = $selectRule.val();
+					});
 				}
 				function showAddArea() {
 					$elWrapper.find("tbody").prepend( aEditNodes[1] ).prepend( aEditNodes[0] );
@@ -117,8 +127,10 @@
 				function showEditArea( oRule ) {
 					alarmUtilService.hide( aEditNodes[0].find( CONSTS.DIV_ADD ) );
 					alarmUtilService.show( aEditNodes[0].find( CONSTS.DIV_EDIT ) );
-					aEditNodes[0].find("select[name=application]").select2( "val", oRule.applicationId + "@" + oRule.serviceType );
-					aEditNodes[0].find("select[name=rule]").select2( "val", oRule.checkerName );
+					selectedApplication = oRule.applicationId + "@" + oRule.serviceType;
+					selectedRule = oRule.checkerName;
+					$selectApp.val( selectedApplication ).trigger( "change" );
+					$selectRule.val( selectedRule ).trigger( "change" );
 					aEditNodes[0].find("input[name=threshold]").val( oRule.threshold );
 					aEditNodes[0].find("select[name=type]").val( (function() {
 						if ( oRule.smsSend && oRule.emailSend ) {
@@ -142,27 +154,23 @@
 					$.each( aEditNodes, function( index, $el ) {
 						alarmUtilService.hide( $el );
 					});
-					aEditNodes[0].find("select[name=application]").select2( "val", "" );
-					aEditNodes[0].find("select[name=rule]").select2( "val", "" );
+					$selectApp.val( "" ).trigger( "change" );
+					$selectRule.val( "" ).trigger( "change" );
 					aEditNodes[0].find("input[name=threshold]").val( "1" );
 					aEditNodes[0].find("select[name=type]").val( "all" );
 					aEditNodes[1].find("input").val( "" );
+					selectedApplication = "";
+					selectedRule = "";
 				}
 				function getNewRule( ruleId ) {
-
-					var oApplicationData = aEditNodes[0].find("select[name=application]").select2("data");
-					var ruleData = aEditNodes[0].find("select[name=rule]").select2("data");
-					var aApplication = oApplicationData === null || oApplicationData === undefined ? [ "", "" ] : oApplicationData.id.split("@");
-					ruleData = ruleData === null || ruleData === undefined ? "" : ruleData.id;
-
-					var application = aEditNodes[0].find("select[name=application]").select2("val").split("@");
+					var aApplication = selectedApplication === "" ? [ "", "" ] : selectedApplication.split("@");
 					var notificationType = aEditNodes[0].find("select[name=type]").val();
 
 					var oRule = {
 						"applicationId": aApplication[0],
 						"serviceType": aApplication[1],
 						"userGroupId": currentUserGroupId,
-						"checkerName": ruleData,
+						"checkerName": selectedRule,
 						"threshold":  aEditNodes[0].find("input[name=threshold]").val(),
 						"smsSend": ( notificationType === "all" || notificationType === "sms" ? true : false ),
 						"emailSend": ( notificationType === "all" || notificationType === "email" ? true : false ),

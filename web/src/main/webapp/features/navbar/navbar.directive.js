@@ -106,6 +106,8 @@
 	                    scope.showStaticApplication = false;
 	                    scope.showStatic = !scope.showApplication;
 	                    $application = element.find('.application');
+						$application.select2();
+
 	                    scope.applications = [
 	                        {
 	                            text: 'Loading...',
@@ -365,10 +367,10 @@
 										// it should work like nextTick
 										//                                    initializeApplication();
 										if (oNavbarVoService.getApplication()) {
-											$application.select2('val', oNavbarVoService.getApplication());
+											$application.val(oNavbarVoService.getApplication()).trigger("change");
 											scope.application = oNavbarVoService.getApplication();
 										} else {
-											$application.select2('open');
+											$application.select2("open");
 										}
 									});
 									$rootScope.$broadcast("alarmRule.applications.set", scope.applications);
@@ -443,31 +445,33 @@
 	                        if (!state.id) {
 	                            return state.text;
 	                        }
-	                        var chunk = state.text.split("@");
+	                        var chunk = state.id.split("@");
 	                        if (chunk.length > 1) {
-	                            var img = $document.get(0).createElement("img");
-	                            img.src = "/images/icons/" + chunk[1] + ".png";
-	                            //img.style.width = "20px";
-	                            img.style.height = "25px";
-	                            img.style.paddingRight = "3px";
-	                            return img.outerHTML + chunk[0];
+								var $img = $("<img>").attr({
+									"src":"images/icons/" + chunk[1] + ".png"
+								}).css({
+									"height": "25px",
+									"paddingRight": "3px"
+								});
+								return $img.get(0).outerHTML + "<span>" + chunk[0] + "</span>";
 	                        } else {
 	                            return state.text;
 	                        }
 	                    }
-	
-	                    $application.select2({
+
+						$application.select2({
 	                        placeholder: "Select an application",
 	                        searchInputPlaceholder: "Input your application name",
 	                        allowClear: false,
-	                        formatResult: formatOptionText,
-	                        formatSelection: formatOptionText,
+	                        templateResult: formatOptionText,
+	                        templateSelection: formatOptionText,
 	                        escapeMarkup: function (m) {
 	                            return m;
 	                        }
-	                    }).on("change", function (e) {
+	                    });
+						$application.on("select2:select", function (e) {
 	                    	analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_APPLICATION );
-	                        scope.application = e.val;
+	                        scope.application = $application.val();
 	                        scope.$digest();
 	                        broadcast();
 	                        // ref1 : http://jimhoskins.com/2012/12/17/angularjs-and-apply.html
@@ -742,7 +746,7 @@
                             scope.disableApplication = false;
                             $timeout(function () {
                                 if (oNavbarVoService.getApplication()) {
-                                    $application.select2('val', oNavbarVoService.getApplication());
+                                    $application.val(oNavbarVoService.getApplication()).trigger("change");
                                     scope.application = oNavbarVoService.getApplication();
                                 }
                             });
