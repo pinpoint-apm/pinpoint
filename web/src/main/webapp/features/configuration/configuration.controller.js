@@ -30,6 +30,9 @@
 					};
 				})(menu);
 			}
+			$($element).on("show.bs.modal", function(e) {
+				$(this).removeAttr("tabindex");
+			});
 			
 			$($element).on("hidden.bs.modal", function(e) {
 				$scope.currentTab = $constant.menu.GENERAL;
