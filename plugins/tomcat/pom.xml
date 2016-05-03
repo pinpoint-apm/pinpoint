@@ -12,6 +12,11 @@
     <name>pinpoint-tomcat-plugin</name>
     <packaging>jar</packaging>
 
+    <properties>
+        <jdk.version>1.7</jdk.version>
+        <jdk.home>${env.JAVA_7_HOME}</jdk.home>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
