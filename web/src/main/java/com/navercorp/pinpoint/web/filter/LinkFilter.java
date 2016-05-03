@@ -146,6 +146,8 @@ public class LinkFilter implements Filter {
         USER_TO_WAS,
         WAS_TO_UNKNOWN,
         WAS_TO_BACKEND,
+        WAS_TO_QUEUE,
+        QUEUE_TO_WAS,
         UNSUPPORTED
     }
 
@@ -164,6 +166,12 @@ public class LinkFilter implements Filter {
         }
         if (includeWas(fromServiceDescList) && includeUnknown(toServiceDescList)) {
             return FilterType.WAS_TO_UNKNOWN;
+        }
+        if (includeWas(fromServiceDescList) && includeQueue(toServiceDescList)) {
+            return FilterType.WAS_TO_QUEUE;
+        }
+        if (includeQueue(fromServiceDescList) && includeWas(toServiceDescList)) {
+            return FilterType.QUEUE_TO_WAS;
         }
         // TODO toServiceDescList check logic not exist.
 //        if (includeWas(fromServiceDescList) && isBackEnd????()) {
@@ -213,6 +221,12 @@ public class LinkFilter implements Filter {
             }
             case WAS_TO_WAS: {
                 return wasToWasFilter(transaction);
+            }
+            case WAS_TO_QUEUE: {
+                return wasToQueueFilter(transaction);
+            }
+            case QUEUE_TO_WAS: {
+                return queueToWasFilter(transaction);
             }
             case WAS_TO_BACKEND: {
                 return wasToBackendFilter(transaction);
@@ -329,6 +343,30 @@ public class LinkFilter implements Filter {
         return fromBaseFilter(fromSpanList);
     }
 
+    /**
+     * WAS -> Queue (virtual)
+     * Should be the same as {@link #wasToBackendFilter}
+     */
+    private boolean wasToQueueFilter(List<SpanBo> transaction) {
+        return wasToBackendFilter(transaction);
+    }
+
+    /**
+     * Queue (virtual) -> WAS
+     */
+    private boolean queueToWasFilter(List<SpanBo> transaction) {
+        final List<SpanBo> toNode = findToNode(transaction);
+        logger.debug("matching toNode spans: {}", toNode);
+        for (SpanBo span : toNode) {
+            if (fromApplicationName.equals(span.getAcceptorHost())) {
+                if (checkResponseCondition(span.getElapsed(), isError(span))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private boolean fromBaseFilter(List<SpanBo> fromSpanList) {
         // from base filter. hint base filter
         // exceptional case
@@ -341,7 +379,7 @@ public class LinkFilter implements Filter {
             }
             for (SpanEventBo event : eventBoList) {
                 final ServiceType eventServiceType = serviceTypeRegistryService.findServiceType(event.getServiceType());
-                if (!eventServiceType.isRpcClient()) {
+                if (!eventServiceType.isRpcClient() || !eventServiceType.isQueue()) {
                     continue;
                 }
                 if (!eventServiceType.isRecordStatistics()) {
@@ -407,16 +445,16 @@ public class LinkFilter implements Filter {
     private List<SpanBo> findNode(List<SpanBo> nodeList, String findApplicationName, List<ServiceType> findServiceCode, AgentFilter agentFilter) {
         List<SpanBo> findList = null;
         for (SpanBo span : nodeList) {
-            final ServiceType spanServiceType = serviceTypeRegistryService.findServiceType(span.getServiceType());
-            if (findApplicationName.equals(span.getApplicationId()) && includeServiceType(findServiceCode, spanServiceType)) {
-                // apply preAgentFilter
-                if (agentFilter.accept(span.getAgentId())) {
-                    if (findList == null) {
-                        findList = new ArrayList<>();
+                final ServiceType applicationServiceType = serviceTypeRegistryService.findServiceType(span.getApplicationServiceType());
+                if (findApplicationName.equals(span.getApplicationId()) && includeServiceType(findServiceCode, applicationServiceType)) {
+                    // apply preAgentFilter
+                    if (agentFilter.accept(span.getAgentId())) {
+                        if (findList == null) {
+                            findList = new ArrayList<>();
+                        }
+                        findList.add(span);
                     }
-                    findList.add(span);
                 }
-            }
         }
         if (findList == null) {
             return Collections.emptyList();
@@ -442,6 +480,15 @@ public class LinkFilter implements Filter {
     private boolean includeWas(List<ServiceType> serviceTypeList) {
         for (ServiceType serviceType : serviceTypeList) {
             if (serviceType.isWas()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean includeQueue(List<ServiceType> serviceTypeList) {
+        for (ServiceType serviceType : serviceTypeList) {
+            if (serviceType.isQueue()) {
                 return true;
             }
         }

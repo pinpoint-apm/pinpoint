@@ -26,6 +26,7 @@ class DefaultServiceType implements ServiceType {
     private final String name;
     private final String desc;
     private final boolean terminal;
+    private final boolean queue;
 
     // FIXME record statistics of only rpc call currently. so is it all right to chane into isRecordRpc()
     private final boolean recordStatistics;
@@ -49,6 +50,7 @@ class DefaultServiceType implements ServiceType {
         this.category = ServiceTypeCategory.findCategory((short)code);
 
         boolean terminal = false;
+        boolean queue = false;
         boolean recordStatistics = false;
         boolean includeDestinationId = false;
         
@@ -56,6 +58,10 @@ class DefaultServiceType implements ServiceType {
             switch (property) {
             case TERMINAL:
                 terminal = true;
+                break;
+
+            case QUEUE:
+                queue = true;
                 break;
                 
             case RECORD_STATISTICS:
@@ -71,6 +77,7 @@ class DefaultServiceType implements ServiceType {
         }
         
         this.terminal = terminal;
+        this.queue = queue;
         this.recordStatistics = recordStatistics;
         this.includeDestinationId = includeDestinationId;
     }
@@ -121,6 +128,11 @@ class DefaultServiceType implements ServiceType {
     @Override
     public boolean isTerminal() {
         return terminal;
+    }
+
+    @Override
+    public boolean isQueue() {
+        return queue;
     }
 
     @Override

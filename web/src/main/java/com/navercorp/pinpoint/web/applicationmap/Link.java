@@ -93,6 +93,10 @@ public class Link {
         if (fromNode.getServiceType() == ServiceType.USER) {
             return toNode.getApplication();
         }
+        // same goes for virtual queue nodes
+        if (!fromNode.getServiceType().isWas() && fromNode.getServiceType().isQueue()) {
+            return toNode.getApplication();
+        }
         return fromNode.getApplication();
     }
 

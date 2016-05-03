@@ -172,6 +172,8 @@ public interface ServiceType {
 
     boolean isTerminal();
 
+    boolean isQueue();
+
     boolean isIncludeDestinationId();
 
     ServiceTypeCategory getCategory();

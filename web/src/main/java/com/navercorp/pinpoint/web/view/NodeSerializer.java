@@ -57,6 +57,7 @@ public class NodeSerializer extends JsonSerializer<Node>  {
         jgen.writeStringField("serviceTypeCode", Short.toString(serviceType.getCode()));
 //        jgen.writeStringField("terminal", Boolean.toString(serviceType.isTerminal()));
         jgen.writeBooleanField("isWas", serviceType.isWas());  // for go.js
+        jgen.writeBooleanField("isQueue", serviceType.isQueue());
 
 
 
@@ -81,7 +82,8 @@ public class NodeSerializer extends JsonSerializer<Node>  {
     private void writeHistogram(JsonGenerator jgen, Node node) throws IOException {
         final ServiceType serviceType = node.getServiceType();
         final NodeHistogram nodeHistogram = node.getNodeHistogram();
-        if (serviceType.isWas() || serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isUser()) {
+        // FIXME isn't this all ServiceTypes that can be a node?
+        if (serviceType.isWas() || serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isUser() || serviceType.isQueue()) {
             Histogram applicationHistogram = nodeHistogram.getApplicationHistogram();
             if (applicationHistogram == null) {
                 writeEmptyObject(jgen, "histogram");
@@ -113,7 +115,8 @@ public class NodeSerializer extends JsonSerializer<Node>  {
         } else {
             jgen.writeBooleanField("hasAlert", false);  // for go.js
         }
-        if (serviceType.isWas() || serviceType.isUser() || serviceType.isTerminal() || serviceType.isUnknown()) {
+        // FIXME isn't this all ServiceTypes that can be a node?
+        if (serviceType.isWas() || serviceType.isUser() || serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isQueue()) {
             List<ResponseTimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram();
             if (applicationTimeSeriesHistogram == null) {
                 writeEmptyArray(jgen, "timeSeriesHistogram");

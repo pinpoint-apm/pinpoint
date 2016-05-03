@@ -86,26 +86,50 @@ public class SpanHandler implements SimpleHandler {
 
     private void insertSpanStat(TSpan span) {
         final ServiceType applicationServiceType = getApplicationServiceType(span);
+        final ServiceType spanServiceType = registry.findServiceType(span.getServiceType());
         // TODO consider to change span.isSetErr();
         final boolean isError = span.getErr() != 0;
         int bugCheck = 0;
         if (span.getParentSpanId() == -1) {
+            if (spanServiceType.isQueue()) {
+                // create virtual queue node
+                statisticsHandler.updateCaller(span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(), span.getApplicationName(), applicationServiceType, span.getEndPoint(), span.getElapsed(), isError);
 
-            // create virtual user
-            statisticsHandler.updateCaller(span.getApplicationName(), ServiceType.USER, span.getAgentId(), span.getApplicationName(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
+                statisticsHandler.updateCallee(span.getApplicationName(), applicationServiceType, span.getAcceptorHost(), spanServiceType, span.getAgentId(), span.getElapsed(), isError);
+            } else {
+                // create virtual user
+                statisticsHandler.updateCaller(span.getApplicationName(), ServiceType.USER, span.getAgentId(), span.getApplicationName(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
 
-            // update the span information of the current node (self)
-            statisticsHandler.updateCallee(span.getApplicationName(), applicationServiceType, span.getApplicationName(), ServiceType.USER, span.getAgentId(), span.getElapsed(), isError);
+                // update the span information of the current node (self)
+                statisticsHandler.updateCallee(span.getApplicationName(), applicationServiceType, span.getApplicationName(), ServiceType.USER, span.getAgentId(), span.getElapsed(), isError);
+            }
             bugCheck++;
         }
 
         // save statistics info only when parentApplicationContext exists
         // when drawing server map based on statistics info, you must know the application name of the previous node.
         if (span.getParentApplicationName() != null) {
-            logger.debug("Received parent application name. {}", span.getParentApplicationName());
+            String parentApplicationName = span.getParentApplicationName();
+            logger.debug("Received parent application name. {}", parentApplicationName);
 
-            final ServiceType parentApplicationType = registry.findServiceType(span.getParentApplicationType());
-            statisticsHandler.updateCallee(span.getApplicationName(), applicationServiceType, span.getParentApplicationName(), parentApplicationType, span.getAgentId(), span.getElapsed(), isError);
+            ServiceType parentApplicationType = registry.findServiceType(span.getParentApplicationType());
+
+            // create virtual queue node if current' span's service type is a queue AND :
+            // 1. parent node's application service type is not a queue (it may have come from a queue that is traced)
+            // 2. current node's application service type is not a queue (current node may be a queue that is traced)
+            if (spanServiceType.isQueue()) {
+                if (!applicationServiceType.isQueue() && !parentApplicationType.isQueue()) {
+                    // emulate virtual queue node's accept Span and record it's acceptor host
+                    hostApplicationMapDao.insert(span.getRemoteAddr(), span.getAcceptorHost(), spanServiceType.getCode(), parentApplicationName, parentApplicationType.getCode());
+                    // emulate virtual queue node's send SpanEvent
+                    statisticsHandler.updateCaller(span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(), span.getApplicationName(), applicationServiceType, span.getEndPoint(), span.getElapsed(), isError);
+
+                    parentApplicationName = span.getAcceptorHost();
+                    parentApplicationType = spanServiceType;
+                }
+            }
+
+            statisticsHandler.updateCallee(span.getApplicationName(), applicationServiceType, parentApplicationName, parentApplicationType, span.getAgentId(), span.getElapsed(), isError);
             bugCheck++;
         }
 
@@ -145,10 +169,10 @@ public class SpanHandler implements SimpleHandler {
             /**
              * save information to draw a server map based on statistics
              */
-            // save the information of caller (the spanevent that span called )
+            // save the information of caller (the spanevent that called span)
             statisticsHandler.updateCaller(span.getApplicationName(), applicationServiceType, span.getAgentId(), spanEvent.getDestinationId(), spanEventType, spanEvent.getEndPoint(), elapsed, hasException);
 
-            // save the information of callee (the span that called spanevent)
+            // save the information of callee (the span that spanevent called)
             statisticsHandler.updateCallee(spanEvent.getDestinationId(), spanEventType, span.getApplicationName(), applicationServiceType, span.getEndPoint(), elapsed, hasException);
         }
     }
@@ -165,7 +189,13 @@ public class SpanHandler implements SimpleHandler {
 
         final String parentApplicationName = span.getParentApplicationName();
         final short parentServiceType = span.getParentApplicationType();
-        hostApplicationMapDao.insert(acceptorHost, spanApplicationName, applicationServiceTypeCode, parentApplicationName, parentServiceType);
+
+        final ServiceType spanServiceType = registry.findServiceType(span.getServiceType());
+        if (spanServiceType.isQueue()) {
+            hostApplicationMapDao.insert(span.getEndPoint(), spanApplicationName, applicationServiceTypeCode, parentApplicationName, parentServiceType);
+        } else {
+            hostApplicationMapDao.insert(acceptorHost, spanApplicationName, applicationServiceTypeCode, parentApplicationName, parentServiceType);
+        }
     }
     
     private ServiceType getApplicationServiceType(TSpan span) {
