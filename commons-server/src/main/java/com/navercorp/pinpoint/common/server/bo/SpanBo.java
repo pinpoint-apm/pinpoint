@@ -72,7 +72,7 @@ public class SpanBo implements Span {
     
     private Short applicationServiceType;
 
-    
+    private String acceptorHost;
     private String remoteAddr; // optional
 
     private byte loggingTransactionInfo; //optional
@@ -107,7 +107,8 @@ public class SpanBo implements Span {
         this.apiId = span.getApiId();
 
         this.errCode = span.getErr();
-        
+
+        this.acceptorHost = span.getAcceptorHost();
         this.remoteAddr = span.getRemoteAddr();
         
         this.loggingTransactionInfo = span.getLoggingTransactionInfo();
@@ -334,6 +335,14 @@ public class SpanBo implements Span {
         this.errCode = errCode;
     }
 
+    public String getAcceptorHost() {
+        return acceptorHost;
+    }
+
+    public void setAcceptorHost(String acceptorHost) {
+        this.acceptorHost = acceptorHost;
+    }
+
     public String getRemoteAddr() {
         return remoteAddr;
     }
@@ -456,6 +465,8 @@ public class SpanBo implements Span {
 
         buffer.put(loggingTransactionInfo);
 
+        buffer.putPrefixedString(acceptorHost);
+
         return buffer.getBuffer();
     }
 
@@ -511,6 +522,10 @@ public class SpanBo implements Span {
             this.loggingTransactionInfo = buffer.readByte();
         }
 
+        if (buffer.limit() > 0) {
+            this.acceptorHost = buffer.readPrefixedString();
+        }
+
         return buffer.getOffset();
     }
 
@@ -532,6 +547,7 @@ public class SpanBo implements Span {
         sb.append(", elapsed=").append(elapsed);
         sb.append(", rpc='").append(rpc).append('\'');
         sb.append(", serviceType=").append(serviceType);
+        sb.append(", acceptorHost=").append(acceptorHost);
         sb.append(", endPoint='").append(endPoint).append('\'');
         sb.append(", apiId=").append(apiId);
         sb.append(", annotationBoList=").append(annotationBoList);

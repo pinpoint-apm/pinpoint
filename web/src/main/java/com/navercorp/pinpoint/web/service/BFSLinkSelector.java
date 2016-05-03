@@ -166,7 +166,7 @@ public class BFSLinkSelector implements LinkSelector {
     private List<LinkData> checkRpcCallAccepted(LinkData linkData, Range range) {
         // replace if the rpc client's destination has an agent installed and thus has an application name
         final Application toApplication = linkData.getToApplication();
-        if (!toApplication.getServiceType().isRpcClient()) {
+        if (!toApplication.getServiceType().isRpcClient() && !toApplication.getServiceType().isQueue()) {
             return Collections.singletonList(linkData);
         }
 
@@ -187,10 +187,15 @@ public class BFSLinkSelector implements LinkSelector {
                 return createVirtualLinkData(linkData, toApplication, acceptApplicationList);
             }
         } else {
-            final Application unknown = new Application(toApplication.getName(), ServiceType.UNKNOWN);
-            final LinkData unknownLinkData = new LinkData(linkData.getFromApplication(), unknown);
-            unknownLinkData.setLinkCallDataMap(linkData.getLinkCallDataMap());
-            return Collections.singletonList(unknownLinkData);
+            // for queues, accept application may not exist if no consumers have an agent installed
+            if (toApplication.getServiceType().isQueue()) {
+                return Collections.singletonList(linkData);
+            } else {
+                final Application unknown = new Application(toApplication.getName(), ServiceType.UNKNOWN);
+                final LinkData unknownLinkData = new LinkData(linkData.getFromApplication(), unknown);
+                unknownLinkData.setLinkCallDataMap(linkData.getLinkCallDataMap());
+                return Collections.singletonList(unknownLinkData);
+            }
         }
 
     }

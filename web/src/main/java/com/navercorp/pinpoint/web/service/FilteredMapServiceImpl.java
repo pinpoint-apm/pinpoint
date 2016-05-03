@@ -416,10 +416,33 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     private Application createParentApplication(SpanBo span, Map<Long, SpanBo> transactionSpanMap) {
         final SpanBo parentSpan = transactionSpanMap.get(span.getParentSpanId());
         if (span.isRoot() || parentSpan == null) {
-            String applicationName = span.getApplicationId();
-            ServiceType serviceType = ServiceType.USER;
-            return this.applicationFactory.createApplication(applicationName, serviceType);
+            ServiceType spanServiceType = this.registry.findServiceType(span.getServiceType());
+            if (spanServiceType.isQueue()) {
+                String applicationName = span.getAcceptorHost();
+                ServiceType serviceType = spanServiceType;
+                return this.applicationFactory.createApplication(applicationName, serviceType);
+            } else {
+                String applicationName = span.getApplicationId();
+                ServiceType serviceType = ServiceType.USER;
+                return this.applicationFactory.createApplication(applicationName, serviceType);
+            }
         } else {
+            // create virtual queue node if current' span's service type is a queue AND :
+            // 1. parent node's application service type is not a queue (it may have come from a queue that is traced)
+            // 2. current node's application service type is not a queue (current node may be a queue that is traced)
+            ServiceType spanServiceType = this.registry.findServiceType(span.getServiceType());
+            if (spanServiceType.isQueue()) {
+                ServiceType parentApplicationServiceType = this.registry.findServiceType(parentSpan.getApplicationServiceType());
+                ServiceType spanApplicationServiceType = this.registry.findServiceType(span.getApplicationServiceType());
+                if (!parentApplicationServiceType.isQueue() && !spanApplicationServiceType.isQueue()) {
+                    String parentApplicationName = span.getAcceptorHost();
+                    if (parentApplicationName == null) {
+                        parentApplicationName = span.getRemoteAddr();
+                    }
+                    short parentServiceType = span.getServiceType();
+                    return this.applicationFactory.createApplication(parentApplicationName, parentServiceType);
+                }
+            }
             String parentApplicationName = parentSpan.getApplicationId();
             short parentServiceType = parentSpan.getApplicationServiceType();
             return this.applicationFactory.createApplication(parentApplicationName, parentServiceType);

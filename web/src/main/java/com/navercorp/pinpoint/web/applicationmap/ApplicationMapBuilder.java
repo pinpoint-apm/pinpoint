@@ -355,6 +355,10 @@ public class ApplicationMapBuilder {
             } else if (nodeType.isTerminal() || nodeType.isUnknown()) {
                 final NodeHistogram nodeHistogram = createTerminalNodeHistogram(node, linkList);
                 node.setNodeHistogram(nodeHistogram);
+            } else if (nodeType.isQueue()) {
+                // Virtual queue node - queues with agent installed will be handled above as a WAS node
+                final NodeHistogram nodeHistogram = createTerminalNodeHistogram(node, linkList);
+                node.setNodeHistogram(nodeHistogram);
             } else if (nodeType.isUser()) {
                 // for User nodes, find its source link and create the histogram
                 Application userNode = node.getApplication();
@@ -409,7 +413,7 @@ public class ApplicationMapBuilder {
         nodeHistogram.setApplicationTimeHistogram(applicationTimeHistogram);
 
         // for Terminal nodes, create AgentLevel histogram
-        if (nodeApplication.getServiceType().isTerminal()) {
+        if (nodeApplication.getServiceType().isTerminal() || nodeApplication.getServiceType().isQueue()) {
             final Map<String, Histogram> agentHistogramMap = new HashMap<>();
 
             for (Link link : toLinkList) {
@@ -454,7 +458,9 @@ public class ApplicationMapBuilder {
             return;
         }
 
-        if (nodeServiceType.isTerminal()) {
+        if (nodeServiceType.isWas()) {
+            agentInfoPopulator.addAgentInfos(node);
+        } else if (nodeServiceType.isTerminal() || nodeServiceType.isQueue()) {
             // extract information about the terminal node
             ServerBuilder builder = new ServerBuilder();
             for (LinkData linkData : linkDataDuplexMap.getSourceLinkDataList()) {
@@ -465,8 +471,6 @@ public class ApplicationMapBuilder {
             }
             ServerInstanceList serverInstanceList = builder.build();
             node.setServerInstanceList(serverInstanceList);
-        } else if (nodeServiceType.isWas()) {
-            agentInfoPopulator.addAgentInfos(node);
         } else {
             // add empty information
             node.setServerInstanceList(new ServerInstanceList());

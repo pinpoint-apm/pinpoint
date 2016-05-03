@@ -21,6 +21,7 @@ package com.navercorp.pinpoint.common.trace;
  */
 public enum ServiceTypeProperty {
     TERMINAL,
+    QUEUE,
     RECORD_STATISTICS,
     INCLUDE_DESTINATION_ID
 }
