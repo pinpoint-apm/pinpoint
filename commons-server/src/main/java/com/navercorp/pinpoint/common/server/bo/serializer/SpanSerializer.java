@@ -90,6 +90,7 @@ public class SpanSerializer implements HbaseSerializer<SpanBo, Put> {
         }
 
         buffer.put(span.getLoggingTransactionInfo());
+        buffer.putPrefixedString(span.getAcceptorHost());
 
         return buffer.getBuffer();
     }

@@ -128,15 +128,15 @@ public class SpanEventBo implements Span {
             this.exceptionMessage = exceptionInfo.getStringValue();
         }
         
-        if(tSpanEvent.isSetAsyncId()) {
+        if (tSpanEvent.isSetAsyncId()) {
             this.asyncId = tSpanEvent.getAsyncId();
         }
         
-        if(tSpanEvent.isSetNextAsyncId()) {
+        if (tSpanEvent.isSetNextAsyncId()) {
             this.nextAsyncId = tSpanEvent.getNextAsyncId();
         }
         
-        if(tSpanEvent.isSetAsyncSequence()) {
+        if (tSpanEvent.isSetAsyncSequence()) {
             this.asyncSequence = tSpanEvent.getAsyncSequence();
         }
     }
@@ -196,11 +196,11 @@ public class SpanEventBo implements Span {
             this.asyncId = spanEvent.getAsyncId();
         }
         
-        if(spanEvent.isSetNextAsyncId()) {
+        if (spanEvent.isSetNextAsyncId()) {
             this.nextAsyncId = spanEvent.getNextAsyncId();
         }
         
-        if(spanEvent.isSetAsyncSequence()) {
+        if (spanEvent.isSetAsyncSequence()) {
             this.asyncSequence = spanEvent.getAsyncSequence();
         }
     }
@@ -221,6 +221,14 @@ public class SpanEventBo implements Span {
 
     public void setAgentId(String agentId) {
         this.agentId = agentId;
+    }
+
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
     }
 
     public long getAgentStartTime() {
@@ -414,13 +422,11 @@ public class SpanEventBo implements Span {
         this.asyncSequence = asyncSequence;
     }
 
+    @Deprecated
     public byte[] writeValue() {
         final Buffer buffer = new AutomaticBuffer(512);
 
         buffer.put(version);
-
-        // buffer.put(mostTraceID);
-        // buffer.put(leastTraceID);
 
         buffer.putPrefixedString(agentId);
         buffer.putPrefixedString(applicationId);
@@ -496,8 +502,8 @@ public class SpanEventBo implements Span {
         }
 
         this.annotationBoList = readAnnotation(buffer);
-        if(buffer.getOffset() < endOffset) {
-            nextAsyncId = buffer.readSVarInt();            
+        if (buffer.getOffset() < endOffset) {
+            nextAsyncId = buffer.readSVarInt();
         }
         
         return buffer.getOffset();

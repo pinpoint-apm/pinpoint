@@ -63,6 +63,10 @@ public class AnnotationBo {
         return version & 0xFF;
     }
 
+    public byte getRawVersion() {
+        return version;
+    }
+
     public void setVersion(int version) {
         if (version < 0 || version > 255) {
             throw new IllegalArgumentException("out of range (0~255) " + version);
@@ -82,6 +86,10 @@ public class AnnotationBo {
 
 
     public int getValueType() {
+        return valueType;
+    }
+
+    public byte getRawValueType() {
         return valueType;
     }
 
@@ -105,6 +113,7 @@ public class AnnotationBo {
         this.value = value;
     }
 
+    @Deprecated
     public void writeValue(Buffer buffer) {
         // long timestamp;    // required 8
         // long duration;     // optional 8

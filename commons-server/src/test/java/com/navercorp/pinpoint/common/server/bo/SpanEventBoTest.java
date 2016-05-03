@@ -16,16 +16,31 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.AnnotationSerializer;
+import com.navercorp.pinpoint.common.server.bo.serializer.SpanEventSerializer;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author emeroad
  */
 public class SpanEventBoTest {
+
+
+    private SpanEventSerializer serializer = new SpanEventSerializer();
+
+    @Before
+    public void setUp() throws Exception {
+
+        this.serializer = new SpanEventSerializer();
+        final AnnotationSerializer annotationSerializer = new AnnotationSerializer();
+        this.serializer.setAnnotationSerializer(annotationSerializer);
+
+    }
 
     @Test
     public void testSerialize() throws Exception {
@@ -43,8 +58,11 @@ public class SpanEventBoTest {
         spanEventBo.setServiceType(ServiceType.STAND_ALONE.getCode());
         spanEventBo.setSpanId(12);
         spanEventBo.setStartElapsed(100);
+        spanEventBo.setNextAsyncId(1000);
 
-        byte[] bytes = spanEventBo.writeValue();
+        byte[] deprecatedBytes = spanEventBo.writeValue();
+        byte[] bytes = serializer.writeValue(spanEventBo);
+        Assert.assertArrayEquals(bytes, deprecatedBytes);
 
         SpanEventBo newSpanEventBo = new SpanEventBo();
         int i = newSpanEventBo.readValue(bytes, 0, bytes.length);
@@ -63,6 +81,8 @@ public class SpanEventBoTest {
         Assert.assertEquals(spanEventBo.getRpc(), newSpanEventBo.getRpc());
         Assert.assertEquals(spanEventBo.getServiceType(), newSpanEventBo.getServiceType());
         Assert.assertEquals(spanEventBo.getStartElapsed(), newSpanEventBo.getStartElapsed());
+
+        Assert.assertEquals(spanEventBo.getNextAsyncId(), newSpanEventBo.getNextAsyncId());
 
 
         // we get these from the row key

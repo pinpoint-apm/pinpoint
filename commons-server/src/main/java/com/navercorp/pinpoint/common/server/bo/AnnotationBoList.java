@@ -26,15 +26,16 @@ import java.util.List;
  * @author emeroad
  */
 public class AnnotationBoList {
+
     private List<AnnotationBo> annotationBoList;
 
     public AnnotationBoList() {
-        this.annotationBoList = new ArrayList<AnnotationBo>();
+        this.annotationBoList = new ArrayList<>();
     }
 
 
     public AnnotationBoList(int annotationBoListSize) {
-        this.annotationBoList = new ArrayList<AnnotationBo>(annotationBoListSize);
+        this.annotationBoList = new ArrayList<>(annotationBoListSize);
     }
 
     public AnnotationBoList(List<AnnotationBo> annotationBoList) {
@@ -53,7 +54,8 @@ public class AnnotationBoList {
         this.annotationBoList.add(annotationBo);
     }
 
-    public void writeValue(Buffer writer){
+    @Deprecated
+    public void writeValue(Buffer writer) {
 
         int size = this.annotationBoList.size();
         writer.putVar(size);
@@ -67,7 +69,7 @@ public class AnnotationBoList {
         if (size == 0) {
             return;
         }
-        this.annotationBoList = new ArrayList<AnnotationBo>(size);
+        this.annotationBoList = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             AnnotationBo bo = new AnnotationBo();
             bo.readValue(reader);
