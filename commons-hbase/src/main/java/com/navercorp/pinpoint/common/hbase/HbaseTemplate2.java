@@ -144,9 +144,9 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
         stopWatch.start();
 
         while (true) {
-            Long currentPutOpsCount = asyncOperation.getCurrentPutOpsCount();
+            Long currentPutOpsCount = asyncOperation.getCurrentOpsCount();
             logger.warn("count " + currentPutOpsCount);
-            if (currentPutOpsCount == 0L) {
+            if (currentPutOpsCount <= 0L) {
                 return true;
             }
 

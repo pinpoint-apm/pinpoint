@@ -75,6 +75,9 @@
         <constructor-arg ref="targetClusterPointRepository"/>
     </bean>
 
+    <bean id="hBaseManager" class="com.navercorp.pinpoint.collector.manage.HBaseManager">
+    </bean>
+
     <!-- DispatchHandler-related Beans -->
     <bean id="tcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.TcpDispatchHandler"/>
     <bean id="tcpDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">

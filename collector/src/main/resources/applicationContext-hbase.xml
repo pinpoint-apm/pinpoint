@@ -47,7 +47,12 @@
     </bean>
 
     <bean id="asyncOperation" class="com.navercorp.pinpoint.common.hbase.HBaseAsyncOperationFactory" factory-method="create">
+        <constructor-arg value="#{connectionFactory.getConnection()}"/>
         <constructor-arg ref="hbaseConfiguration"/>
+    </bean>
+
+    <bean id="asyncOperationMetrics" class="com.navercorp.pinpoint.collector.monitor.HBaseAsyncOperationMetrics">
+        <constructor-arg ref="asyncOperation"/>
     </bean>
 
     <bean id="hbaseTemplate" class="com.navercorp.pinpoint.common.hbase.HbaseTemplate2" destroy-method="destroy">

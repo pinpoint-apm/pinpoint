@@ -62,6 +62,10 @@ public class PooledHTableFactory implements TableFactory, DisposableBean {
         }
     }
 
+    public Connection getConnection() {
+        return connection;
+    }
+
     private ExecutorService createExecutorService(int poolSize, int workQueueMaxSize, boolean prestartThreadPool) {
 
         logger.info("create HConnectionThreadPoolExecutor poolSize:{}, workerQueueMaxSize:{}", poolSize, workQueueMaxSize);

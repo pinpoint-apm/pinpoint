@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.common.hbase;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.client.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +43,25 @@ public class HBaseAsyncOperationFactory {
         }
 
         return new HBaseAsyncTemplate(configuration, queueSize);
+    }
+
+    public static HBaseAsyncOperation create(Connection connection, Configuration configuration) throws IOException {
+        boolean enableAsyncMethod = configuration.getBoolean(ENABLE_ASYNC_METHOD, DEFAULT_ENABLE_ASYNC_METHOD);
+        if (!enableAsyncMethod) {
+            return DisabledHBaseAsyncOperation.INSTANCE;
+        }
+
+        int queueSize = configuration.getInt(ASYNC_IN_QUEUE_SIZE, DEFAULT_ASYNC_IN_QUEUE_SIZE);
+
+        if (configuration.get(ASYNC_PERIODIC_FLUSH_TIME, null) == null) {
+            configuration.setInt(ASYNC_PERIODIC_FLUSH_TIME, DEFAULT_ASYNC_PERIODIC_FLUSH_TIME);
+        }
+
+        if (configuration.get(ASYNC_RETRY_COUNT, null) == null) {
+            configuration.setInt(ASYNC_RETRY_COUNT, DEFAULT_ASYNC_RETRY_COUNT);
+        }
+
+        return new HBaseAsyncTemplate(connection, configuration, queueSize);
     }
 
 }
