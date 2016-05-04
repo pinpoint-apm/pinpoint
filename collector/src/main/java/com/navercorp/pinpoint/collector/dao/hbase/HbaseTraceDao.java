@@ -18,33 +18,27 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.TracesDao;
 import com.navercorp.pinpoint.collector.dao.hbase.filter.SpanEventFilter;
+import com.navercorp.pinpoint.common.server.bo.serializer.AnnotationSerializer;
+import com.navercorp.pinpoint.common.server.bo.serializer.SpanEventSerializer;
 import com.navercorp.pinpoint.common.server.bo.serializer.SpanSerializer;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
-import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
-import com.navercorp.pinpoint.common.server.bo.AnnotationBoList;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
-import com.navercorp.pinpoint.common.buffer.Buffer;
 import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.SpanUtils;
-import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -68,6 +62,12 @@ public class HbaseTraceDao implements TracesDao {
     private SpanSerializer spanSerializer;
 
     @Autowired
+    private SpanEventSerializer spanEventSerializer;
+
+    @Autowired
+    private AnnotationSerializer annotationSerializer;
+
+    @Autowired
     @Qualifier("traceDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
 
@@ -83,16 +83,8 @@ public class HbaseTraceDao implements TracesDao {
         final Put put = new Put(rowKey);
 
         this.spanSerializer.serialize(spanBo, put, null);
+        this.annotationSerializer.serialize(spanBo, put, null);
 
-        // TODO  if we can identify whether the columnName is duplicated or not,
-        // we can also know whether the span id is duplicated or not.
-        final byte[] spanId = Bytes.toBytes(spanBo.getSpanId());
-
-        List<TAnnotation> annotations = span.getAnnotations();
-        if (CollectionUtils.isNotEmpty(annotations)) {
-            byte[] bytes = writeAnnotation(annotations);
-            put.addColumn(TRACES_CF_ANNOTATION, spanId, bytes);
-        }
 
         addNestedSpanEvent(put, span);
 
@@ -147,24 +139,8 @@ public class HbaseTraceDao implements TracesDao {
         if (!spanEventFilter.filter(spanEventBo)) {
             return;
         }
-
-        byte[] rowId = BytesUtils.add(spanEventBo.getSpanId(), spanEventBo.getSequence(), spanEventBo.getAsyncId(), spanEventBo.getAsyncSequence());
-        byte[] value = spanEventBo.writeValue();
-        final long acceptedTime = acceptedTimeService.getAcceptedTime();
-
-        put.addColumn(TRACES_CF_TERMINALSPAN, rowId, acceptedTime, value);
+        this.spanEventSerializer.serialize(spanEventBo, put, null);
     }
 
-    private byte[] writeAnnotation(List<TAnnotation> annotations) {
-        List<AnnotationBo> boList = new ArrayList<>(annotations.size());
-        for (TAnnotation ano : annotations) {
-            AnnotationBo annotationBo = new AnnotationBo(ano);
-            boList.add(annotationBo);
-        }
 
-        Buffer buffer = new AutomaticBuffer(64);
-        AnnotationBoList annotationBoList = new AnnotationBoList(boList);
-        annotationBoList.writeValue(buffer);
-        return buffer.getBuffer();
-    }
 }

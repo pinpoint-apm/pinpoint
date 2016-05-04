@@ -16,18 +16,31 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.server.bo.serializer.AnnotationSerializer;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.nio.charset.Charset;
 
 /**
  * @author emeroad
  */
 public class AnnotationBoTest {
+
+    private static final Charset UTF_8 = Charset.forName("UTF-8");
+    
+    private AnnotationSerializer serializer = new AnnotationSerializer();
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Test
     public void testGetVersion() throws Exception {
 
@@ -40,20 +53,29 @@ public class AnnotationBoTest {
 
     @Test
     public void testWriteValue() throws Exception {
-        AnnotationBo bo = new AnnotationBo();
-        bo.setKey(AnnotationKey.API.getCode());
-        bo.setByteValue("value".getBytes("UTF-8"));
+        AnnotationBo annotation1 = new AnnotationBo();
+        annotation1.setKey(AnnotationKey.API.getCode());
+
+        final String value = RandomStringUtils.random(RandomUtils.nextInt(20));
+        annotation1.setByteValue(value.getBytes(UTF_8));
+        AnnotationBo annotation = annotation1;
 //        int bufferSize = bo.getBufferSize();
 
         Buffer buffer = new AutomaticBuffer(128);
-        bo.writeValue(buffer);
+        this.serializer.writeAnnotation(annotation, buffer);
+
+
+        Buffer deprecatedBuffer = new AutomaticBuffer(128);
+        annotation.writeValue(deprecatedBuffer);
+        Assert.assertArrayEquals(buffer.getBuffer(), deprecatedBuffer.getBuffer());
 
         AnnotationBo bo2 = new AnnotationBo();
         buffer.setOffset(0);
         bo2.readValue(buffer);
-        Assert.assertEquals(bo.getKey(), bo2.getKey());
-        Assert.assertEquals(bo.getValueType(), bo2.getValueType());
-        Assert.assertArrayEquals(bo.getByteValue(), bo2.getByteValue());
+        Assert.assertEquals(annotation.getKey(), bo2.getKey());
+        Assert.assertEquals(annotation.getValueType(), bo2.getValueType());
+        Assert.assertArrayEquals(annotation.getByteValue(), bo2.getByteValue());
     }
+
 
 }

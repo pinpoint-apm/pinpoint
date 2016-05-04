@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
@@ -128,7 +129,7 @@ public class SpanBo implements Span {
             this.exceptionMessage = exceptionInfo.getStringValue();
         }
 
-        setAnnotationList(span.getAnnotations());
+        this.annotationBoList = buildAnnotationList(span.getAnnotations());
     }
 
     public SpanBo(String traceAgentId, long traceAgentStartTime, long traceTransactionSequence, long startTime, int elapsed, long spanId) {
@@ -290,15 +291,16 @@ public class SpanBo implements Span {
         return annotationBoList;
     }
 
-    public void setAnnotationList(List<TAnnotation> anoList) {
+    private List<AnnotationBo> buildAnnotationList(List<TAnnotation> anoList) {
         if (anoList == null) {
-            return;
+            return Collections.emptyList();
         }
-        List<AnnotationBo> boList = new ArrayList<AnnotationBo>(anoList.size());
+        List<AnnotationBo> boList = new ArrayList<>(anoList.size());
         for (TAnnotation ano : anoList) {
-            boList.add(new AnnotationBo(ano));
+            final AnnotationBo annotationBo = new AnnotationBo(ano);
+            boList.add(annotationBo);
         }
-        this.annotationBoList = boList;
+        return boList;
     }
 
     public void setAnnotationBoList(List<AnnotationBo> anoList) {
@@ -310,7 +312,7 @@ public class SpanBo implements Span {
 
     public void addSpanEvent(SpanEventBo spanEventBo) {
         if (spanEventBoList == null) {
-            spanEventBoList = new ArrayList<SpanEventBo>();
+            spanEventBoList = new ArrayList<>();
         }
         spanEventBoList.add(spanEventBo);
     }
