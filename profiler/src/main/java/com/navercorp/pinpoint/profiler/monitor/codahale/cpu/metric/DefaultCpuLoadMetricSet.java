@@ -18,9 +18,11 @@ package com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import com.codahale.metrics.Gauge;
-import com.sun.management.OperatingSystemMXBean;
+import java.lang.management.OperatingSystemMXBean;
 
 /**
  * @author hyungil.jeong
@@ -47,7 +49,19 @@ public final class DefaultCpuLoadMetricSet extends AbstractCpuLoadMetricSet {
             @Override
             public Double getValue() {
 
-                final long cpuTimeNS = operatingSystemMXBean.getProcessCpuTime();
+                long cpuTimeNS = UNSUPPORTED;
+                try {
+                    Method method = operatingSystemMXBean.getClass().getMethod("getProcessCpuTime");
+                    Object result = method.invoke(operatingSystemMXBean);
+                    cpuTimeNS = (Long) result;
+                } catch (SecurityException e) {
+                } catch (NoSuchMethodException e) {
+                } catch (IllegalArgumentException e) {
+                } catch (IllegalAccessException e) {
+                } catch (InvocationTargetException e) {
+                } catch (ClassCastException e) {
+                }
+                
                 if (cpuTimeNS == UNSUPPORTED) {
                     return UNSUPPORTED_CPU_LOAD_METRIC;
                 }

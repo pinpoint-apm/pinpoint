@@ -30,15 +30,15 @@ import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
  */
 public abstract class AbstractCpuLoadMetricSet implements CpuLoadMetricSet {
 
-    private final com.sun.management.OperatingSystemMXBean mxBean;
+    private final java.lang.management.OperatingSystemMXBean mxBean;
 
     protected AbstractCpuLoadMetricSet() {
-        this.mxBean = (com.sun.management.OperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean();
+        this.mxBean = (java.lang.management.OperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean();
     }
 
-    protected abstract Gauge<Double> getJvmCpuLoadGauge(final com.sun.management.OperatingSystemMXBean operatingSystemMXBean);
+    protected abstract Gauge<Double> getJvmCpuLoadGauge(final java.lang.management.OperatingSystemMXBean operatingSystemMXBean);
 
-    protected abstract Gauge<Double> getSystemCpuLoadGauge(final com.sun.management.OperatingSystemMXBean operatingSystemMXBean);
+    protected abstract Gauge<Double> getSystemCpuLoadGauge(final java.lang.management.OperatingSystemMXBean operatingSystemMXBean);
 
     @Override
     public Map<String, Metric> getMetrics() {

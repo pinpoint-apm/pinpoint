@@ -16,21 +16,36 @@
 
 package com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric;
 
+import java.lang.management.OperatingSystemMXBean;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import com.codahale.metrics.Gauge;
-import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.AbstractCpuLoadMetricSet;
-import com.sun.management.OperatingSystemMXBean;
 
 /**
  * @author hyungil.jeong
  */
 public class EnhancedCpuLoadMetricSet extends AbstractCpuLoadMetricSet {
+    private static final Double UNSUPPORTED_CPU_LOAD_METRIC = -1.0D;
 
     @Override
     protected Gauge<Double> getJvmCpuLoadGauge(final OperatingSystemMXBean operatingSystemMXBean) {
         return new Gauge<Double>() {
             @Override
             public Double getValue() {
-                return operatingSystemMXBean.getProcessCpuLoad();
+                Double value = UNSUPPORTED_CPU_LOAD_METRIC;
+                try {
+                    Method method = operatingSystemMXBean.getClass().getMethod("getProcessCpuLoad");
+                    Object result = method.invoke(operatingSystemMXBean);
+                    value = (Double) result;
+                } catch (SecurityException e) {
+                } catch (NoSuchMethodException e) {
+                } catch (IllegalArgumentException e) {
+                } catch (IllegalAccessException e) {
+                } catch (InvocationTargetException e) {
+                } catch (ClassCastException e) {
+                }
+                return value;
             }
         };
     }
@@ -40,7 +55,19 @@ public class EnhancedCpuLoadMetricSet extends AbstractCpuLoadMetricSet {
         return new Gauge<Double>() {
             @Override
             public Double getValue() {
-                return operatingSystemMXBean.getSystemCpuLoad();
+                Double value = UNSUPPORTED_CPU_LOAD_METRIC;
+                try {
+                    Method method = operatingSystemMXBean.getClass().getMethod("getSystemCpuLoad");
+                    Object result = method.invoke(operatingSystemMXBean);
+                    value = (Double) result;
+                } catch (SecurityException e) {
+                } catch (NoSuchMethodException e) {
+                } catch (IllegalArgumentException e) {
+                } catch (IllegalAccessException e) {
+                } catch (InvocationTargetException e) {
+                } catch (ClassCastException e) {
+                }
+                return value;
             }
         };
     }
