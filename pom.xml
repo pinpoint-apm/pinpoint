@@ -849,13 +849,6 @@
                 <groupId>com.cj.jshintmojo</groupId>
                 <artifactId>jshint-maven-plugin</artifactId>
                 <version>1.6.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>lint</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <options>sub, boss, newcap, loopfunc</options>
                     <globals></globals>
