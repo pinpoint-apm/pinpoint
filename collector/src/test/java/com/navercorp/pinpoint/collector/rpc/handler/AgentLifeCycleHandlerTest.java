@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +33,6 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.collector.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
@@ -46,9 +45,9 @@ import com.navercorp.pinpoint.rpc.server.PinpointServer;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AgentLifeCycleHandlerTest {
-
+    // FIX guava 19.0.0 update error. MoreExecutors.sameThreadExecutor(); change final class
     @Spy
-    private ExecutorService executor = MoreExecutors.sameThreadExecutor();
+    private Executor executor = new DirectExecutor();
 
     @Mock
     private PinpointServer pinpointServer;

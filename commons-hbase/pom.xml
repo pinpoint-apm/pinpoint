@@ -137,7 +137,16 @@
                     <artifactId>hsqldb</artifactId>
                     <groupId>hsqldb</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>commons-beanutils-core</artifactId>
+                    <groupId>commons-beanutils</groupId>
+                </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>16.0.1</version>
         </dependency>
 
         <dependency>
