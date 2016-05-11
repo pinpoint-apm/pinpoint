@@ -73,8 +73,7 @@
         <encoding>UTF-8</encoding>
         <jdk.version>1.6</jdk.version>
         <jdk.home>${env.JAVA_6_HOME}</jdk.home>
-        <test.jdk.home>${jdk.home}</test.jdk.home>
-        <slf4j.version>1.7.21</slf4j.version>
+        <slf4j.version>1.7.5</slf4j.version>
         <metrics.version>3.1.2</metrics.version>
         <jetty.version>8.1.12.v20130726</jetty.version>
         <fastxml.jackson.version>2.6.7</fastxml.jackson.version>
