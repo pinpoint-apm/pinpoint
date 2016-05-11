@@ -909,7 +909,7 @@
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
                 <artifactId>maven-clover2-plugin</artifactId>
-                <version>3.1.6</version>
+                <version>4.0.6</version>
                 <configuration>
                     <includesTestSourceRoots>true</includesTestSourceRoots>
                     <licenseLocation>clover.license</licenseLocation>
