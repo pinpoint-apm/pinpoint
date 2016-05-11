@@ -39,7 +39,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private static final Method DEFINE_CLASS;
+    private static final Method DEFINE_CLASS, RESOLVE_CLASS;
 
     static {
         try {
@@ -49,6 +49,16 @@ public class PlainClassLoaderHandler implements ClassInjector {
             throw new PinpointException("Cannot access ClassLoader.defineClass(String, byte[], int, int)", e);
         }
     }
+    
+    
+    static {
+        try {
+            RESOLVE_CLASS = ClassLoader.class.getDeclaredMethod("resolveClass", Class.class);
+            RESOLVE_CLASS.setAccessible(true);
+        } catch (Exception e) {
+            throw new PinpointException("Cannot access URLClassLoader.loadClass(class, boolean)", e);
+        }
+    }    
 
     private final PluginConfig pluginConfig;
 
@@ -136,10 +146,9 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
         final CtClass superClass = ct.getSuperclass();
         if (superClass != null) {
-            if ("java.lang.Object".equals(superClass.getName())) {
-                return null;
+            if (!"java.lang.Object".equals(superClass.getName())) {
+                injectClass0(pool, classLoader, superClass.getName(), classLoadingChecker);
             }
-            injectClass0(pool, classLoader, superClass.getName(), classLoadingChecker);
         }
 
         final CtClass[] interfaces = ct.getInterfaces();
@@ -162,6 +171,8 @@ public class PlainClassLoaderHandler implements ClassInjector {
             logger.info("defineClass pluginClass:{} cl:{}", className, classLoader);
         }
         final byte[] bytes = ct.toBytecode();
-        return (Class<?>)DEFINE_CLASS.invoke(classLoader, ct.getName(), bytes, 0, bytes.length);
+        Class<?> clazz =  (Class<?>)DEFINE_CLASS.invoke(classLoader, ct.getName(), bytes, 0, bytes.length);
+        RESOLVE_CLASS.invoke(classLoader, clazz);
+        return clazz;
     }
 }
