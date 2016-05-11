@@ -15,27 +15,25 @@
 
 package com.navercorp.pinpoint.profiler.instrument;
 
-import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.navercorp.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
+
 /**
  * @author Woonduk Kang(emeroad)
- * @author jaehong.kim
  */
 public class URLClassLoaderHandler implements ClassInjector {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
 
-    private static final Method ADD_URL, LOAD_CLASS;;
+    private static final Method ADD_URL, LOAD_CLASS;
 
     static {
         try {
@@ -53,7 +51,7 @@ public class URLClassLoaderHandler implements ClassInjector {
         } catch (Exception e) {
             throw new PinpointException("Cannot access URLClassLoader.loadClass(class, boolean)", e);
         }
-    }    
+    }
 
     private final URL pluginURL;
     private final String pluginURLString;
@@ -72,8 +70,7 @@ public class URLClassLoaderHandler implements ClassInjector {
         try {
             if (classLoader instanceof URLClassLoader) {
                 final URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
-                addPluginURLIfAbsent(urlClassLoader);
-                return (Class<T>) urlClassLoader.loadClass(className);
+                return (Class<T>)injectClass0(urlClassLoader, className);
             }
         } catch (Exception e) {
             logger.warn("Failed to load plugin class {} with classLoader {}", className, classLoader, e);
@@ -82,32 +79,21 @@ public class URLClassLoaderHandler implements ClassInjector {
         throw new PinpointException("invalid ClassLoader");
     }
 
-    @Override
-    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String classPath) {
-        try {
-            if (targetClassLoader instanceof URLClassLoader) {
-                final URLClassLoader urlClassLoader = (URLClassLoader) targetClassLoader;
-                addPluginURLIfAbsent(urlClassLoader);
-                return targetClassLoader.getResourceAsStream(classPath);
-            }
-        } catch (Exception e) {
-            logger.warn("Failed to load plugin resource as stream {} with classLoader {}", classPath, targetClassLoader, e);
-            return null;
-        }
-        return null;
-    }
 
-    private void addPluginURLIfAbsent(URLClassLoader classLoader) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
+
+    private Class<?> injectClass0(URLClassLoader classLoader, String className) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
         final URL[] urls = classLoader.getURLs();
         if (urls != null) {
+
             final boolean hasPluginJar = hasPluginJar(urls);
+
             if (!hasPluginJar) {
-                if (isDebug) {
-                    logger.debug("add Jar:{}", pluginURLString);
-                }
+                logger.debug("add Jar:{}", pluginURLString);
                 ADD_URL.invoke(classLoader, pluginURL);
             }
         }
+
+        return (Class<?>) LOAD_CLASS.invoke(classLoader, className, true);
     }
 
     private boolean hasPluginJar(URL[] urls) {
@@ -116,9 +102,12 @@ public class URLClassLoaderHandler implements ClassInjector {
             // http://michaelscharf.blogspot.com/2006/11/javaneturlequals-and-hashcode-make.html
             final String externalForm = url.toExternalForm();
             if (pluginURLString.equals(externalForm)) {
+
                 return true;
             }
         }
         return false;
     }
+
+
 }
