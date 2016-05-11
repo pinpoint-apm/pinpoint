@@ -7,6 +7,12 @@
 * Install agents without changing a single line of code
 * Minimal impact on performance (approximately 3% increase in resource usage)
 
+## We're Heading to Austin for OSCON!
+We've been lucky enough to hold a Birds of a Feather (BoF) session on May 18th 7pm.
+Come join us to discuss everything and anything about Pinpoint and distributed tracing.
+
+If anyone's headed to Austin for OSCON and wishes to meet up, let us know by sending us a mail or leaving a note [here](https://github.com/naver/pinpoint/issues/1754).
+
 ## Latest Release (2016/04/08)
 We're happy to announce the release of Pinpoint **v1.5.2**. <br/>
 Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.5.2)<br/>
