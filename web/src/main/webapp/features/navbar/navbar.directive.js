@@ -447,13 +447,11 @@
 	                        }
 	                        var chunk = state.id.split("@");
 	                        if (chunk.length > 1) {
-								var $img = $("<img>").attr({
-									"src":"images/icons/" + chunk[1] + ".png"
-								}).css({
-									"height": "25px",
-									"paddingRight": "3px"
-								});
-								return $img.get(0).outerHTML + "<span>" + chunk[0] + "</span>";
+								var img = document.createElement("img");
+								img.src = "images/icons/" + chunk[1] + ".png";
+								img.style.height = "25px";
+								img.style.paddingRight= "3px";
+								return img.outerHTML + "<span>" + chunk[0] + "</span>";
 	                        } else {
 	                            return state.text;
 	                        }

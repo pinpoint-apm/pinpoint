@@ -196,7 +196,7 @@
 	                $scope.hasScatter = false;
 	            }
 	            $scope.hasFilter = false;
-	            $scope.$broadcast('sidebarTitleDirective.initialize.forMain', oSidebarTitleVoService, node);
+	            $scope.$broadcast('sidebarTitleDirective.initialize.forMain', oSidebarTitleVoService, node, oNavbarVoService);
 	            $scope.$broadcast('nodeInfoDetailsDirective.initialize', e, query, node, data, oNavbarVoService, null, searchQuery);
 	            $scope.$broadcast('linkInfoDetailsDirective.hide');
 	
@@ -234,7 +234,7 @@
 	            } else {
 	                $scope.hasFilter = false;
 	            }
-	            $scope.$broadcast('sidebarTitleDirective.initialize.forMain', oSidebarTitleVoService);
+	            $scope.$broadcast('sidebarTitleDirective.initialize.forMain', oSidebarTitleVoService, link, oNavbarVoService);
 	            $scope.$broadcast('nodeInfoDetailsDirective.hide');
 	            $scope.$broadcast('linkInfoDetailsDirective.initialize', e, query, link, data, oNavbarVoService);
 	

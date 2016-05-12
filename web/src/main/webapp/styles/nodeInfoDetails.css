@@ -19,21 +19,6 @@
     background-color: #E5F0FC;
     border-bottom: 1px solid #BDC3C7;
 }
-.nodeInfoDetails .unknown-group .unknown-list {
-    position: absolute;
-    top: 40px;
-    bottom:0;
-    left:0;
-    right:0;
-    overflow:auto;
-    padding:0 15px;
-}
-.nodeInfoDetails .known-node {
-    position: absolute;
-    top: 0;
-    bottom:0;
-    left:0;
-    right:0;
-    overflow:auto;
-    padding:0 15px;
+.nodeInfoDetails .search-n-order {
+    padding: 8px 0px 2px 0px;
 }
