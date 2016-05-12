@@ -35,6 +35,7 @@ public final class HBaseTables {
     public static final int APPLICATION_TRACE_INDEX_ROW_DISTRIBUTE_SIZE = 1; // applicationIndex hash size
 
     public static final TableName AGENT_STAT = TableName.valueOf("AgentStat");
+    public static final TableName AGENT_STAT_AGGR = TableName.valueOf("AgentStatAggr");
     public static final byte[] AGENT_STAT_CF_STATISTICS = Bytes.toBytes("S"); // agent statistics column family
     // FIXME (2014.08) Legacy column for storing serialzied TAgentStat Thrift DTO.
     @Deprecated public static final byte[] AGENT_STAT_CF_STATISTICS_V1 = Bytes.toBytes("V1"); // qualifier
