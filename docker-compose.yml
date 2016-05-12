@@ -5,8 +5,10 @@ pinpoint-hbase:
   restart: always
   expose:
     - "2181"
+    - "16010"
   ports:
     - "2181:2181"
+    - "16010:16010"
 
 pinpoint-collector:
   container_name: pinpoint-collector

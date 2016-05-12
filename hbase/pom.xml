@@ -25,15 +25,15 @@
                     <entryPoint>/opt/hbase/hbase-$HBASE_VERSION/bin/hbase master start</entryPoint>
                     <env>
                         <JAVA_HOME>/usr/lib/jvm/java-8-openjdk-amd64</JAVA_HOME>
-                        <HBASE_VERSION>1.0.3</HBASE_VERSION>
-                        <HBASE_HOME>/opt/hbase/hbase-1.0.3</HBASE_HOME>
+                        <HBASE_VERSION>1.2.1</HBASE_VERSION>
+                        <HBASE_HOME>/opt/hbase/hbase-1.2.1</HBASE_HOME>
                     </env>
                     <exposes>
                         <expose>2181</expose>
                         <expose>60000</expose>
-                        <expose>60010</expose>
+                        <expose>16010</expose>
                         <expose>60020</expose>
-                        <expose>60030</expose>
+                        <expose>16030</expose>
                     </exposes>
                     <resources>
                         <resource>
@@ -48,7 +48,7 @@
                         </resource>
                     </resources>
                     <runs>
-                        <run>curl -SL "http://apache.mirrors.pair.com/hbase/hbase-$HBASE_VERSION/hbase-$HBASE_VERSION-bin.tar.gz" -o hbase.tar.gz</run>
+                        <run>curl -SL "http://apache.mirrors.pair.com/hbase/$HBASE_VERSION/hbase-$HBASE_VERSION-bin.tar.gz" -o hbase.tar.gz</run>
                         <run>tar xfvz hbase.tar.gz -C /opt/hbase</run>
                         <run>rm -rf hbase.tar.gz</run>
                         <run>cp /opt/hbase/hbase-site.xml /opt/hbase/hbase-$HBASE_VERSION/conf/hbase-site.xml</run>
