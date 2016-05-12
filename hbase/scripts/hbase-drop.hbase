@@ -1,5 +1,6 @@
 disable 'AgentInfo'
 disable 'AgentStat'
+disable 'AgentStatAggr'
 disable 'AgentLifeCycle'
 disable 'AgentEvent'
 disable 'ApplicationIndex'

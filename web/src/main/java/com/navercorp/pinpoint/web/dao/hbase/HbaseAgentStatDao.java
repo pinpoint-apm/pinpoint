@@ -19,18 +19,8 @@ package com.navercorp.pinpoint.web.dao.hbase;
 import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
-import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.RowKeyUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
-import com.navercorp.pinpoint.web.dao.AgentStatDao;
-import com.navercorp.pinpoint.web.vo.AgentStat;
-import com.navercorp.pinpoint.web.vo.Range;
 
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -41,6 +31,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
+import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.RowKeyUtils;
+import com.navercorp.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.web.dao.AgentStatDao;
+import com.navercorp.pinpoint.web.util.AgentStats;
+import com.navercorp.pinpoint.web.vo.AgentStat;
+import com.navercorp.pinpoint.web.vo.Range;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 
 /**
@@ -49,6 +50,9 @@ import com.sematext.hbase.wd.AbstractRowKeyDistributor;
  */
 @Repository
 public class HbaseAgentStatDao implements AgentStatDao {
+    private static final long USE_AGGR_THRESHOLD = 4L * 60 * 60 * 1000;
+    private static final int AGGR_INTERVAL = 10 * 60 * 1000;
+    private static final int AGGR_MAX_INTERVAL = AGGR_INTERVAL * 2; 
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -81,8 +85,15 @@ public class HbaseAgentStatDao implements AgentStatDao {
         if (logger.isDebugEnabled()) {
             logger.debug("scanAgentStat : agentId={}, {}", agentId, range);
         }
-
-
+        
+        if (range.getRange() < USE_AGGR_THRESHOLD) {
+            return getAgentStatListFromRaw(agentId, range);
+        } else {
+            return getAgentStatListFromAggr(agentId, range);
+        }
+    }
+    
+    private List<AgentStat> getAgentStatListFromRaw(String agentId, Range range) {
         Scan scan = createScan(agentId, range);
         scan.addFamily(HBaseTables.AGENT_STAT_CF_STATISTICS);
 
@@ -97,7 +108,56 @@ public class HbaseAgentStatDao implements AgentStatDao {
 
         return merged;
     }
+    
+    public List<AgentStat> getAgentStatListFromAggr(String agentId, Range range) {
+        Scan scan = createScan(agentId, range);
+        scan.addFamily(HBaseTables.AGENT_STAT_CF_STATISTICS);
+        
+        List<List<AgentStat>> intermediate = hbaseOperations2.find(HBaseTables.AGENT_STAT_AGGR, scan, rowKeyDistributor, agentStatMapper);
+        
+        List<AgentStat> merged = new ArrayList<>();
 
+        for (List<AgentStat> each : intermediate) {
+            merged.addAll(each);
+        }
+        
+        Collections.sort(merged, AgentStats.TIMESTAMP_COMPARATOR);
+        
+        
+        List<Range> missingRanges = new ArrayList<>();
+        long last = range.getFrom();
+        
+        for (AgentStat stat : merged) {
+            if (last + AGGR_MAX_INTERVAL < stat.getTimestamp()) {
+                Range r = new Range(last, stat.getTimestamp() - stat.getCollectInterval());
+                missingRanges.add(r);
+            }
+            
+            last = stat.getTimestamp();
+        }
+        
+        if (last + AGGR_MAX_INTERVAL < range.getTo()) {
+            Range r = new Range(last, range.getTo());
+            missingRanges.add(r);
+        }
+        
+        for (Range r : missingRanges) {
+            logger.debug("AgentStatAggr doesn't have range: " + r.prettyToString() + " of " + agentId);
+
+            List<AgentStat> list = getAgentStatListFromRaw(agentId, r);
+            
+            if (list.isEmpty()) {
+                logger.debug("AgentStat also doesn't have range: " + r.prettyToString() + " of " + agentId);
+                continue;
+            }
+            
+            List<AgentStat> aggregated = AgentStats.aggregate(list, AGGR_INTERVAL);
+            merged.addAll(aggregated);
+        }
+
+        return merged;
+    }
+    
     @Override
     public boolean agentStatExists(String agentId, Range range) {
         if (agentId == null) {

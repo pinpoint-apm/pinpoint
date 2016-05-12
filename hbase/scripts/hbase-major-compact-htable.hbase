@@ -1,5 +1,6 @@
 major_compact 'AgentInfo'
 major_compact 'AgentStat'
+major_compact 'AgentStatAggr'
 major_compact 'AgentLifeCycle'
 major_compact 'AgentEvent'
 major_compact 'ApplicationIndex'
