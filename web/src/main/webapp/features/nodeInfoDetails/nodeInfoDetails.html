@@ -2,8 +2,8 @@
 
     <div class="unknown-group" ng-show="node.serviceType.indexOf('_GROUP') != -1">
 
-        <div class="search-n-order" style="padding-left:15px;">
-            <div style="float:left;width:265px;padding-right:5px">
+        <div class="search-n-order">
+            <div style="display:inline-block;width:265px">
                 <div class="input-group form-group input-group-sm has-feedback" style="margin-bottom:0;">
                     <span class=" input-group-addon">
                         <span class="glyphicon glyphicon-search" style="top:0;"></span>
@@ -12,7 +12,7 @@
                     <span class="glyphicon glyphicon-remove form-control-feedback" style="top:-2px;z-index:2;" ng-click="nodeSearch=''" ng-show="nodeSearch"></span>
                 </div>
             </div>
-            <div>
+            <div style="float:right">
                 <div class="btn-group btn-group-sm">
                     <button type="button" class="btn btn-default" ng-click="nodeOrderByName()">Name <span class="glyphicon" ng-class="nodeOrderByNameClass"></span></button>
                     <button type="button" class="btn btn-default" ng-click="nodeOrderByCount()">Count <span class="glyphicon" ng-class="nodeOrderByCountClass"></span></button>
@@ -48,10 +48,6 @@
                        title="Show Node Information" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 50px; right:5px;color:#31708f;">
                         <span class="glyphicon glyphicon-info-sign"></span>
                     </a>
-                    <!--<a class="btn btn-default btn-xs" href title="Filter Transaction" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 50px; right:5px;"-->
-                       <!--ng-click="passingTransactionMapFromLinkInfoDetails(target.applicationName, target.serviceType)">-->
-                        <!--<span class="glyphicon glyphicon-filter"></span>-->
-                    <!--</a>-->
                 </div>
             </div>
         </div>
@@ -68,19 +64,6 @@
             <h5><span class="glyphicon glyphicon-question-sign loadChartTooltip" style="cursor:pointer;float:right;"></span> Load</h5>
             <load-chart-directive namespace="forNode"></load-chart-directive>
         </div>
-
-		<div class="node-servers" ng-show="showNodeServers" style="font-size:18px;border-top:1px solid #DDD;padding-top:10px;">
-			<div class="btn-group">
-				<button type="button" class="btn btn-xs btn-default" ng-click="showServerList()" style="font-size:16px;">
-	                   <span class="glyphicon glyphicon-chevron-left"></span>
-	            </button>
-	            <button type="button" class="btn btn-xs btn-default btn-primary" ng-click="showServerList()" style="font-size:16px;">
-	                   Servers
-	            </button>
-			</div>
-			<span class="label label-default">Total</span><span class="label label-info">{{serverCount}}</span>
-			<span class="label label-default">Error</span><span class="label label-danger">{{errorServerCount}}</span>
-		</div>
         <div ng-show="htLastUnknownNode.serviceType.indexOf( '_GROUP' ) != -1 && htLastUnknownNode">
             <button type="button" class="btn btn-default btn-xs" ng-click="goBackToUnknownNode()"><span class="glyphicon glyphicon-arrow-left"></span> Go back to Group</button>
         </div>

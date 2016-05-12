@@ -85,6 +85,7 @@ canvas {outline:none}
 
 
 /* info-details */
+/*
 .info-details {
     position: absolute;
 	top: 60px;
@@ -94,7 +95,7 @@ canvas {outline:none}
 	overflow: auto;
 }
 .info-details.has-scatter {
-    top: 330px;
+    top: 370px;
     border-top: 1px solid #ddd;
 }
 .info-details.has-filter {
@@ -103,6 +104,11 @@ canvas {outline:none}
 .info-details.has-scatter.has-filter {
     top: 455px;
 }
+*/
+.info-details.has-scatter {
+    border-top: 1px solid #ddd;
+}
+
 
 .wait {
     cursor: wait !important;
@@ -575,23 +581,8 @@ canvas {outline:none}
     background-color: #E5F0FC;
     border-bottom: 1px solid #BDC3C7;
 }
-.nodeInfoDetails .unknown-group .unknown-list {
-    position: absolute;
-    top: 40px;
-    bottom:0;
-    left:0;
-    right:0;
-    overflow:auto;
-    padding:0 15px;
-}
-.nodeInfoDetails .known-node {
-    position: absolute;
-    top: 0;
-    bottom:0;
-    left:0;
-    right:0;
-    overflow:auto;
-    padding:0 15px;
+.nodeInfoDetails .search-n-order {
+    padding: 8px 0px 2px 0px;
 }
 .linkInfoDetails {
     /*padding: 5px 15px 30px;*/
@@ -616,24 +607,8 @@ canvas {outline:none}
     /*font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;*/
     font-size: 12px;
 }
-
-.linkInfoDetails .unknown-group .unknown-list {
-    position: absolute;
-    top: 40px;
-    bottom:0;
-    left:0;
-    right:0;
-    overflow:auto;
-    padding:0 15px;
-}
-.linkInfoDetails .known-link {
-    position: absolute;
-    top: 0;
-    bottom:0;
-    left:0;
-    right:0;
-    overflow:auto;
-    padding:0 15px;
+.linkInfoDetails .search-n-order {
+    padding: 8px 0px 2px 0px;
 }
 .transaction-table-directive {
     position: absolute;
@@ -930,21 +905,37 @@ canvas {outline:none}
     right:0;
 }
 .sidebar-title-directive {
-    height: 64px;
-    padding-top: 10px;
+    background-color: #f2f2f2;
+    margin: 0px -10px 0px -12px;
 }
 .sidebar-title-directive h3 {
     margin: 0;
     padding: 0 10px;
-    height: 44px;
     line-height: 44px;
-    background-color: #f2f2f2;
-    border-radius: 10px;
     font-size: 13px;
-    text-align: center;
+    text-align: left;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    border-bottom: 1px solid #EAEAEA;
+}
+.servers-list {
+    padding: 6px 0px;
+    border-bottom: 1px solid #EAEAEA;
+}
+.servers-list > span {
+    width: 33%;
+    display: inline-block;
+    text-align: center;
+    font-size: 12px;
+}
+.servers-list > span:first-child {
+    width: 30%;
+    padding-left: 18px;
+    text-align: left;
+}
+.servers-list > span > span {
+    font-size: 14px;
 }
 /* servermap */
 .servermap {

@@ -1,17 +1,33 @@
 .sidebar-title-directive {
-    height: 64px;
-    padding-top: 10px;
+    background-color: #f2f2f2;
+    margin: 0px -10px 0px -12px;
 }
 .sidebar-title-directive h3 {
     margin: 0;
     padding: 0 10px;
-    height: 44px;
     line-height: 44px;
-    background-color: #f2f2f2;
-    border-radius: 10px;
     font-size: 13px;
-    text-align: center;
+    text-align: left;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    border-bottom: 1px solid #EAEAEA;
+}
+.servers-list {
+    padding: 6px 0px;
+    border-bottom: 1px solid #EAEAEA;
+}
+.servers-list > span {
+    width: 33%;
+    display: inline-block;
+    text-align: center;
+    font-size: 12px;
+}
+.servers-list > span:first-child {
+    width: 30%;
+    padding-left: 18px;
+    text-align: left;
+}
+.servers-list > span > span {
+    font-size: 14px;
 }

@@ -2,8 +2,8 @@
 
     <div class="unknown-group" ng-show="link.toNode.serviceType.indexOf( '_GROUP' ) != -1">
 
-        <div class="search-n-order" style="padding-left:15px;">
-            <div style="float:left;width:265px;padding-right:5px">
+        <div class="search-n-order">
+			<div style="display:inline-block;width:265px;">
                 <div class="input-group form-group input-group-sm has-feedback" style="margin-bottom:0;">
                     <span class=" input-group-addon">
                         <span class="glyphicon glyphicon-search" style="top:0;"></span>
@@ -12,7 +12,7 @@
                     <span class="glyphicon glyphicon-remove form-control-feedback" style="top:-2px;z-index:2;" ng-click="linkSearch=''" ng-show="linkSearch"></span>
                 </div>
             </div>
-            <div>
+			<div style="float:right">
                 <div class="btn-group btn-group-sm">
                     <button type="button" class="btn btn-default" ng-click="linkOrderByName()">Name <span class="glyphicon" ng-class="linkOrderByNameClass"></span></button>
                     <button type="button" class="btn btn-default" ng-click="linkOrderByCount()">Count <span class="glyphicon" ng-class="linkOrderByCountClass"></span></button>
@@ -75,20 +75,6 @@
             <h5>Load</h5>
             <load-chart-directive namespace="forLink"></load-chart-directive>
         </div>
-
-		<div class="link-servers" ng-show="showLinkServers" style="font-size:18px;border-top:1px solid #DDD;padding-top:10px;">
-			<div class="btn-group">
-				<button type="button" class="btn btn-xs btn-default" ng-click="showServerList()" style="font-size:16px;">
-	                   <span class="glyphicon glyphicon-chevron-left"></span>
-	            </button>
-	            <button type="button" class="btn btn-xs btn-default btn-primary" ng-click="showServerList()" style="font-size:16px;">
-	                   Servers
-	            </button>
-			</div>
-			<span class="glyphicon glyphicon-question-sign serverListTooltip" style="cursor:pointer;float:right"></span>
-			<span class="label label-default">Total</span><span class="label label-info">{{serverCount}}</span>
-			<span class="label label-default">Error</span><span class="label label-danger">{{errorServerCount}}</span>
-		</div>
         <div ng-show="link.targetInfo.serviceType=='UNKNOWN' && htLastUnknownLink">
             <button type="button" class="btn btn-default btn-xs" ng-click="goBackToUnknownLink()"><span class="glyphicon glyphicon-arrow-left"></span> Go back to Unknown Group</button>
         </div>

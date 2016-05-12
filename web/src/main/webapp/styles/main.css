@@ -85,6 +85,7 @@ canvas {outline:none}
 
 
 /* info-details */
+/*
 .info-details {
     position: absolute;
 	top: 60px;
@@ -94,7 +95,7 @@ canvas {outline:none}
 	overflow: auto;
 }
 .info-details.has-scatter {
-    top: 330px;
+    top: 370px;
     border-top: 1px solid #ddd;
 }
 .info-details.has-filter {
@@ -103,6 +104,11 @@ canvas {outline:none}
 .info-details.has-scatter.has-filter {
     top: 455px;
 }
+*/
+.info-details.has-scatter {
+    border-top: 1px solid #ddd;
+}
+
 
 .wait {
     cursor: wait !important;

@@ -199,7 +199,7 @@
 	                $scope.hasScatter = false;
 	            }
 	            $scope.hasFilter = false;
-	            $scope.$broadcast('sidebarTitleDirective.initialize.forFilteredMap', oSidebarTitleVoService, node);
+	            $scope.$broadcast('sidebarTitleDirective.initialize.forFilteredMap', oSidebarTitleVoService, node, oNavbarVoService);
 	            $scope.$broadcast('nodeInfoDetailsDirective.initialize', e, query, node, data, oNavbarVoService, reloadOnlyForNode);
 	            $scope.$broadcast('linkInfoDetailsDirective.hide', e, query, node, data, oNavbarVoService);
 	            reloadOnlyForNode = false;

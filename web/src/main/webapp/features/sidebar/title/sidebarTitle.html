@@ -1,5 +1,5 @@
 <div class="sidebar-title-directive">
-    <h3 class="well" ng-show="stTitle">
+    <h3 ng-show="stTitle">
         <span ng-show="stTitle" data-toggle="tooltip" data-placement="bottom" title="{{stTitle}}">
             <img ng-src="{{stImage}}" style="height:25px;" ng-if="stImageShow"/>
             <span>{{stTitle}}</span>
@@ -14,4 +14,11 @@
             <option ng-repeat="agentName in agentList" value="{{agentName}}">{{agentName}}</option>
         </select>
     </h3>
+	<div class="servers-list" ng-show="showServerListHtml">
+		<span>
+			<button type="button" class="btn btn-success btn-xs" ng-click="showServerList()"><span class="glyphicon glyphicon-th-list"></span>&nbsp;&nbsp;View Servers</button>
+		</span>
+		<span style="border-right: 1px solid #EAEAEA;">Total <span>{{serverCount}}</span></span>
+		<span>Error <span style="color:red;">{{errorServerCount}}</span></span>
+	</div>
 </div>

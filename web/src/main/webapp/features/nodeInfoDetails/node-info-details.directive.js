@@ -11,8 +11,8 @@
 	    maxTimeToShowLoadAsDefaultForUnknown: 60 * 60 * 12 // 12h
 	});
 	
-	pinpointApp.directive("nodeInfoDetailsDirective", [ "nodeInfoDetailsDirectiveConfig", "$filter", "$timeout", "isVisibleService", "$window", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService",
-        function (cfg, $filter, $timeout, isVisibleService, $window, analyticsService, preferenceService, tooltipService, commonAjaxService ) {
+	pinpointApp.directive("nodeInfoDetailsDirective", [ "nodeInfoDetailsDirectiveConfig", "$rootScope", "$filter", "$timeout", "isVisibleService", "$window", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService",
+        function (cfg, $rootScope, $filter, $timeout, isVisibleService, $window, analyticsService, preferenceService, tooltipService, commonAjaxService ) {
             return {
                 restrict: "EA",
                 replace: true,
@@ -89,19 +89,6 @@
                         scope.serverList = node.serverList;
                         scope.showNodeServers = _.isEmpty(scope.serverList) ? false : true;
                         scope.agentHistogram = node.agentHistogram;
-                        scope.serverCount = 0;
-                        scope.errorServerCount = 0;
-                        for( var p in scope.serverList ) {
-                        	var instanceList = scope.serverList[p].instanceList;
-                        	for( var p2 in instanceList ) {
-                        		scope.serverCount++;
-                        		if (( scope.agentHistogram[instanceList[p2].name] ) &&
-                        		    ( scope.agentHistogram[instanceList[p2].name].Error > 0 )) {
-                        			scope.errorServerCount++;
-                        		}
-                        	}
-                        }
-
                         if ( /_GROUP$/.test( node.serviceType ) === false ) {
                             scope.showNodeResponseSummary = true;
                             scope.showNodeLoad = true;
@@ -257,7 +244,7 @@
                     scope.showNodeDetailInformation = function (key) {
                         htLastNode = getUnknownNode(key);//htLastNode.unknownNodeGroup[index];
                         showDetailInformation(htLastNode);
-                        scope.$emit("nodeInfoDetail.showDetailInformationClicked", htQuery, htLastNode);
+						$rootScope.$broadcast("infoDetail.showDetailInformationClicked", htQuery, htLastNode);
                     };
 
                     /**
@@ -268,7 +255,7 @@
                         htUnknownResponseSummary = {};
                         htUnknownLoad = {};
                         showDetailInformation(htLastNode);
-                        scope.$emit("nodeInfoDetail.showDetailInformationClicked", htQuery, htLastNode);
+						$rootScope.$broadcast("infoDetail.showDetailInformationClicked", htQuery, htLastNode);
                     };
 
                     /**
@@ -372,11 +359,6 @@
                             return true;
                         }
                     };
-                    scope.showServerList = function() {
-						analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_SHOW_SERVER_LIST);
-                    	scope.$emit("serverListDirective.show", true, htLastNode, scope.oNavbarVoService);
-                    };
-
                     /**
                      * scope event on nodeInfoDetailsDirective.initialize
                      */

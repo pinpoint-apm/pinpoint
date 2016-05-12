@@ -11,8 +11,8 @@
 	    maxTimeToShowLoadAsDefaultForUnknown:  60 * 60 * 12 // 12h
 	});
 	
-	pinpointApp.directive('linkInfoDetailsDirective', [ 'linkInfoDetailsDirectiveConfig', '$filter', 'ServerMapFilterVoService',  'filteredMapUtilService', '$timeout', 'isVisibleService', 'ServerMapHintVoService', "AnalyticsService", '$window',
-	    function (cfg, $filter, ServerMapFilterVoService, filteredMapUtilService, $timeout, isVisibleService, ServerMapHintVoService, analyticsService, $window) {
+	pinpointApp.directive('linkInfoDetailsDirective', [ 'linkInfoDetailsDirectiveConfig', "$rootScope", '$filter', 'ServerMapFilterVoService',  'filteredMapUtilService', '$timeout', 'isVisibleService', 'ServerMapHintVoService', "AnalyticsService", '$window',
+	    function (cfg, $rootScope, $filter, ServerMapFilterVoService, filteredMapUtilService, $timeout, isVisibleService, ServerMapHintVoService, analyticsService, $window) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -102,15 +102,6 @@
 	                        scope.sourceApplicationName = link.sourceInfo.applicationName;
 	                        scope.sourceHistogram = link.sourceHistogram;
 	                        scope.fromNode = link.fromNode;
-
-	                        scope.serverCount = 0;
-	                        scope.errorServerCount = 0;
-	                        for( var p in scope.sourceHistogram ) {
-                        		scope.serverCount++;
-                        		if ( scope.sourceHistogram[p].Error > 0 ) {
-                        			scope.errorServerCount++;
-                        		}
-	                        }	
 	                    }
 	
 	                    scope.showLinkInfoDetails = true;
@@ -304,7 +295,7 @@
 	                scope.showLinkDetailInformation = function (key) {
 	                	htLastLink = getUnknownLink(key);
 	                    showDetailInformation(htLastLink);
-	                    scope.$emit('linkInfoDetail.showDetailInformationClicked', htQuery, htLastLink);
+						$rootScope.$broadcast("infoDetail.showDetailInformationClicked", htQuery, htLastLink);
 	                };
 	
 	                /**
@@ -315,7 +306,7 @@
 	                    htUnknownResponseSummary = {};
 	                    htUnknownLoad = {};
 	                    showDetailInformation(htLastLink);
-	                    scope.$emit('linkInfoDetail.showDetailInformationClicked', htQuery, htLastLink);
+						$rootScope.$broadcast("infoDetail.showDetailInformationClicked", htQuery, htLastLink);
 	                };
 	
 	                /**
@@ -357,11 +348,6 @@
 	                    bShown = true;
 	                    element.show();
 	                };
-	                scope.showServerList = function() {
-						analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_SHOW_SERVER_LIST);
-                    	scope.$emit("serverListDirective.show", false, htLastLink, scope.oNavbarVoService);
-                    };
-	
 	                /**
 	                 * scope link order by name
 	                 */
