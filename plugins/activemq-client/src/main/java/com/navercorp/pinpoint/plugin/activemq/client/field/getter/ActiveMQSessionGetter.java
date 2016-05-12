@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2016 Naver Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.config;
+package com.navercorp.pinpoint.plugin.activemq.client.field.getter;
+
+import org.apache.activemq.ActiveMQSession;
 
 /**
- * @author emeroad
+ * @author HyunGil Jeong
  */
-public class ExcludeUrlFilter extends ExcludePathFilter {
-
-
-
-    public ExcludeUrlFilter(String excludePathFormatString) {
-        super(excludePathFormatString);
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("ExcludeUrlFilter{");
-        sb.append("excludeUrlMatchers=").append(excludePathMatchers);
-        sb.append('}');
-        return sb.toString();
-    }
+public interface ActiveMQSessionGetter {
+    ActiveMQSession _$PINPOINT$_getActiveMQSession();
 }
-

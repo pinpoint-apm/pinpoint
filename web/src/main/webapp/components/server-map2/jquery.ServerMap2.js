@@ -31,6 +31,7 @@
                 "sImageDir": './images/',
                 "sBoldKey": null,
                 "htIcons": {
+                    'ACTIVEMQ_CLIENT': 'ACTIVEMQ_CLIENT.png',
                     'APACHE': 'APACHE.png',
                     'APACHE_GROUP': 'APACHE.png',
                     'ARCUS': 'ARCUS.png',
