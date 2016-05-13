@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2016 Naver Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.cassandra;
+package com.navercorp.pinpoint.plugin.jdk7.cassandra;
 
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
@@ -27,13 +27,13 @@ import org.junit.runner.RunWith;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @Dependency({
-        "com.datastax.cassandra:cassandra-driver-core:[2.1.9,2.1.max]",
+        "com.datastax.cassandra:cassandra-driver-core:[3.0.0,3.0.max]",
         "org.apache.cassandra:cassandra-all:2.1.13",
         "com.google.guava:guava:17.0",
         "org.codehaus.plexus:plexus-utils:3.0.22"})
-public class CassandraDatastax_2_1_x_IT extends CassandraDatastaxITBase {
+public class CassandraDatastax_3_0_x_IT extends CassandraDatastaxITBase {
 
-    private static final String CASSANDRA_VERSION = "2_1_x";
+    private static final String CASSANDRA_VERSION = "3_0_x";
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
