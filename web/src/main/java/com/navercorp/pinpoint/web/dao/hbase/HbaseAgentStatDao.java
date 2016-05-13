@@ -50,10 +50,6 @@ import com.sematext.hbase.wd.AbstractRowKeyDistributor;
  */
 @Repository
 public class HbaseAgentStatDao implements AgentStatDao {
-    private static final long USE_AGGR_THRESHOLD = 4L * 60 * 60 * 1000;
-    private static final int AGGR_INTERVAL = 10 * 60 * 1000;
-    private static final int AGGR_MAX_INTERVAL = AGGR_INTERVAL * 2; 
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
@@ -86,11 +82,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
             logger.debug("scanAgentStat : agentId={}, {}", agentId, range);
         }
         
-        if (range.getRange() < USE_AGGR_THRESHOLD) {
-            return getAgentStatListFromRaw(agentId, range);
-        } else {
-            return getAgentStatListFromAggr(agentId, range);
-        }
+        return getAgentStatListFromRaw(agentId, range);
     }
     
     private List<AgentStat> getAgentStatListFromRaw(String agentId, Range range) {
@@ -109,7 +101,18 @@ public class HbaseAgentStatDao implements AgentStatDao {
         return merged;
     }
     
-    public List<AgentStat> getAgentStatListFromAggr(String agentId, Range range) {
+    public List<AgentStat> getAggregatedAgentStatList(String agentId, Range range) {
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("scanAgentStat : agentId={}, {}", agentId, range);
+        }
+
         Scan scan = createScan(agentId, range);
         scan.addFamily(HBaseTables.AGENT_STAT_CF_STATISTICS);
         
@@ -128,7 +131,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
         long last = range.getFrom();
         
         for (AgentStat stat : merged) {
-            if (last + AGGR_MAX_INTERVAL < stat.getTimestamp()) {
+            if (last + AgentStat.AGGR_SAMPLE_INTERVAL * 2 < stat.getTimestamp()) {
                 Range r = new Range(last, stat.getTimestamp() - stat.getCollectInterval());
                 missingRanges.add(r);
             }
@@ -136,7 +139,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
             last = stat.getTimestamp();
         }
         
-        if (last + AGGR_MAX_INTERVAL < range.getTo()) {
+        if (last + AgentStat.AGGR_SAMPLE_INTERVAL * 2 < range.getTo()) {
             Range r = new Range(last, range.getTo());
             missingRanges.add(r);
         }
@@ -151,7 +154,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
                 continue;
             }
             
-            List<AgentStat> aggregated = AgentStats.aggregate(list, AGGR_INTERVAL);
+            List<AgentStat> aggregated = AgentStats.aggregate(list, AgentStat.AGGR_SAMPLE_INTERVAL);
             merged.addAll(aggregated);
         }
 

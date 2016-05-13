@@ -17,6 +17,19 @@
 package com.navercorp.pinpoint.web.controller;
 
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.util.StopWatch;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.AgentStatService;
@@ -30,18 +43,6 @@ import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.linechart.agentstat.AgentStatChartGroup;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.util.StopWatch;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.List;
-
 /**
  * @author emeroad
  * @author minwoo.jung
@@ -49,6 +50,8 @@ import java.util.List;
  */
 @Controller
 public class AgentStatController {
+    private static final long USE_AGGREGATED_THRESHOLD = TimeUnit.HOURS.toMillis(4);
+    private static final int MAX_RESPONSE_SIZE = 200;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -70,11 +73,26 @@ public class AgentStatController {
             @RequestParam(value = "sampleRate", required = false) Integer sampleRate) throws Exception {
         StopWatch watch = new StopWatch();
         watch.start("agentStatService.selectAgentStatList");
-        TimeWindow timeWindow = new TimeWindow(new Range(from, to), new TimeWindowSlotCentricSampler());
+        
+        Range requestRange = new Range(from, to);
+        boolean useAggregated = requestRange.getRange() > USE_AGGREGATED_THRESHOLD;
+        
+        long interval = useAggregated ? AgentStat.AGGR_SAMPLE_INTERVAL : AgentStat.RAW_SAMPLE_INTERVAL;
+        TimeWindowSlotCentricSampler sampler = new TimeWindowSlotCentricSampler(interval, MAX_RESPONSE_SIZE);
+        TimeWindow timeWindow = new TimeWindow(new Range(from, to), sampler);
+        
         long scanFrom = timeWindow.getWindowRange().getFrom();
         long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
         Range rangeToScan = new Range(scanFrom, scanTo);
-        List<AgentStat> agentStatList = agentStatService.selectAgentStatList(agentId, rangeToScan);
+        
+        
+        List<AgentStat> agentStatList;
+        
+        if (useAggregated) {
+            agentStatList = agentStatService.selectAggregatedAgentStatList(agentId, rangeToScan);
+        } else {
+            agentStatList = agentStatService.selectAgentStatList(agentId, rangeToScan);
+        }
         watch.stop();
 
         if (logger.isInfoEnabled()) {

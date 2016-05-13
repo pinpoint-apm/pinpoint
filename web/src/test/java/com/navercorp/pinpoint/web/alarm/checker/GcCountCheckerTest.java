@@ -54,6 +54,11 @@ public class GcCountCheckerTest {
                 
                 return agentStatList;
             }
+            
+            @Override
+            public List<AgentStat> getAggregatedAgentStatList(String agentId, Range range) {
+                return getAgentStatList(agentId, range);
+            }
 
             @Override
             public boolean agentStatExists(String agentId, Range range) {
