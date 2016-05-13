@@ -27,5 +27,6 @@ import com.navercorp.pinpoint.web.vo.Range;
 public interface AgentStatService {
 
     List<AgentStat> selectAgentStatList(String agentId, Range range);
+    List<AgentStat> selectAggregatedAgentStatList(String agentId, Range range);
 
 }
