@@ -21,6 +21,7 @@ package com.navercorp.pinpoint.bootstrap.config;
  */
 public interface Filter<T> {
     boolean FILTERED = true;
+    boolean NOT_FILTERED = !FILTERED;
 
     boolean filter(T value);
 }

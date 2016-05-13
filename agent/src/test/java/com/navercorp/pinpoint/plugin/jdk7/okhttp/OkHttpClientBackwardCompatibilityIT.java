@@ -1,5 +1,6 @@
-/**
- * Copyright 2014 NAVER Corp.
+/*
+ * Copyright 2016 Naver Corp.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.okhttp;
+package com.navercorp.pinpoint.plugin.jdk7.okhttp;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;

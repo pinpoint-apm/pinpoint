@@ -21,14 +21,22 @@ package com.navercorp.pinpoint.bootstrap.util;
  */
 public class AntPathMatcher implements PathMatcher {
 
-    private final com.navercorp.pinpoint.bootstrap.util.spring.AntPathMatcher springAntMatcher = new com.navercorp.pinpoint.bootstrap.util.spring.AntPathMatcher();
+    private final com.navercorp.pinpoint.bootstrap.util.spring.AntPathMatcher springAntMatcher;
     private final String pattern;
 
     public AntPathMatcher(String pattern) {
+        this(pattern, com.navercorp.pinpoint.bootstrap.util.spring.AntPathMatcher.DEFAULT_PATH_SEPARATOR);
+    }
+
+    public AntPathMatcher(String pattern, String pathSeparator) {
         if (pattern == null) {
             throw new NullPointerException("pattern must not be null");
         }
+        if (pathSeparator == null) {
+            throw new NullPointerException("pathSeparator must not be null");
+        }
         this.pattern = pattern;
+        this.springAntMatcher = new com.navercorp.pinpoint.bootstrap.util.spring.AntPathMatcher(pathSeparator);
         preCreatePatternCache();
     }
 
