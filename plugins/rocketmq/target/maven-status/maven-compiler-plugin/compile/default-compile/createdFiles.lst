@@ -1,0 +1,10 @@
+com/navercorp/pinpoint/plugin/rocketmq/client/RocketMQConstants.class
+com/navercorp/pinpoint/plugin/rocketmq/client/interceptor/RocketMQConsumerEntryMethodDescriptor.class
+com/navercorp/pinpoint/plugin/rocketmq/client/RocketMQPlugin$1.class
+com/navercorp/pinpoint/plugin/rocketmq/client/interceptor/RocketMQMessageConsumeSendInterceptor.class
+com/navercorp/pinpoint/plugin/rocketmq/client/RocketMQTraceMetadataProvider.class
+com/navercorp/pinpoint/plugin/rocketmq/client/interceptor/RocketMQMessageProducerSendInterceptor.class
+com/navercorp/pinpoint/plugin/rocketmq/client/RocketMQPlugin$3.class
+com/navercorp/pinpoint/plugin/rocketmq/client/RocketMQPlugin$2.class
+com/navercorp/pinpoint/plugin/rocketmq/client/interceptor/RocketMQChannelInterceptor.class
+com/navercorp/pinpoint/plugin/rocketmq/client/RocketMQPlugin.class
