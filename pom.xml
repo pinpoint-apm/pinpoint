@@ -49,6 +49,7 @@
         <module>commons</module>
         <module>commons-hbase</module>
         <module>commons-server</module>
+        <module>tools</module>
         <module>plugins</module>
         <module>profiler</module>
         <module>profiler-optional</module>
@@ -178,6 +179,11 @@
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-plugins</artifactId>
                 <type>zip</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-tools</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
