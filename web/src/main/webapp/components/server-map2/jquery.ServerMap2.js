@@ -31,7 +31,11 @@
                 "sImageDir": './images/',
                 "sBoldKey": null,
                 "htIcons": {
-                    'APACHE': 'APACHE.png',
+			'ACTIVEMQ_CLIENT_GROUP': 'ACTIVEMQ_CLIENT.png',
+'ROCKETMQ_CLIENT_GROUP': 'ROCKETMQ_CLIENT.png',
+		     'ACTIVEMQ_CLIENT': 'ACTIVEMQ_CLIENT.png',
+                    'ROCKETMQ_CLIENT': 'ROCKETMQ_CLIENT.png',
+		    'APACHE': 'APACHE.png',
                     'APACHE_GROUP': 'APACHE.png',
                     'ARCUS': 'ARCUS.png',
                     'ARCUS_GROUP': 'ARCUS.png',
