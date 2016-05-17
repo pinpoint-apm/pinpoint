@@ -50,5 +50,11 @@
         <outputDirectory>plugin</outputDirectory>
         <unpack>true</unpack>
     </dependencySet>
+    <dependencySet>
+        <includes>
+           <include>com.navercorp.pinpoint:pinpoint-tools</include>
+        </includes>
+        <outputDirectory>tools</outputDirectory>
+    </dependencySet>
   </dependencySets>
 </assembly>

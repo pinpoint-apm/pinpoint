@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.tools;
+package com.navercorp.pinpoint.tools;
 
 /**
  * Marker interface to prevent obfuscation
