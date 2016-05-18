@@ -16,20 +16,17 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
+import org.apache.thrift.TBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.util.Arrays;
-
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
-import com.navercorp.pinpoint.thrift.io.NetworkAvailabilityCheckPacket;
-
-import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author netspider
@@ -91,33 +88,6 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
     @Override
     public void stop() {
         executor.stop();
-    }
-
-    public boolean isNetworkAvailable() {
-        final NetworkAvailabilityCheckPacket dto = new NetworkAvailabilityCheckPacket();
-        try {
-            final byte[] interBufferData = serialize(serializer, dto);
-            final int interBufferSize = serializer.getInterBufferSize();
-            reusePacket.setData(interBufferData, 0, interBufferSize);
-            udpSocket.send(reusePacket);
-            
-            if (logger.isInfoEnabled()) {
-                logger.info("Data sent. {}", dto);
-            }
-
-            final byte[] receiveData = new byte[NetworkAvailabilityCheckPacket.DATA_OK.length];
-            final DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-            udpSocket.receive(receivePacket);
-
-            if (logger.isInfoEnabled()) {
-                logger.info("Data received. {}", Arrays.toString(receivePacket.getData()));
-            }
-
-            return Arrays.equals(NetworkAvailabilityCheckPacket.DATA_OK , receiveData);
-        } catch (IOException e) {
-            logger.warn("packet send error {}", dto, e);
-            return false;
-        }
     }
 
     private DatagramSocket createSocket(String host, int port, int timeout, int sendBufferSize) {

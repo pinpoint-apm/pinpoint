@@ -52,11 +52,6 @@ public class ListenableDataSender<T extends TBase<?, ?>> implements DataSender {
     public void stop() {
     }
 
-    @Override
-    public boolean isNetworkAvailable() {
-        return true;
-    }
-
     public interface Listener {
         boolean handleSend(TBase<?, ?> data);
     }

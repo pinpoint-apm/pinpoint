@@ -28,5 +28,4 @@ public interface DataSender {
 
     void stop();
 
-    boolean isNetworkAvailable();
 }
