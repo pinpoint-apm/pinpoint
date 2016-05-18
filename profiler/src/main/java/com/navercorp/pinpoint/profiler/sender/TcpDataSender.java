@@ -17,19 +17,6 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.apache.thrift.TBase;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.util.HashedWheelTimer;
-import org.jboss.netty.util.Timeout;
-import org.jboss.netty.util.Timer;
-import org.jboss.netty.util.TimerTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
@@ -41,6 +28,18 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
+import org.apache.thrift.TBase;
+import org.jboss.netty.buffer.ChannelBuffers;
+import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.Timeout;
+import org.jboss.netty.util.Timer;
+import org.jboss.netty.util.TimerTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author emeroad
@@ -235,11 +234,4 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         fireState.compareAndSet(true, false);
     }
 
-    @Override
-    public boolean isNetworkAvailable() {
-        if (this.client == null) {
-            return false;
-        }
-        return this.client.isConnected();
-    }
 }

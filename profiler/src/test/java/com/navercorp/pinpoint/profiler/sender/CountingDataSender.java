@@ -88,11 +88,6 @@ public class CountingDataSender implements EnhancedDataSender {
         this.spanChunkCounter.set(0);
     }
 
-    @Override
-    public boolean isNetworkAvailable() {
-        return false;
-    }
-
     public int getRequestCounter() {
         return requestCounter.get();
     }

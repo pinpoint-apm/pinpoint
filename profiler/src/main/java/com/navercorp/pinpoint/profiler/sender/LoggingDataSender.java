@@ -78,8 +78,4 @@ public class LoggingDataSender implements EnhancedDataSender {
         return false;
     }
 
-    @Override
-    public boolean isNetworkAvailable() {
-        return true;
-    }
 }

@@ -7,7 +7,6 @@ import com.navercorp.pinpoint.rpc.buffer.ByteBufferType;
 import com.navercorp.pinpoint.thrift.io.ByteBufferOutputStream;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer2;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory2;
-import com.navercorp.pinpoint.thrift.io.NetworkAvailabilityCheckPacket;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -18,7 +17,6 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.util.Arrays;
 
 /**
  * @Author Taejin Koo
@@ -127,29 +125,6 @@ public class NioUDPDataSender extends AbstractDataSender implements DataSender {
             } catch (IOException e) {
                 // ignore
             }
-        }
-    }
-
-    public boolean isNetworkAvailable() {
-        final NetworkAvailabilityCheckPacket dto = new NetworkAvailabilityCheckPacket();
-        try {
-            sendPacket(dto);
-
-            if (logger.isInfoEnabled()) {
-                logger.info("Data sent. {}", dto);
-            }
-
-            final byte[] receiveData = new byte[NetworkAvailabilityCheckPacket.DATA_OK.length];
-            datagramChannel.read(ByteBuffer.wrap(receiveData));
-
-            if (logger.isInfoEnabled()) {
-                logger.info("Data received. {}", Arrays.toString(receiveData));
-            }
-
-            return Arrays.equals(NetworkAvailabilityCheckPacket.DATA_OK , receiveData);
-        } catch (IOException e) {
-            logger.warn("packet send error {}", dto, e);
-            return false;
         }
     }
 
