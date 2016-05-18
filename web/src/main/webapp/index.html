@@ -20,56 +20,6 @@
 <script src="bower_components/es5-shim/es5-shim.js?v=${buildTime}"></script>
 <script src="bower_components/json3/lib/json3.min.js?v=${buildTime}"></script>
 <![endif]-->
-<div class="modal" server-list-directive="" style="top:60px;">
-	<div class="modal-dialog modal-lg" style="width:900px;">
-		<div class="modal-content">
-			<div class="modal-header" style="background-color:#B0B0B0;color:#FFFFFF">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<span class="glyphicon glyphicon-question-sign serverListTooltip" style="cursor:pointer;float:right;color:white;margin-right:20px;"></span>
-				<h4 class="modal-title" ng-show="showNodeServer"><img ng-src="{{node.serviceType | iconUrl}}"> <span style="font-size:24px;font-weight:bold">{{node.applicationName}}</span> <span style="font-size:12px;padding-left:10px;">Server List</span></h4>
-				<h4 class="modal-title" ng-show="showLinkServer"><span style="font-size:24px;font-weight:bold"><img ng-src="{{node.fromNode.serviceType | iconUrl}}"> {{node.fromNode.applicationName}} <span class="glyphicon glyphicon-arrow-right"></span> <img ng-src="{{node.fromNode.serviceType | iconUrl}}"> {{node.toNode.applicationName}}</span> <span style="font-size:12px;padding-left:10px">Server List</span></h4>
-			</div>
-			<div class="modal-body">
-				<div class="server-wrapper" style="float:left;overflow:auto;width:450px;padding:10px 10px 10px 10px;box-shadow: 0px 0px 2px 2px rgba(0,0,0,0.3);">
-					<ul class="server-list list-unstyled" ng-show="showNodeServer" >
-		                <li ng-repeat="(key, server) in serverList | orderBy:'key'"  style="padding-bottom:6px;">
-		                    <span class="glyphicon glyphicon-home"></span>
-		                    {{server.name.split(':')[0]}}
-		                    <a ng-if="server.linkName" class="btn btn-default btn-xs" href="{{server.linkURL}}" target="_blank" title="System resource monitoring site">{{server.linkName}}</a>
-		                    <ul class="list-unstyled" style="padding-left:4px">
-		                        <li ng-repeat="instance in server.instanceList | orderBy:'instance.name'" style="padding:3px 0px 3px 0px">
-		                        	<label class="checkbox-inline">
-			                        	<input type="radio" name="selectedServer" value="{{instance.name}}" ng-click="selectServer( instance.name )" ng-checked="$parent.$first">
-			                            <span class="glyphicon glyphicon-hdd" style="padding-left:10px;color:{{node.agentHistogram[instance.name].Error > 0 ? 'red':''}}"></span>
-			                            {{instance.name}}
-		                            </label>
-									<button style="float:right" ng-show="instance.hasInspector" class="btn btn-default btn-xs" ng-click="openInspector(node, instance)">Inspector</button>
-		                        </li>
-		                    </ul>
-		                </li>
-		            </ul>
-		            <ul class="link-list list-unstyled" ng-show="showLinkServer">
-		                <li ng-repeat="(name, histogram) in linkList | orderBy:'name'" style="padding:3px 0px 3px 0px">
-                        	<label class="checkbox-inline" style="padding-left:0px;">
-	                        	<input type="radio" name="selectedServer" value="{{name}}" ng-click="selectServer( name )" ng-checked="$first">
-			                    <span class="glyphicon glyphicon-hdd" style="padding-left:10px;color:{{histogram.Error > 0 ? 'red':''}}"></span>
-			                    {{name}}
-                            </label>
-                            <a style="float:right" class="btn btn-default btn-xs" ng-href="#/inspector/{{node.applicationName || node.filterApplicationName}}@{{node.serviceType}}/{{oNavbarVoService.getReadablePeriod()}}/{{oNavbarVoService.getQueryEndDateTime()}}/{{name}}" target="_blank" title="Inspect Agents" alt="Inspect Agents">Inspector</a>
-		                </li>
-		            </ul>
-				</div>
-				<div style="float:right;padding-right:30px">
-					<h4>Response Summary</h4>
-					<response-time-chart-directive namespace="forServerList"></response-time-chart-directive>
-					<hr>
-	                <h4>Load</h4>
-	                <load-chart-directive namespace="forServerList"></load-chart-directive>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
 <div class="modal"  id="customLogPopup">
 	<div class="modal-dialog modal-lg" style="width:800px;">
 		<div class="modal-content">

@@ -13,21 +13,127 @@
     text-overflow: ellipsis;
     border-bottom: 1px solid #EAEAEA;
 }
-.servers-list {
+.server-list-title {
     padding: 6px 0px;
     border-bottom: 1px solid #EAEAEA;
 }
-.servers-list > span {
+.server-list-title > span {
     width: 33%;
     display: inline-block;
     text-align: center;
     font-size: 12px;
 }
-.servers-list > span:first-child {
+.server-list-title > span:first-child {
     width: 30%;
     padding-left: 18px;
     text-align: left;
 }
-.servers-list > span > span {
+.server-list-title > span > span {
     font-size: 14px;
+}
+
+.server-list {
+    top: 0px;
+    right: -386px;
+    width: 800px;
+    height: 100%;
+    border: 1px solid #E9E9E9;
+    z-index: 99;
+    position: absolute;
+    box-shadow: -8px 0px 5px 0px rgba(171,169,171,1);
+}
+.server-list-wrapper {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    font-size: 12px;
+    font-family: sans-serif;
+    padding-left: 10px;
+    padding-right: 20px;
+}
+.server-list-header {
+    color: #67BB67;
+    font-size: 14px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.server-list-layer {
+    float: left;
+    width: 376px;
+    height: 100%;
+    background-color: #F2F2F2;
+}
+.server-list-layer ul {
+    padding: 0px;
+}
+.server-list-layer li {
+    list-style:none;
+}
+.server-list-layer li label {
+    font-weight: normal;
+}
+.server-list-layer li a {
+    color: #727272;
+    cursor: pointer;
+    text-decoration: underline;
+}
+.server-list-layer li .glyphicon {
+    padding-left: 4px;
+    padding-right: 4px;
+}
+.server-list-layer .btn-custom {
+    color: #67BB67;
+    border: 1px solid #EAEAEA;
+    padding-left: 4px;
+    padding-right: 4px;
+    border-radius: 0px 0px;
+    background-color: #FFF;
+}
+.server-list-layer .server-name {
+    width: 90%;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin-bottom: -5px;
+}
+
+.server-list-layer .server-collection {
+    color: #727272;
+    border-top: 1px solid #EAEAEA;
+    padding-top: 8px;
+    margin-bottom: 0px;
+}
+.server-list-layer .server-collection ul {
+    padding-top: 4px;
+    padding-left: 20px;
+}
+.server-list-layer .server-collection li {
+    padding-bottom: 6px;
+}
+.server-list-chart {
+    float: left;
+    width: 422px;
+    height: 100%;
+    padding-left: 8px;
+    padding-right: 8px;
+    background-color: #FFF;
+}
+
+.server-list-chart .chart-header {
+    height: 80px;
+    margin-left: -7px;
+    margin-right: -8px;
+    background-color: #f2f2f2;
+}
+.server-list-chart button {
+    float: right;
+    margin-top: -1px;
+    padding-top: 2px;
+    margin-right: -1px;
+    border-radius: 0px;
+    padding-bottom: 2px;
+}
+.server-list-chart .chart-list {
+    border-top: 1px solid #DDD;
 }
