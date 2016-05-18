@@ -18,16 +18,18 @@ package com.navercorp.pinpoint.tools;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.profiler.sender.DataSender;
-import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
-import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
-import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
+import com.navercorp.pinpoint.thrift.io.NetworkAvailabilityCheckPacket;
+import com.navercorp.pinpoint.tools.network.NetworkChecker;
+import com.navercorp.pinpoint.tools.network.TCPChecker;
+import com.navercorp.pinpoint.tools.network.UDPChecker;
+import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
+import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * 
@@ -46,80 +48,68 @@ public class NetworkAvailabilityChecker implements PinpointTools {
 
         String configPath = args[0];
 
-        DataSender udpStatSender = null;
-        DataSender udpSpanSender = null;
-        DataSender tcpSender = null;
-
-        PinpointClientFactory clientFactory = null;
-        PinpointClient client = null;
+        ProfilerConfig profilerConfig = null;
         try {
-            ProfilerConfig profilerConfig = DefaultProfilerConfig.load(configPath);
+            profilerConfig = DefaultProfilerConfig.load(configPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
 
-            String collectorStatIp = profilerConfig.getCollectorStatServerIp();
-            int collectorStatPort = profilerConfig.getCollectorStatServerPort();
-            udpStatSender = new UdpDataSender(collectorStatIp, collectorStatPort, "UDP-STAT", 10);
-
-            String collectorSpanIp = profilerConfig.getCollectorSpanServerIp();
-            int collectorSpanPort = profilerConfig.getCollectorSpanServerPort();
-            udpSpanSender = new UdpDataSender(collectorSpanIp, collectorSpanPort, "UDP-SPAN", 10);
-
-            String collectorTcpIp = profilerConfig.getCollectorTcpServerIp();
-            int collectorTcpPort = profilerConfig.getCollectorTcpServerPort();
-            clientFactory = createPinpointClientFactory();
-            client = ClientFactoryUtils.createPinpointClient(collectorTcpIp, collectorTcpPort, clientFactory);
-
-            tcpSender = new TcpDataSender(client);
-
-            boolean udpSenderResult = udpStatSender.isNetworkAvailable();
-            boolean udpSpanSenderResult = udpSpanSender.isNetworkAvailable();
-            boolean tcpSenderResult = tcpSender.isNetworkAvailable();
-
-            StringBuilder buffer = new StringBuilder();
-            buffer.append("\nTEST RESULT\n");
-            write(buffer, "UDP-STAT://", collectorStatIp, collectorStatPort, udpSenderResult);
-            write(buffer, "UDP-SPAN://", collectorSpanIp, collectorSpanPort, udpSpanSenderResult);
-            write(buffer, "TCP://", collectorTcpIp, collectorTcpPort, tcpSenderResult);
-
-            System.out.println(buffer.toString());
+        try {
+            checkUDPStat(profilerConfig);
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            closeDataSender(udpStatSender);
-            closeDataSender(udpSpanSender);
-            closeDataSender(tcpSender);
-            System.out.println("END.");
+        }
 
-            if (client != null) {
-                client.close();
-            }
-            if (clientFactory != null) {
-                clientFactory.release();
-            }
+        try {
+            checkUDPSpan(profilerConfig);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            checkTCP(profilerConfig);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    private static void write(StringBuilder buffer, String protocol, String collectorStatIp, int collectorStatPort, boolean udpSenderResult) {
-        buffer.append(protocol);
-        buffer.append(collectorStatIp);
-        buffer.append(":");
-        buffer.append(collectorStatPort);
-        buffer.append("=");
-        buffer.append((udpSenderResult) ? "OK" : "FAILED");
-        buffer.append("\n");
+    private static void checkUDPStat(ProfilerConfig profilerConfig) throws Exception {
+        String ip = profilerConfig.getCollectorStatServerIp();
+        int port = profilerConfig.getCollectorStatServerPort();
+
+        NetworkChecker checker = new UDPChecker("UDP-STAT", ip, port);
+        checker.check(getNetworkCheckPayload(), getNetworkCheckResponsePayload());
     }
 
-    private static void closeDataSender(DataSender dataSender) {
-        if (dataSender != null) {
-            dataSender.stop();
-        }
-    }
-    
-    private static PinpointClientFactory createPinpointClientFactory() {
-        PinpointClientFactory pinpointClientFactory = new PinpointClientFactory();
-        pinpointClientFactory.setTimeoutMillis(1000 * 5);
-        pinpointClientFactory.setProperties(Collections.<String, Object>emptyMap());
 
-        return pinpointClientFactory;
+    private static void checkUDPSpan(ProfilerConfig profilerConfig) throws Exception {
+        String ip = profilerConfig.getCollectorSpanServerIp();
+        int port = profilerConfig.getCollectorSpanServerPort();
+
+        NetworkChecker checker = new UDPChecker("UDP-SPAN", ip, port);
+        checker.check(getNetworkCheckPayload(), getNetworkCheckResponsePayload());
+    }
+
+    private static void checkTCP(ProfilerConfig profilerConfig) throws Exception {
+        String ip = profilerConfig.getCollectorTcpServerIp();
+        int port = profilerConfig.getCollectorTcpServerPort();
+
+        NetworkChecker checker = new TCPChecker("TCP", ip, port);
+        checker.check();
+    }
+
+    private static byte[] getNetworkCheckPayload() throws TException {
+        HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory(false, 65535, false).createSerializer();
+        byte[] payload = serializer.serialize(new NetworkAvailabilityCheckPacket());
+        int size = serializer.getInterBufferSize();
+
+        return Arrays.copyOf(payload, size);
+    }
+
+    private static byte[] getNetworkCheckResponsePayload() {
+        return Arrays.copyOf(NetworkAvailabilityCheckPacket.DATA_OK, NetworkAvailabilityCheckPacket.DATA_OK.length);
     }
 
 }
