@@ -112,7 +112,7 @@
 					};
 					scope.showServerList = function() {
 						analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_SHOW_SERVER_LIST);
-						scope.$emit("serverListDirective.show", bIsNode, htLastNode, oNavbarVoService);
+						$rootScope.$broadcast("serverListDirective.show", bIsNode, htLastNode, oNavbarVoService);
 					};
 	                /**
 	                 * scope on sidebarTitle.initialize.namespace

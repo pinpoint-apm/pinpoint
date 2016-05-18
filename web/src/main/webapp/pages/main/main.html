@@ -6,7 +6,8 @@
     <div class="main">
         <server-map-directive></server-map-directive>
     </div>
-    <div class="sidebar" ng-class="sidebar" loading-directive="sidebarLoading" loading-message="Loading...">
+	<server-list-directive></server-list-directive>
+    <div class="sidebar" ng-class="sidebar" loading-directive="sidebarLoading" loading-message="Loading..." style="z-index:100;background-color:white">
         <sidebar-title-directive namespace="forMain"></sidebar-title-directive>
         <filter-information-directive namespace="forMain" ng-show="hasFilter"></filter-information-directive>
 		<scatter-directive ng-show="hasScatter"></scatter-directive>
