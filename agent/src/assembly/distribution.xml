@@ -15,7 +15,7 @@
       <outputDirectory></outputDirectory>
     </fileSet>
     <fileSet>
-      <directory>${basedir}/src/main/script</directory>
+      <directory>${basedir.parent}/tools/src/main/script</directory>
       <outputDirectory>script</outputDirectory>
     </fileSet>
   </fileSets>
