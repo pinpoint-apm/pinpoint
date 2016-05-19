@@ -50,7 +50,8 @@
 						$window.$routeParams = $routeParams;
 						oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 						$scope.$broadcast('navbarDirective.initialize', oNavbarVoService);
-						$scope.$broadcast('scatterDirective.initialize', oNavbarVoService);
+						$scope.$broadcast('serverListDirective.initialize', oNavbarVoService );
+						$scope.$broadcast('scatterDirective.initialize.forMain', oNavbarVoService);
 						$scope.$broadcast('serverMapDirective.initialize', oNavbarVoService);
 					}
 				}
@@ -162,10 +163,10 @@
 					$scope.$broadcast("realtimeChartController.close");
 				}
 	            $scope.$broadcast('sidebarTitleDirective.empty.forMain');
-				$scope.$broadcast('serverListDirective.initialize');
+				$scope.$broadcast('serverListDirective.initialize', oNavbarVoService );
 	            $scope.$broadcast('nodeInfoDetailsDirective.hide');
 	            $scope.$broadcast('linkInfoDetailsDirective.hide');
-	            $scope.$broadcast('scatterDirective.initialize', oNavbarVoService);
+	            $scope.$broadcast('scatterDirective.initialize.forMain', oNavbarVoService);
 	            $scope.$broadcast('serverMapDirective.initialize', oNavbarVoService);
 	            $scope.$broadcast('sidebarTitleDirective.empty.forMain');
 	        });
@@ -174,7 +175,7 @@
 	         * scope event on serverMapDirective.passingTransactionResponseToScatterChart
 	         */
 	        $scope.$on('serverMapDirective.passingTransactionResponseToScatterChart', function (event, node) {
-	            $scope.$broadcast('scatterDirective.initializeWithNode', node);
+	            $scope.$broadcast('scatterDirective.initializeWithNode.forMain', node);
 	        });
 	
 	        /**
@@ -188,7 +189,7 @@
 	            if (node.isWas === true) {
 	                $scope.hasScatter = true;
 	                oSidebarTitleVoService.setTitle(node.applicationName);
-	                $scope.$broadcast('scatterDirective.initializeWithNode', node);
+	                $scope.$broadcast('scatterDirective.initializeWithNode.forMain', node);
 	            } else if (node.unknownNodeGroup) {
 	                oSidebarTitleVoService.setTitle( node.serviceType.replace( "_", " " ) );
 	                $scope.hasScatter = false;

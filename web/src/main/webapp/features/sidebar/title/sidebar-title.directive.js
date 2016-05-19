@@ -108,7 +108,7 @@
 	                }
 					scope.changeAgent = function() {
 						analyticsService.send( analyticsService.CONST.INSPECTOR, analyticsService.CONST.CLK_CHANGE_AGENT_MAIN );
-						$rootScope.$broadcast("changedCurrentAgent", scope.currentAgent );
+						$rootScope.$broadcast("changedCurrentAgent.forMain", scope.currentAgent );
 					};
 					scope.showServerList = function() {
 						analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_SHOW_SERVER_LIST);
@@ -129,7 +129,6 @@
 	                    empty();
 	                });
 					scope.$on("infoDetail.showDetailInformationClicked", function( event, htQuery, node ) {
-						console.log( "infoDetail.showDetail--->", event, htQuery, node );
 						htLastNode = node;
 						checkServerData();
 					});
