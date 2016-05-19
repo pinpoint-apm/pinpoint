@@ -162,6 +162,7 @@
 					$scope.$broadcast("realtimeChartController.close");
 				}
 	            $scope.$broadcast('sidebarTitleDirective.empty.forMain');
+				$scope.$broadcast('serverListDirective.initialize');
 	            $scope.$broadcast('nodeInfoDetailsDirective.hide');
 	            $scope.$broadcast('linkInfoDetailsDirective.hide');
 	            $scope.$broadcast('scatterDirective.initialize', oNavbarVoService);

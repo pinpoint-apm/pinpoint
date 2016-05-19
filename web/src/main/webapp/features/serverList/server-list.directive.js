@@ -42,16 +42,17 @@
 						}
 
 					};
-					scope.hideLayer = function() {
+					scope.hideLayer = function( delay ) {
+						delay = delay || 100;
 						$element.animate({
 							"right": -386
-						}, 100, function() {
+						}, delay, function() {
 							bVisible = false;
 							console.log( "hide callback");
 						});
 					};
 					scope.hasError = function( instance ) {
-						return (instance.Error && instance.Error > 0 ) ? "red": "";
+						return (instance && instance.Error && instance.Error > 0 ) ? "red": "";
 					};
 					scope.openInspector = function( $event, instanceName ) {
 						$event.preventDefault();
@@ -65,36 +66,41 @@
 							showChart( scope.node.sourceHistogram[instanceName], scope.node.sourceTimeSeriesHistogram[instanceName] );
 						}
 					};
+					scope.$on('serverListDirective.initialize', function () {
+						scope.hideLayer( 0 );
+					});
 					scope.$on('serverListDirective.show', function ( event, bIsNodeServer, node, oNavbarVoService ) {
-						console.log( node );
-						// 이미 같은 node 이름으로 연적이 있다면 아래 초기화 skip
-						if ( bVisible === true ) return;
+						if ( bVisible === true ) {
+							scope.hideLayer();
+							return;
+						}
 						bVisible = true;
-						scope.bIsNode = bIsNodeServer;
-						scope.node = node;
-						scope.oNavbarVoService = oNavbarVoService;
+						if ( angular.isUndefined( scope.node ) || ( scope.node.key !== node.key ) ) {
+							scope.bIsNode = bIsNodeServer;
+							scope.node = node;
+							scope.oNavbarVoService = oNavbarVoService;
 
-						if ( bIsNodeServer ) {
-							scope.serverList = node.serverList;
-							scope.bIsNode = true;
+							if ( bIsNodeServer ) {
+								scope.serverList = node.serverList;
+								scope.bIsNode = true;
 
-							$timeout(function() {
-								var instanceName = $element.find( "._node input[type=radio][checked]" ).val();
-								console.log( "------->", instanceName );
-								showChart( scope.node.agentHistogram[instanceName], scope.node.agentTimeSeriesHistogram[instanceName] );
-							});
-						} else {
-							scope.linkList = scope.node.sourceHistogram;
-							scope.bIsNode = false;
+								$timeout(function() {
+									var instanceName = $element.find( "._node input[type=radio][checked]" ).val();
+									showChart( scope.node.agentHistogram[instanceName], scope.node.agentTimeSeriesHistogram[instanceName] );
+								});
+							} else {
+								scope.linkList = scope.node.sourceHistogram;
+								scope.bIsNode = false;
 
-							$timeout(function() {
-								var instanceName = $element.find( "._link input[type=radio][checked]" ).val();
-								console.log( "------->", instanceName );
-								showChart( scope.node.sourceHistogram[instanceName], scope.node.sourceTimeSeriesHistogram[instanceName] );
-							});
+								$timeout(function () {
+									var instanceName = $element.find("._link input[type=radio][checked]").val();
+									showChart(scope.node.sourceHistogram[instanceName], scope.node.sourceTimeSeriesHistogram[instanceName]);
+								});
+							}
 						}
 						showLayer();
 					});
+
                 }
             };
 	    }

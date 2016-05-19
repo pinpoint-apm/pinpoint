@@ -1034,11 +1034,9 @@ canvas {outline:none}
 }
 .server-list-chart button {
     float: right;
-    margin-top: -1px;
-    padding-top: 2px;
-    margin-right: -1px;
-    border-radius: 0px;
-    padding-bottom: 2px;
+    margin: 4px;
+    padding: 0px 3px;
+    border-radius: 14px;
 }
 .server-list-chart .chart-list {
     border-top: 1px solid #DDD;
