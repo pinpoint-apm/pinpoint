@@ -56,7 +56,7 @@
 	            $timeout(function () {
 	                $scope.$broadcast('timeSliderDirective.initialize', oTimeSliderVoService);
 	                $scope.$broadcast('serverMapDirective.initialize', oNavbarVoService);
-	                $scope.$broadcast('scatterDirective.initialize', oNavbarVoService);
+	                $scope.$broadcast('scatterDirective.initialize.forMain', oNavbarVoService);
 	            });
 	
 	        }, 500);
@@ -78,7 +78,7 @@
 	        broadcastScatterScanResultToScatter = function (applicationScatterData) {
 	            if (angular.isDefined(applicationScatterData)) {
 	                angular.forEach(applicationScatterData, function (val, key) {
-	                    $scope.$broadcast('scatterDirective.initializeWithData', key, val);
+	                    $scope.$broadcast('scatterDirective.initializeWithData.forMain', key, val);
 	                });
 	            }
 	        };
@@ -190,7 +190,7 @@
 	            if (node.isWas === true) {
 	                $scope.hasScatter = true;
 	                oSidebarTitleVoService.setTitle(node.applicationName);
-	                $scope.$broadcast('scatterDirective.showByNode', node);
+	                $scope.$broadcast('scatterDirective.showByNode.forMain', node);
 	            } else if (node.unknownNodeGroup) {
 	            	oSidebarTitleVoService.setTitle( node.serviceType.replace( "_", " " ) );
 	                $scope.hasScatter = false;

@@ -13,12 +13,15 @@
                 restrict: "EA",
 				replace: true,
 				templateUrl: "features/serverList/serverList.html?v=" + G_BUILD_TIME,
-				scope: {},
+				scope: {
+					namespace: "@"
+				},
                 link: function(scope, element) {
 					var bVisible = false;
 					var bInitialized = false;
 					var $element = $(element);
 					scope.bIsNode = true;
+					scope.hasScatter = false;
 					/*
 
 					tooltipService.init( "serverList" );
@@ -30,8 +33,8 @@
 							console.log( "show callback");
 						});
 					};
-					var showChart = function( histogram, timeSeriesHistogram ) {
-						console.log( bInitialized, histogram, timeSeriesHistogram );
+					var showChart = function( instanceName, histogram, timeSeriesHistogram ) {
+						scope.$broadcast('changedCurrentAgent.forServerList', instanceName );
 						if ( bInitialized ) {
 							scope.$broadcast('responseTimeChartDirective.updateData.forServerList', histogram);
 							scope.$broadcast('loadChartDirective.updateData.forServerList', timeSeriesHistogram);
@@ -40,7 +43,6 @@
 							scope.$broadcast('loadChartDirective.initAndRenderWithData.forServerList', timeSeriesHistogram, '360px', '200px', false, true);
 							bInitialized = true;
 						}
-
 					};
 					scope.hideLayer = function( delay ) {
 						delay = delay || 100;
@@ -61,12 +63,13 @@
 					};
 					scope.selectServer = function( instanceName ) {
 						if ( scope.bIsNode ) {
-							showChart( scope.node.agentHistogram[instanceName], scope.node.agentTimeSeriesHistogram[instanceName] );
+							showChart( instanceName, scope.node.agentHistogram[instanceName], scope.node.agentTimeSeriesHistogram[instanceName] );
 						} else {
-							showChart( scope.node.sourceHistogram[instanceName], scope.node.sourceTimeSeriesHistogram[instanceName] );
+							showChart( instanceName, scope.node.sourceHistogram[instanceName], scope.node.sourceTimeSeriesHistogram[instanceName] );
 						}
 					};
-					scope.$on('serverListDirective.initialize', function () {
+					scope.$on('serverListDirective.initialize', function ( event, oNavbarVoService ) {
+						scope.$broadcast('scatterDirective.initialize.forServerList', oNavbarVoService);
 						scope.hideLayer( 0 );
 					});
 					scope.$on('serverListDirective.show', function ( event, bIsNodeServer, node, oNavbarVoService ) {
@@ -79,14 +82,18 @@
 							scope.bIsNode = bIsNodeServer;
 							scope.node = node;
 							scope.oNavbarVoService = oNavbarVoService;
-
+							scope.hasScatter = false;
 							if ( bIsNodeServer ) {
+								if ( node.isWas ) {
+									scope.hasScatter = true;
+								}
 								scope.serverList = node.serverList;
 								scope.bIsNode = true;
+								scope.$broadcast('scatterDirective.initializeWithNode.forServerList', node);
 
 								$timeout(function() {
 									var instanceName = $element.find( "._node input[type=radio][checked]" ).val();
-									showChart( scope.node.agentHistogram[instanceName], scope.node.agentTimeSeriesHistogram[instanceName] );
+									showChart( instanceName, scope.node.agentHistogram[instanceName], scope.node.agentTimeSeriesHistogram[instanceName] );
 								});
 							} else {
 								scope.linkList = scope.node.sourceHistogram;
@@ -94,7 +101,7 @@
 
 								$timeout(function () {
 									var instanceName = $element.find("._link input[type=radio][checked]").val();
-									showChart(scope.node.sourceHistogram[instanceName], scope.node.sourceTimeSeriesHistogram[instanceName]);
+									showChart( instanceName, scope.node.sourceHistogram[instanceName], scope.node.sourceTimeSeriesHistogram[instanceName]);
 								});
 							}
 						}

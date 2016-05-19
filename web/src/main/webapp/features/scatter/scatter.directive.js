@@ -67,6 +67,9 @@
 				template: cfg.template,
 				restrict: "EA",
 				replace: true,
+				scope: {
+					namespace: "@"
+				},
 				link: function (scope, element, attrs) {
 					var oNavbarVoService = null, htScatterSet = {}, htLastNode = null;
 
@@ -227,17 +230,17 @@
 						return oNavbarVoService.getPeriodType() === "realtime";
 					}
 
-					scope.$on("scatterDirective.initialize", function (event, navbarVoService) {
+					scope.$on("scatterDirective.initialize." + scope.namespace, function (event, navbarVoService) {
 						oNavbarVoService = navbarVoService;
 						initScatterHash();
 						element.empty();
 					});
-					scope.$on("scatterDirective.initializeWithNode", function (event, node, w, h) {
+					scope.$on("scatterDirective.initializeWithNode." + scope.namespace, function (event, node, w, h) {
 						scope.currentAgent = preferenceService.getAgentAllStr();
 						htLastNode = node;
 						showScatter(node.key, w, h);
 					});
-					scope.$on("scatterDirective.initializeWithData", function (event, application, data) {
+					scope.$on("scatterDirective.initializeWithData." + scope.namespace, function (event, application, data) {
 						scope.currentAgent = preferenceService.getAgentAllStr();
 						var aSplit = application.split("^");
 						htLastNode = {
@@ -247,30 +250,11 @@
 						};
 						showScatterWithData(application, null, null, data);
 					});
-					scope.$on("scatterDirective.showByNode", function (event, node) {
+					scope.$on("scatterDirective.showByNode." + scope.namespace, function (event, node) {
 						htLastNode = node;
 						showScatterBy(node.key);
 					});
-					scope.$on("responseTimeChartDirective.showErrorTransacitonList", function( event, category ) {
-						//switch( category ) {
-						//	case "1s":
-						//		$window.htoScatter[htLastNode.key].selectArea( "Success", 0, 1000 );
-						//		break;
-						//	case "3s":
-						//		$window.htoScatter[htLastNode.key].selectArea( "Success", 1000, 3000 );
-						//		break;
-						//	case "5s":
-						//		$window.htoScatter[htLastNode.key].selectArea( "Success", 3000, 5000 );
-						//		break;
-						//	case "Slow":
-						//		$window.htoScatter[htLastNode.key].selectArea( "Success", 5000, Number.MAX_VALUE );
-						//		break;
-						//	case "Error":
-						//		$window.htoScatter[htLastNode.key].selectArea( "Failed" );
-						//		break;
-						//}
-
-
+					scope.$on("responseTimeChartDirective.showErrorTransacitonList." + scope.namespace, function( event, category ) {
 						$window.htoScatter[htLastNode.key].selectType( "Failed" ).fireDragEvent({
 							animate: function() {},
 							css : function( name ) {
@@ -284,7 +268,7 @@
 							}
 						});
 					});
-					scope.$on("changedCurrentAgent", function( event, selectedAgentName ) {
+					scope.$on("changedCurrentAgent." + scope.namespace, function( event, selectedAgentName ) {
 						htScatterSet[htLastNode.key].scatter.selectAgent( selectedAgentName );
 					});
 				}
