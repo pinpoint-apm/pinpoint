@@ -61,13 +61,14 @@ public class AgentStats {
                 long timestamp = toAggregatedTimestamp(stat, interval);
                 
                 if (current.getTimestamp() == timestamp) {
-                    current = merge(current, stat);
+                    current = merge(current, stat, interval);
                 } else {
                     result.add(current);
                     current = toAggregatedAgentStat(stat);
                 }
             }
             
+            current.setCollectInterval(interval);
             result.add(current);
             
             return result;
@@ -107,18 +108,14 @@ public class AgentStats {
 
     public static long toAggregatedTimestamp(AgentStat stat, long interval) {
         long timestamp = (stat.getTimestamp() / interval) * interval;
-        
-        if (stat.getTimestamp() != timestamp) {
-            timestamp += interval;
-        }
-        
         return timestamp;
     }
 
-    public static AgentStat merge(AgentStat s1, AgentStat s2) {
+    public static AgentStat merge(AgentStat s1, AgentStat s2, long interval) {
         AgentStat latest = s1.getTimestamp() > s2.getTimestamp() ? s1 : s2;
 
-        AgentStat stat = new AgentStat(s1.getAgentId(), s1.getTimestamp());
+        AgentStat stat = new AgentStat(s1.getAgentId(), latest.getTimestamp());
+        stat.setCollectInterval(interval);
         
         stat.setGcType(latest.getGcType());
         stat.setGcOldCount(latest.getGcOldCount());
