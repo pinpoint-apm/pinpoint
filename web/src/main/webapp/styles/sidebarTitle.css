@@ -118,20 +118,19 @@
     padding-left: 8px;
     padding-right: 8px;
     background-color: #FFF;
+    box-shadow: -2px 0px 5px 0px rgba(171,169,171,1);
 }
 
 .server-list-chart .chart-header {
     height: 80px;
-    margin-left: -7px;
+    margin-left: -8px;
     margin-right: -8px;
+    border-bottom: 1px solid #EAEAEA;
     background-color: #f2f2f2;
 }
-.server-list-chart button {
+.server-list-chart .chart-header button {
     float: right;
     margin: 4px;
     padding: 0px 3px;
     border-radius: 14px;
-}
-.server-list-chart .chart-list {
-    border-top: 1px solid #DDD;
 }

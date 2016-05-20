@@ -39,8 +39,8 @@
 							scope.$broadcast('responseTimeChartDirective.updateData.forServerList', histogram);
 							scope.$broadcast('loadChartDirective.updateData.forServerList', timeSeriesHistogram);
 						} else {
-							scope.$broadcast('responseTimeChartDirective.initAndRenderWithData.forServerList', histogram, '360px', '180px', false, true);
-							scope.$broadcast('loadChartDirective.initAndRenderWithData.forServerList', timeSeriesHistogram, '360px', '200px', false, true);
+							scope.$broadcast('responseTimeChartDirective.initAndRenderWithData.forServerList', histogram, '100%', '150px', false, true);
+							scope.$broadcast('loadChartDirective.initAndRenderWithData.forServerList', timeSeriesHistogram, '100%', '220px', false, true);
 							bInitialized = true;
 						}
 					};
