@@ -50,7 +50,7 @@ import com.navercorp.pinpoint.web.vo.linechart.agentstat.AgentStatChartGroup;
  */
 @Controller
 public class AgentStatController {
-    private static final long USE_AGGREGATED_THRESHOLD = TimeUnit.HOURS.toMillis(4);
+    private static final long USE_AGGREGATED_THRESHOLD = TimeUnit.HOURS.toMillis(24);
     private static final int MAX_RESPONSE_SIZE = 200;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
