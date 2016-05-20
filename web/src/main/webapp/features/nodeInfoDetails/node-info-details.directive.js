@@ -130,10 +130,10 @@
 
                                 if (scope.showNodeResponseSummaryForUnknown) {
                                     htUnknownResponseSummary[applicationName] = true;
-                                    renderResponseSummary(null, applicationName, node.histogram, "360px", "180px");
+                                    renderResponseSummary(null, applicationName, node.histogram, "100%", "150px");
                                 } else {
                                     htUnknownLoad[applicationName] = true;
-                                    renderLoad(null, applicationName, node.timeSeriesHistogram, "360px", "200px", true);
+                                    renderLoad(null, applicationName, node.timeSeriesHistogram, "100%", "220px", true);
                                 }
                             });
                         });
@@ -266,7 +266,7 @@
                     scope.renderNodeResponseSummary = function (applicationName, key) {
                         if (angular.isUndefined(htUnknownResponseSummary[applicationName])) {
                             htUnknownResponseSummary[applicationName] = true;
-                            renderResponseSummary(null, applicationName, getUnknownNode(key).histogram, "360px", "180px");
+                            renderResponseSummary(null, applicationName, getUnknownNode(key).histogram, "100%", "150px");
                         }
                     };
 
@@ -278,7 +278,7 @@
                     scope.renderNodeLoad = function (applicationName, key) { 
                         if (angular.isUndefined(htUnknownLoad[applicationName])) {
                             htUnknownLoad[applicationName] = true;
-                            renderLoad(null, applicationName, getUnknownNode(key).timeSeriesHistogram, "360px", "200px", true);
+                            renderLoad(null, applicationName, getUnknownNode(key).timeSeriesHistogram, "100%", "220px", true);
                         }
                     };
 
@@ -291,7 +291,7 @@
                         if (angular.isDefined(htAgentChartRendered[applicationName])) return;
                         htAgentChartRendered[applicationName] = true;
                         renderResponseSummary(null, applicationName, htLastNode.agentHistogram[applicationName], "100%", "150px");
-                        renderLoad(null, applicationName, htLastNode.agentTimeSeriesHistogram[applicationName], "100%", "200px", true);
+                        renderLoad(null, applicationName, htLastNode.agentTimeSeriesHistogram[applicationName], "100%", "220px", true);
                     };
 
                     /**

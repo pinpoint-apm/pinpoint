@@ -91,8 +91,8 @@
 
 						var oScatterChart = new BigScatterChart2(options, getAgentList(scatterData), [
 							new BigScatterChart2.SettingPlugin( cfg.images.config ).addCallback( function( oChart, oValue ) {
-								webStorage.add( "scatter-y-min", oValue.min );
-								webStorage.add( "scatter-y-max", oValue.max );
+								webStorage.add( "scatter-y-min" + scope.namespace, oValue.min );
+								webStorage.add( "scatter-y-max" + scope.namespace, oValue.max );
 								oChart.changeRangeOfY( oValue );
 								oChart.redraw();
 							}),
@@ -109,7 +109,7 @@
 								analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST[type === "Success" ? "TG_SCATTER_SUCCESS" : "TG_SCATTER_FAILED"], analyticsService.CONST[bChecked ? "ON" : "OFF"] );
 							},
 							loadFromStorage: function( key ) {
-								return webStorage.get( key );
+								return webStorage.get( key + scope.namespace );
 							},
 							onSelect: function( oDragAreaPosition, oDragXY ) {
 								if ( arguments.length === 3 ) {
