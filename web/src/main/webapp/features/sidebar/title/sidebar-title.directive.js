@@ -97,6 +97,7 @@
 	
 	                function empty() {
 						scope.currentAgent = preferenceService.getAgentAllStr();
+						scope.showServerListHtml = false;
 	                    scope.stImage = false;
 	                    scope.stImageShow = false;
 	                    scope.stTitle = false;

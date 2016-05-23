@@ -111,7 +111,7 @@
 	         * get main container class
 	         */
 	        $scope.getMainContainerClass = function () {
-	        	return bNoData ? 'no-data' : '';
+	        	return "";//return bNoData ? 'no-data' : '';
 	        };
 	
 	        /**
