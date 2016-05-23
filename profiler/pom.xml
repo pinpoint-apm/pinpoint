@@ -157,11 +157,13 @@
 
         <!-- [End] Compile Interceptors -->
 
-        <!-- 3.17.0 has been released. but upgrading may cause some problems because that has been compiled with jdk1.7
-            let's wait until release compiled with jdk1.6 -->
         <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-debug-all</artifactId>
         </dependency>
 
         <dependency>
