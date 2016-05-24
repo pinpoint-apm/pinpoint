@@ -112,10 +112,10 @@
 								return webStorage.get( key + scope.namespace );
 							},
 							onSelect: function( oDragAreaPosition, oDragXY ) {
-								if ( arguments.length === 3 ) {
-									$window.open("#/transactionList/" + oNavbarVoService.getPartialURL(true, false), application + "|" + arguments[0] + "|" + arguments[1] + "|" + arguments[2] );
+								if ( arguments.length === 4 ) {
+									$window.open("#/transactionList/" + oNavbarVoService.getPartialURL(true, false), application + "|" + arguments[0] + "|" + arguments[1] + "|" + arguments[2] + "|" + arguments[3] );
 								} else {
-									var token = application + "|" + oDragXY.fromX + "|" + oDragXY.toX + "|" + oDragXY.fromY + "|" + oDragXY.toY;
+									var token = application + "|" + oDragXY.fromX + "|" + oDragXY.toX + "|" + oDragXY.fromY + "|" + oDragXY.toY + "|" + arguments[2];
 									$window.open("#/transactionList/" + oNavbarVoService.getPartialURL(true, false), token);
 								}
 							},

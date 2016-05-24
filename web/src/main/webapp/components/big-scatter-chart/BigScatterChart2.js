@@ -132,7 +132,7 @@
 		this._oDragManager = new BigScatterChart2.DragManager( this.option(), this._oSCManager, this._$elContainer, {
 			"onSelect": function( oDragAreaPosition, oDragXY ) {
 				if ( self.hasDataByXY( oDragXY.fromX, oDragXY.toX, oDragXY.fromY, oDragXY.toY ) ) {
-					self._oExternal.onSelect( oDragAreaPosition, oDragXY );
+					self._oExternal.onSelect( oDragAreaPosition, oDragXY, self._currentAgent );
 				}
 			}
 		});
@@ -161,7 +161,7 @@
 		this._oDragManager.triggerDrag( oParam );
 	};
 	BigScatterChart2.prototype.selectArea = function( type, min, max ) {
-		this._oExternal.onSelect( type, min, max );
+		this._oExternal.onSelect( type, min, max, this._currentAgent );
 	};
 	BigScatterChart2.prototype.selectType = function( type ) {
 		this._oBubbleTypeManager.selectType( type );
@@ -278,7 +278,7 @@
 	BigScatterChart2.prototype.createDataBlock = function( oData ) {
 		return new BigScatterChart2.DataBlock( oData, this.option( "propertyIndex" ), this.option( "typeInfo" ) );
 	};
-	BigScatterChart2.prototype.getDataByXY = function( fromX, toX, fromY, toY ) {
+	BigScatterChart2.prototype.getDataByXY = function( fromX, toX, fromY, toY, selectedAgent ) {
 		var aData = [];
 		var oTypeInfo = this.option( "typeInfo" );
 		var oPropertyIndex = this.option( "propertyIndex" );
@@ -296,7 +296,7 @@
 			for (var j = 0, nLen2 = oDataBlock.count() ; j < nLen2; j++ ) {
 				var aBubbleData = oDataBlock.getData( j );
 				var agentName = oDataBlock.getAgentName( aBubbleData );
-				if ( this._currentAgent === this._AGENT_ALL || this._currentAgent === agentName  ) {
+				if ( selectedAgent === this._AGENT_ALL || selectedAgent === agentName  ) {
 					var bubbleX = aBubbleData[oPropertyIndex.x];
 					var bubbleType = oTypeInfo[aBubbleData[oPropertyIndex.type]][0];
 					if ( BigScatterChart2.Util.isInRange( fromX, toX, bubbleX ) && BigScatterChart2.Util.indexOf( aVisibleType, bubbleType ) >= 0) {
@@ -315,7 +315,7 @@
 		}
 		return aData;
 	};
-	BigScatterChart2.prototype.getDataByRange = function( type, fromY, toY ) {
+	BigScatterChart2.prototype.getDataByRange = function( type, fromY, toY, selectedAgent ) {
 		var aData = [];
 		var oTypeInfo = this.option( "typeInfo" );
 		var oPropertyIndex = this.option( "propertyIndex" );
@@ -328,7 +328,7 @@
 			for (var j = 0, nLen2 = oDataBlock.count() ; j < nLen2; j++ ) {
 				var aBubbleData = oDataBlock.getData( j );
 				var agentName = oDataBlock.getAgentName( aBubbleData );
-				if ( this._currentAgent === this._AGENT_ALL || this._currentAgent === agentName  ) {
+				if ( selectedAgent === this._AGENT_ALL || selectedAgent === agentName  ) {
 					var bubbleType = oTypeInfo[aBubbleData[oPropertyIndex.type]][0];
 					if ( type === bubbleType ) {
 						var bubbleY = aBubbleData[oPropertyIndex.y];
