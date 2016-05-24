@@ -14,7 +14,7 @@
  */
 package com.navercorp.pinpoint.plugin.tomcat;
 
-import com.navercorp.pinpoint.bootstrap.config.ExcludeUrlFilter;
+import com.navercorp.pinpoint.bootstrap.config.ExcludePathFilter;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
@@ -31,7 +31,7 @@ public class TomcatConfiguration {
         final String tomcatExcludeURL = config.readString("profiler.tomcat.excludeurl", "");
         
         if (!tomcatExcludeURL.isEmpty()) {
-            this.tomcatExcludeUrlFilter = new ExcludeUrlFilter(tomcatExcludeURL);
+            this.tomcatExcludeUrlFilter = new ExcludePathFilter(tomcatExcludeURL);
         }
     }
 

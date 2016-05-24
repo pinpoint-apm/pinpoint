@@ -606,7 +606,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.tomcatTraceRequestParam = readBoolean("profiler.tomcat.tracerequestparam", true);
         final String tomcatExcludeURL = readString("profiler.tomcat.excludeurl", "");
         if (!tomcatExcludeURL.isEmpty()) {
-            this.tomcatExcludeUrlFilter = new ExcludeUrlFilter(tomcatExcludeURL);
+            this.tomcatExcludeUrlFilter = new ExcludePathFilter(tomcatExcludeURL);
         }
         this.tomcatRealIpHeader = readString("profiler.tomcat.realipheader", null);
         this.tomcatRealIpEmptyValue = readString("profiler.tomcat.realipemptyvalue", null);

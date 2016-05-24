@@ -14,7 +14,7 @@
  */
 package com.navercorp.pinpoint.plugin.jetty;
 
-import com.navercorp.pinpoint.bootstrap.config.ExcludeUrlFilter;
+import com.navercorp.pinpoint.bootstrap.config.ExcludePathFilter;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
@@ -27,7 +27,7 @@ public class JettyConfiguration {
         final String jettyExcludeURL = config.readString("profiler.jetty.excludeurl", "");
 
         if (!jettyExcludeURL.isEmpty()) {
-            this.jettyExcludeUrlFilter = new ExcludeUrlFilter(jettyExcludeURL);
+            this.jettyExcludeUrlFilter = new ExcludePathFilter(jettyExcludeURL);
         } else{
             this.jettyExcludeUrlFilter = new  SkipFilter<String>();
         }
