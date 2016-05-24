@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * @author emeroad
  * @author HyunGil Jeong
  */
 public class ExcludePathFilter implements Filter<String> {
