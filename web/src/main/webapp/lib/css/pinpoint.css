@@ -1156,7 +1156,7 @@ canvas {outline:none}
 	width: 160px;
 	height: 160px;
 	position: absolute;
-	right: 0px;
+	right: 20px;
 	bottom: 20px;
 	background-color: rgba(44, 160, 44, 0.2);
 	z-index: 2;
