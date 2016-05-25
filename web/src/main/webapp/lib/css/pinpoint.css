@@ -239,8 +239,8 @@ canvas {outline:none}
 	padding-left: 20px;
 }
 .inspector-container {
-    width:95%;
-    position:relative;
+    margin-left: 12px;
+    margin-right: 22px;
 }
 .sidebar-spy {
     position: absolute;
@@ -257,18 +257,54 @@ canvas {outline:none}
     -moz-border-radius: 0;
     border-radius: 0;
 }
+.inspector-container table tr:nth-child(odd) {
+    background-color: #F3F3F3;
+}
+.inspector-container table tr:nth-child(even) {
+    background-color: #EDEDED;
+}
+.inspector-container table {
+    border: 1px solid #ECECEC;
+}
+.inspector-container table td {
+    border-top: none !important;
+}
+.inspector-container h4 {
+    color: #55B951 !important;
+    font-size: 12px !important;
+    margin: 2px !important;
+}
+.inspector-container .chart-collection {
+    border: 1px solid #ECECEC;
+    padding: 8px;
+    margin-top: 20px;
+}
 
 .main-spy {
-    margin-left: 250px;
+    margin-left: 238px;
     height: 100%;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 .inspector-datepicker {
     width: 190px !important;
 }
 
 .agent-list-directive .searchbox {
-    width: 100%;
+    height: 38px;
+    border-bottom: 1px solid #EDEDED;
+    background-color: #F5F5F5;
+}
+.agent-list-directive .searchbox input {
+    width: 200px;
+    margin: 5px 0px 0px 8px;
+}
+.agent-list-directive .searchbox span {
+    top: 11px;
+    right: 6px;
+    cursor:pointer;
+    position: absolute;
+    font-size: 14px;
 }
 
 .agent-list-directive .nav li > a:hover,
@@ -291,7 +327,7 @@ canvas {outline:none}
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    -o-text-overow: ellipsis;
+    border-radius: 0px;
 }
 
 .agent-list-directive .nav-list li > a {
@@ -351,6 +387,24 @@ canvas {outline:none}
 #serverMetaDataDiv .modal-body .list-group > .list-group-item:last-child {
     border-top-right-radius: 0px;
     border-top-left-radius: 0px;
+}
+.inspector-container .slider-command {
+    height: 38px;
+    padding: 4px 0px 4px 12px;
+    text-align: right;
+    margin-left:-12px;
+    margin-right:-22px;
+    margin-bottom: 20px;
+    background-color: #F5F5F5;
+}
+.inspector-container .slider-command > button {
+    float:right;
+}
+.inspector-container .slider > span {
+    float: left;
+    font-size: 12px;
+    line-height: 2;
+    margin-bottom:-26px;
 }
 .timeSlider .hide {
     display: none;

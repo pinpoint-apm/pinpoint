@@ -3,21 +3,25 @@
     <div ng-include=" 'warning' "></div>
     <div ng-include=" 'info' "></div>
     <div ng-include=" 'loading' "></div>
-    <div style="padding-top:20px;">
-        <div>
-            <div>
-                <div class="datetimepicker input-group input-group-sm date" style="float:left;width:189px;margin-right:4px;">
-                     <input id="target-picker" type="text" class="form-control">
-                     <span class="input-group-btn">
-                        <button class="btn btn-default btn-success" ng-click="selectTime()">
-                            <span class="glyphicon glyphicon-search"></span>
-                        </button>
-                     </span>
-                </div>
-                <button type="button" class="btn btn-default btn-success btn-sm" ng-click="zoomInTimeSlider()" style="float:left;margin-right:4px"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
-                <button type="button" class="btn btn-default btn-success btn-sm" ng-click="zoomOutTimeSlider()" style="float:left;margin-right:4px"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></button>
-            </div>
-        </div>
+    <div class="slider">
+		<div class="slider-command">
+			<button type="button" class="btn btn-default btn-success btn-sm" ng-click="moveHead()" style="margin-right:22px;"><span class="glyphicon glyphicon-fast-forward"></span></button>
+			<button type="button" class="btn btn-default btn-success btn-sm" ng-click="moveNext()"><span class="glyphicon glyphicon-forward"></span></button>
+			<button type="button" class="btn btn-default btn-success btn-sm" ng-click="movePrev()"><span class="glyphicon glyphicon-backward"></span></button>
+
+			<button type="button" class="btn btn-default btn-success btn-sm" ng-click="zoomOutTimeSlider()" style="margin-right:4px;"><span class="glyphicon glyphicon-minus"></span></button>
+			<button type="button" class="btn btn-default btn-success btn-sm" ng-click="zoomInTimeSlider()"><span class="glyphicon glyphicon-plus"></span></button>
+
+			<div class="datetimepicker input-group input-group-sm date" style="width:189px;margin-right:4px;float:right">
+				 <input id="target-picker" type="text" class="form-control">
+				 <span class="input-group-btn">
+					<button class="btn btn-default btn-success" ng-click="selectTime()">
+						<span class="glyphicon glyphicon-search"></span>
+					</button>
+				 </span>
+			</div>
+		</div>
+		<span>Timeline</span>
         <svg id="timeSlider" class="timeSlider" width="100%" height="90px" style="margin-top:6px"></svg>
     </div>
     <div class="panel panel-info" ng-show="showEventInfo">
@@ -44,12 +48,14 @@
         </div>
     </div>
     <div>
-        <h3>Information <span style="float:right;font-size:16px;" class="label label-default">{{formatDate(selectTime)}}</span></h3>
-
+        <h3 style="text-align:right"><span style="font-size:16px;" class="label label-default">{{formatDate(selectTime)}}</span></h3>
         <div class="row">
             <div class="col-md-12">
-                <table class="table table-striped table-condensed" style="font-size:12px;">
+                <table class="table table-condensed" style="font-size:12px;margin-bottom:0px">
                     <tbody>
+					<tr>
+						<td colspan="4"><h4>Information</h4></td>
+					</tr>
                     <tr>
                         <td class="col-md-2 text-right"><strong>Application Name</strong></td>
                         <td class="col-md-3 text-left" ng-show="isSameApplication()">{{agent.applicationName}}</td>
@@ -101,11 +107,11 @@
                 </table>
             </div>
         </div>
-        <div ng-show="showDetail">
-            <h3>Detail</h3>
+        <div ng-show="showDetail" style="margin-top:4px;">
+			<div style="position:relative;width:0;height: 0;border-left: 10px solid transparent;border-right: 10px solid transparent;border-bottom: 10px solid #BBB5B5;"></div>
             <div class="row">
                 <div class="col-md-12">
-                    <table class="table table-condensed table-bordered" style="font-size:12px;">
+                    <table class="table table-condensed table-bordered" style="font-size:12px;margin-bottom:20px;">
                         <tbody>
                         <tr class="active">
                             <td class="col-md-2 text-right"><strong>Server Info</strong></td>
@@ -114,7 +120,7 @@
                                 <span ng-hide="agent.serverMetaData.serverInfo.length">N/A</span>
                             </td>
                         </tr>
-                        <tr>
+                        <tr style="background-color:#FFF;">
                             <td class="text-right"><strong>JVM Arguments</strong></td>
                             <td class="text-left">
                                 <div style="overflow:auto;max-height:200px;" ng-show="agent.serverMetaData.vmArgs.length">
@@ -153,7 +159,7 @@
             </div>
         </div>
     </div>
-    <div>
+    <div class="chart-collection">
         <div class="row">
             <div class="col-md-6">
                 <h4><span class="glyphicon glyphicon-question-sign heapTooltip" style="cursor:pointer;float:right;"></span> {{memoryGroup[0].title}}</h4>
