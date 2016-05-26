@@ -9,7 +9,7 @@
                 <span class="glyphicon glyphicon-home"></span>
                 {{key}}
             </h5>
-            <ul class="nav nav-pills nav-stacked">
+            <ul class="nav nav-pills nav-stacked" style="font-size:12px">
                 <li ng-class="{active: currentAgent == agent}" ng-repeat="agent in group | filter:searchAgents.name">
                     <a href ng-click="select(agent)">
                         <span class="glyphicon glyphicon-hdd"></span>

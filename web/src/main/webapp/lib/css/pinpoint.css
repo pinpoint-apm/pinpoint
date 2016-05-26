@@ -407,7 +407,7 @@ canvas {outline:none}
     display: inline-block;
     box-shadow: 0px 0px 4px 2px #FF0;
     border-radius: 5px;
-    margin-bottom: -2px;
+    margin-bottom: -1px;
     background-color: #FF0;
 }
 .inspector-container .slider > span {
