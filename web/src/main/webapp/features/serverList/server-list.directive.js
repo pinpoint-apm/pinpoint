@@ -22,6 +22,7 @@
 					var $element = $(element);
 					scope.bIsNode = true;
 					scope.hasScatter = false;
+					scope.selectedAgent = "";
 					/*
 
 					tooltipService.init( "serverList" );
@@ -34,6 +35,7 @@
 						});
 					};
 					var showChart = function( instanceName, histogram, timeSeriesHistogram ) {
+						scope.selectedAgent = instanceName;
 						scope.$broadcast('changedCurrentAgent.forServerList', instanceName );
 						if ( bInitialized ) {
 							scope.$broadcast('responseTimeChartDirective.updateData.forServerList', histogram);

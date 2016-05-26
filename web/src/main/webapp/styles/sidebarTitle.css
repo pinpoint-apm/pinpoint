@@ -128,9 +128,25 @@
     border-bottom: 1px solid #EAEAEA;
     background-color: #f2f2f2;
 }
+.server-list-chart .chart-header > span {
+    color: #C0C0C0;
+    display: inline-block;
+    overflow: hidden;
+    font-size: 12px;
+    margin-top: 12px;
+    font-family: sans-serif;
+}
+.server-list-chart .chart-header .title {
+    padding-left: 12px;
+}
+.server-list-chart .chart-header .selected-agent {
+    width: 270px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
 .server-list-chart .chart-header button {
     float: right;
-    margin: 4px;
+    margin: 12px;
     padding: 0px 3px;
     border-radius: 14px;
 }

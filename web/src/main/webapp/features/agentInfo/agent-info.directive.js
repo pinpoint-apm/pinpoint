@@ -257,9 +257,16 @@
 						getEventList( scope.agent.agentId, aRange );
 					};
 
-					scope.toggleShowDetail = function() {
+					scope.toggleShowDetail = function( $event ) {
 						analyticsService.send( analyticsService.CONST.INSPECTOR, analyticsService.CONST.CLK_SHOW_SERVER_TYPE_DETAIL );
 						scope.showDetail = !scope.showDetail;
+						if ( scope.showDetail === true ) {
+							$(".detailIndicator").animate({
+								"left": $( $event.currentTarget ).position().left
+							});
+						} else {
+							$(".detailIndicator").css("left", "0px");
+						}
 					};
 	                scope.hasDuplicate = function( libName, index ) {
 	                	var len = scope.currentServiceInfo.serviceLibs.length;
