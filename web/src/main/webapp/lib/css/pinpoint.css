@@ -1010,7 +1010,6 @@ canvas {outline:none}
     border: 1px solid #E9E9E9;
     z-index: 99;
     position: absolute;
-    box-shadow: -8px 0px 5px 0px rgba(171,169,171,1);
 }
 .server-list-wrapper {
     width: 100%;
@@ -1085,10 +1084,10 @@ canvas {outline:none}
     float: left;
     width: 422px;
     height: 100%;
+    border-left: 1px solid #EAEAEA;
     padding-left: 8px;
     padding-right: 8px;
     background-color: #FFF;
-    box-shadow: -2px 0px 5px 0px rgba(171,169,171,1);
 }
 
 .server-list-chart .chart-header {
@@ -1099,7 +1098,7 @@ canvas {outline:none}
     background-color: #f2f2f2;
 }
 .server-list-chart .chart-header > span {
-    color: #C0C0C0;
+    color: #67BB67;
     display: inline-block;
     overflow: hidden;
     font-size: 12px;
