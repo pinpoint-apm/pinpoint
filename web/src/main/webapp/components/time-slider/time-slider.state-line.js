@@ -66,7 +66,6 @@
 		this.group.add( elRect );
     };
 	ts.StateLine.prototype._makeRect = function( x, x2, y, y2, eventType, id ) {
-		console.log( x, x2, y, y2, eventType );
 		return  this.timeSlider.snap.rect( x, y, x2, y2 ).attr({
 			//"filter": this._filterShadow,
 			"fill": TimeSlider.EventColor[eventType],
@@ -74,7 +73,6 @@
 		});
 	};
     ts.StateLine.prototype._makeLine = function( x, x2, y, eventType, id ) {
-		console.log( x, x2, y );
         return  this.timeSlider.snap.line( x, y, x2, y ).attr({
             //"filter": this._filterShadow,
             "stroke": TimeSlider.EventColor[eventType],
