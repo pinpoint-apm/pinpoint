@@ -24,12 +24,19 @@
     };
     ts.Handler.prototype._addElements = function() {
         //this.handlerGrip = this.timeSlider.snap.image( this._handleSrc, -(consts.HANDLER_IMAGE_WIDTH / 2), -(consts.HANDLER_IMAGE_HEIGHT / 2), consts.HANDLER_IMAGE_WIDTH, consts.HANDLER_IMAGE_HEIGHT );
-		this.handlerGrip = this.timeSlider.snap.circle( 0, 3, 7 ).attr({
-			"filter": this.timeSlider.snap.filter( Snap.filter.shadow(0, 0, 4, "#000", .5))
+		this.handlerGrip = this.timeSlider.snap.circle( 0, 3, 5 ).attr({
+			"fill": "#777af9",
+			"cursor": "pointer",
+			"stroke": "#4E50C8",
+			"stroke-width": "3px"
 		});
         this.handlerGroup = this.group.g();
         this.handlerGroup.add(
             this.timeSlider.snap.line( 0, 0, 0, this.opt.height ),
+			this.timeSlider.snap.circle( 0, 3, 7 ).attr({
+				"fill": "#000",
+				"filter": this.timeSlider.snap.filter( Snap.filter.shadow(0, 0, 2, "#000", .5))
+			}),
             this.handlerGrip
         );
     };

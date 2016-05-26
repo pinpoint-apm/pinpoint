@@ -240,7 +240,7 @@
     };
     TimeSlider.EventColor = {
         "base": "rgba(187, 187, 187, .3)",
-        "10100": "rgba(0, 158, 0, .2 )",	//"#009E00",         //Agent connected
+        "10100": "rgba(0, 158, 0, .4 )",	//"#009E00",         //Agent connected
         "10199": "rgba(250, 235, 215, .7)",	//"#FAEBD7",         //Agent ping
         "10200": "rgba(209, 82, 96, .7)",	//"#D15260",         //Agent shutdown
         "10201": "rgba(233, 92, 99, .7)",	//"#E95C63",         //Agent unexpected shutdown

@@ -434,12 +434,6 @@ canvas {outline:none}
     stroke-width: .5;
     stroke-linecap: square;
 }
-.timeSlider .left-handler circle, .timeSlider .right-handler circle {
-    fill: #7676FD;
-    cursor: pointer;
-    stroke: #000;
-    stroke-width: 2px;
-}
 .timeSlider .left-handler rect, .timeSlider .right-handler rect {
     fill: #FFF;
 }
