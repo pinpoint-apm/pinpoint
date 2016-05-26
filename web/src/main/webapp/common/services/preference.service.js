@@ -34,7 +34,20 @@
 			realtimeScatterPeriod: 5 * 60 * 1000,//5m
 			responseType: [ "1s", "3s", "5s", "Slow", "Error" ],
 			responseTypeColor: [ "#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034" ],
-			agentAllStr: "All"
+			agentAllStr: "All",
+			updateTimes: [{
+				time: 10,
+				label: '10 seconds'
+			},{
+				time: 20,
+				label: '20 seconds'
+			}, {
+				time: 30,
+				label: '30 seconds'
+			}, {
+				time: 60,
+				label: '1 minute'
+			}]
 		}
 	});
 	
@@ -85,6 +98,9 @@
 		this.getAgentAllStr = function() {
 			return cfg.cst.agentAllStr;
 		};
+		this.getUpdateTimes = function() {
+			return cfg.cst.updateTimes;
+		}
 		this.getResponseTypeFormat = function() {
 			var o = {};
 			$.each( cfg.cst.responseType, function( index, value ) {

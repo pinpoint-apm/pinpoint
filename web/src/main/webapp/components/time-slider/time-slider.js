@@ -24,8 +24,7 @@
             "headerZoneHeight": 20,       // 상단 시간 표시영역의 height
             "stateLineThickness": 4,       // 상태선의 두께
             "minSliderTimeSeries": 6000,             // 6sec
-            // "maxSliderTimeSeries": 172800000,         // 2day
-            "maxSelectionTimeSeries": 172800000,
+            "maxSelectionTimeSeries": 172800000,	// 2day
             "headerTextTopPadding": 10,   // 상단 상태선과 시간 text의 간격
             "selectionPointRadius": 4
         };
