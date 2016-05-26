@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.test.util;
 
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 
 // TODO move package
 public final class BytecodeUtils {
@@ -63,32 +62,69 @@ public final class BytecodeUtils {
             throw new NullPointerException("className must not be null");
         }
 
-        final InputStream is = classLoader.getResourceAsStream(className.replace('.', '/') + ".class");
+        final String jvmClassName = JavaAssistUtils.javaNameToJvmName(className);
+        final InputStream is = classLoader.getResourceAsStream(jvmClassName + ".class");
         if (is == null) {
             throw new RuntimeException("No such class file: " + className);
         }
 
-        ReadableByteChannel channel = Channels.newChannel(is);
-        ByteBuffer buffer;
-
         try {
-            buffer = ByteBuffer.allocate(is.available());
-
-            while (channel.read(buffer) >= 0) {
-                if (buffer.remaining() == 0) {
-                    buffer.flip();
-                    ByteBuffer newBuffer = ByteBuffer.allocate(buffer.capacity() * 2);
-                    newBuffer.put(buffer);
-                    buffer = newBuffer;
-                }
-            }
+            return readClass(is, false);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
             close(is);
         }
+    }
 
-        return buffer.array();
+    /**
+     * COPY ASM method. reference : org.objectweb.asm.ClassReader
+     *
+     * Reads the bytecode of a class.
+     *
+     * @param is
+     *            an input stream from which to read the class.
+     * @param close
+     *            true to close the input stream after reading.
+     * @return the bytecode read from the given input stream.
+     * @throws IOException
+     *             if a problem occurs during reading.
+     */
+    public static byte[] readClass(final InputStream is, boolean close)
+            throws IOException {
+        if (is == null) {
+            throw new IOException("Class not found");
+        }
+        try {
+            byte[] b = new byte[is.available()];
+            int len = 0;
+            while (true) {
+                int n = is.read(b, len, b.length - len);
+                if (n == -1) {
+                    if (len < b.length) {
+                        byte[] c = new byte[len];
+                        System.arraycopy(b, 0, c, 0, len);
+                        b = c;
+                    }
+                    return b;
+                }
+                len += n;
+                if (len == b.length) {
+                    int last = is.read();
+                    if (last < 0) {
+                        return b;
+                    }
+                    byte[] c = new byte[b.length + 1000];
+                    System.arraycopy(b, 0, c, 0, len);
+                    c[len++] = (byte) last;
+                    b = c;
+                }
+            }
+        } finally {
+            if (close) {
+                is.close();
+            }
+        }
     }
 
     private static void close(Closeable closeable) {
