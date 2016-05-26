@@ -78,6 +78,7 @@
         <spring-batch-version>2.2.7.RELEASE</spring-batch-version>
         <docker.maven.plugin.version>0.4.3</docker.maven.plugin.version>
         <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
+
     </properties>
 
     <dependencies>
@@ -344,6 +345,12 @@
                 <groupId>com.sematext.hbasewd</groupId>
                 <artifactId>hbasewd</artifactId>
                 <version>0.1.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.lmax</groupId>
+                <artifactId>disruptor</artifactId>
+                <version>3.3.4</version>
             </dependency>
 
             <dependency>
