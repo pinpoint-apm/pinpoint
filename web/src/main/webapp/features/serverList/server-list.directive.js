@@ -29,7 +29,7 @@
 					*/
 					var showLayer = function() {
 						$element.animate({
-							"right": 422
+							"right": 421
 						}, 500, function() {
 							console.log( "show callback");
 						});
