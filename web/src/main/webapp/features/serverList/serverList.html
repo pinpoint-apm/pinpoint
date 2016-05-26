@@ -39,6 +39,8 @@
 	</div>
 	<div class="server-list-chart">
 		<div class="chart-header">
+			<span class="title">Selected Agent ></span>
+			<span class="selected-agent">{{selectedAgent}}</span>
 			<button ng-click="hideLayer()" class="btn btn-sm"><span class="glyphicon glyphicon-remove"></span></button>
 		</div>
 		<scatter-directive ng-show="hasScatter" namespace="forServerList"></scatter-directive>

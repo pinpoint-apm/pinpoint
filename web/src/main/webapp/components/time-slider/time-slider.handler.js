@@ -23,7 +23,10 @@
         return this._handleSrc.substring( 0 , lastIndex ) + "_down" + this._handleSrc.substring( lastIndex );
     };
     ts.Handler.prototype._addElements = function() {
-        this.handlerGrip = this.timeSlider.snap.image( this._handleSrc, -(consts.HANDLER_IMAGE_WIDTH / 2), -(consts.HANDLER_IMAGE_HEIGHT / 2), consts.HANDLER_IMAGE_WIDTH, consts.HANDLER_IMAGE_HEIGHT );
+        //this.handlerGrip = this.timeSlider.snap.image( this._handleSrc, -(consts.HANDLER_IMAGE_WIDTH / 2), -(consts.HANDLER_IMAGE_HEIGHT / 2), consts.HANDLER_IMAGE_WIDTH, consts.HANDLER_IMAGE_HEIGHT );
+		this.handlerGrip = this.timeSlider.snap.circle( 0, 3, 7 ).attr({
+			"filter": this.timeSlider.snap.filter( Snap.filter.shadow(0, 0, 4, "#000", .5))
+		});
         this.handlerGroup = this.group.g();
         this.handlerGroup.add(
             this.timeSlider.snap.line( 0, 0, 0, this.opt.height ),
@@ -48,11 +51,11 @@
             self.callbackDrag( newX );
         }, function(x, y, event) {
             event.stopPropagation();
-            self.handlerGrip.attr( "href", self._handleDownSrc );
+            //self.handlerGrip.attr( "href", self._handleDownSrc );
             self.callbackStart( x - self.opt.margin );
         }, function(event) {
             event.stopPropagation();
-            self.handlerGrip.attr( "href", self._handleSrc );
+            //self.handlerGrip.attr( "href", self._handleSrc );
             if ( self._previousX !== lastX && lastX !== -1 ) {
                 self.callbackEnd( true, lastX );
                 self._previousX = lastX;

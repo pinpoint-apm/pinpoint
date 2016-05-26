@@ -157,8 +157,18 @@
     margin-bottom: 20px;
     background-color: #F5F5F5;
 }
-.inspector-container .slider-command > button {
-    float:right;
+.inspector-container .slider-command > div {
+    float: right;
+}
+.inspector-container .slider-command .current-point {
+    width: 10px;
+    height: 10px;
+    border: 2px solid #000;
+    display: inline-block;
+    box-shadow: 0px 0px 4px 2px #FF0;
+    border-radius: 5px;
+    margin-bottom: -2px;
+    background-color: #FF0;
 }
 .inspector-container .slider > span {
     float: left;
@@ -173,17 +183,22 @@
     fill: #EEE;
 }
 .timeSlider .selection-zone {
-    fill: #FFF;
+    fill: rgba(255, 255, 255, 0.5);
 }
 .timeSlider .x-axis {
     font-size: 12px;
     text-anchor: middle;
 }
 .timeSlider .x-axis line {
-    stroke: #000;
+    stroke: #FFF;
     stroke-width: .5;
     stroke-linecap: square;
-    stroke-dasharray: 1, 1;
+}
+.timeSlider .left-handler circle, .timeSlider .right-handler circle {
+    fill: #7676FD;
+    cursor: pointer;
+    stroke: #000;
+    stroke-width: 2px;
 }
 .timeSlider .left-handler rect, .timeSlider .right-handler rect {
     fill: #FFF;
@@ -203,12 +218,13 @@
     stroke-width: 2;
 }
 .timeSlider .selection-point line {
-    stroke: #F5A623;
+    stroke: #FF0;
     stroke-width: 1;
 }
 .timeSlider .selection-point circle {
-    fill: yellow;
-    stroke: #F5A623;
+    fill: #FF0;
+    stroke: #000;
+    stroke-width: 2;
 }
 .timeSlider .events line {
     stroke: #000;
@@ -227,8 +243,8 @@
     stroke-width: 2px;
 }
 .timeSlider .time-left-signboard text, .timeSlider .time-right-signboard text {
-    fill: #4100DE;
-    font-weight: bold;
+    fill: #000;
+    font-size: 13px;
 }
 .timeSlider .time-series-signboard text {
     fill: #BBB;

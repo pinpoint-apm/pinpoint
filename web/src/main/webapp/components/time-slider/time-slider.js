@@ -27,7 +27,7 @@
             // "maxSliderTimeSeries": 172800000,         // 2day
             "maxSelectionTimeSeries": 172800000,
             "headerTextTopPadding": 10,   // 상단 상태선과 시간 text의 간격
-            "selectionPointRadius": 5
+            "selectionPointRadius": 4
         };
         this.opt.minSliderTimeSeries = ( this.opt.xAxisTicks + 1 ) * 1000;
         var p;
@@ -67,6 +67,14 @@
             "height": contentZoneHeight,
             "duration": this.opt.duration
         });
+		this.oStateLine = new TimeSlider.StateLine( this, this.getGroup("state-line", TimeSlider.GROUP_TYPE.TOP_BASE, TimeSlider.oDrawOrder["state-line"]), {
+			"width": this.opt.width,
+			"duration": this.opt.duration,
+			"topLineY": this.opt.headerZoneHeight,
+			"thickness": this.opt.stateLineThickness,
+			"timeSeries": this.opt.timeSeries,
+			"bottomLineY": this.opt.height - this.opt.eventZoneHeight
+		} );
         this.oSelectionManager = new TimeSlider.SelectionManager( this, {
             "margin": this.opt.left,
             "height": this.opt.height,
@@ -84,14 +92,6 @@
             "startY": this.opt.headerZoneHeight,
             "duration": this.opt.duration
         });
-        this.oStateLine = new TimeSlider.StateLine( this, this.getGroup("state-line", TimeSlider.GROUP_TYPE.TOP_BASE, TimeSlider.oDrawOrder["state-line"]), {
-            "width": this.opt.width,
-            "duration": this.opt.duration,
-            "topLineY": this.opt.headerZoneHeight,
-            "thickness": this.opt.stateLineThickness,
-            "timeSeries": this.opt.timeSeries,
-            "bottomLineY": this.opt.height - this.opt.eventZoneHeight
-        } );
         this.oEvents = new TimeSlider.Events( this, this.getGroup("events", TimeSlider.GROUP_TYPE.BOTTOM_BASE, TimeSlider.oDrawOrder["events"]), {
             "duration": this.opt.duration
         } );
@@ -226,13 +226,13 @@
     };
     TimeSlider.oDrawOrder = {
         "background": 0,
+		"state-line": 3,
         "selection-zone": 5,
         "time-series-signboard": 7,
         "x-axis": 10,
         "events": 10,
         "time-signboard": 15,
         "selection-point": 15,
-        "state-line": 20,
         "left-handler": 25,
         "right-handler": 25,
         "guide": 30,
@@ -240,13 +240,13 @@
     };
     TimeSlider.EventColor = {
         "base": "rgba(187, 187, 187, .3)",
-        "10100": "#009E00",         //Agent connected
-        "10199": "#FAEBD7",            //Agent ping
-        "10200": "#D15260",            //Agent shutdown
-        "10201": "#E95C63",            //Agent unexpected shutdown
-        "10300": "#FF9D7B",            //Agent connection closed by server
-        "10301": "#F2F089",            //Agent connection unexpectedly closed by server
-        "20100": "#00F"             //thread dump
+        "10100": "rgba(0, 158, 0, .2 )",	//"#009E00",         //Agent connected
+        "10199": "rgba(250, 235, 215, .7)",	//"#FAEBD7",         //Agent ping
+        "10200": "rgba(209, 82, 96, .7)",	//"#D15260",         //Agent shutdown
+        "10201": "rgba(233, 92, 99, .7)",	//"#E95C63",         //Agent unexpected shutdown
+        "10300": "rgba(255, 157, 123, .7)", //"#FF9D7B",         //Agent connection closed by server
+        "10301": "rgba(242, 240, 137, .7)",	//"#F2F089",         //Agent connection unexpectedly closed by server
+        "20100": "rgba(0, 0, 255, .5)"		//"#00F"             //thread dump
     };
     w.TimeSlider = TimeSlider;
 })(window, jQuery);

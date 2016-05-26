@@ -5,20 +5,26 @@
     <div ng-include=" 'loading' "></div>
     <div class="slider">
 		<div class="slider-command">
-			<button type="button" class="btn btn-default btn-success btn-sm" ng-click="moveHead()" style="margin-right:22px;"><span class="glyphicon glyphicon-fast-forward"></span></button>
-			<button type="button" class="btn btn-default btn-success btn-sm" ng-click="moveNext()"><span class="glyphicon glyphicon-forward"></span></button>
-			<button type="button" class="btn btn-default btn-success btn-sm" ng-click="movePrev()"><span class="glyphicon glyphicon-backward"></span></button>
+			<div class="btn-group" style="margin-right:22px">
+				<button type="button" class="btn btn-default btn-success btn-sm" ng-click="movePrev()"><span class="glyphicon glyphicon-backward"></span></button>
+				<button type="button" class="btn btn-default btn-success btn-sm" ng-click="moveNext()"><span class="glyphicon glyphicon-forward"></span></button>
+				<button type="button" class="btn btn-default btn-success btn-sm" ng-click="moveHead()"><span class="glyphicon glyphicon-fast-forward"></span></button>
+			</div>
+			<div class="btn-group" style="margin-right:4px;">
+				<button type="button" class="btn btn-default btn-success btn-sm" ng-click="zoomInTimeSlider()"><span class="glyphicon glyphicon-plus"></span></button>
+				<button type="button" class="btn btn-default btn-success btn-sm" ng-click="zoomOutTimeSlider()"><span class="glyphicon glyphicon-minus"></span></button>
+			</div>
 
-			<button type="button" class="btn btn-default btn-success btn-sm" ng-click="zoomOutTimeSlider()" style="margin-right:4px;"><span class="glyphicon glyphicon-minus"></span></button>
-			<button type="button" class="btn btn-default btn-success btn-sm" ng-click="zoomInTimeSlider()"><span class="glyphicon glyphicon-plus"></span></button>
-
-			<div class="datetimepicker input-group input-group-sm date" style="width:189px;margin-right:4px;float:right">
-				 <input id="target-picker" type="text" class="form-control">
+			<div class="datetimepicker input-group input-group-sm date" style="width:189px;margin-right:4px;">
 				 <span class="input-group-btn">
+					 <button class="btn btn-default btn-success"><span class="current-point"></span></button>
+				 </span>
+				 <input id="target-picker" type="text" class="form-control">
+				 <!--span class="input-group-btn">
 					<button class="btn btn-default btn-success" ng-click="selectTime()">
 						<span class="glyphicon glyphicon-search"></span>
 					</button>
-				 </span>
+				 </span-->
 			</div>
 		</div>
 		<span>Timeline</span>
@@ -48,7 +54,7 @@
         </div>
     </div>
     <div>
-        <h3 style="text-align:right"><span style="font-size:16px;" class="label label-default">{{formatDate(selectTime)}}</span></h3>
+        <!--h3 style="text-align:right"><span style="font-size:16px;font-weight:normal;border-radius:0px" class="label label-default">{{formatDate(selectTime)}}</span></h3-->
         <div class="row">
             <div class="col-md-12">
                 <table class="table table-condensed" style="font-size:12px;margin-bottom:0px">
@@ -97,7 +103,7 @@
                             {{agent.serviceType}}
                             <span ng-show="agent.serverMetaData">
                                 <span ng-show="agent.serverMetaData.serverInfo.length">&nbsp;({{agent.serverMetaData.serverInfo}})&nbsp;</span>
-                                <button type="button" class="btn btn-default btn-xs" ng-click="toggleShowDetail()" ng-show="agent.serverMetaData.vmArgs.length || agent.serverMetaData.serviceInfos.length">Detail</button>
+                                <button type="button" class="btn btn-default btn-xs" ng-click="toggleShowDetail($event)" ng-show="agent.serverMetaData.vmArgs.length || agent.serverMetaData.serviceInfos.length">Detail</button>
                             </span>
                         </td>
                         <td class="text-right"><strong>End Status</strong></td>
@@ -108,7 +114,7 @@
             </div>
         </div>
         <div ng-show="showDetail" style="margin-top:4px;">
-			<div style="position:relative;width:0;height: 0;border-left: 10px solid transparent;border-right: 10px solid transparent;border-bottom: 10px solid #BBB5B5;"></div>
+			<div class="detailIndicator" style="position:relative;width:0;height: 0;border-left: 10px solid transparent;border-right: 10px solid transparent;border-bottom: 10px solid #BBB5B5;"></div>
             <div class="row">
                 <div class="col-md-12">
                     <table class="table table-condensed table-bordered" style="font-size:12px;margin-bottom:20px;">

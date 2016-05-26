@@ -11,7 +11,7 @@
         this.group.add(
             this.timeSlider.snap.line( 0, 0, 0, this.opt.height ),
             this.timeSlider.snap.circle( 0, this.opt.height / 2, this.opt.radius ).attr({
-                filter: this.timeSlider.snap.filter( Snap.filter.shadow(0, 0, 2, "#000", 0.3))
+                filter: this.timeSlider.snap.filter( Snap.filter.shadow(0, 0, 4, "#FF0", 1))
             })
         );
     };
