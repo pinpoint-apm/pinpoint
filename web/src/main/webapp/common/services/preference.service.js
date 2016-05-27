@@ -100,7 +100,7 @@
 		};
 		this.getUpdateTimes = function() {
 			return cfg.cst.updateTimes;
-		}
+		};
 		this.getResponseTypeFormat = function() {
 			var o = {};
 			$.each( cfg.cst.responseType, function( index, value ) {

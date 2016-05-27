@@ -81,7 +81,7 @@
 						return (to - from) / 1000 / 60;
 					};
 					var setTimeSliderBaseColor = function() {
-						timeSlider.setDefaultStateLineColor( TimeSlider.EventColor[ scope.agent.status.state.code == 100 ? "10100" : "10200"] );
+						timeSlider.setDefaultStateLineColor( TimeSlider.EventColor[ scope.agent.status.state.code == 100 ? TimeSlider.GREEN : TimeSlider.RED] );
 					};
 
 					var loadChartData = function( agentId, aFromTo, period, callback ) {
@@ -148,7 +148,12 @@
 						if ( fromTo > twoDay  ) {
 							return [to - twoDay, to];
 						} else {
-							return [ to - ( fromTo * 3 ), to ];
+							var calcuFrom = fromTo * 3;
+							if ( calcuFrom > twoDay ) {
+								return [ to - twoDay, to ];
+							} else {
+								return [ to - calcuFrom, to ];
+							}
 						}
 					};
 
@@ -248,13 +253,24 @@
 					scope.hideEventInfo = function() {
 						scope.showEventInfo = false;
 					};
+					scope.movePrev = function() {
+						timeSlider.movePrev();
+						getEventList( scope.agent.agentId, timeSlider.getSliderTimeSeries() );
+					};
+					scope.moveNext = function() {
+						timeSlider.moveNext();
+						getEventList( scope.agent.agentId, timeSlider.getSliderTimeSeries() );
+					};
+					scope.moveHead = function() {
+						timeSlider.moveHead();
+						getEventList( scope.agent.agentId, timeSlider.getSliderTimeSeries() );
+					};
 					scope.zoomInTimeSlider = function() {
 						timeSlider.zoomIn();
 					};
 					scope.zoomOutTimeSlider = function() {
 						timeSlider.zoomOut();
-						var aRange = timeSlider.getSliderTimeSeries();
-						getEventList( scope.agent.agentId, aRange );
+						getEventList( scope.agent.agentId, timeSlider.getSliderTimeSeries() );
 					};
 
 					scope.toggleShowDetail = function( $event ) {

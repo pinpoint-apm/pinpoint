@@ -188,16 +188,27 @@
         // this.oTimeSeriesSignboard.resize();
         this.reset();
     };
-    TimeSlider.prototype.zoomIn = function( zoomLevel ) {
+    TimeSlider.prototype.zoomIn = function() {
         // 1/2배씩
         this.oPositionManager.zoomIn();
         this.reset();
     };
-    TimeSlider.prototype.zoomOut = function( zoomLevel ) {
+    TimeSlider.prototype.zoomOut = function() {
         // 2배씩
         this.oPositionManager.zoomOut();
         this.reset();
     };
+	TimeSlider.prototype.movePrev = function() {
+		var prevTime = this.oPositionManager.getPrevTime();
+		this.oSelectionManager.setSelectTime( prevTime );
+	};
+	TimeSlider.prototype.moveNext = function() {
+		var nextTime = this.oPositionManager.getNextTime();
+		this.oSelectionManager.setSelectTime( nextTime );
+	};
+	TimeSlider.prototype.moveHead = function() {
+		this.oSelectionManager.setSelectTime( Date.now(), true );
+	};
     TimeSlider.prototype.getSliderTimeSeries = function() {
         return this.oPositionManager.getSliderTimeSeries();
     };
@@ -209,7 +220,7 @@
     };
     TimeSlider.prototype.emptyData = function() {
         this.oLoading.show();
-        var aBoundary = this.oEventData.emptyData();
+        this.oEventData.emptyData();
         this.oEvents.emptyData();
         this.oStateLine.emptyData();
         this.oLoading.hide();
@@ -247,5 +258,7 @@
         "10301": "rgba(242, 240, 137, .7)",	//"#F2F089",         //Agent connection unexpectedly closed by server
         "20100": "rgba(0, 0, 255, .5)"		//"#00F"             //thread dump
     };
+	TimeSlider.GREEN = "10100";
+	TimeSlider.RED = "10200";
     w.TimeSlider = TimeSlider;
 })(window, jQuery);

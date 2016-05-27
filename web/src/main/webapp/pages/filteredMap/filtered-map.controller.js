@@ -185,7 +185,6 @@
 	         * scope event on serverMapDirective.nodeClicked
 	         */
 	        $scope.$on('serverMapDirective.nodeClicked', function (event, e, query, node, data) {
-				console.log( node, data );
 	            bNodeSelected = true;
 	            var oSidebarTitleVoService = new SidebarTitleVoService();
 	            oSidebarTitleVoService.setImageType(node.serviceType);

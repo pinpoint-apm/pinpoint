@@ -83,7 +83,7 @@
             this.oLeftHandler.setZone( 0, newRightX );
             this.timeSlider.oPositionManager.setSelectionEndPosition( newRightX );
 
-            if ( this.timeSlider.oPositionManager.isInSelectionZoneSelectPoint() === false ) {
+            if ( this.timeSlider.oPositionManager.isInSelectionZone() === false ) {
                 this.oSelectionPoint.onMouseClick( newRightX );
                 this.timeSlider.fireEvent( "selectTime", aNewSelectionTimeSeries[1] );
             }
@@ -108,7 +108,7 @@
             this.oRightHandler.setZone( newLeftX, this.timeSlider.oPositionManager.getSliderEndPosition() );
             this.timeSlider.oPositionManager.setSelectionStartPosition( newLeftX );
 
-            if ( this.timeSlider.oPositionManager.isInSelectionZoneSelectPoint() === false ) {
+            if ( this.timeSlider.oPositionManager.isInSelectionZone() === false ) {
                 this.oSelectionPoint.onMouseClick( newLeftX );
                 this.timeSlider.fireEvent( "selectTime", aNewSelectionTimeSeries[0] );
             }
@@ -132,19 +132,18 @@
         var aNewSelectionZone = this.timeSlider.oPositionManager.getSelectionPosition();
         this.timeSlider.fireEvent( "changeSelectionZone", [ this.timeSlider.oPositionManager.getTimeFromPosition(aNewSelectionZone[0]), this.timeSlider.oPositionManager.getTimeFromPosition(aNewSelectionZone[1]) ] );
     };
-    ts.SelectionManager.prototype.setSelectTime = function( time ) {
-        var x = this.timeSlider.oPositionManager.getPositionFromTime( time );
+    ts.SelectionManager.prototype.setSelectTime = function( time, bIsNow ) {
         if ( this.timeSlider.oPositionManager.isInSliderTimeSeries( time ) ) {
             this._setSelectTime( time );
         } else {
-            this.timeSlider.oPositionManager.resetBySelectTime( time );
+            this.timeSlider.oPositionManager.resetBySelectTime( time, bIsNow );
             this.timeSlider.reset();
             this.timeSlider.fireEvent( "selectTime", time );
         }
     };
     ts.SelectionManager.prototype._setSelectTime = function( time ) {
         this.timeSlider.oPositionManager.setSelectTime( time );
-        if ( this.timeSlider.oPositionManager.isInSelectionZone( this.timeSlider.oPositionManager.getSelectPosition() ) === false ) {
+        if ( this.timeSlider.oPositionManager.isInSelectionZone() === false ) {
             this.timeSlider.oPositionManager.calcuSelectionZone();
             this.moveSelectionAndHandler();
         }
