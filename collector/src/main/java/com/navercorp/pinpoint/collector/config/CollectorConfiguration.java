@@ -62,6 +62,7 @@ public class CollectorConfiguration implements InitializingBean {
     private String udpStatListenIp = DEFAULT_LISTEN_IP;
     private int udpStatListenPort;
 
+    private String udpStatWorkerType;
     private int udpStatWorkerThread;
     private int udpStatWorkerQueueSize;
     private int udpStatSocketReceiveBufferSize;
@@ -69,6 +70,7 @@ public class CollectorConfiguration implements InitializingBean {
     private String udpSpanListenIp = DEFAULT_LISTEN_IP;
     private int udpSpanListenPort;
 
+    private String udpSpanWorkerType;
     private int udpSpanWorkerThread;
     private int udpSpanWorkerQueueSize;
     private int udpSpanSocketReceiveBufferSize;
@@ -132,6 +134,14 @@ public class CollectorConfiguration implements InitializingBean {
         this.udpStatListenPort = udpStatListenPort;
     }
 
+    public String getUdpStatWorkerType() {
+        return udpStatWorkerType;
+    }
+
+    public void setUdpStatWorkerType(String udpStatWorkerType) {
+        this.udpStatWorkerType = udpStatWorkerType;
+    }
+
     public int getUdpStatWorkerThread() {
         return udpStatWorkerThread;
     }
@@ -170,6 +180,14 @@ public class CollectorConfiguration implements InitializingBean {
 
     public void setUdpSpanListenPort(int udpSpanListenPort) {
         this.udpSpanListenPort = udpSpanListenPort;
+    }
+
+    public String getUdpSpanWorkerType() {
+        return udpSpanWorkerType;
+    }
+
+    public void setUdpSpanWorkerType(String udpSpanWorkerType) {
+        this.udpSpanWorkerType = udpSpanWorkerType;
     }
 
     public int getUdpSpanWorkerThread() {
@@ -297,6 +315,7 @@ public class CollectorConfiguration implements InitializingBean {
         this.udpStatListenIp = readString(properties, "collector.udpStatListenIp", DEFAULT_LISTEN_IP);
         this.udpStatListenPort = readInt(properties, "collector.udpStatListenPort", 9995);
 
+        this.udpStatWorkerType = readString(properties, "collector.udpStatWorkerType", "DEFAULT_EXECUTOR");
         this.udpStatWorkerThread = readInt(properties, "collector.udpStatWorkerThread", 128);
         this.udpStatWorkerQueueSize = readInt(properties, "collector.udpStatWorkerQueueSize", 1024);
         this.udpStatSocketReceiveBufferSize = readInt(properties, "collector.udpStatSocketReceiveBufferSize", 1024 * 4096);
@@ -304,6 +323,7 @@ public class CollectorConfiguration implements InitializingBean {
         this.udpSpanListenIp = readString(properties, "collector.udpSpanListenIp", DEFAULT_LISTEN_IP);
         this.udpSpanListenPort = readInt(properties, "collector.udpSpanListenPort", udpSpanListenPort);
 
+        this.udpSpanWorkerType = readString(properties, "collector.udpSpanWorkerType", "DEFAULT_EXECUTOR");
         this.udpSpanWorkerThread = readInt(properties, "collector.udpSpanWorkerThread", 256);
         this.udpSpanWorkerQueueSize = readInt(properties, "collector.udpSpanWorkerQueueSize", 1024 * 5);
         this.udpSpanSocketReceiveBufferSize = readInt(properties, "collector.udpSpanSocketReceiveBufferSize", 1024 * 4096);
@@ -371,11 +391,13 @@ public class CollectorConfiguration implements InitializingBean {
         sb.append(", tcpWorkerQueueSize=").append(tcpWorkerQueueSize);
         sb.append(", udpStatListenIp='").append(udpStatListenIp).append('\'');
         sb.append(", udpStatListenPort=").append(udpStatListenPort);
+        sb.append(", udpStatWorkerType=").append(udpStatWorkerType);
         sb.append(", udpStatWorkerThread=").append(udpStatWorkerThread);
         sb.append(", udpStatWorkerQueueSize=").append(udpStatWorkerQueueSize);
         sb.append(", udpStatSocketReceiveBufferSize=").append(udpStatSocketReceiveBufferSize);
         sb.append(", udpSpanListenIp='").append(udpSpanListenIp).append('\'');
         sb.append(", udpSpanListenPort=").append(udpSpanListenPort);
+        sb.append(", udpSpanWorkerType=").append(udpSpanWorkerType);
         sb.append(", udpSpanWorkerThread=").append(udpSpanWorkerThread);
         sb.append(", udpSpanWorkerQueueSize=").append(udpSpanWorkerQueueSize);
         sb.append(", udpSpanSocketReceiveBufferSize=").append(udpSpanSocketReceiveBufferSize);
