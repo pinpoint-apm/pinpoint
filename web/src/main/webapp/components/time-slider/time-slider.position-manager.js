@@ -33,9 +33,6 @@
         }
         this._setSelectionTimeSeries( aTime[0], aTime[1] );
     };
-    ts.PositionManager.prototype._resetSelectionByPosition = function() {
-        this._setSelectionTimeSeries( this.getTimeFromPosition( this._aSelectionPosition[0] ), this.getTimeFromPosition( this._aSelectionPosition[1] ) );
-    };
     ts.PositionManager.prototype._setSelectionTimeSeries = function( start, end ) {
         this._aSelectionTimeSeries[0] = start === null ? this._aSelectionTimeSeries[0] : start;
         this._aSelectionTimeSeries[1] = end === null ? this._aSelectionTimeSeries[1] : end;
@@ -90,8 +87,8 @@
     ts.PositionManager.prototype._twoChipers = function( n ) {
         return n < 10 ? "0" + n : n;
     };
-    ts.PositionManager.prototype.isInSelectionZone = function( x ) {
-        return ( x >= this._aSelectionPosition[0] && x <= this._aSelectionPosition[1] ) ? true : false;
+    ts.PositionManager.prototype.isInSelectionZone = function() {
+		return ( this._selectTime >= this._aSelectionTimeSeries[0] && this._selectTime <= this._aSelectionTimeSeries[1] ) ? true : false;
     };
     ts.PositionManager.prototype.isInSliderTimeSeries = function( time ) {
         return ( time >= this._startTime && time <= this._endTime ) ? true : false;
@@ -105,13 +102,6 @@
     ts.PositionManager.prototype.getSelectionPosition = function() {
         return [ this._aSelectionPosition[0], this._aSelectionPosition[1] ];
     };
-    ts.PositionManager.prototype.isInSelectionZoneSelectPoint = function() {
-        if ( this._selectPosition >= this._aSelectionPosition[0] && this._selectPosition <= this._aSelectionPosition[1] ) {
-            return true;
-        } else {
-            return false;
-        }
-    };
     ts.PositionManager.prototype.getSelectPosition = function() {
         return this._selectPosition;
     };
@@ -119,29 +109,37 @@
         this._selectTime = time;
         this._selectPosition = this.getPositionFromTime( time );
     };
-    ts.PositionManager.prototype.setSelectPosition = function( x ) {
-        this._selectPosition = x;
-        this._selectTime = this.getTimeFromPosition( x );
-    };
+	ts.PositionManager.prototype.getPrevTime = function() {
+		return this._selectTime - ( this._aSelectionTimeSeries[1] - this._aSelectionTimeSeries[0] ) - 1;
+	};
+	ts.PositionManager.prototype.getNextTime = function() {
+		var nextTime = this._selectTime + ( this._aSelectionTimeSeries[1] - this._aSelectionTimeSeries[0] );
+		if ( nextTime > Date.now() ) {
+			return Date.now();
+		} else {
+			return nextTime;
+		}
+	};
     ts.PositionManager.prototype.getTimeFromPosition = function( x ) {
-        return this._startTime + ( this._timePerPoint * x );
+        return this._startTime + parseInt( this._timePerPoint * x );
     };
     ts.PositionManager.prototype.getPositionFromTime = function( time ) {
         return parseInt( ( time - this._startTime ) / this._timePerPoint );
     };
     ts.PositionManager.prototype.calcuSelectionZone = function() {
-        var defaultZone = parseInt((this._aSelectionPosition[1] - this._aSelectionPosition[0]) / 2);
-        var zoneStart = this._selectPosition - defaultZone;
-        var zoneEnd = this._selectPosition + defaultZone;
-        if ( zoneStart < 0 ) {
-            zoneEnd += Math.abs( zoneStart );
-            zoneStart = 0;
-        } else if ( zoneEnd > this._width ) {
-            zoneStart -= ( zoneEnd - this._width );
-            zoneEnd = this._width;
-        }
-        this._setSelectionTimeSeries( this.getTimeFromPosition( zoneStart ), this.getTimeFromPosition( zoneEnd ) );
-        this._setSelectionPosition( zoneStart, zoneEnd );
+		var currentSelectionSize = this._aSelectionTimeSeries[1] - this._aSelectionTimeSeries[0];
+		var currentSelectionHalfSize = Math.round( currentSelectionSize / 2 );
+		var selectionStart = this._selectTime - currentSelectionHalfSize;
+		var selectionEnd = this._selectTime + currentSelectionHalfSize;
+		if ( selectionStart < this._startTime ) {
+			selectionEnd = selectionStart + currentSelectionSize;
+			selectionStart = this._startTime;
+		} else if ( selectionEnd > this._endTime ) {
+			selectionStart = this._endTime - currentSelectionSize;
+			selectionEnd = this._endTime;
+		}
+		this._setSelectionTimeSeries( selectionStart, selectionEnd );
+		this._setSelectionPosition( this.getPositionFromTime( selectionStart ), this.getPositionFromTime( selectionEnd ) );
     };
     ts.PositionManager.prototype.getXBarPosition = function() {
         var self = this;
@@ -159,7 +157,7 @@
         return a;
     };
     ts.PositionManager.prototype.getTimeStr = function( x ) {
-        var timeX = ( x * this._timePerPoint ) + this._startTime;
+        var timeX = parseInt( x * this._timePerPoint ) + this._startTime;
         var d = new Date( timeX );
         return this._twoChipers(d.getMonth() + 1) + "." + this._twoChipers(d.getDate()) + " " + this._twoChipers( d.getHours() ) + ":" + this._twoChipers( d.getMinutes() );
     };
@@ -179,7 +177,7 @@
         var tempEndTime = this._selectTime + quarterSliderTime;
 
         if ( tempEndTime - tempStartTime < this._minSliderTimeSeries ) {
-            var minHalf = parseInt( this.minSliderTimeSeris / 2 );
+            var minHalf = parseInt( this._minSliderTimeSeries / 2 );
             tempStartTime = this._selectTime - minHalf;
             tempEndTime = this._selectTime + minHalf;
         }
@@ -203,12 +201,16 @@
         this._setSliderTimeSeries( tempCenterTime - one, tempCenterTime + one );
         this._reset();
     };
-    ts.PositionManager.prototype.resetBySelectTime = function( time ) {
-        time = parseInt( time );
+    ts.PositionManager.prototype.resetBySelectTime = function( time, bIsNow ) {
         var halfSliderTimeSeries = parseInt( ( this._endTime - this._startTime ) / 2 );
         var halfSelectionTimeSeries = parseInt( ( this._aSelectionTimeSeries[1] - this._aSelectionTimeSeries[0] ) / 2 );
-        this._setSliderTimeSeries( time - halfSliderTimeSeries, time + halfSliderTimeSeries );
-        this._setSelectionTimeSeries( time - halfSelectionTimeSeries, time + halfSelectionTimeSeries );
+		if ( bIsNow === true ) {
+			this._setSliderTimeSeries( time - halfSliderTimeSeries * 2, time );
+			this._setSelectionTimeSeries( time - halfSelectionTimeSeries * 2, time );
+		} else {
+			this._setSliderTimeSeries( time - halfSliderTimeSeries, time + halfSliderTimeSeries );
+			this._setSelectionTimeSeries( time - halfSelectionTimeSeries, time + halfSelectionTimeSeries );
+		}
         this._resetSelectionByTime();
         this.setSelectTime( time );
     };
@@ -217,6 +219,6 @@
         this._resetSelectionByTime();
     };
     ts.PositionManager.prototype._calcuTimePerPoint = function() {
-        this._timePerPoint = parseInt( ( this._endTime - this._startTime ) / this._width );
+        this._timePerPoint = ( this._endTime - this._startTime ) / this._width;
     };
 })(window, jQuery);
