@@ -57,7 +57,6 @@
         <module>thrift</module>
         <module>test</module>
         <module>web</module>
-        <module>java8-test</module>
         <module>hbase</module>
     </modules>
 
@@ -144,6 +143,7 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-profiler-optional</artifactId>
+                <type>pom</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
