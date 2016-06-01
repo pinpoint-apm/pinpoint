@@ -15,6 +15,10 @@
       <outputDirectory></outputDirectory>
     </fileSet>
     <fileSet>
+      <directory>${basedir}/src/main/resources-${env}</directory>
+      <outputDirectory></outputDirectory>
+    </fileSet>
+    <fileSet>
       <directory>${basedir.parent}/tools/src/main/script</directory>
       <outputDirectory>script</outputDirectory>
     </fileSet>

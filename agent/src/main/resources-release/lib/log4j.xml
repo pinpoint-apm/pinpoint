@@ -35,18 +35,22 @@
     </appender>
 
     <logger name="com.navercorp.pinpoint" additivity="false">
-        <level value="DEBUG" />
-        <!-- for development mode -->
-        <appender-ref ref="console" />
-        <!-- for release mode -->
+        <level value="INFO" />
+        <appender-ref ref="rollingFile" />
+    </logger>
+
+    <logger name="org.apache.zookeeper" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="rollingFile" />
+    </logger>
+
+    <logger name="org.apache.hadoop.hbase" additivity="false">
+        <level value="INFO"/>
         <appender-ref ref="rollingFile" />
     </logger>
 
     <root>
-        <level value="DEBUG" />
-        <!-- for development mode -->
-        <appender-ref ref="console" />
-        <!-- for release mode -->
+        <level value="INFO" />
         <appender-ref ref="rollingFile" />
     </root>
 </log4j:configuration>
