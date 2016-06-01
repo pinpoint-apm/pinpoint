@@ -947,6 +947,24 @@
     </reporting>
 
     <profiles>
+        <!-- for Local (Development) -->
+        <profile>
+            <id>local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <env>local</env>
+            </properties>
+        </profile>
+        <!-- for Release -->
+        <profile>
+            <id>release</id>
+            <properties>
+                <env>release</env>
+            </properties>
+        </profile>
+
         <profile>
             <id>klocwork</id>
             <build>
