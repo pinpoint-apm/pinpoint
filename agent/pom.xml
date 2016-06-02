@@ -31,7 +31,7 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-plugins</artifactId>
-            <type>zip</type>
+            <type>pom</type>
             <scope>runtime</scope>
         </dependency>
 
