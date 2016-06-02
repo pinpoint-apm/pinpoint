@@ -8,7 +8,7 @@
     <format>tar.gz</format>
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
-  
+
   <fileSets>
     <fileSet>
       <directory>${basedir}/src/main/resources</directory>
@@ -23,7 +23,7 @@
       <outputDirectory>script</outputDirectory>
     </fileSet>
   </fileSets>
-  
+
   <dependencySets>
     <dependencySet>
         <includes>
@@ -42,6 +42,7 @@
             <exclude>com.navercorp.pinpoint:pinpoint-bootstrap-core</exclude>
             <exclude>com.navercorp.pinpoint:pinpoint-bootstrap</exclude>
             <exclude>com.navercorp.pinpoint:pinpoint-plugins</exclude>
+            <exclude>*:pom</exclude>
         </excludes>
         <outputDirectory>lib</outputDirectory>
         <useProjectArtifact>false</useProjectArtifact>

@@ -212,6 +212,7 @@
                 <configuration>
                     <descriptors>
                         <descriptor>assembly.xml</descriptor>
+
                     </descriptors>
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
