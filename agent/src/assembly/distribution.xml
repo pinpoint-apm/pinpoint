@@ -52,8 +52,12 @@
         <includes>
             <include>com.navercorp.pinpoint:pinpoint-plugins</include>
         </includes>
+        <excludes>
+            <exclude>*:pom</exclude>
+        </excludes>
         <outputDirectory>plugin</outputDirectory>
-        <unpack>true</unpack>
+        <useProjectArtifact>false</useProjectArtifact>
+        <useTransitiveFiltering>true</useTransitiveFiltering>
     </dependencySet>
     <dependencySet>
         <includes>
