@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.monitor.codahale.cpu;
 
+import com.navercorp.pinpoint.common.util.JvmType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.CpuLoadMetricSet;
-import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.DefaultCpuLoadMetricSet;
 import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.EmptyCpuLoadMetricSet;
 
 /**
@@ -32,47 +32,53 @@ public class CpuLoadMetricSetSelector {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CpuLoadMetricSetSelector.class);
 
-    private static final String OPTIONAL_CPU_LOAD_METRIC_SET_CLASSPATH = "com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.EnhancedCpuLoadMetricSet";
+    private static final CpuLoadMetricSet DISABLED_CPU_LOAD_METRIC_SET = new EmptyCpuLoadMetricSet();
+
+    // Oracle
+    private static final String ORACLE_JDK6_CPU_LOAD_METRIC_SET_FQCN = "com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.oracle.Java6CpuLoadMetricSet";
+    private static final String ORACLE_CPU_LOAD_METRIC_SET_FQCN = "com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.oracle.DefaultCpuLoadMetricSet";
+    // IBM
+    private static final String IBM_JDK6_CPU_LOAD_METRIC_SET_FQCN = "com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.ibm.Java6CpuLoadMetricSet";
+    private static final String IBM_CPU_LOAD_METRIC_SET_FQCN = "com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.ibm.DefaultCpuLoadMetricSet";
 
     private CpuLoadMetricSetSelector() {
         throw new IllegalAccessError();
     }
 
-    public static CpuLoadMetricSet getCpuLoadMetricSet() {
-        if (canLoadOptionalPackage()) {
-            CpuLoadMetricSet optionalPackage = loadOptionalPackage();
-            if (optionalPackage != null) {
-                return optionalPackage;
+    public static CpuLoadMetricSet getCpuLoadMetricSet(String vendorName) {
+        String classToLoad = null;
+        JvmType vmType = JvmType.fromVendor(vendorName);
+        if (vmType == JvmType.UNKNOWN) {
+            vmType = JvmUtils.getType();
+        }
+        JvmVersion vmVersion = JvmUtils.getVersion();
+        if (vmType == JvmType.ORACLE) {
+            if (vmVersion.onOrAfter(JvmVersion.JAVA_7)) {
+                classToLoad = ORACLE_CPU_LOAD_METRIC_SET_FQCN;
+            } else if (vmVersion.onOrAfter(JvmVersion.JAVA_5)) {
+                classToLoad = ORACLE_JDK6_CPU_LOAD_METRIC_SET_FQCN;
+            }
+        } else if (vmType == JvmType.IBM) {
+            if (vmVersion.onOrAfter(JvmVersion.JAVA_7)) {
+                classToLoad = IBM_CPU_LOAD_METRIC_SET_FQCN;
+            } else if (vmVersion == JvmVersion.JAVA_6) {
+                classToLoad = IBM_JDK6_CPU_LOAD_METRIC_SET_FQCN;
             }
         }
-        if (canLoadDefault()) {
-            return new DefaultCpuLoadMetricSet();
+        if (classToLoad != null) {
+            return createCpuLoadMetricSet(classToLoad);
         } else {
-            return new EmptyCpuLoadMetricSet();
+            return DISABLED_CPU_LOAD_METRIC_SET;
         }
     }
 
-    private static CpuLoadMetricSet loadOptionalPackage() {
+    private static CpuLoadMetricSet createCpuLoadMetricSet(String classToLoad) {
         try {
-            @SuppressWarnings("unchecked")
-            Class<CpuLoadMetricSet> clazz = (Class<CpuLoadMetricSet>)Class.forName(OPTIONAL_CPU_LOAD_METRIC_SET_CLASSPATH);
-            try {
-                return clazz.newInstance();
-            } catch (Exception e) {
-                LOGGER.error("Error instantiating optional package.", e);
-            }
-        } catch (ClassNotFoundException e) {
-            LOGGER.info("Optional package not found.");
+            Class<CpuLoadMetricSet> cpuLoadMetricSetClass = (Class<CpuLoadMetricSet>) Class.forName(classToLoad);
+            return cpuLoadMetricSetClass.newInstance();
+        } catch (Exception e) {
+            LOGGER.error("Error creating CpuLoadMetricSet [{}].", classToLoad, e);
         }
-        return null;
-    }
-
-    private static boolean canLoadOptionalPackage() {
-        // Check if JDK version is >= 1.7
-        return JvmUtils.supportsVersion(JvmVersion.JAVA_7);
-    }
-
-    private static boolean canLoadDefault() {
-        return JvmUtils.getVersion() != JvmVersion.UNSUPPORTED;
+        return DISABLED_CPU_LOAD_METRIC_SET;
     }
 }

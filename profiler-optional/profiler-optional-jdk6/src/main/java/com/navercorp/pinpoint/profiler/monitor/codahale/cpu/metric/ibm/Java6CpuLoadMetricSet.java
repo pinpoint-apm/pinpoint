@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2016 Naver Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,31 +14,34 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric;
+package com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.ibm;
+
+import com.codahale.metrics.Gauge;
+import com.ibm.lang.management.OperatingSystemMXBean;
+import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.CpuLoadMetricSet;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 
-import com.codahale.metrics.Gauge;
-import com.sun.management.OperatingSystemMXBean;
-
 /**
- * @author hyungil.jeong
+ * @author HyunGil Jeong
  */
-public final class DefaultCpuLoadMetricSet extends AbstractCpuLoadMetricSet {
+public class Java6CpuLoadMetricSet extends CpuLoadMetricSet {
 
     private static final int UNSUPPORTED = -1;
     private static final int UNINITIALIZED = -1;
     private static final Double UNSUPPORTED_CPU_LOAD_METRIC = -1.0D;
 
+    private final OperatingSystemMXBean operatingSystemMXBean;
     private final RuntimeMXBean runtimeMXBean;
 
-    public DefaultCpuLoadMetricSet() {
+    public Java6CpuLoadMetricSet() {
+        this.operatingSystemMXBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
         this.runtimeMXBean = ManagementFactory.getRuntimeMXBean();
     }
 
     @Override
-    protected Gauge<Double> getJvmCpuLoadGauge(final OperatingSystemMXBean operatingSystemMXBean) {
+    protected Gauge<Double> getJvmCpuLoadGauge() {
         return new Gauge<Double>() {
 
             private long lastCpuTimeNS = UNINITIALIZED;
@@ -47,7 +50,7 @@ public final class DefaultCpuLoadMetricSet extends AbstractCpuLoadMetricSet {
             @Override
             public Double getValue() {
 
-                final long cpuTimeNS = operatingSystemMXBean.getProcessCpuTime();
+                final long cpuTimeNS = operatingSystemMXBean.getProcessCpuTimeByNS();
                 if (cpuTimeNS == UNSUPPORTED) {
                     return UNSUPPORTED_CPU_LOAD_METRIC;
                 }
@@ -76,18 +79,17 @@ public final class DefaultCpuLoadMetricSet extends AbstractCpuLoadMetricSet {
     }
 
     @Override
-    protected Gauge<Double> getSystemCpuLoadGauge(final OperatingSystemMXBean operatingSystemMXBean) {
+    protected Gauge<Double> getSystemCpuLoadGauge() {
         return new Gauge<Double>() {
             @Override
             public Double getValue() {
-                return UNSUPPORTED_CPU_LOAD_METRIC;
+                return operatingSystemMXBean.getSystemCpuLoad();
             }
         };
     }
 
     @Override
     public String toString() {
-        return "Default CpuLoadMetricSet for Java 1.6";
+        return "CpuLoadMetricSet for IBM Java 1.6";
     }
-
 }
