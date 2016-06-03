@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2016 Naver Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,27 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric;
+package com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.oracle;
 
 import com.codahale.metrics.Gauge;
+import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.CpuLoadMetricSet;
 import com.sun.management.OperatingSystemMXBean;
 
+import java.lang.management.ManagementFactory;
+
 /**
- * @author hyungil.jeong
+ * @author HyunGil Jeong
  */
-public class EnhancedCpuLoadMetricSet extends AbstractCpuLoadMetricSet {
+public class DefaultCpuLoadMetricSet extends CpuLoadMetricSet {
+
+    private final OperatingSystemMXBean operatingSystemMXBean;
+
+    public DefaultCpuLoadMetricSet() {
+        this.operatingSystemMXBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+    }
 
     @Override
-    protected Gauge<Double> getJvmCpuLoadGauge(final OperatingSystemMXBean operatingSystemMXBean) {
+    protected Gauge<Double> getJvmCpuLoadGauge() {
         return new Gauge<Double>() {
             @Override
             public Double getValue() {
@@ -35,7 +44,7 @@ public class EnhancedCpuLoadMetricSet extends AbstractCpuLoadMetricSet {
     }
 
     @Override
-    protected Gauge<Double> getSystemCpuLoadGauge(final OperatingSystemMXBean operatingSystemMXBean) {
+    protected Gauge<Double> getSystemCpuLoadGauge() {
         return new Gauge<Double>() {
             @Override
             public Double getValue() {
@@ -46,7 +55,6 @@ public class EnhancedCpuLoadMetricSet extends AbstractCpuLoadMetricSet {
 
     @Override
     public String toString() {
-        return "CpuLoadMetricSet for Java 1.7+";
+        return "CpuLoadMetricSet for Oracle Java 1.7+";
     }
-
 }

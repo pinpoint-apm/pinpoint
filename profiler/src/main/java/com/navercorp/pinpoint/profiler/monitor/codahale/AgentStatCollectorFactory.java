@@ -74,7 +74,7 @@ public class AgentStatCollectorFactory {
         }
         this.monitorRegistry = createRegistry();
         this.garbageCollector = createGarbageCollector(profilerConfig.isProfilerJvmCollectDetailedMetrics());
-        this.cpuLoadCollector = createCpuLoadCollector();
+        this.cpuLoadCollector = createCpuLoadCollector(profilerConfig.getProfilerJvmVendorName());
         this.transactionMetricCollector = createTransactionMetricCollector(traceContext);
         this.activeTraceMetricCollector = createActiveTraceCollector(traceContext, profilerConfig.isTraceAgentActiveThread());
     }
@@ -123,8 +123,8 @@ public class AgentStatCollectorFactory {
         return garbageCollectorToReturn;
     }
 
-    private CpuLoadCollector createCpuLoadCollector() {
-        CpuLoadMetricSet cpuLoadMetricSet = this.monitorRegistry.registerCpuLoadMonitor(new MonitorName(MetricMonitorValues.CPU_LOAD));
+    private CpuLoadCollector createCpuLoadCollector(String vendorName) {
+        CpuLoadMetricSet cpuLoadMetricSet = this.monitorRegistry.registerCpuLoadMonitor(new MonitorName(MetricMonitorValues.CPU_LOAD), vendorName);
         if (logger.isInfoEnabled()) {
             logger.info("loaded : {}", cpuLoadMetricSet);
         }

@@ -79,6 +79,8 @@ public interface ProfilerConfig {
 
     int getProfileJvmCollectInterval();
 
+    String getProfilerJvmVendorName();
+
     boolean isProfilerJvmCollectDetailedMetrics();
 
     void setProfilerJvmCollectDetailedMetrics(boolean profilerJvmCollectDetailedMetrics);
