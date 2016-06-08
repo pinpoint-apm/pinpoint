@@ -27,7 +27,12 @@
 			type: "string"
 		}],
 		cst: {
-			periodTypes: [ '5m', '20m', '1h', '3h', '6h', '12h', '1d', '2d'],
+			periodType: {
+				"RANGE": "range",
+				"LAST": "last",
+				"REALTIME": "realtime"
+			},
+			periodTime: [ "5m", "20m", "1h", "3h", "6h", "12h", "1d", "2d"],
 			depthList: [ 1, 2, 3, 4],
 			maxFavorite: 5000,
 			maxPeriod: 2,
@@ -37,17 +42,18 @@
 			agentAllStr: "All",
 			updateTimes: [{
 				time: 10,
-				label: '10 seconds'
+				label: "10 seconds"
 			},{
 				time: 20,
-				label: '20 seconds'
+				label: "20 seconds"
 			}, {
 				time: 30,
-				label: '30 seconds'
+				label: "30 seconds"
 			}, {
 				time: 60,
-				label: '1 minute'
-			}]
+				label: "1 minute"
+			}],
+			iconPath: "/images/icons/"
 		}
 	});
 	
@@ -57,7 +63,6 @@
 		var aFavoriteList = [];
 		
 		loadPreference();
-
 		this.addFavorite = function( applicationName ) {
 			if ( aFavoriteList.length === cfg.cst.maxFavorite || aFavoriteList.indexOf( applicationName ) !== -1 ) {
 				return;
@@ -80,8 +85,11 @@
 		this.getDepthList = function() {
 			return cfg.cst.depthList;
 		};
-		this.getPeriodTypes = function() {
-			return cfg.cst.periodTypes;
+		this.getPeriodTime = function() {
+			return cfg.cst.periodTime;
+		};
+		this.getPeriodType = function() {
+			return cfg.cst.periodType;
 		};
 		this.getMaxPeriod = function() {
 			return cfg.cst.maxPeriod;
@@ -127,6 +135,9 @@
 				return;
 			}
 			webStorage.add(app, depth);
+		};
+		this.getIconPath = function() {
+			return cfg.cst.iconPath;
 		};
 		
 		

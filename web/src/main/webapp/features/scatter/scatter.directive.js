@@ -61,8 +61,8 @@
 		}
 	});
 
-	pinpointApp.directive("scatterDirective", ["scatterDirectiveConfig", "$rootScope", "$compile", "$timeout", "webStorage", "$window", "$http", "CommonAjaxService", "TooltipService", "AnalyticsService", "PreferenceService",
-		function ( cfg, $rootScope, $compile, $timeout, webStorage, $window, $http, commonAjaxService, tooltipService, analyticsService, preferenceService ) {
+	pinpointApp.directive("scatterDirective", ["scatterDirectiveConfig", "$rootScope", "$compile", "$timeout", "webStorage", "$window", "$http", "UrlVoService", "CommonAjaxService", "TooltipService", "AnalyticsService", "PreferenceService",
+		function ( cfg, $rootScope, $compile, $timeout, webStorage, $window, $http, UrlVoService, commonAjaxService, tooltipService, analyticsService, preferenceService ) {
 			return {
 				template: cfg.template,
 				restrict: "EA",
@@ -74,9 +74,12 @@
 					var oNavbarVoService = null, htScatterSet = {}, htLastNode = null;
 
 					function makeScatter(target, application, w, h, scatterData) {
-						var from = oNavbarVoService.getQueryStartTime();
-						var to = oNavbarVoService.getQueryEndTime();
-						var filter = oNavbarVoService.getFilter();
+						// var from = oNavbarVoService.getQueryStartTime();
+						// var to = oNavbarVoService.getQueryEndTime();
+						// var filter = oNavbarVoService.getFilter();
+						var from = UrlVoService.getQueryStartTime();
+						var to = UrlVoService.getQueryEndTime();
+						var filter = UrlVoService.getFilter();
 						var applicationName = application.split("^")[0];
 						var options = {};
 						angular.copy(cfg.options, options);
@@ -87,7 +90,8 @@
 						options.minX = from;
 						options.maxX = to;
 						options.errorImage = cfg.images.error;
-						options.realtime = isRealtime();
+						// options.realtime = isRealtime();
+						options.realtime = UrlVoService.isRealtime();
 
 						var oScatterChart = new BigScatterChart2(options, getAgentList(scatterData), [
 							new BigScatterChart2.SettingPlugin( cfg.images.config ).addCallback( function( oChart, oValue ) {
@@ -100,7 +104,8 @@
 								analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_DOWNLOAD_SCATTER );
 							}),
 							new BigScatterChart2.WideOpenPlugin( cfg.images.fullscreen ).addCallback( function() {
-								var partialURL = oNavbarVoService.isRealtime() ? "realtime/" + oNavbarVoService.getQueryEndDateTime() : oNavbarVoService.getPartialURL( false, true );
+								// var partialURL = oNavbarVoService.isRealtime() ? "realtime/" + oNavbarVoService.getQueryEndDateTime() : oNavbarVoService.getPartialURL( false, true );
+								var partialURL = UrlVoService.isRealtime() ? "realtime/" + UrlVoService.getQueryEndDateTime() : UrlVoService.getPartialURL( false, true );
 								$window.open( "#/scatterFullScreenMode/" + htLastNode.applicationName + "@" + htLastNode.serviceType + "/" + partialURL + "/" + getAgentList().join(","), "width=900, height=700, resizable=yes");
 							}),
 							new BigScatterChart2.HelpPlugin( tooltipService )
@@ -113,10 +118,12 @@
 							},
 							onSelect: function( oDragAreaPosition, oDragXY ) {
 								if ( arguments.length === 4 ) {
-									$window.open("#/transactionList/" + oNavbarVoService.getPartialURL(true, false), application + "|" + arguments[0] + "|" + arguments[1] + "|" + arguments[2] + "|" + arguments[3] );
+									// $window.open("#/transactionList/" + oNavbarVoService.getPartialURL(true, false), application + "|" + arguments[0] + "|" + arguments[1] + "|" + arguments[2] + "|" + arguments[3] );
+									$window.open("#/transactionList/" + UrlVoService.getPartialURL(true, false), application + "|" + arguments[0] + "|" + arguments[1] + "|" + arguments[2] + "|" + arguments[3] );
 								} else {
 									var token = application + "|" + oDragXY.fromX + "|" + oDragXY.toX + "|" + oDragXY.fromY + "|" + oDragXY.toY + "|" + arguments[2];
-									$window.open("#/transactionList/" + oNavbarVoService.getPartialURL(true, false), token);
+									// $window.open("#/transactionList/" + oNavbarVoService.getPartialURL(true, false), token);
+									$window.open("#/transactionList/" + UrlVoService.getPartialURL(true, false), token);
 								}
 							},
 							onError: function() {
@@ -128,7 +135,7 @@
 							if (angular.isUndefined(scatterData)) {
 								oScatterChart.drawWithDataSource( new BigScatterChart2.DataLoadManager( applicationName, filter, {
 									"url": cfg.scatterDataUrl,
-									"realtime": isRealtime(),
+									"realtime": UrlVoService.isRealtime(),
 									"realtimeInterval": 2000,
 									"realtimeDefaultTimeGap": 3000,
 									"realtimeResetTimeGap": 20000,
@@ -136,7 +143,8 @@
 									"fetchingInterval": 2000,
 									"useIntervalForFetching": false
 								}, function( oChartXRange, nextFrom, nextTo ) {
-									oNavbarVoService.setQueryEndDateTime( nextFrom );
+									// oNavbarVoService.setQueryEndDateTime( nextFrom );
+									UrlVoService.setQueryEndDateTime( nextFrom );
 									$rootScope.$broadcast( "responseTimeChartDirective.loadRealtime", applicationName, oScatterChart.getCurrentAgent(), oChartXRange.min, oChartXRange.max );
 								}));
 							} else {
@@ -152,7 +160,7 @@
 						pauseScatterAll();
 						if ( angular.isDefined(htScatterSet[application]) ) {
 							htScatterSet[application].target.show();
-							if ( isRealtime() ) {
+							if ( UrlVoService.isRealtime() ) {
 								commonAjaxService.getServerTime( function( serverTime ) {
 									// serverTime -= 3000;
 									htScatterSet[application].scatter.resume( serverTime - preferenceService.getRealtimeScatterXRange(), serverTime );
@@ -226,12 +234,12 @@
 						}
 						return aAgentList;
 					}
-					function isRealtime() {
-						return oNavbarVoService.getPeriodType() === "realtime";
-					}
+					// function isRealtime() {
+					// 	return oNavbarVoService.getPeriodType() === "realtime";
+					// }
 
 					scope.$on("scatterDirective.initialize." + scope.namespace, function (event, navbarVoService) {
-						oNavbarVoService = navbarVoService;
+						// oNavbarVoService = navbarVoService;
 						initScatterHash();
 						element.empty();
 					});

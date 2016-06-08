@@ -9,7 +9,7 @@
         this._maxSelectionTimeSeries = options.maxSelectionTimeSeries;
 
         this._initInnerVar();
-        this._setSliderTimeSeries( options.sliderTimeSeries[0], options.sliderTimeSeries[1] );
+        this.setSliderTimeSeries( options.sliderTimeSeries[0], options.sliderTimeSeries[1] );
         this._initSelectionTimeSeries( options.handleTimeSeries || [] );
         this._resetSelectionByTime();
         this._xAxisTicks = options.xAxisTicks || consts.xAxisTicks;
@@ -19,7 +19,7 @@
         this._aSelectionTimeSeries = [];
         this._aSelectionPosition = [];
     };
-    ts.PositionManager.prototype._setSliderTimeSeries = function( start, end ) {
+    ts.PositionManager.prototype.setSliderTimeSeries = function( start, end ) {
         this._startTime = start;
         this._endTime = end;
         this._calcuTimePerPoint();
@@ -44,8 +44,6 @@
         this._aSelectionPosition[0] = start === null ? this._aSelectionPosition[0] : start;
         this._aSelectionPosition[1] = end === null ? this._aSelectionPosition[1] : end;
     };
-
-
     ts.PositionManager.prototype.isInMaxSelectionTimeSeries = function( start, end ) {
         return ( end - start ) <= this._maxSelectionTimeSeries;
     };
@@ -161,6 +159,14 @@
         var d = new Date( timeX );
         return this._twoChipers(d.getMonth() + 1) + "." + this._twoChipers(d.getDate()) + " " + this._twoChipers( d.getHours() ) + ":" + this._twoChipers( d.getMinutes() );
     };
+	ts.PositionManager.prototype.setSelectionStartTime = function( time ) {
+		this._setSelectionTimeSeries( time, null );
+		this._setSelectionPosition( this.getPositionFromTime( time ), null );
+	};
+	ts.PositionManager.prototype.setSelectionEndTime = function( time ) {
+		this._setSelectionTimeSeries( null, time );
+		this._setSelectionPosition( null, this.getPositionFromTime( time ) );
+	};
     ts.PositionManager.prototype.setSelectionStartPosition = function( x ) {
         this._setSelectionTimeSeries( this.getTimeFromPosition(x), null );
         this._setSelectionPosition( x, null );
@@ -192,23 +198,23 @@
             var tempSelectionStartTime = ( this._aSelectionTimeSeries[0] - gap < tempStartTime ) ? tempStartTime : this._aSelectionTimeSeries[0] - gap;
             this._setSelectionTimeSeries( tempSelectionStartTime, tempEndTime );
         }
-        this._setSliderTimeSeries( tempStartTime, tempEndTime );
+        this.setSliderTimeSeries( tempStartTime, tempEndTime );
         this._reset();
     };
     ts.PositionManager.prototype.zoomOut = function() {
         var one = this._endTime - this._startTime;
         var tempCenterTime = this._aSelectionTimeSeries[0] + parseInt( ( this._aSelectionTimeSeries[1] - this._aSelectionTimeSeries[0] ) / 2 );
-        this._setSliderTimeSeries( tempCenterTime - one, tempCenterTime + one );
+        this.setSliderTimeSeries( tempCenterTime - one, tempCenterTime + one );
         this._reset();
     };
     ts.PositionManager.prototype.resetBySelectTime = function( time, bIsNow ) {
         var halfSliderTimeSeries = parseInt( ( this._endTime - this._startTime ) / 2 );
         var halfSelectionTimeSeries = parseInt( ( this._aSelectionTimeSeries[1] - this._aSelectionTimeSeries[0] ) / 2 );
 		if ( bIsNow === true ) {
-			this._setSliderTimeSeries( time - halfSliderTimeSeries * 2, time );
+			this.setSliderTimeSeries( time - halfSliderTimeSeries * 2, time );
 			this._setSelectionTimeSeries( time - halfSelectionTimeSeries * 2, time );
 		} else {
-			this._setSliderTimeSeries( time - halfSliderTimeSeries, time + halfSliderTimeSeries );
+			this.setSliderTimeSeries( time - halfSliderTimeSeries, time + halfSliderTimeSeries );
 			this._setSelectionTimeSeries( time - halfSelectionTimeSeries, time + halfSelectionTimeSeries );
 		}
         this._resetSelectionByTime();

@@ -8,8 +8,8 @@
 	 * @class
 	 */	
 	
-	pinpointApp.directive( "alarmRuleDirective", [ "$rootScope", "$document", "$timeout", "AlarmUtilService", "AnalyticsService", "TooltipService",
-	    function ($rootScope, $document, $timeout, alarmUtilService, analyticsService, tooltipService) {
+	pinpointApp.directive( "alarmRuleDirective", [ "$rootScope", "$document", "$timeout", "AlarmUtilService", "AnalyticsService", "PreferenceService", "TooltipService",
+	    function ($rootScope, $document, $timeout, alarmUtilService, AnalyticsService, PreferenceService, TooltipService) {
         return {
             restrict: 'EA',
             replace: true,
@@ -28,6 +28,7 @@
 				var $selectRule = $element.find("select[name=rule]");
 				var selectedApplication = "";
 				var selectedRule = "";
+				var iconPath = PreferenceService.getIconPath();
 
 				var currentUserGroupId = "";
 				var bIsLoaded = false;
@@ -78,7 +79,7 @@
 					var chunk = state.text.split("@");
 					if (chunk.length > 1) {
 						var img = $document.get(0).createElement("img");
-						img.src = "/images/icons/" + chunk[1] + ".png";
+						img.src = iconPath + chunk[1] + ".png";
 						img.style.height = "25px";
 						img.style.paddingRight = "3px";
 						return img.outerHTML + chunk[0];
@@ -213,7 +214,7 @@
 							return oRule.applicationId === application && oRule.checkerName === rule;
 						});
 					},function( oNewRule  ) {
-						analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_CREATE_RULE );
+						AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_ALARM_CREATE_RULE );
 						oRuleList.push( oNewRule );
 						scope.ruleList = oRuleList;
 						hideEditArea();
