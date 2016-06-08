@@ -21,8 +21,20 @@
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-profiler-optional-jdk6</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-profiler-optional-jdk7</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- Not required yet -->
+        <!--<dependency>-->
+            <!--<groupId>com.navercorp.pinpoint</groupId>-->
+            <!--<artifactId>pinpoint-profiler-optional-jdk7</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
     </dependencies>
+
 </project>

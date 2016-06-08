@@ -157,7 +157,8 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         if (focusTimeSpanBo != null) {
             // mark the record to be used as focus
             long beginTimeStamp = focusTimeSpanBo.getStartTime();
-            markFocusRecord(recordList, beginTimeStamp);
+
+            markFocusRecord(recordList, focusTimeSpanBo);
             recordSet.setBeginTimestamp(beginTimeStamp);
         }
 
@@ -178,9 +179,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         return false;
     }
 
-    private void markFocusRecord(List<Record> recordList, long beginTimeStamp) {
+    private void markFocusRecord(List<Record> recordList, final SpanBo focusTimeSpanBo) {
         for (Record record : recordList) {
-            if (record.getBegin() == beginTimeStamp) {
+            if (focusTimeSpanBo.getSpanId() == record.getSpanId() && record.getBegin() == focusTimeSpanBo.getStartTime()) {
                 record.setFocused(true);
                 break;
             }
