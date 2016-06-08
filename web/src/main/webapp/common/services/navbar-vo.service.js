@@ -7,7 +7,13 @@
 	 * @name NavbarVoService
 	 * @class
 	 */
-	pinpointApp.factory('NavbarVoService', [ 'PreferenceService', function (preferenceService) {
+	/*
+	pinpointApp.service( "NavbarVoService", [ "PreferenceService", function( preferenceService ) {
+
+	});
+	*/
+
+	pinpointApp.factory("NavbarVoService", [ "PreferenceService", function (preferenceService) {
 	    return function () {
 	        // define and initialize private variables;
 	        var self = this;
@@ -188,17 +194,9 @@
 	        this.getQueryEndDateTime = function () {
 	            return self._sQueryEndDateTime;
 	        };
-	
 	        this._parseQueryEndDateTimeToTimestamp = function (queryEndDateTime) {
 	            return moment(queryEndDateTime, self._sDateTimeFormat).valueOf();
 	        };
-	
-	        this.autoCalculateByQueryEndTimeAndPeriod = function () {
-	            self._nQueryPeriod = self._nPeriod  * 1000 * 60;
-	            self._nQueryStartTime = self._nQueryEndTime - self._nQueryPeriod;
-	            return self;
-	        };
-	
 	        this.autoCalcultateByQueryStartTimeAndQueryEndTime = function () {
 	            self._nQueryPeriod = self._nQueryEndTime - self._nQueryStartTime;
 	            self._nPeriod = self._nQueryPeriod / 1000 / 60;
@@ -206,7 +204,6 @@
 	            self._sQueryEndDateTime = moment(self._nQueryEndTime).format(self._sDateTimeFormat);
 	            return self;
 	        };
-	
 	        this.autoCalculateByQueryEndDateTimeAndReadablePeriod = function () {
 	            self._nQueryPeriod = self._nPeriod  * 1000;
 	            self._nQueryStartTime = self._nQueryEndTime - self._nQueryPeriod;

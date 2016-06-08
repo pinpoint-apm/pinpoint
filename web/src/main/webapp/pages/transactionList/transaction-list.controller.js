@@ -63,7 +63,7 @@
 				}
 
 	            $timeout(function () {
-					var resizerY = webStorage.get( cfg.TRANSACTION_LIST_RESIZER ) == null ? (window.innerHeight - 40) / 2 : parseInt( webStorage.get( cfg.TRANSACTION_LIST_RESIZER ) );
+					var resizerY = webStorage.get( cfg.TRANSACTION_LIST_RESIZER ) === null ? (window.innerHeight - 40) / 2 : parseInt( webStorage.get( cfg.TRANSACTION_LIST_RESIZER ) );
 	                $("#main-container").layout({
 	                    north__minSize: 20,
 	                    north__size: resizerY,

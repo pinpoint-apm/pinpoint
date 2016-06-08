@@ -36,8 +36,7 @@
         this.oEventData = new TimeSlider.EventData( this.opt.eventData || [] );
         this._checkOffset();
     };
-    TimeSlider.prototype._initControlClass = function( options ) {
-        var self = this;
+    TimeSlider.prototype._initControlClass = function() {
 
         this.oPositionManager = new TimeSlider.PositionManager( {
             "width": this.opt.width,
@@ -198,6 +197,13 @@
         this.oPositionManager.zoomOut();
         this.reset();
     };
+	TimeSlider.prototype.resetTimeSeriesAndSelectionZone = function( aSelectionFromTo, aFromTo ) {
+		this.oPositionManager.setSliderTimeSeries( aFromTo[0], aFromTo[1] );
+		this.oPositionManager.setSelectionStartTime( aSelectionFromTo[0] );
+		this.oPositionManager.setSelectionEndTime( aSelectionFromTo[1] );
+		this.oPositionManager.setSelectTime( aSelectionFromTo[1] );
+		this.reset();
+	};
 	TimeSlider.prototype.movePrev = function() {
 		var prevTime = this.oPositionManager.getPrevTime();
 		this.oSelectionManager.setSelectTime( prevTime );

@@ -22,7 +22,7 @@
 			$scope.$on("general.configuration.show", function() {
 			});
 			$scope.depthList = preferenceService.getDepthList();
-			$scope.periodTypes = preferenceService.getPeriodTypes();
+			$scope.periodTime = preferenceService.getPeriodTime();
 			$scope.caller = preferenceService.getCaller();
 			$scope.callee = preferenceService.getCallee();
 			$scope.period = preferenceService.getPeriod();
@@ -50,7 +50,8 @@
 				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_GENERAL_SET_FAVORITE );
 				preferenceService.removeFavorite( applicationName );
 				$scope.savedFavoriteList = preferenceService.getFavoriteList();
-				$rootScope.$broadcast("navbarDirective.changedFavorite");
+				$rootScope.$broadcast( "navbarDirective.changedFavorite" );
+				$rootScope.$broadcast( "down.changed.favorite" );
 			};
 
 			function addToFavoriteList( applicationName ) {
@@ -58,7 +59,8 @@
 				preferenceService.addFavorite( applicationName );
 				$scope.$apply(function() {
 					$scope.savedFavoriteList = preferenceService.getFavoriteList();
-					$rootScope.$broadcast("navbarDirective.changedFavorite");
+					$rootScope.$broadcast( "navbarDirective.changedFavorite" );
+					$rootScope.$broadcast( "down.changed.favorite" );
 				});
 			}
 			function formatOptionText(state) {

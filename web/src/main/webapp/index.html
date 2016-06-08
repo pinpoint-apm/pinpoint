@@ -222,7 +222,7 @@
 									<td class="col-md-5">
 										<span class="sub-title">Search Peroid</span>
 										<select class="period form-control" ng-change="changePeriod()" ng-model="period" style="width:60%;display:inline-block;height:30px;">
-											<option ng-repeat="per in periodTypes" ng-selected="per == period" value="{{per}}">{{per}}</option>
+											<option ng-repeat="per in periodTime" ng-selected="per == period" value="{{per}}">{{per}}</option>
 										</select>
 									</td>
 								</tr>
@@ -327,6 +327,7 @@
 <script src="common/services/alerts.service.js?v=${buildTime}"></script>
 <script src="common/services/progress-bar.service.js?v=${buildTime}"></script>
 <script src="common/services/navbar-vo.service.js?v=${buildTime}"></script>
+<script src="common/services/url-vo.service.js?v=${buildTime}"></script>
 <script src="common/services/transaction-dao.service.js?v=${buildTime}"></script>
 <script src="common/services/location.service.js?v=${buildTime}"></script>
 <script src="common/services/server-map-dao.service.js?v=${buildTime}"></script>
@@ -351,8 +352,12 @@
 <script src="common/services/common-ajax.service.js?v=${buildTime}"></script>
 <script src="common/services/agent-ajax.service.js?v=${buildTime}"></script>
 <script src="common/services/tooltip.service.js?v=${buildTime}"></script>
+<script src="common/services/common-util.service.js?v=${buildTime}"></script>
 
+<script src="features/applicationList/application-list.directive.js?v=${buildTime}"></script>
+<script src="features/periodSelector/period-selector.directive.js?v=${buildTime}"></script>
 <script src="features/navbar/navbar.directive.js?v=${buildTime}"></script>
+<script src="features/navbar2/navbar2.directive.js?v=${buildTime}"></script>
 <script src="features/serverMap/server-map.directive.js?v=${buildTime}"></script>
 <script src="features/realtimeChart/realtime-chart.directive.js?v=${buildTime}"></script>
 <script src="features/scatter/scatter.directive.js?v=${buildTime}"></script>

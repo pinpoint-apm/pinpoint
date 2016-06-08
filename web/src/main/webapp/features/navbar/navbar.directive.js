@@ -7,7 +7,7 @@
 	 * @name navbarDirective
 	 * @class
 	 */	
-	pinpointApp.constant('cfg', {
+	pinpointApp.constant( "navbarDirectiveConfig", {
 	    periodTypePrefix: ".navbar.periodType",
 		periodType: {
 			"RANGE": "range",
@@ -16,7 +16,7 @@
 		}
 	});
 	
-	pinpointApp.directive('navbarDirective', [ "cfg", "$route", "$rootScope", "$http","$document", "$timeout", "$window",  "webStorage", "helpContentService", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService",
+	pinpointApp.directive('navbarDirective', [ "navbarDirectiveConfig", "$route", "$rootScope", "$http","$document", "$timeout", "$window",  "webStorage", "helpContentService", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService",
 	    function (cfg, $route, $rootScope, $http, $document, $timeout, $window, webStorage, helpContentService, analyticsService, preferenceService, tooltipService, commonAjaxService) {
 	        return {
 	            restrict: 'EA',
@@ -35,30 +35,13 @@
 	
 	                var applicationResource;
 
-	                scope.showNavbar = false;
+					scope.bIsInspector = false;
 	                scope.periodDelay = false;
-	                scope.aReadablePeriodList = preferenceService.getPeriodTypes();
+	                scope.aReadablePeriodList = preferenceService.getPeriodTime();
 	                scope.autoUpdate = false;
 	                scope.timeLeft = 10;
 	                scope.timeCountDown = 10;
-	                scope.timeList = [
-	                    {
-	                        time: 10,
-	                        label: '10 seconds'
-	                    },
-	                    {
-	                        time: 20,
-	                        label: '20 seconds'
-	                    },
-	                    {
-	                        time: 30,
-	                        label: '30 seconds'
-	                    },
-	                    {
-	                        time: 60,
-	                        label: '1 minute'
-	                    }
-	                ];
+	                scope.timeList = preferenceService.getUpdateTimes();
 					scope.callee = prevCallee = preferenceService.getCalleeByApp( scope.application );
 	                scope.caller = prevCaller = preferenceService.getCallerByApp( scope.application );
 	                scope.rangeList = preferenceService.getDepthList();
@@ -98,13 +81,11 @@
 	                 * initialize
 	                 * @param navbarVo
 	                 */
-	                initialize = function (navbarVoService) {
+	                initialize = function (navbarVoService, bIsInspector) {
 	                    oNavbarVoService = navbarVoService;
 
+						scope.bIsInspector = bIsInspector === true;
 	                    scope.periodType = getPeriodType();
-	                    scope.showNavbar = true;
-	                    scope.showStaticApplication = false;
-	                    scope.showStatic = !scope.showApplication;
 	                    $application = element.find('.application');
 						$application.select2();
 
@@ -137,8 +118,6 @@
 	                    oNavbarVoService = navbarVoService;
 	
 	                    scope.periodType = getPeriodType();
-	                    scope.showNavbar = true;
-	                    scope.showStaticApplication = true;
 	                    $application = element.find('.application');
 	                    scope.application = oNavbarVoService.getApplication() || '';
 	                    scope.applicationName = oNavbarVoService.getApplicationName() || '';
@@ -573,7 +552,11 @@
 	                 * @returns {boolean}
 	                 */
 	                scope.showUpdate = function () {
-	                    return scope.periodType === cfg.periodType.LAST && (_.indexOf(['5m', '20m', '1h', '3h'], scope.readablePeriod) >= 0) && scope.application ? true : false;
+						if( scope.bIsInspector ) {
+							return false;
+						} else {
+							return scope.periodType === cfg.periodType.LAST && (_.indexOf(['5m', '20m', '1h', '3h'], scope.readablePeriod) >= 0) && scope.application ? true : false;
+						}
 	                };
 					scope.changeUpdateSetting = function() {
 						analyticsService.send(analyticsService.CONST.MAIN, scope.autoUpdate ? analyticsService.CONST.TG_UPDATE_OFF : analyticsService.CONST.TG_UPDATE_ON );
@@ -703,8 +686,8 @@
 	                /**
 	                 * scope event on navbarDirective.initialize
 	                 */
-	                scope.$on('navbarDirective.initialize', function (event, navbarVo) {
-	                    initialize(navbarVo);
+	                scope.$on('navbarDirective.initialize', function (event, navbarVo, bIsInspector) {
+	                    initialize(navbarVo, bIsInspector);
 	                });
 	                scope.$on('navbarDirective.initialize.andReload', function (event, navbarVo) {
 	                    initialize(navbarVo);

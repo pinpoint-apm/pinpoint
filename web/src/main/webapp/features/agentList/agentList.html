@@ -11,7 +11,7 @@
             </h5>
             <ul class="nav nav-pills nav-stacked" style="font-size:12px">
                 <li ng-class="{active: currentAgent == agent}" ng-repeat="agent in group | filter:searchAgents.name">
-                    <a href ng-click="select(agent)">
+                    <a href ng-click="selectAgent(agent)">
                         <span class="glyphicon glyphicon-hdd"></span>
                         {{agent.agentId}}
                         <span class="glyphicon glyphicon-{{getState(agent.status.state.code)}}" style="color:{{getStateColor(agent.status.state.code)}}"></span>
