@@ -128,6 +128,9 @@
 					scope.$on( "down.changed.favorite", function() {
 						console.log( "down.changed.favorite" );
 						parseApplicationList();
+						$application.off("select2:select").select2("destroy");
+						initSelect2();
+						$application.val( UrlVoService.getApplication() ).trigger( "change" );
 					});
 				}
 			};

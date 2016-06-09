@@ -734,6 +734,9 @@
 //                            $rootScope.$broadcast("alarmRule.applications.set", scope.applications);
 //                            $rootScope.$broadcast("configuration.general.applications.set", scope.applications);
                         });
+						$application.off("select2.select").select2("destroy");
+						initializeApplication();
+						$application.val(oNavbarVoService.getApplication()).trigger("change");
 	                });
 	            }
 	        };
