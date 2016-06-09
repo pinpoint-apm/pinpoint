@@ -5,7 +5,6 @@
   "main": "Gruntfile.js",
   "dependencies": {},
   "devDependencies": {
-    "bower": "~0.3.2",
     "grunt": "~0.4.5",
     "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-concat": "^1.0.0",
@@ -20,13 +19,7 @@
     "gulp-concat": "^2.6.0",
     "gulp-jshint": "^2.0.0",
     "gulp-sourcemaps": "^1.6.0",
-    "gulp-uglify": "^1.5.3",
-    "jasmine": "~2.2.1",
-    "jasmine-core": "~2.2.0",
-    "jsdoc": "^3.3.0",
-    "karma": "~0.12.31",
-    "karma-chrome-launcher": "^0.1.12",
-    "karma-jasmine": "~0.3.5"
+    "gulp-uglify": "^1.5.3"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
