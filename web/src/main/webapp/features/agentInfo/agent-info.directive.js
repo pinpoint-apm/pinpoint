@@ -81,7 +81,7 @@
 							}, 700);
 							callback();
 						});
-					};
+					}
 					function loadAgentInfo( time ) {
 						oProgressBarService.startLoading();
 						oProgressBarService.setLoading(40);
@@ -97,7 +97,7 @@
 							oProgressBarService.setLoading(100);
 							oProgressBarService.stopLoading();
 						});
-					};
+					}
 					function loadEventInfo( oEvent ) {
 						AgentAjaxService.getEvent({
 							"agentId": scope.agent.agentId,
