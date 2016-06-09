@@ -199,9 +199,7 @@
 					// }
 					scope.showUpdate = function () {
 						if ( scope.useAutoUpdate ) {
-							return scope.periodType === oPeriodType.LAST
-								&& ( scope.aReadablePeriodTime.indexOf( scope.readablePeriod ) >= 0 )
-								&& scope.application ? true : false;
+							return scope.periodType === oPeriodType.LAST && ( scope.aReadablePeriodTime.indexOf( scope.readablePeriod ) >= 0 ) && scope.application ? true : false;
 						} else {
 							return false;
 						}
