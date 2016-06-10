@@ -11,5 +11,8 @@
 		this.isEmpty = function( target ) {
 			return angular.isUndefined( target ) || target === null || target === "";
 		};
+		this.random = function( start, end ) {
+			return Math.floor( Math.random() * ( end - start + 1 ) ) + start;
+		}
 	}]);
 })();
