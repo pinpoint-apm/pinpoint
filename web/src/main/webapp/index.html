@@ -9,8 +9,43 @@
     <link rel="shortcut icon" href="favicon.png" type="image/png">
     <link rel="icon" href="favicon.png" type="image/png">
 	<link href='//fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-	<link rel="stylesheet" href="lib/css/vendor.css?v=${buildTime}">
-	<link rel="stylesheet" href="lib/css/pinpoint.css?v=${buildTime}">
+
+	<!--###vendor.css -->
+	<link rel="stylesheet" href="components/bootstrap/dist/css/bootstrap.min.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/jquery.jslider/css/jslider.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/jquery.jslider/css/jslider.round.plastic.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/jquery-ui/themes/smoothness/jquery-ui.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/select2/dist/css/select2.min.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/slickgrid/slick.grid.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/jquery-timepicker-addon/jquery-ui-timepicker-addon.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/jquery.layout/dist/layout-default-latest.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/dragToSelect/jquery.dragToSelect.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/angular-slider/angular-slider.min.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/tooltipster/css/tooltipster.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/google-code-prettify/prettify.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/google-code-prettify/sunburst.css?v=${buildTime}">
+	<!-- vendor.css###-->
+
+	<!--###pinpoint.css -->
+	<link rel="stylesheet" href="styles/main.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/inspector.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/navbar.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/nodeInfoDetails.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/linkInfoDetails.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/transactionTable.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/callStacks.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/timeSlider.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/agentChartGroup.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/sidebarTitle.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/serverMap.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/filterInformation.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/distributedCallFlow.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/loading.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/jquery.BigScatterChart.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/timer.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/configuration.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/xeicon.min.css?v=${buildTime}">
+	<!-- pinpoint.css###-->
 </head>
 <body ng-app="pinpointApp">
 
@@ -293,20 +328,107 @@
 	</div>
 </div>
 
+<!--###base-lib.min.js -->
+<script src="components/jquery/dist/jquery.min.js?v=${buildTime}"></script>
+<script src="components/jquery-ui/ui/jquery-ui.js?v=${buildTime}"></script>
+<script src="components/underscore/underscore-min.js?v=${buildTime}"></script>
+<!-- base-lib.min.js###-->
 
-<script src="lib/js/base-lib.min.js?v=${buildTime}"></script>
-<script src="lib/js/angular-lib.min.js?v=${buildTime}"></script>
-<script src="lib/js/draw-lib.min.js?v=${buildTime}"></script>
-<script src="lib/js/util-lib.min.js?v=${buildTime}"></script>
-<script src="lib/js/pinpoint-component.min.js?v=${buildTime}"></script>
+<!--###angular-lib.min.js -->
+<script src="components/angular/angular.min.js?v=${buildTime}"></script>
+<script src="components/angular-resource/angular-resource.min.js?v=${buildTime}"></script>
+<script src="components/angular-cookies/angular-cookies.min.js?v=${buildTime}"></script>
+<script src="components/angular-webstorage/angular-webstorage.js?v=${buildTime}"></script>
+<script src="components/angular-strap/dist/angular-strap.min.js?v=${buildTime}"></script>
+<script src="components/angular-strap/dist/angular-strap.tpl.min.js?v=${buildTime}"></script>
+<script src="components/angular-animate/angular-animate.min.js?v=${buildTime}"></script>
+<script src="components/angular-route/angular-route.min.js?v=${buildTime}"></script>
+<script src="components/angular-sanitize/angular-sanitize.min.js?v=${buildTime}"></script>
+<script src="components/angular-slider/angular-slider.min.js?v=${buildTime}"></script>
+<script src="components/angular-base64/angular-base64.min.js?v=${buildTime}"></script>
+<script src="components/angular-timer/dist/angular-timer.min.js?v=${buildTime}"></script>
+<!-- angular-lib.min.js###-->
+
+<!--###draw-lib.min.js -->
+<script src="components/gojs/go.js?v=${buildTime}"></script>
+<script src="components/snap.svg/snap.svg.min.js?v=${buildTime}"></script>
+<script src="components/d3/d3.min.js?v=${buildTime}"></script>
+<script src="components/amcharts/amcharts.js?v=${buildTime}"></script>
+<script src="components/amcharts/serial.js?v=${buildTime}"></script>
+<script src="components/amcharts/themes/light.js?v=${buildTime}"></script>
+<!-- draw-lib.min.js###-->
+
+<!--###util-lib.min.js -->
+<script src="components/bootstrap/dist/js/bootstrap.min.js?v=${buildTime}"></script>
+<script src="components/google-code-prettify/prettify.js?v=${buildTime}"></script>
+<script src="components/google-code-prettify/lang-sql.js?v=${buildTime}"></script>
+<script src="components/moment/moment.js?v=${buildTime}"></script>
+<script src="components/select2/dist/js/select2.full.min.js?v=${buildTime}"></script>
+<script src="components/jquery-class/jquery.Class.js?v=${buildTime}"></script>
+<script src="components/jquery.layout/dist/jquery.layout-latest.js?v=${buildTime}"></script>
+<script src="components/dragToSelect/jquery.dragToSelect.js?v=${buildTime}"></script>
+<script src="components/jquery-timepicker-addon/jquery-ui-timepicker-addon.js?v=${buildTime}"></script>
+<script src="components/jquery.jslider/js/draggable-0.1.js?v=${buildTime}"></script>
+<script src="components/jquery.jslider/js/jshashtable-2.1_src.js?v=${buildTime}"></script>
+<script src="components/jquery.jslider/js/jquery.dependClass-0.1.js?v=${buildTime}"></script>
+<script src="components/jquery.jslider/js/jquery.numberformatter-1.2.3.js?v=${buildTime}"></script>
+<script src="components/jquery.jslider/js/tmpl.js?v=${buildTime}"></script>
+<script src="components/jquery.jslider/js/jquery.jslider.js?v=${buildTime}"></script>
+<script src="components/jquery-ui-tabs-paging/js/ui.tabs.paging.js?v=${buildTime}"></script>
+<script src="components/slickgrid/lib/jquery.event.drag-2.2.js?v=${buildTime}"></script>
+<script src="components/slickgrid/slick.core.js?v=${buildTime}"></script>
+<script src="components/slickgrid/slick.formatters.js?v=${buildTime}"></script>
+<script src="components/slickgrid/slick.editors.js?v=${buildTime}"></script>
+<script src="components/slickgrid/slick.grid.js?v=${buildTime}"></script>
+<script src="components/slickgrid/slick.dataview.js?v=${buildTime}"></script>
+<script src="components/slickgrid/plugins/slick.rowselectionmodel.js?v=${buildTime}"></script>
+<script src="components/tooltipster/js/jquery.tooltipster.min.js?v=${buildTime}"></script>
+<script src="components/handlebars/handlebars.min.js?v=${buildTime}"></script>
+<script src="components/bootstrap/js/bootstrap-modal.js?v=${buildTime}"></script>
+<script src="components/bootstrap/js/bootstrap-tooltip.js?v=${buildTime}"></script>
+<script src="components/bootstrap/js/bootstrap-popover.js?v=${buildTime}"></script>
+<!-- util-lib.min.js###-->
+
+<!--###pinpoint-component.min.js -->
+<script src="components/time-slider/time-slider.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.background.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.configuration.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.event-data.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.events.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.handler.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.loading-indicator.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.position-manager.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.selection-manager.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.selection-point.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.selection-zone.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.state-line.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.time-series-signboard.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.time-signboard.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.x-axis.js?v=${buildTime}"></script>
+
+<script src="components/big-scatter-chart/BigScatterChart2.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.DataBlock.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.DragManager.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.DataLoadManager.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.RendererManager.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.BubbleTypeManager.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.SizeCoordinateManager.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.Util.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.HelpPlugin.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.MessagePlugin.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.SettingPlugin.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.DownloadPlugin.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.WideOpenPlugin.js?v=${buildTime}"></script>
+
+<script src="components/infinite-circular-scroll/InfiniteCircularScroll.js?v=${buildTime}"></script>
+
+<script src="components/server-map2/jquery.ServerMap2.js?v=${buildTime}"></script>
+<!-- pinpoint-component.min.js###-->
 
 <script src="scripts/extra/google-analytics.js?v=${buildTime}"></script>
 <script src="scripts/app.js?v=${buildTime}"></script>
-<!--script src="features/serverList/server-list.directive.js?v=${buildTime}"></script>
-<script src="common/help/help-content-en.js?v=${buildTime}"></script>
-<script src="common/help/help-content-ko.js?v=${buildTime}"></script>
-<script src="lib/js/pinpoint.min.js?v=${buildTime}"></script-->
 
+<!--###pinpoint.min.js -->
 <script src="common/filters/icon-url.filter.js?v=${buildTime}"></script>
 <script src="common/filters/application-name-to-class-name.filter.js?v=${buildTime}"></script>
 <script src="common/services/time-slider-vo.service.js?v=${buildTime}"></script>
@@ -381,6 +503,7 @@
 <script src="pages/filteredMap/filtered-map.controller.js?v=${buildTime}"></script>
 <script src="pages/transactionView/transaction-view.controller.js?v=${buildTime}"></script>
 <script src="pages/scatterFullScreenMode/scatter-full-screen-mode.controller.js?v=${buildTime}"></script>
+<!-- pinpoint.min.js###-->
 
 <script>
 	G_BUILD_TIME = "${buildTime}";
