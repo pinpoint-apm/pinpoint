@@ -513,18 +513,18 @@ public class SpanBo implements Span {
         
         // FIXME (2015.03) Legacy - applicationServiceType added in v1.1.0
         // Defaults to span's service type for older versions where applicationServiceType does not exist.
-        if (buffer.limit() > 0) {
+        if (buffer.hasRemaining()) {
             final boolean hasApplicationServiceType = buffer.readBoolean();
             if (hasApplicationServiceType) {
                 this.applicationServiceType = buffer.readShort();
             }
         }
         
-        if (buffer.limit() > 0) {
+        if (buffer.hasRemaining()) {
             this.loggingTransactionInfo = buffer.readByte();
         }
 
-        if (buffer.limit() > 0) {
+        if (buffer.hasRemaining()) {
             this.acceptorHost = buffer.readPrefixedString();
         }
 

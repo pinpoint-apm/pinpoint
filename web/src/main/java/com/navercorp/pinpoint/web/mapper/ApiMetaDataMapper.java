@@ -77,7 +77,7 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
             String apiInfo = buffer.readPrefixedString();
             int lineNumber = buffer.readInt();
             int type = 0;
-            if (buffer.limit() > 0) {
+            if (buffer.hasRemaining()) {
                 type = buffer.readInt();
             }
             apiMetaDataBo.setApiInfo(apiInfo);
