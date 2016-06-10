@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Random;
@@ -569,6 +570,17 @@ public class FixedBufferTest {
     }
 
     @Test
+    public void testWrapByteBuffer() throws Exception {
+        FixedBuffer buffer = new FixedBuffer(8);
+        buffer.put(1);
+        buffer.put(2);
+
+        final ByteBuffer byteBuffer = buffer.wrapByteBuffer();
+        Assert.assertEquals(byteBuffer.getInt(), 1);
+        Assert.assertEquals(byteBuffer.getInt(), 2);
+    }
+
+    @Test
     public void testSliceGetBuffer() throws Exception {
         Buffer buffer = new FixedBuffer(5);
         buffer.put(1);
@@ -604,4 +616,28 @@ public class FixedBufferTest {
         Assert.assertEquals(buffer.getOffset(), 4);
 
     }
+
+
+    @Test
+    public void test_remaining() throws Exception {
+        final byte[] bytes = new byte[BytesUtils.INT_BYTE_LENGTH];
+        Buffer buffer = new FixedBuffer(bytes);
+        Assert.assertEquals(buffer.remaining(), 4);
+        Assert.assertTrue(buffer.hasRemaining());
+
+        buffer.put(1234);
+        Assert.assertEquals(buffer.remaining(), 0);
+        Assert.assertFalse(buffer.hasRemaining());
+
+        buffer.setOffset(0);
+        buffer.put((short)12);
+        Assert.assertEquals(buffer.remaining(), 2);
+        Assert.assertTrue(buffer.hasRemaining());
+
+        buffer.put((byte)1);
+        Assert.assertEquals(buffer.remaining(), 1);
+        Assert.assertTrue(buffer.hasRemaining());
+    }
+
+
 }

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.buffer;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 /**
@@ -166,9 +167,20 @@ public interface Buffer {
 
     byte[] getInternalBuffer();
 
+    ByteBuffer wrapByteBuffer();
+
     void setOffset(int offset);
 
     int getOffset();
 
+    /**
+     * @deprecated Since 1.6.0. Use {@link Buffer#remaining()}
+     */
+    @Deprecated
     int limit();
+
+    int remaining();
+
+    boolean hasRemaining();
+
 }
