@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.buffer;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 
 /**
  * @author emeroad
@@ -545,6 +546,11 @@ public class FixedBuffer implements Buffer {
         return copy;
     }
 
+    @Override
+    public ByteBuffer wrapByteBuffer() {
+        return ByteBuffer.wrap(this.buffer, 0, offset);
+    }
+
     /**
      * return internal buffer
      * @return
@@ -564,8 +570,22 @@ public class FixedBuffer implements Buffer {
         return offset;
     }
 
+    /**
+     * @deprecated Since 1.6.0. Use {@link Buffer#remaining()}
+     */
+    @Deprecated
     @Override
     public int limit() {
+        return remaining();
+    }
+
+    @Override
+    public int remaining() {
         return buffer.length - offset;
+    }
+
+    @Override
+    public boolean hasRemaining() {
+        return offset < buffer.length;
     }
 }
