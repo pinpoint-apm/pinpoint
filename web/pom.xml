@@ -16,6 +16,7 @@
         <jdk.home>${env.JAVA_7_HOME}</jdk.home>
         <buildTime>${maven.build.timestamp}</buildTime>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+        <sniffer.artifactid>java17</sniffer.artifactid>  
     </properties>
 
     <dependencies>
@@ -397,7 +398,7 @@
                         <run>rm -rf /assets/${project.artifactId}-${project.version}.war</run>
                     </runs>
                 </configuration>
-            </plugin>
+            </plugin> 
         </plugins>
     </build>
     <profiles>

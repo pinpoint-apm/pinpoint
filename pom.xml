@@ -77,7 +77,7 @@
         <spring-batch-version>2.2.7.RELEASE</spring-batch-version>
         <docker.maven.plugin.version>0.4.3</docker.maven.plugin.version>
         <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
-
+        <sniffer.artifactid>java16</sniffer.artifactid>
     </properties>
 
     <dependencies>
@@ -885,7 +885,30 @@
                     <failOnError>false</failOnError>
                 </configuration>
             </plugin>
-
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>animal-sniffer-maven-plugin</artifactId>
+                <version>1.9</version>
+                <configuration>
+                    <signature>
+                        <groupId>org.codehaus.mojo.signature</groupId>
+                        <artifactId>${sniffer.artifactid}</artifactId>
+                        <version>1.0</version>
+                    </signature>
+                    <ignores>
+                        <ignore>sun.*</ignore>
+                    </ignores>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>ensure-java-${jdk.version}-class-library</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>      
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
