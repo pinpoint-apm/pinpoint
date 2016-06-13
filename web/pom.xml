@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
@@ -16,7 +16,7 @@
         <jdk.home>${env.JAVA_7_HOME}</jdk.home>
         <buildTime>${maven.build.timestamp}</buildTime>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
-        <sniffer.artifactid>java17</sniffer.artifactid>  
+        <sniffer.artifactid>java17</sniffer.artifactid>
     </properties>
 
     <dependencies>
@@ -288,7 +288,7 @@
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.springframework.batch</groupId>
             <artifactId>spring-batch-core</artifactId>
@@ -307,21 +307,21 @@
             <version>1.4</version>
             <scope>test</scope>
         </dependency>
-        
+
         <!-- for zookeeper test -->
         <dependency>
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-test</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>3.0.1</version>
             <scope>test</scope>
-    </dependency>
-        
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -398,7 +398,65 @@
                         <run>rm -rf /assets/${project.artifactId}-${project.version}.war</run>
                     </runs>
                 </configuration>
-            </plugin> 
+            </plugin>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>1.0</version>
+                <configuration>
+                    <workingDirectory>${basedir}/src</workingDirectory>
+                    <srcdir>${basedir}/src/main/webapp</srcdir>
+                    <outputdir>${basedir}/src/main/webapp</outputdir>
+                    <triggerfiles>
+                        <triggerfile>${project.basedir}/src/Gruntfile.js</triggerfile>
+                        <triggerfile>${project.basedir}/src/package.json</triggerfile>
+                    </triggerfiles>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install node and npm</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <configuration>
+                            <nodeVersion>v5.11.1</nodeVersion>
+                            <npmVersion>3.9.6</npmVersion>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm install</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>install</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>grunt build</id>
+                        <goals>
+                            <goal>grunt</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>build_release</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${project.basedir}/src/node</directory>
+                        </fileset>
+                        <fileset>
+                            <directory>${project.basedir}/src/node_modules</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <profiles>
