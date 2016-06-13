@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.buffer;
 
+import java.nio.ByteBuffer;
+
 /**
  * @author emeroad
  */
@@ -40,9 +42,24 @@ public class OffsetAutomaticBuffer extends AutomaticBuffer {
 
     @Override
     public byte[] getBuffer() {
-        final int bufferSize = offset - startOffset;
-        final byte[] copy = new byte[bufferSize];
-        System.arraycopy(buffer, startOffset, copy, 0, bufferSize);
+        if (startOffset == 0 && offset == buffer.length) {
+            return this.buffer;
+        } else {
+            return copyBuffer();
+        }
+    }
+
+    @Override
+    public byte[] copyBuffer() {
+        final int length = offset - startOffset;
+        final byte[] copy = new byte[length];
+        System.arraycopy(buffer, startOffset, copy, 0, length);
         return copy;
+    }
+
+    @Override
+    public ByteBuffer wrapByteBuffer() {
+        final int length = offset - startOffset;
+        return ByteBuffer.wrap(this.buffer, startOffset, length);
     }
 }

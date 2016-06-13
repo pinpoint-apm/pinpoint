@@ -20,9 +20,7 @@ import org.junit.Assert;
 
 import org.junit.Test;
 
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import com.navercorp.pinpoint.common.buffer.OffsetAutomaticBuffer;
+import java.nio.ByteBuffer;
 
 /**
  * @author emeroad
@@ -39,5 +37,29 @@ public class OffsetAutomaticBufferTest {
         Buffer read = new FixedBuffer(intBuffer);
         int value = read.readInt();
         Assert.assertEquals(putValue, value);
+    }
+
+    @Test
+    public void testCopyBuffer() throws Exception {
+        final int putValue = 10;
+        Buffer buffer = new OffsetAutomaticBuffer(new byte[10], 2);
+        buffer.put(putValue);
+        byte[] intBuffer = buffer.copyBuffer();
+        Assert.assertEquals(intBuffer.length, 4);
+
+        Buffer read = new FixedBuffer(intBuffer);
+        int value = read.readInt();
+        Assert.assertEquals(putValue, value);
+    }
+
+    @Test
+    public void testWrapByteBuffer() throws Exception {
+        Buffer buffer = new OffsetAutomaticBuffer(new byte[10], 2);
+        buffer.put(1);
+        buffer.put(2);
+
+        ByteBuffer byteBuffer = buffer.wrapByteBuffer();
+        Assert.assertEquals(1, byteBuffer.getInt());
+        Assert.assertEquals(2, byteBuffer.getInt());
     }
 }
