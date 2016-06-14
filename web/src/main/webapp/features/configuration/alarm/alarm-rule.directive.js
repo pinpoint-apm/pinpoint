@@ -421,7 +421,7 @@
 				return;
 			}
 			alarmUtilService.sendCRUD( "updateRule", oUpdateRule, function( oServerData ) {
-				self.cancelAction( alarmUtilService, $node, function () {});
+				self.cancelAction( alarmUtilService, $node, aEditNodes, function () {});
 				cbSuccess( oUpdateRule );
 				alarmUtilService.hide($elLoading);
 			}, function( oServerError ) {
