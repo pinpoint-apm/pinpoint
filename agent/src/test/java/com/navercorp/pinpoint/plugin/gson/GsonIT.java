@@ -68,14 +68,13 @@ public class GsonIT {
     private static final String json = new Gson().toJson(java);
     private static final String serviceType = "GSON";
     private static final String annotationKeyName = "gson.json.length";
-    private static final JsonElement jsonElement = new JsonParser().parse(json);
 
     private static final ExpectedAnnotation expectedAnnotation = annotation(annotationKeyName, json.length());
 
     @Test
     public void test() throws Exception {
         final Gson gson = new Gson();
-        
+
         /**
          * @see Gson#fromJson(String, Class)
          * @see Gson#fromJson(String, InterceptPoint)
@@ -116,6 +115,7 @@ public class GsonIT {
         }
         
         final Gson gson = new Gson();
+        final JsonElement jsonElement = getParseElements();
         
         /**
          * @see Gson#fromJson(Reader, Class)
@@ -166,7 +166,6 @@ public class GsonIT {
         verifier.verifyTraceCount(0);
     }
 
-    
     @Test
     public void testFromV1_6() throws Exception {
         if (!v1_6) {
@@ -174,6 +173,7 @@ public class GsonIT {
         }
         
         final Gson gson = new Gson();
+        final JsonElement jsonElement = getParseElements();
         
         /**
          * @see Gson#fromJson(JsonReader, InterceptPoint)
@@ -202,5 +202,9 @@ public class GsonIT {
 
         // No more traces
         verifier.verifyTraceCount(0);
+    }
+
+    private JsonElement getParseElements() {
+        return new JsonParser().parse(json);
     }
 }
