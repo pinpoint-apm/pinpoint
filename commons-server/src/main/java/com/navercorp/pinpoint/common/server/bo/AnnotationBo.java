@@ -120,9 +120,9 @@ public class AnnotationBo {
         // int key;           // required 4
         // int valueTypeCode; // required 4
         // ByteBuffer value;  // optional 4 + buf.length
-        buffer.put(this.version);
-        buffer.putSVar(this.key);
-        buffer.put(this.valueType);
+        buffer.putByte(this.version);
+        buffer.putSVInt(this.key);
+        buffer.putByte(this.valueType);
         buffer.putPrefixedBytes(this.byteValue);
     }
 
@@ -142,7 +142,7 @@ public class AnnotationBo {
 
     public void readValue(Buffer buffer) {
         this.version = buffer.readByte();
-        this.key = buffer.readSVarInt();
+        this.key = buffer.readSVInt();
         this.valueType = buffer.readByte();
         this.byteValue = buffer.readPrefixedBytes();
         this.value = transcoder.decode(valueType, byteValue);

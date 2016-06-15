@@ -45,19 +45,19 @@ public class HbaseApplicationTraceIndexColumnTest {
         // return buffer.getBuffer();
 
         final Buffer originalBuffer = new AutomaticBuffer(16);
-        originalBuffer.putVar(elapsed);
+        originalBuffer.putVInt(elapsed);
         originalBuffer.putPrefixedString(agentId);
-        originalBuffer.putSVar(agentStartTime);
-        originalBuffer.putVar(transactionSequence);
+        originalBuffer.putSVLong(agentStartTime);
+        originalBuffer.putVLong(transactionSequence);
 
         byte[] source = originalBuffer.getBuffer();
 
         final Buffer fetched = new OffsetFixedBuffer(source, 0);
 
-        Assert.assertEquals(elapsed, fetched.readVarInt());
+        Assert.assertEquals(elapsed, fetched.readVInt());
         Assert.assertEquals(agentId, fetched.readPrefixedString());
-        Assert.assertEquals(agentStartTime, fetched.readSVarLong());
-        Assert.assertEquals(transactionSequence, fetched.readVarLong());
+        Assert.assertEquals(agentStartTime, fetched.readSVLong());
+        Assert.assertEquals(transactionSequence, fetched.readVLong());
     }
 
     @Test
@@ -66,7 +66,7 @@ public class HbaseApplicationTraceIndexColumnTest {
         final byte[] bytes = "thisisbytes".getBytes();
 
         final Buffer columnName = new AutomaticBuffer(16);
-        columnName.put(elapsed);
+        columnName.putInt(elapsed);
         columnName.putPrefixedBytes(bytes);
     }
 }

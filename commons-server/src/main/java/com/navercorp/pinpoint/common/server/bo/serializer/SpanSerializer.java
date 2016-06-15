@@ -46,50 +46,50 @@ public class SpanSerializer implements HbaseSerializer<SpanBo, Put> {
         */
         final Buffer buffer = new AutomaticBuffer(256);
 
-        buffer.put(span.getRawVersion());
+        buffer.putByte(span.getRawVersion());
 
 
         buffer.putPrefixedString(span.getAgentId());
 
         // Using var makes the sie of time smaller based on the present time. That consumes only 6 bytes.
-        buffer.putVar(span.getAgentStartTime());
+        buffer.putVLong(span.getAgentStartTime());
 
         // insert for rowkey
         // buffer.put(spanID);
-        buffer.put(span.getParentSpanId());
+        buffer.putLong(span.getParentSpanId());
 
         // use var encoding because of based on the present time
-        buffer.putVar(span.getStartTime());
-        buffer.putVar(span.getElapsed());
+        buffer.putVLong(span.getStartTime());
+        buffer.putVInt(span.getElapsed());
 
         buffer.putPrefixedString(span.getRpc());
         buffer.putPrefixedString(span.getApplicationId());
-        buffer.put(span.getServiceType());
+        buffer.putShort(span.getServiceType());
         buffer.putPrefixedString(span.getEndPoint());
         buffer.putPrefixedString(span.getRemoteAddr());
-        buffer.putSVar(span.getApiId());
+        buffer.putSVInt(span.getApiId());
 
         // errCode value may be negative
-        buffer.putSVar(span.getErrCode());
+        buffer.putSVInt(span.getErrCode());
 
         if (span.hasException()){
-            buffer.put(true);
-            buffer.putSVar(span.getExceptionId());
+            buffer.putBoolean(true);
+            buffer.putSVInt(span.getExceptionId());
             buffer.putPrefixedString(span.getExceptionMessage());
         } else {
-            buffer.put(false);
+            buffer.putBoolean(false);
         }
 
-        buffer.put(span.getFlag());
+        buffer.putShort(span.getFlag());
 
         if (span.hasApplicationServiceType()) {
-            buffer.put(true);
-            buffer.put(span.getApplicationServiceType());
+            buffer.putBoolean(true);
+            buffer.putShort(span.getApplicationServiceType());
         } else {
-            buffer.put(false);
+            buffer.putBoolean(false);
         }
 
-        buffer.put(span.getLoggingTransactionInfo());
+        buffer.putByte(span.getLoggingTransactionInfo());
         buffer.putPrefixedString(span.getAcceptorHost());
 
         return buffer.getBuffer();

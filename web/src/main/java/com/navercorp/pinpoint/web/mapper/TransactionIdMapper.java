@@ -73,8 +73,8 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
         // buffer.readInt();
         
         String agentId = buffer.readPrefixedString();
-        long agentStartTime = buffer.readSVarLong();
-        long transactionSequence = buffer.readVarLong();
+        long agentStartTime = buffer.readSVLong();
+        long transactionSequence = buffer.readVLong();
         return new TransactionId(agentId, agentStartTime, transactionSequence);
     }
 }

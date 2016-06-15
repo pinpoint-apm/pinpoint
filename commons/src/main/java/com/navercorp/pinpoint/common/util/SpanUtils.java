@@ -67,8 +67,8 @@ public final class SpanUtils {
 
         final Buffer buffer= new AutomaticBuffer(32);
         buffer.putPrefixedString(agentId);
-        buffer.putSVar(transactionId.getAgentStartTime());
-        buffer.putVar(transactionId.getTransactionSequence());
+        buffer.putSVLong(transactionId.getAgentStartTime());
+        buffer.putVLong(transactionId.getTransactionSequence());
         return buffer.getBuffer();
     }
 

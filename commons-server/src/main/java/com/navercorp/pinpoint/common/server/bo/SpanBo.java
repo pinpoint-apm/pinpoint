@@ -423,49 +423,49 @@ public class SpanBo implements Span {
         */
         final Buffer buffer = new AutomaticBuffer(256);
 
-        buffer.put(version);
+        buffer.putByte(version);
 
         buffer.putPrefixedString(agentId);
 
         // Using var makes the sie of time smaller based on the present time. That consumes only 6 bytes.
-        buffer.putVar(agentStartTime);
+        buffer.putVLong(agentStartTime);
 
         // insert for rowkey
         // buffer.put(spanID);
-        buffer.put(parentSpanId);
+        buffer.putLong(parentSpanId);
 
         // use var encoding because of based on the present time
-        buffer.putVar(startTime);
-        buffer.putVar(elapsed);
+        buffer.putVLong(startTime);
+        buffer.putVInt(elapsed);
 
         buffer.putPrefixedString(rpc);
         buffer.putPrefixedString(applicationId);
-        buffer.put(serviceType);
+        buffer.putShort(serviceType);
         buffer.putPrefixedString(endPoint);
         buffer.putPrefixedString(remoteAddr);
-        buffer.putSVar(apiId);
+        buffer.putSVInt(apiId);
 
         // errCode value may be negative
-        buffer.putSVar(errCode);
+        buffer.putSVInt(errCode);
 
         if (hasException){
-            buffer.put(true);
-            buffer.putSVar(exceptionId);
+            buffer.putBoolean(true);
+            buffer.putSVInt(exceptionId);
             buffer.putPrefixedString(exceptionMessage);
         } else {
-            buffer.put(false);
+            buffer.putBoolean(false);
         }
 
-        buffer.put(flag);
+        buffer.putShort(flag);
 
         if (hasApplicationServiceType()) {
-            buffer.put(true);
-            buffer.put(this.applicationServiceType);
+            buffer.putBoolean(true);
+            buffer.putShort(this.applicationServiceType);
         } else {
-            buffer.put(false);
+            buffer.putBoolean(false);
         }
 
-        buffer.put(loggingTransactionInfo);
+        buffer.putByte(loggingTransactionInfo);
 
         buffer.putPrefixedString(acceptorHost);
 
@@ -486,26 +486,26 @@ public class SpanBo implements Span {
         // this.leastTraceID = buffer.readLong();
 
         this.agentId = buffer.readPrefixedString();
-        this.agentStartTime = buffer.readVarLong();
+        this.agentStartTime = buffer.readVLong();
 
         // this.spanID = buffer.readLong();
         this.parentSpanId = buffer.readLong();
 
-        this.startTime = buffer.readVarLong();
-        this.elapsed = buffer.readVarInt();
+        this.startTime = buffer.readVLong();
+        this.elapsed = buffer.readVInt();
 
         this.rpc = buffer.readPrefixedString();
         this.applicationId = buffer.readPrefixedString();
         this.serviceType = buffer.readShort();
         this.endPoint = buffer.readPrefixedString();
         this.remoteAddr = buffer.readPrefixedString();
-        this.apiId = buffer.readSVarInt();
+        this.apiId = buffer.readSVInt();
         
-        this.errCode = buffer.readSVarInt();
+        this.errCode = buffer.readSVInt();
 
         this.hasException = buffer.readBoolean();
         if (hasException) {
-            this.exceptionId = buffer.readSVarInt();
+            this.exceptionId = buffer.readSVInt();
             this.exceptionMessage = buffer.readPrefixedString();
         }
 

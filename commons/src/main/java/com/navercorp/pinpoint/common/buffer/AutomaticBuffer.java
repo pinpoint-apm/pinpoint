@@ -77,11 +77,11 @@ public class AutomaticBuffer extends FixedBuffer {
     public void putPrefixedBytes(final byte[] bytes) {
         if (bytes == null) {
             checkExpand(1);
-            super.putSVar(NULL);
+            super.putSVInt(NULL);
         } else {
             checkExpand(bytes.length + BytesUtils.VINT_MAX_SIZE);
-            super.putSVar(bytes.length);
-            super.put(bytes);
+            super.putSVInt(bytes.length);
+            super.putBytes(bytes);
         }
     }
 
@@ -89,14 +89,14 @@ public class AutomaticBuffer extends FixedBuffer {
     public void put2PrefixedBytes(final byte[] bytes) {
         if (bytes == null) {
             checkExpand(BytesUtils.SHORT_BYTE_LENGTH);
-            super.put((short)NULL);
+            super.putShort((short)NULL);
         } else {
             if (bytes.length > Short.MAX_VALUE) {
                 throw new IndexOutOfBoundsException("too large bytes length:" + bytes.length);
             }
             checkExpand(bytes.length + BytesUtils.SHORT_BYTE_LENGTH);
-            super.put((short)bytes.length);
-            super.put(bytes);
+            super.putShort((short)bytes.length);
+            super.putBytes(bytes);
         }
     }
 
@@ -104,11 +104,11 @@ public class AutomaticBuffer extends FixedBuffer {
     public void put4PrefixedBytes(final byte[] bytes) {
         if (bytes == null) {
             checkExpand(BytesUtils.INT_BYTE_LENGTH);
-            super.put(NULL);
+            super.putInt(NULL);
         } else {
             checkExpand(bytes.length + BytesUtils.INT_BYTE_LENGTH);
-            super.put(bytes.length);
-            super.put(bytes);
+            super.putInt(bytes.length);
+            super.putBytes(bytes);
         }
     }
 
@@ -138,61 +138,126 @@ public class AutomaticBuffer extends FixedBuffer {
     }
 
     @Override
-    public void put(final byte v) {
+    public void putByte(final byte v) {
         checkExpand(1);
-        super.put(v);
+        super.putByte(v);
     }
 
+    @Deprecated
+    @Override
+    public void put(final byte v){
+        putByte(v);
+    }
+
+    @Override
+    public void putBoolean(final boolean v) {
+        checkExpand(1);
+        super.putBoolean(v);
+    }
+
+    @Deprecated
     @Override
     public void put(final boolean v) {
-        checkExpand(1);
-        super.put(v);
+        putBoolean(v);
     }
 
+    @Override
+    public void putShort(final short v) {
+        checkExpand(2);
+        super.putShort(v);
+    }
+
+    @Deprecated
     @Override
     public void put(final short v) {
-        checkExpand(2);
-        super.put(v);
+        putShort(v);
     }
 
+    @Override
+    public void putInt(final int v) {
+        checkExpand(4);
+        super.putInt(v);
+    }
+
+    @Deprecated
     @Override
     public void put(final int v) {
-        checkExpand(4);
-        super.put(v);
+        putInt(v);
     }
 
+    @Override
+    public void putVInt(final int v) {
+        checkExpand(BytesUtils.VLONG_MAX_SIZE);
+        super.putVInt(v);
+    }
+
+    @Deprecated
+    @Override
     public void putVar(final int v) {
-        checkExpand(BytesUtils.VLONG_MAX_SIZE);
-        super.putVar(v);
+        putVInt(v);
     }
 
-    public void putSVar(final int v) {
+    @Override
+    public void putSVInt(final int v) {
         checkExpand(BytesUtils.VINT_MAX_SIZE);
-        super.putSVar(v);
+        super.putSVInt(v);
     }
 
+    @Deprecated
+    @Override
+    public void putSVar(final int v) {
+        putSVInt(v);
+    }
+
+
+    @Override
+    public void putVLong(final long v) {
+        checkExpand(BytesUtils.VLONG_MAX_SIZE);
+        super.putVLong(v);
+    }
+
+    @Deprecated
+    @Override
     public void putVar(final long v) {
-        checkExpand(BytesUtils.VLONG_MAX_SIZE);
-        super.putVar(v);
+        putVLong(v);
     }
 
+    @Override
+    public void putSVLong(final long v) {
+        checkExpand(BytesUtils.VLONG_MAX_SIZE);
+        super.putSVLong(v);
+    }
+
+    @Deprecated
+    @Override
     public void putSVar(final long v) {
-        checkExpand(BytesUtils.VLONG_MAX_SIZE);
-        super.putSVar(v);
+        putSVLong(v);
     }
 
+    @Override
+    public void putLong(final long v) {
+        checkExpand(8);
+        super.putLong(v);
+    }
+
+    @Deprecated
     @Override
     public void put(final long v) {
-        checkExpand(8);
-        super.put(v);
+        putLong(v);
     }
 
+
     @Override
-    public void put(final byte[] v) {
+    public void putBytes(final byte[] v) {
         if (v == null) {
             throw new NullPointerException("v must not be null");
         }
         checkExpand(v.length);
-        super.put(v);
+        super.putBytes(v);
+    }
+
+    @Override
+    public void put(final byte[] v) {
+        putBytes(v);
     }
 }
