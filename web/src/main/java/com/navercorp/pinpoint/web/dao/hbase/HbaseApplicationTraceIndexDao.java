@@ -329,10 +329,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         // add offset
         if (offsetTransactionId != null) {
             final Buffer buffer = new AutomaticBuffer(32);
-            buffer.put(offsetTransactionElapsed);
+            buffer.putInt(offsetTransactionElapsed);
             buffer.putPrefixedString(offsetTransactionId.getAgentId());
-            buffer.putSVar(offsetTransactionId.getAgentStartTime());
-            buffer.putVar(offsetTransactionId.getTransactionSequence());
+            buffer.putSVLong(offsetTransactionId.getAgentStartTime());
+            buffer.putVLong(offsetTransactionId.getTransactionSequence());
             byte[] qualifierOffset = buffer.getBuffer();
 
             filterList.addFilter(new QualifierFilter(CompareOp.GREATER, new BinaryPrefixComparator(qualifierOffset)));

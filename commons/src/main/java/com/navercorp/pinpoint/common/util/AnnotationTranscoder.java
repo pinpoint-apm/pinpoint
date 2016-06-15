@@ -184,7 +184,7 @@ public class AnnotationTranscoder {
 
     private Object decodeIntStringValue(byte[] data) {
         final Buffer buffer = new FixedBuffer(data);
-        final int intValue = buffer.readSVarInt();
+        final int intValue = buffer.readSVInt();
         final String stringValue  = BytesUtils.toString(buffer.readPrefixedBytes());
         return new IntStringValue(intValue, stringValue);
     }
@@ -196,7 +196,7 @@ public class AnnotationTranscoder {
         // TODO increase by a more precise value
         final int bufferSize = getBufferSize(stringValue, 4 + 8);
         final Buffer buffer = new AutomaticBuffer(bufferSize);
-        buffer.putSVar(intValue);
+        buffer.putSVInt(intValue);
         buffer.putPrefixedBytes(stringValue);
         return buffer.getBuffer();
     }
@@ -211,7 +211,7 @@ public class AnnotationTranscoder {
 
     private Object decodeIntStringStringValue(byte[] data) {
         final Buffer buffer = new FixedBuffer(data);
-        final int intValue = buffer.readSVarInt();
+        final int intValue = buffer.readSVInt();
         final String stringValue1  = BytesUtils.toString(buffer.readPrefixedBytes());
         final String stringValue2  = BytesUtils.toString(buffer.readPrefixedBytes());
         return new IntStringStringValue(intValue, stringValue1, stringValue2);
@@ -225,7 +225,7 @@ public class AnnotationTranscoder {
         // TODO increase by a more precise value
         final int bufferSize = getBufferSize(stringValue1, stringValue2, 4 + 8);
         final Buffer buffer = new AutomaticBuffer(bufferSize);
-        buffer.putSVar(intValue);
+        buffer.putSVInt(intValue);
         buffer.putPrefixedBytes(stringValue1);
         buffer.putPrefixedBytes(stringValue2);
         return buffer.getBuffer();

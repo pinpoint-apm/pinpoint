@@ -30,7 +30,7 @@ public class OffsetAutomaticBufferTest {
     public void testGetBuffer() throws Exception {
         final int putValue = 10;
         Buffer buffer = new OffsetAutomaticBuffer(new byte[10], 2);
-        buffer.put(putValue);
+        buffer.putInt(putValue);
         byte[] intBuffer = buffer.getBuffer();
         Assert.assertEquals(intBuffer.length, 4);
 
@@ -43,7 +43,7 @@ public class OffsetAutomaticBufferTest {
     public void testCopyBuffer() throws Exception {
         final int putValue = 10;
         Buffer buffer = new OffsetAutomaticBuffer(new byte[10], 2);
-        buffer.put(putValue);
+        buffer.putInt(putValue);
         byte[] intBuffer = buffer.copyBuffer();
         Assert.assertEquals(intBuffer.length, 4);
 
@@ -55,8 +55,8 @@ public class OffsetAutomaticBufferTest {
     @Test
     public void testWrapByteBuffer() throws Exception {
         Buffer buffer = new OffsetAutomaticBuffer(new byte[10], 2);
-        buffer.put(1);
-        buffer.put(2);
+        buffer.putInt(1);
+        buffer.putInt(2);
 
         ByteBuffer byteBuffer = buffer.wrapByteBuffer();
         Assert.assertEquals(1, byteBuffer.getInt());

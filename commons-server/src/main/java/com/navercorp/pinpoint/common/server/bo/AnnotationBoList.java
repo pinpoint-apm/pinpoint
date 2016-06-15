@@ -58,14 +58,14 @@ public class AnnotationBoList {
     public void writeValue(Buffer writer) {
 
         int size = this.annotationBoList.size();
-        writer.putVar(size);
+        writer.putVInt(size);
         for (AnnotationBo annotationBo : this.annotationBoList) {
             annotationBo.writeValue(writer);
         }
     }
 
     public void readValue(Buffer reader) {
-        int size = reader.readVarInt();
+        int size = reader.readVInt();
         if (size == 0) {
             return;
         }

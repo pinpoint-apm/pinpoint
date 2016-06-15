@@ -46,7 +46,7 @@ public class OffsetFixedBufferTest {
     public void testGetBuffer() throws Exception {
         final int putValue = 10;
         Buffer buffer = new OffsetFixedBuffer(new byte[10], 2);
-        buffer.put(putValue);
+        buffer.putInt(putValue);
         byte[] intBuffer = buffer.getBuffer();
         Assert.assertEquals(intBuffer.length, 4);
 
@@ -59,7 +59,7 @@ public class OffsetFixedBufferTest {
     public void testCopyBuffer() throws Exception {
         final int putValue = 10;
         Buffer buffer = new OffsetFixedBuffer(new byte[10], 2);
-        buffer.put(putValue);
+        buffer.putInt(putValue);
         byte[] intBuffer = buffer.copyBuffer();
         Assert.assertEquals(intBuffer.length, 4);
 
@@ -71,8 +71,8 @@ public class OffsetFixedBufferTest {
     @Test
     public void testWrapByteBuffer() throws Exception {
         Buffer buffer = new OffsetFixedBuffer(new byte[10], 2);
-        buffer.put(1);
-        buffer.put(2);
+        buffer.putInt(1);
+        buffer.putInt(2);
 
         ByteBuffer byteBuffer = buffer.wrapByteBuffer();
         Assert.assertEquals(1, byteBuffer.getInt());

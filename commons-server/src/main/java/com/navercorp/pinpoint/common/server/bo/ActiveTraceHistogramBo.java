@@ -87,14 +87,14 @@ public class ActiveTraceHistogramBo {
     public ActiveTraceHistogramBo(byte[] serializedActiveTraceHistogramBo) {
         final Buffer buffer = new FixedBuffer(serializedActiveTraceHistogramBo);
         this.version = buffer.readByte();
-        this.histogramSchemaType = buffer.readVarInt();
+        this.histogramSchemaType = buffer.readVInt();
         int version = this.version & 0xFF;
         switch (version) {
             case 0:
-                int numActiveTraceCounts = buffer.readVarInt();
+                int numActiveTraceCounts = buffer.readVInt();
                 List<Integer> activeTraceCounts = new ArrayList<Integer>(numActiveTraceCounts);
                 for (int i = 0; i < numActiveTraceCounts; ++i) {
-                    activeTraceCounts.add(buffer.readVarInt());
+                    activeTraceCounts.add(buffer.readVInt());
                 }
                 this.activeTraceCountMap = createActiveTraceCountMap(version, activeTraceCounts);
                 break;
@@ -118,16 +118,16 @@ public class ActiveTraceHistogramBo {
 
     public byte[] writeValue() {
         final Buffer buffer = new AutomaticBuffer();
-        buffer.put(this.version);
-        buffer.putVar(this.histogramSchemaType);
+        buffer.putByte(this.version);
+        buffer.putVInt(this.histogramSchemaType);
         int version = this.version & 0xFF;
         switch (version) {
             case 0:
-                buffer.putVar(this.activeTraceCountMap.size());
-                buffer.putVar(this.activeTraceCountMap.get(SlotType.FAST));
-                buffer.putVar(this.activeTraceCountMap.get(SlotType.NORMAL));
-                buffer.putVar(this.activeTraceCountMap.get(SlotType.SLOW));
-                buffer.putVar(this.activeTraceCountMap.get(SlotType.VERY_SLOW));
+                buffer.putVInt(this.activeTraceCountMap.size());
+                buffer.putVInt(this.activeTraceCountMap.get(SlotType.FAST));
+                buffer.putVInt(this.activeTraceCountMap.get(SlotType.NORMAL));
+                buffer.putVInt(this.activeTraceCountMap.get(SlotType.SLOW));
+                buffer.putVInt(this.activeTraceCountMap.get(SlotType.VERY_SLOW));
                 break;
             default:
                 break;

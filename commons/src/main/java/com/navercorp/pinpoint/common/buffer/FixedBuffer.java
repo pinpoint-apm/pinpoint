@@ -57,7 +57,7 @@ public class FixedBuffer implements Buffer {
         if (bytes.length > totalLength) {
             throw new IndexOutOfBoundsException("bytes too big:" + bytes.length + " totalLength:" + totalLength);
         }
-        put(bytes);
+        putBytes(bytes);
         final int padSize = totalLength - bytes.length;
         if (padSize > 0) {
             putPad(padSize);
@@ -66,7 +66,7 @@ public class FixedBuffer implements Buffer {
 
     private void putPad(int padSize) {
         for (int i = 0; i < padSize; i++) {
-            put((byte)0);
+            putByte((byte)0);
         }
     }
 
@@ -74,33 +74,33 @@ public class FixedBuffer implements Buffer {
     @Override
     public void putPrefixedBytes(final byte[] bytes) {
         if (bytes == null) {
-            putSVar(NULL);
+            putSVInt(NULL);
         } else {
-            putSVar(bytes.length);
-            put(bytes);
+            putSVInt(bytes.length);
+            putBytes(bytes);
         }
     }
 
     @Override
     public void put2PrefixedBytes(final byte[] bytes) {
         if (bytes == null) {
-            put((short)NULL);
+            putShort((short)NULL);
         } else {
             if (bytes.length > Short.MAX_VALUE) {
                 throw new IndexOutOfBoundsException("too large bytes length:" + bytes.length);
             }
-            put((short)bytes.length);
-            put(bytes);
+            putShort((short)bytes.length);
+            putBytes(bytes);
         }
     }
 
     @Override
     public void put4PrefixedBytes(final byte[] bytes) {
         if (bytes == null) {
-            put(NULL);
+            putInt(NULL);
         } else {
-            put(bytes.length);
-            put(bytes);
+            putInt(bytes.length);
+            putBytes(bytes);
         }
     }
 
@@ -120,7 +120,7 @@ public class FixedBuffer implements Buffer {
     public void put2PrefixedString(final String string) {
         final byte[] bytes = BytesUtils.toBytes(string);
         if (bytes == null) {
-            put((short)NULL);
+            putShort((short)NULL);
             return;
         }
         if (bytes.length > Short.MAX_VALUE) {
@@ -133,19 +133,25 @@ public class FixedBuffer implements Buffer {
     public void put4PrefixedString(final String string) {
         final byte[] bytes = BytesUtils.toBytes(string);
         if (bytes == null) {
-            put(NULL);
+            putInt(NULL);
             return;
         }
         put4PrefixedBytes(bytes);
     }
 
     @Override
-    public void put(final byte v) {
+    public void putByte(final byte v) {
         this.buffer[offset++] = v;
     }
 
+    @Deprecated
     @Override
-    public void put(final boolean v) {
+    public void put(final byte v) {
+        putByte(v);
+    }
+
+    @Override
+    public void putBoolean(final boolean v) {
         if (v) {
             this.buffer[offset++] = BOOLEAN_TRUE;
         } else {
@@ -153,12 +159,25 @@ public class FixedBuffer implements Buffer {
         }
     }
 
+    @Deprecated
     @Override
-    public void put(final int v) {
+    public void put(final boolean v) {
+        putBoolean(v);
+    }
+
+    @Override
+    public void putInt(final int v) {
         this.offset = BytesUtils.writeInt(v, buffer, offset);
     }
 
-    public void putVar(int v) {
+    @Deprecated
+    @Override
+    public void put(final int v) {
+        putInt(v);
+    }
+
+    @Override
+    public void putVInt(int v) {
         if (v >= 0) {
             putVar32(v);
         } else {
@@ -166,8 +185,21 @@ public class FixedBuffer implements Buffer {
         }
     }
 
-    public void putSVar(int v) {
+    @Deprecated
+    @Override
+    public void putVar(int v) {
+        putVInt(v);
+    }
+
+    @Override
+    public void putSVInt(int v) {
         this.offset = BytesUtils.writeSVar32(v, buffer, offset);
+    }
+
+    @Deprecated
+    @Override
+    public void putSVar(int v) {
+        putSVInt(v);
     }
 
     private void putVar32(int v) {
@@ -175,23 +207,47 @@ public class FixedBuffer implements Buffer {
     }
 
     @Override
-    public void put(final short v) {
+    public void putShort(final short v) {
         this.offset = BytesUtils.writeShort(v, buffer, offset);
     }
 
+    @Deprecated
     @Override
-    public void put(final long v) {
+    public void put(final short v) {
+        putShort(v);
+    }
+
+    @Override
+    public void putLong(final long v) {
         this.offset = BytesUtils.writeLong(v, buffer, offset);
     }
 
+    @Deprecated
     @Override
-    public void putVar(long v) {
-        putVar64(v);
+    public void put(final long v) {
+        putLong(v);
     }
 
     @Override
-    public void putSVar(long v) {
+    public void putVLong(long v) {
+        putVar64(v);
+    }
+
+    @Deprecated
+    @Override
+    public void putVar(long v) {
+        putVLong(v);
+    }
+
+    @Override
+    public void putSVLong(long v) {
         putVar64(BytesUtils.longToZigZag(v));
+    }
+
+    @Deprecated
+    @Override
+    public void putSVar(long v) {
+        putSVLong(v);
     }
 
     private void putVar64(long v) {
@@ -199,27 +255,52 @@ public class FixedBuffer implements Buffer {
     }
 
     @Override
-    public void put(double v) {
-        put(Double.doubleToRawLongBits(v));
+    public void putDouble(double v) {
+        putLong(Double.doubleToRawLongBits(v));
     }
 
+    @Deprecated
+    @Override
+    public void put(double v) {
+        putDouble(v);
+    }
+
+    @Override
+    public void putVDouble(double v) {
+        putVLong(Double.doubleToRawLongBits(v));
+    }
+
+    @Deprecated
     @Override
     public void putVar(double v) {
-        putVar(Double.doubleToRawLongBits(v));
+        putVDouble(v);
     }
 
+    @Override
+    public void putSVDouble(double v) {
+        putSVLong(Double.doubleToRawLongBits(v));
+    }
+
+
+    @Deprecated
     @Override
     public void putSVar(double v) {
-        putSVar(Double.doubleToRawLongBits(v));
+        putSVDouble(v);
     }
 
     @Override
-    public void put(final byte[] v) {
+    public void putBytes(final byte[] v) {
         if (v == null) {
             throw new NullPointerException("v must not be null");
         }
         System.arraycopy(v, 0, buffer, offset, v.length);
         this.offset = offset + v.length;
+    }
+
+    @Deprecated
+    @Override
+    public void put(final byte[] v) {
+        put(v);
     }
 
     @Override
@@ -246,7 +327,7 @@ public class FixedBuffer implements Buffer {
     }
 
     @Override
-    public int readVarInt() {
+    public int readVInt() {
         // borrowing the protocol buffer's concept of variable-length encoding
         // copy https://github.com/google/protobuf 2.6.1
         // CodedInputStream.java -> int readRawVarint32()
@@ -291,6 +372,12 @@ public class FixedBuffer implements Buffer {
         return (int) readVar64SlowPath();
     }
 
+    @Deprecated
+    @Override
+    public int readVarInt() {
+        return readVInt();
+    }
+
     /** Variant of readRawVarint64 for when uncomfortably close to the limit. */
     /* Visible for testing */
     long readVar64SlowPath() {
@@ -307,8 +394,14 @@ public class FixedBuffer implements Buffer {
         throw new IllegalArgumentException("invalid varLong. start offset:" +  this.offset + " readOffset:" + offset);
     }
 
+    @Override
+    public int readSVInt() {
+        return BytesUtils.zigzagToInt(readVInt());
+    }
+
+    @Deprecated
     public int readSVarInt() {
-        return BytesUtils.zigzagToInt(readVarInt());
+        return readSVInt();
     }
 
     @Override
@@ -330,7 +423,7 @@ public class FixedBuffer implements Buffer {
     }
 
     @Override
-    public long readVarLong() {
+    public long readVLong() {
         // borrowing the protocol buffer's concept of variable-length encoding
         // copy https://github.com/google/protobuf 2.6.1
         // CodedInputStream.java -> long readRawVarint64() throws IOException
@@ -392,9 +485,20 @@ public class FixedBuffer implements Buffer {
         return readVar64SlowPath();
     }
 
+    @Deprecated
+    @Override
+    public long readVarLong() {
+        return readVLong();
+    }
+
+    @Override
+    public long readSVLong() {
+        return BytesUtils.zigzagToLong(readVLong());
+    }
+
     @Override
     public long readSVarLong() {
-        return BytesUtils.zigzagToLong(readVarLong());
+        return readSVLong();
     }
 
     @Override
@@ -403,13 +507,25 @@ public class FixedBuffer implements Buffer {
     }
 
     @Override
+    public double readVDouble() {
+        return Double.longBitsToDouble(this.readVLong());
+    }
+
+    @Deprecated
+    @Override
     public double readVarDouble() {
-        return Double.longBitsToDouble(this.readVarLong());
+        return readVDouble();
     }
 
     @Override
+    public double readSVDouble() {
+        return Double.longBitsToDouble(this.readSVLong());
+    }
+
+    @Deprecated
+    @Override
     public double readSVarDouble() {
-        return Double.longBitsToDouble(this.readSVarLong());
+        return readSVDouble();
     }
 
     @Override
@@ -432,7 +548,7 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public byte[] readPrefixedBytes() {
-        final int size = readSVarInt();
+        final int size = readSVInt();
         if (size == NULL) {
             return null;
         }
@@ -476,7 +592,7 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public String readPrefixedString() {
-        final int size = readSVarInt();
+        final int size = readSVInt();
         if (size == NULL) {
             return null;
         }

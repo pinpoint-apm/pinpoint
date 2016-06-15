@@ -49,7 +49,7 @@ public class AnnotationSerializer implements HbaseSerializer<SpanBo, Put> {
         }
         final int size = annotationList.size();
 
-        buffer.putVar(size);
+        buffer.putVInt(size);
         for (AnnotationBo annotationBo : annotationList) {
             writeAnnotation(annotationBo, buffer);
         }
@@ -62,9 +62,9 @@ public class AnnotationSerializer implements HbaseSerializer<SpanBo, Put> {
         // int key;           // required 4
         // int valueTypeCode; // required 4
         // ByteBuffer value;  // optional 4 + buf.length
-        puffer.put(annotationBo.getRawVersion());
-        puffer.putSVar(annotationBo.getKey());
-        puffer.put(annotationBo.getRawValueType());
+        puffer.putByte(annotationBo.getRawVersion());
+        puffer.putSVInt(annotationBo.getKey());
+        puffer.putByte(annotationBo.getRawValueType());
         puffer.putPrefixedBytes(annotationBo.getByteValue());
     }
 }

@@ -139,13 +139,13 @@ public class AgentInfoBo {
         buffer.putPrefixedString(this.getIp());
         buffer.putPrefixedString(this.getPorts());
         buffer.putPrefixedString(this.getApplicationName());
-        buffer.put(this.getServiceTypeCode());
-        buffer.put(this.getPid());
+        buffer.putShort(this.getServiceTypeCode());
+        buffer.putInt(this.getPid());
         buffer.putPrefixedString(this.getAgentVersion());
 
-        buffer.put(this.getStartTime());
-        buffer.put(this.getEndTimeStamp());
-        buffer.put(this.getEndStatus());
+        buffer.putLong(this.getStartTime());
+        buffer.putLong(this.getEndTimeStamp());
+        buffer.putInt(this.getEndStatus());
         
         buffer.putPrefixedString(this.getVmVersion());
 

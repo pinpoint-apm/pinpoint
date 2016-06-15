@@ -67,13 +67,13 @@ public class TraceIndexScatterMapper2 implements RowMapper<List<Dot>> {
 
         final int valueOffset = cell.getValueOffset();
         final Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), valueOffset);
-        int elapsed = valueBuffer.readVarInt();
+        int elapsed = valueBuffer.readVInt();
 
         if (elapsed < responseOffsetFrom || elapsed > responseOffsetTo) {
             return null;
         }
 
-        int exceptionCode = valueBuffer.readSVarInt();
+        int exceptionCode = valueBuffer.readSVInt();
         String agentId = valueBuffer.readPrefixedString();
 
         long reverseAcceptedTime = BytesUtils.bytesToLong(cell.getRowArray(), cell.getRowOffset() + HBaseTables.APPLICATION_NAME_MAX_LEN + HBaseTables.APPLICATION_TRACE_INDEX_ROW_DISTRIBUTE_SIZE);

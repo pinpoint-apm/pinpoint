@@ -58,8 +58,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         }
 
         final Buffer buffer = new AutomaticBuffer(10 + AGENT_NAME_MAX_LEN);
-        buffer.putVar(span.getElapsed());
-        buffer.putSVar(span.getErr());
+        buffer.putVInt(span.getElapsed());
+        buffer.putSVInt(span.getErr());
         buffer.putPrefixedString(span.getAgentId());
         final byte[] value = buffer.getBuffer();
 

@@ -94,15 +94,15 @@ public class AgentStatMemoryGcBo {
     public byte[] writeValue() {
         final Buffer buffer = new AutomaticBuffer();
         buffer.putPrefixedString(this.agentId);
-        buffer.put(this.startTimestamp);
-        buffer.put(this.timestamp);
+        buffer.putLong(this.startTimestamp);
+        buffer.putLong(this.timestamp);
         buffer.putPrefixedString(this.gcType);
-        buffer.put(this.jvmMemoryHeapUsed);
-        buffer.put(this.jvmMemoryHeapMax);
-        buffer.put(this.jvmMemoryNonHeapUsed);
-        buffer.put(this.jvmMemoryNonHeapMax);
-        buffer.put(this.jvmGcOldCount);
-        buffer.put(this.jvmGcOldTime);
+        buffer.putLong(this.jvmMemoryHeapUsed);
+        buffer.putLong(this.jvmMemoryHeapMax);
+        buffer.putLong(this.jvmMemoryNonHeapUsed);
+        buffer.putLong(this.jvmMemoryNonHeapMax);
+        buffer.putLong(this.jvmGcOldCount);
+        buffer.putLong(this.jvmGcOldTime);
         return buffer.getBuffer();
     }
 

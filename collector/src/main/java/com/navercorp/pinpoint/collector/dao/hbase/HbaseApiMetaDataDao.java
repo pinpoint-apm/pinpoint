@@ -64,14 +64,14 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
         String api = apiMetaData.getApiInfo();
         buffer.putPrefixedString(api);
         if (apiMetaData.isSetLine()) {
-            buffer.put(apiMetaData.getLine());
+            buffer.putInt(apiMetaData.getLine());
         } else {
-            buffer.put(-1);
+            buffer.putInt(-1);
         }
         if(apiMetaData.isSetType()) {
-            buffer.put(apiMetaData.getType());
+            buffer.putInt(apiMetaData.getType());
         } else {
-            buffer.put(0);
+            buffer.putInt(0);
         }
         
         final byte[] apiMetaDataBytes = buffer.getBuffer();
