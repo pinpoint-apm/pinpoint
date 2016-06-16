@@ -10,3 +10,5 @@
 /**/.idea
 *.iml
 out/
+/src/main/webapp/lib/js/**/*.js
+/src/main/webapp/lib/css/**/*.css
