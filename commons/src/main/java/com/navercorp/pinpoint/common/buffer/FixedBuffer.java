@@ -300,7 +300,7 @@ public class FixedBuffer implements Buffer {
     @Deprecated
     @Override
     public void put(final byte[] v) {
-        put(v);
+        putBytes(v);
     }
 
     @Override
