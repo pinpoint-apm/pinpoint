@@ -52,7 +52,7 @@ public class HbaseApplicationTraceIndexColumnTest {
 
         byte[] source = originalBuffer.getBuffer();
 
-        final Buffer fetched = new OffsetFixedBuffer(source, 0);
+        final Buffer fetched = new OffsetFixedBuffer(source);
 
         Assert.assertEquals(elapsed, fetched.readVInt());
         Assert.assertEquals(agentId, fetched.readPrefixedString());

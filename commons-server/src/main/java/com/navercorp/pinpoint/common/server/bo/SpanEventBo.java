@@ -466,9 +466,9 @@ public class SpanEventBo implements Span {
         annotationBo.writeValue(buffer);
     }
 
+    @Deprecated
     public int readValue(byte[] bytes, int offset, int length) {
-        final int endOffset = offset + length;
-        final Buffer buffer = new OffsetFixedBuffer(bytes, offset);
+        final Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
 
         this.version = buffer.readByte();
 
@@ -502,7 +502,7 @@ public class SpanEventBo implements Span {
         }
 
         this.annotationBoList = readAnnotation(buffer);
-        if (buffer.getOffset() < endOffset) {
+        if (buffer.hasRemaining()) {
             nextAsyncId = buffer.readSVInt();
         }
         

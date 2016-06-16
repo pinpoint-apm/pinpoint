@@ -37,13 +37,12 @@ public class AutomaticBuffer extends FixedBuffer {
     }
 
 
-    private void checkExpand(final int size) {
-        int length = buffer.length;
-        final int remain = length - offset;
+    protected void checkExpand(final int size) {
+        final int remain = remaining();
         if (remain >= size) {
             return;
         }
-
+        int length = buffer.length;
         if (length == 0) {
             length = 1;
         }
@@ -56,7 +55,7 @@ public class AutomaticBuffer extends FixedBuffer {
         buffer = expandedBuffer;
     }
 
-    private int computeExpandedBufferSize(final int size, int length, int remain) {
+    protected int computeExpandedBufferSize(final int size, int length, int remain) {
         int expandedBufferSize = 0;
         while (remain < size) {
             length <<= 2;

@@ -85,7 +85,7 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
         // key is destApplicationName.
         final LinkDataMap linkDataMap = new LinkDataMap();
         for (Cell cell : result.rawCells()) {
-            final Buffer buffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset());
+            final Buffer buffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
             final Application callee = readCalleeApplication(buffer);
             if (filter.filter(callee)) {
                 continue;

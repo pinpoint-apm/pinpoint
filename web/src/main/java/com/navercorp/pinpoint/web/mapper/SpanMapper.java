@@ -75,7 +75,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
                 spanBo.setCollectorAcceptTime(cell.getTimestamp());
 
                 spanBo.setSpanID(Bytes.toLong(cell.getQualifierArray(), cell.getQualifierOffset()));
-                spanBo.readValue(cell.getValueArray(), cell.getValueOffset());
+                spanBo.readValue(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
                 if (logger.isDebugEnabled()) {
                     logger.debug("read span :{}", spanBo);
                 }
