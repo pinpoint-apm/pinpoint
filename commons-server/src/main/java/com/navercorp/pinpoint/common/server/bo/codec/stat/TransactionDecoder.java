@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2016 Naver Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.vo.linechart;
+package com.navercorp.pinpoint.common.server.bo.codec.stat;
 
-import java.util.Collection;
+import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
- * @author harebox
  * @author HyunGil Jeong
  */
-public interface DownSampler<T extends Number> {
+@Component
+public class TransactionDecoder extends AgentStatDecoder<TransactionBo> {
 
-    T sampleMin(Collection<T> values);
-
-    T sampleAvg(Collection<T> values);
-
-    T sampleMax(Collection<T> values);
-
+    @Autowired
+    public TransactionDecoder(List<AgentStatCodec<TransactionBo>> transactionCodecs) {
+        super(transactionCodecs);
+    }
 }

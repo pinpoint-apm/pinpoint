@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2016 Naver Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.dao.hbase;
+package com.navercorp.pinpoint.collector.dao.hbase.stat;
 
 import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
+import com.navercorp.pinpoint.collector.dao.AgentStatDao;
 import com.navercorp.pinpoint.collector.mapper.thrift.ActiveTraceHistogramBoMapper;
 import com.navercorp.pinpoint.common.server.bo.ActiveTraceHistogramBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.thrift.dto.TActiveTrace;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -27,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-import com.navercorp.pinpoint.collector.dao.AgentStatDao;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
@@ -45,6 +46,7 @@ import com.sematext.hbase.wd.AbstractRowKeyDistributor;
  * @author HyunGil Jeong
  */
 @Repository
+@Deprecated
 public class HbaseAgentStatDao implements AgentStatDao {
 
     @Autowired
@@ -93,8 +95,10 @@ public class HbaseAgentStatDao implements AgentStatDao {
         // CPU
         if (agentStat.isSetCpuLoad()) {
             TCpuLoad cpuLoad = agentStat.getCpuLoad();
-            put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_COL_JVM_CPU, Bytes.toBytes(cpuLoad.getJvmCpuLoad()));
-            put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_COL_SYS_CPU, Bytes.toBytes(cpuLoad.getSystemCpuLoad()));
+            double jvmCpuLoad = AgentStatUtils.convertLongToDouble(AgentStatUtils.convertDoubleToLong(cpuLoad.getJvmCpuLoad()));
+            double systemCpuLoad = AgentStatUtils.convertLongToDouble(AgentStatUtils.convertDoubleToLong(cpuLoad.getSystemCpuLoad()));
+            put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_COL_JVM_CPU, Bytes.toBytes(jvmCpuLoad));
+            put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_COL_SYS_CPU, Bytes.toBytes(systemCpuLoad));
         }
         // Transaction
         if (agentStat.isSetTransaction()) {

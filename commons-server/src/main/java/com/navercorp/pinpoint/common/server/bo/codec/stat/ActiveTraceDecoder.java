@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2016 Naver Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.service;
+package com.navercorp.pinpoint.common.server.bo.codec.stat;
+
+import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import com.navercorp.pinpoint.web.vo.AgentStat;
-import com.navercorp.pinpoint.web.vo.Range;
-
 /**
- * @author hyungil.jeong
+ * @author HyunGil Jeong
  */
-public interface AgentStatService {
+@Component
+public class ActiveTraceDecoder extends AgentStatDecoder<ActiveTraceBo> {
 
-    List<AgentStat> selectAgentStatList(String agentId, Range range);
-    List<AgentStat> selectAggregatedAgentStatList(String agentId, Range range);
-
+    @Autowired
+    public ActiveTraceDecoder(List<AgentStatCodec<ActiveTraceBo>> activeTraceCodecs) {
+        super(activeTraceCodecs);
+    }
 }

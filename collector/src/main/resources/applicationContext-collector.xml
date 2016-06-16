@@ -21,6 +21,7 @@
                         com.navercorp.pinpoint.collector.mapper,
                         com.navercorp.pinpoint.collector.util,
                         com.navercorp.pinpoint.collector.config,
+                        com.navercorp.pinpoint.common.server.bo.codec,
                         com.navercorp.pinpoint.common.server.util,
                         com.navercorp.pinpoint.common.server.bo" />
 
