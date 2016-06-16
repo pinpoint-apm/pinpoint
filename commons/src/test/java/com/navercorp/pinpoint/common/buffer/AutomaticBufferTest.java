@@ -307,4 +307,23 @@ public class AutomaticBufferTest {
 
     }
 
+    @Test
+    public void test_remaining() throws Exception {
+        final byte[] bytes = new byte[BytesUtils.INT_BYTE_LENGTH];
+        Buffer buffer = new AutomaticBuffer(bytes);
+        Assert.assertEquals(buffer.remaining(), 4);
+        Assert.assertTrue(buffer.hasRemaining());
+
+        buffer.putInt(1234);
+        Assert.assertEquals(buffer.remaining(), 0);
+        Assert.assertFalse(buffer.hasRemaining());
+
+        // auto expanded buffer size
+        buffer.putShort((short)12);
+        // remaining size increment is right operation??
+        Assert.assertTrue(buffer.remaining() > 0);
+        Assert.assertTrue(buffer.hasRemaining());
+
+    }
+
 }

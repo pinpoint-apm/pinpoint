@@ -193,7 +193,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             this.lastRowTimestamp = TimeUtils.recoveryTimeMillis(reverseStartTime);
             
             byte[] qualifier = CellUtil.cloneQualifier(last);
-            this.lastTransactionId = TransactionIdMapper.parseVarTransactionId(qualifier, 0);
+            this.lastTransactionId = TransactionIdMapper.parseVarTransactionId(qualifier, 0, qualifier.length);
             this.lastTransactionElapsed = BytesUtils.bytesToInt(qualifier, 0);
             
             if (logger.isDebugEnabled()) {

@@ -23,21 +23,51 @@ import java.nio.ByteBuffer;
  */
 public class OffsetAutomaticBuffer extends AutomaticBuffer {
 
-    protected final int startOffset;
+    protected int startOffset;
+    protected int endOffset;
 
-    public OffsetAutomaticBuffer(final byte[] buffer, final int offset) {
+    /**
+     * Unsafe API
+     * unsafe array access of HBase Cell
+     * @deprecated Since 1.6.0. Use {@link OffsetAutomaticBuffer(byte[], int, int)}
+     */
+    @Deprecated
+    public OffsetAutomaticBuffer(final byte[] buffer, final int startOffset) {
+        this(buffer, startOffset, buffer.length);
+    }
+
+
+    public OffsetAutomaticBuffer(final byte[] buffer) {
+        this(buffer, 0, buffer.length);
+    }
+
+
+    public OffsetAutomaticBuffer(final byte[] buffer, final int startOffset, int length) {
         if (buffer == null) {
             throw new NullPointerException("buffer must not be null");
         }
-        if (offset < 0) {
-            throw new IndexOutOfBoundsException("negative offset:" + offset);
+        if (startOffset < 0) {
+            throw new IndexOutOfBoundsException("negative offset:" + startOffset);
         }
-        if (offset > buffer.length) {
-            throw new IndexOutOfBoundsException("offset:" + offset + " > buffer.length:" + buffer.length);
+        if (length < 0) {
+            throw new IndexOutOfBoundsException("negative length:" + length);
+        }
+        if (startOffset > buffer.length) {
+            throw new IndexOutOfBoundsException("startOffset:" + startOffset + " > buffer.length:" + buffer.length);
+        }
+        final int endOffset = startOffset + length;
+        if (endOffset > buffer.length) {
+            throw new IndexOutOfBoundsException("too large length buffer.length:" + buffer.length + " endOffset:" + endOffset);
         }
         this.buffer = buffer;
-        this.offset = offset;
-        this.startOffset = offset;
+        this.offset = startOffset;
+        this.startOffset = startOffset;
+        this.endOffset = endOffset;
+    }
+
+    protected void checkExpand(final int size) {
+        super.checkExpand(size);
+        this.endOffset = buffer.length;
     }
 
     @Override
@@ -61,5 +91,15 @@ public class OffsetAutomaticBuffer extends AutomaticBuffer {
     public ByteBuffer wrapByteBuffer() {
         final int length = offset - startOffset;
         return ByteBuffer.wrap(this.buffer, startOffset, length);
+    }
+
+    @Override
+    public int remaining() {
+        return endOffset - offset;
+    }
+
+    @Override
+    public boolean hasRemaining() {
+        return offset < endOffset;
     }
 }

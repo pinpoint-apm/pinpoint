@@ -477,8 +477,9 @@ public class SpanBo implements Span {
         this.loggingTransactionInfo = loggingTransactionInfo;
     }
 
-    public int readValue(byte[] bytes, int offset) {
-        final Buffer buffer = new OffsetFixedBuffer(bytes, offset);
+    @Deprecated
+    public int readValue(byte[] bytes, int offset, int length) {
+        final Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
 
         this.version = buffer.readByte();
 

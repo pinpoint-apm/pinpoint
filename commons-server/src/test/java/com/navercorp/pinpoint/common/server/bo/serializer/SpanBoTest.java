@@ -90,7 +90,7 @@ public class SpanBoTest {
         Assert.assertArrayEquals(bytes, deprecated);
 
         SpanBo newSpanBo = new SpanBo();
-        int i = newSpanBo.readValue(bytes, 0);
+        int i = newSpanBo.readValue(bytes, 0, bytes.length);
         logger.debug("length:{}", i);
         Assert.assertEquals(bytes.length, i);
         Assert.assertEquals(newSpanBo.getAgentId(), spanBo.getAgentId());
@@ -140,7 +140,7 @@ public class SpanBoTest {
         Assert.assertArrayEquals(bytes, deprecated);
 
         SpanBo newSpanBo = new SpanBo();
-        int i = newSpanBo.readValue(bytes, 0);
+        int i = newSpanBo.readValue(bytes, 0, bytes.length);
         logger.debug("length:{}", i);
         Assert.assertEquals(bytes.length, i);
         
