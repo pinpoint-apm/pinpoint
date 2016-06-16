@@ -153,7 +153,7 @@ module.exports = function( grunt, options ) {
 				'/common/services/agent-dao.service.js',
 				'/common/services/sidebar-title-vo.service.js',
 				'/common/services/filtered-map-util.service.js',
-				'/common/services/filter.options.js',
+				'/common/services/filter.config.js',
 				'/common/services/server-map-filter-vo.service.js',
 				'/common/services/alarm-ajax.service.js',
 				'/common/services/alarm-util.service.js',
