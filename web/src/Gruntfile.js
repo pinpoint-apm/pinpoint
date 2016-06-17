@@ -109,7 +109,8 @@ module.exports = function (grunt) {
 	//replace js, css link
 	grunt.registerTask('replace_static', [
 		'regex-replace:css',
-		'regex-replace:js'
+		'regex-replace:js',
+		'regex-replace:html'
 	]);
 
 	grunt.registerTask('build_release', [
