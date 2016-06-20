@@ -14,7 +14,6 @@
     <properties>
         <jdk.version>1.7</jdk.version>
         <jdk.home>${env.JAVA_7_HOME}</jdk.home>
-        <buildTime>${maven.build.timestamp}</buildTime>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <sniffer.artifactid>java17</sniffer.artifactid>
     </properties>
@@ -348,11 +347,7 @@
                     <attachClasses>true</attachClasses>
                     <webResources>
                         <resource>
-                            <filtering>true</filtering>
-                            <directory>src/main/webapp</directory>
-                            <includes>
-                                <include>**/*.html</include>
-                            </includes>
+                            <directory>target/main/webapp</directory>
                         </resource>
                     </webResources>
                 </configuration>
@@ -400,17 +395,40 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>prepare-grunt</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <target>
+                                <copy todir="${basedir}/target/grunt" failonerror="true" verbose="true">
+                                    <fileset dir="${basedir}/src/grunt" />
+                                </copy>
+                                <copy todir="${basedir}/target/main/webapp" failonerror="true" verbose="true">
+                                    <fileset dir="${basedir}/src/main/webapp" />
+                                </copy>
+                                <copy file="${basedir}/src/Gruntfile.js" tofile="${basedir}/target/Gruntfile.js" failonerror="true" verbose="true" />
+                                <copy file="${basedir}/src/package.json" tofile="${basedir}/target/package.json" failonerror="true" verbose="true" />
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
                 <version>1.0</version>
                 <configuration>
-                    <workingDirectory>${basedir}/src</workingDirectory>
-                    <srcdir>${basedir}/src/main/webapp</srcdir>
-                    <outputdir>${basedir}/src/main/webapp</outputdir>
-                    <triggerfiles>
-                        <triggerfile>${project.basedir}/src/Gruntfile.js</triggerfile>
-                        <triggerfile>${project.basedir}/src/package.json</triggerfile>
-                    </triggerfiles>
+                    <workingDirectory>${basedir}/target</workingDirectory>
+                    <srcdir>${basedir}/target/main/webapp</srcdir>
+                    <outputdir>${basedir}/target/main/webapp</outputdir>
+                    <installDirectory>target</installDirectory>
                 </configuration>
                 <executions>
                     <execution>
