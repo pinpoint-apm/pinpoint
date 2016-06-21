@@ -300,7 +300,6 @@
 								oNavbarVoService.setReadablePeriod( preferenceService.getRealtimeScatterXRangeStr() );
 								oNavbarVoService.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
 								oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
-								UrlVoService.setReadablePeriod( preferenceService.getRealtimeScatterXRangeStr() );
 								UrlVoService.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
 								UrlVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 								emitAsChanged();
