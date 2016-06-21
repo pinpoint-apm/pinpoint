@@ -25,11 +25,16 @@
 		 this.initUrlVo = function( pageName, $routeParams ) {
 			 switch( pageName ) {
 				 case "main":
-					 this.setApplication( $routeParams.application )
-						 .setReadablePeriod( $routeParams.readablePeriod )
-					 	 .setQueryEndDateTime( $routeParams.queryEndDateTime )
-						 .setCallee( PreferenceService.getCalleeByApp($routeParams.application) )
-					 	 .setCaller( PreferenceService.getCallerByApp($routeParams.application) );
+					 if ( $routeParams.readablePeriod === oPeriodType.REALTIME ) {
+						 this.setApplication( $routeParams.application )
+							 .setReadablePeriod( $routeParams.readablePeriod );
+					 } else {
+						 this.setApplication( $routeParams.application )
+							 .setReadablePeriod( $routeParams.readablePeriod )
+							 .setQueryEndDateTime( $routeParams.queryEndDateTime )
+							 .setCallee( PreferenceService.getCalleeByApp($routeParams.application) )
+							 .setCaller( PreferenceService.getCallerByApp($routeParams.application) );
+					 }
 					 break;
 				 case "filteredMap":
 					 this.setApplication( $routeParams.application )

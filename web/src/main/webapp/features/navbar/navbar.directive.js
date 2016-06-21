@@ -16,8 +16,8 @@
 		}
 	});
 	
-	pinpointApp.directive('navbarDirective', [ "navbarDirectiveConfig", "$route", "$rootScope", "$http","$document", "$timeout", "$window",  "webStorage", "helpContentService", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService",
-	    function (cfg, $route, $rootScope, $http, $document, $timeout, $window, webStorage, helpContentService, analyticsService, preferenceService, tooltipService, commonAjaxService) {
+	pinpointApp.directive('navbarDirective', [ "navbarDirectiveConfig", "$route", "$rootScope", "$http","$document", "$timeout", "$window",  "webStorage", "helpContentService", "UrlVoService", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService",
+	    function (cfg, $route, $rootScope, $http, $document, $timeout, $window, webStorage, helpContentService, UrlVoService, analyticsService, preferenceService, tooltipService, commonAjaxService) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -287,6 +287,9 @@
 								oNavbarVoService.setReadablePeriod(scope.readablePeriod);
 								oNavbarVoService.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
 								oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
+								UrlVoService.setReadablePeriod(scope.readablePeriod);
+								UrlVoService.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
+								UrlVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 								emitAsChanged();
 								setDateTime($fromPicker, oNavbarVoService.getQueryStartTime());
 								setDateTime($toPicker, oNavbarVoService.getQueryEndTime());
@@ -297,6 +300,9 @@
 								oNavbarVoService.setReadablePeriod( preferenceService.getRealtimeScatterXRangeStr() );
 								oNavbarVoService.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
 								oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
+								UrlVoService.setReadablePeriod( preferenceService.getRealtimeScatterXRangeStr() );
+								UrlVoService.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
+								UrlVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 								emitAsChanged();
 								setDateTime($fromPicker, oNavbarVoService.getQueryStartTime());
 								setDateTime($toPicker, oNavbarVoService.getQueryEndTime());
@@ -306,6 +312,10 @@
 	                        oNavbarVoService.setQueryStartTime(getQueryStartTime());
 	                        oNavbarVoService.setQueryEndTime(getQueryEndTime());
 	                        oNavbarVoService.autoCalcultateByQueryStartTimeAndQueryEndTime();
+							UrlVoService.setPeriodType( cfg.periodType.RANGE );
+							UrlVoService.setQueryStartTime(getQueryStartTime());
+							UrlVoService.setQueryEndTime(getQueryEndTime());
+							UrlVoService.autoCalcultateByQueryStartTimeAndQueryEndTime();
 	                        emitAsChanged();
 	                    }
 	                };
