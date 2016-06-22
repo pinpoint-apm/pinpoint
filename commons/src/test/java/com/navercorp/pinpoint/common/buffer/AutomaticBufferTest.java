@@ -308,7 +308,7 @@ public class AutomaticBufferTest {
     }
 
     @Test
-    public void test_remaining() throws Exception {
+    public void testRemaining() throws Exception {
         final byte[] bytes = new byte[BytesUtils.INT_BYTE_LENGTH];
         Buffer buffer = new AutomaticBuffer(bytes);
         Assert.assertEquals(buffer.remaining(), 4);
@@ -323,6 +323,45 @@ public class AutomaticBufferTest {
         // remaining size increment is right operation??
         Assert.assertTrue(buffer.remaining() > 0);
         Assert.assertTrue(buffer.hasRemaining());
+
+    }
+
+
+    @Test
+    public void testExpendMultiplier_2multiplier() throws Exception {
+        int bufferSize = 4;
+        Buffer buffer = new AutomaticBuffer(bufferSize);
+
+        buffer.putBytes(new byte[8]);
+        logger.debug("bufferSize:{} offset:{}", buffer.getInternalBuffer().length, buffer.getOffset());
+        Assert.assertEquals(buffer.getInternalBuffer().length, 8);
+
+        buffer.putBytes(new byte[8]);
+
+        logger.debug("bufferSize:{} offset:{}", buffer.getInternalBuffer().length, buffer.getOffset());
+        Assert.assertEquals(buffer.getInternalBuffer().length, 16);
+
+
+        buffer.putBytes(new byte[8]);
+        logger.debug("bufferSize:{} offset:{}", buffer.getInternalBuffer().length, buffer.getOffset());
+        Assert.assertEquals(buffer.getInternalBuffer().length, 32);
+    }
+
+    @Test
+    public void testExpendMultiplier_4multiplier() throws Exception {
+        int bufferSize = 4;
+        Buffer buffer = new AutomaticBuffer(bufferSize);
+
+        buffer.putBytes(new byte[5*4]);
+
+        logger.debug("bufferSize:{} offset:{}", buffer.getInternalBuffer().length, buffer.getOffset());
+        Assert.assertEquals(buffer.getInternalBuffer().length, 32);
+
+        buffer.putBytes(new byte[8*4]);
+
+        logger.debug("bufferSize:{} offset:{}", buffer.getInternalBuffer().length, buffer.getOffset());
+        Assert.assertEquals(buffer.getInternalBuffer().length, 64);
+
 
     }
 
