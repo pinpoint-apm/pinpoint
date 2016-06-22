@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.*;
 import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.dao.MapStatisticsCalleeDao;
 import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
+import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.map.AcceptApplication;
 import com.navercorp.pinpoint.web.service.map.AcceptApplicationLocalCache;
 import com.navercorp.pinpoint.web.service.map.RpcApplication;
@@ -40,6 +41,7 @@ import java.util.*;
  * Breadth-first link search
  * not thread safe
  * @author emeroad
+ * @author minwoo.jung
  */
 public class BFSLinkSelector implements LinkSelector {
 
@@ -58,8 +60,10 @@ public class BFSLinkSelector implements LinkSelector {
     private final Set<LinkData> emulationLinkMarker = new HashSet<>();
 
     private final Queue nextQueue = new Queue();
+    
+    private ServerMapDataFilter serverMapDataFilter;
 
-    public BFSLinkSelector(MapStatisticsCallerDao mapStatisticsCallerDao, MapStatisticsCalleeDao mapStatisticsCalleeDao, HostApplicationMapDao hostApplicationMapDao) {
+    public BFSLinkSelector(MapStatisticsCallerDao mapStatisticsCallerDao, MapStatisticsCalleeDao mapStatisticsCalleeDao, HostApplicationMapDao hostApplicationMapDao, ServerMapDataFilter serverMapDataFilter) {
         if (mapStatisticsCalleeDao == null) {
             throw new NullPointerException("mapStatisticsCalleeDao must not be null");
         }
@@ -72,6 +76,7 @@ public class BFSLinkSelector implements LinkSelector {
         this.mapStatisticsCalleeDao = mapStatisticsCalleeDao;
         this.mapStatisticsCallerDao = mapStatisticsCallerDao;
         this.hostApplicationMapDao = hostApplicationMapDao;
+        this.serverMapDataFilter = serverMapDataFilter;
     }
 
     /**
@@ -115,6 +120,7 @@ public class BFSLinkSelector implements LinkSelector {
                     logger.debug("Found Callee. count={}, callee={}, depth={}", callee.size(), targetApplication, calleeDepth.getDepth());
                 }
                 for (LinkData stat : callee.getLinkDataList()) {
+                    
                     searchResult.addTargetLinkData(stat);
 
                     final Application fromApplication = stat.getFromApplication();
@@ -144,6 +150,14 @@ public class BFSLinkSelector implements LinkSelector {
             return false;
         }
 
+        return filter(targetApplication);
+    }
+    
+    private boolean filter(Application targetApplication) {
+        if (serverMapDataFilter != null && serverMapDataFilter.filter(targetApplication)) {
+          return false;
+        }
+            
         return true;
     }
 
@@ -153,12 +167,13 @@ public class BFSLinkSelector implements LinkSelector {
             return false;
         }
 
+        
         if (linkVisitChecker.visitCallee(targetApplication)) {
             logger.debug("already visited callee:{}", targetApplication);
             return false;
         }
 
-        return true;
+        return filter(targetApplication);
     }
 
 

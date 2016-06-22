@@ -33,6 +33,8 @@ import com.navercorp.pinpoint.web.calltree.span.CallTreeNode;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
+import com.navercorp.pinpoint.web.security.MetaDataFilter;
+import com.navercorp.pinpoint.web.security.MetaDataFilter.MetaData;
 import com.navercorp.pinpoint.web.vo.BusinessTransactions;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.TransactionId;
@@ -65,6 +67,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     @Autowired
     private AnnotationKeyRegistryService annotationKeyRegistryService;
+    
+    @Autowired(required=false)
+    private MetaDataFilter metaDataFilter;
 
     // Temporarily disabled Because We need to solve authentication problem inter system.
     // @Value("#{pinpointWebProps['log.enable'] ?: false}")
@@ -254,7 +259,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                     firstSpan = spanBo;
                 }
             }
-        }
+        };
         // return firstSpan when focus Span could not be found.
         return firstSpan;
     }
@@ -322,6 +327,19 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                     throw new IllegalStateException("CallTree corrupted");
                 }
                 final SpanAlign align = node.getValue();
+                
+                if (metaDataFilter != null && metaDataFilter.filter(align, MetaData.API)) {
+                    if (align.isSpan()) {
+                        Record record = metaDataFilter.createRecord(node, factory);
+                        recordList.add(record);
+                    }
+                    continue;
+                }
+                
+                if (metaDataFilter != null && metaDataFilter.filter(align, MetaData.PARAM)) {
+                    metaDataFilter.replaceAnnotationBo(align, MetaData.PARAM);
+                }
+
                 final String argument = getArgument(align);
                 final Record record = factory.get(node, argument);
                 recordList.add(record);
@@ -333,6 +351,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                         recordList.add(exceptionRecord);
                     }
                 }
+                
                 
                 // add annotation record.
                 if(!align.getAnnotationBoList().isEmpty()) {

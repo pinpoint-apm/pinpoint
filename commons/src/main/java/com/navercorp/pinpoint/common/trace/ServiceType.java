@@ -207,6 +207,8 @@ public interface ServiceType {
     // Java applications, WAS
     ServiceType STAND_ALONE = of(1000, "STAND_ALONE", RECORD_STATISTICS);
     ServiceType TEST_STAND_ALONE = of(1005, "TEST_STAND_ALONE", RECORD_STATISTICS);
+    ServiceType UNAUTHORIZED = of(1007, "UNAUTHORIZED", RECORD_STATISTICS);
+    
 
 
     /**
