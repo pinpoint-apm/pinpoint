@@ -58,7 +58,7 @@ public class AutomaticBuffer extends FixedBuffer {
     protected int computeExpandedBufferSize(final int size, int length, int remain) {
         int expandedBufferSize = 0;
         while (remain < size) {
-            length <<= 2;
+            length <<= 1;
             expandedBufferSize = length;
             remain = expandedBufferSize - offset;
         }
