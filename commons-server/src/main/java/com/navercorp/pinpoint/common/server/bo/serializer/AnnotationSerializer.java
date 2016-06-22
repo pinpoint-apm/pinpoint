@@ -9,6 +9,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.stereotype.Component;
 
+import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,23 +27,24 @@ public class AnnotationSerializer implements HbaseSerializer<SpanBo, Put> {
 
         // TODO  if we can identify whether the columnName is duplicated or not,
         // we can also know whether the span id is duplicated or not.
-        final byte[] spanId = Bytes.toBytes(spanBo.getSpanId());
+        final ByteBuffer spanId = ByteBuffer.wrap(Bytes.toBytes(spanBo.getSpanId()));
 
         final List<AnnotationBo> annotations = spanBo.getAnnotationBoList();
         if (CollectionUtils.isNotEmpty(annotations)) {
-            byte[] bytes = writeAnnotationList(annotations);
-            put.addColumn(TRACES_CF_ANNOTATION, spanId, bytes);
+            ByteBuffer bytes = writeAnnotationList(annotations);
+            final long acceptedTime = put.getTimeStamp();
+            put.addColumn(TRACES_CF_ANNOTATION, spanId, acceptedTime, bytes);
         }
 
     }
 
-    private byte[] writeAnnotationList(List<AnnotationBo> annotationList) {
+    private ByteBuffer writeAnnotationList(List<AnnotationBo> annotationList) {
         final Buffer buffer = new AutomaticBuffer(64);
         return writeAnnotationList(annotationList, buffer);
     }
 
     // for test
-    public byte[] writeAnnotationList(List<AnnotationBo> annotationList, Buffer buffer) {
+    public ByteBuffer writeAnnotationList(List<AnnotationBo> annotationList, Buffer buffer) {
 
         if (annotationList == null) {
             annotationList = Collections.emptyList();
@@ -54,7 +56,7 @@ public class AnnotationSerializer implements HbaseSerializer<SpanBo, Put> {
             writeAnnotation(annotationBo, buffer);
         }
 
-        return buffer.getBuffer();
+        return buffer.wrapByteBuffer();
     }
 
     // for test

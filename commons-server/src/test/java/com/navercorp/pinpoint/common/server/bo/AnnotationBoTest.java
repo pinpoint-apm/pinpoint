@@ -39,17 +39,10 @@ public class AnnotationBoTest {
     
     private AnnotationSerializer serializer = new AnnotationSerializer();
 
+    private AnnotationBoDecoder annotationBoDecoder = new AnnotationBoDecoder();
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Test
-    public void testGetVersion() throws Exception {
-
-    }
-
-    @Test
-    public void testSetVersion() throws Exception {
-
-    }
 
     @Test
     public void testWriteValue() throws Exception {
@@ -75,6 +68,19 @@ public class AnnotationBoTest {
         Assert.assertEquals(annotation.getKey(), bo2.getKey());
         Assert.assertEquals(annotation.getValueType(), bo2.getValueType());
         Assert.assertArrayEquals(annotation.getByteValue(), bo2.getByteValue());
+
+        buffer.setOffset(0);
+        AnnotationBo decodedAnnotation = annotationBoDecoder.decodeAnnotation(buffer);
+        Assert.assertEquals(annotation.getKey(), decodedAnnotation.getKey());
+        Assert.assertEquals(annotation.getValueType(), decodedAnnotation.getValueType());
+        Assert.assertArrayEquals(annotation.getByteValue(), decodedAnnotation.getByteValue());
+
+        int i = 256<<1;
+        System.out.println(i);
+        i = i<<2;
+        System.out.println(i);
+        i = i<<2;
+        System.out.println(i);
     }
 
 

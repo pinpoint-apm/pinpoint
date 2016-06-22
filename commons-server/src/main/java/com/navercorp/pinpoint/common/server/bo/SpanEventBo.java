@@ -394,6 +394,13 @@ public class SpanEventBo implements Span {
         return exceptionClass;
     }
 
+    public void setExceptionInfo(int exceptionId, String exceptionMessage) {
+        this.hasException = true;
+        this.exceptionId = exceptionId;
+        this.exceptionMessage = exceptionMessage;
+    }
+
+
     public void setExceptionClass(String exceptionClass) {
         this.exceptionClass = exceptionClass;
     }
@@ -461,6 +468,7 @@ public class SpanEventBo implements Span {
         return buffer.getBuffer();
     }
 
+    @Deprecated
     private void writeAnnotation(Buffer buffer) {
         AnnotationBoList annotationBo = new AnnotationBoList(this.annotationBoList);
         annotationBo.writeValue(buffer);
@@ -471,9 +479,6 @@ public class SpanEventBo implements Span {
         final Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
 
         this.version = buffer.readByte();
-
-        // this.mostTraceID = buffer.readLong();
-        // this.leastTraceID = buffer.readLong();
 
         this.agentId = buffer.readPrefixedString();
         this.applicationId = buffer.readPrefixedString();
@@ -509,6 +514,7 @@ public class SpanEventBo implements Span {
         return buffer.getOffset();
     }
 
+    @Deprecated
     private List<AnnotationBo> readAnnotation(Buffer buffer) {
         AnnotationBoList annotationBoList = new AnnotationBoList();
         annotationBoList.readValue(buffer);

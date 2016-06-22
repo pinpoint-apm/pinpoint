@@ -5,11 +5,11 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
-import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.hadoop.hbase.client.Put;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 
 import static com.navercorp.pinpoint.common.hbase.HBaseTables.TRACES_CF_TERMINALSPAN;
@@ -22,31 +22,34 @@ public class SpanEventSerializer implements HbaseSerializer<SpanEventBo, Put> {
 
     private AnnotationSerializer annotationSerializer;
 
-    private AcceptedTimeService acceptedTimeService;
-
     @Autowired
     public void setAnnotationSerializer(AnnotationSerializer annotationSerializer) {
         this.annotationSerializer = annotationSerializer;
     }
 
-    @Autowired
-    public void setAcceptedTimeService(AcceptedTimeService acceptedTimeService) {
-        this.acceptedTimeService = acceptedTimeService;
-    }
-
     @Override
     public void serialize(SpanEventBo spanEventBo, Put put, SerializationContext context) {
 
-        byte[] rowId = BytesUtils.add(spanEventBo.getSpanId(), spanEventBo.getSequence(), spanEventBo.getAsyncId(), spanEventBo.getAsyncSequence());
+        ByteBuffer rowId = writeQualifier(spanEventBo);
 
-        final byte[] value = writeValue(spanEventBo);
-        final long acceptedTime = acceptedTimeService.getAcceptedTime();
+        final ByteBuffer value = writeValue(spanEventBo);
+
+        final long acceptedTime = put.getTimeStamp();
 
         put.addColumn(TRACES_CF_TERMINALSPAN, rowId, acceptedTime, value);
 
     }
 
-    public byte[] writeValue(SpanEventBo spanEventBo) {
+    private ByteBuffer writeQualifier(SpanEventBo spanEventBo) {
+        final Buffer rowId = new AutomaticBuffer();
+        rowId.putLong(spanEventBo.getSpanId());
+        rowId.putShort(spanEventBo.getSequence());
+        rowId.putInt(spanEventBo.getAsyncId());
+        rowId.putShort(spanEventBo.getAsyncSequence());
+        return rowId.wrapByteBuffer();
+    }
+
+    public ByteBuffer writeValue(SpanEventBo spanEventBo) {
         final Buffer buffer = new AutomaticBuffer(512);
 
         buffer.putByte(spanEventBo.getVersion());
@@ -82,7 +85,7 @@ public class SpanEventSerializer implements HbaseSerializer<SpanEventBo, Put> {
 
         buffer.putSVInt(spanEventBo.getNextAsyncId());
 
-        return buffer.getBuffer();
+        return buffer.wrapByteBuffer();
     }
 
 }

@@ -3,11 +3,11 @@ package com.navercorp.pinpoint.common.server.bo.serializer;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.nio.ByteBuffer;
 
 import static com.navercorp.pinpoint.common.hbase.HBaseTables.TRACES_CF_SPAN;
 /**
@@ -16,29 +16,22 @@ import static com.navercorp.pinpoint.common.hbase.HBaseTables.TRACES_CF_SPAN;
 @Component
 public class SpanSerializer implements HbaseSerializer<SpanBo, Put> {
 
-    private AcceptedTimeService acceptedTimeService;
-
-    @Autowired
-    public void setAcceptedTimeService(AcceptedTimeService acceptedTimeService) {
-        this.acceptedTimeService = acceptedTimeService;
-    }
-
     @Override
     public void serialize(SpanBo spanBo, Put put, SerializationContext context) {
 
-        byte[] columnValue = writeColumnValue(spanBo);
+        ByteBuffer columnValue = writeColumnValue(spanBo);
 
         // TODO  if we can identify whether the columnName is duplicated or not,
         // we can also know whether the span id is duplicated or not.
-        byte[] spanId = Bytes.toBytes(spanBo.getSpanId());
+        ByteBuffer spanId = ByteBuffer.wrap(Bytes.toBytes(spanBo.getSpanId()));
 
-        long acceptedTime = acceptedTimeService.getAcceptedTime();
+        long acceptedTime = put.getTimeStamp();
         put.addColumn(TRACES_CF_SPAN, spanId, acceptedTime, columnValue);
 
     }
 
     // Variable encoding has been added in case of write io operation. The data size can be reduced by about 10%.
-    public byte[] writeColumnValue(SpanBo span) {
+    public ByteBuffer writeColumnValue(SpanBo span) {
         /*
            It is difficult to calculate the size of buffer. It's not impossible.
            However just use automatic incremental buffer for convenience's sake.
@@ -92,6 +85,6 @@ public class SpanSerializer implements HbaseSerializer<SpanBo, Put> {
         buffer.putByte(span.getLoggingTransactionInfo());
         buffer.putPrefixedString(span.getAcceptorHost());
 
-        return buffer.getBuffer();
+        return buffer.wrapByteBuffer();
     }
 }
