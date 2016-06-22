@@ -407,7 +407,11 @@ public class SpanBo implements Span {
             return this.serviceType;
         }
     }
-    
+
+    /**
+     * @see com.navercorp.pinpoint.common.trace.LoggingInfo
+     * @return loggingInfo key
+     */
     public byte getLoggingTransactionInfo() {
         return loggingTransactionInfo;
     }
@@ -482,9 +486,6 @@ public class SpanBo implements Span {
         final Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
 
         this.version = buffer.readByte();
-
-        // this.mostTraceID = buffer.readLong();
-        // this.leastTraceID = buffer.readLong();
 
         this.agentId = buffer.readPrefixedString();
         this.agentStartTime = buffer.readVLong();

@@ -25,6 +25,7 @@ import java.util.List;
 /**
  * @author emeroad
  */
+@Deprecated
 public class AnnotationBoList {
 
     private List<AnnotationBo> annotationBoList;
@@ -40,7 +41,7 @@ public class AnnotationBoList {
 
     public AnnotationBoList(List<AnnotationBo> annotationBoList) {
         if (annotationBoList == null) {
-            this.annotationBoList = Collections.emptyList();
+            this.annotationBoList = new ArrayList<>();
             return;
         }
         this.annotationBoList = annotationBoList;
@@ -64,6 +65,7 @@ public class AnnotationBoList {
         }
     }
 
+    @Deprecated
     public void readValue(Buffer reader) {
         int size = reader.readVInt();
         if (size == 0) {

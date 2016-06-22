@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
+import java.nio.ByteBuffer;
+
 /**
  * @author emeroad
  */
@@ -83,16 +85,16 @@ public class SpanBoTest {
 
         spanBo.setExceptionInfo(1000, "Exception");
 
-        byte[] bytes = spanSerializer.writeColumnValue(spanBo);
-        byte[] deprecated = spanBo.writeValue();
+        ByteBuffer bytes = spanSerializer.writeColumnValue(spanBo);
+        ByteBuffer deprecated = ByteBuffer.wrap(spanBo.writeValue());
 
-        logger.debug("length:{}", bytes.length);
-        Assert.assertArrayEquals(bytes, deprecated);
+        logger.debug("length:{}", bytes.remaining());
+        Assert.assertEquals(bytes, deprecated);
 
         SpanBo newSpanBo = new SpanBo();
-        int i = newSpanBo.readValue(bytes, 0, bytes.length);
+        int i = newSpanBo.readValue(bytes.array(), bytes.arrayOffset(), bytes.remaining());
         logger.debug("length:{}", i);
-        Assert.assertEquals(bytes.length, i);
+        Assert.assertEquals(bytes.limit(), i);
         Assert.assertEquals(newSpanBo.getAgentId(), spanBo.getAgentId());
         Assert.assertEquals(newSpanBo.getApplicationId(), spanBo.getApplicationId());
         Assert.assertEquals(newSpanBo.getAgentStartTime(), spanBo.getAgentStartTime());
@@ -134,15 +136,15 @@ public class SpanBoTest {
         spanBo.setServiceType(ServiceType.STAND_ALONE.getCode());
         spanBo.setApplicationServiceType(ServiceType.UNKNOWN.getCode());
 
-        final byte[] bytes = spanSerializer.writeColumnValue(spanBo);
-        byte[] deprecated = spanBo.writeValue();
-        logger.debug("length:{}", bytes.length);
-        Assert.assertArrayEquals(bytes, deprecated);
+        final ByteBuffer bytes = spanSerializer.writeColumnValue(spanBo);
+        ByteBuffer deprecated = ByteBuffer.wrap(spanBo.writeValue());
+        logger.debug("length:{}", bytes.remaining());
+        Assert.assertEquals(bytes, deprecated);
 
         SpanBo newSpanBo = new SpanBo();
-        int i = newSpanBo.readValue(bytes, 0, bytes.length);
+        int i = newSpanBo.readValue(bytes.array(), bytes.arrayOffset(), bytes.remaining());
         logger.debug("length:{}", i);
-        Assert.assertEquals(bytes.length, i);
+        Assert.assertEquals(bytes.limit(), i);
         
         Assert.assertEquals(spanBo.getServiceType(), spanBo.getServiceType());
         Assert.assertEquals(spanBo.getApplicationServiceType(), spanBo.getApplicationServiceType());

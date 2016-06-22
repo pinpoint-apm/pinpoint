@@ -79,8 +79,11 @@ public class HbaseTraceDao implements TracesDao {
 
         final SpanBo spanBo = new SpanBo(span);
 
+        long acceptedTime = acceptedTimeService.getAcceptedTime();
+        spanBo.setCollectorAcceptTime(acceptedTime);
+
         final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(span));
-        final Put put = new Put(rowKey);
+        final Put put = new Put(rowKey, acceptedTime);
 
         this.spanSerializer.serialize(spanBo, put, null);
         this.annotationSerializer.serialize(spanBo, put, null);
@@ -114,7 +117,8 @@ public class HbaseTraceDao implements TracesDao {
     @Override
     public void insertSpanChunk(TSpanChunk spanChunk) {
         final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(spanChunk));
-        final Put put = new Put(rowKey);
+        final long acceptedTime = acceptedTimeService.getAcceptedTime();
+        final Put put = new Put(rowKey, acceptedTime);
 
         final List<TSpanEvent> spanEventBoList = spanChunk.getSpanEventList();
         if (CollectionUtils.isEmpty(spanEventBoList)) {

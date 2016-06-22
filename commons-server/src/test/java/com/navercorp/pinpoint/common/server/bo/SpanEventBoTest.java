@@ -23,7 +23,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import java.nio.ByteBuffer;
 
 /**
  * @author emeroad
@@ -60,13 +61,13 @@ public class SpanEventBoTest {
         spanEventBo.setStartElapsed(100);
         spanEventBo.setNextAsyncId(1000);
 
-        byte[] deprecatedBytes = spanEventBo.writeValue();
-        byte[] bytes = serializer.writeValue(spanEventBo);
-        Assert.assertArrayEquals(bytes, deprecatedBytes);
+        ByteBuffer deprecatedBytes = ByteBuffer.wrap(spanEventBo.writeValue());
+        ByteBuffer bytes = serializer.writeValue(spanEventBo);
+        Assert.assertEquals(bytes, deprecatedBytes);
 
         SpanEventBo newSpanEventBo = new SpanEventBo();
-        int i = newSpanEventBo.readValue(bytes, 0, bytes.length);
-        Assert.assertEquals(bytes.length, i);
+        int i = newSpanEventBo.readValue(bytes.array(), bytes.arrayOffset(), bytes.remaining());
+        Assert.assertEquals(bytes.limit(), i);
 
 
         Assert.assertEquals(spanEventBo.getAgentId(), newSpanEventBo.getAgentId());

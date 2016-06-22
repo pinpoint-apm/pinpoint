@@ -16,7 +16,10 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.AnnotationBoDecoder;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
@@ -42,6 +45,8 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private AnnotationMapper annotationMapper;
+
+    private final AnnotationBoDecoder annotationBoDecoder = new AnnotationBoDecoder();
 
     public AnnotationMapper getAnnotationMapper() {
         return annotationMapper;
@@ -75,7 +80,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
                 spanBo.setCollectorAcceptTime(cell.getTimestamp());
 
                 spanBo.setSpanID(Bytes.toLong(cell.getQualifierArray(), cell.getQualifierOffset()));
-                spanBo.readValue(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+                readSpan(spanBo, cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
                 if (logger.isDebugEnabled()) {
                     logger.debug("read span :{}", spanBo);
                 }
@@ -87,29 +92,25 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
                 spanEventBo.setTraceAgentStartTime(transactionId.getAgentStartTime());
                 spanEventBo.setTraceTransactionSequence(transactionId.getTransactionSequence());
 
-                int offset = 0;
                 // qualifier : spanId(long) + sequence(short) + asyncId(int)
-                long spanId = Bytes.toLong(cell.getQualifierArray(), cell.getQualifierOffset());
+                final Buffer qualifier = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
+                long spanId = qualifier.readLong();
 
-                // because above spanId type is "long", so offset is 8
-                offset += Bytes.SIZEOF_LONG;
-                short sequence = Bytes.toShort(cell.getQualifierArray(), cell.getQualifierOffset() + offset);
+                short sequence = qualifier.readShort();
                 int asyncId = -1;
-                offset += Bytes.SIZEOF_SHORT;
-                if (cell.getQualifierLength() > offset) {
-                    asyncId = Bytes.toInt(cell.getQualifierArray(), cell.getQualifierOffset() + offset);
+                if (qualifier.hasRemaining()) {
+                    asyncId = qualifier.readInt();
                 }
                 short asyncSequence = -1;
-                offset += Bytes.SIZEOF_INT;
-                if(cell.getQualifierLength() > offset) {
-                    asyncSequence = Bytes.toShort(cell.getQualifierArray(), cell.getQualifierOffset() + offset);
+                if (qualifier.hasRemaining()) {
+                    asyncSequence = qualifier.readShort();
                 }
                 spanEventBo.setSpanId(spanId);
                 spanEventBo.setSequence(sequence);
                 spanEventBo.setAsyncId(asyncId);
                 spanEventBo.setAsyncSequence(asyncSequence);
-                
-                spanEventBo.readValue(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+
+                readSpanEvent(spanEventBo, cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
                 if (logger.isDebugEnabled()) {
                     logger.debug("read spanEvent :{}", spanEventBo);
                 }
@@ -139,4 +140,100 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
             bo.setAnnotationBoList(anoList);
         }
     }
+
+    // for test
+    public int readSpanEvent(final SpanEventBo spanEvent, byte[] bytes, int offset, int length) {
+        final Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
+
+        spanEvent.setVersion(buffer.readByte());
+
+        spanEvent.setAgentId(buffer.readPrefixedString());
+        spanEvent.setApplicationId(buffer.readPrefixedString());
+        spanEvent.setAgentStartTime(buffer.readVLong());
+
+        spanEvent.setStartElapsed(buffer.readVInt());
+        spanEvent.setEndElapsed(buffer.readVInt());
+
+        // don't need to get sequence because it can be got at Qualifier
+        // this.sequence = buffer.readShort();
+
+
+        spanEvent.setRpc(buffer.readPrefixedString());
+        spanEvent.setServiceType(buffer.readShort());
+        spanEvent.setEndPoint(buffer.readPrefixedString());
+        spanEvent.setDestinationId(buffer.readPrefixedString());
+        spanEvent.setApiId(buffer.readSVInt());
+
+        spanEvent.setDepth(buffer.readSVInt());
+        spanEvent.setNextSpanId(buffer.readLong());
+
+        final boolean hasException = buffer.readBoolean();
+        if (hasException) {
+            spanEvent.setExceptionInfo(buffer.readSVInt(), buffer.readPrefixedString());
+        }
+
+        final List<AnnotationBo> annotationBoList = annotationBoDecoder.decode(buffer);
+        spanEvent.setAnnotationBoList(annotationBoList);
+        if (buffer.hasRemaining()) {
+            spanEvent.setNextAsyncId(buffer.readSVInt());
+        }
+
+        return buffer.getOffset();
+    }
+
+    // for test
+    public int readSpan(SpanBo span, byte[] bytes, int offset, int length) {
+        final Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
+
+        span.setVersion(buffer.readByte());
+
+        span.setAgentId(buffer.readPrefixedString());
+        span.setAgentStartTime(buffer.readVLong());
+
+        // this.spanID = buffer.readLong();
+        span.setParentSpanId(buffer.readLong());
+
+        span.setStartTime(buffer.readVLong());
+        span.setElapsed(buffer.readVInt());
+
+        span.setRpc(buffer.readPrefixedString());
+        span.setApplicationId(buffer.readPrefixedString());
+        span.setServiceType(buffer.readShort());
+        span.setEndPoint(buffer.readPrefixedString());
+        span.setRemoteAddr(buffer.readPrefixedString());
+        span.setApiId(buffer.readSVInt());
+
+        span.setErrCode(buffer.readSVInt());
+
+        final boolean hasException = buffer.readBoolean();
+        if (hasException) {
+            int exceptionId = buffer.readSVInt();
+            String exceptionMessage = buffer.readPrefixedString();
+            span.setExceptionInfo(exceptionId, exceptionMessage);
+
+        }
+
+        span.setFlag(buffer.readShort());
+
+        // FIXME (2015.03) Legacy - applicationServiceType added in v1.1.0
+        // Defaults to span's service type for older versions where applicationServiceType does not exist.
+        if (buffer.hasRemaining()) {
+            final boolean hasApplicationServiceType = buffer.readBoolean();
+            if (hasApplicationServiceType) {
+                span.setApplicationServiceType(buffer.readShort());
+            }
+        }
+
+        if (buffer.hasRemaining()) {
+            span.setLoggingTransactionInfo(buffer.readByte());
+        }
+
+        if (buffer.hasRemaining()) {
+            span.setAcceptorHost(buffer.readPrefixedString());
+        }
+
+        return buffer.getOffset();
+    }
+
+
 }
