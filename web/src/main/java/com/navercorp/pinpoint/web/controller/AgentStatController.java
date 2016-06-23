@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -134,6 +135,7 @@ public class AgentStatController {
         return this.agentInfoService.getApplicationAgentList(ApplicationAgentList.Key.HOST_NAME, applicationName);
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params = {"application", "from", "to"})
     @ResponseBody
     public ApplicationAgentList getAgentList(

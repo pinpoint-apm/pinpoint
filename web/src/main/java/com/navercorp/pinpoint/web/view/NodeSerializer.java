@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.web.applicationmap.Node;
 import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
+import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
+import com.navercorp.pinpoint.web.vo.Application;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -30,22 +32,28 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  * @author emeroad
+ * @author minwoo.jung
  */
 public class NodeSerializer extends JsonSerializer<Node>  {
+    
+    @Autowired(required=false)
+    private ServerMapDataFilter serverMapDataFilter;
+    
     @Override
     public void serialize(Node node, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+        final boolean isAuthorized = check(node.getApplication());
+        
         jgen.writeStartObject();
 //        jgen.writeStringField("id", node.getNodeName());
-        jgen.writeStringField("key", node.getNodeName()); // necessary for go.js
+        jgen.writeStringField("key", node.getNodeName(isAuthorized)); // necessary for go.js
 
         jgen.writeStringField("applicationName", node.getApplicationTextName()); // for go.js
-
-        jgen.writeStringField("category", node.getServiceType().toString());  // necessary for go.js
-        jgen.writeStringField("serviceType", node.getServiceType().toString());
-
-        final ServiceType serviceType = node.getApplication().getServiceType();
+        jgen.writeBooleanField("isAuthorized", isAuthorized);
+        writeServiceTypeInfo(jgen, node, isAuthorized);
 //        if (serviceType.isUser()) {
 //            jgen.writeStringField("fig", "Ellipse");
 //        } else if(serviceType.isWas()) {
@@ -54,14 +62,18 @@ public class NodeSerializer extends JsonSerializer<Node>  {
 //            jgen.writeStringField("fig", "Rectangle");
 //        }
 
-        jgen.writeStringField("serviceTypeCode", Short.toString(serviceType.getCode()));
 //        jgen.writeStringField("terminal", Boolean.toString(serviceType.isTerminal()));
-        jgen.writeBooleanField("isWas", serviceType.isWas());  // for go.js
-        jgen.writeBooleanField("isQueue", serviceType.isQueue());
+        writeHistogram(jgen, node, isAuthorized);
+        writeServerList(jgen, node, isAuthorized);
 
-
-
-        writeHistogram(jgen, node);
+        jgen.writeEndObject();
+    }
+    
+    private void writeServerList(JsonGenerator jgen, Node node, boolean isAuthorized) throws IOException {
+        if (isAuthorized == false) {
+            return;
+        }
+        
         if (node.getServiceType().isUnknown()) {
             writeEmptyObject(jgen, "serverList");
             jgen.writeNumberField("instanceCount", 0);
@@ -75,11 +87,28 @@ public class NodeSerializer extends JsonSerializer<Node>  {
                 jgen.writeNumberField("instanceCount", 0);
             }
         }
+    }
+    
+    private void writeServiceTypeInfo(JsonGenerator jgen, Node node, boolean isAuthorized) throws IOException {
+        if (isAuthorized) {
+            jgen.writeStringField("category", node.getServiceType().toString());  // necessary for go.js
+            jgen.writeStringField("serviceType", node.getServiceType().toString());
+            jgen.writeStringField("serviceTypeCode", Short.toString(node.getServiceType().getCode()));
+        } else {
+            jgen.writeStringField("category", ServiceType.UNAUTHORIZED.toString());  // necessary for go.js
+            jgen.writeStringField("serviceType", ServiceType.UNAUTHORIZED.toString());
+            jgen.writeStringField("serviceTypeCode", Short.toString(ServiceType.UNAUTHORIZED.getCode()));
+        }
 
-        jgen.writeEndObject();
+        jgen.writeBooleanField("isWas", node.getServiceType().isWas());  // for go.js
+        jgen.writeBooleanField("isQueue", node.getServiceType().isQueue());
     }
 
-    private void writeHistogram(JsonGenerator jgen, Node node) throws IOException {
+    private void writeHistogram(JsonGenerator jgen, Node node, boolean isAuthorized) throws IOException {
+        if (isAuthorized == false) {
+            return;
+        }
+        
         final ServiceType serviceType = node.getServiceType();
         final NodeHistogram nodeHistogram = node.getNodeHistogram();
         // FIXME isn't this all ServiceTypes that can be a node?
@@ -107,7 +136,8 @@ public class NodeSerializer extends JsonSerializer<Node>  {
             }
 
             Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
-            if(agentHistogramMap == null) {
+            
+            if(agentHistogramMap == null || isAuthorized) {
                 writeEmptyObject(jgen, "agentHistogram");
             } else {
                 jgen.writeObjectField("agentHistogram", agentHistogramMap);
@@ -123,7 +153,6 @@ public class NodeSerializer extends JsonSerializer<Node>  {
             } else {
                 jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesHistogram);
             }
-
             AgentResponseTimeViewModelList agentTimeSeriesHistogram = nodeHistogram.getAgentTimeHistogram();
             jgen.writeObject(agentTimeSeriesHistogram);
         }
@@ -139,6 +168,13 @@ public class NodeSerializer extends JsonSerializer<Node>  {
         jgen.writeFieldName(fieldName);
         jgen.writeStartObject();
         jgen.writeEndObject();
+    }
+    
+    private boolean check(Application application) {
+        if (serverMapDataFilter != null && serverMapDataFilter.filter(application)) {
+            return false;
+        }
+        return true;
     }
 
 

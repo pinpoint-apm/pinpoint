@@ -113,8 +113,8 @@ public class Link {
         return toNode;
     }
 
-    public String getLinkName() {
-        return fromNode.getNodeName() + LINK_DELIMITER + toNode.getNodeName();
+    public String getLinkName(boolean isAuthFromApp, boolean isAuthToApp) {
+        return fromNode.getNodeName(isAuthFromApp) + LINK_DELIMITER + toNode.getNodeName(isAuthToApp);
     }
 
     public LinkCallDataMap getSourceLinkCallDataMap() {

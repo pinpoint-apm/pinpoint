@@ -39,6 +39,8 @@ import com.navercorp.pinpoint.web.dao.ApiMetaDataDao;
 import com.navercorp.pinpoint.web.dao.SqlMetaDataDao;
 import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
+import com.navercorp.pinpoint.web.security.MetaDataFilter;
+import com.navercorp.pinpoint.web.security.MetaDataFilter.MetaData;
 import com.navercorp.pinpoint.web.vo.TransactionId;
 
 import org.apache.commons.lang3.StringUtils;
@@ -49,6 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author emeroad
  * @author jaehong.kim
+ * @author minwoo.jung
  */
 //@Service
 public class SpanServiceImpl implements SpanService {
@@ -60,6 +63,9 @@ public class SpanServiceImpl implements SpanService {
 
 //    @Autowired
     private SqlMetaDataDao sqlMetaDataDao;
+    
+    @Autowired(required=false)
+    private MetaDataFilter metaDataFilter;
 
     @Autowired
     private ApiMetaDataDao apiMetaDataDao;
@@ -122,6 +128,11 @@ public class SpanServiceImpl implements SpanService {
             public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
                 AnnotationBo sqlIdAnnotation = findAnnotation(annotationBoList, AnnotationKey.SQL_ID.getCode());
                 if (sqlIdAnnotation == null) {
+                    return;
+                }
+                if (metaDataFilter != null && metaDataFilter.filter(spanAlign, MetaData.SQL)) {
+                    AnnotationBo annotationBo = metaDataFilter.createAnnotationBo(spanAlign, MetaData.SQL);
+                    annotationBoList.add(annotationBo);
                     return;
                 }
 

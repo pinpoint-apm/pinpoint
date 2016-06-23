@@ -84,8 +84,12 @@ public class Node {
     }
 
 
-    public String getNodeName() {
-        return application.getName() + NODE_DELIMITER + application.getServiceType();
+    public String getNodeName(boolean isAuthorized) {
+        if (isAuthorized) {
+            return application.getName() + NODE_DELIMITER + application.getServiceType();
+        }
+        
+        return application.getName() + NODE_DELIMITER + ServiceType.UNAUTHORIZED.toString();
     }
 
     public ServiceType getServiceType() {

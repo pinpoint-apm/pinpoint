@@ -37,7 +37,8 @@ public class AnnotationBo {
     private byte valueType;
     private byte[] byteValue;
     private Object value;
-
+    private boolean isAuthorized = true;
+    
     public AnnotationBo() {
     }
 
@@ -112,6 +113,15 @@ public class AnnotationBo {
     public void setValue(Object value) {
         this.value = value;
     }
+
+    public boolean isAuthorized() {
+        return isAuthorized;
+    }
+
+    public void setAuthorized(boolean isAuthorized) {
+        this.isAuthorized = isAuthorized;
+    }
+
 
     @Deprecated
     public void writeValue(Buffer buffer) {
