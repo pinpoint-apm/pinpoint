@@ -135,8 +135,6 @@ public interface AnnotationKey {
     AnnotationKey ERROR_API_METADATA_NOT_FOUND = AnnotationKeyFactory.of(10000013, "API-METADATA-NOT-FOUND", ERROR_API_METADATA);
     // when the same hashId of meta data exists
     AnnotationKey ERROR_API_METADATA_DID_COLLSION = AnnotationKeyFactory.of(10000014, "API-METADATA-DID-COLLSION", ERROR_API_METADATA);
-    
-    AnnotationKey API_METADATA_NOT_AUTHORIZATION = AnnotationKeyFactory.of(10000015, "you don't have authorization for method's information.", ERROR_API_METADATA);
 
     // it's not clear to handle a error code.  so ApiMetaDataError with searching ERROR_API_META_DATA has been used.
     // automatically generated id
