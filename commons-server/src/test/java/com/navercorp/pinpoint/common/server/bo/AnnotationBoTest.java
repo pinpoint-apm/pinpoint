@@ -75,12 +75,6 @@ public class AnnotationBoTest {
         Assert.assertEquals(annotation.getValueType(), decodedAnnotation.getValueType());
         Assert.assertArrayEquals(annotation.getByteValue(), decodedAnnotation.getByteValue());
 
-        int i = 256<<1;
-        System.out.println(i);
-        i = i<<2;
-        System.out.println(i);
-        i = i<<2;
-        System.out.println(i);
     }
 
 
