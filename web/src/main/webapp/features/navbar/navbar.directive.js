@@ -273,12 +273,15 @@
 	                        return;
 	                    }
 	                    oNavbarVoService.setApplication(scope.application);
+						UrlVoService.setApplication(scope.application);
 
 						scope.callee = prevCallee = preferenceService.getCalleeByApp(scope.application);
 	                    scope.caller = prevCaller = preferenceService.getCallerByApp(scope.application);
 
 						oNavbarVoService.setCalleeRange( scope.callee );
 	                    oNavbarVoService.setCallerRange( scope.caller );
+						UrlVoService.setCallee( scope.callee );
+						UrlVoService.setCaller( scope.caller );
 
 	                    if (scope.periodType === cfg.periodType.LAST && scope.readablePeriod) {
 							oNavbarVoService.setPeriodType( cfg.periodType.LAST );
