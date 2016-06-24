@@ -137,7 +137,7 @@ public class NodeSerializer extends JsonSerializer<Node>  {
 
             Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
             
-            if(agentHistogramMap == null || isAuthorized) {
+            if(agentHistogramMap == null) {
                 writeEmptyObject(jgen, "agentHistogram");
             } else {
                 jgen.writeObjectField("agentHistogram", agentHistogramMap);
