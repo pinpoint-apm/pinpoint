@@ -64,19 +64,21 @@
 
 	            $timeout(function () {
 					var resizerY = webStorage.get( cfg.TRANSACTION_LIST_RESIZER ) === null ? (window.innerHeight - 40) / 2 : parseInt( webStorage.get( cfg.TRANSACTION_LIST_RESIZER ) );
-	                $("#main-container").layout({
-	                    north__minSize: 20,
-	                    north__size: resizerY,
-	//                north__spacing_closed: 20,
-	//                north__togglerLength_closed: 100,
-	//                north__togglerAlign_closed: "top",
-	                    center__maskContents: true, // IMPORTANT - enable iframe masking
-						onresize: function() {
-							if ( arguments[0] === "north" ) {
-								webStorage.add(cfg.TRANSACTION_LIST_RESIZER, arguments[2].innerHeight);
+	                if( $("#main-container").length !== 0 ) {
+						$("#main-container").layout({
+							north__minSize: 20,
+							north__size: resizerY,
+							//                north__spacing_closed: 20,
+							//                north__togglerLength_closed: 100,
+							//                north__togglerAlign_closed: "top",
+							center__maskContents: true, // IMPORTANT - enable iframe masking
+							onresize: function () {
+								if (arguments[0] === "north") {
+									webStorage.add(cfg.TRANSACTION_LIST_RESIZER, arguments[2].innerHeight);
+								}
 							}
-						}
-	                });
+						});
+					}
 	            }, 100);
 	
 	        }, 100);
