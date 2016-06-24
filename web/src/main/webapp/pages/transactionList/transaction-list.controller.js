@@ -13,8 +13,8 @@
 		TRANSACTION_LIST_RESIZER: "transactionList.resizer"
 	});
 	
-	pinpointApp.controller("TransactionListCtrl", ["TransactionListConfig", "$scope", "$location", "$routeParams", "$rootScope", "$timeout", "$window", "$http", "webStorage", "TimeSliderVoService", "TransactionDaoService", "AnalyticsService", "helpContentService",
-	    function (cfg, $scope, $location, $routeParams, $rootScope, $timeout, $window, $http, webStorage, TimeSliderVoService, oTransactionDaoService, analyticsService, helpContentService) {
+	pinpointApp.controller("TransactionListCtrl", ["TransactionListConfig", "$scope", "$location", "locationService", "$routeParams", "$rootScope", "$timeout", "$window", "$http", "webStorage", "TimeSliderVoService", "TransactionDaoService", "AnalyticsService", "helpContentService",
+	    function (cfg, $scope, $location, locationService, $routeParams, $rootScope, $timeout, $window, $http, webStorage, TimeSliderVoService, oTransactionDaoService, analyticsService, helpContentService) {
 			analyticsService.send(analyticsService.CONST.TRANSACTION_LIST_PAGE);
 	        // define private variables
 	        var nFetchCount, nLastFetchedIndex, htTransactionInfo, htTransactionData, oTimeSliderVoService;
@@ -82,7 +82,7 @@
 	        }, 100);
 			alertAndMove = function( msg ) {
 				alert( msg );
-				$window.location.replace( $window.location.href.replace( "transactionList", "main" ) );
+				locationService.path( "/main/" + $routeParams.application + "/" + $routeParams.readablePeriod + "/" + $routeParams.queryEndDateTime ).replace();
 			};
 
 			initAndLoad = function(bHasTransactionInfo) {

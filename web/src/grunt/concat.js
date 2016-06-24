@@ -185,7 +185,7 @@ module.exports = function( grunt, options ) {
 				'/features/serverList/server-list.directive.js',
 				'/features/agentList/agent-list.directive.js',
 				'/features/agentInfo/agent-info.directive.js',
-				'/features/time-slider/time-slider.directive.js',
+				'/features/timeSlider/time-slider.directive.js',
 				'/features/transactionTable/transaction-table.directive.js',
 				'/features/timeline/timeline.directive.js',
 				'/features/agentChartGroup/agent-chart-group.directive.js',
