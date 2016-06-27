@@ -119,7 +119,7 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
 
     protected abstract void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable);
 
-    private AsyncTraceId getAsyncTraceId(Object target) {
+    protected AsyncTraceId getAsyncTraceId(Object target) {
         return target != null && target instanceof AsyncTraceIdAccessor ? ((AsyncTraceIdAccessor) target)._$PINPOINT$_getAsyncTraceId() : null;
     }
 
