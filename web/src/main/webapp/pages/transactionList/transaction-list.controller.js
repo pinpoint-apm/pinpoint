@@ -57,7 +57,7 @@
 						alertAndMove(helpContentService.transactionList.openError.noParent);
 					} else {
 						htTransactionInfo = getTransactionInfoFromURL();
-						htTransactionData = [[ aParamTransactionInfo[1], aParamTransactionInfo[2], aParamTransactionInfo[0] ]];
+						htTransactionData = [[ aParamTransactionInfo[0], aParamTransactionInfo[1], aParamTransactionInfo[2] ]];
 						initAndLoad( bHasTransactionInfo );
 					}
 				}
