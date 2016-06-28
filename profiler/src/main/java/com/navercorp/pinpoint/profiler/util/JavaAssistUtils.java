@@ -230,6 +230,16 @@ public final class JavaAssistUtils {
         return objectType;
     }
 
+    public static String javaClassNameToObjectName(String javaClassName) {
+        final char scheme = javaClassName.charAt(0);
+        switch (scheme) {
+            case '[':
+                return toArrayType(javaClassName);
+            default:
+                return javaClassName;
+        }
+    }
+
     private static String byteCodeSignatureToObjectType(String signature, int startIndex) {
         final char scheme = signature.charAt(startIndex);
         switch (scheme) {
