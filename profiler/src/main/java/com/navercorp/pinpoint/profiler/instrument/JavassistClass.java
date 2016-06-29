@@ -342,7 +342,10 @@ public class JavassistClass implements InstrumentClass {
             final AccessorAnalyzer accessorAnalyzer = new AccessorAnalyzer();
             final AccessorDetails accessorDetails = accessorAnalyzer.analyze(accessorType);
 
-            final CtField newField = CtField.make("private " + accessorDetails.getFieldType().getName() + " " + FIELD_PREFIX + accessorTypeName.replace('.', '_').replace('$', '_') + ";", ctClass);
+            Class<?> fieldType = accessorDetails.getFieldType();
+            String fieldTypeName = JavaAssistUtils.javaClassNameToObjectName(fieldType.getName());
+
+            final CtField newField = CtField.make("private " + fieldTypeName + " " + FIELD_PREFIX + accessorTypeName.replace('.', '_').replace('$', '_') + ";", ctClass);
 
             if (initValExp == null) {
                 ctClass.addField(newField);
@@ -371,8 +374,9 @@ public class JavassistClass implements InstrumentClass {
             GetterDetails getterDetails = new GetterAnalyzer().analyze(getterType);
 
             CtField field = ctClass.getField(fieldName);
+            String fieldTypeName = JavaAssistUtils.javaClassNameToObjectName(getterDetails.getFieldType().getName());
 
-            if (!field.getType().getName().equals(getterDetails.getFieldType().getName())) {
+            if (!field.getType().getName().equals(fieldTypeName)) {
                 throw new IllegalArgumentException("Return type of the getter is different with the field type. getterMethod: " + getterDetails.getGetter() + ", fieldType: " + field.getType().getName());
             }
 
@@ -404,8 +408,9 @@ public class JavassistClass implements InstrumentClass {
             SetterDetails setterDetails = new SetterAnalyzer().analyze(setterType);
 
             CtField field = ctClass.getField(fieldName);
+            String fieldTypeName = JavaAssistUtils.javaClassNameToObjectName(setterDetails.getFieldType().getName());
 
-            if (!field.getType().getName().equals(setterDetails.getFieldType().getName())) {
+            if (!field.getType().getName().equals(fieldTypeName)) {
                 throw new IllegalArgumentException("Argument type of the setter is different with the field type. setterMethod: " + setterDetails.getSetter() + ", fieldType: " + field.getType().getName());
             }
 
