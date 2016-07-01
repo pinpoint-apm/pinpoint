@@ -301,6 +301,37 @@
 	text-overflow: ellipsis;
 	vertical-align: bottom;
 }
+#application-config .application-group {
+    left: 0px;
+    float: left;
+    width: 310px;
+    height: 500px;
+    border: 1px solid #E2E2E2;
+    background-color: #FFF;
+}
+#application-config .application-group .wrapper {
+    width: 100%;
+    height: 498px;
+    position: relative;
+    overflow-y: auto;
+}
+#application-config .application-group ul {
+    padding: 0px 0px 4px 0px;
+    list-style-type: none;
+}
+#application-config .application-group li {
+    cursor: pointer;
+    padding: 6px;
+}
+#application-config .application-group li.selected {
+    background-color: #5897fb;
+    color: #FFF;
+}
+#application-config .application-group li img {
+    width: 25px;
+    height: 25px;
+    padding-right: 3px;
+}
 #config-help .left-sub-menu {
     float: left;
     width: 240px;
@@ -433,6 +464,10 @@
     font-weight: bold;
     padding-top: 4px;
     padding-bottom: 4px;
+}
+
+#config-general .application {
+    width: 310px;
 }
 #config-general .favorite-application tr:last-child  td:first-child {
     padding-right: 26px;

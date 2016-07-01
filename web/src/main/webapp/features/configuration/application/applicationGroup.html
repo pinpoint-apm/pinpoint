@@ -1,0 +1,9 @@
+<div class="application-group">
+	<div class="wrapper">
+		<ul>
+			<li ng-repeat="app in applicationList" id="{{getAppId(app)}}">
+				<img src="images/icons/{{app.serviceType}}.png"><span>{{app.applicationName}}</span>
+			</li>
+		</ul>
+	</div>
+</div>
