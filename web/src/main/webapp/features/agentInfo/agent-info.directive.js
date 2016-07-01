@@ -270,7 +270,7 @@
 							scope.currentServiceInfo = serviceInfo;
 						}
 					};
-					scope.$on( "down.changed.agent.url", function ( event, invokerId, agent, bInvokedByTop ) {
+					scope.$on( "down.changed.agent", function ( event, invokerId, agent, bInvokedByTop ) {
 						if( cfg.ID === invokerId ) return;
 						if ( CommonUtilService.isEmpty( agent.agentId ) ) {
 							scope.hasAgentData = false;

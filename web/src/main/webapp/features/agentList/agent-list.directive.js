@@ -64,7 +64,7 @@
 				function changeAgent( agent, bInvokedByTop ) {
 					AnalyticsService.send( AnalyticsService.CONST.INSPECTOR, AnalyticsService.CONST.CLK_CHANGE_AGENT_INSPECTOR );
 					scope.currentAgent = agent;
-					scope.$emit( "up.changed.agent.url", cfg.ID, agent, bInvokedByTop );
+					scope.$emit( "up.changed.agent", cfg.ID, agent, bInvokedByTop );
 				}
 				scope.selectAgent = function ( agent ) {
 					if ( scope.currentAgent === agent ) {
@@ -84,7 +84,7 @@
 					// scope.currentAgent = {};
 					// showAgentGroup( false );
 	            // });
-				scope.$on( "down.changed.application.url", function( event, invokerId ) {
+				scope.$on( "down.changed.application", function( event, invokerId ) {
 					if ( cfg.ID === invokerId ) return;
 					showAgentGroup( true );
 				});

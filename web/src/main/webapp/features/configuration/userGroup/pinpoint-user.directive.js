@@ -8,16 +8,16 @@
 	 * @class
 	 */	
 	
-	pinpointApp.directive('alarmPinpointUserDirective', [ '$rootScope', 'helpContentTemplate', 'helpContentService', 'AlarmUtilService', 'AlarmBroadcastService', 'AnalyticsService', 'globalConfig',
-	    function ($rootScope, helpContentTemplate, helpContentService, alarmUtilService, alarmBroadcastService, analyticsService, globalConfig) {
+	pinpointApp.directive( "pinpointUserDirective", [ "helpContentTemplate", "helpContentService", "AlarmUtilService", "AnalyticsService", "globalConfig",
+	    function ( helpContentTemplate, helpContentService, AlarmUtilService, AnalyticsService, globalConfig) {
         return {
             restrict: 'EA',
             replace: true,
-            templateUrl: 'features/configuration/alarm/alarmPinpointUser.html?v=' + G_BUILD_TIME,
+            templateUrl: 'features/configuration/userGroup/pinpointUser.html?v=' + G_BUILD_TIME,
             scope: true,
             link: function (scope, element) {
 
-				scope.prefix = "alarmPinpointUser_";
+				scope.prefix = "pinpointUser_";
             	var $element = $(element);
     			var $elWrapper = $element.find(".wrapper");
     			var $elTotal = $element.find(".total");
@@ -39,23 +39,23 @@
 				};
 				function cancelPreviousWork() {
 					AddPinpointUser.cancelAction( aEditNode, hideEditArea );
-					RemovePinpointUser.cancelAction( alarmUtilService, $workingNode );
-					UpdatePinpointUser.cancelAction( alarmUtilService, aEditNode, $workingNode, hideEditArea );
+					RemovePinpointUser.cancelAction( AlarmUtilService, $workingNode );
+					UpdatePinpointUser.cancelAction( AlarmUtilService, aEditNode, $workingNode, hideEditArea );
 				}
 				function showAlert( oServerError ) {
 					$elAlert.find( ".message" ).html( oServerError.errorMessage );
-					alarmUtilService.hide( $elLoading );
-					alarmUtilService.show( $elAlert );
+					AlarmUtilService.hide( $elLoading );
+					AlarmUtilService.show( $elAlert );
 				}
 				function loadData( oParam ) {
-					alarmUtilService.show( $elLoading );
-					alarmUtilService.sendCRUD("getPinpointUserList", oParam || {}, function (oServerData) {
+					AlarmUtilService.show( $elLoading );
+					AlarmUtilService.sendCRUD("getPinpointUserList", oParam || {}, function (oServerData) {
 						$.each(oServerData, function (index, obj) {
 							obj["has"] = false;
 						});
 						oPinpointUserList = scope.pinpointUserList = oServerData;
-						alarmUtilService.setTotal($elTotal, getTotal());
-						alarmUtilService.hide($elLoading);
+						AlarmUtilService.setTotal($elTotal, getTotal());
+						AlarmUtilService.hide($elLoading);
 					}, showAlert);
 				}
 				function getTotal() {
@@ -75,10 +75,10 @@
 						$ul.prepend( aEditNode[i] );
 					}
 					aEditNode[0].find("input").removeAttr("disabled");
-					alarmUtilService.hide( aEditNode[len].find( CONSTS.DIV_EDIT ) );
-					alarmUtilService.show( aEditNode[len].find( CONSTS.DIV_ADD ) );
+					AlarmUtilService.hide( aEditNode[len].find( CONSTS.DIV_EDIT ) );
+					AlarmUtilService.show( aEditNode[len].find( CONSTS.DIV_ADD ) );
 					$.each( aEditNode, function( index, $el ) {
-						alarmUtilService.show( $el );
+						AlarmUtilService.show( $el );
 					});
 					aEditNode[0].find("input").focus();
 				}
@@ -94,16 +94,16 @@
 					aEditNode[4].find("input").val( oPinpointUser.email );
 					aEditNode[0].find("input").attr("disabled", "disabled");
 
-					alarmUtilService.hide( aEditNode[len].find( CONSTS.DIV_ADD ) );
-					alarmUtilService.show( aEditNode[len].find( CONSTS.DIV_EDIT ) );
+					AlarmUtilService.hide( aEditNode[len].find( CONSTS.DIV_ADD ) );
+					AlarmUtilService.show( aEditNode[len].find( CONSTS.DIV_EDIT ) );
 					$.each( aEditNode, function( index, $el ) {
-						alarmUtilService.show( $el );
+						AlarmUtilService.show( $el );
 					});
 					aEditNode[0].find("input").focus();
 				}
 				function hideEditArea() {
 					$.each( aEditNode, function( index, $el ) {
-						alarmUtilService.hide( $el );
+						AlarmUtilService.hide( $el );
 						$el.find("input").val("");
 					});
 				}
@@ -124,7 +124,7 @@
 					return oPinpointUser;
 				}
 				function isSameNode( $current ) {
-					return alarmUtilService.extractID( $workingNode ) === alarmUtilService.extractID( $current );
+					return AlarmUtilService.extractID( $workingNode ) === AlarmUtilService.extractID( $current );
 				}
 				function searchPinpointUser( userId ) {
 					for( var i = 0 ; i < oPinpointUserList.length ; i++ ) {
@@ -153,28 +153,28 @@
 					applyAddPinpointUser();
 				};
 				function applyAddPinpointUser() {
-					AddPinpointUser.applyAction( alarmUtilService, getNewPinpointUser(), aEditNode, $elLoading, function( oNewPinpointUser  ) {
-						analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_CREATE_PINPOINT_USER );
+					AddPinpointUser.applyAction( AlarmUtilService, getNewPinpointUser(), aEditNode, $elLoading, function( oNewPinpointUser  ) {
+						AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_ALARM_CREATE_PINPOINT_USER );
 						oPinpointUserList.push( oNewPinpointUser );
 						scope.pinpointUserList = oPinpointUserList;
 						hideEditArea();
-						alarmUtilService.setTotal( $elTotal, getTotal() );
+						AlarmUtilService.setTotal( $elTotal, getTotal() );
 					}, showAlert );
 				}
 				// remove
 				scope.onRemovePinpointUser = function( $event ) {
-					var $node = alarmUtilService.getNode( $event, "li" );
+					var $node = AlarmUtilService.getNode( $event, "li" );
 					if ( $workingNode !== null && isSameNode( $node ) === false ) {
 						cancelPreviousWork( $node );
 					}
 					$workingNode = $node;
-					RemovePinpointUser.onAction( alarmUtilService, $workingNode );
+					RemovePinpointUser.onAction( AlarmUtilService, $workingNode );
 				};
 				scope.onCancelRemovePinpointUser = function() {
-					RemovePinpointUser.cancelAction( alarmUtilService, $workingNode );
+					RemovePinpointUser.cancelAction( AlarmUtilService, $workingNode );
 				};
 				scope.onApplyRemovePinpointUser = function() {
-					RemovePinpointUser.applyAction( alarmUtilService, $workingNode, $elLoading, function( userId ) {
+					RemovePinpointUser.applyAction( AlarmUtilService, $workingNode, $elLoading, function( userId ) {
 						for( var i = 0 ; i < oPinpointUserList.length ; i++ ) {
 							if ( oPinpointUserList[i].userId == userId ) {
 								oPinpointUserList.splice(i, 1);
@@ -184,23 +184,23 @@
 						scope.$apply(function() {
 							scope.pinpointUserList = oPinpointUserList;
 						});
-						alarmUtilService.setTotal( $elTotal, getTotal() );
-						alarmBroadcastService.sendUserRemoved( userId );
+						AlarmUtilService.setTotal( $elTotal, getTotal() );
+						scope.$emit( "pinpointUser.sendUserRemoved", userId );
 					}, showAlert );
 				};
 				// update
 				scope.onUpdatePinpointUser = function( $event ) {
 					cancelPreviousWork();
-					$workingNode = alarmUtilService.getNode( $event, "li" );
-					UpdatePinpointUser.onAction( alarmUtilService, $workingNode, function( userId ) {
+					$workingNode = AlarmUtilService.getNode( $event, "li" );
+					UpdatePinpointUser.onAction( AlarmUtilService, $workingNode, function( userId ) {
 						showEditArea( searchPinpointUser( userId ) );
 					});
 				};
 				scope.onCancelUpdatePinpointUser = function() {
-					UpdatePinpointUser.cancelAction( alarmUtilService, aEditNode, $workingNode, hideEditArea );
+					UpdatePinpointUser.cancelAction( AlarmUtilService, aEditNode, $workingNode, hideEditArea );
 				};
 				scope.onApplyUpdatePinpointUser = function() {
-					UpdatePinpointUser.applyAction( alarmUtilService, getNewPinpointUser(), aEditNode, $workingNode, $elLoading, function( oPinpointUser ) {
+					UpdatePinpointUser.applyAction( AlarmUtilService, getNewPinpointUser(), aEditNode, $workingNode, $elLoading, function( oPinpointUser ) {
 
 						for( var i = 0 ; i < oPinpointUserList.length ; i++ ) {
 							if ( oPinpointUserList[i].userId == oPinpointUser.userId ) {
@@ -213,7 +213,7 @@
 						}
 						scope.pinpointUserList = oPinpointUserList;
 						hideEditArea();
-						alarmBroadcastService.sendUserUpdated( oPinpointUser );
+						scope.$emit( "pinpointUser.sendUserUpdated", oPinpointUser );
 					}, showAlert );
 				};
 
@@ -248,32 +248,32 @@
 						$elSearch.focus();
 						return;
 					}
-					alarmUtilService.show( $elLoading );
-					analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_FILTER_PINPOINT_USER );
+					AlarmUtilService.show( $elLoading );
+					AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_ALARM_FILTER_PINPOINT_USER );
 					loadData({ "searchKey": query });
 				};
 				scope.checkUser = function( $event ) {
-					alarmUtilService.show( $elLoading );
-					var $node = alarmUtilService.getNode( $event, "li" );
-					var userId =  alarmUtilService.extractID( $node );
+					AlarmUtilService.show( $elLoading );
+					var $node = AlarmUtilService.getNode( $event, "li" );
+					var userId =  AlarmUtilService.extractID( $node );
 					if ( $node.find("input").get(0).checked ) {
-						alarmBroadcastService.sendUserAdd( getUser( userId ) );
+						scope.$emit( "pinpointUser.sendUserAdd", getUser( userId ) );
 					} else {
-						alarmBroadcastService.sendUserRemoved( userId );
+						scope.$emit( "pinpointUser.sendUserRemoved", userId );
 					}
 				};
-				scope.$on("alarmPinpointUser.configuration.groupUserRemoved", function( event, list, userId ) {
+				scope.$on( "pinpointUser.changeSelectedMember", function( event, list, userId ) {
 					resetList( list );
 					scope.$apply(function() {
 						scope.pinpointUserList = oPinpointUserList;
 					});
-					alarmUtilService.setTotal( $elTotal, getTotal() );
+					AlarmUtilService.setTotal( $elTotal, getTotal() );
 				});
-				scope.$on("alarmPinpointUser.configuration.groupLoaded", function( event, list ) {
+				scope.$on( "pinpointUser.checkSelectedMember", function( event, list ) {
 					$elWrapper.removeClass( "_disable-check" );
 					resetList( list );
 					scope.pinpointUserList = oPinpointUserList;
-					alarmUtilService.setTotal( $elTotal, getTotal() );
+					AlarmUtilService.setTotal( $elTotal, getTotal() );
 				});
 				function resetList( list ) {
 					oGroupMemberList = list;
@@ -287,28 +287,29 @@
 						}
 					});
 				}
-				scope.$on("alarmPinpointUser.configuration.selectNone", function() {
+				scope.$on( "pinpointUser.selectNone", function() {
 					$elWrapper.addClass( "_disable-check" );
 					$.each( oPinpointUserList, function( index, oPinpointUser ) {
 						oPinpointUser.has = false;
 					});
 					oGroupMemberList = [];
 					scope.pinpointUserList = oPinpointUserList;
-					alarmUtilService.setTotal( $elTotal, getTotal() );
+					AlarmUtilService.setTotal( $elTotal, getTotal() );
 				});
-				scope.$on("alarmPinpointUser.configuration.addUserCallback", function( event, list ) {
+				scope.$on( "pinpointUser.addUserCallback", function( event, list ) {
 					oGroupMemberList = list;
-					alarmUtilService.setTotal( $elTotal, getTotal() );
+					AlarmUtilService.setTotal( $elTotal, getTotal() );
 
-					alarmUtilService.hide( $elLoading );
+					AlarmUtilService.hide( $elLoading );
 				});
 				scope.onCloseAlert = function() {
-					alarmUtilService.closeAlert( $elAlert, $elLoading );
+					AlarmUtilService.closeAlert( $elAlert, $elLoading );
 				};
-				scope.$on("alarmPinpointUser.configuration.load", function( event, department ) {
+				scope.$on( "pinpointUser.load", function( event, department ) {
 					cancelPreviousWork();
 					if ( bIsLoaded === false ) {
-						loadData(angular.isUndefined(department) ? {} : {"searchKey": department});
+						loadData( {"searchKey": "PaaS"} );
+						// loadData(angular.isUndefined(department) ? {} : {"searchKey": department});
 					}
 				});
             }
@@ -343,9 +344,9 @@
 				this._bIng = false;
 			}
 		},
-		applyAction: function( alarmUtilService, oNewPinpointUser, aEditNode, $elLoading, cbSuccess, cbFail ) {
+		applyAction: function( AlarmUtilService, oNewPinpointUser, aEditNode, $elLoading, cbSuccess, cbFail ) {
 			var self = this;
-			alarmUtilService.show( $elLoading );
+			AlarmUtilService.show( $elLoading );
 			if ( oNewPinpointUser.userId === "" || oNewPinpointUser.name === "" ) {
 				addBlink( aEditNode );
 				cbFail({ errorMessage: CONSTS.INPUT_USERID_AND_NAME });
@@ -367,11 +368,11 @@
 				return;
 			}
 			
-			alarmUtilService.sendCRUD( "createPinpointUser", oNewPinpointUser, function( oServerData ) {
+			AlarmUtilService.sendCRUD( "createPinpointUser", oNewPinpointUser, function( oServerData ) {
 				oNewPinpointUser.number = oServerData.number;
 				cbSuccess( oNewPinpointUser );
 				self.cancelAction( aEditNode, function() {} );
-				alarmUtilService.hide( $elLoading );
+				AlarmUtilService.hide( $elLoading );
 			}, function( oServerError ) {
 				cbFail( oServerError );
 			});
@@ -382,27 +383,27 @@
 		isOn: function () {
 			return this._bIng;
 		},
-		onAction: function ( alarmUtilService, $node ) {
+		onAction: function ( AlarmUtilService, $node ) {
 			this._bIng = true;
 			$node.addClass("remove");
-			alarmUtilService.hide( $node.find( CONSTS.DIV_NORMAL ) );
-			alarmUtilService.show( $node.find( CONSTS.DIV_REMOVE ) );
+			AlarmUtilService.hide( $node.find( CONSTS.DIV_NORMAL ) );
+			AlarmUtilService.show( $node.find( CONSTS.DIV_REMOVE ) );
 		},
-		cancelAction: function ( alarmUtilService, $node ) {
+		cancelAction: function ( AlarmUtilService, $node ) {
 			if ( this._bIng === true ) {
 				$node.removeClass("remove");
-				alarmUtilService.hide($node.find( CONSTS.DIV_REMOVE ));
-				alarmUtilService.show($node.find( CONSTS.DIV_NORMAL ));
+				AlarmUtilService.hide($node.find( CONSTS.DIV_REMOVE ));
+				AlarmUtilService.show($node.find( CONSTS.DIV_NORMAL ));
 				this._bIng = false;
 			}
 		},
-		applyAction: function (alarmUtilService, $node, $elLoading, cbSuccess, cbFail) {
+		applyAction: function (AlarmUtilService, $node, $elLoading, cbSuccess, cbFail) {
 			var self = this;
-			var userId = alarmUtilService.extractID( $node );
-			alarmUtilService.sendCRUD( "removePinpointUser", { "userId": userId }, function( oServerData ) {
+			var userId = AlarmUtilService.extractID( $node );
+			AlarmUtilService.sendCRUD( "removePinpointUser", { "userId": userId }, function( oServerData ) {
 				cbSuccess( userId );
-				self.cancelAction( alarmUtilService, $node );
-				alarmUtilService.hide( $elLoading );
+				self.cancelAction( AlarmUtilService, $node );
+				AlarmUtilService.hide( $elLoading );
 			}, function( oServerError ) {
 				cbFail( oServerError );
 			});
@@ -413,22 +414,22 @@
 		isOn: function () {
 			return this._bIng;
 		},
-		onAction: function ( alarmUtilService, $node, cb ) {
+		onAction: function ( AlarmUtilService, $node, cb ) {
 			this._bIng = true;
-			alarmUtilService.hide( $node );
-			cb( alarmUtilService.extractID( $node ) );
+			AlarmUtilService.hide( $node );
+			cb( AlarmUtilService.extractID( $node ) );
 		},
-		cancelAction: function( alarmUtilService, aEditNode, $node, cbCancel ) {
+		cancelAction: function( AlarmUtilService, aEditNode, $node, cbCancel ) {
 			if ( this._bIng === true ) {
 				cbCancel();
 				removeBlink( aEditNode );
-				alarmUtilService.show( $node );
+				AlarmUtilService.show( $node );
 				this._bIng = false;
 			}
 		},
-		applyAction: function (alarmUtilService, oPinpointUser, aEditNode, $node, $elLoading, cbSuccess, cbFail) {
+		applyAction: function (AlarmUtilService, oPinpointUser, aEditNode, $node, $elLoading, cbSuccess, cbFail) {
 			var self = this;
-			alarmUtilService.show($elLoading);
+			AlarmUtilService.show($elLoading);
 
 			if ( oPinpointUser.name === "" ) {
 				addBlink( aEditNode );
@@ -451,10 +452,10 @@
 				return;
 			}
 
-			alarmUtilService.sendCRUD( "updatePinpointUser", oPinpointUser, function( oServerData ) {
-				self.cancelAction( alarmUtilService, aEditNode, $node, function () {});
+			AlarmUtilService.sendCRUD( "updatePinpointUser", oPinpointUser, function( oServerData ) {
+				self.cancelAction( AlarmUtilService, aEditNode, $node, function () {});
 				cbSuccess( oPinpointUser );
-				alarmUtilService.hide($elLoading);
+				AlarmUtilService.hide($elLoading);
 			}, function( oServerError ) {
 				cbFail( oServerError );
 			} );

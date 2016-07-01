@@ -5,15 +5,21 @@
 		AT: "@"
 	});
 
-	pinpointApp.directive( "applicationListDirective", [ "applicationListDirectiveConfig", "$rootScope", "$http", "$timeout", "UrlVoService", "AnalyticsService", "PreferenceService", "CommonAjaxService", "CommonUtilService",
-		function ( cfg, $rootScope, $http, $timeout, UrlVoService, AnalyticsService, PreferenceService, CommonAjaxService, CommonUtilService ) {
+	pinpointApp.directive( "applicationListDirective", [ "applicationListDirectiveConfig", "$rootScope", "$http", "$timeout", "AnalyticsService", "PreferenceService", "CommonAjaxService", "CommonUtilService",
+		function ( cfg, $rootScope, $http, $timeout, AnalyticsService, PreferenceService, CommonAjaxService, CommonUtilService ) {
 			return {
 				restrict: 'EA',
 				replace: true,
 				templateUrl: 'features/applicationList/applicationList.html?v=' + G_BUILD_TIME,
-				link: function (scope, element) {
+				scope: {
+					initAppName: "@"
+				},
+				link: function (scope, element, attr) {
 					cfg.ID += CommonUtilService.getRandomNum();
 
+					var $element = $( element );
+					var bUseFavorite = attr[ "useFavorite" ] === "true";
+					var bNotSetOpen = attr[ "notSetOpen" ] === "true";
 					var $application = element.find( ".application" );
 					var applicationOriginalData;
 					var iconPath = PreferenceService.getIconPath();
@@ -28,7 +34,9 @@
 						scope.selectedApplication = "";
 						scope.disableApplication = true;
 						scope.hideFakeApplication = false;
-
+						if ( bUseFavorite === false ) {
+							$element.find("optgroup[label=Favorite]").remove();
+						}
 						initSelect2();
 						getApplicationList();
 					}
@@ -47,34 +55,27 @@
 						});
 					}
 					function changeApplication() {
-						AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_APPLICATION );
+						AnalyticsService.sendMain( AnalyticsService.CONST.CLK_APPLICATION );
 						scope.selectedApplication = $application.val();
-						UrlVoService.setApplication( scope.selectedApplication );
-						UrlVoService.setAgentId( "" );
-						scope.$emit( "up.changed.application.url", cfg.ID );
-					}
-					function broadcastApplicationListChanged() {
-						$rootScope.$broadcast("alarmRule.applications.set", scope.applicationList);
-						$rootScope.$broadcast("configuration.general.applications.set", scope.applicationList);
+						scope.$emit( "up.changed.application", cfg.ID, scope.selectedApplication );
 					}
 					function getApplicationList() {
 						CommonAjaxService.getApplicationList( function( data ) {
 							if ( angular.isArray( data ) === false || data.length === 0 ) {
 								scope.applicationList[0].text = 'Application not found.';
-								broadcastApplicationListChanged();
 							} else {
 								scope.disableApplication = false;
 								applicationOriginalData = data;
 								parseApplicationList();
 								$timeout( function () {
-									if ( UrlVoService.getApplication() ) {
-										$application.val( UrlVoService.getApplication() ).trigger( "change" );
-										scope.selectedApplication = UrlVoService.getApplication();
+									if ( attr.initAppName ) {
+										$application.val( attr.initAppName ).trigger( "change" );
+										scope.selectedApplication = attr.initAppName;
 									} else {
-										//$application.select2("open");
-										$applicatoinSelect2("open");
+										if ( bNotSetOpen ) {
+											$application.select2("open");
+										}
 									}
-									broadcastApplicationListChanged();
 								});
 							}
 							scope.hideFakeApplication = true;
@@ -84,27 +85,40 @@
 						});
 					}
 					function parseApplicationList() {
-						var aSavedFavoriteList = PreferenceService.getFavoriteList();
-						scope.favoriteCount = aSavedFavoriteList.length;
 						scope.applicationList = [{
 							text: '',
 							value: ''
 						}];
-						var aFavoriteList = [];
 						var aGeneralList = [];
-						angular.forEach( applicationOriginalData, function ( oValue ) {
-							var fullName = oValue.applicationName + cfg.AT + oValue.serviceType;
-							var value = {
-								text: fullName,
-								value: oValue.applicationName + cfg.AT + oValue.code
-							};
-							if ( aSavedFavoriteList.indexOf( fullName ) === -1 ) {
-								aGeneralList.push( value );
-							} else {
-								aFavoriteList.push( value );
-							}
-						});
-						scope.applicationList = aFavoriteList.concat( aGeneralList );
+
+						if ( bUseFavorite ) {
+							var aSavedFavoriteList = PreferenceService.getFavoriteList();
+							scope.favoriteCount = aSavedFavoriteList.length;
+
+							var aFavoriteList = [];
+							angular.forEach(applicationOriginalData, function (oValue) {
+								var fullName = oValue.applicationName + cfg.AT + oValue.serviceType;
+								var value = {
+									text: fullName,
+									value: oValue.applicationName + cfg.AT + oValue.code
+								};
+								if (aSavedFavoriteList.indexOf(fullName) === -1) {
+									aGeneralList.push(value);
+								} else {
+									aFavoriteList.push(value);
+								}
+							});
+							scope.applicationList = aFavoriteList.concat(aGeneralList);
+						} else {
+							scope.favoriteCount = 0;
+							angular.forEach(applicationOriginalData, function (oValue) {
+								aGeneralList.push({
+									text: oValue.applicationName + cfg.AT + oValue.serviceType,
+									value: oValue.applicationName + cfg.AT + oValue.code
+								});
+							});
+							scope.applicationList = aGeneralList;
+						}
 					}
 					function formatOptionText( state ) {
 						if ( !state.id ) {
@@ -126,11 +140,14 @@
 					// 	init();
 					// });
 					scope.$on( "down.changed.favorite", function() {
-						console.log( "down.changed.favorite" );
-						parseApplicationList();
-						$application.off("select2:select").select2("destroy");
-						initSelect2();
-						$application.val( UrlVoService.getApplication() ).trigger( "change" );
+						if ( bUseFavorite ) {
+							$timeout(function() {
+								parseApplicationList();
+								$application.off("select2:select").select2("destroy");
+								initSelect2();
+								$application.val(scope.selectedApplication).trigger("change");
+							});
+						}
 					});
 				}
 			};

@@ -54,12 +54,18 @@
 				cb( Date.now() );
 			});
 		};
+		var appList = null;
 		this.getApplicationList = function( cbSuccess, cbFail ) {
-			$http.get( cfg.applicationListUrl ).success(function ( data ) {
-				cbSuccess( data );
-			}).error(function () {
-				cbFail();
-			});
+			if ( appList === null ) {
+				$http.get( cfg.applicationListUrl ).success(function ( data ) {
+					appList = data;
+					cbSuccess( data );
+				}).error(function () {
+					cbFail();
+				});
+			} else {
+				cbSuccess( appList );
+			}
 		};
 		this.getResponseTimeHistogramData = function( oRequestData, cbSuccess, cbFail ) {
 			$http( {

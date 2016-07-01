@@ -348,8 +348,6 @@
 						commonAjaxService.getApplicationList( function( data ) {
 							if (angular.isArray(data) === false || data.length === 0) {
 								scope.applications[0].text = 'Application not found.';
-								$rootScope.$broadcast("alarmRule.applications.set", scope.applications);
-								$rootScope.$broadcast("configuration.general.applications.set", scope.applications);
 							} else {
 								applicationResource = data;
 								parseApplicationList(applicationResource, function () {
@@ -364,8 +362,6 @@
 											$application.select2("open");
 										}
 									});
-									$rootScope.$broadcast("alarmRule.applications.set", scope.applications);
-									$rootScope.$broadcast("configuration.general.applications.set", scope.applications);
 								});
 							}
 							scope.hideFakeApplication = true;
@@ -681,7 +677,7 @@
 					};
 	                
 	                scope.showConfig = function() {
-	                	$rootScope.$broadcast("configuration.show");
+	                	$rootScope.$broadcast("configuration.open");
 	                };
 	
 	                /**
@@ -743,8 +739,6 @@
                                     scope.application = oNavbarVoService.getApplication();
                                 }
                             });
-//                            $rootScope.$broadcast("alarmRule.applications.set", scope.applications);
-//                            $rootScope.$broadcast("configuration.general.applications.set", scope.applications);
                         });
 						$application.off("select2.select").select2("destroy");
 						initializeApplication();

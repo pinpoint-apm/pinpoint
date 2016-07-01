@@ -1,4 +1,4 @@
-<div class="some-list some-table" style="width:615px;height:459px">
+<div class="some-list some-table" style="width:615px;">
 	<div class="some-list-header" style="background-color:#9A9A9A;color:#FFF;">
 		<span class="title">Alarm Rules<span class="total"></span></span>
 		<span class="right" style="text-decoration: underline;cursor:pointer;margin-right:6px;" ng-click="onAddAlarm()">+ Add</span>
@@ -8,8 +8,8 @@
 			<table>
 				<thead>
 					<tr>
-						<th class="col-md-4">Application</th>
-						<th class="col-md-3">Rule</th>
+						<th class="col-md-4">Rule Name</th>
+						<th class="col-md-3">User Group</th>
 						<th class="col-md-2">Threshold</th>
 						<th class="col-md-2">Type</th>
 						<th class="col-md-2"></th>
@@ -18,13 +18,15 @@
 				<tbody>
 					<tr class="_edit1 hide-me" style="background-color:#F3FBFF">
 						<td class="col-md-4">
-							<select name="application" style="width:95%">
-								<option ng-repeat="app in applications" value="{{app.text}}">{{app.text}}</option>
+							<select class="form-control" name="rule" style="width:95%;height: 26px;">
+								<option value="">Select rule</option>
+								<option ng-repeat="rule in ruleSets" value="{{rule}}">{{rule}}</option>
 							</select>
 						</td>
 						<td class="col-md-3">
-							<select name="rule" style="width:95%">
-								<option ng-repeat="rule in ruleSets" value="{{rule.text}}">{{rule.text}}</option>
+							<select class="form-control" name="userGroup" style="width:95%;height: 26px;">
+								<option value="">Select user group</option>
+								<option ng-repeat="userGroup in userGroupList" value="{{userGroup.id}}">{{userGroup.id}}</option>
 							</select>
 						</td>
 						<td class="col-md-2">
@@ -51,13 +53,13 @@
 					</tr>
 					<tr class="_edit2 hide-me" style="background-color:#F3FBFF">
 						<td colspan="4">
-							<input type="text" placeholder="Note..." class="form-control" style="height:26px"/>
+							<input type="text" placeholder="Note..." class="form-control" name="notes" style="height:26px"/>
 						</td>
 						<td></td>
 					</tr>
 					<tr ng-repeat="rule in ruleList" id="{{prefix + rule.ruleId}}">
-						<td class="col-md-4">{{rule.applicationId}}</td>
-						<td class="col-md-3">{{rule.checkerName}}</td>
+						<td class="col-md-4">{{rule.checkerName}}</td>
+						<td class="col-md-3">{{rule.userGroupId}}</td>
 						<td class="col-md-2">{{rule.threshold}}</td>
 						<td class="col-md-2">{{getType( rule )}}</td>
 						<td class="col-md-2">
@@ -76,7 +78,7 @@
 		</div>
 	</div>
 	<div class="some-guide" style="padding-top:25%;">
-		Select a 'User Group'<br>to enable here
+		Select a 'Application'<br>to enable here
 	</div>
 	<div class="some-loading hide-me">
 		<div class="timer-loader" style="margin-top:30%"></div>

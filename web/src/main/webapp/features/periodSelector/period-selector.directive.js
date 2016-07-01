@@ -191,7 +191,7 @@
 					}
 					function emitAsChanged() {
 						// setPeriodTypeAsCurrent();
-						scope.$emit( "up.changed.period.url", cfg.ID );
+						scope.$emit( "up.changed.period", cfg.ID );
 					}
 					// function setPeriodTypeAsCurrent() {
 					// 	$window.name = $window.name || 'window.' + _.random(100000, 999999);
