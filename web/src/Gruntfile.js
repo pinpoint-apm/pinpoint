@@ -4,6 +4,7 @@
 var ROOT = 'main/webapp';
 
 module.exports = function (grunt) {
+
 	require('time-grunt')(grunt);
 
 	// load grunt task and split task file
@@ -15,6 +16,9 @@ module.exports = function (grunt) {
 				'DEST_JS': ROOT + '/lib/js',
 				'DEST_CSS': ROOT + '/lib/css',
 				'COMPONENT': ROOT + '/components',
+				'PAGE': ROOT + '/pages',
+				'COMMON': ROOT + '/common',
+				'FEATURE': ROOT + '/features',
 				'INDEX_HTML': ROOT + '/index.html',
 				'SERVER_MAP': ROOT + '/components/server-map2',
 				'TIME_SLIDER': ROOT + '/components/time-slider',
@@ -117,7 +121,8 @@ module.exports = function (grunt) {
 		'lint',
 		'build_all_js',
 		'build_all_css',
-		'replace_static'
+		'replace_static',
+		'clean:origin_folder'
 	]);
 
 	grunt.registerTask('watch_js', [
