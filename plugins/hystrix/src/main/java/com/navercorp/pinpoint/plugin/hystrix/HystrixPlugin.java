@@ -66,6 +66,10 @@ public class HystrixPlugin implements ProfilerPlugin, TransformTemplateAware {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 InstrumentMethod executeCommand = target.getDeclaredMethod("call", "rx.Subscriber");
+                if (executeCommand == null) {
+                    // after hystrix-core 1.5.3, there are no arguments of call method
+                    executeCommand = target.getDeclaredMethod("call");
+                }
                 if (executeCommand != null) {
                     executeCommand.addInterceptor("com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixObservableCallInterceptor");
                 }
