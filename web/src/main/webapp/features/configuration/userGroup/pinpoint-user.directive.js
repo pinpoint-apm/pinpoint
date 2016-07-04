@@ -308,8 +308,7 @@
 				scope.$on( "pinpointUser.load", function( event, department ) {
 					cancelPreviousWork();
 					if ( bIsLoaded === false ) {
-						loadData( {"searchKey": "PaaS"} );
-						// loadData(angular.isUndefined(department) ? {} : {"searchKey": department});
+						loadData(angular.isUndefined(department) ? {} : {"searchKey": department});
 					}
 				});
             }

@@ -24,8 +24,12 @@ module.exports = function( grunt, options ) {
 		'minify': [
 			options.RESOURCE_PATH.DEST_JS + '/*.min.js'
 		],
-		'original': [
-
+		'origin_folder': [
+			options.RESOURCE_PATH.COMMON,
+			options.RESOURCE_PATH.COMPONENT,
+			options.RESOURCE_PATH.FEATURE,
+			options.RESOURCE_PATH.PAGE,
+			options.RESOURCE_PATH.STYLE
 		]
 	}
 };
