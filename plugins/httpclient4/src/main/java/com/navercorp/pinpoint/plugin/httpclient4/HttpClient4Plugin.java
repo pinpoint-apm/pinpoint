@@ -146,7 +146,6 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         
         if (execute != null) {
             execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodWithHttpRequestInterceptor", va(isHasCallbackParam));
-            execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodInternalInterceptor", va(isHasCallbackParam));
         }
     }
 
@@ -155,7 +154,6 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         
         if (execute != null) {
             execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodWithHttpUriRequestInterceptor", va(isHasCallbackParam));
-            execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodInternalInterceptor", va(isHasCallbackParam));
         }
     }
 
