@@ -226,7 +226,7 @@
 	                            parent: val[index['parentId']] ? val[index['parentId']] - 1 : null,
 	                            indent: val[index['tab']],
 	                            method: val[index['title']],
-	                            argument: val[index['arguments']],
+	                            argument: val[index['arguments']].replace( /</g, "&lt;" ).replace( />/g, "$gt;" ),
 	                            execTime: val[index['begin']] > 0 ? val[index['begin']] : null,
 	                            gapMs: val[index['gap']],
 	                            timeMs: val[index['elapsedTime']],
