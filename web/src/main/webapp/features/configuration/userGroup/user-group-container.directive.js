@@ -40,8 +40,8 @@
 						scope.$broadcast( "pinpointUser.changeSelectedMember", oGroupMemberList, userId );
 						event.stopPropagation();
 					});
-					scope.$on( "groupMember.sendCallbackAddedUser", function( event, bIsSuccess ) {
-						scope.$broadcast( "pinpointUser.addUserCallback", bIsSuccess );
+					scope.$on( "groupMember.sendCallbackAddedUser", function( event, bIsSuccess, userId ) {
+						scope.$broadcast( "pinpointUser.addUserCallback", bIsSuccess, userId );
 						event.stopPropagation();
 					});
 					// pinpointUser > groupMember

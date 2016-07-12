@@ -23,7 +23,7 @@
 						}
 					});
 					scope.$on( "applicationGroup.selectApp", function( event, appId ) {
-						scope.$broadcast( "alarmRule.load", appId, invokeCountAfterOpen++ );
+						scope.$broadcast( "applicationGroup.sub.load", appId, invokeCountAfterOpen++ );
 						event.stopPropagation();
 					});
 				}
