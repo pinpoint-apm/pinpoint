@@ -64,10 +64,11 @@ For details, please refer to the [quick-start guide](quickstart/README.md).
 **Build Requirements**
 
 * JDK 6 installed ([jdk1.6_45](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase6-419409.html))
+* JDK 7 installed
 * JDK 8 installed
 * Maven 3.2.x+ installed
 * JAVA_6_HOME environment variable set to JDK 6 home directory.
-* JAVA_7_HOME environment variable set to JDK 7+ home directory.
+* JAVA_7_HOME environment variable set to JDK 7 home directory.
 * JAVA_8_HOME environment variable set to JDK 8+ home directory.
 
 **Prerequisites**
