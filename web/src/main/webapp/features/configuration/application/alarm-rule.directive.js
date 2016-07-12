@@ -8,14 +8,14 @@
 	 * @class
 	 */	
 	
-	pinpointApp.directive( "alarmRuleDirective", [ "$rootScope", "$document", "$timeout", "AlarmUtilService", "AnalyticsService", "PreferenceService",
-	    function ( $rootScope, $document, $timeout, AlarmUtilService, AnalyticsService, PreferenceService ) {
+	pinpointApp.directive( "alarmRuleDirective", [ "AlarmUtilService", "AnalyticsService",
+	    function ( AlarmUtilService, AnalyticsService ) {
         return {
             restrict: 'EA',
             replace: true,
             templateUrl: 'features/configuration/application/alarmRule.html?v=' + G_BUILD_TIME,
             scope: true,
-            link: function (scope, element) {
+            link: function ( scope, element ) {
 				var $element = $(element);
 				var $elGuide = $element.find(".some-guide");
 				var $elWrapper = $element.find(".wrapper");
@@ -136,15 +136,7 @@
 					}
 					return null;
 				}
-
-				// scope.$on("alarmRule.configuration.selectNone", function( event ) {
-				// 	cancelPreviousWork();
-				// 	currentApplicationId = "";
-				// 	oRuleList = [];
-				// 	scope.ruleList = [];
-				// 	AlarmUtilService.show( $elGuide );
-				// 	AlarmUtilService.setTotal( $elTotal, oRuleList.length );
-				// });
+				
 				scope.onAddAlarm = function() {
 					if ( currentApplicationId === "" || AddAlarm.isOn() ) {
 						return;
@@ -226,7 +218,7 @@
 						scope.ruleList = oRuleList;
 					}, showAlert );
 				};
-				scope.$on("alarmRule.load", function( event, appId, invokeCount ) {
+				scope.$on("applicationGroup.sub.load", function( event, appId, invokeCount ) {
 					currentApplicationId = appId;
 					cancelPreviousWork();
 					AlarmUtilService.hide( $elGuide );
