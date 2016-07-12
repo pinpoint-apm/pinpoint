@@ -88,7 +88,7 @@
 					if ( cfg.ID === invokerId ) return;
 					showAgentGroup( true );
 				});
-				scope.$on( "down.changed.period.url", function( event, invokerId ) {
+				scope.$on( "down.changed.period", function( event, invokerId ) {
 					if ( cfg.ID === invokerId ) return;
 					showAgentGroup( false );
 				});
