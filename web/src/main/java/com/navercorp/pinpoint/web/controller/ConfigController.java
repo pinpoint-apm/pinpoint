@@ -51,6 +51,7 @@ public class ConfigController {
         result.put("sendUsage", webProperties.getSendUsage());
         result.put("editUserInfo", webProperties.getEditUserInfo());
         result.put("showActiveThread", webProperties.isShowActiveThread());
+        result.put("openSource", webProperties.isOpenSource());
         
         if (!StringUtils.isEmpty(userId)) {
             User user = userService.selectUserByUserId(userId);
