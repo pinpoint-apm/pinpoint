@@ -71,7 +71,7 @@
 						RemoveGroupMember.onAction( AlarmUtilService, $workingNode );
 					};
 					scope.onApplyRemoveGroupMember = function() {
-						RemoveGroupMember.applyAction( AlarmUtilService, currentUserGroupId, $workingNode, $elLoading, function( memberId ) {
+						RemoveGroupMember.applyAction( AlarmUtilService, currentUserGroupId, globalConfig.userId, $workingNode, $elLoading, function( memberId ) {
 							removeGroupMember( memberId );
 						}, showAlert );
 					};
@@ -221,11 +221,12 @@
 				this._bIng = false;
 			}
 		},
-		applyAction: function( AlarmUtilService, currentUserGroupId, $node, $elLoading, cbSuccess, cbFail ) {
+		applyAction: function( AlarmUtilService, currentUserGroupId, userId, $node, $elLoading, cbSuccess, cbFail ) {
 			AlarmUtilService.show( $elLoading );
 			var self = this;
 			var memberId = AlarmUtilService.extractID( $node );
 			AlarmUtilService.sendCRUD( "removeMemberInGroup", {
+				"userId": userId,
 				"userGroupId": currentUserGroupId,
 				"memberId": memberId
 			}, function( oServerData ) {
