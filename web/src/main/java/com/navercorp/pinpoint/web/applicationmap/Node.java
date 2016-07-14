@@ -38,7 +38,7 @@ public class Node {
 
     public static final String NODE_DELIMITER = "^";
 
-    private final Application application;
+    private Application application;
     // avoid NPE
     private ServerInstanceList serverInstanceList = new ServerInstanceList();
 
@@ -100,6 +100,10 @@ public class Node {
 
     public void setNodeHistogram(NodeHistogram nodeHistogram) {
         this.nodeHistogram = nodeHistogram;
+    }
+    
+    public void setApplication(Application application) {
+        this.application = application;
     }
 
     public boolean isAuthorized() {
