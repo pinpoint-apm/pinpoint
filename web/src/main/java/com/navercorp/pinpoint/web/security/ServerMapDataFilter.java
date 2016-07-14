@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.web.security;
 
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.vo.Application;
 
 /**
@@ -23,5 +24,6 @@ import com.navercorp.pinpoint.web.vo.Application;
 public interface ServerMapDataFilter {
     
     boolean filter(Application application);
-    
+
+    ApplicationMap dataFiltering(ApplicationMap map);
 }

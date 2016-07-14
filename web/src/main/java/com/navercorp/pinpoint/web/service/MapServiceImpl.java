@@ -99,7 +99,10 @@ public class MapServiceImpl implements MapService {
         if (logger.isInfoEnabled()) {
             logger.info("ApplicationMap BuildTime: {}", watch.prettyPrint());
         }
-
+        if(serverMapDataFilter != null) {
+            map = serverMapDataFilter.dataFiltering(map);
+        }
+        
         return map;
     }
 
