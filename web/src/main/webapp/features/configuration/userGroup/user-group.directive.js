@@ -8,8 +8,8 @@
 	 * @class
 	 */	
 	
-	pinpointApp.directive("userGroupDirective", [ "$timeout", "helpContentService", "AlarmUtilService", "AnalyticsService",
-	    function ( $timeout, helpContentService, AlarmUtilService, AnalyticsService ) {
+	pinpointApp.directive("userGroupDirective", [ "$timeout", "helpContentService", "AlarmUtilService", "AnalyticsService", "globalConfig",
+	    function ( $timeout, helpContentService, AlarmUtilService, AnalyticsService, globalConfig ) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -109,7 +109,7 @@
 						applyAddUserGroup();
 					};
 					function applyAddUserGroup() {
-						AddUserGroup.applyAction( AlarmUtilService, $elNewGroup, $elLoading, function( oServerData, groupId ) {
+						AddUserGroup.applyAction( AlarmUtilService, $elNewGroup, $elLoading, globalConfig.userId, function( oServerData, groupId ) {
 							oUserGroupList.push({
 								id: groupId,
 								number: oServerData.number
@@ -132,7 +132,7 @@
 						RemoveUserGroup.cancelAction( AlarmUtilService, $workingNode );
 					};
 					scope.onApplyRemoveUserGroup = function() {
-						RemoveUserGroup.applyAction( AlarmUtilService, $workingNode, $elLoading, function( groupId ) {
+						RemoveUserGroup.applyAction( AlarmUtilService, $workingNode, $elLoading, globalConfig.userId, function( groupId ) {
 							for (var i = 0; i < oUserGroupList.length; i++) {
 								if ( oUserGroupList[i].id == groupId ) {
 									oUserGroupList.splice(i, 1);
@@ -159,7 +159,7 @@
 						applyUpdateUserGroup();
 					};
 					function applyUpdateUserGroup() {
-						UpdateUserGroup.applyAction( AlarmUtilService, $workingNode, $elLoading, function( groupNumber, groupName ) {
+						UpdateUserGroup.applyAction( AlarmUtilService, $workingNode, $elLoading, globalConfig.userId, function( groupNumber, groupName ) {
 							return AlarmUtilService.hasDuplicateItem( oUserGroupList, function( userGroup ) {
 								if ( userGroup.id == groupName ) {
 									if ( userGroup.number == groupNumber ) {
@@ -244,7 +244,7 @@
 				$newNode.removeClass( "blink-blink" ).find( "input" ).attr( "placeholder", CONSTS.NEW_GROUP ).val( "" );
 			}
 		},
-		applyAction: function( AlarmUtilService, $newNode, $elLoading, cbSuccess, cbFail ) {
+		applyAction: function( AlarmUtilService, $newNode, $elLoading, userId, cbSuccess, cbFail ) {
 			AlarmUtilService.show( $elLoading );
 			var groupId = $newNode.find("input").val();
 			if ( groupId.length < CONSTS.MIN_GROUPNAME_LENGTH ) {
@@ -252,7 +252,10 @@
 				$newNode.addClass( "blink-blink" ).find( "input" ).attr( "placeholder", CONSTS.ENTER_AT_LEAST ).val( "" ).focus();
 				return;
 			}
-			AlarmUtilService.sendCRUD( "createUserGroup", { "id": groupId }, function( oServerData ) {
+			AlarmUtilService.sendCRUD( "createUserGroup", {
+				"id": groupId,
+				"userId": userId
+			}, function( oServerData ) {
 				cbSuccess( oServerData, groupId );
 				AddUserGroup.cancelAction( AlarmUtilService, $newNode );
 				AlarmUtilService.hide( $elLoading );
@@ -278,11 +281,14 @@
 				this._bIng = false;
 			}
 		},
-		applyAction: function( AlarmUtilService, $node, $elLoading, cbSuccess, cbFail ) {
+		applyAction: function( AlarmUtilService, $node, $elLoading, userId, cbSuccess, cbFail ) {
 			AlarmUtilService.show( $elLoading );
 			var self = this;
 			var groupId = $node.find(".contents").html();
-			AlarmUtilService.sendCRUD("removeUserGroup", {"id": groupId}, function () {
+			AlarmUtilService.sendCRUD("removeUserGroup", {
+				"id": groupId,
+				"userId": userId
+			}, function () {
 				self.cancelAction( AlarmUtilService, $node );
 				cbSuccess( groupId );
 				AlarmUtilService.hide( $elLoading );
@@ -312,7 +318,7 @@
 				this._bIng = false;
 			}
 		},
-		applyAction: function( AlarmUtilService, $node, $elLoading, cbHasDuplicate, cbSuccess, cbFail ) {
+		applyAction: function( AlarmUtilService, $node, $elLoading, userId, cbHasDuplicate, cbSuccess, cbFail ) {
 			AlarmUtilService.show( $elLoading );
 			var self = this;
 			var groupNumber = AlarmUtilService.extractID( $node );
@@ -330,7 +336,11 @@
 				$node.find("input").attr("placeholder", CONSTS.EXIST_A_SAME).val("").focus();
 				return;
 			}
-			AlarmUtilService.sendCRUD( "updateUserGroup", { "number": groupNumber, "id": groupName }, function() {
+			AlarmUtilService.sendCRUD( "updateUserGroup", {
+				"number": groupNumber,
+				"id": groupName,
+				"userId": userId
+			}, function() {
 				cbSuccess( groupNumber, groupName );
 				self.cancelAction( AlarmUtilService, $node );
 				AlarmUtilService.hide( $elLoading );
