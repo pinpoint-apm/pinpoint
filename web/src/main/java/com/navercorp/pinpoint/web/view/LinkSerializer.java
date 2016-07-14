@@ -52,10 +52,10 @@ public class LinkSerializer extends JsonSerializer<Link> {
         
         jgen.writeStartObject();
 
-        jgen.writeStringField("key", link.getLinkName(isAuthFromApp, isAuthToApp));  // for servermap
+        jgen.writeStringField("key", link.getLinkName());  // for servermap
 
-        jgen.writeStringField("from", link.getFrom().getNodeName(isAuthFromApp));  // necessary for go.js
-        jgen.writeStringField("to", link.getTo().getNodeName(isAuthToApp)); // necessary for go.js
+        jgen.writeStringField("from", link.getFrom().getNodeName());  // necessary for go.js
+        jgen.writeStringField("to", link.getTo().getNodeName()); // necessary for go.js
 
         // for FilterWizard. from, to agent mapping data
         writeAgentId("fromAgent", link.getFrom(), jgen, isAuthFromApp);

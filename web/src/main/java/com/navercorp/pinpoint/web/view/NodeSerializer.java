@@ -49,7 +49,7 @@ public class NodeSerializer extends JsonSerializer<Node>  {
         
         jgen.writeStartObject();
 //        jgen.writeStringField("id", node.getNodeName());
-        jgen.writeStringField("key", node.getNodeName(isAuthorized)); // necessary for go.js
+        jgen.writeStringField("key", node.getNodeName()); // necessary for go.js
 
         jgen.writeStringField("applicationName", node.getApplicationTextName()); // for go.js
         jgen.writeBooleanField("isAuthorized", isAuthorized);

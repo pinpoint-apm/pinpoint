@@ -52,6 +52,6 @@ public interface UserGroupService {
 
     void updateUserGroupIdOfMember(UserGroup userGroup);
 
-
+    boolean containMemberForUserGroup(String userId, String userGroupId);
 
 }

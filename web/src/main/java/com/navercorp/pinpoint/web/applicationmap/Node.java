@@ -38,12 +38,14 @@ public class Node {
 
     public static final String NODE_DELIMITER = "^";
 
-    private final Application application;
+    private Application application;
     // avoid NPE
     private ServerInstanceList serverInstanceList = new ServerInstanceList();
 
     private NodeHistogram nodeHistogram;
-
+    
+    private boolean authorized = true;
+    
     public Node(Application application) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
@@ -84,12 +86,8 @@ public class Node {
     }
 
 
-    public String getNodeName(boolean isAuthorized) {
-        if (isAuthorized) {
-            return application.getName() + NODE_DELIMITER + application.getServiceType();
-        }
-        
-        return application.getName() + NODE_DELIMITER + ServiceType.UNAUTHORIZED.toString();
+    public String getNodeName() {
+        return application.getName() + NODE_DELIMITER + application.getServiceType();
     }
 
     public ServiceType getServiceType() {
@@ -103,7 +101,19 @@ public class Node {
     public void setNodeHistogram(NodeHistogram nodeHistogram) {
         this.nodeHistogram = nodeHistogram;
     }
+    
+    public void setApplication(Application application) {
+        this.application = application;
+    }
 
+    public boolean isAuthorized() {
+        return authorized;
+    }
+
+    public void setAuthorized(boolean authorized) {
+        this.authorized = authorized;
+    }
+    
     @Override
     public String toString() {
         return "Node [" + application + "]";
