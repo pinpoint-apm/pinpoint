@@ -36,6 +36,8 @@ import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.web.service.UserGroupService;
 import com.navercorp.pinpoint.web.vo.UserGroup;
 import com.navercorp.pinpoint.web.vo.UserGroupMember;
+import com.navercorp.pinpoint.web.vo.UserGroupMemberParam;
+import com.navercorp.pinpoint.web.vo.UserGroupParam;
 
 /**
  * @author minwoo.jung
@@ -133,26 +135,6 @@ public class UserGroupController {
         return userGroupService.selectUserGroup();
     }
     
-    @RequestMapping(method = RequestMethod.PUT)
-    @ResponseBody
-    public Map<String, String> updateUserGroup(@RequestBody UserGroup userGroup) {
-        if (StringUtils.isEmpty(userGroup.getNumber()) || StringUtils.isEmpty(userGroup.getId())) {
-            Map<String, String> result = new HashMap<>();
-            result.put("errorCode", "500");
-            result.put("errorMessage", "there is not id or number of user group in params to update user group");
-            return result;
-        }
-        
-        alarmService.updateUserGroupIdOfRule(userGroup);
-        userGroupService.updateUserGroupIdOfMember(userGroup);
-        userGroupService.updateUserGroup(userGroup);
-        
-        Map<String, String> result = new HashMap<>();
-        
-        result.put("result", "SUCCESS");
-        return result;
-    }
-    
     @RequestMapping(value = "/member", method = RequestMethod.POST)
     @ResponseBody
     public Map<String, String> insertUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember) {
@@ -165,7 +147,7 @@ public class UserGroupController {
 
         if (webProperties.isOpenSource() == false) {
             boolean isValid = checkValid(userGroupMember.getUserId(), userGroupMember.getUserGroupId());
-            if (isValid = false) {
+            if (isValid == false) {
                 Map<String, String> result = new HashMap<>();
                 result.put("errorCode", "500");
                 result.put("errorMessage", "there is not userId or you don't have authority for user group.");
@@ -194,17 +176,15 @@ public class UserGroupController {
     @RequestMapping(value = "/member", method = RequestMethod.DELETE)
     @ResponseBody
     public Map<String, String> deleteUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember) {
-        
         if (StringUtils.isEmpty(userGroupMember.getUserGroupId()) || StringUtils.isEmpty(userGroupMember.getMemberId())) {
             Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
             result.put("errorMessage", "there is not userGroupId or memberId in params to delete user group member");
             return result;
         }
-        
         if (webProperties.isOpenSource() == false) {
             boolean isValid = checkValid(userGroupMember.getUserId(), userGroupMember.getUserGroupId());
-            if (isValid = false) {
+            if (isValid == false) {
                 Map<String, String> result = new HashMap<>();
                 result.put("errorCode", "500");
                 result.put("errorMessage", "there is not userId or you don't have authority for user group.");
@@ -213,7 +193,7 @@ public class UserGroupController {
         }
         
         userGroupService.deleteMember(userGroupMember);
-
+        
         Map<String, String> result = new HashMap<>();
         result.put("result", "SUCCESS");
         return result;
@@ -222,60 +202,16 @@ public class UserGroupController {
     @RequestMapping(value = "/member", method = RequestMethod.GET)
     @ResponseBody
     public List<UserGroupMember> getUserGroupMember(@RequestParam(USER_GROUP_ID) String userGroupId) {
-        //need param check and make response message for exception
-        
         return userGroupService.selectMember(userGroupId);
     }
-    
-//    @RequestMapping(value = "/member", method = RequestMethod.PUT)
-//    @ResponseBody
-//    public Map<String, String> updateUserGroupMember(@RequestBody UserGroupMember userGroupMember) {
-//        if (StringUtils.isEmpty(userGroupMember.getNumber()) || StringUtils.isEmpty(userGroupMember.getMemberId()) || StringUtils.isEmpty(userGroupMember.getMemberId())) {
-//            Map<String, String> result = new HashMap<String, String>();
-//            result.put("errorCode", "500");
-//            result.put("errorMessage", "there is not number/userGroupId/memberId in params to update user group member");
-//            return result;
-//        }
-//        
-//        userGroupService.updateMember(userGroupMember);
-//
-//        Map<String, String> result = new HashMap<String, String>();
-//        result.put("result", "SUCCESS");
-//        return result;
-//    }
     
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public Map<String, String> handleException(Exception e) {
         logger.error("Exception occurred while trying to CRUD userGroup information", e);
-        
         Map<String, String> result = new HashMap<>();
         result.put("errorCode", "500");
         result.put("errorMessage", "Exception occurred while trying to CRUD userGroup information");
         return result;
-    }
-    
-    private class UserGroupParam extends UserGroup {
-        private String userId;
-
-        public String getUserId() {
-            return userId;
-        }
-
-        public void setUserId(String userId) {
-            this.userId = userId;
-        }
-    }
-    
-    private class UserGroupMemberParam extends UserGroupMember {
-        private String userId;
-
-        public String getUserId() {
-            return userId;
-        }
-
-        public void setUserId(String userId) {
-            this.userId = userId;
-        }
     }
 }
