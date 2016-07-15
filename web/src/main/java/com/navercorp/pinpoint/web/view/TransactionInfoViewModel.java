@@ -202,8 +202,6 @@ public class TransactionInfoViewModel {
                 "agent",
                 "isFocused",
                 "hasException",
-                "logButtonName",
-                "logPageUrl",
                 "isAuthorized"
         };
 
