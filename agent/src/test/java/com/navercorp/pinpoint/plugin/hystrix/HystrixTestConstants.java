@@ -14,11 +14,12 @@
  */
 package com.navercorp.pinpoint.plugin.hystrix;
 
+import com.navercorp.pinpoint.common.Version;
 /**
  * @author Jiaqi Feng
  *
  */
 public interface HystrixTestConstants {
-    public static final String VERSION = "1.5.2-SNAPSHOT";
+    public static final String VERSION = Version.VERSION;
     public static final String AGENT_PATH = "target/plugin-hystrix-agent-" + VERSION;
 }

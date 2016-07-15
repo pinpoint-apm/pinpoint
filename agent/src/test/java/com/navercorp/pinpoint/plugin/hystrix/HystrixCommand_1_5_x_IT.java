@@ -23,7 +23,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotati
  * Created by jack on 7/4/16.
  */
 @RunWith(PinpointPluginTestSuite.class)
-@Dependency({"com.netflix.hystrix:hystrix-core:1.5.3","com.netflix.hystrix:hystrix-metrics-event-stream:1.1.2"})
+@Dependency({"com.netflix.hystrix:hystrix-core:[1.5.3,)","com.netflix.hystrix:hystrix-metrics-event-stream:1.1.2"})
 public class HystrixCommand_1_5_x_IT {
     private static final ExpectedAnnotation expectedAnnotation = annotation("hystrix.subclass", "SayHelloCommand");
 
