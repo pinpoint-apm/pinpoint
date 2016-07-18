@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.TracesDao;
 import com.navercorp.pinpoint.collector.dao.hbase.filter.SpanEventFilter;
-import com.navercorp.pinpoint.common.server.bo.serializer.AnnotationSerializer;
-import com.navercorp.pinpoint.common.server.bo.serializer.SpanEventSerializer;
-import com.navercorp.pinpoint.common.server.bo.serializer.SpanSerializer;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.AnnotationSerializer;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanEventSerializer;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanSerializer;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;

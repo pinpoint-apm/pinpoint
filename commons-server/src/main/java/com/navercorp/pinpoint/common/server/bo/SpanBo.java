@@ -58,11 +58,11 @@ public class SpanBo implements Span {
     private String endPoint;
     private int apiId;
 
-    private List<AnnotationBo> annotationBoList;
+    private List<AnnotationBo> annotationBoList = new ArrayList<>();
     private short flag; // optional
     private int errCode;
 
-    private List<SpanEventBo> spanEventBoList;
+    private List<SpanEventBo> spanEventBoList = new ArrayList<>();
 
     private long collectorAcceptTime;
 
@@ -251,7 +251,12 @@ public class SpanBo implements Span {
         return spanId;
     }
 
+    @Deprecated
     public void setSpanID(long spanId) {
+        this.setSpanId(spanId);
+    }
+
+    public void setSpanId(long spanId) {
         this.spanId = spanId;
     }
 
@@ -310,9 +315,17 @@ public class SpanBo implements Span {
         this.annotationBoList = anoList;
     }
 
-    public void addSpanEvent(SpanEventBo spanEventBo) {
+    public void addSpanEventBoList(List<SpanEventBo> spanEventBoList) {
         if (spanEventBoList == null) {
-            spanEventBoList = new ArrayList<>();
+            return;
+        }
+        this.spanEventBoList.addAll(spanEventBoList);
+    }
+
+
+    public void addSpanEvent(SpanEventBo spanEventBo) {
+        if (spanEventBo == null) {
+            return;
         }
         spanEventBoList.add(spanEventBo);
     }

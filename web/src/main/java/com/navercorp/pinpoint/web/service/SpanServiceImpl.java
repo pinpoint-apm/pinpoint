@@ -43,10 +43,12 @@ import com.navercorp.pinpoint.web.security.MetaDataFilter;
 import com.navercorp.pinpoint.web.security.MetaDataFilter.MetaData;
 import com.navercorp.pinpoint.web.vo.TransactionId;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * @author emeroad
@@ -59,6 +61,7 @@ public class SpanServiceImpl implements SpanService {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
+    @Qualifier("hbaseTraceDaoFactory")
     private TraceDao traceDao;
 
 //    @Autowired
@@ -83,7 +86,7 @@ public class SpanServiceImpl implements SpanService {
         }
 
         final List<SpanBo> spans = traceDao.selectSpanAndAnnotation(transactionId);
-        if (spans == null || spans.isEmpty()) {
+        if (CollectionUtils.isEmpty(spans)) {
             return new SpanResult(SpanAligner2.FAIL_MATCH, new CallTreeIterator(null));
         }
 

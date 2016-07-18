@@ -30,12 +30,14 @@ public interface TraceDao {
 
     List<SpanBo> selectSpan(TransactionId transactionId);
 
+    @Deprecated
     List<SpanBo> selectSpanAndAnnotation(TransactionId transactionId);
 
     List<List<SpanBo>> selectSpans(List<TransactionId> transactionIdList);
     
     List<List<SpanBo>> selectAllSpans(Collection<TransactionId> transactionIdList);
 
+    @Deprecated
     List<SpanBo> selectSpans(TransactionId transactionId);
     
 }

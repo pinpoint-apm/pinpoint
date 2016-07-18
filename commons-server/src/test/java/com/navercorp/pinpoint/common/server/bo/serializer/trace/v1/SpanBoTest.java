@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.bo.serializer;
+package com.navercorp.pinpoint.common.server.bo.serializer.trace.v1;
 
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanSerializer;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
