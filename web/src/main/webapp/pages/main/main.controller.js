@@ -189,9 +189,13 @@
 	            oSidebarTitleVoService.setImageType(node.serviceType);
 	
 	            if (node.isWas === true) {
-	                $scope.hasScatter = true;
-	                oSidebarTitleVoService.setTitle(node.applicationName);
-	                $scope.$broadcast('scatterDirective.initializeWithNode.forMain', node);
+	            	if ( node.isAuthorized === true ) {
+						$scope.hasScatter = true;
+						$scope.$broadcast('scatterDirective.initializeWithNode.forMain', node);
+					} else {
+						$scope.hasScatter = false;
+					}
+					oSidebarTitleVoService.setTitle(node.applicationName);
 	            } else if (node.unknownNodeGroup) {
 	                oSidebarTitleVoService.setTitle( node.serviceType.replace( "_", " " ) );
 	                $scope.hasScatter = false;

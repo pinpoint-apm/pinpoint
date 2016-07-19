@@ -68,7 +68,6 @@
 					}
 					function cancelPreviousWork() {
 						AddUserGroup.cancelAction( AlarmUtilService, $elNewGroup );
-						UpdateUserGroup.cancelAction( AlarmUtilService, $workingNode );
 						RemoveUserGroup.cancelAction( AlarmUtilService, $workingNode );
 					}
 					function showAlert( oServerError ) {
@@ -146,40 +145,6 @@
 						}, showAlert );
 					};
 
-					// update process
-					scope.onUpdateUserGroup = function( $event ) {
-						cancelPreviousWork();
-						$workingNode = AlarmUtilService.getNode( $event, "li" );
-						UpdateUserGroup.onAction( AlarmUtilService, $workingNode );
-					};
-					scope.onCancelUpdateUserGroup = function() {
-						UpdateUserGroup.cancelAction( AlarmUtilService, $workingNode );
-					};
-					scope.onApplyUpdateUserGroup = function() {
-						applyUpdateUserGroup();
-					};
-					function applyUpdateUserGroup() {
-						UpdateUserGroup.applyAction( AlarmUtilService, $workingNode, $elLoading, globalConfig.userId, function( groupNumber, groupName ) {
-							return AlarmUtilService.hasDuplicateItem( oUserGroupList, function( userGroup ) {
-								if ( userGroup.id == groupName ) {
-									if ( userGroup.number == groupNumber ) {
-										return false;
-									}
-									return true;
-								}
-								return false;
-							});
-						}, function( groupNumber, groupName ) {
-							AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_ALARM_CREATE_USER_GROUP );
-							for (var i = 0; i < oUserGroupList.length; i++ ) {
-								if ( oUserGroupList[i].number == groupNumber ) {
-									oUserGroupList[i].id = groupName;
-								}
-							}
-							scope.userGroupList = oUserGroupList;
-						}, showAlert );
-					}
-
 					// key down
 					scope.onSearchKeydown = function( $event ) {
 						if ( $event.keyCode == 13 ) { // Enter
@@ -197,14 +162,6 @@
 							$event.stopPropagation();
 						}
 					};
-					scope.onUpdateUserGroupKeydown = function( $event ) {
-						if ( $event.keyCode == 13 ) { // Enter
-							applyUpdateUserGroup();
-						} else if ( $event.keyCode == 27 ) { // ESC
-							UpdateUserGroup.cancelAction( AlarmUtilService, $workingNode );
-							$event.stopPropagation();
-						}
-					};
 					scope.onCloseAlert = function() {
 						AlarmUtilService.hide( $elAlert );
 					};
@@ -218,10 +175,11 @@
 	    }
 	]);
 	var CONSTS = {
-		MIN_GROUPNAME_LENGTH : 3,
+		MIN_GROUP_NAME_LENGTH : 3,
 		NEW_GROUP: "New Group",
 		EXIST_A_SAME: "Exist a same group name",
 		ENTER_AT_LEAST: "Enter at least 3 letters to search",
+		CANNOT_BE_USED_GUEST: "The name 'guest' can not be used.",
 		DIV_EDIT: "div._edit",
 		DIV_NORMAL: "div._normal",
 		DIV_REMOVE: "div._remove"
@@ -247,7 +205,12 @@
 		applyAction: function( AlarmUtilService, $newNode, $elLoading, userId, cbSuccess, cbFail ) {
 			AlarmUtilService.show( $elLoading );
 			var groupId = $newNode.find("input").val();
-			if ( groupId.length < CONSTS.MIN_GROUPNAME_LENGTH ) {
+			if ( groupId.trim() === "guest" ) {
+				AlarmUtilService.hide( $elLoading );
+				$newNode.addClass( "blink-blink" ).find( "input" ).attr( "placeholder", CONSTS.CANNOT_BE_USED_GUEST ).val( "" ).focus();
+				return;
+			}
+			if ( groupId.length < CONSTS.MIN_GROUP_NAME_LENGTH ) {
 				AlarmUtilService.hide( $elLoading );
 				$newNode.addClass( "blink-blink" ).find( "input" ).attr( "placeholder", CONSTS.ENTER_AT_LEAST ).val( "" ).focus();
 				return;
@@ -295,59 +258,6 @@
 			}, function (oServerError) {
 				cbFail( oServerError );
 			});
-		}
-	};
-	var UpdateUserGroup = {
-		_bIng: false,
-		onAction: function( AlarmUtilService, $node ) {
-			this._bIng = true;
-			$node.addClass("edit");
-			AlarmUtilService.hide( $node.find( CONSTS.DIV_NORMAL ) );
-			AlarmUtilService.show( $node.find( CONSTS.DIV_EDIT ) );
-			AlarmUtilService.hide( $node.find(".contents") );
-			$node.find("input").val( $node.find(".contents").html() ).show();
-			$node.find("input").focus();
-		},
-		cancelAction: function( AlarmUtilService, $node ) {
-			if ( this._bIng === true ) {
-				$node.removeClass("edit blink-blink");
-				$node.find("input").hide();
-				AlarmUtilService.hide($node.find( CONSTS.DIV_EDIT ));
-				AlarmUtilService.show($node.find(".contents"));
-				AlarmUtilService.show($node.find( CONSTS.DIV_NORMAL ));
-				this._bIng = false;
-			}
-		},
-		applyAction: function( AlarmUtilService, $node, $elLoading, userId, cbHasDuplicate, cbSuccess, cbFail ) {
-			AlarmUtilService.show( $elLoading );
-			var self = this;
-			var groupNumber = AlarmUtilService.extractID( $node );
-			var groupName = $node.find("input").val();
-
-			if ( groupName.length < CONSTS.MIN_GROUPNAME_LENGTH ) {
-				AlarmUtilService.hide( $elLoading );
-				$node.addClass("blink-blink");
-				$node.find("input").attr("placeholder", CONSTS.ENTER_AT_LEAST).val("").focus();
-				return;
-			}
-			if ( cbHasDuplicate( groupNumber, groupName ) ) {
-				AlarmUtilService.hide( $elLoading );
-				$node.addClass("blink-blink");
-				$node.find("input").attr("placeholder", CONSTS.EXIST_A_SAME).val("").focus();
-				return;
-			}
-			AlarmUtilService.sendCRUD( "updateUserGroup", {
-				"number": groupNumber,
-				"id": groupName,
-				"userId": userId
-			}, function() {
-				cbSuccess( groupNumber, groupName );
-				self.cancelAction( AlarmUtilService, $node );
-				AlarmUtilService.hide( $elLoading );
-			}, function( oServerError ) {
-				cbFail( oServerError );
-			});
-
 		}
 	};
 })(jQuery);

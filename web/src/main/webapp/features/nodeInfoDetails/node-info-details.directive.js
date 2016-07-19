@@ -236,6 +236,24 @@
 						});
 						return aLoadSum;
 					}
+					scope.isGroupNode = function() {
+						if ( scope.node ) {
+							return scope.node.serviceType.indexOf("_GROUP") != -1 && scope.isAuthorized;
+						} else {
+							return false;
+						}
+
+					};
+					scope.isNotGroupNode = function() {
+						if ( scope.node ) {
+							return scope.node.serviceType.indexOf("_GROUP") == -1 && scope.isAuthorized;
+						} else {
+							return false;
+						}
+					};
+					scope.isNotAuthorized = function() {
+						return scope.isAuthorized === false;
+					};
 
                     /**
                      * show node detail information of scope
@@ -364,17 +382,11 @@
                      */
                     scope.$on("nodeInfoDetailsDirective.initialize", function (event, e, query, node, mapData, navbarVoService, reloadOnly, searchQuery) {
                         show();
-                        // DISABLE node Cache
-                        //if (angular.equals(sLastKey, node.key) && !reloadOnly) {
-                        //    if (htLastNode.category === "UNKNOWN_GROUP") {
-                        //        renderAllChartWhichIsVisible(htLastNode);
-                        //    }
-                        //    return;
-                        //}
                         reset();
                         htQuery = query;
                         sLastKey = node.key;
                         htLastNode = node;
+						scope.isAuthorized = node.isAuthorized === false ? false : true;
                         scope.htLastUnknownNode = false;
                         scope.oNavbarVoService = navbarVoService;
                         scope.nodeSearch = searchQuery || "";

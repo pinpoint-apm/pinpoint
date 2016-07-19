@@ -1,6 +1,6 @@
 <div class="nodeInfoDetails" ng-init="nodeIcon='USER'" ng-show="showNodeInfoDetails">
 
-    <div class="unknown-group" ng-show="node.serviceType.indexOf('_GROUP') != -1">
+    <div class="unknown-group" ng-show="isGroupNode()">
 
         <div class="search-n-order">
             <div style="display:inline-block;width:265px">
@@ -53,7 +53,7 @@
         </div>
     </div>
 
-    <div class="known-node" ng-hide="node.serviceType.indexOf( '_GROUP' ) != -1">
+    <div class="known-node" ng-show="isNotGroupNode()">
 
         <div class='response-summary' ng-show="showNodeResponseSummary">
             <h5><span class="glyphicon glyphicon-question-sign responseSummaryChartTooltip" style="cursor:pointer;float:right;"></span> Response Summary</h5>
@@ -69,5 +69,11 @@
         </div>
 
     </div>
+
+	<div ng-show="isNotAuthorized()">
+		<div style="text-align:center;font-weight:bold;margin-top:50px;">
+			You don't have authorization for {{node.applicationName}}
+		</div>
+	</div>
 
 </div>
