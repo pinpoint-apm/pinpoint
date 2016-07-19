@@ -36,7 +36,7 @@ public class DefaultApplicationMap implements ApplicationMap {
 
     private final Range range;
 
-    private List<ApplicationScatterScanResult> applicationScatterScanResultList;
+//    private List<ApplicationScatterScanResult> applicationScatterScanResultList;
 
     DefaultApplicationMap(Range range, NodeList nodeList, LinkList linkList) {
         if (range == null) {
@@ -63,4 +63,7 @@ public class DefaultApplicationMap implements ApplicationMap {
         return this.linkList.getLinkList();
     }
 
+    public Range getRange() {
+        return range;
+    }
 }

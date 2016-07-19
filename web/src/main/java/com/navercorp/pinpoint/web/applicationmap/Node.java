@@ -101,7 +101,7 @@ public class Node {
     public void setNodeHistogram(NodeHistogram nodeHistogram) {
         this.nodeHistogram = nodeHistogram;
     }
-
+    
     public boolean isAuthorized() {
         return authorized;
     }
