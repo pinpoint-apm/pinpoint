@@ -32,12 +32,14 @@ public class SpanEncoder {
             final int asyncId2 = o2.getAsyncId();
             final int asyncIdCompare = Integer.compare(asyncId1, asyncId2);
             if (asyncIdCompare != 0) {
-                if (asyncId1 == -1) {
-                    return -1;
-                }
-                if (asyncId2 == -1) {
-                    return -1;
-                }
+//                bug Comparison method violates its general contract!
+//                TODO temporary fix
+//                if (asyncId1 == -1) {
+//                    return -1;
+//                }
+//                if (asyncId2 == -1) {
+//                    return -1;
+//                }
                 return asyncIdCompare;
             }
             return Integer.compare(o1.getAsyncSequence(), o2.getAsyncSequence());
