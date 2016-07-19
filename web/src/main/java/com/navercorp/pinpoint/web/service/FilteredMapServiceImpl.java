@@ -356,6 +356,10 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         mapHistogramSummary.build();
         ApplicationMap map = applicationMapBuilder.build(linkDataDuplexMap, agentInfoService, mapHistogramSummary);
 
+        if(serverMapDataFilter != null) {
+            map = serverMapDataFilter.dataFiltering(map);
+        }
+        
         return map;
     }
 
