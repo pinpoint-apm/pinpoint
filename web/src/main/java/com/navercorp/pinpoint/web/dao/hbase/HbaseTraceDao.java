@@ -21,9 +21,12 @@ import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.web.dao.TraceDao;
+import com.navercorp.pinpoint.web.mapper.CellTraceMapper;
 import com.navercorp.pinpoint.web.vo.TransactionId;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.client.Get;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,6 +44,8 @@ import java.util.List;
 @Repository
 public class HbaseTraceDao implements TraceDao {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     private HbaseOperations2 template2;
 
@@ -48,8 +53,7 @@ public class HbaseTraceDao implements TraceDao {
     @Qualifier("traceDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
 
-    @Autowired
-    @Qualifier("spanMapper")
+
     private RowMapper<List<SpanBo>> spanMapper;
 
     @Autowired
@@ -61,6 +65,16 @@ public class HbaseTraceDao implements TraceDao {
 
     @Value("#{pinpointWebProps['web.hbase.selectAllSpans.limit'] ?: 500}")
     private int selectAllSpansLimit;
+
+    @Autowired
+    @Qualifier("spanMapper")
+    public void setSpanMapper(RowMapper<List<SpanBo>> spanMapper) {
+        final Logger logger = LoggerFactory.getLogger(spanMapper.getClass());
+        if (logger.isDebugEnabled()) {
+            spanMapper = CellTraceMapper.wrap(spanMapper);
+        }
+        this.spanMapper = spanMapper;
+    }
 
     @Override
     public List<SpanBo> selectSpan(TransactionId transactionId) {

@@ -12,6 +12,7 @@ disable 'SqlMetaData_Ver2'
 
 disable 'ApplicationTraceIndex'
 disable 'Traces'
+disable 'TraceV2'
 
 
 disable 'ApplicationMapStatisticsCaller_Ver2'

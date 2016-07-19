@@ -43,7 +43,6 @@ import java.util.*;
 public class SpanMapper implements RowMapper<List<SpanBo>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private AnnotationMapper annotationMapper;
 
     private final AnnotationBoDecoder annotationBoDecoder = new AnnotationBoDecoder();
@@ -79,7 +78,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
                 spanBo.setTraceTransactionSequence(transactionId.getTransactionSequence());
                 spanBo.setCollectorAcceptTime(cell.getTimestamp());
 
-                spanBo.setSpanID(Bytes.toLong(cell.getQualifierArray(), cell.getQualifierOffset()));
+                spanBo.setSpanId(Bytes.toLong(cell.getQualifierArray(), cell.getQualifierOffset()));
                 readSpan(spanBo, cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
                 if (logger.isDebugEnabled()) {
                     logger.debug("read span :{}", spanBo);
@@ -118,9 +117,14 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
             }
         }
         for (SpanEventBo spanEventBo : spanEventBoList) {
-            SpanBo spanBo = spanMap.get(spanEventBo.getSpanId());
+            final Long spanId = spanEventBo.getSpanId();
+            SpanBo spanBo = spanMap.get(spanId);
             if (spanBo != null) {
                 spanBo.addSpanEvent(spanEventBo);
+            } else {
+                if (logger.isInfoEnabled()) {
+                    logger.info("Span not exist spanId:{} spanEvent:{}", spanEventBo);
+                }
             }
         }
         if (annotationMapper != null) {

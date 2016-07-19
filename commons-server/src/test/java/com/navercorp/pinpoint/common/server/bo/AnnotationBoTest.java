@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.server.bo.serializer.AnnotationSerializer;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.AnnotationSerializer;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 
 import org.apache.commons.lang.RandomStringUtils;

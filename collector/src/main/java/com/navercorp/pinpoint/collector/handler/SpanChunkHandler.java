@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.handler;
 
 import java.util.List;
 
+import com.navercorp.pinpoint.collector.dao.TraceDao;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
@@ -26,11 +27,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.navercorp.pinpoint.collector.dao.TracesDao;
 import com.navercorp.pinpoint.common.util.SpanEventUtils;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -42,7 +43,8 @@ public class SpanChunkHandler implements SimpleHandler {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    private TracesDao traceDao;
+    @Qualifier("hbaseTraceDaoFactory")
+    private TraceDao traceDao;
 
     @Autowired
     private StatisticsHandler statisticsHandler;
@@ -69,7 +71,9 @@ public class SpanChunkHandler implements SimpleHandler {
             final ServiceType applicationServiceType = getApplicationServiceType(spanChunk);
             List<TSpanEvent> spanEventList = spanChunk.getSpanEventList();
             if (spanEventList != null) {
-                logger.debug("SpanChunk Size:{}", spanEventList.size());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("SpanChunk Size:{}", spanEventList.size());
+                }
                 // TODO need to batch update later.
                 for (TSpanEvent spanEvent : spanEventList) {
                     final ServiceType spanEventType = registry.findServiceType(spanEvent.getServiceType());

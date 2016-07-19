@@ -119,7 +119,7 @@ public class SpanEventBo implements Span {
             this.nextSpanId = tSpanEvent.getNextSpanId();
         }
         
-        setAnnotationList(tSpanEvent.getAnnotations());
+        this.annotationBoList = buildAnnotationList(tSpanEvent.getAnnotations());
 
         final TIntStringValue exceptionInfo = tSpanEvent.getExceptionInfo();
         if (exceptionInfo != null) {
@@ -183,7 +183,7 @@ public class SpanEventBo implements Span {
             this.nextSpanId = spanEvent.getNextSpanId();
         }
 
-        setAnnotationList(spanEvent.getAnnotations());
+        this.annotationBoList = buildAnnotationList(spanEvent.getAnnotations());
 
         final TIntStringValue exceptionInfo = spanEvent.getExceptionInfo();
         if (exceptionInfo != null) {
@@ -356,22 +356,23 @@ public class SpanEventBo implements Span {
         this.nextSpanId = nextSpanId;
     }
 
-    public void setAnnotationList(List<TAnnotation> annotations) {
-        if (annotations == null) {
-            return;
+    private List<AnnotationBo> buildAnnotationList(List<TAnnotation> annotationList) {
+        if (annotationList == null) {
+            return new ArrayList<>();
         }
-        List<AnnotationBo> boList = new ArrayList<AnnotationBo>(annotations.size());
-        for (TAnnotation ano : annotations) {
-            boList.add(new AnnotationBo(ano));
+        List<AnnotationBo> boList = new ArrayList<AnnotationBo>(annotationList.size());
+        for (TAnnotation annotation : annotationList) {
+            AnnotationBo annotationBo = new AnnotationBo(annotation);
+            boList.add(annotationBo);
         }
-        this.annotationBoList = boList;
+        return boList;
     }
 
-    public void setAnnotationBoList(List<AnnotationBo> anoList) {
-        if (anoList == null) {
+    public void setAnnotationBoList(List<AnnotationBo> annotationList) {
+        if (annotationList == null) {
             return;
         }
-        this.annotationBoList = anoList;
+        this.annotationBoList = annotationList;
     }
     
     public boolean isAsync() {
@@ -574,6 +575,8 @@ public class SpanEventBo implements Span {
         builder.append(asyncId);
         builder.append(", nextAsyncId=");
         builder.append(nextAsyncId);
+        builder.append(", asyncSequence=");
+        builder.append(asyncSequence);
         builder.append("}");
         return builder.toString();
     }

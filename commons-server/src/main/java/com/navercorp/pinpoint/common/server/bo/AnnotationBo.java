@@ -52,10 +52,12 @@ public class AnnotationBo {
         this.byteValue = transcoder.encode(value, this.valueType);
     }
 
+    @Deprecated
     public long getSpanId() {
         return spanId;
     }
 
+    @Deprecated
     public void setSpanId(long spanId) {
         this.spanId = spanId;
     }
@@ -136,20 +138,7 @@ public class AnnotationBo {
         buffer.putPrefixedBytes(this.byteValue);
     }
 
-//    public int getBufferSize() {
-//        // int key; // required 4+string.length
-//        // int valueTypeCode; // required 4
-//        // ByteBuffer value; // optional 4 + buf.length
-//        int size = 0;
-//        size += 1 + 4 + 4 + 4;
-//        size += 4;
-//        if (this.getByteValue() != null) {
-//            size += this.getByteValue().length;
-//        }
-//        return size;
-//    }
-
-
+    @Deprecated
     public void readValue(Buffer buffer) {
         this.version = buffer.readByte();
         this.key = buffer.readSVInt();

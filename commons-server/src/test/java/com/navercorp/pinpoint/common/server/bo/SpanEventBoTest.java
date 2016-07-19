@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import com.navercorp.pinpoint.common.server.bo.serializer.AnnotationSerializer;
-import com.navercorp.pinpoint.common.server.bo.serializer.SpanEventSerializer;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.AnnotationSerializer;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanEventSerializer;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import org.junit.Assert;

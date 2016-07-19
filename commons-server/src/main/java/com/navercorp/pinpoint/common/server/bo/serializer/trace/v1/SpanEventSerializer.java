@@ -1,10 +1,11 @@
-package com.navercorp.pinpoint.common.server.bo.serializer;
+package com.navercorp.pinpoint.common.server.bo.serializer.trace.v1;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
+import com.navercorp.pinpoint.common.server.bo.serializer.HbaseSerializer;
+import com.navercorp.pinpoint.common.server.bo.serializer.SerializationContext;
 import org.apache.hadoop.hbase.client.Put;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
