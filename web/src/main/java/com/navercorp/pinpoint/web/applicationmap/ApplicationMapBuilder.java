@@ -134,6 +134,10 @@ public class ApplicationMapBuilder {
         };
         return this.build(linkDataDuplexMap, agentInfoPopulator, responseSource);
     }
+    
+    public ApplicationMap build(NodeList nodeList, LinkList linkList) {
+        return new DefaultApplicationMap(range, nodeList, linkList);
+    }
 
     private ServerInstanceList getServerInstanceList(final Node node, final AgentInfoService agentInfoService) {
         long timestamp = range.getTo();

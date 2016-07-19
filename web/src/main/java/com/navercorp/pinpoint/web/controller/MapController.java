@@ -135,7 +135,7 @@ public class MapController {
         logger.info("getServerMap() application:{} range:{} searchOption:{}", application, range, searchOption);
 
         ApplicationMap map = mapService.selectApplicationMap(application, range, searchOption);
-
+        
         return new MapWrap(map);
     }
 

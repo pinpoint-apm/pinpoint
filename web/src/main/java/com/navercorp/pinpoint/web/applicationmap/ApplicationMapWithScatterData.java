@@ -47,6 +47,10 @@ public class ApplicationMapWithScatterData implements ApplicationMap {
     public Collection<Link> getLinks() {
         return applicationMap.getLinks();
     }
+    
+    public ApplicationMap getApplicationMap() {
+        return applicationMap;
+    }
 
     @JsonIgnore
     public Map<Application, ScatterData> getApplicationScatterDataMap() {
