@@ -426,11 +426,6 @@ public class SpanDecoderV0 implements SpanDecoder {
         decodingContext.next();
     }
 
-    @Override
-    public void finish(SpanDecodingContext decodingContext) {
-        decodingContext.finish();
-    }
-
 
     // resolve type miss match
     private interface SpanAdaptor {

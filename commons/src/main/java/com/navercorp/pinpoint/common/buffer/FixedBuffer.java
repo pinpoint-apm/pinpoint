@@ -303,6 +303,12 @@ public class FixedBuffer implements Buffer {
         putBytes(v);
     }
 
+
+    @Override
+    public byte getByte(int index) {
+        return this.buffer[offset];
+    }
+
     @Override
     public byte readByte() {
         return this.buffer[offset++];

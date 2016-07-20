@@ -194,6 +194,8 @@ public interface Buffer {
     @Deprecated
     void put(byte[] v);
 
+    byte getByte(int index);
+
     byte readByte();
 
     int readUnsignedByte();
