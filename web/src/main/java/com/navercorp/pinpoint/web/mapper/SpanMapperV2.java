@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
 import com.navercorp.pinpoint.common.util.BytesUtils;
@@ -59,7 +60,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
     public static final int AGENT_NAME_MAX_LEN = PinpointConstants.AGENT_NAME_MAX_LEN;
     public static final int DISTRIBUTE_HASH_SIZE = 1;
 
-    private final SpanDecoder spanDecoder = new SpanDecoder();
+    private final SpanDecoder spanDecoder = new SpanDecoderV0();
 
 
     @Override

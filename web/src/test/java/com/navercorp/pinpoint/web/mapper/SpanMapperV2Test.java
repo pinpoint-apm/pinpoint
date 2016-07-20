@@ -6,9 +6,10 @@ import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncodingContext;
 import com.navercorp.pinpoint.common.util.AnnotationTranscoder;
 import org.junit.Assert;
@@ -26,7 +27,7 @@ public class SpanMapperV2Test {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final AnnotationTranscoder transcoder = new AnnotationTranscoder();
-    private final SpanDecoder decoder = new SpanDecoder();
+    private final SpanDecoderV0 decoder = new SpanDecoderV0();
 
     @Test
     public void test() {
@@ -56,7 +57,7 @@ public class SpanMapperV2Test {
         span.addSpanEvent(nextSpanEventBo);
 
         SpanEncodingContext<SpanBo> encodingContext = new SpanEncodingContext<>(span);
-        SpanEncoder encoder = new SpanEncoder();
+        SpanEncoder encoder = new SpanEncoderV0();
         ByteBuffer byteBuffer = encoder.encodeSpanColumnValue(encodingContext);
 
         Buffer buffer = new OffsetFixedBuffer(byteBuffer.array(), byteBuffer.arrayOffset(), byteBuffer.remaining());
