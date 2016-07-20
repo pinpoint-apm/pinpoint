@@ -9,7 +9,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 public class SpanEncodingContext<T> {
     private T value;
 
-    private AnnotationBo prevAnnotationBo;
+//    private AnnotationBo prevAnnotationBo;
 
     public SpanEncodingContext(T value) {
         this.value = value;
