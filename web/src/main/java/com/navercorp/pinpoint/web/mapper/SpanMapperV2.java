@@ -80,6 +80,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         decodingContext.setTransactionId(transactionId);
 
         for (Cell cell : rawCells) {
+            SpanDecoder spanDecoder = null;
             // only if family name is "span"
             if (CellUtil.matchingFamily(cell, HBaseTables.TRACE_V2_CF_SPAN)) {
 
@@ -88,18 +89,36 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
                 final Buffer qualifier = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
                 final Buffer columnValue = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
 
-                this.spanDecoder.decode(qualifier, columnValue, decodingContext, out);
+                spanDecoder = resolveDecoder(columnValue);
+                spanDecoder.decode(qualifier, columnValue, decodingContext, out);
 
             } else {
                 logger.warn("Unknown ColumnFamily :{}", Bytes.toStringBinary(CellUtil.cloneFamily(cell)));
             }
-            this.spanDecoder.next(decodingContext);
+            nextCell(spanDecoder, decodingContext);
         }
-        this.spanDecoder.finish(decodingContext);
+        decodingContext.finish();
 
 
         return buildSpanBoList(out);
 
+    }
+
+    private void nextCell(SpanDecoder spanDecoder, SpanDecodingContext decodingContext) {
+        if (spanDecoder != null) {
+            spanDecoder.next(decodingContext);
+        } else {
+            decodingContext.next();
+        }
+    }
+
+    private SpanDecoder resolveDecoder(Buffer columnValue) {
+        final byte version = columnValue.getByte(0);
+        if (version == 0) {
+            return this.spanDecoder;
+        } else {
+            throw new IllegalStateException("unsupported version");
+        }
     }
 
     private TransactionId newTransactionId(byte[] rowKey, int offset) {

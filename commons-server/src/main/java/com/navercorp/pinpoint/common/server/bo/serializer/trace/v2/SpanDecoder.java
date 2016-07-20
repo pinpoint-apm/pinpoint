@@ -15,5 +15,4 @@ public interface SpanDecoder {
 
     void next(SpanDecodingContext decodingContext);
 
-    void finish(SpanDecodingContext decodingContext);
 }
