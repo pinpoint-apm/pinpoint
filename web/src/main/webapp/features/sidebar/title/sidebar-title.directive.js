@@ -31,7 +31,7 @@
 
 					function initializeAgentList( node ) {
 						scope.currentAgent = preferenceService.getAgentAllStr();
-						if ( typeof node === "undefined" ) {
+						if ( typeof node === "undefined" || node.isAuthorized === false ) {
 							scope.agentList = [];
 							return;
 						}
@@ -66,29 +66,33 @@
 						scope.serverCount = 0;
 						scope.errorServerCount = 0;
 						var p, p2;
-						if ( htLastNode.sourceHistogram ) {
-							// link
-							bIsNode = false;
-							scope.showServerListHtml = ( htLastNode.sourceHistogram && _.isEmpty( htLastNode.sourceHistogram ) === false ) ? true : false;
-
-							for( p in htLastNode.sourceHistogram ) {
-								scope.serverCount++;
-								if ( htLastNode.sourceHistogram[p].Error > 0 ) {
-									scope.errorServerCount++;
-								}
-							}
+						if ( htLastNode.isAuthorized === false ) {
+							scope.showServerListHtml = false;
 						} else {
-							// node
-							bIsNode = true;
-							scope.showServerListHtml = ( htLastNode.serverList && _.isEmpty( htLastNode.serverList ) === false ) ? true : false;
+							if (htLastNode.sourceHistogram) {
+								// link
+								bIsNode = false;
+								scope.showServerListHtml = ( htLastNode.sourceHistogram && _.isEmpty(htLastNode.sourceHistogram) === false ) ? true : false;
 
-							for( p in htLastNode.serverList ) {
-								var instanceList = htLastNode.serverList[p].instanceList;
-								for( p2 in instanceList ) {
+								for (p in htLastNode.sourceHistogram) {
 									scope.serverCount++;
-									if (( htLastNode.agentHistogram[instanceList[p2].name] ) &&
-										( htLastNode.agentHistogram[instanceList[p2].name].Error > 0 )) {
+									if (htLastNode.sourceHistogram[p].Error > 0) {
 										scope.errorServerCount++;
+									}
+								}
+							} else {
+								// node
+								bIsNode = true;
+								scope.showServerListHtml = ( htLastNode.serverList && _.isEmpty(htLastNode.serverList) === false ) ? true : false;
+
+								for (p in htLastNode.serverList) {
+									var instanceList = htLastNode.serverList[p].instanceList;
+									for (p2 in instanceList) {
+										scope.serverCount++;
+										if (( htLastNode.agentHistogram[instanceList[p2].name] ) &&
+											( htLastNode.agentHistogram[instanceList[p2].name].Error > 0 )) {
+											scope.errorServerCount++;
+										}
 									}
 								}
 							}
