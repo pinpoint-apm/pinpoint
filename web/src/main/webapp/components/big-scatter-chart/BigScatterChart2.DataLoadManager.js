@@ -79,7 +79,9 @@
 				self._cbLoaded( self._oSCManager.getX(), self._nextFrom, self._nextTo );
 			}
 		}).fail(function() {
-			self.loadRealtimeData( callbackRealtimeSuccess, callbackRealtimeFail, widthOfPixel, heightOfPixel );
+			setTimeout( function() {
+				self.loadRealtimeData(callbackRealtimeSuccess, callbackRealtimeFail, widthOfPixel, heightOfPixel);
+			}, self.option( "realtimeInterval" ) );
 		});
 	};
 	DataLoadManager.prototype._isResetRealtime = function( currentServerTime ) {
