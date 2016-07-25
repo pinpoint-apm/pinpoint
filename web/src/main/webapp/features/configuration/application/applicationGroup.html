@@ -1,7 +1,10 @@
 <div class="application-group">
+	<div class="filtering">
+		<input type="input" class="form-control" ng-model="applicationFilter" placeholder="찾으려는 application 을 입력하세요"/>
+	</div>
 	<div class="wrapper">
 		<ul>
-			<li ng-repeat="app in applicationList" id="{{getAppId(app)}}">
+			<li ng-repeat="app in applicationList | filter:applicationFilter" id="{{getAppId(app)}}">
 				<img ng-src="images/icons/{{app.serviceType}}.png"><span>{{app.applicationName}}</span>
 			</li>
 		</ul>
