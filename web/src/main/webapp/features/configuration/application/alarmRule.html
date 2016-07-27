@@ -18,13 +18,13 @@
 				<tbody>
 					<tr class="_edit1 hide-me" style="background-color:#F3FBFF">
 						<td class="col-md-4">
-							<select class="form-control" name="rule" style="width:95%;height: 26px;">
+							<select class="form-control" name="rule" style="width:95%;height:26px;padding:2px;">
 								<option value="">Select rule</option>
 								<option ng-repeat="rule in ruleSets" value="{{rule}}">{{rule}}</option>
 							</select>
 						</td>
 						<td class="col-md-3">
-							<select class="form-control" name="userGroup" style="width:95%;height: 26px;">
+							<select class="form-control" name="userGroup" style="width:95%;height:26px;padding:2px;">
 								<option value="">Select user group</option>
 								<option ng-repeat="userGroup in userGroupList" value="{{userGroup.id}}">{{userGroup.id}}</option>
 							</select>
@@ -33,7 +33,7 @@
 							<input type="number" value="1" placeholder="Threshold" name="threshold" class="form-control" style="height:26px;width:90%"/>
 						</td>
 						<td class="col-md-2">
-							<select class="form-control" name="type" style="height:26px;width:95%">
+							<select class="form-control" name="type" style="width:95%;height:26px;padding:2px;">
 								<option value="all">All</option>
 								<option value="email">Email</option>
 								<option value="sms">SMS</option>
