@@ -4,7 +4,6 @@ import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.HbaseSerializer;
 import com.navercorp.pinpoint.common.server.bo.serializer.SerializationContext;
 import org.apache.hadoop.hbase.client.Put;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.nio.ByteBuffer;

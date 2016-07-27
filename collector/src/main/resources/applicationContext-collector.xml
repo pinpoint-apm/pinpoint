@@ -22,7 +22,7 @@
                         com.navercorp.pinpoint.collector.util,
                         com.navercorp.pinpoint.collector.config,
                         com.navercorp.pinpoint.common.server.util,
-                        com.navercorp.pinpoint.common.server.bo.serializer" />
+                        com.navercorp.pinpoint.common.server.bo" />
 
     <bean id="propertyConfigurer"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -288,7 +288,7 @@
     
     <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.collector.dao.hbase.HbaseSqlMetaDataDao"/>
 
-    <bean id="sequenceSpanEventFilter" class="com.navercorp.pinpoint.collector.dao.hbase.filter.SequenceSpanEventFilter">
+    <bean id="sequenceSpanEventFilter" class="com.navercorp.pinpoint.common.server.bo.filter.SequenceSpanEventFilter">
         <constructor-arg index="0" value="${collector.spanEvent.sequence.limit:10000}"/>
     </bean>
 </beans>

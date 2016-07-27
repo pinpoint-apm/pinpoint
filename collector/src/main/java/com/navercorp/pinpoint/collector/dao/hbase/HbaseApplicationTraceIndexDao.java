@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.util.SpanUtils;
+import com.navercorp.pinpoint.common.server.util.SpanUtils;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 

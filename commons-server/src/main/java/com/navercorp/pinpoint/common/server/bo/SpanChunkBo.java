@@ -1,15 +1,12 @@
 package com.navercorp.pinpoint.common.server.bo;
 
-import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
-
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SpanChunkBo {
+public class SpanChunkBo implements BasicSpan {
 
     private byte version = 0;
 
@@ -22,9 +19,16 @@ public class SpanChunkBo {
     private long traceTransactionSequence;
 
     private long spanId;
+    private String endPoint;
+
+    private short serviceType;
+    private Short applicationServiceType;
 
     private List<SpanEventBo> spanEventBoList = new ArrayList<>();
+
     private long collectorAcceptTime;
+
+
 
     public SpanChunkBo() {
     }
@@ -93,12 +97,44 @@ public class SpanChunkBo {
         this.spanId = spanId;
     }
 
+    public String getEndPoint() {
+        return endPoint;
+    }
+
+    public void setEndPoint(String endPoint) {
+        this.endPoint = endPoint;
+    }
+
     public long getCollectorAcceptTime() {
         return collectorAcceptTime;
     }
 
     public void setCollectorAcceptTime(long collectorAcceptTime) {
         this.collectorAcceptTime = collectorAcceptTime;
+    }
+
+    public void setApplicationServiceType(Short applicationServiceType) {
+        this.applicationServiceType  = applicationServiceType;
+    }
+
+    public short getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(short serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    public boolean hasApplicationServiceType() {
+        return applicationServiceType != null;
+    }
+
+    public short getApplicationServiceType() {
+        if (hasApplicationServiceType()) {
+            return this.applicationServiceType;
+        } else {
+            return this.serviceType;
+        }
     }
 
     public List<SpanEventBo> getSpanEventBoList() {

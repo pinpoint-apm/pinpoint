@@ -2,9 +2,6 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
 import com.navercorp.pinpoint.common.util.TransactionId;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Woonduk Kang(emeroad)
  */

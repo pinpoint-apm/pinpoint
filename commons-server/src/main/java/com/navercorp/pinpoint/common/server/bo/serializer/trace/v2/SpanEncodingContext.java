@@ -1,7 +1,5 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
-import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
-import com.navercorp.pinpoint.common.server.bo.SpanBo;
 
 /**
  * @author Woonduk Kang(emeroad)

@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.TraceDao;
-import com.navercorp.pinpoint.thrift.dto.TSpan;
-import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +29,7 @@ public class DualWriteHbaseTraceDao implements TraceDao {
     }
 
     @Override
-    public void insert(TSpan span) {
+    public void insert(SpanBo span) {
         Throwable masterException = null;
         try {
             master.insert(span);
@@ -45,15 +45,15 @@ public class DualWriteHbaseTraceDao implements TraceDao {
     }
 
     @Override
-    public void insertSpanChunk(TSpanChunk spanChunk) {
+    public void insertSpanChunk(SpanChunkBo spanChunkBo) {
         Throwable masterException = null;
         try {
-            master.insertSpanChunk(spanChunk);
+            master.insertSpanChunk(spanChunkBo);
         } catch (Throwable e) {
             masterException = e;
         }
         try {
-            slave.insertSpanChunk(spanChunk);
+            slave.insertSpanChunk(spanChunkBo);
         } catch (Throwable e) {
             logger.warn("slave insertSpanChunk(TSpanChunk) Error:{}", e.getMessage(), e);
         }

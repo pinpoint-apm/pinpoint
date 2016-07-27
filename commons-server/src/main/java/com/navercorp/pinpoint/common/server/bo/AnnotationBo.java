@@ -18,16 +18,14 @@ package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.util.AnnotationTranscoder;
-import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 
 /**
  * @author emeroad
  */
 public class AnnotationBo {
 
+    @Deprecated
     private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
-
-    private static final int VERSION_SIZE = 1;
 
     private byte version = 0;
     private long spanId;
@@ -40,16 +38,6 @@ public class AnnotationBo {
     private boolean isAuthorized = true;
     
     public AnnotationBo() {
-    }
-
-    public AnnotationBo(TAnnotation annotation) {
-        if (annotation == null) {
-            throw new NullPointerException("annotation must not be null");
-        }
-        this.key = annotation.getKey();
-        Object value = transcoder.getMappingValue(annotation);
-        this.valueType = transcoder.getTypeCode(value);
-        this.byteValue = transcoder.encode(value, this.valueType);
     }
 
     @Deprecated

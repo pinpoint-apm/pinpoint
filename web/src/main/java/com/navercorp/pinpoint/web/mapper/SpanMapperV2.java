@@ -30,10 +30,8 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingContext;
-import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TransactionId;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -156,19 +154,11 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         return spanBoList;
     }
 
-    private void sortSpanEvent(List<SpanEventBo> spanEventBoList) {
-        if (CollectionUtils.isEmpty(spanEventBoList)) {
-            return;
-        }
-        Collections.sort(spanEventBoList, SpanEncoder.SPAN_EVENT_SEQUENCE_COMPARATOR);
-    }
 
     private void bindAgentInfo(List<SpanBo> spanBoList) {
         // TODO workaround. fix class dependency
         for (SpanBo spanBo : spanBoList) {
-
             List<SpanEventBo> spanEventBoList = spanBo.getSpanEventBoList();
-            sortSpanEvent(spanEventBoList);
             for (SpanEventBo spanEventBo : spanEventBoList) {
                 spanEventBo.setAgentId(spanBo.getAgentId());
                 spanEventBo.setApplicationId(spanBo.getApplicationId());

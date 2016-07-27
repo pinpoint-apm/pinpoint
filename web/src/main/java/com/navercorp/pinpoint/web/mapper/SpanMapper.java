@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
@@ -67,7 +69,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
         final Cell[] rawCells = result.rawCells();
         List<SpanBo> spanList = new ArrayList<>();
         Map<Long, SpanBo> spanMap = new HashMap<>();
-        List<SpanEventBo> spanEventBoList = new ArrayList<>();
+        LinkedHashMultimap<Long, SpanEventBo> spanEventBoListMap = LinkedHashMultimap.create();
         for (Cell cell : rawCells) {
             // only if family name is "span"
             if (CellUtil.matchingFamily(cell, HBaseTables.TRACES_CF_SPAN)) {
@@ -93,7 +95,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
 
                 // qualifier : spanId(long) + sequence(short) + asyncId(int)
                 final Buffer qualifier = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
-                long spanId = qualifier.readLong();
+                Long spanId = qualifier.readLong();
 
                 short sequence = qualifier.readShort();
                 int asyncId = -1;
@@ -104,7 +106,6 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
                 if (qualifier.hasRemaining()) {
                     asyncSequence = qualifier.readShort();
                 }
-                spanEventBo.setSpanId(spanId);
                 spanEventBo.setSequence(sequence);
                 spanEventBo.setAsyncId(asyncId);
                 spanEventBo.setAsyncSequence(asyncSequence);
@@ -113,17 +114,17 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
                 if (logger.isDebugEnabled()) {
                     logger.debug("read spanEvent :{}", spanEventBo);
                 }
-                spanEventBoList.add(spanEventBo);
+                spanEventBoListMap.put(spanId, spanEventBo);
             }
         }
-        for (SpanEventBo spanEventBo : spanEventBoList) {
-            final Long spanId = spanEventBo.getSpanId();
+        for (Map.Entry<Long, SpanEventBo> spanBoEntry : spanEventBoListMap.entries()) {
+            final Long spanId = spanBoEntry.getKey();
             SpanBo spanBo = spanMap.get(spanId);
             if (spanBo != null) {
-                spanBo.addSpanEvent(spanEventBo);
+                spanBo.addSpanEventBoList(Lists.newArrayList(spanBoEntry.getValue()));
             } else {
                 if (logger.isInfoEnabled()) {
-                    logger.info("Span not exist spanId:{} spanEvent:{}", spanEventBo);
+                    logger.info("Span not exist spanId:{} spanEvent:{}", spanBoEntry.getKey(), spanBoEntry.getValue());
                 }
             }
         }

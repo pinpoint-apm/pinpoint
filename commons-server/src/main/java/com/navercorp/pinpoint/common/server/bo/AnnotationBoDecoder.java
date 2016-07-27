@@ -4,7 +4,6 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.util.AnnotationTranscoder;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
