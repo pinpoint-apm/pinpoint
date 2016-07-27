@@ -1,20 +1,13 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.TraceDao;
-import com.navercorp.pinpoint.collector.dao.hbase.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanChunkSerializerV2;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanSerializerV2;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
-import com.navercorp.pinpoint.common.util.SpanUtils;
-import com.navercorp.pinpoint.common.util.TransactionId;
-import com.navercorp.pinpoint.common.util.TransactionIdUtils;
-import com.navercorp.pinpoint.thrift.dto.TSpan;
-import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
-import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
+import com.navercorp.pinpoint.common.server.util.SpanUtils;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
@@ -24,8 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static com.navercorp.pinpoint.common.hbase.HBaseTables.TRACE_V2;
@@ -41,11 +32,6 @@ public class HbaseTraceDaoV2 implements TraceDao {
     @Autowired
     private HbaseOperations2 hbaseTemplate;
 
-    @Autowired
-    private AcceptedTimeService acceptedTimeService;
-
-    @Autowired
-    private SpanEventFilter spanEventFilter;
 
     @Autowired
     private SpanSerializerV2 spanSerializer;
@@ -59,19 +45,15 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
 
     @Override
-    public void insert(final TSpan span) {
-        if (span == null) {
-            throw new NullPointerException("span must not be null");
+    public void insert(final SpanBo spanBo) {
+        if (spanBo == null) {
+            throw new NullPointerException("spanBo must not be null");
         }
 
-        final SpanBo spanBo = new SpanBo(span);
-        List<SpanEventBo> spanEventBoList = buildSpanEventList(span);
-        spanBo.addSpanEventBoList(spanEventBoList);
 
-        long acceptedTime = acceptedTimeService.getAcceptedTime();
-        spanBo.setCollectorAcceptTime(acceptedTime);
+        long acceptedTime = spanBo.getCollectorAcceptTime();
 
-        final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(span));
+        final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(spanBo));
         final Put put = new Put(rowKey, acceptedTime);
 
         this.spanSerializer.serialize(spanBo, put, null);
@@ -84,41 +66,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     }
 
-    private List<SpanEventBo> buildSpanEventList(TSpan span) {
-        final List<TSpanEvent> spanEventList = span.getSpanEventList();
-        if (CollectionUtils.isEmpty(spanEventList)) {
-            return Collections.emptyList();
-        }
 
-        List<SpanEventBo> spanEventBoList = new ArrayList<>(spanEventList.size());
-        for (TSpanEvent spanEvent : spanEventList) {
-            final SpanEventBo spanEventBo = new SpanEventBo(span, spanEvent);
-            if (!spanEventFilter.filter(spanEventBo)) {
-                continue;
-            }
-            spanEventBoList.add(spanEventBo);
-        }
-
-
-        return spanEventBoList;
-    }
-
-    private List<SpanEventBo> buildSpanEventBoList(TSpanChunk tSpanChunk) {
-        List<TSpanEvent> spanEventList = tSpanChunk.getSpanEventList();
-        if (CollectionUtils.isEmpty(spanEventList)) {
-            return new ArrayList<>();
-        }
-        List<SpanEventBo> spanEventBoList = new ArrayList<>(spanEventList.size());
-        for (TSpanEvent tSpanEvent : spanEventList) {
-            SpanEventBo spanEventBo = new SpanEventBo(tSpanChunk, tSpanEvent);
-            if (!spanEventFilter.filter(spanEventBo)) {
-                continue;
-            }
-            spanEventBoList.add(spanEventBo);
-        }
-
-        return spanEventBoList;
-    }
 
     private byte[] getDistributeRowKey(byte[] transactionId) {
         byte[] distributedKey = rowKeyDistributor.getDistributedKey(transactionId);
@@ -128,14 +76,14 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
 
     @Override
-    public void insertSpanChunk(TSpanChunk spanChunk) {
-        SpanChunkBo spanChunkBo = buildSpanChunkBo(spanChunk);
+    public void insertSpanChunk(SpanChunkBo spanChunkBo) {
 
-        final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(spanChunk));
-        final long acceptedTime = acceptedTimeService.getAcceptedTime();
+        final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(spanChunkBo));
+
+        final long acceptedTime = spanChunkBo.getCollectorAcceptTime();
         final Put put = new Put(rowKey, acceptedTime);
 
-        final List<TSpanEvent> spanEventBoList = spanChunk.getSpanEventList();
+        final List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
         if (CollectionUtils.isEmpty(spanEventBoList)) {
             return;
         }
@@ -150,28 +98,6 @@ public class HbaseTraceDaoV2 implements TraceDao {
         }
     }
 
-    public SpanChunkBo buildSpanChunkBo(TSpanChunk tSpanChunk) {
-        SpanChunkBo spanChunkBo = new SpanChunkBo();
-        spanChunkBo.setAgentId(tSpanChunk.getAgentId());
-        spanChunkBo.setApplicationId(tSpanChunk.getApplicationName());
-        spanChunkBo.setAgentStartTime(tSpanChunk.getAgentStartTime());
-
-        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(tSpanChunk.getTransactionId());
-        final String traceAgentId = transactionId.getAgentId();
-        if (traceAgentId == null) {
-            spanChunkBo.setTraceAgentId(spanChunkBo.getAgentId());
-        } else {
-            spanChunkBo.setTraceAgentId(traceAgentId);
-        }
-        spanChunkBo.setTraceAgentStartTime(transactionId.getAgentStartTime());
-        spanChunkBo.setTraceTransactionSequence(transactionId.getTransactionSequence());
-
-        spanChunkBo.setSpanId(tSpanChunk.getSpanId());
-
-        List<SpanEventBo> spanEventBoList = buildSpanEventBoList(tSpanChunk);
-        spanChunkBo.addSpanEventBoList(spanEventBoList);
-        return spanChunkBo;
-    }
 
 
 

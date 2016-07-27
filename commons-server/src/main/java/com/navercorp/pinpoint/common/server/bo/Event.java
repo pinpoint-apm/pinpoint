@@ -14,26 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.util;
+package com.navercorp.pinpoint.common.server.bo;
 
-import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
-
+import java.util.List;
 
 /**
  * @author emeroad
  */
-public final class SpanEventUtils {
+public interface Event {
 
-    private SpanEventUtils() {
-    }
+    short getServiceType();
 
-    public static boolean hasException(TSpanEvent spanEvent) {
-        if (spanEvent == null) {
-            throw new NullPointerException("spanEvent must not be null");
-        }
-        if (spanEvent.isSetExceptionInfo()) {
-            return true;
-        }
-        return false;
-    }
+    List<AnnotationBo> getAnnotationBoList();
 }

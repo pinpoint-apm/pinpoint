@@ -1,13 +1,13 @@
 package com.navercorp.pinpoint.collector.dao;
 
-import com.navercorp.pinpoint.thrift.dto.TSpan;
-import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public interface TraceDao {
-    void insert(TSpan span);
+    void insert(SpanBo span);
 
-    void insertSpanChunk(TSpanChunk spanChunk);
+    void insertSpanChunk(SpanChunkBo spanChunk);
 }

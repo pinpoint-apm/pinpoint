@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.common.server.bo;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**

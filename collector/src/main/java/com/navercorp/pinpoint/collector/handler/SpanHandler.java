@@ -19,6 +19,9 @@ package com.navercorp.pinpoint.collector.handler;
 import java.util.List;
 
 import com.navercorp.pinpoint.collector.dao.TraceDao;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.SpanFactory;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
@@ -30,9 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.collector.dao.HostApplicationMapDao;
-import com.navercorp.pinpoint.common.util.SpanEventUtils;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
-import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -62,6 +63,9 @@ public class SpanHandler implements SimpleHandler {
     @Autowired
     private ServiceTypeRegistryService registry;
 
+    @Autowired
+    private SpanFactory spanFactory;
+
     public void handleSimple(TBase<?, ?> tbase) {
 
         if (!(tbase instanceof TSpan)) {
@@ -69,52 +73,56 @@ public class SpanHandler implements SimpleHandler {
         }
 
         try {
-            final TSpan span = (TSpan) tbase;
+            final TSpan tSpan = (TSpan) tbase;
             if (logger.isDebugEnabled()) {
-                logger.debug("Received SPAN={}", span);
+                logger.debug("Received SPAN={}", tSpan);
             }
 
-            traceDao.insert(span);
-            applicationTraceIndexDao.insert(span);
+
+            final SpanBo spanBo = spanFactory.buildSpanBo(tSpan);
+
+            traceDao.insert(spanBo);
+            applicationTraceIndexDao.insert(tSpan);
 
             // insert statistics info for server map
-            insertAcceptorHost(span);
-            insertSpanStat(span);
-            insertSpanEventStat(span);
+            insertAcceptorHost(spanBo);
+            insertSpanStat(spanBo);
+            insertSpanEventStat(spanBo);
         } catch (Exception e) {
             logger.warn("Span handle error. Caused:{}. Span:{}",e.getMessage(), tbase, e);
         }
     }
 
-    private void insertSpanStat(TSpan span) {
+
+    private void insertSpanStat(SpanBo span) {
         final ServiceType applicationServiceType = getApplicationServiceType(span);
         final ServiceType spanServiceType = registry.findServiceType(span.getServiceType());
-        // TODO consider to change span.isSetErr();
-        final boolean isError = span.getErr() != 0;
+
+        final boolean isError = span.getErrCode() != 0;
         int bugCheck = 0;
         if (span.getParentSpanId() == -1) {
             if (spanServiceType.isQueue()) {
                 // create virtual queue node
-                statisticsHandler.updateCaller(span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(), span.getApplicationName(), applicationServiceType, span.getEndPoint(), span.getElapsed(), isError);
+                statisticsHandler.updateCaller(span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(), span.getApplicationId(), applicationServiceType, span.getEndPoint(), span.getElapsed(), isError);
 
-                statisticsHandler.updateCallee(span.getApplicationName(), applicationServiceType, span.getAcceptorHost(), spanServiceType, span.getAgentId(), span.getElapsed(), isError);
+                statisticsHandler.updateCallee(span.getApplicationId(), applicationServiceType, span.getAcceptorHost(), spanServiceType, span.getAgentId(), span.getElapsed(), isError);
             } else {
                 // create virtual user
-                statisticsHandler.updateCaller(span.getApplicationName(), ServiceType.USER, span.getAgentId(), span.getApplicationName(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
+                statisticsHandler.updateCaller(span.getApplicationId(), ServiceType.USER, span.getAgentId(), span.getApplicationId(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
 
                 // update the span information of the current node (self)
-                statisticsHandler.updateCallee(span.getApplicationName(), applicationServiceType, span.getApplicationName(), ServiceType.USER, span.getAgentId(), span.getElapsed(), isError);
+                statisticsHandler.updateCallee(span.getApplicationId(), applicationServiceType, span.getApplicationId(), ServiceType.USER, span.getAgentId(), span.getElapsed(), isError);
             }
             bugCheck++;
         }
 
         // save statistics info only when parentApplicationContext exists
         // when drawing server map based on statistics info, you must know the application name of the previous node.
-        if (span.getParentApplicationName() != null) {
-            String parentApplicationName = span.getParentApplicationName();
+        if (span.getParentApplicationId() != null) {
+            String parentApplicationName = span.getParentApplicationId();
             logger.debug("Received parent application name. {}", parentApplicationName);
 
-            ServiceType parentApplicationType = registry.findServiceType(span.getParentApplicationType());
+            ServiceType parentApplicationType = registry.findServiceType(span.getParentApplicationServiceType());
 
             // create virtual queue node if current' span's service type is a queue AND :
             // 1. parent node's application service type is not a queue (it may have come from a queue that is traced)
@@ -124,14 +132,14 @@ public class SpanHandler implements SimpleHandler {
                     // emulate virtual queue node's accept Span and record it's acceptor host
                     hostApplicationMapDao.insert(span.getRemoteAddr(), span.getAcceptorHost(), spanServiceType.getCode(), parentApplicationName, parentApplicationType.getCode());
                     // emulate virtual queue node's send SpanEvent
-                    statisticsHandler.updateCaller(span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(), span.getApplicationName(), applicationServiceType, span.getEndPoint(), span.getElapsed(), isError);
+                    statisticsHandler.updateCaller(span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(), span.getApplicationId(), applicationServiceType, span.getEndPoint(), span.getElapsed(), isError);
 
                     parentApplicationName = span.getAcceptorHost();
                     parentApplicationType = spanServiceType;
                 }
             }
 
-            statisticsHandler.updateCallee(span.getApplicationName(), applicationServiceType, parentApplicationName, parentApplicationType, span.getAgentId(), span.getElapsed(), isError);
+            statisticsHandler.updateCallee(span.getApplicationId(), applicationServiceType, parentApplicationName, parentApplicationType, span.getAgentId(), span.getElapsed(), isError);
             bugCheck++;
         }
 
@@ -140,16 +148,16 @@ public class SpanHandler implements SimpleHandler {
         // it is odd to record reversely, because of already recording the caller data at previous node.
         // the data may be different due to timeout or network error.
         
-        statisticsHandler.updateResponseTime(span.getApplicationName(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
+        statisticsHandler.updateResponseTime(span.getApplicationId(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
 
         if (bugCheck != 1) {
             logger.warn("ambiguous span found(bug). span:{}", span);
         }
     }
 
-    private void insertSpanEventStat(TSpan span) {
+    private void insertSpanEventStat(SpanBo span) {
 
-        final List<TSpanEvent> spanEventList = span.getSpanEventList();
+        final List<SpanEventBo> spanEventList = span.getSpanEventBoList();
         if (CollectionUtils.isEmpty(spanEventList)) {
             return;
         }
@@ -158,7 +166,7 @@ public class SpanHandler implements SimpleHandler {
 
         logger.debug("handle spanEvent size:{}", spanEventList.size());
         // TODO need to batch update later.
-        for (TSpanEvent spanEvent : spanEventList) {
+        for (SpanEventBo spanEvent : spanEventList) {
             final ServiceType spanEventType = registry.findServiceType(spanEvent.getServiceType());
             if (!spanEventType.isRecordStatistics()) {
                 continue;
@@ -166,31 +174,31 @@ public class SpanHandler implements SimpleHandler {
 
             // if terminal update statistics
             final int elapsed = spanEvent.getEndElapsed();
-            final boolean hasException = SpanEventUtils.hasException(spanEvent);
+            final boolean hasException = spanEvent.hasException();
 
             /**
              * save information to draw a server map based on statistics
              */
             // save the information of caller (the spanevent that called span)
-            statisticsHandler.updateCaller(span.getApplicationName(), applicationServiceType, span.getAgentId(), spanEvent.getDestinationId(), spanEventType, spanEvent.getEndPoint(), elapsed, hasException);
+            statisticsHandler.updateCaller(span.getApplicationId(), applicationServiceType, span.getAgentId(), spanEvent.getDestinationId(), spanEventType, spanEvent.getEndPoint(), elapsed, hasException);
 
             // save the information of callee (the span that spanevent called)
-            statisticsHandler.updateCallee(spanEvent.getDestinationId(), spanEventType, span.getApplicationName(), applicationServiceType, span.getEndPoint(), elapsed, hasException);
+            statisticsHandler.updateCallee(spanEvent.getDestinationId(), spanEventType, span.getApplicationId(), applicationServiceType, span.getEndPoint(), elapsed, hasException);
         }
     }
 
-    private void insertAcceptorHost(TSpan span) {
+    private void insertAcceptorHost(SpanBo span) {
         // save host application map
         // acceptor host is set at profiler module only when the span is not the kind of root span
         final String acceptorHost = span.getAcceptorHost();
         if (acceptorHost == null) {
             return;
         }
-        final String spanApplicationName = span.getApplicationName();
+        final String spanApplicationName = span.getApplicationId();
         final short applicationServiceTypeCode = getApplicationServiceType(span).getCode();
 
-        final String parentApplicationName = span.getParentApplicationName();
-        final short parentServiceType = span.getParentApplicationType();
+        final String parentApplicationName = span.getParentApplicationId();
+        final short parentServiceType = span.getParentApplicationServiceType();
 
         final ServiceType spanServiceType = registry.findServiceType(span.getServiceType());
         if (spanServiceType.isQueue()) {
@@ -200,9 +208,9 @@ public class SpanHandler implements SimpleHandler {
         }
     }
     
-    private ServiceType getApplicationServiceType(TSpan span) {
-        // Check if applicationServiceType is set. If not, use span's service type. 
-        final short applicationServiceTypeCode = span.isSetApplicationServiceType() ? span.getApplicationServiceType() : span.getServiceType();
+    private ServiceType getApplicationServiceType(SpanBo span) {
+        // Check if applicationServiceType is set. If not, use span's service type.
+        final short applicationServiceTypeCode = span.getApplicationServiceType();
         return registry.findServiceType(applicationServiceTypeCode);
     }
 }

@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
-import com.navercorp.pinpoint.common.server.bo.Span;
+import com.navercorp.pinpoint.common.server.bo.Event;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
@@ -282,22 +282,22 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         return getDisplayArgument(spanBo);
     }
     
-    private String getDisplayArgument(Span span) {
-        AnnotationBo displayArgument = getDisplayArgument0(span);
+    private String getDisplayArgument(Event event) {
+        AnnotationBo displayArgument = getDisplayArgument0(event);
         if (displayArgument == null) {
             return "";
         }
         return Objects.toString(displayArgument.getValue(), "");
     }
 
-    private AnnotationBo getDisplayArgument0(Span span) {
+    private AnnotationBo getDisplayArgument0(Event event) {
         // TODO needs a more generalized implementation for Arcus
-        List<AnnotationBo> list = span.getAnnotationBoList();
+        List<AnnotationBo> list = event.getAnnotationBoList();
         if (list == null) {
             return null;
         }
 
-        final AnnotationKeyMatcher matcher = annotationKeyMatcherService.findAnnotationKeyMatcher(span.getServiceType());
+        final AnnotationKeyMatcher matcher = annotationKeyMatcherService.findAnnotationKeyMatcher(event.getServiceType());
         if (matcher == null) {
             return null;
         }

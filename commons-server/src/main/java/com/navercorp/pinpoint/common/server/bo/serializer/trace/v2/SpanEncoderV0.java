@@ -13,7 +13,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.nio.ByteBuffer;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -76,16 +75,13 @@ public class SpanEncoderV0 implements SpanEncoder {
         if (CollectionUtils.isEmpty(spanEventBoList)) {
             return null;
         }
-        // TODO duplicated sort
-        sortSpanEvent(spanEventBoList);
+
         return spanEventBoList.get(0);
     }
 
     @Override
     public ByteBuffer encodeSpanChunkColumnValue(SpanEncodingContext<SpanChunkBo> encodingContext) {
         final SpanChunkBo spanChunkBo = encodingContext.getValue();
-        // TODO duplicated sort
-        sortSpanEvent(spanChunkBo.getSpanEventBoList());
 
         final Buffer buffer = new AutomaticBuffer(256);
 
@@ -120,8 +116,6 @@ public class SpanEncoderV0 implements SpanEncoder {
     @Override
     public ByteBuffer encodeSpanColumnValue(SpanEncodingContext<SpanBo> encodingContext) {
         final SpanBo span = encodingContext.getValue();
-
-        sortSpanEvent(span.getSpanEventBoList());
 
         final SpanBitFiled bitField = SpanBitFiled.build(span);
 
@@ -198,14 +192,6 @@ public class SpanEncoderV0 implements SpanEncoder {
         writeSpanEventList(buffer, spanEventBoList, encodingContext);
 
         return buffer.wrapByteBuffer();
-    }
-
-    private void sortSpanEvent(List<SpanEventBo> spanEventBoList) {
-
-        if (CollectionUtils.isEmpty(spanEventBoList)) {
-            return;
-        }
-        Collections.sort(spanEventBoList, SPAN_EVENT_SEQUENCE_COMPARATOR);
     }
 
     public void writeFirstSpanEvent(Buffer buffer, SpanEventBo spanEventBo, SpanEncodingContext<?> encodingContext) {
@@ -355,7 +341,6 @@ public class SpanEncoderV0 implements SpanEncoder {
         if (CollectionUtils.isEmpty(annotationBoList)) {
             return;
         }
-        Collections.sort(annotationBoList, ANNOTATION_COMPARATOR);
 
         buffer.putVInt(annotationBoList.size());
 

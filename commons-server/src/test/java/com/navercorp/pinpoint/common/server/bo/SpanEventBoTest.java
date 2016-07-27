@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.AnnotationSerializer;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanEventEncodingContext;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanEventSerializer;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
@@ -57,12 +58,12 @@ public class SpanEventBoTest {
         spanEventBo.setRpc("rpc");
 
         spanEventBo.setServiceType(ServiceType.STAND_ALONE.getCode());
-        spanEventBo.setSpanId(12);
         spanEventBo.setStartElapsed(100);
         spanEventBo.setNextAsyncId(1000);
 
         ByteBuffer deprecatedBytes = ByteBuffer.wrap(spanEventBo.writeValue());
-        ByteBuffer bytes = serializer.writeValue(spanEventBo);
+        SpanEventEncodingContext spanEventEncodingContext = new SpanEventEncodingContext(12, spanEventBo);
+        ByteBuffer bytes = serializer.writeValue(spanEventEncodingContext);
         Assert.assertEquals(bytes, deprecatedBytes);
 
         SpanEventBo newSpanEventBo = new SpanEventBo();
