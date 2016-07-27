@@ -7,8 +7,8 @@
 	 * @name alarmGroupMemberDirective
 	 * @class
 	 */	
-	pinpointApp.directive( "groupMemberDirective", [ "$timeout", "helpContentTemplate", "helpContentService", "AlarmUtilService", "AnalyticsService", "globalConfig",
-	    function ( $timeout, helpContentTemplate, helpContentService, AlarmUtilService, AnalyticsService, globalConfig ) {
+	pinpointApp.directive( "groupMemberDirective", [ "$timeout", "helpContentTemplate", "helpContentService", "AlarmUtilService", "AnalyticsService",
+	    function ( $timeout, helpContentTemplate, helpContentService, AlarmUtilService, AnalyticsService ) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -71,7 +71,7 @@
 						RemoveGroupMember.onAction( AlarmUtilService, $workingNode );
 					};
 					scope.onApplyRemoveGroupMember = function() {
-						RemoveGroupMember.applyAction( AlarmUtilService, currentUserGroupId, globalConfig.userId, $workingNode, $elLoading, function( memberId ) {
+						RemoveGroupMember.applyAction( AlarmUtilService, currentUserGroupId, $workingNode, $elLoading, function( memberId ) {
 							removeGroupMember( memberId );
 						}, showAlert );
 					};
@@ -131,7 +131,7 @@
 							return;
 						}
 						cancelPreviousWork();
-						AddGroupMember.applyAction( AlarmUtilService, oUser, currentUserGroupId, globalConfig.userId, $elLoading, hasUser, function( oUser ) {
+						AddGroupMember.applyAction( AlarmUtilService, oUser, currentUserGroupId, $elLoading, hasUser, function( oUser ) {
 							AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_ALARM_ADD_USER );
 							oGroupMemberList.push({
 								"name": oUser.name,
@@ -186,13 +186,12 @@
 	};
 
 	var AddGroupMember = {
-		applyAction: function( AlarmUtilService, oUser, currentUserGroupId, userId, $elLoading, cbHasUser, cbSuccess, cbFail ) {
+		applyAction: function( AlarmUtilService, oUser, currentUserGroupId, $elLoading, cbHasUser, cbSuccess, cbFail ) {
 			AlarmUtilService.show( $elLoading );
 			if ( cbHasUser( oUser.userId ) === true ) {
 				cbFail();
 			} else {
 				AlarmUtilService.sendCRUD( "addMemberInGroup", {
-					"userId": userId,
 					"userGroupId": currentUserGroupId,
 					"memberId": oUser.userId
 				}, function( oServerData ) {
@@ -221,12 +220,11 @@
 				this._bIng = false;
 			}
 		},
-		applyAction: function( AlarmUtilService, currentUserGroupId, userId, $node, $elLoading, cbSuccess, cbFail ) {
+		applyAction: function( AlarmUtilService, currentUserGroupId, $node, $elLoading, cbSuccess, cbFail ) {
 			AlarmUtilService.show( $elLoading );
 			var self = this;
 			var memberId = AlarmUtilService.extractID( $node );
 			AlarmUtilService.sendCRUD( "removeMemberInGroup", {
-				"userId": userId,
 				"userGroupId": currentUserGroupId,
 				"memberId": memberId
 			}, function( oServerData ) {
