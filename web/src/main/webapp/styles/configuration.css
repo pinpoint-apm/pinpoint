@@ -270,13 +270,7 @@
 	cursor: pointer;
     background-color: #FAFAFA;
 }
-#pinpoint-configuration .some-list-content tbody tr:hover,
-#pinpoint-configuration .some-list-content tbody tr:hover span.remove,
-#pinpoint-configuration .some-list-content tbody tr:hover span.remove-cancel,
-#pinpoint-configuration .some-list-content tbody tr:hover span.edit,
-#pinpoint-configuration .some-list-content tbody tr:hover span.edit-confirm {
-    color: #000;
-}
+
 #pinpoint-configuration .some-list-content tr.remove {
     background-color: #FEF4F4;
 }
