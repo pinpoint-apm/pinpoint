@@ -81,7 +81,7 @@
 		}).fail(function() {
 			setTimeout( function() {
 				self.loadRealtimeData(callbackRealtimeSuccess, callbackRealtimeFail, widthOfPixel, heightOfPixel);
-			}, self.option( "realtimeInterval" ) );
+			}, ( self.option( "realtimeInterval" ) / 2 ) );
 		});
 	};
 	DataLoadManager.prototype._isResetRealtime = function( currentServerTime ) {
