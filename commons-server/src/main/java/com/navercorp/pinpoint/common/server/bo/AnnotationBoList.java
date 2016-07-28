@@ -19,12 +19,12 @@ package com.navercorp.pinpoint.common.server.bo;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * @author emeroad
  */
+@Deprecated
 public class AnnotationBoList {
 
     private List<AnnotationBo> annotationBoList;
@@ -40,7 +40,7 @@ public class AnnotationBoList {
 
     public AnnotationBoList(List<AnnotationBo> annotationBoList) {
         if (annotationBoList == null) {
-            this.annotationBoList = Collections.emptyList();
+            this.annotationBoList = new ArrayList<>();
             return;
         }
         this.annotationBoList = annotationBoList;
@@ -58,14 +58,15 @@ public class AnnotationBoList {
     public void writeValue(Buffer writer) {
 
         int size = this.annotationBoList.size();
-        writer.putVar(size);
+        writer.putVInt(size);
         for (AnnotationBo annotationBo : this.annotationBoList) {
             annotationBo.writeValue(writer);
         }
     }
 
+    @Deprecated
     public void readValue(Buffer reader) {
-        int size = reader.readVarInt();
+        int size = reader.readVInt();
         if (size == 0) {
             return;
         }

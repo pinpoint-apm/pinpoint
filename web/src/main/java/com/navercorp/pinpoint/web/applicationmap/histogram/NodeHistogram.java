@@ -169,4 +169,8 @@ public class NodeHistogram {
         }
         return applicationHistogram;
     }
+    
+    public Range getRange() {
+        return range;
+    }
 }

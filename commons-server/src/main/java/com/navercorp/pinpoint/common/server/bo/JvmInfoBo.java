@@ -74,7 +74,7 @@ public class JvmInfoBo {
 
     public byte[] writeValue() {
         final Buffer buffer = new AutomaticBuffer();
-        buffer.put(this.version);
+        buffer.putByte(this.version);
         int version = this.version & 0xFF;
         switch (version) {
             case 0:

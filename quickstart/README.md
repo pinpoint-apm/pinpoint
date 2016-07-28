@@ -7,10 +7,11 @@ Pinpoint QuickStart provides a sample TestApp for the Agent to attach itself to,
 In order to build Pinpoint, the following requirements must be met:
 
 * JDK 6 installed
+* JDK 7 installed
 * JDK 8 installed
 * Maven 3.2.x+ installed
 * JAVA_6_HOME environment variable set to JDK 6 home directory.
-* JAVA_7_HOME environment variable set to JDK 7+ home directory.
+* JAVA_7_HOME environment variable set to JDK 7 home directory.
 * JAVA_8_HOME environment variable set to JDK 8+ home directory.
 
 QuickStart supports Linux, OSX, and Windows.

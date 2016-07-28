@@ -103,7 +103,7 @@
 	                 */
 	                extractMergeTypeList = function( serverMapData ) {
 	                	serverMapData.nodeDataArray.forEach( function( o ) {
-	                		if ( o.isWas === false && o.isQueue === false && o.serviceType !== "USER" ) {
+	                		if ( o.isWas === false && ( angular.isUndefined( o.isQueue ) || o.isQueue === false ) && o.serviceType !== "USER" ) {
 	                			if ( angular.isUndefined( scope.mergeStatus[o.serviceType] ) ) {
 		                			scope.mergeTypeList.push( o.serviceType );
 		                			scope.mergeStatus[o.serviceType] = true;
@@ -292,12 +292,10 @@
 	                 * @param linkCurve
 	                 */
 	                serverMapCallback = function (query, applicationMapData, linkRouting, linkCurve) {
-	//                	console.log( applicationMapData );
 	                	var mergeArray = getMergeArray();
 	                	//htLastMergedMapData
 	                	htLastMergedMapData = ServerMapDaoService.mergeMultiLinkGroup( ServerMapDaoService.mergeGroup(applicationMapData, mergeArray), mergeArray );
 	
-	//                    console.log( htLastMergedMapData );
 	//                    ServerMapDaoService.removeNoneNecessaryDataForHighPerformance(htLastMergedMapData);
 	                    oProgressBarService.setLoading(80);
 	                    if (htLastMergedMapData.nodeDataArray.length === 0) {

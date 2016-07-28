@@ -18,16 +18,14 @@ package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.util.AnnotationTranscoder;
-import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 
 /**
  * @author emeroad
  */
 public class AnnotationBo {
 
+    @Deprecated
     private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
-
-    private static final int VERSION_SIZE = 1;
 
     private byte version = 0;
     private long spanId;
@@ -37,24 +35,17 @@ public class AnnotationBo {
     private byte valueType;
     private byte[] byteValue;
     private Object value;
-
+    private boolean isAuthorized = true;
+    
     public AnnotationBo() {
     }
 
-    public AnnotationBo(TAnnotation annotation) {
-        if (annotation == null) {
-            throw new NullPointerException("annotation must not be null");
-        }
-        this.key = annotation.getKey();
-        Object value = transcoder.getMappingValue(annotation);
-        this.valueType = transcoder.getTypeCode(value);
-        this.byteValue = transcoder.encode(value, this.valueType);
-    }
-
+    @Deprecated
     public long getSpanId() {
         return spanId;
     }
 
+    @Deprecated
     public void setSpanId(long spanId) {
         this.spanId = spanId;
     }
@@ -113,6 +104,15 @@ public class AnnotationBo {
         this.value = value;
     }
 
+    public boolean isAuthorized() {
+        return isAuthorized;
+    }
+
+    public void setAuthorized(boolean isAuthorized) {
+        this.isAuthorized = isAuthorized;
+    }
+
+
     @Deprecated
     public void writeValue(Buffer buffer) {
         // long timestamp;    // required 8
@@ -120,29 +120,16 @@ public class AnnotationBo {
         // int key;           // required 4
         // int valueTypeCode; // required 4
         // ByteBuffer value;  // optional 4 + buf.length
-        buffer.put(this.version);
-        buffer.putSVar(this.key);
-        buffer.put(this.valueType);
+        buffer.putByte(this.version);
+        buffer.putSVInt(this.key);
+        buffer.putByte(this.valueType);
         buffer.putPrefixedBytes(this.byteValue);
     }
 
-//    public int getBufferSize() {
-//        // int key; // required 4+string.length
-//        // int valueTypeCode; // required 4
-//        // ByteBuffer value; // optional 4 + buf.length
-//        int size = 0;
-//        size += 1 + 4 + 4 + 4;
-//        size += 4;
-//        if (this.getByteValue() != null) {
-//            size += this.getByteValue().length;
-//        }
-//        return size;
-//    }
-
-
+    @Deprecated
     public void readValue(Buffer buffer) {
         this.version = buffer.readByte();
-        this.key = buffer.readSVarInt();
+        this.key = buffer.readSVInt();
         this.valueType = buffer.readByte();
         this.byteValue = buffer.readPrefixedBytes();
         this.value = transcoder.decode(valueType, byteValue);

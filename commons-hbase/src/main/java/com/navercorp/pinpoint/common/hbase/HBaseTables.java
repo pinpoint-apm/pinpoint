@@ -59,10 +59,17 @@ public final class HBaseTables {
     public static final byte[] AGENT_STAT_COL_ACTIVE_TRACE_HISTOGRAM = Bytes.toBytes("aH"); // qualifier for active trace histogram
     public static final int AGENT_STAT_ROW_DISTRIBUTE_SIZE = 1; // agent statistics hash size
 
+    @Deprecated
     public static final TableName TRACES = TableName.valueOf("Traces");
+    @Deprecated
     public static final byte[] TRACES_CF_SPAN = Bytes.toBytes("S");  //Span
+    @Deprecated
     public static final byte[] TRACES_CF_ANNOTATION = Bytes.toBytes("A");  //Annotation
-    public static final byte[] TRACES_CF_TERMINALSPAN = Bytes.toBytes("T"); //TerminalSpan
+    @Deprecated
+    public static final byte[] TRACES_CF_TERMINALSPAN = Bytes.toBytes("T"); //SpanEvent
+
+    public static final TableName TRACE_V2 = TableName.valueOf("TraceV2");
+    public static final byte[] TRACE_V2_CF_SPAN = Bytes.toBytes("S");  //Span
 
     public static final TableName APPLICATION_INDEX = TableName.valueOf("ApplicationIndex");
     public static final byte[] APPLICATION_INDEX_CF_AGENTS = Bytes.toBytes("Agents");

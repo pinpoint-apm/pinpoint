@@ -40,7 +40,7 @@ public class AutomaticBufferTest {
     @Test
     public void testPutPrefixedBytes() throws Exception {
         Buffer buffer = new AutomaticBuffer(0);
-        buffer.put(1);
+        buffer.putInt(1);
         byte[] buf = buffer.getBuffer();
         Assert.assertEquals(buf.length, 4);
         Assert.assertEquals(1, BytesUtils.bytesToInt(buf, 0));
@@ -203,89 +203,89 @@ public class AutomaticBufferTest {
         Buffer buffer = new AutomaticBuffer(32);
 
         long l = System.currentTimeMillis();
-        buffer.putSVar(l);
+        buffer.putSVLong(l);
         logger.trace("currentTime size:{}", buffer.getOffset());
         buffer.setOffset(0);
-        Assert.assertEquals(buffer.readSVarLong(), l);
+        Assert.assertEquals(buffer.readSVLong(), l);
 
 
     }
 
     @Test
-     public void testPutVarInt() throws Exception {
+     public void testPutVInt() throws Exception {
         Buffer buffer = new AutomaticBuffer(0);
-        buffer.putVar(Integer.MAX_VALUE);
-        buffer.putVar(Integer.MIN_VALUE);
-        buffer.putVar(0);
-        buffer.putVar(1);
-        buffer.putVar(12345);
+        buffer.putVInt(Integer.MAX_VALUE);
+        buffer.putVInt(Integer.MIN_VALUE);
+        buffer.putVInt(0);
+        buffer.putVInt(1);
+        buffer.putVInt(12345);
 
         buffer.setOffset(0);
-        Assert.assertEquals(buffer.readVarInt(), Integer.MAX_VALUE);
-        Assert.assertEquals(buffer.readVarInt(), Integer.MIN_VALUE);
-        Assert.assertEquals(buffer.readVarInt(), 0);
-        Assert.assertEquals(buffer.readVarInt(), 1);
-        Assert.assertEquals(buffer.readVarInt(), 12345);
+        Assert.assertEquals(buffer.readVInt(), Integer.MAX_VALUE);
+        Assert.assertEquals(buffer.readVInt(), Integer.MIN_VALUE);
+        Assert.assertEquals(buffer.readVInt(), 0);
+        Assert.assertEquals(buffer.readVInt(), 1);
+        Assert.assertEquals(buffer.readVInt(), 12345);
     }
 
     @Test
-    public void testPutVarLong() throws Exception {
+    public void testPutVLong() throws Exception {
         Buffer buffer = new AutomaticBuffer(0);
-        buffer.putVar(Long.MAX_VALUE);
-        buffer.putVar(Long.MIN_VALUE);
-        buffer.putVar(0L);
-        buffer.putVar(1L);
-        buffer.putVar(12345L);
+        buffer.putVLong(Long.MAX_VALUE);
+        buffer.putVLong(Long.MIN_VALUE);
+        buffer.putVLong(0L);
+        buffer.putVLong(1L);
+        buffer.putVLong(12345L);
 
         buffer.setOffset(0);
-        Assert.assertEquals(buffer.readVarLong(), Long.MAX_VALUE);
-        Assert.assertEquals(buffer.readVarLong(), Long.MIN_VALUE);
-        Assert.assertEquals(buffer.readVarLong(), 0L);
-        Assert.assertEquals(buffer.readVarLong(), 1L);
-        Assert.assertEquals(buffer.readVarLong(), 12345L);
+        Assert.assertEquals(buffer.readVLong(), Long.MAX_VALUE);
+        Assert.assertEquals(buffer.readVLong(), Long.MIN_VALUE);
+        Assert.assertEquals(buffer.readVLong(), 0L);
+        Assert.assertEquals(buffer.readVLong(), 1L);
+        Assert.assertEquals(buffer.readVLong(), 12345L);
     }
 
     @Test
-    public void testPutSVarLong() throws Exception {
+    public void testPutSVLong() throws Exception {
         Buffer buffer = new AutomaticBuffer(32);
-        buffer.putSVar(Long.MAX_VALUE);
-        buffer.putSVar(Long.MIN_VALUE);
-        buffer.putSVar(0L);
-        buffer.putSVar(1L);
-        buffer.putSVar(12345L);
+        buffer.putSVLong(Long.MAX_VALUE);
+        buffer.putSVLong(Long.MIN_VALUE);
+        buffer.putSVLong(0L);
+        buffer.putSVLong(1L);
+        buffer.putSVLong(12345L);
 
         buffer.setOffset(0);
-        Assert.assertEquals(buffer.readSVarLong(), Long.MAX_VALUE);
-        Assert.assertEquals(buffer.readSVarLong(), Long.MIN_VALUE);
-        Assert.assertEquals(buffer.readSVarLong(), 0L);
-        Assert.assertEquals(buffer.readSVarLong(), 1L);
-        Assert.assertEquals(buffer.readSVarLong(), 12345L);
+        Assert.assertEquals(buffer.readSVLong(), Long.MAX_VALUE);
+        Assert.assertEquals(buffer.readSVLong(), Long.MIN_VALUE);
+        Assert.assertEquals(buffer.readSVLong(), 0L);
+        Assert.assertEquals(buffer.readSVLong(), 1L);
+        Assert.assertEquals(buffer.readSVLong(), 12345L);
     }
 
     @Test
-    public void testPutSVarInt() throws Exception {
+    public void testPutSVInt() throws Exception {
         Buffer buffer = new AutomaticBuffer(32);
-        buffer.putSVar(Integer.MAX_VALUE);
-        buffer.putSVar(Integer.MIN_VALUE);
-        buffer.putSVar(0);
-        buffer.putSVar(1);
-        buffer.putSVar(12345);
+        buffer.putSVInt(Integer.MAX_VALUE);
+        buffer.putSVInt(Integer.MIN_VALUE);
+        buffer.putSVInt(0);
+        buffer.putSVInt(1);
+        buffer.putSVInt(12345);
 
         buffer.setOffset(0);
-        Assert.assertEquals(buffer.readSVarInt(), Integer.MAX_VALUE);
-        Assert.assertEquals(buffer.readSVarInt(), Integer.MIN_VALUE);
-        Assert.assertEquals(buffer.readSVarInt(), 0);
-        Assert.assertEquals(buffer.readSVarInt(), 1);
-        Assert.assertEquals(buffer.readSVarInt(), 12345);
+        Assert.assertEquals(buffer.readSVInt(), Integer.MAX_VALUE);
+        Assert.assertEquals(buffer.readSVInt(), Integer.MIN_VALUE);
+        Assert.assertEquals(buffer.readSVInt(), 0);
+        Assert.assertEquals(buffer.readSVInt(), 1);
+        Assert.assertEquals(buffer.readSVInt(), 12345);
     }
 
     @Test
     public void testPut() throws Exception {
         Buffer buffer = new AutomaticBuffer(0);
-        buffer.put(1);
-        buffer.put(1L);
+        buffer.putInt(1);
+        buffer.putLong(1L);
         buffer.putPrefixedBytes(new byte[10]);
-        buffer.put((byte)1);
+        buffer.putByte((byte)1);
 
 
     }
@@ -295,15 +295,73 @@ public class AutomaticBufferTest {
         // Signature:Header{signature=85, version=100, type=28704}
         Buffer buffer = new AutomaticBuffer(10);
         // l4 Udp check payload
-        buffer.put((byte)85);
-        buffer.put((byte) 100);
-        buffer.put((short)28704);
+        buffer.putByte((byte)85);
+        buffer.putByte((byte) 100);
+        buffer.putShort((short)28704);
 
         Buffer read = new FixedBuffer(buffer.getBuffer());
         logger.info("{}", (char)read.readByte());
         logger.info("{}", (char)read.readByte());
         logger.info("{}", (char)read.readByte());
         logger.info("{}", (char)read.readByte());
+
+    }
+
+    @Test
+    public void testRemaining() throws Exception {
+        final byte[] bytes = new byte[BytesUtils.INT_BYTE_LENGTH];
+        Buffer buffer = new AutomaticBuffer(bytes);
+        Assert.assertEquals(buffer.remaining(), 4);
+        Assert.assertTrue(buffer.hasRemaining());
+
+        buffer.putInt(1234);
+        Assert.assertEquals(buffer.remaining(), 0);
+        Assert.assertFalse(buffer.hasRemaining());
+
+        // auto expanded buffer size
+        buffer.putShort((short)12);
+        // remaining size increment is right operation??
+        Assert.assertTrue(buffer.remaining() > 0);
+        Assert.assertTrue(buffer.hasRemaining());
+
+    }
+
+
+    @Test
+    public void testExpendMultiplier_2multiplier() throws Exception {
+        int bufferSize = 4;
+        Buffer buffer = new AutomaticBuffer(bufferSize);
+
+        buffer.putBytes(new byte[8]);
+        logger.debug("bufferSize:{} offset:{}", buffer.getInternalBuffer().length, buffer.getOffset());
+        Assert.assertEquals(buffer.getInternalBuffer().length, 8);
+
+        buffer.putBytes(new byte[8]);
+
+        logger.debug("bufferSize:{} offset:{}", buffer.getInternalBuffer().length, buffer.getOffset());
+        Assert.assertEquals(buffer.getInternalBuffer().length, 16);
+
+
+        buffer.putBytes(new byte[8]);
+        logger.debug("bufferSize:{} offset:{}", buffer.getInternalBuffer().length, buffer.getOffset());
+        Assert.assertEquals(buffer.getInternalBuffer().length, 32);
+    }
+
+    @Test
+    public void testExpendMultiplier_4multiplier() throws Exception {
+        int bufferSize = 4;
+        Buffer buffer = new AutomaticBuffer(bufferSize);
+
+        buffer.putBytes(new byte[5*4]);
+
+        logger.debug("bufferSize:{} offset:{}", buffer.getInternalBuffer().length, buffer.getOffset());
+        Assert.assertEquals(buffer.getInternalBuffer().length, 32);
+
+        buffer.putBytes(new byte[8*4]);
+
+        logger.debug("bufferSize:{} offset:{}", buffer.getInternalBuffer().length, buffer.getOffset());
+        Assert.assertEquals(buffer.getInternalBuffer().length, 64);
+
 
     }
 

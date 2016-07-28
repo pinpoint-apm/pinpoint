@@ -255,7 +255,7 @@
 #pinpoint-configuration .some-table .some-list-content thead tr {
 	height: 34px;
 	font-size: 14px;
-	color: #9A9A9A;
+	color: #333;
 	padding-right: 10px;
 	line-height: 32px;
 }
@@ -270,13 +270,7 @@
 	cursor: pointer;
     background-color: #FAFAFA;
 }
-#pinpoint-configuration .some-list-content tbody tr:hover,
-#pinpoint-configuration .some-list-content tbody tr:hover span.remove,
-#pinpoint-configuration .some-list-content tbody tr:hover span.remove-cancel,
-#pinpoint-configuration .some-list-content tbody tr:hover span.edit,
-#pinpoint-configuration .some-list-content tbody tr:hover span.edit-confirm {
-    color: #000;
-}
+
 #pinpoint-configuration .some-list-content tr.remove {
     background-color: #FEF4F4;
 }
@@ -300,6 +294,45 @@
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	vertical-align: bottom;
+}
+#application-config .application-group {
+    left: 0px;
+    float: left;
+    width: 310px;
+    height: 500px;
+    border: 1px solid #E2E2E2;
+    background-color: #FFF;
+}
+#application-config .application-group .filtering {
+    width: 100%;
+    height: 41px;
+    padding: 3px 4px 0px 4px;
+    position: relative;
+    font-size: 16px;
+    border-bottom: 1px solid #E2E2E2;
+}
+#application-config .application-group .wrapper {
+    width: 100%;
+    height: 457px;
+    position: relative;
+    overflow-y: auto;
+}
+#application-config .application-group ul {
+    padding: 0px 0px 4px 0px;
+    list-style-type: none;
+}
+#application-config .application-group li {
+    cursor: pointer;
+    padding: 6px;
+}
+#application-config .application-group li.selected {
+    background-color: #5897fb;
+    color: #FFF;
+}
+#application-config .application-group li img {
+    width: 25px;
+    height: 25px;
+    padding-right: 3px;
 }
 #config-help .left-sub-menu {
     float: left;
@@ -433,6 +466,10 @@
     font-weight: bold;
     padding-top: 4px;
     padding-bottom: 4px;
+}
+
+#config-general .application {
+    width: 310px;
 }
 #config-general .favorite-application tr:last-child  td:first-child {
     padding-right: 26px;

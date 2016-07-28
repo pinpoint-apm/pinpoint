@@ -121,8 +121,8 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     private byte[] createKey(Application parentApplication, long time) {
         Buffer buffer = new AutomaticBuffer();
         buffer.putPadString(parentApplication.getName(), HBaseTables.APPLICATION_NAME_MAX_LEN);
-        buffer.put(parentApplication.getServiceTypeCode());
-        buffer.put(time);
+        buffer.putShort(parentApplication.getServiceTypeCode());
+        buffer.putLong(time);
         return buffer.getBuffer();
     }
 

@@ -55,8 +55,9 @@
 	
 	            $timeout(function () {
 	                $scope.$broadcast('timeSliderDirective.initialize', oTimeSliderVoService);
-	                $scope.$broadcast('serverMapDirective.initialize', oNavbarVoService);
-	                $scope.$broadcast('scatterDirective.initialize', oNavbarVoService);
+					$scope.$broadcast('serverListDirective.initialize', oNavbarVoService );
+	                $scope.$broadcast('scatterDirective.initialize.forFilteredMap', oNavbarVoService);
+					$scope.$broadcast('serverMapDirective.initialize', oNavbarVoService);
 	            });
 	
 	        }, 500);
@@ -78,7 +79,7 @@
 	        broadcastScatterScanResultToScatter = function (applicationScatterData) {
 	            if (angular.isDefined(applicationScatterData)) {
 	                angular.forEach(applicationScatterData, function (val, key) {
-	                    $scope.$broadcast('scatterDirective.initializeWithData', key, val);
+	                    $scope.$broadcast('scatterDirective.initializeWithData.forFilteredMap', key, val);
 	                });
 	            }
 	        };
@@ -87,7 +88,8 @@
 	         * get main container class
 	         */
 	        $scope.getMainContainerClass = function () {
-	            return bNoData ? 'no-data' : '';
+				return "";
+	            // return bNoData ? 'no-data' : '';
 	        };
 	
 	        /**
@@ -190,7 +192,7 @@
 	            if (node.isWas === true) {
 	                $scope.hasScatter = true;
 	                oSidebarTitleVoService.setTitle(node.applicationName);
-	                $scope.$broadcast('scatterDirective.showByNode', node);
+	                $scope.$broadcast('scatterDirective.showByNode.forFilteredMap', node);
 	            } else if (node.unknownNodeGroup) {
 	            	oSidebarTitleVoService.setTitle( node.serviceType.replace( "_", " " ) );
 	                $scope.hasScatter = false;

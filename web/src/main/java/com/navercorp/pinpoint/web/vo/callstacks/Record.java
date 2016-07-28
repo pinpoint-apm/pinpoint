@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author netspider
  * @author emeroad
  * @author jaehong.kim
+ * @author minwoo.jung
  */
 public class Record {
     private final int tab;
@@ -52,11 +53,10 @@ public class Record {
     private boolean focused;
     private boolean hasChild;
     private boolean hasException;
-    private String logPageUrl;
-    private String logButtonName;
     private int methodType;
+    private boolean isAuthorized;
 
-    public Record(int tab, int id, int parentId, boolean method, String title, String arguments, long begin, long elapsed, long gap, String agent, String applicationName, ServiceType serviceType, String destinationId, boolean hasChild, boolean hasException, String transactionId, long spanId, long executionMilliseconds, int methodType) {
+    public Record(int tab, int id, int parentId, boolean method, String title, String arguments, long begin, long elapsed, long gap, String agent, String applicationName, ServiceType serviceType, String destinationId, boolean hasChild, boolean hasException, String transactionId, long spanId, long executionMilliseconds, int methodType, boolean isAuthorized) {
         this.tab = tab;
         this.id = id;
         this.parentId = parentId;
@@ -82,6 +82,7 @@ public class Record {
         
         this.executionMilliseconds = executionMilliseconds;
         this.methodType = methodType;
+        this.isAuthorized = isAuthorized;
     }
 
     public int getId() {
@@ -198,28 +199,16 @@ public class Record {
         return spanId;
     }
 
-    public void setLogPageUrl(String logPageUrl) {
-        this.logPageUrl = logPageUrl;
-    }
-
-    public void setLogButtonName(String logButtonName) {
-        this.logButtonName = logButtonName;
-    }
-    
-    public String getLogPageUrl() {
-        return this.logPageUrl;
-    }
-
-    public String getLogButtonName() {
-        return this.logButtonName;
-    }
-
     public long getExecutionMilliseconds() {
         return executionMilliseconds;
     }
     
     public int getMethodType() {
         return methodType;
+    }
+    
+    public boolean isAuthorized() {
+        return this.isAuthorized;
     }
 
     @Override
@@ -269,12 +258,10 @@ public class Record {
         builder.append(hasChild);
         builder.append(", hasException=");
         builder.append(hasException);
-        builder.append(", logPageUrl=");
-        builder.append(logPageUrl);
-        builder.append(", logButtonName=");
-        builder.append(logButtonName);
         builder.append(", methodType=");
         builder.append(methodType);
+        builder.append(", isAuthorized=");
+        builder.append(isAuthorized);
         builder.append("}");
         return builder.toString();
     }

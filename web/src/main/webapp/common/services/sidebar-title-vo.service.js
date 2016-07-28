@@ -7,8 +7,9 @@
 	 * @name SidebarTitleVoService
 	 * @class
 	 */
-	pinpointApp.factory('SidebarTitleVoService', [ function () {
+	pinpointApp.factory( "SidebarTitleVoService", [ "PreferenceService", function ( PreferenceService ) {
 	    return function () {
+			var iconPath = PreferenceService.getIconPath();
 	        var self = this;
 	
 	        this._sImage = false;
@@ -29,13 +30,13 @@
 	        };
 	        this._parseImageTypeToImageUrl = function (imageType) {
 	            if (angular.isString(imageType)) {
-	                var imageUrl = '/images/icons/';
+	                var imageUrl = "";
 	                switch (imageType) {
-	                    case 'UNKNOWN_GROUP' :
-	                        imageUrl += 'UNKNOWN.png';
+	                    case "UNKNOWN_GROUP" :
+							imageUrl = iconPath + "UNKNOWN.png";
 	                        break;
 	                    default :
-	                        imageUrl += imageType + '.png';
+							imageUrl = iconPath + imageType + '.png';
 	                        break;
 	                }
 	                return imageUrl;

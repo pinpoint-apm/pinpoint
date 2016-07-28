@@ -152,6 +152,8 @@ public class JavassistClassTest {
 
                     aClass.addField(ObjectTraceValue.class.getName());
                     aClass.addField(IntTraceValue.class.getName());
+                    aClass.addField(IntArrayTraceValue.class.getName());
+                    aClass.addField(IntegerArrayTraceValue.class.getName());
                     aClass.addField(DatabaseInfoTraceValue.class.getName());
                     aClass.addField(BindValueTraceValue.class.getName());
 
@@ -180,13 +182,27 @@ public class JavassistClassTest {
         Object get = objectTraceValue.getMethod("_$PINPOINT$_getTraceObject").invoke(testObject);
         Assert.assertEquals("a", get);
         
-
         Class<?> intTraceValue = loader.loadClass(IntTraceValue.class.getName());
         Assert.assertTrue("IntTraceValue implements fail", intTraceValue.isInstance(testObject));
         intTraceValue.getMethod("_$PINPOINT$_setTraceInt", int.class).invoke(testObject, 1);
         int a = (Integer)intTraceValue.getMethod("_$PINPOINT$_getTraceInt").invoke(testObject);
         Assert.assertEquals(1, a);
 
+        Class<?> intArrayTraceValue = loader.loadClass(IntArrayTraceValue.class.getName());
+        Assert.assertTrue("IntArrayTraceValue implements fail", intArrayTraceValue.isInstance(testObject));
+        int[] expectedInts = {1, 2, 3};
+        intArrayTraceValue.getMethod("_$PINPOINT$_setTraceIntArray", int[].class).invoke(testObject, expectedInts);
+        int[] ints = (int[]) intArrayTraceValue.getMethod("_$PINPOINT$_getTraceIntArray").invoke(testObject);
+        Assert.assertEquals(expectedInts, ints);
+
+        Class<?> integerArrayTraceValue = loader.loadClass(IntegerArrayTraceValue.class.getName());
+        Assert.assertTrue("IntegerArrayTraceValue implements fail", integerArrayTraceValue.isInstance(testObject));
+        Integer[] expectedIntegers = {1, 2};
+        // wrap due to vararg expansion
+        Object[] wrappedExpectedIntegers = new Object[]{expectedIntegers};
+        integerArrayTraceValue.getMethod("_$PINPOINT$_setTraceIntegerArray", Integer[].class).invoke(testObject, wrappedExpectedIntegers);
+        Integer[] integers = (Integer[]) integerArrayTraceValue.getMethod("_$PINPOINT$_getTraceIntegerArray").invoke(testObject);
+        Assert.assertArrayEquals(expectedIntegers, integers);
         
         Class<?> databaseTraceValue = loader.loadClass(DatabaseInfoTraceValue.class.getName());
         Assert.assertTrue("DatabaseInfoTraceValue implements fail", databaseTraceValue.isInstance(testObject));
@@ -335,7 +351,8 @@ public class JavassistClassTest {
     public void testAddGetter() throws Exception {
         final TestClassLoader loader = getTestClassLoader();
         final String targetClassName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject3";
-        
+
+
         loader.addTransformer(targetClassName, new TransformCallback() {
             
             @Override
@@ -346,6 +363,8 @@ public class JavassistClassTest {
                     
                     aClass.addGetter(StringGetter.class.getName(), "value");
                     aClass.addGetter(IntGetter.class.getName(), "intValue");
+                    aClass.addGetter(IntArrayGetter.class.getName(), "intValues");
+                    aClass.addGetter(IntegerArrayGetter.class.getName(), "integerValues");
                     
                     return aClass.toBytecode();
                 } catch (InstrumentException e) {
@@ -360,12 +379,18 @@ public class JavassistClassTest {
         
         Class<?> stringGetter = loader.loadClass(StringGetter.class.getName());
         Class<?> intGetter = loader.loadClass(IntGetter.class.getName());
+        Class<?> intsGetter = loader.loadClass(IntArrayGetter.class.getName());
+        Class<?> integersGetter = loader.loadClass(IntegerArrayGetter.class.getName());
         
         Assert.assertTrue(stringGetter.isInstance(testObject));
         Assert.assertTrue(intGetter.isInstance(testObject));
+        Assert.assertTrue(intsGetter.isInstance(testObject));
+        Assert.assertTrue(integersGetter.isInstance(testObject));
 
         String value = "hehe";
         int intValue = 99;
+        int[] intValues = {99, 100};
+        Integer[] integerValues = {99, 100};
 
         Method method = testObject.getClass().getMethod("setValue", String.class);
         method.invoke(testObject, value);
@@ -379,6 +404,77 @@ public class JavassistClassTest {
         Method getInt = intGetter.getMethod("_$PINPOINT$_getInt");
         Assert.assertEquals(intValue, getInt.invoke(testObject));
 
+        Method setIntValues = testObject.getClass().getMethod("setIntValues", int[].class);
+        setIntValues.invoke(testObject, intValues);
+
+        Method getIntValues = intsGetter.getMethod("_$PINPOINT$_getIntArray");
+        Assert.assertEquals(intValues, getIntValues.invoke(testObject));
+
+        Method setIntegerValues = testObject.getClass().getMethod("setIntegerValues", Integer[].class);
+        // wrap due to vararg expansion
+        Object[] wrappedIntegerValues = new Object[]{integerValues};
+        setIntegerValues.invoke(testObject, wrappedIntegerValues);
+
+        Method getIntegerValues = integersGetter.getMethod("_$PINPOINT$_getIntegerArray");
+        Assert.assertEquals(integerValues, getIntegerValues.invoke(testObject));
+
+    }
+
+    @Test
+    public void testAddSetter() throws Exception {
+        final TestClassLoader loader = getTestClassLoader();
+        final String targetClassName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject4";
+
+        loader.addTransformer(targetClassName, new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                try {
+                    logger.info("modify cl:{}", classLoader);
+                    InstrumentClass testClass = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+                    testClass.addSetter(IntSetter.class.getName(), "intValue");
+                    testClass.addSetter(IntArraySetter.class.getName(), "intValues");
+                    testClass.addSetter(IntegerArraySetter.class.getName(), "integerValues");
+
+                    return testClass.toBytecode();
+                } catch (InstrumentException e) {
+                    throw new RuntimeException(e.getMessage(), e);
+                }
+            }
+        });
+
+        loader.initialize();
+
+        Object testObject = loader.loadClass(targetClassName).newInstance();
+
+        Class<?> intSetter = loader.loadClass(IntSetter.class.getName());
+        Class<?> intsSetter = loader.loadClass(IntArraySetter.class.getName());
+        Class<?> integersSetter = loader.loadClass(IntegerArraySetter.class.getName());
+
+        Assert.assertTrue(intSetter.isInstance(testObject));
+        Assert.assertTrue(intsSetter.isInstance(testObject));
+        Assert.assertTrue(integersSetter.isInstance(testObject));
+
+        int intValue = 99;
+        int[] intValues = {99, 100};
+        Integer[] integerValues = {99, 100};
+
+        Method setInt = intSetter.getMethod("_$PINPOINT$_setInt", int.class);
+        setInt.invoke(testObject, intValue);
+        Method getInt = testObject.getClass().getMethod("getIntValue");
+        Assert.assertEquals(intValue, getInt.invoke(testObject));
+
+        Method setInts = intsSetter.getMethod("_$PINPOINT$_setIntArray", int[].class);
+        setInts.invoke(testObject, intValues);
+        Method getInts = testObject.getClass().getMethod("getIntValues");
+        Assert.assertEquals(intValues, getInts.invoke(testObject));
+
+        Method setIntegers = integersSetter.getMethod("_$PINPOINT$_setIntegerArray", Integer[].class);
+        // wrap due to vararg expansion
+        Object[] wrappedIntegerValues = new Object[]{integerValues};
+        setIntegers.invoke(testObject, wrappedIntegerValues);
+        Method getIntegers = testObject.getClass().getMethod("getIntegerValues");
+        Assert.assertEquals(integerValues, getIntegers.invoke(testObject));
     }
 
 

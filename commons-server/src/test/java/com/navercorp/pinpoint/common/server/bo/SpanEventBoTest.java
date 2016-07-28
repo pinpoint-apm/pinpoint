@@ -16,14 +16,16 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import com.navercorp.pinpoint.common.server.bo.serializer.AnnotationSerializer;
-import com.navercorp.pinpoint.common.server.bo.serializer.SpanEventSerializer;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.AnnotationSerializer;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanEventEncodingContext;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanEventSerializer;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import java.nio.ByteBuffer;
 
 /**
  * @author emeroad
@@ -56,17 +58,17 @@ public class SpanEventBoTest {
         spanEventBo.setRpc("rpc");
 
         spanEventBo.setServiceType(ServiceType.STAND_ALONE.getCode());
-        spanEventBo.setSpanId(12);
         spanEventBo.setStartElapsed(100);
         spanEventBo.setNextAsyncId(1000);
 
-        byte[] deprecatedBytes = spanEventBo.writeValue();
-        byte[] bytes = serializer.writeValue(spanEventBo);
-        Assert.assertArrayEquals(bytes, deprecatedBytes);
+        ByteBuffer deprecatedBytes = ByteBuffer.wrap(spanEventBo.writeValue());
+        SpanEventEncodingContext spanEventEncodingContext = new SpanEventEncodingContext(12, spanEventBo);
+        ByteBuffer bytes = serializer.writeValue(spanEventEncodingContext);
+        Assert.assertEquals(bytes, deprecatedBytes);
 
         SpanEventBo newSpanEventBo = new SpanEventBo();
-        int i = newSpanEventBo.readValue(bytes, 0, bytes.length);
-        Assert.assertEquals(bytes.length, i);
+        int i = newSpanEventBo.readValue(bytes.array(), bytes.arrayOffset(), bytes.remaining());
+        Assert.assertEquals(bytes.limit(), i);
 
 
         Assert.assertEquals(spanEventBo.getAgentId(), newSpanEventBo.getAgentId());

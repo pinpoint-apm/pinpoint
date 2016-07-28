@@ -31,11 +31,16 @@
                 "sImageDir": './images/',
                 "sBoldKey": null,
                 "htIcons": {
+<<<<<<< HEAD
 			'ACTIVEMQ_CLIENT_GROUP': 'ACTIVEMQ_CLIENT.png',
 'ROCKETMQ_CLIENT_GROUP': 'ROCKETMQ_CLIENT.png',
 		     'ACTIVEMQ_CLIENT': 'ACTIVEMQ_CLIENT.png',
                     'ROCKETMQ_CLIENT': 'ROCKETMQ_CLIENT.png',
 		    'APACHE': 'APACHE.png',
+=======
+                    'ACTIVEMQ_CLIENT': 'ACTIVEMQ_CLIENT.png',
+                    'APACHE': 'APACHE.png',
+>>>>>>> naver/master
                     'APACHE_GROUP': 'APACHE.png',
                     'ARCUS': 'ARCUS.png',
                     'ARCUS_GROUP': 'ARCUS.png',
@@ -91,7 +96,8 @@
                     'NBASE_T': 'NBASE_T.png',
                     'NBASE_T_GROUP': 'NBASE_T.png',
                     'USER': 'USER.png',
-                    'USER_GROUP': 'USER.png'
+                    'USER_GROUP': 'USER.png',
+					'UNAUTHORIZED': 'UNAUTHORIZED.png'
                 },
                 "htNodeTheme": {
                     "default": {
@@ -314,7 +320,9 @@
                     		margin : new go.Margin( -28, 0, 0, 0 ),
                     		visible: true
                     	},
-                    	new go.Binding("visible", "isWas"),
+						new go.Binding("visible", "", function( data ) {
+							return data.isAuthorized && data.isWas;
+						}),
                     	new go.Binding("geometry", "histogram", function(histogram) {
                     		return go.Geometry.parse("M30 0 B270 360 30 30 30 30");
                     	})
@@ -326,7 +334,9 @@
                     		margin : new go.Margin( -28, 0, 0, 0 ),
                     		visible: true
                     	},
-                    	new go.Binding("visible", "isWas"),
+						new go.Binding("visible", "", function( data ) {
+							return data.isAuthorized && data.isWas;
+						}),
                     	new go.Binding("geometry", "histogram", function(histogram) {
                     		if ( histogram["Slow"] === 0 ) return go.Geometry.parse("M30 0");
                     		var sum = 0;
@@ -343,7 +353,9 @@
                     		margin : new go.Margin( -28, 0, 0, 0 ),
                     		visible: true
                     	},
-                    	new go.Binding("visible", "isWas"),
+						new go.Binding("visible", "", function( data ) {
+							return data.isAuthorized && data.isWas;
+						}),
                     	new go.Binding("geometry", "histogram", function(histogram) {
                     		var sum = 0;
                     		jQuery.each( histogram, function( key, value ) {
@@ -431,7 +443,9 @@
                                     imageStretch: go.GraphObject.Uniform,
                                     margin: new go.Margin(1, 5, 0, 1)
                                 },
-                                new go.Binding("visible", "hasAlert")
+								new go.Binding("visible", "", function( data ) {
+									return data.isAuthorized && data.hasAlert;
+								})
                             ),
                             self.$(
                                 go.Picture,

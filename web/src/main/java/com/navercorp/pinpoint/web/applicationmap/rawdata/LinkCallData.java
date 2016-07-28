@@ -55,6 +55,10 @@ public class LinkCallData {
         this.timeWindow = timeWindow;
     }
 
+    public TimeWindow getTimeWindow() {
+        return timeWindow;
+    }
+
     public String getSource() {
         return source;
     }

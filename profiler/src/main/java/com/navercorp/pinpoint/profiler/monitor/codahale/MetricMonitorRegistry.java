@@ -91,9 +91,9 @@ public class MetricMonitorRegistry implements MonitorRegistry {
         return this.delegate.register(monitorName.getName(), new GarbageCollectorMetricSet());
     }
 
-    public CpuLoadMetricSet registerCpuLoadMonitor(MonitorName monitorName) {
+    public CpuLoadMetricSet registerCpuLoadMonitor(MonitorName monitorName, String vendorName) {
         validateMonitorName(monitorName);
-        return this.delegate.register(monitorName.getName(), CpuLoadMetricSetSelector.getCpuLoadMetricSet());
+        return this.delegate.register(monitorName.getName(), CpuLoadMetricSetSelector.getCpuLoadMetricSet(vendorName));
     }
 
     public TransactionMetricSet registerTpsMonitor(MonitorName monitorName, TransactionCounter transactionCounter) {

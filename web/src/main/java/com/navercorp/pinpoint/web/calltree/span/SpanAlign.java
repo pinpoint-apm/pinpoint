@@ -176,10 +176,7 @@ public class SpanAlign {
     }
     
     public long getSpanId() {
-        if (isSpan()) {
-            return spanBo.getSpanId();
-        }
-        return spanEventBo.getSpanId();
+        return spanBo.getSpanId();
     }
     
     public boolean hasException() {

@@ -51,7 +51,7 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
         templateUrl: 'pages/scatterFullScreenMode/scatterFullScreenMode.html',
         controller: 'ScatterFullScreenModeCtrl'
     }).when('/scatterFullScreenMode/:application/:readablePeriod/:queryEndDateTime/:filter', {
-        templateUrl: 'pages/scatterFullScrrenMode/scatterFullScreenMode.html',
+        templateUrl: 'pages/scatterFullScreenMode/scatterFullScreenMode.html',
         controller: 'ScatterFullScreenModeCtrl'
     }).otherwise({
         redirectTo: '/main'
@@ -66,8 +66,8 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
 }]);
 
 pinpointApp.value("globalConfig", {});
-pinpointApp.run([ '$rootScope', '$window', '$timeout', '$modal', '$location', '$route', '$cookies', '$interval', '$http', 'globalConfig',
-    function ($rootScope, $window, $timeout, $modal, $location, $route, $cookies, $interval, $http, globalConfig) {
+pinpointApp.run([ "$rootScope", "$window", "$timeout", "$location", "$route", "$http", "globalConfig",
+    function ($rootScope, $window, $timeout, $location, $route, $http, globalConfig ) {
         var original = $location.path;
         $location.path = function (path, reload) {
             if (reload === false) {
@@ -79,6 +79,7 @@ pinpointApp.run([ '$rootScope', '$window', '$timeout', '$modal', '$location', '$
             }
             return original.apply($location, [path]);
         };
+
 		$http.get('/configuration.pinpoint').then(function(result) {
 			if ( result.data.errorCode == 302 ) {
 				$window.location = result.data.redirect;

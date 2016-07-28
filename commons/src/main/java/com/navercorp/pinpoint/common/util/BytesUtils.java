@@ -517,7 +517,8 @@ public final class BytesUtils {
         writeShort(postFix, buf, 8);
         return buf;
     }
-    
+
+    @Deprecated
     public static byte[] add(final long preFix, final short postFix, final int intArg, final short shortArg) {
         byte[] buf = new byte[LONG_BYTE_LENGTH + SHORT_BYTE_LENGTH + INT_BYTE_LENGTH + SHORT_BYTE_LENGTH];
         int offset = 0;

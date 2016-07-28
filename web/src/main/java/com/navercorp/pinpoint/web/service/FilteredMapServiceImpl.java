@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
+import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -45,6 +46,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
@@ -70,6 +72,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     private AgentInfoService agentInfoService;
 
     @Autowired
+    @Qualifier("hbaseTraceDaoFactory")
     private TraceDao traceDao;
 
     @Autowired
@@ -80,6 +83,9 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
     @Autowired
     private ApplicationFactory applicationFactory;
+    
+    @Autowired(required=false)
+    private ServerMapDataFilter serverMapDataFilter;
 
     private static final Object V = new Object();
 
@@ -338,15 +344,22 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                     targetLinkDataMap.addLinkData(parentApplication, span.getAgentId(), spanApplication, span.getAgentId(), timestamp, slotTime, 1);
                 }
 
-
+                if (serverMapDataFilter != null && serverMapDataFilter.filter(spanApplication)) {
+                    continue;
+                }
+                
                 addNodeFromSpanEvent(span, window, linkDataDuplexMap, transactionSpanMap);
             }
         }
-
+        
         ApplicationMapBuilder applicationMapBuilder = new ApplicationMapBuilder(range);
         mapHistogramSummary.build();
         ApplicationMap map = applicationMapBuilder.build(linkDataDuplexMap, agentInfoService, mapHistogramSummary);
 
+        if(serverMapDataFilter != null) {
+            map = serverMapDataFilter.dataFiltering(map);
+        }
+        
         return map;
     }
 

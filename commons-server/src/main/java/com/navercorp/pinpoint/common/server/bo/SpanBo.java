@@ -17,24 +17,17 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
-import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
-import com.navercorp.pinpoint.thrift.dto.TAnnotation;
-import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
-import com.navercorp.pinpoint.thrift.dto.TSpan;
 
 /**
  * @author emeroad
  */
-public class SpanBo implements Span {
-
-    private static final int VERSION_SIZE = 1;
+public class SpanBo implements Event, BasicSpan {
 
     // version 0 means that the type of prefix's size is int
     private byte version = 0;
@@ -50,6 +43,9 @@ public class SpanBo implements Span {
     private long spanId;
     private long parentSpanId;
 
+    private String parentApplicationId;
+    private short parentApplicationServiceType;
+
     private long startTime;
     private int elapsed;
 
@@ -58,11 +54,11 @@ public class SpanBo implements Span {
     private String endPoint;
     private int apiId;
 
-    private List<AnnotationBo> annotationBoList;
+    private List<AnnotationBo> annotationBoList = new ArrayList<>();
     private short flag; // optional
     private int errCode;
 
-    private List<SpanEventBo> spanEventBoList;
+    private List<SpanEventBo> spanEventBoList = new ArrayList<>();
 
     private long collectorAcceptTime;
 
@@ -78,73 +74,8 @@ public class SpanBo implements Span {
 
     private byte loggingTransactionInfo; //optional
 
-    public SpanBo(TSpan span) {
-        if (span == null) {
-            throw new NullPointerException("span must not be null");
-        }
-        this.agentId = span.getAgentId();
-        this.applicationId = span.getApplicationName();
-        this.agentStartTime = span.getAgentStartTime();
 
-        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(span.getTransactionId());
-        this.traceAgentId = transactionId.getAgentId();
-        if (traceAgentId == null) {
-            traceAgentId = this.agentId;
-        }
-        this.traceAgentStartTime = transactionId.getAgentStartTime();
-        this.traceTransactionSequence = transactionId.getTransactionSequence();
 
-        this.spanId = span.getSpanId();
-        this.parentSpanId = span.getParentSpanId();
-
-        this.startTime = span.getStartTime();
-        this.elapsed = span.getElapsed();
-
-        this.rpc = span.getRpc();
-
-        this.serviceType = span.getServiceType();
-        this.endPoint = span.getEndPoint();
-        this.flag = span.getFlag();
-        this.apiId = span.getApiId();
-
-        this.errCode = span.getErr();
-
-        this.acceptorHost = span.getAcceptorHost();
-        this.remoteAddr = span.getRemoteAddr();
-        
-        this.loggingTransactionInfo = span.getLoggingTransactionInfo();
-        
-        // FIXME (2015.03) Legacy - applicationServiceType added in v1.1.0
-        // applicationServiceType is not saved for older versions where applicationServiceType does not exist.
-        if (span.isSetApplicationServiceType()) {
-            this.applicationServiceType = span.getApplicationServiceType();
-        }
-
-        // FIXME span.errCode contains error of span and spanEvent
-        // because exceptionInfo is the error information of span itself, exceptionInfo can be null even if errCode is not 0
-        final TIntStringValue exceptionInfo = span.getExceptionInfo();
-        if (exceptionInfo != null) {
-            this.hasException = true;
-            this.exceptionId = exceptionInfo.getIntValue();
-            this.exceptionMessage = exceptionInfo.getStringValue();
-        }
-
-        this.annotationBoList = buildAnnotationList(span.getAnnotations());
-    }
-
-    public SpanBo(String traceAgentId, long traceAgentStartTime, long traceTransactionSequence, long startTime, int elapsed, long spanId) {
-        if (traceAgentId == null) {
-            throw new NullPointerException("traceAgentId must not be null");
-        }
-        this.traceAgentId = traceAgentId;
-        this.traceAgentStartTime = traceAgentStartTime;
-        this.traceTransactionSequence = traceTransactionSequence;
-
-        this.startTime = startTime;
-        this.elapsed = elapsed;
-
-        this.spanId = spanId;
-    }
 
     public SpanBo() {
     }
@@ -251,7 +182,12 @@ public class SpanBo implements Span {
         return spanId;
     }
 
+    @Deprecated
     public void setSpanID(long spanId) {
+        this.setSpanId(spanId);
+    }
+
+    public void setSpanId(long spanId) {
         this.spanId = spanId;
     }
 
@@ -291,17 +227,6 @@ public class SpanBo implements Span {
         return annotationBoList;
     }
 
-    private List<AnnotationBo> buildAnnotationList(List<TAnnotation> anoList) {
-        if (anoList == null) {
-            return Collections.emptyList();
-        }
-        List<AnnotationBo> boList = new ArrayList<>(anoList.size());
-        for (TAnnotation ano : anoList) {
-            final AnnotationBo annotationBo = new AnnotationBo(ano);
-            boList.add(annotationBo);
-        }
-        return boList;
-    }
 
     public void setAnnotationBoList(List<AnnotationBo> anoList) {
         if (anoList == null) {
@@ -310,9 +235,17 @@ public class SpanBo implements Span {
         this.annotationBoList = anoList;
     }
 
-    public void addSpanEvent(SpanEventBo spanEventBo) {
+    public void addSpanEventBoList(List<SpanEventBo> spanEventBoList) {
         if (spanEventBoList == null) {
-            spanEventBoList = new ArrayList<>();
+            return;
+        }
+        this.spanEventBoList.addAll(spanEventBoList);
+    }
+
+
+    public void addSpanEvent(SpanEventBo spanEventBo) {
+        if (spanEventBo == null) {
+            return;
         }
         spanEventBoList.add(spanEventBo);
     }
@@ -407,7 +340,27 @@ public class SpanBo implements Span {
             return this.serviceType;
         }
     }
-    
+
+    public String getParentApplicationId() {
+        return parentApplicationId;
+    }
+
+    public void setParentApplicationId(String parentApplicationId) {
+        this.parentApplicationId = parentApplicationId;
+    }
+
+    public short getParentApplicationServiceType() {
+        return parentApplicationServiceType;
+    }
+
+    public void setParentApplicationServiceType(short parentApplicationServiceType) {
+        this.parentApplicationServiceType = parentApplicationServiceType;
+    }
+
+    /**
+     * @see com.navercorp.pinpoint.common.trace.LoggingInfo
+     * @return loggingInfo key
+     */
     public byte getLoggingTransactionInfo() {
         return loggingTransactionInfo;
     }
@@ -423,49 +376,49 @@ public class SpanBo implements Span {
         */
         final Buffer buffer = new AutomaticBuffer(256);
 
-        buffer.put(version);
+        buffer.putByte(version);
 
         buffer.putPrefixedString(agentId);
 
         // Using var makes the sie of time smaller based on the present time. That consumes only 6 bytes.
-        buffer.putVar(agentStartTime);
+        buffer.putVLong(agentStartTime);
 
         // insert for rowkey
         // buffer.put(spanID);
-        buffer.put(parentSpanId);
+        buffer.putLong(parentSpanId);
 
         // use var encoding because of based on the present time
-        buffer.putVar(startTime);
-        buffer.putVar(elapsed);
+        buffer.putVLong(startTime);
+        buffer.putVInt(elapsed);
 
         buffer.putPrefixedString(rpc);
         buffer.putPrefixedString(applicationId);
-        buffer.put(serviceType);
+        buffer.putShort(serviceType);
         buffer.putPrefixedString(endPoint);
         buffer.putPrefixedString(remoteAddr);
-        buffer.putSVar(apiId);
+        buffer.putSVInt(apiId);
 
         // errCode value may be negative
-        buffer.putSVar(errCode);
+        buffer.putSVInt(errCode);
 
         if (hasException){
-            buffer.put(true);
-            buffer.putSVar(exceptionId);
+            buffer.putBoolean(true);
+            buffer.putSVInt(exceptionId);
             buffer.putPrefixedString(exceptionMessage);
         } else {
-            buffer.put(false);
+            buffer.putBoolean(false);
         }
 
-        buffer.put(flag);
+        buffer.putShort(flag);
 
         if (hasApplicationServiceType()) {
-            buffer.put(true);
-            buffer.put(this.applicationServiceType);
+            buffer.putBoolean(true);
+            buffer.putShort(this.applicationServiceType);
         } else {
-            buffer.put(false);
+            buffer.putBoolean(false);
         }
 
-        buffer.put(loggingTransactionInfo);
+        buffer.putByte(loggingTransactionInfo);
 
         buffer.putPrefixedString(acceptorHost);
 
@@ -477,35 +430,33 @@ public class SpanBo implements Span {
         this.loggingTransactionInfo = loggingTransactionInfo;
     }
 
-    public int readValue(byte[] bytes, int offset) {
-        final Buffer buffer = new OffsetFixedBuffer(bytes, offset);
+    @Deprecated
+    public int readValue(byte[] bytes, int offset, int length) {
+        final Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
 
         this.version = buffer.readByte();
 
-        // this.mostTraceID = buffer.readLong();
-        // this.leastTraceID = buffer.readLong();
-
         this.agentId = buffer.readPrefixedString();
-        this.agentStartTime = buffer.readVarLong();
+        this.agentStartTime = buffer.readVLong();
 
         // this.spanID = buffer.readLong();
         this.parentSpanId = buffer.readLong();
 
-        this.startTime = buffer.readVarLong();
-        this.elapsed = buffer.readVarInt();
+        this.startTime = buffer.readVLong();
+        this.elapsed = buffer.readVInt();
 
         this.rpc = buffer.readPrefixedString();
         this.applicationId = buffer.readPrefixedString();
         this.serviceType = buffer.readShort();
         this.endPoint = buffer.readPrefixedString();
         this.remoteAddr = buffer.readPrefixedString();
-        this.apiId = buffer.readSVarInt();
+        this.apiId = buffer.readSVInt();
         
-        this.errCode = buffer.readSVarInt();
+        this.errCode = buffer.readSVInt();
 
         this.hasException = buffer.readBoolean();
         if (hasException) {
-            this.exceptionId = buffer.readSVarInt();
+            this.exceptionId = buffer.readSVInt();
             this.exceptionMessage = buffer.readPrefixedString();
         }
 
@@ -513,18 +464,18 @@ public class SpanBo implements Span {
         
         // FIXME (2015.03) Legacy - applicationServiceType added in v1.1.0
         // Defaults to span's service type for older versions where applicationServiceType does not exist.
-        if (buffer.limit() > 0) {
+        if (buffer.hasRemaining()) {
             final boolean hasApplicationServiceType = buffer.readBoolean();
             if (hasApplicationServiceType) {
                 this.applicationServiceType = buffer.readShort();
             }
         }
         
-        if (buffer.limit() > 0) {
+        if (buffer.hasRemaining()) {
             this.loggingTransactionInfo = buffer.readByte();
         }
 
-        if (buffer.limit() > 0) {
+        if (buffer.hasRemaining()) {
             this.acceptorHost = buffer.readPrefixedString();
         }
 

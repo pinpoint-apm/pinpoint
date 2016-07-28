@@ -18,6 +18,10 @@ package com.navercorp.pinpoint.collector.handler;
 
 import java.util.List;
 
+import com.navercorp.pinpoint.collector.dao.TraceDao;
+import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
+import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.SpanFactory;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
@@ -26,11 +30,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.navercorp.pinpoint.collector.dao.TracesDao;
-import com.navercorp.pinpoint.common.util.SpanEventUtils;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
-import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -42,7 +44,8 @@ public class SpanChunkHandler implements SimpleHandler {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    private TracesDao traceDao;
+    @Qualifier("hbaseTraceDaoFactory")
+    private TraceDao traceDao;
 
     @Autowired
     private StatisticsHandler statisticsHandler;
@@ -50,28 +53,25 @@ public class SpanChunkHandler implements SimpleHandler {
     @Autowired
     private ServiceTypeRegistryService registry;
 
+    @Autowired
+    private SpanFactory spanFactory;
+
     @Override
     public void handleSimple(TBase<?, ?> tbase) {
 
-        if (!(tbase instanceof TSpanChunk)) {
-            throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());
-        }
-
         try {
-            TSpanChunk spanChunk = (TSpanChunk) tbase;
+            final SpanChunkBo spanChunkBo = newSpanChunkBo(tbase);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Received SpanChunk={}", spanChunk);
-            }
+            traceDao.insertSpanChunk(spanChunkBo);
 
-            traceDao.insertSpanChunk(spanChunk);
-
-            final ServiceType applicationServiceType = getApplicationServiceType(spanChunk);
-            List<TSpanEvent> spanEventList = spanChunk.getSpanEventList();
+            final ServiceType applicationServiceType = getApplicationServiceType(spanChunkBo);
+            List<SpanEventBo> spanEventList = spanChunkBo.getSpanEventBoList();
             if (spanEventList != null) {
-                logger.debug("SpanChunk Size:{}", spanEventList.size());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("SpanChunk Size:{}", spanEventList.size());
+                }
                 // TODO need to batch update later.
-                for (TSpanEvent spanEvent : spanEventList) {
+                for (SpanEventBo spanEvent : spanEventList) {
                     final ServiceType spanEventType = registry.findServiceType(spanEvent.getServiceType());
 
                     if (!spanEventType.isRecordStatistics()) {
@@ -80,26 +80,38 @@ public class SpanChunkHandler implements SimpleHandler {
 
                     // if terminal update statistics
                     final int elapsed = spanEvent.getEndElapsed();
-                    final boolean hasException = SpanEventUtils.hasException(spanEvent);
+                    final boolean hasException = spanEvent.hasException();
 
                     /**
                      * save information to draw a server map based on statistics
                      */
                     // save the information of caller (the spanevent that span called)
-                    statisticsHandler.updateCaller(spanChunk.getApplicationName(), applicationServiceType, spanChunk.getAgentId(), spanEvent.getDestinationId(), spanEventType, spanEvent.getEndPoint(), elapsed, hasException);
+                    statisticsHandler.updateCaller(spanChunkBo.getApplicationId(), applicationServiceType, spanChunkBo.getAgentId(), spanEvent.getDestinationId(), spanEventType, spanEvent.getEndPoint(), elapsed, hasException);
 
                     // save the information of callee (the span that called spanevent)
-                    statisticsHandler.updateCallee(spanEvent.getDestinationId(), spanEventType, spanChunk.getApplicationName(), applicationServiceType, spanChunk.getEndPoint(), elapsed, hasException);
+                    statisticsHandler.updateCallee(spanEvent.getDestinationId(), spanEventType, spanChunkBo.getApplicationId(), applicationServiceType, spanChunkBo.getEndPoint(), elapsed, hasException);
                 }
             }
         } catch (Exception e) {
             logger.warn("SpanChunk handle error Caused:{}", e.getMessage(), e);
         }
     }
-    
-    private ServiceType getApplicationServiceType(TSpanChunk spanChunk) {
-        // Check if applicationServiceType is set. If not, use span's service type. 
-        final short applicationServiceTypeCode = spanChunk.isSetApplicationServiceType() ? spanChunk.getApplicationServiceType() : spanChunk.getServiceType();
+
+    private SpanChunkBo newSpanChunkBo(TBase<?, ?> tbase) {
+        if (!(tbase instanceof TSpanChunk)) {
+            throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());
+        }
+
+        final TSpanChunk tSpanChunk = (TSpanChunk) tbase;
+        if (logger.isDebugEnabled()) {
+            logger.debug("Received SpanChunk={}", tbase);
+        }
+
+        return this.spanFactory.buildSpanChunkBo(tSpanChunk);
+    }
+
+    private ServiceType getApplicationServiceType(SpanChunkBo spanChunk) {
+        final short applicationServiceTypeCode = spanChunk.getApplicationServiceType();;
         return registry.findServiceType(applicationServiceTypeCode);
     }
 }

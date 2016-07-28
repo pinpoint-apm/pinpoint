@@ -75,7 +75,7 @@ public class AgentInfoMapper implements RowMapper<AgentInfo> {
         builder.setEndTimeStamp(buffer.readLong());
         builder.setEndStatus(buffer.readInt());
         // FIXME - 2015.09 v1.5.0 added vmVersion (check for compatibility)
-        if (buffer.limit() > 0) {
+        if (buffer.hasRemaining()) {
             builder.setVmVersion(buffer.readPrefixedString());
         }
         return builder;

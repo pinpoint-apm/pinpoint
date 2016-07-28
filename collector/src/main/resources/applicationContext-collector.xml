@@ -22,7 +22,7 @@
                         com.navercorp.pinpoint.collector.util,
                         com.navercorp.pinpoint.collector.config,
                         com.navercorp.pinpoint.common.server.util,
-                        com.navercorp.pinpoint.common.server.bo.serializer" />
+                        com.navercorp.pinpoint.common.server.bo" />
 
     <bean id="propertyConfigurer"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -229,9 +229,10 @@
         <constructor-arg index="2" value="#{collectorConfiguration.udpSpanListenIp}"/>
         <constructor-arg index="3" value="#{collectorConfiguration.udpSpanListenPort}"/>
         <constructor-arg index="4" value="#{collectorConfiguration.udpSpanSocketReceiveBufferSize}"/>
-        <constructor-arg index="5" value="#{collectorConfiguration.udpSpanWorkerThread}"/>
-        <constructor-arg index="6" value="#{collectorConfiguration.udpSpanWorkerQueueSize}"/>
-        <constructor-arg index="7" value="#{collectorMetric.enable}"/>
+        <constructor-arg index="5" value="#{collectorConfiguration.udpSpanWorkerType}"/>
+        <constructor-arg index="6" value="#{collectorConfiguration.udpSpanWorkerThread}"/>
+        <constructor-arg index="7" value="#{collectorConfiguration.udpSpanWorkerQueueSize}"/>
+        <constructor-arg index="8" value="#{collectorMetric.enable}"/>
 
     </bean>
 
@@ -248,9 +249,10 @@
         <constructor-arg index="2" value="#{collectorConfiguration.udpStatListenIp}"/>
         <constructor-arg index="3" value="#{collectorConfiguration.udpStatListenPort}"/>
         <constructor-arg index="4" value="#{collectorConfiguration.udpStatSocketReceiveBufferSize}"/>
-        <constructor-arg index="5" value="#{collectorConfiguration.udpStatWorkerThread}"/>
-        <constructor-arg index="6" value="#{collectorConfiguration.udpStatWorkerQueueSize}"/>
-        <constructor-arg index="7" value="#{collectorMetric.enable}"/>
+        <constructor-arg index="5" value="#{collectorConfiguration.udpStatWorkerType}"/>
+        <constructor-arg index="6" value="#{collectorConfiguration.udpStatWorkerThread}"/>
+        <constructor-arg index="7" value="#{collectorConfiguration.udpStatWorkerQueueSize}"/>
+        <constructor-arg index="8" value="#{collectorMetric.enable}"/>
     </bean>
     
     <bean id="jsonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper">
@@ -286,7 +288,7 @@
     
     <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.collector.dao.hbase.HbaseSqlMetaDataDao"/>
 
-    <bean id="sequenceSpanEventFilter" class="com.navercorp.pinpoint.collector.dao.hbase.filter.SequenceSpanEventFilter">
+    <bean id="sequenceSpanEventFilter" class="com.navercorp.pinpoint.common.server.bo.filter.SequenceSpanEventFilter">
         <constructor-arg index="0" value="${collector.spanEvent.sequence.limit:10000}"/>
     </bean>
 </beans>

@@ -55,14 +55,14 @@ public class ServerMetaDataBo {
         final Buffer buffer = new AutomaticBuffer();
         buffer.put2PrefixedString(this.serverInfo);
         final int numVmArgs = this.vmArgs == null ? 0 : this.vmArgs.size();
-        buffer.putVar(numVmArgs);
+        buffer.putVInt(numVmArgs);
         if (this.vmArgs != null) {
             for (String vmArg : this.vmArgs) {
                 buffer.put2PrefixedString(vmArg);
             }
         }
         final int numServiceInfos = this.serviceInfos == null ? 0 : this.serviceInfos.size();
-        buffer.putVar(numServiceInfos);
+        buffer.putVInt(numServiceInfos);
         if (this.serviceInfos != null) {
             for (ServiceInfoBo serviceInfo : this.serviceInfos) {
                 buffer.putPrefixedBytes(serviceInfo.writeValue());
@@ -128,12 +128,12 @@ public class ServerMetaDataBo {
         public Builder(final byte[] value) {
             final Buffer buffer = new FixedBuffer(value);
             this.serverInfo = buffer.read2PrefixedString();
-            final int numVmArgs = buffer.readVarInt();
+            final int numVmArgs = buffer.readVInt();
             this.vmArgs = new ArrayList<String>(numVmArgs);
             for (int i = 0; i < numVmArgs; ++i) {
                 this.vmArgs.add(buffer.read2PrefixedString());
             }
-            final int numServiceInfos = buffer.readVarInt();
+            final int numServiceInfos = buffer.readVInt();
             this.serviceInfos = new ArrayList<ServiceInfoBo>(numServiceInfos);
             for (int i = 0; i < numServiceInfos; ++i) {
                 ServiceInfoBo serviceInfoBo = new ServiceInfoBo.Builder(buffer.readPrefixedBytes()).build();

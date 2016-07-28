@@ -61,19 +61,25 @@
 		}
 	});
 
-	pinpointApp.directive("scatterDirective", ["scatterDirectiveConfig", "$rootScope", "$compile", "$timeout", "webStorage", "$window", "$http", "CommonAjaxService", "TooltipService", "AnalyticsService", "PreferenceService",
-		function ( cfg, $rootScope, $compile, $timeout, webStorage, $window, $http, commonAjaxService, tooltipService, analyticsService, preferenceService ) {
+	pinpointApp.directive("scatterDirective", ["scatterDirectiveConfig", "$rootScope", "$compile", "$timeout", "webStorage", "$window", "$http", "UrlVoService", "CommonAjaxService", "TooltipService", "AnalyticsService", "PreferenceService",
+		function ( cfg, $rootScope, $compile, $timeout, webStorage, $window, $http, UrlVoService, commonAjaxService, tooltipService, analyticsService, preferenceService ) {
 			return {
 				template: cfg.template,
 				restrict: "EA",
 				replace: true,
+				scope: {
+					namespace: "@"
+				},
 				link: function (scope, element, attrs) {
 					var oNavbarVoService = null, htScatterSet = {}, htLastNode = null;
 
 					function makeScatter(target, application, w, h, scatterData) {
-						var from = oNavbarVoService.getQueryStartTime();
-						var to = oNavbarVoService.getQueryEndTime();
-						var filter = oNavbarVoService.getFilter();
+						// var from = oNavbarVoService.getQueryStartTime();
+						// var to = oNavbarVoService.getQueryEndTime();
+						// var filter = oNavbarVoService.getFilter();
+						var from = UrlVoService.getQueryStartTime();
+						var to = UrlVoService.getQueryEndTime();
+						var filter = UrlVoService.getFilter();
 						var applicationName = application.split("^")[0];
 						var options = {};
 						angular.copy(cfg.options, options);
@@ -84,12 +90,13 @@
 						options.minX = from;
 						options.maxX = to;
 						options.errorImage = cfg.images.error;
-						options.realtime = isRealtime();
+						// options.realtime = isRealtime();
+						options.realtime = UrlVoService.isRealtime();
 
 						var oScatterChart = new BigScatterChart2(options, getAgentList(scatterData), [
 							new BigScatterChart2.SettingPlugin( cfg.images.config ).addCallback( function( oChart, oValue ) {
-								webStorage.add( "scatter-y-min", oValue.min );
-								webStorage.add( "scatter-y-max", oValue.max );
+								webStorage.add( "scatter-y-min" + scope.namespace, oValue.min );
+								webStorage.add( "scatter-y-max" + scope.namespace, oValue.max );
 								oChart.changeRangeOfY( oValue );
 								oChart.redraw();
 							}),
@@ -97,7 +104,8 @@
 								analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_DOWNLOAD_SCATTER );
 							}),
 							new BigScatterChart2.WideOpenPlugin( cfg.images.fullscreen ).addCallback( function() {
-								var partialURL = oNavbarVoService.isRealtime() ? "realtime/" + oNavbarVoService.getQueryEndDateTime() : oNavbarVoService.getPartialURL( false, true );
+								// var partialURL = oNavbarVoService.isRealtime() ? "realtime/" + oNavbarVoService.getQueryEndDateTime() : oNavbarVoService.getPartialURL( false, true );
+								var partialURL = UrlVoService.isRealtime() ? "realtime/" + UrlVoService.getQueryEndDateTime() : UrlVoService.getPartialURL( false, true );
 								$window.open( "#/scatterFullScreenMode/" + htLastNode.applicationName + "@" + htLastNode.serviceType + "/" + partialURL + "/" + getAgentList().join(","), "width=900, height=700, resizable=yes");
 							}),
 							new BigScatterChart2.HelpPlugin( tooltipService )
@@ -106,14 +114,16 @@
 								analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST[type === "Success" ? "TG_SCATTER_SUCCESS" : "TG_SCATTER_FAILED"], analyticsService.CONST[bChecked ? "ON" : "OFF"] );
 							},
 							loadFromStorage: function( key ) {
-								return webStorage.get( key );
+								return webStorage.get( key + scope.namespace );
 							},
 							onSelect: function( oDragAreaPosition, oDragXY ) {
-								if ( arguments.length === 3 ) {
-									$window.open("#/transactionList/" + oNavbarVoService.getPartialURL(true, false), application + "|" + arguments[0] + "|" + arguments[1] + "|" + arguments[2] );
+								if ( arguments.length === 4 ) {
+									// $window.open("#/transactionList/" + oNavbarVoService.getPartialURL(true, false), application + "|" + arguments[0] + "|" + arguments[1] + "|" + arguments[2] + "|" + arguments[3] );
+									$window.open("#/transactionList/" + UrlVoService.getPartialURL(true, false), application + "|" + arguments[0] + "|" + arguments[1] + "|" + arguments[2] + "|" + arguments[3] );
 								} else {
-									var token = application + "|" + oDragXY.fromX + "|" + oDragXY.toX + "|" + oDragXY.fromY + "|" + oDragXY.toY;
-									$window.open("#/transactionList/" + oNavbarVoService.getPartialURL(true, false), token);
+									var token = application + "|" + oDragXY.fromX + "|" + oDragXY.toX + "|" + oDragXY.fromY + "|" + oDragXY.toY + "|" + arguments[2];
+									// $window.open("#/transactionList/" + oNavbarVoService.getPartialURL(true, false), token);
+									$window.open("#/transactionList/" + UrlVoService.getPartialURL(true, false), token);
 								}
 							},
 							onError: function() {
@@ -125,7 +135,7 @@
 							if (angular.isUndefined(scatterData)) {
 								oScatterChart.drawWithDataSource( new BigScatterChart2.DataLoadManager( applicationName, filter, {
 									"url": cfg.scatterDataUrl,
-									"realtime": isRealtime(),
+									"realtime": UrlVoService.isRealtime(),
 									"realtimeInterval": 2000,
 									"realtimeDefaultTimeGap": 3000,
 									"realtimeResetTimeGap": 20000,
@@ -133,7 +143,8 @@
 									"fetchingInterval": 2000,
 									"useIntervalForFetching": false
 								}, function( oChartXRange, nextFrom, nextTo ) {
-									oNavbarVoService.setQueryEndDateTime( nextFrom );
+									// oNavbarVoService.setQueryEndDateTime( nextFrom );
+									UrlVoService.setQueryEndDateTime( nextFrom );
 									$rootScope.$broadcast( "responseTimeChartDirective.loadRealtime", applicationName, oScatterChart.getCurrentAgent(), oChartXRange.min, oChartXRange.max );
 								}));
 							} else {
@@ -149,7 +160,7 @@
 						pauseScatterAll();
 						if ( angular.isDefined(htScatterSet[application]) ) {
 							htScatterSet[application].target.show();
-							if ( isRealtime() ) {
+							if ( UrlVoService.isRealtime() ) {
 								commonAjaxService.getServerTime( function( serverTime ) {
 									// serverTime -= 3000;
 									htScatterSet[application].scatter.resume( serverTime - preferenceService.getRealtimeScatterXRange(), serverTime );
@@ -223,21 +234,21 @@
 						}
 						return aAgentList;
 					}
-					function isRealtime() {
-						return oNavbarVoService.getPeriodType() === "realtime";
-					}
+					// function isRealtime() {
+					// 	return oNavbarVoService.getPeriodType() === "realtime";
+					// }
 
-					scope.$on("scatterDirective.initialize", function (event, navbarVoService) {
-						oNavbarVoService = navbarVoService;
+					scope.$on("scatterDirective.initialize." + scope.namespace, function (event, navbarVoService) {
+						// oNavbarVoService = navbarVoService;
 						initScatterHash();
 						element.empty();
 					});
-					scope.$on("scatterDirective.initializeWithNode", function (event, node, w, h) {
+					scope.$on("scatterDirective.initializeWithNode." + scope.namespace, function (event, node, w, h) {
 						scope.currentAgent = preferenceService.getAgentAllStr();
 						htLastNode = node;
 						showScatter(node.key, w, h);
 					});
-					scope.$on("scatterDirective.initializeWithData", function (event, application, data) {
+					scope.$on("scatterDirective.initializeWithData." + scope.namespace, function (event, application, data) {
 						scope.currentAgent = preferenceService.getAgentAllStr();
 						var aSplit = application.split("^");
 						htLastNode = {
@@ -247,30 +258,11 @@
 						};
 						showScatterWithData(application, null, null, data);
 					});
-					scope.$on("scatterDirective.showByNode", function (event, node) {
+					scope.$on("scatterDirective.showByNode." + scope.namespace, function (event, node) {
 						htLastNode = node;
 						showScatterBy(node.key);
 					});
-					scope.$on("responseTimeChartDirective.showErrorTransacitonList", function( event, category ) {
-						//switch( category ) {
-						//	case "1s":
-						//		$window.htoScatter[htLastNode.key].selectArea( "Success", 0, 1000 );
-						//		break;
-						//	case "3s":
-						//		$window.htoScatter[htLastNode.key].selectArea( "Success", 1000, 3000 );
-						//		break;
-						//	case "5s":
-						//		$window.htoScatter[htLastNode.key].selectArea( "Success", 3000, 5000 );
-						//		break;
-						//	case "Slow":
-						//		$window.htoScatter[htLastNode.key].selectArea( "Success", 5000, Number.MAX_VALUE );
-						//		break;
-						//	case "Error":
-						//		$window.htoScatter[htLastNode.key].selectArea( "Failed" );
-						//		break;
-						//}
-
-
+					scope.$on("responseTimeChartDirective.showErrorTransacitonList." + scope.namespace, function( event, category ) {
 						$window.htoScatter[htLastNode.key].selectType( "Failed" ).fireDragEvent({
 							animate: function() {},
 							css : function( name ) {
@@ -284,7 +276,7 @@
 							}
 						});
 					});
-					scope.$on("changedCurrentAgent", function( event, selectedAgentName ) {
+					scope.$on("changedCurrentAgent." + scope.namespace, function( event, selectedAgentName ) {
 						htScatterSet[htLastNode.key].scatter.selectAgent( selectedAgentName );
 					});
 				}

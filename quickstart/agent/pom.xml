@@ -20,7 +20,9 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-profiler-optional</artifactId>
-            <version>${project.version}</version>            
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+            <type>pom</type>
         </dependency>
 
         <!-- plug-ins -->

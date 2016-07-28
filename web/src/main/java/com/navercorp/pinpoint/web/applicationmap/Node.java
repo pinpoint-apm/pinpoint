@@ -43,7 +43,9 @@ public class Node {
     private ServerInstanceList serverInstanceList = new ServerInstanceList();
 
     private NodeHistogram nodeHistogram;
-
+    
+    private boolean authorized = true;
+    
     public Node(Application application) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
@@ -99,7 +101,15 @@ public class Node {
     public void setNodeHistogram(NodeHistogram nodeHistogram) {
         this.nodeHistogram = nodeHistogram;
     }
+    
+    public boolean isAuthorized() {
+        return authorized;
+    }
 
+    public void setAuthorized(boolean authorized) {
+        this.authorized = authorized;
+    }
+    
     @Override
     public String toString() {
         return "Node [" + application + "]";

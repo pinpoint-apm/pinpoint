@@ -44,7 +44,7 @@ public class LinkFilterTest {
 
         fromSpanBo.setServiceType(tomcatServiceType);
         fromSpanBo.setAgentId("AGENT_A");
-        fromSpanBo.setSpanID(100);
+        fromSpanBo.setSpanId(100);
 
         SpanBo toSpanBO = new SpanBo();
         toSpanBO.setApplicationId("APP_B");
@@ -86,7 +86,7 @@ public class LinkFilterTest {
 
         fromSpanBo.setServiceType(tomcatServiceType);
         fromSpanBo.setAgentId("AGENT_A");
-        fromSpanBo.setSpanID(100);
+        fromSpanBo.setSpanId(100);
 
         SpanBo toSpanBO = new SpanBo();
         toSpanBO.setApplicationId("APP_B");

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
-        <artifactId>pom</artifactId>
+        <artifactId>pinpoint</artifactId>
         <version>1.6.0-SNAPSHOT</version>
     </parent>
 
@@ -23,16 +23,24 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-profiler-optional</artifactId>
+            <scope>runtime</scope>
+            <type>pom</type>
         </dependency>
 
         <!-- plug-ins -->
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-plugins</artifactId>
-            <type>zip</type>
+            <type>pom</type>
             <scope>runtime</scope>
         </dependency>
 
+        <!-- tools -->
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-tools</artifactId>
+            <scope>runtime</scope>
+        </dependency>
 
         <!-- for tests -->
         <dependency>
@@ -182,6 +190,13 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-all</artifactId>
+            <version>5.13.2</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -193,7 +208,6 @@
                 </excludes>
             </resource>
             <resource>
-                <filtering>true</filtering>
                 <directory>${basedir}/src/main/resources</directory>
             </resource>
             <resource>
@@ -204,22 +218,52 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.18.1</version>
                 <executions>
                     <execution>
+                        <id>test-on-jvm6</id>
                         <goals>
                             <goal>integration-test</goal>
                             <goal>verify</goal>
                         </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/jdk7/**/</exclude>
+                            </excludes>
+                            <!-- AbstractPinpointPluginTestSuite needs this to resolve
+                                path of required jars -->
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                            <failIfNoTests>true</failIfNoTests>
+                            <jvm>${env.JAVA_6_HOME}/bin/java</jvm>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>test-on-jvm7</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>**/jdk7/**/</include>
+                            </includes>
+                            <!-- AbstractPinpointPluginTestSuite needs this to resolve
+                                path of required jars -->
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                            <failIfNoTests>true</failIfNoTests>
+                            <jvm>${env.JAVA_7_HOME}/bin/java</jvm>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <!-- AbstractPinpointPluginTestSuite needs this to resolve 
-                        path of required jars -->
-                    <useSystemClassLoader>false</useSystemClassLoader>
-                    <failIfNoTests>true</failIfNoTests>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

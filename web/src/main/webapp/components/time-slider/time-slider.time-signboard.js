@@ -5,7 +5,7 @@
         this.group = svgGroup;
         this.opt = options;
         this._textMaxWidth = 100;
-        this._xPadding = 2;
+        this._xPadding = 10;
         this._addElements();
     };
     ts.TimeSignboard.prototype._addElements = function() {

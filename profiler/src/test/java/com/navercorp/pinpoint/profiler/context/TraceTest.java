@@ -108,10 +108,6 @@ public class TraceTest {
             return false;
         }
 
-        @Override
-        public boolean isNetworkAvailable() {
-            return true;
-        }
     }
 
     private void getDataFromDB(Trace trace) {

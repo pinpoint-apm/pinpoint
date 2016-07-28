@@ -27,14 +27,33 @@
 			type: "string"
 		}],
 		cst: {
-			periodTypes: [ '5m', '20m', '1h', '3h', '6h', '12h', '1d', '2d'],
+			periodType: {
+				"RANGE": "range",
+				"LAST": "last",
+				"REALTIME": "realtime"
+			},
+			periodTime: [ "5m", "20m", "1h", "3h", "6h", "12h", "1d", "2d"],
 			depthList: [ 1, 2, 3, 4],
 			maxFavorite: 5000,
 			maxPeriod: 2,
 			realtimeScatterPeriod: 5 * 60 * 1000,//5m
 			responseType: [ "1s", "3s", "5s", "Slow", "Error" ],
 			responseTypeColor: [ "#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034" ],
-			agentAllStr: "All"
+			agentAllStr: "All",
+			updateTimes: [{
+				time: 10,
+				label: "10 seconds"
+			},{
+				time: 20,
+				label: "20 seconds"
+			}, {
+				time: 30,
+				label: "30 seconds"
+			}, {
+				time: 60,
+				label: "1 minute"
+			}],
+			iconPath: "/images/icons/"
 		}
 	});
 	
@@ -44,7 +63,6 @@
 		var aFavoriteList = [];
 		
 		loadPreference();
-
 		this.addFavorite = function( applicationName ) {
 			if ( aFavoriteList.length === cfg.cst.maxFavorite || aFavoriteList.indexOf( applicationName ) !== -1 ) {
 				return;
@@ -67,8 +85,11 @@
 		this.getDepthList = function() {
 			return cfg.cst.depthList;
 		};
-		this.getPeriodTypes = function() {
-			return cfg.cst.periodTypes;
+		this.getPeriodTime = function() {
+			return cfg.cst.periodTime;
+		};
+		this.getPeriodType = function() {
+			return cfg.cst.periodType;
 		};
 		this.getMaxPeriod = function() {
 			return cfg.cst.maxPeriod;
@@ -84,6 +105,9 @@
 		};
 		this.getAgentAllStr = function() {
 			return cfg.cst.agentAllStr;
+		};
+		this.getUpdateTimes = function() {
+			return cfg.cst.updateTimes;
 		};
 		this.getResponseTypeFormat = function() {
 			var o = {};
@@ -111,6 +135,9 @@
 				return;
 			}
 			webStorage.add(app, depth);
+		};
+		this.getIconPath = function() {
+			return cfg.cst.iconPath;
 		};
 		
 		

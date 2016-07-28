@@ -22,8 +22,7 @@ import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 /**
  * @author emeroad
  */
-public interface TracesDao {
-    void insert(TSpan span);
+@Deprecated
+public interface TracesDao extends TraceDao {
 
-    void insertSpanChunk(TSpanChunk spanChunk);
 }

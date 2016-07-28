@@ -7,12 +7,6 @@
 * Install agents without changing a single line of code
 * Minimal impact on performance (approximately 3% increase in resource usage)
 
-## We're Heading to Austin for OSCON!
-We've been lucky enough to hold a Birds of a Feather (BoF) session on May 18th 7pm.
-Come join us to discuss everything and anything about Pinpoint and distributed tracing.
-
-If anyone's headed to Austin for OSCON and wishes to meet up, let us know by sending us a mail or leaving a note [here](https://github.com/naver/pinpoint/issues/1754).
-
 ## Latest Release (2016/04/08)
 We're happy to announce the release of Pinpoint **v1.5.2**. <br/>
 Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.5.2)<br/>
@@ -70,10 +64,11 @@ For details, please refer to the [quick-start guide](quickstart/README.md).
 **Build Requirements**
 
 * JDK 6 installed ([jdk1.6_45](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase6-419409.html))
+* JDK 7 installed
 * JDK 8 installed
 * Maven 3.2.x+ installed
 * JAVA_6_HOME environment variable set to JDK 6 home directory.
-* JAVA_7_HOME environment variable set to JDK 7+ home directory.
+* JAVA_7_HOME environment variable set to JDK 7 home directory.
 * JAVA_8_HOME environment variable set to JDK 8+ home directory.
 
 **Prerequisites**

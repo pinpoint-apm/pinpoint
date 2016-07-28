@@ -15,6 +15,14 @@
  */
 package com.navercorp.pinpoint.web.view;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.json.simple.JSONObject;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.util.DateUtils;
@@ -23,14 +31,10 @@ import com.navercorp.pinpoint.web.applicationmap.Node;
 import com.navercorp.pinpoint.web.vo.TransactionId;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
-import org.json.simple.JSONObject;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
 
 /**
  * @author jaehong.kim
+ * @author minwoo.jung
  */
 public class TransactionInfoViewModel {
 
@@ -198,8 +202,7 @@ public class TransactionInfoViewModel {
                 "agent",
                 "isFocused",
                 "hasException",
-                "logButtonName",
-                "logPageUrl"
+                "isAuthorized"
         };
 
         private String depth = "";
@@ -225,8 +228,7 @@ public class TransactionInfoViewModel {
         private String agent = "";
         private boolean isFocused;
         private boolean hasException;
-        private String logButtonName = "";
-        private String logPageUrl = "";
+        private boolean isAuthorized;
 
         public CallStack(final Record record, long barRatio) {
             begin = record.getBegin();
@@ -256,23 +258,7 @@ public class TransactionInfoViewModel {
             agent = record.getAgent();
             isFocused = record.isFocused();
             hasException = record.getHasException();
-            logButtonName = record.getLogButtonName();
-
-            if (record.getLogPageUrl() != null && record.getLogPageUrl().length() > 0) {
-                try {
-                    URL url = new URL(record.getLogPageUrl());
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("transactionId=").append(record.getTransactionId());
-                    sb.append("&spanId=").append(record.getSpanId());
-                    sb.append("&time=").append(record.getBegin());
-                    if (url.getQuery() != null) {
-                        logPageUrl = record.getLogPageUrl() + "&" + sb.toString();
-                    } else {
-                        logPageUrl = record.getLogPageUrl() + "?" + sb.toString();
-                    }
-                } catch (MalformedURLException ignored) {
-                }
-            }
+            isAuthorized = record.isAuthorized();
         }
 
         public String getDepth() {
@@ -366,13 +352,9 @@ public class TransactionInfoViewModel {
         public boolean isHasException() {
             return hasException;
         }
-
-        public String getLogButtonName() {
-            return logButtonName;
-        }
-
-        public String getLogPageUrl() {
-            return logPageUrl;
+        
+        public boolean isAuthorized() {
+            return isAuthorized;
         }
     }
 }

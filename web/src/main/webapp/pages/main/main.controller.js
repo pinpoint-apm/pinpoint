@@ -7,8 +7,8 @@
 	 * @name MainCtrl
 	 * @class
 	 */
-	pinpointApp.controller( "MainCtrl", [ "filterConfig", "$scope", "$timeout", "$routeParams", "locationService", "NavbarVoService", "$window", "SidebarTitleVoService", "filteredMapUtilService", "$rootElement", "AnalyticsService", "PreferenceService",
-	    function (cfg, $scope, $timeout, $routeParams, locationService, NavbarVoService, $window, SidebarTitleVoService, filteredMapUtilService, $rootElement, analyticsService, preferenceService) {
+	pinpointApp.controller( "MainCtrl", [ "filterConfig", "$scope", "$timeout", "$routeParams", "locationService", "UrlVoService", "NavbarVoService", "$window", "SidebarTitleVoService", "filteredMapUtilService", "$rootElement", "AnalyticsService", "PreferenceService",
+	    function (cfg, $scope, $timeout, $routeParams, locationService, UrlVoService, NavbarVoService, $window, SidebarTitleVoService, filteredMapUtilService, $rootElement, analyticsService, preferenceService) {
 			analyticsService.send(analyticsService.CONST.MAIN_PAGE);
 	        // define private variables
 	        var oNavbarVoService, bNodeSelected, bNoData;
@@ -40,6 +40,7 @@
 	            }
 				oNavbarVoService.setCalleeRange( preferenceService.getCalleeByApp($routeParams.application) );
 				oNavbarVoService.setCallerRange( preferenceService.getCallerByApp($routeParams.application) );
+				UrlVoService.initUrlVo( "main", $routeParams );
 
 				if ( oNavbarVoService.isRealtime() ) {
 					$scope.$broadcast('navbarDirective.initialize.realtime.andReload', oNavbarVoService);
@@ -48,9 +49,11 @@
 						$scope.$broadcast('navbarDirective.initialize.andReload', oNavbarVoService);
 					} else {
 						$window.$routeParams = $routeParams;
+						UrlVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 						oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 						$scope.$broadcast('navbarDirective.initialize', oNavbarVoService);
-						$scope.$broadcast('scatterDirective.initialize', oNavbarVoService);
+						$scope.$broadcast('serverListDirective.initialize', oNavbarVoService );
+						$scope.$broadcast('scatterDirective.initialize.forMain', oNavbarVoService);
 						$scope.$broadcast('serverMapDirective.initialize', oNavbarVoService);
 					}
 				}
@@ -110,7 +113,7 @@
 	         * get main container class
 	         */
 	        $scope.getMainContainerClass = function () {
-	        	return bNoData ? 'no-data' : '';
+	        	return "";//return bNoData ? 'no-data' : '';
 	        };
 	
 	        /**
@@ -162,9 +165,10 @@
 					$scope.$broadcast("realtimeChartController.close");
 				}
 	            $scope.$broadcast('sidebarTitleDirective.empty.forMain');
+				$scope.$broadcast('serverListDirective.initialize', oNavbarVoService );
 	            $scope.$broadcast('nodeInfoDetailsDirective.hide');
 	            $scope.$broadcast('linkInfoDetailsDirective.hide');
-	            $scope.$broadcast('scatterDirective.initialize', oNavbarVoService);
+	            $scope.$broadcast('scatterDirective.initialize.forMain', oNavbarVoService);
 	            $scope.$broadcast('serverMapDirective.initialize', oNavbarVoService);
 	            $scope.$broadcast('sidebarTitleDirective.empty.forMain');
 	        });
@@ -173,7 +177,7 @@
 	         * scope event on serverMapDirective.passingTransactionResponseToScatterChart
 	         */
 	        $scope.$on('serverMapDirective.passingTransactionResponseToScatterChart', function (event, node) {
-	            $scope.$broadcast('scatterDirective.initializeWithNode', node);
+	            $scope.$broadcast('scatterDirective.initializeWithNode.forMain', node);
 	        });
 	
 	        /**
@@ -185,9 +189,13 @@
 	            oSidebarTitleVoService.setImageType(node.serviceType);
 	
 	            if (node.isWas === true) {
-	                $scope.hasScatter = true;
-	                oSidebarTitleVoService.setTitle(node.applicationName);
-	                $scope.$broadcast('scatterDirective.initializeWithNode', node);
+	            	if ( node.isAuthorized === true ) {
+						$scope.hasScatter = true;
+						$scope.$broadcast('scatterDirective.initializeWithNode.forMain', node);
+					} else {
+						$scope.hasScatter = false;
+					}
+					oSidebarTitleVoService.setTitle(node.applicationName);
 	            } else if (node.unknownNodeGroup) {
 	                oSidebarTitleVoService.setTitle( node.serviceType.replace( "_", " " ) );
 	                $scope.hasScatter = false;
@@ -303,18 +311,6 @@
 
 	            $scope.$broadcast('sidebarTitleDirective.initialize.forMain', oSidebarTitleVoService);
 	            $scope.$broadcast('linkInfoDetailsDirective.hide');
-	        });
-
-	        $scope.loadingOption = {
-	        	hideTip : "init"
-	        };
-	        $scope.$watch( 'loadingOption.hideTip', function(newValue) {
-	        	if ( newValue == "init" ) return;
-	    		if ( $window.localStorage ) {
-	    			var now = new Date();
-	    			now.setDate(now.getDate() + 30);
-	        		$window.localStorage.setItem( "__HIDE_LOADING_TIP", newValue ? now.valueOf() : "-" ); 
-	        	}
 	        });
 	    }
 	]);

@@ -159,12 +159,6 @@ public class SpanStreamUdpSender extends AbstractDataSender {
         executor.stop();
     }
 
-    // Interface will be discarded.
-    @Override
-    public boolean isNetworkAvailable() {
-        return false;
-    }
-
     @Override
     protected void sendPacket(Object message) {
         if (logger.isDebugEnabled()) {

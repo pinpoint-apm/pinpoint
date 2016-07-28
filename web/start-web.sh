@@ -11,6 +11,18 @@ HBASE_PORT=${HBASE_PORT:-2181}
 
 DISABLE_DEBUG=${DISABLE_DEBUG:-true}
 
+JDBC_DRIVER=${JDBC_DRIVER:-com.mysql.jdbc.Driver}
+JDBC_URL=${JDBC_URL:-jdbc:mysql://localhost:13306/pinpoint?characterEncoding=UTF-8}
+JDBC_USERNAME=${JDBC_USERNAME:-admin}
+JDBC_PASSWORD=${JDBC_PASSWORD:-admin}
+
+echo -e "
+jdbc.driverClassName=${JDBC_DRIVER}
+jdbc.url=${JDBC_URL}
+jdbc.username=${JDBC_USERNAME}
+jdbc.password=${JDBC_PASSWORD}
+" > /usr/local/tomcat/webapps/ROOT/WEB-INF/classes/jdbc.properties
+
 cp /assets/pinpoint-web.properties /usr/local/tomcat/webapps/ROOT/WEB-INF/classes/pinpoint-web.properties
 cp /assets/hbase.properties /usr/local/tomcat/webapps/ROOT/WEB-INF/classes/hbase.properties
 

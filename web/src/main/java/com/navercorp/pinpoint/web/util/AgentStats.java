@@ -34,16 +34,16 @@ public class AgentStats {
         }
     };
     
-    public static List<AgentStat> aggregate(List<AgentStat> stats, int newInterval) {
+    public static List<AgentStat> aggregate(List<AgentStat> stats, long newInterval) {
         return new Aggregator(stats, newInterval).aggregate();
     }
     
     
     private static class Aggregator {
         private final List<AgentStat> stats;
-        private final int interval;
+        private final long interval;
         
-        public Aggregator(List<AgentStat> stats, int interval) {
+        public Aggregator(List<AgentStat> stats, long interval) {
             this.interval = interval;
             this.stats = new ArrayList<>(stats);
             Collections.sort(this.stats, TIMESTAMP_COMPARATOR);
@@ -58,23 +58,24 @@ public class AgentStats {
             AgentStat current = toAggregatedAgentStat(stats.get(0));
             
             for (AgentStat stat : stats.subList(1, stats.size())) {
-                long timestamp = targetTimestamp(stat);
+                long timestamp = toAggregatedTimestamp(stat, interval);
                 
                 if (current.getTimestamp() == timestamp) {
-                    current = add(current, stat);
+                    current = merge(current, stat, interval);
                 } else {
                     result.add(current);
                     current = toAggregatedAgentStat(stat);
                 }
             }
             
+            current.setCollectInterval(interval);
             result.add(current);
             
             return result;
         }
 
         private AgentStat toAggregatedAgentStat(AgentStat stat) {
-            long timestamp = targetTimestamp(stat);
+            long timestamp = toAggregatedTimestamp(stat, interval);
             AgentStat result = new AgentStat(stat.getAgentId(), timestamp);
             
             result.setCollectInterval(interval);
@@ -103,71 +104,66 @@ public class AgentStats {
             return result;
         }
         
-        private long targetTimestamp(AgentStat stat) {
-            long timestamp = (stat.getTimestamp() / interval) * interval;
-            
-            if (stat.getTimestamp() != timestamp) {
-                timestamp += interval;
-            }
-            
-            return timestamp;
-        }
-        
-        public AgentStat add(AgentStat s1, AgentStat s2) {
-            AgentStat latest = s1.getTimestamp() > s2.getTimestamp() ? s1 : s2;
+    }
 
-            AgentStat stat = new AgentStat(s1.getAgentId(), s1.getTimestamp());
-            
-            stat.setGcType(latest.getGcType());
-            stat.setGcOldCount(latest.getGcOldCount());
-            stat.setGcOldTime(latest.getGcOldTime());
-            
-            stat.setHeapUsed(latest.getHeapUsed());
-            stat.setHeapMax(maxValue(s1.getHeapMax(), s2.getHeapMax()));
-            
-            stat.setNonHeapUsed(latest.getNonHeapUsed());
-            stat.setNonHeapMax(maxValue(s1.getNonHeapMax(), s2.getNonHeapMax()));
-            
-            stat.setJvmCpuUsage(latest.getJvmCpuUsage());
-            stat.setSystemCpuUsage(latest.getSystemCpuUsage());
-            
-            stat.setSampledNewCount(addValue(s1.getSampledNewCount(), s2.getSampledNewCount()));
-            stat.setSampledContinuationCount(addValue(s1.getSampledContinuationCount(), s2.getSampledContinuationCount()));
-            stat.setUnsampledNewCount(addValue(s1.getUnsampledNewCount(), s2.getUnsampledNewCount()));
-            stat.setUnsampledContinuationCount(addValue(s1.getUnsampledContinuationCount(), s2.getUnsampledContinuationCount()));
-            
-            stat.setHistogramSchema(latest.getHistogramSchema());
-            stat.setActiveTraceCounts(latest.getActiveTraceCounts());
-            
-            return stat;
-        }
+    public static long toAggregatedTimestamp(AgentStat stat, long interval) {
+        long timestamp = (stat.getTimestamp() / interval) * interval;
+        return timestamp;
+    }
+
+    public static AgentStat merge(AgentStat s1, AgentStat s2, long interval) {
+        AgentStat latest = s1.getTimestamp() > s2.getTimestamp() ? s1 : s2;
+
+        AgentStat stat = new AgentStat(s1.getAgentId(), latest.getTimestamp());
+        stat.setCollectInterval(interval);
         
-        private long addValue(long v1, long v2) {
-            if (v1 == AgentStat.NOT_COLLECTED) {
-                if (v2 == AgentStat.NOT_COLLECTED) {
-                    return AgentStat.NOT_COLLECTED;
-                } else {
-                    return v2;
-                }
+        stat.setGcType(latest.getGcType());
+        stat.setGcOldCount(latest.getGcOldCount());
+        stat.setGcOldTime(latest.getGcOldTime());
+        
+        stat.setHeapUsed(latest.getHeapUsed());
+        stat.setHeapMax(maxValue(s1.getHeapMax(), s2.getHeapMax()));
+        
+        stat.setNonHeapUsed(latest.getNonHeapUsed());
+        stat.setNonHeapMax(maxValue(s1.getNonHeapMax(), s2.getNonHeapMax()));
+        
+        stat.setJvmCpuUsage(latest.getJvmCpuUsage());
+        stat.setSystemCpuUsage(latest.getSystemCpuUsage());
+        
+        stat.setSampledNewCount(addValue(s1.getSampledNewCount(), s2.getSampledNewCount()));
+        stat.setSampledContinuationCount(addValue(s1.getSampledContinuationCount(), s2.getSampledContinuationCount()));
+        stat.setUnsampledNewCount(addValue(s1.getUnsampledNewCount(), s2.getUnsampledNewCount()));
+        stat.setUnsampledContinuationCount(addValue(s1.getUnsampledContinuationCount(), s2.getUnsampledContinuationCount()));
+        
+        stat.setHistogramSchema(latest.getHistogramSchema());
+        stat.setActiveTraceCounts(latest.getActiveTraceCounts());
+        
+        return stat;
+    }
+    
+    private static long addValue(long v1, long v2) {
+        if (v1 == AgentStat.NOT_COLLECTED) {
+            if (v2 == AgentStat.NOT_COLLECTED) {
+                return AgentStat.NOT_COLLECTED;
             } else {
-                if (v1 == AgentStat.NOT_COLLECTED) {
-                    return v1;
-                } else {
-                    return v1 + v2;
-                }
-            }
-        }
-        
-        private long maxValue(long v1, long v2) {
-            if (v1 == AgentStat.NOT_COLLECTED) {
                 return v2;
-            } else if (v2 == AgentStat.NOT_COLLECTED) {
-                return v1;
             }
-            
-            return v1 < v2 ? v2 : v1;
+        } else {
+            if (v1 == AgentStat.NOT_COLLECTED) {
+                return v1;
+            } else {
+                return v1 + v2;
+            }
         }
     }
     
-
+    private static long maxValue(long v1, long v2) {
+        if (v1 == AgentStat.NOT_COLLECTED) {
+            return v2;
+        } else if (v2 == AgentStat.NOT_COLLECTED) {
+            return v1;
+        }
+        
+        return v1 < v2 ? v2 : v1;
+    }
 }

@@ -1,5 +1,5 @@
 (function($) {
-	'use strict';
+	"use strict";
 	
 	/**
 	 * (en) AnalyticsService 
@@ -9,15 +9,18 @@
 	 * @class
 	 */	
 	
-	pinpointApp.service('AnalyticsService', [ '$rootScope', 'globalConfig', function ($rootScope, globalConfig) {
+	pinpointApp.service( "AnalyticsService", [ "globalConfig", function ( globalConfig) {
 		if ( typeof ga !== "undefined" ) {
 			this.send = function( category, name, label, count, options ) {
 				if ( globalConfig.sendAllowed === false ) return;
 				if ( arguments.length == 1 ) {
-					ga( 'send', 'pageview', arguments[0] );
+					ga( "send", "pageview", arguments[0] );
 				} else {
-					ga( 'send', 'event', category, name, label, count, options );
+					ga( "send", "event", category, name, label, count, options );
 				}
+			};
+			this.sendMain = function( name, label, count, options ) {
+				this.send( this.CONST.MAIN, name, label, count, options );
 			};
 		}
 		

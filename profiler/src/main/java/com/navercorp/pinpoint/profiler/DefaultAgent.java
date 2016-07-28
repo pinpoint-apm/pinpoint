@@ -36,6 +36,8 @@ import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
 import com.navercorp.pinpoint.profiler.context.storage.BufferedStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
+import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
+import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
 import com.navercorp.pinpoint.profiler.instrument.JavassistClassPool;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
@@ -62,6 +64,7 @@ import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.util.List;
 import java.util.Map;
@@ -176,7 +179,8 @@ public class DefaultAgent implements Agent {
         this.classFileTransformer = new ClassFileTransformerDispatcher(this, pluginContexts);
         this.dynamicTransformService = new DynamicTransformService(instrumentation, classFileTransformer);
 
-        instrumentation.addTransformer(this.classFileTransformer, true);
+        ClassFileTransformer wrappedTransformer = wrapClassFileTransformer(classFileTransformer);
+        instrumentation.addTransformer(wrappedTransformer, true);
 
         String applicationServerTypeString = profilerConfig.getApplicationServerType();
         ServiceType applicationServerType = this.serviceTypeRegistryService.findServiceTypeByName(applicationServerTypeString);
@@ -213,6 +217,15 @@ public class DefaultAgent implements Agent {
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime(), agentStatCollectorFactory);
         
         InterceptorInvokerHelper.setPropagateException(profilerConfig.isPropagateInterceptorException());
+    }
+
+    private ClassFileTransformer wrapClassFileTransformer(ClassFileTransformer classFileTransformerDispatcher) {
+        final boolean enableBytecodeDump = profilerConfig.readBoolean(ASMBytecodeDumpService.ENABLE_BYTECODE_DUMP, ASMBytecodeDumpService.ENABLE_BYTECODE_DUMP_DEFAULT_VALUE);
+        if (enableBytecodeDump) {
+            logger.info("wrapBytecodeDumpTransformer");
+            return BytecodeDumpTransformer.wrap(classFileTransformerDispatcher, profilerConfig);
+        }
+        return classFileTransformerDispatcher;
     }
 
     public String getBootstrapCoreJar() {

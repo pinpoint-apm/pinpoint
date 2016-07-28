@@ -74,7 +74,7 @@ public class HostApplicationMapperVer2 implements RowMapper<List<AcceptApplicati
 //    }
 
     private AcceptApplication createAcceptedApplication(Cell cell) {
-        Buffer reader = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset());
+        Buffer reader = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
         String host = reader.readPrefixedString();
         String bindApplicationName = reader.readPrefixedString();
         short bindServiceTypeCode = reader.readShort();

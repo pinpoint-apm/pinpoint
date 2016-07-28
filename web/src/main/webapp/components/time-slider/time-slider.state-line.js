@@ -24,8 +24,13 @@
     };
     ts.StateLine.prototype._addBaseLine = function() {
         this._baseColor = TimeSlider.EventColor["base"];
-        this._aBaseLine = [ this._makeLine( 0, this.opt.width, this.opt.topLineY, "base", "base-" + Date.now() ), this._makeLine( 0, this.opt.width, this.opt.bottomLineY, "base", "base-" + Date.now() ) ];
-        this.group.add( this._aBaseLine[0], this._aBaseLine[1] );
+        this._aBaseLine = [
+			this._makeRect( 0, this.opt.width, this.opt.topLineY, this.opt.bottomLineY - this.opt.topLineY, "base", "base-" + Date.now() )
+			// this._makeLine( 0, this.opt.width, this.opt.topLineY, "base", "base-" + Date.now() )//,
+			// this._makeLine( 0, this.opt.width, this.opt.bottomLineY, "base", "base-" + Date.now() )
+		];
+        //this.group.add( this._aBaseLine[0], this._aBaseLine[1] );
+		this.group.add( this._aBaseLine[0] );
     };
     ts.StateLine.prototype._addEventElements = function( ) {
         var len = this._oEventData.count();
@@ -34,6 +39,7 @@
         }
     };
     ts.StateLine.prototype._addEventElement = function( oEvent ) {
+		return;
         if ( typeof oEvent.durationStartTimestamp !== "undefined" ) {
             if ( this.timeSlider.oPositionManager.isInSliderTimeSeries( oEvent.durationStartTimestamp ) === false && this.timeSlider.oPositionManager.isInSliderTimeSeries( oEvent.durationEndTimestamp ) === false ) return;
             this._hasDurationData = true;
@@ -49,11 +55,23 @@
     };
     ts.StateLine.prototype._addLine = function( x, x2, oEvent ) {
         var lineID = this._makeID( oEvent );
-        var elLineTop = this._makeLine( x, x2, this.opt.topLineY, oEvent.eventTypeCode, lineID );
-        var elLineBottom = this._makeLine( x, x2, this.opt.bottomLineY, oEvent.eventTypeCode, lineID );
-        this._oLineElementHash[lineID] = [ elLineTop, elLineBottom ];
-        this.group.add( elLineTop, elLineBottom );
+		var elRect = this._makeRect( x, x2, this.opt.topLineY, this.opt.bottomLineY - this.opt.topLineY, oEvent.eventTypeCode, lineID );
+		// var elLineTop = this._makeLine( x, x2, this.opt.topLineY, oEvent.eventTypeCode, lineID );
+        //var elLineBottom = this._makeLine( x, x2, this.opt.bottomLineY, oEvent.eventTypeCode, lineID );
+        //this._oLineElementHash[lineID] = [ elLineTop, elLineBottom ];
+        //this.group.add( elLineTop, elLineBottom );
+		// this._oLineElementHash[lineID] = [ elLineTop ];
+		// this.group.add( elLineTop );
+		this._oLineElementHash[lineID] = [ elRect ];
+		this.group.add( elRect );
     };
+	ts.StateLine.prototype._makeRect = function( x, x2, y, y2, eventType, id ) {
+		return  this.timeSlider.snap.rect( x, y, x2, y2 ).attr({
+			//"filter": this._filterShadow,
+			"fill": TimeSlider.EventColor[eventType],
+			"data-id": id
+		});
+	};
     ts.StateLine.prototype._makeLine = function( x, x2, y, eventType, id ) {
         return  this.timeSlider.snap.line( x, y, x2, y ).attr({
             //"filter": this._filterShadow,
@@ -82,7 +100,7 @@
         for( var p in this._oLineElementHash ) {
             var aLine = this._oLineElementHash[p];
             aLine[0].remove();
-            aLine[1].remove();
+            //aLine[1].remove();
         }
         this._oLineElementHash = {};
     };
@@ -90,13 +108,15 @@
         this._baseColor = color;
         if ( this._hasDurationData === true ) return;
         this._aBaseLine.forEach(function( elLine ) {
-            elLine.attr("stroke", color);
+            //elLine.attr("stroke", color);
+			elLine.attr("fill", color);
         });
     };
     ts.StateLine.prototype._resetBaseLineColor = function() {
         var self = this;
         this._aBaseLine.forEach(function( elLine ) {
-            elLine.attr("stroke", self._hasDurationData === true ? TimeSlider.EventColor["base"] : self._baseColor );
+            //elLine.attr("stroke", self._hasDurationData === true ? TimeSlider.EventColor["base"] : self._baseColor );
+			elLine.attr("fill", self._hasDurationData === true ? TimeSlider.EventColor["base"] : self._baseColor );
         });
     };
     ts.StateLine.prototype.reset = function() {
@@ -108,10 +128,14 @@
             if ( oPM.isInSliderTimeSeries( oEvent.durationStartTimestamp ) || oPM.isInSliderTimeSeries( oEvent.durationEndTimestamp ) ) {
                 aLine.forEach(function( elLine ) {
                     self.show( elLine );
-                    elLine.animate({
-                        "x1": oPM.getPositionFromTime( oEvent.durationStartTimestamp ),
-                        "x2": self._getX2( oEvent )
-                    }, self.opt.duration);
+                    // elLine.animate({
+                    //     "x1": oPM.getPositionFromTime( oEvent.durationStartTimestamp ),
+                    //     "x2": self._getX2( oEvent )
+                    // }, self.opt.duration);
+					elLine.animate({
+					    "x": oPM.getPositionFromTime( oEvent.durationStartTimestamp ),
+					    "width": self._getX2( oEvent ) - oPM.getPositionFromTime( oEvent.durationStartTimestamp )
+					}, self.opt.duration);
                 });
             } else {
                 aLine.forEach(function( elLine ) {
@@ -121,7 +145,8 @@
         }
         this._aBaseLine.forEach(function( elBase ) {
             elBase.animate({
-                "x2": oPM.getSliderEndPosition()
+                // "x2": oPM.getSliderEndPosition()
+				"width": oPM.getSliderEndPosition()
             }, self.opt.duration);
         });
         this._resetBaseLineColor();

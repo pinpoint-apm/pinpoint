@@ -17,12 +17,13 @@
 package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
-import com.navercorp.pinpoint.common.server.bo.AnnotationBoList;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 
+import com.navercorp.pinpoint.common.server.bo.AnnotationBoDecoder;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
@@ -40,31 +41,32 @@ import java.util.Map;
 public class AnnotationMapper implements RowMapper<Map<Long, List<AnnotationBo>>> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final AnnotationBoDecoder annotationDecoder = new AnnotationBoDecoder();
+
     @Override
     public Map<Long, List<AnnotationBo>> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyMap();
         }
-        Cell[] rawCells = result.rawCells();
+        final Cell[] rawCells = result.rawCells();
         Map<Long, List<AnnotationBo>> annotationList = new HashMap<>();
 
         for (Cell cell : rawCells) {
 
-            Buffer buffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset());
+            final Buffer buffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
             long spanId = buffer.readLong();
 
             if (CellUtil.matchingFamily(cell, HBaseTables.TRACES_CF_ANNOTATION)) {
-                int valueLength = cell.getValueLength();
+                final int valueLength = cell.getValueLength();
                 if (valueLength == 0) {
                     continue;
                 }
 
                 buffer.setOffset(cell.getValueOffset());
-                AnnotationBoList annotationBoList = new AnnotationBoList();
-                annotationBoList.readValue(buffer);
-                if (annotationBoList.size() > 0 ) {
-                    annotationBoList.setSpanId(spanId);
-                    annotationList.put(spanId, annotationBoList.getAnnotationBoList());
+
+                List<AnnotationBo> annotationBoList = annotationDecoder.decode(buffer);
+                if (CollectionUtils.isNotEmpty(annotationBoList)) {
+                    annotationList.put(spanId, annotationBoList);
                 }
             }
         }

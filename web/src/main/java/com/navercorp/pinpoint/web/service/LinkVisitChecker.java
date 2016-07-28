@@ -52,9 +52,9 @@ public class LinkVisitChecker {
         final boolean alreadyVisited = !visitedSet.add(application);
         if (logger.isDebugEnabled()) {
             if (alreadyVisited) {
-                logger.debug("Finding {}. {}={}", type, type, application);
-            } else {
                 logger.debug("LinkData exists. Skip finding {}. {} ", type, application);
+            } else {
+                logger.debug("Finding {}. {}={}", type, type, application);
             }
         }
         return alreadyVisited;
