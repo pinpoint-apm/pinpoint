@@ -17,8 +17,9 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v1;
 
 
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanSerializer;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
@@ -37,6 +38,7 @@ public class SpanBoTest {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final SpanSerializer spanSerializer = new SpanSerializer();
+    private final SpanDecoder spanDecoder = new SpanDecoder();
 
     @Test
     public void testVersion() {
@@ -87,13 +89,10 @@ public class SpanBoTest {
         spanBo.setExceptionInfo(1000, "Exception");
 
         ByteBuffer bytes = spanSerializer.writeColumnValue(spanBo);
-        ByteBuffer deprecated = ByteBuffer.wrap(spanBo.writeValue());
-
-        logger.debug("length:{}", bytes.remaining());
-        Assert.assertEquals(bytes, deprecated);
 
         SpanBo newSpanBo = new SpanBo();
-        int i = newSpanBo.readValue(bytes.array(), bytes.arrayOffset(), bytes.remaining());
+        Buffer valueBuffer = new OffsetFixedBuffer(bytes.array(), bytes.arrayOffset(), bytes.remaining());
+        int i = spanDecoder.readSpan(newSpanBo, valueBuffer);
         logger.debug("length:{}", i);
         Assert.assertEquals(bytes.limit(), i);
         Assert.assertEquals(newSpanBo.getAgentId(), spanBo.getAgentId());
@@ -138,12 +137,11 @@ public class SpanBoTest {
         spanBo.setApplicationServiceType(ServiceType.UNKNOWN.getCode());
 
         final ByteBuffer bytes = spanSerializer.writeColumnValue(spanBo);
-        ByteBuffer deprecated = ByteBuffer.wrap(spanBo.writeValue());
-        logger.debug("length:{}", bytes.remaining());
-        Assert.assertEquals(bytes, deprecated);
+
 
         SpanBo newSpanBo = new SpanBo();
-        int i = newSpanBo.readValue(bytes.array(), bytes.arrayOffset(), bytes.remaining());
+        Buffer valueBuffer = new OffsetFixedBuffer(bytes.array(), bytes.arrayOffset(), bytes.remaining());
+        int i = spanDecoder.readSpan(newSpanBo, valueBuffer);
         logger.debug("length:{}", i);
         Assert.assertEquals(bytes.limit(), i);
         

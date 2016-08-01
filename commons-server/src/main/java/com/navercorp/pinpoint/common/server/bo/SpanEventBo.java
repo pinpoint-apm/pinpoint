@@ -40,7 +40,6 @@ public class SpanEventBo implements Event {
     private long traceAgentStartTime;
     private long traceTransactionSequence;
 
-    private long spanId;
     private short sequence;
 
     private int startElapsed;
@@ -129,15 +128,6 @@ public class SpanEventBo implements Event {
         this.traceTransactionSequence = traceTransactionSequence;
     }
 
-    @Deprecated
-    public void setSpanId(long spanId) {
-        this.spanId = spanId;
-    }
-
-    @Deprecated
-    public long getSpanId() {
-        return this.spanId;
-    }
 
     public short getSequence() {
         return sequence;
@@ -287,97 +277,6 @@ public class SpanEventBo implements Event {
         this.asyncSequence = asyncSequence;
     }
 
-    @Deprecated
-    public byte[] writeValue() {
-        final Buffer buffer = new AutomaticBuffer(512);
-
-        buffer.putByte(version);
-
-        buffer.putPrefixedString(agentId);
-        buffer.putPrefixedString(applicationId);
-        buffer.putVLong(agentStartTime);
-
-        buffer.putVInt(startElapsed);
-        buffer.putVInt(endElapsed);
-
-        // don't need to put sequence because it is set at Qualifier
-        // buffer.put(sequence);
-
-        buffer.putPrefixedString(rpc);
-        buffer.putShort(serviceType);
-        buffer.putPrefixedString(endPoint);
-        buffer.putPrefixedString(destinationId);
-        buffer.putSVInt(apiId);
-
-        buffer.putSVInt(depth);
-        buffer.putLong(nextSpanId);
-
-        if (hasException) {
-            buffer.putBoolean(true);
-            buffer.putSVInt(exceptionId);
-            buffer.putPrefixedString(exceptionMessage);
-        } else {
-            buffer.putBoolean(false);
-        }
-
-        writeAnnotation(buffer);
-        buffer.putSVInt(nextAsyncId);
-
-        return buffer.getBuffer();
-    }
-
-    @Deprecated
-    private void writeAnnotation(Buffer buffer) {
-        AnnotationBoList annotationBo = new AnnotationBoList(this.annotationBoList);
-        annotationBo.writeValue(buffer);
-    }
-
-    @Deprecated
-    public int readValue(byte[] bytes, int offset, int length) {
-        final Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
-
-        this.version = buffer.readByte();
-
-        this.agentId = buffer.readPrefixedString();
-        this.applicationId = buffer.readPrefixedString();
-        this.agentStartTime = buffer.readVLong();
-
-        this.startElapsed = buffer.readVInt();
-        this.endElapsed = buffer.readVInt();
-
-        // don't need to get sequence because it can be got at Qualifier
-        // this.sequence = buffer.readShort();
-
-
-        this.rpc = buffer.readPrefixedString();
-        this.serviceType = buffer.readShort();
-        this.endPoint = buffer.readPrefixedString();
-        this.destinationId = buffer.readPrefixedString();
-        this.apiId = buffer.readSVInt();
-
-        this.depth = buffer.readSVInt();
-        this.nextSpanId = buffer.readLong();
-
-        this.hasException = buffer.readBoolean();
-        if (hasException) {
-            this.exceptionId = buffer.readSVInt();
-            this.exceptionMessage = buffer.readPrefixedString();
-        }
-
-        this.annotationBoList = readAnnotation(buffer);
-        if (buffer.hasRemaining()) {
-            nextAsyncId = buffer.readSVInt();
-        }
-        
-        return buffer.getOffset();
-    }
-
-    @Deprecated
-    private List<AnnotationBo> readAnnotation(Buffer buffer) {
-        AnnotationBoList annotationBoList = new AnnotationBoList();
-        annotationBoList.readValue(buffer);
-        return annotationBoList.getAnnotationBoList();
-    }
 
     @Override
     public String toString() {
@@ -396,8 +295,6 @@ public class SpanEventBo implements Event {
         builder.append(traceAgentStartTime);
         builder.append(", traceTransactionSequence=");
         builder.append(traceTransactionSequence);
-        builder.append(", spanId=");
-        builder.append(spanId);
         builder.append(", sequence=");
         builder.append(sequence);
         builder.append(", startElapsed=");

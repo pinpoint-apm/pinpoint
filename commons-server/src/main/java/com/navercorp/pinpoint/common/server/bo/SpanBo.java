@@ -19,9 +19,6 @@ package com.navercorp.pinpoint.common.server.bo;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 
 /**
@@ -365,121 +362,9 @@ public class SpanBo implements Event, BasicSpan {
         return loggingTransactionInfo;
     }
 
-    // Variable encoding has been added in case of write io operation. The data size can be reduced by about 10%.
-    // for test
-    @Deprecated
-    public byte[] writeValue() {
-        /*
-           It is difficult to calculate the size of buffer. It's not impossible.
-           However just use automatic incremental buffer for convenience's sake.
-           Consider to reuse getBufferLength when memory can be used more efficiently later.
-        */
-        final Buffer buffer = new AutomaticBuffer(256);
-
-        buffer.putByte(version);
-
-        buffer.putPrefixedString(agentId);
-
-        // Using var makes the sie of time smaller based on the present time. That consumes only 6 bytes.
-        buffer.putVLong(agentStartTime);
-
-        // insert for rowkey
-        // buffer.put(spanID);
-        buffer.putLong(parentSpanId);
-
-        // use var encoding because of based on the present time
-        buffer.putVLong(startTime);
-        buffer.putVInt(elapsed);
-
-        buffer.putPrefixedString(rpc);
-        buffer.putPrefixedString(applicationId);
-        buffer.putShort(serviceType);
-        buffer.putPrefixedString(endPoint);
-        buffer.putPrefixedString(remoteAddr);
-        buffer.putSVInt(apiId);
-
-        // errCode value may be negative
-        buffer.putSVInt(errCode);
-
-        if (hasException){
-            buffer.putBoolean(true);
-            buffer.putSVInt(exceptionId);
-            buffer.putPrefixedString(exceptionMessage);
-        } else {
-            buffer.putBoolean(false);
-        }
-
-        buffer.putShort(flag);
-
-        if (hasApplicationServiceType()) {
-            buffer.putBoolean(true);
-            buffer.putShort(this.applicationServiceType);
-        } else {
-            buffer.putBoolean(false);
-        }
-
-        buffer.putByte(loggingTransactionInfo);
-
-        buffer.putPrefixedString(acceptorHost);
-
-        return buffer.getBuffer();
-    }
-
 
     public void setLoggingTransactionInfo(byte loggingTransactionInfo) {
         this.loggingTransactionInfo = loggingTransactionInfo;
-    }
-
-    @Deprecated
-    public int readValue(byte[] bytes, int offset, int length) {
-        final Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
-
-        this.version = buffer.readByte();
-
-        this.agentId = buffer.readPrefixedString();
-        this.agentStartTime = buffer.readVLong();
-
-        // this.spanID = buffer.readLong();
-        this.parentSpanId = buffer.readLong();
-
-        this.startTime = buffer.readVLong();
-        this.elapsed = buffer.readVInt();
-
-        this.rpc = buffer.readPrefixedString();
-        this.applicationId = buffer.readPrefixedString();
-        this.serviceType = buffer.readShort();
-        this.endPoint = buffer.readPrefixedString();
-        this.remoteAddr = buffer.readPrefixedString();
-        this.apiId = buffer.readSVInt();
-        
-        this.errCode = buffer.readSVInt();
-
-        this.hasException = buffer.readBoolean();
-        if (hasException) {
-            this.exceptionId = buffer.readSVInt();
-            this.exceptionMessage = buffer.readPrefixedString();
-        }
-
-        this.flag = buffer.readShort();
-        
-        // FIXME (2015.03) Legacy - applicationServiceType added in v1.1.0
-        // Defaults to span's service type for older versions where applicationServiceType does not exist.
-        if (buffer.hasRemaining()) {
-            final boolean hasApplicationServiceType = buffer.readBoolean();
-            if (hasApplicationServiceType) {
-                this.applicationServiceType = buffer.readShort();
-            }
-        }
-        
-        if (buffer.hasRemaining()) {
-            this.loggingTransactionInfo = buffer.readByte();
-        }
-
-        if (buffer.hasRemaining()) {
-            this.acceptorHost = buffer.readPrefixedString();
-        }
-
-        return buffer.getOffset();
     }
 
 

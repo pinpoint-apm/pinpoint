@@ -1,6 +1,7 @@
-package com.navercorp.pinpoint.common.server.bo;
+package com.navercorp.pinpoint.common.server.bo.serializer.trace.v1;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.util.AnnotationTranscoder;
 
 import java.util.ArrayList;
@@ -14,19 +15,27 @@ public class AnnotationBoDecoder {
     private final AnnotationTranscoder transcoder = new AnnotationTranscoder();
 
 
-    public List<AnnotationBo> decode(Buffer buffer) {
+    public List<AnnotationBo> decode(Buffer qualifier, Buffer valueBuffer, SpanDecodingContext decodingContext) {
 
-        final int size = buffer.readVInt();
-        if (size == 0) {
+        long spanId = qualifier.readLong();
+        decodingContext.setSpanId(spanId);
+
+        return decode(valueBuffer);
+    }
+
+    // for test
+    List<AnnotationBo> decode(Buffer valueBuffer) {
+        final int annotationSize = valueBuffer.readVInt();
+        if (annotationSize == 0) {
             // don' fix return Collections.emptyList();
             // exist outer add method
             return new ArrayList<>();
         }
 
-        List<AnnotationBo> annotationBoList = new ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
+        List<AnnotationBo> annotationBoList = new ArrayList<>(annotationSize);
+        for (int i = 0; i < annotationSize; i++) {
 
-            AnnotationBo annotation = decodeAnnotation(buffer);
+            AnnotationBo annotation = decodeAnnotation(valueBuffer);
             annotationBoList.add(annotation);
 
         }
@@ -35,7 +44,7 @@ public class AnnotationBoDecoder {
     }
 
 
-    public AnnotationBo decodeAnnotation(Buffer buffer) {
+    private AnnotationBo decodeAnnotation(Buffer buffer) {
 
         final AnnotationBo annotation = new AnnotationBo();
 

@@ -48,10 +48,7 @@
     <import resource="classpath:applicationContext-cache.xml" />
     <import resource="classpath:applicationContext-websocket.xml" />
 
-    <bean id="spanMapper" class="com.navercorp.pinpoint.web.mapper.SpanMapper"></bean>
-    <bean id="annotationMapper" class="com.navercorp.pinpoint.web.mapper.AnnotationMapper"></bean>
-    <bean id="spanAnnotationMapper" class="com.navercorp.pinpoint.web.mapper.SpanMapper">
-        <property name="annotationMapper" ref="annotationMapper"/>
+    <bean id="spanMapper" class="com.navercorp.pinpoint.web.mapper.SpanMapper">
     </bean>
 
 

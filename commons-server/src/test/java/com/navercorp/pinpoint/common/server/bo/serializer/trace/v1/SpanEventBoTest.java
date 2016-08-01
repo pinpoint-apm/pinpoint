@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.bo;
+package com.navercorp.pinpoint.common.server.bo.serializer.trace.v1;
 
-import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.AnnotationSerializer;
-import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanEventEncodingContext;
-import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanEventSerializer;
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
+import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import org.junit.Assert;
@@ -34,6 +34,7 @@ public class SpanEventBoTest {
 
 
     private SpanEventSerializer serializer = new SpanEventSerializer();
+    private SpanDecoder spanDecoder = new SpanDecoder();
 
     @Before
     public void setUp() throws Exception {
@@ -61,13 +62,12 @@ public class SpanEventBoTest {
         spanEventBo.setStartElapsed(100);
         spanEventBo.setNextAsyncId(1000);
 
-        ByteBuffer deprecatedBytes = ByteBuffer.wrap(spanEventBo.writeValue());
         SpanEventEncodingContext spanEventEncodingContext = new SpanEventEncodingContext(12, spanEventBo);
         ByteBuffer bytes = serializer.writeValue(spanEventEncodingContext);
-        Assert.assertEquals(bytes, deprecatedBytes);
 
         SpanEventBo newSpanEventBo = new SpanEventBo();
-        int i = newSpanEventBo.readValue(bytes.array(), bytes.arrayOffset(), bytes.remaining());
+        Buffer buffer = new OffsetFixedBuffer(bytes.array(), bytes.arrayOffset(), bytes.remaining());
+        int i = spanDecoder.readSpanEvent(newSpanEventBo, buffer);
         Assert.assertEquals(bytes.limit(), i);
 
 
@@ -86,11 +86,6 @@ public class SpanEventBoTest {
 
         Assert.assertEquals(spanEventBo.getNextAsyncId(), newSpanEventBo.getNextAsyncId());
 
-
-        // we get these from the row key
-        spanEventBo.setSpanId(1);
-        newSpanEventBo.setSpanId(1);
-        Assert.assertEquals(spanEventBo.getSpanId(), newSpanEventBo.getSpanId());
 
         spanEventBo.setTraceTransactionSequence(1);
         newSpanEventBo.setTraceTransactionSequence(1);
