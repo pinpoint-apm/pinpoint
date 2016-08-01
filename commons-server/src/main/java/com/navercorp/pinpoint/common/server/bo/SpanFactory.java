@@ -62,7 +62,7 @@ public class SpanFactory {
         return spanBo;
     }
 
-    public SpanBo newSpanBo(TSpan tSpan) {
+    private SpanBo newSpanBo(TSpan tSpan) {
         final SpanBo spanBo = new SpanBo();
         spanBo.setAgentId(tSpan.getAgentId());
         spanBo.setApplicationId(tSpan.getApplicationName());
@@ -227,6 +227,11 @@ public class SpanFactory {
         List<TSpanEvent> spanEventList = tSpanChunk.getSpanEventList();
         List<SpanEventBo> spanEventBoList = buildSpanEventBoList(spanChunkBo, spanEventList);
         spanChunkBo.addSpanEventBoList(spanEventBoList);
+
+
+        long acceptedTime = acceptedTimeService.getAcceptedTime();
+        spanChunkBo.setCollectorAcceptTime(acceptedTime);
+
         return spanChunkBo;
     }
 

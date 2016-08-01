@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.util.AnnotationTranscoder;
 
 /**
@@ -28,7 +27,6 @@ public class AnnotationBo {
     private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
 
     private byte version = 0;
-    private long spanId;
 
     private int key;
 
@@ -38,16 +36,6 @@ public class AnnotationBo {
     private boolean isAuthorized = true;
     
     public AnnotationBo() {
-    }
-
-    @Deprecated
-    public long getSpanId() {
-        return spanId;
-    }
-
-    @Deprecated
-    public void setSpanId(long spanId) {
-        this.spanId = spanId;
     }
 
     public int getVersion() {
@@ -113,34 +101,12 @@ public class AnnotationBo {
     }
 
 
-    @Deprecated
-    public void writeValue(Buffer buffer) {
-        // long timestamp;    // required 8
-        // long duration;     // optional 8
-        // int key;           // required 4
-        // int valueTypeCode; // required 4
-        // ByteBuffer value;  // optional 4 + buf.length
-        buffer.putByte(this.version);
-        buffer.putSVInt(this.key);
-        buffer.putByte(this.valueType);
-        buffer.putPrefixedBytes(this.byteValue);
-    }
-
-    @Deprecated
-    public void readValue(Buffer buffer) {
-        this.version = buffer.readByte();
-        this.key = buffer.readSVInt();
-        this.valueType = buffer.readByte();
-        this.byteValue = buffer.readPrefixedBytes();
-        this.value = transcoder.decode(valueType, byteValue);
-    }
-
     @Override
     public String toString() {
         if (value == null) {
-            return "AnnotationBo{" + "version=" + version + ", spanId=" + spanId + ", key='" + key + '\'' + ", valueType=" + valueType + '}';
+            return "AnnotationBo{" + "version=" + version + ", key='" + key + '\'' + ", valueType=" + valueType + '}';
         }
-        return "AnnotationBo{" + "version=" + version + ", spanId=" + spanId + ", key='" + key + '\'' + ", value=" + value + '}';
+        return "AnnotationBo{" + "version=" + version + ", key='" + key + '\'' + ", value=" + value + '}';
     }
 
 }

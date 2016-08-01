@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.bo;
+package com.navercorp.pinpoint.common.server.bo.serializer.trace.v1;
 
+import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.AnnotationSerializer;
+import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 
 import org.apache.commons.lang.RandomStringUtils;
@@ -29,11 +30,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
+import java.util.List;
 
 /**
  * @author emeroad
  */
-public class AnnotationBoTest {
+public class AnnotationBoDecoderTest {
 
     private static final Charset UTF_8 = Charset.forName("UTF-8");
     
@@ -46,31 +48,19 @@ public class AnnotationBoTest {
 
     @Test
     public void testWriteValue() throws Exception {
-        AnnotationBo annotation1 = new AnnotationBo();
-        annotation1.setKey(AnnotationKey.API.getCode());
+        final AnnotationBo annotation = new AnnotationBo();
+        annotation.setKey(AnnotationKey.API.getCode());
 
         final String value = RandomStringUtils.random(RandomUtils.nextInt(20));
-        annotation1.setByteValue(value.getBytes(UTF_8));
-        AnnotationBo annotation = annotation1;
-//        int bufferSize = bo.getBufferSize();
+        annotation.setByteValue(value.getBytes(UTF_8));
 
-        Buffer buffer = new AutomaticBuffer(128);
-        this.serializer.writeAnnotation(annotation, buffer);
-
-
-        Buffer deprecatedBuffer = new AutomaticBuffer(128);
-        annotation.writeValue(deprecatedBuffer);
-        Assert.assertArrayEquals(buffer.getBuffer(), deprecatedBuffer.getBuffer());
-
-        AnnotationBo bo2 = new AnnotationBo();
-        buffer.setOffset(0);
-        bo2.readValue(buffer);
-        Assert.assertEquals(annotation.getKey(), bo2.getKey());
-        Assert.assertEquals(annotation.getValueType(), bo2.getValueType());
-        Assert.assertArrayEquals(annotation.getByteValue(), bo2.getByteValue());
+        final Buffer buffer = new AutomaticBuffer(128);
+        this.serializer.writeAnnotationList(Lists.newArrayList(annotation), buffer);
 
         buffer.setOffset(0);
-        AnnotationBo decodedAnnotation = annotationBoDecoder.decodeAnnotation(buffer);
+        List<AnnotationBo> decode = annotationBoDecoder.decode(buffer);
+        Assert.assertEquals(decode.size(), 1);
+        AnnotationBo decodedAnnotation = decode.get(0);
         Assert.assertEquals(annotation.getKey(), decodedAnnotation.getKey());
         Assert.assertEquals(annotation.getValueType(), decodedAnnotation.getValueType());
         Assert.assertArrayEquals(annotation.getByteValue(), decodedAnnotation.getByteValue());

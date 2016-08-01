@@ -29,22 +29,22 @@ public class SpanDecoderV0 implements SpanDecoder {
     private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
 
     @Override
-    public void decode(Buffer qualifier, Buffer columnValue, SpanDecodingContext decodingContext, List<Object> out) {
+    public Object decode(Buffer qualifier, Buffer columnValue, SpanDecodingContext decodingContext) {
         final byte type = qualifier.readByte();
 
         if (SpanEncoder.TYPE_SPAN == type) {
 
             SpanBo span = readSpan(qualifier, columnValue, decodingContext);
-            out.add(span);
+            return span;
 
         } else if (SpanEncoder.TYPE_SPAN_CHUNK == type) {
 
             SpanChunkBo spanChunk = readSpanChunk(qualifier, columnValue, decodingContext);
-            out.add(spanChunk);
+            return spanChunk;
 
         } else {
             logger.warn("Unknown span type {}", type);
-            out.add(UNKNOWN);
+            return UNKNOWN;
         }
     }
 

@@ -56,9 +56,6 @@ public class HbaseTraceDao implements TraceDao {
 
     private RowMapper<List<SpanBo>> spanMapper;
 
-    @Autowired
-    @Qualifier("spanAnnotationMapper")
-    private RowMapper<List<SpanBo>> spanAnnotationMapper;
 
     @Value("#{pinpointWebProps['web.hbase.selectSpans.limit'] ?: 500}")
     private int selectSpansLimit;
@@ -96,7 +93,7 @@ public class HbaseTraceDao implements TraceDao {
         get.addFamily(HBaseTables.TRACES_CF_SPAN);
         get.addFamily(HBaseTables.TRACES_CF_ANNOTATION);
         get.addFamily(HBaseTables.TRACES_CF_TERMINALSPAN);
-        return template2.get(HBaseTables.TRACES, get, spanAnnotationMapper);
+        return template2.get(HBaseTables.TRACES, get, spanMapper);
     }
 
 

@@ -17,7 +17,8 @@
 package com.navercorp.pinpoint.web.mapper;
 
 import com.google.common.annotations.Beta;
-import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.Buffer;
@@ -27,6 +28,7 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.SpanEventComparator;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingContext;
@@ -44,7 +46,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author emeroad
@@ -73,7 +74,9 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
         final Cell[] rawCells = result.rawCells();
 
-        final List<Object> out = new ArrayList<>(rawCells.length);
+        ListMultimap<Long, SpanBo> spanMap = LinkedListMultimap.create();
+        List<SpanChunkBo> spanChunkList = new ArrayList<>();
+
         final SpanDecodingContext decodingContext = new SpanDecodingContext();
         decodingContext.setTransactionId(transactionId);
 
@@ -88,7 +91,20 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
                 final Buffer columnValue = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
 
                 spanDecoder = resolveDecoder(columnValue);
-                spanDecoder.decode(qualifier, columnValue, decodingContext, out);
+                final Object decodeObject = spanDecoder.decode(qualifier, columnValue, decodingContext);
+                if (decodeObject instanceof SpanBo) {
+                    SpanBo spanBo = (SpanBo) decodeObject;
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("spanBo:{}", spanBo);
+                    }
+                    spanMap.put(spanBo.getSpanId(), spanBo);
+                } else if (decodeObject instanceof SpanChunkBo) {
+                    SpanChunkBo spanChunkBo = (SpanChunkBo) decodeObject;
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("spanChunkBo:{}", spanChunkBo);
+                    }
+                    spanChunkList.add(spanChunkBo);
+                }
 
             } else {
                 logger.warn("Unknown ColumnFamily :{}", Bytes.toStringBinary(CellUtil.cloneFamily(cell)));
@@ -98,7 +114,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         decodingContext.finish();
 
 
-        return buildSpanBoList(out);
+        return buildSpanBoList(spanMap, spanChunkList);
 
     }
 
@@ -128,27 +144,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         return new TransactionId(agentId, agentStartTime, transactionSequence);
     }
 
-    private List<SpanBo> buildSpanBoList(List<Object> out) {
-
-        LinkedHashMultimap<Long, SpanBo> spanMap = LinkedHashMultimap.create();
-        List<SpanChunkBo> spanChunkList = new ArrayList<>();
-        for (Object decodedSpan : out) {
-            if (decodedSpan instanceof SpanBo) {
-                SpanBo span = (SpanBo) decodedSpan;
-
-                spanMap.put(span.getSpanId(), span);
-
-            } else if (decodedSpan instanceof SpanChunkBo) {
-
-                SpanChunkBo spanChunk = (SpanChunkBo) decodedSpan;
-                spanChunkList.add(spanChunk);
-            } else {
-
-                logger.warn("Unknown span type {}", decodedSpan);
-            }
-        }
-
-
+    private List<SpanBo> buildSpanBoList(ListMultimap<Long, SpanBo> spanMap, List<SpanChunkBo> spanChunkList) {
         List<SpanBo> spanBoList = bindSpanChunk(spanMap, spanChunkList);
         bindAgentInfo(spanBoList);
         return spanBoList;
@@ -159,6 +155,8 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         // TODO workaround. fix class dependency
         for (SpanBo spanBo : spanBoList) {
             List<SpanEventBo> spanEventBoList = spanBo.getSpanEventBoList();
+            Collections.sort(spanEventBoList, SpanEventComparator.INSTANCE);
+
             for (SpanEventBo spanEventBo : spanEventBoList) {
                 spanEventBo.setAgentId(spanBo.getAgentId());
                 spanEventBo.setApplicationId(spanBo.getApplicationId());
@@ -171,10 +169,10 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         }
     }
 
-    private List<SpanBo> bindSpanChunk(LinkedHashMultimap<Long, SpanBo> spanMap, List<SpanChunkBo> spanChunkList) {
+    private List<SpanBo> bindSpanChunk(ListMultimap<Long, SpanBo> spanMap, List<SpanChunkBo> spanChunkList) {
         for (SpanChunkBo spanChunkBo : spanChunkList) {
             final Long spanId = spanChunkBo.getSpanId();
-            Set<SpanBo> matchedSpanBoList = spanMap.get(spanId);
+            List<SpanBo> matchedSpanBoList = spanMap.get(spanId);
             if (matchedSpanBoList != null) {
                 final int spanIdCollisionSize = matchedSpanBoList.size();
                 if (spanIdCollisionSize > 1) {
