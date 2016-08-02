@@ -21,9 +21,9 @@ package com.navercorp.pinpoint.common.util;
  */
 public class TransactionId {
 
-    protected String agentId;
-    protected long agentStartTime;
-    protected long transactionSequence;
+    private String agentId;
+    private long agentStartTime;
+    private long transactionSequence;
 
     public TransactionId(String agentId, long agentStartTime, long transactionSequence) {
         if (agentId == null) {

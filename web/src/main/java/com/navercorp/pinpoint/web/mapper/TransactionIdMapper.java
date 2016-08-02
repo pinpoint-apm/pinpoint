@@ -23,8 +23,8 @@ import java.util.List;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.web.vo.TransactionId;
 
+import com.navercorp.pinpoint.common.util.TransactionId;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.slf4j.Logger;

@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.dao.TraceDao;
-import com.navercorp.pinpoint.web.vo.TransactionId;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.Collection;

@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.web.vo.*;
 import com.navercorp.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.navercorp.pinpoint.web.vo.scatter.ScatterScanResult;
+import com.navercorp.pinpoint.common.util.TransactionId;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +71,7 @@ public class DotExtractor {
 
     private List<Dot> getDotList(Application spanApplication) {
         List<Dot> dotList = this.dotMap.get(spanApplication);
-        if(dotList == null) {
+        if (dotList == null) {
             dotList = new ArrayList<>();
             this.dotMap.put(spanApplication, dotList);
         }

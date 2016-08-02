@@ -2,13 +2,15 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.mapper.CellTraceMapper;
-import com.navercorp.pinpoint.web.vo.TransactionId;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.client.Get;
 import org.slf4j.Logger;
@@ -65,8 +67,13 @@ public class HbaseTraceDaoV2 implements TraceDao {
             throw new NullPointerException("transactionId must not be null");
         }
 
-        byte[] traceIdBytes = rowKeyDistributor.getDistributedKey(transactionId.getBytes());
+        byte[] rowKey = newRowKey(transactionId);
+        byte[] traceIdBytes = rowKeyDistributor.getDistributedKey(rowKey);
         return template2.get(HBaseTables.TRACE_V2, traceIdBytes, HBaseTables.TRACE_V2_CF_SPAN, spanMapperV2);
+    }
+
+    private byte[] newRowKey(TransactionId transactionId) {
+        return BytesUtils.stringLongLongToBytes(transactionId.getAgentId(), PinpointConstants.AGENT_NAME_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
     }
 
     @Deprecated
@@ -153,8 +160,8 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
         final List<Get> getList = new ArrayList<>(transactionIdList.size());
         for (TransactionId transactionId : transactionIdList) {
-
-            final byte[] transactionIdBytes = rowKeyDistributor.getDistributedKey(transactionId.getBytes());
+            byte[] rowKey = newRowKey(transactionId);
+            final byte[] transactionIdBytes = rowKeyDistributor.getDistributedKey(rowKey);
             final Get get = new Get(transactionIdBytes);
             get.addFamily(columnFamily);
 

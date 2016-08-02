@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.util;
+package com.navercorp.pinpoint.common.server.util;
+
+import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.TimeUtils;
 
 import static com.navercorp.pinpoint.common.PinpointConstants.AGENT_NAME_MAX_LEN;
 import static com.navercorp.pinpoint.common.util.BytesUtils.INT_BYTE_LENGTH;

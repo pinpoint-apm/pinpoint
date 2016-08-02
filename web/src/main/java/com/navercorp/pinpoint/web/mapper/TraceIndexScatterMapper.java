@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
-import com.navercorp.pinpoint.web.vo.TransactionId;
+import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 
 import org.apache.hadoop.hbase.Cell;
