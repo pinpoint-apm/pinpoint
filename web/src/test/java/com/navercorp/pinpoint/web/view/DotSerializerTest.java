@@ -17,7 +17,8 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.web.vo.TransactionId;
+import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 
 import org.junit.Assert;
@@ -37,7 +38,7 @@ public class DotSerializerTest {
 
     @Test
     public void testSerialize() throws Exception {
-        TransactionId transactionId = new TransactionId("aigw.dev.1^1395798795017^1527177");
+        TransactionId transactionId = TransactionIdUtils.parseTransactionId("aigw.dev.1^1395798795017^1527177");
         Dot dot = new Dot(transactionId, 100, 99, 1, "agent");
         String jsonValue = mapper.writeValueAsString(dot);
         Assert.assertEquals("[100,99,\"aigw.dev.1^1395798795017^1527177\",0]", jsonValue);

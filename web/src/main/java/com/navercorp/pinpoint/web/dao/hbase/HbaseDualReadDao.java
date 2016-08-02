@@ -2,8 +2,8 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.google.common.annotations.Beta;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.dao.TraceDao;
-import com.navercorp.pinpoint.web.vo.TransactionId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

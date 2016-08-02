@@ -17,8 +17,10 @@
 package com.navercorp.pinpoint.web.vo.scatter;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import com.navercorp.pinpoint.web.view.DotSerializer;
-import com.navercorp.pinpoint.web.vo.TransactionId;
+
 
 @JsonSerialize(using = DotSerializer.class)
 public class Dot {
@@ -60,7 +62,7 @@ public class Dot {
     }
 
     public String getTransactionIdAsString() {
-        return transactionId.getFormatString();
+        return TransactionIdUtils.formatString(transactionId);
     }
 
     public int getExceptionCode() {

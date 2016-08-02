@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.DateUtils;
+import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.util.TransactionIdComparator;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
@@ -28,7 +30,6 @@ import com.navercorp.pinpoint.web.view.ServerTime;
 import com.navercorp.pinpoint.web.view.TransactionMetaDataViewModel;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.TransactionId;
 import com.navercorp.pinpoint.web.vo.TransactionMetadataQuery;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -45,9 +46,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  * @author netspider
@@ -205,15 +205,12 @@ public class ScatterChartController {
 
         boolean requestComplete = traceIdList.size() < limit;
 
-        // TODO just need sorted?  we need range check with tree-based structure.
-        SortedSet<TransactionId> traceIdSet = new TreeSet<>(traceIdList);
-        logger.debug("unified traceIdSet size={}", traceIdSet.size());
-
+        Collections.sort(traceIdList, TransactionIdComparator.INSTANCE);
         Filter filter = filterBuilder.build(filterText);
 
         ModelAndView mv;
         if (version == 1) {
-            ScatterData scatterData = scatter.selectScatterData(traceIdSet, applicationName, range, xGroupUnit, yGroupUnit, filter);
+            ScatterData scatterData = scatter.selectScatterData(traceIdList, applicationName, range, xGroupUnit, yGroupUnit, filter);
             if (logger.isDebugEnabled()) {
                 logger.debug("getScatterData range scan(limited:{}, backwardDirection:{}) from ~ to:{} ~ {}, limited:{}, filterDataSize:{}",
                         limit, backwardDirection, DateUtils.longToDateStr(range.getFrom()), DateUtils.longToDateStr(range.getTo()), DateUtils.longToDateStr(limitedScanResult.getLimitedTime()), traceIdList.size());

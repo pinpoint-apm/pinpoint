@@ -24,6 +24,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.navercorp.pinpoint.common.util.DefaultSqlParser;
 import com.navercorp.pinpoint.common.util.OutputParameterParser;
 import com.navercorp.pinpoint.common.util.SqlParser;
+import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import com.navercorp.pinpoint.web.view.TransactionInfoViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +45,6 @@ import com.navercorp.pinpoint.web.service.FilteredMapService;
 import com.navercorp.pinpoint.web.service.SpanResult;
 import com.navercorp.pinpoint.web.service.SpanService;
 import com.navercorp.pinpoint.web.service.TransactionInfoService;
-import com.navercorp.pinpoint.web.vo.TransactionId;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 
 /**
@@ -96,7 +97,8 @@ public class BusinessTransactionController {
                                         @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
                                         HttpServletResponse response) {
         logger.debug("traceId:{}", traceIdParam);
-        final TransactionId traceId = new TransactionId(traceIdParam);
+
+        final TransactionId traceId = TransactionIdUtils.parseTransactionId(traceIdParam);
 
         // select spans
         final SpanResult spanResult = this.spanService.selectSpan(traceId, focusTimestamp);
