@@ -62,7 +62,8 @@ public class SpanFactory {
         return spanBo;
     }
 
-    private SpanBo newSpanBo(TSpan tSpan) {
+    // for test
+    SpanBo newSpanBo(TSpan tSpan) {
         final SpanBo spanBo = new SpanBo();
         spanBo.setAgentId(tSpan.getAgentId());
         spanBo.setApplicationId(tSpan.getApplicationName());
@@ -123,8 +124,8 @@ public class SpanFactory {
     }
 
 
-
-    private SpanEventBo newSpanEventBo(BasicSpan basicSpan, TSpanEvent tSpanEvent) {
+    // for test
+    SpanEventBo newSpanEventBo(BasicSpan basicSpan, TSpanEvent tSpanEvent) {
         if (basicSpan == null) {
             throw new NullPointerException("basicSpan must not be null");
         }
@@ -198,6 +199,21 @@ public class SpanFactory {
 
 
     public SpanChunkBo buildSpanChunkBo(TSpanChunk tSpanChunk) {
+        final SpanChunkBo spanChunkBo = newSpanChunkBo(tSpanChunk);
+
+        List<TSpanEvent> spanEventList = tSpanChunk.getSpanEventList();
+        List<SpanEventBo> spanEventBoList = buildSpanEventBoList(spanChunkBo, spanEventList);
+        spanChunkBo.addSpanEventBoList(spanEventBoList);
+
+
+        long acceptedTime = acceptedTimeService.getAcceptedTime();
+        spanChunkBo.setCollectorAcceptTime(acceptedTime);
+
+        return spanChunkBo;
+    }
+
+    // for test
+    SpanChunkBo newSpanChunkBo(TSpanChunk tSpanChunk) {
         final SpanChunkBo spanChunkBo = new SpanChunkBo();
         spanChunkBo.setAgentId(tSpanChunk.getAgentId());
         spanChunkBo.setApplicationId(tSpanChunk.getApplicationName());
@@ -223,15 +239,6 @@ public class SpanFactory {
 
         spanChunkBo.setSpanId(tSpanChunk.getSpanId());
         spanChunkBo.setEndPoint(tSpanChunk.getEndPoint());
-
-        List<TSpanEvent> spanEventList = tSpanChunk.getSpanEventList();
-        List<SpanEventBo> spanEventBoList = buildSpanEventBoList(spanChunkBo, spanEventList);
-        spanChunkBo.addSpanEventBoList(spanEventBoList);
-
-
-        long acceptedTime = acceptedTimeService.getAcceptedTime();
-        spanChunkBo.setCollectorAcceptTime(acceptedTime);
-
         return spanChunkBo;
     }
 
@@ -284,6 +291,7 @@ public class SpanFactory {
         byte typeCode = transcoder.getTypeCode(value);
         byte[] encodeObject = transcoder.encode(value, typeCode);
 
+        annotationBo.setValue(value);
         annotationBo.setValueType(typeCode);
         annotationBo.setByteValue(encodeObject);
 
