@@ -242,7 +242,7 @@
     			if ( percentage < calcuResponseSummaryCircleSize.minPercentage ) {
     				size = parseInt((calcuResponseSummaryCircleSize.maxSize * calcuResponseSummaryCircleSize.minPercentage) / 100);
     			} else {
-    				size = parseInt((calcuResponseSummaryCircleSize.maxSize * percentage) / 100); 
+    				size = parseInt((calcuResponseSummaryCircleSize.maxSize * percentage) / 100);
     			}
     			return size;
             };
@@ -359,7 +359,7 @@
                     		} else {
                     			return go.Geometry.parse("M30 -60 B270 " + size + " 30 -30 30 30");
                     		}
-                   			
+
                     	})
                     ),
                     self.$(
@@ -532,7 +532,7 @@
                         	}
                         	return false;
                         }
-                        
+
                     },
                     new go.Binding('text', 'applicationName')
                 ),
@@ -614,7 +614,7 @@
                             strokeWidth: self.option('htNodeTheme')["default"].borderWidth,
                             stroke: self.option('htNodeTheme')["default"].borderColor,
                             fill: self.option('htNodeTheme')["default"].backgroundColor
-                        },                        
+                        },
                         new go.Binding("key", "key")
                     ),
                     self.$( "Button", {
@@ -892,21 +892,12 @@
             this._oDiagram.initialContentAlignment = go.Spot.Center;
             this._oDiagram.padding = new go.Margin(htPadding.top, htPadding.right, htPadding.bottom, htPadding.left);
             this._oDiagram.layout = this.$(
-            	go.LayeredDigraphLayout,
-                { // rdirection: 90,
-                    isOngoing: false,
+				go.LayeredDigraphLayout,
+                {
+                    // isOngoing: true,
                     layerSpacing: 100,
                     columnSpacing: 30,
                     setsPortSpots: false
-                    // packOption : 7 // sum of 1(PackExpand), 2(PackStraighten), 4(PackMedian)
-
-// direction : 0,
-// cycleRemoveOption : go.LayeredDigraphLayout.CycleDepthFirst,
-// layeringOption : go.LayeredDigraphLayout.LayerOptimalLinkLength,
-// initializeOption : go.LayeredDigraphLayout.InitDepthFirstOut,
-// aggressiveOption : go.LayeredDigraphLayout.AggressiveLess,
-// packOption : 7,
-// setsPortSpots : true
                 }
             );
 
@@ -924,7 +915,7 @@
                         self._onLinkClicked(e, selection);
                     }
                 }
-                self._updateHightlights();
+                self._updateHighlights();
             });
             this._oDiagram.addDiagramListener("BackgroundSingleClicked", function (e) {
                 var fOnBackgroundClicked = self.option('fOnBackgroundClicked');
@@ -951,7 +942,7 @@
          * @method ServerMap#_initOverview
          */
         _initOverview: function ( $location ) {
-        	
+
         	if ( /^\/main/.test( $location.path() ) ) {
 	            this._oOverview = this.$( go.Overview,
 	            		this.option('sOverviewId'),
@@ -971,10 +962,10 @@
          * @method ServerMap#load
          * @param {object}
          */
-        load: function (str) {
+        load: function (obj) {
             this.nodeClickEventOnce = false;
-            this._sLastModelData = str;
-            this._oDiagram.model = go.Model.fromJson(str);
+            this._sLastModelData = obj;
+            this._oDiagram.model = go.Model.fromJson(obj);
             this._oDiagram.undoManager.isEnabled = true;
         },
 
@@ -1009,7 +1000,7 @@
          * @method ServerMap#_updateHighlights
          * @param {go.Node} selection
          */
-        _updateHightlights: function (selection) {
+        _updateHighlights: function (selection) {
             selection = selection || this._oDiagram.selection.first();
             if (selection === null) {
                 return;
@@ -1053,7 +1044,7 @@
             if (node) {
                 var part = this._oDiagram.findPartForKey(sKey);
                 this._oDiagram.select(part);
-                this._updateHightlights(node);
+                this._updateHighlights(node);
                 //console.log( this._oDiagram.documentBounds, this._oDiagram.scale );
                 //this._oDiagram.zoomToRect( {
                 //    x: part.actualBounds.x - part.actualBounds.width * 3,
@@ -1075,7 +1066,7 @@
             var htLink = this._getLinkObjectByFromTo(from, to);
             if (htLink) {
                 this._oDiagram.select(this._oDiagram.findPartForData(htLink));
-                this._updateHightlights(this._oDiagram.findLinkForData(htLink));
+                this._updateHighlights(this._oDiagram.findLinkForData(htLink));
             }
         },
 
@@ -1114,7 +1105,7 @@
             	shapeNode.stroke = this.option('htHighlightNode').borderColor;
             	shapeNode.strokeWidth = 2;
             	shapeNode.part.isShadowed = true;
-            	
+
             	var reg = new RegExp( this._query, "i" );
             	var highlightFont = this.option('htHighlightNode').fontColor;
             	var defaultFont = this.option('htNodeTheme')["default"].fontColor;
@@ -1124,18 +1115,18 @@
 	                		var innerTextNode = textNode.elt(i).elt(2);
 	                		innerTextNode.stroke = reg.test( innerTextNode.text ) ? highlightFont : defaultFont;
 	                	}
-	                	
+
 	                	var nodeSubTextNode = textNode.panel.findObject("NODE_SUB_TEXT");
 	                	var length = nodeSubTextNode.elements.count;
 	                	for( i = 0 ; i < length ; i++ ) {
-	                		var innerTableNode = nodeSubTextNode.elt(i).elt(1); 
+	                		var innerTableNode = nodeSubTextNode.elt(i).elt(1);
                 			for( var j = 0 ; j < innerTableNode.elements.count ; j++ ) {
                 				var innerSubTextNode = innerTableNode.elt(j).elt(2);
                 				innerSubTextNode.stroke = reg.test( innerSubTextNode.text ) ? highlightFont : defaultFont;
                 			}
 	                	}
 	                } else {
-	                	textNode.stroke = reg.test( textNode.text ) ? highlightFont : defaultFont; 
+	                	textNode.stroke = reg.test( textNode.text ) ? highlightFont : defaultFont;
 	                }
                 }
             } else {
@@ -1144,7 +1135,7 @@
                 shapeNode.strokeWidth = 1;
                 shapeNode.part.isShadowed = false;
 
-                if ( angular.isDefined( textNode.rowCount ) ) {                	
+                if ( angular.isDefined( textNode.rowCount ) ) {
                 	for( i = 0 ; i < textNode.rowCount ; i++ ) {
                 		textNode.elt(i).elt(2).stroke = this.option('htNodeTheme')[type].fontColor;
                 	}
@@ -1265,7 +1256,7 @@
             return nodesFromList;
         },
         /**
-         * event of merge group node click 
+         * event of merge group node click
          *
          * @method ServerMap#_onNodeSubGroupClicked
          * @param {Event} e
@@ -1294,7 +1285,7 @@
                 htData = node.data,
                 fOnNodeClicked = this.option('fOnNodeClicked');
             if (angular.isFunction(fOnNodeClicked)) {
-				if ( e.clickCount > 0 ) {
+				if ( e.clickCount && e.clickCount > 0 ) {
 					this.analyticsService.send(this.analyticsService.CONST.MAIN, this.analyticsService.CONST.CLK_NODE);
 				}
                 fOnNodeClicked.call(this, e, htData, unknownKey, query);
@@ -1313,7 +1304,7 @@
             fOnNodeDoubleClicked = this.option('fOnNodeDoubleClicked');
 	        if (angular.isFunction(fOnNodeDoubleClicked)) {
 	            fOnNodeDoubleClicked.call(this, e, node, htData);
-	        }        	
+	        }
         },
 
         /**
@@ -1392,7 +1383,7 @@
         		similarNodeList = [],
         		returnNodeDataList = [],
         		reg = new RegExp( query, "i" );
-        	
+
             while (allNodes.next()) {
                 var node = allNodes.value;
                 if ( node.data.unknownNodeGroup ) {

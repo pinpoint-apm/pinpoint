@@ -285,6 +285,7 @@
 
 	                    if (scope.periodType === cfg.periodType.LAST && scope.readablePeriod) {
 							oNavbarVoService.setPeriodType( cfg.periodType.LAST );
+							UrlVoService.setPeriodType( cfg.periodType.LAST );
 							getQueryEndTimeFromServer(function (currentServerTime) {
 								// currentServerTime -= 3000;
 								oNavbarVoService.setReadablePeriod(scope.readablePeriod);
@@ -299,6 +300,7 @@
 							});
 						} else if ( scope.periodType === cfg.periodType.REALTIME ) {
 							oNavbarVoService.setPeriodType( cfg.periodType.REALTIME );
+							UrlVoService.setPeriodType( cfg.periodType.REALTIME );
 							getQueryEndTimeFromServer(function (currentServerTime) {
 								oNavbarVoService.setReadablePeriod( preferenceService.getRealtimeScatterXRangeStr() );
 								oNavbarVoService.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
@@ -326,7 +328,6 @@
 	                 * emit as changed
 	                 */
 	                emitAsChanged = function () {
-						$rootScope.$broadcast( "realtimeChartController.close" );
 	                    setPeriodTypeAsCurrent();
 	                    scope.$emit( "navbarDirective.changed", oNavbarVoService );
 	                };

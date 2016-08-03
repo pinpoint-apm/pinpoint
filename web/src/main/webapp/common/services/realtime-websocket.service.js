@@ -7,65 +7,64 @@
 	 * @name RealtimeWebsocketService
 	 * @class
 	 */
-	pinpointApp.constant('RealtimeWebsocketServiceConfig', {
+	pinpointApp.constant( "RealtimeWebsocketServiceConfig", {
 		wsUrl: "/agent/activeThread.pinpointws",
 		wsTimeout: 10000, //ms
 		retryTimeout: 3000,
 		maxRetryCount: 1
 	});
 	
-	pinpointApp.service('RealtimeWebsocketService', [ 'RealtimeWebsocketServiceConfig', function(cfg) {
+	pinpointApp.service( "RealtimeWebsocketService", [ "RealtimeWebsocketServiceConfig", function(cfg) {
 
 		var connectTime = null;
 	    var lastReceiveTime = null;
-    	var websocket = null;
+    	var webSocket = null;
     	var refInterval = null;
     	var oHandlers;
 		var retryCount = 0;
 
 	    this.open = function( handlers ) {
-	    	websocket = null;
+	    	webSocket = null;
 	    	oHandlers = handlers;
         	if ( angular.isDefined( WebSocket ) ) {
-				connectWebsocket();
+				connectWebSocket();
 	            return true;
         	}
         	return false;
 	    };
 	    this.isOpened = function() {
-	    	return websocket !== null;
+	    	return webSocket !== null;
 	    };
 	    this.close = function() {
-	    	if ( websocket !== null ) {
-	    		websocket.close();
+	    	if ( webSocket !== null ) {
+	    		webSocket.close();
 	    	}
-	    	websocket = null;
+	    	webSocket = null;
 	    };
 	    this.send = function( message ) {
-	    	if ( websocket !== null ) {
-	    		websocket.send( message );
+	    	if ( webSocket !== null ) {
+	    		webSocket.send( message );
 	    	}
 	    };
 	    this.stopReceive = function( message ) {
-	    	if ( websocket !== null ) {
-	    		websocket.send( message );
+	    	if ( webSocket !== null ) {
+	    		webSocket.send( message );
 	    	}
 	    	stopTimeoutChecker();
 	    };
-		function connectWebsocket() {
-			websocket = new WebSocket("ws://" + location.host + cfg.wsUrl);
-			websocket.onopen = function(event) {
+		function connectWebSocket() {
+			webSocket = new WebSocket("ws://" + location.host + cfg.wsUrl);
+			webSocket.onopen = function(event) {
 				connectTime = lastReceiveTime = Date.now();
 				startTimeoutChecker();
 				oHandlers.onopen(event);
 			};
-			websocket.onmessage = function(event) {
+			webSocket.onmessage = function(event) {
 				lastReceiveTime = Date.now();
 				oHandlers.onmessage(JSON.parse( event.data ));
 			};
-			websocket.onclose = function(event) {
-				console.log( "onClose websocket", event);
-				websocket = null;
+			webSocket.onclose = function(event) {
+				webSocket = null;
 				stopTimeoutChecker();
 				oHandlers.onclose(event);
 				checkRetry();
@@ -89,7 +88,6 @@
 		function checkRetry() {
 			if ( connectTime !== null && connectTime === lastReceiveTime && ( Date.now() - connectTime < cfg.retryTimeout ) ) {
 				if ( retryCount < cfg.maxRetryCount ) {
-					console.log("retry websocket connection");
 					retryCount++;
 					oHandlers.retry();
 				}
