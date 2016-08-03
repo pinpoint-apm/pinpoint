@@ -16,6 +16,7 @@ import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -38,12 +39,12 @@ public class SpanFactory {
     public SpanFactory() {
     }
 
-    @Autowired
+    @Autowired(required = false)
     public void setSpanEventFilter(SpanEventFilter spanEventFilter) {
         this.spanEventFilter = spanEventFilter;
     }
 
-    @Autowired
+    @Autowired(required = false)
     public void setAcceptedTimeService(AcceptedTimeService acceptedTimeService) {
         this.acceptedTimeService = acceptedTimeService;
     }

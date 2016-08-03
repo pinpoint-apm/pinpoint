@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.AnnotationBoDecoder;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -31,7 +32,6 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanDecoder;
 
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanDecodingContext;
-import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.Cell;
@@ -39,6 +39,8 @@ import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -51,12 +53,20 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public static final int AGENT_NAME_MAX_LEN = PinpointConstants.AGENT_NAME_MAX_LEN;
-    public static final int DISTRIBUTE_HASH_SIZE = 1;
-
     private final AnnotationBoDecoder annotationBoDecoder = new AnnotationBoDecoder();
 
     private final SpanDecoder spanDecoder = new SpanDecoder();
+
+    private final RowKeyDecoder<TransactionId> rowKeyDecoder;
+
+    @Autowired
+    public SpanMapper(@Qualifier("traceRowKeyDecoderV1") RowKeyDecoder<TransactionId> rowKeyDecoder) {
+        if (rowKeyDecoder == null) {
+            throw new NullPointerException("rowKeyDecoder must not be null");
+        }
+
+        this.rowKeyDecoder = rowKeyDecoder;
+    }
 
     @Override
     public List<SpanBo> mapRow(Result result, int rowNum) throws Exception {
@@ -65,7 +75,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
         }
 
         byte[] rowKey = result.getRow();
-        final TransactionId transactionId = newTransactionId(rowKey, DISTRIBUTE_HASH_SIZE);
+        final TransactionId transactionId = this.rowKeyDecoder.decodeRowKey(rowKey);
 
         final Cell[] rawCells = result.rawCells();
 
@@ -133,17 +143,6 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
         return spanList;
 
     }
-
-    private TransactionId newTransactionId(byte[] rowKey, int offset) {
-
-        String agentId = BytesUtils.toStringAndRightTrim(rowKey, offset, AGENT_NAME_MAX_LEN);
-        long agentStartTime = BytesUtils.bytesToLong(rowKey, offset + AGENT_NAME_MAX_LEN);
-        long transactionSequence = BytesUtils.bytesToLong(rowKey, offset + BytesUtils.LONG_BYTE_LENGTH + AGENT_NAME_MAX_LEN);
-
-        return new TransactionId(agentId, agentStartTime, transactionSequence);
-    }
-
-
 
 
     private void addAnnotation(List<SpanBo> spanList, ListMultimap<Long, AnnotationBo> annotationMap) {
