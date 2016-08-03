@@ -25,8 +25,9 @@
                                          com.navercorp.pinpoint.web.service,
                                          com.navercorp.pinpoint.web.mapper,
                                          com.navercorp.pinpoint.web.filter,
-                                         com.navercorp.pinpoint.web.config
-                                         com.navercorp.pinpoint.web.view" />
+                                         com.navercorp.pinpoint.web.config,
+                                         com.navercorp.pinpoint.web.view,
+                                         com.navercorp.pinpoint.common.server.bo" />
 
     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
