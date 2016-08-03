@@ -16,16 +16,14 @@
 
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.mapper.CellTraceMapper;
-import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.client.Get;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,9 +49,10 @@ public class HbaseTraceDao implements TraceDao {
     @Autowired
     private HbaseOperations2 template2;
 
+
     @Autowired
-    @Qualifier("traceDistributor")
-    private AbstractRowKeyDistributor rowKeyDistributor;
+    @Qualifier("transactionIdRowKeyEncoderV1")
+    private RowKeyEncoder<TransactionId> rowKeyDecoder;
 
 
     private RowMapper<List<SpanBo>> spanMapper;
@@ -80,18 +79,17 @@ public class HbaseTraceDao implements TraceDao {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
-        byte[] rowKey = newRowKey(transactionId);
-        byte[] traceIdBytes = rowKeyDistributor.getDistributedKey(rowKey);
-        return template2.get(HBaseTables.TRACES, traceIdBytes, HBaseTables.TRACES_CF_SPAN, spanMapper);
+        byte[] transactionIdRowKey = rowKeyDecoder.encodeRowKey(transactionId);
+        return template2.get(HBaseTables.TRACES, transactionIdRowKey, HBaseTables.TRACES_CF_SPAN, spanMapper);
     }
 
     public List<SpanBo> selectSpanAndAnnotation(TransactionId transactionId) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
-        byte[] rowKey = newRowKey(transactionId);
-        final byte[] traceIdBytes = rowKeyDistributor.getDistributedKey(rowKey);
-        Get get = new Get(traceIdBytes);
+        byte[] transactionIdRowKey = rowKeyDecoder.encodeRowKey(transactionId);
+
+        Get get = new Get(transactionIdRowKey);
         get.addFamily(HBaseTables.TRACES_CF_SPAN);
         get.addFamily(HBaseTables.TRACES_CF_ANNOTATION);
         get.addFamily(HBaseTables.TRACES_CF_TERMINALSPAN);
@@ -184,9 +182,8 @@ public class HbaseTraceDao implements TraceDao {
 
         final List<Get> getList = new ArrayList<>(transactionIdList.size());
         for (TransactionId transactionId : transactionIdList) {
-            byte[] rowKey = newRowKey(transactionId);
-            final byte[] transactionIdBytes = rowKeyDistributor.getDistributedKey(rowKey);
-            final Get get = new Get(transactionIdBytes);
+            byte[] transactionIdRowKey = rowKeyDecoder.encodeRowKey(transactionId);
+            final Get get = new Get(transactionIdRowKey);
             for (byte[] hbaseFamily : hBaseFamiliyList) {
                 get.addFamily(hbaseFamily);
             }
@@ -200,16 +197,11 @@ public class HbaseTraceDao implements TraceDao {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
-        byte[] rowKey = newRowKey(transactionId);
-        final byte[] transactionIdBytes = rowKeyDistributor.getDistributedKey(rowKey);
-        Get get = new Get(transactionIdBytes);
+        byte[] transactionIdRowKey = rowKeyDecoder.encodeRowKey(transactionId);
+        Get get = new Get(transactionIdRowKey);
         get.addFamily(HBaseTables.TRACES_CF_SPAN);
         get.addFamily(HBaseTables.TRACES_CF_TERMINALSPAN);
         return template2.get(HBaseTables.TRACES, get, spanMapper);
-    }
-
-    private byte[] newRowKey(TransactionId transactionId) {
-        return BytesUtils.stringLongLongToBytes(transactionId.getAgentId(), PinpointConstants.AGENT_NAME_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
     }
 
 }

@@ -20,8 +20,11 @@ import java.util.Arrays;
 
 import com.google.common.primitives.Longs;
 import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.TraceRowKeyDecoderV2;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 
 import org.junit.Assert;
@@ -84,5 +87,22 @@ public class SpanUtilsTest {
         long time = Longs.fromByteArray(Arrays.copyOfRange(traceIndexRowKey, PinpointConstants.AGENT_NAME_MAX_LEN, PinpointConstants.AGENT_NAME_MAX_LEN + 8));
         time = TimeUtils.recoveryTimeMillis(time);
         Assert.assertEquals(time, l1);
+    }
+
+    @Test
+    public void testGetTransactionId_BasicSpan() {
+        SpanBo spanBo = new SpanBo();
+        spanBo.setTraceAgentId("traceAgentId");
+        spanBo.setTraceAgentStartTime(System.currentTimeMillis());
+        spanBo.setTraceTransactionSequence(1111);
+
+        byte[] transactionIdRowkey = SpanUtils.getTransactionId(spanBo);
+
+        TraceRowKeyDecoderV2 decoder = new TraceRowKeyDecoderV2();
+        TransactionId transactionId = decoder.readTransactionId(transactionIdRowkey);
+
+        Assert.assertEquals(transactionId.getAgentId(), spanBo.getTraceAgentId());
+        Assert.assertEquals(transactionId.getAgentStartTime(), spanBo.getTraceAgentStartTime());
+        Assert.assertEquals(transactionId.getTransactionSequence(), spanBo.getTraceTransactionSequence());
     }
 }

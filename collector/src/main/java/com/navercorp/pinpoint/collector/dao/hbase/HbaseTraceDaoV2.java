@@ -2,13 +2,13 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.TraceDao;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanChunkSerializerV2;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanSerializerV2;
-import com.navercorp.pinpoint.common.server.util.SpanUtils;
-import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
@@ -40,8 +40,8 @@ public class HbaseTraceDaoV2 implements TraceDao {
     private SpanChunkSerializerV2 spanChunkSerializer;
 
     @Autowired
-    @Qualifier("traceV2Distributor")
-    private AbstractRowKeyDistributor rowKeyDistributor;
+    @Qualifier("traceRowKeyEncoderV2")
+    private RowKeyEncoder<BasicSpan> rowKeyEncoder;
 
 
     @Override
@@ -53,7 +53,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
         long acceptedTime = spanBo.getCollectorAcceptTime();
 
-        final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(spanBo));
+        final byte[] rowKey = this.rowKeyEncoder.encodeRowKey(spanBo);
         final Put put = new Put(rowKey, acceptedTime);
 
         this.spanSerializer.serialize(spanBo, put, null);
@@ -68,17 +68,10 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
 
 
-    private byte[] getDistributeRowKey(byte[] transactionId) {
-        byte[] distributedKey = rowKeyDistributor.getDistributedKey(transactionId);
-        return distributedKey;
-    }
-
-
-
     @Override
     public void insertSpanChunk(SpanChunkBo spanChunkBo) {
 
-        final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(spanChunkBo));
+        final byte[] rowKey = this.rowKeyEncoder.encodeRowKey(spanChunkBo);
 
         final long acceptedTime = spanChunkBo.getCollectorAcceptTime();
         final Put put = new Put(rowKey, acceptedTime);

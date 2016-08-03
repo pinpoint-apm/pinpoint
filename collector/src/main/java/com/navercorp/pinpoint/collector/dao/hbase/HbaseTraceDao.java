@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase;
 
-import com.navercorp.pinpoint.collector.dao.TracesDao;
+import com.navercorp.pinpoint.collector.dao.TraceDao;
 
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
+import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.AnnotationSerializer;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanEventEncodingContext;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanEventSerializer;
@@ -30,8 +31,6 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.server.util.SpanUtils;
-import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
@@ -46,7 +45,7 @@ import java.util.List;
  * @author emeroad
  */
 @Repository
-public class HbaseTraceDao implements TracesDao {
+public class HbaseTraceDao implements TraceDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -69,8 +68,8 @@ public class HbaseTraceDao implements TracesDao {
     private AnnotationSerializer annotationSerializer;
 
     @Autowired
-    @Qualifier("traceDistributor")
-    private AbstractRowKeyDistributor rowKeyDistributor;
+    @Qualifier("traceRowKeyEncoderV1")
+    private RowKeyEncoder<BasicSpan> rowKeyEncoder;
 
     @Override
     public void insert(final SpanBo spanBo) {
@@ -81,7 +80,7 @@ public class HbaseTraceDao implements TracesDao {
 
         long acceptedTime = spanBo.getCollectorAcceptTime();
 
-        final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(spanBo));
+        final byte[] rowKey = rowKeyEncoder.encodeRowKey(spanBo);
         final Put put = new Put(rowKey, acceptedTime);
 
         this.spanSerializer.serialize(spanBo, put, null);
@@ -94,10 +93,6 @@ public class HbaseTraceDao implements TracesDao {
         if (!success) {
             hbaseTemplate.put(TRACES, put);
         }
-    }
-
-    private byte[] getDistributeRowKey(byte[] transactionId) {
-        return rowKeyDistributor.getDistributedKey(transactionId);
     }
 
     private void addNestedSpanEvent(Put put, SpanBo span) {
@@ -114,7 +109,7 @@ public class HbaseTraceDao implements TracesDao {
 
     @Override
     public void insertSpanChunk(SpanChunkBo spanChunkBo) {
-        final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(spanChunkBo));
+        final byte[] rowKey = rowKeyEncoder.encodeRowKey(spanChunkBo);
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
         final Put put = new Put(rowKey, acceptedTime);
 
