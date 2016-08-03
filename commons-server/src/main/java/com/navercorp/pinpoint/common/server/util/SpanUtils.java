@@ -20,8 +20,7 @@ import static com.navercorp.pinpoint.common.PinpointConstants.*;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
+import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.common.util.TransactionId;
@@ -78,6 +77,7 @@ public final class SpanUtils {
         return buffer.getBuffer();
     }
 
+    @Deprecated
     public static byte[] getTransactionId(TSpan span) {
         if (span == null) {
             throw new NullPointerException("span must not be null");
@@ -92,14 +92,7 @@ public final class SpanUtils {
 
     }
 
-    public static byte[] getTransactionId(SpanBo span) {
-        if (span == null) {
-            throw new NullPointerException("span must not be null");
-        }
-
-        return BytesUtils.stringLongLongToBytes(span.getTraceAgentId(), AGENT_NAME_MAX_LEN, span.getAgentStartTime(), span.getTraceTransactionSequence());
-    }
-
+    @Deprecated
     public static byte[] getTransactionId(TSpanChunk spanChunk) {
         if (spanChunk == null) {
             throw new NullPointerException("spanChunk must not be null");
@@ -113,11 +106,12 @@ public final class SpanUtils {
         return BytesUtils.stringLongLongToBytes(agentId, AGENT_NAME_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
     }
 
-    public static byte[] getTransactionId(SpanChunkBo spanChunkBo) {
-        if (spanChunkBo == null) {
-            throw new NullPointerException("span must not be null");
+    @Deprecated
+    public static byte[] getTransactionId(BasicSpan basicSpan) {
+        if (basicSpan == null) {
+            throw new NullPointerException("basicSpan must not be null");
         }
 
-        return BytesUtils.stringLongLongToBytes(spanChunkBo.getTraceAgentId(), AGENT_NAME_MAX_LEN, spanChunkBo.getAgentStartTime(), spanChunkBo.getTraceTransactionSequence());
+        return BytesUtils.stringLongLongToBytes(basicSpan.getTraceAgentId(), AGENT_NAME_MAX_LEN, basicSpan.getTraceAgentStartTime(), basicSpan.getTraceTransactionSequence());
     }
 }

@@ -2,16 +2,14 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
-import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.mapper.CellTraceMapper;
-import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.client.Get;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +36,8 @@ public class HbaseTraceDaoV2 implements TraceDao {
     private HbaseOperations2 template2;
 
     @Autowired
-    @Qualifier("traceV2Distributor")
-    private AbstractRowKeyDistributor rowKeyDistributor;
+    @Qualifier("transactionIdRowKeyEncoderV2")
+    private RowKeyEncoder<TransactionId> transactionIdRowKeyEncoder;
 
 
     private RowMapper<List<SpanBo>> spanMapperV2;
@@ -67,14 +65,10 @@ public class HbaseTraceDaoV2 implements TraceDao {
             throw new NullPointerException("transactionId must not be null");
         }
 
-        byte[] rowKey = newRowKey(transactionId);
-        byte[] traceIdBytes = rowKeyDistributor.getDistributedKey(rowKey);
-        return template2.get(HBaseTables.TRACE_V2, traceIdBytes, HBaseTables.TRACE_V2_CF_SPAN, spanMapperV2);
+        byte[] transactionIdRowKey = transactionIdRowKeyEncoder.encodeRowKey(transactionId);
+        return template2.get(HBaseTables.TRACE_V2, transactionIdRowKey, HBaseTables.TRACE_V2_CF_SPAN, spanMapperV2);
     }
 
-    private byte[] newRowKey(TransactionId transactionId) {
-        return BytesUtils.stringLongLongToBytes(transactionId.getAgentId(), PinpointConstants.AGENT_NAME_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
-    }
 
     @Deprecated
     @Override
@@ -160,9 +154,8 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
         final List<Get> getList = new ArrayList<>(transactionIdList.size());
         for (TransactionId transactionId : transactionIdList) {
-            byte[] rowKey = newRowKey(transactionId);
-            final byte[] transactionIdBytes = rowKeyDistributor.getDistributedKey(rowKey);
-            final Get get = new Get(transactionIdBytes);
+            byte[] transactionIdRowKey = transactionIdRowKeyEncoder.encodeRowKey(transactionId);
+            final Get get = new Get(transactionIdRowKey);
             get.addFamily(columnFamily);
 
             getList.add(get);
