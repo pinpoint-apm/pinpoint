@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
+import com.navercorp.pinpoint.common.util.TransactionId;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,14 +87,10 @@ public class SpanEventBoTest {
 
         Assert.assertEquals(spanEventBo.getNextAsyncId(), newSpanEventBo.getNextAsyncId());
 
-
-        spanEventBo.setTraceTransactionSequence(1);
-        newSpanEventBo.setTraceTransactionSequence(1);
-        Assert.assertEquals(spanEventBo.getTraceTransactionSequence(), newSpanEventBo.getTraceTransactionSequence());
-
-        spanEventBo.setTraceAgentStartTime(3);
-        newSpanEventBo.setTraceAgentStartTime(3);
-        Assert.assertEquals(spanEventBo.getTraceAgentStartTime(), newSpanEventBo.getTraceAgentStartTime());
+        TransactionId transactionId = new TransactionId("test", 3, 1);
+        spanEventBo.setTransactionId(transactionId);
+        newSpanEventBo.setTransactionId(transactionId);
+        Assert.assertEquals(spanEventBo.getTransactionId(), newSpanEventBo.getTransactionId());
 
         spanEventBo.setSequence((short) 3);
         newSpanEventBo.setSequence((short) 3);

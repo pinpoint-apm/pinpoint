@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.common.server.bo;
 
+import com.navercorp.pinpoint.common.util.TransactionId;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,9 +16,7 @@ public class SpanChunkBo implements BasicSpan {
     private String applicationId;
     private long agentStartTime;
 
-    private String traceAgentId;
-    private long traceAgentStartTime;
-    private long traceTransactionSequence;
+    private TransactionId transactionId;
 
     private long spanId;
     private String endPoint;
@@ -65,28 +65,13 @@ public class SpanChunkBo implements BasicSpan {
         this.agentStartTime = agentStartTime;
     }
 
-    public String getTraceAgentId() {
-        return traceAgentId;
+    @Override
+    public TransactionId getTransactionId() {
+        return transactionId;
     }
 
-    public void setTraceAgentId(String traceAgentId) {
-        this.traceAgentId = traceAgentId;
-    }
-
-    public long getTraceAgentStartTime() {
-        return traceAgentStartTime;
-    }
-
-    public void setTraceAgentStartTime(long traceAgentStartTime) {
-        this.traceAgentStartTime = traceAgentStartTime;
-    }
-
-    public long getTraceTransactionSequence() {
-        return traceTransactionSequence;
-    }
-
-    public void setTraceTransactionSequence(long traceTransactionSequence) {
-        this.traceTransactionSequence = traceTransactionSequence;
+    public void setTransactionId(TransactionId transactionId) {
+        this.transactionId = transactionId;
     }
 
     public long getSpanId() {
@@ -155,9 +140,7 @@ public class SpanChunkBo implements BasicSpan {
                 ", agentId='" + agentId + '\'' +
                 ", applicationId='" + applicationId + '\'' +
                 ", agentStartTime=" + agentStartTime +
-                ", traceAgentId='" + traceAgentId + '\'' +
-                ", traceAgentStartTime=" + traceAgentStartTime +
-                ", traceTransactionSequence=" + traceTransactionSequence +
+                ", transactionId='" + transactionId + '\'' +
                 ", spanId=" + spanId +
                 ", spanEventBoList=" + spanEventBoList +
                 ", collectorAcceptTime=" + collectorAcceptTime +

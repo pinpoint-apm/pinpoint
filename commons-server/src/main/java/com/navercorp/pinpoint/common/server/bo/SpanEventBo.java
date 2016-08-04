@@ -18,9 +18,7 @@ package com.navercorp.pinpoint.common.server.bo;
 
 import java.util.List;
 
-import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
+import com.navercorp.pinpoint.common.util.TransactionId;
 
 /**
  * @author emeroad
@@ -36,9 +34,7 @@ public class SpanEventBo implements Event {
     private String applicationId;
     private long agentStartTime;
 
-    private String traceAgentId;
-    private long traceAgentStartTime;
-    private long traceTransactionSequence;
+    private TransactionId transactionId;
 
     private short sequence;
 
@@ -104,28 +100,12 @@ public class SpanEventBo implements Event {
         this.agentStartTime = agentStartTime;
     }
 
-    public String getTraceAgentId() {
-        return traceAgentId;
+    public TransactionId getTransactionId() {
+        return transactionId;
     }
 
-    public void setTraceAgentId(String traceAgentId) {
-        this.traceAgentId = traceAgentId;
-    }
-
-    public long getTraceAgentStartTime() {
-        return traceAgentStartTime;
-    }
-
-    public void setTraceAgentStartTime(long traceAgentStartTime) {
-        this.traceAgentStartTime = traceAgentStartTime;
-    }
-
-    public long getTraceTransactionSequence() {
-        return traceTransactionSequence;
-    }
-
-    public void setTraceTransactionSequence(long traceTransactionSequence) {
-        this.traceTransactionSequence = traceTransactionSequence;
+    public void setTransactionId(TransactionId transactionId) {
+        this.transactionId = transactionId;
     }
 
 
@@ -289,12 +269,8 @@ public class SpanEventBo implements Event {
         builder.append(applicationId);
         builder.append(", agentStartTime=");
         builder.append(agentStartTime);
-        builder.append(", traceAgentId=");
-        builder.append(traceAgentId);
-        builder.append(", traceAgentStartTime=");
-        builder.append(traceAgentStartTime);
-        builder.append(", traceTransactionSequence=");
-        builder.append(traceTransactionSequence);
+        builder.append(", transactionId=");
+        builder.append(transactionId);
         builder.append(", sequence=");
         builder.append(sequence);
         builder.append(", startElapsed=");

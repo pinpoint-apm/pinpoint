@@ -16,7 +16,6 @@ import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -70,15 +69,8 @@ public class SpanFactory {
         spanBo.setApplicationId(tSpan.getApplicationName());
         spanBo.setAgentStartTime(tSpan.getAgentStartTime());
 
-        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(tSpan.getTransactionId());
-        final String traceAgentId = transactionId.getAgentId();
-        if (traceAgentId == null) {
-            spanBo.setTraceAgentId(spanBo.getAgentId());
-        } else {
-            spanBo.setTraceAgentId(traceAgentId);
-        }
-        spanBo.setTraceAgentStartTime(transactionId.getAgentStartTime());
-        spanBo.setTraceTransactionSequence(transactionId.getTransactionSequence());
+        final TransactionId transactionId = newTransactionId(tSpan.getTransactionId(), spanBo);
+        spanBo.setTransactionId(transactionId);
 
         spanBo.setSpanId(tSpan.getSpanId());
         spanBo.setParentSpanId(tSpan.getParentSpanId());
@@ -140,19 +132,14 @@ public class SpanFactory {
         spanEvent.setAgentStartTime(basicSpan.getAgentStartTime());
 //        spanEvent.setSpanId(basicSpan.getSpanId());
 
-        spanEvent.setTraceAgentId(basicSpan.getTraceAgentId());
-        spanEvent.setTraceAgentStartTime(basicSpan.getTraceAgentStartTime());
-        spanEvent.setTraceTransactionSequence(basicSpan.getTraceTransactionSequence());
-
+        TransactionId transactionId = basicSpan.getTransactionId();
+        spanEvent.setTransactionId(transactionId);
 
         bind(spanEvent, tSpanEvent);
         return spanEvent;
     }
 
     private void bind(SpanEventBo spanEvent, TSpanEvent tSpanEvent) {
-        if (spanEvent.getTraceAgentId() == null) {
-            spanEvent.setTraceAgentId(spanEvent.getAgentId());
-        }
 
         spanEvent.setSequence(tSpanEvent.getSequence());
 
@@ -226,21 +213,23 @@ public class SpanFactory {
             spanChunkBo.setApplicationServiceType(tSpanChunk.getServiceType());
         }
 
-        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(tSpanChunk.getTransactionId());
-        final String traceAgentId = transactionId.getAgentId();
-        if (traceAgentId == null) {
-            spanChunkBo.setTraceAgentId(spanChunkBo.getAgentId());
-        } else {
-            spanChunkBo.setTraceAgentId(traceAgentId);
-        }
+        TransactionId transactionId = newTransactionId(tSpanChunk.getTransactionId(), spanChunkBo);
+        spanChunkBo.setTransactionId(transactionId);
 
-
-        spanChunkBo.setTraceAgentStartTime(transactionId.getAgentStartTime());
-        spanChunkBo.setTraceTransactionSequence(transactionId.getTransactionSequence());
 
         spanChunkBo.setSpanId(tSpanChunk.getSpanId());
         spanChunkBo.setEndPoint(tSpanChunk.getEndPoint());
         return spanChunkBo;
+    }
+
+    private TransactionId newTransactionId(byte[] transactionIdBytes, BasicSpan basicSpan) {
+        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(transactionIdBytes);
+        String transactionAgentId = transactionId.getAgentId();
+        if (transactionAgentId != null) {
+            return transactionId;
+        }
+        String spanAgentId = basicSpan.getAgentId();
+        return new TransactionId(spanAgentId, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
     }
 
 
@@ -275,6 +264,7 @@ public class SpanFactory {
         return boList;
     }
 
+    // for test
     public SpanEventBo buildSpanEventBo(TSpan tSpan, TSpanEvent tSpanEvent) {
         SpanBo spanBo = newSpanBo(tSpan);
         return newSpanEventBo(spanBo, tSpanEvent);

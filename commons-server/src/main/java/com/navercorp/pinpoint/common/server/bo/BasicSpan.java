@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.common.server.bo;
 
+import com.navercorp.pinpoint.common.util.TransactionId;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -17,9 +19,8 @@ public interface BasicSpan {
     long getSpanId();
     void setSpanId(long spanId);
 
-    String getTraceAgentId();
-    long getTraceAgentStartTime();
-    long getTraceTransactionSequence();
+    TransactionId getTransactionId();
+//    void setTransactionId(TransactionId transactionId);
 
 
 //    List<SpanEventBo> getSpanEventBoList();

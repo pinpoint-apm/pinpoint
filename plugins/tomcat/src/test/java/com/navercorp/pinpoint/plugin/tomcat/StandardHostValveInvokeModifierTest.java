@@ -148,10 +148,10 @@ public class StandardHostValveInvokeModifierTest extends BasePinpointTest {
         
         final SpanBo rootSpan = rootSpans.get(0);
         // Check Transaction ID from remote source.
-        assertEquals(rootSpan.getTransactionId(), sourceTransactionId);
-        assertEquals(rootSpan.getTraceAgentId(), sourceAgentId);
-        assertEquals(rootSpan.getTraceAgentStartTime(), sourceAgentStartTime);
-        assertEquals(rootSpan.getTraceTransactionSequence(), sourceTransactionSequence);
+        assertEquals(TransactionIdUtils.formatString(rootSpan.getTransactionId()), sourceTransactionId);
+        assertEquals(rootSpan.getTransactionId().getAgentId(), sourceAgentId);
+        assertEquals(rootSpan.getTransactionId().getAgentStartTime(), sourceAgentStartTime);
+        assertEquals(rootSpan.getTransactionId().getTransactionSequence(), sourceTransactionSequence);
         // Check parent Span ID from remote source.
         assertEquals(rootSpan.getParentSpanId(), sourceParentId);
     }

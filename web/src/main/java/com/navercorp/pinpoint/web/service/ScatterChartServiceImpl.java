@@ -86,7 +86,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 
             for (SpanBo span : trace) {
                 if (applicationName.equals(span.getApplicationId())) {
-                    final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
+                    final TransactionId transactionId = span.getTransactionId();
                     final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
                     result.add(dot);
                 }
@@ -124,7 +124,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
                     // should find the filtering condition with the correct index
                     final TransactionMetadataQuery.QueryCondition filterQueryCondition = query.getQueryConditionByIndex(index);
 
-                    final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
+                    final TransactionId transactionId = span.getTransactionId();
                     final TransactionMetadataQuery.QueryCondition queryConditionKey = new TransactionMetadataQuery.QueryCondition(transactionId, span.getCollectorAcceptTime(), span.getElapsed());
                     if (queryConditionKey.equals(filterQueryCondition)) {
                         result.add(span);
@@ -170,7 +170,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 
             for (SpanBo span : trace) {
                 if (applicationName.equals(span.getApplicationId())) {
-                    final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
+                    final TransactionId transactionId = span.getTransactionId();
                     final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
                     scatterData.addDot(dot);
                 }

@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.TransactionId;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,8 +35,8 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<BasicSpan> {
         if (basicSpan == null) {
             throw new NullPointerException("basicSpan must not be null");
         }
-
-        byte[] rowKey = BytesUtils.stringLongLongToBytes(basicSpan.getTraceAgentId(), AGENT_NAME_MAX_LEN, basicSpan.getTraceAgentStartTime(), basicSpan.getTraceTransactionSequence());
+        TransactionId transactionId = basicSpan.getTransactionId();
+        byte[] rowKey = BytesUtils.stringLongLongToBytes(transactionId.getAgentId(), AGENT_NAME_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
         return wrapDistributedRowKey(rowKey);
     }
 

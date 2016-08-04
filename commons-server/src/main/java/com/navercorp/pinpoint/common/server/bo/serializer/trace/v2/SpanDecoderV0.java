@@ -52,9 +52,7 @@ public class SpanDecoderV0 implements SpanDecoder {
         final SpanChunkBo spanChunk = new SpanChunkBo();
 
         final TransactionId transactionId = decodingContext.getTransactionId();
-
-        spanChunk.setTraceAgentStartTime(transactionId.getAgentStartTime());
-        spanChunk.setTraceTransactionSequence(transactionId.getTransactionSequence());
+        spanChunk.setTransactionId(transactionId);
         spanChunk.setCollectorAcceptTime(decodingContext.getCollectorAcceptedTime());
 
 
@@ -70,9 +68,7 @@ public class SpanDecoderV0 implements SpanDecoder {
         final SpanBo span = new SpanBo();
 
         final TransactionId transactionId = decodingContext.getTransactionId();
-        span.setTraceAgentId(transactionId.getAgentId());
-        span.setTraceAgentStartTime(transactionId.getAgentStartTime());
-        span.setTraceTransactionSequence(transactionId.getTransactionSequence());
+        span.setTransactionId(transactionId);
         span.setCollectorAcceptTime(decodingContext.getCollectorAcceptedTime());
 
         SpanEventBo firstSpanEvent = readQualifier(span, qualifier);
