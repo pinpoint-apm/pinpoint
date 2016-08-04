@@ -9,7 +9,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.junit.Assert;
 
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -47,6 +49,10 @@ public class SpanFactoryAssert {
 
         Assert.assertEquals(tSpan.getApiId(), spanBo.getApiId());
         Assert.assertEquals(tSpan.getApplicationServiceType(), spanBo.getApplicationServiceType());
+
+        List<SpanEventBo> spanEventBoList = spanBo.getSpanEventBoList();
+        List<TSpanEvent> spanEventList = tSpan.getSpanEventList();
+        assertSpanEventList(spanEventBoList, spanEventList);
 
 
         boolean hasException = tSpan.getExceptionInfo() != null;
@@ -124,5 +130,28 @@ public class SpanFactoryAssert {
         Assert.assertEquals(tSpanChunk.getEndPoint(), spanChunkBo.getEndPoint());
         Assert.assertEquals(tSpanChunk.getApplicationServiceType(), spanChunkBo.getApplicationServiceType());
 
+
+        List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
+        List<TSpanEvent> spanEventList = tSpanChunk.getSpanEventList();
+        assertSpanEventList(spanEventBoList, spanEventList);
+
+    }
+
+    private void assertSpanEventList(List<SpanEventBo> spanEventBoList, List<TSpanEvent> spanEventList) {
+        Assert.assertEquals(CollectionUtils.isEmpty(spanEventBoList), CollectionUtils.isEmpty(spanEventList));
+        if (CollectionUtils.isNotEmpty(spanEventBoList)) {
+            Map<Long, SpanEventBo> spanEventBoMap = new HashMap<>();
+            for (int i = 0; i < spanEventBoList.size(); i++) {
+                SpanEventBo spanEventBo = spanEventBoList.get(i);
+                spanEventBoMap.put((long)spanEventBo.getSequence(), spanEventBo);
+            }
+
+            for (int i = 0; i < spanEventList.size(); i++) {
+                TSpanEvent tSpanEvent = spanEventList.get(i);
+                SpanEventBo spanEventBo = spanEventBoMap.get((long) tSpanEvent.getSequence());
+                Assert.assertNotNull(spanEventBo);
+                assertSpanEvent(tSpanEvent, spanEventBo);
+            }
+        }
     }
 }

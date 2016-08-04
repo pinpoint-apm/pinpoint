@@ -85,7 +85,7 @@ public class RandomTSpan {
         return tAnnotation;
     }
 
-    public TSpanEvent randomTSpanEvent(TSpan tSpan, short sequence) {
+    public TSpanEvent randomTSpanEvent(short sequence) {
         TSpanEvent tSpanEvent = new TSpanEvent();
 //        @deprecated
 //        tSpanEvent.setSpanId();
@@ -99,7 +99,7 @@ public class RandomTSpan {
 
         List<TAnnotation> tAnnotationList = randomTAnnotationList();
         if (CollectionUtils.isNotEmpty(tAnnotationList)) {
-            tSpan.setAnnotations(tAnnotationList);
+            tSpanEvent.setAnnotations(tAnnotationList);
         }
         tSpanEvent.setDepth(RandomUtils.nextInt(0, 256));
         tSpanEvent.setNextSpanId(random.nextLong());

@@ -275,6 +275,7 @@ public class SpanFactory {
         return boList;
     }
 
+    // for test
     public SpanEventBo buildSpanEventBo(TSpan tSpan, TSpanEvent tSpanEvent) {
         SpanBo spanBo = newSpanBo(tSpan);
         return newSpanEventBo(spanBo, tSpanEvent);
