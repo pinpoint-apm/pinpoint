@@ -161,9 +161,9 @@
 	            $scope.hasScatter = false;
 	            $scope.sidebarLoading = true;
 
-				if ( oNavbarVoService.isRealtime() ) {
+				// if ( oNavbarVoService.isRealtime() ) {
 					$scope.$broadcast("realtimeChartController.close");
-				}
+				// }
 	            $scope.$broadcast('sidebarTitleDirective.empty.forMain');
 				$scope.$broadcast('serverListDirective.initialize', oNavbarVoService );
 	            $scope.$broadcast('nodeInfoDetailsDirective.hide');
