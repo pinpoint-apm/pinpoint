@@ -67,14 +67,15 @@
         <test.jdk.home>${jdk.home}</test.jdk.home>
         <slf4j.version>1.7.21</slf4j.version>
         <metrics.version>3.1.2</metrics.version>
-        <spring.version>4.1.9.RELEASE</spring.version>
         <jetty.version>8.1.12.v20130726</jetty.version>
         <codehaus.jackson.version>1.9.13</codehaus.jackson.version>
         <fastxml.jackson.version>2.6.6</fastxml.jackson.version>
         <httpcomponents.version>4.3</httpcomponents.version>
         <jedis.version>2.4.2</jedis.version>
         <cloverLicenseLocation>${basedir}/clover.license</cloverLicenseLocation>
-        <spring-batch-version>2.2.7.RELEASE</spring-batch-version>
+        <spring.version>4.1.9.RELEASE</spring.version>
+        <spring.batch.version>2.2.7.RELEASE</spring.batch.version>
+        <spring.security.version>4.0.4.RELEASE</spring.security.version>
         <docker.maven.plugin.version>0.4.3</docker.maven.plugin.version>
         <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
         <sniffer.artifactid>java16</sniffer.artifactid>

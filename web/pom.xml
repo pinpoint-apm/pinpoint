@@ -16,7 +16,6 @@
         <jdk.home>${env.JAVA_7_HOME}</jdk.home>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <sniffer.artifactid>java17</sniffer.artifactid>
-        <spring.security>4.0.4.RELEASE</spring.security>
     </properties>
 
     <dependencies>
@@ -142,17 +141,26 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
         </dependency>
-        
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-web</artifactId>
-            <version>${spring.security}</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-messaging</artifactId>
+            <version>${spring.version}</version>
         </dependency>
         
         <dependency>
             <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+            <version>${spring.security.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
-            <version>${spring.security}</version>
+            <version>${spring.security.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-messaging</artifactId>
+            <version>${spring.security.version}</version>
         </dependency>
 
         <!-- Mybatis dependecies -->
@@ -304,12 +312,12 @@
         <dependency>
             <groupId>org.springframework.batch</groupId>
             <artifactId>spring-batch-core</artifactId>
-            <version>${spring-batch-version}</version>
+            <version>${spring.batch.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.batch</groupId>
             <artifactId>spring-batch-test</artifactId>
-            <version>${spring-batch-version}</version>
+            <version>${spring.batch.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
