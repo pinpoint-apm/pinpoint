@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.common.server.bo;
 
+import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
@@ -23,8 +24,8 @@ public class SpanFactoryAssert {
         Assert.assertEquals(tSpan.getApplicationName(), spanBo.getApplicationId());
         Assert.assertEquals(tSpan.getAgentStartTime(), spanBo.getAgentStartTime());
 
-
-        ByteBuffer byteBuffer = TransactionIdUtils.formatByteBuffer(spanBo.getTraceAgentId(), spanBo.getTraceAgentStartTime(), spanBo.getTraceTransactionSequence());
+        TransactionId transactionId = spanBo.getTransactionId();
+        ByteBuffer byteBuffer = TransactionIdUtils.formatByteBuffer(transactionId.getAgentId(), transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
         Assert.assertEquals(ByteBuffer.wrap(tSpan.getTransactionId()), byteBuffer);
 
         Assert.assertEquals(tSpan.getSpanId(), spanBo.getSpanId());
@@ -121,7 +122,8 @@ public class SpanFactoryAssert {
         Assert.assertEquals(tSpanChunk.getAgentStartTime(), spanChunkBo.getAgentStartTime());
 
 
-        ByteBuffer byteBuffer = TransactionIdUtils.formatByteBuffer(spanChunkBo.getTraceAgentId(), spanChunkBo.getTraceAgentStartTime(), spanChunkBo.getTraceTransactionSequence());
+        TransactionId transactionId = spanChunkBo.getTransactionId();
+        ByteBuffer byteBuffer = TransactionIdUtils.formatByteBuffer(transactionId.getAgentId(), transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
         Assert.assertEquals(ByteBuffer.wrap(tSpanChunk.getTransactionId()), byteBuffer);
 
         Assert.assertEquals(tSpanChunk.getSpanId(), spanChunkBo.getSpanId());

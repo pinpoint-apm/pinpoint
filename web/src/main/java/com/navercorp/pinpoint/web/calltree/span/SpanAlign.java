@@ -21,6 +21,7 @@ import java.util.List;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 
 /**
  * @author emeroad
@@ -172,7 +173,7 @@ public class SpanAlign {
     }
 
     public String getTransactionId() {
-        return spanBo.getTransactionId();
+        return TransactionIdUtils.formatString(spanBo.getTransactionId());
     }
     
     public long getSpanId() {

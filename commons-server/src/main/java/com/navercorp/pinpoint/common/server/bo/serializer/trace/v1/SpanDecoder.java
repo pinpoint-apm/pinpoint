@@ -23,9 +23,7 @@ public class SpanDecoder {
         TransactionId transactionId = decodingContext.getTransactionId();
 
         SpanBo spanBo = new SpanBo();
-        spanBo.setTraceAgentId(transactionId.getAgentId());
-        spanBo.setTraceAgentStartTime(transactionId.getAgentStartTime());
-        spanBo.setTraceTransactionSequence(transactionId.getTransactionSequence());
+        spanBo.setTransactionId(transactionId);
 
         long spanId = qualifier.readLong();
         spanBo.setSpanId(spanId);
@@ -96,9 +94,7 @@ public class SpanDecoder {
     public SpanEventBo decodeSpanEventBo(Buffer qualifier, Buffer valueBuffer, SpanDecodingContext decodingContext) {
         TransactionId transactionId = decodingContext.getTransactionId();
         SpanEventBo spanEventBo = new SpanEventBo();
-        spanEventBo.setTraceAgentId(transactionId.getAgentId());
-        spanEventBo.setTraceAgentStartTime(transactionId.getAgentStartTime());
-        spanEventBo.setTraceTransactionSequence(transactionId.getTransactionSequence());
+        spanEventBo.setTransactionId(transactionId);
 
         long spanId = qualifier.readLong();
         decodingContext.setSpanId(spanId);

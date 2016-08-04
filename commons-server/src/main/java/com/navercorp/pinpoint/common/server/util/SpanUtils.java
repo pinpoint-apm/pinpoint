@@ -111,7 +111,7 @@ public final class SpanUtils {
         if (basicSpan == null) {
             throw new NullPointerException("basicSpan must not be null");
         }
-
-        return BytesUtils.stringLongLongToBytes(basicSpan.getTraceAgentId(), AGENT_NAME_MAX_LEN, basicSpan.getTraceAgentStartTime(), basicSpan.getTraceTransactionSequence());
+        TransactionId transactionId = basicSpan.getTransactionId();
+        return BytesUtils.stringLongLongToBytes(transactionId.getAgentId(), AGENT_NAME_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
     }
 }

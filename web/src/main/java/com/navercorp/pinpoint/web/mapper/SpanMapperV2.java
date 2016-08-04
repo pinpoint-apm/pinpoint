@@ -20,7 +20,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
-import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
@@ -163,9 +162,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
                 spanEventBo.setApplicationId(spanBo.getApplicationId());
                 spanEventBo.setAgentStartTime(spanBo.getAgentStartTime());
 
-                spanEventBo.setTraceAgentId(spanBo.getTraceAgentId());
-                spanEventBo.setTraceAgentStartTime(spanBo.getTraceAgentStartTime());
-                spanEventBo.setTraceTransactionSequence(spanBo.getTraceTransactionSequence());
+                spanEventBo.setTransactionId(spanBo.getTransactionId());
             }
         }
     }

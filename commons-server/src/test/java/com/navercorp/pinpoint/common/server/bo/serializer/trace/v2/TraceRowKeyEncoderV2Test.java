@@ -37,16 +37,13 @@ public class TraceRowKeyEncoderV2Test {
     public void encodeRowKey() throws Exception {
 
         SpanBo spanBo = new SpanBo();
-        spanBo.setTraceAgentId("traceAgentId");
-        spanBo.setTraceAgentStartTime(System.currentTimeMillis());
-        spanBo.setTraceTransactionSequence(RandomUtils.nextLong(0, 10000));
+        TransactionId spanTransactionId = new TransactionId("traceAgentId", System.currentTimeMillis(), RandomUtils.nextLong(0, 10000));
+        spanBo.setTransactionId(spanTransactionId);
 
         byte[] rowKey = traceRowKeyEncoder.encodeRowKey(spanBo);
         TransactionId transactionId = traceRowKeyDecoder.decodeRowKey(rowKey);
 
-        Assert.assertEquals(transactionId.getAgentId(), spanBo.getTraceAgentId());
-        Assert.assertEquals(transactionId.getAgentStartTime(), spanBo.getTraceAgentStartTime());
-        Assert.assertEquals(transactionId.getTransactionSequence(), spanBo.getTraceTransactionSequence());
+        Assert.assertEquals(transactionId, spanBo.getTransactionId());
 
     }
 

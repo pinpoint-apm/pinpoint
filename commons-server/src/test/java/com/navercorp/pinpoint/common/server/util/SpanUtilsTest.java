@@ -92,17 +92,14 @@ public class SpanUtilsTest {
     @Test
     public void testGetTransactionId_BasicSpan() {
         SpanBo spanBo = new SpanBo();
-        spanBo.setTraceAgentId("traceAgentId");
-        spanBo.setTraceAgentStartTime(System.currentTimeMillis());
-        spanBo.setTraceTransactionSequence(1111);
+        TransactionId spanTransactionId = new TransactionId("traceAgentId", System.currentTimeMillis(), 1111);
+        spanBo.setTransactionId(spanTransactionId);
 
         byte[] transactionIdRowkey = SpanUtils.getTransactionId(spanBo);
 
         TraceRowKeyDecoderV2 decoder = new TraceRowKeyDecoderV2();
         TransactionId transactionId = decoder.readTransactionId(transactionIdRowkey);
 
-        Assert.assertEquals(transactionId.getAgentId(), spanBo.getTraceAgentId());
-        Assert.assertEquals(transactionId.getAgentStartTime(), spanBo.getTraceAgentStartTime());
-        Assert.assertEquals(transactionId.getTransactionSequence(), spanBo.getTraceTransactionSequence());
+        Assert.assertEquals(transactionId, spanBo.getTransactionId());
     }
 }

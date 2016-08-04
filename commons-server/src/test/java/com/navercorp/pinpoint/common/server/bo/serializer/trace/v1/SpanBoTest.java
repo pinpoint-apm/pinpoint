@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
+import com.navercorp.pinpoint.common.util.TransactionId;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -74,10 +75,10 @@ public class SpanBoTest {
         spanBo.setRpc("rpc");
 
         spanBo.setParentSpanId(5);
-
         spanBo.setAgentStartTime(1);
-        spanBo.setTraceAgentStartTime(2);
-        spanBo.setTraceTransactionSequence(3);
+
+        TransactionId transactionId = new TransactionId("agentId", 2, 3);
+        spanBo.setTransactionId(transactionId);
         spanBo.setElapsed(4);
         spanBo.setStartTime(5);
 
