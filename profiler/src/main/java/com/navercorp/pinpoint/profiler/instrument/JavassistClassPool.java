@@ -103,6 +103,10 @@ public class JavassistClassPool implements InstrumentClassPool {
         if (jvmInternalClassName == null) {
             throw new NullPointerException("jvmInternalClassName must not be null");
         }
+
+        if(isDebug) {
+            logger.debug("Get javassist class {}", jvmInternalClassName);
+        }
         final CtClass cc = getCtClass(classLoader, jvmInternalClassName, classFileBuffer);
         return new JavassistClass(instrumentContext, interceptorRegistryBinder, classLoader, cc);
     }

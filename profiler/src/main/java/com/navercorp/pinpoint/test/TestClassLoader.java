@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.test;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
+import com.navercorp.pinpoint.profiler.instrument.JavassistClassPool;
 import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformerGuardDelegate;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -117,8 +119,11 @@ public class TestClassLoader extends Loader {
 
     private void addTranslator() {
         try {
-            ClassPool classPool = agent.getClassPool().getClassPool(this);
-            addTranslator(classPool, instrumentTranslator);
+            InstrumentClassPool pool = agent.getClassPool();
+            if(pool instanceof JavassistClassPool) {
+                ClassPool classPool = ((JavassistClassPool)pool).getClassPool(this);
+                addTranslator(classPool, instrumentTranslator);
+            }
         } catch (NotFoundException e) {
             throw new RuntimeException(e.getMessage(), e);
         } catch (CannotCompileException e) {

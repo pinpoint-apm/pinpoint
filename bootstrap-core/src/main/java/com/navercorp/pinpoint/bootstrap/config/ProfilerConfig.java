@@ -169,6 +169,8 @@ public interface ProfilerConfig {
 
     boolean isPropagateInterceptorException();
 
+    boolean isProfileInstrumentASM();
+
     String readString(String propertyName, String defaultValue);
 
     int readInt(String propertyName, int defaultValue);
