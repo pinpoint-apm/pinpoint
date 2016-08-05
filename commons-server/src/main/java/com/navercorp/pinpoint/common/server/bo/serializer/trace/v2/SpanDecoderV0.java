@@ -119,8 +119,8 @@ public class SpanDecoderV0 implements SpanDecoder {
             span.setParentSpanId(-1);
         }
 
-        final int startTimeDelta = buffer.readVInt();
-        final long startTime = startTimeDelta + span.getCollectorAcceptTime();
+        final long startTimeDelta = buffer.readVLong();
+        final long startTime = span.getCollectorAcceptTime() - startTimeDelta;
         span.setStartTime(startTime);
         span.setElapsed(buffer.readVInt());
 
