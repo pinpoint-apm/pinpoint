@@ -54,9 +54,11 @@ public class SpanEncoderTest {
 
         logger.debug("span dump \noriginal spanBo:{} \ndecode spanBo:{} ", spanBo, decode);
 
-        // TODO check annotationBoList
         List<String> excludeField = Lists.newArrayList("parentApplicationId", "parentApplicationServiceType", "annotationBoList");
         Assert.assertTrue(EqualsBuilder.reflectionEquals(decode, spanBo, excludeField));
+
+        logger.debug("{} {}", spanBo.getAnnotationBoList(), decode.getAnnotationBoList());
+        Assert.assertTrue("annotation", EqualsBuilder.reflectionEquals(spanBo.getAnnotationBoList(), decode.getAnnotationBoList()));
 
     }
 

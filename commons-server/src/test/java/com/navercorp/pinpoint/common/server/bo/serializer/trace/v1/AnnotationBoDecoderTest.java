@@ -37,8 +37,6 @@ import java.util.List;
  */
 public class AnnotationBoDecoderTest {
 
-    private static final Charset UTF_8 = Charset.forName("UTF-8");
-    
     private AnnotationSerializer serializer = new AnnotationSerializer();
 
     private AnnotationBoDecoder annotationBoDecoder = new AnnotationBoDecoder();
@@ -52,7 +50,7 @@ public class AnnotationBoDecoderTest {
         annotation.setKey(AnnotationKey.API.getCode());
 
         final String value = RandomStringUtils.random(RandomUtils.nextInt(20));
-        annotation.setByteValue(value.getBytes(UTF_8));
+        annotation.setValue(value);
 
         final Buffer buffer = new AutomaticBuffer(128);
         this.serializer.writeAnnotationList(Lists.newArrayList(annotation), buffer);
@@ -62,8 +60,7 @@ public class AnnotationBoDecoderTest {
         Assert.assertEquals(decode.size(), 1);
         AnnotationBo decodedAnnotation = decode.get(0);
         Assert.assertEquals(annotation.getKey(), decodedAnnotation.getKey());
-        Assert.assertEquals(annotation.getValueType(), decodedAnnotation.getValueType());
-        Assert.assertArrayEquals(annotation.getByteValue(), decodedAnnotation.getByteValue());
+        Assert.assertEquals(annotation.getValue(), decodedAnnotation.getValue());
 
     }
 

@@ -26,7 +26,6 @@ import java.util.List;
 public class SpanMapperV2Test {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final AnnotationTranscoder transcoder = new AnnotationTranscoder();
     private final SpanDecoderV0 decoder = new SpanDecoderV0();
 
     @Test
@@ -96,11 +95,7 @@ public class SpanMapperV2Test {
     private AnnotationBo newAnnotation(int key, Object value) {
         AnnotationBo annotationBo = new AnnotationBo();
         annotationBo.setKey(key);
-
-        byte typeCode = transcoder.getTypeCode(value);
-        byte[] encode = transcoder.encode(value, typeCode);
         annotationBo.setValue(value);
-        annotationBo.setByteValue(encode);
         return annotationBo;
     }
 

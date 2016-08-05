@@ -279,12 +279,7 @@ public class SpanFactory {
         annotationBo.setKey(tAnnotation.getKey());
 
         Object value = transcoder.getMappingValue(tAnnotation);
-        byte typeCode = transcoder.getTypeCode(value);
-        byte[] encodeObject = transcoder.encode(value, typeCode);
-
         annotationBo.setValue(value);
-        annotationBo.setValueType(typeCode);
-        annotationBo.setByteValue(encodeObject);
 
         return annotationBo;
     }
