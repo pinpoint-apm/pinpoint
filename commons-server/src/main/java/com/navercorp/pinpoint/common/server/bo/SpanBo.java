@@ -342,33 +342,35 @@ public class SpanBo implements Event, BasicSpan {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder(256);
-        sb.append("SpanBo{");
-        sb.append("version=").append(version);
-        sb.append(", agentId='").append(agentId).append('\'');
-        sb.append(", applicationId='").append(applicationId).append('\'');
-        sb.append(", agentStartTime=").append(agentStartTime);
-        sb.append(", transactionId='").append(transactionId).append('\'');
-        sb.append(", spanId=").append(spanId);
-        sb.append(", parentSpanId=").append(parentSpanId);
-        sb.append(", startTime=").append(startTime);
-        sb.append(", elapsed=").append(elapsed);
-        sb.append(", rpc='").append(rpc).append('\'');
-        sb.append(", serviceType=").append(serviceType);
-        sb.append(", acceptorHost=").append(acceptorHost);
-        sb.append(", endPoint='").append(endPoint).append('\'');
-        sb.append(", apiId=").append(apiId);
-        sb.append(", annotationBoList=").append(annotationBoList);
-        sb.append(", flag=").append(flag);
-        sb.append(", errCode=").append(errCode);
-        sb.append(", spanEventBoList=").append(spanEventBoList);
-        sb.append(", collectorAcceptTime=").append(collectorAcceptTime);
-        sb.append(", hasException=").append(hasException);
-        sb.append(", exceptionId=").append(exceptionId);
-        sb.append(", exceptionMessage='").append(exceptionMessage).append('\'');
-        sb.append(", remoteAddr='").append(remoteAddr).append('\'');
-        sb.append(", applicationServiceType=").append(applicationServiceType);
-        sb.append('}');
-        return sb.toString();
+        return "SpanBo{" +
+                "version=" + version +
+                ", agentId='" + agentId + '\'' +
+                ", applicationId='" + applicationId + '\'' +
+                ", agentStartTime=" + agentStartTime +
+                ", transactionId=" + transactionId +
+                ", spanId=" + spanId +
+                ", parentSpanId=" + parentSpanId +
+                ", parentApplicationId='" + parentApplicationId + '\'' +
+                ", parentApplicationServiceType=" + parentApplicationServiceType +
+                ", startTime=" + startTime +
+                ", elapsed=" + elapsed +
+                ", rpc='" + rpc + '\'' +
+                ", serviceType=" + serviceType +
+                ", endPoint='" + endPoint + '\'' +
+                ", apiId=" + apiId +
+                ", annotationBoList=" + annotationBoList +
+                ", flag=" + flag +
+                ", errCode=" + errCode +
+                ", spanEventBoList=" + spanEventBoList +
+                ", collectorAcceptTime=" + collectorAcceptTime +
+                ", hasException=" + hasException +
+                ", exceptionId=" + exceptionId +
+                ", exceptionMessage='" + exceptionMessage + '\'' +
+                ", exceptionClass='" + exceptionClass + '\'' +
+                ", applicationServiceType=" + applicationServiceType +
+                ", acceptorHost='" + acceptorHost + '\'' +
+                ", remoteAddr='" + remoteAddr + '\'' +
+                ", loggingTransactionInfo=" + loggingTransactionInfo +
+                '}';
     }
 }

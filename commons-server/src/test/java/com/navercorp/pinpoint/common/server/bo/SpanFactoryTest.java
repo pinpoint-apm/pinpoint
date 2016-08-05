@@ -15,6 +15,8 @@ import org.junit.Test;
  */
 public class SpanFactoryTest {
 
+    private static final int REPEAT_COUNT = 10;
+
     private final SpanFactory spanFactory = new SpanFactory();
 
     private SpanFactoryAssert spanFactoryAssert = new SpanFactoryAssert();
@@ -33,6 +35,14 @@ public class SpanFactoryTest {
 
 
     @Test
+    public void testNewSpanBo_N() throws Exception {
+        for (int i = 0; i < REPEAT_COUNT; i++) {
+            testNewSpanBo();
+        }
+    }
+
+
+    @Test
     public void testNewSpanChunkBo() throws Exception {
         TSpanChunk tSpanChunk = random.randomTSpanChunk();
 
@@ -40,6 +50,13 @@ public class SpanFactoryTest {
 
         spanFactoryAssert.assertSpanChunk(tSpanChunk, spanChunkBo);
 
+    }
+
+    @Test
+    public void testNewSpanChunkBo_N() throws Exception {
+        for (int i = 0; i < REPEAT_COUNT; i++) {
+            testNewSpanChunkBo();
+        }
     }
 
     @Test
@@ -52,6 +69,13 @@ public class SpanFactoryTest {
 
         spanFactoryAssert.assertSpanEvent(tSpanEvent, spanEventBo);
 
+    }
+
+    @Test
+    public void testNewSpanEventBo_N() throws Exception {
+        for (int i = 0; i < REPEAT_COUNT; i++) {
+            testNewSpanEventBo();
+        }
     }
 
     @Test
@@ -69,6 +93,13 @@ public class SpanFactoryTest {
 
     }
 
+    @Test
+    public void testBuildSpanBo_N() throws Exception {
+        for (int i = 0; i < REPEAT_COUNT; i++) {
+            testBuildSpanBo();
+        }
+    }
+
 
     @Test
     public void testBuildSpanChunkBo() throws Exception {
@@ -83,6 +114,13 @@ public class SpanFactoryTest {
 
         spanFactoryAssert.assertSpanChunk(tSpanChunk, spanChunkBo);
 
+    }
+
+    @Test
+    public void testBuildSpanChunkBo_N() throws Exception {
+        for (int i = 0; i < REPEAT_COUNT; i++) {
+            testBuildSpanChunkBo();
+        }
     }
 
     @Test
