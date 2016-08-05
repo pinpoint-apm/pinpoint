@@ -65,6 +65,7 @@ public class AgentStatController {
     @Autowired
     private AgentEventService agentEventService;
 
+    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
     @RequestMapping(value = "/getAgentStat", method = RequestMethod.GET)
     @ResponseBody
     public AgentStatChartGroup getAgentStat(
@@ -145,6 +146,7 @@ public class AgentStatController {
         return this.agentInfoService.getApplicationAgentList(ApplicationAgentList.Key.HOST_NAME, applicationName, to);
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params = {"application", "timestamp"})
     @ResponseBody
     public ApplicationAgentList getAgentList(
@@ -178,6 +180,7 @@ public class AgentStatController {
         return this.agentEventService.getAgentEvent(agentId, eventTimestamp, eventTypeCode);
     }
 
+    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
     @RequestMapping(value = "/getAgentEvents", method = RequestMethod.GET)
     @ResponseBody
     public List<AgentEvent> getAgentEvents(
@@ -188,4 +191,5 @@ public class AgentStatController {
         Range range = new Range(from, to);
         return this.agentEventService.getAgentEvents(agentId, range, excludeEventTypeCodes);
     }
+    
 }

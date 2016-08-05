@@ -16,24 +16,6 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.rpc.util.ClassUtils;
-import com.navercorp.pinpoint.rpc.util.MapUtils;
-import com.navercorp.pinpoint.rpc.util.StringUtils;
-import com.navercorp.pinpoint.web.service.AgentService;
-import com.navercorp.pinpoint.web.util.SimpleOrderedThreadPool;
-import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessage;
-import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
-import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageType;
-import com.navercorp.pinpoint.web.websocket.message.PongMessage;
-import com.navercorp.pinpoint.web.websocket.message.RequestMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.handler.TextWebSocketHandler;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -42,12 +24,33 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.handler.TextWebSocketHandler;
+
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.rpc.util.ClassUtils;
+import com.navercorp.pinpoint.rpc.util.MapUtils;
+import com.navercorp.pinpoint.rpc.util.StringUtils;
+import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
+import com.navercorp.pinpoint.web.service.AgentService;
+import com.navercorp.pinpoint.web.util.SimpleOrderedThreadPool;
+import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessage;
+import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
+import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageType;
+import com.navercorp.pinpoint.web.websocket.message.PongMessage;
+import com.navercorp.pinpoint.web.websocket.message.RequestMessage;
+
 /**
  * @Author Taejin Koo
  */
 public class ActiveThreadCountHandler extends TextWebSocketHandler implements PinpointWebSocketHandler {
 
-    private static final String APPLICATION_NAME_KEY = "applicationName";
+    public static final String APPLICATION_NAME_KEY = "applicationName";
     private static final String HEALTH_CHECK_WAIT_KEY = "pinpoint.healthCheck.wait";
 
     static final String API_ACTIVE_THREAD_COUNT = "activeThreadCount";
@@ -76,6 +79,9 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     private final long healthCheckDelay;
 
     private java.util.Timer reactiveTimer;
+    
+    @Autowired(required=false)
+    ServerMapDataFilter serverMapDataFilter;
 
     public ActiveThreadCountHandler(AgentService agentService) {
         this(DEFAULT_REQUEST_MAPPING, agentService);
@@ -192,6 +198,11 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     }
 
     private void handleRequestMessage0(WebSocketSession webSocketSession, RequestMessage requestMessage) {
+        if (serverMapDataFilter != null && serverMapDataFilter.filter(webSocketSession, requestMessage)) {
+            closeSession(webSocketSession, serverMapDataFilter.getCloseStatus(requestMessage));
+            return;
+        }
+        
         String command = requestMessage.getCommand();
 
         if (API_ACTIVE_THREAD_COUNT.equals(command)) {
@@ -206,6 +217,14 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
                     bindingResponseAggregator(webSocketSession, applicationName);
                 }
             }
+        }
+    }
+    
+    private void closeSession(WebSocketSession session, CloseStatus status) {
+        try {
+            session.close(status);
+        } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
         }
     }
 
@@ -362,13 +381,6 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
             }
         }
 
-        private void closeSession(WebSocketSession session, CloseStatus status) {
-            try {
-                session.close(status);
-            } catch (Exception e) {
-                logger.warn(e.getMessage(), e);
-            }
-        }
 
         private void sendPingMessage(WebSocketSession session, TextMessage pingMessage) {
             try {
