@@ -223,14 +223,16 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
     }
     
     private Map<String, String> splitQuery(String query) throws UnsupportedEncodingException {
-        Map<String, String> query_pairs = new LinkedHashMap<String, String>();
-        String[] pairs = query.split("&");
-        for (String pair : pairs) {
-            int idx = pair.indexOf("=");
-            query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
-        }
-        return query_pairs;
-    }
+		Map<String, String> query_pairs = new LinkedHashMap<String, String>();
+		if (query != null) {
+			String[] pairs = query.split("&");
+			for (String pair : pairs) {
+				int idx = pair.indexOf("=");
+				query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
+			}
+		}
+		return query_pairs;
+	}
 
     private void recordParentInfo(SpanRecorder recorder, IRequest request) {
         String parentApplicationName = request.getHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString());
