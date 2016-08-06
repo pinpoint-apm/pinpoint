@@ -9,6 +9,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanBitFiled;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanEventBitField;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanEventQualifierBitField;
+import com.navercorp.pinpoint.common.util.AnnotationTranscoder;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,8 @@ import java.util.List;
  */
 @Component
 public class SpanEncoderV0 implements SpanEncoder {
+
+    private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
 
     @Override
     public ByteBuffer encodeSpanQualifier(SpanEncodingContext<SpanBo> encodingContext) {
@@ -353,8 +356,13 @@ public class SpanEncoderV0 implements SpanEncoder {
 
                 // first annotation
                 buffer.putSVInt(current.getKey());
-                buffer.putByte(current.getRawValueType());
-                buffer.putPrefixedBytes(current.getByteValue());
+
+                Object value = current.getValue();
+                byte valueTypeCode = transcoder.getTypeCode(value);
+                byte[] valueBytes = transcoder.encode(value, valueTypeCode);
+
+                buffer.putByte(valueTypeCode);
+                buffer.putPrefixedBytes(valueBytes);
 //                else {
 //                    writeDeltaAnnotationBo(buffer, prev, current);
 //                }
@@ -374,8 +382,13 @@ public class SpanEncoderV0 implements SpanEncoder {
         final int prevKey = prev.getKey();
         final int currentKey = current.getKey();
         buffer.putSVInt(currentKey - prevKey);
-        buffer.putByte(current.getRawValueType());
-        buffer.putPrefixedBytes(current.getByteValue());
+
+        Object value = current.getValue();
+        byte valueTypeCode = transcoder.getTypeCode(value);
+        byte[] valueBytes = transcoder.encode(value, valueTypeCode);
+
+        buffer.putByte(valueTypeCode);
+        buffer.putPrefixedBytes(valueBytes);
     }
 
 

@@ -358,7 +358,6 @@ public class SpanDecoderV0 implements SpanDecoder {
         byte[] valueBytes = buffer.readPrefixedBytes();
         Object value = transcoder.decode(valueType, valueBytes);
 
-        current.setValueType(valueType);
         current.setValue(value);
         return current;
     }
@@ -373,7 +372,7 @@ public class SpanDecoderV0 implements SpanDecoder {
         byte valueType = buffer.readByte();
         byte[] valueBytes = buffer.readPrefixedBytes();
         Object value = transcoder.decode(valueType, valueBytes);
-        annotation.setValueType(valueType);
+
         annotation.setValue(value);
         return annotation;
     }
