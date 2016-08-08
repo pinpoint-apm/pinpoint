@@ -19,17 +19,13 @@ package com.navercorp.pinpoint.web.controller;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.MapWrap;
-import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.MapService;
 import com.navercorp.pinpoint.web.util.Limiter;
 import com.navercorp.pinpoint.web.util.TimeUtils;
-import com.navercorp.pinpoint.web.view.ResponseTimeViewModel;
+import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,15 +35,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
-
-import java.io.IOException;
-import java.util.List;
-
 
 /**
  * @author emeroad
- * @author netspider
+ * @author netspid
  * @author jaehong.kim
  */
 @Controller
@@ -144,7 +135,7 @@ public class MapController {
         logger.info("getServerMap() application:{} range:{} searchOption:{}", application, range, searchOption);
 
         ApplicationMap map = mapService.selectApplicationMap(application, range, searchOption);
-
+        
         return new MapWrap(map);
     }
 
@@ -225,4 +216,22 @@ public class MapController {
         Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
         return selectApplicationMap(application, range, searchOption);
     }
+
+    @RequestMapping(value = "/getResponseTimeHistogramData", method = RequestMethod.GET, params = "serviceTypeName")
+    @ResponseBody
+    public ApplicationTimeHistogramViewModel getResponseTimeHistogramData(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam("serviceTypeName") String serviceTypeName,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to) {
+        final Range range = new Range(from, to);
+        dateLimit.limit(range);
+
+        Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+
+        ApplicationTimeHistogramViewModel applicationTimeHistogramViewModel = mapService.selectResponseTimeHistogramData(application, range);
+
+        return applicationTimeHistogramViewModel;
+    }
+
 }

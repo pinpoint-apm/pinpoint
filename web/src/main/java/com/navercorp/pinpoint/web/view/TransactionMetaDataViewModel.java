@@ -16,8 +16,8 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +52,7 @@ public class TransactionMetaDataViewModel {
 
         @JsonProperty("traceId")
         public String getTraceId() {
-            return span.getTransactionId();
+            return TransactionIdUtils.formatString(span.getTransactionId());
         }
 
         @JsonProperty("collectorAcceptTime")

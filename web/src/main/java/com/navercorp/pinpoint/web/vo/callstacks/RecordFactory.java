@@ -1,21 +1,41 @@
+/*
+ * Copyright 2014 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.navercorp.pinpoint.web.vo.callstacks;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.navercorp.pinpoint.common.bo.AnnotationBo;
-import com.navercorp.pinpoint.common.bo.ApiMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.util.AnnotationUtils;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.server.util.AnnotationUtils;
 import com.navercorp.pinpoint.common.util.ApiDescription;
-import com.navercorp.pinpoint.common.util.ApiDescriptionParser;
+import com.navercorp.pinpoint.common.server.util.ApiDescriptionParser;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeNode;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+/**
+ * @author minwoo.jung
+ */
 public class RecordFactory {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -55,10 +75,42 @@ public class RecordFactory {
                 align.getTransactionId(), 
                 align.getSpanId(), 
                 align.getExecutionMilliseconds(), 
-                api.type);
+                api.type,
+                true);
         record.setSimpleClassName(api.className);
         record.setFullApiDescription(api.description);
 
+        return record;
+    }
+    
+    public Record getFilteredRecord(final CallTreeNode node, String apiTitle) {
+        final SpanAlign align = node.getValue();
+        align.setId(getNextId());
+
+        final int parentId = getParentId(node);
+        Api api = getApi(align);
+        
+        final Record record = new Record(align.getDepth(), 
+                align.getId(), 
+                parentId, 
+                true, 
+                apiTitle, 
+                "", 
+                align.getStartTime(), 
+                align.getElapsed(), 
+                align.getGap(), 
+                "UNKNOWN", 
+                align.getApplicationId(), 
+                ServiceType.UNKNOWN,
+                "", 
+                false, 
+                false, 
+                align.getTransactionId(), 
+                align.getSpanId(), 
+                align.getExecutionMilliseconds(),  
+                0,
+                false);
+        
         return record;
     }
     
@@ -77,7 +129,8 @@ public class RecordFactory {
                 align.getTransactionId(), 
                 align.getSpanId(), 
                 align.getExecutionMilliseconds(),
-                0);
+                0,
+                true);
         
         return record;
     }
@@ -105,7 +158,7 @@ public class RecordFactory {
                         false, 
                         key.getName(), 
                         annotation.getValue().toString(), 
-                        0L, 0L, 0, null, null, null, null, false, false, null, 0, 0, 0);
+                        0L, 0L, 0, null, null, null, null, false, false, null, 0, 0, 0, annotation.isAuthorized());
                 list.add(record);
             }
         }
@@ -120,7 +173,7 @@ public class RecordFactory {
                 false, 
                 method, 
                 argument, 
-                0L, 0L, 0, null, null, null, null, false, false, null, 0, 0, 0);
+                0L, 0L, 0, null, null, null, null, false, false, null, 0, 0, 0, true);
     }
     
 

@@ -5,30 +5,29 @@
        xmlns:lang="http://www.springframework.org/schema/lang"
        xmlns:beans="http://www.springframework.org/schema/beans"
        xmlns:util="http://www.springframework.org/schema/util" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-       xmlns:hdp="http://www.springframework.org/schema/hadoop"
        xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
-		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-		http://www.springframework.org/schema/hadoop http://www.springframework.org/schema/hadoop/spring-hadoop.xsd">
+        http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
     <context:annotation-config/>
 
-	<!--
+        <!--
     <context:component-scan base-package="com.navercorp.pinpoint.web.dao.hbase,
-    									 com.navercorp.pinpoint.web.dao.mysql,
+                                         com.navercorp.pinpoint.web.dao.mysql,
                                          com.navercorp.pinpoint.web.service,
                                          com.navercorp.pinpoint.web.mapper,
                                          com.navercorp.pinpoint.web.filter" />
-	-->
+        -->
 
     <context:component-scan base-package="com.navercorp.pinpoint.web.dao.hbase,
                                          com.navercorp.pinpoint.web.service,
                                          com.navercorp.pinpoint.web.mapper,
                                          com.navercorp.pinpoint.web.filter,
-                                         com.navercorp.pinpoint.web.config
-                                         com.navercorp.pinpoint.web.view" />
+                                         com.navercorp.pinpoint.web.config,
+                                         com.navercorp.pinpoint.web.view,
+                                         com.navercorp.pinpoint.common.server.bo" />
 
     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
@@ -50,16 +49,11 @@
     <import resource="classpath:applicationContext-cache.xml" />
     <import resource="classpath:applicationContext-websocket.xml" />
 
-    <bean id="spanMapper" class="com.navercorp.pinpoint.web.mapper.SpanMapper"></bean>
-    <bean id="annotationMapper" class="com.navercorp.pinpoint.web.mapper.AnnotationMapper"></bean>
-    <bean id="spanAnnotationMapper" class="com.navercorp.pinpoint.web.mapper.SpanMapper">
-        <property name="annotationMapper" ref="annotationMapper"/>
+    <bean id="spanMapper" class="com.navercorp.pinpoint.web.mapper.SpanMapper">
     </bean>
 
 
     <bean id="jsonObjectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean">
-    </bean>
-    <bean id="nodeObjectMapperInitializer" class="com.navercorp.pinpoint.web.applicationmap.NodeObjectMapperInitializer">
     </bean>
     
     <bean id="rangeFactory" class="com.navercorp.pinpoint.web.vo.RangeFactory">
@@ -91,7 +85,7 @@
         <constructor-arg ref="config" />
     </bean>
 
-    <bean id="agentEventMessageDeserializer" class="com.navercorp.pinpoint.common.util.AgentEventMessageDeserializer">
+    <bean id="agentEventMessageDeserializer" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializer">
         <constructor-arg ref="commandHeaderTBaseDeserializerFactory"/>
     </bean>
 
@@ -105,23 +99,14 @@
     </bean>
     
     <bean id="spanServiceImpl" class="com.navercorp.pinpoint.web.service.SpanServiceImpl">
-        <property name="sqlMetaDataDao" ref="hbaseSqlMetaDataCompatibility"/>
-    </bean>
-    
-    <bean id="hbaseSqlMetaDataCompatibility" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlMetaDataCompatibility">
-        <property name="hbaseSqlMetaDataDao" ref="hbaseSqlMetaDataDao"/>
-        <property name="hbaseSqlMetaDataPastVersionDao" ref="hbaseSqlMetaDataPastVersionDao"/>
+        <property name="sqlMetaDataDao" ref="hbaseSqlMetaDataDao"/>
     </bean>
     
     <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlMetaDataDao">
         <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor2"></property>
         <property name="sqlMetaDataMapper" ref="sqlMetaDataMapper2"></property>
     </bean>
-    <bean id="hbaseSqlMetaDataPastVersionDao" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlMetaDataPastVersionDao">
-        <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor"></property>
-        <property name="sqlMetaDataMapper" ref="sqlMetaDataMapper"></property>
-    </bean>
-    
+
     <bean id="sqlMetaDataMapper" class="com.navercorp.pinpoint.web.mapper.SqlMetaDataMapper">
         <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor"></property>
     </bean>

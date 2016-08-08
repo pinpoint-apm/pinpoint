@@ -7,19 +7,14 @@
 	 * @name TransactionListCtrl
 	 * @class
 	 */
-	pinpointApp.constant('TransactionListConfig', {
-	    applicationUrl: '/transactionmetadata.pinpoint',
+	pinpointApp.constant("TransactionListConfig", {
+	    applicationUrl: "/transactionmetadata.pinpoint",
 	    MAX_FETCH_BLOCK_SIZE: 100,
-	    transactionIndex: {
-	        x: 0,
-	        y: 1,
-	        transactionId: 2,
-	        type: 3
-	    }
+		TRANSACTION_LIST_RESIZER: "transactionList.resizer"
 	});
 	
-	pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$location', '$routeParams', '$rootScope', '$timeout', '$window', '$http', 'webStorage', 'TimeSliderVoService', 'TransactionDaoService', 'AnalyticsService', 'helpContentService',
-	    function (cfg, $scope, $location, $routeParams, $rootScope, $timeout, $window, $http, webStorage, TimeSliderVoService, oTransactionDaoService, analyticsService, helpContentService) {
+	pinpointApp.controller("TransactionListCtrl", ["TransactionListConfig", "$scope", "$location", "locationService", "$routeParams", "$rootScope", "$timeout", "$window", "$http", "webStorage", "TimeSliderVoService", "TransactionDaoService", "AnalyticsService", "helpContentService",
+	    function (cfg, $scope, $location, locationService, $routeParams, $rootScope, $timeout, $window, $http, webStorage, TimeSliderVoService, oTransactionDaoService, analyticsService, helpContentService) {
 			analyticsService.send(analyticsService.CONST.TRANSACTION_LIST_PAGE);
 	        // define private variables
 	        var nFetchCount, nLastFetchedIndex, htTransactionInfo, htTransactionData, oTimeSliderVoService;
@@ -62,26 +57,34 @@
 						alertAndMove(helpContentService.transactionList.openError.noParent);
 					} else {
 						htTransactionInfo = getTransactionInfoFromURL();
-						htTransactionData = [[ aParamTransactionInfo[1], aParamTransactionInfo[2], aParamTransactionInfo[0] ]];
+						htTransactionData = [[ aParamTransactionInfo[0], aParamTransactionInfo[1], aParamTransactionInfo[2] ]];
 						initAndLoad( bHasTransactionInfo );
 					}
 				}
 
 	            $timeout(function () {
-	                $("#main-container").layout({
-	                    north__minSize: 20,
-	                    north__size: (window.innerHeight - 40) / 2,
-	//                north__spacing_closed: 20,
-	//                north__togglerLength_closed: 100,
-	//                north__togglerAlign_closed: "top",
-	                    center__maskContents: true // IMPORTANT - enable iframe masking
-	                });
+					var resizerY = webStorage.get( cfg.TRANSACTION_LIST_RESIZER ) === null ? (window.innerHeight - 40) / 2 : parseInt( webStorage.get( cfg.TRANSACTION_LIST_RESIZER ) );
+	                if( $("#main-container").length !== 0 ) {
+						$("#main-container").layout({
+							north__minSize: 20,
+							north__size: resizerY,
+							//                north__spacing_closed: 20,
+							//                north__togglerLength_closed: 100,
+							//                north__togglerAlign_closed: "top",
+							center__maskContents: true, // IMPORTANT - enable iframe masking
+							onresize: function () {
+								if (arguments[0] === "north") {
+									webStorage.add(cfg.TRANSACTION_LIST_RESIZER, arguments[2].innerHeight);
+								}
+							}
+						});
+					}
 	            }, 100);
 	
 	        }, 100);
 			alertAndMove = function( msg ) {
 				alert( msg );
-				$window.location.replace( $window.location.href.replace( "transactionList", "main" ) );
+				locationService.path( "/main/" + $routeParams.application + "/" + $routeParams.readablePeriod + "/" + $routeParams.queryEndDateTime ).replace();
 			};
 
 			initAndLoad = function(bHasTransactionInfo) {
@@ -92,16 +95,25 @@
 			};
 
 			hasParent = function() {
-				return !($window.opener == null);
+				return angular.isDefined( $window.opener );
 			};
 			hasValidParam = function() {
-				if ( $window.opener == null ) return false;
+				if ( angular.isUndefined( $window.opener ) || $window.opener === null ) return false;
 				var $parentParams = $window.opener.$routeParams;
-				return angular.isDefined($routeParams) &&
-						angular.isDefined($parentParams) &&
-						angular.equals($routeParams.application, $parentParams.application) &&
-						angular.equals($routeParams.readablePeriod, $parentParams.readablePeriod) &&
-						angular.equals($routeParams.queryEndDateTime, $parentParams.queryEndDateTime);
+				if ( angular.isDefined($routeParams) && angular.isDefined($parentParams) ) {
+					if ( $parentParams.readablePeriod === "realtime" ) {
+						if ( angular.equals($routeParams.application, $parentParams.application ) ) {
+							return true;
+						}
+					} else {
+						if ( angular.equals($routeParams.application, $parentParams.application) &&
+							angular.equals($routeParams.readablePeriod, $parentParams.readablePeriod) &&
+							angular.equals($routeParams.queryEndDateTime, $parentParams.queryEndDateTime) ) {
+							return true;
+						}
+					}
+				}
+				return false;
 			};
 
 	        /**
@@ -111,13 +123,24 @@
 	         */
 			getTransactionInfoFromWindow = function (windowName) {
 	            var t = windowName.split('|');
-	            return {
-	                applicationName: t[0],
-	                nXFrom: t[1],
-	                nXTo: t[2],
-	                nYFrom: t[3],
-	                nYTo: t[4]
-	            };
+				if (t.length === 5 ) {
+					return {
+						applicationName: t[0],
+						type: t[1],
+						min: t[2],
+						max: t[3],
+						agent: t[4]
+					};
+				} else {
+					return {
+						applicationName: t[0],
+						nXFrom: t[1],
+						nXTo: t[2],
+						nYFrom: t[3],
+						nYTo: t[4],
+						agent: t[5]
+					};
+				}
 	        };
 			getTransactionInfoFromURL = function() {
 				return {
@@ -145,7 +168,12 @@
 	         */
 	        getDataByTransactionInfo = function (t) {
 	            var oScatter = $window.opener.htoScatter[t.applicationName];
-	            return oScatter.getDataByXY(t.nXFrom, t.nXTo, t.nYFrom, t.nYTo);
+				if ( t.type ) {
+					return oScatter.getDataByRange( t.type, t.min, t.max, t.agent );
+				} else {
+					return oScatter.getDataByXY( t.nXFrom, t.nXTo, t.nYFrom, t.nYTo, t.agent );
+				}
+
 	        };
 	
 	        /**
@@ -162,7 +190,7 @@
 	         */
 	        getQuery = function () {
 	            if (!htTransactionData) {
-	                $window.alert("Query failed - Query parameter cache deleted.\n\nPossibly due to scatter chart being refreshed.")
+	                $window.alert("Query failed - Query parameter cache deleted.\n\nPossibly due to scatter chart being refreshed.");
 	                return false;
 	            }
 	            var query = [];
@@ -170,9 +198,9 @@
 	                if (i > 0) {
 	                    query.push("&");
 	                }
-	                query = query.concat(["I", j, "=", htTransactionData[i][cfg.transactionIndex.transactionId]]);
-	                query = query.concat(["&T", j, "=", htTransactionData[i][cfg.transactionIndex.x]]);
-	                query = query.concat(["&R", j, "=", htTransactionData[i][cfg.transactionIndex.y]]);
+	                query = query.concat(["I", j, "=", htTransactionData[i][0]]);
+	                query = query.concat(["&T", j, "=", htTransactionData[i][1]]);
+	                query = query.concat(["&R", j, "=", htTransactionData[i][2]]);
 	                nLastFetchedIndex++;
 	            }
 	            nFetchCount++;

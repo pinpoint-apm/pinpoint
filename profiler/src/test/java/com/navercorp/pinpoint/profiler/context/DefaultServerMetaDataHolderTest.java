@@ -35,7 +35,6 @@ import org.junit.Test;
 
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.test.TestableServerMetaDataListener;
 
 /**
@@ -83,7 +82,7 @@ public class DefaultServerMetaDataHolderTest {
                     try {
                         startLatch.await();
                         metaDataContext.addServiceInfo(serviceName, serviceLibs);
-                        metaDataContext.publishServerMetaData();
+                        metaDataContext.notifyListeners();
                     } catch (final Throwable t) {
                         exceptions.add(t);
                     } finally {
@@ -129,7 +128,7 @@ public class DefaultServerMetaDataHolderTest {
                         try {
                             startLatch.await();
                             metaDataContext.addServiceInfo(serviceName, serviceLibs);
-                            metaDataContext.publishServerMetaData();
+                            metaDataContext.notifyListeners();
                         } catch (Throwable t) {
                             exceptions.add(t);
                         } finally {

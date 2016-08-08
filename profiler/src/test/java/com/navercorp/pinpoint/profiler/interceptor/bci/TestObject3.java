@@ -21,6 +21,8 @@ package com.navercorp.pinpoint.profiler.interceptor.bci;
 public class TestObject3 {
     private String value;
     private int intValue;
+    private int[] intValues;
+    private Integer[] integerValues;
 
     public void setValue(String value) {
         this.value = value;
@@ -28,6 +30,14 @@ public class TestObject3 {
     
     public void setIntValue(int value) {
         this.intValue = value;
+    }
+
+    public void setIntValues(int[] values) {
+        this.intValues = values;
+    }
+
+    public void setIntegerValues(Integer[] values) {
+        this.integerValues = values;
     }
 
     @Override

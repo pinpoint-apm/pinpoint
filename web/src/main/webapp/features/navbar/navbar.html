@@ -1,12 +1,12 @@
 <div class="navbar main-navbar bs-docs-nav">
     <div class="nav-container">
-        <a href="/" class="navbar-brand"><img class="brand" src="/images/logo2.png" width="116" height="18"><div class="beta">beta</div></a>
+        <a href="/" class="navbar-brand"><img class="brand" src="/images/logo2.png" width="116" height="18"></a>
 
         <div class="nav-collapse">
             <form class="navbar-form pull-left">
                 <ul class="nav navbar-nav">
                     <li style="margin-top:0px;">
-                        <div ng-hide="showStaticApplication" style="margin-top:5px;" id="navbar_application">
+                        <div style="margin-top:5px;" id="navbar_application">
                             <select class="application" ng-disabled="disableApplication" id="navbar_application">
                             	<option></option>
                             	<optgroup label="Favorite">
@@ -18,10 +18,9 @@
                             </select>
                             <img ng-hide="hideFakeApplication" src="images/navbar_application_fake.png" style="position:absolute;left:0;top:5px;">
                         </div>
-                        <div ng-show="showStaticApplication" class="btn btn-sm disabled" style="margin-top:5px;background-color:#f5f5f5;opacity:1;filter:alpha(opacity=100);">{{applicationName}}</div>
                     </li>
-                    <li class="divider-vertical"></li>
-                    <li id="navbar_depth" class="inout-bound" ng-hide="showStaticApplication">
+                    <li class="divider-vertical" ng-hide="bIsInspector"></li>
+                    <li id="navbar_depth" class="inout-bound" ng-hide="bIsInspector">
                     	<div class="btn-group btn-group-sm input-group input-group-sm" style="margin-top:0px;width:102px;">
                             <button type="button" class="btn btn-default">
                                 <img src="images/inbound.png" width="18px" height="18px"/> {{callee}} <img src="images/outbound.png" width="18px" height="18px"/> {{caller}}
@@ -45,17 +44,18 @@
                             </div>
                         </div>
                     </li>	
-                    <li class="divider-vertical" style="margin-left:3px;margin-right:3px" ng-hide="showStaticApplication"></li>
-                    <li class="for-datetimepicker" id="navbar_period" ng-hide="showStaticApplication">
+                    <li class="divider-vertical"></li>
+                    <li class="for-datetimepicker" id="navbar_period">
                         <div ng-show="periodType != 'range'">
-                            <div class="btn-group btn-group-sm" style="margin-top:0px;width:350px;float:left;">
+                            <div class="btn-group btn-group-sm" style="margin-top:0px;width:386px;float:left;">
                                 <button type="button" class="btn btn-success" ng-click="togglePeriod('range')"><span class="glyphicon glyphicon-th-list"></span></button>
+								<button type="button" class="btn btn-default" ng-click="setRealtime()" ng-hide="bIsInspector" ng-disabled="periodDelay" ng-class="isRealtime() ? 'blinkblink btn-info' : ''" style="padding-top:3px;padding-bottom:3px;line-height:1.1;font-size:10px">REAL<br/>TIME</button>
                                 <button type="button" class="btn btn-default" ng-repeat="period in aReadablePeriodList" ng-class="getPeriodClass( period )" ng-click="setPeriod(period)" ng-disabled="periodDelay">{{period == "5m" ? "Last " + period : period}}</button>
                             </div>
-                            <div class="btn-group btn-group-sm input-group input-group-sm" style="margin-top:0px;width:146px;" ng-show="showUpdate()">
+                            <div class="btn-group btn-group-sm input-group input-group-sm" style="margin-top:0px;padding-left:6px;width:146px;" ng-show="showUpdate()">
                                 <span class="input-group-addon">
                                     <label style="margin:0;">
-                                        <input type="checkbox" ng-model="autoUpdate"> Update
+                                        <input type="checkbox" ng-model="autoUpdate" ng-click="changeUpdateSetting()"> Update
                                     </label>
                                 </span>
                                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">

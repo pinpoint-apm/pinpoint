@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.plugin.okhttp.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -36,7 +35,6 @@ public class HttpEngineReadResponseMethodInterceptor implements AroundIntercepto
 
     private TraceContext traceContext;
     private MethodDescriptor methodDescriptor;
-    private InterceptorScope interceptorScope;
     private final boolean statusCode;
 
     public HttpEngineReadResponseMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, boolean statusCode) {

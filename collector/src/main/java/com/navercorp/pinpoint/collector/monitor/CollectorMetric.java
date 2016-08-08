@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.monitor;
 
 import com.codahale.metrics.JvmAttributeGaugeSet;
+import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.ScheduledReporter;
 import com.codahale.metrics.Slf4jReporter;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -46,10 +48,12 @@ public class CollectorMetric {
     @Autowired
     private MetricRegistry metricRegistry;
 
+    @Autowired(required = false)
+    private HBaseAsyncOperationMetrics hBaseAsyncOperationMetrics;
+
     private ScheduledReporter reporter;
 
     private final boolean isEnable = isEnable0(REPORTER_LOGGER_NAME);
-
 
     @PostConstruct
     public void start() {
@@ -76,8 +80,14 @@ public class CollectorMetric {
         metricRegistry.register("jvm.vm", new JvmAttributeGaugeSet());
         metricRegistry.register("jvm.garbage-collectors", new GarbageCollectorMetricSet());
         metricRegistry.register("jvm.thread-states", new ThreadStatesGaugeSet());
-    }
 
+        if (hBaseAsyncOperationMetrics != null) {
+            Map<String, Metric> metrics = hBaseAsyncOperationMetrics.getMetrics();
+            for (Map.Entry<String, Metric> metric : metrics.entrySet()) {
+                metricRegistry.register(metric.getKey(), metric.getValue());
+            }
+        }
+    }
 
     private void initReporters() {
         Slf4jReporter.Builder builder = Slf4jReporter.forRegistry(metricRegistry);
@@ -99,4 +109,5 @@ public class CollectorMetric {
         reporter.stop();
         reporter = null;
     }
+
 }

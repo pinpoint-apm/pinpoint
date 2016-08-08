@@ -16,17 +16,17 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
+import com.navercorp.pinpoint.profiler.util.ByteBufferUtils;
+import com.navercorp.pinpoint.profiler.util.ObjectPool;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.SpanStreamConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.profiler.util.ObjectPool;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.SpanStreamConstants;
 
 /**
  * @author Taejin Koo
@@ -117,7 +117,7 @@ public class SpanStreamSendData {
 
         chunkCount++;
 
-        ByteBuffer chunkFlagBuffer = encoder.createByteBuffer(SpanStreamConstants.DEFAULT_CHUNK_FLAG_BUFFER_SIZE);
+        ByteBuffer chunkFlagBuffer = ByteBufferUtils.createByteBuffer(SpanStreamConstants.DEFAULT_CHUNK_FLAG_BUFFER_SIZE);
         components[componentsIndex++] = chunkFlagBuffer;
 
         int usedBufferLength = 0;
@@ -130,7 +130,7 @@ public class SpanStreamSendData {
             usedBufferLength += buffer.remaining();
         }
 
-        encoder.putShort(chunkFlagBuffer, (short) (usedBufferLength));
+        ByteBufferUtils.putShort(chunkFlagBuffer, (short) (usedBufferLength));
         chunkFlagBuffer.flip();
 
         this.availableBufferCapacity = this.availableBufferCapacity - usedBufferLength - SpanStreamConstants.DEFAULT_CHUNK_FLAG_BUFFER_SIZE;

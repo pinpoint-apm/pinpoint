@@ -16,17 +16,54 @@
 
 package com.navercorp.pinpoint.plugin.spring.boot;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+
+import java.security.ProtectionDomain;
 
 /**
  * @author HyunGil Jeong
  */
-public class SpringBootPlugin implements ProfilerPlugin {
+public class SpringBootPlugin implements ProfilerPlugin, TransformTemplateAware {
+
+    private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         context.addApplicationTypeDetector(new SpringBootDetector());
+
+        addLauncherEditor();
     }
 
+    @Override
+    public void setTransformTemplate(TransformTemplate transformTemplate) {
+        this.transformTemplate = transformTemplate;
+    }
+
+    private void addLauncherEditor() {
+        transformTemplate.transform("org.springframework.boot.loader.Launcher", new TransformCallback() {
+
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
+                                        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+                                        byte[] classfileBuffer) throws InstrumentException {
+
+                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+                InstrumentMethod method = target.getDeclaredMethod("launch", "java.lang.String[]", "java.lang.String", "java.lang.ClassLoader");
+                if (method != null) {
+                    method.addInterceptor("com.navercorp.pinpoint.plugin.spring.boot.interceptor.LauncherLaunchInterceptor");
+                }
+
+                return target.toBytecode();
+            }
+
+        });
+    }
 }

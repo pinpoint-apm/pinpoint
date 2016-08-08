@@ -1,114 +1,47 @@
-.tabs-left > .nav-tabs {
-  border-bottom: 0;
+#pinpoint-configuration .modal-header {
+    background-color: #384258 !important;
+    color: #FFF;
 }
-
-.tab-content > .tab-pane,
-.pill-content > .pill-pane {
-  display: none;
+#pinpoint-configuration .modal-title {
+	font-size: 20px;
 }
-
-.tab-content > .active,
-.pill-content > .active {
-  display: block;
+#pinpoint-configuration .modal-menu {
+    font-size: 16px;
+    height:36px;
+    color: #a2a2a2;
+    border-bottom: 1px solid #E5E5E5;
 }
-
-.tabs-left > .nav-tabs > li {
-  float: none;
-}
-
-.tabs-left > .nav-tabs > li > div {
-  min-width: 74px;
-  margin-right: 0;
-  margin-bottom: 3px;
-}
-
-.tabs-left > .nav-tabs {
-  float: left;
-  margin-right: 19px;
-  border-right: 1px solid #ddd;
-}
-
-.tabs-left > .nav-tabs > li > div {
-  margin-right: -1px;
-  border-radius: 4px 0 0 4px;
-}
-.tabs-left > .nav-tabs > li > div {
-	padding: 10px 15px;
-	border-color: #eeeeee #dddddd #eeeeee #eeeeee;
-}
-.tabs-left > .nav-tabs > li > a:hover,
-.tabs-left > .nav-tabs > li > a:focus {
-  border-color: #eeeeee #dddddd #eeeeee #eeeeee;
-}
-
-.tabs-left > .nav-tabs .active > div {
-  	border-color: #ddd transparent #ddd #ddd;
-  	*border-right-color: #ffffff;
-  	color: #555;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-bottom-color: transparent;
-    cursor: pointer;
-}
-.tabs-left > .nav-tabs .active > a,
-.tabs-left > .nav-tabs .active > a:hover,
-.tabs-left > .nav-tabs .active > a:focus {
-  	border-color: #ddd transparent #ddd #ddd;
-  	*border-right-color: #ffffff;
-}
-
-#pinpoint-configuration .modal-header .modal-title {
-	font-weight: bold;
-	font-size: 22px;
-}
-#pinpoint-configuration .modal-header ul {
+#pinpoint-configuration .modal-menu ul {
 	list-style-type: none;
-	padding: 0px;
-	
+	padding: 0px 0px 0px 8px;
 }
-#pinpoint-configuration .modal-header li {
+#pinpoint-configuration .modal-menu li {
 	float: left;
 	padding: 2px 10px 2px 10px;
 	cursor: pointer;
 }
-#pinpoint-configuration .modal-header li.description {
-	color: #46D030;
-	font-size: 12px;
-}
-#pinpoint-configuration .modal-header li.active {
-	background-color:gray;
-	color: white;
+#pinpoint-configuration .modal-menu li.active {
+	color: #686868;
 }
 #pinpoint-configuration .modal-body {
-	background-color: #e9eaed;
+	background-color: #FFF;
 }
 #pinpoint-configuration .modal-body > div {
 	height: 500px;
 }
 	
 
-#pinpoint-configuration .header-blue {
-	background-color: #EEE;
-}
-#pinpoint-configuration .header-sky {
-	background-color: #EEE;
-}
 #pinpoint-configuration .hide-me {
 	display:none;
 }
 
-#pinpoint-configuration .header-orange{ 
-	background-color: #EEE;
-}
 #pinpoint-configuration .some-list {
 	float: left;
 	left: 0px;
 	width: 240px;
 	height: 500px;
 	background-color: #FFF;
-	border: 1px solid #FFF;
-	border-color: #e5e6e9 #dfe0e4 #d0d1d5;
-	border-radius: 3px;
+	border: 1px solid #E2E2E2;
 }
 #pinpoint-configuration .some-list .outer-wrapper {
 	float: left;
@@ -116,27 +49,20 @@
 	width: 100%;
 	height: 100%;
 }
-#pinpoint-configuration .some-list .btn{
-	border-radius: 0px;
-	font-size: 16px;
-	padding-top: 3px;
-	padding-bottom: 3px;
-}
-
 #pinpoint-configuration .some-list-header {
-	text-align: center;
-	vertical-align: middle;
-	font-size: 16px;
-	height: 30px;
+	height: 41px;
+    padding: 10px 10px 0px 10px;
+    font-size: 16px;
+    border-bottom: 1px solid #E2E2E2;
+    vertical-align: middle;
+    background-color: #FAFAFA;
 }
-
-#pinpoint-configuration .some-list-header button.btn {
-	padding-top: 4px;
-	padding-bottom: 3px;
-	border:none;
-}
-#pinpoint-configuration .some-list-header .title { 
-	line-height: 30px;
+#pinpoint-configuration .some-list-search {
+    height: 41px;
+    font-size: 16px;
+    padding: 3px 4px 0px 4px;
+    border-bottom: 1px solid #E2E2E2;
+    vertical-align: middle;
 }
 #pinpoint-configuration .left { 
 	float: left;
@@ -151,64 +77,100 @@
 #pinpoint-configuration .some-list-content .wrapper {
 	position: relative;
 	width: 100%;
-	height: 428px;
+	height: 416px;
 	overflow-y: auto;
 }
-#pinpoint-configuration .some-list-content ul { 
-	list-style-type: none;
+#pinpoint-configuration .some-list-content ul {
 	padding:0px 0px 4px 0px;
+    list-style-type: none;
 }
 #pinpoint-configuration .some-list-content li {
 	cursor: pointer;
-	padding: 8px 0px 0px 4px;
-	border-bottom: 1px solid #F8F8F8;
+    height: 32px;
+	padding: 5px 0px 0px 10px;
+    background-color:#FAFAFA;
+}
+#pinpoint-configuration .some-list-content li input[type=text] {
+    width: 220px;
+    color: #000;
+    display: none;
+}
+#pinpoint-configuration .some-list-content li input[type=checkbox] {
+    float: left;
+    margin-top: 4px;
+    line-height: 12px;
 }
 #pinpoint-configuration .some-list-content li.remove {
-	background-color: #EFABAB;
+    background-color: #FEF4F4;
+}
+#pinpoint-configuration .some-list-content li.edit {
+    background-color: #F3FBFF;
 }
 #pinpoint-configuration .some-list-content li.remove span.contents {
-	text-decoration: line-through;
-}
-#pinpoint-configuration .some-list-content li.remove button {
-	margin-top: -7px;
-	padding: 1px 8px 1px 8px;
-}
-#pinpoint-configuration .some-list-content li button.move  {
-	padding: 3px 2px 3px 0px;
-	margin-top: -8px;
-	margin-right: 2px;
-	margin-left: -8px;
-	border: none;
-}
-#pinpoint-configuration .some-list-content li button.edit-user {
-	margin-top: 0px;
-	margin-right: 2px;
-	padding: 1px 3px 3px 1px;
-	font-size: 6px;
+    color: #EF4B55;
 }
 
-#pinpoint-configuration .some-list-content li button.edit {
-	margin-top: -8px;
-	margin-right: 2px;
-	padding: 5px 3px 7px 4px;
-	font-size: 6px;
-	margin-left: -4px;
-}
 
 #pinpoint-configuration .some-list-content li.selected {
-	background-color: #000;
+	background-color: #46BCFD;
 	color: #FFF;
 }
 #pinpoint-configuration .some-list-content li.selected span.remove {
-	color: #FFF;
+    display: none;
 }
-#pinpoint-configuration .some-list-content li:hover {
-	background-color: #928484;
-	color: #FFF;
+#pinpoint-configuration .some-list-content li.selected span.edit {
+    display:none;
 }
-#pinpoint-configuration .some-list-content li.remove:hover {
-	background-color: #EFABAB;
-	color: #000;
+#pinpoint-configuration .some-list-content span.remove,
+#pinpoint-configuration .some-list-content span.remove-cancel,
+#pinpoint-configuration .some-list-content span.edit,
+#pinpoint-configuration .some-list-content span.edit-confirm {
+    float: right;
+    color: #999999;
+    cursor: pointer;
+    margin-top: 6px;
+    margin-right: 6px;
+    line-height: 12px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+#pinpoint-configuration .some-list-content table span.remove,
+#pinpoint-configuration .some-list-content table span.remove-cancel,
+#pinpoint-configuration .some-list-content table span.edit,
+#pinpoint-configuration .some-list-content table span.edit-confirm {
+    float: none;
+}
+#pinpoint-configuration .some-list-content li span.remove-confirm {
+    color: #F00 !important;
+}
+
+#pinpoint-configuration .some-list-content li:hover span {
+    color: #000;
+}
+#pinpoint-configuration .some-list-content li:hover span.remove {
+    color: #000;
+}
+#pinpoint-configuration .some-list-content li:hover span.edit {
+    color: #000;
+}
+#pinpoint-configuration .some-list-content li.new-group {
+    background-color: #F3FBFF;
+}
+#pinpoint-configuration .some-list-content li.new-group:hover span.remove {
+    color: #000000;
+}
+#pinpoint-configuration .some-list-content li.new-group:hover span.edit {
+    color: #000000;
+}
+
+#pinpoint-configuration .some-list-content li.new-group span.contents {
+    display: none;
+}
+#pinpoint-configuration .some-list-content li.new-group input {
+    width: 210px;
+    color: #000;
+    display: inline-block;
+    border: 1px solid #CCC;
 }
 #pinpoint-configuration .some-list-content .wrapper .empty-list {
 	text-align: center;
@@ -219,29 +181,42 @@
 #pinpoint-configuration .some-list-content.move-some-where li span {
 	margin-left: 4px;
 }
+#pinpoint-configuration ._disable-check li input[type=checkbox] {
+    display: none;
+}
 #pinpoint-configuration .some-loading {
 	position:relative;
-	bottom: 1000px;
+	bottom: 470px;
 	left: 0px;
 	width: 100%;
-	height: 100%;
+	height: 416px;
 	text-align: center;
 	background: rgba(256, 256, 256, 0.8);
 }
+#pinpoint-configuration .some-guide {
+    left: 0px;
+    color: #46BCFD;
+    width: 100%;
+    height: 416px;
+    bottom: 470px;
+    position: relative;
+    font-size: 14px;
+    text-align: center;
+    padding-top: 40%;
+}
 #pinpoint-configuration .some-alert {
-	position:absolute;
-	bottom: 0px;
-	left: 0px;
-	width: 100%;
-	height: 50px;
-	text-align: center;
-	background: #c9de96;
-	background: linear-gradient(to bottom, #627d4d 0%,#1f3b08 100%);
+    position:relative;
+    bottom: 470px;
+    left: 0px;
+    width: 100%;
+    height: 416px;
+    text-align: center;
+	background: rgba(146, 146, 146, 0.9);
 }
 #pinpoint-configuration .some-alert span.message {
 	position: absolute;
 	padding: 0px 6px 0px 6px;
-	color: #FFF900;
+	color: #9A0707;
 	width: 100%;
 	left: 0px;
 	top:40px;
@@ -254,109 +229,11 @@
 	font-weight: bold;
 	padding-right: 4px;
 }
-
-#pinpoint-configuration .some-loading.has-not-edit {
-	bottom: 500px;
-}
 #pinpoint-configuration .some-loading div {
-	margin-top: 90%;
-}
-#pinpoint-configuration .some-edit-content {
-	position:relative;
-	bottom: 500px;
-	left: 0px;
-	width: 100%;
-	height: 100%;
-	background: rgba(0, 0, 0, 0.7);
-}
-#pinpoint-configuration .some-edit-content > div:first-child {
-	padding-top: 50%;
-	text-align:center;
-}
-#pinpoint-configuration .some-edit-content .title-message {
-	color: #46D030;;
-	font-size: 12px;
-	padding-bottom: 4px;
-}
-#pinpoint-configuration .some-edit-content input[type=text] {
-	width: 90%;
-	height: 28px;
-	border: none;
-	font-size: 16px;
-	text-align: center;
-	margin-top: 1px;
-	border-radius: 4px;
-}
-#pinpoint-configuration .some-edit-content input[type=number], #pinpoint-configuration .some-edit-content textarea {
-	font-size: 16px;
-	border-radius: 4px;
-	border: none;
-}
-#pinpoint-configuration .some-edit-content input[type=checkbox] {
-	font-size: 30px;
-}
-#pinpoint-configuration .some-edit-content label {
-	font-weight: normal;
-	padding-left: 4px;
-	color: #FFF;
-}
-#pinpoint-configuration .some-edit-content.pinpoint .edit-wrapper {
-	text-align: right;
-}
-#pinpoint-configuration .some-edit-content.pinpoint input[type=text] {
-	width: 70%;
-	position:relative;
-	right: 0px;
-	margin-right: 4px;
-}
-#pinpoint-configuration .some-edit-content.pinpoint span.title {
-	color: #FFF;
-	margin-right: 4px;
-}
-/*
-#pinpoint-configuration .some-list-content li:nth-child(even) {
-	background-color: #F8F8F8;
-}
-*/
-#pinpoint-configuration .some-list-content li .remove {
-	float: right;
-	color: #AAA;
-	cursor: pointer;
-	margin-top: 4px;
-	margin-right: 8px;
-	line-height: 12px;
-	padding-left: 4px;
-	padding-right: 4px;
-}
-#pinpoint-configuration .some-list-content li .remove:hover {
-	color: red;
-	font-weight: bold;
+	margin-top: 50%;
 }
 #pinpoint-configuration .some-list-content li span.right {
 	margin-top: -2px;
-}
-#pinpoint-configuration .some-list .filter-input {
-	position: relative;
-	bottom: -16px;
-	width: 100%;
-	background-color: #EEE;
-}
-#pinpoint-configuration .some-list .filter-input input {
-	width: 66%;
-	height: 25px;
-	padding: 1px 0px 1px 0px;
-	margin-left: -1px;
-}
-#pinpoint-configuration .some-list .filter-input button {
-	float: right;
-	padding : 0px 9px 0px 9px;
-	margin-top: 0px;
-}
-#pinpoint-configuration .some-list .filter-input select {
-	height: 22px;
-	margin-top: 1px;
-	margin-left: -1px;
-	border-radius: 0px 0px 0px 0px;
 }
 #pinpoint-configuration .pinpoint-user-list {
 	float: right;
@@ -364,9 +241,6 @@
 }
 
 /* 테이블 관련 */
-#pinpoint-configuration .tabbable {
-	float: left;
-}
 #pinpoint-configuration .some-table {
 	display: block;
 	width: 100%;
@@ -375,68 +249,45 @@
 	display: block;
 	width: 100%;
 	table-layout: fixed;
-	padding-right: 8px;
+    padding-left: 2px;
+	padding-right: 2px;
 }
 #pinpoint-configuration .some-table .some-list-content thead tr {
 	height: 34px;
 	font-size: 14px;
-	color: #5bc0de;
+	color: #333;
 	padding-right: 10px;
 	line-height: 32px;
 }
 #pinpoint-configuration .some-table .some-list-content thead th {
 	font-weight: normal !important;
+    text-align: left;
+    padding-left: 1px;
 }
 #pinpoint-configuration .some-table .some-list-content tbody tr {
-	height: 30px;
-	padding-right: 10px;
-	border-bottom: 1px solid #F8F8F8;
+	height: 32px;
+    color: #9A9A9A;
 	cursor: pointer;
-}
-#pinpoint-configuration .some-table .some-list-content .wrapper tbody tr:hover {
-	background-color: #928484;
-	color: #FFF;
-}
-#pinpoint-configuration .some-table .some-list-content .wrapper tbody tr td:first-child {
-	text-align: left;
-	padding-left: 4px;
-}
-#pinpoint-configuration .some-table .some-list-content .wrapper tbody tr td:last-child {
-	padding-right: 10px;
-	padding-left: 5px;
-}
-#pinpoint-configuration .some-table .some-list-content .wrapper tbody tr.remove {
-	background-color: #EFABAB;
-	text-decoration: line-through;
-}
-#pinpoint-configuration .some-table .some-list-content .wrapper tbody td.remove {
-	position: absolute;
-	right: 24px;
-}
-#pinpoint-configuration .some-table .some-list-content .wrapper tbody button.edit {
-	padding: 6px 3px 7px 4px;
-	font-size: 6px;
-	margin-top: -2px;
-	margin-left: -4px;
-	margin-right: 2px;
+    background-color: #FAFAFA;
 }
 
-#pinpoint-configuration .some-table .filter-input {
-	position: relative;
-	bottom: -14px;
-	width: 100%;
+#pinpoint-configuration .some-list-content tr.remove {
+    background-color: #FEF4F4;
 }
-#pinpoint-configuration .some-table .filter-input tbody tr {
-	height: 24px;
+#pinpoint-configuration .some-list-content tr.remove td {
+    background-color: #FEF4F4;
+    color: #EF4B55;
+}
+#pinpoint-configuration .some-list-content tr span.remove-confirm {
+    color: #F00 !important;
 }
 
-#pinpoint-configuration div.popover {
-	color: #000;
+#pinpoint-configuration .some-table .some-list-content tbody td {
+    padding: 0px 0px 4px 1px;
+    text-align: left;
 }
-#pinpoint-configuration div.popover .popover-title{
-	display: none;
-}
-#pinpoint-configuration .some-table .some-list-content th, #pinpoint-configuration .some-table .some-list-content td {
+#pinpoint-configuration .some-table .some-list-content th,
+#pinpoint-configuration .some-table .some-list-content td {
 	overflow: hidden;
 	word-wrap: normal;
 	text-align: center;
@@ -444,34 +295,113 @@
 	text-overflow: ellipsis;
 	vertical-align: bottom;
 }
-#pinpoint-configuration .some-table .some-list-content .remove {
-	color: #AAA;
-	cursor: pointer;
+#application-config .application-group {
+    left: 0px;
+    float: left;
+    width: 310px;
+    height: 500px;
+    border: 1px solid #E2E2E2;
+    background-color: #FFF;
 }
-#pinpoint-configuration .some-table .some-list-content .remove:hover {
-	color: red;
-	font-weight: bold;
+#application-config .application-group .filtering {
+    width: 100%;
+    height: 41px;
+    padding: 3px 4px 0px 4px;
+    position: relative;
+    font-size: 16px;
+    border-bottom: 1px solid #E2E2E2;
 }
-#pinpoint-configuration .some-table .some-list-content input {
-	width: 100%;
-	margin-left: -2px;
+#application-config .application-group .wrapper {
+    width: 100%;
+    height: 457px;
+    position: relative;
+    overflow-y: auto;
 }
-#config-help .link-title {
-	font-size: 18px;
-	margin-right: 30px;
+#application-config .application-group ul {
+    padding: 0px 0px 4px 0px;
+    list-style-type: none;
+}
+#application-config .application-group li {
+    cursor: pointer;
+    padding: 6px;
+}
+#application-config .application-group li.selected {
+    background-color: #5897fb;
+    color: #FFF;
+}
+#application-config .application-group li img {
+    width: 25px;
+    height: 25px;
+    padding-right: 3px;
+}
+#config-help .left-sub-menu {
+    float: left;
+    width: 240px;
+    border-right: 1px solid #D2D2D2;
+}
+#config-help .left-sub-menu ul {
+    padding-left: 0px;
+}
+#config-help .left-sub-menu li {
+    height: 164px;
+    padding: 60px 24px 0px 24px;
+    text-align: center;
+    margin-right: 12px;
+    border-bottom: 1px solid #D2D2D2;
+}
+#config-help .left-sub-menu li:last-child {
+    border-bottom: 0px solid #D2D2D2;
+}
+#config-help .left-sub-menu a {
+    font-size: 24px;
+    margin-right: 4px;
+}
+#config-help .right-contents {
+    float: left;
+    margin-left: 40px;
+}
+#config-help .right-contents {
+    color: #666666;
+}
+
+#config-help .right-contents table tr:first-child {
+    background-color: #999999;
+    font-size: 16px;
+    color: #FFF;
+}
+#config-help .right-contents table tr:first-child td {
+    padding: 10px 0px 10px 26px;
+}
+#config-help .right-contents table tr:first-child td:last-child {
+    padding-left: 70px;
+}
+
+#config-help .right-contents table td {
+    border: 0px solid #FFF;
+}
+#config-help .right-contents table ul {
+    padding: 20px 20px 20px 26px;
+}
+#config-help .right-contents table td:last-child ul {
+    padding-left: 70px;
+}
+
+#config-help .right-contents table li {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+#config-help .right-contents > div {
+    padding: 20px 0px 10px 0px;
 }
 #config-help li {
 	list-style: none;
 }
-#config-help li span.glyphicon {
-	margin-right: 4px;
-	margin-top: 4px;
-}
+
 #config-help a:hover {
 	color: rgb(43, 46, 74);
 }
 #config-help a:link {
-	color: rgb(144, 55, 73);
+	color: rgb(73, 166, 232);
 }
 #config-help a:visited {
 	color: rgb(232, 69, 69);
@@ -479,14 +409,77 @@
 #config-help a:active {
 	color: rgb(83, 53, 74);
 }
+#config-general table td {
+    border: 1px solid #D2D2D2;
+    padding: 10px 1px 10px 26px;
+    text-align: left;
+}
 #config-general table td.title {
-	font-weight: bold;
-	padding-top: 10px;
-	padding-bottom: 0px;
+    color: #FFF;
+	padding: 10px 0px 10px 20px;
+    font-size: 18px;
+	text-align: left;
+    background-color: #999999;
+}
+#config-general span.sub-title {
+    color: rgb(73, 166, 232);
+    font-size: 16px;
+    padding-right: 30px;
+}
+#config-general .inout-bound .dropdown-menu {
+    width: 192px;
+    margin: 0px 0px 0px -1px;
+    padding-top: 0px;
+}
+#config-general .inout-bound li {
+    cursor: pointer;
+    text-align: center;
+}
+#config-general .inout-bound li.selected {
+    color: #FFF;
+    background-color: #48A948;
+}
+
+#config-general .inbound {
+    float: left;
+    width: 95px;
+    list-style: none;
+    padding-left: 0px;
+    border-right: 1px solid #D2D2D2;
+    border-bottom: 1px solid #D2D2D2;
+}
+#config-general .inbound li.inbound-title {
+    text-align: center;
+    font-weight: bold;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+#config-general .outbound {
+    float: right;
+    width: 95px;
+    list-style: none;
+    padding-left: 0px;
+    border-bottom: 1px solid #D2D2D2;
+}
+#config-general .outbound li.outbound-title {
+    text-align: center;
+    font-weight: bold;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+#config-general .application {
+    width: 310px;
+}
+#config-general .favorite-application tr:last-child  td:first-child {
+    padding-right: 26px;
+}
+#config-general .favorite-application tr:last-child  td:last-child{
+    background-color: #F1F1F1;
 }
 #config-general .favorite-list-wrapper {
 	overflow: auto;
-	max-height: 320px;
+	max-height: 280px;
 }
 #config-general .favorite-list {
 	list-style:none;
@@ -504,7 +497,23 @@
 	margin-right: 2px;
 }
 #config-general .general-warning {
-	color: #F0AD4E;
-	font-size: 12px;
-	padding-left: 10px
+	color: #C2C2C2;
+	font-size: 14px;
+    text-align: left;
+    padding-bottom: 4px;
 }
+.blink-blink {
+    background-color: rgba( 255, 0, 0, 0.4 ) !important;
+    /*
+    animation: back-blink 1s;
+    animation-iteration-count: 2;
+    */
+}
+/*
+@keyframes back-blink {
+    0% {background-color: rgba( 255, 0, 0, 0.2 )}
+    50% {background-color: rgba( 255, 0, 0, 0.5 ) }
+    100% {background-color: rgba( 255, 0, 0, 0.2 ) }
+}
+*/
+

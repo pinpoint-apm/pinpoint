@@ -16,22 +16,27 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import java.util.*;
-
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
-import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.*;
-import com.navercorp.pinpoint.web.dao.*;
-import com.navercorp.pinpoint.web.vo.*;
-
+import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
+import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
+import com.navercorp.pinpoint.web.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.dao.MapStatisticsCalleeDao;
+import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
+import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
+import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.ResponseTime;
+import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
+
+import java.util.List;
 
 /**
  * @author netspider
@@ -60,6 +65,9 @@ public class MapServiceImpl implements MapService {
 
     @Autowired
     private ApplicationFactory applicationFactory;
+    
+    @Autowired(required=false)
+    private ServerMapDataFilter serverMapDataFilter;
 
     /**
      * Used in the main UI - draws the server map by querying the timeslot by time.
@@ -77,7 +85,7 @@ public class MapServiceImpl implements MapService {
         StopWatch watch = new StopWatch("ApplicationMap");
         watch.start("ApplicationMap Hbase Io Fetch(Caller,Callee) Time");
 
-        LinkSelector linkSelector = new BFSLinkSelector(this.mapStatisticsCallerDao, this.mapStatisticsCalleeDao, hostApplicationMapDao);
+        LinkSelector linkSelector = new BFSLinkSelector(this.mapStatisticsCallerDao, this.mapStatisticsCalleeDao, hostApplicationMapDao, serverMapDataFilter);
         LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(sourceApplication, range, searchOption);
         watch.stop();
 
@@ -91,63 +99,17 @@ public class MapServiceImpl implements MapService {
         if (logger.isInfoEnabled()) {
             logger.info("ApplicationMap BuildTime: {}", watch.prettyPrint());
         }
-
+        if(serverMapDataFilter != null) {
+            map = serverMapDataFilter.dataFiltering(map);
+        }
+        
         return map;
     }
 
-
     @Override
-    @Deprecated
-    public NodeHistogram linkStatistics(Application sourceApplication, Application destinationApplication, Range range) {
-        if (sourceApplication == null) {
-            throw new NullPointerException("sourceApplication must not be null");
-        }
-        if (destinationApplication == null) {
-            throw new NullPointerException("destinationApplication must not be null");
-        }
-
-        List<LinkDataMap> list = selectLink(sourceApplication, destinationApplication, range);
-        logger.debug("Fetched statistics data size={}", list.size());
-
-        ResponseHistogramBuilder responseHistogramSummary = new ResponseHistogramBuilder(range);
-        for (LinkDataMap entry : list) {
-            for (LinkData linkData : entry.getLinkDataList()) {
-                AgentHistogramList sourceList = linkData.getSourceList();
-                Collection<AgentHistogram> agentHistogramList = sourceList.getAgentHistogramList();
-                for (AgentHistogram histogram : agentHistogramList) {
-                    for (TimeHistogram timeHistogram : histogram.getTimeHistogram()) {
-                        Application toApplication = linkData.getToApplication();
-                        if (toApplication.getServiceType().isRpcClient()) {
-                            toApplication = this.applicationFactory.createApplication(toApplication.getName(), ServiceType.UNKNOWN);
-                        }
-                        responseHistogramSummary.addLinkHistogram(toApplication, histogram.getId(), timeHistogram);
-                    }
-                }
-            }
-        }
-        responseHistogramSummary.build();
-        List<ResponseTime> responseTimeList = responseHistogramSummary.getResponseTimeList(destinationApplication);
-        final NodeHistogram histogramSummary = new NodeHistogram(destinationApplication, range, responseTimeList);
-        return histogramSummary;
+    public ApplicationTimeHistogramViewModel selectResponseTimeHistogramData(Application application, Range range) {
+        List<ResponseTime> responseTimes = mapResponseDao.selectResponseTime(application, range);
+        return new ApplicationTimeHistogramViewModel(application, range, new AgentHistogramList(application, responseTimes));
     }
 
-    @Deprecated
-    private List<LinkDataMap> selectLink(Application sourceApplication, Application destinationApplication, Range range) {
-        if (sourceApplication.getServiceType().isUser()) {
-            logger.debug("Find 'client -> any' link statistics");
-            // client is recorded as applicationName + serviceType.client
-            // Therefore, src and dest are both identical to dest
-            Application userApplication = new Application(destinationApplication.getName(), sourceApplication.getServiceType());
-            return mapStatisticsCallerDao.selectCallerStatistics(userApplication, destinationApplication, range);
-        } else if (destinationApplication.getServiceType().isWas()) {
-            logger.debug("Find 'any -> was' link statistics");
-            // for cases where the destination is a WAS, client events may be weaved in the middle.
-            // we therefore need to look through the list of callees with the same caller.
-            return mapStatisticsCalleeDao.selectCalleeStatistics(sourceApplication, destinationApplication, range);
-        } else {
-            logger.debug("Find 'was -> terminal' link statistics");
-            // query for WAS -> Terminal statistics
-            return mapStatisticsCallerDao.selectCallerStatistics(sourceApplication, destinationApplication, range);
-        }
-    }
 }

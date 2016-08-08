@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,25 +14,42 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
+import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.CHILD_CLASS_PATH_PREFIX;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.junit.rules.RunRules;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runner.Runner;
+import org.junit.runner.manipulation.Filter;
+import org.junit.runner.manipulation.NoTestsRemainException;
+import org.junit.runner.manipulation.Sorter;
+import org.junit.runner.notification.RunNotifier;
+import org.junit.runners.model.InitializationError;
+import org.junit.runners.model.RunnerScheduler;
+import org.junit.runners.model.Statement;
+
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.resolution.ArtifactResolutionException;
-import org.eclipse.aether.resolution.DependencyResolutionException;
-import org.junit.runners.model.InitializationError;
-
 /**
- * @author Jongho Moon
  *
+ * We have referred OrderedThreadPoolExecutor ParentRunner of JUnit.
+ *
+ * @author Jongho Moon
+ * @Author Taejin Koo
  */
-public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite implements PinpointPluginTestConstants {
+public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
     private static final String DEFAULT_ENCODING = "UTF-8";
 
     private final boolean testOnSystemClassLoader;
@@ -41,7 +58,20 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite imp
     private final String[] dependencies;
     private final String libraryPath;
     private final String[] librarySubDirs;
-    
+
+    private final Object childrenLock = new Object();
+    private volatile Collection<Runner> filteredChildren = null;
+
+    private volatile RunnerScheduler scheduler = new RunnerScheduler() {
+        public void schedule(Runnable childStatement) {
+            childStatement.run();
+        }
+
+        public void finished() {
+            // do nothing
+        }
+    };
+
     public PinpointPluginTestSuite(Class<?> testClass) throws InitializationError, ArtifactResolutionException, DependencyResolutionException {
         super(testClass);
 
@@ -51,23 +81,23 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite imp
 
         Dependency deps = testClass.getAnnotation(Dependency.class);
         this.dependencies = deps == null ? null : deps.value();
-        
+
         TestRoot lib = testClass.getAnnotation(TestRoot.class);
-        
+
         if (lib == null) {
             this.libraryPath = null;
             this.librarySubDirs = null;
         } else {
             String path = lib.value();
-            
+
             if (path.isEmpty()) {
                 path = lib.path();
             }
-            
+
             this.libraryPath = path;
             this.librarySubDirs = lib.libraryDir();
         }
-        
+
         if (deps != null && lib != null) {
             throw new IllegalArgumentException("@Dependency and @TestRoot can not annotate a class at the same time");
         }
@@ -83,28 +113,28 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite imp
         } else if (libraryPath != null) {
             return createCasesWithLibraryPath(context);
         }
-        
+
         return createCasesWithJdkOnly(context);
     }
 
     private List<PinpointPluginTestInstance> createCasesWithJdkOnly(PinpointPluginTestContext context) {
         List<PinpointPluginTestInstance> cases = new ArrayList<PinpointPluginTestInstance>();
-        
+
         if (testOnSystemClassLoader) {
             cases.add(new NormalPluginTestCase(context, "", Collections.<String>emptyList(), true));
         }
-        
+
         if (testOnChildClassLoader) {
             cases.add(new NormalPluginTestCase(context, "", Collections.<String>emptyList(), false));
         }
-        
+
         return cases;
     }
 
 
     private List<PinpointPluginTestInstance> createCasesWithLibraryPath(PinpointPluginTestContext context) {
         File file = new File(libraryPath);
-        
+
         if (!file.isDirectory()) {
             throw new RuntimeException("value of @TestRoot is not a directory: " + libraryPath);
         }
@@ -112,15 +142,15 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite imp
         if (children == null) {
             return Collections.emptyList();
         }
-        
+
         List<PinpointPluginTestInstance> cases = new ArrayList<PinpointPluginTestInstance>();
         for (File child : children) {
             if (!child.isDirectory()) {
                 continue;
             }
-            
+
             List<String> libraries = new ArrayList<String>();
-            
+
             if (librarySubDirs.length == 0) {
                 addJars(child, libraries);
                 libraries.add(child.getAbsolutePath());
@@ -131,16 +161,16 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite imp
                     libraries.add(libDir.getAbsolutePath());
                 }
             }
-            
+
             if (testOnSystemClassLoader) {
                 cases.add(new NormalPluginTestCase(context, child.getName(), libraries, true));
             }
-            
+
             if (testOnChildClassLoader) {
                 cases.add(new NormalPluginTestCase(context, child.getName(), libraries, false));
             }
         }
-        
+
         return cases;
     }
 
@@ -158,13 +188,13 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite imp
             }
         }
     }
-    
+
     private List<PinpointPluginTestInstance> createCasesWithDependencies(PinpointPluginTestContext context) throws ArtifactResolutionException, DependencyResolutionException {
         List<PinpointPluginTestInstance> cases = new ArrayList<PinpointPluginTestInstance>();
-        
+
         DependencyResolver resolver = DependencyResolver.get(repositories);
         Map<String, List<Artifact>> dependencyCases = resolver.resolveDependencySets(dependencies);
-        
+
         for (Map.Entry<String, List<Artifact>> dependencyCase : dependencyCases.entrySet()) {
             List<String> libs = new ArrayList<String>();
 
@@ -175,23 +205,149 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite imp
             if (testOnSystemClassLoader) {
                 cases.add(new NormalPluginTestCase(context, dependencyCase.getKey(), libs, true));
             }
-            
+
             if (testOnChildClassLoader) {
                 cases.add(new NormalPluginTestCase(context, dependencyCase.getKey(), libs, false));
             }
         }
-        
+
         return cases;
     }
-    
-    
-    
+
+    protected Statement classBlock(final RunNotifier notifier) {
+        Statement statement = childrenInvoker(notifier);
+
+        if (!areAllChildrenIgnored()) {
+            statement = withBeforeClasses(statement);
+            statement = withAfterClasses(statement);
+            statement = withClassRules(statement);
+        }
+
+        return statement;
+    }
+
+    private Statement withClassRules(Statement statement) {
+        List<TestRule> classRules = classRules();
+        return classRules.isEmpty() ? statement :
+                new RunRules(statement, classRules, getDescription());
+    }
+
+    private boolean areAllChildrenIgnored() {
+        for (Runner child : getFilteredChildren()) {
+            if (!isIgnored(child)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private Collection<Runner> getFilteredChildren() {
+        if (filteredChildren == null) {
+            synchronized (childrenLock) {
+                if (filteredChildren == null) {
+                    filteredChildren = Collections.unmodifiableCollection(getChildren());
+                }
+            }
+        }
+        return filteredChildren;
+    }
+
+    public void sort(Sorter sorter) {
+        synchronized (childrenLock) {
+            for (Runner each : getFilteredChildren()) {
+                sorter.apply(each);
+            }
+            List<Runner> sortedChildren = new ArrayList<Runner>(getFilteredChildren());
+            Collections.sort(sortedChildren, comparator(sorter));
+            filteredChildren = Collections.unmodifiableCollection(sortedChildren);
+        }
+    }
+
+    private Comparator<? super Runner> comparator(final Sorter sorter) {
+        return new Comparator<Runner>() {
+            public int compare(Runner o1, Runner o2) {
+                return sorter.compare(describeChild(o1), describeChild(o2));
+            }
+        };
+    }
+
+    private void runChildren(final RunNotifier notifier) {
+        final RunnerScheduler currentScheduler = scheduler;
+
+        try {
+            for (final Runner each : getFilteredChildren()) {
+                currentScheduler.schedule(new Runnable() {
+                    public void run() {
+                        runChild(each, notifier);
+                    }
+                });
+            }
+        } finally {
+            currentScheduler.finished();
+        }
+    }
+
+    protected Statement childrenInvoker(final RunNotifier notifier) {
+        return new Statement() {
+            @Override
+            public void evaluate() {
+                runChildren(notifier);
+            }
+        };
+    }
+
+    @Override
+    public void filter(Filter filter) throws NoTestsRemainException {
+        synchronized (childrenLock) {
+            List<Runner> children = new ArrayList<Runner>(getFilteredChildren());
+            for (Iterator<Runner> iter = children.iterator(); iter.hasNext(); ) {
+                Runner each = iter.next();
+
+                if (shouldRun(filter, each)) {
+                    try {
+                        filter.apply(each);
+                    } catch (NoTestsRemainException e) {
+                        iter.remove();
+                    }
+                } else {
+                    iter.remove();
+                }
+            }
+            filteredChildren = Collections.unmodifiableCollection(children);
+            if (filteredChildren.isEmpty()) {
+                throw new NoTestsRemainException();
+            }
+        }
+
+    }
+
+    private boolean shouldRun(Filter filter, Runner each) {
+        if (filter.shouldRun(describeChild(each))) {
+            return true;
+        }
+
+        if (each instanceof PinpointPluginTestRunner) {
+            return ((PinpointPluginTestRunner) each).isAvaiable(filter);
+        }
+
+        return false;
+    }
+
+    @Override
+    public Description getDescription() {
+        Description description = Description.createSuiteDescription(getName(), getRunnerAnnotations());
+        for (Runner child : getFilteredChildren()) {
+            description.addChild(describeChild(child));
+        }
+        return description;
+    }
+
     private static class NormalPluginTestCase implements PinpointPluginTestInstance {
         private final PinpointPluginTestContext context;
         private final String testId;
         private final List<String> libs;
         private final boolean onSystemClassLoader;
-        
+
         public NormalPluginTestCase(PinpointPluginTestContext context, String testId, List<String> libs, boolean onSystemClassLoader) {
             this.context = context;
             this.testId = testId + ":" + (onSystemClassLoader ? "system" : "child") + ":" + context.getJvmVersion();
@@ -210,7 +366,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite imp
                 List<String> libs = new ArrayList<String>(context.getRequiredLibraries());
                 libs.addAll(this.libs);
                 libs.add(context.getTestClassLocation());
-                
+
                 return libs;
             } else {
                 return context.getRequiredLibraries();
@@ -230,22 +386,22 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite imp
         @Override
         public List<String> getAppArgs() {
             List<String> args = new ArrayList<String>();
-            
+
             args.add(context.getTestClass().getName());
-            
+
             if (!onSystemClassLoader) {
                 StringBuilder classPath = new StringBuilder();
                 classPath.append(CHILD_CLASS_PATH_PREFIX);
-                
+
                 for (String lib : libs) {
                     classPath.append(lib);
                     classPath.append(File.pathSeparatorChar);
                 }
-                
+
                 classPath.append(context.getTestClassLocation());
                 args.add(classPath.toString());
             }
-            
+
             return args;
         }
 
@@ -265,4 +421,5 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite imp
             return new File(".");
         }
     }
+
 }

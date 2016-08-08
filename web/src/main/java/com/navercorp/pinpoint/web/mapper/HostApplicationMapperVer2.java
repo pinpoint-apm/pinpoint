@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.map.AcceptApplication;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -27,7 +28,6 @@ import org.apache.hadoop.hbase.client.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -74,7 +74,7 @@ public class HostApplicationMapperVer2 implements RowMapper<List<AcceptApplicati
 //    }
 
     private AcceptApplication createAcceptedApplication(Cell cell) {
-        Buffer reader = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset());
+        Buffer reader = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
         String host = reader.readPrefixedString();
         String bindApplicationName = reader.readPrefixedString();
         short bindServiceTypeCode = reader.readShort();

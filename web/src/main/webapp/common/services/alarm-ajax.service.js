@@ -12,8 +12,8 @@
 		group: "/userGroup.pinpoint", //POST, GET, PUT, DELETE
 		groupMember: "/userGroup/member.pinpoint",
 		pinpointUser: "/user.pinpoint",
-		alarmRule: "/alarmRule.pinpoint",
-		alarmRuleSet: "/alarmRule/checker.pinpoint"
+		alarmRule: "/application/alarmRule.pinpoint",
+		alarmRuleSet: "/application/alarmRule/checker.pinpoint"
 	});
 	
 	pinpointApp.service('AlarmAjaxService', [ 'AlarmAjaxServiceConfig', '$http', function ($config, $http) {
@@ -64,7 +64,7 @@
 		};	
 		this.getRuleSet = function(data, callback) {
 			retrieve($config.alarmRuleSet, data, callback);
-		}
+		};
 		function create(url, data, callback) {
 			$http.post( url, data )
 			.then(function(result) {
@@ -90,7 +90,7 @@
 				callback(result);
 			}).fail(function(error) {
 				callback(error);
-			})
+			});
 //			$http["delete"](url, data)
 //			.then(function(result) {
 //				callback(result.data);
@@ -99,11 +99,7 @@
 //			});
 		}
 		function retrieve(url, data, callback) {
-			var query = "?";
-			for( var p in data ) {
-				query += ( query == "?" ? "" : "&" ) + p + "=" + data[p];
-			}
-			$http.get(url + query).then(function(result) {
+			$http.get( url + "?" + $.param( data ) ).then(function(result) {
 				callback(result.data);
 			}, function(error) {
 				callback(error);

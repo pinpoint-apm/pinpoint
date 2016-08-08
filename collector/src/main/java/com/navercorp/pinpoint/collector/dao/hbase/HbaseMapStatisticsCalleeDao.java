@@ -20,7 +20,7 @@ import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
 import com.navercorp.pinpoint.collector.dao.MapStatisticsCalleeDao;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.*;
-import com.navercorp.pinpoint.collector.util.AcceptedTimeService;
+import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.collector.util.ConcurrentCounterMap;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.trace.ServiceType;

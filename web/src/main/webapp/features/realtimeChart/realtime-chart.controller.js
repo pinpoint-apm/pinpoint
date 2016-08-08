@@ -51,27 +51,22 @@
 		}
 	});
 	
-	pinpointApp.controller('RealtimeChartCtrl', ['RealtimeChartCtrlConfig', '$scope', '$element', '$rootScope', '$compile', '$timeout', '$window', 'globalConfig', 'RealtimeWebsocketService', '$location', 'AnalyticsService', 'helpContentTemplate', 'helpContentService',
-	    function (cfg, $scope, $element, $rootScope, $compile, $timeout, $window, globalConfig, websocketService, $location, analyticsService, helpContentTemplate, helpContentService) {
-			
+	pinpointApp.controller( "RealtimeChartCtrl", [ "RealtimeChartCtrlConfig", "$scope", "$element", "$rootScope", "$compile", "$timeout", "$window", "globalConfig", "UrlVoService", "RealtimeWebsocketService", "AnalyticsService", "TooltipService",
+	    function (cfg, $scope, $element, $rootScope, $compile, $timeout, $window, globalConfig, UrlVoService, webSocketService, analyticsService, tooltipService) {
 	    	$element = $($element);
 			//@TODO will move to preference-service 
 	    	var TIMEOUT_MAX_COUNT = 10;
 			var X_AXIS_COUNT = 10;
 	    	var RECEIVE_SUCCESS = 0;
-	    	
-			var $elSumChartWrapper = $element.find("div.agent-sum-chart");
-			var $elTitle = $element.find("div.agent-sum-chart div:first-child span:first-child");
-			var $elSumChartCount = $element.find("div.agent-sum-chart div:first-child span:last-child");
-	    	var $elAgentChartListWrapper = $element.find("div.agent-chart-list");
-	    	var $elWarningMessage = $element.find(".connection-message");
-	    	var $elHandleGlyphicon = $element.find(".handle .glyphicon");
-	    	var $elPin = $element.find(".glyphicon-pushpin");
+
+			var $elSumChartWrapper, $elTitle, $elSumChartCount, $elAgentChartListWrapper, $elWarningMessage, $elHandleGlyphicon, $elPin;
 	    	var preUrlParam = "";
 			var currentApplicationName = "";
 	    	var aAgentChartElementList = [];
+			var aChildScopeList = [];
 	    	var oNamespaceToIndexMap = {};
 	    	var aSumChartData = [0];
+			var bIsFirstInit = true;
 	    	var bIsPinned = true;
 	    	var bIsWas = false;
 	    	var bIsFullWindow = false;
@@ -90,28 +85,20 @@
 		    	return o;
 	    	})();
 			var timeoutResult = null;
-	    	
-	    	jQuery('.realtimeTooltip').tooltipster({
-            	content: function() {
-            		return helpContentTemplate(helpContentService.realtime["default"]);
-            	},
-            	position: "top",
-            	trigger: "click"
-            });
+			tooltipService.init( "realtime" );
 
 	    	$scope.sumChartColor 	= ["rgba(44, 160, 44, 1)", 	"rgba(60, 129, 250, 1)", 	"rgba(248, 199, 49, 1)", 	"rgba(246, 145, 36, 1)" ];
 	    	$scope.agentChartColor 	= ["rgba(44, 160, 44, .8)", "rgba(60, 129, 250, .8)", 	"rgba(248, 199, 49, .8)", 	"rgba(246, 145, 36, .8)"];
 	    	$scope.requestLabelNames= [ "1s", "3s", "5s", "Slow"];
 	    	$scope.bInitialized = false;
-			$elWarningMessage.hide();
-			$elTitle.html("");
-			$elSumChartCount.html("0");
 
 			$(document).on("visibilitychange", function() {
+				if ( UrlVoService.isRealtime() === false ) return;
+
 				switch ( document.visibilityState ) {
 					case "hidden":
 						timeoutResult = $timeout(function() {
-							websocketService.close();
+							webSocketService.close();
 							timeoutResult = null;
 						}, 60000);
 						break;
@@ -125,9 +112,23 @@
 						break;
 				}
 			});
+			initElements();
+			function initElements() {
+				$elSumChartWrapper = $element.find("div.agent-sum-chart");
+				$elTitle = $element.find("div.agent-sum-chart div:first-child span:first-child");
+				$elSumChartCount = $element.find("div.agent-sum-chart div:first-child span:last-child");
+				$elAgentChartListWrapper = $element.find("div.agent-chart-list");
+				$elWarningMessage = $element.find(".connection-message");
+				$elHandleGlyphicon = $element.find(".handle .glyphicon");
+				$elPin = $element.find(".glyphicon-pushpin");
+				$elWarningMessage.hide();
+				$elTitle.html("");
+				$elSumChartCount.html("0");
+			}
 
 	    	function initChartDirective() {
 	    		if ( hasAgentChart( "sum" ) === false ) {
+	    			var newChildScope = $scope.$new();
 		    		$elSumChartWrapper.append( $compile( cfg.template.chartDirective({
 		    			"width": cfg.sumChart.width,
 		    			"height": cfg.sumChart.height,
@@ -136,7 +137,8 @@
 		    			"xAxisCount": X_AXIS_COUNT,
 		    			"showExtraInfo": "true",
 		    			"timeoutMaxCount": TIMEOUT_MAX_COUNT
-		    		}))($scope) );
+					}))( newChildScope ));
+					aChildScopeList.push( newChildScope );
 		    		oNamespaceToIndexMap["sum"] = -1;
 	    		}
 	    	}
@@ -152,6 +154,8 @@
 	    		return angular.isDefined( oNamespaceToIndexMap[agentName] );
 	    	}
 	    	function addAgentChart( agentName ) {
+				var newChildScope = $scope.$new();
+
 	    		var $newAgentChart = $( cfg.template.agentChart ).append( $compile( cfg.template.chartDirective({
 	    			"width": cfg.otherChart.width, 
 	    			"height": cfg.otherChart.height,
@@ -160,14 +164,15 @@
 	    			"xAxisCount": X_AXIS_COUNT,
 	    			"showExtraInfo": "false",
 	    			"timeoutMaxCount": TIMEOUT_MAX_COUNT
-	    		}))($scope) );
+				}))( newChildScope ));
+				aChildScopeList.push( $scope.$new() );
 	    		$elAgentChartListWrapper.append( $newAgentChart );
 	    		
 	    		linkNamespaceToIndex( agentName, aAgentChartElementList.length );
 	    		aAgentChartElementList.push( $newAgentChart );
 	    	}
 	        function initSend() {
-	        	var bConnected = websocketService.open({
+	        	var bConnected = webSocketService.open({
 	        		onopen: function(event) {
 	        			startReceive();
 	        		},
@@ -176,11 +181,11 @@
 	        		},
 	        		onclose: function(event) {
 	        			$scope.$apply(function() {
-	        				disconnectedConnection();
+	        				showDisconnectedConnectionPopup();
 		            	});
 	        		},
 	        		ondelay: function() {
-	        			websocketService.close();
+	        			webSocketService.close();
 	        		},
 					retry: function() {
 						$scope.retryConnection();
@@ -194,11 +199,11 @@
 				$elWarningMessage.hide();
 	        	switch( data[cfg.keys.TYPE] ) {
 	        		case cfg.values.PING:
-	        			websocketService.send( wsPongTemplate );
+	        			webSocketService.send( wsPongTemplate );
 	        			break;
 	        		case cfg.values.RESPONSE:
 		        		var responseData = data[cfg.keys.RESULT];
-			        	if ( responseData[cfg.keys.APPLICATION_NAME] !== currentApplicationName ) return;
+						if ( responseData[cfg.keys.APPLICATION_NAME] !== currentApplicationName ) return;
 			        	
 			        	var applicationData = responseData[cfg.keys.ACTIVE_THREAD_COUNTS];
 			        	var aRequestSum = getSumOfRequestType( applicationData );
@@ -228,7 +233,6 @@
 	        		agentIndexAndCount++;
 	        	}
         		$scope.$broadcast('realtimeChartDirective.onData.sum', aRequestSum, timeStamp, maxY, bAllError );
-
 				$elSumChartCount.html(agentIndexAndCount);
 	        }
 	        function makeRequest( applicationName ) {
@@ -236,7 +240,7 @@
 	        	return JSON.stringify(wsMessageTemplate);
 	        }
 	        function checkAgentChart( agentName, agentIndexAndCount ) {
-	        	if ( hasAgentChart( agentName ) == false ) {
+	        	if ( hasAgentChart( agentName ) === false ) {
         			if ( hasNotUseChart( agentIndexAndCount ) ) {
         				linkNamespaceToIndex(agentName, agentIndexAndCount);
         			} else {
@@ -282,10 +286,10 @@
 	            });
     	    }
 	        function startReceive() {
-	        	websocketService.send( makeRequest( currentApplicationName) );
+	        	webSocketService.send( makeRequest( currentApplicationName ) );
 	        }
 	        function initReceive() {
-	        	if ( websocketService.isOpened() == false ) {
+	        	if ( webSocketService.isOpened() === false ) {
 	        		initSend();
 	        	} else {
 	        		startReceive();
@@ -294,7 +298,7 @@
 	        }
 	        function stopReceive() {
 	        	bShowRealtimeChart = false;
-        		websocketService.stopReceive( makeRequest("") );
+        		webSocketService.stopReceive( makeRequest("") );
 	        }
 	        function stopChart() {
 	        	$rootScope.$broadcast('realtimeChartDirective.clear.sum');
@@ -302,14 +306,26 @@
 	        		$rootScope.$broadcast('realtimeChartDirective.clear.' + index);
 	        		el.hide();
 	        	});
+				$.each( aChildScopeList, function(index, childScope) {
+					childScope.$destroy();
+				});
+				aChildScopeList.length = 0;
+				$timeout(function() {
+					$elSumChartWrapper.find(".agent-sum-chart").empty();
+					$.each( aAgentChartElementList, function( index, el ) {
+						el.remove();
+					});
+					aAgentChartElementList.length = 0;
+				});
+
 	        }
-	        function disconnectedConnection() {
+	        function showDisconnectedConnectionPopup() {
 	        	$elWarningMessage.css("background-color", "rgba(200, 200, 200, 0.9)");
 	        	$elWarningMessage.find("h4").css("color", "red").html("Closed connection.<br/><br/>Select node again.");
 	        	$elWarningMessage.find("button").show();
 				$elWarningMessage.show();
 	        }
-	        function waitingConnection() {
+	        function showWaitingConnectionPopup() {
 	        	$elWarningMessage.css("background-color", "rgba(138, 171, 136, 0.5)");
 	        	$elWarningMessage.find("h4").css("color", "blue").html("Waiting Connection...");
 	        	$elWarningMessage.find("button").hide();
@@ -337,21 +353,24 @@
 	        function setPinColor() {
 	        	$elPin.css("color", bIsPinned ? "red": "");
 	        }
-	        $scope.$on('realtimeChartController.close', function () {
+	        $scope.$on( "realtimeChartController.close", function () {
 	        	hidePopup();
 	        	var prevShowRealtimeChart = bShowRealtimeChart;
-	        	$scope.closePopup();
+	        	resetStatus();
 	        	bShowRealtimeChart = prevShowRealtimeChart;
 	        	setPinColor();
 	        });
-	        $scope.$on('realtimeChartController.initialize', function (event, was, applicationName, urlParam ) {
+	        $scope.$on( "realtimeChartController.initialize", function (event, was, applicationName, urlParam ) {
 	        	if ( bIsPinned === true && preUrlParam === urlParam ) return;
-	        	if ( /^\/main/.test( $location.path() ) == false ) return;
+	        	if ( UrlVoService.isRealtime() === false ) return;
 	        	bIsWas = angular.isUndefined( was ) ? false : was;
 	        	applicationName = angular.isUndefined( applicationName ) ? "" : applicationName;
 	        	preUrlParam = urlParam;
 
-				$elTitle.html( currentApplicationName = applicationName );
+				if ( bIsFirstInit === true ) {
+					initElements();
+					bIsFirstInit = false;
+				}
 	        	if ( globalConfig.useRealTime === false ) return;
 	        	if ( bShowRealtimeChart === false ) return;
 	        	if ( bIsWas === false ) {
@@ -361,21 +380,22 @@
 	        	initNamespaceToIndexMap();
 	        	adjustWidth();
 	        	$scope.bInitialized = true;
-	        	
-	        	showPopup();
-	        	$scope.closePopup();
+
+				// resetStatus();
 				$elTitle.html( currentApplicationName = applicationName );
-        		waitingConnection();
+	        	showPopup();
+        		showWaitingConnectionPopup();
         		
         		initReceive();
         		setPinColor();
 	        });
 	        $scope.retryConnection = function() {
-	        	waitingConnection();
+	        	showWaitingConnectionPopup();
         		initReceive();
 	        };
 	        $scope.pin = function() {
 	        	bIsPinned = !bIsPinned;
+				analyticsService.send( analyticsService.CONST.MAIN, bIsPinned ? analyticsService.CONST.CLK_REALTIME_CHART_PIN_ON : analyticsService.CONST.CLK_REALTIME_CHART_PIN_OFF );
 	        	setPinColor();
 	        };
 	        $scope.resizePopup = function() {
@@ -396,26 +416,8 @@
 	        		$elAgentChartListWrapper.css("height", (popupHeight - cfg.css.titleHeight) + "px");
 	        	}
 	        	bIsFullWindow = !bIsFullWindow;
-	        }
-	        $scope.toggleRealtime = function() {
-	        	if ( bIsWas === false ) return;
-	        	
-	        	if ( bShowRealtimeChart === true ) {
-	        		analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_REALTIME_CHART_HIDE );
-	        		hidePopup();
-	        		stopReceive();
-	        		stopChart();
-	        		bShowRealtimeChart = false;
-	        	} else {
-	        		analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_REALTIME_CHART_SHOW );
-	        		showPopup();
-	        		waitingConnection();
-	        		initReceive();
-	        		bShowRealtimeChart = true;
-	        	}
-	        }
-	        
-	        $scope.closePopup = function() {
+	        };
+	        function resetStatus() {
 	        	stopReceive();
 	        	stopChart();
 				$elWarningMessage.hide();

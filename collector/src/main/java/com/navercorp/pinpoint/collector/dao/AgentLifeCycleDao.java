@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.dao;
 
-import com.navercorp.pinpoint.common.bo.AgentLifeCycleBo;
+import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 
 /**
  * @author HyunGil Jeong

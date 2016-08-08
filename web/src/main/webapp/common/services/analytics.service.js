@@ -1,5 +1,5 @@
 (function($) {
-	'use strict';
+	"use strict";
 	
 	/**
 	 * (en) AnalyticsService 
@@ -9,24 +9,18 @@
 	 * @class
 	 */	
 	
-	pinpointApp.service('AnalyticsService', [ '$rootScope', 'globalConfig', function ($rootScope, globalConfig) {
+	pinpointApp.service( "AnalyticsService", [ "globalConfig", function ( globalConfig) {
 		if ( typeof ga !== "undefined" ) {
 			this.send = function( category, name, label, count, options ) {
-				if ( globalConfig.sendAllowed == false ) return;
+				if ( globalConfig.sendAllowed === false ) return;
 				if ( arguments.length == 1 ) {
-					ga( 'send', 'pageview', arguments[0] );
+					ga( "send", "pageview", arguments[0] );
 				} else {
-					ga( 'send', 'event', category, name, label, count, options );
+					ga( "send", "event", category, name, label, count, options );
 				}
 			};
-		} else if ( typeof wcs !== "undefined" ) {
-			this.send = function( category, name, label ) {
-				if ( globalConfig.sendAllowed == false ) return;
-				if ( arguments.length == 1 ) return;
-				if ( typeof label !== "undefined" || typeof label !== "null"  )  {
-					name = name + "_" + label;
-				}
-				wcs.event( category, name );
+			this.sendMain = function( name, label, count, options ) {
+				this.send( this.CONST.MAIN, name, label, count, options );
 			};
 		}
 		
@@ -35,6 +29,7 @@
 		this.CONST.CONTEXT = "Context";
 		this.CONST.CALLSTACK = "CallStack";
 		this.CONST.MIXEDVIEW = "MixedView";
+		this.CONST.INSPECTOR = "Inspector";
 
 		this.CONST.CLK_APPLICATION = "ClickApplication";
 		this.CONST.CLK_TIME = "ClickTime";
@@ -49,6 +44,8 @@
 		this.CONST.CLK_RESPONSE_GRAPH = "ClickResponseGraph";
 		this.CONST.CLK_LOAD_GRAPH = "ClickLoadGraph";
 		this.CONST.CLK_SHOW_GRAPH = "ClickShowGraph";
+		this.CONST.CLK_SHOW_SERVER_LIST = "ClickShowServerList";
+		this.CONST.CLK_OPEN_INSPECTOR = "ClickOpenInspector";
 		this.CONST.CLK_FILTER_TRANSACTION = "ClickFilterTransaction";
 		this.CONST.CLK_FILTER_TRANSACTION_WIZARD = "ClickFilterTransactionWizard";
 		this.CONST.CLK_MORE = "ClickMore";
@@ -64,8 +61,14 @@
 		this.CONST.CLK_CALLEE_RANGE = "ClickCalleeRange";
 		this.CONST.CLK_CALLER_RANGE = "ClickCallerRange";
 		this.CONST.CLK_REALTIME_CHART_HIDE = "ClickRealtimeChartHide";
-		this.CONST.CLK_REALTIME_CHART_SHOW = "ClickRealtimeChartShow";		
-		
+		this.CONST.CLK_REALTIME_CHART_SHOW = "ClickRealtimeChartShow";
+		this.CONST.CLK_REALTIME_CHART_PIN_ON = "ClickRealtimeChartPinOn";
+		this.CONST.CLK_REALTIME_CHART_PIN_OFF = "ClickRealtimeChartPinOff";
+		this.CONST.CLK_SHOW_SERVER_TYPE_DETAIL = "ClickShowServerTypeDetail";
+		this.CONST.CLK_CHANGE_AGENT_INSPECTOR = "ClickChangeAgentInspector";
+		this.CONST.CLK_CHANGE_AGENT_MAIN = "ClickChangeAgentMain";
+		this.CONST.CLK_START_REALTIME = "ClickStartRealtime";
+
 		this.CONST.CLK_CONFIGURATION = "ClickConfiguration";
 		this.CONST.CLK_GENERAL = "ClickConfigurationGeneral";
 		this.CONST.CLK_ALARM = "ClickConfigurationAlarm";
@@ -89,6 +92,7 @@
 
 		this.CONST.TG_DATE = "ToggleDate";
 		this.CONST.TG_UPDATE_ON = "ToggleUpdateOn";
+		this.CONST.TG_UPDATE_OFF = "ToggleUpdateOff";
 		this.CONST.TG_NODE_VIEW = "ToggleNodeView";
 		this.CONST.TG_SCATTER_SUCCESS = "ToggleScatterSuccess";
 		this.CONST.TG_SCATTER_FAILED = "ToggleScatterFailed";

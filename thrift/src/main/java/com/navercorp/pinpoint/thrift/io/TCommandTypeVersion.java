@@ -63,6 +63,12 @@ public enum TCommandTypeVersion {
 
     V_1_5_2_SNAPSHOT("1.5.2-SNAPSHOT", V_1_5_1),
 
+    V_1_5_2("1.5.2", V_1_5_1_SNAPSHOT),
+
+    V_1_5_3_SNAPSHOT("1.5.3-SNAPSHOT", V_1_5_2),
+
+    V_1_6_0_SNAPSHOT("1.6.0-SNAPSHOT", V_1_5_2),
+
     UNKNOWN("UNKNOWN");
 
     private final String versionName;

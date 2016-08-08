@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.vo.*;
 import com.navercorp.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.navercorp.pinpoint.web.vo.scatter.ScatterScanResult;
+import com.navercorp.pinpoint.common.util.TransactionId;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +63,7 @@ public class DotExtractor {
         Application spanApplication = this.applicationFactory.createApplication(span.getApplicationId(), span.getApplicationServiceType());
         final List<Dot> dotList = getDotList(spanApplication);
 
-        final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
+        final TransactionId transactionId = span.getTransactionId();
         final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
         dotList.add(dot);
         logger.trace("Application:{} Dot:{}", spanApplication, dot);
@@ -70,7 +71,7 @@ public class DotExtractor {
 
     private List<Dot> getDotList(Application spanApplication) {
         List<Dot> dotList = this.dotMap.get(spanApplication);
-        if(dotList == null) {
+        if (dotList == null) {
             dotList = new ArrayList<>();
             this.dotMap.put(spanApplication, dotList);
         }

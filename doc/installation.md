@@ -22,7 +22,7 @@ To try out a simple quickstart project, please refer to the [quick-start guide](
 	2. Configure *pinpoint-collector.properties*, *hbase.properties*.
 	3. Start container.
 4. Pinpoint Web ([details](#pinpoint-web))
-	1. Deploy *pinpoint-web-$VERSION.war* to a web container.
+	1. Deploy *pinpoint-web-$VERSION.war* to a web container as a ROOT application.
 	2. Configure *pinpoint-web.properties*, *hbase.properties*.
 	3. Start container.
 5. Pinpoint Agent ([details](#pinpoint-agent))
@@ -51,7 +51,7 @@ To run these scripts, feed them into the HBase shell like below:
 
 `$HBASE_HOME/bin/hbase shell hbase-create.hbase`
 
-See [here](../scripts/ "Pinpoint HBase scripts") for a complete list of scripts.
+See [here](../hbase/scripts/ "Pinpoint HBase scripts") for a complete list of scripts.
 
 ## Building Pinpoint
 
@@ -121,7 +121,7 @@ You should have the following **war** file that can be deployed to a web contain
 The path to this file should look like *$PINPOINT_PATH/web/target/pinpoint-web-$VERSION.war* if you built it manually.
 
 ### Installation
-Since Pinpoint Web is packaged as a deployable war file, you may deploy them to a web container as you would any other web applications.
+Since Pinpoint Web is packaged as a deployable war file, you may deploy them to a web container as you would any other web applications. The web module must also be deployed as a ROOT application.
 
 ### Configuration
 Similar to the collector, Pinpoint Web has configuration files related to installation: *pinpoint-web.properties*, and *hbase.properties*. 

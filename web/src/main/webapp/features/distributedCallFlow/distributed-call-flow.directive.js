@@ -7,8 +7,8 @@
 	 * @name distributedCallFlowDirective
 	 * @class
 	 */	
-	pinpointApp.directive('distributedCallFlowDirective', [ '$filter', '$timeout', 'SQLAjaxService',
-	    function ($filter, $timeout, sqlAjaxService) {
+	pinpointApp.directive('distributedCallFlowDirective', [ '$filter', '$timeout', 'CommonAjaxService',
+	    function ($filter, $timeout, commonAjaxService) {
 	        return {
 	            restrict: 'E',
 	            replace: true,
@@ -26,7 +26,17 @@
 	
 	                // bootstrap
 	                window.callStacks = []; // Due to Slick.Data.DataView, must use window property to resolve scope-related problems.
-	
+
+					var removeTag = function( text ) {
+						return text.replace( /</g, "&lt;" ).replace( />/g, "$gt;" );
+					};
+					var getAuthorizeView = function( bIsAuthorized, text ) {
+						if ( bIsAuthorized ) {
+							return removeTag( text );
+						} else {
+							return "<i style='color:#AAA;'>" + removeTag( text ) + "</i>";
+						}
+					};
 	                /**
 	                 * get color by string
 	                 * @param idx
@@ -34,9 +44,10 @@
 	                 */
 	                getColorByString = function(str) {
 	                	// str to hash
-	                    for (var i = 0, hash = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash));
+						var i = 0, hash = 0, colour = "#";
+	                    for ( i = 0, hash = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash));
 	                    // int/hash to hex
-	                    for (var i = 0, colour = "#"; i < 3; colour += ("00" + ((hash >> i++ * 8) & 0xFF).toString(16)).slice(-2));
+	                    for ( i = 0, colour = "#"; i < 3; colour += ("00" + ((hash >> i++ * 8) & 0xFF).toString(16)).slice(-2));
 	                    return colour;
 	                };
 	
@@ -52,7 +63,7 @@
 	                treeFormatter = function (row, cell, value, columnDef, dataContext) {
 	                    var html = [];
 	
-	                    value = value.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+	                    // value = value.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 	                    var item = dataView.getItemById(dataContext.id);
 	                    lastAgent = item.agent ? item.agent : lastAgent;
 	
@@ -67,7 +78,7 @@
 	                    }
 	
 	                    
-	                    html.push('<div class="'+divClass+'" data-container=".grid-canvas" data-toggle="popover" data-trigger="manual" data-placement="right" data-content="'+value+'">');
+	                    html.push('<div class="'+divClass+'" data-container=".grid-canvas" data-toggle="popover" data-trigger="manual" data-placement="right" data-content="'+ removeTag( value ) +'">');
 	                    html.push("<div style='position:absolute;top:0;left:0;bottom:0;width:5px;background-color:"+ leftBarColor +"'></div>");
 	                    html.push("<span style='display:inline-block;height:1px;width:" + (15 * dataContext["indent"]) + "px'></span>");
 	
@@ -105,7 +116,7 @@
 	                    	}
 	                    }
 	
-	                    html.push(value);
+	                    html.push( getAuthorizeView( dataContext.isAuthorized, value ) );
 	                    html.push('</div>');
 	
 	                    return html.join('');
@@ -118,7 +129,7 @@
 	                 */
 	                treeFilter = function (item) {
 	                    var result = true;
-	                    if (item.parent != null) {
+	                    if ( angular.isDefined( item.parent ) && item.parent !== null ) {
 	                        var parent = window.callStacks[item.parent];
 	                        while (parent) {
 	
@@ -140,11 +151,10 @@
 	                 * @param dataConrtext
 	                 * @returns {string}
 	                 */
-	                argumentFormatter = function (row, cell, value, columnDef, dataConrtext) {
+	                argumentFormatter = function (row, cell, value, columnDef, dataContext) {
 	                    var html = [];
-	
-	                    html.push('<div class="dcf-popover" data-container=".grid-canvas" data-toggle="popover" data-trigger="manual" data-placement="right" data-content="'+value+'">');
-	                    html.push(value);
+	                    html.push('<div class="dcf-popover" data-container=".grid-canvas" data-toggle="popover" data-trigger="manual" data-placement="right" data-content="'+ removeTag( value ) +'">');
+	                    html.push( getAuthorizeView( dataContext.isAuthorized, value ) );
 	                    html.push('</div>');
 	                    return html.join('');
 	                };
@@ -158,7 +168,7 @@
 	                	
 	                    var html = [];
 	                    html.push('<a class="btn btn-default btn-xs"');
-	                    html.push('href="')
+	                    html.push('href="');
 	                    html.push(value);
 	                    html.push('" target="_blank">');
 	
@@ -194,7 +204,7 @@
 	                 * @returns {string}
 	                 */
 	                progressBarFormatter = function (row, cell, value, columnDef, dataContext) {
-	                    if (value == null || value === "" || value == 0) {
+	                    if ( angular.isUndefined( value ) || value === null || value === "" || value === 0) {
 	                        return "";
 	                    }
 	                    var color;
@@ -220,8 +230,10 @@
 	                    var result = [],
 	                        barRatio = 100 / (callStacks[0][index.end] - callStacks[0][index.begin]);
 	                    angular.forEach(callStacks, function (val, key) {
+	                    	var bAuthorized = typeof val[index['isAuthorized']] === "undefined" ? true : val[index['isAuthorized']];
 	                        result.push({
 	                            id: 'id_' + key,
+								isAuthorized: bAuthorized,
 	                            parent: val[index['parentId']] ? val[index['parentId']] - 1 : null,
 	                            indent: val[index['tab']],
 	                            method: val[index['title']],
@@ -314,8 +326,9 @@
 	
 	                    var isSingleClick = true, clickTimeout = false;
 	                    grid.onClick.subscribe(function (e, args) {
+							var item;
 	                        if ($(e.target).hasClass("toggle")) {
-	                            var item = dataView.getItem(args.row);
+	                            item = dataView.getItem(args.row);
 	                            if (item) {
 	                                if (!item._collapsed) {
 	                                    item._collapsed = true;
@@ -327,35 +340,42 @@
 	                            e.stopImmediatePropagation();
 	                        }
 	                        if ( $(e.target).hasClass("sql") ) {
-	                        	var item = dataView.getItem(args.row);
+	                        	item = dataView.getItem(args.row);
 	                        	var itemNext = dataView.getItem(args.row+1);
 	                        	var data = "sql=" + encodeURIComponent( item.argument );
-	                        	
-	                        	if ( angular.isDefined( itemNext ) && itemNext.method === "SQL-BindValue" ) {
-	                        		data += "&bind=" + encodeURIComponent( itemNext.argument );
-	                        		sqlAjaxService.getSQLBind( "/sqlBind.pinpoint", data, function( result ) {
-		                        		$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html(
-		                        				'<h4>Binded SQL <button class="btn btn-default btn-xs sql">Copy</button></h4>' + 
-		                        				'<div style="position:absolute;left:10000px">' + result + '</div>' +
-		                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + result.replace(/\t\t/g, "") + '</pre>' +
-		                        				'<hr>' + 
-		                        				'<h4>Original SQL <button class="btn btn-default btn-xs sql">Copy</button></h4>' + 
-		                        				'<div style="position:absolute;left:10000px">' + item.argument + '</div>' + 		                        				
-		                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + item.argument.replace(/\t\t/g, "") + '</pre>' +
-		                        				'<h4>SQL Bind Value <button class="btn btn-default btn-xs sql">Copy</button></h4>' +
-		                        				'<div style="position:absolute;left:10000px">' + itemNext.argument + '</div>' +
-		                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + itemNext.argument + '</pre>'
-		                        		).end().modal("show");
-		                        		prettyPrint();
-		                        	});
-	                        	} else {
-	                        		$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html(
-	                        			'<h4>Original SQL <button class="btn btn-default btn-xs sql">Copy</button></h4>' + 
-                        				'<div style="position:absolute;left:10000px">' + item.argument + '</div>' +
-                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + item.argument.replace(/\t\t/g, "") + '</pre>' 
-	                        		).end().modal("show");
-	                        		prettyPrint();
-	                        	}
+
+								if ( item.isAuthorized ) {
+									if ( angular.isDefined( itemNext ) && itemNext.method === "SQL-BindValue" ) {
+										data += "&bind=" + encodeURIComponent( itemNext.argument );
+										commonAjaxService.getSQLBind( "/sqlBind.pinpoint", data, function( result ) {
+											$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html(
+													'<h4>Binded SQL <button class="btn btn-default btn-xs sql">Copy</button></h4>' +
+													'<div style="position:absolute;left:10000px">' + result + '</div>' +
+													'<pre class="prettyprint lang-sql" style="margin-top:0px">' + result.replace(/\t\t/g, "") + '</pre>' +
+													'<hr>' +
+													'<h4>Original SQL <button class="btn btn-default btn-xs sql">Copy</button></h4>' +
+													'<div style="position:absolute;left:10000px">' + item.argument + '</div>' +
+													'<pre class="prettyprint lang-sql" style="margin-top:0px">' + item.argument.replace(/\t\t/g, "") + '</pre>' +
+													'<h4>SQL Bind Value <button class="btn btn-default btn-xs sql">Copy</button></h4>' +
+													'<div style="position:absolute;left:10000px">' + itemNext.argument + '</div>' +
+													'<pre class="prettyprint lang-sql" style="margin-top:0px">' + itemNext.argument + '</pre>'
+											).end().modal("show");
+											prettyPrint();
+										});
+									} else {
+										$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html(
+											'<h4>Original SQL <button class="btn btn-default btn-xs sql">Copy</button></h4>' +
+											'<div style="position:absolute;left:10000px">' + item.argument + '</div>' +
+											'<pre class="prettyprint lang-sql" style="margin-top:0px">' + item.argument.replace(/\t\t/g, "") + '</pre>'
+										).end().modal("show");
+										prettyPrint();
+									}
+								} else {
+									$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html(
+										'<h4>Original SQL</h4>' +
+										'<div style="margin-top:0px;padding:6px 10px;border-radius:4px;background-color:#C56A6A;color:#D7FBBA;">' + item.argument.replace(/\t\t/g, "") + '</div>'
+									).end().modal("show");
+								}
 	                        }
 	
 	                        if (!clickTimeout) {
@@ -460,7 +480,9 @@
 	                 * scope event on distributedCallFlowDirective.resize
 	                 */
 	                scope.$on('distributedCallFlowDirective.resize.' + scope.namespace, function (event) {
-	                    grid.resizeCanvas();
+						if ( grid ) {
+							grid.resizeCanvas();
+						}
 	                });
 	                scope.$on("distributedCallFlowDirective.selectRow." + scope.namespace, function( event, rowId ) {
 	                	var gridRow = rowId - 1;

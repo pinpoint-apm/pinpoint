@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
@@ -52,6 +53,11 @@ public class ControllerExceptionHandler {
         mav.addObject("exception", createExceptionResource(request, exception));
         mav.setViewName(DEFAULT_ERROR_VIEW);
         return mav;
+    }
+    
+    @ExceptionHandler(value = AccessDeniedException.class)
+    public ModelAndView accessDeniedExceptionHandler(HttpServletRequest request, Exception exception) throws Exception {
+        throw exception;
     }
 
     private Map<String, Object> createExceptionResource(HttpServletRequest request, Throwable throwable) {

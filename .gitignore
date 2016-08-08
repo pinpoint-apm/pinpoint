@@ -1,9 +1,15 @@
 /.project
 /.settings/
 /.idea
-/*.iml
 /deploy
 /target
 /build/
+**/node
 **/node_modules
 **/jsdoc
+/**/.idea
+*.iml
+out/
+/src/main/webapp/lib/js/**/*.js
+/src/main/webapp/lib/js/**/*.map
+/src/main/webapp/lib/css/**/*.css

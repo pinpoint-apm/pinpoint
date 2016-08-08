@@ -22,13 +22,13 @@ import java.util.List;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
-import com.navercorp.pinpoint.web.vo.TransactionId;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
 
+import com.navercorp.pinpoint.common.util.TransactionId;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
 /**
@@ -51,10 +51,11 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
         Cell[] rawCells = result.rawCells();
         List<TransactionId> traceIdList = new ArrayList<>(rawCells.length);
         for (Cell cell : rawCells) {
-            byte[] qualifierArray = cell.getQualifierArray();
-            int qualifierOffset = cell.getQualifierOffset();
+            final byte[] qualifierArray = cell.getQualifierArray();
+            final int qualifierOffset = cell.getQualifierOffset();
+            final int qualifierLength = cell.getQualifierLength();
             // increment by value of key
-            TransactionId traceId = parseVarTransactionId(qualifierArray, qualifierOffset);
+            TransactionId traceId = parseVarTransactionId(qualifierArray, qualifierOffset, qualifierLength);
             traceIdList.add(traceId);
 
             logger.debug("found traceId {}", traceId);
@@ -62,19 +63,19 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
         return traceIdList;
     }
 
-    public static TransactionId parseVarTransactionId(byte[] bytes, int offset) {
+    public static TransactionId parseVarTransactionId(byte[] bytes, int offset, int length) {
         if (bytes == null) {
             throw new NullPointerException("bytes must not be null");
         }
-        final Buffer buffer = new OffsetFixedBuffer(bytes, offset);
+        final Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
         
         // skip elapsed time (not used) hbase column prefix - only used for filtering.
         // Not sure if we can reduce the data size any further.
         // buffer.readInt();
         
         String agentId = buffer.readPrefixedString();
-        long agentStartTime = buffer.readSVarLong();
-        long transactionSequence = buffer.readVarLong();
+        long agentStartTime = buffer.readSVLong();
+        long transactionSequence = buffer.readVLong();
         return new TransactionId(agentId, agentStartTime, transactionSequence);
     }
 }

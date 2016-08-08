@@ -27,8 +27,8 @@
 	                hint = false;
 	            }
 	            return hint;
-	        }
-	    }
+	        };
+	    };
 	  }
 	]);
 })();

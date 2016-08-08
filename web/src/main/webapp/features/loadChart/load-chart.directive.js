@@ -9,7 +9,8 @@
 	 */	
 	pinpointApp.constant('loadChartDirectiveConfig', {});
 	
-	pinpointApp.directive('loadChartDirective', ['loadChartDirectiveConfig', 'responseTypeColor', '$timeout', 'AnalyticsService', function (cfg, responseTypeColor, $timeout, analyticsService) {
+	pinpointApp.directive('loadChartDirective', ['loadChartDirectiveConfig', '$timeout', 'AnalyticsService', 'PreferenceService', function (cfg, $timeout, analyticsService, preferenceService ) {
+		var responseTypeColor = preferenceService.getResponseTypeColor();
         return {
             template: '<div style="text-align:center"></div>',
             replace: true,
@@ -264,20 +265,29 @@
                  * @param data
                  */
                 updateData = function (data) {
-//                    oChart.dataProvider = data;
-                	if ( angular.isDefined( oChart ) ) {
-	                    oChart.clear();
-                	}
-                    element.empty();
-                    $timeout(function () {
-//                        oChart.validateData();
-                    	if( data.length === 0 ) {
-                    		renderEmpty();
-                    	} else {
-                    		render(data, true);
-                    	}
-                    });
-                };
+//                 	if ( angular.isDefined( oChart ) ) {
+// 	                    oChart.clear();
+//                 	}
+//                     element.empty();
+//                     $timeout(function () {
+//                     	if( data.length === 0 ) {
+//                     		renderEmpty();
+//                     	} else {
+//                     		render(data, true);
+//                     	}
+//                     });
+
+					if ( angular.isUndefined( oChart ) ) {
+						if ( data.length !== 0 ) {
+							render(data, true);
+						}
+					} else {
+						oChart.dataProvider = data;
+						$timeout(function () {
+							oChart.validateData();
+						});
+					}
+				};
 
                 /**
                  * parse time series histogram for amcharts
@@ -299,17 +309,19 @@
                     aDynamicKey = [];
 
                     var newData = [];
-                    for (var key in data) {
-                        aDynamicKey.push(data[key].key);
-                        for (var innerKey in data[key].values) {
-                            var a = getKeyFromNewDataByTime(data[key].values[innerKey][0]);
+					for( var i = 0 ; i < data.length ; i++ ) {
+						var oPart = data[i];
+                        aDynamicKey.push( oPart.key );
+						for( var j = 0 ; j < oPart.values.length ; j++ ) {
+							var aInner = oPart.values[j];
+                            var a = getKeyFromNewDataByTime( aInner[0]);
                             if (a > -1) {
-                                newData[a][data[key].key] = data[key].values[innerKey][1];
+                                newData[a][ oPart.key ] = aInner[1];
                             } else {
                                 var b = {
-                                    time: moment(data[key].values[innerKey][0]).format('YYYY-MM-DD HH:mm')
+                                    time: moment( aInner[0]).format('YYYY-MM-DD HH:mm')
                                 };
-                                b[data[key].key] = data[key].values[innerKey][1];
+                                b[ oPart.key ] = aInner[1];
                                 newData.push(b);
                             }
                         }

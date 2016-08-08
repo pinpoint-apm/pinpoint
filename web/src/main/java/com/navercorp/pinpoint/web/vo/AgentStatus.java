@@ -16,11 +16,9 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.common.bo.AgentLifeCycleBo;
-import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
+import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.view.AgentLifeCycleStateSerializer;
 
 /**

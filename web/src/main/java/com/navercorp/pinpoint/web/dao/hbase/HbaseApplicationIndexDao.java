@@ -29,11 +29,11 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
 

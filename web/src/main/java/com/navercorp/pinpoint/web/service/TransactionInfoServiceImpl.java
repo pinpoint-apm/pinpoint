@@ -20,22 +20,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.navercorp.pinpoint.common.bo.AnnotationBo;
-import com.navercorp.pinpoint.common.bo.Span;
-import com.navercorp.pinpoint.common.bo.SpanBo;
-import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.Event;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
+import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeNode;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
+import com.navercorp.pinpoint.web.security.MetaDataFilter;
+import com.navercorp.pinpoint.web.security.MetaDataFilter.MetaData;
 import com.navercorp.pinpoint.web.vo.BusinessTransactions;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.TransactionId;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordFactory;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
@@ -43,6 +45,7 @@ import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -55,6 +58,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
+    @Qualifier("hbaseTraceDaoFactory")
     private TraceDao traceDao;
 
     @Autowired
@@ -65,6 +69,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     @Autowired
     private AnnotationKeyRegistryService annotationKeyRegistryService;
+    
+    @Autowired(required=false)
+    private MetaDataFilter metaDataFilter;
 
     // Temporarily disabled Because We need to solve authentication problem inter system.
     // @Value("#{pinpointWebProps['log.enable'] ?: false}")
@@ -157,7 +164,8 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         if (focusTimeSpanBo != null) {
             // mark the record to be used as focus
             long beginTimeStamp = focusTimeSpanBo.getStartTime();
-            markFocusRecord(recordList, beginTimeStamp);
+
+            markFocusRecord(recordList, focusTimeSpanBo);
             recordSet.setBeginTimestamp(beginTimeStamp);
         }
 
@@ -178,9 +186,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         return false;
     }
 
-    private void markFocusRecord(List<Record> recordList, long beginTimeStamp) {
+    private void markFocusRecord(List<Record> recordList, final SpanBo focusTimeSpanBo) {
         for (Record record : recordList) {
-            if (record.getBegin() == beginTimeStamp) {
+            if (focusTimeSpanBo.getSpanId() == record.getSpanId() && record.getBegin() == focusTimeSpanBo.getStartTime()) {
                 record.setFocused(true);
                 break;
             }
@@ -253,7 +261,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                     firstSpan = spanBo;
                 }
             }
-        }
+        };
         // return firstSpan when focus Span could not be found.
         return firstSpan;
     }
@@ -274,22 +282,22 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         return getDisplayArgument(spanBo);
     }
     
-    private String getDisplayArgument(Span span) {
-        AnnotationBo displayArgument = getDisplayArgument0(span);
+    private String getDisplayArgument(Event event) {
+        AnnotationBo displayArgument = getDisplayArgument0(event);
         if (displayArgument == null) {
             return "";
         }
         return Objects.toString(displayArgument.getValue(), "");
     }
 
-    private AnnotationBo getDisplayArgument0(Span span) {
+    private AnnotationBo getDisplayArgument0(Event event) {
         // TODO needs a more generalized implementation for Arcus
-        List<AnnotationBo> list = span.getAnnotationBoList();
+        List<AnnotationBo> list = event.getAnnotationBoList();
         if (list == null) {
             return null;
         }
 
-        final AnnotationKeyMatcher matcher = annotationKeyMatcherService.findAnnotationKeyMatcher(span.getServiceType());
+        final AnnotationKeyMatcher matcher = annotationKeyMatcherService.findAnnotationKeyMatcher(event.getServiceType());
         if (matcher == null) {
             return null;
         }
@@ -321,6 +329,19 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                     throw new IllegalStateException("CallTree corrupted");
                 }
                 final SpanAlign align = node.getValue();
+                
+                if (metaDataFilter != null && metaDataFilter.filter(align, MetaData.API)) {
+                    if (align.isSpan()) {
+                        Record record = metaDataFilter.createRecord(node, factory);
+                        recordList.add(record);
+                    }
+                    continue;
+                }
+                
+                if (metaDataFilter != null && metaDataFilter.filter(align, MetaData.PARAM)) {
+                    metaDataFilter.replaceAnnotationBo(align, MetaData.PARAM);
+                }
+
                 final String argument = getArgument(align);
                 final Record record = factory.get(node, argument);
                 recordList.add(record);
@@ -332,6 +353,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                         recordList.add(exceptionRecord);
                     }
                 }
+                
                 
                 // add annotation record.
                 if(!align.getAnnotationBoList().isEmpty()) {

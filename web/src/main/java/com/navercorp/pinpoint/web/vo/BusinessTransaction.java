@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.vo;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 
 /**
@@ -45,8 +45,8 @@ public class BusinessTransaction {
         long elapsed = span.getElapsed();
         totalTime = maxTime = minTime = elapsed;
 
-        String traceIdString = TransactionIdUtils.formatString(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
-        Trace trace = new Trace(traceIdString, elapsed, span.getCollectorAcceptTime(), span.getErrCode());
+        String transactionIdString = TransactionIdUtils.formatString(span.getTransactionId());
+        Trace trace = new Trace(transactionIdString, elapsed, span.getCollectorAcceptTime(), span.getErrCode());
         this.traces.add(trace);
         calls++;
         if(span.getErrCode() > 0) {
@@ -69,8 +69,8 @@ public class BusinessTransaction {
             minTime = elapsed;
         }
 
-        String traceIdString = TransactionIdUtils.formatString(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
-        Trace trace = new Trace(traceIdString, elapsed, span.getCollectorAcceptTime(), span.getErrCode());
+        String transactionIdString = TransactionIdUtils.formatString(span.getTransactionId());
+        Trace trace = new Trace(transactionIdString, elapsed, span.getCollectorAcceptTime(), span.getErrCode());
         this.traces.add(trace);
 
         if(span.getErrCode() > 0) {

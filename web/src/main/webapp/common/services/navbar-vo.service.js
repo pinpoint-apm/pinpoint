@@ -7,11 +7,18 @@
 	 * @name NavbarVoService
 	 * @class
 	 */
-	pinpointApp.factory('NavbarVoService', [ 'PreferenceService', function (preferenceService) {
+	/*
+	pinpointApp.service( "NavbarVoService", [ "PreferenceService", function( preferenceService ) {
+
+	});
+	*/
+
+	pinpointApp.factory("NavbarVoService", [ "PreferenceService", function (preferenceService) {
 	    return function () {
 	        // define and initialize private variables;
 	        var self = this;
 	        this._sApplication = false;
+			this._periodType = "";
 	        this._nPeriod = false;
 	        this._nQueryEndTime = false;
 	        this._sFilter = false;
@@ -23,8 +30,8 @@
 	        this._sReadablePeriod = false;
 	        this._sQueryEndDateTime = false;
 
+			this._nCalleeRange = preferenceService.getCallee();
 	        this._nCallerRange = preferenceService.getCaller();
-	        this._nCalleeRange = preferenceService.getCallee();
 	        
 	        this._sHint = false;
 	
@@ -71,17 +78,17 @@
 	        this.getServiceTypeName = function () {
 	            return self._sApplication.split('@')[1];
 	        };
+			this.getCalleeRange = function() {
+				return self._nCalleeRange;
+			};
 	        this.getCallerRange = function() {
 	        	return self._nCallerRange;
 	        };
-	        this.getCalleeRange = function() {
-	        	return self._nCalleeRange;
-	        };
+			this.setCalleeRange = function( calleeRange ) {
+				self._nCalleeRange = calleeRange;
+			};
 	        this.setCallerRange = function( callerRange ) {
 	        	self._nCallerRange = callerRange;
-	        };
-	        this.setCalleeRange = function( calleeRange ) {
-	        	self._nCalleeRange = calleeRange;
 	        };
 	        this.setQueryStartTime = function (queryStartTime) {
 	            if (angular.isNumber(queryStartTime) && queryStartTime > 0) {
@@ -119,9 +126,6 @@
 	        };
 	        this.getHint = function () {
 	            return self._sHint;
-	        };
-	        this.getHintAsJson = function () {
-	            return JSON.parse(self._sHint);
 	        };
 	
 	        this.setAgentId = function (agentId) {
@@ -163,9 +167,18 @@
 	                        self.setPeriod(period);
 	                        break;
 	                }
-	            }
+	            } else {
+					if ( readablePeriod === "realtime" ) {
+						self.setPeriodType( "realtime" );
+						self._sReadablePeriod = "1m";
+						self.setPeriod( 300 );
+					}
+				}
 	            return self;
 	        };
+			this.isRealtime = function() {
+				return this._periodType === "realtime";
+			};
 	        this.getReadablePeriod = function () {
 	            return self._sReadablePeriod;
 	        };
@@ -181,17 +194,9 @@
 	        this.getQueryEndDateTime = function () {
 	            return self._sQueryEndDateTime;
 	        };
-	
 	        this._parseQueryEndDateTimeToTimestamp = function (queryEndDateTime) {
 	            return moment(queryEndDateTime, self._sDateTimeFormat).valueOf();
 	        };
-	
-	        this.autoCalculateByQueryEndTimeAndPeriod = function () {
-	            self._nQueryPeriod = self._nPeriod  * 1000 * 60;
-	            self._nQueryStartTime = self._nQueryEndTime - self._nQueryPeriod;
-	            return self;
-	        };
-	
 	        this.autoCalcultateByQueryStartTimeAndQueryEndTime = function () {
 	            self._nQueryPeriod = self._nQueryEndTime - self._nQueryStartTime;
 	            self._nPeriod = self._nQueryPeriod / 1000 / 60;
@@ -199,7 +204,6 @@
 	            self._sQueryEndDateTime = moment(self._nQueryEndTime).format(self._sDateTimeFormat);
 	            return self;
 	        };
-	
 	        this.autoCalculateByQueryEndDateTimeAndReadablePeriod = function () {
 	            self._nQueryPeriod = self._nPeriod  * 1000;
 	            self._nQueryStartTime = self._nQueryEndTime - self._nQueryPeriod;
@@ -207,7 +211,14 @@
 	        };
 			this.getPartialURL = function( bAddApplication, bAddFilter) {
 				return (bAddApplication ? self.getApplication() + "/" : "" ) + self.getReadablePeriod() + "/" + self.getQueryEndDateTime() + ( bAddFilter ? ( self.getFilter() ? "/" + self.getFilter() : "" ) : "" );
-			}
+			};
+			this.setPeriodType = function( type ) {
+				this._periodType = type;
+			};
+			this.getPeriodType = function() {
+				return this._periodType;
+			};
+
 	    };
 	}]);
 })();

@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 
+import java.nio.ByteBuffer;
+
 /**
  * @author emeroad
  */
@@ -29,6 +31,10 @@ public final class TransactionIdUtils {
     public static final byte VERSION = 0;
 
     private TransactionIdUtils() {
+    }
+
+    public static String formatString(TransactionId transactionId) {
+        return formatString(transactionId.getAgentId(), transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
     }
 
     public static String formatString(String agentId, long agentStartTime, long transactionSequence) {
@@ -45,14 +51,24 @@ public final class TransactionIdUtils {
     }
 
     public static byte[] formatBytes(String agentId, long agentStartTime, long transactionSequence) {
+        final Buffer buffer = writeTransactionId(agentId, agentStartTime, transactionSequence);
+        return buffer.getBuffer();
+    }
+
+    public static ByteBuffer formatByteBuffer(String agentId, long agentStartTime, long transactionSequence) {
+        final Buffer buffer = writeTransactionId(agentId, agentStartTime, transactionSequence);
+        return buffer.wrapByteBuffer();
+    }
+
+    private static Buffer writeTransactionId(String agentId, long agentStartTime, long transactionSequence) {
         // agentId may be null
         // version + prefixed size + string + long + long
         final Buffer buffer = new AutomaticBuffer(1 + 5 + 24 + 10 + 10);
-        buffer.put(VERSION);
+        buffer.putByte(VERSION);
         buffer.putPrefixedString(agentId);
-        buffer.putVar(agentStartTime);
-        buffer.putVar(transactionSequence);
-        return buffer.getBuffer();
+        buffer.putVLong(agentStartTime);
+        buffer.putVLong(transactionSequence);
+        return buffer;
     }
 
     public static TransactionId parseTransactionId(final byte[] transactionId) {
@@ -66,8 +82,8 @@ public final class TransactionIdUtils {
         }
 
         final String agentId = buffer.readPrefixedString();
-        final long agentStartTime = buffer.readVarLong();
-        final long transactionSequence = buffer.readVarLong();
+        final long agentStartTime = buffer.readVLong();
+        final long transactionSequence = buffer.readVLong();
         if (agentId == null) {
             return new TransactionId(agentStartTime, transactionSequence);
         } else {

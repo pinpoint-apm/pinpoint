@@ -38,6 +38,7 @@ import com.navercorp.pinpoint.plugin.jdbc.postgresql.PostgreSqlConstants;
 @TargetConstructor({ "org.postgresql.util.HostSpec[]", "java.lang.String", "java.lang.String", "java.util.Properties", "java.lang.String" })
 public class PostgreSQLConnectionCreateInterceptor implements AroundInterceptor {
 
+    private static final String DEFAULT_PORT = "5432";
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -60,7 +61,7 @@ public class PostgreSQLConnectionCreateInterceptor implements AroundInterceptor 
         Properties properties = getProperties(args[3]);
 
         final String hostToConnectTo = properties.getProperty("PGHOST");
-        final Integer portToConnectTo = Integer.valueOf(properties.getProperty("PGPORT"));
+        final Integer portToConnectTo = Integer.valueOf(properties.getProperty("PGPORT", DEFAULT_PORT));
 
         final String databaseId = properties.getProperty("PGDBNAME");
 
@@ -107,21 +108,8 @@ public class PostgreSQLConnectionCreateInterceptor implements AroundInterceptor 
         if (value instanceof Properties) {
             return (Properties) value;
         }
-        return null;
-    }
-
-    private String getString(Object value) {
-        if (value instanceof String) {
-            return (String) value;
-        }
-        return null;
-    }
-
-    private Integer getInteger(Object value) {
-        if (value instanceof Integer) {
-            return (Integer) value;
-        }
-        return null;
+        // NPE defence empty properties
+        return new Properties();
     }
 
     @Override

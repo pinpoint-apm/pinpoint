@@ -42,8 +42,8 @@ public class ResponseTimeMapperTest {
         Buffer buffer = new AutomaticBuffer();
         HistogramSlot histogramSlot = ServiceType.STAND_ALONE.getHistogramSchema().findHistogramSlot(1000, false);
         short histogramSlotTime = histogramSlot.getSlotTime();
-        buffer.put(histogramSlotTime);
-        buffer.put(Bytes.toBytes("agent"));
+        buffer.putShort(histogramSlotTime);
+        buffer.putBytes(Bytes.toBytes("agent"));
         byte[] bufferArray = buffer.getBuffer();
         byte[] valueArray = Bytes.toBytes(1L);
 

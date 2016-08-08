@@ -30,8 +30,6 @@ import java.util.Set;
  * 
  */
 public interface HostApplicationMapDao {
-    @Deprecated
-    Set<AcceptApplication> findAcceptApplicationName(String host, Range range);
 
     Set<AcceptApplication> findAcceptApplicationName(Application fromApplication, Range range);
 }

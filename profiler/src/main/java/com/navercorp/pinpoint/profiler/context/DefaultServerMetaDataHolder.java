@@ -73,7 +73,7 @@ public class DefaultServerMetaDataHolder implements ServerMetaDataHolder {
     }
 
     @Override
-    public void publishServerMetaData() {
+    public void notifyListeners() {
         final ServerMetaData serverMetaData = createServerMetaData();
         for (ServerMetaDataListener listener : this.listeners) {
             listener.publishServerMetaData(serverMetaData);

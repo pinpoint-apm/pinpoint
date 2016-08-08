@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.dao.hbase.mapper;
 
 import org.springframework.stereotype.Component;
 
-import com.navercorp.pinpoint.common.bo.AgentEventBo;
+import com.navercorp.pinpoint.common.server.bo.AgentEventBo;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.ValueMapper;
@@ -32,10 +32,10 @@ public class AgentEventValueMapper implements ValueMapper<AgentEventBo> {
     @Override
     public byte[] mapValue(AgentEventBo value) {
         final Buffer buffer = new AutomaticBuffer();
-        buffer.put(value.getVersion());
+        buffer.putInt(value.getVersion());
         buffer.putPrefixedString(value.getAgentId());
-        buffer.put(value.getStartTimestamp());
-        buffer.put(value.getEventTimestamp());
+        buffer.putLong(value.getStartTimestamp());
+        buffer.putLong(value.getEventTimestamp());
         buffer.putPrefixedBytes(value.getEventBody());
         return buffer.getBuffer();
     }

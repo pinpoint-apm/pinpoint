@@ -24,10 +24,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.profiler.util.ApiUtils;
-import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author emeroad
@@ -69,6 +69,56 @@ public class JavaAssistUtilsTest {
 
         Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("java.lang.String"), 0);
         Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("java.lang.String[][]"), 2);
+    }
+
+    @Test
+    public void javaClassNameToObjectName() {
+        // primitives
+        Assert.assertEquals("boolean", JavaAssistUtils.javaClassNameToObjectName(boolean.class.getName()));
+        Assert.assertEquals("byte", JavaAssistUtils.javaClassNameToObjectName(byte.class.getName()));
+        Assert.assertEquals("char", JavaAssistUtils.javaClassNameToObjectName(char.class.getName()));
+        Assert.assertEquals("double", JavaAssistUtils.javaClassNameToObjectName(double.class.getName()));
+        Assert.assertEquals("float", JavaAssistUtils.javaClassNameToObjectName(float.class.getName()));
+        Assert.assertEquals("int", JavaAssistUtils.javaClassNameToObjectName(int.class.getName()));
+        Assert.assertEquals("short", JavaAssistUtils.javaClassNameToObjectName(short.class.getName()));
+
+        // wrappers
+        Assert.assertEquals("java.lang.Integer", JavaAssistUtils.javaClassNameToObjectName(Integer.class.getName()));
+        Assert.assertEquals("java.lang.String", JavaAssistUtils.javaClassNameToObjectName(String.class.getName()));
+
+        // classes
+        Assert.assertEquals("java.util.List", JavaAssistUtils.javaClassNameToObjectName(List.class.getName()));
+        Assert.assertEquals("java.util.ArrayList", JavaAssistUtils.javaClassNameToObjectName(new ArrayList<Integer>().getClass().getName()));
+
+        // arrays
+        Assert.assertEquals("boolean[]", JavaAssistUtils.javaClassNameToObjectName(boolean[].class.getName()));
+        Assert.assertEquals("byte[]", JavaAssistUtils.javaClassNameToObjectName(byte[].class.getName()));
+        Assert.assertEquals("java.lang.String[]", JavaAssistUtils.javaClassNameToObjectName(String[].class.getName()));
+
+        // inner/nested classes
+        Assert.assertEquals(
+                this.getClass().getName() + "$1",
+                JavaAssistUtils.javaClassNameToObjectName(new Comparable<Long>() {
+                    @Override
+                    public int compareTo(Long o) {
+                        return 0;
+                    }
+                }.getClass().getName()));
+        class SomeComparable implements Comparable<Long> {
+            @Override
+            public int compareTo(Long o) {
+                return 0;
+            }
+        }
+        SomeComparable inner = new SomeComparable();
+        Assert.assertEquals(
+                this.getClass().getName() + "$1SomeComparable",
+                JavaAssistUtils.javaClassNameToObjectName(inner.getClass().getName())); // assume nothing else is defined in this class
+        Assert.assertEquals(
+                this.getClass().getName() + "$1SomeComparable[]",
+                JavaAssistUtils.javaClassNameToObjectName(new SomeComparable[] {inner}.getClass().getName()));
+        Assert.assertEquals("java.util.Map$Entry", JavaAssistUtils.javaClassNameToObjectName(Map.Entry.class.getName()));
+        Assert.assertEquals("java.util.Map$Entry[]", JavaAssistUtils.javaClassNameToObjectName(Map.Entry[].class.getName()));
     }
 
 

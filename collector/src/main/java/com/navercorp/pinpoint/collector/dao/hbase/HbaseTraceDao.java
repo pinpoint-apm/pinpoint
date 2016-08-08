@@ -16,43 +16,36 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase;
 
-import com.navercorp.pinpoint.collector.dao.TracesDao;
-import com.navercorp.pinpoint.collector.dao.hbase.filter.SpanEventFilter;
-import com.navercorp.pinpoint.collector.util.AcceptedTimeService;
-import com.navercorp.pinpoint.common.bo.AnnotationBo;
-import com.navercorp.pinpoint.common.bo.AnnotationBoList;
-import com.navercorp.pinpoint.common.bo.SpanBo;
-import com.navercorp.pinpoint.common.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.SpanUtils;
-import com.navercorp.pinpoint.thrift.dto.TAnnotation;
-import com.navercorp.pinpoint.thrift.dto.TSpan;
-import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
-import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
-import com.sematext.hbase.wd.AbstractRowKeyDistributor;
+import com.navercorp.pinpoint.collector.dao.TraceDao;
 
+import com.navercorp.pinpoint.common.server.bo.BasicSpan;
+import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
+import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
+import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.AnnotationSerializer;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanEventEncodingContext;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanEventSerializer;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanSerializer;
+import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
 /**
  * @author emeroad
  */
 @Repository
-public class HbaseTraceDao implements TracesDao {
+public class HbaseTraceDao implements TraceDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -66,103 +59,85 @@ public class HbaseTraceDao implements TracesDao {
     private SpanEventFilter spanEventFilter;
 
     @Autowired
-    @Qualifier("traceDistributor")
-    private AbstractRowKeyDistributor rowKeyDistributor;
+    private SpanSerializer spanSerializer;
+
+    @Autowired
+    private SpanEventSerializer spanEventSerializer;
+
+    @Autowired
+    private AnnotationSerializer annotationSerializer;
+
+    @Autowired
+    @Qualifier("traceRowKeyEncoderV1")
+    private RowKeyEncoder<BasicSpan> rowKeyEncoder;
 
     @Override
-    public void insert(final TSpan span) {
-        if (span == null) {
+    public void insert(final SpanBo spanBo) {
+        if (spanBo == null) {
             throw new NullPointerException("span must not be null");
         }
 
-        SpanBo spanBo = new SpanBo(span);
-        final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(span));
-        Put put = new Put(rowKey);
 
-        byte[] spanValue = spanBo.writeValue();
+        long acceptedTime = spanBo.getCollectorAcceptTime();
 
-        // TODO  if we can identify whether the columnName is duplicated or not,
-        // we can also know whether the span id is duplicated or not.
-        byte[] spanId = Bytes.toBytes(spanBo.getSpanId());
+        final byte[] rowKey = rowKeyEncoder.encodeRowKey(spanBo);
+        final Put put = new Put(rowKey, acceptedTime);
 
-        long acceptedTime = acceptedTimeService.getAcceptedTime();
-        put.addColumn(TRACES_CF_SPAN, spanId, acceptedTime, spanValue);
+        this.spanSerializer.serialize(spanBo, put, null);
+        this.annotationSerializer.serialize(spanBo, put, null);
 
-        List<TAnnotation> annotations = span.getAnnotations();
-        if (CollectionUtils.isNotEmpty(annotations)) {
-            byte[] bytes = writeAnnotation(annotations);
-            put.addColumn(TRACES_CF_ANNOTATION, spanId, bytes);
+
+        addNestedSpanEvent(put, spanBo);
+
+        boolean success = hbaseTemplate.asyncPut(TRACES, put);
+        if (!success) {
+            hbaseTemplate.put(TRACES, put);
         }
-
-        addNestedSpanEvent(put, span);
-
-        hbaseTemplate.put(TRACES, put);
-
     }
 
-    private byte[] getDistributeRowKey(byte[] transactionId) {
-        return rowKeyDistributor.getDistributedKey(transactionId);
-    }
-
-    private void addNestedSpanEvent(Put put, TSpan span) {
-        final List<TSpanEvent> spanEventBoList = span.getSpanEventList();
+    private void addNestedSpanEvent(Put put, SpanBo span) {
+        final List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
         if (CollectionUtils.isEmpty(spanEventBoList)) {
             return;
         }
 
 
-        for (TSpanEvent spanEvent : spanEventBoList) {
-            final SpanEventBo spanEventBo = new SpanEventBo(span, spanEvent);
-            addColumn(put, spanEventBo);
+        for (SpanEventBo spanEvent : spanEventBoList) {
+            addColumn(put, span, spanEvent);
         }
     }
-
-
 
     @Override
-    public void insertSpanChunk(TSpanChunk spanChunk) {
-        final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(spanChunk));
-        final Put put = new Put(rowKey);
+    public void insertSpanChunk(SpanChunkBo spanChunkBo) {
+        final byte[] rowKey = rowKeyEncoder.encodeRowKey(spanChunkBo);
+        final long acceptedTime = acceptedTimeService.getAcceptedTime();
+        final Put put = new Put(rowKey, acceptedTime);
 
-        final List<TSpanEvent> spanEventBoList = spanChunk.getSpanEventList();
+        final List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
         if (CollectionUtils.isEmpty(spanEventBoList)) {
             return;
         }
 
 
-        for (TSpanEvent spanEvent : spanEventBoList) {
-            final SpanEventBo spanEventBo = new SpanEventBo(spanChunk, spanEvent);
-            addColumn(put, spanEventBo);
+        for (SpanEventBo spanEventBo : spanEventBoList) {
+            addColumn(put, spanChunkBo, spanEventBo);
         }
 
         if (!put.isEmpty()) {
-            hbaseTemplate.put(TRACES, put);
+            boolean success = hbaseTemplate.asyncPut(TRACES, put);
+            if (!success) {
+                hbaseTemplate.put(TRACES, put);
+            }
         }
-
     }
 
-    private void addColumn(Put put, SpanEventBo spanEventBo) {
+    private void addColumn(Put put, BasicSpan basicSpan, SpanEventBo spanEventBo) {
         if (!spanEventFilter.filter(spanEventBo)) {
             return;
         }
-
-        byte[] rowId = BytesUtils.add(spanEventBo.getSpanId(), spanEventBo.getSequence(), spanEventBo.getAsyncId(), spanEventBo.getAsyncSequence());
-        byte[] value = spanEventBo.writeValue();
-        final long acceptedTime = acceptedTimeService.getAcceptedTime();
-
-        put.addColumn(TRACES_CF_TERMINALSPAN, rowId, acceptedTime, value);
+        SpanEventEncodingContext spanEventEncodingContext = new SpanEventEncodingContext(basicSpan.getSpanId(), spanEventBo);
+        this.spanEventSerializer.serialize(spanEventEncodingContext, put, null);
     }
 
-    private byte[] writeAnnotation(List<TAnnotation> annotations) {
-        List<AnnotationBo> boList = new ArrayList<>(annotations.size());
-        for (TAnnotation ano : annotations) {
-            AnnotationBo annotationBo = new AnnotationBo(ano);
-            boList.add(annotationBo);
-        }
 
-        Buffer buffer = new AutomaticBuffer(64);
-        AnnotationBoList annotationBoList = new AnnotationBoList(boList);
-        annotationBoList.writeValue(buffer);
-        return buffer.getBuffer();
-    }
 }

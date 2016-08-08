@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -52,6 +51,22 @@ public class WrappedSpanEventRecorderTest {
 
         Assert.assertEquals("Exception recoding", exceptionMessage2, spanEvent.getExceptionInfo().getStringValue());
         Assert.assertTrue("markRootError=true", span.isSetErrCode());
+    }
+
+    @Test
+    public void testRecordAPIId() throws Exception {
+        Span span = new Span();
+        SpanEvent spanEvent = new SpanEvent(span);
+        TraceContext traceContext = Mockito.mock(TraceContext.class);
+
+        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(traceContext);
+        recorder.setWrapped(spanEvent);
+
+
+        final int API_ID = 1000;
+        recorder.recordApiId(API_ID);
+
+        Assert.assertEquals("API ID", spanEvent.getApiId(), API_ID);
     }
 
 

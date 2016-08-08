@@ -134,7 +134,7 @@
 	                    span: 'span12', isAvailable: false
 	                };
 	                scope.$broadcast('cpuLoadChartDirective.initAndRenderWithData.forCpuLoad_' + scope.namespace, AgentDaoService.parseCpuLoadChartDataForAmcharts(cpuLoad, agentStat), '100%', '100%');
-	            }
+	            };
 	
 	            /**
 	             * show cursor at

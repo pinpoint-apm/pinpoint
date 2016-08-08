@@ -1,191 +1,54 @@
 <!doctype html>
-<!--[if lt IE 7]>
-<html lang="en-US" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>
-<html lang="en-US" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>
-<html lang="en-US" class="no-js lt-ie9""> <![endif]-->
-<!--[if gt IE 8]><!-->
-<html lang="en-US" class="no-js"> <!--<![endif]-->
+<html lang="en-US" class="no-js">
 <head>
     <title>PINPOINT</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
-    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <link rel="shortcut icon" href="favicon.png" type="image/png">
     <link rel="icon" href="favicon.png" type="image/png">
+	<link href='//fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
 
-    <!--<link href="//fonts.googleapis.com/css?family=Arimo:400italic,400,700italic,700" rel="stylesheet" type="text/css">-->
-    <link href='//fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+	<!--###vendor.css -->
+	<link rel="stylesheet" href="components/bootstrap/dist/css/bootstrap.min.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/jquery.jslider/css/jslider.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/jquery.jslider/css/jslider.round.plastic.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/jquery-ui/themes/smoothness/jquery-ui.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/select2/dist/css/select2.min.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/slickgrid/slick.grid.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/jquery-timepicker-addon/jquery-ui-timepicker-addon.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/jquery.layout/dist/layout-default-latest.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/dragToSelect/jquery.dragToSelect.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/angular-slider/angular-slider.min.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/tooltipster/css/tooltipster.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/google-code-prettify/prettify.css?v=${buildTime}">
+	<link rel="stylesheet" href="components/google-code-prettify/sunburst.css?v=${buildTime}">
+	<!-- vendor.css###-->
 
-    <!-- build:css styles/vendor.css -->
-    <!-- bower:css -->
-    <link rel="stylesheet" href="components/jquery-ui/themes/smoothness/jquery-ui.css?v=${buildTime}">
-    <link rel="stylesheet" href="components/bootstrap/dist/css/bootstrap.min.css?v=${buildTime}">
-    <link rel="stylesheet" href="components/jquery-timepicker-addon/jquery-ui-timepicker-addon.css?v=${buildTime}">
-    <link rel="stylesheet" href="components/select2/select2.css?v=${buildTime}">
-    <link rel="stylesheet" href="components/jquery.layout/dist/layout-default-latest.css?v=${buildTime}">
-    <link rel="stylesheet" href="components/dragToSelect/jquery.dragToSelect.css?v=${buildTime}">
-    <link rel="stylesheet" href="components/jquery.jslider/css/jslider.css?v=${buildTime}">
-    <link rel="stylesheet" href="components/jquery.jslider/css/jslider.round.plastic.css?v=${buildTime}">
-    <link rel="stylesheet" href="components/angular-slider/angular-slider.min.css?v=${buildTime}">
-    <link rel="stylesheet" href="components/slickgrid/slick.grid.css?v=${buildTime}">
-    <link rel="stylesheet" href="components/tooltipster/css/tooltipster.css?v=${buildTime}">
-    <link rel="stylesheet" href="components/google-code-prettify/prettify.css?v=${buildTime}">
-    <link rel="stylesheet" href="components/google-code-prettify/sunburst.css?v=${buildTime}">
-    <!-- endbower -->
-    <!-- endbuild -->
-
-    <!-- build:css({.tmp,app}) styles/main.css -->
-    <link rel="stylesheet" href="styles/main.css?v=${buildTime}">
-    <link rel="stylesheet" href="styles/inspector.css?v=${buildTime}">
-    <link rel="stylesheet" href="styles/navbar.css?v=${buildTime}">
-    <link rel="stylesheet" href="styles/nodeInfoDetails.css?v=${buildTime}">
-    <link rel="stylesheet" href="styles/linkInfoDetails.css?v=${buildTime}">
-    <link rel="stylesheet" href="styles/transactionTable.css?v=${buildTime}">
-    <link rel="stylesheet" href="styles/callStacks.css?v=${buildTime}">
-    <link rel="stylesheet" href="styles/timeSlider.css?v=${buildTime}">
-    <link rel="stylesheet" href="styles/agentChartGroup.css?v=${buildTime}">
-    <link rel="stylesheet" href="styles/sidebarTitle.css?v=${buildTime}">
-    <link rel="stylesheet" href="styles/serverMap.css?v=${buildTime}">
-    <link rel="stylesheet" href="styles/filterInformation.css?v=${buildTime}">
-    <link rel="stylesheet" href="styles/distributedCallFlow.css?v=${buildTime}">
-    <link rel="stylesheet" href="styles/loading.css?v=${buildTime}">
-    <link rel="stylesheet" href="styles/jquery.BigScatterChart.css?v=${buildTime}">
-    <link rel="stylesheet" href="styles/xeicon.min.css?v=${buildTime}">
-    <link rel="stylesheet" href="styles/timer.css?v=${buildTime}">
-    <link rel="stylesheet" href="styles/configuration.css?v=${buildTime}">
-    <!-- endbuild -->
-
-    <!-- build:js scripts/plugins.js -->
-    <script src="components/jquery/dist/jquery.js?v=${buildTime}"></script>
-    <script src="components/jquery-ui/ui/jquery-ui.js?v=${buildTime}"></script>
-    <script src="components/moment/moment.js?v=${buildTime}"></script>
-    <script src="components/angular/angular.js?v=${buildTime}"></script>
-    <script src="components/underscore/underscore-min.js?v=${buildTime}"></script>
-    <script src="components/bootstrap/dist/js/bootstrap.min.js?v=${buildTime}"></script>
-    <script src="components/google-code-prettify/prettify.js?v=${buildTime}"></script>
-    <script src="components/google-code-prettify/lang-sql.js?v=${buildTime}"></script>
-    <script src="components/gojs/go.js?v=${buildTime}"></script>
-	<script src="components/snap.svg/snap.svg.min.js?v=${buildTime}"></script>
-
-    <script src="components/d3/d3.min.js?v=${buildTime}"></script>
-
-    <script src="components/select2/select2.min.js?v=${buildTime}"></script>
-    <script src="components/select2/select2_locale_ko.js?v=${buildTime}"></script>
-    <script src="components/jquery-class/jquery.Class.js?v=${buildTime}"></script>
-    <script src="components/jquery.layout/dist/jquery.layout-latest.js?v=${buildTime}"></script>
-    <script src="components/dragToSelect/jquery.dragToSelect.js?v=${buildTime}"></script>
-    <script src="features/scatter/jquery.BigScatterChart.js?v=${buildTime}"></script>
-    <script src="components/jquery-timepicker-addon/jquery-ui-timepicker-addon.js?v=${buildTime}"></script>
-    <script src="components/jquery.jslider/js/draggable-0.1.js?v=${buildTime}"></script>
-    <script src="components/jquery.jslider/js/jshashtable-2.1_src.js?v=${buildTime}"></script>
-    <script src="components/jquery.jslider/js/jquery.dependClass-0.1.js?v=${buildTime}"></script>
-    <script src="components/jquery.jslider/js/jquery.numberformatter-1.2.3.js?v=${buildTime}"></script>
-    <script src="components/jquery.jslider/js/tmpl.js?v=${buildTime}"></script>
-    <script src="components/jquery.jslider/js/jquery.jslider.js?v=${buildTime}"></script>
-    <script src="components/jquery-ui-tabs-paging/js/ui.tabs.paging.js?v=${buildTime}"></script>
-    <script src="components/angular-slider/angular-slider.min.js?v=${buildTime}"></script>
-    <script src="components/slickgrid/lib/jquery.event.drag-2.2.js?v=${buildTime}"></script>
-    <script src="components/slickgrid/slick.core.js?v=${buildTime}"></script>
-    <script src="components/slickgrid/slick.formatters.js?v=${buildTime}"></script>
-    <script src="components/slickgrid/slick.editors.js?v=${buildTime}"></script>
-    <script src="components/slickgrid/slick.grid.js?v=${buildTime}"></script>
-    <script src="components/slickgrid/slick.dataview.js?v=${buildTime}"></script>
-    <script src="components/slickgrid/plugins/slick.rowselectionmodel.js?v=${buildTime}"></script>
-    <script src="components/angular-base64/angular-base64.min.js?v=${buildTime}"></script>
-    <script src="components/amcharts/amcharts.js?v=${buildTime}"></script>
-    <script src="components/amcharts/serial.js?v=${buildTime}"></script>
-    <script src="components/amcharts/themes/light.js?v=${buildTime}"></script>
-    <script src="components/tooltipster/js/jquery.tooltipster.min.js?v=${buildTime}"></script>
-    <script src="components/handlebars/handlebars.min.js?v=${buildTime}"></script>
-    <script src="components/infiniteCircularScroll/InfiniteCircularScroll.js?v=${buildTime}"></script>
-	<script src="components/bootstrap/js/bootstrap-modal.js?v=${buildTime}"></script>
-	<script src="components/bootstrap/js/bootstrap-tooltip.js?v=${buildTime}"></script>
-	<script src="components/bootstrap/js/bootstrap-popover.js?v=${buildTime}"></script>
-    <script src="features/serverMap/jquery.ServerMap2.js?v=${buildTime}"></script>
-	<script src="components/time-slider/time-slider.min.js?v=${buildTime}"></script>
-    <!-- endbuild -->
-
-    <!-- build:js scripts/modules.js -->
-    <script src="components/angular-resource/angular-resource.js?v=${buildTime}"></script>
-    <script src="components/angular-cookies/angular-cookies.js?v=${buildTime}"></script>
-    <script src="components/angular-webstorage/angular-webstorage.js?v=${buildTime}"></script>
-    <script src="components/angular-strap/dist/angular-strap.min.js?v=${buildTime}"></script>
-    <script src="components/angular-strap/dist/angular-strap.tpl.min.js?v=${buildTime}"></script>
-    <script src="components/angular-animate/angular-animate.min.js?v=${buildTime}"></script>
-    <script src="components/angular-route/angular-route.js?v=${buildTime}"></script>
-    <script src="components/angular-sanitize/angular-sanitize.min.js?v=${buildTime}"></script>
-    <script src="components/angular-timer/dist/angular-timer.min.js?v=${buildTime}"></script>
-    <!-- endbuild -->
-
-	<!-- analytics -->
-	<script src="scripts/extra/google-analytics.js"></script>
-	<!-- end -->
+	<!--###pinpoint.css -->
+	<link rel="stylesheet" href="styles/main.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/inspector.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/navbar.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/nodeInfoDetails.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/linkInfoDetails.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/transactionTable.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/callStacks.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/timeSlider.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/agentChartGroup.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/sidebarTitle.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/serverMap.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/filterInformation.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/distributedCallFlow.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/loading.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/jquery.BigScatterChart.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/timer.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/configuration.css?v=${buildTime}">
+	<link rel="stylesheet" href="styles/xeicon.min.css?v=${buildTime}">
+	<!-- pinpoint.css###-->
 </head>
 <body ng-app="pinpointApp">
-<!--[if lt IE 7]>
-<p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser
-    today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better
-    experience this site.</p>
-<![endif]-->
 
-<!--[if lt IE 9]>
-<script src="bower_components/es5-shim/es5-shim.js?v=${buildTime}"></script>
-<script src="bower_components/json3/lib/json3.min.js?v=${buildTime}"></script>
-<![endif]-->
-<div class="modal" server-list-directive="" style="top:60px;">
-	<div class="modal-dialog modal-lg" style="width:900px;">
-		<div class="modal-content">
-			<div class="modal-header" style="background-color:#B0B0B0;color:#FFFFFF">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<span class="glyphicon glyphicon-question-sign serverListTooltip" style="cursor:pointer;float:right;color:white;margin-right:20px;"></span>
-				<h4 class="modal-title" ng-show="showNodeServer"><img ng-src="{{node.serviceType | iconUrl}}"> <span style="font-size:24px;font-weight:bold">{{node.applicationName}}</span> <span style="font-size:12px;padding-left:10px;">Server List</span></h4>
-				<h4 class="modal-title" ng-show="showLinkServer"><span style="font-size:24px;font-weight:bold"><img ng-src="{{node.fromNode.serviceType | iconUrl}}"> {{node.fromNode.applicationName}} <span class="glyphicon glyphicon-arrow-right"></span> <img ng-src="{{node.fromNode.serviceType | iconUrl}}"> {{node.toNode.applicationName}}</span> <span style="font-size:12px;padding-left:10px">Server List</span></h4>
-			</div>
-			<div class="modal-body">
-				<div class="server-wrapper" style="float:left;overflow:auto;width:450px;padding:10px 10px 10px 10px;box-shadow: 0px 0px 2px 2px rgba(0,0,0,0.3);">
-					<ul class="server-list list-unstyled" ng-show="showNodeServer" >
-		                <li ng-repeat="(key, server) in serverList | orderBy:'key'"  style="padding-bottom:6px;">
-		                    <span class="glyphicon glyphicon-home"></span>
-		                    {{server.name.split(':')[0]}}
-		                    <a ng-if="server.linkName" class="btn btn-default btn-xs" href="{{server.linkURL}}" target="_blank" title="System resource monitoring site">{{server.linkName}}</a>
-		                    <ul class="list-unstyled" style="padding-left:4px">
-		                        <li ng-repeat="instance in server.instanceList | orderBy:'instance.name'" style="padding:3px 0px 3px 0px">
-		                        	<label class="checkbox-inline">
-			                        	<input type="radio" name="selectedServer" value="{{instance.name}}" ng-click="selectServer( instance.name )" ng-checked="$parent.$first">
-			                            <span class="glyphicon glyphicon-hdd" style="padding-left:10px;color:{{node.agentHistogram[instance.name].Error > 0 ? 'red':''}}"></span>
-			                            {{instance.name}}
-		                            </label>
-		                            <a style="float:right" class="btn btn-default btn-xs" ng-show="instance.hasInspector" ng-href="#/inspector/{{node.applicationName}}@{{node.serviceType}}/{{oNavbarVoService.getReadablePeriod()}}/{{oNavbarVoService.getQueryEndDateTime()}}/{{instance.name}}" target="_blank" title="Inspect Agents" alt="Inspect Agents">Inspector</a>
-		                        </li>
-		                    </ul>
-		                </li>
-		            </ul>
-		            <ul class="link-list list-unstyled" ng-show="showLinkServer">
-		                <li ng-repeat="(name, histogram) in linkList | orderBy:'name'" style="padding:3px 0px 3px 0px">
-                        	<label class="checkbox-inline" style="padding-left:0px;">
-	                        	<input type="radio" name="selectedServer" value="{{name}}" ng-click="selectServer( name )" ng-checked="$first">
-			                    <span class="glyphicon glyphicon-hdd" style="padding-left:10px;color:{{histogram.Error > 0 ? 'red':''}}"></span>
-			                    {{name}}
-                            </label>
-                            <a style="float:right" class="btn btn-default btn-xs" ng-href="#/inspector/{{node.applicationName || node.filterApplicationName}}@{{node.serviceType}}/{{oNavbarVoService.getReadablePeriod()}}/{{oNavbarVoService.getQueryEndDateTime()}}/{{name}}" target="_blank" title="Inspect Agents" alt="Inspect Agents">Inspector</a>
-		                </li>
-		            </ul>
-				</div>
-				<div style="float:right;padding-right:30px">
-					<h4>Response Summary</h4>
-					<response-time-chart-directive namespace="forServerList"></response-time-chart-directive>
-					<hr>
-	                <h4>Load</h4>
-	                <load-chart-directive namespace="forServerList"></load-chart-directive>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
 <div class="modal"  id="customLogPopup">
 	<div class="modal-dialog modal-lg" style="width:800px;">
 		<div class="modal-content">
@@ -259,14 +122,6 @@
 <script id="loading" type="text/ng-template">
 	<div>
 		<div style="position:absolute;top:0px;left:0px;width:100%;height:100%;background-color:#0000FF;opacity:0.1;z-index:9;display:none" class="progress-back">&nbsp;</div>
-		<div style="position:absolute;top:10%;width:100%;text-align:center;z-index:10;display:none;" class="progress-tip">
-			<img src="/images/tip/tip01_ko.png" style="box-shadow: 7px 7px 10px -1px rgba(0,0,0,0.5);background-color:#FFFFFF;border-radius:20px;">
-			<div class="form-group" style="padding-top:10px">
-				<label style="background-color:#FFFFFF;padding:5px;font-size:18px;font-weight:bold;border-radius:4px">
-					<input type="checkbox" ng-model="loadingOption.hideTip"/> Don't show 30 days
-				</label>
-			</div>
-		</div>
     	<div class="progress progress-striped" style="position:absolute;top:50%;width:90%;margin-left:5%;display:none;z-index:10">
        		<div class="bar progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
     	</div>
@@ -333,141 +188,116 @@
     </div>
 </div>
 
-<div class="modal fade" tabindex="-1" role="dialog" ng-controller="ConfigurationCtrl">
-  <div class="modal-dialog" role="document" style="width:1000px">
-    <div class="modal-content" id="pinpoint-configuration">
-      <div class="modal-header" style="text-align:center">
-      	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Pinpoint Configuration</h4>
-        <ul>
-        	<li ng-class="{true: 'active'}[isGeneral()]" ng-click="setCurrentTab('general')">General</li>
-        	<li ng-class="{true: 'active'}[isAlarm()]" ng-click="setCurrentTab('alarm')">Alarm</li>
-        	<li class="description">{{descriptionOfCurrentTab}}</li>
-        	<li ng-class="{true: 'active'}[isHelp()]" ng-click="setCurrentTab('help')" style="float:right">Help</li>
-        </ul>
-      </div>
-      <div class="modal-body">
-      	<div id="config-general" ng-show="isGeneral()" ng-controller="GeneralCtrl">
-      		<h4>General Configuration <span class="general-warning"></span></h4>
-      		<div style="text-align:center;font-family:verdana;">
-      			<table class="table table-bordered table-condensed">
-      				<tbody>
-      					<tr>
-      						<td class="col-md-10 title" colspan="4" style="padding-top:0px;background-color:white">ServerMap</td>
-      					<tr>
-      						<td class="col-md-2 title">Search Depth</td>
-      						<td class="col-md-3">
-								<table class="table table-bordered table-condense">
-									<tbody style="background-color:#e9eaed">
-									<tr>
-										<td class="col-md-1" style="padding-top:14px"><img src="images/inbound.png" width="24px" height="24px"> Inbound</td>
-										<td class="col-md-2">
-											<select class="depth form-control" ng-change="changeCallee()" ng-model="callee">
-												<option ng-repeat="dep in depthList" ng-selected="dep == callee" value="{{dep}}">{{dep}}</option>
-											</select>
-										</td>
-									</tr>
-									<tr>
-										<td class="col-md-1" style="padding-top:14px"><img src="images/outbound.png" width="24px" height="24px"> Outbound</td>
-										<td class="col-md-2">
-											<select class="depth form-control" ng-change="changeCaller()" ng-model="caller">
-												<option ng-repeat="dep in depthList" ng-selected="dep == caller" value="{{dep}}">{{dep}}</option>
-											</select>
-										</td>
-									</tr>
-									</tbody>
-								</table>
-      						</td>
-      						<td class="col-md-2 title">Search Peroid</td>
-      						<td class="col-md-3">
-      							<select class="period form-control" ng-change="changePeriod()" ng-model="period">
-      								<option ng-repeat="per in periodTypes" ng-selected="per == period" value="{{per}}">{{per}}</option>
-      							</select>
-      						</td>
-      					</tr>
-      				</tbody>
-      			</table>
-      			<table class="table table-bordered table-condensed">
-      				<tbody>
-      					<tr>
-      						<td class="col-md-10 title" colspan="4" style="padding-top:0px;background-color:white">Application</td>
-      					<tr>
-      					<tr>
-      						<td class="col-md-2 title">Application<br/>Favorite</td>
-      						<td  class="col-md-3">
-      							<select class="applicationList" style="width:100%">
-					                <option ng-repeat="app in applications" value="{{app.text}}">{{app.text}}</option>
-					            </select>
-      						</td>
-      						<td class="col-md-5" colspan="2">
-      							<div class="favorite-list-wrapper">
-	      							<ul class="favorite-list">
-	      								<li ng-repeat="favorite in favoriteList"><img ng-src='/images/icons/{{favorite.split("@")[1]}}.png' height="25px"/> {{favorite.split('@')[0]}} <button class="btn btn-danger btn-xs" style="float:right" ng-click="removeFavorite(favorite)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></li>
-	      							</ul>
-	      							<div ng-show="favoriteList.length == 0" style="color:#F00" class="favorite-empty"></div>
-      							</div>
-      						</td>
-      					</tr>
-      				</tbody>
-      			</table>
-      		</div>
-      	</div>
-      	<div id="config-alram" ng-show="isAlarm()" style="margin-top:10px;">
-      		<alarm-user-group-directive></alarm-user-group-directive>
-	      	<div class="tabbable tabs-left" style="padding-left:20px;">
-	          	<ul class="nav nav-tabs">
-	            	<li class="active"><div href="#userListInGroup" data-toggle="tab">Member</div></li>
-	            	<li><div href="#alarmInGroup" data-toggle="tab">Alarm</div></li>
-	          	</ul>
-	          	<div class="tab-content" style="float:left;width:590px;">
-	            	<div class="tab-pane active" id="userListInGroup">
-		            	<alarm-group-member-directive></alarm-group-member-directive>
-	            		<alarm-pinpoint-user-directive></alarm-pinpoint-user-directive>
-		            </div>
-	            	<div class="tab-pane" id="alarmInGroup">
-	            		<alarm-rule-directive></alarm-rule-directive>
-	            	</div>
-	        	</div>
-	        </div>
-	      	<div style="clear:both;display:block;"></div>
-	      </div>
-	    <div id="config-help" ng-show="isHelp()" ng-controller="HelpCtrl">
-      		<div style="font-family:verdana;">
-      			<a href="https://github.com/naver/pinpoint/wiki/FAQ" target="_blank" class="link-title"><i class="xi-clip"></i> FAQ</a>
-      			<a href="https://github.com/naver/pinpoint/issues" class="link-title"><i class="xi-info-circle"></i> Issues</a></h4>
-      			<a href="https://groups.google.com/forum/#!forum/pinpoint_user" class="link-title"><i class="xi-pen"></i> User Group</a>
-      			<hr/>
-      			<h4>English</h4>
-      			<ul>
-      				<li ng-repeat="helpLink in enHelpList">
-      					<a href="{{helpLink.link}}" target="_balnk"><span class="glyphicon glyphicon-file" aria-hidden="true"></span>{{helpLink.title}}</a>
-      				</li>
-      			</ul>
-      			<hr/>
-      			<h4>한글</h4>
-      			<ul>
-      				<li ng-repeat="helpLink in koHelpList">
-      					<a href="{{helpLink.link}}" target="_balnk"><span class="glyphicon glyphicon-file" aria-hidden="true"></span>{{helpLink.title}}</a>
-      				</li>
-      			</ul>
-      		</div>
-      	</div>
-      </div>
-    </div>
-  </div>
-</div>
+<configuration-directive></configuration-directive>
 
+<!--###base-lib.min.js -->
+<script src="components/jquery/dist/jquery.min.js?v=${buildTime}"></script>
+<script src="components/jquery-ui/ui/jquery-ui.js?v=${buildTime}"></script>
+<script src="components/underscore/underscore-min.js?v=${buildTime}"></script>
+<!-- base-lib.min.js###-->
 
-<!-- build:js({.tmp,app}) scripts/scripts.js -->
+<!--###angular-lib.min.js -->
+<script src="components/angular/angular.min.js?v=${buildTime}"></script>
+<script src="components/angular-resource/angular-resource.min.js?v=${buildTime}"></script>
+<script src="components/angular-cookies/angular-cookies.min.js?v=${buildTime}"></script>
+<script src="components/angular-webstorage/angular-webstorage.js?v=${buildTime}"></script>
+<script src="components/angular-strap/dist/angular-strap.min.js?v=${buildTime}"></script>
+<script src="components/angular-strap/dist/angular-strap.tpl.min.js?v=${buildTime}"></script>
+<script src="components/angular-animate/angular-animate.min.js?v=${buildTime}"></script>
+<script src="components/angular-route/angular-route.min.js?v=${buildTime}"></script>
+<script src="components/angular-sanitize/angular-sanitize.min.js?v=${buildTime}"></script>
+<script src="components/angular-slider/angular-slider.min.js?v=${buildTime}"></script>
+<script src="components/angular-base64/angular-base64.min.js?v=${buildTime}"></script>
+<script src="components/angular-timer/dist/angular-timer.min.js?v=${buildTime}"></script>
+<!-- angular-lib.min.js###-->
+
+<!--###draw-lib.min.js -->
+<script src="components/gojs/go.js?v=${buildTime}"></script>
+<script src="components/snap.svg/snap.svg.min.js?v=${buildTime}"></script>
+<script src="components/d3/d3.min.js?v=${buildTime}"></script>
+<script src="components/amcharts/amcharts.js?v=${buildTime}"></script>
+<script src="components/amcharts/serial.js?v=${buildTime}"></script>
+<script src="components/amcharts/themes/light.js?v=${buildTime}"></script>
+<!-- draw-lib.min.js###-->
+
+<!--###util-lib.min.js -->
+<script src="components/bootstrap/dist/js/bootstrap.min.js?v=${buildTime}"></script>
+<script src="components/google-code-prettify/prettify.js?v=${buildTime}"></script>
+<script src="components/google-code-prettify/lang-sql.js?v=${buildTime}"></script>
+<script src="components/moment/moment.js?v=${buildTime}"></script>
+<script src="components/select2/dist/js/select2.full.min.js?v=${buildTime}"></script>
+<script src="components/jquery-class/jquery.Class.js?v=${buildTime}"></script>
+<script src="components/jquery.layout/dist/jquery.layout-latest.js?v=${buildTime}"></script>
+<script src="components/dragToSelect/jquery.dragToSelect.js?v=${buildTime}"></script>
+<script src="components/jquery-timepicker-addon/jquery-ui-timepicker-addon.js?v=${buildTime}"></script>
+<script src="components/jquery.jslider/js/draggable-0.1.js?v=${buildTime}"></script>
+<script src="components/jquery.jslider/js/jshashtable-2.1_src.js?v=${buildTime}"></script>
+<script src="components/jquery.jslider/js/jquery.dependClass-0.1.js?v=${buildTime}"></script>
+<script src="components/jquery.jslider/js/jquery.numberformatter-1.2.3.js?v=${buildTime}"></script>
+<script src="components/jquery.jslider/js/tmpl.js?v=${buildTime}"></script>
+<script src="components/jquery.jslider/js/jquery.jslider.js?v=${buildTime}"></script>
+<script src="components/jquery-ui-tabs-paging/js/ui.tabs.paging.js?v=${buildTime}"></script>
+<script src="components/slickgrid/lib/jquery.event.drag-2.2.js?v=${buildTime}"></script>
+<script src="components/slickgrid/slick.core.js?v=${buildTime}"></script>
+<script src="components/slickgrid/slick.formatters.js?v=${buildTime}"></script>
+<script src="components/slickgrid/slick.editors.js?v=${buildTime}"></script>
+<script src="components/slickgrid/slick.grid.js?v=${buildTime}"></script>
+<script src="components/slickgrid/slick.dataview.js?v=${buildTime}"></script>
+<script src="components/slickgrid/plugins/slick.rowselectionmodel.js?v=${buildTime}"></script>
+<script src="components/tooltipster/js/jquery.tooltipster.min.js?v=${buildTime}"></script>
+<script src="components/handlebars/handlebars.min.js?v=${buildTime}"></script>
+<script src="components/bootstrap/js/bootstrap-modal.js?v=${buildTime}"></script>
+<script src="components/bootstrap/js/bootstrap-tooltip.js?v=${buildTime}"></script>
+<script src="components/bootstrap/js/bootstrap-popover.js?v=${buildTime}"></script>
+<!-- util-lib.min.js###-->
+
+<!--###pinpoint-component.min.js -->
+<script src="components/time-slider/time-slider.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.background.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.configuration.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.event-data.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.events.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.handler.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.loading-indicator.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.position-manager.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.selection-manager.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.selection-point.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.selection-zone.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.state-line.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.time-series-signboard.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.time-signboard.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.x-axis.js?v=${buildTime}"></script>
+
+<script src="components/big-scatter-chart/BigScatterChart2.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.DataBlock.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.DragManager.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.DataLoadManager.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.RendererManager.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.BubbleTypeManager.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.SizeCoordinateManager.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.Util.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.HelpPlugin.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.MessagePlugin.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.SettingPlugin.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.DownloadPlugin.js?v=${buildTime}"></script>
+<script src="components/big-scatter-chart/BigScatterChart2.WideOpenPlugin.js?v=${buildTime}"></script>
+
+<script src="components/infinite-circular-scroll/InfiniteCircularScroll.js?v=${buildTime}"></script>
+
+<script src="components/server-map2/jquery.ServerMap2.js?v=${buildTime}"></script>
+<!-- pinpoint-component.min.js###-->
+
+<script src="scripts/extra/google-analytics.js?v=${buildTime}"></script>
 <script src="scripts/app.js?v=${buildTime}"></script>
-<script src="scripts/extra/checkLoginSession.js"></script>
 
+<!--###pinpoint.min.js -->
 <script src="common/filters/icon-url.filter.js?v=${buildTime}"></script>
 <script src="common/filters/application-name-to-class-name.filter.js?v=${buildTime}"></script>
 <script src="common/services/time-slider-vo.service.js?v=${buildTime}"></script>
 <script src="common/services/alerts.service.js?v=${buildTime}"></script>
 <script src="common/services/progress-bar.service.js?v=${buildTime}"></script>
 <script src="common/services/navbar-vo.service.js?v=${buildTime}"></script>
+<script src="common/services/url-vo.service.js?v=${buildTime}"></script>
 <script src="common/services/transaction-dao.service.js?v=${buildTime}"></script>
 <script src="common/services/location.service.js?v=${buildTime}"></script>
 <script src="common/services/server-map-dao.service.js?v=${buildTime}"></script>
@@ -478,22 +308,25 @@
 <script src="common/services/server-map-filter-vo.service.js?v=${buildTime}"></script>
 <script src="common/services/alarm-ajax.service.js?v=${buildTime}"></script>
 <script src="common/services/alarm-util.service.js?v=${buildTime}"></script>
-<script src="common/services/alarm-broadcast.service.js?v=${buildTime}"></script>
 <script src="common/services/server-map-hint-vo.service.js?v=${buildTime}"></script>
 <script src="common/services/is-visible.service.js?v=${buildTime}"></script>
 <script src="common/services/user-locales.service.js?v=${buildTime}"></script>
+<script src="common/help/help-content-en.js?v=${buildTime}"></script>
+<script src="common/help/help-content-ko.js?v=${buildTime}"></script>
+<script src="common/help/help-content-template.js?v=${buildTime}"></script>
 <script src="common/services/help-content.service.js?v=${buildTime}"></script>
 <script src="common/services/analytics.service.js?v=${buildTime}"></script>
 <script src="common/services/realtime-websocket.service.js?v=${buildTime}"></script>
 <script src="common/services/preference.service.js?v=${buildTime}"></script>
-<script src="common/services/sql-ajax.service.js?v=${buildTime}"></script>
+<script src="common/services/common-ajax.service.js?v=${buildTime}"></script>
 <script src="common/services/agent-ajax.service.js?v=${buildTime}"></script>
 <script src="common/services/tooltip.service.js?v=${buildTime}"></script>
-<script src="common/help/help-content-en.js?v=${buildTime}"></script>
-<script src="common/help/help-content-ko.js?v=${buildTime}"></script>
-<script src="common/help/help-content-template.js?v=${buildTime}"></script>
+<script src="common/services/common-util.service.js?v=${buildTime}"></script>
 
+<script src="features/applicationList/application-list.directive.js?v=${buildTime}"></script>
+<script src="features/periodSelector/period-selector.directive.js?v=${buildTime}"></script>
 <script src="features/navbar/navbar.directive.js?v=${buildTime}"></script>
+<script src="features/navbar2/navbar2.directive.js?v=${buildTime}"></script>
 <script src="features/serverMap/server-map.directive.js?v=${buildTime}"></script>
 <script src="features/realtimeChart/realtime-chart.directive.js?v=${buildTime}"></script>
 <script src="features/scatter/scatter.directive.js?v=${buildTime}"></script>
@@ -515,13 +348,17 @@
 <script src="features/cpuLoadChart/cpu-load-chart.directive.js?v=${buildTime}"></script>
 <script src="features/tpsChart/tps-chart.directive.js?v=${buildTime}"></script>
 <script src="features/loading/loading.directive.js?v=${buildTime}"></script>
-<script src="features/configuration/configuration.controller.js?v=${buildTime}"></script>
-<script src="features/configuration/help/help.controller.js?v=${buildTime}"></script>
-<script src="features/configuration/general/general.controller.js?v=${buildTime}"></script>
-<script src="features/configuration/alarm/alarm-user-group.directive.js?v=${buildTime}"></script>
-<script src="features/configuration/alarm/alarm-group-member.directive.js?v=${buildTime}"></script>
-<script src="features/configuration/alarm/alarm-pinpoint-user.directive.js?v=${buildTime}"></script>
-<script src="features/configuration/alarm/alarm-rule.directive.js?v=${buildTime}"></script>
+<script src="features/configuration/configuration.directive.js?v=${buildTime}"></script>
+<script src="features/configuration/general/general.directive.js?v=${buildTime}"></script>
+<script src="features/configuration/userGroup/user-group-container.directive.js?v=${buildTime}"></script>
+<script src="features/configuration/userGroup/user-group.directive.js?v=${buildTime}"></script>
+<script src="features/configuration/userGroup/group-member.directive.js?v=${buildTime}"></script>
+<script src="features/configuration/userGroup/pinpoint-user.directive.js?v=${buildTime}"></script>
+<script src="features/configuration/application/application-config.directive.js?v=${buildTime}"></script>
+<script src="features/configuration/application/application-group.directive.js?v=${buildTime}"></script>
+<script src="features/configuration/application/alarm-rule.directive.js?v=${buildTime}"></script>
+<script src="features/configuration/help/help.directive.js?v=${buildTime}"></script>
+<script src="features/realtimeChart/realtime-chart.controller.js?v=${buildTime}"></script>
 
 <script src="pages/main/main.controller.js?v=${buildTime}"></script>
 <script src="pages/inspector/inspector.controller.js?v=${buildTime}"></script>
@@ -530,10 +367,10 @@
 <script src="pages/filteredMap/filtered-map.controller.js?v=${buildTime}"></script>
 <script src="pages/transactionView/transaction-view.controller.js?v=${buildTime}"></script>
 <script src="pages/scatterFullScreenMode/scatter-full-screen-mode.controller.js?v=${buildTime}"></script>
-<script src="features/realtimeChart/realtime-chart.controller.js?v=${buildTime}"></script>
+<!-- pinpoint.min.js###-->
+
 <script>
 	G_BUILD_TIME = "${buildTime}";
 </script>
-<!-- endbuild -->
 </body>
 </html>

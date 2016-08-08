@@ -16,18 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.codahale.metrics.Gauge;
-import com.codahale.metrics.Metric;
-import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
 
 /**
  * @author hyungil.jeong
  */
-public final class EmptyCpuLoadMetricSet implements CpuLoadMetricSet {
+public final class EmptyCpuLoadMetricSet extends CpuLoadMetricSet {
 
     private static final Double UNSUPPORTED_CPU_LOAD_METRIC = -1.0d;
     private static final Gauge<Double> UNSUPPORTED_CPU_LOAD_METRIC_GAUGE = new Gauge<Double>() {
@@ -38,11 +32,13 @@ public final class EmptyCpuLoadMetricSet implements CpuLoadMetricSet {
     };
 
     @Override
-    public Map<String, Metric> getMetrics() {
-        final Map<String, Metric> gauges = new HashMap<String, Metric>();
-        gauges.put(MetricMonitorValues.CPU_LOAD_JVM, UNSUPPORTED_CPU_LOAD_METRIC_GAUGE);
-        gauges.put(MetricMonitorValues.CPU_LOAD_SYSTEM, UNSUPPORTED_CPU_LOAD_METRIC_GAUGE);
-        return Collections.unmodifiableMap(gauges);
+    protected Gauge<Double> getJvmCpuLoadGauge() {
+        return UNSUPPORTED_CPU_LOAD_METRIC_GAUGE;
+    }
+
+    @Override
+    protected Gauge<Double> getSystemCpuLoadGauge() {
+        return UNSUPPORTED_CPU_LOAD_METRIC_GAUGE;
     }
 
     @Override

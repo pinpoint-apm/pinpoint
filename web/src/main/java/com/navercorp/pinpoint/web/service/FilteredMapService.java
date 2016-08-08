@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -23,7 +24,6 @@ import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.LoadFactor;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.SelectedScatterArea;
-import com.navercorp.pinpoint.web.vo.TransactionId;
 
 import java.util.List;
 
@@ -34,6 +34,8 @@ import java.util.List;
 public interface FilteredMapService {
 
     LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, Range range, int limit);
+
+    LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, Range range, int limit, boolean backwardDirection);
 
     LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, SelectedScatterArea area, int limit);
 

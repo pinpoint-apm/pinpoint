@@ -46,6 +46,10 @@ public class ApplicationMapWithScatterScanResult implements ApplicationMap {
     public Collection<Link> getLinks() {
         return applicationMap.getLinks();
     }
+    
+    public ApplicationMap getApplicationMap() {
+        return applicationMap;
+    }
 
     @JsonIgnore
     public List<ApplicationScatterScanResult> getApplicationScatterScanResultList() {

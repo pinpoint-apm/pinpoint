@@ -1,0 +1,123 @@
+package com.navercorp.pinpoint.profiler.instrument;
+
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * @author Woonduk Kang(emeroad)
+ */
+public class ASMBytecodeDumpService implements BytecodeDumpService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    public static final String ENABLE_BYTECODE_DUMP = "bytecode.dump.enable";
+    public static final boolean ENABLE_BYTECODE_DUMP_DEFAULT_VALUE = false;
+
+    public static final String BYTECODE_DUMP_BYTECODE = "bytecode.dump.bytecode";
+    public static final boolean BYTECODE_DUMP_BYTECODE_DEFAULT_VALUE = true;
+
+    public static final String BYTECODE_DUMP_VERIFY = "bytecode.dump.verify";
+    public static final boolean BYTECODE_DUMP_VERIFY_DEFAULT_VALUE = false;
+
+    public static final String BYTECODE_DUMP_ASM = "bytecode.dump.asm";
+    public static final boolean BYTECODE_DUMP_ASM_DEFAULT_VALUE = true;
+
+    public static final String DUMP_CLASS_LIST = "bytecode.dump.classlist";
+
+    private final boolean dumpBytecode;
+    private final boolean dumpVerify;
+    private final boolean dumpASM;
+    private final Set<String> dumpJvmClassNameSet;
+
+    private ASMBytecodeDisassembler disassembler = new ASMBytecodeDisassembler();
+
+    public ASMBytecodeDumpService(ProfilerConfig profilerConfig) {
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig must not be null");
+        }
+
+        this.dumpBytecode = profilerConfig.readBoolean(BYTECODE_DUMP_BYTECODE, BYTECODE_DUMP_BYTECODE_DEFAULT_VALUE);
+        this.dumpVerify = profilerConfig.readBoolean(BYTECODE_DUMP_VERIFY, BYTECODE_DUMP_VERIFY_DEFAULT_VALUE);
+        this.dumpASM = profilerConfig.readBoolean(BYTECODE_DUMP_ASM, BYTECODE_DUMP_ASM_DEFAULT_VALUE);
+
+        this.dumpJvmClassNameSet = getClassName(profilerConfig);
+    }
+
+    private Set<String> getClassName(ProfilerConfig profilerConfig) {
+        final String classNameList = profilerConfig.readString(DUMP_CLASS_LIST, "");
+        if (classNameList.isEmpty()) {
+            return Collections.emptySet();
+        } else {
+            final List<String> classList = StringUtils.splitAndTrim(classNameList, ",");
+            final List<String> jvmClassList = javaNameToJvmName(classList);
+            return new HashSet<String>(jvmClassList);
+        }
+    }
+
+    public ASMBytecodeDumpService(boolean dumpBytecode, boolean dumpVerify, boolean dumpASM, List<String> classNameList) {
+        if (classNameList == null) {
+            throw new NullPointerException("classNameList must not be null");
+        }
+
+        this.dumpBytecode = dumpBytecode;
+        this.dumpVerify = dumpVerify;
+        this.dumpASM = dumpASM;
+
+        List<String> jvmClassNameList = javaNameToJvmName(classNameList);
+        this.dumpJvmClassNameSet = new HashSet<String>(jvmClassNameList);
+    }
+
+    private List<String> javaNameToJvmName(List<String> classNameList) {
+        List<String> jvmNameList = new ArrayList<String>(classNameList.size());
+
+        for (String className : classNameList) {
+            jvmNameList.add(JavaAssistUtils.javaNameToJvmName(className));
+        }
+        return jvmNameList;
+    }
+
+    @Override
+    public void dumpBytecode(String dumpMessage, final String jvmClassName, final byte[] bytes, ClassLoader classLoader) {
+        if (jvmClassName == null) {
+            throw new NullPointerException("jvmClassName must not be null");
+        }
+
+        if (!filterClassName(jvmClassName)) {
+            return;
+        }
+
+
+        if (dumpBytecode) {
+            final String dumpBytecode = this.disassembler.dumpBytecode(bytes);
+            logger.info("{} class:{} bytecode:{}", dumpMessage, jvmClassName, dumpBytecode);
+        }
+
+        if (dumpVerify) {
+            if (classLoader == null) {
+                logger.debug("classLoader is null, jvmClassName:{}", jvmClassName);
+                classLoader = ClassLoader.getSystemClassLoader();
+            }
+            final String dumpVerify = this.disassembler.dumpVerify(bytes, classLoader);
+            logger.info("{} class:{} verify:{}", dumpMessage, jvmClassName, dumpVerify);
+        }
+
+        if (dumpASM) {
+            final String dumpASM = this.disassembler.dumpASM(bytes);
+            logger.info("{} class:{} asm:{}", dumpMessage, jvmClassName, dumpASM);
+        }
+    }
+
+    private boolean filterClassName(String className) {
+        return this.dumpJvmClassNameSet.contains(className);
+    }
+}
+

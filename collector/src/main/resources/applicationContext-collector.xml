@@ -5,16 +5,14 @@
        xmlns:jee="http://www.springframework.org/schema/jee" xmlns:lang="http://www.springframework.org/schema/lang"
        xmlns:beans="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p"
        xmlns:util="http://www.springframework.org/schema/util" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-       xmlns:hdp="http://www.springframework.org/schema/hadoop"
        xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
-		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
-		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-		http://www.springframework.org/schema/hadoop http://www.springframework.org/schema/hadoop/spring-hadoop.xsd">
+        http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <context:annotation-config/>
+<context:annotation-config/>
 
     <context:component-scan
             base-package="com.navercorp.pinpoint.collector.dao.hbase,
@@ -22,7 +20,9 @@
                         com.navercorp.pinpoint.collector.manage,
                         com.navercorp.pinpoint.collector.mapper,
                         com.navercorp.pinpoint.collector.util,
-                        com.navercorp.pinpoint.collector.config" />
+                        com.navercorp.pinpoint.collector.config,
+                        com.navercorp.pinpoint.common.server.util,
+                        com.navercorp.pinpoint.common.server.bo" />
 
     <bean id="propertyConfigurer"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -44,13 +44,13 @@
     <import resource="classpath:applicationContext-hbase.xml"/>
 
     <bean id="daoAutoFlusher" class="com.navercorp.pinpoint.collector.dao.AutoFlusher" init-method="initialize" destroy-method="shutdown">
-    	<beans:property name="cachedStatisticsDaoList">
-    		<beans:list>
-    			<beans:ref bean="hbaseMapStatisticsCallerDao"/>
-    			<beans:ref bean="hbaseMapStatisticsCalleeDao"/>
+        <beans:property name="cachedStatisticsDaoList">
+            <beans:list>
+                <beans:ref bean="hbaseMapStatisticsCallerDao"/>
+                <beans:ref bean="hbaseMapStatisticsCalleeDao"/>
                 <beans:ref bean="hbaseMapResponseTimeDao"/>
-    		</beans:list>
-    	</beans:property>
+            </beans:list>
+        </beans:property>
         <property name="flushPeriod" value="${statistics.flushPeriod}"/>
     </bean>
     
@@ -60,13 +60,13 @@
     <bean id="collectorMetric" class="com.navercorp.pinpoint.collector.monitor.CollectorMetric">
     </bean>
 
-	<!-- Manager-related Beans -->    
+    <!-- Manager-related Beans -->
     <bean id="jmxCollectorManager" class="com.navercorp.pinpoint.collector.manage.jmx.JMXCollectorManager">
     </bean>
 
     <bean id="jmxCollectorManagerList" class="com.navercorp.pinpoint.collector.manage.jmx.JMXCollectorManagerList">
     </bean>
-	
+
     <bean id="handlerManager" class="com.navercorp.pinpoint.collector.manage.HandlerManager">
     </bean>
 
@@ -75,20 +75,23 @@
         <constructor-arg ref="targetClusterPointRepository"/>
     </bean>
 
+    <bean id="hBaseManager" class="com.navercorp.pinpoint.collector.manage.HBaseManager">
+    </bean>
+
     <!-- DispatchHandler-related Beans -->
     <bean id="tcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.TcpDispatchHandler"/>
     <bean id="tcpDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
-    	<constructor-arg ref="tcpDispatchHandler"/>
+        <constructor-arg ref="tcpDispatchHandler"/>
     </bean>
     
     <bean id="udpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.UdpDispatchHandler"/>
     <bean id="udpDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
-    	<constructor-arg ref="udpDispatchHandler"/>
+        <constructor-arg ref="udpDispatchHandler"/>
     </bean>
 
     <bean id="udpSpanDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.UdpSpanDispatchHandler"/>
     <bean id="udpSpanDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
-    	<constructor-arg ref="udpSpanDispatchHandler"/>
+        <constructor-arg ref="udpSpanDispatchHandler"/>
     </bean>
 
     <!-- Serializer Factory Beans -->
@@ -108,7 +111,7 @@
         <constructor-arg index="3" value="true"/>
     </bean>
     
-    <bean id="agentEventMessageSerializer" class="com.navercorp.pinpoint.common.util.AgentEventMessageSerializer">
+    <bean id="agentEventMessageSerializer" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializer">
         <constructor-arg ref="commandHeaderTBaseSerializerFactory"/>
     </bean>
 
@@ -226,9 +229,10 @@
         <constructor-arg index="2" value="#{collectorConfiguration.udpSpanListenIp}"/>
         <constructor-arg index="3" value="#{collectorConfiguration.udpSpanListenPort}"/>
         <constructor-arg index="4" value="#{collectorConfiguration.udpSpanSocketReceiveBufferSize}"/>
-        <constructor-arg index="5" value="#{collectorConfiguration.udpSpanWorkerThread}"/>
-        <constructor-arg index="6" value="#{collectorConfiguration.udpSpanWorkerQueueSize}"/>
-        <constructor-arg index="7" value="#{collectorMetric.enable}"/>
+        <constructor-arg index="5" value="#{collectorConfiguration.udpSpanWorkerType}"/>
+        <constructor-arg index="6" value="#{collectorConfiguration.udpSpanWorkerThread}"/>
+        <constructor-arg index="7" value="#{collectorConfiguration.udpSpanWorkerQueueSize}"/>
+        <constructor-arg index="8" value="#{collectorMetric.enable}"/>
 
     </bean>
 
@@ -245,9 +249,10 @@
         <constructor-arg index="2" value="#{collectorConfiguration.udpStatListenIp}"/>
         <constructor-arg index="3" value="#{collectorConfiguration.udpStatListenPort}"/>
         <constructor-arg index="4" value="#{collectorConfiguration.udpStatSocketReceiveBufferSize}"/>
-        <constructor-arg index="5" value="#{collectorConfiguration.udpStatWorkerThread}"/>
-        <constructor-arg index="6" value="#{collectorConfiguration.udpStatWorkerQueueSize}"/>
-        <constructor-arg index="7" value="#{collectorMetric.enable}"/>
+        <constructor-arg index="5" value="#{collectorConfiguration.udpStatWorkerType}"/>
+        <constructor-arg index="6" value="#{collectorConfiguration.udpStatWorkerThread}"/>
+        <constructor-arg index="7" value="#{collectorConfiguration.udpStatWorkerQueueSize}"/>
+        <constructor-arg index="8" value="#{collectorMetric.enable}"/>
     </bean>
     
     <bean id="jsonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper">
@@ -278,18 +283,12 @@
     </bean>
     
     <bean id="sqlMetaDataHandler" class="com.navercorp.pinpoint.collector.handler.SqlMetaDataHandler">
-        <property name="sqlMetaDataDao" ref="hbaseSqlMetaDataCompatibility"/>
+        <property name="sqlMetaDataDao" ref="hbaseSqlMetaDataDao"/>
     </bean>
     
-    <bean id="hbaseSqlMetaDataCompatibility" class="com.navercorp.pinpoint.collector.dao.hbase.HbaseSqlMetaDataCompatibility">
-        <property name="hbaseSqlMetaDataDao" ref="hbaseSqlMetaDataDao"/>
-        <property name="hbaseSqlMetaDataPastVersionDao" ref="hbaseSqlMetaDataPastVersionDao"/>
-    </bean>
-    
-    <bean id="hbaseSqlMetaDataPastVersionDao" class="com.navercorp.pinpoint.collector.dao.hbase.HbaseSqlMetaDataPastVersionDao"/>
     <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.collector.dao.hbase.HbaseSqlMetaDataDao"/>
 
-    <bean id="sequenceSpanEventFilter" class="com.navercorp.pinpoint.collector.dao.hbase.filter.SequenceSpanEventFilter">
+    <bean id="sequenceSpanEventFilter" class="com.navercorp.pinpoint.common.server.bo.filter.SequenceSpanEventFilter">
         <constructor-arg index="0" value="${collector.spanEvent.sequence.limit:10000}"/>
     </bean>
 </beans>

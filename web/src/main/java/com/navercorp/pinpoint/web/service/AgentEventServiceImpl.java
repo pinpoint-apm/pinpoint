@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
 
-import com.navercorp.pinpoint.common.util.AgentEventTypeCategory;
+import com.navercorp.pinpoint.common.server.util.AgentEventTypeCategory;
 import com.navercorp.pinpoint.web.vo.DurationalAgentEvent;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -32,9 +32,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.navercorp.pinpoint.common.bo.AgentEventBo;
-import com.navercorp.pinpoint.common.util.AgentEventMessageDeserializer;
-import com.navercorp.pinpoint.common.util.AgentEventType;
+import com.navercorp.pinpoint.common.server.bo.AgentEventBo;
+import com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializer;
+import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.web.dao.AgentEventDao;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.Range;

@@ -24,13 +24,11 @@ import com.navercorp.pinpoint.web.view.LinkSerializer;
 import com.navercorp.pinpoint.web.view.ResponseTimeViewModel;
 import com.navercorp.pinpoint.web.vo.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -51,18 +49,18 @@ public class Link {
     // specifies who created the link.
     // indicates whether it was automatically created by the source, or if it was manually created by the target.
     private final CreateType createType;
+
     private final Node fromNode;
     private final Node toNode;
 
     private final Range range;
+
 
     private final LinkStateResolver linkStateResolver = LinkStateResolver.DEFAULT_LINK_STATE_RESOLVER;
 
     private final LinkCallDataMap sourceLinkCallDataMap = new LinkCallDataMap();
 
     private final LinkCallDataMap targetLinkCallDataMap = new LinkCallDataMap();
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private Histogram linkHistogram;
 
@@ -97,6 +95,10 @@ public class Link {
         if (fromNode.getServiceType() == ServiceType.USER) {
             return toNode.getApplication();
         }
+        // same goes for virtual queue nodes
+        if (!fromNode.getServiceType().isWas() && fromNode.getServiceType().isQueue()) {
+            return toNode.getApplication();
+        }
         return fromNode.getApplication();
     }
 
@@ -113,6 +115,10 @@ public class Link {
         return toNode;
     }
 
+    public Range getRange() {
+        return range;
+    }
+
     public String getLinkName() {
         return fromNode.getNodeName() + LINK_DELIMITER + toNode.getNodeName();
     }
@@ -124,14 +130,9 @@ public class Link {
     public LinkCallDataMap getTargetLinkCallDataMap() {
         return targetLinkCallDataMap;
     }
-
-    @JsonIgnore
-    public String getJson() {
-        try {
-            return MAPPER.writeValueAsString(this);
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
+    
+    public CreateType getCreateType() {
+        return createType;
     }
 
     public AgentHistogramList getTargetList() {

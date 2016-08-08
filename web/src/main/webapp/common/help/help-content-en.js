@@ -571,8 +571,15 @@
                         desc: "All transactions"
                     }]
                 }]
-            }
-		},	
+            },
+			wrongApp: [
+				"<div style='font-size:12px'>The agent is currently registered under {{application2}} due to the following:<br>",
+				"1. The agent has moved from {{application1}} to {{application2}}<br>",
+				"2. A different agent with the same agent id has been registered to {{application2}}<hr>",
+				"For the former case, you should delete the mapping between {{application1}} and {{agentId}}.<br>",
+				"For the latter case, the agent id of the duplicate agent must be changed.</div>"
+			].join("")
+		},
 		callTree: {
 			column: {
 				mainStyle: "",

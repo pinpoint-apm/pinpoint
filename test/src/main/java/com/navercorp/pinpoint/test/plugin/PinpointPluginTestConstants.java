@@ -19,8 +19,11 @@ package com.navercorp.pinpoint.test.plugin;
  * @author Jongho Moon
  *
  */
-public interface PinpointPluginTestConstants {
-    String JUNIT_OUTPUT_DELIMITER = "#####";
-    String PINPOINT_TEST_ID = "pinpoint.test.id";
-    String CHILD_CLASS_PATH_PREFIX = "-child=";
+public final class PinpointPluginTestConstants {
+    private PinpointPluginTestConstants() {
+    }
+
+    public static final String JUNIT_OUTPUT_DELIMITER = "#####";
+    public static final String PINPOINT_TEST_ID = "pinpoint.test.id";
+    public static final String CHILD_CLASS_PATH_PREFIX = "-child=";
 }

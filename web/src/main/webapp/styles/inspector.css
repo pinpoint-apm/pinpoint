@@ -1,6 +1,6 @@
 .inspector-container {
-    width:95%;
-    position:relative;
+    margin-left: 12px;
+    margin-right: 22px;
 }
 .sidebar-spy {
     position: absolute;
@@ -17,18 +17,55 @@
     -moz-border-radius: 0;
     border-radius: 0;
 }
+.inspector-container table tr:nth-child(odd) {
+    background-color: #F3F3F3;
+}
+.inspector-container table tr:nth-child(even) {
+    background-color: #EDEDED;
+}
+.inspector-container table {
+    border: 1px solid #ECECEC;
+}
+.inspector-container table td {
+    border-top: none !important;
+}
+.inspector-container h4 {
+    color: #55B951 !important;
+    font-size: 12px !important;
+    margin: 2px !important;
+}
+.inspector-container .chart-collection {
+    border: 1px solid #ECECEC;
+    padding: 8px;
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
 
 .main-spy {
-    margin-left: 250px;
+    margin-left: 238px;
     height: 100%;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 .inspector-datepicker {
     width: 190px !important;
 }
 
 .agent-list-directive .searchbox {
-    width: 100%;
+    height: 38px;
+    border-bottom: 1px solid #EDEDED;
+    background-color: #F5F5F5;
+}
+.agent-list-directive .searchbox input {
+    width: 200px;
+    margin: 5px 0px 0px 8px;
+}
+.agent-list-directive .searchbox span {
+    top: 11px;
+    right: 6px;
+    cursor:pointer;
+    position: absolute;
+    font-size: 14px;
 }
 
 .agent-list-directive .nav li > a:hover,
@@ -51,7 +88,7 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    -o-text-overow: ellipsis;
+    border-radius: 0px;
 }
 
 .agent-list-directive .nav-list li > a {
@@ -112,6 +149,34 @@
     border-top-right-radius: 0px;
     border-top-left-radius: 0px;
 }
+.inspector-container .slider-command {
+    height: 38px;
+    padding: 4px 0px 4px 12px;
+    text-align: right;
+    margin-left:-12px;
+    margin-right:-22px;
+    margin-bottom: 20px;
+    background-color: #F5F5F5;
+}
+.inspector-container .slider-command > div {
+    float: right;
+}
+.inspector-container .slider-command .current-point {
+    width: 10px;
+    height: 10px;
+    border: 2px solid #000;
+    display: inline-block;
+    box-shadow: 0px 0px 4px 2px #FF0;
+    border-radius: 5px;
+    margin-bottom: -1px;
+    background-color: #FF0;
+}
+.inspector-container .slider > span {
+    float: left;
+    font-size: 12px;
+    line-height: 2;
+    margin-bottom:-26px;
+}
 .timeSlider .hide {
     display: none;
 }
@@ -119,17 +184,16 @@
     fill: #EEE;
 }
 .timeSlider .selection-zone {
-    fill: #FFF;
+    fill: rgba(255, 255, 255, 0.5);
 }
 .timeSlider .x-axis {
     font-size: 12px;
     text-anchor: middle;
 }
 .timeSlider .x-axis line {
-    stroke: #000;
+    stroke: #FFF;
     stroke-width: .5;
     stroke-linecap: square;
-    stroke-dasharray: 1, 1;
 }
 .timeSlider .left-handler rect, .timeSlider .right-handler rect {
     fill: #FFF;
@@ -149,12 +213,13 @@
     stroke-width: 2;
 }
 .timeSlider .selection-point line {
-    stroke: #F5A623;
+    stroke: #FF0;
     stroke-width: 1;
 }
 .timeSlider .selection-point circle {
-    fill: yellow;
-    stroke: #F5A623;
+    fill: #FF0;
+    stroke: #000;
+    stroke-width: 2;
 }
 .timeSlider .events line {
     stroke: #000;
@@ -173,8 +238,8 @@
     stroke-width: 2px;
 }
 .timeSlider .time-left-signboard text, .timeSlider .time-right-signboard text {
-    fill: #4100DE;
-    font-weight: bold;
+    fill: #000;
+    font-size: 13px;
 }
 .timeSlider .time-series-signboard text {
     fill: #BBB;

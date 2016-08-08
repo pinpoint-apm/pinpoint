@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.bo.SpanBo;
-import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterData;
@@ -31,6 +32,7 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
+import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -39,12 +41,12 @@ import com.navercorp.pinpoint.web.vo.LoadFactor;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.ResponseHistogramBuilder;
 import com.navercorp.pinpoint.web.vo.SelectedScatterArea;
-import com.navercorp.pinpoint.web.vo.TransactionId;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
@@ -67,6 +69,10 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
+    private AgentInfoService agentInfoService;
+
+    @Autowired
+    @Qualifier("hbaseTraceDaoFactory")
     private TraceDao traceDao;
 
     @Autowired
@@ -77,11 +83,19 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
     @Autowired
     private ApplicationFactory applicationFactory;
+    
+    @Autowired(required=false)
+    private ServerMapDataFilter serverMapDataFilter;
 
     private static final Object V = new Object();
 
     @Override
     public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, Range range, int limit) {
+        return selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit, true);
+    }
+
+    @Override
+    public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, Range range, int limit, boolean backwardDirection) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
@@ -92,9 +106,9 @@ public class FilteredMapServiceImpl implements FilteredMapService {
             logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {}, {}", applicationName, range);
         }
 
-        return this.applicationTraceIndexDao.scanTraceIndex(applicationName, range, limit);
+        return this.applicationTraceIndexDao.scanTraceIndex(applicationName, range, limit, backwardDirection);
     }
-    
+
     @Override
     public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, SelectedScatterArea area, int limit) {
         if (applicationName == null) {
@@ -330,15 +344,22 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                     targetLinkDataMap.addLinkData(parentApplication, span.getAgentId(), spanApplication, span.getAgentId(), timestamp, slotTime, 1);
                 }
 
-
+                if (serverMapDataFilter != null && serverMapDataFilter.filter(spanApplication)) {
+                    continue;
+                }
+                
                 addNodeFromSpanEvent(span, window, linkDataDuplexMap, transactionSpanMap);
             }
         }
-
+        
         ApplicationMapBuilder applicationMapBuilder = new ApplicationMapBuilder(range);
         mapHistogramSummary.build();
-        ApplicationMap map = applicationMapBuilder.build(linkDataDuplexMap, mapHistogramSummary);
+        ApplicationMap map = applicationMapBuilder.build(linkDataDuplexMap, agentInfoService, mapHistogramSummary);
 
+        if(serverMapDataFilter != null) {
+            map = serverMapDataFilter.dataFiltering(map);
+        }
+        
         return map;
     }
 
@@ -408,10 +429,33 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     private Application createParentApplication(SpanBo span, Map<Long, SpanBo> transactionSpanMap) {
         final SpanBo parentSpan = transactionSpanMap.get(span.getParentSpanId());
         if (span.isRoot() || parentSpan == null) {
-            String applicationName = span.getApplicationId();
-            ServiceType serviceType = ServiceType.USER;
-            return this.applicationFactory.createApplication(applicationName, serviceType);
+            ServiceType spanServiceType = this.registry.findServiceType(span.getServiceType());
+            if (spanServiceType.isQueue()) {
+                String applicationName = span.getAcceptorHost();
+                ServiceType serviceType = spanServiceType;
+                return this.applicationFactory.createApplication(applicationName, serviceType);
+            } else {
+                String applicationName = span.getApplicationId();
+                ServiceType serviceType = ServiceType.USER;
+                return this.applicationFactory.createApplication(applicationName, serviceType);
+            }
         } else {
+            // create virtual queue node if current' span's service type is a queue AND :
+            // 1. parent node's application service type is not a queue (it may have come from a queue that is traced)
+            // 2. current node's application service type is not a queue (current node may be a queue that is traced)
+            ServiceType spanServiceType = this.registry.findServiceType(span.getServiceType());
+            if (spanServiceType.isQueue()) {
+                ServiceType parentApplicationServiceType = this.registry.findServiceType(parentSpan.getApplicationServiceType());
+                ServiceType spanApplicationServiceType = this.registry.findServiceType(span.getApplicationServiceType());
+                if (!parentApplicationServiceType.isQueue() && !spanApplicationServiceType.isQueue()) {
+                    String parentApplicationName = span.getAcceptorHost();
+                    if (parentApplicationName == null) {
+                        parentApplicationName = span.getRemoteAddr();
+                    }
+                    short parentServiceType = span.getServiceType();
+                    return this.applicationFactory.createApplication(parentApplicationName, parentServiceType);
+                }
+            }
             String parentApplicationName = parentSpan.getApplicationId();
             short parentServiceType = parentSpan.getApplicationServiceType();
             return this.applicationFactory.createApplication(parentApplicationName, parentServiceType);

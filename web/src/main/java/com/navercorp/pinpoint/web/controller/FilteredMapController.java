@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.util.DateUtils;
+import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWrap;
 import com.navercorp.pinpoint.web.filter.Filter;
@@ -27,7 +28,6 @@ import com.navercorp.pinpoint.web.util.LimitUtils;
 import com.navercorp.pinpoint.web.util.TimeUtils;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.TransactionId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

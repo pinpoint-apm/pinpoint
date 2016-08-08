@@ -23,6 +23,15 @@ import java.nio.ByteBuffer;
  */
 public class ByteBufferUtils {
 
+    public static ByteBuffer createByteBuffer(int capacity) {
+        return ByteBuffer.allocate(capacity);
+    }
+
+    public static void putShort(ByteBuffer byteBuffer, short value) {
+        byteBuffer.put((byte) (value >> 8));
+        byteBuffer.put((byte) (value));
+    }
+
     public static int getRemaining(ByteBuffer[] byteBuffers) {
         if (byteBuffers == null || byteBuffers.length == 0) {
             return 0;

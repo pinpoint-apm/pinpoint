@@ -51,8 +51,6 @@ public final class ThriftConstants {
     public static final Pattern CLIENT_PATTERN = Pattern.compile("\\$Client");
     public static final Pattern ASYNC_METHOD_CALL_PATTERN = Pattern.compile("\\$AsyncClient\\$");
 
-    public static final String ATTRIBUTE_CONFIG = "thriftPluginConfig";
-
     // field names
     public static final String T_ASYNC_METHOD_CALL_FIELD_TRANSPORT = "transport";
     public static final String FRAME_BUFFER_FIELD_TRANS_ = "trans_";
@@ -60,11 +58,7 @@ public final class ThriftConstants {
 
     // custom field injector (accessor) FQCN
     private static final String FIELD_ACCESSOR_BASE = "com.navercorp.pinpoint.plugin.thrift.field.accessor.";
-    public static final String FIELD_ACCESSOR_ASYNC_CALL_END_FLAG = FIELD_ACCESSOR_BASE + "AsyncCallEndFlagFieldAccessor";
-    public static final String FIELD_ACCESSOR_ASYNC_CALL_REMOTE_ADDRESS = FIELD_ACCESSOR_BASE + "AsyncCallRemoteAddressFieldAccessor";
     public static final String FIELD_ACCESSOR_ASYNC_MARKER_FLAG = FIELD_ACCESSOR_BASE + "AsyncMarkerFlagFieldAccessor";
-    public static final String FIELD_ACCESSOR_ASYNC_NEXT_SPAN_ID = FIELD_ACCESSOR_BASE + "AsyncNextSpanIdFieldAccessor";
-    public static final String FIELD_ACCESSOR_ASYNC_TRACE_ID = FIELD_ACCESSOR_BASE + "AsyncTraceIdFieldAccessor";
     public static final String FIELD_ACCESSOR_SERVER_MARKER_FLAG = FIELD_ACCESSOR_BASE + "ServerMarkerFlagFieldAccessor";
     public static final String FIELD_ACCESSOR_SOCKET_ADDRESS = FIELD_ACCESSOR_BASE + "SocketAddressFieldAccessor";
     public static final String FIELD_ACCESSOR_SOCKET = FIELD_ACCESSOR_BASE + "SocketFieldAccessor";

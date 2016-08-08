@@ -40,10 +40,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.navercorp.pinpoint.common.bo.AgentStatCpuLoadBo;
-import com.navercorp.pinpoint.common.bo.AgentStatMemoryGcBo;
+import com.navercorp.pinpoint.common.server.bo.AgentStatCpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.AgentStatMemoryGcBo;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.RowKeyUtils;
+import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;

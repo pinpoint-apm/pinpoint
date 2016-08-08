@@ -16,7 +16,6 @@ package com.navercorp.pinpoint.test.plugin;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
 import org.junit.runner.Description;
@@ -24,11 +23,13 @@ import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 
+import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.*;
+
 /**
  * @author Jongho Moon
  *
  */
-public class PinpointPluginTestRunListener extends RunListener implements PinpointPluginTestConstants {
+public class PinpointPluginTestRunListener extends RunListener {
     public static final String UTF_8 = "UTF-8";
     private final PrintStream out;
 

@@ -8,12 +8,13 @@
 	 * @name AgentDaoService
 	 * @class
 	 */	
-	pinpointApp.constant('agentDaoServiceConfig', {
-	    agentStatUrl: '/getAgentStat.pinpoint'
+	pinpointApp.constant( "agentDaoServiceConfig", {
+	    agentStatUrl: "/getAgentStat.pinpoint",
+		dateFormat: "YYYY-MM-DD HH:mm:ss"
 	});
 	
-	pinpointApp.service('AgentDaoService', [ 'agentDaoServiceConfig',
-	    function AgentDaoService(cfg) {
+	pinpointApp.service( "AgentDaoService", [ "agentDaoServiceConfig",
+	    function AgentDaoService( cfg ) {
 		
 			/**
 			 * (en)선택한 Agent의 Chart 정보를 로드함.
@@ -66,14 +67,13 @@
 	
 	            if (pointsTime.length !== pointsCount.length) {
 	                throw new Error('assertion error', 'time.length != count.length');
-	                return;
 	            }
 	
 	            var currTime, currCount, prevTime, prevCount; // for gc
 	
 	            for (var i = 0; i < pointsCount.length; ++i) {
 	                var thisData = {
-	                    time: moment(pointsTime[i].timestamp).format('YYYY-MM-dd HH:mm:ss')
+	                    time: moment(pointsTime[i].timestamp).format( cfg.dateFormat )
 	                };
 	                for (var k in info.line) {
 	                    if (info.line[k].isFgc) {
@@ -108,7 +108,7 @@
 	                        }
 	                    } else {
 	                    	var value = agentStat.charts[info.line[k].id].points[i].maxVal;
-	                    	if (!(value < 0)) {
+	                    	if ( value >= 0 ) {
 	                    		thisData[info.line[k].key] = value;
 	                    	}
 	                    }
@@ -136,30 +136,27 @@
 	            	return;
 	            }
 	            var newData = [],
-	            DATA_UNAVAILABLE = -1,
 	            pointsJvmCpuLoad = jvmCpuLoadData.points,
 	            pointsSystemCpuLoad = systemCpuLoadData.points;
 	            
 	            if (pointsJvmCpuLoad.length !== pointsSystemCpuLoad.length) {
 	                throw new Error('assertion error', 'jvmCpuLoad.length != systemCpuLoad.length');
-	                return;
 	            }
 	            
 	            for (var i = 0; i < pointsJvmCpuLoad.length; ++i) {
 	                if (pointsJvmCpuLoad[i].timestamp !== pointsSystemCpuLoad[i].timestamp) {
 	                	throw new Error('assertion error', 'timestamp mismatch between jvmCpuLoad and systemCpuLoad');
-	                	return;
 	                }
 	                var thisData = {
-	                    time: moment(pointsJvmCpuLoad[i].timestamp).toString('YYYY-MM-dd HH:mm:ss'),
+						time: moment(pointsJvmCpuLoad[i].timestamp).format( cfg.dateFormat ),
 	                    maxCpuLoad: 100
 	                };
 	                var jvmCpuLoad = typeof agentStat.charts['CPU_LOAD_JVM'].points[i].maxVal == "number" ? agentStat.charts['CPU_LOAD_JVM'].points[i].maxVal.toFixed(2) : 0.00;
 	                var systemCpuLoad = typeof agentStat.charts['CPU_LOAD_SYSTEM'].points[i].maxVal == "number" ? agentStat.charts['CPU_LOAD_SYSTEM'].points[i].maxVal.toFixed(2) : 0.00;
-	                if (!(jvmCpuLoad < 0)) {
+	                if ( jvmCpuLoad >= 0 ) {
 	                    thisData.jvmCpuLoad = jvmCpuLoad;
 	                }
-	                if (!(systemCpuLoad < 0)) {
+	                if ( systemCpuLoad >= 0 ) {
 	                    thisData.systemCpuLoad = systemCpuLoad;
 	                }
 	                newData.push(thisData);
@@ -192,33 +189,33 @@
 	            
 	            for ( var i = 0 ; i < tpsLength ; i++ ) {
 	                var thisData = {
-	                    time: moment(aSampledContinuationData[i].timestamp).toString('YYYY-MM-dd HH:mm:ss')
+						time: moment(aSampledContinuationData[i].timestamp).format( cfg.dateFormat )
 	                };
 	                var sampledContinuationTps     = typeof aSampledContinuationData[i].avgVal == "number" ? aSampledContinuationData[i].avgVal.toFixed(2) : 0.00;
 	                var sampledNewTps              = typeof aSampledNewData[i].avgVal == "number" ? aSampledNewData[i].avgVal.toFixed(2) : 0.00;
 	                var unsampledContinuationTps   = typeof aUnsampledContinuationData[i].avgVal == "number" ? aUnsampledContinuationData[i].avgVal.toFixed(2) : 0.00;
 	                var unsampledNewTps            = typeof aUnsampledNewData[i].avgVal == "number" ? aUnsampledNewData[i].avgVal.toFixed(2) : 0.00;
 	                var totalTps                   = typeof aTotalData[i].avgVal == "number" ? aTotalData[i].avgVal.toFixed(2) : 0.00;
-	                if (!(sampledContinuationTps == DATA_UNAVAILABLE)) {
+	                if ( sampledContinuationTps != DATA_UNAVAILABLE ) {
                         thisData.sampledContinuationTps = sampledContinuationTps;
 	                }
-	                if (!(sampledNewTps == DATA_UNAVAILABLE)) {
+	                if ( sampledNewTps != DATA_UNAVAILABLE ) {
 	                    thisData.sampledNewTps = sampledNewTps;
 	                }
-	                if (!(unsampledContinuationTps == DATA_UNAVAILABLE)) {
+	                if ( unsampledContinuationTps != DATA_UNAVAILABLE ) {
 	                    thisData.unsampledContinuationTps = unsampledContinuationTps;
 	                }
-	                if (!(unsampledNewTps == DATA_UNAVAILABLE)) {
+	                if ( unsampledNewTps != DATA_UNAVAILABLE ) {
 	                    thisData.unsampledNewTps = unsampledNewTps;
 	                }
-	                if (!(totalTps == DATA_UNAVAILABLE)) {
+	                if ( totalTps != DATA_UNAVAILABLE ) {
 	                    thisData.totalTps = totalTps;
 	                }
 	                newData.push(thisData);
 	            }
 	            
 	            return newData;
-	        }
+	        };
 	    }
 	]);
 })();

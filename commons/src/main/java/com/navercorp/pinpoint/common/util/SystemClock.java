@@ -27,7 +27,7 @@ public final class SystemClock implements Clock {
     }
 
     @Override
-    public final long getTime() {
+    public long getTime() {
         return System.currentTimeMillis();
     }
 }

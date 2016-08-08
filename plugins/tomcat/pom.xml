@@ -3,14 +3,18 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
-        <artifactId>pom</artifactId>
+        <artifactId>pinpoint</artifactId>
         <relativePath>../..</relativePath>
-        <version>1.5.2-SNAPSHOT</version>
+        <version>1.6.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-tomcat-plugin</artifactId>
     <name>pinpoint-tomcat-plugin</name>
     <packaging>jar</packaging>
+
+    <properties>
+        <test.jdk.home>${env.JAVA_7_HOME}</test.jdk.home>
+    </properties>
 
     <dependencies>
         <dependency>

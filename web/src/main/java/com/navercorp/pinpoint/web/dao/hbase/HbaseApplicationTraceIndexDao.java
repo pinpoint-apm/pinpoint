@@ -22,10 +22,12 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.LimitEventHandler;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.DateUtils;
-import com.navercorp.pinpoint.common.util.SpanUtils;
+import com.navercorp.pinpoint.common.server.util.SpanUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.mapper.TraceIndexScatterMapper2;
@@ -36,7 +38,6 @@ import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.ResponseTimeRange;
 import com.navercorp.pinpoint.web.vo.SelectedScatterArea;
-import com.navercorp.pinpoint.web.vo.TransactionId;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.Cell;
@@ -54,7 +55,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -93,7 +93,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     }
 
     @Override
-    public LimitedScanResult<List<TransactionId>> scanTraceIndex(final String applicationName, Range range, int limit) {
+    public LimitedScanResult<List<TransactionId>> scanTraceIndex(final String applicationName, Range range, int limit, boolean scanBackward) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
@@ -104,7 +104,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             throw new IllegalArgumentException("negative limit:" + limit);
         }
         logger.debug("scanTraceIndex");
-        Scan scan = createScan(applicationName, range);
+        Scan scan = createScan(applicationName, range, scanBackward);
 
         final LimitedScanResult<List<TransactionId>> limitedScanResult = new LimitedScanResult<>();
         LastRowAccessor lastRowAccessor = new LastRowAccessor();
@@ -193,7 +193,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             this.lastRowTimestamp = TimeUtils.recoveryTimeMillis(reverseStartTime);
             
             byte[] qualifier = CellUtil.cloneQualifier(last);
-            this.lastTransactionId = TransactionIdMapper.parseVarTransactionId(qualifier, 0);
+            this.lastTransactionId = TransactionIdMapper.parseVarTransactionId(qualifier, 0, qualifier.length);
             this.lastTransactionElapsed = BytesUtils.bytesToInt(qualifier, 0);
             
             if (logger.isDebugEnabled()) {
@@ -215,6 +215,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     }
 
     private Scan createScan(String applicationName, Range range) {
+        return createScan(applicationName, range, true);
+    }
+
+    private Scan createScan(String applicationName, Range range, boolean scanBackward) {
         Scan scan = new Scan();
         scan.setCaching(this.scanCacheSize);
 
@@ -222,9 +226,15 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         byte[] traceIndexStartKey = SpanUtils.getTraceIndexRowKey(bApplicationName, range.getFrom());
         byte[] traceIndexEndKey = SpanUtils.getTraceIndexRowKey(bApplicationName, range.getTo());
 
-        // start key is replaced by end key because key has been reversed
-        scan.setStartRow(traceIndexEndKey);
-        scan.setStopRow(traceIndexStartKey);
+        if (scanBackward) {
+            // start key is replaced by end key because key has been reversed
+            scan.setStartRow(traceIndexEndKey);
+            scan.setStopRow(traceIndexStartKey);
+        } else {
+            scan.setReversed(true);
+            scan.setStartRow(traceIndexStartKey);
+            scan.setStopRow(traceIndexEndKey);
+        }
 
         scan.addFamily(HBaseTables.APPLICATION_TRACE_INDEX_CF_TRACE);
         scan.setId("ApplicationTraceIndexScan");
@@ -232,28 +242,6 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         // toString() method of Scan converts a message to json format so it is slow for the first time.
         logger.trace("create scan:{}", scan);
         return scan;
-    }
-
-    @Override
-    public List<Dot> scanTraceScatter(String applicationName, Range range, final int limit) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
-        }
-        if (range == null) {
-            throw new NullPointerException("range must not be null");
-        }
-        if (limit < 0) {
-            throw new IllegalArgumentException("negative limit:" + limit);
-        }
-        logger.debug("scanTraceScatter");
-        Scan scan = createScan(applicationName, range);
-
-        List<List<Dot>> dotListList = hbaseOperations2.findParallel(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, limit, traceIndexScatterMapper, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
-        List<Dot> mergeList = new ArrayList<>(limit + 10);
-        for(List<Dot> dotList : dotListList) {
-            mergeList.addAll(dotList);
-        }
-        return mergeList;
     }
 
     /**
@@ -292,7 +280,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     }
 
     @Override
-    public ScatterData scanTraceScatterDataMadeOfDotGroup(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit) {
+    public ScatterData scanTraceScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean scanBackward) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
@@ -303,7 +291,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             throw new IllegalArgumentException("negative limit:" + limit);
         }
         logger.debug("scanTraceScatterDataMadeOfDotGroup");
-        Scan scan = createScan(applicationName, range);
+        Scan scan = createScan(applicationName, range, scanBackward);
 
         TraceIndexScatterMapper3 mapper = new TraceIndexScatterMapper3(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
         List<ScatterData> dotGroupList = hbaseOperations2.findParallel(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, limit, mapper, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
@@ -341,10 +329,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         // add offset
         if (offsetTransactionId != null) {
             final Buffer buffer = new AutomaticBuffer(32);
-            buffer.put(offsetTransactionElapsed);
+            buffer.putInt(offsetTransactionElapsed);
             buffer.putPrefixedString(offsetTransactionId.getAgentId());
-            buffer.putSVar(offsetTransactionId.getAgentStartTime());
-            buffer.putVar(offsetTransactionId.getTransactionSequence());
+            buffer.putSVLong(offsetTransactionId.getAgentStartTime());
+            buffer.putVLong(offsetTransactionId.getTransactionSequence());
             byte[] qualifierOffset = buffer.getBuffer();
 
             filterList.addFilter(new QualifierFilter(CompareOp.GREATER, new BinaryPrefixComparator(qualifierOffset)));

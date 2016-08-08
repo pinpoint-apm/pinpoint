@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-HBASE_VERSION=hbase-1.0.1
+HBASE_VERSION=hbase-1.0.3
 HBASE_FILE=$HBASE_VERSION-bin.tar.gz
 HBASE_DL_URL=http://apache.mirror.cdnetworks.com/hbase/$HBASE_VERSION/$HBASE_FILE
 HBASE_ARCHIVE_DL_URL=http://archive.apache.org/dist/hbase/$HBASE_VERSION/$HBASE_FILE

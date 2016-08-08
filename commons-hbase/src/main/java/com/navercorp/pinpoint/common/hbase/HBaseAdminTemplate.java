@@ -16,38 +16,36 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
+import java.io.IOException;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.MasterNotRunningException;
-import org.apache.hadoop.hbase.ZooKeeperConnectionException;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
-import org.springframework.data.hadoop.hbase.HbaseSystemException;
-
-import java.io.IOException;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Admin;
+import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
 
 /**
  * @author emeroad
  */
 public class HBaseAdminTemplate {
 
-    private final HBaseAdmin hBaseAdmin;
+    private final Admin admin;
+    private final Connection connection;
 
     public HBaseAdminTemplate(Configuration configuration) {
         try {
-            this.hBaseAdmin = new HBaseAdmin(configuration);
-        } catch (MasterNotRunningException e) {
-            throw new HbaseSystemException(e);
-        } catch (ZooKeeperConnectionException e) {
-            throw new HbaseSystemException(e);
-        } catch (IOException e) {
+            connection = ConnectionFactory.createConnection(configuration);
+            admin = connection.getAdmin();
+        } catch (Exception e) {
             throw new HbaseSystemException(e);
         }
     }
 
     public boolean createTableIfNotExist(HTableDescriptor htd) {
         try {
-            if (!hBaseAdmin.tableExists(htd.getName())) {
-                this.hBaseAdmin.createTable(htd);
+            if (!admin.tableExists(htd.getTableName())) {
+                this.admin.createTable(htd);
                 return true;
             }
             return false;
@@ -58,17 +56,18 @@ public class HBaseAdminTemplate {
 
     public boolean tableExists(String tableName) {
         try {
-            return hBaseAdmin.tableExists(tableName);
+            return admin.tableExists(TableName.valueOf(tableName));
         } catch (IOException e) {
             throw new HbaseSystemException(e);
         }
     }
 
     public boolean dropTableIfExist(String tableName) {
+        TableName tn = TableName.valueOf(tableName);
         try {
-            if (hBaseAdmin.tableExists(tableName)) {
-                this.hBaseAdmin.disableTable(tableName);
-                this.hBaseAdmin.deleteTable(tableName);
+            if (admin.tableExists(tn)) {
+                this.admin.disableTable(tn);
+                this.admin.deleteTable(tn);
                 return true;
             }
             return false;
@@ -78,9 +77,10 @@ public class HBaseAdminTemplate {
     }
 
     public void dropTable(String tableName) {
+        TableName tn = TableName.valueOf(tableName);
         try {
-            this.hBaseAdmin.disableTable(tableName);
-            this.hBaseAdmin.deleteTable(tableName);
+            this.admin.disableTable(tn);
+            this.admin.deleteTable(tn);
         } catch (IOException e) {
             throw new HbaseSystemException(e);
         }
@@ -88,7 +88,8 @@ public class HBaseAdminTemplate {
 
     public void close() {
         try {
-            this.hBaseAdmin.close();
+            this.admin.close();
+            this.connection.close();
         } catch (IOException e) {
             throw new HbaseSystemException(e);
         }

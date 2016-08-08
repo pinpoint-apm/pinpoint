@@ -16,14 +16,10 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
-import java.io.IOException;
-
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.view.NodeSerializer;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import org.slf4j.Logger;
@@ -47,16 +43,9 @@ public class Node {
     private ServerInstanceList serverInstanceList = new ServerInstanceList();
 
     private NodeHistogram nodeHistogram;
-
-    // temporary
-    @Deprecated
-    private static ObjectMapper MAPPER;
-
-    @Deprecated
-    static void setObjectMapper(ObjectMapper objectMapper) {
-        MAPPER = objectMapper;
-    }
-
+    
+    private boolean authorized = true;
+    
     public Node(Application application) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
@@ -91,27 +80,6 @@ public class Node {
         return serverInstanceList;
     }
 
-    @Deprecated
-    @JsonIgnore
-    public String getNodeJson() {
-        try {
-            return MAPPER.writeValueAsString(this);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex.getMessage(), ex);
-        }
-    }
-
-    public String getJson() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{ ");
-        sb.append("\"applicationName\" : \"").append(getApplicationTextName()).append("\",");
-        sb.append("\"serviceType\" : \"").append(application.getServiceType()).append("\",");
-        sb.append("\"serviceTypeCode\" : \"").append(application.getServiceTypeCode()).append("\"");
-        sb.append(" }");
-        return sb.toString();
-    }
-
-
 
     public Application getApplication() {
         return application;
@@ -133,7 +101,15 @@ public class Node {
     public void setNodeHistogram(NodeHistogram nodeHistogram) {
         this.nodeHistogram = nodeHistogram;
     }
+    
+    public boolean isAuthorized() {
+        return authorized;
+    }
 
+    public void setAuthorized(boolean authorized) {
+        this.authorized = authorized;
+    }
+    
     @Override
     public String toString() {
         return "Node [" + application + "]";

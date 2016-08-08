@@ -68,8 +68,13 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>2301</td><td>ORACLE_EXECUTE_QUERY</td></tr>
  * <tr><td>2400</td><td>CUBRID</td></tr>
  * <tr><td>2401</td><td>CUBRID_EXECUTE_QUERY</td></tr>
+ * <tr><td>2410</td><td>NBASET</td></tr>
+ * <tr><td>2411</td><td>NBASET_EXECUTE_QUERY</td></tr>
+ * <tr><td>2412</td><td>NBASET_INTERNAL</td></tr>
  * <tr><td>2500</td><td>POSTGRESQL</td></tr>
  * <tr><td>2501</td><td>POSTGRESQL_EXECUTE_QUERY</td></tr>
+ * <tr><td>2600</td><td>CASSANDRA</td></tr>
+ * <tr><td>2601</td><td>CASSANDRA_EXECUTE_QUERY</td></tr>
  * </table>
  *
  * <h3>Database Sandbox (2900 ~ 2999)</h3>
@@ -167,6 +172,8 @@ public interface ServiceType {
 
     boolean isTerminal();
 
+    boolean isQueue();
+
     boolean isIncludeDestinationId();
 
     ServiceTypeCategory getCategory();
@@ -200,6 +207,8 @@ public interface ServiceType {
     // Java applications, WAS
     ServiceType STAND_ALONE = of(1000, "STAND_ALONE", RECORD_STATISTICS);
     ServiceType TEST_STAND_ALONE = of(1005, "TEST_STAND_ALONE", RECORD_STATISTICS);
+    ServiceType UNAUTHORIZED = of(1007, "UNAUTHORIZED", RECORD_STATISTICS);
+    
 
 
     /**

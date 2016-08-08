@@ -5,16 +5,14 @@
        xmlns:jee="http://www.springframework.org/schema/jee" xmlns:lang="http://www.springframework.org/schema/lang"
        xmlns:beans="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p"
        xmlns:util="http://www.springframework.org/schema/util" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-       xmlns:hdp="http://www.springframework.org/schema/hadoop"
        xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
-		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
-		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-		http://www.springframework.org/schema/hadoop http://www.springframework.org/schema/hadoop/spring-hadoop.xsd">
+        http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <bean id="hbaseConfiguration" class="org.springframework.data.hadoop.hbase.HbaseConfigurationFactoryBean">
+    <bean id="hbaseConfiguration" class="com.navercorp.pinpoint.common.hbase.HbaseConfigurationFactoryBean">
         <property name="properties">
             <props>
                 <prop key="hbase.zookeeper.quorum">${hbase.client.host}</prop>
@@ -31,9 +29,14 @@
                 <prop key="hbase.ipc.client.socket.timeout.read">${hbase.ipc.client.socket.timeout.read}</prop>
                 <!-- socket write timeout. hbase default: 600000-->
                 <prop key="hbase.ipc.client.socket.timeout.write">${hbase.ipc.client.socket.timeout.write}</prop>
+
+                <!-- hbase async put operation. -->
+                <prop key="hbase.client.async.enable">${hbase.client.async.enable:false}</prop>
+                <prop key="hbase.client.async.in.queuesize">${hbase.client.async.in.queuesize:10000}</prop>
+                <prop key="hbase.tablemultiplexer.flush.period.ms">${hbase.client.async.flush.period.ms:100}</prop>
+                <prop key="hbase.client.max.retries.in.queue">${hbase.client.async.max.retries.in.queue:10}</prop>
             </props>
         </property>
-        <property name="deleteConnection" value="false"/>
     </bean>
 
     <bean id="connectionFactory" class="com.navercorp.pinpoint.common.hbase.PooledHTableFactory">
@@ -43,11 +46,21 @@
         <constructor-arg value="${hbase.client.threadPool.prestart}"/>
     </bean>
 
-    <bean id="hbaseTemplate" class="com.navercorp.pinpoint.common.hbase.HbaseTemplate2">
+    <bean id="asyncOperation" class="com.navercorp.pinpoint.common.hbase.HBaseAsyncOperationFactory" factory-method="create">
+        <constructor-arg value="#{connectionFactory.getConnection()}"/>
+        <constructor-arg ref="hbaseConfiguration"/>
+    </bean>
+
+    <bean id="asyncOperationMetrics" class="com.navercorp.pinpoint.collector.monitor.HBaseAsyncOperationMetrics">
+        <constructor-arg ref="asyncOperation"/>
+    </bean>
+
+    <bean id="hbaseTemplate" class="com.navercorp.pinpoint.common.hbase.HbaseTemplate2" destroy-method="destroy">
         <property name="configuration" ref="hbaseConfiguration"/>
         <property name="tableFactory" ref="connectionFactory"/>
+        <property name="asyncOperation" ref="asyncOperation"/>
     </bean>
-    
+
     <bean id="hBaseAdminTemplate" class="com.navercorp.pinpoint.common.hbase.HBaseAdminTemplate" destroy-method="close">
         <constructor-arg ref="hbaseConfiguration" index="0"></constructor-arg>
     </bean>
@@ -72,6 +85,18 @@
         </constructor-arg>
     </bean>
 
+    <bean id="traceV2Distributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
+        <constructor-arg ref="traceV2Hasher"/>
+    </bean>
+
+    <bean id="traceV2Hasher" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
+        <constructor-arg type="int" value="32"/>
+        <constructor-arg type="int" value="40"/>
+        <constructor-arg type="int" value="256"/>
+    </bean>
+
+
+
     <bean id="agentStatRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
         <constructor-arg ref="agentStatRangeHasher"/>
     </bean>
@@ -91,7 +116,7 @@
         <constructor-arg type="int" value="32"/>
         <constructor-arg type="int" value="8"/>
     </bean>
-    
+
     <bean id="metadataRowKeyDistributor2" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
         <constructor-arg ref="metadataRangeHasher2"/>
     </bean>

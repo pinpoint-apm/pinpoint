@@ -41,5 +41,12 @@ public class AgentStatServiceImpl implements AgentStatService {
         }
         return agentStatDao.getAgentStatList(agentId, range);
     }
+    
+    public List<AgentStat> selectAggregatedAgentStatList(String agentId, Range range) {
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+        return agentStatDao.getAggregatedAgentStatList(agentId, range);
+    }
 
 }

@@ -33,67 +33,67 @@
 		}
 	});
 	
-	pinpointApp.directive('realtimeChartDirective', [ 'realtimeChartDirectiveConfig', '$location',  
-	    function (cfg, $location) {
+	pinpointApp.directive('realtimeChartDirective', [ 'realtimeChartDirectiveConfig',
+	    function ( cfg ) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
 	            template: '<svg width="" height=""></svg>',
 	            link: function postLink(scope, element, attrs) {
-	            	var oOuterOption = {
-	            		timeoutMaxCount:parseInt(attrs[cfg.params.TIMEOUT_MAX_COUNT]),
-	            		showExtraInfo:	attrs[cfg.params.SHOW_EXTRA_INFO] === "true",
-	            		requestLabel:	scope[attrs[cfg.params.REQUEST_LABEL]],
-	            		requestColor: 	scope[attrs[cfg.params.CHART_COLOR]],
-	            		xAxisCount:		parseInt(attrs[cfg.params.XCOUNT]),
-	            		namespace:		attrs[cfg.params.NAMESPACE],
-	            		height:			parseInt(attrs[cfg.params.HEIGHT]),
-	            		width: 			parseInt(attrs[cfg.params.WIDTH])
-	            	};
+					var oOuterOption = {
+						timeoutMaxCount:parseInt(attrs[cfg.params.TIMEOUT_MAX_COUNT]),
+						showExtraInfo:	attrs[cfg.params.SHOW_EXTRA_INFO] === "true",
+						requestLabel:	scope[attrs[cfg.params.REQUEST_LABEL]],
+						requestColor: 	scope[attrs[cfg.params.CHART_COLOR]],
+						xAxisCount:		parseInt(attrs[cfg.params.XCOUNT]),
+						namespace:		attrs[cfg.params.NAMESPACE],
+						height:			parseInt(attrs[cfg.params.HEIGHT]),
+						width: 			parseInt(attrs[cfg.params.WIDTH])
+					};
 
-	            	var oInnerOption = {
-            			domain: [1, oOuterOption.xAxisCount - 2],
-            	        margin: {
-            	        	top: 6,
-            	        	left: oOuterOption.showExtraInfo ? 38 : 20,
-            	        	right: 80, 
-    	        			bottom: 6 
-            	        },
-            	        timeFormat: d3.time.format("%Y.%m.%d %H:%M:%S"),
-            	        transaction: {
-            	        	duration: 1000,
-            	        	ease: "linear"
-            	        },
-            	        yAxisFormat: d3.format("d"),
-            	        tooltipWidth: 50,
-            	        interpolation: "basis"
-	            	};
-	            	var chartInnerWidth = oOuterOption.width - ( oOuterOption.showExtraInfo ? (oInnerOption.margin.left + oInnerOption.margin.right) : 0 );
-            	    var chartInnerHeight = oOuterOption.height - oInnerOption.margin.top - oInnerOption.margin.bottom;
-            	    var maxY = 0;
-            	    var lastIndex = -1;
-            	    var lastPosition = -1;
-            	    var passingQueue = [];
-            	    var chartDataQueue = [];
-            	    var timeoutCount = 0;
-            	    var delayCount = 0;
+					var oInnerOption = {
+						domain: [1, oOuterOption.xAxisCount - 2],
+						margin: {
+							top: 6,
+							left: oOuterOption.showExtraInfo ? 38 : 20,
+							right: 80,
+							bottom: 6
+						},
+						timeFormat: d3.time.format("%Y.%m.%d %H:%M:%S"),
+						transaction: {
+							duration: 1000,
+							ease: "linear"
+						},
+						yAxisFormat: d3.format("d"),
+						tooltipWidth: 50,
+						interpolation: "basis"
+					};
+					var chartInnerWidth = oOuterOption.width - ( oOuterOption.showExtraInfo ? (oInnerOption.margin.left + oInnerOption.margin.right) : 0 );
+					var chartInnerHeight = oOuterOption.height - oInnerOption.margin.top - oInnerOption.margin.bottom;
+					var maxY = 0;
+					var lastIndex = -1;
+					var lastPosition = -1;
+					var passingQueue = [];
+					var chartDataQueue = [];
+					var timeoutCount = 0;
+					var delayCount = 0;
 					var verticalGridGap = parseInt( chartInnerWidth / (cfg.consts.verticalGridCount - 1) );
 					var tickCount = 1;
-            	    initChartData();
+					initChartData();
 
-            	    var d3svg, d3svgX, d3svgY, d3HGrid, d3VGrid, d3VGridLines, d3path, d3area, d3labels, d3totalLabel, d3tooltip, d3tooltipTextGroup, d3tooltipDate, d3errorLabel, d3errorLabelSpan1, d3errorLabelSpan2;
-            	    var d3stack = d3.layout.stack().y(function(d) { return d.y; });
-            	    var d3transition = d3.select({}).transition().duration(oInnerOption.transaction.duration).ease(oInnerOption.transaction.ease);
-            	    d3stack(chartDataQueue);
+					var d3svg, d3svgX, d3svgY, d3HGrid, d3VGrid, d3VGridLines, d3path, d3area, d3labels, d3totalLabel, d3tooltip, d3tooltipTextGroup, d3tooltipDate, d3errorLabel, d3errorLabelSpan1, d3errorLabelSpan2;
+					var d3stack = d3.layout.stack().y(function(d) { return d.y; });
+					var d3transition = d3.select({}).transition().duration(oInnerOption.transaction.duration).ease(oInnerOption.transaction.ease);
+					d3stack(chartDataQueue);
 
-            	    initChart();
-            	    initAxis();
-            	    initArea();
-            	    initPath();
-            	    initTooltip();
-            	    initTooltipEvent();
-            	    initLabels();
-            	    initErrorLabel();
+					initChart();
+					initAxis();
+					initArea();
+					initPath();
+					initTooltip();
+					initTooltipEvent();
+					initLabels();
+					initErrorLabel();
 
             	    function initChart() {
             	        d3svg = d3.select( element.get(0) )
@@ -154,7 +154,7 @@
             	    function resetHGrid() {
             	    	var gridValue = [];
             	    	var aTarget = d3svg.select("g.y.axis").selectAll("g.tick");
-            	    	if ( aTarget.length == 0 ) return;
+            	    	if ( aTarget.length === 0 ) return;
             	    	
             	    	jQuery.each( aTarget[0], function( index, ele ) {
             	    		gridValue.push( parseFloat( ele.getAttribute("transform").replace(/translate\(0,(-?[0-9.]*)\)/, "$1") ) );
@@ -391,7 +391,7 @@
             	        d3transition = d3transition.each(function() {
             	        	delayCount++;
             	            if ( passingQueue.length === 0 ) {
-            	            	if ( delayCount > cfg.consts.maxDealyCount && oOuterOption.showExtraInfo == false ) {
+            	            	if ( delayCount > cfg.consts.maxDealyCount && oOuterOption.showExtraInfo === false ) {
             	            		setErrorMessage( false, [cfg.message.NO_RESPONSE]);
             	            	}
             	            	return;
@@ -460,7 +460,7 @@
 		            			return {
 		            				y: parseInt( v ),
 		            				d: timeStamp
-		            			}
+		            			};
 		            		}) );
 	            		}
 	    	        });
@@ -480,16 +480,16 @@
 	            		}
 	            		
 	            	});
-	            	scope.$on('realtimeChartDirective.clear.' + oOuterOption.namespace, function (event, aNewRequestCount, timeStamp) {
+	            	scope.$on('realtimeChartDirective.clear.' + oOuterOption.namespace, function () {
 	            		passingQueue.length = 0;
 	            		initChartData();
-	            		
-	            		element.html("");
-	            		resetLabelData([{}, {}, {}, {}]);
-	            		d3stack(chartDataQueue);
 
-	            		initChart();
-	            		initAxis();
+	            		element.html("");
+						resetLabelData([{}, {}, {}, {}]);
+						d3stack(chartDataQueue);
+
+						initChart();
+						initAxis();
 	            	    initArea();
 	            	    initPath();
 	            	    initTooltip();
@@ -497,6 +497,7 @@
 	            	    initLabels();
 	            	    initErrorLabel();
 	    	        });
+					scope.$on('$destroy', function() {});
 	            }
 	        };
 	    }

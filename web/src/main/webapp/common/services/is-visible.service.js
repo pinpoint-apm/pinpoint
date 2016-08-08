@@ -121,6 +121,6 @@
 	        return false;
 	    }
 	
-	    return _isVisible
+	    return _isVisible;
 	});
 })();

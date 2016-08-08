@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.google.common.collect.Ordering;
-import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;

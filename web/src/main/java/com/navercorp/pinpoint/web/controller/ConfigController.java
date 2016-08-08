@@ -36,6 +36,8 @@ import com.navercorp.pinpoint.web.vo.User;
  */
 @Controller
 public class ConfigController {
+    
+    private final static String SSO_USER = "SSO_USER";
 
     @Autowired
     private ConfigProperties webProperties;
@@ -45,12 +47,13 @@ public class ConfigController {
     
     @RequestMapping(value="/configuration", method=RequestMethod.GET)
     @ResponseBody
-    public Map<String, Object> getProperties(@RequestHeader(value="SSO_USER", required=false) String userId) {
+    public Map<String, Object> getProperties(@RequestHeader(value=SSO_USER, required=false) String userId) {
         Map<String, Object> result = new HashMap<>();
         
         result.put("sendUsage", webProperties.getSendUsage());
         result.put("editUserInfo", webProperties.getEditUserInfo());
         result.put("showActiveThread", webProperties.isShowActiveThread());
+        result.put("openSource", webProperties.isOpenSource());
         
         if (!StringUtils.isEmpty(userId)) {
             User user = userService.selectUserByUserId(userId);

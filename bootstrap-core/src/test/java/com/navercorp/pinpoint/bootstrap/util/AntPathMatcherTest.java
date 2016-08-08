@@ -27,8 +27,11 @@ public class AntPathMatcherTest {
     public void isAntStyle() {
         Assert.assertTrue(AntPathMatcher.isAntStylePattern("/*/test"));
         Assert.assertTrue(AntPathMatcher.isAntStylePattern("/*/?"));
+        Assert.assertTrue(AntPathMatcher.isAntStylePattern("*.test"));
+        Assert.assertTrue(AntPathMatcher.isAntStylePattern("*.?"));
 
         Assert.assertFalse(AntPathMatcher.isAntStylePattern("/abc/test"));
+        Assert.assertFalse(AntPathMatcher.isAntStylePattern("abc.test"));
     }
 
     @Test
@@ -38,6 +41,20 @@ public class AntPathMatcherTest {
         Assert.assertTrue(matcher.isMatched("/test/abc"));
 
         Assert.assertFalse(matcher.isMatched("/test/axx"));
+
+
+        Assert.assertFalse(matcher.isMatched(null));
+        Assert.assertFalse(matcher.isMatched(""));
+        Assert.assertFalse(matcher.isMatched("test"));
+    }
+
+    @Test
+    public void isMatchedDotSeparator() {
+        final String pathSeparator = ".";
+        AntPathMatcher matcher = new AntPathMatcher("test.?bc", pathSeparator);
+        Assert.assertTrue(matcher.isMatched("test.abc"));
+
+        Assert.assertFalse(matcher.isMatched("test.axx"));
 
 
         Assert.assertFalse(matcher.isMatched(null));

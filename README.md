@@ -7,10 +7,18 @@
 * Install agents without changing a single line of code
 * Minimal impact on performance (approximately 3% increase in resource usage)
 
-## Latest Release (2015/12/11)
-We're happy to announce the release of Pinpoint **v1.5.1**. <br/>
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.5.1)<br/>
-We're now focusing on developing **v1.5.2**.
+## Latest Release (2016/04/08)
+We're happy to announce the release of Pinpoint **v1.5.2**. <br/>
+Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.5.2)<br/>
+We're now focusing on developing **v1.6.0**.
+
+Special shout out to dawidmalina, majinkai, jart and many others for your contribution and feedback.<br/>
+Without your help, we would not have been able to reach our current level of product maturity. We are extremely grateful for all your help and will continue to try our very best to provide you with the best possible experience using Pinpoint.<br/>
+We look forward to working with you as we enter the next chapter in development.<br/>
+Thank you.
+
+### Plugin Development Guide (2016/03/18)
+We now have a [plugin development guide](https://github.com/naver/pinpoint/wiki/Pinpoint-Plugin-Developer-Guide "Pinpoint Plugin Development Guide"). Yay!
 
 ## Overview
 Services nowadays often consist of many different components, communicating amongst themselves as well as making API calls to external services. How each and every transaction gets executed is often left as a blackbox. Pinpoint traces transaction flows between these components and provides a clear view to identify problem areas and potential bottlenecks.<br/>
@@ -38,9 +46,9 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 * Tomcat 6/7/8, Jetty 8/9
 * Spring, Spring Boot
 * Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient
-* Thrift Client, Thrift Service
-* MySQL, Oracle, MSSQL, CUBRID, DBCP, POSTGRESQL
-* Arcus, Memcached, Redis
+* Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER
+* MySQL, Oracle, MSSQL, CUBRID, DBCP, POSTGRESQL, MARIA
+* Arcus, Memcached, Redis, CASSANDRA
 * iBATIS, MyBatis
 * gson, Jackson, Json Lib
 * log4j, Logback
@@ -56,10 +64,11 @@ For details, please refer to the [quick-start guide](quickstart/README.md).
 **Build Requirements**
 
 * JDK 6 installed ([jdk1.6_45](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase6-419409.html))
+* JDK 7 installed
 * JDK 8 installed
 * Maven 3.2.x+ installed
 * JAVA_6_HOME environment variable set to JDK 6 home directory.
-* JAVA_7_HOME environment variable set to JDK 7+ home directory.
+* JAVA_7_HOME environment variable set to JDK 7 home directory.
 * JAVA_8_HOME environment variable set to JDK 8+ home directory.
 
 **Prerequisites**
@@ -71,15 +80,25 @@ Pinpoint Version | Agent | Collector | Web
 1.0.x | 6+ | 6+ | 6+
 1.1.x | 6+ | 7+ | 7+
 1.5.x | 6+ | 7+ | 7+
+1.6.x | 6+ | 8+ | 8+
 
 HBase compatibility table:
 
-Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.1.x
----------------- | ------------ | ------------ | ----------- | -----------
-1.0.x | yes | no | no | no
-1.1.x | no | not tested | yes | not tested
-1.5.x | no | not tested | yes | not tested
+Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.1.x | HBase 1.2.x
+---------------- | ------------ | ------------ | ----------- | ----------- | -----------
+1.0.x | yes | no | no | no | no |
+1.1.x | no | not tested | yes | not tested | not tested
+1.5.x | no | not tested | yes | not tested | not tested
+1.6.x | no | not tested | not tested | not tested | yes
 
+Agent compatibility table:
+
+Agent Version | Collector 1.0.x | Collector 1.1.x | Collector 1.5.x | Collector 1.6.x
+------------- | --------------- | --------------- | --------------- | --------------- 
+1.0.x | yes | yes | yes | yes
+1.1.x | not tested | yes | yes | yes
+1.5.x | no | no | yes | Yes
+1.6.x | no | no | not tested | Yes
 
 **Installation**
 
@@ -102,9 +121,12 @@ We welcome any documentation contribution.
 ## Contribution
 We welcome any and all suggestions.
 
-For plugin development, take a look at our [plugin samples](https://github.com/naver/pinpoint-plugin-sample "Pinpoint Plugin Samples project") project to get an idea of how we do instrumentation. The samples will provide you with example codes to help you get started.
+For plugin development, take a look at our [plugin development guide](https://github.com/naver/pinpoint/wiki/Pinpoint-Plugin-Developer-Guide "Pinpoint Plugin Development Guide"), along with [plugin samples](https://github.com/naver/pinpoint-plugin-sample "Pinpoint Plugin Samples project") project to get an idea of how we do instrumentation. The samples will provide you with example codes to help you get started.
 
-Please make a pull-request against our `master` branch for contributions.
+**Please follow our [guideline](https://github.com/naver/pinpoint/wiki/Pinpoint-Plugin-Developer-Guide#iii-plugin-contribution-guideline "Plugin PR Guideline") when making pull-requests for new plugins.**
+For everything else, please make a pull-request against our `master` branch.
+
+Please note that you will have to complete a  [CLA](https://docs.google.com/forms/d/1oDX26pwmVZSoDfL9MwvwLsM23dHqc5pvgoZCp7jM940/viewform?c=0&w=1 "Contributor License Agreement") for your first pull-request.
 
 We would love to see additional tracing support for libraries such as [Storm](https://storm.apache.org "Apache Storm"), [HBase](http://hbase.apache.org "Apache HBase"), as well as profiler support for additional languages (.NET, C++).
 

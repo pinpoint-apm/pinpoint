@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.web.dao;
 
+import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.SelectedScatterArea;
-import com.navercorp.pinpoint.web.vo.TransactionId;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 
 import java.util.List;
@@ -31,11 +31,9 @@ import java.util.List;
  */
 public interface ApplicationTraceIndexDao {
 
-    LimitedScanResult<List<TransactionId>> scanTraceIndex(String applicationName, Range range, int limit);
+    LimitedScanResult<List<TransactionId>> scanTraceIndex(String applicationName, Range range, int limit, boolean backwardDirection);
 
     LimitedScanResult<List<TransactionId>> scanTraceIndex(String applicationName, SelectedScatterArea range, int limit);
-
-    List<Dot> scanTraceScatter(String applicationName, Range range, int limit);
 
     /**
      *
@@ -50,6 +48,6 @@ public interface ApplicationTraceIndexDao {
      */
     List<Dot> scanTraceScatter(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransactionElapsed, int limit);
 
-    ScatterData scanTraceScatterDataMadeOfDotGroup(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit);
+    ScatterData scanTraceScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean scanBackward);
 
 }

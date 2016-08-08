@@ -14,6 +14,15 @@
  */
 package com.navercorp.pinpoint.test;
 
+import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
+import com.navercorp.pinpoint.rpc.FutureListener;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
+import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
+import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
+import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
+import org.apache.thrift.TBase;
+
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,16 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
-
-import org.apache.thrift.TBase;
-
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.rpc.FutureListener;
-import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
-import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
-import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
-import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
 
 /**
  * @author Jongho Moon
@@ -100,11 +99,6 @@ public class TestTcpDataSender implements EnhancedDataSender {
     @Override
     public void stop() {
         // do nothing
-    }
-
-    @Override
-    public boolean isNetworkAvailable() {
-        return false;
     }
 
     @Override

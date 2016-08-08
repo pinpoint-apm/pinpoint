@@ -18,12 +18,12 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
 import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
-import com.navercorp.pinpoint.common.bo.JvmInfoBo;
-import com.navercorp.pinpoint.common.bo.ServerMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
+import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
+import com.navercorp.pinpoint.common.server.bo.ServerMetaDataBo;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.util.RowKeyUtils;
+import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 import com.navercorp.pinpoint.thrift.dto.TJvmInfo;

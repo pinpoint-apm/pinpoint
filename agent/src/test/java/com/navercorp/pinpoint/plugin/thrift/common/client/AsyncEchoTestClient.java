@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.thrift.TBase;
@@ -85,42 +84,8 @@ public class AsyncEchoTestClient implements EchoTestClient {
     public void verifyTraces(PluginTestVerifier verifier, String expectedMessage) throws Exception {
         final InetSocketAddress actualServerAddress = this.environment.getServerAddress();
         // ********** Asynchronous Traces
-        // SpanEvent - Thrift Asynchronous Client Invocation
-        ExpectedTrace asyncClientInvocationTrace = event("ASYNC", "Thrift Asynchronous Client Invocation");
-
-        // SpanEvent - TAsyncMethodCall.start
-        Method start = TAsyncMethodCall.class.getDeclaredMethod("start", Selector.class);
-        ExpectedTrace startTrace = event("THRIFT_CLIENT_INTERNAL", start);
-
-        // SpanEvent - TAsyncMethodCall.doConnecting
-        Method doConnecting = TAsyncMethodCall.class.getDeclaredMethod("doConnecting", SelectionKey.class);
-        ExpectedTrace doConnectingTrace = event("THRIFT_CLIENT_INTERNAL", doConnecting);
-
-        // SpanEvent - TAsyncMethodCall.doWritingRequestSize
-        Method doWritingRequestSize = TAsyncMethodCall.class.getDeclaredMethod("doWritingRequestSize");
-        ExpectedTrace doWritingRequestSizeTrace = event("THRIFT_CLIENT_INTERNAL", doWritingRequestSize);
-
-        // SpanEvent - TAsyncMethodCall.doWritingRequestBody
-        Method doWritingRequestBody = TAsyncMethodCall.class.getDeclaredMethod("doWritingRequestBody",
-                SelectionKey.class);
-        ExpectedAnnotation thriftUrl = Expectations.annotation("thrift.url", actualServerAddress.getHostName() + ":"
-                + actualServerAddress.getPort() + "/com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo_call");
-        ExpectedTrace doWritingRequestBodyTrace = event("THRIFT_CLIENT", // ServiceType
-                doWritingRequestBody, // Method
-                null, // rpc
-                null, // endPoint
-                actualServerAddress.getHostName() + ":" + actualServerAddress.getPort(), // destinationId
-                thriftUrl // Annotation("thrift.url")
-        );
-
-        // SpanEvent - TAsyncMethodCall.doReadingResponseSize
-        Method doReadingResponseSize = TAsyncMethodCall.class.getDeclaredMethod("doReadingResponseSize");
-        ExpectedTrace doReadingResponseSizeTrace = event("THRIFT_CLIENT_INTERNAL", doReadingResponseSize);
-
-        // SpanEvent - TAsyncMethodCall.doReadingResponseBody
-        Method doReadingResponseBody = TAsyncMethodCall.class.getDeclaredMethod("doReadingResponseBody",
-                SelectionKey.class);
-        ExpectedTrace doReadingResponseBodyTrace = event("THRIFT_CLIENT_INTERNAL", doReadingResponseBody);
+        // SpanEvent - Asynchronous Invocation
+        ExpectedTrace asyncInvocationTrace = event("ASYNC", "Asynchronous Invocation");
 
         // SpanEvent - TAsyncMethodCall.cleanUpAndFireCallback
         Method cleanUpAndFireCallback = TAsyncMethodCall.class.getDeclaredMethod("cleanUpAndFireCallback",
@@ -139,9 +104,16 @@ public class AsyncEchoTestClient implements EchoTestClient {
         // ********** Root trace for Asynchronous traces
         // SpanEvent - TAsyncClientManager.call
         Method call = TAsyncClientManager.class.getDeclaredMethod("call", TAsyncMethodCall.class);
-        verifier.verifyTrace(async(Expectations.event("THRIFT_CLIENT_INTERNAL", call), asyncClientInvocationTrace,
-                startTrace, doConnectingTrace, doWritingRequestSizeTrace, doWritingRequestBodyTrace,
-                doReadingResponseSizeTrace, doReadingResponseBodyTrace, cleanUpAndFireCallbackTrace, receiveBaseTrace));
+        ExpectedAnnotation thriftUrl = Expectations.annotation("thrift.url", actualServerAddress.getHostName() + ":"
+                + actualServerAddress.getPort() + "/com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo_call");
+        ExpectedTrace callTrace = event("THRIFT_CLIENT", // ServiceType
+                call, // Method
+                null, // rpc
+                null, // endPoint
+                actualServerAddress.getHostName() + ":" + actualServerAddress.getPort(), // destinationId
+                thriftUrl // Annotation("thrift.url")
+        );
+        verifier.verifyTrace(async(callTrace, asyncInvocationTrace, cleanUpAndFireCallbackTrace, receiveBaseTrace));
     }
 
     private static class AsyncEchoResultHolder {

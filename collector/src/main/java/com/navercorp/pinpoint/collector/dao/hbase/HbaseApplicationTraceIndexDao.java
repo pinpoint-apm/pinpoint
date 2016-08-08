@@ -19,11 +19,11 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
-import com.navercorp.pinpoint.collector.util.AcceptedTimeService;
+import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.util.SpanUtils;
+import com.navercorp.pinpoint.common.server.util.SpanUtils;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 
@@ -58,8 +58,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         }
 
         final Buffer buffer = new AutomaticBuffer(10 + AGENT_NAME_MAX_LEN);
-        buffer.putVar(span.getElapsed());
-        buffer.putSVar(span.getErr());
+        buffer.putVInt(span.getElapsed());
+        buffer.putSVInt(span.getErr());
         buffer.putPrefixedString(span.getAgentId());
         final byte[] value = buffer.getBuffer();
 
@@ -69,24 +69,15 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
         put.addColumn(APPLICATION_TRACE_INDEX_CF_TRACE, makeQualifier(span) , acceptedTime, value);
 
-        hbaseTemplate.put(APPLICATION_TRACE_INDEX, put);
+        boolean success = hbaseTemplate.asyncPut(APPLICATION_TRACE_INDEX, put);
+        if (!success) {
+            hbaseTemplate.put(APPLICATION_TRACE_INDEX, put);
+        }
     }
 
     private byte[] makeQualifier(final TSpan span) {
-        boolean useIndexedQualifier = false;
-        byte[] qualifier;
+        byte[] qualifier = SpanUtils.getVarTransactionId(span);
 
-        if (useIndexedQualifier) {
-            final Buffer columnName = new AutomaticBuffer(16);
-            // FIXME putVar not used in order to utilize hbase column prefix filter
-            columnName.put(span.getElapsed());
-            columnName.put(SpanUtils.getVarTransactionId(span));
-            qualifier = columnName.getBuffer();
-        } else {
-            // OLD
-            // byte[] transactionId = SpanUtils.getTransactionId(span);
-            qualifier = SpanUtils.getVarTransactionId(span);
-        }
         return qualifier;
     }
 

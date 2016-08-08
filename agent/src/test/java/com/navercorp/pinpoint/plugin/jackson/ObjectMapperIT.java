@@ -38,7 +38,8 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  * @author Sungkook Kim
  */
 @RunWith(PinpointPluginTestSuite.class)
-@Dependency({"com.fasterxml.jackson.core:jackson-databind:[2.0.6],[2.1.5],[2.2.4],[2.3.4],[2.4.6],[2.5.4,)"})
+// 2.7.0, 2.7.1 has JDK6 compatibility issue - https://github.com/FasterXML/jackson-databind/issues/1134
+@Dependency({"com.fasterxml.jackson.core:jackson-databind:[2.0.6],[2.1.5],[2.2.4],[2.3.4],[2.4.6],[2.5.4,2.6.max],[2.7.2,)"})
 public class ObjectMapperIT {
     
     /**

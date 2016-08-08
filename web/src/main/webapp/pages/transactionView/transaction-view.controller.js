@@ -7,12 +7,12 @@
 	 * @name TransactionViewCtrl
 	 * @class
 	 */
-	pinpointApp.constant('TransactionViewConfig', {
-	    applicationUrl: '/transactionInfo.pinpoint'
+	pinpointApp.constant( "TransactionViewConfig", {
+	    applicationUrl: "/transactionInfo.pinpoint"
 	});
 	
-	pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope', '$rootScope', '$rootElement', 'AlertsService', 'ProgressBarService', '$timeout', '$routeParams', 'NavbarVoService', 'TransactionDaoService', 'AgentDaoService', 'AnalyticsService', 'PreferenceService',
-	    function (cfg, $scope, $rootScope, $rootElement, AlertsService, ProgressBarService, $timeout, $routeParams, NavbarVoService, TransactionDaoService, AgentDaoService, analyticsService, preferenceService) {
+	pinpointApp.controller( "TransactionViewCtrl", [ "TransactionViewConfig", "$scope", "$rootScope", "$rootElement", "CommonUtilService", "AlertsService", "ProgressBarService", "$timeout", "$routeParams", "NavbarVoService", "TransactionDaoService", "AgentDaoService", "AnalyticsService", "PreferenceService",
+	    function( cfg, $scope, $rootScope, $rootElement, CommonUtilService, AlertsService, ProgressBarService, $timeout, $routeParams, NavbarVoService, TransactionDaoService, AgentDaoService, analyticsService, preferenceService ) {
 			analyticsService.send(analyticsService.CONST.TRANSACTION_VIEW_PAGE);
 	        // define private variables
 	        var oAlertService, oProgressBarService;
@@ -115,8 +115,8 @@
 	         */
 	        showServerMap = function () {
 				var oNavbarVoService = new NavbarVoService();
-				oNavbarVoService.setReadablePeriod(preferenceService.getPeriodTypes()[0]);
-				oNavbarVoService.setQueryEndDateTime(moment(parseInt($routeParams.focusTimestamp)).format('YYYY-MM-DD-HH-mm-ss'));
+				oNavbarVoService.setReadablePeriod(preferenceService.getPeriodTime()[0]);
+				oNavbarVoService.setQueryEndDateTime( CommonUtilService.formatDate( $routeParams.focusTimestamp ) );
 	            $scope.$broadcast('serverMapDirective.initializeWithMapData', true, $scope.transactionDetail, oNavbarVoService);
 	        };
 	

@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
 import com.navercorp.pinpoint.collector.mapper.thrift.ActiveTraceHistogramBoMapper;
-import com.navercorp.pinpoint.common.bo.ActiveTraceHistogramBo;
+import com.navercorp.pinpoint.common.server.bo.ActiveTraceHistogramBo;
 import com.navercorp.pinpoint.thrift.dto.TActiveTrace;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -30,7 +30,7 @@ import org.springframework.stereotype.Repository;
 import com.navercorp.pinpoint.collector.dao.AgentStatDao;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.RowKeyUtils;
+import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
@@ -62,7 +62,11 @@ public class HbaseAgentStatDao implements AgentStatDao {
             throw new NullPointerException("agentStat must not be null");
         }
         Put put = createPut(agentStat);
-        hbaseTemplate.put(AGENT_STAT, put);
+
+        boolean success = hbaseTemplate.asyncPut(AGENT_STAT, put);
+        if (!success) {
+            hbaseTemplate.put(AGENT_STAT, put);
+        }
     }
 
     private Put createPut(TAgentStat agentStat) {

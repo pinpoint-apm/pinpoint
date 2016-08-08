@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.SqlMetaDataDao;
-import com.navercorp.pinpoint.common.bo.SqlMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;

@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.cluster.zookeeper;
 
 
-import com.navercorp.pinpoint.common.util.concurrent.CommonStateContext;
+import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.web.cluster.zookeeper.exception.AuthException;
 import com.navercorp.pinpoint.web.cluster.zookeeper.exception.BadOperationException;

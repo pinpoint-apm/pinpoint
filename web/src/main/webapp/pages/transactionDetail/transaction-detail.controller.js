@@ -11,8 +11,8 @@
 	    applicationUrl: '/transactionInfo.pinpoint'
 	});
 	
-	pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$scope', '$rootScope', '$routeParams', '$timeout', '$rootElement', 'AlertsService', 'ProgressBarService', 'TransactionDaoService', '$window', '$location', 'helpContentTemplate', 'helpContentService', 'AnalyticsService',
-	    function (cfg, $scope, $rootScope, $routeParams, $timeout, $rootElement, AlertsService, ProgressBarService, TransactionDaoService, $window, $location, helpContentTemplate, helpContentService, analyticsService) {
+	pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$scope', '$rootScope', '$routeParams', '$timeout', '$rootElement', 'AlertsService', 'ProgressBarService', 'TransactionDaoService', '$window', '$location', 'AnalyticsService', 'TooltipService',
+	    function (cfg, $scope, $rootScope, $routeParams, $timeout, $rootElement, AlertsService, ProgressBarService, TransactionDaoService, $window, $location, analyticsService, tooltipService) {
 			analyticsService.send(analyticsService.CONST.TRANSACTION_DETAIL_PAGE);
 	        // define private variables
 	        var oAlertService, oProgressBarService, bShowCallStacksOnce, bIsFirstTimelineView = true;
@@ -117,7 +117,7 @@
 	        	}
 	        };
 	        $scope.viewLog = function( url ) {
-	        	if ( $scope.loggingTransactionInfo == false ) {
+	        	if ( $scope.loggingTransactionInfo === false ) {
 	        		$("#customLogPopup").find("h4").html("Notice").end().find("div.modal-body").html( $scope.logDisableMessage ).end().modal("show");
 	        		return false;
 	        	} else {
@@ -155,17 +155,17 @@
 	        		$scope.calltreeSearchIndex = 1;
 	        	} else {
 	        		$scope.searchMessage = message.replace("{time}", $scope.searchMinTime);
-	        		if ( message == "" ) {
+	        		if ( message === "" ) {
 	            		$scope.calltreeSearchIndex++;
 	        		}
 	        	}
 	        });
 	        $scope.$on("transactionDetail.timelineSearchCallResult", function(event, message) {
-	        	if ( message == "Loop" ) {
+	        	if ( message === "Loop" ) {
 	        		$scope.timelineSearchIndex = 1;
 	        	} else {
 	        		$scope.searchMessage = message.replace("{time}", $scope.searchMinTime);
-	        		if ( message == "" ) {
+	        		if ( message === "" ) {
 	            		$scope.timelineSearchIndex++;
 	        		}
 	        	}
@@ -196,14 +196,8 @@
 	            	bIsFirstTimelineView = false;
 	        	}
 	        });
-	        
-            jQuery('.callTreeTooltip').tooltipster({
-            	content: function() {
-            		return helpContentTemplate(helpContentService.callTree.column);
-            	},
-            	position: "bottom",
-            	trigger: "click"
-            });	
+
+			tooltipService.init( "callTree" );
 	    }
 	]);
 })();

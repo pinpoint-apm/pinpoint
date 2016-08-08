@@ -42,6 +42,10 @@ public class LinkCallDataMap {
     public LinkCallDataMap(TimeWindow timeWindow) {
         this.timeWindow = timeWindow;
     }
+    
+    public TimeWindow getTimeWindow() {
+        return this.timeWindow;
+    }
 
     public void addCallData(String sourceAgentId, ServiceType sourceServiceType, String targetId, ServiceType targetServiceType, Collection<TimeHistogram> timeHistogramList) {
         LinkKey linkKey = createLinkKey(sourceAgentId, sourceServiceType, targetId, targetServiceType);

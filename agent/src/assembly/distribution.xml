@@ -8,18 +8,22 @@
     <format>tar.gz</format>
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
-  
+
   <fileSets>
     <fileSet>
       <directory>${basedir}/src/main/resources</directory>
       <outputDirectory></outputDirectory>
     </fileSet>
     <fileSet>
-      <directory>${basedir}/src/main/script</directory>
+      <directory>${basedir}/src/main/resources-${env}</directory>
+      <outputDirectory></outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${basedir.parent}/tools/src/main/script</directory>
       <outputDirectory>script</outputDirectory>
     </fileSet>
   </fileSets>
-  
+
   <dependencySets>
     <dependencySet>
         <includes>
@@ -38,6 +42,7 @@
             <exclude>com.navercorp.pinpoint:pinpoint-bootstrap-core</exclude>
             <exclude>com.navercorp.pinpoint:pinpoint-bootstrap</exclude>
             <exclude>com.navercorp.pinpoint:pinpoint-plugins</exclude>
+            <exclude>*:pom</exclude>
         </excludes>
         <outputDirectory>lib</outputDirectory>
         <useProjectArtifact>false</useProjectArtifact>
@@ -47,8 +52,18 @@
         <includes>
             <include>com.navercorp.pinpoint:pinpoint-plugins</include>
         </includes>
+        <excludes>
+            <exclude>*:pom</exclude>
+        </excludes>
         <outputDirectory>plugin</outputDirectory>
-        <unpack>true</unpack>
+        <useProjectArtifact>false</useProjectArtifact>
+        <useTransitiveFiltering>true</useTransitiveFiltering>
+    </dependencySet>
+    <dependencySet>
+        <includes>
+           <include>com.navercorp.pinpoint:pinpoint-tools</include>
+        </includes>
+        <outputDirectory>tools</outputDirectory>
     </dependencySet>
   </dependencySets>
 </assembly>

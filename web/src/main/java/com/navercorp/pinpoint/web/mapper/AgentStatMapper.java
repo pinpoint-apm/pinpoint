@@ -24,9 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 
-import com.navercorp.pinpoint.common.bo.ActiveTraceHistogramBo;
-import com.navercorp.pinpoint.common.bo.AgentStatCpuLoadBo;
-import com.navercorp.pinpoint.common.bo.AgentStatMemoryGcBo;
+import com.navercorp.pinpoint.common.server.bo.ActiveTraceHistogramBo;
+import com.navercorp.pinpoint.common.server.bo.AgentStatCpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.AgentStatMemoryGcBo;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
@@ -43,7 +44,6 @@ import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
 /**

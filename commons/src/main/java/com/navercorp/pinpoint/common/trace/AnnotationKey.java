@@ -157,6 +157,8 @@ public interface AnnotationKey {
     AnnotationKey HTTP_IO = AnnotationKeyFactory.of(49, "http.io", VIEW_IN_RECORD_SET);
     // post method parameter of httpclient
 
+    AnnotationKey MESSAGE_QUEUE_URI = AnnotationKeyFactory.of(100, "message.queue.url");
+
     AnnotationKey ARGS0 = AnnotationKeyFactory.of(-1, "args[0]");
     AnnotationKey ARGS1 = AnnotationKeyFactory.of(-2, "args[1]");
     AnnotationKey ARGS2 = AnnotationKeyFactory.of(-3, "args[2]");

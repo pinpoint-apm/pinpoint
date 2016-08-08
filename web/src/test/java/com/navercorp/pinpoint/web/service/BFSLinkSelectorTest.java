@@ -66,7 +66,7 @@ public class BFSLinkSelectorTest {
     }
 
     private LinkSelector createLinkSelector() {
-        return new BFSLinkSelector(this.callerDao, this.calleeDao, hostApplicationMapDao);
+        return new BFSLinkSelector(this.callerDao, this.calleeDao, hostApplicationMapDao, null);
     }
 
     public LinkDataMap newEmptyLinkDataMap() {

@@ -20,10 +20,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.navercorp.pinpoint.common.bo.ApiMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 
 import org.apache.hadoop.hbase.Cell;
@@ -34,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
 /**
@@ -77,7 +77,7 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
             String apiInfo = buffer.readPrefixedString();
             int lineNumber = buffer.readInt();
             int type = 0;
-            if (buffer.limit() > 0) {
+            if (buffer.hasRemaining()) {
                 type = buffer.readInt();
             }
             apiMetaDataBo.setApiInfo(apiInfo);

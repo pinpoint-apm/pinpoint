@@ -17,17 +17,17 @@
 package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
-import com.navercorp.pinpoint.common.bo.JvmInfoBo;
-import com.navercorp.pinpoint.common.bo.ServerMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
+import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
+import com.navercorp.pinpoint.common.server.bo.ServerMetaDataBo;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.hadoop.hbase.client.Result;
-import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
 /**
@@ -75,7 +75,7 @@ public class AgentInfoMapper implements RowMapper<AgentInfo> {
         builder.setEndTimeStamp(buffer.readLong());
         builder.setEndStatus(buffer.readInt());
         // FIXME - 2015.09 v1.5.0 added vmVersion (check for compatibility)
-        if (buffer.limit() > 0) {
+        if (buffer.hasRemaining()) {
             builder.setVmVersion(buffer.readPrefixedString());
         }
         return builder;

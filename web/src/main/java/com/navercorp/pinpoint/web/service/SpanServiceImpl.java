@@ -19,12 +19,19 @@ package com.navercorp.pinpoint.web.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.navercorp.pinpoint.common.bo.*;
+import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.DefaultSqlParser;
+import com.navercorp.pinpoint.common.util.IntStringStringValue;
 import com.navercorp.pinpoint.common.util.OutputParameterParser;
 import com.navercorp.pinpoint.common.util.SqlParser;
+import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.calltree.span.CallTree;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
@@ -33,16 +40,20 @@ import com.navercorp.pinpoint.web.dao.ApiMetaDataDao;
 import com.navercorp.pinpoint.web.dao.SqlMetaDataDao;
 import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
-import com.navercorp.pinpoint.web.vo.TransactionId;
+import com.navercorp.pinpoint.web.security.MetaDataFilter;
+import com.navercorp.pinpoint.web.security.MetaDataFilter.MetaData;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * @author emeroad
  * @author jaehong.kim
+ * @author minwoo.jung
  */
 //@Service
 public class SpanServiceImpl implements SpanService {
@@ -50,10 +61,14 @@ public class SpanServiceImpl implements SpanService {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
+    @Qualifier("hbaseTraceDaoFactory")
     private TraceDao traceDao;
 
 //    @Autowired
     private SqlMetaDataDao sqlMetaDataDao;
+    
+    @Autowired(required=false)
+    private MetaDataFilter metaDataFilter;
 
     @Autowired
     private ApiMetaDataDao apiMetaDataDao;
@@ -71,7 +86,7 @@ public class SpanServiceImpl implements SpanService {
         }
 
         final List<SpanBo> spans = traceDao.selectSpanAndAnnotation(transactionId);
-        if (spans == null || spans.isEmpty()) {
+        if (CollectionUtils.isEmpty(spans)) {
             return new SpanResult(SpanAligner2.FAIL_MATCH, new CallTreeIterator(null));
         }
 
@@ -116,6 +131,11 @@ public class SpanServiceImpl implements SpanService {
             public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
                 AnnotationBo sqlIdAnnotation = findAnnotation(annotationBoList, AnnotationKey.SQL_ID.getCode());
                 if (sqlIdAnnotation == null) {
+                    return;
+                }
+                if (metaDataFilter != null && metaDataFilter.filter(spanAlign, MetaData.SQL)) {
+                    AnnotationBo annotationBo = metaDataFilter.createAnnotationBo(spanAlign, MetaData.SQL);
+                    annotationBoList.add(annotationBo);
                     return;
                 }
 

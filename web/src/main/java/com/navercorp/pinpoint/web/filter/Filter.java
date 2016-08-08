@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.filter;
 
 import java.util.List;
 
-import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
 
 /**
  *

@@ -15,9 +15,6 @@
  */
 package com.navercorp.pinpoint.plugin.user;
 
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
-
 /**
  * 
  * @author jaehong.kim

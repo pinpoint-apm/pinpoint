@@ -182,7 +182,7 @@
                      * scope event on tpsChartDirective.showCursorAt.namespace
                      */
                     scope.$on('tpsChartDirective.showCursorAt.' + scope.namespace, function (event, category) {
-                        showCursorAt(category)
+                        showCursorAt(category);
                     });
 
                     /**

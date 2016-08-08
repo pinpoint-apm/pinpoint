@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
+import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 

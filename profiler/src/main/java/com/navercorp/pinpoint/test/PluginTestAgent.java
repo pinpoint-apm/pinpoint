@@ -34,7 +34,6 @@ import com.google.common.base.Objects;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -763,7 +762,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     @Override
     public void initialize(boolean createTraceObject) {
         if (createTraceObject) {
-            Trace trace = getTraceContext().newTraceObject();
+            getTraceContext().newTraceObject();
         }
 
         getRecorder().clear();
@@ -792,7 +791,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         } else if (actual instanceof SpanEvent) {
             span = ((SpanEvent) actual).getSpan();
         } else {
-            throw new IllegalArgumentException("Unexpected type: " + actual.getClass());
+            throw new IllegalArgumentException("Unexpected type: " + getActual(actual));
         }
 
         if (span.getLoggingTransactionInfo() != loggingInfo.getCode()) {
@@ -808,6 +807,13 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         }
 
 
+    }
+
+    private String getActual(Object actual) {
+        if (actual == null) {
+            return "actual is null";
+        }
+        return actual.getClass().getName();
     }
 
 }

@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import com.navercorp.pinpoint.collector.cluster.AbstractClusterService;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRouter;
-import com.navercorp.pinpoint.common.util.concurrent.CommonState;
-import com.navercorp.pinpoint.common.util.concurrent.CommonStateContext;
+import com.navercorp.pinpoint.common.server.util.concurrent.CommonState;
+import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.collector.cluster.connection.*;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
