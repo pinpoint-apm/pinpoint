@@ -22,8 +22,6 @@ import com.sun.management.OperatingSystemMXBean;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 /**
  * @author HyunGil Jeong
@@ -52,19 +50,7 @@ public class Java6CpuLoadMetricSet extends CpuLoadMetricSet {
             @Override
             public Double getValue() {
 
-                long cpuTimeNS = UNSUPPORTED;
-                try {
-                    Method method = operatingSystemMXBean.getClass().getMethod("getProcessCpuTime");
-                    Object result = method.invoke(operatingSystemMXBean);
-                    cpuTimeNS = (Long) result;
-                } catch (SecurityException e) {
-                } catch (NoSuchMethodException e) {
-                } catch (IllegalArgumentException e) {
-                } catch (IllegalAccessException e) {
-                } catch (InvocationTargetException e) {
-                } catch (ClassCastException e) {
-                }
-                
+                final long cpuTimeNS = operatingSystemMXBean.getProcessCpuTime();
                 if (cpuTimeNS == UNSUPPORTED) {
                     return UNSUPPORTED_CPU_LOAD_METRIC;
                 }
