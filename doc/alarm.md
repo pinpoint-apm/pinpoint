@@ -72,6 +72,9 @@ public class AlarmMessageSenderImple implements AlarmMessageSender {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @Autowired
+    private UserGroupService userGroupService;
+    
     @Override
     public void sendSms(AlarmChecker checker, int sequenceCount) {
         List<String> receivers = userGroupService.selectPhoneNumberOfMember(checker.getUserGroupId());
@@ -239,6 +242,9 @@ pipoint-web에서 제공하는 `com.navercorp.pinpoint.web.alarm.AlarmMessageSen
 public class AlarmMessageSenderImple implements AlarmMessageSender {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    private UserGroupService userGroupService;
 
     @Override
     public void sendSms(AlarmChecker checker, int sequenceCount) {
