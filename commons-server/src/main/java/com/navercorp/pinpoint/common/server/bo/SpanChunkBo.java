@@ -140,8 +140,11 @@ public class SpanChunkBo implements BasicSpan {
                 ", agentId='" + agentId + '\'' +
                 ", applicationId='" + applicationId + '\'' +
                 ", agentStartTime=" + agentStartTime +
-                ", transactionId='" + transactionId + '\'' +
+                ", transactionId=" + transactionId +
                 ", spanId=" + spanId +
+                ", endPoint='" + endPoint + '\'' +
+                ", serviceType=" + serviceType +
+                ", applicationServiceType=" + applicationServiceType +
                 ", spanEventBoList=" + spanEventBoList +
                 ", collectorAcceptTime=" + collectorAcceptTime +
                 '}';
