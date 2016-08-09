@@ -51,7 +51,7 @@ public class HbaseTraceDao implements TraceDao {
 
 
     @Autowired
-    @Qualifier("transactionIdRowKeyEncoderV1")
+    @Qualifier("traceRowKeyEncoderV1")
     private RowKeyEncoder<TransactionId> rowKeyDecoder;
 
 

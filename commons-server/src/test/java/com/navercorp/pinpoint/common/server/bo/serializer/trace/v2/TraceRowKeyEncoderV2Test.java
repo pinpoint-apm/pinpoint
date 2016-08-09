@@ -29,21 +29,19 @@ public class TraceRowKeyEncoderV2Test {
         return new RowKeyDistributorByHashPrefix(oneByteSimpleHash);
     }
 
-    private RowKeyEncoder<BasicSpan> traceRowKeyEncoder = new TraceRowKeyEncoderV2(distributorByHashPrefix);
+    private RowKeyEncoder<TransactionId> traceRowKeyEncoder = new TraceRowKeyEncoderV2(distributorByHashPrefix);
 
     private RowKeyDecoder<TransactionId> traceRowKeyDecoder = new TraceRowKeyDecoderV2();
 
     @Test
     public void encodeRowKey() throws Exception {
 
-        SpanBo spanBo = new SpanBo();
         TransactionId spanTransactionId = new TransactionId("traceAgentId", System.currentTimeMillis(), RandomUtils.nextLong(0, 10000));
-        spanBo.setTransactionId(spanTransactionId);
 
-        byte[] rowKey = traceRowKeyEncoder.encodeRowKey(spanBo);
+        byte[] rowKey = traceRowKeyEncoder.encodeRowKey(spanTransactionId);
         TransactionId transactionId = traceRowKeyDecoder.decodeRowKey(rowKey);
 
-        Assert.assertEquals(transactionId, spanBo.getTransactionId());
+        Assert.assertEquals(transactionId, spanTransactionId);
 
     }
 

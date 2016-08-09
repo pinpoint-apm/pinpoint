@@ -36,8 +36,8 @@ public class HbaseTraceDaoV2 implements TraceDao {
     private HbaseOperations2 template2;
 
     @Autowired
-    @Qualifier("transactionIdRowKeyEncoderV2")
-    private RowKeyEncoder<TransactionId> transactionIdRowKeyEncoder;
+    @Qualifier("traceRowKeyEncoderV2")
+    private RowKeyEncoder<TransactionId> rowKeyEncoder;
 
 
     private RowMapper<List<SpanBo>> spanMapperV2;
@@ -65,7 +65,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
             throw new NullPointerException("transactionId must not be null");
         }
 
-        byte[] transactionIdRowKey = transactionIdRowKeyEncoder.encodeRowKey(transactionId);
+        byte[] transactionIdRowKey = rowKeyEncoder.encodeRowKey(transactionId);
         return template2.get(HBaseTables.TRACE_V2, transactionIdRowKey, HBaseTables.TRACE_V2_CF_SPAN, spanMapperV2);
     }
 
@@ -154,7 +154,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
         final List<Get> getList = new ArrayList<>(transactionIdList.size());
         for (TransactionId transactionId : transactionIdList) {
-            byte[] transactionIdRowKey = transactionIdRowKeyEncoder.encodeRowKey(transactionId);
+            byte[] transactionIdRowKey = rowKeyEncoder.encodeRowKey(transactionId);
             final Get get = new Get(transactionIdRowKey);
             get.addFamily(columnFamily);
 
