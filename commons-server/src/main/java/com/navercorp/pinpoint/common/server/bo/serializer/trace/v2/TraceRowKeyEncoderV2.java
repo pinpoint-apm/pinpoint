@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  * @author Woonduk Kang(emeroad)
  */
 @Component
-public class TraceRowKeyEncoderV2 implements RowKeyEncoder<BasicSpan> {
+public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
 
     public static final int AGENT_NAME_MAX_LEN = PinpointConstants.AGENT_NAME_MAX_LEN;
     public static final int DISTRIBUTE_HASH_SIZE = 1;
@@ -31,11 +31,11 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<BasicSpan> {
         this.rowKeyDistributor = rowKeyDistributor;
     }
 
-    public byte[] encodeRowKey(BasicSpan basicSpan) {
-        if (basicSpan == null) {
+    public byte[] encodeRowKey(TransactionId transactionId) {
+        if (transactionId == null) {
             throw new NullPointerException("basicSpan must not be null");
         }
-        TransactionId transactionId = basicSpan.getTransactionId();
+
         byte[] rowKey = BytesUtils.stringLongLongToBytes(transactionId.getAgentId(), AGENT_NAME_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
         return wrapDistributedRowKey(rowKey);
     }
