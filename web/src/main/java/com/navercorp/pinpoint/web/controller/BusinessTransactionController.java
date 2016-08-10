@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.web.controller;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletResponse;
-
 import com.navercorp.pinpoint.common.util.DefaultSqlParser;
 import com.navercorp.pinpoint.common.util.OutputParameterParser;
 import com.navercorp.pinpoint.common.util.SqlParser;
@@ -40,7 +38,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
-import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.service.FilteredMapService;
 import com.navercorp.pinpoint.web.service.SpanResult;
 import com.navercorp.pinpoint.web.service.SpanService;
@@ -64,9 +61,6 @@ public class BusinessTransactionController {
 
     @Autowired
     private FilteredMapService filteredMapService;
-
-    @Autowired
-    private FilterBuilder filterBuilder;
 
     @Value("#{pinpointWebProps['log.enable'] ?: false}")
     private boolean logLinkEnable;
@@ -94,28 +88,26 @@ public class BusinessTransactionController {
     @ResponseBody
     public TransactionInfoViewModel transactionInfo(@RequestParam("traceId") String traceIdParam,
                                         @RequestParam(value = "focusTimestamp", required = false, defaultValue = "0") long focusTimestamp,
-                                        @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
-                                        HttpServletResponse response) {
+                                        @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
         logger.debug("traceId:{}", traceIdParam);
 
-        final TransactionId traceId = TransactionIdUtils.parseTransactionId(traceIdParam);
+        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceIdParam);
 
         // select spans
-        final SpanResult spanResult = this.spanService.selectSpan(traceId, focusTimestamp);
+        final SpanResult spanResult = this.spanService.selectSpan(transactionId, focusTimestamp);
         final CallTreeIterator callTreeIterator = spanResult.getCallTree();
 
         // application map
-        ApplicationMap map = filteredMapService.selectApplicationMap(traceId);
+        ApplicationMap map = filteredMapService.selectApplicationMap(transactionId);
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp);
 
-        TransactionInfoViewModel result = new TransactionInfoViewModel(traceId, map.getNodes(), map.getLinks(), recordSet, spanResult.getCompleteTypeString(), logLinkEnable, logButtonName, logPageUrl, disableButtonMessage);
+        TransactionInfoViewModel result = new TransactionInfoViewModel(transactionId, map.getNodes(), map.getLinks(), recordSet, spanResult.getCompleteTypeString(), logLinkEnable, logButtonName, logPageUrl, disableButtonMessage);
         return result;
     }
 
     @RequestMapping(value = "/sqlBind", method = RequestMethod.POST)
     @ResponseBody
-    public String sqlBind(Model model, HttpServletResponse response,
-                          @RequestParam("sql") String sql,
+    public String sqlBind(@RequestParam("sql") String sql,
                           @RequestParam("bind") String bind) {
         logger.debug("sql={}, bind={}", sql, bind);
         final List<String> bindValues = parameterParser.parseOutputParameter(bind);
