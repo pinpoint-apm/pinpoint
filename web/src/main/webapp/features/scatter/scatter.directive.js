@@ -176,7 +176,7 @@
 					}
 					function showScatterWithData(application, w, h, data) {
 						if (angular.isDefined(htScatterSet[application])) {
-							htScatterSet[application].scatter.addBubbleAndMoveAndDraw( htScatterSet[application].scatter.createDataBlocK( data ) );
+							htScatterSet[application].scatter.addBubbleAndMoveAndDraw( htScatterSet[application].scatter.createDataBlock( data ) );
 						} else {
 							makeNewScatter(application, w, h, data).hide();
 						}
@@ -262,7 +262,7 @@
 						htLastNode = node;
 						showScatterBy(node.key);
 					});
-					scope.$on("responseTimeChartDirective.showErrorTransacitonList." + scope.namespace, function( event, category ) {
+					scope.$on("responseTimeChartDirective.showErrorTransactionList." + scope.namespace, function( event, category ) {
 						$window.htoScatter[htLastNode.key].selectType( "Failed" ).fireDragEvent({
 							animate: function() {},
 							css : function( name ) {
