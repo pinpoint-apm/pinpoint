@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
@@ -263,7 +264,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     private List<List<SpanBo>> selectFilteredSpan(List<TransactionId> transactionIdList, Filter filter) {
         // filters out recursive calls by looking at each objects
         // do not filter here if we change to a tree-based collision check in the future. 
-        final Collection<TransactionId> recursiveFilterList = recursiveCallFilter(transactionIdList);
+        final List<TransactionId> recursiveFilterList = recursiveCallFilter(transactionIdList);
 
         // FIXME might be better to simply traverse the List<Span> and create a process chain for execution
         final List<List<SpanBo>> originalList = this.traceDao.selectAllSpans(recursiveFilterList);
@@ -477,7 +478,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return histogramSlot.getSlotTime();
     }
 
-    private Collection<TransactionId> recursiveCallFilter(List<TransactionId> transactionIdList) {
+    private List<TransactionId> recursiveCallFilter(List<TransactionId> transactionIdList) {
         if (transactionIdList == null) {
             throw new NullPointerException("transactionIdList must not be null");
         }
@@ -493,7 +494,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         if (!crashKey.isEmpty()) {
             Set<TransactionId> filteredTransactionId = filterMap.keySet();
             logger.info("transactionId crash found. original:{} filter:{} crashKey:{}", transactionIdList.size(), filteredTransactionId.size(), crashKey);
-            return filteredTransactionId;
+            return Lists.newArrayList(filteredTransactionId);
         }
         return transactionIdList;
     }

@@ -85,7 +85,7 @@ public class SpanServiceImpl implements SpanService {
             throw new NullPointerException("transactionId must not be null");
         }
 
-        final List<SpanBo> spans = traceDao.selectSpanAndAnnotation(transactionId);
+        final List<SpanBo> spans = traceDao.selectSpan(transactionId);
         if (CollectionUtils.isEmpty(spans)) {
             return new SpanResult(SpanAligner2.FAIL_MATCH, new CallTreeIterator(null));
         }
