@@ -100,7 +100,7 @@
                             oChart.addListener('clickGraphItem', function(event) {
                             	if ( event.item.category == "Error" ) {
 									analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_RESPONSE_GRAPH);
-                            		scope.$emit('responseTimeChartDirective.showErrorTransacitonList', event.item.category );
+                            		scope.$emit('responseTimeChartDirective.showErrorTransactionList', event.item.category );
                             	}
                             	if ( useFilterTransaction ) {
                             		scope.$emit('responseTimeChartDirective.itemClicked.' + scope.namespace, event.item.serialDataItem.dataContext);

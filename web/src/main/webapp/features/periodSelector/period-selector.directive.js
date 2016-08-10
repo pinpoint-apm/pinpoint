@@ -270,7 +270,7 @@
 						scope.periodType = oPeriodType.LAST;
 					};
 					scope.getRealtimeBtnClass = function() {
-						return UrlVoService.isRealtime() ? "blinkblink btn-info" : "";
+						return UrlVoService.isRealtime() ? "btn-info" : "";
 					};
 					scope.getPeriodLabel = function( period ) {
 						return period === "5m" ? "Last " + period : period;
