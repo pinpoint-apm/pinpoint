@@ -64,7 +64,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     }
 
     @Override
-    public List<Dot> selectScatterData(Collection<TransactionId> transactionIdList, String applicationName, Filter filter) {
+    public List<Dot> selectScatterData(List<TransactionId> transactionIdList, String applicationName, Filter filter) {
         if (transactionIdList == null) {
             throw new NullPointerException("transactionIdList must not be null");
         }
@@ -149,7 +149,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     }
 
     @Override
-    public ScatterData selectScatterData(Collection<TransactionId> transactionIdList, String applicationName, Range range, int xGroupUnit, int yGroupUnit, Filter filter) {
+    public ScatterData selectScatterData(List<TransactionId> transactionIdList, String applicationName, Range range, int xGroupUnit, int yGroupUnit, Filter filter) {
         if (transactionIdList == null) {
             throw new NullPointerException("transactionIdList must not be null");
         }
