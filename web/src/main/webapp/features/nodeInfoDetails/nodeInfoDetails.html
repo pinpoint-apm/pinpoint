@@ -72,7 +72,8 @@
 
 	<div ng-show="isNotAuthorized()">
 		<div style="text-align:center;font-weight:bold;margin-top:50px;">
-			You don't have authorization for {{node.applicationName}}
+			You don't have authorization.
+			<a ng-href="{{getAuthGuideUrl()}}" target="_blank" style="color:#AAA;"><span class='glyphicon glyphicon-share'></span></a>
 		</div>
 	</div>
 
