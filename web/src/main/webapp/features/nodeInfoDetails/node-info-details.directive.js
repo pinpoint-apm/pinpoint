@@ -11,8 +11,8 @@
 	    maxTimeToShowLoadAsDefaultForUnknown: 60 * 60 * 12 // 12h
 	});
 	
-	pinpointApp.directive("nodeInfoDetailsDirective", [ "nodeInfoDetailsDirectiveConfig", "$rootScope", "$filter", "$timeout", "isVisibleService", "$window", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService",
-        function (cfg, $rootScope, $filter, $timeout, isVisibleService, $window, analyticsService, preferenceService, tooltipService, commonAjaxService ) {
+	pinpointApp.directive("nodeInfoDetailsDirective", [ "nodeInfoDetailsDirectiveConfig", "$rootScope", "$filter", "$timeout", "isVisibleService", "globalConfig", "$window", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService",
+        function (cfg, $rootScope, $filter, $timeout, isVisibleService, globalConfig, $window, analyticsService, preferenceService, tooltipService, commonAjaxService ) {
             return {
                 restrict: "EA",
                 replace: true,
@@ -253,6 +253,9 @@
 					};
 					scope.isNotAuthorized = function() {
 						return scope.isAuthorized === false;
+					};
+					scope.getAuthGuideUrl = function() {
+						return globalConfig.securityGuideUrl;
 					};
 
                     /**

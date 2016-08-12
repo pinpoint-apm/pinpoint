@@ -7,14 +7,14 @@
 	 * @name distributedCallFlowDirective
 	 * @class
 	 */	
-	pinpointApp.directive('distributedCallFlowDirective', [ '$filter', '$timeout', 'CommonAjaxService',
-	    function ($filter, $timeout, commonAjaxService) {
+	pinpointApp.directive( "distributedCallFlowDirective", [ "$filter", "$timeout", "CommonAjaxService", "globalConfig",
+	    function ( $filter, $timeout, CommonAjaxService, globalConfig ) {
 	        return {
-	            restrict: 'E',
+	            restrict: "E",
 	            replace: true,
-	            templateUrl: 'features/distributedCallFlow/distributedCallFlow.html?v=${buildTime}',
+	            templateUrl: "features/distributedCallFlow/distributedCallFlow.html?v=${buildTime}",
 	            scope : {
-	                namespace : '@' // string value
+	                namespace : "@" // string value
 	            },
 	            link: function postLink(scope, element, attrs) {
 	                // initialize variables
@@ -34,7 +34,7 @@
 						if ( bIsAuthorized ) {
 							return removeTag( text );
 						} else {
-							return "<i style='color:#AAA;'>" + removeTag( text ) + "</i>";
+							return "<i style='color:#AAA;'>" + removeTag( text ) + "</i> <a href='" + globalConfig.securityGuideUrl + "' target='_blank' style='color:#AAA;'><span class='glyphicon glyphicon-share'></span></a>";
 						}
 					};
 	                /**
@@ -347,7 +347,7 @@
 								if ( item.isAuthorized ) {
 									if ( angular.isDefined( itemNext ) && itemNext.method === "SQL-BindValue" ) {
 										data += "&bind=" + encodeURIComponent( itemNext.argument );
-										commonAjaxService.getSQLBind( "/sqlBind.pinpoint", data, function( result ) {
+										CommonAjaxService.getSQLBind( "/sqlBind.pinpoint", data, function( result ) {
 											$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html(
 													'<h4>Binded SQL <button class="btn btn-default btn-xs sql">Copy</button></h4>' +
 													'<div style="position:absolute;left:10000px">' + result + '</div>' +
