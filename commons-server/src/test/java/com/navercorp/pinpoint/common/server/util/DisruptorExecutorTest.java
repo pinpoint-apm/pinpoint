@@ -91,6 +91,27 @@ public class DisruptorExecutorTest {
         }
     }
 
+    @Test
+    public void exceptionTest() throws InterruptedException {
+        int bufferSize = 10;
+        int newBufferSize = DisruptorExecutors.nextPowerOfTwo(bufferSize);
+
+        ExecutorService executor = DisruptorExecutors.newSingleProducerExecutor(1, newBufferSize, threadFactory, new TimeoutBlockingWaitStrategy(10000, TimeUnit.MILLISECONDS));
+
+        int executeCount = 5;
+        CountDownLatch latch = new CountDownLatch(executeCount);
+        try {
+            for (int i = 0; i < executeCount; i++) {
+                executor.execute(new ThrowExceptionRunnable(latch));
+            }
+
+            boolean await = latch.await(1000, TimeUnit.MILLISECONDS);
+            Assert.assertTrue(await);
+        } finally {
+            executor.shutdown();
+        }
+    }
+
     class LatchAwaitRunnable implements Runnable {
 
         private final CountDownLatch startLatch;
@@ -112,6 +133,26 @@ public class DisruptorExecutorTest {
             } catch (InterruptedException e) {
             }
         }
+    }
+
+    class ThrowExceptionRunnable implements Runnable {
+
+        private final CountDownLatch latch;
+
+        public ThrowExceptionRunnable(CountDownLatch latch) {
+            this.latch = latch;
+        }
+
+        @Override
+        public void run() {
+
+            try {
+                throw new RuntimeException();
+            } finally {
+                latch.countDown();
+            }
+        }
+
     }
 
 }
