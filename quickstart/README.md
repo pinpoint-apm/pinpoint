@@ -42,9 +42,10 @@ The following script downloads HBase standalone from [Apache download site](http
 
 **Collector** - Run `quickstart/bin/start-collector.sh`
 
+**TestApp** - Run `quickstart/bin/start-testapp.sh`
+
 **Web UI** - Run `quickstart/bin/start-web.sh`
 
-**TestApp** - Run `quickstart/bin/start-testapp.sh`
 
 Once the startup scripts are completed, the last 10 lines of the Tomcat log are tailed to the console:
 
