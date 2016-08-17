@@ -894,7 +894,7 @@
             this._oDiagram.layout = this.$(
 				go.LayeredDigraphLayout,
                 {
-                    // isOngoing: true,
+                    isOngoing: false,
                     layerSpacing: 100,
                     columnSpacing: 30,
                     setsPortSpots: false

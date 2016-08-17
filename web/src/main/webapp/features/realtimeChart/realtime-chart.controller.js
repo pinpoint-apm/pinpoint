@@ -143,12 +143,12 @@
 	    		}
 	    	}
 	    	function initNamespaceToIndexMap() {
-	    		if ( angular.isDefined( oNamespaceToIndexMap["sum"] ) ) {
+	    		// if ( angular.isDefined( oNamespaceToIndexMap["sum"] ) ) {
+	    		// 	oNamespaceToIndexMap = {};
+		    	// 	oNamespaceToIndexMap["sum"] = -1;
+	    		// } else {
 	    			oNamespaceToIndexMap = {};
-		    		oNamespaceToIndexMap["sum"] = -1;
-	    		} else {
-	    			oNamespaceToIndexMap = {};
-	    		}
+	    		// }
 	    	}
 	    	function hasAgentChart( agentName ) {
 	    		return angular.isDefined( oNamespaceToIndexMap[agentName] );
@@ -191,9 +191,9 @@
 						$scope.retryConnection();
 					}
 	        	});
-	        	if ( bConnected ) {
-	        		initChartDirective();
-	        	}
+	        	// if ( bConnected ) {
+	        	// 	initChartDirective();
+	        	// }
 	        }
 	        function receive( data ) {
 				$elWarningMessage.hide();
@@ -311,7 +311,7 @@
 				});
 				aChildScopeList.length = 0;
 				$timeout(function() {
-					$elSumChartWrapper.find(".agent-sum-chart").empty();
+					$elSumChartWrapper.find("svg").remove();
 					$.each( aAgentChartElementList, function( index, el ) {
 						el.remove();
 					});
@@ -378,6 +378,7 @@
 	        		return;
 	        	}
 	        	initNamespaceToIndexMap();
+				initChartDirective();
 	        	adjustWidth();
 	        	$scope.bInitialized = true;
 
