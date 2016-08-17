@@ -19,7 +19,6 @@
 				var $element = $(element);
 				var $elGuide = $element.find(".some-guide");
 				var $elWrapper = $element.find(".wrapper");
-				var $elTotal = $element.find(".total");
 				var $elLoading = $element.find(".some-loading");
 				var aEditNodes = [ $element.find("tr._edit1"), $element.find("tr._edit2") ];
 				var $elAlert = $element.find(".some-alert");
@@ -52,7 +51,6 @@
 						bIsLoaded = true;
 						oRuleList = oServerData;
 						scope.ruleList = oServerData;
-						AlarmUtilService.setTotal( $elTotal, oRuleList.length );
 						AlarmUtilService.hide( $elLoading );
 					}, showAlert );
 				}
@@ -156,7 +154,6 @@
 						oRuleList.push( oNewRule );
 						scope.ruleList = oRuleList;
 						hideEditArea();
-						AlarmUtilService.setTotal( $elTotal, oRuleList.length );
 					}, showAlert );
 				};
 				scope.onCancelAddAlarm = function() {
@@ -184,7 +181,6 @@
 						scope.$apply(function() {
 							scope.ruleList = oRuleList;
 						});
-						AlarmUtilService.setTotal( $elTotal, oRuleList.length );
 					}, showAlert );
 				};
 				scope.onUpdateAlarm = function( $event ) {

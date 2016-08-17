@@ -303,6 +303,19 @@
     border: 1px solid #E2E2E2;
     background-color: #FFF;
 }
+#application-config .application-group .title {
+    width: 100%;
+    height: 41px;
+    padding: 10px 10px 0px 10px;
+    position: relative;
+    border-bottom: 1px solid #E2E2E2;
+    background-color: #9A9A9A;
+}
+#application-config .application-group .title span {
+    color: #FFF;
+    font-size: 16px;
+}
+
 #application-config .application-group .filtering {
     width: 100%;
     height: 41px;
@@ -313,7 +326,7 @@
 }
 #application-config .application-group .wrapper {
     width: 100%;
-    height: 457px;
+    height: 416px;
     position: relative;
     overflow-y: auto;
 }
