@@ -18,10 +18,13 @@ package com.navercorp.pinpoint.web.alarm.checker;
 
 import static org.junit.Assert.*;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -31,9 +34,8 @@ import com.navercorp.pinpoint.web.alarm.DataCollectorFactory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.collector.AgentStatDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
-import com.navercorp.pinpoint.web.dao.AgentStatDao;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.vo.AgentStat;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 
@@ -43,29 +45,38 @@ public class JvmCpuUsageRateCheckerTest {
     private static final String SERVICE_TYPE = "tomcat";
 
     private static ApplicationIndexDao applicationIndexDao;
-    
-    private static AgentStatDao agentStatDao;
+
+    private static AgentStatDao<JvmGcBo> jvmGcDao;
+
+    private static AgentStatDao<CpuLoadBo> cpuLoadDao;
     
     @BeforeClass
     public static void before() {
-        agentStatDao = new AgentStatDao() {
+        jvmGcDao = new AgentStatDao<JvmGcBo>() {
 
             @Override
-            public List<AgentStat> getAgentStatList(String agentId, Range range) {
-                List<AgentStat> agentStatList = new LinkedList<AgentStat>();
-                
-                for (int i = 0; i < 36; i++) {
-                    AgentStat stat = new AgentStat("AGENT_NAME", 1L);
-                    stat.setJvmCpuUsage(0.6);
-                    agentStatList.add(stat);
-                }
-                
-                return agentStatList;
+            public List<JvmGcBo> getAgentStatList(String agentId, Range range) {
+                return Collections.emptyList();
             }
 
             @Override
-            public List<AgentStat> getAggregatedAgentStatList(String agentId, Range range) {
-                return getAgentStatList(agentId, range);
+            public boolean agentStatExists(String agentId, Range range) {
+                return false;
+            }
+        };
+
+        cpuLoadDao = new AgentStatDao<CpuLoadBo>() {
+
+            public List<CpuLoadBo> getAgentStatList(String agentId, Range range) {
+                List<CpuLoadBo> cpuLoads = new LinkedList<>();
+                
+                for (int i = 0; i < 36; i++) {
+                    CpuLoadBo cpuLoad = new CpuLoadBo();
+                    cpuLoad.setJvmCpuLoad(0.6);
+                    cpuLoads.add(cpuLoad);
+                }
+                
+                return cpuLoads;
             }
 
             @Override
@@ -115,7 +126,7 @@ public class JvmCpuUsageRateCheckerTest {
     public void checkTest1() {
         Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.JVM_CPU_USAGE_RATE.getName(), 60, "testGroup", false, false, "");
         Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
-        AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, agentStatDao, applicationIndexDao, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
+        AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, jvmGcDao, cpuLoadDao, applicationIndexDao, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
         AgentChecker checker = new JvmCpuUsageRateChecker(collector, rule);
         
         checker.check();
@@ -126,7 +137,7 @@ public class JvmCpuUsageRateCheckerTest {
     public void checkTest2() {
         Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.JVM_CPU_USAGE_RATE.getName(), 61, "testGroup", false, false, "");
         Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
-        AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, agentStatDao, applicationIndexDao, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
+        AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, jvmGcDao, cpuLoadDao, applicationIndexDao, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
         AgentChecker checker = new JvmCpuUsageRateChecker(collector, rule);
         
         checker.check();

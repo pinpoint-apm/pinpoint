@@ -73,14 +73,14 @@
 	
 	            for (var i = 0; i < pointsCount.length; ++i) {
 	                var thisData = {
-	                    time: moment(pointsTime[i].timestamp).format( cfg.dateFormat )
+	                    time: moment(pointsTime[i].xVal).format( cfg.dateFormat )
 	                };
 	                for (var k in info.line) {
 	                    if (info.line[k].isFgc) {
 	                        var gcCount = 0;
 	                        var gcTime = 0;
-	                        currTime = pointsTime[i].maxVal;
-	                        currCount = pointsCount[i].maxVal;
+	                        currTime = pointsTime[i].maxYVal;
+	                        currCount = pointsCount[i].maxYVal;
 	                        if (!prevTime || !prevCount) {
 	                            prevTime = currTime;
 	                            prevCount = currCount;
@@ -107,7 +107,7 @@
 	                        	thisData[info.line[k].key+"Time"] = gcTime;
 	                        }
 	                    } else {
-	                    	var value = agentStat.charts[info.line[k].id].points[i].maxVal;
+	                    	var value = agentStat.charts[info.line[k].id].points[i].maxYVal;
 	                    	if ( value >= 0 ) {
 	                    		thisData[info.line[k].key] = value;
 	                    	}
@@ -144,15 +144,15 @@
 	            }
 	            
 	            for (var i = 0; i < pointsJvmCpuLoad.length; ++i) {
-	                if (pointsJvmCpuLoad[i].timestamp !== pointsSystemCpuLoad[i].timestamp) {
+	                if (pointsJvmCpuLoad[i].xVal !== pointsSystemCpuLoad[i].xVal) {
 	                	throw new Error('assertion error', 'timestamp mismatch between jvmCpuLoad and systemCpuLoad');
 	                }
 	                var thisData = {
-						time: moment(pointsJvmCpuLoad[i].timestamp).format( cfg.dateFormat ),
+						time: moment(pointsJvmCpuLoad[i].xVal).format( cfg.dateFormat ),
 	                    maxCpuLoad: 100
 	                };
-	                var jvmCpuLoad = typeof agentStat.charts['CPU_LOAD_JVM'].points[i].maxVal == "number" ? agentStat.charts['CPU_LOAD_JVM'].points[i].maxVal.toFixed(2) : 0.00;
-	                var systemCpuLoad = typeof agentStat.charts['CPU_LOAD_SYSTEM'].points[i].maxVal == "number" ? agentStat.charts['CPU_LOAD_SYSTEM'].points[i].maxVal.toFixed(2) : 0.00;
+	                var jvmCpuLoad = typeof agentStat.charts['CPU_LOAD_JVM'].points[i].maxYVal == "number" ? agentStat.charts['CPU_LOAD_JVM'].points[i].maxYVal.toFixed(2) : 0.00;
+	                var systemCpuLoad = typeof agentStat.charts['CPU_LOAD_SYSTEM'].points[i].maxYVal == "number" ? agentStat.charts['CPU_LOAD_SYSTEM'].points[i].maxYVal.toFixed(2) : 0.00;
 	                if ( jvmCpuLoad >= 0 ) {
 	                    thisData.jvmCpuLoad = jvmCpuLoad;
 	                }
@@ -189,13 +189,13 @@
 	            
 	            for ( var i = 0 ; i < tpsLength ; i++ ) {
 	                var thisData = {
-						time: moment(aSampledContinuationData[i].timestamp).format( cfg.dateFormat )
+						time: moment(aSampledContinuationData[i].xVal).format( cfg.dateFormat )
 	                };
-	                var sampledContinuationTps     = typeof aSampledContinuationData[i].avgVal == "number" ? aSampledContinuationData[i].avgVal.toFixed(2) : 0.00;
-	                var sampledNewTps              = typeof aSampledNewData[i].avgVal == "number" ? aSampledNewData[i].avgVal.toFixed(2) : 0.00;
-	                var unsampledContinuationTps   = typeof aUnsampledContinuationData[i].avgVal == "number" ? aUnsampledContinuationData[i].avgVal.toFixed(2) : 0.00;
-	                var unsampledNewTps            = typeof aUnsampledNewData[i].avgVal == "number" ? aUnsampledNewData[i].avgVal.toFixed(2) : 0.00;
-	                var totalTps                   = typeof aTotalData[i].avgVal == "number" ? aTotalData[i].avgVal.toFixed(2) : 0.00;
+	                var sampledContinuationTps     = typeof aSampledContinuationData[i].avgYVal == "number" ? aSampledContinuationData[i].avgYVal.toFixed(2) : 0.00;
+	                var sampledNewTps              = typeof aSampledNewData[i].avgYVal == "number" ? aSampledNewData[i].avgYVal.toFixed(2) : 0.00;
+	                var unsampledContinuationTps   = typeof aUnsampledContinuationData[i].avgYVal == "number" ? aUnsampledContinuationData[i].avgYVal.toFixed(2) : 0.00;
+	                var unsampledNewTps            = typeof aUnsampledNewData[i].avgYVal == "number" ? aUnsampledNewData[i].avgYVal.toFixed(2) : 0.00;
+	                var totalTps                   = typeof aTotalData[i].avgYVal == "number" ? aTotalData[i].avgYVal.toFixed(2) : 0.00;
 	                if ( sampledContinuationTps != DATA_UNAVAILABLE ) {
                         thisData.sampledContinuationTps = sampledContinuationTps;
 	                }
