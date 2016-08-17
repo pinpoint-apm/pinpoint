@@ -183,14 +183,11 @@
 			$.each( this._aAgentList, function( index,  agentName ) {
 				if ( self._currentAgent === self._AGENT_ALL || self._currentAgent === agentName ) {
 					$.each( oSum, function( type ) {
-						//if ( self._oBubbleTypeManager.isChecked( type ) ) {
 						if ( bRealtime === true ) {
 							oSum[type] += oDataBlock.getCount( agentName, type, oRangeX.min, oRangeX.max );
 						} else {
 							oSum[type] += oDataBlock.getCount( agentName, type );
 						}
-
-						//}
 					});
 				}
 			});
