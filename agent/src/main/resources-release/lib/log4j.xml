@@ -3,6 +3,7 @@
 <log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
 
     <appender name="console" class="org.apache.log4j.ConsoleAppender">
+        <param name="Threshold" value="WARN" />
         <layout class="org.apache.log4j.EnhancedPatternLayout">
             <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35c{1.}:%-3L) %m%n" />
             <!-- %L(line number) option is extremely slow. -->
@@ -36,16 +37,7 @@
 
     <logger name="com.navercorp.pinpoint" additivity="false">
         <level value="INFO" />
-        <appender-ref ref="rollingFile" />
-    </logger>
-
-    <logger name="org.apache.zookeeper" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="rollingFile" />
-    </logger>
-
-    <logger name="org.apache.hadoop.hbase" additivity="false">
-        <level value="INFO"/>
+        <appender-ref ref="console" />
         <appender-ref ref="rollingFile" />
     </logger>
 
