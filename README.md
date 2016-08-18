@@ -53,6 +53,9 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 * gson, Jackson, Json Lib
 * log4j, Logback
 
+## Third Party Agents/Plugins
+There may be agents, and plugins that are being developed and managed by other individuals/organizations. Please take a look [here](https://github.com/naver/pinpoint/wiki#third-party-agentsplugins) for the list and see if you would like to help out in their development.
+
 ## Quick Start
 You may run a sample Pinpoint instance in your own machine by running four simple scripts for each components: Collector, Web, Sample TestApp, HBase.
 
