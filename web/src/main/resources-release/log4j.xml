@@ -48,12 +48,6 @@
         <appender-ref ref="console"/>
     </logger>
 
-    <logger name="com.navercorp.pinpoint.collector.handler.AgentStatHandler" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="console"/>
-    </logger>
-
-
     <logger name="com.navercorp.pinpoint.web.mapper.ApiMetaDataMapper" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="console"/>

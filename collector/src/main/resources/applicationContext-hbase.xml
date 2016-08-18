@@ -101,10 +101,20 @@
         <constructor-arg ref="agentStatRangeHasher"/>
     </bean>
 
+    <bean id="agentStatV2RowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
+        <constructor-arg ref="agentStatV2RangeHasher"/>
+    </bean>
+
     <bean id="agentStatRangeHasher" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
         <constructor-arg type="int" value="0"/>
         <constructor-arg type="int" value="24"/>
         <constructor-arg type="int" value="32"/>
+    </bean>
+
+    <bean id="agentStatV2RangeHasher" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
+        <constructor-arg type="int" value="0"/>
+        <constructor-arg type="int" value="33"/>
+        <constructor-arg type="int" value="64"/>
     </bean>
 
     <bean id="metadataRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">

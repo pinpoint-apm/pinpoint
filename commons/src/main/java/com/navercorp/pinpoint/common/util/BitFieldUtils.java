@@ -99,7 +99,7 @@ public final class BitFieldUtils {
         return getMultiBit(v, position, 2);
     }
 
-    private static int getMultiBit(int v, int position, int bitSize) {
+    public static int getMultiBit(int v, int position, int bitSize) {
         int shift = position;
 
         int mask = 0;

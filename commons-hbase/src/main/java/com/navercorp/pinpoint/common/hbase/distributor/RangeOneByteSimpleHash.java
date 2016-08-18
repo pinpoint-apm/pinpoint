@@ -29,8 +29,8 @@ import java.util.Arrays;
  * @author emeroad
  */
 public class RangeOneByteSimpleHash implements RowKeyDistributorByHashPrefix.Hasher {
-    private final int start;
-    private final int end;
+    protected final int start;
+    protected final int end;
     private int mod;
 
     // Used to minimize # of created object instances
@@ -43,7 +43,6 @@ public class RangeOneByteSimpleHash implements RowKeyDistributorByHashPrefix.Has
             PREFIXES[i] = new byte[] {(byte) i};
         }
     }
-
 
     public RangeOneByteSimpleHash(int start, int end, int maxBuckets) {
         if (maxBuckets < 1 || maxBuckets > 256) {
@@ -88,6 +87,10 @@ public class RangeOneByteSimpleHash implements RowKeyDistributorByHashPrefix.Has
     @Override
     public void init(String storedParams) {
         this.mod = Integer.parseInt(storedParams);
+    }
+
+    protected final int getMod() {
+        return this.mod;
     }
 
 }

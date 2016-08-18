@@ -19,10 +19,13 @@ package com.navercorp.pinpoint.web.alarm.checker;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -32,9 +35,8 @@ import com.navercorp.pinpoint.web.alarm.DataCollectorFactory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.collector.AgentStatDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
-import com.navercorp.pinpoint.web.dao.AgentStatDao;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.vo.AgentStat;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 
@@ -45,30 +47,26 @@ public class HeapUsageRateCheckerTest {
 
     private static ApplicationIndexDao applicationIndexDao;
     
-    private static AgentStatDao agentStatDao;
+    private static AgentStatDao<JvmGcBo> jvmGcDao;
+
+    private static AgentStatDao<CpuLoadBo> cpuLoadDao;
     
     @BeforeClass
-    public static void before() {
-        agentStatDao = new AgentStatDao() {
+    public static void before() {jvmGcDao = new AgentStatDao<JvmGcBo>() {
 
             @Override
-            public List<AgentStat> getAgentStatList(String agentId, Range range) {
-                List<AgentStat> agentStatList = new LinkedList<AgentStat>();
+            public List<JvmGcBo> getAgentStatList(String agentId, Range range) {
+                List<JvmGcBo> jvmGcs = new LinkedList<>();
                 
                 for (int i = 0; i < 36; i++) {
-                    AgentStat stat = new AgentStat("AGENT_NAME", 1L);
-                    stat.setHeapUsed(70L);
-                    stat.setHeapMax(100L);
-                    
-                    agentStatList.add(stat);
+                    JvmGcBo jvmGcBo = new JvmGcBo();
+                    jvmGcBo.setHeapUsed(70L);
+                    jvmGcBo.setHeapMax(100L);
+
+                    jvmGcs.add(jvmGcBo);
                 }
                 
-                return agentStatList;
-            }
-            
-            @Override
-            public List<AgentStat> getAggregatedAgentStatList(String agentId, Range range) {
-                return getAgentStatList(agentId, range);
+                return jvmGcs;
             }
 
             @Override
@@ -76,7 +74,20 @@ public class HeapUsageRateCheckerTest {
                 return true;
             }
         };
-        
+
+        cpuLoadDao = new AgentStatDao<CpuLoadBo>() {
+
+            @Override
+            public List<CpuLoadBo> getAgentStatList(String agentId, Range range) {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public boolean agentStatExists(String agentId, Range range) {
+                return false;
+            }
+        };
+
         applicationIndexDao = new ApplicationIndexDao() {
 
             @Override
@@ -118,7 +129,7 @@ public class HeapUsageRateCheckerTest {
     public void checkTest1() {
         Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.HEAP_USAGE_RATE.getName(), 70, "testGroup", false, false, "");
         Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
-        AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, agentStatDao, applicationIndexDao, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
+        AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, jvmGcDao, cpuLoadDao, applicationIndexDao, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
         AgentChecker checker = new HeapUsageRateChecker(collector, rule);
         
         checker.check();
@@ -129,7 +140,7 @@ public class HeapUsageRateCheckerTest {
     public void checkTest2() {
         Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.HEAP_USAGE_RATE.getName(), 71, "testGroup", false, false, "");
         Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
-        AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, agentStatDao, applicationIndexDao, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
+        AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, jvmGcDao, cpuLoadDao, applicationIndexDao, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
         AgentChecker checker = new HeapUsageRateChecker(collector, rule);
         
         checker.check();
@@ -147,7 +158,7 @@ public class HeapUsageRateCheckerTest {
 //    public void checkTest1() {
 //        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.HEAP_USAGE_RATE.getName(), 60, "testGroup", false, false);
 //        Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
-//        AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, hbaseAgentStatDao, applicationIndexDao, System.currentTimeMillis(), (long)300000);
+//        AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, jvmGcDao, cpuLoadDao, applicationIndexDao, System.currentTimeMillis(), (long)300000);
 //        AgentChecker checker = new HeapUsageRateChecker(collector, rule);
 //        
 //        checker.check();
