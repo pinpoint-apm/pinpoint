@@ -10,15 +10,16 @@
     <name>Pinpoint TestApp QuickStart</name>
     <version>${maven.pinpoint.version}</version>
     <packaging>war</packaging>
-    
+
     <properties>
         <encoding>UTF-8</encoding>
         <jdk.version>1.6</jdk.version>
         <spring.version>4.1.7.RELEASE</spring.version>
         <slf4j.version>1.7.5</slf4j.version>
         <tomcat.version>7.0.47</tomcat.version>
+        <cxf.version>2.7.18</cxf.version>
     </properties>
-    
+
     <dependencies>
         <!-- Spring -->
         <dependency>
@@ -37,7 +38,7 @@
             <artifactId>spring-webmvc</artifactId>
             <version>${spring.version}</version>
         </dependency>
-        
+
         <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -62,7 +63,7 @@
             <version>1.2.17</version>
             <scope>runtime</scope>
         </dependency>
-        
+
         <!-- Tomcat -->
         <dependency>
             <groupId>org.apache.tomcat</groupId>
@@ -105,30 +106,41 @@
             <artifactId>standard</artifactId>
             <version>1.1.2</version>
         </dependency>
-        
-	    <!-- Apache HTTP Client -->
+
+        <!-- Apache HTTP Client -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.3.6</version>
         </dependency>
-	    <dependency>
-	        <groupId>org.apache.httpcomponents</groupId>
-	        <artifactId>httpcore</artifactId>
-	        <version>4.3.3</version>
-	    </dependency>
-	    
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>4.3.3</version>
+        </dependency>
+
         <!-- Jackson -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.4.4</version>
         </dependency>
-        
+
         <dependency>
-        	<artifactId>commons-io</artifactId>
-          	<groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+              <groupId>commons-io</groupId>
             <version>2.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxws</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-transports-http</artifactId>
+            <version>${cxf.version}</version>
         </dependency>
     </dependencies>
 
@@ -196,7 +208,41 @@
                     <warSourceDirectory>${basedir}/target/deploy</warSourceDirectory>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-codegen-plugin</artifactId>
+                <version>${cxf.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-sources</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <sourceRoot>${basedir}/target/generated-sources/cxf</sourceRoot>
+                            <wsdlOptions>
+                                <wsdlOption>
+                                    <wsdl>http://www.webservicex.net/globalweather.asmx?wsdl</wsdl>
+                                    <extraargs>
+                                        <extraarg>-fe</extraarg>
+                                        <extraarg>jaxws21</extraarg>
+                                    </extraargs>
+                                </wsdlOption>
+                                <wsdlOption>
+                                    <wsdl>http://www.w3schools.com/xml/tempconvert.asmx?wsdl</wsdl>
+                                    <extraargs>
+                                        <extraarg>-fe</extraarg>
+                                        <extraarg>jaxws21</extraarg>
+                                    </extraargs>
+                                </wsdlOption>
+                            </wsdlOptions>
+                        </configuration>
+                        <goals>
+                            <goal>wsdl2java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
-    
+
 </project>

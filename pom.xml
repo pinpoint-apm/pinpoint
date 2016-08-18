@@ -193,7 +193,6 @@
                 <artifactId>pinpoint-test</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            
 
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -694,6 +693,17 @@
                 <version>5.13.2</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-frontend-jaxws</artifactId>
+                <version>2.7.18</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-transports-http</artifactId>
+                <version>2.7.18</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -907,7 +917,7 @@
                         <goals>
                             <goal>check</goal>
                         </goals>
-                    </execution>      
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
@@ -946,8 +956,8 @@
                     <linkXRef>true</linkXRef>
                     <sourceEncoding>${encoding}</sourceEncoding>
                     <targetJdk>${jdk.version}</targetJdk>
-                    <!-- <rulesets> <ruleset>/rulesets/unusedcode.xml</ruleset> 
-                        <ruleset>/rulesets/basic.xml</ruleset> <ruleset>/rulesets/imports.xml</ruleset> 
+                    <!-- <rulesets> <ruleset>/rulesets/unusedcode.xml</ruleset>
+                        <ruleset>/rulesets/basic.xml</ruleset> <ruleset>/rulesets/imports.xml</ruleset>
                         <ruleset>/rulesets/design.xml</ruleset> </rulesets> -->
                     <excludes>
                         <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
