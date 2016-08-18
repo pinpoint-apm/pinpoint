@@ -233,8 +233,7 @@
         <constructor-arg index="5" value="#{collectorConfiguration.udpSpanWorkerType}"/>
         <constructor-arg index="6" value="#{collectorConfiguration.udpSpanWorkerThread}"/>
         <constructor-arg index="7" value="#{collectorConfiguration.udpSpanWorkerQueueSize}"/>
-        <constructor-arg index="8" value="#{collectorMetric.enable}"/>
-
+        <constructor-arg index="8" value="#{collectorConfiguration.udpSpanWorkerMonitor}"/>
     </bean>
 
     <!-- UDPStatReceiver related Beans -->
@@ -253,7 +252,7 @@
         <constructor-arg index="5" value="#{collectorConfiguration.udpStatWorkerType}"/>
         <constructor-arg index="6" value="#{collectorConfiguration.udpStatWorkerThread}"/>
         <constructor-arg index="7" value="#{collectorConfiguration.udpStatWorkerQueueSize}"/>
-        <constructor-arg index="8" value="#{collectorMetric.enable}"/>
+        <constructor-arg index="8" value="#{collectorConfiguration.udpStatWorkerMonitor}"/>
     </bean>
     
     <bean id="jsonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper">
