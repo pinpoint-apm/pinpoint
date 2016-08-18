@@ -14,6 +14,7 @@
     <modules>
         <module>httpclient3</module>
         <module>httpclient4</module>
+		<module>axis2-jaxws</module>
         <module>ning-asynchttpclient</module>
         <module>gson</module>
         <module>jackson</module>
@@ -55,6 +56,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-httpclient4-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency> 
+		<dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-axis2-jaxws-plugin</artifactId>
             <version>${project.version}</version>
         </dependency> 
         <dependency>
