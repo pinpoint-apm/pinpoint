@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOpe
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.CpuLoadSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -55,7 +56,7 @@ public class HbaseCpuLoadDao implements AgentStatDaoV2<CpuLoadBo> {
         List<Put> cpuLoadPuts = this.agentStatHbaseOperationFactory.createPuts(agentId, AgentStatType.CPU_LOAD, cpuLoadBos, this.cpuLoadSerializer);
         if (!cpuLoadPuts.isEmpty()) {
             List<Put> rejectedPuts = this.hbaseTemplate.asyncPut(HBaseTables.AGENT_STAT_VER2, cpuLoadPuts);
-            if (!rejectedPuts.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(rejectedPuts)) {
                 this.hbaseTemplate.put(HBaseTables.AGENT_STAT_VER2, rejectedPuts);
             }
         }
