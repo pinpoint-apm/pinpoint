@@ -11,7 +11,7 @@
 		};
 		this.getMilliSecond = function( timeStr ) {
 			return moment( timeStr, dateTimeFormat ).valueOf();
-		}
+		};
 		this.isEmpty = function( target ) {
 			return angular.isUndefined( target ) || target === null || target === "";
 		};
