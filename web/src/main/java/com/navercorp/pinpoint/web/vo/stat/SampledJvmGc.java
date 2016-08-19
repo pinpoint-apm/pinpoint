@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat;
 
+import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 
 /**
@@ -23,12 +24,21 @@ import com.navercorp.pinpoint.web.vo.chart.Point;
  */
 public class SampledJvmGc implements SampledAgentStatDataPoint {
 
+    private JvmGcType jvmGcType;
     private Point<Long, Long> heapUsed;
     private Point<Long, Long> heapMax;
     private Point<Long, Long> nonHeapUsed;
     private Point<Long, Long> nonHeapMax;
     private Point<Long, Long> gcOldCount;
     private Point<Long, Long> gcOldTime;
+
+    public JvmGcType getJvmGcType() {
+        return jvmGcType;
+    }
+
+    public void setJvmGcType(JvmGcType jvmGcType) {
+        this.jvmGcType = jvmGcType;
+    }
 
     public Point<Long, Long> getHeapUsed() {
         return heapUsed;

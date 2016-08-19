@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart;
 
+import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -36,6 +37,8 @@ public class JvmGcChartGroup implements AgentStatChartGroup {
 
     private final Map<ChartType, Chart> jvmGcCharts;
 
+    private final String type;
+
     public enum JvmGcChartType implements ChartType {
         JVM_MEMORY_HEAP_USED,
         JVM_MEMORY_HEAP_MAX,
@@ -47,6 +50,7 @@ public class JvmGcChartGroup implements AgentStatChartGroup {
 
     public JvmGcChartGroup(TimeWindow timeWindow, List<SampledJvmGc> sampledJvmGcs) {
         this.jvmGcCharts = new HashMap<>();
+        JvmGcType jvmGcType = JvmGcType.UNKNOWN;
         List<Point<Long, Long>> heapUseds = new ArrayList<>(sampledJvmGcs.size());
         List<Point<Long, Long>> heapMaxes = new ArrayList<>(sampledJvmGcs.size());
         List<Point<Long, Long>> nonHeapUseds = new ArrayList<>(sampledJvmGcs.size());
@@ -60,6 +64,7 @@ public class JvmGcChartGroup implements AgentStatChartGroup {
             nonHeapMaxes.add(sampledJvmGc.getNonHeapMax());
             gcOldCounts.add(sampledJvmGc.getGcOldCount());
             gcOldTimes.add(sampledJvmGc.getGcOldTime());
+            jvmGcType = sampledJvmGc.getJvmGcType();
         }
         jvmGcCharts.put(JvmGcChartType.JVM_MEMORY_HEAP_USED, new TimeSeriesChartBuilder<>(timeWindow, UNCOLLECTED_VALUE).build(heapUseds));
         jvmGcCharts.put(JvmGcChartType.JVM_MEMORY_HEAP_MAX, new TimeSeriesChartBuilder<>(timeWindow, UNCOLLECTED_VALUE).build(heapMaxes));
@@ -67,10 +72,15 @@ public class JvmGcChartGroup implements AgentStatChartGroup {
         jvmGcCharts.put(JvmGcChartType.JVM_MEMORY_NON_HEAP_MAX, new TimeSeriesChartBuilder<>(timeWindow, UNCOLLECTED_VALUE).build(nonHeapMaxes));
         jvmGcCharts.put(JvmGcChartType.JVM_GC_OLD_COUNT, new TimeSeriesChartBuilder<>(timeWindow, UNCOLLECTED_VALUE).build(gcOldCounts));
         jvmGcCharts.put(JvmGcChartType.JVM_GC_OLD_TIME, new TimeSeriesChartBuilder<>(timeWindow, UNCOLLECTED_VALUE).build(gcOldTimes));
+        this.type = jvmGcType.name();
     }
 
     @Override
     public Map<ChartType, Chart> getCharts() {
         return this.jvmGcCharts;
+    }
+
+    public String getType() {
+        return this.type;
     }
 }

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
+import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
 import org.springframework.stereotype.Component;
@@ -30,6 +31,7 @@ public class JvmGcBoMapper implements ThriftBoMapper<JvmGcBo, TJvmGc> {
     @Override
     public JvmGcBo map(TJvmGc tJvmGc) {
         JvmGcBo jvmGcBo = new JvmGcBo();
+        jvmGcBo.setGcType(JvmGcType.valueOf(tJvmGc.getType().name()));
         jvmGcBo.setHeapUsed(tJvmGc.getJvmMemoryHeapUsed());
         jvmGcBo.setHeapMax(tJvmGc.getJvmMemoryHeapMax());
         jvmGcBo.setNonHeapUsed(tJvmGc.getJvmMemoryNonHeapUsed());

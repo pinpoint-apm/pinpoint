@@ -27,7 +27,7 @@ import java.util.NavigableMap;
 import com.navercorp.pinpoint.common.server.bo.ActiveTraceHistogramBo;
 import com.navercorp.pinpoint.common.server.bo.AgentStatCpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.AgentStatMemoryGcBo;
-import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
@@ -121,6 +121,7 @@ public abstract class AgentStatMapperV1<T extends AgentStatDataPoint> implements
             JvmGcBo jvmGcBo = new JvmGcBo();
             jvmGcBo.setAgentId(agentStatMemoryGcBo.getAgentId());
             jvmGcBo.setTimestamp(agentStatMemoryGcBo.getTimestamp());
+            jvmGcBo.setGcType(JvmGcType.valueOf(agentStatMemoryGcBo.getGcType()));
             jvmGcBo.setGcOldCount(agentStatMemoryGcBo.getJvmGcOldCount());
             jvmGcBo.setGcOldTime(agentStatMemoryGcBo.getJvmGcOldTime());
             jvmGcBo.setHeapUsed(agentStatMemoryGcBo.getJvmMemoryHeapUsed());
@@ -138,6 +139,7 @@ public abstract class AgentStatMapperV1<T extends AgentStatDataPoint> implements
                 JvmGcBo jvmGcBo = new JvmGcBo();
                 jvmGcBo.setAgentId(agentStatMemoryGcBo.getAgentId());
                 jvmGcBo.setTimestamp(agentStatMemoryGcBo.getTimestamp());
+                jvmGcBo.setGcType(JvmGcType.valueOf(agentStatMemoryGcBo.getGcType()));
                 jvmGcBo.setGcOldCount(agentStatMemoryGcBo.getJvmGcOldCount());
                 jvmGcBo.setGcOldTime(agentStatMemoryGcBo.getJvmGcOldTime());
                 jvmGcBo.setHeapUsed(agentStatMemoryGcBo.getJvmMemoryHeapUsed());
@@ -155,6 +157,9 @@ public abstract class AgentStatMapperV1<T extends AgentStatDataPoint> implements
             JvmGcBo jvmGcBo = new JvmGcBo();
             jvmGcBo.setAgentId(agentId);
             jvmGcBo.setTimestamp(timestamp);
+            if (qualifierMap.containsKey(AGENT_STAT_COL_GC_TYPE)) {
+                jvmGcBo.setGcType(JvmGcType.valueOf(Bytes.toString(qualifierMap.get(AGENT_STAT_COL_GC_TYPE))));
+            }
             if (qualifierMap.containsKey(AGENT_STAT_COL_GC_OLD_COUNT)) {
                 jvmGcBo.setGcOldCount(Bytes.toLong(qualifierMap.get(AGENT_STAT_COL_GC_OLD_COUNT)));
             }

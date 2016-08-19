@@ -26,12 +26,16 @@ import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.web.service.stat.ActiveTraceChartService;
+import com.navercorp.pinpoint.web.service.stat.ActiveTraceService;
 import com.navercorp.pinpoint.web.service.stat.AgentStatChartService;
 import com.navercorp.pinpoint.web.service.stat.CpuLoadChartService;
+import com.navercorp.pinpoint.web.service.stat.CpuLoadService;
 import com.navercorp.pinpoint.web.service.stat.JvmGcChartService;
 import com.navercorp.pinpoint.web.service.stat.JvmGcDetailedChartService;
+import com.navercorp.pinpoint.web.service.stat.JvmGcDetailedService;
 import com.navercorp.pinpoint.web.service.stat.JvmGcService;
 import com.navercorp.pinpoint.web.service.stat.TransactionChartService;
+import com.navercorp.pinpoint.web.service.stat.TransactionService;
 import com.navercorp.pinpoint.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.web.vo.stat.chart.AgentStatChartGroup;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,7 +123,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
     @RequestMapping("/getAgentStat/jvmGcDetailed")
     public static class JvmGcDetailedController extends AgentStatController<JvmGcDetailedBo> {
         @Autowired
-        public JvmGcDetailedController(AgentStatService<JvmGcDetailedBo> jvmGcDetailedService, JvmGcDetailedChartService jvmGcDetailedChartService) {
+        public JvmGcDetailedController(JvmGcDetailedService jvmGcDetailedService, JvmGcDetailedChartService jvmGcDetailedChartService) {
             super(jvmGcDetailedService, jvmGcDetailedChartService);
         }
     }
@@ -128,7 +132,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
     @RequestMapping("/getAgentStat/cpuLoad")
     public static class CpuLoadController extends AgentStatController<CpuLoadBo> {
         @Autowired
-        public CpuLoadController(AgentStatService<CpuLoadBo> cpuLoadService, CpuLoadChartService cpuLoadChartService) {
+        public CpuLoadController(CpuLoadService cpuLoadService, CpuLoadChartService cpuLoadChartService) {
             super(cpuLoadService, cpuLoadChartService);
         }
     }
@@ -137,7 +141,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
     @RequestMapping("/getAgentStat/transaction")
     public static class TransactionController extends AgentStatController<TransactionBo> {
         @Autowired
-        public TransactionController(AgentStatService<TransactionBo> transactionService, TransactionChartService transactionChartService) {
+        public TransactionController(TransactionService transactionService, TransactionChartService transactionChartService) {
             super(transactionService, transactionChartService);
         }
     }
@@ -146,7 +150,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
     @RequestMapping("/getAgentStat/activeTrace")
     public static class ActiveTraceController extends AgentStatController<ActiveTraceBo> {
         @Autowired
-        public ActiveTraceController(AgentStatService<ActiveTraceBo> activeTraceService, ActiveTraceChartService activeTraceChartService) {
+        public ActiveTraceController(ActiveTraceService activeTraceService, ActiveTraceChartService activeTraceChartService) {
             super(activeTraceService, activeTraceChartService);
         }
     }

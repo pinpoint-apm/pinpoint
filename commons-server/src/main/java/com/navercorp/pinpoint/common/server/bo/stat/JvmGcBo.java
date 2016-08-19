@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat;
 
+import com.navercorp.pinpoint.common.server.bo.JvmGcType;
+
 /**
  * @author HyunGil Jeong
  */
@@ -25,6 +27,7 @@ public class JvmGcBo implements AgentStatDataPoint {
 
     private String agentId;
     private long timestamp;
+    private JvmGcType gcType = JvmGcType.UNKNOWN;
     private long heapUsed = UNCOLLECTED_VALUE;
     private long heapMax = UNCOLLECTED_VALUE;
     private long nonHeapUsed = UNCOLLECTED_VALUE;
@@ -55,6 +58,14 @@ public class JvmGcBo implements AgentStatDataPoint {
     @Override
     public AgentStatType getAgentStatType() {
         return AgentStatType.JVM_GC;
+    }
+
+    public JvmGcType getGcType() {
+        return gcType;
+    }
+
+    public void setGcType(JvmGcType gcType) {
+        this.gcType = gcType;
     }
 
     public long getHeapUsed() {
@@ -119,13 +130,15 @@ public class JvmGcBo implements AgentStatDataPoint {
         if (nonHeapMax != jvmGcBo.nonHeapMax) return false;
         if (gcOldCount != jvmGcBo.gcOldCount) return false;
         if (gcOldTime != jvmGcBo.gcOldTime) return false;
-        return agentId != null ? agentId.equals(jvmGcBo.agentId) : jvmGcBo.agentId == null;
+        if (agentId != null ? !agentId.equals(jvmGcBo.agentId) : jvmGcBo.agentId != null) return false;
+        return gcType == jvmGcBo.gcType;
     }
 
     @Override
     public int hashCode() {
         int result = agentId != null ? agentId.hashCode() : 0;
         result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        result = 31 * result + (gcType != null ? gcType.hashCode() : 0);
         result = 31 * result + (int) (heapUsed ^ (heapUsed >>> 32));
         result = 31 * result + (int) (heapMax ^ (heapMax >>> 32));
         result = 31 * result + (int) (nonHeapUsed ^ (nonHeapUsed >>> 32));
@@ -140,6 +153,7 @@ public class JvmGcBo implements AgentStatDataPoint {
         return "JvmGcBo{" +
                 "agentId='" + agentId + '\'' +
                 ", timestamp=" + timestamp +
+                ", gcType=" + gcType +
                 ", heapUsed=" + heapUsed +
                 ", heapMax=" + heapMax +
                 ", nonHeapUsed=" + nonHeapUsed +
