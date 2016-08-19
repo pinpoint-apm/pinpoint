@@ -67,6 +67,8 @@
 							timeFormat: "HH:mm",
 							controlType: "select",
 							showButtonPanel: false,
+							timezone: moment().utcOffset(),
+							showTimezone: false,
 							onSelect: function () {
 								var momentFrom = moment( $fromPicker.datetimepicker( "getDate" ) );
 								var momentTo = moment( $toPicker.datetimepicker( "getDate" ) );
@@ -94,6 +96,8 @@
 							timeFormat: "HH:mm",
 							controlType: "select",
 							showButtonPanel: false,
+							timezone: moment().utcOffset(),
+							showTimezone: false,
 							onSelect: function () {
 								var momentFrom = moment( $fromPicker.datetimepicker( "getDate" ) );
 								var momentTo = moment( $toPicker.datetimepicker( "getDate" ) );

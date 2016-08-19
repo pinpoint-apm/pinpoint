@@ -76,6 +76,7 @@
 		this.CONST.CLK_GENERAL_SET_DEPTH = "ClickGeneralSetDepth";
 		this.CONST.CLK_GENERAL_SET_PERIOD = "ClickGeneralSetPeriod";
 		this.CONST.CLK_GENERAL_SET_FAVORITE = "ClickGeneralSetFavorite";
+		this.CONST.CLK_GENERAL_SET_TIMEZONE = "ClickGeneralSetTimezone";
 		this.CONST.CLK_ALARM_CREATE_USER_GROUP = "ClickAlarmCreateUserGroup";
 		this.CONST.CLK_ALARM_REFRESH_USER_GROUP = "ClickAlarmRefreshUserGroup";
 		this.CONST.CLK_ALARM_FILTER_USER_GROUP = "ClickAlarmFilterUserGroup";

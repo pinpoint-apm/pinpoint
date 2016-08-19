@@ -18,7 +18,6 @@
 
 		 var callee = PreferenceService.getCallee();
 		 var caller = PreferenceService.getCaller();
-		 var dateTimeFormat = "YYYY-MM-DD-HH-mm-ss";
 		 var oPeriodType = PreferenceService.getPeriodType();
 		 var aPeriodTime = PreferenceService.getPeriodTime();
 
@@ -199,7 +198,7 @@
 			 millisecondPeriod = queryEndTime - queryStartTime;
 			 minutePeriod = millisecondPeriod / 1000 / 60;
 			 readablePeriod = minutePeriod + 'm';
-			 queryEndDateTime = moment( queryEndTime ).format( dateTimeFormat );
+			 queryEndDateTime = CommonUtilService.formatDate( queryEndTime );
 			 return this;
 		 };
 		 this.autoCalculateByQueryEndDateTimeAndReadablePeriod = function () {
@@ -213,7 +212,7 @@
 			 return (bAddApplication ? application + "/" : "" ) + readablePeriod + "/" + queryEndDateTime + ( bAddFilter ? ( filter ? "/" + filter : "" ) : "" );
 		 };
 		 function parseQueryEndDateTimeToTimestamp( timeStr ) {
-			 return moment( timeStr, dateTimeFormat ).valueOf();
+			 return CommonUtilService.getMilliSecond( timeStr );
 		 }
 		 function getTimeByStr( s ) {
 			 switch ( s ) {
