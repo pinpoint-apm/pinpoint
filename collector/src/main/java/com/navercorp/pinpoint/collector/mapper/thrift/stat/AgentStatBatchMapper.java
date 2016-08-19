@@ -70,6 +70,7 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
             // jvmGc
             if (tAgentStat.isSetGc()) {
                 JvmGcBo jvmGcBo = this.jvmGcBoMapper.map(tAgentStat.getGc());
+                jvmGcBo.setAgentId(agentId);
                 jvmGcBo.setTimestamp(timestamp);
                 jvmGcBos.add(jvmGcBo);
             }
@@ -77,6 +78,7 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
             if (tAgentStat.isSetGc()) {
                 if (tAgentStat.getGc().isSetJvmGcDetailed()) {
                     JvmGcDetailedBo jvmGcDetailedBo = this.jvmGcDetailedBoMapper.map(tAgentStat.getGc().getJvmGcDetailed());
+                    jvmGcDetailedBo.setAgentId(agentId);
                     jvmGcDetailedBo.setTimestamp(timestamp);
                     jvmGcDetailedBos.add(jvmGcDetailedBo);
                 }
@@ -84,12 +86,14 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
             // cpuLoad
             if (tAgentStat.isSetCpuLoad()) {
                 CpuLoadBo cpuLoadBo = this.cpuLoadBoMapper.map(tAgentStat.getCpuLoad());
+                cpuLoadBo.setAgentId(agentId);
                 cpuLoadBo.setTimestamp(timestamp);
                 cpuLoadBos.add(cpuLoadBo);
             }
             // transaction
             if (tAgentStat.isSetTransaction()) {
                 TransactionBo transactionBo = this.transactionBoMapper.map(tAgentStat.getTransaction());
+                transactionBo.setAgentId(agentId);
                 transactionBo.setTimestamp(timestamp);
                 transactionBo.setCollectInterval(tAgentStat.getCollectInterval());
                 transactionBos.add(transactionBo);
@@ -97,6 +101,7 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
             // activeTrace
             if (tAgentStat.isSetActiveTrace() && tAgentStat.getActiveTrace().isSetHistogram()) {
                 ActiveTraceBo activeTraceBo = this.activeTraceBoMapper.map(tAgentStat.getActiveTrace());
+                activeTraceBo.setAgentId(agentId);
                 activeTraceBo.setTimestamp(timestamp);
                 activeTraceBos.add(activeTraceBo);
             }
