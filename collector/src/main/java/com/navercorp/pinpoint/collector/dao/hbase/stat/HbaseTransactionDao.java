@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOpe
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.TransactionSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -55,7 +56,7 @@ public class HbaseTransactionDao implements AgentStatDaoV2<TransactionBo> {
         List<Put> transactionPuts = this.agentStatHbaseOperationFactory.createPuts(agentId, AgentStatType.TRANSACTION, transactionBos, this.transactionSerializer);
         if (!transactionPuts.isEmpty()) {
             List<Put> rejectedPuts = this.hbaseTemplate.asyncPut(HBaseTables.AGENT_STAT_VER2, transactionPuts);
-            if (!rejectedPuts.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(rejectedPuts)) {
                 this.hbaseTemplate.put(HBaseTables.AGENT_STAT_VER2, rejectedPuts);
             }
         }

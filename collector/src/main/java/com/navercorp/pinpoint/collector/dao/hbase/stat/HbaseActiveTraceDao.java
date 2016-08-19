@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.ActiveTraceSerial
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -55,7 +56,7 @@ public class HbaseActiveTraceDao implements AgentStatDaoV2<ActiveTraceBo> {
         List<Put> activeTracePuts = this.agentStatHbaseOperationFactory.createPuts(agentId, AgentStatType.ACTIVE_TRACE, agentStatDataPoints, this.activeTraceSerializer);
         if (!activeTracePuts.isEmpty()) {
             List<Put> rejectedPuts = this.hbaseTemplate.asyncPut(HBaseTables.AGENT_STAT_VER2, activeTracePuts);
-            if (!rejectedPuts.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(rejectedPuts)) {
                 this.hbaseTemplate.put(HBaseTables.AGENT_STAT_VER2, rejectedPuts);
             }
         }
