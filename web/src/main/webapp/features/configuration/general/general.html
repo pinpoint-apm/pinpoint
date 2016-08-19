@@ -62,5 +62,24 @@
 			</tr>
 			</tbody>
 		</table>
+		<table class="table table-bordered table-condensed favorite-application">
+			<tbody>
+			<tr>
+				<td class="col-md-10 title" colspan="4">TimeZone</td>
+			</tr>
+			<tr>
+				<td class="col-md-5">
+					<select class="form-control" style="width:310px;height:30px;" ng-model="newUserTimezone">
+						<option ng-repeat="zone in timezone" value="{{zone}}" ng-selected="zone == userTimezone">{{zone}}</option>
+					</select>
+				</td>
+				<td class="col-md-5" colspan="2" style="vertical-align: middle;font-weight:bold;">
+					<span style="display:inline-block;margin-top:6px;">{{userTimezone}}</span>
+					<span ng-show="newUserTimezone !== userTimezone" style="display:inline-block;margin-top:6px;color:#999;">- {{newUserTimezone}}</span>
+					<button ng-click="applyNReload()" ng-show="newUserTimezone !== userTimezone" class="btn btn-success" style="float:right;margin-right:6px;">Apply & Reload</button>
+				</td>
+			</tr>
+			</tbody>
+		</table>
 	</div>
 </div>

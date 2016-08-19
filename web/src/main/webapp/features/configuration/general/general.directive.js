@@ -26,6 +26,9 @@
 						scope.periodTime = PreferenceService.getPeriodTime();
 						scope.period = PreferenceService.getPeriod();
 						scope.savedFavoriteList = PreferenceService.getFavoriteList();
+						scope.timezone = moment.tz.names();
+						scope.userTimezone = PreferenceService.getTimezone();
+						scope.newUserTimezone = PreferenceService.getTimezone();
 
 						$element.find( "div.general-warning" ).html( helpContentService.configuration.general.warning );
 						$element.find( "div.favorite-empty" ).html( helpContentService.configuration.general.empty );
@@ -67,6 +70,11 @@
 						PreferenceService.removeFavorite( applicationName );
 						scope.savedFavoriteList = PreferenceService.getFavoriteList();
 						scope.$emit( "up.changed.favorite" );
+					};
+					scope.applyNReload = function() {
+						AnalyticsService.sendMain( AnalyticsService.CONST.CLK_GENERAL_SET_TIMEZONE, scope.newUserTimezone );
+						PreferenceService.setTimezone( scope.newUserTimezone );
+						window.location.reload(true);
 					};
 
 					scope.closeInOut = function() {

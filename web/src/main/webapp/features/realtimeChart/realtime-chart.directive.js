@@ -33,8 +33,8 @@
 		}
 	});
 	
-	pinpointApp.directive('realtimeChartDirective', [ 'realtimeChartDirectiveConfig',
-	    function ( cfg ) {
+	pinpointApp.directive( "realtimeChartDirective", [ "realtimeChartDirectiveConfig", "CommonUtilService",
+	    function ( cfg, CommonUtilService ) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -59,7 +59,7 @@
 							right: 80,
 							bottom: 6
 						},
-						timeFormat: d3.time.format("%Y.%m.%d %H:%M:%S"),
+						// timeFormat: d3.time.format("%Y.%m.%d %H:%M:%S"),
 						transaction: {
 							duration: 1000,
 							ease: "linear"
@@ -283,7 +283,8 @@
             	        d3tooltipTextGroup.selectAll("text").text(function(d, i) {
             	        	return datum[i].y;
             	        });
-            	        d3tooltipDate.text( oInnerOption.timeFormat(new Date(datum[0].d)) );
+            	        // d3tooltipDate.text( oInnerOption.timeFormat(new Date(datum[0].d)) );
+						d3tooltipDate.text( CommonUtilService.formatDate( datum[0].d ) );
             	    }
             	    function initLabels() {
             	        if ( oOuterOption.showExtraInfo === false ) return;

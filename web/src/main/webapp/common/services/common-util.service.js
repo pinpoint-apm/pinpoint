@@ -2,12 +2,16 @@
 	'use strict';
 
 	pinpointApp.service( "CommonUtilService", [ function()  {
+		var dateTimeFormat = "YYYY-MM-DD-HH-mm-ss";
 		this.getRandomNum = function() {
 			return Math.round( Math.random() * 10000 );
 		};
 		this.formatDate = function( time, format ) {
-			return moment( time ).format( format || "YYYY-MM-DD-HH-mm-ss" );
+			return moment( new Date( time ) ).format( format || dateTimeFormat );
 		};
+		this.getMilliSecond = function( timeStr ) {
+			return moment( timeStr, dateTimeFormat ).valueOf();
+		}
 		this.isEmpty = function( target ) {
 			return angular.isUndefined( target ) || target === null || target === "";
 		};

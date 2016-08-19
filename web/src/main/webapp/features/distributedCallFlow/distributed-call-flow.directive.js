@@ -7,8 +7,8 @@
 	 * @name distributedCallFlowDirective
 	 * @class
 	 */	
-	pinpointApp.directive( "distributedCallFlowDirective", [ "$filter", "$timeout", "CommonAjaxService", "globalConfig",
-	    function ( $filter, $timeout, CommonAjaxService, globalConfig ) {
+	pinpointApp.directive( "distributedCallFlowDirective", [ "$timeout", "CommonAjaxService", "CommonUtilService", "globalConfig",
+	    function ( $timeout, CommonAjaxService, CommonUtilService, globalConfig ) {
 	        return {
 	            restrict: "E",
 	            replace: true,
@@ -191,7 +191,7 @@
 	                 * @returns {*}
 	                 */
 	                execTimeFormatter = function (row, cell, value, columnDef, dataContext) {
-	                    return $filter('date')(value, 'HH:mm:ss sss');
+	                    return CommonUtilService.formatDate( value, "HH:mm:ss SSS");
 	                };
 	
 	                /**

@@ -80,10 +80,7 @@
         return this._formatDate( new Date(this.getTimeFromPosition(x)) );
     };
     ts.PositionManager.prototype._formatDate = function( d ) {
-        return d.getFullYear() +"." + this._twoChipers( d.getMonth() + 1 ) + "." + this._twoChipers( d.getDate() ) + " " + this._twoChipers( d.getHours() ) + ":" + this._twoChipers( d.getMinutes() ) + ":" + this._twoChipers( d.getSeconds() );
-    };
-    ts.PositionManager.prototype._twoChipers = function( n ) {
-        return n < 10 ? "0" + n : n;
+    	return moment( d ).format( "YYYY.MM.DD HH:mm:ss" );
     };
     ts.PositionManager.prototype.isInSelectionZone = function() {
 		return ( this._selectTime >= this._aSelectionTimeSeries[0] && this._selectTime <= this._aSelectionTimeSeries[1] ) ? true : false;
@@ -157,7 +154,7 @@
     ts.PositionManager.prototype.getTimeStr = function( x ) {
         var timeX = parseInt( x * this._timePerPoint ) + this._startTime;
         var d = new Date( timeX );
-        return this._twoChipers(d.getMonth() + 1) + "." + this._twoChipers(d.getDate()) + " " + this._twoChipers( d.getHours() ) + ":" + this._twoChipers( d.getMinutes() );
+		return moment( new Date( timeX ) ).format( "MM.DD HH:mm" );
     };
 	ts.PositionManager.prototype.setSelectionStartTime = function( time ) {
 		this._setSelectionTimeSeries( time, null );

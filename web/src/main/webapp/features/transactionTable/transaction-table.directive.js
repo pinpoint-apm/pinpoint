@@ -7,7 +7,7 @@
 	 * @name transactionTableDirective
 	 * @class
 	 */
-	pinpointApp.directive('transactionTableDirective', ['$window', 'helpContentTemplate', 'helpContentService', 'AnalyticsService', function ($window, helpContentTemplate, helpContentService, analyticsService) {
+	pinpointApp.directive( "transactionTableDirective", [ "$window", "helpContentTemplate", "helpContentService", "AnalyticsService", "CommonUtilService", function ($window, helpContentTemplate, helpContentService, AnalyticsService, CommonUtilService ) {
 	    return {
 	        restrict: 'EA',
 	        replace: true,
@@ -63,7 +63,7 @@
 	             * @param transaction
 	             */
 	            scope.traceByApplication = function (transaction) {
-					analyticsService.send(analyticsService.CONST.CALLSTACK, analyticsService.CONST.CLK_TRANSACTION);
+					AnalyticsService.send(AnalyticsService.CONST.CALLSTACK, AnalyticsService.CONST.CLK_TRANSACTION);
 	                scope.currentTransaction = transaction;
 	                scope.$emit('transactionTableDirective.applicationSelected', transaction);
 	            };
@@ -96,9 +96,12 @@
 	                } else {
 	                    scope.transactionReverse = false;
 	                }
-	                analyticsService.send(analyticsService.CONST.CALLSTACK, analyticsService.CONST.ST_ + orderKey.charAt(0).toUpperCase() + orderKey.substring(1), scope.transactionReverse ? analyticsService.CONST.DESCENDING : analyticsService.CONST.ASCENDING );
+	                AnalyticsService.send(AnalyticsService.CONST.CALLSTACK, AnalyticsService.CONST.ST_ + orderKey.charAt(0).toUpperCase() + orderKey.substring(1), scope.transactionReverse ? AnalyticsService.CONST.DESCENDING : AnalyticsService.CONST.ASCENDING );
 	                scope.transactionOrderBy = orderKey;
 	            };
+	            scope.formatDate = function( time ) {
+					return CommonUtilService.formatDate( time, "MM/DD HH:mm:ss SSS");
+				};
 
 	            /**
 	             * scope event on transactionTableDirective.appendTransactionList

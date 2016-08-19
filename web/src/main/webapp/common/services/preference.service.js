@@ -139,6 +139,12 @@
 		this.getIconPath = function() {
 			return cfg.cst.iconPath;
 		};
+		this.getTimezone = function() {
+			return webStorage.get( "pinpoint-timezone" ) || moment.tz.guess();
+		};
+		this.setTimezone = function( timezone ) {
+			webStorage.add( "pinpoint-timezone", timezone );
+		};
 		
 		
 		function loadPreference() {
