@@ -106,7 +106,7 @@ public class AgentStatHandlerV2 implements Handler {
             this.transactionDao.insert(agentId, agentStatBo.getTransactionBos());
             this.activeTraceDao.insert(agentId, agentStatBo.getActiveTraceBos());
         } catch (Exception e) {
-            logger.warn("Error inserting AgentStatBo. Caused:{}", e.getMessage());
+            logger.warn("Error inserting AgentStatBo. Caused:{}", e.getMessage(), e);
         }
     }
 }
