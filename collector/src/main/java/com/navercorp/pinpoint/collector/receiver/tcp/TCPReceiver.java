@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.collector.receiver.tcp;
 
+import com.codahale.metrics.MetricRegistry;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
+import com.navercorp.pinpoint.collector.monitor.MonitoredExecutorService;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.rpc.handler.AgentEventHandler;
 import com.navercorp.pinpoint.collector.rpc.handler.AgentLifeCycleHandler;
@@ -27,19 +29,31 @@ import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
-import com.navercorp.pinpoint.rpc.packet.*;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
+import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
-import com.navercorp.pinpoint.thrift.io.*;
+import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
+import com.navercorp.pinpoint.thrift.io.SerializerFactory;
+import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -51,7 +65,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author emeroad
@@ -64,15 +81,18 @@ public class TCPReceiver {
     private final ThreadFactory tcpWorkerThreadFactory = new PinpointThreadFactory("Pinpoint-TCP-Worker");
     private final DispatchHandler dispatchHandler;
     private final PinpointServerAcceptor serverAcceptor;
-    
-    private final String bindAddress;
-    private final int port;
-    private final List<String> l4ipList;
 
-    private final ThreadPoolExecutor worker;
+    private final CollectorConfiguration configuration;
+
+    private final ZookeeperClusterService clusterService;
+
+    private ExecutorService worker;
 
     private final SerializerFactory<HeaderTBaseSerializer> serializerFactory = new ThreadLocalHeaderTBaseSerializerFactory<>(new HeaderTBaseSerializerFactory(true, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE));
     private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<>(new HeaderTBaseDeserializerFactory());
+
+    @Autowired(required=false)
+    private MetricRegistry metricRegistry;
 
     @Resource(name="agentEventWorker")
     private ExecutorService agentEventWorker;
@@ -99,18 +119,36 @@ public class TCPReceiver {
         }
         
         this.dispatchHandler = dispatchHandler;
-        this.bindAddress = configuration.getTcpListenIp();
-        this.port = configuration.getTcpListenPort();
-        this.l4ipList = configuration.getL4IpList();
-        this.worker = ExecutorFactory.newFixedThreadPool(configuration.getTcpWorkerThread(), configuration.getTcpWorkerQueueSize(), tcpWorkerThreadFactory);
-
+        this.configuration = configuration;
         this.serverAcceptor = serverAcceptor;
-        if (service != null && service.isEnable()) {
-            this.serverAcceptor.addStateChangeEventHandler(service.getChannelStateChangeEventHandler());
+        this.clusterService = service;
+    }
+
+    public void afterPropertiesSet() {
+        ExecutorService worker = ExecutorFactory.newFixedThreadPool(configuration.getTcpWorkerThread(), configuration.getTcpWorkerQueueSize(), tcpWorkerThreadFactory);
+        if (configuration.isTcpWorkerMonitor()) {
+            if (metricRegistry == null) {
+                logger.warn("metricRegistry not autowired. Can't enable monitoring.");
+                this.worker = worker;
+            } else {
+                this.worker = new MonitoredExecutorService(worker, metricRegistry, this.getClass().getSimpleName() + "-Worker");
+            }
+        } else {
+            this.worker = worker;
         }
+
+        if (clusterService != null && clusterService.isEnable()) {
+            this.serverAcceptor.addStateChangeEventHandler(clusterService.getChannelStateChangeEventHandler());
+        }
+
+        for (ServerStateChangeEventHandler channelStateChangeEventHandler : this.channelStateChangeEventHandlers) {
+            serverAcceptor.addStateChangeEventHandler(channelStateChangeEventHandler);
+        }
+
+        setL4TcpChannel(serverAcceptor, configuration.getL4IpList());
     }
     
-    private void setL4TcpChannel(PinpointServerAcceptor serverFactory) {
+    private void setL4TcpChannel(PinpointServerAcceptor serverFactory, List<String> l4ipList) {
         if (l4ipList == null) {
             return;
         }
@@ -137,11 +175,7 @@ public class TCPReceiver {
 
     @PostConstruct
     public void start() {
-        for (ServerStateChangeEventHandler channelStateChangeEventHandler : this.channelStateChangeEventHandlers) {
-            serverAcceptor.addStateChangeEventHandler(channelStateChangeEventHandler);
-        }
-        
-        setL4TcpChannel(serverAcceptor);
+        afterPropertiesSet();
         // take care when attaching message handlers as events are generated from the IO thread.
         // pass them to a separate queue and handle them in a different thread.
         this.serverAcceptor.setMessageListener(new ServerMessageListener() {
@@ -180,8 +214,7 @@ public class TCPReceiver {
                 recordPing(pingPacket, pinpointServer);
             }
         });
-        this.serverAcceptor.bind(bindAddress, port);
-
+        this.serverAcceptor.bind(configuration.getTcpListenIp(), configuration.getTcpListenPort());
     }
 
     private void receive(SendPacket sendPacket, PinpointSocket pinpointSocket) {
