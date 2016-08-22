@@ -1,25 +1,28 @@
 ## Pinpoint Jboss plugin configuration
 
-* Standalone mode - add following configuration in standalone.conf :- 
-`JAVA_OPTS="$JAVA_OPTS -Djboss.modules.system.pkgs=org.jboss.byteman,org.jboss.logmanager,com.navercorp.pinpoint"
+###  Standalone mode <br/>
+ Add following configuration in __standalone.conf__ :- <br/>
+```java 
+JAVA_OPTS="$JAVA_OPTS -Djboss.modules.system.pkgs=org.jboss.byteman,org.jboss.logmanager,com.navercorp.pinpoint"
 JAVA_OPTS="$JAVA_OPTS -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
 JAVA_OPTS="$JAVA_OPTS -Xbootclasspath/p:$JBOSS_HOME/modules/system/layers/base/org/jboss/logmanager/main/jboss-logmanager-1.5.4.Final-redhat-1.jar"
 JAVA_OPTS="$JAVA_OPTS -javaagent:$PINPOINT_AGENT_HOME/pinpoint-bootstrap-1.6.0-SNAPSHOT.jar"
 JAVA_OPTS="$JAVA_OPTS -Dpinpoint.agentId=APP-AGENTID"
-JAVA_OPTS="$JAVA_OPTS -Dpinpoint.applicationName=APP-STANDALONE"`
+JAVA_OPTS="$JAVA_OPTS -Dpinpoint.applicationName=APP-STANDALONE" 
+```
 
-   (b) Domain mode - 
+###  Domain mode <br/>
 
-- Add below configuration in domain.xml
-
-` <system-properties>
+* Add below configuration in __domain.xml__ :- <br/>
+```xml 
+ <system-properties>
      ...
         <property name="jboss.modules.system.pkgs" value="com.singularity,org.jboss.logmanager,com.navercorp.pinpoint" boot-time="true"/>
         <property name="java.util.logging.manager" value="org.jboss.logmanager.LogManager"/>
-...
+    ...
     </system-properties>`
 
-` <server-group name="other-server-group" profile="full-ha">
+ <server-group name="other-server-group" profile="full-ha">
             <jvm name="default">
                 <heap size="1000m" max-size="1000m"/>
                 <permgen max-size="256m"/>
@@ -31,11 +34,12 @@ JAVA_OPTS="$JAVA_OPTS -Dpinpoint.applicationName=APP-STANDALONE"`
         <deployments>
             ...
             </deployments>
-        </server-group>`
+        </server-group>
+```
+* Add below configuration in __host.xml__ :- <br/>
 
-- Add below configuration in host.xml
-
-` <servers>
+```xml 
+<servers>
         <server name="server-one" group="main-server-group" auto-start="false"/>
         <server name="server-two" group="main-server-group" auto-start="false">
             <socket-bindings port-offset="150"/>
@@ -53,7 +57,8 @@ JAVA_OPTS="$JAVA_OPTS -Dpinpoint.applicationName=APP-STANDALONE"`
             </jvm>
             <socket-bindings port-offset="250"/>
         </server>
-    </servers>`
+    </servers> 
+```
 
 
-2. Set profiler.jboss.traceEjb=true for remote ejb application in pinpoint.config file
+* Set ```profiler.jboss.traceEjb=true``` for remote ejb application in pinpoint.config file
