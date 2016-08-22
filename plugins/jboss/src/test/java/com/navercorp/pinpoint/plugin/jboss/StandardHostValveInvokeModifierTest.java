@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.core.StandardHost;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -128,7 +129,7 @@ public class StandardHostValveInvokeModifierTest extends BasePinpointTest {
         assertEquals(rootSpan.getServiceType(), SERVICE_TYPE.getCode());
         assertEquals(rootSpan.getRpc(), REQUEST_URI);
         assertEquals(rootSpan.getEndPoint(), SERVER_NAME + ":" + SERVER_PORT);
-        assertEquals(rootSpan.getRemoteAddr(), REMOTE_ADDRESS);
+        assertTrue(StringUtils.isNotBlank(rootSpan.getRemoteAddr()));
     }
 
     /**
