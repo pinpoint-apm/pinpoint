@@ -153,6 +153,17 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private boolean propagateInterceptorException = false;
 
+    /**
+     * jboss plugin configuration
+     */
+    private boolean jbossTraceEjb = false;
+    private String jbossRealIpHeader;
+    private String jbossRealIpEmptyValue;
+    private boolean jbossTraceRequestParam = true;
+    private Filter<String> jbossExcludeProfileMethodFilter = new SkipFilter<String>();
+    private boolean jbossHidePinpointHeader = true;
+    private Filter<String> jbossExcludeUrlFilter = new SkipFilter<String>();
+
     public DefaultProfilerConfig() {
         this.properties = new Properties();
     }
@@ -400,6 +411,41 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return profileInstrumentEngine;
     }
 
+    @Override
+    public boolean isJbossTraceEjb() {
+        return jbossTraceEjb;
+    }
+
+    @Override
+    public String getJbossRealIpHeader() {
+        return jbossRealIpHeader;
+    }
+
+    @Override
+    public String getJbossRealIpEmptyValue() {
+        return jbossRealIpEmptyValue;
+    }
+
+    @Override
+    public boolean isJbossTraceRequestParam() {
+        return jbossTraceRequestParam;
+    }
+
+    @Override
+    public Filter<String> getJbossExcludeProfileMethodFilter() {
+        return jbossExcludeProfileMethodFilter;
+    }
+
+    @Override
+    public boolean isJbossHidePinpointHeader() {
+        return jbossHidePinpointHeader;
+    }
+
+    @Override
+    public Filter<String> getJbossExcludeUrlFilter() {
+        return jbossExcludeUrlFilter;
+    }
+
     // for test
     void readPropertyValues() {
         // TODO : use Properties' default value instead of using a temp variable.
@@ -494,6 +540,24 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         }
         
         this.propagateInterceptorException = readBoolean("profiler.interceptor.exception.propagate", false);
+
+        /**
+         * jboss plugin configuration initialization
+         */
+        this.jbossTraceEjb = readBoolean("profiler.jboss.traceEjb", false);
+        this.jbossHidePinpointHeader = readBoolean("profiler.jboss.hidepinpointheader", true);
+        this.jbossRealIpHeader = readString("profiler.jboss.realipheader", null);
+        this.jbossRealIpEmptyValue = readString("profiler.jboss.realipemptyvalue", null);
+        this.jbossTraceRequestParam = readBoolean("profiler.jboss.tracerequestparam", true);
+        final String jbossExcludeURL = readString("profiler.jboss.excludeurl", "");
+        if (!jbossExcludeURL.isEmpty()) {
+            this.jbossExcludeUrlFilter = new ExcludePathFilter(jbossExcludeURL);
+        }
+
+        final String jbossExcludeProfileMethod = readString("profiler.jboss.excludemethod", "");
+        if (!jbossExcludeProfileMethod.isEmpty()) {
+            this.jbossExcludeProfileMethodFilter = new ExcludeMethodFilter(jbossExcludeProfileMethod);
+        }
 
         logger.info("configuration loaded successfully.");
     }
@@ -681,6 +745,20 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append(applicationTypeDetectOrder);
         builder.append(", disabledPlugins=");
         builder.append(disabledPlugins);
+        builder.append(", jbossTraceEjb=");
+        builder.append(jbossTraceEjb);
+        builder.append(", jbossHidePinpointHeader=");
+        builder.append(jbossHidePinpointHeader);
+        builder.append(", jbossTraceRequestParam=");
+        builder.append(jbossTraceRequestParam);
+        builder.append(", jbossExcludeUrlFilter=");
+        builder.append(jbossExcludeUrlFilter);
+        builder.append(", jbossExcludeProfileMethodFilter=");
+        builder.append(jbossExcludeProfileMethodFilter);
+        builder.append(", jbossRealIpHeader=");
+        builder.append(jbossRealIpHeader);
+        builder.append(", jbossRealIpEmptyValue=");
+        builder.append(jbossRealIpEmptyValue);
         builder.append("}");
         return builder.toString();
     }
