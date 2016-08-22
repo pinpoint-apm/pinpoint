@@ -64,4 +64,4 @@ JAVA_OPTS="$JAVA_OPTS -Dpinpoint.applicationName=APP-STANDALONE"
 ```
 
 
-* Set ```profiler.jboss.traceEjb=true``` for remote ejb application in pinpoint.config file
+#### Set ```profiler.jboss.traceEjb=true``` for remote ejb application in pinpoint.config file
