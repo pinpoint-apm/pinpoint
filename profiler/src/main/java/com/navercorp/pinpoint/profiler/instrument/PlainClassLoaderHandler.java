@@ -102,7 +102,9 @@ public class PlainClassLoaderHandler implements ClassInjector {
     private Class<?> injectClass0(ClassPool pool, ClassLoader classLoader, String className, ClassLoadingChecker classLoadingChecker) throws NotFoundException, IOException, CannotCompileException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         Class<?> c = null;
         try {
-            c = classLoader.loadClass(className);
+            // Using different approach to load classes via classloader
+            // c = classLoader.loadClass(className);
+            c = Class.forName(className, false, classLoader);
             if (isDebug) {
                 logger.debug("loadClass:{}", className);
             }
