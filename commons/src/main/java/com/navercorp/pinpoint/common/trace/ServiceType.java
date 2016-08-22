@@ -131,6 +131,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9059</td><td>OK_HTTP_CLIENT_INTERNAL</td></tr>
  * <tr><td>9060</td><td><i>RESERVED</i></td></tr>
  * <tr><td>9070</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>9080</td><td><i>APACHE_CXF_CLIENT</i></td></tr>
  * <tr><td>9100</td><td>THRIFT_CLIENT</td></tr>
  * <tr><td>9101</td><td>THRIFT_CLIENT_INTERNAL</td></tr>
  * <tr><td>9110</td><td>DUBBO_CONSUMER</td></tr>
