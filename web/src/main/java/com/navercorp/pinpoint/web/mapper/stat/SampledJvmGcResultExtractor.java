@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.mapper.stat;
 
+import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -40,6 +41,7 @@ public class SampledJvmGcResultExtractor extends SampledAgentStatResultExtractor
 
     @Override
     protected SampledJvmGc sampleCurrentBatch(long timestamp, List<JvmGcBo> dataPointsToSample) {
+        JvmGcType jvmGcType = JvmGcType.UNKNOWN;
         List<Long> heapUseds = new ArrayList<>(dataPointsToSample.size());
         List<Long> heapMaxes = new ArrayList<>(dataPointsToSample.size());
         List<Long> nonHeapUseds = new ArrayList<>(dataPointsToSample.size());
@@ -47,6 +49,7 @@ public class SampledJvmGcResultExtractor extends SampledAgentStatResultExtractor
         List<Long> gcOldCounts = new ArrayList<>(dataPointsToSample.size());
         List<Long> gcOldTimes = new ArrayList<>(dataPointsToSample.size());
         for (JvmGcBo jvmGcBo : dataPointsToSample) {
+            jvmGcType = jvmGcBo.getGcType();
             heapUseds.add(jvmGcBo.getHeapUsed());
             heapMaxes.add(jvmGcBo.getHeapMax());
             nonHeapUseds.add(jvmGcBo.getNonHeapUsed());
@@ -55,6 +58,7 @@ public class SampledJvmGcResultExtractor extends SampledAgentStatResultExtractor
             gcOldTimes.add(jvmGcBo.getGcOldTime());
         }
         SampledJvmGc sampledJvmGc = new SampledJvmGc();
+        sampledJvmGc.setJvmGcType(jvmGcType);
         sampledJvmGc.setHeapUsed(createPoint(timestamp, heapUseds));
         sampledJvmGc.setHeapMax(createPoint(timestamp, heapMaxes));
         sampledJvmGc.setNonHeapUsed(createPoint(timestamp, nonHeapUseds));

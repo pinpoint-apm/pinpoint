@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo.codec.stat.v1;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.UnsignedLongEncodingStrategy;
@@ -61,6 +62,8 @@ public class JvmGcCodecV1 implements AgentStatCodec<JvmGcBo> {
         if (CollectionUtils.isEmpty(jvmGcBos)) {
             throw new IllegalArgumentException("jvmGcBos must not be empty");
         }
+        final int gcTypeCode = jvmGcBos.get(0).getGcType().getTypeCode();
+        valueBuffer.putVInt(gcTypeCode);
         final int numValues = jvmGcBos.size();
         valueBuffer.putVInt(numValues);
 
@@ -126,6 +129,7 @@ public class JvmGcCodecV1 implements AgentStatCodec<JvmGcBo> {
 
     @Override
     public List<JvmGcBo> decodeValues(Buffer valueBuffer, long initialTimestamp) {
+        final JvmGcType gcType = JvmGcType.getTypeByCode(valueBuffer.readVInt());
         int numValues = valueBuffer.readVInt();
 
         List<Long> timestamps = this.codec.decodeTimestamps(initialTimestamp, valueBuffer, numValues);
@@ -156,6 +160,7 @@ public class JvmGcCodecV1 implements AgentStatCodec<JvmGcBo> {
         for (int i = 0; i < numValues; ++i) {
             JvmGcBo jvmGcBo = new JvmGcBo();
             jvmGcBo.setTimestamp(timestamps.get(i));
+            jvmGcBo.setGcType(gcType);
             jvmGcBo.setHeapUsed(heapUseds.get(i));
             jvmGcBo.setHeapMax(heapMaxes.get(i));
             jvmGcBo.setNonHeapUsed(nonHeapUseds.get(i));

@@ -132,6 +132,7 @@ public interface Aggregator<T extends AgentStatDataPoint> {
             JvmGcBo normalized = new JvmGcBo();
             normalized.setAgentId(src.getAgentId());
             normalized.setTimestamp(normalizedTimestamp);
+            normalized.setGcType(src.getGcType());
             normalized.setHeapUsed(src.getHeapUsed());
             normalized.setHeapMax(src.getHeapMax());
             normalized.setNonHeapUsed(src.getNonHeapUsed());
@@ -147,6 +148,7 @@ public interface Aggregator<T extends AgentStatDataPoint> {
             JvmGcBo merged = new JvmGcBo();
             merged.setAgentId(latest.getAgentId());
             merged.setTimestamp(latest.getTimestamp());
+            merged.setGcType(latest.getGcType());
             merged.setHeapUsed(latest.getHeapUsed());
             merged.setHeapMax(maxUnsignedLongs(s1.getHeapMax(), s2.getHeapMax()));
             merged.setNonHeapUsed(latest.getNonHeapUsed());

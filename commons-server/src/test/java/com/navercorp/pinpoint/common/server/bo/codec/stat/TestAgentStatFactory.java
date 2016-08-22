@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo.codec.stat;
 
+import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
@@ -82,6 +83,7 @@ public class TestAgentStatFactory {
                 numValues);
         for (int i = 0; i < numValues; ++i) {
             JvmGcBo jvmGcBo = new JvmGcBo();
+            jvmGcBo.setGcType(JvmGcType.CMS);
             jvmGcBo.setTimestamp(timestamps.get(i));
             jvmGcBo.setHeapUsed(heapUseds.get(i));
             jvmGcBo.setHeapMax(heapMaxes.get(i));

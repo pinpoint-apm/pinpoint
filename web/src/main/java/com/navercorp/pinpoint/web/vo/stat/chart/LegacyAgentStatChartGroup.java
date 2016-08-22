@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.web.vo.stat.SampledActiveTrace;
 import com.navercorp.pinpoint.web.vo.stat.SampledCpuLoad;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGc;
 import com.navercorp.pinpoint.web.vo.stat.SampledTransaction;
-import org.apache.commons.collections.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -93,8 +92,9 @@ public class LegacyAgentStatChartGroup implements AgentStatChartGroup {
 
     private final Map<ChartType, Chart> charts;
 
-    private LegacyAgentStatChartGroup(Map<ChartType, Chart> charts) {
+    private LegacyAgentStatChartGroup(Map<ChartType, Chart> charts, String gcType) {
         this.charts = charts;
+        this.type = gcType;
     }
 
     public LegacyAgentStatChartGroup(TimeWindow timeWindow) {
@@ -296,11 +296,13 @@ public class LegacyAgentStatChartGroup implements AgentStatChartGroup {
 
         public LegacyAgentStatChartGroup build() {
             Map<ChartType, Chart> charts = new HashMap<>();
-            charts.putAll(new JvmGcChartGroup(this.timeWindow, this.jvmGcs).getCharts());
+            JvmGcChartGroup jvmGcChartGroup = new JvmGcChartGroup(this.timeWindow, this.jvmGcs);
+            String gcType = jvmGcChartGroup.getType();
+            charts.putAll(jvmGcChartGroup.getCharts());
             charts.putAll(new CpuLoadChartGroup(this.timeWindow, this.cpuLoads).getCharts());
             charts.putAll(new TransactionChartGroup(this.timeWindow, this.transactions).getCharts());
             charts.putAll(new ActiveTraceChartGroup(this.timeWindow, this.activeTraces).getCharts());
-            return new LegacyAgentStatChartGroup(charts);
+            return new LegacyAgentStatChartGroup(charts, gcType);
         }
     }
 }
