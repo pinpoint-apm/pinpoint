@@ -16,20 +16,23 @@
 
 package com.navercorp.pinpoint.common.server.bo.codec.stat;
 
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
-import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.List;
 
 /**
  * @author HyunGil Jeong
  */
-public interface AgentStatCodec<T extends AgentStatDataPoint> {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:applicationContext-test.xml")
+public class JvmGcEncoderTest extends AgentStatEncoderTestBase<JvmGcBo> {
 
-    byte getVersion();
+    @Override
+    protected List<JvmGcBo> createAgentStats(String agentId, long initialTimestamp, int numStats) {
+        return TestAgentStatFactory.createJvmGcBos(agentId, initialTimestamp, numStats);
+    }
 
-    void encodeValues(Buffer valueBuffer, List<T> agentStatDataPoints);
-
-    List<T> decodeValues(Buffer valueBuffer, AgentStatDecodingContext decodingContext);
 }

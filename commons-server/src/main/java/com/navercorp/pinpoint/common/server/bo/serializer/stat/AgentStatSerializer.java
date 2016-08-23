@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.HbaseSerializer;
 import com.navercorp.pinpoint.common.server.bo.serializer.SerializationContext;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Put;
 import org.springframework.util.Assert;
@@ -42,10 +43,13 @@ public abstract class AgentStatSerializer<T extends AgentStatDataPoint> implemen
 
     @Override
     public void serialize(List<T> agentStatBos, Put put, SerializationContext context) {
-        if (agentStatBos.isEmpty()) {
+        if (CollectionUtils.isEmpty(agentStatBos)) {
             throw new IllegalArgumentException("agentStatBos should not be empty");
         }
-        ByteBuffer qualifierBuffer = this.encoder.encodeQualifier(agentStatBos);
+        long initialTimestamp = agentStatBos.get(0).getTimestamp();
+        long baseTimestamp = AgentStatUtils.getBaseTimestamp(initialTimestamp);
+        long timestampDelta = initialTimestamp - baseTimestamp;
+        ByteBuffer qualifierBuffer = this.encoder.encodeQualifier(timestampDelta);
         ByteBuffer valueBuffer = this.encoder.encodeValue(agentStatBos);
         put.addColumn(HBaseTables.AGENT_STAT_CF_STATISTICS, qualifierBuffer, HConstants.LATEST_TIMESTAMP, valueBuffer);
     }

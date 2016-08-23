@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,6 +39,7 @@ import java.util.List;
 @ContextConfiguration("classpath:applicationContext-test.xml")
 public class JvmGcCodecV1Test {
 
+    private static final String AGENT_ID = "testAgentId";
     private static final int NUM_TEST_RUNS = 20;
 
     @Autowired
@@ -52,13 +55,19 @@ public class JvmGcCodecV1Test {
     private void runTest() {
         // Given
         final long initialTimestamp = System.currentTimeMillis();
-        final List<JvmGcBo> expectedJvmGcBos = TestAgentStatFactory.createJvmGcBos(initialTimestamp);
+        final long baseTimestamp = AgentStatUtils.getBaseTimestamp(initialTimestamp);
+        final long timestampDelta = initialTimestamp - baseTimestamp;
+        final List<JvmGcBo> expectedJvmGcBos = TestAgentStatFactory.createJvmGcBos(AGENT_ID, initialTimestamp);
         // When
         Buffer encodedValueBuffer = new AutomaticBuffer();
         this.jvmGcCodec.encodeValues(encodedValueBuffer, expectedJvmGcBos);
         // Then
+        AgentStatDecodingContext decodingContext = new AgentStatDecodingContext();
+        decodingContext.setAgentId(AGENT_ID);
+        decodingContext.setBaseTimestamp(baseTimestamp);
+        decodingContext.setTimestampDelta(timestampDelta);
         Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());
-        List<JvmGcBo> actualJvmGcBos = this.jvmGcCodec.decodeValues(valueBuffer, initialTimestamp);
+        List<JvmGcBo> actualJvmGcBos = this.jvmGcCodec.decodeValues(valueBuffer, decodingContext);
         Assert.assertEquals(expectedJvmGcBos, actualJvmGcBos);
     }
 }

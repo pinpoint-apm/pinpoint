@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.web.mapper.TimestampFilter;
@@ -72,10 +73,14 @@ public class AgentStatMapperV2<T extends AgentStatDataPoint> implements AgentSta
                 Buffer qualifierBuffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
                 Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
 
-                long initialTimestamp = this.decoder.decodeInitialTimestamp(baseTimestamp, qualifierBuffer);
-                List<T> candidates = this.decoder.decodeDataPoints(initialTimestamp, valueBuffer);
+                long timestampDelta = this.decoder.decodeQualifier(qualifierBuffer);
+
+                AgentStatDecodingContext decodingContext = new AgentStatDecodingContext();
+                decodingContext.setAgentId(agentId);
+                decodingContext.setBaseTimestamp(baseTimestamp);
+                decodingContext.setTimestampDelta(timestampDelta);
+                List<T> candidates = this.decoder.decodeValue(valueBuffer, decodingContext);
                 for (T candidate : candidates) {
-                    candidate.setAgentId(agentId);
                     long timestamp = candidate.getTimestamp();
                     if (this.filter.filter(timestamp)) {
                         continue;

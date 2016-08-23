@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCode
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.UnsignedLongEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.StrategyAnalyzer;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import org.apache.commons.collections.CollectionUtils;
@@ -94,7 +95,12 @@ public class CpuLoadCodecV1 implements AgentStatCodec<CpuLoadBo> {
     }
 
     @Override
-    public List<CpuLoadBo> decodeValues(Buffer valueBuffer, long initialTimestamp) {
+    public List<CpuLoadBo> decodeValues(Buffer valueBuffer, AgentStatDecodingContext decodingContext) {
+        final String agentId = decodingContext.getAgentId();
+        final long baseTimestamp = decodingContext.getBaseTimestamp();
+        final long timestampDelta = decodingContext.getTimestampDelta();
+        final long initialTimestamp = baseTimestamp + timestampDelta;
+
         int numValues = valueBuffer.readVInt();
 
         List<Long> timestamps = this.codec.decodeTimestamps(initialTimestamp, valueBuffer, numValues);
@@ -112,6 +118,7 @@ public class CpuLoadCodecV1 implements AgentStatCodec<CpuLoadBo> {
         List<CpuLoadBo> cpuLoadBos = new ArrayList<>(numValues);
         for (int i = 0; i < numValues; ++i) {
             CpuLoadBo cpuLoadBo = new CpuLoadBo();
+            cpuLoadBo.setAgentId(agentId);
             cpuLoadBo.setTimestamp(timestamps.get(i));
             cpuLoadBo.setJvmCpuLoad(AgentStatUtils.convertLongToDouble(jvmCpuLoads.get(i)));
             cpuLoadBo.setSystemCpuLoad(AgentStatUtils.convertLongToDouble(systemCpuLoads.get(i)));

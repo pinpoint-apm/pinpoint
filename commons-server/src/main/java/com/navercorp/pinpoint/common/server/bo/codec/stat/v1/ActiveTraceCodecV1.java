@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.StrategyAn
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.UnsignedIntegerEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.UnsignedShortEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.trace.SlotType;
 import org.apache.commons.collections.CollectionUtils;
@@ -134,7 +135,12 @@ public class ActiveTraceCodecV1 implements AgentStatCodec<ActiveTraceBo> {
     }
 
     @Override
-    public List<ActiveTraceBo> decodeValues(Buffer valueBuffer, long initialTimestamp) {
+    public List<ActiveTraceBo> decodeValues(Buffer valueBuffer, AgentStatDecodingContext decodingContext) {
+        final String agentId = decodingContext.getAgentId();
+        final long baseTimestamp = decodingContext.getBaseTimestamp();
+        final long timestampDelta = decodingContext.getTimestampDelta();
+        final long initialTimestamp = baseTimestamp + timestampDelta;
+
         int numValues = valueBuffer.readVInt();
 
         List<Long> timestamps = this.codec.decodeTimestamps(initialTimestamp, valueBuffer, numValues);
@@ -164,6 +170,7 @@ public class ActiveTraceCodecV1 implements AgentStatCodec<ActiveTraceBo> {
         List<ActiveTraceBo> activeTraceBos = new ArrayList<>(numValues);
         for (int i = 0; i < numValues; ++i) {
             ActiveTraceBo activeTraceBo = new ActiveTraceBo();
+            activeTraceBo.setAgentId(agentId);
             activeTraceBo.setTimestamp(timestamps.get(i));
             activeTraceBo.setVersion(versions.get(i));
             activeTraceBo.setHistogramSchemaType(schemaTypes.get(i));

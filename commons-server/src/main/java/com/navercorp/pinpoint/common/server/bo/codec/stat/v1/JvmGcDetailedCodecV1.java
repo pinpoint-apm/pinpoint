@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCode
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.UnsignedLongEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.StrategyAnalyzer;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import org.apache.commons.collections.CollectionUtils;
@@ -139,7 +140,12 @@ public class JvmGcDetailedCodecV1 implements AgentStatCodec<JvmGcDetailedBo> {
     }
 
     @Override
-    public List<JvmGcDetailedBo> decodeValues(Buffer valueBuffer, long initialTimestamp) {
+    public List<JvmGcDetailedBo> decodeValues(Buffer valueBuffer, AgentStatDecodingContext decodingContext) {
+        final String agentId = decodingContext.getAgentId();
+        final long baseTimestamp = decodingContext.getBaseTimestamp();
+        final long timestampDelta = decodingContext.getTimestampDelta();
+        final long initialTimestamp = baseTimestamp + timestampDelta;
+
         int numValues = valueBuffer.readVInt();
 
         List<Long> timestamps = this.codec.decodeTimestamps(initialTimestamp, valueBuffer, numValues);
@@ -175,6 +181,7 @@ public class JvmGcDetailedCodecV1 implements AgentStatCodec<JvmGcDetailedBo> {
         List<JvmGcDetailedBo> jvmGcDetailedBos = new ArrayList<>(numValues);
         for (int i = 0; i < numValues; ++i) {
             JvmGcDetailedBo jvmGcDetailedBo = new JvmGcDetailedBo();
+            jvmGcDetailedBo.setAgentId(agentId);
             jvmGcDetailedBo.setTimestamp(timestamps.get(i));
             jvmGcDetailedBo.setGcNewCount(gcNewCounts.get(i));
             jvmGcDetailedBo.setGcNewTime(gcNewTimes.get(i));

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCode
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.UnsignedLongEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.StrategyAnalyzer;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,10 +129,14 @@ public class JvmGcCodecV1 implements AgentStatCodec<JvmGcBo> {
     }
 
     @Override
-    public List<JvmGcBo> decodeValues(Buffer valueBuffer, long initialTimestamp) {
+    public List<JvmGcBo> decodeValues(Buffer valueBuffer, AgentStatDecodingContext decodingContext) {
+        final String agentId = decodingContext.getAgentId();
+        final long baseTimestamp = decodingContext.getBaseTimestamp();
+        final long timestampDelta = decodingContext.getTimestampDelta();
+        final long initialTimestamp = baseTimestamp + timestampDelta;
+
         final JvmGcType gcType = JvmGcType.getTypeByCode(valueBuffer.readVInt());
         int numValues = valueBuffer.readVInt();
-
         List<Long> timestamps = this.codec.decodeTimestamps(initialTimestamp, valueBuffer, numValues);
 
         // decode headers
@@ -159,6 +164,7 @@ public class JvmGcCodecV1 implements AgentStatCodec<JvmGcBo> {
         List<JvmGcBo> jvmGcBos = new ArrayList<>(numValues);
         for (int i = 0; i < numValues; ++i) {
             JvmGcBo jvmGcBo = new JvmGcBo();
+            jvmGcBo.setAgentId(agentId);
             jvmGcBo.setTimestamp(timestamps.get(i));
             jvmGcBo.setGcType(gcType);
             jvmGcBo.setHeapUsed(heapUseds.get(i));

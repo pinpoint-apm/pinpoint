@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCode
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.UnsignedLongEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.StrategyAnalyzer;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,7 +118,12 @@ public class TransactionCodecV1 implements AgentStatCodec<TransactionBo> {
     }
 
     @Override
-    public List<TransactionBo> decodeValues(Buffer valueBuffer, long initialTimestamp) {
+    public List<TransactionBo> decodeValues(Buffer valueBuffer, AgentStatDecodingContext decodingContext) {
+        final String agentId = decodingContext.getAgentId();
+        final long baseTimestamp = decodingContext.getBaseTimestamp();
+        final long timestampDelta = decodingContext.getTimestampDelta();
+        final long initialTimestamp = baseTimestamp + timestampDelta;
+
         int numValues = valueBuffer.readVInt();
 
         List<Long> timestamps = this.codec.decodeTimestamps(initialTimestamp, valueBuffer, numValues);
@@ -144,6 +150,7 @@ public class TransactionCodecV1 implements AgentStatCodec<TransactionBo> {
         List<TransactionBo> transactionBos = new ArrayList<>(numValues);
         for (int i = 0; i < numValues; ++i) {
             TransactionBo transactionBo = new TransactionBo();
+            transactionBo.setAgentId(agentId);
             transactionBo.setTimestamp(timestamps.get(i));
             transactionBo.setCollectInterval(collectIntervals.get(i));
             transactionBo.setSampledNewCount(sampledNewCounts.get(i));
