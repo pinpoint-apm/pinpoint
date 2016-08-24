@@ -66,7 +66,7 @@ public abstract class AgentStatMapperV1<T extends AgentStatDataPoint> implements
             return Collections.emptyList();
         }
         final byte[] rowKey = getOriginalKey(result.getRow());
-        final String agentId = BytesUtils.toString(rowKey, 0, AGENT_NAME_MAX_LEN).trim();
+        final String agentId = BytesUtils.toStringAndRightTrim(rowKey, 0, AGENT_NAME_MAX_LEN);
         final long reverseTimestamp = BytesUtils.bytesToLong(rowKey, AGENT_NAME_MAX_LEN);
         final long timestamp = TimeUtils.recoveryTimeMillis(reverseTimestamp);
         NavigableMap<byte[], byte[]> qualifierMap = result.getFamilyMap(AGENT_STAT_CF_STATISTICS);
