@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import org.junit.Assert;
@@ -38,8 +39,8 @@ import java.util.List;
 @ContextConfiguration("classpath:applicationContext-test.xml")
 public class JvmGcDetailedCodecV1Test {
 
+    private static final String AGENT_ID = "testAgentId";
     private static final int NUM_TEST_RUNS = 20;
-
     private static final double DOUBLE_COMPARISON_DELTA = (double) 1 / AgentStatUtils.CONVERT_VALUE;
 
     @Autowired
@@ -55,13 +56,19 @@ public class JvmGcDetailedCodecV1Test {
     private void runTest() {
         // Given
         final long initialTimestamp = System.currentTimeMillis();
-        final List<JvmGcDetailedBo> expectedJvmGcDetailedBos = TestAgentStatFactory.createJvmGcDetailedBos(initialTimestamp);
+        final long baseTimestamp = AgentStatUtils.getBaseTimestamp(initialTimestamp);
+        final long timestampDelta = initialTimestamp - baseTimestamp;
+        final List<JvmGcDetailedBo> expectedJvmGcDetailedBos = TestAgentStatFactory.createJvmGcDetailedBos(AGENT_ID, initialTimestamp);
         // When
         Buffer encodedValueBuffer = new AutomaticBuffer();
         this.jvmGcDetailedCodec.encodeValues(encodedValueBuffer, expectedJvmGcDetailedBos);
         // Then
+        AgentStatDecodingContext decodingContext = new AgentStatDecodingContext();
+        decodingContext.setAgentId(AGENT_ID);
+        decodingContext.setBaseTimestamp(baseTimestamp);
+        decodingContext.setTimestampDelta(timestampDelta);
         Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());
-        List<JvmGcDetailedBo> actualJvmGcDetailedBos = this.jvmGcDetailedCodec.decodeValues(valueBuffer, initialTimestamp);
+        List<JvmGcDetailedBo> actualJvmGcDetailedBos = this.jvmGcDetailedCodec.decodeValues(valueBuffer, decodingContext);
         Assert.assertEquals(expectedJvmGcDetailedBos.size(), actualJvmGcDetailedBos.size());
         for (int i = 0; i < expectedJvmGcDetailedBos.size(); ++i) {
             JvmGcDetailedBo expectedJvmGcDetailedBo = expectedJvmGcDetailedBos.get(i);
@@ -71,7 +78,9 @@ public class JvmGcDetailedCodecV1Test {
     }
 
     private void verify(JvmGcDetailedBo expectedJvmGcDetailedBo, JvmGcDetailedBo actualJvmGcDetailedBo) {
+        Assert.assertEquals("agentId", expectedJvmGcDetailedBo.getAgentId(), actualJvmGcDetailedBo.getAgentId());
         Assert.assertEquals("timestamp", expectedJvmGcDetailedBo.getTimestamp(), actualJvmGcDetailedBo.getTimestamp());
+        Assert.assertEquals("agentStatType", expectedJvmGcDetailedBo.getAgentStatType(), actualJvmGcDetailedBo.getAgentStatType());
         Assert.assertEquals("gcNewCount", expectedJvmGcDetailedBo.getGcNewCount(), actualJvmGcDetailedBo.getGcNewCount());
         Assert.assertEquals("gcNewTime", expectedJvmGcDetailedBo.getGcNewTime(), actualJvmGcDetailedBo.getGcNewTime());
         Assert.assertEquals("codeCacheUsed", expectedJvmGcDetailedBo.getCodeCacheUsed(), actualJvmGcDetailedBo.getCodeCacheUsed(), DOUBLE_COMPARISON_DELTA);

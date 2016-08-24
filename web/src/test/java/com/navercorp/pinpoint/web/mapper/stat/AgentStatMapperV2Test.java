@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatEncoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatRowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatRowKeyEncoder;
@@ -137,11 +138,12 @@ public class AgentStatMapperV2Test {
         }
 
         @Override
-        public List<TestAgentStat> decodeValues(Buffer valueBuffer, long initialTimestamp) {
+        public List<TestAgentStat> decodeValues(Buffer valueBuffer, AgentStatDecodingContext decodingContext) {
             int size = valueBuffer.readInt();
             List<TestAgentStat> agentStats = new ArrayList<>(size);
             for (int i = 0; i < size; ++i) {
                 TestAgentStat agentStat = new TestAgentStat();
+                agentStat.setAgentId(decodingContext.getAgentId());
                 agentStat.setTimestamp(valueBuffer.readLong());
                 agentStat.setValue(valueBuffer.readLong());
                 agentStats.add(agentStat);

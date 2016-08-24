@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import org.junit.Assert;
@@ -38,8 +39,8 @@ import java.util.List;
 @ContextConfiguration("classpath:applicationContext-test.xml")
 public class CpuLoadCodecV1Test {
 
+    private static final String AGENT_ID = "testAgentId";
     private static final int NUM_TEST_RUNS = 20;
-
     private static final double DOUBLE_COMPARISON_DELTA = (double) 1 / AgentStatUtils.CONVERT_VALUE;
 
     @Autowired
@@ -55,13 +56,19 @@ public class CpuLoadCodecV1Test {
     private void runTest() {
         // Given
         final long initialTimestamp = System.currentTimeMillis();
-        final List<CpuLoadBo> expectedCpuLoadBos = TestAgentStatFactory.createCpuLoadBos(initialTimestamp);
+        final long baseTimestamp = AgentStatUtils.getBaseTimestamp(initialTimestamp);
+        final long timestampDelta = initialTimestamp - baseTimestamp;
+        final List<CpuLoadBo> expectedCpuLoadBos = TestAgentStatFactory.createCpuLoadBos(AGENT_ID, initialTimestamp);
         // When
         Buffer encodedValueBuffer = new AutomaticBuffer();
         this.cpuLoadCodec.encodeValues(encodedValueBuffer, expectedCpuLoadBos);
         // Then
+        AgentStatDecodingContext decodingContext = new AgentStatDecodingContext();
+        decodingContext.setAgentId(AGENT_ID);
+        decodingContext.setBaseTimestamp(baseTimestamp);
+        decodingContext.setTimestampDelta(timestampDelta);
         Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());
-        List<CpuLoadBo> actualCpuLoadBos = this.cpuLoadCodec.decodeValues(valueBuffer, initialTimestamp);
+        List<CpuLoadBo> actualCpuLoadBos = this.cpuLoadCodec.decodeValues(valueBuffer, decodingContext);
         Assert.assertEquals(expectedCpuLoadBos.size(), actualCpuLoadBos.size());
         for (int i = 0; i < expectedCpuLoadBos.size(); ++i) {
             CpuLoadBo expectedCpuLoadBo = expectedCpuLoadBos.get(i);
@@ -71,7 +78,9 @@ public class CpuLoadCodecV1Test {
     }
 
     private void verify(CpuLoadBo expectedCpuLoadBo, CpuLoadBo actualCpuLoadBo) {
+        Assert.assertEquals("agentId", expectedCpuLoadBo.getAgentId(), actualCpuLoadBo.getAgentId());
         Assert.assertEquals("timestamp", expectedCpuLoadBo.getTimestamp(), actualCpuLoadBo.getTimestamp());
+        Assert.assertEquals("agentStatType", expectedCpuLoadBo.getAgentStatType(), actualCpuLoadBo.getAgentStatType());
         Assert.assertEquals("jvmCpuLoad", expectedCpuLoadBo.getJvmCpuLoad(), actualCpuLoadBo.getJvmCpuLoad(), DOUBLE_COMPARISON_DELTA);
         Assert.assertEquals("systemCpuLoad", expectedCpuLoadBo.getSystemCpuLoad(), actualCpuLoadBo.getSystemCpuLoad(), DOUBLE_COMPARISON_DELTA);
     }

@@ -16,13 +16,22 @@
 
 package com.navercorp.pinpoint.common.server.bo.codec.stat;
 
-import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
+import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.List;
 
 /**
  * @author HyunGil Jeong
  */
-public interface HeaderCodec<T> {
-    int getHeaderBitSize();
-    int encodeHeader(int header, int position, EncodingStrategy<T> strategy);
-    EncodingStrategy<T> decodeHeader(int header, int position);
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:applicationContext-test.xml")
+public class ActiveTraceEncoderTest extends AgentStatEncoderTestBase<ActiveTraceBo> {
+
+    @Override
+    protected List<ActiveTraceBo> createAgentStats(String agentId, long initialTimestamp, int numStats) {
+        return TestAgentStatFactory.createActiveTraceBos(agentId, initialTimestamp, numStats);
+    }
 }

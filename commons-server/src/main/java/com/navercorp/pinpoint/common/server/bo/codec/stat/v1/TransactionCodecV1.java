@@ -19,9 +19,14 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.v1;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderEncoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.UnsignedLongEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.StrategyAnalyzer;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,14 +46,10 @@ public class TransactionCodecV1 implements AgentStatCodec<TransactionBo> {
 
     private final AgentStatDataPointCodec codec;
 
-    private final HeaderCodecV1<Long> longHeaderCodec;
-
     @Autowired
-    public TransactionCodecV1(AgentStatDataPointCodec codec, HeaderCodecV1<Long> longHeaderCodec) {
+    public TransactionCodecV1(AgentStatDataPointCodec codec) {
         Assert.notNull(codec, "agentStatDataPointCodec must not be null");
-        Assert.notNull(longHeaderCodec, "longHeaderCodec must not be null");
         this.codec = codec;
-        this.longHeaderCodec = longHeaderCodec;
     }
 
     @Override
@@ -96,18 +97,14 @@ public class TransactionCodecV1 implements AgentStatCodec<TransactionBo> {
             StrategyAnalyzer<Long> unsampledNewCountStrategyAnalyzer,
             StrategyAnalyzer<Long> unsampledContinuationCountStrategyAnalyzer) {
         // encode header
-        int header = 0;
-        int position = 0;
-        header = this.longHeaderCodec.encodeHeader(header, position, collectIntervalStrategyAnalyzer.getBestStrategy());
-        position += this.longHeaderCodec.getHeaderBitSize();
-        header = this.longHeaderCodec.encodeHeader(header, position, sampledNewCountStrategyAnalyzer.getBestStrategy());
-        position += this.longHeaderCodec.getHeaderBitSize();
-        header = this.longHeaderCodec.encodeHeader(header, position, sampledContinuationCountStrategyAnalyzer.getBestStrategy());
-        position += this.longHeaderCodec.getHeaderBitSize();
-        header = this.longHeaderCodec.encodeHeader(header, position, unsampledNewCountStrategyAnalyzer.getBestStrategy());
-        position += this.longHeaderCodec.getHeaderBitSize();
-        header = this.longHeaderCodec.encodeHeader(header, position, unsampledContinuationCountStrategyAnalyzer.getBestStrategy());
-        valueBuffer.putVInt(header);
+        AgentStatHeaderEncoder headerEncoder = new BitCountingHeaderEncoder();
+        headerEncoder.addCode(collectIntervalStrategyAnalyzer.getBestStrategy().getCode());
+        headerEncoder.addCode(sampledNewCountStrategyAnalyzer.getBestStrategy().getCode());
+        headerEncoder.addCode(sampledContinuationCountStrategyAnalyzer.getBestStrategy().getCode());
+        headerEncoder.addCode(unsampledNewCountStrategyAnalyzer.getBestStrategy().getCode());
+        headerEncoder.addCode(unsampledContinuationCountStrategyAnalyzer.getBestStrategy().getCode());
+        final byte[] header = headerEncoder.getHeader();
+        valueBuffer.putPrefixedBytes(header);
         // encode values
         this.codec.encodeValues(valueBuffer, collectIntervalStrategyAnalyzer.getBestStrategy(), collectIntervalStrategyAnalyzer.getValues());
         this.codec.encodeValues(valueBuffer, sampledNewCountStrategyAnalyzer.getBestStrategy(), sampledNewCountStrategyAnalyzer.getValues());
@@ -117,23 +114,23 @@ public class TransactionCodecV1 implements AgentStatCodec<TransactionBo> {
     }
 
     @Override
-    public List<TransactionBo> decodeValues(Buffer valueBuffer, long initialTimestamp) {
-        int numValues = valueBuffer.readVInt();
+    public List<TransactionBo> decodeValues(Buffer valueBuffer, AgentStatDecodingContext decodingContext) {
+        final String agentId = decodingContext.getAgentId();
+        final long baseTimestamp = decodingContext.getBaseTimestamp();
+        final long timestampDelta = decodingContext.getTimestampDelta();
+        final long initialTimestamp = baseTimestamp + timestampDelta;
 
+        int numValues = valueBuffer.readVInt();
         List<Long> timestamps = this.codec.decodeTimestamps(initialTimestamp, valueBuffer, numValues);
 
         // decode headers
-        int header = valueBuffer.readVInt();
-        int position = 0;
-        EncodingStrategy<Long> collectIntervalEncodingStrategy = this.longHeaderCodec.decodeHeader(header, position);
-        position += this.longHeaderCodec.getHeaderBitSize();
-        EncodingStrategy<Long> sampledNewCountEncodingStrategy = this.longHeaderCodec.decodeHeader(header, position);
-        position += this.longHeaderCodec.getHeaderBitSize();
-        EncodingStrategy<Long> sampledContinuationCountEncodingStrategy = this.longHeaderCodec.decodeHeader(header, position);
-        position += this.longHeaderCodec.getHeaderBitSize();
-        EncodingStrategy<Long> unsampledNewCountEncodingStrategy = this.longHeaderCodec.decodeHeader(header, position);
-        position += this.longHeaderCodec.getHeaderBitSize();
-        EncodingStrategy<Long> unsampledContinuationCountEncodingStrategy = this.longHeaderCodec.decodeHeader(header, position);
+        final byte[] header = valueBuffer.readPrefixedBytes();
+        AgentStatHeaderDecoder headerDecoder = new BitCountingHeaderDecoder(header);
+        EncodingStrategy<Long> collectIntervalEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
+        EncodingStrategy<Long> sampledNewCountEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
+        EncodingStrategy<Long> sampledContinuationCountEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
+        EncodingStrategy<Long> unsampledNewCountEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
+        EncodingStrategy<Long> unsampledContinuationCountEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
         // decode values
         List<Long> collectIntervals = this.codec.decodeValues(valueBuffer, collectIntervalEncodingStrategy, numValues);
         List<Long> sampledNewCounts = this.codec.decodeValues(valueBuffer, sampledNewCountEncodingStrategy, numValues);
@@ -144,6 +141,7 @@ public class TransactionCodecV1 implements AgentStatCodec<TransactionBo> {
         List<TransactionBo> transactionBos = new ArrayList<>(numValues);
         for (int i = 0; i < numValues; ++i) {
             TransactionBo transactionBo = new TransactionBo();
+            transactionBo.setAgentId(agentId);
             transactionBo.setTimestamp(timestamps.get(i));
             transactionBo.setCollectInterval(collectIntervals.get(i));
             transactionBo.setSampledNewCount(sampledNewCounts.get(i));

@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.trace.SlotType;
 import org.junit.Assert;
@@ -41,6 +43,7 @@ import java.util.Map;
 @ContextConfiguration("classpath:applicationContext-test.xml")
 public class ActiveTraceCodecV1Test {
 
+    private static final String AGENT_ID = "testAgentId";
     private static final int NUM_TEST_RUNS = 20;
 
     @Autowired
@@ -56,13 +59,19 @@ public class ActiveTraceCodecV1Test {
     private void runTest() {
         // Given
         final long initialTimestamp = System.currentTimeMillis();
-        final List<ActiveTraceBo> expectedActiveTraceBos = TestAgentStatFactory.createActiveTraceBos(initialTimestamp);
+        final long baseTimestamp = AgentStatUtils.getBaseTimestamp(initialTimestamp);
+        final long timestampDelta = initialTimestamp - baseTimestamp;
+        final List<ActiveTraceBo> expectedActiveTraceBos = TestAgentStatFactory.createActiveTraceBos(AGENT_ID, initialTimestamp);
         // When
         Buffer encodedValueBuffer = new AutomaticBuffer();
         this.activeTraceCodec.encodeValues(encodedValueBuffer, expectedActiveTraceBos);
         // Then
+        AgentStatDecodingContext decodingContext = new AgentStatDecodingContext();
+        decodingContext.setAgentId(AGENT_ID);
+        decodingContext.setBaseTimestamp(baseTimestamp);
+        decodingContext.setTimestampDelta(timestampDelta);
         Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());
-        List<ActiveTraceBo> actualActiveTraceBos = this.activeTraceCodec.decodeValues(valueBuffer, initialTimestamp);
+        List<ActiveTraceBo> actualActiveTraceBos = this.activeTraceCodec.decodeValues(valueBuffer, decodingContext);
         Assert.assertEquals(expectedActiveTraceBos, actualActiveTraceBos);
     }
 
@@ -71,9 +80,12 @@ public class ActiveTraceCodecV1Test {
         // Given
         final int numValues = 20;
         final long initialTimestamp = System.currentTimeMillis();
+        final long baseTimestamp = AgentStatUtils.getBaseTimestamp(initialTimestamp);
+        final long timestampDelta = initialTimestamp - baseTimestamp;
         final List<ActiveTraceBo> expectedActiveTraceBos = new ArrayList<>(numValues);
         for (int i = 0; i < numValues; ++i) {
             ActiveTraceBo emptyActiveTraceBo = new ActiveTraceBo();
+            emptyActiveTraceBo.setAgentId(AGENT_ID);
             emptyActiveTraceBo.setTimestamp(initialTimestamp + i);
             emptyActiveTraceBo.setActiveTraceCounts(Collections.<SlotType, Integer>emptyMap());
             expectedActiveTraceBos.add(emptyActiveTraceBo);
@@ -82,8 +94,12 @@ public class ActiveTraceCodecV1Test {
         Buffer encodedValueBuffer = new AutomaticBuffer();
         this.activeTraceCodec.encodeValues(encodedValueBuffer, expectedActiveTraceBos);
         // Then
+        AgentStatDecodingContext decodingContext = new AgentStatDecodingContext();
+        decodingContext.setAgentId(AGENT_ID);
+        decodingContext.setBaseTimestamp(baseTimestamp);
+        decodingContext.setTimestampDelta(timestampDelta);
         Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());
-        List<ActiveTraceBo> actualActiveTraceBos = this.activeTraceCodec.decodeValues(valueBuffer, initialTimestamp);
+        List<ActiveTraceBo> actualActiveTraceBos = this.activeTraceCodec.decodeValues(valueBuffer, decodingContext);
         for (ActiveTraceBo actualActiveTraceBo : actualActiveTraceBos) {
             Map<SlotType, Integer> activeTraceCounts = actualActiveTraceBo.getActiveTraceCounts();
             for (int activeTraceCount : activeTraceCounts.values()) {

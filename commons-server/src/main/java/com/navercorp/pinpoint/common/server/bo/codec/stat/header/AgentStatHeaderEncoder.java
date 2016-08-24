@@ -14,22 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.bo.codec.stat;
-
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
-import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
-
-import java.util.List;
+package com.navercorp.pinpoint.common.server.bo.codec.stat.header;
 
 /**
  * @author HyunGil Jeong
  */
-public interface AgentStatCodec<T extends AgentStatDataPoint> {
-
-    byte getVersion();
-
-    void encodeValues(Buffer valueBuffer, List<T> agentStatDataPoints);
-
-    List<T> decodeValues(Buffer valueBuffer, AgentStatDecodingContext decodingContext);
+public interface AgentStatHeaderEncoder {
+    void addCode(int code);
+    byte[] getHeader();
 }

@@ -19,10 +19,15 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.v1;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderEncoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.StrategyAnalyzer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.UnsignedIntegerEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.UnsignedShortEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.trace.SlotType;
 import org.apache.commons.collections.CollectionUtils;
@@ -46,18 +51,10 @@ public class ActiveTraceCodecV1 implements AgentStatCodec<ActiveTraceBo> {
 
     private final AgentStatDataPointCodec codec;
 
-    private final HeaderCodecV1<Short> shortHeaderCodec;
-
-    private final HeaderCodecV1<Integer> integerHeaderCodec;
-
     @Autowired
-    public ActiveTraceCodecV1(AgentStatDataPointCodec codec, HeaderCodecV1<Short> shortHeaderCodec, HeaderCodecV1<Integer> integerHeaderCodec) {
+    public ActiveTraceCodecV1(AgentStatDataPointCodec codec) {
         Assert.notNull(codec, "agentStatDataPointCodec must not be null");
-        Assert.notNull(shortHeaderCodec, "shortHeaderCodec must not be null");
-        Assert.notNull(integerHeaderCodec, "integerHeaderCodec must not be null");
         this.codec = codec;
-        this.shortHeaderCodec = shortHeaderCodec;
-        this.integerHeaderCodec = integerHeaderCodec;
     }
 
     @Override
@@ -110,20 +107,15 @@ public class ActiveTraceCodecV1 implements AgentStatCodec<ActiveTraceBo> {
             StrategyAnalyzer<Integer> slowTraceCountsStrategyAnalyzer,
             StrategyAnalyzer<Integer> verySlowTraceCountsStrategyAnalyzer) {
         // encode header
-        int header = 0;
-        int position = 0;
-        header = this.shortHeaderCodec.encodeHeader(header, position, versionStrategyAnalyzer.getBestStrategy());
-        position += this.shortHeaderCodec.getHeaderBitSize();
-        header = this.integerHeaderCodec.encodeHeader(header, position, schemaTypeStrategyAnalyzer.getBestStrategy());
-        position += this.integerHeaderCodec.getHeaderBitSize();
-        header = this.integerHeaderCodec.encodeHeader(header, position, fastTraceCountsStrategyAnalyzer.getBestStrategy());
-        position += this.integerHeaderCodec.getHeaderBitSize();
-        header = this.integerHeaderCodec.encodeHeader(header, position, normalTraceCountsStrategyAnalyzer.getBestStrategy());
-        position += this.integerHeaderCodec.getHeaderBitSize();
-        header = this.integerHeaderCodec.encodeHeader(header, position, slowTraceCountsStrategyAnalyzer.getBestStrategy());
-        position += this.integerHeaderCodec.getHeaderBitSize();
-        header = this.integerHeaderCodec.encodeHeader(header, position, verySlowTraceCountsStrategyAnalyzer.getBestStrategy());
-        valueBuffer.putVInt(header);
+        AgentStatHeaderEncoder headerEncoder = new BitCountingHeaderEncoder();
+        headerEncoder.addCode(versionStrategyAnalyzer.getBestStrategy().getCode());
+        headerEncoder.addCode(schemaTypeStrategyAnalyzer.getBestStrategy().getCode());
+        headerEncoder.addCode(fastTraceCountsStrategyAnalyzer.getBestStrategy().getCode());
+        headerEncoder.addCode(normalTraceCountsStrategyAnalyzer.getBestStrategy().getCode());
+        headerEncoder.addCode(slowTraceCountsStrategyAnalyzer.getBestStrategy().getCode());
+        headerEncoder.addCode(verySlowTraceCountsStrategyAnalyzer.getBestStrategy().getCode());
+        final byte[] header = headerEncoder.getHeader();
+        valueBuffer.putPrefixedBytes(header);
         // encode values
         this.codec.encodeValues(valueBuffer, versionStrategyAnalyzer.getBestStrategy(), versionStrategyAnalyzer.getValues());
         this.codec.encodeValues(valueBuffer, schemaTypeStrategyAnalyzer.getBestStrategy(), schemaTypeStrategyAnalyzer.getValues());
@@ -134,25 +126,24 @@ public class ActiveTraceCodecV1 implements AgentStatCodec<ActiveTraceBo> {
     }
 
     @Override
-    public List<ActiveTraceBo> decodeValues(Buffer valueBuffer, long initialTimestamp) {
-        int numValues = valueBuffer.readVInt();
+    public List<ActiveTraceBo> decodeValues(Buffer valueBuffer, AgentStatDecodingContext decodingContext) {
+        final String agentId = decodingContext.getAgentId();
+        final long baseTimestamp = decodingContext.getBaseTimestamp();
+        final long timestampDelta = decodingContext.getTimestampDelta();
+        final long initialTimestamp = baseTimestamp + timestampDelta;
 
+        int numValues = valueBuffer.readVInt();
         List<Long> timestamps = this.codec.decodeTimestamps(initialTimestamp, valueBuffer, numValues);
 
         // decode headers
-        int header = valueBuffer.readVInt();
-        int position = 0;
-        EncodingStrategy<Short> versionEncodingStrategy = this.shortHeaderCodec.decodeHeader(header, position);
-        position += this.shortHeaderCodec.getHeaderBitSize();
-        EncodingStrategy<Integer> schemaTypeEncodingStrategy = this.integerHeaderCodec.decodeHeader(header, position);
-        position += this.integerHeaderCodec.getHeaderBitSize();
-        EncodingStrategy<Integer> fastTraceCountsEncodingStrategy = this.integerHeaderCodec.decodeHeader(header, position);
-        position += this.integerHeaderCodec.getHeaderBitSize();
-        EncodingStrategy<Integer> normalTraceCountsEncodingStrategy = this.integerHeaderCodec.decodeHeader(header, position);
-        position += this.integerHeaderCodec.getHeaderBitSize();
-        EncodingStrategy<Integer> slowTraceCountsEncodingStrategy = this.integerHeaderCodec.decodeHeader(header, position);
-        position += this.integerHeaderCodec.getHeaderBitSize();
-        EncodingStrategy<Integer> verySlowTraceCountsEncodingStrategy = this.integerHeaderCodec.decodeHeader(header, position);
+        final byte[] header = valueBuffer.readPrefixedBytes();
+        AgentStatHeaderDecoder headerDecoder = new BitCountingHeaderDecoder(header);
+        EncodingStrategy<Short> versionEncodingStrategy = UnsignedShortEncodingStrategy.getFromCode(headerDecoder.getCode());
+        EncodingStrategy<Integer> schemaTypeEncodingStrategy = UnsignedIntegerEncodingStrategy.getFromCode(headerDecoder.getCode());
+        EncodingStrategy<Integer> fastTraceCountsEncodingStrategy = UnsignedIntegerEncodingStrategy.getFromCode(headerDecoder.getCode());
+        EncodingStrategy<Integer> normalTraceCountsEncodingStrategy = UnsignedIntegerEncodingStrategy.getFromCode(headerDecoder.getCode());
+        EncodingStrategy<Integer> slowTraceCountsEncodingStrategy = UnsignedIntegerEncodingStrategy.getFromCode(headerDecoder.getCode());
+        EncodingStrategy<Integer> verySlowTraceCountsEncodingStrategy = UnsignedIntegerEncodingStrategy.getFromCode(headerDecoder.getCode());
         // decode values
         List<Short> versions = this.codec.decodeValues(valueBuffer, versionEncodingStrategy, numValues);
         List<Integer> schemaTypes = this.codec.decodeValues(valueBuffer, schemaTypeEncodingStrategy, numValues);
@@ -164,6 +155,7 @@ public class ActiveTraceCodecV1 implements AgentStatCodec<ActiveTraceBo> {
         List<ActiveTraceBo> activeTraceBos = new ArrayList<>(numValues);
         for (int i = 0; i < numValues; ++i) {
             ActiveTraceBo activeTraceBo = new ActiveTraceBo();
+            activeTraceBo.setAgentId(agentId);
             activeTraceBo.setTimestamp(timestamps.get(i));
             activeTraceBo.setVersion(versions.get(i));
             activeTraceBo.setHistogramSchemaType(schemaTypes.get(i));

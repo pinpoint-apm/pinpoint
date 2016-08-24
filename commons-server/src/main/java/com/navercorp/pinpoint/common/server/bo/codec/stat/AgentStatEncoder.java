@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 
 import java.nio.ByteBuffer;
@@ -28,21 +26,18 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
-public abstract class AgentStatEncoder<T extends AgentStatDataPoint> {
+public class AgentStatEncoder<T extends AgentStatDataPoint> {
 
     private final AgentStatCodec<T> codec;
 
-    protected AgentStatEncoder(AgentStatCodec<T> codec) {
+    public AgentStatEncoder(AgentStatCodec<T> codec) {
         this.codec = codec;
     }
 
-    public ByteBuffer encodeQualifier(List<T> agentStatDataPoints) {
-        long initialTimestamp = agentStatDataPoints.get(0).getTimestamp();
-        long baseTimestamp = AgentStatUtils.getBaseTimestamp(initialTimestamp);
+    public ByteBuffer encodeQualifier(long timestampDelta) {
         // Variable-length encoding of 5 minutes (300000 ms) takes up max 3 bytes
-        Buffer qualifierBuffer = new FixedBuffer(3);
-        long deltaFromBaseTimestamp = initialTimestamp - baseTimestamp;
-        qualifierBuffer.putVLong(deltaFromBaseTimestamp);
+        Buffer qualifierBuffer = new AutomaticBuffer(3);
+        qualifierBuffer.putVLong(timestampDelta);
         return qualifierBuffer.wrapByteBuffer();
     }
 

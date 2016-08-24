@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo.codec.stat;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 
 import java.util.List;
@@ -24,25 +25,23 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
-public abstract class AgentStatDecoder<T extends AgentStatDataPoint> {
+public class AgentStatDecoder<T extends AgentStatDataPoint> {
 
     private final List<AgentStatCodec<T>> codecs;
 
-    protected AgentStatDecoder(List<AgentStatCodec<T>> codecs) {
+    public AgentStatDecoder(List<AgentStatCodec<T>> codecs) {
         this.codecs = codecs;
     }
 
-    public long decodeInitialTimestamp(long baseTimestamp, Buffer qualifierBuffer) {
-        long timestampDelta = qualifierBuffer.readVLong();
-        long initialTimestamp = baseTimestamp + timestampDelta;
-        return initialTimestamp;
+    public long decodeQualifier(Buffer qualifierBuffer) {
+        return qualifierBuffer.readVLong();
     }
 
-    public List<T> decodeDataPoints(long initialTimestamp, Buffer valueBuffer) {
+    public List<T> decodeValue(Buffer valueBuffer, AgentStatDecodingContext decodingContext) {
         byte version = valueBuffer.readByte();
         for (AgentStatCodec<T> codec : this.codecs) {
             if (version == codec.getVersion()) {
-                return codec.decodeValues(valueBuffer, initialTimestamp);
+                return codec.decodeValues(valueBuffer, decodingContext);
             }
         }
         throw new IllegalArgumentException("Unknown version : " + version);
