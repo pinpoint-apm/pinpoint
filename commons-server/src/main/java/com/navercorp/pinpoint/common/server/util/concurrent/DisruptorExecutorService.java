@@ -182,7 +182,7 @@ public class DisruptorExecutorService extends AbstractExecutorService {
         return false;
     }
 
-    private class RunnableExecuteHandler implements WorkHandler<RunnableEvent> {
+    private static class RunnableExecuteHandler implements WorkHandler<RunnableEvent> {
 
         @Override
         public void onEvent(RunnableEvent runnableEvent) throws Exception {
