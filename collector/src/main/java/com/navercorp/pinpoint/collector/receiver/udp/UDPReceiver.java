@@ -140,8 +140,6 @@ public class UDPReceiver implements DataReceiver {
         this.worker = createWorker(workerType, workerThreadSize, workerThreadQueueSize, receiverName + "-Worker");
         if (enableCollectorMetric) {
             this.worker = new MonitoredExecutorService(worker, metricRegistry, receiverName + "-Worker");
-        } else {
-            this.worker = worker;
         }
 
         final int packetPoolSize = getPacketPoolSize(workerThreadSize, workerThreadQueueSize);
