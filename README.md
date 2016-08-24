@@ -83,7 +83,7 @@ Pinpoint Version | Agent | Collector | Web
 1.0.x | 6+ | 6+ | 6+
 1.1.x | 6+ | 7+ | 7+
 1.5.x | 6+ | 7+ | 7+
-1.6.x | 6+ | 8+ | 8+
+1.6.x | 6+ | 7+ | 7+
 
 HBase compatibility table:
 
@@ -100,8 +100,8 @@ Agent Version | Collector 1.0.x | Collector 1.1.x | Collector 1.5.x | Collector 
 ------------- | --------------- | --------------- | --------------- | --------------- 
 1.0.x | yes | yes | yes | yes
 1.1.x | not tested | yes | yes | yes
-1.5.x | no | no | yes | Yes
-1.6.x | no | no | not tested | Yes
+1.5.x | no | no | yes | yes
+1.6.x | no | no | not tested | yes
 
 **Installation**
 
