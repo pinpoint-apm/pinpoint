@@ -103,11 +103,11 @@ public class CxfClientInvokeSyncMethodInterceptor implements AroundInterceptor {
     private Object[] getParameters(String operation, Object[] args) {
         Object[] orgParams = (args[2] == null) ? null : (Object[]) args[2];
         if (orgParams == null) {
-            return orgParams;
+            return null;
         }
 
         String[] hiddenParams = pluginConfig.getClientHiddenParams();
-        if(hiddenParams == null || hiddenParams.length == 0) {
+        if (hiddenParams == null || hiddenParams.length == 0) {
             return orgParams;
         }
         Object[] params = Arrays.copyOf(orgParams, orgParams.length);
@@ -115,7 +115,8 @@ public class CxfClientInvokeSyncMethodInterceptor implements AroundInterceptor {
             Matcher matcher = hiddenParamPattern.matcher(op);
             if (matcher.matches()) {
                 if (operation.equals(matcher.group(1))) {
-                    int idx = Integer.valueOf(matcher.group(2));
+                    String group = matcher.group(2);
+                    int idx = Integer.parseInt(group);
                     if (idx >= params.length) {
                         continue;
                     }
