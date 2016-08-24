@@ -20,6 +20,10 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderEncoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.UnsignedLongEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.StrategyAnalyzer;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
@@ -43,14 +47,10 @@ public class JvmGcCodecV1 implements AgentStatCodec<JvmGcBo> {
 
     private final AgentStatDataPointCodec codec;
 
-    private final HeaderCodecV1<Long> longHeaderCodec;
-
     @Autowired
-    public JvmGcCodecV1(AgentStatDataPointCodec codec, HeaderCodecV1<Long> longHeaderCodec) {
+    public JvmGcCodecV1(AgentStatDataPointCodec codec) {
         Assert.notNull(codec, "agentStatDataPointCodec must not be null");
-        Assert.notNull(longHeaderCodec, "longHeaderCodec must not be null");
         this.codec = codec;
-        this.longHeaderCodec = longHeaderCodec;
     }
 
     @Override
@@ -105,20 +105,15 @@ public class JvmGcCodecV1 implements AgentStatCodec<JvmGcBo> {
             StrategyAnalyzer<Long> gcOldCountStrategyAnalyzer,
             StrategyAnalyzer<Long> gcOldTimeStrategyAnalyzer) {
         // encode header
-        int header = 0;
-        int position = 0;
-        header = this.longHeaderCodec.encodeHeader(header, position, heapUsedStrategyAnalyzer.getBestStrategy());
-        position += this.longHeaderCodec.getHeaderBitSize();
-        header = this.longHeaderCodec.encodeHeader(header, position, heapMaxStrategyAnalyzer.getBestStrategy());
-        position += this.longHeaderCodec.getHeaderBitSize();
-        header = this.longHeaderCodec.encodeHeader(header, position, nonHeapUsedStrategyAnalyzer.getBestStrategy());
-        position += this.longHeaderCodec.getHeaderBitSize();
-        header = this.longHeaderCodec.encodeHeader(header, position, nonHeapMaxStrategyAnalyzer.getBestStrategy());
-        position += this.longHeaderCodec.getHeaderBitSize();
-        header = this.longHeaderCodec.encodeHeader(header, position, gcOldCountStrategyAnalyzer.getBestStrategy());
-        position += this.longHeaderCodec.getHeaderBitSize();
-        header = this.longHeaderCodec.encodeHeader(header, position, gcOldTimeStrategyAnalyzer.getBestStrategy());
-        valueBuffer.putVInt(header);
+        AgentStatHeaderEncoder headerEncoder = new BitCountingHeaderEncoder();
+        headerEncoder.addCode(heapUsedStrategyAnalyzer.getBestStrategy().getCode());
+        headerEncoder.addCode(heapMaxStrategyAnalyzer.getBestStrategy().getCode());
+        headerEncoder.addCode(nonHeapUsedStrategyAnalyzer.getBestStrategy().getCode());
+        headerEncoder.addCode(nonHeapMaxStrategyAnalyzer.getBestStrategy().getCode());
+        headerEncoder.addCode(gcOldCountStrategyAnalyzer.getBestStrategy().getCode());
+        headerEncoder.addCode(gcOldTimeStrategyAnalyzer.getBestStrategy().getCode());
+        final byte[] header = headerEncoder.getHeader();
+        valueBuffer.putPrefixedBytes(header);
         // encode values
         this.codec.encodeValues(valueBuffer, heapUsedStrategyAnalyzer.getBestStrategy(), heapUsedStrategyAnalyzer.getValues());
         this.codec.encodeValues(valueBuffer, heapMaxStrategyAnalyzer.getBestStrategy(), heapMaxStrategyAnalyzer.getValues());
@@ -140,19 +135,14 @@ public class JvmGcCodecV1 implements AgentStatCodec<JvmGcBo> {
         List<Long> timestamps = this.codec.decodeTimestamps(initialTimestamp, valueBuffer, numValues);
 
         // decode headers
-        int header = valueBuffer.readVInt();
-        int position = 0;
-        EncodingStrategy<Long> heapUsedEncodingStrategy = this.longHeaderCodec.decodeHeader(header, position);
-        position += this.longHeaderCodec.getHeaderBitSize();
-        EncodingStrategy<Long> heapMaxEncodingStrategy = this.longHeaderCodec.decodeHeader(header, position);
-        position += this.longHeaderCodec.getHeaderBitSize();
-        EncodingStrategy<Long> nonHeapUsedEncodingStrategy = this.longHeaderCodec.decodeHeader(header, position);
-        position += this.longHeaderCodec.getHeaderBitSize();
-        EncodingStrategy<Long> nonHeapMaxEncodingStrategy = this.longHeaderCodec.decodeHeader(header, position);
-        position += this.longHeaderCodec.getHeaderBitSize();
-        EncodingStrategy<Long> gcOldCountEncodingStrategy = this.longHeaderCodec.decodeHeader(header, position);
-        position += this.longHeaderCodec.getHeaderBitSize();
-        EncodingStrategy<Long> gcOldTimeEncodingStrategy = this.longHeaderCodec.decodeHeader(header, position);
+        final byte[] header = valueBuffer.readPrefixedBytes();
+        AgentStatHeaderDecoder headerDecoder = new BitCountingHeaderDecoder(header);
+        EncodingStrategy<Long> heapUsedEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
+        EncodingStrategy<Long> heapMaxEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
+        EncodingStrategy<Long> nonHeapUsedEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
+        EncodingStrategy<Long> nonHeapMaxEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
+        EncodingStrategy<Long> gcOldCountEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
+        EncodingStrategy<Long> gcOldTimeEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
         // decode values
         List<Long> heapUseds = this.codec.decodeValues(valueBuffer, heapUsedEncodingStrategy, numValues);
         List<Long> heapMaxes = this.codec.decodeValues(valueBuffer, heapMaxEncodingStrategy, numValues);

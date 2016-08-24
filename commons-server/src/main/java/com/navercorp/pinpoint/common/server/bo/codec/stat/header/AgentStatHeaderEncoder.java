@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.bo.codec.stat;
-
-import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
+package com.navercorp.pinpoint.common.server.bo.codec.stat.header;
 
 /**
  * @author HyunGil Jeong
  */
-public interface HeaderCodec<T> {
-    int getHeaderBitSize();
-    int encodeHeader(int header, int position, EncodingStrategy<T> strategy);
-    EncodingStrategy<T> decodeHeader(int header, int position);
+public interface AgentStatHeaderEncoder {
+    void addCode(int code);
+    byte[] getHeader();
 }

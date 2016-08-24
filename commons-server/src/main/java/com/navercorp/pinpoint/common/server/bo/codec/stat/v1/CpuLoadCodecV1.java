@@ -19,6 +19,10 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.v1;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderEncoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.UnsignedLongEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.StrategyAnalyzer;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
@@ -43,14 +47,11 @@ public class CpuLoadCodecV1 implements AgentStatCodec<CpuLoadBo> {
 
     private final AgentStatDataPointCodec codec;
 
-    private final HeaderCodecV1<Long> longHeaderCodec;
 
     @Autowired
-    public CpuLoadCodecV1(AgentStatDataPointCodec codec, HeaderCodecV1<Long> longHeaderCodec) {
+    public CpuLoadCodecV1(AgentStatDataPointCodec codec) {
         Assert.notNull(codec, "agentStatDataPointCodec must not be null");
-        Assert.notNull(longHeaderCodec, "longHeaderCodec must not be null");
         this.codec = codec;
-        this.longHeaderCodec = longHeaderCodec;
     }
 
     @Override
@@ -83,12 +84,11 @@ public class CpuLoadCodecV1 implements AgentStatCodec<CpuLoadBo> {
             StrategyAnalyzer<Long> jvmCpuLoadStrategyAnalyzer,
             StrategyAnalyzer<Long> systemCpuLoadStrategyAnalyzer) {
         // encode header
-        int header = 0;
-        int position = 0;
-        header = this.longHeaderCodec.encodeHeader(header, position, jvmCpuLoadStrategyAnalyzer.getBestStrategy());
-        position += this.longHeaderCodec.getHeaderBitSize();
-        header = this.longHeaderCodec.encodeHeader(header, position, systemCpuLoadStrategyAnalyzer.getBestStrategy());
-        valueBuffer.putVInt(header);
+        AgentStatHeaderEncoder headerEncoder = new BitCountingHeaderEncoder();
+        headerEncoder.addCode(jvmCpuLoadStrategyAnalyzer.getBestStrategy().getCode());
+        headerEncoder.addCode(systemCpuLoadStrategyAnalyzer.getBestStrategy().getCode());
+        final byte[] header = headerEncoder.getHeader();
+        valueBuffer.putPrefixedBytes(header);
         // encode values
         this.codec.encodeValues(valueBuffer, jvmCpuLoadStrategyAnalyzer.getBestStrategy(), jvmCpuLoadStrategyAnalyzer.getValues());
         this.codec.encodeValues(valueBuffer, systemCpuLoadStrategyAnalyzer.getBestStrategy(), systemCpuLoadStrategyAnalyzer.getValues());
@@ -102,15 +102,13 @@ public class CpuLoadCodecV1 implements AgentStatCodec<CpuLoadBo> {
         final long initialTimestamp = baseTimestamp + timestampDelta;
 
         int numValues = valueBuffer.readVInt();
-
         List<Long> timestamps = this.codec.decodeTimestamps(initialTimestamp, valueBuffer, numValues);
 
         // decode headers
-        int header = valueBuffer.readVInt();
-        int position = 0;
-        EncodingStrategy<Long> jvmCpuLoadEncodingStrategy = this.longHeaderCodec.decodeHeader(header, position);
-        position += this.longHeaderCodec.getHeaderBitSize();
-        EncodingStrategy<Long> systemCpuLoadEncodingStrategy = this.longHeaderCodec.decodeHeader(header, position);
+        final byte[] header = valueBuffer.readPrefixedBytes();
+        AgentStatHeaderDecoder headerDecoder = new BitCountingHeaderDecoder(header);
+        EncodingStrategy<Long> jvmCpuLoadEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
+        EncodingStrategy<Long> systemCpuLoadEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
         // decode values
         List<Long> jvmCpuLoads = this.codec.decodeValues(valueBuffer, jvmCpuLoadEncodingStrategy, numValues);
         List<Long> systemCpuLoads = this.codec.decodeValues(valueBuffer, systemCpuLoadEncodingStrategy, numValues);
