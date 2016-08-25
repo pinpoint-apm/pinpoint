@@ -53,7 +53,7 @@ public abstract class BasePinpointTest {
         for (TBase<?, ?> span : this.tBaseRecorder) {
             if (span instanceof SpanEvent) {
                 SpanEvent spanEvent = (SpanEvent)span;
-                SpanEventBo spanEventBo = spanFactory.buildSpanEventBo(spanEvent.getSpan(), spanEvent);
+                SpanEventBo spanEventBo = spanFactory.buildSpanEventBo(spanEvent);
                 spanEvents.add(spanEventBo);
             }
         }

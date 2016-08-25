@@ -92,9 +92,7 @@ public class SpanDecoder {
     }
 
     public SpanEventBo decodeSpanEventBo(Buffer qualifier, Buffer valueBuffer, SpanDecodingContext decodingContext) {
-        TransactionId transactionId = decodingContext.getTransactionId();
         SpanEventBo spanEventBo = new SpanEventBo();
-        spanEventBo.setTransactionId(transactionId);
 
         long spanId = qualifier.readLong();
         decodingContext.setSpanId(spanId);
@@ -112,7 +110,7 @@ public class SpanDecoder {
         spanEventBo.setAsyncId(asyncId);
         spanEventBo.setAsyncSequence(asyncSequence);
 
-        readSpanEvent(spanEventBo, valueBuffer);
+        readSpanEvent(spanEventBo, valueBuffer, decodingContext);
         if (logger.isDebugEnabled()) {
             logger.debug("read spanEvent :{}", spanEventBo);
         }
@@ -120,13 +118,13 @@ public class SpanDecoder {
     }
 
     // for test
-    int readSpanEvent(final SpanEventBo spanEvent, Buffer buffer) {
+    int readSpanEvent(final SpanEventBo spanEvent, Buffer buffer, SpanDecodingContext decodingContext) {
 
         spanEvent.setVersion(buffer.readByte());
 
-        spanEvent.setAgentId(buffer.readPrefixedString());
-        spanEvent.setApplicationId(buffer.readPrefixedString());
-        spanEvent.setAgentStartTime(buffer.readVLong());
+        decodingContext.setAgentId(buffer.readPrefixedString());
+        decodingContext.setApplicationId(buffer.readPrefixedString());
+        decodingContext.setAgentStartTime(buffer.readVLong());
 
         spanEvent.setStartElapsed(buffer.readVInt());
         spanEvent.setEndElapsed(buffer.readVInt());

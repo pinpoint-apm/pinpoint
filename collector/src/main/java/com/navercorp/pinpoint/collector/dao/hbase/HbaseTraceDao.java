@@ -138,7 +138,7 @@ public class HbaseTraceDao implements TraceDao {
         if (!spanEventFilter.filter(spanEventBo)) {
             return;
         }
-        SpanEventEncodingContext spanEventEncodingContext = new SpanEventEncodingContext(basicSpan.getSpanId(), spanEventBo);
+        SpanEventEncodingContext spanEventEncodingContext = new SpanEventEncodingContext(basicSpan, spanEventBo);
         this.spanEventSerializer.serialize(spanEventEncodingContext, put, null);
     }
 

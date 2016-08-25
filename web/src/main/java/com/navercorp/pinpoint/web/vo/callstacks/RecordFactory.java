@@ -70,7 +70,7 @@ public class RecordFactory {
                 align.getApplicationId(), 
                 registry.findServiceType(align.getServiceType()),
                 align.getDestinationId(), 
-                align.isHasChild(), 
+                align.hasChild(),
                 false, 
                 align.getTransactionId(), 
                 align.getSpanId(), 

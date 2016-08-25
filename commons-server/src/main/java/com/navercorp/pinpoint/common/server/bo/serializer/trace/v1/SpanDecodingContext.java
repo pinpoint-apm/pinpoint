@@ -7,10 +7,37 @@ import com.navercorp.pinpoint.common.util.TransactionId;
  */
 public class SpanDecodingContext {
 
+    private String agentId;
+    private String applicationId;
+    private long agentStartTime;
+
     private long spanId;
     private long collectorAcceptedTime;
     private TransactionId transactionId;
 
+    public String getAgentId() {
+        return agentId;
+    }
+
+    public void setAgentId(String agentId) {
+        this.agentId = agentId;
+    }
+
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
+    }
+
+    public long getAgentStartTime() {
+        return agentStartTime;
+    }
+
+    public void setAgentStartTime(long agentStartTime) {
+        this.agentStartTime = agentStartTime;
+    }
 
     public long getSpanId() {
         return spanId;
