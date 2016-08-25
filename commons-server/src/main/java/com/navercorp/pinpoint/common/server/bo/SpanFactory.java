@@ -53,7 +53,7 @@ public class SpanFactory {
         final SpanBo spanBo = newSpanBo(tSpan);
 
         List<TSpanEvent> spanEventList = tSpan.getSpanEventList();
-        List<SpanEventBo> spanEventBoList = buildSpanEventBoList(spanBo, spanEventList);
+        List<SpanEventBo> spanEventBoList = buildSpanEventBoList(spanEventList);
         spanBo.addSpanEventBoList(spanEventBoList);
 
         long acceptedTime = acceptedTimeService.getAcceptedTime();
@@ -117,28 +117,6 @@ public class SpanFactory {
     }
 
 
-    // for test
-    SpanEventBo newSpanEventBo(BasicSpan basicSpan, TSpanEvent tSpanEvent) {
-        if (basicSpan == null) {
-            throw new NullPointerException("basicSpan must not be null");
-        }
-        if (tSpanEvent == null) {
-            throw new NullPointerException("tSpanEvent must not be null");
-        }
-
-        final SpanEventBo spanEvent = new SpanEventBo();
-        spanEvent.setAgentId(basicSpan.getAgentId());
-        spanEvent.setApplicationId(basicSpan.getApplicationId());
-        spanEvent.setAgentStartTime(basicSpan.getAgentStartTime());
-//        spanEvent.setSpanId(basicSpan.getSpanId());
-
-        TransactionId transactionId = basicSpan.getTransactionId();
-        spanEvent.setTransactionId(transactionId);
-
-        bind(spanEvent, tSpanEvent);
-        return spanEvent;
-    }
-
     private void bind(SpanEventBo spanEvent, TSpanEvent tSpanEvent) {
 
         spanEvent.setSequence(tSpanEvent.getSequence());
@@ -190,7 +168,7 @@ public class SpanFactory {
         final SpanChunkBo spanChunkBo = newSpanChunkBo(tSpanChunk);
 
         List<TSpanEvent> spanEventList = tSpanChunk.getSpanEventList();
-        List<SpanEventBo> spanEventBoList = buildSpanEventBoList(spanChunkBo, spanEventList);
+        List<SpanEventBo> spanEventBoList = buildSpanEventBoList(spanEventList);
         spanChunkBo.addSpanEventBoList(spanEventBoList);
 
 
@@ -233,13 +211,13 @@ public class SpanFactory {
     }
 
 
-    private List<SpanEventBo> buildSpanEventBoList(BasicSpan basicSpan, List<TSpanEvent> spanEventList) {
+    private List<SpanEventBo> buildSpanEventBoList(List<TSpanEvent> spanEventList) {
         if (CollectionUtils.isEmpty(spanEventList)) {
             return new ArrayList<>();
         }
         List<SpanEventBo> spanEventBoList = new ArrayList<>(spanEventList.size());
         for (TSpanEvent tSpanEvent : spanEventList) {
-            final SpanEventBo spanEventBo = newSpanEventBo(basicSpan, tSpanEvent);
+            final SpanEventBo spanEventBo = buildSpanEventBo(tSpanEvent);
             if (!spanEventFilter.filter(spanEventBo)) {
                 continue;
             }
@@ -265,9 +243,14 @@ public class SpanFactory {
     }
 
     // for test
-    public SpanEventBo buildSpanEventBo(TSpan tSpan, TSpanEvent tSpanEvent) {
-        SpanBo spanBo = newSpanBo(tSpan);
-        return newSpanEventBo(spanBo, tSpanEvent);
+    public SpanEventBo buildSpanEventBo(TSpanEvent tSpanEvent) {
+        if (tSpanEvent == null) {
+            throw new NullPointerException("tSpanEvent must not be null");
+        }
+
+        final SpanEventBo spanEvent = new SpanEventBo();
+        bind(spanEvent, tSpanEvent);
+        return spanEvent;
     }
 
     private AnnotationBo newAnnotationBo(TAnnotation tAnnotation) {

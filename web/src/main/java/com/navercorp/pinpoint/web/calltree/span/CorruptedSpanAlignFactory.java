@@ -45,8 +45,6 @@ public class CorruptedSpanAlignFactory {
         missedEvent.setStartElapsed(spanEvent.getStartElapsed());
         missedEvent.setEndElapsed(spanEvent.getEndElapsed());
 
-        missedEvent.setAgentId(span.getAgentId());
-        missedEvent.setAgentStartTime(span.getAgentStartTime());
         missedEvent.setServiceType(ServiceType.COLLECTOR.getCode());
 
         List<AnnotationBo> annotations = new ArrayList<>();

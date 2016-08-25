@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -82,7 +83,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
         final Cell[] rawCells = result.rawCells();
 
-        ListMultimap<Long, SpanBo> spanMap = LinkedListMultimap.create();
+        ListMultimap<AgentKey, SpanBo> spanMap = LinkedListMultimap.create();
         List<SpanChunkBo> spanChunkList = new ArrayList<>();
 
         final SpanDecodingContext decodingContext = new SpanDecodingContext();
@@ -105,7 +106,8 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
                     if (logger.isDebugEnabled()) {
                         logger.debug("spanBo:{}", spanBo);
                     }
-                    spanMap.put(spanBo.getSpanId(), spanBo);
+                    AgentKey agentKey = newAgentKey(spanBo);
+                    spanMap.put(agentKey, spanBo);
                 } else if (decodeObject instanceof SpanChunkBo) {
                     SpanChunkBo spanChunkBo = (SpanChunkBo) decodeObject;
                     if (logger.isDebugEnabled()) {
@@ -144,33 +146,24 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
     }
 
 
-    private List<SpanBo> buildSpanBoList(ListMultimap<Long, SpanBo> spanMap, List<SpanChunkBo> spanChunkList) {
+    private List<SpanBo> buildSpanBoList(ListMultimap<AgentKey, SpanBo> spanMap, List<SpanChunkBo> spanChunkList) {
         List<SpanBo> spanBoList = bindSpanChunk(spanMap, spanChunkList);
-        bindAgentInfo(spanBoList);
+        sortSpanEvent(spanBoList);
         return spanBoList;
     }
 
 
-    private void bindAgentInfo(List<SpanBo> spanBoList) {
-        // TODO workaround. fix class dependency
+    private void sortSpanEvent(List<SpanBo> spanBoList) {
         for (SpanBo spanBo : spanBoList) {
             List<SpanEventBo> spanEventBoList = spanBo.getSpanEventBoList();
             Collections.sort(spanEventBoList, SpanEventComparator.INSTANCE);
-
-            for (SpanEventBo spanEventBo : spanEventBoList) {
-                spanEventBo.setAgentId(spanBo.getAgentId());
-                spanEventBo.setApplicationId(spanBo.getApplicationId());
-                spanEventBo.setAgentStartTime(spanBo.getAgentStartTime());
-
-                spanEventBo.setTransactionId(spanBo.getTransactionId());
-            }
         }
     }
 
-    private List<SpanBo> bindSpanChunk(ListMultimap<Long, SpanBo> spanMap, List<SpanChunkBo> spanChunkList) {
+    private List<SpanBo> bindSpanChunk(ListMultimap<AgentKey, SpanBo> spanMap, List<SpanChunkBo> spanChunkList) {
         for (SpanChunkBo spanChunkBo : spanChunkList) {
-            final Long spanId = spanChunkBo.getSpanId();
-            List<SpanBo> matchedSpanBoList = spanMap.get(spanId);
+            AgentKey agentKey = newAgentKey(spanChunkBo);
+            List<SpanBo> matchedSpanBoList = spanMap.get(agentKey);
             if (matchedSpanBoList != null) {
                 final int spanIdCollisionSize = matchedSpanBoList.size();
                 if (spanIdCollisionSize > 1) {
@@ -191,10 +184,68 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
                 }
             } else {
                 if (logger.isInfoEnabled()) {
-                    logger.info("Span not exist spanId:{} spanChunk:{}", spanId, spanChunkBo);
+                    logger.info("Span not exist spanId:{} spanChunk:{}", agentKey, spanChunkBo);
                 }
             }
         }
         return Lists.newArrayList(spanMap.values());
+    }
+
+    private AgentKey newAgentKey(BasicSpan basicSpan) {
+        return new AgentKey(basicSpan.getApplicationId(), basicSpan.getAgentId(), basicSpan.getAgentStartTime(), basicSpan.getSpanId());
+    }
+
+    public static class AgentKey {
+        private final long spanId;
+        private final String applicationId;
+        private final String agentId;
+        private final long agentStartTime;
+
+
+        public AgentKey(String applicationId, String agentId, long agentStartTime, long spanId) {
+            if (applicationId == null) {
+                throw new NullPointerException("applicationId must not be null");
+            }
+            if (agentId == null) {
+                throw new NullPointerException("agentId must not be null");
+            }
+            this.applicationId = applicationId;
+            this.agentId = agentId;
+            this.agentStartTime = agentStartTime;
+            this.spanId = spanId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            AgentKey agentKey = (AgentKey) o;
+
+            if (spanId != agentKey.spanId) return false;
+            if (agentStartTime != agentKey.agentStartTime) return false;
+            if (!applicationId.equals(agentKey.applicationId)) return false;
+            return agentId.equals(agentKey.agentId);
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = (int) (spanId ^ (spanId >>> 32));
+            result = 31 * result + applicationId.hashCode();
+            result = 31 * result + agentId.hashCode();
+            result = 31 * result + (int) (agentStartTime ^ (agentStartTime >>> 32));
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "AgentKey{" +
+                    "spanId=" + spanId +
+                    ", applicationId='" + applicationId + '\'' +
+                    ", agentId='" + agentId + '\'' +
+                    ", agentStartTime=" + agentStartTime +
+                    '}';
+        }
     }
 }
