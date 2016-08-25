@@ -191,7 +191,11 @@
 	                 * @returns {*}
 	                 */
 	                execTimeFormatter = function (row, cell, value, columnDef, dataContext) {
-	                    return CommonUtilService.formatDate( value, "HH:mm:ss SSS");
+	                	if ( angular.isUndefined( value ) || value === null ) {
+	                		return "";
+						} else {
+							return CommonUtilService.formatDate(value, "HH:mm:ss SSS");
+						}
 	                };
 	
 	                /**
