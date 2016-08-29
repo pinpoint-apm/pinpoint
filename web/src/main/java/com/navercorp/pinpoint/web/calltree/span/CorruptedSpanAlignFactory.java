@@ -21,10 +21,10 @@ import java.util.List;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.MethodType;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 
@@ -52,7 +52,7 @@ public class CorruptedSpanAlignFactory {
         ApiMetaDataBo apiMetaData = new ApiMetaDataBo();
         apiMetaData.setLineNumber(-1);
         apiMetaData.setApiInfo("...");
-        apiMetaData.setType(MethodType.CORRUPTED);
+        apiMetaData.setMethodTypeEnum(MethodTypeEnum.CORRUPTED);
 
         final AnnotationBo apiMetaDataAnnotation = new AnnotationBo();
         apiMetaDataAnnotation.setKey(AnnotationKey.API_METADATA.getCode());
@@ -64,7 +64,7 @@ public class CorruptedSpanAlignFactory {
         if (System.currentTimeMillis() - span.getStartTime() < timeoutMillisec) {
             argumentAnnotation.setValue("Corrupted(waiting for packet) ");
         } else {
-            if(title != null) {
+            if (title != null) {
                 argumentAnnotation.setValue("Corrupted(" + title + ")");
             } else {
                 argumentAnnotation.setValue("Corrupted");

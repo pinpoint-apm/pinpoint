@@ -21,10 +21,11 @@ import java.util.List;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
+import com.navercorp.pinpoint.common.server.util.AnnotationUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.DefaultSqlParser;
@@ -236,6 +237,23 @@ public class SpanServiceImpl implements SpanService {
             public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
 
                 final int apiId = spanAlign.getApiId();
+                if (apiId == 0) {
+                    String apiString = AnnotationUtils.findApiAnnotation(annotationBoList);
+                    // annotation base api
+                    if (apiString != null) {
+                        ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(spanAlign.getAgentId(), spanAlign.getStartTime(), apiId);
+                        apiMetaDataBo.setApiInfo(apiString);
+                        apiMetaDataBo.setLineNumber(-1);
+                        apiMetaDataBo.setMethodTypeEnum(MethodTypeEnum.DEFAULT);
+
+                        AnnotationBo apiAnnotation = new AnnotationBo();
+                        apiAnnotation.setKey(AnnotationKey.API_METADATA.getCode());
+                        apiAnnotation.setValue(apiMetaDataBo);
+                        annotationBoList.add(apiAnnotation);
+                        return;
+                    }
+                }
+
                 // may be able to get a more accurate data using agentIdentifier.
                 List<ApiMetaDataBo> apiMetaDataList = apiMetaDataDao.getApiMetaData(spanAlign.getAgentId(), spanAlign.getAgentStartTime(), apiId);
                 int size = apiMetaDataList.size();
@@ -251,7 +269,8 @@ public class SpanServiceImpl implements SpanService {
                     apiMetaData.setValue(apiMetaDataBo);
                     annotationBoList.add(apiMetaData);
 
-                    if (apiMetaDataBo.getType() == 0) {
+                    if (apiMetaDataBo.getMethodTypeEnum() == MethodTypeEnum.DEFAULT) {
+
                         AnnotationBo apiAnnotation = new AnnotationBo();
                         apiAnnotation.setKey(AnnotationKey.API.getCode());
                         String apiInfo = getApiInfo(apiMetaDataBo);

@@ -121,7 +121,7 @@ public interface AnnotationKey {
 //    API_DID(10, "API-DID"),
 //    @Deprecated  // you should remove static API code. Use only API-DID. dump by int
 //    API_ID(11, "API-ID"),
-    // used for developing the annotation that dumps api by string. you also consider to remove it later.
+    // Dump api by string.
     AnnotationKey API = AnnotationKeyFactory.of(12, "API");
     AnnotationKey API_METADATA = AnnotationKeyFactory.of(13, "API-METADATA");
     AnnotationKey RETURN_DATA = AnnotationKeyFactory.of(14, "RETURN_DATA", VIEW_IN_RECORD_SET);
