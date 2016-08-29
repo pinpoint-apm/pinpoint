@@ -475,7 +475,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
     private Class addInterceptor(final int interceptorId, final String targetClassName, final Class<?> interceptorClass) {
         final InterceptorDefinition interceptorDefinition = new InterceptorDefinitionFactory().createInterceptorDefinition(interceptorClass);
         try {
-            classLoader.setTrace(true);
+            classLoader.setTrace(false);
             classLoader.setVerify(false);
             classLoader.setTargetClassName(targetClassName);
             classLoader.setCallbackHandler(new ASMClassNodeLoader.CallbackHandler() {

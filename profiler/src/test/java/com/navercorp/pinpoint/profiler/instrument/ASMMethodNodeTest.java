@@ -95,8 +95,8 @@ public class ASMMethodNodeTest {
 
         ASMClassNodeLoader.TestClassLoader classLoader = ASMClassNodeLoader.getClassLoader();
 
-        classLoader.setTrace(true);
-        classLoader.setVerify(true);
+        classLoader.setTrace(false);
+        classLoader.setVerify(false);
         classLoader.setTargetClassName(targetClassName);
         classLoader.setCallbackHandler(new ASMClassNodeLoader.CallbackHandler() {
             @Override
