@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.instrument.aspect;
 import com.navercorp.pinpoint.bootstrap.instrument.aspect.Aspect;
 import com.navercorp.pinpoint.bootstrap.instrument.aspect.JointPoint;
 import com.navercorp.pinpoint.bootstrap.instrument.aspect.PointCut;
+import com.navercorp.pinpoint.profiler.instrument.MethodNameReplacer;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.CodeBuilder;
 
 import javassist.*;
@@ -224,10 +225,6 @@ public class AspectWeaverClass {
             }
         }
         return annotationList;
-    }
-
-    public interface MethodNameReplacer {
-        String replaceMethodName(String methodName);
     }
 
     public static class DefaultMethodNameReplacer implements MethodNameReplacer {

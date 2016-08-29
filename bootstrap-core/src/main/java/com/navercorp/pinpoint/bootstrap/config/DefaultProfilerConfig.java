@@ -86,6 +86,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private boolean profileEnable = false;
 
+    private boolean profileInstrumentASM = false;
+
     private int interceptorRegistrySize = 1024*8;
 
     private String collectorSpanServerIp = DEFAULT_IP;
@@ -564,12 +566,18 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return propagateInterceptorException;
     }
 
+    @Override
+    public boolean isProfileInstrumentASM() {
+        return profileInstrumentASM;
+    }
+
     // for test
     void readPropertyValues() {
         // TODO : use Properties' default value instead of using a temp variable.
         final ValueResolver placeHolderResolver = new PlaceHolderResolver();
 
         this.profileEnable = readBoolean("profiler.enable", true);
+        this.profileInstrumentASM = readBoolean("profiler.instrument.asm", false);
 
         this.interceptorRegistrySize = readInt("profiler.interceptorregistry.size", 1024*8);
 
