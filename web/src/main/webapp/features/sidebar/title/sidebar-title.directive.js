@@ -66,7 +66,7 @@
 						scope.serverCount = 0;
 						scope.errorServerCount = 0;
 						var p, p2;
-						if ( htLastNode.isAuthorized === false ) {
+						if ( angular.isUndefined( htLastNode.isAuthorized ) || htLastNode.isAuthorized === false ) {
 							scope.showServerListHtml = false;
 						} else {
 							if (htLastNode.sourceHistogram) {
