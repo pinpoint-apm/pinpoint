@@ -254,7 +254,7 @@ public class TransactionInfoViewModel {
                 executionMilliseconds = String.valueOf(record.getExecutionMilliseconds());
             }
             simpleClassName = record.getSimpleClassName();
-            methodType = String.valueOf(record.getMethodType());
+            methodType = String.valueOf(record.getMethodTypeEnum().getCode());
             apiType = record.getApiType();
             agent = record.getAgent();
             isFocused = record.isFocused();
