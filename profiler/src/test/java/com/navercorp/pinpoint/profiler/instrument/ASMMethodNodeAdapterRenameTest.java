@@ -37,7 +37,7 @@ public class ASMMethodNodeAdapterRenameTest {
     @Test
     public void rename() throws Exception {
         final String targetClassName = "com.navercorp.pinpoint.profiler.instrument.mock.NormalClass";
-        classLoader.setTrace(true);
+        classLoader.setTrace(false);
         classLoader.setTargetClassName(targetClassName);
         classLoader.setCallbackHandler(new ASMClassNodeLoader.CallbackHandler() {
             @Override

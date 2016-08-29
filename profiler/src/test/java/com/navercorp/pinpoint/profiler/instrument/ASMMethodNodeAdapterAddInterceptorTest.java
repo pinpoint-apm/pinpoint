@@ -24,8 +24,9 @@ import com.navercorp.pinpoint.profiler.instrument.mock.BaseEnum;
 import com.navercorp.pinpoint.profiler.instrument.mock.BasicInterceptor;
 import com.navercorp.pinpoint.profiler.instrument.mock.ExceptionInterceptor;
 import com.navercorp.pinpoint.profiler.instrument.mock.StaticInterceptor;
-import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.test.TestInterceptorRegistryBinder;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,24 +37,27 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 public class ASMMethodNodeAdapterAddInterceptorTest {
-    private final static InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
+    private final static InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
     private ASMClassNodeLoader.TestClassLoader classLoader;
 
     @BeforeClass
     public static void beforeClass() {
         interceptorRegistryBinder.bind();
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        interceptorRegistryBinder.unbind();
     }
 
     @Before
@@ -471,7 +475,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
     private Class addInterceptor(final int interceptorId, final String targetClassName, final Class<?> interceptorClass) {
         final InterceptorDefinition interceptorDefinition = new InterceptorDefinitionFactory().createInterceptorDefinition(interceptorClass);
         try {
-            classLoader.setTrace(true);
+            classLoader.setTrace(false);
             classLoader.setVerify(false);
             classLoader.setTargetClassName(targetClassName);
             classLoader.setCallbackHandler(new ASMClassNodeLoader.CallbackHandler() {
