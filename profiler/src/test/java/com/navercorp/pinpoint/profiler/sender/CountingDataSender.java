@@ -16,15 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.thrift.TBase;
+
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
-
-import org.apache.thrift.TBase;
-
-import java.util.concurrent.atomic.AtomicInteger;
+import com.navercorp.pinpoint.thrift.dto.TSpanAndSpanChunkList;
 
 /**
  * @author emeroad
@@ -38,6 +39,7 @@ public class CountingDataSender implements EnhancedDataSender {
 
     private final AtomicInteger spanCounter = new AtomicInteger();
     private final AtomicInteger spanChunkCounter = new AtomicInteger();
+    private final AtomicInteger spanAndSpanChunkListCounter = new AtomicInteger();
 
 
     @Override
@@ -74,6 +76,8 @@ public class CountingDataSender implements EnhancedDataSender {
             this.spanCounter.incrementAndGet();
         } else if (data instanceof SpanChunk) {
             this.spanChunkCounter.incrementAndGet();
+        } else if (data instanceof TSpanAndSpanChunkList) {
+            this.spanAndSpanChunkListCounter.incrementAndGet();
         }
         return false;
     }
@@ -112,6 +116,10 @@ public class CountingDataSender implements EnhancedDataSender {
         return spanCounter.get();
     }
 
+    public int getSpanAndSpanChunkListCounter() {
+        return spanAndSpanChunkListCounter.get();
+    }
+
     public int getTotalCount() {
         return requestCounter.get() + requestRetryCounter.get() + requestResponseListenerCounter.get() + senderCounter.get();
     }
@@ -125,6 +133,7 @@ public class CountingDataSender implements EnhancedDataSender {
                 ", senderCounter=" + senderCounter +
                 ", spanCounter=" + spanCounter +
                 ", spanChunkCounter=" + spanChunkCounter +
+                ", spanAndSpanChunkListCounter=" + spanAndSpanChunkListCounter +
                 '}';
     }
 }

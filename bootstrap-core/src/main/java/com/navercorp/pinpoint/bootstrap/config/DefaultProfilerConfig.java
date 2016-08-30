@@ -16,11 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
-import com.navercorp.pinpoint.bootstrap.logging.JavaLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
-import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
-import com.navercorp.pinpoint.common.util.PropertyUtils;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
@@ -32,6 +27,11 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+
+import com.navercorp.pinpoint.bootstrap.logging.JavaLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
+import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
+import com.navercorp.pinpoint.common.util.PropertyUtils;
 
 /**
  * @author emeroad
@@ -172,6 +172,15 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     // span buffering
     private boolean ioBufferingEnable;
     private int ioBufferingBufferSize;
+
+    private final boolean DEFAULT_GLOBAL_STORAGE_ENABLE = false;
+    private boolean ioGlobalStorageEnable = DEFAULT_GLOBAL_STORAGE_ENABLE;
+    public static final int DEFAULT_GLOBAL_STORAGE_BUFFER_SIZE = 20;
+    private int ioGlobalStorageBufferSize = DEFAULT_GLOBAL_STORAGE_BUFFER_SIZE;
+    private final int DEFAULT_GLOBAL_STORAGE_USE_UPPER_LIMIT_PERCENT = 50;
+    private int ioGlobalStorageUseUpperLimitPercent = DEFAULT_GLOBAL_STORAGE_USE_UPPER_LIMIT_PERCENT;
+    private final long DEFAULT_GLOBAL_STORAGE_FLUSH_INTERVAL = 100;
+    private long ioGlobalStorageFlushInterval = DEFAULT_GLOBAL_STORAGE_FLUSH_INTERVAL;
 
     private int profileJvmCollectInterval;
     private String profileJvmVendorName;
@@ -336,6 +345,25 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public int getIoBufferingBufferSize() {
         return ioBufferingBufferSize;
+    }
+
+    @Override
+    public boolean isIoGlobalStorageEnable() {
+        return ioGlobalStorageEnable;
+    }
+
+    @Override
+    public int getIoGlobalStorageBufferSize() {
+        return ioGlobalStorageBufferSize;
+    }
+
+    public int getIoGlobalStorageUseUpperLimitPercent() {
+        return ioGlobalStorageUseUpperLimitPercent;
+    }
+
+    @Override
+    public long getIoGlobalStorageFlushInterval() {
+        return ioGlobalStorageFlushInterval;
     }
 
     @Override
@@ -688,6 +716,15 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         // it may be a problem to be here.  need to modify(delete or move or .. )  this configuration.
         this.ioBufferingBufferSize = readInt("profiler.io.buffering.buffersize", 20);
 
+        this.ioGlobalStorageEnable = readBoolean("profiler.io.globalstorage.enable", DEFAULT_GLOBAL_STORAGE_ENABLE);
+        this.ioGlobalStorageFlushInterval = readLong("profiler.io.globalstorage.flush.interval", DEFAULT_GLOBAL_STORAGE_FLUSH_INTERVAL);
+        if (ioBufferingEnable && ioBufferingBufferSize > 0) {
+            this.ioGlobalStorageBufferSize = readInt("profiler.io.globalstorage.flush.buffersize", ioBufferingBufferSize);
+        } else {
+            this.ioGlobalStorageBufferSize = readInt("profiler.io.globalstorage.flush.buffersize", DEFAULT_GLOBAL_STORAGE_BUFFER_SIZE);
+        }
+        this.ioGlobalStorageUseUpperLimitPercent = readInt("profiler.io.globalstorage.use.upperlimit.percent", DEFAULT_GLOBAL_STORAGE_USE_UPPER_LIMIT_PERCENT);
+
         // JVM
         this.profileJvmCollectInterval = readInt("profiler.jvm.collect.interval", 1000);
         this.profileJvmVendorName = readString("profiler.jvm.vendor.name", null);
@@ -930,6 +967,14 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append(ioBufferingEnable);
         builder.append(", ioBufferingBufferSize=");
         builder.append(ioBufferingBufferSize);
+        builder.append(", ioGlobalStorageEnable=");
+        builder.append(ioGlobalStorageEnable);
+        builder.append(", ioGlobalStorageFlushInterval=");
+        builder.append(ioGlobalStorageFlushInterval);
+        builder.append(", ioGlobalStorageBufferSize=");
+        builder.append(ioGlobalStorageBufferSize);
+        builder.append(", ioGlobalStorageUseUpperLimitPercent=");
+        builder.append(ioGlobalStorageUseUpperLimitPercent + "%");
         builder.append(", profileJvmCollectInterval=");
         builder.append(profileJvmCollectInterval);
         builder.append(", profilableClassFilter=");

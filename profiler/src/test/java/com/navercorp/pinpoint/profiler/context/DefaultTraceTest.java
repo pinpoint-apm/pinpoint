@@ -16,14 +16,15 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.profiler.context.DefaultTrace;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
+import com.navercorp.pinpoint.profiler.context.storage.flush.RemoteFlusher;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
 import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
 import com.navercorp.pinpoint.test.TestAgentInformation;
-
-import org.junit.*;
 
 /**
  * @author emeroad
@@ -46,7 +47,8 @@ public class DefaultTraceTest {
         DefaultTraceContext defaultTraceContext = new DefaultTraceContext(new TestAgentInformation());
         DefaultTrace trace = new DefaultTrace(defaultTraceContext, 1, true);
 
-        trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
+        RemoteFlusher remoteFlusher = new RemoteFlusher(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER);
+        trace.setStorage(new SpanStorage(remoteFlusher));
 
         trace.traceBlockBegin();
         trace.traceBlockBegin();

@@ -22,7 +22,7 @@ import java.util.Iterator;
 /**
  * @author emeroad
  */
-class UnsafeArrayCollection<E> extends AbstractCollection<E> {
+public class UnsafeArrayCollection<E> extends AbstractCollection<E> {
 
     private int size = 0;
     private final Object[] array;
