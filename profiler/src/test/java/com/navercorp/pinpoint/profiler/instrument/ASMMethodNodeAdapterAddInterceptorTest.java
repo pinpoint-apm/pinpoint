@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.test.TestInterceptorRegistryBinder;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -89,6 +90,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         addInterceptor(interceptorId, BasicInterceptor.class);
     }
 
+    @Ignore
     @Test
     public void addExceptionInterceptor() throws Exception {
         ExceptionHandleAroundInterceptor interceptor = new ExceptionHandleAroundInterceptor(new ExceptionInterceptor());
