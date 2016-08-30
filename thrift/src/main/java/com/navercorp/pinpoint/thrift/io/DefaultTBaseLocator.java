@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanAndSpanChunkList;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
@@ -59,7 +60,10 @@ class DefaultTBaseLocator implements TBaseLocator {
 
     private static final short SPANEVENT = 80;
     private static final Header SPANEVENT_HEADER = createHeader(SPANEVENT);
-    
+
+    private static final short SPAN_AND_SPANCHUNK_LIST = 90;
+    private static final Header SPAN_AND_SPANCHUNK_LIST_HEADER = createHeader(SPAN_AND_SPANCHUNK_LIST);
+
     private static final short SQLMETADATA = 300;
     private static final Header SQLMETADATA_HEADER = createHeader(SQLMETADATA);
 
@@ -88,6 +92,8 @@ class DefaultTBaseLocator implements TBaseLocator {
                 return new TAgentStatBatch();
             case SPANCHUNK:
                 return new TSpanChunk();
+            case SPAN_AND_SPANCHUNK_LIST:
+                return new TSpanAndSpanChunkList();
             case SPANEVENT:
                 return new TSpanEvent();
             case SQLMETADATA:
@@ -113,6 +119,9 @@ class DefaultTBaseLocator implements TBaseLocator {
         }
         if (tbase instanceof TSpanChunk) {
             return SPANCHUNK_HEADER;
+        }
+        if (tbase instanceof TSpanAndSpanChunkList) {
+            return SPAN_AND_SPANCHUNK_LIST_HEADER;
         }
         if (tbase instanceof TSpanEvent) {
             return SPANEVENT_HEADER;
@@ -163,6 +172,9 @@ class DefaultTBaseLocator implements TBaseLocator {
             return true;
         }
         if (clazz.equals(TSpanChunk.class)) {
+            return true;
+        }
+        if (clazz.equals(TSpanAndSpanChunkList.class)) {
             return true;
         }
         if (clazz.equals(TAgentInfo.class)) {

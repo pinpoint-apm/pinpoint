@@ -16,24 +16,35 @@
 
 package com.navercorp.pinpoint.profiler.context.storage;
 
-import com.navercorp.pinpoint.profiler.sender.DataSender;
+import com.navercorp.pinpoint.profiler.context.storage.flush.StorageFlusher;
 
 /**
  * @author emeroad
+ * @author Taejin Koo
  */
 public class SpanStorageFactory implements StorageFactory {
 
-    protected final DataSender dataSender;
 
-    public SpanStorageFactory(DataSender dataSender) {
-        if (dataSender == null) {
-            throw new NullPointerException("dataSender must not be null");
+    protected final StorageFlusher flusher;
+
+    public SpanStorageFactory(StorageFlusher flusher) {
+        if (flusher == null) {
+            throw new NullPointerException("flusher must not be null");
         }
-        this.dataSender = dataSender;
+
+        this.flusher = flusher;
     }
 
     @Override
     public Storage createStorage() {
-        return new SpanStorage(this.dataSender);
+        return new SpanStorage(flusher);
     }
+
+    @Override
+    public String toString() {
+        return "SpanStorageFactory{" +
+                "flusher=" + flusher +
+                '}';
+    }
+
 }

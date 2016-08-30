@@ -16,14 +16,17 @@
 
 package com.navercorp.pinpoint.profiler.context.storage;
 
-import com.navercorp.pinpoint.profiler.context.*;
-import com.navercorp.pinpoint.profiler.sender.DataSender;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.SpanChunk;
+import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
+import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.storage.flush.StorageFlusher;
 
 /**
  * @author emeroad
@@ -38,21 +41,22 @@ public class BufferedStorage implements Storage {
     private final int bufferSize;
 
     private List<SpanEvent> storage;
-    private final DataSender dataSender;
+
+    private final StorageFlusher flusher;
     private final SpanChunkFactory spanChunkFactory;
 
-    public BufferedStorage(DataSender dataSender, SpanChunkFactory spanChunkFactory) {
-        this(dataSender, spanChunkFactory, DEFAULT_BUFFER_SIZE);
+    public BufferedStorage(StorageFlusher flusher, SpanChunkFactory spanChunkFactory) {
+        this(flusher, spanChunkFactory, DEFAULT_BUFFER_SIZE);
     }
 
-    public BufferedStorage(DataSender dataSender, SpanChunkFactory spanChunkFactory, int bufferSize) {
-        if (dataSender == null) {
-            throw new NullPointerException("dataSender must not be null");
+    public BufferedStorage(StorageFlusher flusher, SpanChunkFactory spanChunkFactory, int bufferSize) {
+        if (flusher == null) {
+            throw new NullPointerException("flusher must not be null");
         }
         if (spanChunkFactory == null) {
             throw new NullPointerException("spanChunkFactory must not be null");
         }
-        this.dataSender = dataSender;
+        this.flusher = flusher;
         this.spanChunkFactory = spanChunkFactory;
         this.bufferSize = bufferSize;
         this.storage = new ArrayList<SpanEvent>(bufferSize);
@@ -73,7 +77,7 @@ public class BufferedStorage implements Storage {
             if (isDebug) {
                 logger.debug("[BufferedStorage] Flush span-chunk {}", spanChunk);
             }
-            dataSender.send(spanChunk);
+            flusher.flush(spanChunk);
         }
     }
 
@@ -86,7 +90,7 @@ public class BufferedStorage implements Storage {
         if (spanEventList != null && !spanEventList.isEmpty()) {
             span.setSpanEventList((List) spanEventList);
         }
-        dataSender.send(span);
+        flusher.flush(span);
 
         if (isDebug) {
             logger.debug("[BufferedStorage] Flush span {}", span);
@@ -100,7 +104,7 @@ public class BufferedStorage implements Storage {
 
         if (spanEventList != null && !spanEventList.isEmpty()) {
             final SpanChunk spanChunk = spanChunkFactory.create(spanEventList);
-            dataSender.send(spanChunk);
+            flusher.flush(spanChunk);
             if (isDebug) {
                 logger.debug("flush span chunk {}", spanChunk);
             }
@@ -113,6 +117,7 @@ public class BufferedStorage implements Storage {
 
     @Override
     public String toString() {
-        return "BufferedStorage{" + "bufferSize=" + bufferSize + ", dataSender=" + dataSender + '}';
+        return "BufferedStorage{" + "bufferSize=" + bufferSize + ", flusher=" + flusher + '}';
     }
+
 }

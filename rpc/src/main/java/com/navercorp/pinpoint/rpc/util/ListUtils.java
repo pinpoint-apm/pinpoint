@@ -26,6 +26,13 @@ public final class ListUtils {
     private ListUtils() {
     }
 
+    public static int size(List list) {
+        if (list == null) {
+            return 0;
+        }
+        return list.size();
+    }
+
     public static boolean isEmpty(List list) {
         if (list == null || list.isEmpty()) {
             return true;
@@ -41,42 +48,42 @@ public final class ListUtils {
 
         return list.add(value);
     }
-    
+
     public static <V> boolean addAllIfAllValuesNotNull(List<V> list, V[] values) {
         if (values == null) {
             return false;
         }
-        
+
         for (V value : values) {
             if (value == null) {
                 return false;
             }
         }
-        
+
         for (V value : values) {
             list.add(value);
         }
-        
+
         return true;
     }
-    
+
     public static <V> void addAllExceptNullValue(List<V> list, V[] values) {
         if (values == null) {
             return;
         }
-        
+
         for (V value : values) {
             addIfValueNotNull(list, value);
         }
     }
-    
+
     public static <V> V getFirst(List<V> list) {
         return getFirst(list, null);
     }
 
     public static <V> V getFirst(List<V> list, V defaultValue) {
         int size = list.size();
-        
+
         if (size > 0) {
             return list.get(0);
         } else {
@@ -88,7 +95,7 @@ public final class ListUtils {
         V first = getFirst(list);
         return first.equals(object);
     }
-    
+
     public static <V> V get(List<V> list, int index, V defaultValue) {
         try {
             return list.get(index);
@@ -101,10 +108,10 @@ public final class ListUtils {
     public static <V> V getLast(List<V> list) {
         return getLast(list, null);
     }
-    
+
     public static <V> V getLast(List<V> list, V defaultValue) {
         int size = list.size();
-        
+
         if (size > 0) {
             return list.get(size - 1);
         } else {
@@ -116,5 +123,5 @@ public final class ListUtils {
         V last = getLast(list);
         return last.equals(object);
     }
-    
+
 }

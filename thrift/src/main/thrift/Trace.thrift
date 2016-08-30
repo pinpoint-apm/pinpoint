@@ -126,6 +126,10 @@ struct TSpanChunk {
   11: optional i16 applicationServiceType
 }
 
+struct TSpanAndSpanChunkList {
+  1: optional list<TSpan> spanList
+  2: optional list<TSpanChunk> spanChunkList
+}
 
 struct TStringMetaData {
 
