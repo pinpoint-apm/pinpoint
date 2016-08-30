@@ -81,6 +81,20 @@ public class PinpointBootStrap {
         }
         logger.info("load pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar :" + bootStrapCoreJar);
         instrumentation.appendToBootstrapClassLoaderSearch(bootStrapCoreJarFile);
+
+        // 3rd find boot-strap-core-optional.jar
+        final String bootStrapCoreOptionalJar = classPathResolver.getBootStrapCoreOptionalJar();
+        if (bootStrapCoreOptionalJar == null) {
+            logger.info("pinpoint-bootstrap-core-optional-x.x.x(-SNAPSHOT).jar not found");
+        } else {
+            JarFile bootStrapCoreOptionalJarFile = getBootStrapCoreOptionalJarFile(bootStrapCoreOptionalJar);
+            if (bootStrapCoreOptionalJarFile == null) {
+                logger.info("pinpoint-bootstrap-core-optional-x.x.x(-SNAPSHOT).jar not found");
+            } else {
+                logger.info("load pinpoint-bootstrap-core-optional-x.x.x(-SNAPSHOT).jar : " + bootStrapCoreOptionalJar);
+                instrumentation.appendToBootstrapClassLoaderSearch(bootStrapCoreOptionalJarFile);
+            }
+        }
     }
 
     // for test
@@ -114,6 +128,15 @@ public class PinpointBootStrap {
             return new JarFile(bootStrapCoreJar);
         } catch (IOException ioe) {
             logger.warn(bootStrapCoreJar + " file not found.", ioe);
+            return null;
+        }
+    }
+
+    private static JarFile getBootStrapCoreOptionalJarFile(String bootStrapCoreOptionalJar) {
+        try {
+            return new JarFile(bootStrapCoreOptionalJar);
+        } catch (IOException ioe) {
+            logger.log(Level.SEVERE, bootStrapCoreOptionalJar + " file not found.", ioe);
             return null;
         }
     }

@@ -40,6 +40,7 @@ public class ClassPathResolver {
 
     private static final Pattern DEFAULT_AGENT_PATTERN = Pattern.compile("pinpoint-bootstrap(-[0-9]+\\.[0-9]+\\.[0-9]+(\\-SNAPSHOT)?)?\\.jar");
     private static final Pattern DEFAULT_AGENT_CORE_PATTERN = Pattern.compile("pinpoint-bootstrap-core(-[0-9]+\\.[0-9]+\\.[0-9]+(\\-SNAPSHOT)?)?\\.jar");
+    private static final Pattern DEFAULT_AGENT_CORE_OPTIONAL_PATTERN = Pattern.compile("pinpoint-bootstrap-core-optional(-[0-9]+\\.[0-9]+\\.[0-9]+(\\-SNAPSHOT)?)?\\.jar");
 
     private String classPath;
 
@@ -48,8 +49,10 @@ public class ClassPathResolver {
     private String agentDirPath;
     private Pattern agentPattern;
     private Pattern agentCorePattern;
+    private Pattern agentCoreOptionalPattern;
     private List<String> fileExtensionList;
     private String bootStrapCoreJar;
+    private String bootStrapCoreOptionalJar;
 
     public ClassPathResolver() {
         this(getClassPathFromSystemProperty());
@@ -60,6 +63,7 @@ public class ClassPathResolver {
         this.classPath = classPath;
         this.agentPattern = DEFAULT_AGENT_PATTERN;
         this.agentCorePattern = DEFAULT_AGENT_CORE_PATTERN;
+        this.agentCoreOptionalPattern = DEFAULT_AGENT_CORE_OPTIONAL_PATTERN;
         this.fileExtensionList = getDefaultFileExtensionList();
     }
 
@@ -74,6 +78,9 @@ public class ClassPathResolver {
     public ClassPathResolver(String classPath, String agentPattern) {
         this.classPath = classPath;
         this.agentPattern = Pattern.compile(agentPattern);
+        this.agentCorePattern = DEFAULT_AGENT_CORE_PATTERN;
+        this.agentCoreOptionalPattern = DEFAULT_AGENT_CORE_OPTIONAL_PATTERN;
+        this.fileExtensionList = getDefaultFileExtensionList();
     }
 
     public void setClassPath(String classPath) {
@@ -100,37 +107,67 @@ public class ClassPathResolver {
         }
         this.agentDirPath = parseAgentDirPath(agentJarFullPath);
 
-        this.bootStrapCoreJar = findBootStrapCore();
+        this.bootStrapCoreJar = findFromBootDir("bootStrapCore", agentCorePattern);
+        this.bootStrapCoreOptionalJar = findFromBootDir("bootStrapCoreOptional", agentCoreOptionalPattern);
         return true;
     }
 
-    private String findBootStrapCore() {
+    private String findFromBootDir(final String name, final Pattern pattern) {
         String bootDir = agentDirPath + File.separator + "boot";
         File file = new File(bootDir);
         File[] files = file.listFiles(new FilenameFilter() {
             @Override
-            public boolean accept(File dir, String name) {
-                Matcher matcher = agentCorePattern.matcher(name);
+            public boolean accept(File dir, String fileName) {
+                Matcher matcher = pattern.matcher(fileName);
                 if (matcher.matches()) {
-                    logger.info("found bootStrapCore. " + name);
+                    logger.info("found " + name + ". " + fileName);
                     return true;
                 }
                 return false;
             }
         });
         if (files== null || files.length == 0) {
-            logger.info("bootStrapCore not found.");
+            logger.info(name + " not found.");
             return null;
         } else if (files.length == 1) {
             return files[0].getAbsolutePath();
         } else {
-            logger.info("too many bootStrapCore found. " + Arrays.toString(files));
+            logger.info("too many " + name + " found. " + Arrays.toString(files));
             return null;
         }
     }
 
+//    private String findBootStrapCore() {
+//        String bootDir = agentDirPath + File.separator + "boot";
+//        File file = new File(bootDir);
+//        File[] files = file.listFiles(new FilenameFilter() {
+//            @Override
+//            public boolean accept(File dir, String name) {
+//                Matcher matcher = agentCorePattern.matcher(name);
+//                if (matcher.matches()) {
+//                    logger.info("found bootStrapCore. " + name);
+//                    return true;
+//                }
+//                return false;
+//            }
+//        });
+//        if (files== null || files.length == 0) {
+//            logger.info("bootStrapCore not found.");
+//            return null;
+//        } else if (files.length == 1) {
+//            return files[0].getAbsolutePath();
+//        } else {
+//            logger.info("too many bootStrapCore found. " + Arrays.toString(files));
+//            return null;
+//        }
+//    }
+
     public String getBootStrapCoreJar() {
         return bootStrapCoreJar;
+    }
+
+    public String getBootStrapCoreOptionalJar() {
+        return bootStrapCoreOptionalJar;
     }
 
     private String parseAgentJar(Matcher matcher) {
