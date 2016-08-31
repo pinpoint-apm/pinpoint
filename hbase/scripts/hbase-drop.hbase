@@ -37,7 +37,7 @@ drop 'SqlMetaData_Ver2'
 
 drop 'ApplicationTraceIndex'
 drop 'Traces'
-
+drop 'TracesV2'
 
 drop 'ApplicationMapStatisticsCaller_Ver2'
 drop 'ApplicationMapStatisticsCallee_Ver2'
