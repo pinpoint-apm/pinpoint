@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.bootstrap;
 
 
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
@@ -27,8 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,7 +36,7 @@ import java.util.regex.Pattern;
  */
 public class ClassPathResolver {
 
-    private final Logger logger = Logger.getLogger(this.getClass().getName());
+    private final BootLogger logger = BootLogger.getLogger(this.getClass().getName());
 
     private static final Pattern DEFAULT_AGENT_PATTERN = Pattern.compile("pinpoint-bootstrap(-[0-9]+\\.[0-9]+\\.[0-9]+(\\-SNAPSHOT)?)?\\.jar");
     private static final Pattern DEFAULT_AGENT_CORE_PATTERN = Pattern.compile("pinpoint-bootstrap-core(-[0-9]+\\.[0-9]+\\.[0-9]+(\\-SNAPSHOT)?)?\\.jar");
@@ -177,11 +176,11 @@ public class ClassPathResolver {
         String agentLibPath = getAgentLibPath();
         File libDir = new File(agentLibPath);
         if (!libDir.exists()) {
-            logger.warning(agentLibPath + " not found");
+            logger.warn(agentLibPath + " not found");
             return Collections.emptyList();
         }
         if (!libDir.isDirectory()) {
-            logger.warning(agentLibPath + " not Directory");
+            logger.warn(agentLibPath + " not Directory");
             return Collections.emptyList();
         }
         final List<URL> jarURLList =  new ArrayList<URL>();
@@ -211,12 +210,12 @@ public class ClassPathResolver {
         final File file = new File(getAgentPluginPath());
         
         if (!file.exists()) {
-            logger.warning(file + " not found");
+            logger.warn(file + " not found");
             return new URL[0];
         }
         
         if (!file.isDirectory()) {
-            logger.warning(file + " is not a directory");
+            logger.warn(file + " is not a directory");
             return new URL[0];
         }
         
@@ -255,7 +254,7 @@ public class ClassPathResolver {
         try {
             return uri.toURL();
         } catch (MalformedURLException e) {
-            logger.log(Level.WARNING, file.getName() + ".toURL() failed. Error:" + e.getMessage(), e);
+            logger.warn(file.getName() + ".toURL() failed. Error:" + e.getMessage(), e);
             return null;
         }
     }

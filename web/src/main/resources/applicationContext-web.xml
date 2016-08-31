@@ -90,13 +90,20 @@
         <constructor-arg ref="commandHeaderTBaseDeserializerFactory"/>
     </bean>
 
-    <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService"/>
+    <bean id="slf4jCommonLoggerFactory" class="com.navercorp.pinpoint.common.server.util.Slf4jCommonLoggerFactory">
+    </bean>
+
+    <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService">
+    </bean>
+
     <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService">
         <constructor-arg ref="typeLoaderService"/>
+        <constructor-arg ref="slf4jCommonLoggerFactory"/>
     </bean>
 
     <bean id="annotationKeyRegistryService" class="com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService">
         <constructor-arg ref="typeLoaderService"/>
+        <constructor-arg ref="slf4jCommonLoggerFactory"/>
     </bean>
     
     <bean id="spanServiceImpl" class="com.navercorp.pinpoint.web.service.SpanServiceImpl">

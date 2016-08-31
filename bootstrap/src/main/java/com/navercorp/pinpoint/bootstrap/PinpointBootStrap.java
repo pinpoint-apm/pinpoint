@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.jar.JarFile;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.navercorp.pinpoint.ProductInfo;
 
@@ -31,7 +29,7 @@ import com.navercorp.pinpoint.ProductInfo;
  */
 public class PinpointBootStrap {
 
-    private static final Logger logger = Logger.getLogger(PinpointBootStrap.class.getName());
+    private static final BootLogger logger = BootLogger.getLogger(PinpointBootStrap.class.getName());
 
     public static final String BOOT_CLASS = "com.navercorp.pinpoint.profiler.DefaultAgent";
 
@@ -62,7 +60,7 @@ public class PinpointBootStrap {
         final ClassPathResolver classPathResolver = new ClassPathResolver();
         boolean agentJarNotFound = classPathResolver.findAgentJar();
         if (!agentJarNotFound) {
-            logger.severe("pinpoint-bootstrap-x.x.x(-SNAPSHOT).jar Fnot found.");
+            logger.warn("pinpoint-bootstrap-x.x.x(-SNAPSHOT).jar not found.");
             logPinpointAgentLoadFail();
             return;
         }
@@ -70,14 +68,14 @@ public class PinpointBootStrap {
         // 2nd find boot-strap-core.jar
         final String bootStrapCoreJar = classPathResolver.getBootStrapCoreJar();
         if (bootStrapCoreJar == null) {
-            logger.severe("pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar not found");
+            logger.warn("pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar not found");
             logPinpointAgentLoadFail();
             return;
         }
 
         JarFile bootStrapCoreJarFile = getBootStrapJarFile(bootStrapCoreJar);
         if (bootStrapCoreJarFile == null) {
-            logger.severe("pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar not found");
+            logger.warn("pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar not found");
             logPinpointAgentLoadFail();
             return;
         }
@@ -95,8 +93,8 @@ public class PinpointBootStrap {
         if (startSuccess) {
             return false;
         } else {
-            if (logger.isLoggable(Level.SEVERE)) {
-                logger.severe("pinpoint-bootstrap already started. skipping agent loading.");
+            if (logger.isWarnEnabled()) {
+                logger.warn("pinpoint-bootstrap already started. skipping agent loading.");
             }
             return true;
         }
@@ -115,7 +113,7 @@ public class PinpointBootStrap {
         try {
             return new JarFile(bootStrapCoreJar);
         } catch (IOException ioe) {
-            logger.log(Level.SEVERE, bootStrapCoreJar + " file not found.", ioe);
+            logger.warn(bootStrapCoreJar + " file not found.", ioe);
             return null;
         }
     }

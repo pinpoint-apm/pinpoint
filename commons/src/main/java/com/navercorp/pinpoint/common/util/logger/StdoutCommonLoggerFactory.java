@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2016 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,26 +12,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package com.navercorp.pinpoint.bootstrap.logging;
-
-import java.util.logging.Logger;
+package com.navercorp.pinpoint.common.util.logger;
 
 /**
- * @author minwoo.jung
+ * @author Woonduk Kang(emeroad)
  */
-public class JavaLoggerFactory {
-    private static final JavaLoggerBinder loggerBinder = new JavaLoggerBinder();
+public class StdoutCommonLoggerFactory implements CommonLoggerFactory {
 
-    public static Logger getLogger(String name) {
-        return loggerBinder.getLogger(name);
+    public static final CommonLoggerFactory INSTANCE = new StdoutCommonLoggerFactory();
+
+    static {
+        setup();
     }
 
-    public static Logger getLogger(Class clazz) {
-        if (clazz == null) {
-            throw new NullPointerException("class must not be null");
-        }
-        return getLogger(clazz.getName());
+    private static void setup() {
+        // TODO setup stdout logger
+    }
+
+    public CommonLogger getLogger(String loggerName) {
+        return new StdoutCommonLogger(loggerName);
     }
 }

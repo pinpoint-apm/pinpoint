@@ -276,10 +276,16 @@
     <bean id="timeSlot" class="com.navercorp.pinpoint.common.util.DefaultTimeSlot">
     </bean>
 
+    <bean id="slf4jCommonLoggerFactory" class="com.navercorp.pinpoint.common.server.util.Slf4jCommonLoggerFactory">
+    </bean>
 
-    <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService"/>
+    <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService">
+        <constructor-arg ref="slf4jCommonLoggerFactory"/>
+    </bean>
+
     <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService">
         <constructor-arg ref="typeLoaderService"/>
+        <constructor-arg ref="slf4jCommonLoggerFactory"/>
     </bean>
     
     <bean id="sqlMetaDataHandler" class="com.navercorp.pinpoint.collector.handler.SqlMetaDataHandler">
