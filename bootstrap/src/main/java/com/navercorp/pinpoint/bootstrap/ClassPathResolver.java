@@ -39,6 +39,7 @@ public class ClassPathResolver {
     private final BootLogger logger = BootLogger.getLogger(this.getClass().getName());
 
     private static final Pattern DEFAULT_AGENT_PATTERN = Pattern.compile("pinpoint-bootstrap(-[0-9]+\\.[0-9]+\\.[0-9]+(\\-SNAPSHOT)?)?\\.jar");
+    private static final Pattern DEFAULT_AGENT_COMMONS_PATTERN = Pattern.compile("pinpoint-commons(-[0-9]+\\.[0-9]+\\.[0-9]+(\\-SNAPSHOT)?)?\\.jar");
     private static final Pattern DEFAULT_AGENT_CORE_PATTERN = Pattern.compile("pinpoint-bootstrap-core(-[0-9]+\\.[0-9]+\\.[0-9]+(\\-SNAPSHOT)?)?\\.jar");
     private static final Pattern DEFAULT_AGENT_CORE_OPTIONAL_PATTERN = Pattern.compile("pinpoint-bootstrap-core-optional(-[0-9]+\\.[0-9]+\\.[0-9]+(\\-SNAPSHOT)?)?\\.jar");
 
@@ -48,9 +49,11 @@ public class ClassPathResolver {
     private String agentJarFullPath;
     private String agentDirPath;
     private Pattern agentPattern;
+    private Pattern agentCommonsPattern;
     private Pattern agentCorePattern;
     private Pattern agentCoreOptionalPattern;
     private List<String> fileExtensionList;
+    private String pinpointCommonsJar;
     private String bootStrapCoreJar;
     private String bootStrapCoreOptionalJar;
 
@@ -62,6 +65,7 @@ public class ClassPathResolver {
     public ClassPathResolver(String classPath) {
         this.classPath = classPath;
         this.agentPattern = DEFAULT_AGENT_PATTERN;
+        this.agentCommonsPattern = DEFAULT_AGENT_COMMONS_PATTERN;
         this.agentCorePattern = DEFAULT_AGENT_CORE_PATTERN;
         this.agentCoreOptionalPattern = DEFAULT_AGENT_CORE_OPTIONAL_PATTERN;
         this.fileExtensionList = getDefaultFileExtensionList();
@@ -78,6 +82,7 @@ public class ClassPathResolver {
     public ClassPathResolver(String classPath, String agentPattern) {
         this.classPath = classPath;
         this.agentPattern = Pattern.compile(agentPattern);
+        this.agentCommonsPattern = DEFAULT_AGENT_COMMONS_PATTERN;
         this.agentCorePattern = DEFAULT_AGENT_CORE_PATTERN;
         this.agentCoreOptionalPattern = DEFAULT_AGENT_CORE_OPTIONAL_PATTERN;
         this.fileExtensionList = getDefaultFileExtensionList();
@@ -107,6 +112,7 @@ public class ClassPathResolver {
         }
         this.agentDirPath = parseAgentDirPath(agentJarFullPath);
 
+        this.pinpointCommonsJar = findFromBootDir("pinpoint-commons", agentCommonsPattern);
         this.bootStrapCoreJar = findFromBootDir("bootStrapCore", agentCorePattern);
         this.bootStrapCoreOptionalJar = findFromBootDir("bootStrapCoreOptional", agentCoreOptionalPattern);
         return true;
@@ -137,30 +143,9 @@ public class ClassPathResolver {
         }
     }
 
-//    private String findBootStrapCore() {
-//        String bootDir = agentDirPath + File.separator + "boot";
-//        File file = new File(bootDir);
-//        File[] files = file.listFiles(new FilenameFilter() {
-//            @Override
-//            public boolean accept(File dir, String name) {
-//                Matcher matcher = agentCorePattern.matcher(name);
-//                if (matcher.matches()) {
-//                    logger.info("found bootStrapCore. " + name);
-//                    return true;
-//                }
-//                return false;
-//            }
-//        });
-//        if (files== null || files.length == 0) {
-//            logger.info("bootStrapCore not found.");
-//            return null;
-//        } else if (files.length == 1) {
-//            return files[0].getAbsolutePath();
-//        } else {
-//            logger.info("too many bootStrapCore found. " + Arrays.toString(files));
-//            return null;
-//        }
-//    }
+    public String getPinpointCommonsJar() {
+        return pinpointCommonsJar;
+    }
 
     public String getBootStrapCoreJar() {
         return bootStrapCoreJar;
@@ -176,11 +161,9 @@ public class ClassPathResolver {
         return this.classPath.substring(start, end);
     }
 
-
     public String getAgentJarName() {
         return this.agentJarName;
     }
-
 
     private String parseAgentJarPath(String classPath, String agentJar) {
         String[] classPathList = classPath.split(File.pathSeparator);
@@ -237,8 +220,14 @@ public class ClassPathResolver {
             jarURLList.add(agentDirUri);
         }
 
-        // hot fix. boot-strap-core.jar not found from classPool ??
+        // hot fix. boot jars not found from classPool ??
+        jarURLList.add(toURI(new File(getPinpointCommonsJar())));
         jarURLList.add(toURI(new File(getBootStrapCoreJar())));
+        String bootstrapCoreOptionalJar = getBootStrapCoreOptionalJar();
+        // bootstrap-core-optional jar is not required and is okay to be null
+        if (bootstrapCoreOptionalJar != null) {
+            jarURLList.add(toURI(new File(bootstrapCoreOptionalJar)));
+        }
 
         return jarURLList;
     }

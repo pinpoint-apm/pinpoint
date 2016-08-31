@@ -174,9 +174,9 @@ public class DefaultAgent implements Agent {
 
         if(this.profilerConfig.isProfileInstrumentASM()) {
             logger.info("ASM class pool.");
-            this.classPool = new ASMClassPool(interceptorRegistryBinder, agentOption.getBootStrapCoreJarPath());
+            this.classPool = new ASMClassPool(interceptorRegistryBinder, agentOption.getBootstrapJarPaths());
         } else {
-            this.classPool = new JavassistClassPool(interceptorRegistryBinder, agentOption.getBootStrapCoreJarPath());
+            this.classPool = new JavassistClassPool(interceptorRegistryBinder, agentOption.getBootstrapJarPaths());
         }
 
         if (logger.isInfoEnabled()) {
@@ -237,8 +237,8 @@ public class DefaultAgent implements Agent {
         return classFileTransformerDispatcher;
     }
 
-    public String getBootstrapCoreJar() {
-        return agentOption.getBootStrapCoreJarPath();
+    public List<String> getBootstrapJarPaths() {
+        return agentOption.getBootstrapJarPaths();
     }
 
     protected List<DefaultProfilerPluginContext> loadPlugins(AgentOption agentOption) {

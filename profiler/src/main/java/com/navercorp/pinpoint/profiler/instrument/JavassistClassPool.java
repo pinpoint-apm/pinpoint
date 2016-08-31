@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.instrument;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
@@ -69,7 +70,7 @@ public class JavassistClassPool implements InstrumentClassPool {
         }
     };
 
-    public JavassistClassPool(InterceptorRegistryBinder interceptorRegistryBinder, final String bootStrapJar) {
+    public JavassistClassPool(InterceptorRegistryBinder interceptorRegistryBinder, final List<String> bootStrapJars) {
         if (interceptorRegistryBinder == null) {
             throw new NullPointerException("interceptorRegistryBinder must not be null");
         }
@@ -78,9 +79,11 @@ public class JavassistClassPool implements InstrumentClassPool {
             @Override
             public void handleClassPool(NamedClassPool systemClassPool) {
                 try {
-                    if (bootStrapJar != null) {
-                        // append bootstarp-core
-                        systemClassPool.appendClassPath(bootStrapJar);
+                    if (bootStrapJars != null) {
+                        // append bootstarp jars
+                        for (String bootStrapJar : bootStrapJars) {
+                            systemClassPool.appendClassPath(bootStrapJar);
+                        }
                     }
                 } catch (NotFoundException ex) {
                     throw new PinpointException("bootStrapJar not found. Caused by:" + ex.getMessage(), ex);
