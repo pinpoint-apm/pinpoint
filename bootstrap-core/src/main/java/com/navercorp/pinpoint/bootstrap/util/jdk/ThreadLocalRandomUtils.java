@@ -45,8 +45,12 @@ public class ThreadLocalRandomUtils {
             return new PinpointThreadLocalRandomFactory();
         } else if (jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
             try {
+                ClassLoader classLoader = ThreadLocalRandomUtils.class.getClassLoader();
+                if (classLoader == null) {
+                    classLoader = ClassLoader.getSystemClassLoader();
+                }
                 final Class<? extends ThreadLocalRandomFactory> threadLocalRandomFactoryClass =
-                        (Class<? extends ThreadLocalRandomFactory>) Class.forName(DEFAULT_THREAD_LOCAL_RANDOM_FACTORY, true, null);
+                        (Class<? extends ThreadLocalRandomFactory>) Class.forName(DEFAULT_THREAD_LOCAL_RANDOM_FACTORY, true, classLoader);
                 return threadLocalRandomFactoryClass.newInstance();
             } catch (ClassNotFoundException e) {
                 logError(e);
