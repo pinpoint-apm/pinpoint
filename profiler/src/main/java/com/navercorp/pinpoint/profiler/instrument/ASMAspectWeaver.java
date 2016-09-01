@@ -131,6 +131,9 @@ public class ASMAspectWeaver {
 
             // remap
             final ASMMethodNodeAdapter newMethodNode = classNode.getDeclaredMethod(pointCutMethodNode.getName(), pointCutMethodNode.getDesc());
+            if (newMethodNode == null) {
+                throw new InstrumentException("not found new method. " + classNode.getInternalName() + "." + pointCutMethodNode.getName());
+            }
             remapper.setName(methodName);
             newMethodNode.remapMethodInsnNode(remapper);
         }
