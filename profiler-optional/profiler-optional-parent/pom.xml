@@ -23,10 +23,6 @@
             <exclusions>
                 <exclusion>
                     <groupId>com.navercorp.pinpoint</groupId>
-                    <artifactId>pinpoint-commons</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.navercorp.pinpoint</groupId>
                     <artifactId>pinpoint-bootstrap</artifactId>
                 </exclusion>
                 <exclusion>

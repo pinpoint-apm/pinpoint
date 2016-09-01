@@ -65,22 +65,51 @@ public class PinpointBootStrap {
             return;
         }
 
-        // 2nd find boot-strap-core.jar
+        // 2nd find pinpoint-commons.jar
+        final String pinpointCommonsJar = classPathResolver.getPinpointCommonsJar();
+        if (pinpointCommonsJar == null) {
+            logger.warn("pinpoint-commons-x.x.x(-SNAPSHOT).jar not found");
+            logPinpointAgentLoadFail();
+            return;
+        }
+        JarFile pinpointCommonsJarFile = getJarFile(pinpointCommonsJar);
+        if (pinpointCommonsJarFile == null) {
+            logger.warn("pinpoint-commons-x.x.x(-SNAPSHOT).jar not found");
+            logPinpointAgentLoadFail();
+            return;
+        }
+        logger.info("load pinpoint-commons-x.x.x(-SNAPSHOT).jar : " + pinpointCommonsJar);
+        instrumentation.appendToBootstrapClassLoaderSearch(pinpointCommonsJarFile);
+
+        // 3rd find bootstrap-core.jar
         final String bootStrapCoreJar = classPathResolver.getBootStrapCoreJar();
         if (bootStrapCoreJar == null) {
             logger.warn("pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar not found");
             logPinpointAgentLoadFail();
             return;
         }
-
-        JarFile bootStrapCoreJarFile = getBootStrapJarFile(bootStrapCoreJar);
+        JarFile bootStrapCoreJarFile = getJarFile(bootStrapCoreJar);
         if (bootStrapCoreJarFile == null) {
             logger.warn("pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar not found");
             logPinpointAgentLoadFail();
             return;
         }
-        logger.info("load pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar :" + bootStrapCoreJar);
+        logger.info("load pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar : " + bootStrapCoreJar);
         instrumentation.appendToBootstrapClassLoaderSearch(bootStrapCoreJarFile);
+
+        // 4th find bootstrap-core-optional.jar
+        final String bootStrapCoreOptionalJar = classPathResolver.getBootStrapCoreOptionalJar();
+        if (bootStrapCoreOptionalJar == null) {
+            logger.info("pinpoint-bootstrap-core-optional-x.x.x(-SNAPSHOT).jar not found");
+        } else {
+            JarFile bootStrapCoreOptionalJarFile = getJarFile(bootStrapCoreOptionalJar);
+            if (bootStrapCoreOptionalJarFile == null) {
+                logger.info("pinpoint-bootstrap-core-optional-x.x.x(-SNAPSHOT).jar not found");
+            } else {
+                logger.info("load pinpoint-bootstrap-core-optional-x.x.x(-SNAPSHOT).jar : " + bootStrapCoreOptionalJar);
+                instrumentation.appendToBootstrapClassLoaderSearch(bootStrapCoreOptionalJarFile);
+            }
+        }
     }
 
     // for test
@@ -108,12 +137,11 @@ public class PinpointBootStrap {
         System.err.println(errorLog);
     }
 
-
-    private static JarFile getBootStrapJarFile(String bootStrapCoreJar) {
+    private static JarFile getJarFile(String jarFilePath) {
         try {
-            return new JarFile(bootStrapCoreJar);
+            return new JarFile(jarFilePath);
         } catch (IOException ioe) {
-            logger.warn(bootStrapCoreJar + " file not found.", ioe);
+            logger.warn(jarFilePath + " file not found.", ioe);
             return null;
         }
     }

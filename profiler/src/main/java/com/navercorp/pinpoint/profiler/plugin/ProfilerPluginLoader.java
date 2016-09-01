@@ -81,7 +81,7 @@ public class ProfilerPluginLoader {
                 
                 logger.info("Loading plugin:{} pluginPackage:{}", plugin.getClass().getName(), plugin);
 
-                PluginConfig pluginConfig = new PluginConfig(jar, plugin, agent.getInstrumentation(), agent.getClassPool(), agent.getBootstrapCoreJar(), pluginFilterChain);
+                PluginConfig pluginConfig = new PluginConfig(jar, plugin, agent.getInstrumentation(), agent.getClassPool(), agent.getBootstrapJarPaths(), pluginFilterChain);
                 final DefaultProfilerPluginContext context = setupPlugin(pluginConfig);
                 pluginContexts.add(context);
             }

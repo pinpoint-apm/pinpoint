@@ -25,6 +25,8 @@ import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 /**
  * @author jaehong.kim
  */
@@ -35,7 +37,7 @@ public class ASMClassPool implements InstrumentClassPool {
 
     private final InterceptorRegistryBinder interceptorRegistryBinder;
 
-    public ASMClassPool(final InterceptorRegistryBinder interceptorRegistryBinder, final String bootStrapJar) {
+    public ASMClassPool(final InterceptorRegistryBinder interceptorRegistryBinder, final List<String> bootStrapJars) {
         if (interceptorRegistryBinder == null) {
             throw new NullPointerException("interceptorRegistryBinder must not be null");
         }

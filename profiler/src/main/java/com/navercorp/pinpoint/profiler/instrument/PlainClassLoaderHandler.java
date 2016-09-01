@@ -31,6 +31,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -75,7 +76,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
         if (isDebug) {
             logger.debug("injectClass0 className:{} cl:{}", className, classLoader);
         }
-        logger.info("bootstrapCoreJarPath:{}", pluginConfig.getBootstrapCoreJarPath());
+        logger.info("bootstrapJarPaths:{}", pluginConfig.getBootstrapJarPaths());
 
         final ClassPool pool = createClassPool(classLoader);
 
@@ -88,8 +89,10 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
     private ClassPool createClassPool(ClassLoader classLoader) throws NotFoundException {
         final ClassPool pool = new ClassPool();
-        final String bootstrapCoreJarPath = pluginConfig.getBootstrapCoreJarPath();
-        pool.appendClassPath(bootstrapCoreJarPath);
+        final List<String> bootstrapJarPaths = pluginConfig.getBootstrapJarPaths();
+        for (String bootstrapJarPath : bootstrapJarPaths) {
+            pool.appendClassPath(bootstrapJarPath);
+        }
 
         final LoaderClassPath loaderClassPath = new LoaderClassPath(classLoader);
         pool.appendClassPath(loaderClassPath);
