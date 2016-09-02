@@ -95,6 +95,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <encoding>${encoding}</encoding>
                     <basedir>${project.build.sourceDirectory}/</basedir>
                     <includes>
                         <include>**/*.java</include>
