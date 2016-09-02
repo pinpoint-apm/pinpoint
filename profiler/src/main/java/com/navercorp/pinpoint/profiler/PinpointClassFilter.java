@@ -45,9 +45,12 @@ public class PinpointClassFilter implements ClassFileFilter {
 
         // Skip pinpoint packages too.
         if (className.startsWith("com/navercorp/pinpoint/")) {
+            if (className.startsWith("com/navercorp/pinpoint/web/")) {
+                return CONTINUE;
+            }
             return SKIP;
         }
-        
+
         return CONTINUE;
     }
 }
