@@ -60,7 +60,7 @@ public class Logger {
     Logger(String name, Level level, PrintStream out, PrintStream err) {
         this.name = name;
         this.level = level;
-        this.messagePattern = "{0,date,yyyy-MM-dd HH:mm:ss SSS} [{1}](" + name + ") {2}{3}";
+        this.messagePattern = "{0,date,yyyy-MM-dd HH:mm:ss} [{1}](" + name + ") {2}{3}";
         this.out = out;
         this.err = err;
     }
