@@ -44,6 +44,7 @@
         <module>cassandra</module>
         <module>activemq-client</module>
         <module>cxf</module>
+        <module>hystrix</module>
     </modules>
 
     <dependencies>
@@ -205,6 +206,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-cxf-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-hystrix-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
