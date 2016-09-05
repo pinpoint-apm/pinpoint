@@ -35,6 +35,12 @@
             <scope>runtime</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-bootstrap-core-optional</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- tools -->
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>

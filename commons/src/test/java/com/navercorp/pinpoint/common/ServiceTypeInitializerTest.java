@@ -28,8 +28,10 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.TraceMetadataLoader;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
+import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
 
+import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 import org.junit.Test;
 
 /**
@@ -37,6 +39,9 @@ import org.junit.Test;
  *
  */
 public class ServiceTypeInitializerTest {
+
+    private CommonLoggerFactory loggerFactory = StdoutCommonLoggerFactory.INSTANCE;
+
     private static final ServiceType[] TEST_TYPES = {
         ServiceTypeFactory.of(1209, "FOR_UNIT_TEST", "UNDEFINED", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID)
     };
@@ -68,8 +73,8 @@ public class ServiceTypeInitializerTest {
     public void testWithPlugins() {
 
         List<TraceMetadataProvider> typeProviders = Arrays.<TraceMetadataProvider>asList(new TestProvider(TEST_TYPES, TEST_KEYS));
-        TraceMetadataLoaderService typeLoaderService = new DefaultTraceMetadataLoaderService(typeProviders);
-        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(typeLoaderService);
+        TraceMetadataLoaderService typeLoaderService = new DefaultTraceMetadataLoaderService(typeProviders, loggerFactory);
+        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(typeLoaderService, loggerFactory);
 
         StaticFieldLookUp<AnnotationKey> lookUp = new StaticFieldLookUp<AnnotationKey>(AnnotationKey.class, AnnotationKey.class);
         verifyAnnotationKeys(lookUp.lookup(), annotationKeyRegistryService);
@@ -118,8 +123,8 @@ public class ServiceTypeInitializerTest {
                 new TestProvider(DUPLICATED_CODE_WITH_DEFAULT_TYPE, TEST_KEYS)
         );
 
-        TraceMetadataLoaderService loaderService = new DefaultTraceMetadataLoaderService(providers);
-        ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService(loaderService);
+        TraceMetadataLoaderService loaderService = new DefaultTraceMetadataLoaderService(providers, loggerFactory);
+        ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService(loaderService, loggerFactory);
     }
 
     @Test(expected=RuntimeException.class)
@@ -128,8 +133,8 @@ public class ServiceTypeInitializerTest {
                 new TestProvider(DUPLICATED_NAME_WITH_DEFAULT_TYPE, TEST_KEYS)
         );
 
-        TraceMetadataLoaderService loaderService = new DefaultTraceMetadataLoaderService(providers);
-        ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService(loaderService);
+        TraceMetadataLoaderService loaderService = new DefaultTraceMetadataLoaderService(providers, loggerFactory);
+        ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService(loaderService, loggerFactory);
     }
 
     @Test(expected=RuntimeException.class)
@@ -138,8 +143,8 @@ public class ServiceTypeInitializerTest {
                 new TestProvider(TEST_TYPES, DUPLICATED_CODE_WITH_DEFAULT_KEY)
         );
 
-        TraceMetadataLoaderService loaderService = new DefaultTraceMetadataLoaderService(providers);
-        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(loaderService);
+        TraceMetadataLoaderService loaderService = new DefaultTraceMetadataLoaderService(providers, loggerFactory);
+        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(loaderService, loggerFactory);
 
     }
     

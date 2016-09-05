@@ -66,8 +66,8 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
 }]);
 
 pinpointApp.value("globalConfig", {});
-pinpointApp.run([ "$rootScope", "$window", "$timeout", "$location", "$route", "$http", "globalConfig",
-    function ($rootScope, $window, $timeout, $location, $route, $http, globalConfig ) {
+pinpointApp.run([ "$rootScope", "$window", "$timeout", "$location", "$route", "$http", "globalConfig", "PreferenceService",
+    function ($rootScope, $window, $timeout, $location, $route, $http, globalConfig, PreferenceService ) {
         var original = $location.path;
         $location.path = function (path, reload) {
             if (reload === false) {
@@ -95,6 +95,7 @@ pinpointApp.run([ "$rootScope", "$window", "$timeout", "$location", "$route", "$
                 $('#supported-browsers').modal();
             }, 500);
         }
+        moment.tz.setDefault( PreferenceService.getTimezone() );
     }
 ]);
 

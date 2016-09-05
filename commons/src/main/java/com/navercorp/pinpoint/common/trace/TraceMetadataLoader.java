@@ -21,23 +21,37 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
+import com.navercorp.pinpoint.common.util.logger.CommonLogger;
+import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
+import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
 /**
  * @author Jongho Moon
  *
  */
 public class TraceMetadataLoader {
-    private final Logger logger = Logger.getLogger(getClass().getName());
+
+    private final CommonLogger logger;
 
     private final List<ServiceTypeInfo> serviceTypeInfos = new ArrayList<ServiceTypeInfo>();
     private final ServiceTypeChecker serviceTypeChecker = new ServiceTypeChecker();
 
     private final List<AnnotationKey> annotationKeys = new ArrayList<AnnotationKey>();
     private final AnnotationKeyChecker annotationKeyChecker = new AnnotationKeyChecker();
+
+    public TraceMetadataLoader() {
+        this(StdoutCommonLoggerFactory.INSTANCE);
+    }
+
+    public TraceMetadataLoader(CommonLoggerFactory loggerFactory) {
+        if (loggerFactory == null) {
+            throw new NullPointerException("loggerFactory must not be null");
+        }
+        this.logger = loggerFactory.getLogger(TraceMetadataLoader.class.getName());
+    }
 
     public void load(URL[] urls) {
         if (urls == null) {
@@ -65,7 +79,7 @@ public class TraceMetadataLoader {
         logger.info("Loading TraceMetadataProviders");
 
         for (TraceMetadataProvider provider : providers) {
-            if (logger.isLoggable(Level.INFO)) {
+            if (logger.isInfoEnabled()) {
                 logger.info("Loading TraceMetadataProvider: " + provider.getClass().getName() + " name:" + provider.toString());
             }
 

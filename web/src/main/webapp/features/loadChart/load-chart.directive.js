@@ -51,6 +51,7 @@
                  * @param useChartCursor
                  */
                 render = function (data, useChartCursor) {
+                	element.empty();
                     $timeout(function () {
                         var options = {
                             "type": "serial",
@@ -265,27 +266,15 @@
                  * @param data
                  */
                 updateData = function (data) {
-//                 	if ( angular.isDefined( oChart ) ) {
-// 	                    oChart.clear();
-//                 	}
-//                     element.empty();
-//                     $timeout(function () {
-//                     	if( data.length === 0 ) {
-//                     		renderEmpty();
-//                     	} else {
-//                     		render(data, true);
-//                     	}
-//                     });
-
 					if ( angular.isUndefined( oChart ) ) {
 						if ( data.length !== 0 ) {
 							render(data, true);
 						}
 					} else {
 						oChart.dataProvider = data;
-						$timeout(function () {
+						// $timeout(function () {
 							oChart.validateData();
-						});
+						// });
 					}
 				};
 

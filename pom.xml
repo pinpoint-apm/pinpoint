@@ -44,6 +44,7 @@
     <modules>
         <module>agent</module>
         <module>bootstrap-core</module>
+        <module>bootstrap-core-optional</module>
         <module>bootstrap</module>
         <module>collector</module>
         <module>commons</module>
@@ -58,6 +59,7 @@
         <module>test</module>
         <module>web</module>
         <module>hbase</module>
+        <module>thirdparty</module>
     </modules>
 
     <properties>
@@ -67,14 +69,15 @@
         <test.jdk.home>${jdk.home}</test.jdk.home>
         <slf4j.version>1.7.21</slf4j.version>
         <metrics.version>3.1.2</metrics.version>
-        <spring.version>4.1.9.RELEASE</spring.version>
         <jetty.version>8.1.12.v20130726</jetty.version>
         <codehaus.jackson.version>1.9.13</codehaus.jackson.version>
         <fastxml.jackson.version>2.6.6</fastxml.jackson.version>
         <httpcomponents.version>4.3</httpcomponents.version>
         <jedis.version>2.4.2</jedis.version>
         <cloverLicenseLocation>${basedir}/clover.license</cloverLicenseLocation>
-        <spring-batch-version>2.2.7.RELEASE</spring-batch-version>
+        <spring.version>4.1.9.RELEASE</spring.version>
+        <spring.batch.version>2.2.7.RELEASE</spring.batch.version>
+        <spring.security.version>4.0.4.RELEASE</spring.security.version>
         <docker.maven.plugin.version>0.4.3</docker.maven.plugin.version>
         <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
         <sniffer.artifactid>java16</sniffer.artifactid>
@@ -107,6 +110,11 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-google-guava</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-commons-server</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -128,6 +136,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-bootstrap-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-bootstrap-core-optional</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -192,7 +205,6 @@
                 <artifactId>pinpoint-test</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            
 
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -420,7 +432,7 @@
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty</artifactId>
-                <version>3.6.6.Final</version>
+                <version>3.10.6.Final</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
@@ -694,6 +706,17 @@
             </dependency>
 
             <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-frontend-jaxws</artifactId>
+                <version>2.7.18</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-transports-http</artifactId>
+                <version>2.7.18</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.netflix.hystrix</groupId>
                 <artifactId>hystrix-core</artifactId>
                 <version>1.3.20</version>
@@ -912,7 +935,7 @@
                         <goals>
                             <goal>check</goal>
                         </goals>
-                    </execution>      
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
@@ -951,13 +974,16 @@
                     <linkXRef>true</linkXRef>
                     <sourceEncoding>${encoding}</sourceEncoding>
                     <targetJdk>${jdk.version}</targetJdk>
-                    <!-- <rulesets> <ruleset>/rulesets/unusedcode.xml</ruleset> 
-                        <ruleset>/rulesets/basic.xml</ruleset> <ruleset>/rulesets/imports.xml</ruleset> 
+                    <!-- <rulesets> <ruleset>/rulesets/unusedcode.xml</ruleset>
+                        <ruleset>/rulesets/basic.xml</ruleset> <ruleset>/rulesets/imports.xml</ruleset>
                         <ruleset>/rulesets/design.xml</ruleset> </rulesets> -->
                     <excludes>
                         <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
+
+                        <!--google guava-->
+                        <exclude>com/google/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>

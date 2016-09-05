@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.bootstrap.util;
 
+import com.navercorp.pinpoint.common.util.logger.CommonLogger;
+import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
+
 import java.net.*;
 import java.util.Enumeration;
-import java.util.logging.Logger;
 
 /**
  * @author emeroad
@@ -46,10 +48,15 @@ public final class NetworkUtils {
             final InetAddress thisIp = InetAddress.getLocalHost();
             hostIp = thisIp.getHostAddress();
         } catch (UnknownHostException e) {
-            Logger.getLogger(NetworkUtils.class.getClass().getName()).warning(e.getMessage());
+            CommonLogger logger = getLogger();
+            logger.warn(e.getMessage());
             hostIp = "127.0.0.1";
         }
         return hostIp;
+    }
+
+    private static CommonLogger getLogger() {
+        return StdoutCommonLoggerFactory.INSTANCE.getLogger(NetworkUtils.class.getClass().getName());
     }
 
     @Deprecated
@@ -76,7 +83,8 @@ public final class NetworkUtils {
             }
             return ERROR_HOST_NAME;
         } catch (SocketException e) {
-            Logger.getLogger(NetworkUtils.class.getClass().getName()).warning(e.getMessage());
+            CommonLogger logger = getLogger();
+            logger.warn(e.getMessage());
             return ERROR_HOST_NAME;
         }
     }

@@ -33,8 +33,18 @@ public class ConfigProperties {
 
     @Value("#{pinpointWebProps['config.show.activeThread'] ?: false}")
     private boolean showActiveThread;
+    
+    @Value("#{pinpointWebProps['config.openSource'] ?: true}")
+    private boolean openSource;
+    
+    @Value("#{pinpointWebProps['security.guide.url']}")
+    private String securityGuideUrl;
 
-    public boolean getEditUserInfo() {
+    public String getSecurityGuideUrl() {
+		return securityGuideUrl;
+	}
+
+	public boolean getEditUserInfo() {
         return editUserInfo;
     }
 
@@ -43,7 +53,11 @@ public class ConfigProperties {
     }
 
     public boolean isShowActiveThread() {
-        return showActiveThread;
+        return this.showActiveThread;
+    }
+    
+    public boolean isOpenSource() {
+        return this.openSource;
     }
 
     @Override

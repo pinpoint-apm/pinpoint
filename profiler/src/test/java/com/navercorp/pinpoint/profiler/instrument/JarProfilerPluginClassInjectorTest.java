@@ -57,7 +57,7 @@ public class JarProfilerPluginClassInjectorTest {
 //        final PluginPackageFilter filter = new PluginPackageFilter(Arrays.asList("test"));
         final String packageName = logger.getClass().getPackage().getName();
         final PluginPackageFilter filter = new PluginPackageFilter(Arrays.asList(packageName));
-        PluginConfig pluginConfig = new PluginConfig(sampleJar, profilerPlugin, instrumentation, pool, sampleJar.getPath(), filter);
+        PluginConfig pluginConfig = new PluginConfig(sampleJar, profilerPlugin, instrumentation, pool, Arrays.asList(sampleJar.getPath()), filter);
 
         PlainClassLoaderHandler injector = new PlainClassLoaderHandler(pluginConfig);
         final Class<?> loggerClass = injector.injectClass(contextTypeMatchClassLoader, logger.getClass().getName());

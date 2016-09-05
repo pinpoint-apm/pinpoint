@@ -16,14 +16,12 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.Link;
 import com.navercorp.pinpoint.web.applicationmap.Node;
 import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
-import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -34,40 +32,33 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 /**
  * @author emeroad
  * @author netspider
  */
 public class LinkSerializer extends JsonSerializer<Link> {
-    
-    @Autowired(required=false)
-    private ServerMapDataFilter serverMapDataFilter;
-    
     @Override
     public void serialize(Link link, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
-        final boolean isAuthFromApp = check(link.getFrom().getApplication());
-        final boolean isAuthToApp = check(link.getTo().getApplication());
-        
         jgen.writeStartObject();
 
-        jgen.writeStringField("key", link.getLinkName(isAuthFromApp, isAuthToApp));  // for servermap
+        jgen.writeStringField("key", link.getLinkName());  // for servermap
 
-        jgen.writeStringField("from", link.getFrom().getNodeName(isAuthFromApp));  // necessary for go.js
-        jgen.writeStringField("to", link.getTo().getNodeName(isAuthToApp)); // necessary for go.js
+        jgen.writeStringField("from", link.getFrom().getNodeName());  // necessary for go.js
+        jgen.writeStringField("to", link.getTo().getNodeName()); // necessary for go.js
 
         // for FilterWizard. from, to agent mapping data
-        writeAgentId("fromAgent", link.getFrom(), jgen, isAuthFromApp);
-        writeAgentId("toAgent", link.getTo(), jgen, isAuthToApp);
+        writeAgentId("fromAgent", link.getFrom(), jgen);
+        writeAgentId("toAgent", link.getTo(), jgen);
 
-        writeSimpleNode("sourceInfo", link.getFrom(), jgen, isAuthFromApp);
-        writeSimpleNode("targetInfo", link.getTo(), jgen, isAuthToApp);
+        writeSimpleNode("sourceInfo", link.getFrom(), jgen);
+        writeSimpleNode("targetInfo", link.getTo(), jgen);
 
-        writeFilterApplicationInfo(link, jgen);
-        
+        Application filterApplication = link.getFilterApplication();
+        jgen.writeStringField("filterApplicationName", filterApplication.getName());
+        jgen.writeNumberField("filterApplicationServiceTypeCode", filterApplication.getServiceTypeCode());
+        jgen.writeStringField("filterApplicationServiceTypeName", filterApplication.getServiceType().getName());
         if (link.isWasToWasLink()) {
-            writeWasToWasTargetRpcList(link, jgen, isAuthToApp);
+            writeWasToWasTargetRpcList(link, jgen);
         }
 
         Histogram histogram = link.getHistogram();
@@ -78,11 +69,11 @@ public class LinkSerializer extends JsonSerializer<Link> {
         jgen.writeObjectField("histogram", histogram);
 
         // data showing how agents call each of their respective links
-        writeAgentHistogram("sourceHistogram", link.getSourceList(), jgen, isAuthFromApp);
-        writeAgentHistogram("targetHistogram", link.getTargetList(), jgen, isAuthToApp);
+        writeAgentHistogram("sourceHistogram", link.getSourceList(), jgen);
+        writeAgentHistogram("targetHistogram", link.getTargetList(), jgen);
 
         writeTimeSeriesHistogram(link, jgen);
-        writeSourceAgentTimeSeriesHistogram(link, jgen, isAuthFromApp);
+        writeSourceAgentTimeSeriesHistogram(link, jgen);
 
 
 //        String state = link.getLinkState();
@@ -91,61 +82,31 @@ public class LinkSerializer extends JsonSerializer<Link> {
 
         jgen.writeEndObject();
     }
-    
-    private void writeFilterApplicationInfo(Link link, JsonGenerator jgen) throws IOException {
-        Application application = link.getFilterApplication();
-        jgen.writeStringField("filterApplicationName", application.getName());
-        if (check(application)) {
-            jgen.writeNumberField("filterApplicationServiceTypeCode", application.getServiceTypeCode());
-            jgen.writeStringField("filterApplicationServiceTypeName", application.getServiceType().getName());
-        } else {
-            jgen.writeNumberField("filterApplicationServiceTypeCode", ServiceType.UNAUTHORIZED.getCode());
-            jgen.writeStringField("filterApplicationServiceTypeName", ServiceType.UNAUTHORIZED.getName());
-        }
-    }
 
-    private boolean check(Application application) {
-        if (serverMapDataFilter != null && serverMapDataFilter.filter(application)) {
-            return false;
-        }
-        return true;
-    }
-
-    private void writeAgentId(String fieldName, Node node, JsonGenerator jgen, boolean isAuthorized) throws IOException {
+    private void writeAgentId(String fieldName, Node node, JsonGenerator jgen) throws IOException {
         if (node.getServiceType().isWas()) {
             jgen.writeFieldName(fieldName);
             jgen.writeStartArray();
-            if (isAuthorized) {
-                ServerInstanceList serverInstanceList = node.getServerInstanceList();
-                if (serverInstanceList!= null) {
-                    for (String agentId : serverInstanceList.getAgentIdList()) {
-                        jgen.writeObject(agentId);
-                    }
+            ServerInstanceList serverInstanceList = node.getServerInstanceList();
+            if (serverInstanceList!= null) {
+                for (String agentId : serverInstanceList.getAgentIdList()) {
+                    jgen.writeObject(agentId);
                 }
-            } else {
-                jgen.writeString("UNKNOWN_AGENT");
             }
             jgen.writeEndArray();
         }
     }
 
-    private void writeWasToWasTargetRpcList(Link link, JsonGenerator jgen, boolean isAuthorized) throws IOException {
+    private void writeWasToWasTargetRpcList(Link link, JsonGenerator jgen) throws IOException {
         // write additional information to be used for filtering failed WAS -> WAS call events.
         jgen.writeFieldName("filterTargetRpcList");
         jgen.writeStartArray();
-        if (isAuthorized) {
-            Collection<Application> sourceLinkTargetAgentList = link.getSourceLinkTargetAgentList();
-            for (Application application : sourceLinkTargetAgentList) {
-                jgen.writeStartObject();
-                jgen.writeStringField("rpc", application.getName());
-                if (check(application)) {
-                    jgen.writeNumberField("rpcServiceTypeCode", application.getServiceTypeCode());
-                }
-                else {
-                    
-                }
-                jgen.writeEndObject();
-            }
+        Collection<Application> sourceLinkTargetAgentList = link.getSourceLinkTargetAgentList();
+        for (Application application : sourceLinkTargetAgentList) {
+            jgen.writeStartObject();
+            jgen.writeStringField("rpc", application.getName());
+            jgen.writeNumberField("rpcServiceTypeCode", application.getServiceTypeCode());
+            jgen.writeEndObject();
         }
         jgen.writeEndArray();
 
@@ -161,50 +122,30 @@ public class LinkSerializer extends JsonSerializer<Link> {
     }
 
 
-    private void writeAgentHistogram(String fieldName, AgentHistogramList agentHistogramList, JsonGenerator jgen, boolean isAuthorized) throws IOException {
+    private void writeAgentHistogram(String fieldName, AgentHistogramList agentHistogramList, JsonGenerator jgen) throws IOException {
         jgen.writeFieldName(fieldName);
         jgen.writeStartObject();
-        if (isAuthorized) {
-            for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
-                jgen.writeFieldName(agentHistogram.getId());
-                jgen.writeObject(agentHistogram.getHistogram());
-            }
-        } else {
-            AgentHistogram mergeHistogram = new AgentHistogram(new Application("UNKONWN_AGENT", ServiceType.UNAUTHORIZED));
-            for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
-                mergeHistogram.addTimeHistogram(agentHistogram.getTimeHistogram());
-            }
-                jgen.writeFieldName(mergeHistogram.getId());
-                jgen.writeObject(mergeHistogram.getHistogram());
+        for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
+            jgen.writeFieldName(agentHistogram.getId());
+            jgen.writeObject(agentHistogram.getHistogram());
         }
         jgen.writeEndObject();
     }
 
-    private void writeSourceAgentTimeSeriesHistogram(Link link, JsonGenerator jgen, boolean isAuthorized) throws IOException {
+    private void writeSourceAgentTimeSeriesHistogram(Link link, JsonGenerator jgen) throws IOException {
         AgentResponseTimeViewModelList sourceAgentTimeSeriesHistogram = link.getSourceAgentTimeSeriesHistogram();
         sourceAgentTimeSeriesHistogram.setFieldName("sourceTimeSeriesHistogram");
-        if (isAuthorized) {
-            jgen.writeObject(sourceAgentTimeSeriesHistogram);
-        } else {
-            jgen.writeFieldName("sourceTimeSeriesHistogram");
-            jgen.writeStartObject();
-            jgen.writeEndObject();
-        }
+        jgen.writeObject(sourceAgentTimeSeriesHistogram);
     }
 
-    private void writeSimpleNode(String fieldName, Node node, JsonGenerator jgen, boolean isAuthorized) throws IOException {
+    private void writeSimpleNode(String fieldName, Node node, JsonGenerator jgen) throws IOException {
         jgen.writeFieldName(fieldName);
 
         jgen.writeStartObject();
         Application application = node.getApplication();
         jgen.writeStringField("applicationName", application.getName());
-        if (isAuthorized) {
-            jgen.writeStringField("serviceType", application.getServiceType().toString());
-            jgen.writeNumberField("serviceTypeCode", application.getServiceTypeCode());
-        } else {
-            jgen.writeStringField("serviceType", ServiceType.UNAUTHORIZED.toString());
-            jgen.writeNumberField("serviceTypeCode", ServiceType.UNAUTHORIZED.getCode());
-        }
+        jgen.writeStringField("serviceType", application.getServiceType().toString());
+        jgen.writeNumberField("serviceTypeCode", application.getServiceTypeCode());
         jgen.writeBooleanField("isWas", application.getServiceType().isWas());
         jgen.writeEndObject();
     }

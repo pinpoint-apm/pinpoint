@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.web.vo;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 
 /**
  * @author netspider
@@ -35,7 +37,7 @@ public class TransactionMetadataQuery {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
-        TransactionId traceId = new TransactionId(transactionId);
+        TransactionId traceId = TransactionIdUtils.parseTransactionId(transactionId);
         QueryCondition condition = new QueryCondition(traceId, collectorAcceptTime, responseTime);
         queryConditionList.add(condition);
     }

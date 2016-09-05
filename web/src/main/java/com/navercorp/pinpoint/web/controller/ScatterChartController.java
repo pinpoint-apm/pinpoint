@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.DateUtils;
+import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.util.TransactionIdComparator;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
@@ -28,7 +30,6 @@ import com.navercorp.pinpoint.web.view.ServerTime;
 import com.navercorp.pinpoint.web.view.TransactionMetaDataViewModel;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.TransactionId;
 import com.navercorp.pinpoint.web.vo.TransactionMetadataQuery;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -43,11 +44,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.Map;
 
 /**
  * @author netspider
@@ -93,16 +92,14 @@ public class ScatterChartController {
     /**
      * selected points from scatter chart data query
      *
-     * @param model
-     * @param request
-     * @param response
+     * @param requestParam
      * @return
      */
     @RequestMapping(value = "/transactionmetadata", method = RequestMethod.POST)
     @ResponseBody
-    public TransactionMetaDataViewModel transactionmetadata(Model model, HttpServletRequest request, HttpServletResponse response) {
+    public TransactionMetaDataViewModel transactionmetadata(@RequestParam Map<String, String> requestParam) {
         TransactionMetaDataViewModel viewModel = new TransactionMetaDataViewModel();
-        TransactionMetadataQuery query = parseSelectTransaction(request);
+        TransactionMetadataQuery query = parseSelectTransaction(requestParam);
         if (query.size() > 0) {
             List<SpanBo> metadata = scatter.selectTransactionMetadata(query);
             viewModel.setSpanBoList(metadata);
@@ -111,19 +108,19 @@ public class ScatterChartController {
         return viewModel;
     }
 
-    private TransactionMetadataQuery parseSelectTransaction(HttpServletRequest request) {
+    private TransactionMetadataQuery parseSelectTransaction(Map<String, String> requestParam) {
         final TransactionMetadataQuery query = new TransactionMetadataQuery();
         int index = 0;
         while (true) {
-            final String traceId = request.getParameter(PREFIX_TRANSACTION_ID + index);
-            final String time = request.getParameter(PREFIX_TIME + index);
-            final String responseTime = request.getParameter(PREFIX_RESPONSE_TIME + index);
+            final String transactionId = requestParam.get(PREFIX_TRANSACTION_ID + index);
+            final String time = requestParam.get(PREFIX_TIME + index);
+            final String responseTime = requestParam.get(PREFIX_RESPONSE_TIME + index);
 
-            if (traceId == null || time == null || responseTime == null) {
+            if (transactionId == null || time == null || responseTime == null) {
                 break;
             }
 
-            query.addQueryCondition(traceId, Long.parseLong(time), Integer.parseInt(responseTime));
+            query.addQueryCondition(transactionId, Long.parseLong(time), Integer.parseInt(responseTime));
             index++;
         }
         logger.debug("query:{}", query);
@@ -200,23 +197,20 @@ public class ScatterChartController {
     private ModelAndView selectFilterScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection, String filterText, int version) {
         final LimitedScanResult<List<TransactionId>> limitedScanResult = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit, backwardDirection);
 
-        final List<TransactionId> traceIdList = limitedScanResult.getScanData();
-        logger.trace("submitted transactionId count={}", traceIdList.size());
+        final List<TransactionId> transactionIdList = limitedScanResult.getScanData();
+        logger.trace("submitted transactionId count={}", transactionIdList.size());
 
-        boolean requestComplete = traceIdList.size() < limit;
+        boolean requestComplete = transactionIdList.size() < limit;
 
-        // TODO just need sorted?  we need range check with tree-based structure.
-        SortedSet<TransactionId> traceIdSet = new TreeSet<>(traceIdList);
-        logger.debug("unified traceIdSet size={}", traceIdSet.size());
-
+        Collections.sort(transactionIdList, TransactionIdComparator.INSTANCE);
         Filter filter = filterBuilder.build(filterText);
 
         ModelAndView mv;
         if (version == 1) {
-            ScatterData scatterData = scatter.selectScatterData(traceIdSet, applicationName, range, xGroupUnit, yGroupUnit, filter);
+            ScatterData scatterData = scatter.selectScatterData(transactionIdList, applicationName, range, xGroupUnit, yGroupUnit, filter);
             if (logger.isDebugEnabled()) {
                 logger.debug("getScatterData range scan(limited:{}, backwardDirection:{}) from ~ to:{} ~ {}, limited:{}, filterDataSize:{}",
-                        limit, backwardDirection, DateUtils.longToDateStr(range.getFrom()), DateUtils.longToDateStr(range.getTo()), DateUtils.longToDateStr(limitedScanResult.getLimitedTime()), traceIdList.size());
+                        limit, backwardDirection, DateUtils.longToDateStr(range.getFrom()), DateUtils.longToDateStr(range.getTo()), DateUtils.longToDateStr(limitedScanResult.getLimitedTime()), transactionIdList.size());
             }
 
             mv = createScatterDataV1(scatterData, requestComplete);

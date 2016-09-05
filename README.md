@@ -53,6 +53,9 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 * gson, Jackson, Json Lib
 * log4j, Logback
 
+## Third Party Agents/Plugins
+There may be agents, and plugins that are being developed and managed by other individuals/organizations. Please take a look [here](https://github.com/naver/pinpoint/wiki#third-party-agentsplugins) for the list and see if you would like to help out in their development.
+
 ## Quick Start
 You may run a sample Pinpoint instance in your own machine by running four simple scripts for each components: Collector, Web, Sample TestApp, HBase.
 
@@ -64,10 +67,11 @@ For details, please refer to the [quick-start guide](quickstart/README.md).
 **Build Requirements**
 
 * JDK 6 installed ([jdk1.6_45](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase6-419409.html))
+* JDK 7 installed
 * JDK 8 installed
 * Maven 3.2.x+ installed
 * JAVA_6_HOME environment variable set to JDK 6 home directory.
-* JAVA_7_HOME environment variable set to JDK 7+ home directory.
+* JAVA_7_HOME environment variable set to JDK 7 home directory.
 * JAVA_8_HOME environment variable set to JDK 8+ home directory.
 
 **Prerequisites**
@@ -79,7 +83,7 @@ Pinpoint Version | Agent | Collector | Web
 1.0.x | 6+ | 6+ | 6+
 1.1.x | 6+ | 7+ | 7+
 1.5.x | 6+ | 7+ | 7+
-1.6.x | 6+ | 8+ | 8+
+1.6.x | 6+ | 7+ | 7+
 
 HBase compatibility table:
 
@@ -96,8 +100,8 @@ Agent Version | Collector 1.0.x | Collector 1.1.x | Collector 1.5.x | Collector 
 ------------- | --------------- | --------------- | --------------- | --------------- 
 1.0.x | yes | yes | yes | yes
 1.1.x | not tested | yes | yes | yes
-1.5.x | no | no | yes | Yes
-1.6.x | no | no | not tested | Yes
+1.5.x | no | no | yes | yes
+1.6.x | no | no | not tested | yes
 
 **Installation**
 

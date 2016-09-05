@@ -43,6 +43,7 @@
         <module>dubbo</module>
         <module>cassandra</module>
         <module>activemq-client</module>
+        <module>cxf</module>
         <module>hystrix</module>
     </modules>
 
@@ -56,12 +57,12 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-httpclient4-plugin</artifactId>
             <version>${project.version}</version>
-        </dependency> 
+        </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-ning-asynchttpclient-plugin</artifactId>
             <version>${project.version}</version>
-        </dependency> 
+        </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-gson-plugin</artifactId>
@@ -204,7 +205,11 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+<<<<<<< HEAD
             <artifactId>pinpoint-hystrix-plugin</artifactId>
+=======
+            <artifactId>pinpoint-cxf-plugin</artifactId>
+>>>>>>> naver/master
             <version>${project.version}</version>
         </dependency>
     </dependencies>

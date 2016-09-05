@@ -8,7 +8,7 @@
 	 * @class
 	 */	
 	pinpointApp.directive( "groupMemberDirective", [ "$timeout", "helpContentTemplate", "helpContentService", "AlarmUtilService", "AnalyticsService",
-	    function ( $timeout, helpContentTemplate, helpContentService, AlarmUtilService, AnalyticsService) {
+	    function ( $timeout, helpContentTemplate, helpContentService, AlarmUtilService, AnalyticsService ) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -140,14 +140,14 @@
 								"userGroupId": currentUserGroupId
 							});
 							scope.groupMemberList = oGroupMemberList;
-							scope.$emit( "groupMember.sendCallbackAddedUser", true );
+							scope.$emit( "groupMember.sendCallbackAddedUser", true, oUser.userId );
 							AlarmUtilService.setTotal( $elTotal, oGroupMemberList.length );
 							AlarmUtilService.hide( $elLoading );
 						}, function() {
 							showAlert({
 								message: CONSTS.EXIST_A_SAME
 							});
-							scope.$emit( "groupMember.sendCallbackAddedUser", true );
+							scope.$emit( "groupMember.sendCallbackAddedUser", false, oUser.userId );
 						});
 	    			});
 	    			scope.$on( "groupMember.updateUser", function( event, oUser )  {
@@ -192,7 +192,8 @@
 				cbFail();
 			} else {
 				AlarmUtilService.sendCRUD( "addMemberInGroup", {
-					"userGroupId": currentUserGroupId, "memberId": oUser.userId
+					"userGroupId": currentUserGroupId,
+					"memberId": oUser.userId
 				}, function( oServerData ) {
 					cbSuccess( oUser );
 					AlarmUtilService.hide( $elLoading );

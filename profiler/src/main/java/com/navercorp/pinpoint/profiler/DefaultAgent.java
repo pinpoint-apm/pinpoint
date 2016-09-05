@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
 import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInvokerHelper;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
@@ -37,6 +39,7 @@ import com.navercorp.pinpoint.profiler.context.storage.BufferedStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
+import com.navercorp.pinpoint.profiler.instrument.ASMClassPool;
 import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
 import com.navercorp.pinpoint.profiler.instrument.JavassistClassPool;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
@@ -108,7 +111,7 @@ public class DefaultAgent implements Agent {
     private final ServiceTypeRegistryService serviceTypeRegistryService;
     
     private final Instrumentation instrumentation;
-    private final JavassistClassPool classPool;
+    private final InstrumentClassPool classPool;
     private final DynamicTransformService dynamicTransformService;
     private final List<DefaultProfilerPluginContext> pluginContexts;
     
@@ -168,8 +171,14 @@ public class DefaultAgent implements Agent {
         this.profilerConfig = agentOption.getProfilerConfig();
         this.instrumentation = agentOption.getInstrumentation();
         this.agentOption = agentOption;
-        this.classPool = new JavassistClassPool(interceptorRegistryBinder, agentOption.getBootStrapCoreJarPath());
-        
+
+        if(this.profilerConfig.isProfileInstrumentASM()) {
+            logger.info("ASM class pool.");
+            this.classPool = new ASMClassPool(interceptorRegistryBinder, agentOption.getBootstrapJarPaths());
+        } else {
+            this.classPool = new JavassistClassPool(interceptorRegistryBinder, agentOption.getBootstrapJarPaths());
+        }
+
         if (logger.isInfoEnabled()) {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
@@ -228,8 +237,8 @@ public class DefaultAgent implements Agent {
         return classFileTransformerDispatcher;
     }
 
-    public String getBootstrapCoreJar() {
-        return agentOption.getBootStrapCoreJarPath();
+    public List<String> getBootstrapJarPaths() {
+        return agentOption.getBootstrapJarPaths();
     }
 
     protected List<DefaultProfilerPluginContext> loadPlugins(AgentOption agentOption) {
@@ -268,7 +277,7 @@ public class DefaultAgent implements Agent {
         return classFileTransformer;
     }
     
-    public JavassistClassPool getClassPool() {
+    public InstrumentClassPool getClassPool() {
         return classPool;
     }
 

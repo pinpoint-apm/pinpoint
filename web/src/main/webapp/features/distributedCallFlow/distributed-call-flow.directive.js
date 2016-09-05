@@ -7,14 +7,14 @@
 	 * @name distributedCallFlowDirective
 	 * @class
 	 */	
-	pinpointApp.directive('distributedCallFlowDirective', [ '$filter', '$timeout', 'CommonAjaxService',
-	    function ($filter, $timeout, commonAjaxService) {
+	pinpointApp.directive( "distributedCallFlowDirective", [ "$timeout", "CommonAjaxService", "CommonUtilService", "globalConfig",
+	    function ( $timeout, CommonAjaxService, CommonUtilService, globalConfig ) {
 	        return {
-	            restrict: 'E',
+	            restrict: "E",
 	            replace: true,
-	            templateUrl: 'features/distributedCallFlow/distributedCallFlow.html?v=${buildTime}',
+	            templateUrl: "features/distributedCallFlow/distributedCallFlow.html?v=${buildTime}",
 	            scope : {
-	                namespace : '@' // string value
+	                namespace : "@" // string value
 	            },
 	            link: function postLink(scope, element, attrs) {
 	                // initialize variables
@@ -26,7 +26,17 @@
 	
 	                // bootstrap
 	                window.callStacks = []; // Due to Slick.Data.DataView, must use window property to resolve scope-related problems.
-	
+
+					var removeTag = function( text ) {
+						return text.replace( /</g, "&lt;" ).replace( />/g, "$gt;" );
+					};
+					var getAuthorizeView = function( bIsAuthorized, text ) {
+						if ( bIsAuthorized ) {
+							return removeTag( text );
+						} else {
+							return "<i style='color:#AAA;'>" + removeTag( text ) + "</i> <a href='" + globalConfig.securityGuideUrl + "' target='_blank' style='color:#AAA;'><span class='glyphicon glyphicon-share'></span></a>";
+						}
+					};
 	                /**
 	                 * get color by string
 	                 * @param idx
@@ -53,7 +63,7 @@
 	                treeFormatter = function (row, cell, value, columnDef, dataContext) {
 	                    var html = [];
 	
-	                    value = value.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+	                    // value = value.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 	                    var item = dataView.getItemById(dataContext.id);
 	                    lastAgent = item.agent ? item.agent : lastAgent;
 	
@@ -68,7 +78,7 @@
 	                    }
 	
 	                    
-	                    html.push('<div class="'+divClass+'" data-container=".grid-canvas" data-toggle="popover" data-trigger="manual" data-placement="right" data-content="'+value+'">');
+	                    html.push('<div class="'+divClass+'" data-container=".grid-canvas" data-toggle="popover" data-trigger="manual" data-placement="right" data-content="'+ removeTag( value ) +'">');
 	                    html.push("<div style='position:absolute;top:0;left:0;bottom:0;width:5px;background-color:"+ leftBarColor +"'></div>");
 	                    html.push("<span style='display:inline-block;height:1px;width:" + (15 * dataContext["indent"]) + "px'></span>");
 	
@@ -106,7 +116,7 @@
 	                    	}
 	                    }
 	
-	                    html.push(value);
+	                    html.push( getAuthorizeView( dataContext.isAuthorized, value ) );
 	                    html.push('</div>');
 	
 	                    return html.join('');
@@ -141,11 +151,10 @@
 	                 * @param dataConrtext
 	                 * @returns {string}
 	                 */
-	                argumentFormatter = function (row, cell, value, columnDef, dataConrtext) {
+	                argumentFormatter = function (row, cell, value, columnDef, dataContext) {
 	                    var html = [];
-	
-	                    html.push('<div class="dcf-popover" data-container=".grid-canvas" data-toggle="popover" data-trigger="manual" data-placement="right" data-content="'+value+'">');
-	                    html.push(value);
+	                    html.push('<div class="dcf-popover" data-container=".grid-canvas" data-toggle="popover" data-trigger="manual" data-placement="right" data-content="'+ removeTag( value ) +'">');
+	                    html.push( getAuthorizeView( dataContext.isAuthorized, value ) );
 	                    html.push('</div>');
 	                    return html.join('');
 	                };
@@ -182,7 +191,11 @@
 	                 * @returns {*}
 	                 */
 	                execTimeFormatter = function (row, cell, value, columnDef, dataContext) {
-	                    return $filter('date')(value, 'HH:mm:ss sss');
+	                	if ( angular.isUndefined( value ) || value === null ) {
+	                		return "";
+						} else {
+							return CommonUtilService.formatDate(value, "HH:mm:ss SSS");
+						}
 	                };
 	
 	                /**
@@ -221,8 +234,10 @@
 	                    var result = [],
 	                        barRatio = 100 / (callStacks[0][index.end] - callStacks[0][index.begin]);
 	                    angular.forEach(callStacks, function (val, key) {
+	                    	var bAuthorized = typeof val[index['isAuthorized']] === "undefined" ? true : val[index['isAuthorized']];
 	                        result.push({
 	                            id: 'id_' + key,
+								isAuthorized: bAuthorized,
 	                            parent: val[index['parentId']] ? val[index['parentId']] - 1 : null,
 	                            indent: val[index['tab']],
 	                            method: val[index['title']],
@@ -332,32 +347,39 @@
 	                        	item = dataView.getItem(args.row);
 	                        	var itemNext = dataView.getItem(args.row+1);
 	                        	var data = "sql=" + encodeURIComponent( item.argument );
-	                        	
-	                        	if ( angular.isDefined( itemNext ) && itemNext.method === "SQL-BindValue" ) {
-	                        		data += "&bind=" + encodeURIComponent( itemNext.argument );
-	                        		commonAjaxService.getSQLBind( "/sqlBind.pinpoint", data, function( result ) {
-		                        		$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html(
-		                        				'<h4>Binded SQL <button class="btn btn-default btn-xs sql">Copy</button></h4>' + 
-		                        				'<div style="position:absolute;left:10000px">' + result + '</div>' +
-		                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + result.replace(/\t\t/g, "") + '</pre>' +
-		                        				'<hr>' + 
-		                        				'<h4>Original SQL <button class="btn btn-default btn-xs sql">Copy</button></h4>' + 
-		                        				'<div style="position:absolute;left:10000px">' + item.argument + '</div>' + 		                        				
-		                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + item.argument.replace(/\t\t/g, "") + '</pre>' +
-		                        				'<h4>SQL Bind Value <button class="btn btn-default btn-xs sql">Copy</button></h4>' +
-		                        				'<div style="position:absolute;left:10000px">' + itemNext.argument + '</div>' +
-		                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + itemNext.argument + '</pre>'
-		                        		).end().modal("show");
-		                        		prettyPrint();
-		                        	});
-	                        	} else {
-	                        		$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html(
-	                        			'<h4>Original SQL <button class="btn btn-default btn-xs sql">Copy</button></h4>' + 
-                        				'<div style="position:absolute;left:10000px">' + item.argument + '</div>' +
-                        				'<pre class="prettyprint lang-sql" style="margin-top:0px">' + item.argument.replace(/\t\t/g, "") + '</pre>' 
-	                        		).end().modal("show");
-	                        		prettyPrint();
-	                        	}
+
+								if ( item.isAuthorized ) {
+									if ( angular.isDefined( itemNext ) && itemNext.method === "SQL-BindValue" ) {
+										data += "&bind=" + encodeURIComponent( itemNext.argument );
+										CommonAjaxService.getSQLBind( "/sqlBind.pinpoint", data, function( result ) {
+											$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html(
+													'<h4>Binded SQL <button class="btn btn-default btn-xs sql">Copy</button></h4>' +
+													'<div style="position:absolute;left:10000px">' + result + '</div>' +
+													'<pre class="prettyprint lang-sql" style="margin-top:0px">' + result.replace(/\t\t/g, "") + '</pre>' +
+													'<hr>' +
+													'<h4>Original SQL <button class="btn btn-default btn-xs sql">Copy</button></h4>' +
+													'<div style="position:absolute;left:10000px">' + item.argument + '</div>' +
+													'<pre class="prettyprint lang-sql" style="margin-top:0px">' + item.argument.replace(/\t\t/g, "") + '</pre>' +
+													'<h4>SQL Bind Value <button class="btn btn-default btn-xs sql">Copy</button></h4>' +
+													'<div style="position:absolute;left:10000px">' + itemNext.argument + '</div>' +
+													'<pre class="prettyprint lang-sql" style="margin-top:0px">' + itemNext.argument + '</pre>'
+											).end().modal("show");
+											prettyPrint();
+										});
+									} else {
+										$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html(
+											'<h4>Original SQL <button class="btn btn-default btn-xs sql">Copy</button></h4>' +
+											'<div style="position:absolute;left:10000px">' + item.argument + '</div>' +
+											'<pre class="prettyprint lang-sql" style="margin-top:0px">' + item.argument.replace(/\t\t/g, "") + '</pre>'
+										).end().modal("show");
+										prettyPrint();
+									}
+								} else {
+									$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html(
+										'<h4>Original SQL</h4>' +
+										'<div style="margin-top:0px;padding:6px 10px;border-radius:4px;background-color:#C56A6A;color:#D7FBBA;">' + item.argument.replace(/\t\t/g, "") + '</div>'
+									).end().modal("show");
+								}
 	                        }
 	
 	                        if (!clickTimeout) {

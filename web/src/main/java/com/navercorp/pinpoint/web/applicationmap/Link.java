@@ -49,10 +49,12 @@ public class Link {
     // specifies who created the link.
     // indicates whether it was automatically created by the source, or if it was manually created by the target.
     private final CreateType createType;
+
     private final Node fromNode;
     private final Node toNode;
 
     private final Range range;
+
 
     private final LinkStateResolver linkStateResolver = LinkStateResolver.DEFAULT_LINK_STATE_RESOLVER;
 
@@ -113,8 +115,12 @@ public class Link {
         return toNode;
     }
 
-    public String getLinkName(boolean isAuthFromApp, boolean isAuthToApp) {
-        return fromNode.getNodeName(isAuthFromApp) + LINK_DELIMITER + toNode.getNodeName(isAuthToApp);
+    public Range getRange() {
+        return range;
+    }
+
+    public String getLinkName() {
+        return fromNode.getNodeName() + LINK_DELIMITER + toNode.getNodeName();
     }
 
     public LinkCallDataMap getSourceLinkCallDataMap() {
@@ -124,7 +130,10 @@ public class Link {
     public LinkCallDataMap getTargetLinkCallDataMap() {
         return targetLinkCallDataMap;
     }
-
+    
+    public CreateType getCreateType() {
+        return createType;
+    }
 
     public AgentHistogramList getTargetList() {
         return sourceLinkCallDataMap.getTargetList();

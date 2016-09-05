@@ -17,6 +17,8 @@ package com.navercorp.pinpoint.plugin.jdk.http;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
+
 /**
  * @author Jongho Moon
  *
@@ -25,5 +27,5 @@ public final class JdkHttpConstants {
     private JdkHttpConstants() {
     }
 
-    public static final ServiceType SERVICE_TYPE = ServiceTypeFactory.of(9055, "JDK_HTTPURLCONNECTOR", "JDK_HTTPCONNECTOR");
+    public static final ServiceType SERVICE_TYPE = ServiceTypeFactory.of(9055, "JDK_HTTPURLCONNECTOR", "JDK_HTTPCONNECTOR", RECORD_STATISTICS);
 }

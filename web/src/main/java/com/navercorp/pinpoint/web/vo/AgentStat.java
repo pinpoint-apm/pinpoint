@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -26,6 +25,7 @@ import com.navercorp.pinpoint.common.trace.SlotType;
 /**
  * @author HyunGil Jeong
  */
+@Deprecated
 public class AgentStat {
     public static final long AGGR_SAMPLE_INTERVAL = TimeUnit.MINUTES.toMillis(10);
     public static final long RAW_SAMPLE_INTERVAL = TimeUnit.SECONDS.toMillis(5);

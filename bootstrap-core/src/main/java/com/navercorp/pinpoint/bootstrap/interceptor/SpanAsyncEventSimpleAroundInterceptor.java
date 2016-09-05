@@ -9,6 +9,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.trace.MethodType;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInterceptor {
@@ -242,7 +243,7 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
 
         @Override
         public int getType() {
-            return 200;
+            return MethodType.INVOCATION;
         }
     }
 }

@@ -32,6 +32,8 @@ module.exports = function( grunt, options ) {
 				'/google-code-prettify/prettify.js',
 				'/google-code-prettify/lang-sql.js',
 				'/moment/moment.js',
+				'/moment/moment-with-locales.min.js',
+				'/moment/moment-timezone-with-data.min.js',
 				'/select2/dist/js/select2.full.min.js',
 				'/jquery-class/jquery.Class.js',
 				'/jquery.layout/dist/jquery.layout-latest.js',

@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.collector.handler;
 
+import com.navercorp.pinpoint.collector.dao.AgentStatDao;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.navercorp.pinpoint.collector.dao.AgentStatDao;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 
@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
  * @author emeroad
  * @author hyungil.jeong
  */
+@Deprecated
 @Service("agentStatHandler")
 public class AgentStatHandler implements Handler {
 
@@ -38,6 +39,7 @@ public class AgentStatHandler implements Handler {
     @Autowired
     private AgentStatDao agentStatDao;
 
+    @Override
     public void handle(TBase<?, ?> tbase) {
         // FIXME (2014.08) Legacy - TAgentStats should not be sent over the wire.
         if (tbase instanceof TAgentStat) {

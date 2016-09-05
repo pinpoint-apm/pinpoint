@@ -16,21 +16,22 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase;
 
-import com.navercorp.pinpoint.collector.dao.TracesDao;
-import com.navercorp.pinpoint.collector.dao.hbase.filter.SpanEventFilter;
-import com.navercorp.pinpoint.common.server.bo.serializer.AnnotationSerializer;
-import com.navercorp.pinpoint.common.server.bo.serializer.SpanEventSerializer;
-import com.navercorp.pinpoint.common.server.bo.serializer.SpanSerializer;
+import com.navercorp.pinpoint.collector.dao.TraceDao;
+
+import com.navercorp.pinpoint.common.server.bo.BasicSpan;
+import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
+import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
+import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.AnnotationSerializer;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanEventEncodingContext;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanEventSerializer;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanSerializer;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.util.SpanUtils;
-import com.navercorp.pinpoint.thrift.dto.TSpan;
-import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
-import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
-import com.sematext.hbase.wd.AbstractRowKeyDistributor;
+import com.navercorp.pinpoint.common.util.TransactionId;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
@@ -45,7 +46,7 @@ import java.util.List;
  * @author emeroad
  */
 @Repository
-public class HbaseTraceDao implements TracesDao {
+public class HbaseTraceDao implements TraceDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -68,28 +69,27 @@ public class HbaseTraceDao implements TracesDao {
     private AnnotationSerializer annotationSerializer;
 
     @Autowired
-    @Qualifier("traceDistributor")
-    private AbstractRowKeyDistributor rowKeyDistributor;
+    @Qualifier("traceRowKeyEncoderV1")
+    private RowKeyEncoder<TransactionId> rowKeyEncoder;
 
     @Override
-    public void insert(final TSpan span) {
-        if (span == null) {
+    public void insert(final SpanBo spanBo) {
+        if (spanBo == null) {
             throw new NullPointerException("span must not be null");
         }
 
-        final SpanBo spanBo = new SpanBo(span);
 
-        long acceptedTime = acceptedTimeService.getAcceptedTime();
-        spanBo.setCollectorAcceptTime(acceptedTime);
+        long acceptedTime = spanBo.getCollectorAcceptTime();
 
-        final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(span));
+        TransactionId transactionId = spanBo.getTransactionId();
+        final byte[] rowKey = rowKeyEncoder.encodeRowKey(transactionId);
         final Put put = new Put(rowKey, acceptedTime);
 
         this.spanSerializer.serialize(spanBo, put, null);
         this.annotationSerializer.serialize(spanBo, put, null);
 
 
-        addNestedSpanEvent(put, span);
+        addNestedSpanEvent(put, spanBo);
 
         boolean success = hbaseTemplate.asyncPut(TRACES, put);
         if (!success) {
@@ -97,38 +97,33 @@ public class HbaseTraceDao implements TracesDao {
         }
     }
 
-    private byte[] getDistributeRowKey(byte[] transactionId) {
-        return rowKeyDistributor.getDistributedKey(transactionId);
-    }
-
-    private void addNestedSpanEvent(Put put, TSpan span) {
-        final List<TSpanEvent> spanEventBoList = span.getSpanEventList();
+    private void addNestedSpanEvent(Put put, SpanBo span) {
+        final List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
         if (CollectionUtils.isEmpty(spanEventBoList)) {
             return;
         }
 
 
-        for (TSpanEvent spanEvent : spanEventBoList) {
-            final SpanEventBo spanEventBo = new SpanEventBo(span, spanEvent);
-            addColumn(put, spanEventBo);
+        for (SpanEventBo spanEvent : spanEventBoList) {
+            addColumn(put, span, spanEvent);
         }
     }
 
     @Override
-    public void insertSpanChunk(TSpanChunk spanChunk) {
-        final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(spanChunk));
+    public void insertSpanChunk(SpanChunkBo spanChunkBo) {
+        TransactionId transactionId = spanChunkBo.getTransactionId();
+        final byte[] rowKey = rowKeyEncoder.encodeRowKey(transactionId);
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
         final Put put = new Put(rowKey, acceptedTime);
 
-        final List<TSpanEvent> spanEventBoList = spanChunk.getSpanEventList();
+        final List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
         if (CollectionUtils.isEmpty(spanEventBoList)) {
             return;
         }
 
 
-        for (TSpanEvent spanEvent : spanEventBoList) {
-            final SpanEventBo spanEventBo = new SpanEventBo(spanChunk, spanEvent);
-            addColumn(put, spanEventBo);
+        for (SpanEventBo spanEventBo : spanEventBoList) {
+            addColumn(put, spanChunkBo, spanEventBo);
         }
 
         if (!put.isEmpty()) {
@@ -139,11 +134,12 @@ public class HbaseTraceDao implements TracesDao {
         }
     }
 
-    private void addColumn(Put put, SpanEventBo spanEventBo) {
+    private void addColumn(Put put, BasicSpan basicSpan, SpanEventBo spanEventBo) {
         if (!spanEventFilter.filter(spanEventBo)) {
             return;
         }
-        this.spanEventSerializer.serialize(spanEventBo, put, null);
+        SpanEventEncodingContext spanEventEncodingContext = new SpanEventEncodingContext(basicSpan, spanEventBo);
+        this.spanEventSerializer.serialize(spanEventEncodingContext, put, null);
     }
 
 

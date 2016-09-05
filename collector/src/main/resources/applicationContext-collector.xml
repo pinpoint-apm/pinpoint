@@ -21,8 +21,9 @@
                         com.navercorp.pinpoint.collector.mapper,
                         com.navercorp.pinpoint.collector.util,
                         com.navercorp.pinpoint.collector.config,
+                        com.navercorp.pinpoint.common.server.bo.codec,
                         com.navercorp.pinpoint.common.server.util,
-                        com.navercorp.pinpoint.common.server.bo.serializer" />
+                        com.navercorp.pinpoint.common.server.bo" />
 
     <bean id="propertyConfigurer"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -232,8 +233,7 @@
         <constructor-arg index="5" value="#{collectorConfiguration.udpSpanWorkerType}"/>
         <constructor-arg index="6" value="#{collectorConfiguration.udpSpanWorkerThread}"/>
         <constructor-arg index="7" value="#{collectorConfiguration.udpSpanWorkerQueueSize}"/>
-        <constructor-arg index="8" value="#{collectorMetric.enable}"/>
-
+        <constructor-arg index="8" value="#{collectorConfiguration.udpSpanWorkerMonitor}"/>
     </bean>
 
     <!-- UDPStatReceiver related Beans -->
@@ -252,7 +252,7 @@
         <constructor-arg index="5" value="#{collectorConfiguration.udpStatWorkerType}"/>
         <constructor-arg index="6" value="#{collectorConfiguration.udpStatWorkerThread}"/>
         <constructor-arg index="7" value="#{collectorConfiguration.udpStatWorkerQueueSize}"/>
-        <constructor-arg index="8" value="#{collectorMetric.enable}"/>
+        <constructor-arg index="8" value="#{collectorConfiguration.udpStatWorkerMonitor}"/>
     </bean>
     
     <bean id="jsonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper">
@@ -276,10 +276,16 @@
     <bean id="timeSlot" class="com.navercorp.pinpoint.common.util.DefaultTimeSlot">
     </bean>
 
+    <bean id="slf4jCommonLoggerFactory" class="com.navercorp.pinpoint.common.server.util.Slf4jCommonLoggerFactory">
+    </bean>
 
-    <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService"/>
+    <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService">
+        <constructor-arg ref="slf4jCommonLoggerFactory"/>
+    </bean>
+
     <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService">
         <constructor-arg ref="typeLoaderService"/>
+        <constructor-arg ref="slf4jCommonLoggerFactory"/>
     </bean>
     
     <bean id="sqlMetaDataHandler" class="com.navercorp.pinpoint.collector.handler.SqlMetaDataHandler">
@@ -288,7 +294,7 @@
     
     <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.collector.dao.hbase.HbaseSqlMetaDataDao"/>
 
-    <bean id="sequenceSpanEventFilter" class="com.navercorp.pinpoint.collector.dao.hbase.filter.SequenceSpanEventFilter">
+    <bean id="sequenceSpanEventFilter" class="com.navercorp.pinpoint.common.server.bo.filter.SequenceSpanEventFilter">
         <constructor-arg index="0" value="${collector.spanEvent.sequence.limit:10000}"/>
     </bean>
 </beans>

@@ -103,4 +103,15 @@ public class UserGroupServiceImpl implements UserGroupService {
         userGroupDao.updateUserGroupIdOfMember(userGroup);
     }
 
+    @Override
+    public boolean containMemberForUserGroup(String userId, String userGroupId) {
+        List<UserGroupMember> memberList = userGroupDao.selectMember(userGroupId);
+        for (UserGroupMember member : memberList) {
+            if(member.getMemberId().equals(userId)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
 }

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.navercorp.pinpoint.profiler;
 
 import java.lang.instrument.ClassFileTransformer;
@@ -38,6 +37,7 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 /**
  * @author emeroad
  * @author netspider
+ * @author jaehong.kim
  */
 public class ClassFileTransformerDispatcher implements ClassFileTransformer, DynamicTransformRequestListener {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -47,19 +47,19 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
 
     private final TransformerRegistry transformerRegistry;
     private final DynamicTransformerRegistry dynamicTransformerRegistry;
-    
+
     private final DefaultProfilerPluginContext globalContext;
     private final Filter<String> debugTargetFilter;
     private final DebugTransformer debugTransformer;
 
     private final ClassFileFilter pinpointClassFilter;
     private final ClassFileFilter unmodifiableFilter;
-    
+
     public ClassFileTransformerDispatcher(DefaultAgent agent, List<DefaultProfilerPluginContext> pluginContexts) {
         if (agent == null) {
             throw new NullPointerException("agent must not be null");
         }
-        
+
         this.globalContext = new DefaultProfilerPluginContext(agent, new LegacyProfilerPluginClassInjector(getClass().getClassLoader()));
         this.debugTargetFilter = agent.getProfilerConfig().getProfilableClassFilter();
         this.debugTransformer = new DebugTransformer(globalContext);
@@ -81,7 +81,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
         if (dynamicTransformer != null) {
             return transform0(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer, dynamicTransformer);
         }
-        
+
         if (!unmodifiableFilter.accept(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer)) {
             return null;
         }
@@ -134,7 +134,6 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
         return this.dynamicTransformerRegistry.onRetransformRequest(target, transformer);
     }
 
-
     @Override
     public void onTransformRequest(ClassLoader classLoader, String targetClassName, ClassFileTransformer transformer) {
         this.dynamicTransformerRegistry.onTransformRequest(classLoader, targetClassName, transformer);
@@ -159,7 +158,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
         for (DefaultProfilerPluginContext pluginContext : pluginContexts) {
             for (ClassFileTransformer transformer : pluginContext.getClassEditors()) {
                 if (transformer instanceof MatchableClassFileTransformer) {
-                    MatchableClassFileTransformer t = (MatchableClassFileTransformer)transformer;
+                    MatchableClassFileTransformer t = (MatchableClassFileTransformer) transformer;
                     logger.info("Registering class file transformer {} for {} ", t, t.getMatcher());
                     registry.addTransformer(t.getMatcher(), t);
                 } else {
@@ -167,8 +166,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
                 }
             }
         }
-        
+
         return registry;
     }
-
 }

@@ -15,7 +15,7 @@
 
 package com.navercorp.pinpoint.web.scatter;
 
-import com.navercorp.pinpoint.web.vo.TransactionId;
+import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import org.junit.Assert;
 import org.junit.Test;

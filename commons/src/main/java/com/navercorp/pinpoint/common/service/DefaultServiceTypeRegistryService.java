@@ -19,30 +19,36 @@ package com.navercorp.pinpoint.common.service;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeInfo;
 import com.navercorp.pinpoint.common.trace.ServiceTypeRegistry;
+import com.navercorp.pinpoint.common.util.logger.CommonLogger;
+import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
+import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  * @author emeroad
  */
 public class DefaultServiceTypeRegistryService implements ServiceTypeRegistryService {
-    private final Logger logger = Logger.getLogger(DefaultServiceTypeRegistryService.class.getName());
+    private final CommonLogger logger;
 
     private final TraceMetadataLoaderService typeLoaderService;
     private final ServiceTypeRegistry registry;
 
     public DefaultServiceTypeRegistryService() {
-        this(new DefaultTraceMetadataLoaderService());
+        this(new DefaultTraceMetadataLoaderService(), StdoutCommonLoggerFactory.INSTANCE);
     }
 
 
-    public DefaultServiceTypeRegistryService(TraceMetadataLoaderService typeLoaderService) {
+    public DefaultServiceTypeRegistryService(TraceMetadataLoaderService typeLoaderService, CommonLoggerFactory commonLoggerFactory) {
         if (typeLoaderService == null) {
             throw new NullPointerException("typeLoaderService must not be null");
         }
+        if (commonLoggerFactory == null) {
+            throw new NullPointerException("commonLoggerFactory must not be null");
+        }
+        this.logger = commonLoggerFactory.getLogger(DefaultServiceTypeRegistryService.class.getName());
         this.typeLoaderService = typeLoaderService;
         this.registry = buildServiceTypeRegistry();
     }
@@ -53,7 +59,7 @@ public class DefaultServiceTypeRegistryService implements ServiceTypeRegistrySer
         StaticFieldLookUp<ServiceType> staticFieldLookUp = new StaticFieldLookUp<ServiceType>(ServiceType.class, ServiceType.class);
         List<ServiceType> lookup = staticFieldLookUp.lookup();
         for (ServiceType serviceType: lookup) {
-            if (logger.isLoggable(Level.INFO)) {
+            if (logger.isInfoEnabled()) {
                 logger.info("add Default ServiceType:" + serviceType);
             }
             builder.addServiceType(serviceType);
@@ -61,7 +67,7 @@ public class DefaultServiceTypeRegistryService implements ServiceTypeRegistrySer
 
         final List<ServiceTypeInfo> types = loadType();
         for (ServiceTypeInfo type : types) {
-            if (logger.isLoggable(Level.INFO)) {
+            if (logger.isInfoEnabled()) {
                 logger.info("add Plugin ServiceType:" + type.getServiceType());
             }
             builder.addServiceType(type.getServiceType());

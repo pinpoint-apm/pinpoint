@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.test.junit4;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.navercorp.pinpoint.common.server.bo.SpanFactory;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.test.ListenableDataSender;
 import com.navercorp.pinpoint.test.MockAgent;
@@ -45,13 +46,15 @@ public abstract class BasePinpointTest {
     private volatile TBaseRecorder<? extends TBase<?, ?>> tBaseRecorder;
     private volatile ServerMetaDataHolder serverMetaDataHolder;
     private final TestableServerMetaDataListener listener = new TestableServerMetaDataListener();
+    private final SpanFactory spanFactory = new SpanFactory();
 
     protected List<SpanEventBo> getCurrentSpanEvents() {
         List<SpanEventBo> spanEvents = new ArrayList<SpanEventBo>();
         for (TBase<?, ?> span : this.tBaseRecorder) {
             if (span instanceof SpanEvent) {
                 SpanEvent spanEvent = (SpanEvent)span;
-                spanEvents.add(new SpanEventBo(spanEvent.getSpan(), spanEvent));
+                SpanEventBo spanEventBo = spanFactory.buildSpanEventBo(spanEvent);
+                spanEvents.add(spanEventBo);
             }
         }
         return spanEvents;
@@ -61,7 +64,8 @@ public abstract class BasePinpointTest {
         List<SpanBo> rootSpans = new ArrayList<SpanBo>();
         for (TBase<?, ?> span : this.tBaseRecorder) {
             if (span instanceof Span) {
-                rootSpans.add(new SpanBo((Span)span));
+                SpanBo spanBo = spanFactory.buildSpanBo((Span) span);
+                rootSpans.add(spanBo);
             }
         }
         return rootSpans;

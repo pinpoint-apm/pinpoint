@@ -29,13 +29,13 @@
 	                 */
 	                initialize = function (oServerMapFilterVoService) {
 	                    reset();
-	                    if (oServerMapFilterVo.getRequestUrlPattern()) {
+	                    if (oServerMapFilterVoService.getRequestUrlPattern()) {
 	                        scope.urlPattern = $base64.decode(oServerMapFilterVoService.getRequestUrlPattern());
 	                    }
-	                    scope.includeException = v.getIncludeException() ? 'Failed Only' : 'Success + Failed';
+	                    scope.includeException = oServerMapFilterVoService.getIncludeException() ? 'Failed Only' : 'Success + Failed';
 	
 	                    if (angular.isNumber(oServerMapFilterVoService.getResponseFrom()) &&
-	                        oServerMapFilterVo.getResponseTo()) {
+							oServerMapFilterVoService.getResponseTo()) {
 	                        var responseTime = [];
 	                        responseTime.push($filter('number')(oServerMapFilterVoService.getResponseFrom()));
 	                        responseTime.push('ms');

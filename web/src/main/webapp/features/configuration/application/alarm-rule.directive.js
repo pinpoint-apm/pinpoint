@@ -8,18 +8,17 @@
 	 * @class
 	 */	
 	
-	pinpointApp.directive( "alarmRuleDirective", [ "$rootScope", "$document", "$timeout", "AlarmUtilService", "AnalyticsService", "PreferenceService",
-	    function ( $rootScope, $document, $timeout, AlarmUtilService, AnalyticsService, PreferenceService ) {
+	pinpointApp.directive( "alarmRuleDirective", [ "AlarmUtilService", "AnalyticsService",
+	    function ( AlarmUtilService, AnalyticsService ) {
         return {
             restrict: 'EA',
             replace: true,
             templateUrl: 'features/configuration/application/alarmRule.html?v=' + G_BUILD_TIME,
             scope: true,
-            link: function (scope, element) {
+            link: function ( scope, element ) {
 				var $element = $(element);
 				var $elGuide = $element.find(".some-guide");
 				var $elWrapper = $element.find(".wrapper");
-				var $elTotal = $element.find(".total");
 				var $elLoading = $element.find(".some-loading");
 				var aEditNodes = [ $element.find("tr._edit1"), $element.find("tr._edit2") ];
 				var $elAlert = $element.find(".some-alert");
@@ -52,7 +51,6 @@
 						bIsLoaded = true;
 						oRuleList = oServerData;
 						scope.ruleList = oServerData;
-						AlarmUtilService.setTotal( $elTotal, oRuleList.length );
 						AlarmUtilService.hide( $elLoading );
 					}, showAlert );
 				}
@@ -136,15 +134,7 @@
 					}
 					return null;
 				}
-
-				// scope.$on("alarmRule.configuration.selectNone", function( event ) {
-				// 	cancelPreviousWork();
-				// 	currentApplicationId = "";
-				// 	oRuleList = [];
-				// 	scope.ruleList = [];
-				// 	AlarmUtilService.show( $elGuide );
-				// 	AlarmUtilService.setTotal( $elTotal, oRuleList.length );
-				// });
+				
 				scope.onAddAlarm = function() {
 					if ( currentApplicationId === "" || AddAlarm.isOn() ) {
 						return;
@@ -164,7 +154,6 @@
 						oRuleList.push( oNewRule );
 						scope.ruleList = oRuleList;
 						hideEditArea();
-						AlarmUtilService.setTotal( $elTotal, oRuleList.length );
 					}, showAlert );
 				};
 				scope.onCancelAddAlarm = function() {
@@ -192,7 +181,6 @@
 						scope.$apply(function() {
 							scope.ruleList = oRuleList;
 						});
-						AlarmUtilService.setTotal( $elTotal, oRuleList.length );
 					}, showAlert );
 				};
 				scope.onUpdateAlarm = function( $event ) {
@@ -226,7 +214,7 @@
 						scope.ruleList = oRuleList;
 					}, showAlert );
 				};
-				scope.$on("alarmRule.load", function( event, appId, invokeCount ) {
+				scope.$on("applicationGroup.sub.load", function( event, appId, invokeCount ) {
 					currentApplicationId = appId;
 					cancelPreviousWork();
 					AlarmUtilService.hide( $elGuide );

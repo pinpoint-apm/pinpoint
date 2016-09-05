@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.common.server.util.concurrent;
 
 import com.lmax.disruptor.EventTranslator;
-import com.lmax.disruptor.FatalExceptionHandler;
+import com.lmax.disruptor.IgnoreExceptionHandler;
 import com.lmax.disruptor.LiteBlockingWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.Sequence;
@@ -71,7 +71,7 @@ public class DisruptorExecutorService extends AbstractExecutorService {
 
     private WorkerPool<RunnableEvent> createWorkerPool(int poolSize, RingBuffer ringBuffer) {
         RunnableExecuteHandler[] handlers = prepareRunnableExecuteHandler(poolSize);
-        WorkerPool<RunnableEvent> workerPool = new WorkerPool(ringBuffer, ringBuffer.newBarrier(), new FatalExceptionHandler(), handlers);
+        WorkerPool<RunnableEvent> workerPool = new WorkerPool(ringBuffer, ringBuffer.newBarrier(), new IgnoreExceptionHandler(), handlers);
         return workerPool;
     }
 
@@ -182,7 +182,7 @@ public class DisruptorExecutorService extends AbstractExecutorService {
         return false;
     }
 
-    private class RunnableExecuteHandler implements WorkHandler<RunnableEvent> {
+    private static class RunnableExecuteHandler implements WorkHandler<RunnableEvent> {
 
         @Override
         public void onEvent(RunnableEvent runnableEvent) throws Exception {

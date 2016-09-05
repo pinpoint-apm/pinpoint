@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import org.json.simple.JSONObject;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -28,7 +30,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.util.DateUtils;
 import com.navercorp.pinpoint.web.applicationmap.Link;
 import com.navercorp.pinpoint.web.applicationmap.Node;
-import com.navercorp.pinpoint.web.vo.TransactionId;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 
@@ -38,7 +39,7 @@ import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
  */
 public class TransactionInfoViewModel {
 
-    private TransactionId traceId;
+    private TransactionId transactionId;
     private Collection<Node> nodes;
     private Collection<Link> links;
     private RecordSet recordSet;
@@ -48,8 +49,8 @@ public class TransactionInfoViewModel {
     private String logPageUrl;
     private String disableButtonMessage;
 
-    public TransactionInfoViewModel(TransactionId traceId, Collection<Node> nodes, Collection<Link> links, RecordSet recordSet, String completeState, boolean logLinkEnable, String logButtonName, String logPageUrl, String disableButtonMessage) {
-        this.traceId = traceId;
+    public TransactionInfoViewModel(TransactionId transactionId, Collection<Node> nodes, Collection<Link> links, RecordSet recordSet, String completeState, boolean logLinkEnable, String logButtonName, String logPageUrl, String disableButtonMessage) {
+        this.transactionId = transactionId;
         this.nodes = nodes;
         this.links = links;
         this.recordSet = recordSet;
@@ -67,7 +68,7 @@ public class TransactionInfoViewModel {
 
     @JsonProperty("transactionId")
     public String getTransactionId() {
-        return traceId.getFormatString();
+        return TransactionIdUtils.formatString(transactionId);
     }
 
     @JsonProperty("agentId")
@@ -114,7 +115,7 @@ public class TransactionInfoViewModel {
     public String getLogPageUrl() {
         if (logPageUrl != null && logPageUrl.length() > 0) {
             StringBuilder sb = new StringBuilder();
-            sb.append("transactionId=").append(traceId.getFormatString());
+            sb.append("transactionId=").append(getTransactionId());
             sb.append("&time=").append(recordSet.getStartTime());
             return logPageUrl + "?" + sb.toString();
         }
@@ -202,8 +203,6 @@ public class TransactionInfoViewModel {
                 "agent",
                 "isFocused",
                 "hasException",
-                "logButtonName",
-                "logPageUrl",
                 "isAuthorized"
         };
 
@@ -255,7 +254,7 @@ public class TransactionInfoViewModel {
                 executionMilliseconds = String.valueOf(record.getExecutionMilliseconds());
             }
             simpleClassName = record.getSimpleClassName();
-            methodType = String.valueOf(record.getMethodType());
+            methodType = String.valueOf(record.getMethodTypeEnum().getCode());
             apiType = record.getApiType();
             agent = record.getAgent();
             isFocused = record.isFocused();

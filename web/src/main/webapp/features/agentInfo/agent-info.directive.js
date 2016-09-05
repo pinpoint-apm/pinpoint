@@ -270,6 +270,9 @@
 							scope.currentServiceInfo = serviceInfo;
 						}
 					};
+					scope.formatDate = function( time ) {
+						return CommonUtilService.formatDate( time, "YYYY-MM-DD HH:mm:ss Z" );
+					};
 					scope.$on( "down.changed.agent", function ( event, invokerId, agent, bInvokedByTop ) {
 						if( cfg.ID === invokerId ) return;
 						if ( CommonUtilService.isEmpty( agent.agentId ) ) {

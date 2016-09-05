@@ -16,13 +16,12 @@ package com.navercorp.pinpoint.bootstrap;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
@@ -40,6 +39,8 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.SystemProperty;
+import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
+import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 import com.navercorp.pinpoint.exception.PinpointException;
 
 /**
@@ -47,13 +48,14 @@ import com.navercorp.pinpoint.exception.PinpointException;
  *
  */
 public class PinpointStarter {
-    private static final Logger logger = Logger.getLogger(PinpointStarter   .class.getName());
+
+    private final BootLogger logger = BootLogger.getLogger(PinpointStarter.class.getName());
 
     public static final String BOOT_CLASS = "com.navercorp.pinpoint.profiler.DefaultAgent";
 
     private SimpleProperty systemProperty = SystemProperty.INSTANCE;
     private final String agentArgs;
-    private String bootStrapCore;
+    private List<String> bootstrapJars;
     private final Map<String, String> argMap;
     private final Instrumentation instrumentation;
 
@@ -69,6 +71,7 @@ public class PinpointStarter {
         this.agentArgs = agentArgs;
         this.argMap = parseAgentArgs(agentArgs);
         this.instrumentation = instrumentation;
+        this.bootstrapJars = new ArrayList<String>();
     }
 
     public void start() {
@@ -76,21 +79,37 @@ public class PinpointStarter {
         final ClassPathResolver classPathResolver = new ClassPathResolver();
         boolean agentJarNotFound = classPathResolver.findAgentJar();
         if (!agentJarNotFound) {
-            logger.severe("pinpoint-bootstrap-x.x.x(-SNAPSHOT).jar Fnot found.");
+            logger.warn("pinpoint-bootstrap-x.x.x(-SNAPSHOT).jar Fnot found.");
             logPinpointAgentLoadFail();
             return;
         }
+
+        // 2nd find pinpoint-commons.jar
+        final String pinpointCommonsJar = classPathResolver.getPinpointCommonsJar();
+        if (pinpointCommonsJar == null) {
+            logger.warn("pinpoint-commons-x.x.x(-SNAPSHOT).jar not found");
+            logPinpointAgentLoadFail();
+            return;
+        }
+        this.bootstrapJars.add(pinpointCommonsJar);
         
-        // 2nd find boot-strap-core.jar
+        // 3rd find bootstrap-core.jar
         final String bootStrapCoreJar = classPathResolver.getBootStrapCoreJar();
         if (bootStrapCoreJar == null) {
-            logger.severe("pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar not found");
+            logger.warn("pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar not found");
             logPinpointAgentLoadFail();
             return;
         }
-        this.bootStrapCore = bootStrapCoreJar;
+        this.bootstrapJars.add(bootStrapCoreJar);
 
-        
+        // 4th find bootstrap-core-optional.jar
+        final String bootStrapCoreOptionalJar = classPathResolver.getBootStrapCoreOptionalJar();
+        if (bootStrapCoreOptionalJar == null) {
+            logger.info("pinpoint-bootstrap-core-optional-x.x.x(-SNAPSHOT).jar not found");
+        } else {
+            this.bootstrapJars.add(bootStrapCoreOptionalJar);
+        }
+
         if (!isValidId("pinpoint.agentId", PinpointConstants.AGENT_NAME_MAX_LEN)) {
             logPinpointAgentLoadFail();
             return;
@@ -101,9 +120,12 @@ public class PinpointStarter {
         }
 
         URL[] pluginJars = classPathResolver.resolvePlugins();
-        TraceMetadataLoaderService typeLoaderService = new DefaultTraceMetadataLoaderService(pluginJars);
-        ServiceTypeRegistryService serviceTypeRegistryService  = new DefaultServiceTypeRegistryService(typeLoaderService);
-        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(typeLoaderService);
+
+        // TODO using PLogger instead of CommonLogger
+        CommonLoggerFactory loggerFactory = StdoutCommonLoggerFactory.INSTANCE;
+        TraceMetadataLoaderService typeLoaderService = new DefaultTraceMetadataLoaderService(pluginJars, loggerFactory);
+        ServiceTypeRegistryService serviceTypeRegistryService  = new DefaultServiceTypeRegistryService(typeLoaderService, loggerFactory);
+        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(typeLoaderService, loggerFactory);
 
         String configPath = getConfigPath(classPathResolver);
         if (configPath == null) {
@@ -127,21 +149,21 @@ public class PinpointStarter {
             agentClassLoader.setBootClass(bootClass);
             logger.info("pinpoint agent [" + bootClass + "] starting...");
 
-            AgentOption option = createAgentOption(agentArgs, instrumentation, profilerConfig, pluginJars, bootStrapCore, serviceTypeRegistryService, annotationKeyRegistryService);
+            AgentOption option = createAgentOption(agentArgs, instrumentation, profilerConfig, pluginJars, bootstrapJars, serviceTypeRegistryService, annotationKeyRegistryService);
             Agent pinpointAgent = agentClassLoader.boot(option);
             pinpointAgent.start();
             registerShutdownHook(pinpointAgent);
             logger.info("pinpoint agent started normally.");
         } catch (Exception e) {
             // unexpected exception that did not be checked above
-            logger.log(Level.SEVERE, ProductInfo.NAME + " start failed. Error:" + e.getMessage(), e);
+            logger.warn(ProductInfo.NAME + " start failed. Error:" + e.getMessage(), e);
             logPinpointAgentLoadFail();
         }
     }
 
-    private AgentOption createAgentOption(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars, String bootStrapJarCorePath, ServiceTypeRegistryService serviceTypeRegistryService, AnnotationKeyRegistryService annotationKeyRegistryService) {
+    private AgentOption createAgentOption(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars, List<String> bootstrapJarPaths, ServiceTypeRegistryService serviceTypeRegistryService, AnnotationKeyRegistryService annotationKeyRegistryService) {
 
-        return new DefaultAgentOption(agentArgs, instrumentation, profilerConfig, pluginJars, bootStrapJarCorePath, serviceTypeRegistryService, annotationKeyRegistryService);
+        return new DefaultAgentOption(agentArgs, instrumentation, profilerConfig, pluginJars, bootstrapJarPaths, serviceTypeRegistryService, annotationKeyRegistryService);
     }
 
     // for test
@@ -198,21 +220,21 @@ public class PinpointStarter {
         logger.info("check -D" + propertyName);
         String value = systemProperty.getProperty(propertyName);
         if (value == null){
-            logger.severe("-D" + propertyName + " is null. value:null");
+            logger.warn("-D" + propertyName + " is null. value:null");
             return false;
         }
         // blanks not permitted around value
         value = value.trim();
         if (value.isEmpty()) {
-            logger.severe("-D" + propertyName + " is empty. value:''");
+            logger.warn("-D" + propertyName + " is empty. value:''");
             return false;
         }
 
         if (!IdValidateUtils.validateId(value, maxSize)) {
-            logger.severe("invalid Id. " + propertyName + " can only contain [a-zA-Z0-9], '.', '-', '_'. maxLength:" + maxSize + " value:" + value);
+            logger.warn("invalid Id. " + propertyName + " can only contain [a-zA-Z0-9], '.', '-', '_'. maxLength:" + maxSize + " value:" + value);
             return false;
         }
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info("check success. -D" + propertyName + ":" + value + " length:" + getLength(value));
         }
         return true;
@@ -254,7 +276,7 @@ public class PinpointStarter {
             return classPathAgentConfigPath;
         }
 
-        logger.severe(configName + " file not found.");
+        logger.info(configName + " file not found.");
         return null;
     }
 
@@ -266,7 +288,7 @@ public class PinpointStarter {
         List<URL> urlList = classPathResolver.resolveLib();
         String agentConfigPath = classPathResolver.getAgentConfigPath();
 
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info("agentJarPath:" + agentJarFullPath);
             logger.info("agentLibPath:" + agentLibPath);
             logger.info("agent lib list:" + urlList);

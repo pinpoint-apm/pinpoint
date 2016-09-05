@@ -62,7 +62,7 @@ public class DebugTransformer implements ClassFileTransformer {
                     logger.trace("### c={}, m={}, params={}", className, method.getName(), Arrays.toString(method.getParameterTypes()));
                 }
                 
-                target.addInterceptor(BasicMethodInterceptor.class.getName());
+                method.addInterceptor(BasicMethodInterceptor.class.getName());
             }
     
             return target.toBytecode();

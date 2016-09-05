@@ -11,8 +11,8 @@
 	    maxTimeToShowLoadAsDefaultForUnknown: 60 * 60 * 12 // 12h
 	});
 	
-	pinpointApp.directive("nodeInfoDetailsDirective", [ "nodeInfoDetailsDirectiveConfig", "$rootScope", "$filter", "$timeout", "isVisibleService", "$window", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService",
-        function (cfg, $rootScope, $filter, $timeout, isVisibleService, $window, analyticsService, preferenceService, tooltipService, commonAjaxService ) {
+	pinpointApp.directive("nodeInfoDetailsDirective", [ "nodeInfoDetailsDirectiveConfig", "$rootScope", "$filter", "$timeout", "isVisibleService", "globalConfig", "$window", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService",
+        function (cfg, $rootScope, $filter, $timeout, isVisibleService, globalConfig, $window, analyticsService, preferenceService, tooltipService, commonAjaxService ) {
             return {
                 restrict: "EA",
                 replace: true,
@@ -236,6 +236,27 @@
 						});
 						return aLoadSum;
 					}
+					scope.isGroupNode = function() {
+						if ( scope.node ) {
+							return scope.node.serviceType.indexOf("_GROUP") != -1 && scope.isAuthorized;
+						} else {
+							return false;
+						}
+
+					};
+					scope.isNotGroupNode = function() {
+						if ( scope.node ) {
+							return scope.node.serviceType.indexOf("_GROUP") == -1 && scope.isAuthorized;
+						} else {
+							return false;
+						}
+					};
+					scope.isNotAuthorized = function() {
+						return scope.isAuthorized === false;
+					};
+					scope.getAuthGuideUrl = function() {
+						return globalConfig.securityGuideUrl;
+					};
 
                     /**
                      * show node detail information of scope
@@ -364,17 +385,11 @@
                      */
                     scope.$on("nodeInfoDetailsDirective.initialize", function (event, e, query, node, mapData, navbarVoService, reloadOnly, searchQuery) {
                         show();
-                        // DISABLE node Cache
-                        //if (angular.equals(sLastKey, node.key) && !reloadOnly) {
-                        //    if (htLastNode.category === "UNKNOWN_GROUP") {
-                        //        renderAllChartWhichIsVisible(htLastNode);
-                        //    }
-                        //    return;
-                        //}
                         reset();
                         htQuery = query;
                         sLastKey = node.key;
                         htLastNode = node;
+						scope.isAuthorized = node.isAuthorized === false ? false : true;
                         scope.htLastUnknownNode = false;
                         scope.oNavbarVoService = navbarVoService;
                         scope.nodeSearch = searchQuery || "";

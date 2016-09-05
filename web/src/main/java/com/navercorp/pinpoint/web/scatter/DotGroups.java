@@ -146,7 +146,7 @@ public class DotGroups {
         }
     }
 
-    class Key {
+    static class Key {
 
         private final Coordinates coordinates;
         private final int code;

@@ -16,10 +16,11 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
-import com.navercorp.pinpoint.bootstrap.logging.JavaLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
+import com.navercorp.pinpoint.common.util.logger.CommonLogger;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
+import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -29,8 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 /**
@@ -38,7 +37,7 @@ import java.util.regex.Pattern;
  * @author netspider
  */
 public class DefaultProfilerConfig implements ProfilerConfig {
-    private static final Logger logger = JavaLoggerFactory.getLogger(DefaultProfilerConfig.class.getName());
+    private static final CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE.getLogger(DefaultProfilerConfig.class.getName());
     private static final String DEFAULT_IP = "127.0.0.1";
 
     private final Properties properties;
@@ -72,19 +71,21 @@ public class DefaultProfilerConfig implements ProfilerConfig {
             Properties properties = PropertyUtils.loadProperty(pinpointConfigFileName);
             return new DefaultProfilerConfig(properties);
         } catch (FileNotFoundException fe) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, pinpointConfigFileName + " file does not exist. Please check your configuration.");
+            if (logger.isWarnEnabled()) {
+                logger.warn(pinpointConfigFileName + " file does not exist. Please check your configuration.");
             }
             throw fe;
         } catch (IOException e) {
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, pinpointConfigFileName + " file I/O error. Error:" + e.getMessage(), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn(pinpointConfigFileName + " file I/O error. Error:" + e.getMessage(), e);
             }
             throw e;
         }
     }
 
     private boolean profileEnable = false;
+
+    private boolean profileInstrumentASM = false;
 
     private int interceptorRegistrySize = 1024*8;
 
@@ -564,12 +565,18 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return propagateInterceptorException;
     }
 
+    @Override
+    public boolean isProfileInstrumentASM() {
+        return profileInstrumentASM;
+    }
+
     // for test
     void readPropertyValues() {
         // TODO : use Properties' default value instead of using a temp variable.
         final ValueResolver placeHolderResolver = new PlaceHolderResolver();
 
         this.profileEnable = readBoolean("profiler.enable", true);
+        this.profileInstrumentASM = readBoolean("profiler.instrument.asm", false);
 
         this.interceptorRegistrySize = readInt("profiler.interceptorregistry.size", 1024*8);
 
@@ -721,7 +728,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         }
         String value = properties.getProperty(propertyName, defaultValue);
         value = valueResolver.resolve(value, properties);
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info(propertyName + "=" + value);
         }
         return value;
@@ -731,7 +738,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public int readInt(String propertyName, int defaultValue) {
         String value = properties.getProperty(propertyName);
         int result = NumberUtils.parseInteger(value, defaultValue);
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info(propertyName + "=" + result);
         }
         return result;
@@ -750,7 +757,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         } catch (IllegalArgumentException e) {
             result = defaultDump;
         }
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info(propertyName + "=" + result);
         }
         return result;
@@ -760,7 +767,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public long readLong(String propertyName, long defaultValue) {
         String value = properties.getProperty(propertyName);
         long result = NumberUtils.parseLong(value, defaultValue);
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info(propertyName + "=" + result);
         }
         return result;
@@ -780,7 +787,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public boolean readBoolean(String propertyName, boolean defaultValue) {
         String value = properties.getProperty(propertyName, Boolean.toString(defaultValue));
         boolean result = Boolean.parseBoolean(value);
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info(propertyName + "=" + result);
         }
         return result;
@@ -800,7 +807,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
             }
         }
 
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isInfoEnabled()) {
             logger.info(propertyNamePatternRegex + "=" + result);
         }
 

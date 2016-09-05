@@ -262,7 +262,7 @@
 						scope.$emit( "pinpointUser.sendUserRemoved", userId );
 					}
 				};
-				scope.$on( "pinpointUser.changeSelectedMember", function( event, list, userId ) {
+				scope.$on( "pinpointUser.changeSelectedMember", function( event, list ) {
 					resetList( list );
 					scope.$apply(function() {
 						scope.pinpointUserList = oPinpointUserList;
@@ -296,10 +296,15 @@
 					scope.pinpointUserList = oPinpointUserList;
 					AlarmUtilService.setTotal( $elTotal, getTotal() );
 				});
-				scope.$on( "pinpointUser.addUserCallback", function( event, list ) {
-					oGroupMemberList = list;
+				scope.$on( "pinpointUser.addUserCallback", function( event, bIsSuccess, userId ) {
+					if ( bIsSuccess === false ) {
+						for( var i = 0 ; i < scope.pinpointUserList.length ; i++ ) {
+							if ( scope.pinpointUserList[i].userId === userId ) {
+								scope.pinpointUserList[i].has = false;
+							}
+						}
+					}
 					AlarmUtilService.setTotal( $elTotal, getTotal() );
-
 					AlarmUtilService.hide( $elLoading );
 				});
 				scope.onCloseAlert = function() {
@@ -317,7 +322,7 @@
 
 	var CONSTS = {
 		MIN_SEARCH_LENGTH : 2,
-		INPUT_USERID_AND_NAME: "Input user id and name",
+		INPUT_USER_ID_AND_NAME: "Input user id and name",
 		INPUT_PHONE_OR_EMAIL: "Input phone number or email",
 		YOU_CAN_ONLY_INPUT_NUMBERS: "You can only input numbers",
 		INVALID_EMAIL_FORMAT: "Invalid email format.",
@@ -348,7 +353,7 @@
 			AlarmUtilService.show( $elLoading );
 			if ( oNewPinpointUser.userId === "" || oNewPinpointUser.name === "" ) {
 				addBlink( aEditNode );
-				cbFail({ errorMessage: CONSTS.INPUT_USERID_AND_NAME });
+				cbFail({ errorMessage: CONSTS.INPUT_USER_ID_AND_NAME });
 				return;
 			}
 			if ( oNewPinpointUser.phoneNumber === "" && oNewPinpointUser.email === "" ) {
@@ -432,7 +437,7 @@
 
 			if ( oPinpointUser.name === "" ) {
 				addBlink( aEditNode );
-				cbFail({ errorMessage: CONSTS.INPUT_USERID_AND_NAME });
+				cbFail({ errorMessage: CONSTS.INPUT_USER_ID_AND_NAME });
 				return;
 			}
 			if ( oPinpointUser.phoneNumber === "" && oPinpointUser.email === "" ) {

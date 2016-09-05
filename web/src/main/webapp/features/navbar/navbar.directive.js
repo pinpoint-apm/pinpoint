@@ -16,8 +16,8 @@
 		}
 	});
 	
-	pinpointApp.directive('navbarDirective', [ "navbarDirectiveConfig", "$route", "$rootScope", "$http","$document", "$timeout", "$window",  "webStorage", "helpContentService", "UrlVoService", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService",
-	    function (cfg, $route, $rootScope, $http, $document, $timeout, $window, webStorage, helpContentService, UrlVoService, analyticsService, preferenceService, tooltipService, commonAjaxService) {
+	pinpointApp.directive('navbarDirective', [ "navbarDirectiveConfig", "$route", "$rootScope", "$http","$document", "$timeout", "$window",  "webStorage", "helpContentService", "UrlVoService", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService", "CommonUtilService",
+	    function (cfg, $route, $rootScope, $http, $document, $timeout, $window, webStorage, helpContentService, UrlVoService, analyticsService, preferenceService, tooltipService, commonAjaxService, CommonUtilService ) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -147,9 +147,11 @@
 							altField: "#from-picker-alt",
 							altFieldTimeOnly: false,
 	                        dateFormat: "yy-mm-dd",
-	                        timeFormat: "HH:mm",
+	                        timeFormat: "HH:mm z",
 	                        controlType: "select",
 							showButtonPanel: false,
+							timezone: moment().utcOffset(),
+							showTimezone: false,
 	                        onSelect: function () {
 	                        	var momentFrom = moment(getDate($fromPicker));
 	                        	var momentTo = moment(getDate($toPicker));
@@ -168,16 +170,18 @@
 	                            }
 	                        }
 	                    });
-	                    setDateTime($fromPicker, oNavbarVoService.getQueryStartTime() || moment().subtract(20, "minute").valueOf());
+	                    setDateTime($fromPicker, oNavbarVoService.getQueryStartTime() || moment().subtract(5, "minute").valueOf());
 	
 	                    $toPicker = element.find('#to-picker');
 	                    $toPicker.datetimepicker({
 							altField: "#to-picker-alt",
 							altFieldTimeOnly: false,
 	                        dateFormat: "yy-mm-dd",
-	                        timeFormat: "HH:mm",
+	                        timeFormat: "HH:mm z",
 	                        controlType: "select",
 							showButtonPanel: false,
+							timezone: moment().utcOffset(),
+							showTimezone: false,
 	                        onSelect: function () {
 	                        	var momentFrom = moment(getDate($fromPicker));
 	                        	var momentTo = moment(getDate($toPicker));
@@ -285,13 +289,14 @@
 
 	                    if (scope.periodType === cfg.periodType.LAST && scope.readablePeriod) {
 							oNavbarVoService.setPeriodType( cfg.periodType.LAST );
+							UrlVoService.setPeriodType( cfg.periodType.LAST );
 							getQueryEndTimeFromServer(function (currentServerTime) {
 								// currentServerTime -= 3000;
 								oNavbarVoService.setReadablePeriod(scope.readablePeriod);
-								oNavbarVoService.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
+								oNavbarVoService.setQueryEndDateTime( CommonUtilService.formatDate( currentServerTime ) );
 								oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 								UrlVoService.setReadablePeriod(scope.readablePeriod);
-								UrlVoService.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
+								UrlVoService.setQueryEndDateTime( CommonUtilService.formatDate( currentServerTime ) );
 								UrlVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 								emitAsChanged();
 								setDateTime($fromPicker, oNavbarVoService.getQueryStartTime());
@@ -299,11 +304,12 @@
 							});
 						} else if ( scope.periodType === cfg.periodType.REALTIME ) {
 							oNavbarVoService.setPeriodType( cfg.periodType.REALTIME );
+							UrlVoService.setPeriodType( cfg.periodType.REALTIME );
 							getQueryEndTimeFromServer(function (currentServerTime) {
 								oNavbarVoService.setReadablePeriod( preferenceService.getRealtimeScatterXRangeStr() );
-								oNavbarVoService.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
+								oNavbarVoService.setQueryEndDateTime( CommonUtilService.formatDate( currentServerTime ) );
 								oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
-								UrlVoService.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
+								UrlVoService.setQueryEndDateTime( CommonUtilService.formatDate( currentServerTime ) );
 								UrlVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 								emitAsChanged();
 								setDateTime($fromPicker, oNavbarVoService.getQueryStartTime());
@@ -326,7 +332,6 @@
 	                 * emit as changed
 	                 */
 	                emitAsChanged = function () {
-						$rootScope.$broadcast( "realtimeChartController.close" );
 	                    setPeriodTypeAsCurrent();
 	                    scope.$emit( "navbarDirective.changed", oNavbarVoService );
 	                };

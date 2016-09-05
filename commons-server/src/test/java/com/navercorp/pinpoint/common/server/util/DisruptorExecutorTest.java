@@ -25,7 +25,6 @@ public class DisruptorExecutorTest {
         ExecutorService executor = DisruptorExecutors.newSingleProducerExecutor(2, bufferSize, threadFactory);
     }
 
-
     @Test
     public void simpleTest() throws InterruptedException {
         int bufferSize = 10;
@@ -33,11 +32,13 @@ public class DisruptorExecutorTest {
 
         ExecutorService executor = DisruptorExecutors.newSingleProducerExecutor(1, newBufferSize, threadFactory, new TimeoutBlockingWaitStrategy(10000, TimeUnit.MILLISECONDS));
 
-        CountDownLatch latch = new CountDownLatch(1);
-        execute(newBufferSize, executor, latch);
+        CountDownLatch startLatch = new CountDownLatch(1);
+        CountDownLatch endLatch = new CountDownLatch(1);
+        execute(newBufferSize, executor, startLatch, endLatch);
+        startLatch.await();
 
         List<Runnable> runnableList = executor.shutdownNow();
-        latch.countDown();
+        endLatch.countDown();
 
         Assert.assertEquals(newBufferSize - 1, runnableList.size());
         Assert.assertTrue(executor.isShutdown());
@@ -81,26 +82,77 @@ public class DisruptorExecutorTest {
     }
 
     private void execute(int newBufferSize, ExecutorService executor, CountDownLatch latch) {
+        execute(newBufferSize, executor, null, latch);
+    }
+
+    private void execute(int newBufferSize, ExecutorService executor, CountDownLatch startLatch, CountDownLatch endLatch) {
         for (int i = 0; i < newBufferSize; i++) {
-            executor.execute(new LatchAwaitRunnable(latch));
+            executor.execute(new LatchAwaitRunnable(startLatch, endLatch));
+        }
+    }
+
+    @Test
+    public void exceptionTest() throws InterruptedException {
+        int bufferSize = 10;
+        int newBufferSize = DisruptorExecutors.nextPowerOfTwo(bufferSize);
+
+        ExecutorService executor = DisruptorExecutors.newSingleProducerExecutor(1, newBufferSize, threadFactory, new TimeoutBlockingWaitStrategy(10000, TimeUnit.MILLISECONDS));
+
+        int executeCount = 5;
+        CountDownLatch latch = new CountDownLatch(executeCount);
+        try {
+            for (int i = 0; i < executeCount; i++) {
+                executor.execute(new ThrowExceptionRunnable(latch));
+            }
+
+            boolean await = latch.await(1000, TimeUnit.MILLISECONDS);
+            Assert.assertTrue(await);
+        } finally {
+            executor.shutdown();
         }
     }
 
     class LatchAwaitRunnable implements Runnable {
 
+        private final CountDownLatch startLatch;
+        private final CountDownLatch endLatch;
+
+        public LatchAwaitRunnable(CountDownLatch startLatch, CountDownLatch endLatch) {
+            this.startLatch = startLatch;
+            this.endLatch = endLatch;
+        }
+
+        @Override
+        public void run() {
+            if (startLatch != null) {
+                startLatch.countDown();
+            }
+
+            try {
+                endLatch.await();
+            } catch (InterruptedException e) {
+            }
+        }
+    }
+
+    class ThrowExceptionRunnable implements Runnable {
+
         private final CountDownLatch latch;
 
-        public LatchAwaitRunnable(CountDownLatch latch) {
+        public ThrowExceptionRunnable(CountDownLatch latch) {
             this.latch = latch;
         }
 
         @Override
         public void run() {
+
             try {
-                latch.await();
-            } catch (InterruptedException e) {
+                throw new RuntimeException();
+            } finally {
+                latch.countDown();
             }
         }
+
     }
 
 }

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.web.vo.TransactionId;
+import com.navercorp.pinpoint.common.util.TransactionId;
 
 /**
  * @author emeroad
