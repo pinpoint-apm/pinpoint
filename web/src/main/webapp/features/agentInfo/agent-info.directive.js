@@ -153,7 +153,6 @@
 	                 * @param agentStat
 	                 */
 	                function showCharts(agentStat) {
-
 	                    var heap = { id: 'heap', title: 'Heap Usage', span: 'span12', line: [
 	                        { id: 'JVM_MEMORY_HEAP_USED', key: 'Used', values: [], isFgc: false },
 	                        { id: 'JVM_MEMORY_HEAP_MAX', key: 'Max', values: [], isFgc: false },
@@ -169,15 +168,18 @@
 	                    var cpuLoad = { id: 'cpuLoad', title: 'JVM/System Cpu Usage', span: 'span12', isAvailable: false};
 
 	                    var tps = { id: 'tps', title: 'Transactions Per Second', span: 'span12', isAvailable: false };
+	                    var activeTrace = { id: "activeTrace", title: "Active Trace Chart", span: "span12", isAvailable: false};
 
 	                    scope.memoryGroup = [ heap, nonheap ];
 	                    scope.cpuLoadChart = cpuLoad;
 	                    scope.tpsChart = tps;
+						scope.activeTraceChart = activeTrace;
 
-	                    scope.$broadcast('jvmMemoryChartDirective.initAndRenderWithData.forHeap', AgentDaoService.parseMemoryChartDataForAmcharts(heap, agentStat), '100%', '270px');
-	                    scope.$broadcast('jvmMemoryChartDirective.initAndRenderWithData.forNonHeap', AgentDaoService.parseMemoryChartDataForAmcharts(nonheap, agentStat), '100%', '270px');
-	                    scope.$broadcast('cpuLoadChartDirective.initAndRenderWithData.forCpuLoad', AgentDaoService.parseCpuLoadChartDataForAmcharts(cpuLoad, agentStat), '100%', '270px');
-	                    scope.$broadcast('tpsChartDirective.initAndRenderWithData.forTps', AgentDaoService.parseTpsChartDataForAmcharts(tps, agentStat), '100%', '270px');
+	                    scope.$broadcast( "jvmMemoryChartDirective.initAndRenderWithData.forHeap", AgentDaoService.parseMemoryChartDataForAmcharts(heap, agentStat), '100%', '270px');
+	                    scope.$broadcast( "jvmMemoryChartDirective.initAndRenderWithData.forNonHeap", AgentDaoService.parseMemoryChartDataForAmcharts(nonheap, agentStat), '100%', '270px');
+	                    scope.$broadcast( "cpuLoadChartDirective.initAndRenderWithData.forCpuLoad", AgentDaoService.parseCpuLoadChartDataForAmcharts(cpuLoad, agentStat), '100%', '270px');
+	                    scope.$broadcast( "tpsChartDirective.initAndRenderWithData.forTps", AgentDaoService.parseTpsChartDataForAmcharts(tps, agentStat), '100%', '270px');
+						scope.$broadcast( "activeTraceChartDirective.initAndRenderWithData.forActiveTrace", AgentDaoService.parseActiveTraceChartDataForAmcharts(tps, agentStat), '100%', '270px');
 	                }
 					function getEventList( agentId, aFromTo ) {
 						AgentAjaxService.getEventList({
@@ -202,6 +204,11 @@
 	                        scope.$broadcast('tpsChartDirective.showCursorAt.forTps', event.index);
 	                    }
 	                }
+					function broadcastToActiveTraceChart(e, event) {
+						if (scope.activeTraceChart.isAvailable) {
+							scope.$broadcast('activeTraceChartDirective.showCursorAt.forActiveTrace', event.index);
+						}
+					}
 					scope.toggleHelp = function() {
 						$("._wrongApp").popover({
 							"title": "<span class='label label-info'>" + UrlVoService.getApplicationName() + "</span> <span class='glyphicon glyphicon-resize-horizontal'></span> <span class='label label-info'>" + scope.agent.applicationName + "</span>",
@@ -318,22 +325,32 @@
 	                    scope.$broadcast('jvmMemoryChart.showCursorAt.forNonHeap', event.index);
 	                    broadcastToCpuLoadChart(e, event);
 	                    broadcastToTpsChart(e, event);
+						broadcastToActiveTraceChart(e, event);
 	                });
 	                scope.$on('jvmMemoryChartDirective.cursorChanged.forNonHeap', function (e, event) {
 	                    scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
 	                    broadcastToCpuLoadChart(e, event);
 	                    broadcastToTpsChart(e, event);
+						broadcastToActiveTraceChart(e, event);
 	                });
 	                scope.$on('cpuLoadChartDirective.cursorChanged.forCpuLoad', function (e, event) {
 	                    scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
 	                    scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', event.index);
 	                    broadcastToTpsChart(e, event);
+						broadcastToActiveTraceChart(e, event);
 	                });
                     scope.$on('tpsChartDirective.cursorChanged.forTps', function (e, event) {
                         scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
                         scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', event.index);
                         broadcastToCpuLoadChart(e, event);
+						broadcastToActiveTraceChart(e, event);
                     });
+					scope.$on('activeTraceChartDirective.cursorChanged.forActiveTrace', function (e, event) {
+						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
+						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', event.index);
+						broadcastToCpuLoadChart(e, event);
+						broadcastToTpsChart(e, event);
+					});
 	            }
 	        };
 	    }

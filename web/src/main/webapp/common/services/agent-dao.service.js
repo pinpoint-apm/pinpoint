@@ -216,6 +216,45 @@
 	            
 	            return newData;
 	        };
+			this.parseActiveTraceChartDataForAmcharts = function (activeTrace, agentStat) {
+				var aActiveTraceFastData = agentStat.charts[ "ACTIVE_TRACE_FAST" ].points;
+				var aActiveTraceNormal = agentStat.charts[ "ACTIVE_TRACE_NORMAL" ].points;
+				var aActiveTraceSlow = agentStat.charts[ "ACTIVE_TRACE_SLOW" ].points;
+				var aActiveTraceVerySlow = agentStat.charts[ "ACTIVE_TRACE_VERY_SLOW" ].points;
+
+				if ( aActiveTraceFastData || aActiveTraceNormal || aActiveTraceSlow || aActiveTraceVerySlow ) {
+					activeTrace.isAvailable = true;
+				} else {
+					return;
+				}
+				var newData = [],
+					DATA_UNAVAILABLE = -1;
+
+				for ( var i = 0 ; i < aActiveTraceFastData.length ; i++ ) {
+					var thisData = {
+						time: moment(aActiveTraceFastData[i].xVal).format( cfg.dateFormat )
+					};
+					var traceFace     	= typeof aActiveTraceFastData[i].avgYVal == "number" ? aActiveTraceFastData[i].avgYVal.toFixed(2) : 0.00;
+					var traceNormal     = typeof aActiveTraceNormal[i].avgYVal == "number" ? aActiveTraceNormal[i].avgYVal.toFixed(2) : 0.00;
+					var traceSlow   	= typeof aActiveTraceSlow[i].avgYVal == "number" ? aActiveTraceSlow[i].avgYVal.toFixed(2) : 0.00;
+					var traceVerySlow	= typeof aActiveTraceVerySlow[i].avgYVal == "number" ? aActiveTraceVerySlow[i].avgYVal.toFixed(2) : 0.00;
+					if ( traceFace != DATA_UNAVAILABLE ) {
+						thisData.traceFace = traceFace;
+					}
+					if ( traceNormal != DATA_UNAVAILABLE ) {
+						thisData.traceNormal = traceNormal;
+					}
+					if ( traceSlow != DATA_UNAVAILABLE ) {
+						thisData.traceSlow = traceSlow;
+					}
+					if ( traceVerySlow != DATA_UNAVAILABLE ) {
+						thisData.traceVerySlow = traceVerySlow;
+					}
+					newData.push(thisData);
+				}
+
+				return newData;
+			};
 	    }
 	]);
 })();

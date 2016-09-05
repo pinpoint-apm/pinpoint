@@ -198,6 +198,7 @@ module.exports = function( grunt, options ) {
 				'/features/jvmMemoryChart/jvm-memory-chart.directive.js',
 				'/features/cpuLoadChart/cpu-load-chart.directive.js',
 				'/features/tpsChart/tps-chart.directive.js',
+				'/features/activeTraceChart/active-trace-chart.directive.js',
 				'/features/loading/loading.directive.js',
 				'/features/configuration/configuration.controller.js',
 				'/features/configuration/general/general.directive.js',
