@@ -18,6 +18,8 @@
 package com.navercorp.pinpoint.bootstrap;
 
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.MessageFormat;
 
 /**
@@ -54,7 +56,7 @@ public final class BootLogger {
             throw new NullPointerException("loggerName must not be null");
         }
 //        this.loggerName = loggerName;
-        this.messagePattern = "{0,date,yyyy-MM-dd HH:mm:ss SSS} [{1}](" + loggerName + ") {2}";
+        this.messagePattern = "{0,date,yyyy-MM-dd HH:mm:ss} [{1}](" + loggerName + ") {2}{3}";
         this.out = out;
         this.err = err;
     }
@@ -63,10 +65,12 @@ public final class BootLogger {
         return new BootLogger(loggerName);
     }
 
-    private String format(String logLevel, String msg) {
+    private String format(String logLevel, String msg, String exceptionMessage) {
+        exceptionMessage = defaultString(exceptionMessage, "");
+
         MessageFormat messageFormat = new MessageFormat(messagePattern);
         final long date = System.currentTimeMillis();
-        Object[] parameter = {date, logLevel, msg};
+        Object[] parameter = {date, logLevel, msg, exceptionMessage};
         return messageFormat.format(parameter);
     }
 
@@ -75,7 +79,7 @@ public final class BootLogger {
     }
 
     public void info(String msg) {
-        String formatMessage = format("INFO ",  msg);
+        String formatMessage = format("INFO ", msg, "");
         this.out.println(formatMessage);
     }
 
@@ -85,12 +89,31 @@ public final class BootLogger {
     }
 
     public void warn(String msg) {
-        String formatMessage = format("WARN ", msg);
-        this.err.println(formatMessage);
+        warn(msg, null);
     }
 
     public void warn(String msg, Throwable throwable) {
-        warn(msg);
-        throwable.printStackTrace(this.err);
+        String exceptionMessage = toString(throwable);
+        String formatMessage = format("WARN ", msg, exceptionMessage);
+        this.err.println(formatMessage);
+    }
+
+    private String toString(Throwable throwable) {
+        if (throwable == null) {
+            return "";
+        }
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        pw.println();
+        throwable.printStackTrace(pw);
+        pw.close();
+        return sw.toString();
+    }
+
+    private String defaultString(String exceptionMessage, String defaultValue) {
+        if (exceptionMessage == null) {
+            return defaultValue;
+        }
+        return exceptionMessage;
     }
 }
