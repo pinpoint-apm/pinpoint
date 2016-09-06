@@ -182,36 +182,19 @@
 	        	if ( tpsLength > 0 ) {
 	        		tps.isAvailable = true;
 	        	} else {
-	        		return;
+	        		return [];
 	        	}
-	            var newData = [],
-	            DATA_UNAVAILABLE = -1;
+	            var newData = [];
 	            
 	            for ( var i = 0 ; i < tpsLength ; i++ ) {
-	                var thisData = {
-						time: moment(aSampledContinuationData[i].xVal).format( cfg.dateFormat )
-	                };
-	                var sampledContinuationTps     = typeof aSampledContinuationData[i].avgYVal == "number" ? aSampledContinuationData[i].avgYVal.toFixed(2) : 0.00;
-	                var sampledNewTps              = typeof aSampledNewData[i].avgYVal == "number" ? aSampledNewData[i].avgYVal.toFixed(2) : 0.00;
-	                var unsampledContinuationTps   = typeof aUnsampledContinuationData[i].avgYVal == "number" ? aUnsampledContinuationData[i].avgYVal.toFixed(2) : 0.00;
-	                var unsampledNewTps            = typeof aUnsampledNewData[i].avgYVal == "number" ? aUnsampledNewData[i].avgYVal.toFixed(2) : 0.00;
-	                var totalTps                   = typeof aTotalData[i].avgYVal == "number" ? aTotalData[i].avgYVal.toFixed(2) : 0.00;
-	                if ( sampledContinuationTps != DATA_UNAVAILABLE ) {
-                        thisData.sampledContinuationTps = sampledContinuationTps;
-	                }
-	                if ( sampledNewTps != DATA_UNAVAILABLE ) {
-	                    thisData.sampledNewTps = sampledNewTps;
-	                }
-	                if ( unsampledContinuationTps != DATA_UNAVAILABLE ) {
-	                    thisData.unsampledContinuationTps = unsampledContinuationTps;
-	                }
-	                if ( unsampledNewTps != DATA_UNAVAILABLE ) {
-	                    thisData.unsampledNewTps = unsampledNewTps;
-	                }
-	                if ( totalTps != DATA_UNAVAILABLE ) {
-	                    thisData.totalTps = totalTps;
-	                }
-	                newData.push(thisData);
+	                newData.push({
+						"time" : moment(aSampledContinuationData[i].xVal).format( cfg.dateFormat ),
+						"sampledContinuationTps": getFloatValue( aSampledContinuationData[i].avgYVal ),
+						"sampledNewTps": getFloatValue( aSampledNewData[i].avgYVal ),
+						"unsampledContinuationTps": getFloatValue( aUnsampledContinuationData[i].avgYVal ),
+						"unsampledNewTps": getFloatValue( aUnsampledNewData[i].avgYVal ),
+						"totalTps": getFloatValue( aTotalData[i].avgYVal )
+					});
 	            }
 	            
 	            return newData;
@@ -225,40 +208,29 @@
 				if ( aActiveTraceFastData || aActiveTraceNormal || aActiveTraceSlow || aActiveTraceVerySlow ) {
 					activeTrace.isAvailable = true;
 				} else {
-					return;
+					return [];
 				}
-				var newData = [],
-					DATA_UNAVAILABLE = -1;
+				var newData = [];
 
 				for ( var i = 0 ; i < aActiveTraceFastData.length ; i++ ) {
-					var thisData = {
-						time: moment(aActiveTraceFastData[i].xVal).format( cfg.dateFormat )
-					};
-					var traceFast     	= typeof aActiveTraceFastData[i].avgYVal == "number" ? aActiveTraceFastData[i].avgYVal.toFixed(2) : 0.00;
-					var traceNormal     = typeof aActiveTraceNormal[i].avgYVal == "number" ? aActiveTraceNormal[i].avgYVal.toFixed(2) : 0.00;
-					var traceSlow   	= typeof aActiveTraceSlow[i].avgYVal == "number" ? aActiveTraceSlow[i].avgYVal.toFixed(2) : 0.00;
-					var traceVerySlow	= typeof aActiveTraceVerySlow[i].avgYVal == "number" ? aActiveTraceVerySlow[i].avgYVal.toFixed(2) : 0.00;
-					if ( traceFast != DATA_UNAVAILABLE ) {
-						thisData.fast = traceFast;
-						thisData.fastTitle = aActiveTraceFastData[i].title;
-					}
-					if ( traceNormal != DATA_UNAVAILABLE ) {
-						thisData.normal = traceNormal;
-						thisData.normalTitle = aActiveTraceNormal[i].title;
-					}
-					if ( traceSlow != DATA_UNAVAILABLE ) {
-						thisData.slow = traceSlow;
-						thisData.slowTitle = aActiveTraceSlow[i].title;
-					}
-					if ( traceVerySlow != DATA_UNAVAILABLE ) {
-						thisData.verySlow = traceVerySlow;
-						thisData.verySlowTitle = aActiveTraceVerySlow[i].title;
-					}
-					newData.push(thisData);
+					newData.push({
+						"time": moment(aActiveTraceFastData[i].xVal).format( cfg.dateFormat ),
+						"fast": getFloatValue( aActiveTraceFastData[i].avgYVal ),
+						"fastTitle": aActiveTraceFastData[i].title,
+						"normal": getFloatValue( aActiveTraceNormal[i].avgYVal ),
+						"normalTitle": aActiveTraceNormal[i].title,
+						"slow": getFloatValue( aActiveTraceSlow[i].avgYVal ),
+						"slowTitle": aActiveTraceSlow[i].title,
+						"verySlow": getFloatValue( aActiveTraceVerySlow[i].avgYVal ),
+						"verySlowTitle": aActiveTraceVerySlow[i].title
+					});
 				}
 
 				return newData;
 			};
+			function getFloatValue( val ) {
+				return angular.isNumber( val ) ? val.toFixed(2) : 0.00;
+			}
 	    }
 	]);
 })();
