@@ -30,9 +30,7 @@
 					var showLayer = function() {
 						$element.animate({
 							"right": 421
-						}, 500, function() {
-							console.log( "show callback");
-						});
+						}, 500, function() {});
 					};
 					var showChart = function( instanceName, histogram, timeSeriesHistogram ) {
 						scope.selectedAgent = instanceName;
@@ -52,7 +50,6 @@
 							"right": -386
 						}, delay, function() {
 							bVisible = false;
-							console.log( "hide callback");
 						});
 					};
 					scope.hasError = function( instance ) {
@@ -71,6 +68,10 @@
 						}
 					};
 					scope.$on('serverListDirective.initialize', function ( event, oNavbarVoService ) {
+						scope.node = null;
+						scope.oNavbarVoService = null;
+						scope.selectedAgent = "";
+						scope.hasScatter = false;
 						scope.$broadcast('scatterDirective.initialize.forServerList', oNavbarVoService);
 						scope.hideLayer( 0 );
 					});
