@@ -234,34 +234,30 @@
 					var thisData = {
 						time: moment(aActiveTraceFastData[i].xVal).format( cfg.dateFormat )
 					};
-					var traceFace     	= typeof aActiveTraceFastData[i].avgYVal == "number" ? aActiveTraceFastData[i].avgYVal.toFixed(2) : 0.00;
+					var traceFast     	= typeof aActiveTraceFastData[i].avgYVal == "number" ? aActiveTraceFastData[i].avgYVal.toFixed(2) : 0.00;
 					var traceNormal     = typeof aActiveTraceNormal[i].avgYVal == "number" ? aActiveTraceNormal[i].avgYVal.toFixed(2) : 0.00;
 					var traceSlow   	= typeof aActiveTraceSlow[i].avgYVal == "number" ? aActiveTraceSlow[i].avgYVal.toFixed(2) : 0.00;
 					var traceVerySlow	= typeof aActiveTraceVerySlow[i].avgYVal == "number" ? aActiveTraceVerySlow[i].avgYVal.toFixed(2) : 0.00;
-					if ( traceFace != DATA_UNAVAILABLE ) {
-						thisData.traceFace = traceFace;
+					if ( traceFast != DATA_UNAVAILABLE ) {
+						thisData.fast = traceFast;
+						thisData.fastTitle = aActiveTraceFastData[i].title;
 					}
 					if ( traceNormal != DATA_UNAVAILABLE ) {
-						thisData.traceNormal = traceNormal;
+						thisData.normal = traceNormal;
+						thisData.normalTitle = aActiveTraceNormal[i].title;
 					}
 					if ( traceSlow != DATA_UNAVAILABLE ) {
-						thisData.traceSlow = traceSlow;
+						thisData.slow = traceSlow;
+						thisData.slowTitle = aActiveTraceSlow[i].title;
 					}
 					if ( traceVerySlow != DATA_UNAVAILABLE ) {
-						thisData.traceVerySlow = traceVerySlow;
+						thisData.verySlow = traceVerySlow;
+						thisData.verySlowTitle = aActiveTraceVerySlow[i].title;
 					}
 					newData.push(thisData);
 				}
 
 				return newData;
-			};
-			this.getActiveTraceChartCategoryTitleForAmcharts = function (agentStat) {
-				return {
-					"traceFace": agentStat.charts[ "ACTIVE_TRACE_FAST" ].title,
-					"traceNormal": agentStat.charts[ "ACTIVE_TRACE_NORMAL" ].title,
-					"traceSlow": agentStat.charts[ "ACTIVE_TRACE_SLOW" ].title,
-					"traceVerySlow": agentStat.charts[ "ACTIVE_TRACE_VERY_SLOW" ].title
-				};
 			};
 	    }
 	]);

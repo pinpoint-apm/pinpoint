@@ -179,7 +179,7 @@
 	                    scope.$broadcast( "jvmMemoryChartDirective.initAndRenderWithData.forNonHeap", AgentDaoService.parseMemoryChartDataForAmcharts(nonheap, agentStat), '100%', '270px');
 	                    scope.$broadcast( "cpuLoadChartDirective.initAndRenderWithData.forCpuLoad", AgentDaoService.parseCpuLoadChartDataForAmcharts(cpuLoad, agentStat), '100%', '270px');
 	                    scope.$broadcast( "tpsChartDirective.initAndRenderWithData.forTps", AgentDaoService.parseTpsChartDataForAmcharts(tps, agentStat), '100%', '270px');
-						scope.$broadcast( "activeTraceChartDirective.initAndRenderWithData.forActiveTrace", AgentDaoService.parseActiveTraceChartDataForAmcharts(activeTrace, agentStat), AgentDaoService.getActiveTraceChartCategoryTitleForAmcharts( agentStat ), '100%', '270px');
+						scope.$broadcast( "activeTraceChartDirective.initAndRenderWithData.forActiveTrace", AgentDaoService.parseActiveTraceChartDataForAmcharts(activeTrace, agentStat), '100%', '270px');
 	                }
 					function getEventList( agentId, aFromTo ) {
 						AgentAjaxService.getEventList({
