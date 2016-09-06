@@ -257,10 +257,10 @@
 			};
 			this.getActiveTraceChartCategoryTitleForAmcharts = function (agentStat) {
 				return {
-					"traceFace": agentStat.charts[ "ACTIVE_TRACE_FAST" ]["points"][0].title,
-					"traceNormal": agentStat.charts[ "ACTIVE_TRACE_NORMAL" ]["points"][0].title,
-					"traceSlow": agentStat.charts[ "ACTIVE_TRACE_SLOW" ]["points"][0].title,
-					"traceVerySlow": agentStat.charts[ "ACTIVE_TRACE_VERY_SLOW" ]["points"][0].title
+					"traceFace": agentStat.charts[ "ACTIVE_TRACE_FAST" ].title,
+					"traceNormal": agentStat.charts[ "ACTIVE_TRACE_NORMAL" ].title,
+					"traceSlow": agentStat.charts[ "ACTIVE_TRACE_SLOW" ].title,
+					"traceVerySlow": agentStat.charts[ "ACTIVE_TRACE_VERY_SLOW" ].title
 				};
 			};
 	    }
