@@ -70,6 +70,6 @@ public class SampledActiveTraceResultExtractor extends SampledAgentStatResultExt
                 timestamp,
                 INTEGER_DOWN_SAMPLER.sampleMin(values),
                 INTEGER_DOWN_SAMPLER.sampleMax(values),
-                INTEGER_DOWN_SAMPLER.sampleAvg(values));
+                INTEGER_DOWN_SAMPLER.sampleAvg(values, 1));
     }
 }

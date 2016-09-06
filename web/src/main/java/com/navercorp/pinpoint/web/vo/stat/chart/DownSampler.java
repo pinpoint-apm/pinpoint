@@ -28,7 +28,9 @@ public interface DownSampler<T extends Number> {
 
     T sampleMin(Collection<T> values);
 
-    T sampleAvg(Collection<T> values);
+    double sampleAvg(Collection<T> values);
+
+    double sampleAvg(Collection<T> values, int numDecimals);
 
     T sampleMax(Collection<T> values);
 

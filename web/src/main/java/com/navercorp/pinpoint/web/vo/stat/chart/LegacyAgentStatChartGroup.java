@@ -100,26 +100,26 @@ public class LegacyAgentStatChartGroup implements AgentStatChartGroup {
     public LegacyAgentStatChartGroup(TimeWindow timeWindow) {
         this.charts = new HashMap<>();
 
-        this.heapUsedChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(LONG_DOWN_SAMPLER, timeWindow);
-        this.heapMaxChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(LONG_DOWN_SAMPLER, timeWindow);
-        this.nonHeapUsedChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(LONG_DOWN_SAMPLER, timeWindow);
-        this.nonHeapMaxChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(LONG_DOWN_SAMPLER, timeWindow);
-        this.gcOldCountChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(LONG_DOWN_SAMPLER, timeWindow);
-        this.gcOldTimeChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(LONG_DOWN_SAMPLER, timeWindow);
+        this.heapUsedChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(LONG_DOWN_SAMPLER, 0, timeWindow);
+        this.heapMaxChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(LONG_DOWN_SAMPLER, 0, timeWindow);
+        this.nonHeapUsedChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(LONG_DOWN_SAMPLER, 0, timeWindow);
+        this.nonHeapMaxChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(LONG_DOWN_SAMPLER, 0, timeWindow);
+        this.gcOldCountChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(LONG_DOWN_SAMPLER, 0, timeWindow);
+        this.gcOldTimeChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(LONG_DOWN_SAMPLER, 0, timeWindow);
 
-        this.jvmCpuLoadChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(DOUBLE_DOWN_SAMPLER, timeWindow);
-        this.systemCpuLoadChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(DOUBLE_DOWN_SAMPLER, timeWindow);
+        this.jvmCpuLoadChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(DOUBLE_DOWN_SAMPLER, 1, timeWindow);
+        this.systemCpuLoadChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(DOUBLE_DOWN_SAMPLER, 1, timeWindow);
 
-        this.tpsSampledNewChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(DOUBLE_DOWN_SAMPLER, timeWindow);
-        this.tpsSampledContinuationChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(DOUBLE_DOWN_SAMPLER, timeWindow);
-        this.tpsUnsampledNewChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(DOUBLE_DOWN_SAMPLER, timeWindow);
-        this.tpsUnsampledContinuationChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(DOUBLE_DOWN_SAMPLER, timeWindow);
-        this.tpsTotalChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(DOUBLE_DOWN_SAMPLER, timeWindow);
+        this.tpsSampledNewChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(DOUBLE_DOWN_SAMPLER, 1, timeWindow);
+        this.tpsSampledContinuationChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(DOUBLE_DOWN_SAMPLER, 1, timeWindow);
+        this.tpsUnsampledNewChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(DOUBLE_DOWN_SAMPLER, 1, timeWindow);
+        this.tpsUnsampledContinuationChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(DOUBLE_DOWN_SAMPLER, 1, timeWindow);
+        this.tpsTotalChartBuilder = new LegacySampledTimeSeriesChartBuilder<>(DOUBLE_DOWN_SAMPLER, 1, timeWindow);
 
-        this.activeTraceFastChartBuilder = new LegacySampledTitledTimeSeriesChartBuilder<>(INTEGER_DOWN_SAMPLER, timeWindow);
-        this.activeTraceNormalChartBuilder = new LegacySampledTitledTimeSeriesChartBuilder<>(INTEGER_DOWN_SAMPLER, timeWindow);
-        this.activeTraceSlowChartBuilder = new LegacySampledTitledTimeSeriesChartBuilder<>(INTEGER_DOWN_SAMPLER, timeWindow);
-        this.activeTraceVerySlowChartBuilder = new LegacySampledTitledTimeSeriesChartBuilder<>(INTEGER_DOWN_SAMPLER, timeWindow);
+        this.activeTraceFastChartBuilder = new LegacySampledTitledTimeSeriesChartBuilder<>(INTEGER_DOWN_SAMPLER, 1, timeWindow);
+        this.activeTraceNormalChartBuilder = new LegacySampledTitledTimeSeriesChartBuilder<>(INTEGER_DOWN_SAMPLER, 1, timeWindow);
+        this.activeTraceSlowChartBuilder = new LegacySampledTitledTimeSeriesChartBuilder<>(INTEGER_DOWN_SAMPLER, 1, timeWindow);
+        this.activeTraceVerySlowChartBuilder = new LegacySampledTitledTimeSeriesChartBuilder<>(INTEGER_DOWN_SAMPLER, 1, timeWindow);
     }
 
     public void addAgentStats(List<AgentStat> agentStats) {

@@ -73,10 +73,18 @@ public class SampledJvmGcDetailedResultExtractor extends SampledAgentStatResultE
     }
 
     private Point<Long, Long> createLongPoint(long timestamp, List<Long> values) {
-        return new Point<>(timestamp, LONG_DOWN_SAMPLER.sampleMin(values), LONG_DOWN_SAMPLER.sampleMax(values), LONG_DOWN_SAMPLER.sampleAvg(values));
+        return new Point<>(
+                timestamp,
+                LONG_DOWN_SAMPLER.sampleMin(values),
+                LONG_DOWN_SAMPLER.sampleMax(values),
+                LONG_DOWN_SAMPLER.sampleAvg(values, 0));
     }
 
     private Point<Long, Double> createDoublePoint(long timestamp, List<Double> values) {
-        return new Point(timestamp, DOUBLE_DOWN_SAMPLER.sampleMin(values), DOUBLE_DOWN_SAMPLER.sampleMax(values), DOUBLE_DOWN_SAMPLER.sampleAvg(values));
+        return new Point<>(
+                timestamp,
+                DOUBLE_DOWN_SAMPLER.sampleMin(values),
+                DOUBLE_DOWN_SAMPLER.sampleMax(values),
+                DOUBLE_DOWN_SAMPLER.sampleAvg(values));
     }
 }

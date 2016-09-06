@@ -30,8 +30,8 @@ public class LegacySampledTimeSeriesChartBuilder<D extends DataPoint<Long, Y>, Y
 
     private final TimeWindow timeWindow;
 
-    public LegacySampledTimeSeriesChartBuilder(DownSampler<Y> downSampler, TimeWindow timeWindow) {
-        super(downSampler);
+    public LegacySampledTimeSeriesChartBuilder(DownSampler<Y> downSampler, Integer avgNumDecimals, TimeWindow timeWindow) {
+        super(downSampler, avgNumDecimals);
         if (timeWindow.getWindowRangeCount() > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("range yields too many timeslots");
         }
