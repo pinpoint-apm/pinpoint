@@ -10,13 +10,13 @@
                     namespace: '@' // string value
                 },
                 link: function postLink(scope, element, attrs) {
-    
+
                     // define variables
                     var sId, oChart;
-    
+
                     // define variables of methods
                     var setIdAutomatically, setWidthHeight, render, showCursorAt, resize;
-    
+
                     /**
                      * set id automatically
                      */
@@ -24,7 +24,7 @@
                         sId = 'multipleValueAxesId-' + scope.namespace;
                         element.attr('id', sId);
                     };
-    
+
                     /**
                      * set width height
                      * @param w
@@ -34,12 +34,12 @@
                         if (w) element.css('width', w);
                         if (h) element.css('height', h);
                     };
-    
+
                     /**
                      * render
                      * @param chartData
                      */
-                    render = function (chartData) {
+                    render = function (chartData, categoryTitle) {
                         var options = {
                             "type": "serial",
                             "theme": "light",
@@ -69,38 +69,38 @@
                             ],
                             "graphs": [
                                 {
-                                    "balloonText": "Trace Fast : [[value]]",
+                                    "balloonText": categoryTitle["traceFace"] + " : [[value]]",
                                     "legendValueText": "[[value]]",
                                     "lineColor": "rgb(214, 141, 8)",
                                     "fillColor": "rgb(214, 141, 8)",
-                                    "title": "Fast",
+                                    "title": categoryTitle["traceFace"],
                                     "valueField": "traceFace",
                                     "fillAlphas": 0.4,
                                     "connect": true
                                 },{
-                                    "balloonText": "Trace Normal : [[value]]",
+                                    "balloonText": categoryTitle["traceNormal"] + " : [[value]]",
                                     "legendValueText": "[[value]]",
                                     "lineColor": "rgb(252, 178, 65)",
                                     "fillColor": "rgb(252, 178, 65)",
-                                    "title": "Normal",
+                                    "title": categoryTitle["traceNormal"],
                                     "valueField": "traceNormal",
                                     "fillAlphas": 0.4,
                                     "connect": true
                                 },{
-                                    "balloonText": "Trace Slow : [[value]]",
+                                    "balloonText": categoryTitle["traceSlow"] + " : [[value]]",
                                     "legendValueText": "[[value]]",
                                     "lineColor": "rgb(90, 103, 166)",
                                     "fillColor": "rgb(90, 103, 166)",
-                                    "title": "Slow",
+                                    "title": categoryTitle["traceSlow"],
                                     "valueField": "traceSlow",
                                     "fillAlphas": 0.4,
                                     "connect": true
                                 },{
-                                    "balloonText": "Trace Very Slow : [[value]]",
+                                    "balloonText": categoryTitle["traceVerySlow"] + " : [[value]]",
                                     "legendValueText": "[[value]]",
                                     "lineColor": "rgb(160, 153, 255)",
                                     "fillColor": "rgb(160, 153, 255)",
-                                    "title": "Very Slow",
+                                    "title": categoryTitle["traceVerySlow"],
                                     "valueField": "traceVerySlow",
                                     "fillAlphas": 0.4,
                                     "connect": true
@@ -154,10 +154,10 @@
                         }
                     };
 
-                    scope.$on( "activeTraceChartDirective.initAndRenderWithData." + scope.namespace, function (event, data, w, h) {
+                    scope.$on( "activeTraceChartDirective.initAndRenderWithData." + scope.namespace, function (event, data, categoryTitle, w, h) {
                         setIdAutomatically();
                         setWidthHeight(w, h);
-                        render(data);
+                        render(data, categoryTitle);
                     });
 
                     scope.$on( "activeTraceChartDirective.showCursorAt." + scope.namespace, function (event, category) {
