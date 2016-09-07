@@ -828,6 +828,9 @@
                         <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
+
+                        <!--google guava-->
+                        <exclude>com/google/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -893,6 +896,9 @@
                         <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
+
+                        <!--google guava-->
+                        <exclude>com/google/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -995,7 +1001,15 @@
                     <includesTestSourceRoots>true</includesTestSourceRoots>
                     <licenseLocation>clover.license</licenseLocation>
                     <encoding>${encoding}</encoding>
-                    <jdk>1.6</jdk>
+                    <jdk>${jdk.version}</jdk>
+                    <excludes>
+                        <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
+
+                        <!--google guava-->
+                        <exclude>com/google/**/*.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>
