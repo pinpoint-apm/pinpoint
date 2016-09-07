@@ -255,7 +255,7 @@
 					}
 					if ( verySlow != DATA_UNAVAILABLE ) {
 						obj.verySlow = verySlow;
-						obj.verySlowTitle = aActiveTraceVerySlow[i].title
+						obj.verySlowTitle = aActiveTraceVerySlow[i].title;
 					}
 					newData.push( obj );
 				}
