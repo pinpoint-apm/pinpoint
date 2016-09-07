@@ -207,6 +207,7 @@
             <groupId>com.netflix.hystrix</groupId>
             <artifactId>hystrix-core</artifactId>
             <version>1.3.20</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
