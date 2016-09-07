@@ -350,7 +350,7 @@
             <dependency>
                 <groupId>org.apache.hbase</groupId>
                 <artifactId>hbase-client</artifactId>
-                <version>1.2.0-cdh5.7.0</version>
+                <version>1.2.0-cdh5.7.3</version>
             </dependency>
 
             <dependency>
