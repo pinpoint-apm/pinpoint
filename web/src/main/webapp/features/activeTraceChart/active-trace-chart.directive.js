@@ -40,7 +40,6 @@
                      * @param chartData
                      */
                     render = function (chartData) {
-                    	console.log( chartData );
                         var options = {
                             "type": "serial",
                             "theme": "light",

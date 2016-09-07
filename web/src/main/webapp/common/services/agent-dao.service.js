@@ -177,24 +177,42 @@
 	        	var aUnsampledContinuationData = agentStat.charts['TPS_UNSAMPLED_CONTINUATION'].points;
 	        	var aUnsampledNewData = agentStat.charts['TPS_UNSAMPLED_NEW'].points;
 	        	var aTotalData = agentStat.charts['TPS_TOTAL'].points;
-	        	
+				var newData = [];
+				var DATA_UNAVAILABLE = -1;
+
 	        	var tpsLength = aTotalData.length;
 	        	if ( tpsLength > 0 ) {
 	        		tps.isAvailable = true;
 	        	} else {
-	        		return [];
+	        		return newData;
 	        	}
-	            var newData = [];
-	            
+
 	            for ( var i = 0 ; i < tpsLength ; i++ ) {
-	                newData.push({
-						"time" : moment(aSampledContinuationData[i].xVal).format( cfg.dateFormat ),
-						"sampledContinuationTps": getFloatValue( aSampledContinuationData[i].avgYVal ),
-						"sampledNewTps": getFloatValue( aSampledNewData[i].avgYVal ),
-						"unsampledContinuationTps": getFloatValue( aUnsampledContinuationData[i].avgYVal ),
-						"unsampledNewTps": getFloatValue( aUnsampledNewData[i].avgYVal ),
-						"totalTps": getFloatValue( aTotalData[i].avgYVal )
-					});
+	            	var obj = {
+						"time" : moment(aSampledContinuationData[i].xVal).format( cfg.dateFormat )
+					};
+					var sampledContinuationTps = getFloatValue( aSampledContinuationData[i].avgYVal );
+					var sampledNewTps = getFloatValue( aSampledNewData[i].avgYVal );
+					var unsampledContinuationTps = getFloatValue( aUnsampledContinuationData[i].avgYVal );
+					var unsampledNewTps = getFloatValue( aUnsampledNewData[i].avgYVal );
+					var totalTps = getFloatValue( aTotalData[i].avgYVal );
+
+					if ( sampledContinuationTps != DATA_UNAVAILABLE ) {
+						obj.sampledContinuationTps = sampledContinuationTps;
+					}
+					if ( sampledNewTps != DATA_UNAVAILABLE ) {
+						obj.sampledNewTps = sampledNewTps;
+					}
+					if ( unsampledContinuationTps != DATA_UNAVAILABLE ) {
+						obj.unsampledContinuationTps = unsampledContinuationTps;
+					}
+					if ( unsampledNewTps != DATA_UNAVAILABLE ) {
+						obj.unsampledNewTps = unsampledNewTps;
+					}
+					if ( totalTps != DATA_UNAVAILABLE ) {
+						obj.totalTps = totalTps;
+					}
+					newData.push( obj );
 	            }
 	            
 	            return newData;
@@ -204,28 +222,43 @@
 				var aActiveTraceNormal = agentStat.charts[ "ACTIVE_TRACE_NORMAL" ].points;
 				var aActiveTraceSlow = agentStat.charts[ "ACTIVE_TRACE_SLOW" ].points;
 				var aActiveTraceVerySlow = agentStat.charts[ "ACTIVE_TRACE_VERY_SLOW" ].points;
+				var newData = [];
+				var DATA_UNAVAILABLE = -1;
 
 				if ( aActiveTraceFastData || aActiveTraceNormal || aActiveTraceSlow || aActiveTraceVerySlow ) {
 					activeTrace.isAvailable = true;
 				} else {
-					return [];
+					return newData;
 				}
-				var newData = [];
 
 				for ( var i = 0 ; i < aActiveTraceFastData.length ; i++ ) {
-					newData.push({
-						"time": moment(aActiveTraceFastData[i].xVal).format( cfg.dateFormat ),
-						"fast": getFloatValue( aActiveTraceFastData[i].avgYVal ),
-						"fastTitle": aActiveTraceFastData[i].title,
-						"normal": getFloatValue( aActiveTraceNormal[i].avgYVal ),
-						"normalTitle": aActiveTraceNormal[i].title,
-						"slow": getFloatValue( aActiveTraceSlow[i].avgYVal ),
-						"slowTitle": aActiveTraceSlow[i].title,
-						"verySlow": getFloatValue( aActiveTraceVerySlow[i].avgYVal ),
-						"verySlowTitle": aActiveTraceVerySlow[i].title
-					});
-				}
+					var obj = {
+						"time": moment(aActiveTraceFastData[i].xVal).format(cfg.dateFormat)
+					};
 
+					var fast = getFloatValue( aActiveTraceFastData[i].avgYVal );
+					var normal = getFloatValue( aActiveTraceNormal[i].avgYVal );
+					var slow = getFloatValue( aActiveTraceSlow[i].avgYVal );
+					var verySlow = getFloatValue( aActiveTraceVerySlow[i].avgYVal );
+
+					if ( fast != DATA_UNAVAILABLE ) {
+						obj.fast = fast;
+						obj.fastTitle = aActiveTraceFastData[i].title;
+					}
+					if ( normal != DATA_UNAVAILABLE ) {
+						obj.normal = normal;
+						obj.normalTitle = aActiveTraceNormal[i].title;
+					}
+					if ( slow != DATA_UNAVAILABLE ) {
+						obj.slow = slow;
+						obj.slowTitle = aActiveTraceSlow[i].title;
+					}
+					if ( verySlow != DATA_UNAVAILABLE ) {
+						obj.verySlow = verySlow;
+						obj.verySlowTitle = aActiveTraceVerySlow[i].title
+					}
+					newData.push( obj );
+				}
 				return newData;
 			};
 			function getFloatValue( val ) {
