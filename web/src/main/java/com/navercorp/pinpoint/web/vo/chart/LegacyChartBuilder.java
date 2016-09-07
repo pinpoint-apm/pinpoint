@@ -43,7 +43,7 @@ public class LegacyChartBuilder<D extends DataPoint<X, Y>, X extends Number, Y e
     protected List<Point<X, Y>> makePoints(List<D> dataPoints) {
         List<Point<X, Y>> points = new ArrayList<>(dataPoints.size());
         for (D dataPoint : dataPoints) {
-            points.add(new Point<>(dataPoint.getXVal(), dataPoint.getYVal(), dataPoint.getYVal(), dataPoint.getYVal()));
+            points.add(new Point<>(dataPoint.getXVal(), dataPoint.getYVal()));
         }
         return points;
     }

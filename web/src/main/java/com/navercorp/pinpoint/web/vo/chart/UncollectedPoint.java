@@ -26,7 +26,7 @@ public class UncollectedPoint<X extends Number, Y extends Number> extends Point<
     }
 
     public UncollectedPoint(X xVal, Y uncollectedValue) {
-        super(xVal, uncollectedValue, uncollectedValue, uncollectedValue);
+        super(xVal, uncollectedValue);
     }
 
     @Override

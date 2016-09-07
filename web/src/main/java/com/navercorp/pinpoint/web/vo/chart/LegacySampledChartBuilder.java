@@ -27,13 +27,15 @@ import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
 public abstract class LegacySampledChartBuilder<D extends DataPoint<X, Y>, X extends Number, Y extends Number> extends LegacyChartBuilder<D, X, Y> {
 
     private final DownSampler<Y> downSampler;
+    private final Integer avgNumDecimals;
     protected final Y defaultValue;
 
-    protected LegacySampledChartBuilder(DownSampler<Y> downSampler) {
+    protected LegacySampledChartBuilder(DownSampler<Y> downSampler, Integer avgNumDecimals) {
         if (downSampler == null) {
             throw new NullPointerException("downSampler must not be null");
         }
         this.downSampler = downSampler;
+        this.avgNumDecimals = avgNumDecimals;
         this.defaultValue = downSampler.getDefaultValue();
     }
 
@@ -45,7 +47,7 @@ public abstract class LegacySampledChartBuilder<D extends DataPoint<X, Y>, X ext
         return this.downSampler.sampleMax(sampleBuffer);
     }
 
-    protected final Y sampleAvg(List<Y> sampleBuffer) {
-        return this.downSampler.sampleAvg(sampleBuffer);
+    protected final double sampleAvg(List<Y> sampleBuffer) {
+        return this.downSampler.sampleAvg(sampleBuffer, this.avgNumDecimals);
     }
 }
