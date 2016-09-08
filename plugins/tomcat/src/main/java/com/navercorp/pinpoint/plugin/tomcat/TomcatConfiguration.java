@@ -14,9 +14,9 @@
  */
 package com.navercorp.pinpoint.plugin.tomcat;
 
-import com.navercorp.pinpoint.bootstrap.config.ExcludePathFilter;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
 
 /**
  * @author Jongho Moon
@@ -24,14 +24,14 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  */
 public class TomcatConfiguration {
     private final boolean tomcatHidePinpointHeader;
-    private Filter<String> tomcatExcludeUrlFilter;
+    private final Filter<String> tomcatExcludeUrlFilter;
 
     public TomcatConfiguration(ProfilerConfig config) {
         this.tomcatHidePinpointHeader = config.readBoolean("profiler.tomcat.hidepinpointheader", true);
-        final String tomcatExcludeURL = config.readString("profiler.tomcat.excludeurl", "");
-        
-        if (!tomcatExcludeURL.isEmpty()) {
-            this.tomcatExcludeUrlFilter = new ExcludePathFilter(tomcatExcludeURL);
+        if (config.getTomcatExcludeProfileMethodFilter() == null) {
+            this.tomcatExcludeUrlFilter = new SkipFilter<String>();
+        } else {
+            this.tomcatExcludeUrlFilter = config.getTomcatExcludeUrlFilter();
         }
     }
 
