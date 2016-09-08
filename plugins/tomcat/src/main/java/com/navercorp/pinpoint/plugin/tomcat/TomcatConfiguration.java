@@ -28,10 +28,11 @@ public class TomcatConfiguration {
 
     public TomcatConfiguration(ProfilerConfig config) {
         this.tomcatHidePinpointHeader = config.readBoolean("profiler.tomcat.hidepinpointheader", true);
-        if (config.getTomcatExcludeProfileMethodFilter() == null) {
+        Filter<String> tomcatExcludeUrlFilter = config.getTomcatExcludeUrlFilter();
+        if (tomcatExcludeUrlFilter == null) {
             this.tomcatExcludeUrlFilter = new SkipFilter<String>();
         } else {
-            this.tomcatExcludeUrlFilter = config.getTomcatExcludeUrlFilter();
+            this.tomcatExcludeUrlFilter = tomcatExcludeUrlFilter;
         }
     }
 
