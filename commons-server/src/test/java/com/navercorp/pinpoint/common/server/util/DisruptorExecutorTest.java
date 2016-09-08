@@ -1,15 +1,33 @@
-package com.navercorp.pinpoint.common.server.util;
+/*
+ * Copyright 2016 Naver Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import com.lmax.disruptor.TimeoutBlockingWaitStrategy;
-import com.navercorp.pinpoint.common.server.util.concurrent.DisruptorExecutors;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import org.junit.Assert;
-import org.junit.Test;
+package com.navercorp.pinpoint.common.server.util;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.lmax.disruptor.TimeoutBlockingWaitStrategy;
+import com.navercorp.pinpoint.common.server.util.concurrent.DisruptorExecutors;
+import com.navercorp.pinpoint.common.server.util.concurrent.DisruptorUtils;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 
 /**
  * @author Taejin Koo
@@ -28,7 +46,7 @@ public class DisruptorExecutorTest {
     @Test
     public void simpleTest() throws InterruptedException {
         int bufferSize = 10;
-        int newBufferSize = DisruptorExecutors.nextPowerOfTwo(bufferSize);
+        int newBufferSize = DisruptorUtils.nextPowerOfTwo(bufferSize);
 
         ExecutorService executor = DisruptorExecutors.newSingleProducerExecutor(1, newBufferSize, threadFactory, new TimeoutBlockingWaitStrategy(10000, TimeUnit.MILLISECONDS));
 
@@ -48,7 +66,7 @@ public class DisruptorExecutorTest {
     @Test
     public void simpleTest2() throws InterruptedException {
         int bufferSize = 10;
-        int newBufferSize = DisruptorExecutors.nextPowerOfTwo(bufferSize);
+        int newBufferSize = DisruptorUtils.nextPowerOfTwo(bufferSize);
 
         ExecutorService executor = DisruptorExecutors.newSingleProducerExecutor(1, newBufferSize, threadFactory, new TimeoutBlockingWaitStrategy(10000, TimeUnit.MILLISECONDS));
 
@@ -65,7 +83,7 @@ public class DisruptorExecutorTest {
     @Test
     public void rejectTest() throws Exception {
         int bufferSize = 10;
-        int newBufferSize = DisruptorExecutors.nextPowerOfTwo(bufferSize);
+        int newBufferSize = DisruptorUtils.nextPowerOfTwo(bufferSize);
         ExecutorService executor = DisruptorExecutors.newSingleProducerExecutor(2, newBufferSize, threadFactory, new TimeoutBlockingWaitStrategy(100, TimeUnit.MILLISECONDS));
 
         CountDownLatch latch = new CountDownLatch(1);
@@ -94,7 +112,7 @@ public class DisruptorExecutorTest {
     @Test
     public void exceptionTest() throws InterruptedException {
         int bufferSize = 10;
-        int newBufferSize = DisruptorExecutors.nextPowerOfTwo(bufferSize);
+        int newBufferSize = DisruptorUtils.nextPowerOfTwo(bufferSize);
 
         ExecutorService executor = DisruptorExecutors.newSingleProducerExecutor(1, newBufferSize, threadFactory, new TimeoutBlockingWaitStrategy(10000, TimeUnit.MILLISECONDS));
 
