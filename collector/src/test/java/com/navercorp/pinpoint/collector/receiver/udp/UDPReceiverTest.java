@@ -28,9 +28,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.SocketUtils;
 
 import com.navercorp.pinpoint.collector.receiver.DataReceiver;
-import org.springframework.util.SocketUtils;
+import com.navercorp.pinpoint.collector.receiver.WorkerOption;
 
 /**
  * @author emeroad
@@ -44,13 +45,14 @@ public class UDPReceiverTest {
     public void startStop() {
         DataReceiver receiver = null;
 
+        WorkerOption workerOption = new WorkerOption(1, 10, true);
         try {
             receiver = new UDPReceiver("test", new PacketHandlerFactory() {
                 @Override
                 public PacketHandler createPacketHandler() {
                     return null;
                 }
-            }, "127.0.0.1", PORT, 1024, 1, 10, true);
+            }, "127.0.0.1", PORT, 1024, workerOption);
         } catch (Exception e) {
             logger.debug(e.getMessage(), e);
             Assert.fail(e.getMessage());
