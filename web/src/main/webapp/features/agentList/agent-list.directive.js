@@ -45,9 +45,10 @@
 						} else {
 							scope.agentGroup = result;
 							if ( bApplicationChange ) {
-								return;
+								scope.$emit( "up.changed.agent", cfg.ID, { agentId: "" }, true );
+							} else {
+								changeAgent(findAgentByAgentId(UrlVoService.getAgentId()), true);
 							}
-							changeAgent( findAgentByAgentId( UrlVoService.getAgentId() ), true );
 						}
 					});
 	            }
