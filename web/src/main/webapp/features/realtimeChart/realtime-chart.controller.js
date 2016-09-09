@@ -143,12 +143,12 @@
 	    		}
 	    	}
 	    	function initNamespaceToIndexMap() {
-	    		// if ( angular.isDefined( oNamespaceToIndexMap["sum"] ) ) {
-	    		// 	oNamespaceToIndexMap = {};
-		    	// 	oNamespaceToIndexMap["sum"] = -1;
-	    		// } else {
+	    		if ( angular.isDefined( oNamespaceToIndexMap["sum"] ) ) {
 	    			oNamespaceToIndexMap = {};
-	    		// }
+		    		oNamespaceToIndexMap["sum"] = -1;
+	    		} else {
+	    			oNamespaceToIndexMap = {};
+	    		}
 	    	}
 	    	function hasAgentChart( agentName ) {
 	    		return angular.isDefined( oNamespaceToIndexMap[agentName] );
@@ -218,7 +218,7 @@
 	        	var maxY = Math.max( getMaxOfYValue(), cfg.const.MIN_Y);
 	        	var agentIndexAndCount = 0;
 	        	var bAllError = true;
-	        	
+
 	        	for( var agentName in applicationData ) {
 	        		checkAgentChart( agentName, agentIndexAndCount );
 	        		
@@ -232,6 +232,7 @@
 	        		showAgentChart( agentIndexAndCount );
 	        		agentIndexAndCount++;
 	        	}
+	        	checkNotUseAgentChart( agentIndexAndCount );
         		$scope.$broadcast('realtimeChartDirective.onData.sum', aRequestSum, timeStamp, maxY, bAllError );
 				$elSumChartCount.html(agentIndexAndCount);
 	        }
@@ -258,6 +259,11 @@
 	        function showAgentChart( index ) {
 	        	aAgentChartElementList[index].show();
 	        }
+	        function checkNotUseAgentChart( count ) {
+	        	for( var i = count ; i < aAgentChartElementList.length ; i++ ) {
+					aAgentChartElementList[i].hide();
+				}
+			}
 	        function setAgentName( index, name ) {
 	        	aAgentChartElementList[index].find("div").html(name);
 	        }
@@ -317,7 +323,7 @@
 					});
 					aAgentChartElementList.length = 0;
 				});
-
+				oNamespaceToIndexMap = {};
 	        }
 	        function showDisconnectedConnectionPopup() {
 	        	$elWarningMessage.css("background-color", "rgba(200, 200, 200, 0.9)");
