@@ -26,7 +26,9 @@ public class JtdsConfig extends JdbcConfig {
     private final boolean profileRollback;
 
     public JtdsConfig(ProfilerConfig config) {
-        super(config.readBoolean("profiler.jdbc.jtds.tracesqlbindvalue", config.isTraceSqlBindValue()), config.getMaxSqlBindValueSize());
+        super(config.readBoolean("profiler.jdbc.jtds", false),
+                config.readBoolean("profiler.jdbc.jtds.tracesqlbindvalue", config.isTraceSqlBindValue()),
+                config.getMaxSqlBindValueSize());
         this.profileSetAutoCommit = config.readBoolean("profiler.jdbc.jtds.setautocommit", false);
         this.profileCommit = config.readBoolean("profiler.jdbc.jtds.commit", false);
         this.profileRollback = config.readBoolean("profiler.jdbc.jtds.rollback", false);
