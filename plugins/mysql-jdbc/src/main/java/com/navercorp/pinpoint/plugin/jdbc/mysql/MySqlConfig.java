@@ -26,7 +26,9 @@ public class MySqlConfig extends JdbcConfig {
     private final boolean profileRollback;
 
     public MySqlConfig(ProfilerConfig config) {
-        super(config.readBoolean("profiler.jdbc.mysql.tracesqlbindvalue", config.isTraceSqlBindValue()), config.getMaxSqlBindValueSize());
+        super(config.readBoolean("profiler.jdbc.mysql", false),
+                config.readBoolean("profiler.jdbc.mysql.tracesqlbindvalue", config.isTraceSqlBindValue()),
+                config.getMaxSqlBindValueSize());
         this.profileSetAutoCommit = config.readBoolean("profiler.jdbc.mysql.setautocommit", false);
         this.profileCommit = config.readBoolean("profiler.jdbc.mysql.commit", false);
         this.profileRollback = config.readBoolean("profiler.jdbc.mysql.rollback", false);
