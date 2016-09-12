@@ -35,7 +35,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 
 @RunWith(PinpointPluginTestSuite.class)
 @JvmVersion(7)
-@Dependency({ "org.mariadb.jdbc:mariadb-java-client:[1.4.min,1.4.max]", "ch.vorburger.mariaDB4j:mariaDB4j:2.2.2" })
+@Dependency({ "org.mariadb.jdbc:mariadb-java-client:[1.4.min,)", "ch.vorburger.mariaDB4j:mariaDB4j:2.2.2" })
 public class MariaDB_1_4_x_IT extends MariaDB_IT_Base {
 
     // see CallableParameterMetaData#queryMetaInfos
