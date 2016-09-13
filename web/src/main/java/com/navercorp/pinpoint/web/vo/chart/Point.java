@@ -23,13 +23,20 @@ public class Point<X extends Number, Y extends Number> {
     private final X xVal;
     private final Y minYVal;
     private final Y maxYVal;
-    private final double avgYVal;
+    private final Double avgYVal;
 
     public Point(X xVal, Y yVal) {
-        this(xVal, yVal, yVal, yVal.doubleValue());
+        this.xVal = xVal;
+        this.minYVal = yVal;
+        this.maxYVal = yVal;
+        if (yVal == null) {
+            this.avgYVal = null;
+        } else {
+            this.avgYVal = yVal.doubleValue();
+        }
     }
 
-    public Point(X xVal, Y minYVal, Y maxYVal, double avgYVal) {
+    public Point(X xVal, Y minYVal, Y maxYVal, Double avgYVal) {
         this.xVal = xVal;
         this.minYVal = minYVal;
         this.maxYVal = maxYVal;
@@ -48,7 +55,7 @@ public class Point<X extends Number, Y extends Number> {
         return maxYVal;
     }
 
-    public double getAvgYVal() {
+    public Double getAvgYVal() {
         return avgYVal;
     }
 
@@ -59,22 +66,19 @@ public class Point<X extends Number, Y extends Number> {
 
         Point<?, ?> point = (Point<?, ?>) o;
 
-        if (Double.compare(point.avgYVal, avgYVal) != 0) return false;
         if (xVal != null ? !xVal.equals(point.xVal) : point.xVal != null) return false;
         if (minYVal != null ? !minYVal.equals(point.minYVal) : point.minYVal != null) return false;
-        return maxYVal != null ? maxYVal.equals(point.maxYVal) : point.maxYVal == null;
+        if (maxYVal != null ? !maxYVal.equals(point.maxYVal) : point.maxYVal != null) return false;
+        return avgYVal != null ? avgYVal.equals(point.avgYVal) : point.avgYVal == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result;
-        long temp;
-        result = xVal != null ? xVal.hashCode() : 0;
+        int result = xVal != null ? xVal.hashCode() : 0;
         result = 31 * result + (minYVal != null ? minYVal.hashCode() : 0);
         result = 31 * result + (maxYVal != null ? maxYVal.hashCode() : 0);
-        temp = Double.doubleToLongBits(avgYVal);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (avgYVal != null ? avgYVal.hashCode() : 0);
         return result;
     }
 
