@@ -101,13 +101,13 @@ public class PassiveSpanBoTest {
         passiveSpanBo.setPassiveSpanId(100001);
         Assert.assertEquals(passiveSpanBo.getPassiveSpanId(), 100001);
 
-        // parentSpanId
-        passiveSpanBo.setParentSpanId(10);
-        Assert.assertEquals(passiveSpanBo.getParentSpanId(), 10);
+        // proxyFrontEndSpanId
+        passiveSpanBo.setProxyFrontEndSpanId(10);
+        Assert.assertEquals(passiveSpanBo.getProxyFrontEndSpanId(), 10);
 
-        // nextSpanId
-        passiveSpanBo.setNextSpanId(100);
-        Assert.assertEquals(passiveSpanBo.getNextSpanId(), 100);
+        // proxyBackEndSpanId
+        passiveSpanBo.setProxyBackEndSpanId(100);
+        Assert.assertEquals(passiveSpanBo.getProxyBackEndSpanId(), 100);
 
         // remoteAddr
         passiveSpanBo.setRemoteAddr("remoteAddr");
@@ -149,7 +149,7 @@ public class PassiveSpanBoTest {
 
         // fake
         SpanBo fakeSpanBo = passiveSpanBo.createFakeSpanBo();
-        Assert.assertEquals(passiveSpanBo.getParentSpanId(), fakeSpanBo.getParentSpanId());
+        Assert.assertEquals(passiveSpanBo.getProxyFrontEndSpanId(), fakeSpanBo.getParentSpanId());
         Assert.assertEquals(passiveSpanBo.getPassiveSpanId(), fakeSpanBo.getSpanId());
         Assert.assertEquals(fakeSpanBo.getRemoteAddr(), "remoteAddr");
         Assert.assertEquals(fakeSpanBo.getTransactionId(), TransactionIdUtils.parseTransactionId("test-agent^1461811447435^1"));
@@ -198,8 +198,8 @@ public class PassiveSpanBoTest {
         passiveEvent1.setNextSpanId(3);
         passiveEvent2.setNextSpanId(1000);
         passiveSpanBo.setPassiveSpanId(2);
-        passiveSpanBo.setParentSpanId(1);
-        passiveSpanBo.setNextSpanId(3);
+        passiveSpanBo.setProxyFrontEndSpanId(1);
+        passiveSpanBo.setProxyBackEndSpanId(3);
         passiveSpanBo.addPassiveSpanEventBo(passiveEvent1);
         passiveSpanBo.addPassiveSpanEventBo(passiveEvent2);
         passiveSpanBo.setStartTime(1);
@@ -253,8 +253,8 @@ public class PassiveSpanBoTest {
         passiveEvent1.setNextSpanId(3);
         passiveEvent2.setNextSpanId(1000);
         passiveSpanBo.setPassiveSpanId(2);
-        passiveSpanBo.setParentSpanId(1);
-        passiveSpanBo.setNextSpanId(3);
+        passiveSpanBo.setProxyFrontEndSpanId(1);
+        passiveSpanBo.setProxyBackEndSpanId(3);
         passiveSpanBo.addPassiveSpanEventBo(passiveEvent1);
         passiveSpanBo.addPassiveSpanEventBo(passiveEvent2);
         passiveSpanBo.setStartTime(10);
@@ -264,8 +264,8 @@ public class PassiveSpanBoTest {
         passive2Event1.setNextSpanId(3);
         passive2Event2.setNextSpanId(1000);
         passiveSpanBo2.setPassiveSpanId(4);
-        passiveSpanBo2.setParentSpanId(1);
-        passiveSpanBo2.setNextSpanId(3);
+        passiveSpanBo2.setProxyFrontEndSpanId(1);
+        passiveSpanBo2.setProxyBackEndSpanId(3);
         passiveSpanBo2.addPassiveSpanEventBo(passive2Event1);
         passiveSpanBo2.addPassiveSpanEventBo(passive2Event2);
         passiveSpanBo2.setStartTime(1);
@@ -405,15 +405,15 @@ public class PassiveSpanBoTest {
                 for (int j = 0; j < numInChain; j++) {
                     PassiveSpanBo passiveSpanBo = new PassiveSpanBo();
                     passiveSpanBo.setPassiveSpanId(passiveSpanId++);
-                    passiveSpanBo.setParentSpanId(spanBoListBySeq.get(i - 1).getSpanId());
-                    passiveSpanBo.setNextSpanId(spanBoListBySeq.get(i).getSpanId());
+                    passiveSpanBo.setProxyFrontEndSpanId(spanBoListBySeq.get(i - 1).getSpanId());
+                    passiveSpanBo.setProxyBackEndSpanId(spanBoListBySeq.get(i).getSpanId());
 
                     int eventNum = RandomUtils.nextInt(1, 11);
                     int nextEventIndex = RandomUtils.nextInt(0, eventNum);
                     for (int k = 0; k < eventNum; k++) {
                         SpanEventBo spanEventBo = new SpanEventBo();
                         if (k == nextEventIndex) {
-                            spanEventBo.setNextSpanId(passiveSpanBo.getNextSpanId());
+                            spanEventBo.setNextSpanId(passiveSpanBo.getProxyBackEndSpanId());
                         } else {
                             spanEventBo.setNextSpanId(RandomUtils.nextInt(10000, 100000));
                         }
@@ -480,73 +480,76 @@ public class PassiveSpanBoTest {
     }
 
 
-//    @Test
-//    public void testMergePassiveSpan_missing_first() throws Exception {
-//        // 1, missing first
-//        SpanBo first = new SpanBo();
-//        SpanBo second = new SpanBo();
-//        PassiveSpanBo passiveSpanBo = new PassiveSpanBo();
-//
-//        SpanEventBo event1 = new SpanEventBo();
-//        SpanEventBo event2 = new SpanEventBo();
-//        event1.setNextSpanId(3);
-//        event2.setNextSpanId(1000);
-//
-//        List<SpanEventBo> spanEventBoList= new ArrayList<>();
-//        spanEventBoList.add(event1);
-//        spanEventBoList.add(event2);
-//
-//        first.setSpanId(1);
-//        first.addSpanEventBoList(spanEventBoList);
-//        second.setSpanId(3);
-//        passiveSpanBo.setPassiveSpanId(new PassiveSpanId(1, 3));
-//
-//        List<SpanBo> spanBoList = new ArrayList<>();
-//        // spanBoList.add(first);
-//        spanBoList.add(second);
-//
-//        List<PassiveSpanBo> passiveSpanBoList = new ArrayList<>();
-//        passiveSpanBoList.add(passiveSpanBo);
-//
-//        SpanServiceImpl.mergePassiveSpan(spanBoList, passiveSpanBoList);
-//
-//        Assert.assertEquals(spanBoList.size(), 1);
-//
-//    }
-//
-//    @Test
-//    public void testMergePassiveSpan_missing_second() throws Exception {
-//        // 1, missing second
-//        SpanBo first = new SpanBo();
-//        SpanBo second = new SpanBo();
-//        PassiveSpanBo passiveSpanBo = new PassiveSpanBo();
-//
-//        SpanEventBo event1 = new SpanEventBo();
-//        SpanEventBo event2 = new SpanEventBo();
-//        event1.setNextSpanId(3);
-//        event2.setNextSpanId(1000);
-//
-//        List<SpanEventBo> spanEventBoList= new ArrayList<>();
-//        spanEventBoList.add(event1);
-//        spanEventBoList.add(event2);
-//
-//        first.setSpanId(1);
-//        first.addSpanEventBoList(spanEventBoList);
-//        second.setSpanId(3);
-//        passiveSpanBo.setPassiveSpanId(new PassiveSpanId(1, 3));
-//
-//        List<SpanBo> spanBoList = new ArrayList<>();
-//        spanBoList.add(first);
-//        //spanBoList.add(second);
-//
-//        List<PassiveSpanBo> passiveSpanBoList = new ArrayList<>();
-//        passiveSpanBoList.add(passiveSpanBo);
-//
-//        SpanServiceImpl.mergePassiveSpan(spanBoList, passiveSpanBoList);
-//
-//        Assert.assertEquals(spanBoList.size(), 1);
-//
-//    }
+    @Test
+    public void testMergePassiveSpan_missing_frontend() throws Exception {
+        // 1, missing first
+        SpanBo first = new SpanBo();
+        SpanBo second = new SpanBo();
+        PassiveSpanBo passiveSpanBo = new PassiveSpanBo();
+
+        SpanEventBo event1 = new SpanEventBo();
+        SpanEventBo event2 = new SpanEventBo();
+        event1.setNextSpanId(3);
+        event2.setNextSpanId(1000);
+
+        List<SpanEventBo> spanEventBoList= new ArrayList<>();
+        spanEventBoList.add(event1);
+        spanEventBoList.add(event2);
+
+        first.setSpanId(1);
+        first.addSpanEventBoList(spanEventBoList);
+        second.setSpanId(3);
+        passiveSpanBo.setPassiveSpanId(101);
+        passiveSpanBo.setProxyFrontEndSpanId(100000);
+        passiveSpanBo.setProxyBackEndSpanId(3);
+
+        List<SpanBo> spanBoList = new ArrayList<>();
+        // spanBoList.add(first);
+        spanBoList.add(second);
+
+        List<PassiveSpanBo> passiveSpanBoList = new ArrayList<>();
+        passiveSpanBoList.add(passiveSpanBo);
+
+        PassiveSpanBo.mergePassiveSpan(spanBoList, passiveSpanBoList);
+
+        Assert.assertEquals(spanBoList.size(), 1);
+
+    }
+
+    @Test
+    public void testMergePassiveSpan_missing_backend() throws Exception {
+        // 1, missing second
+        SpanBo first = new SpanBo();
+        SpanBo second = new SpanBo();
+        PassiveSpanBo passiveSpanBo = new PassiveSpanBo();
+
+        SpanEventBo event1 = new SpanEventBo();
+        SpanEventBo event2 = new SpanEventBo();
+        event1.setNextSpanId(3);
+        event2.setNextSpanId(1000);
+
+        List<SpanEventBo> spanEventBoList= new ArrayList<>();
+        spanEventBoList.add(event1);
+        spanEventBoList.add(event2);
+
+        first.setSpanId(1);
+        first.addSpanEventBoList(spanEventBoList);
+        second.setSpanId(3);
+        passiveSpanBo.setPassiveSpanId(101);
+        passiveSpanBo.setProxyFrontEndSpanId(1);
+
+        List<SpanBo> spanBoList = new ArrayList<>();
+        spanBoList.add(first);
+        //spanBoList.add(second);
+
+        List<PassiveSpanBo> passiveSpanBoList = new ArrayList<>();
+        passiveSpanBoList.add(passiveSpanBo);
+
+        PassiveSpanBo.mergePassiveSpan(spanBoList, passiveSpanBoList);
+
+        Assert.assertEquals(spanBoList.size(), 1);
+
+    }
 
     private PassiveSpanBo randomPassiveSpan() {
         TPassiveSpan tPassiveSpan = randomTSpan.randomTPassiveSpan();

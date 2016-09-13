@@ -72,8 +72,8 @@ public class RandomTSpan {
 
         tSpan.setTransactionId(TransactionIdUtils.formatByteBuffer("agent", System.currentTimeMillis(), RandomUtils.nextLong(0, Long.MAX_VALUE)));
         tSpan.setPassiveSpanId(random.nextLong());
-        tSpan.setNextSpanId(random.nextLong());
-        tSpan.setParentSpanId(RandomUtils.nextInt(0, 100000));
+        tSpan.setProxyFrontEndSpanId(random.nextLong());
+        tSpan.setProxyBackEndSpanId(RandomUtils.nextInt(0, 100000));
         tSpan.setStartTime(System.currentTimeMillis() + RandomUtils.nextInt(0, 1000));
         tSpan.setElapsed(RandomUtils.nextInt(0, 2000));
         tSpan.setRpc(RandomStringUtils.random(10));
