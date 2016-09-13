@@ -81,7 +81,7 @@
 							return;
 						}
 						bVisible = true;
-						if ( angular.isUndefined( scope.node ) || ( scope.node.key !== node.key ) ) {
+						if ( angular.isUndefined( scope.node ) || scope.node === null || ( scope.node.key !== node.key ) ) {
 							scope.bIsNode = bIsNodeServer;
 							scope.node = node;
 							scope.oNavbarVoService = oNavbarVoService;
