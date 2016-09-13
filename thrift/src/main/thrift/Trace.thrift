@@ -161,3 +161,38 @@ struct TResult {
   1: bool success
   2: optional string message
 }
+
+
+struct TPassiveSpan {
+//  1: string agentId
+//  2: string applicationName
+//  3: i64 agentStartTime
+  1: i64 passiveSpanId;
+  2: i16 agentType;
+
+  3: i64 agentStartTime
+
+  4: i64 proxyFrontEndSpanId;
+  5: i64 proxyBackEndSpanId;
+  
+  6: binary  transactionId;
+
+  // span event's startTimestamp
+  7: i64 startTime;
+  8: optional i32 elapsed = 0;
+
+  9: i16 serviceType;
+  10: optional string endPoint
+  11: optional string remoteAddr
+
+  12: optional list<TAnnotation> annotations
+  13: optional i16 flag = 0
+
+  14: optional i32 err
+
+  15: optional list<TSpanEvent> spanEventList
+
+  16: optional i32 apiId
+
+  17: optional string rpc
+}

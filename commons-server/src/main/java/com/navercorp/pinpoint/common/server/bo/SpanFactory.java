@@ -14,6 +14,7 @@ import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
+import com.navercorp.pinpoint.thrift.dto.TPassiveSpan;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -60,6 +61,20 @@ public class SpanFactory {
         spanBo.setCollectorAcceptTime(acceptedTime);
 
         return spanBo;
+    }
+
+    public PassiveSpanBo buildPassiveSpanBo(TPassiveSpan tPassiveSpan) {
+
+        final PassiveSpanBo passiveSpanBo = newPassiveSpanBo(tPassiveSpan);
+
+        List<TSpanEvent> spanEventList = tPassiveSpan.getSpanEventList();
+        List<SpanEventBo> spanEventBoList = buildSpanEventBoList(spanEventList);
+        passiveSpanBo.addPassiveSpanEventBoList(spanEventBoList);
+
+        long acceptedTime = acceptedTimeService.getAcceptedTime();
+        passiveSpanBo.setCollectorAcceptTime(acceptedTime);
+
+        return passiveSpanBo;
     }
 
     // for test
@@ -116,6 +131,44 @@ public class SpanFactory {
         return spanBo;
     }
 
+    // for test
+    PassiveSpanBo newPassiveSpanBo(TPassiveSpan tPassiveSpan) {
+        if (tPassiveSpan == null) {
+            throw new NullPointerException("tPassiveSpan must not be null");
+        }
+
+        final PassiveSpanBo passiveSpanBo = new PassiveSpanBo();
+
+        passiveSpanBo.setAgentStartTime(tPassiveSpan.getAgentStartTime());
+
+        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(tPassiveSpan.getTransactionId());
+        passiveSpanBo.setTransactionId(transactionId);
+
+        passiveSpanBo.setAgentType(tPassiveSpan.getAgentType());
+
+        passiveSpanBo.setPassiveSpanId(tPassiveSpan.getPassiveSpanId());
+        passiveSpanBo.setProxyFrontEndSpanId(tPassiveSpan.getProxyFrontEndSpanId());
+        passiveSpanBo.setProxyBackEndSpanId(tPassiveSpan.getProxyBackEndSpanId());
+
+        passiveSpanBo.setStartTime(tPassiveSpan.getStartTime());
+        passiveSpanBo.setElapsed(tPassiveSpan.getElapsed());
+
+        passiveSpanBo.setRpc(tPassiveSpan.getRpc());
+
+        passiveSpanBo.setServiceType(tPassiveSpan.getServiceType());
+        passiveSpanBo.setEndPoint(tPassiveSpan.getEndPoint());
+        passiveSpanBo.setFlag(tPassiveSpan.getFlag());
+        passiveSpanBo.setApiId(tPassiveSpan.getApiId());
+
+        passiveSpanBo.setErrCode(tPassiveSpan.getErr());
+
+        passiveSpanBo.setRemoteAddr(tPassiveSpan.getRemoteAddr());
+
+        List<AnnotationBo> annotationBoList = buildAnnotationList(tPassiveSpan.getAnnotations());
+        passiveSpanBo.setAnnotationBoList(annotationBoList);
+
+        return passiveSpanBo;
+    }
 
     private void bind(SpanEventBo spanEvent, TSpanEvent tSpanEvent) {
 

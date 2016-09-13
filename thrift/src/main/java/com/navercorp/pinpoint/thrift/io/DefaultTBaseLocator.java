@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
+import com.navercorp.pinpoint.thrift.dto.TPassiveSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
 import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
@@ -45,6 +46,10 @@ class DefaultTBaseLocator implements TBaseLocator {
 
     private static final short SPAN = 40;
     private static final Header SPAN_HEADER = createHeader(SPAN);
+
+    private static final short PASSIVE_SPAN = 45;
+    private static final Header PASSIVE_SPAN_HEADER = createHeader(PASSIVE_SPAN);
+
 
     private static final short AGENT_INFO = 50;
     private static final Header AGENT_INFO_HEADER = createHeader(AGENT_INFO);
@@ -80,6 +85,8 @@ class DefaultTBaseLocator implements TBaseLocator {
         switch (type) {
             case SPAN:
                 return new TSpan();
+            case PASSIVE_SPAN:
+                return new TPassiveSpan();
             case AGENT_INFO:
                 return new TAgentInfo();
             case AGENT_STAT:

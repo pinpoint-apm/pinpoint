@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.google.common.annotations.Beta;
+import com.navercorp.pinpoint.common.server.bo.PassiveSpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.dao.TraceDao;
@@ -32,6 +33,25 @@ public class HbaseDualReadDao implements TraceDao {
         this.slave = slave;
     }
 
+    @Override
+    public List<PassiveSpanBo> selectPassiveSpan(TransactionId transactionId) {
+        Throwable masterThrowable = null;
+        List<PassiveSpanBo> result = null;
+        try {
+            result = master.selectPassiveSpan(transactionId);
+        } catch (Throwable th) {
+            masterThrowable = th;
+        }
+        try {
+            slave.selectPassiveSpan(transactionId);
+        } catch (Throwable th) {
+            logger.debug("slave error :{}", th.getMessage(), th);
+        }
+
+        rethrowRuntimeException(masterThrowable);
+
+        return result;
+    }
 
     @Override
     public List<SpanBo> selectSpan(TransactionId transactionId) {

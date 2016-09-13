@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.TraceDao;
+import com.navercorp.pinpoint.common.server.bo.PassiveSpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import org.slf4j.Logger;
@@ -40,6 +41,22 @@ public class DualWriteHbaseTraceDao implements TraceDao {
             slave.insert(span);
         } catch (Throwable e) {
             logger.warn("slave insert(TSpan) Error:{}", e.getMessage(), e);
+        }
+        rethrowRuntimeException(masterException);
+    }
+
+    @Override
+    public void insert(PassiveSpanBo passiveSpanBo) {
+        Throwable masterException = null;
+        try {
+            master.insert(passiveSpanBo);
+        } catch (Throwable e) {
+            masterException = e;
+        }
+        try {
+            slave.insert(passiveSpanBo);
+        } catch (Throwable e) {
+            logger.warn("slave insert(passiveSpanBo) Error:{}", e.getMessage(), e);
         }
         rethrowRuntimeException(masterException);
     }

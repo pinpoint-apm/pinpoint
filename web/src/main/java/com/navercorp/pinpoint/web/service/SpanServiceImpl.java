@@ -22,6 +22,7 @@ import java.util.List;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
+import com.navercorp.pinpoint.common.server.bo.PassiveSpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
@@ -94,6 +95,10 @@ public class SpanServiceImpl implements SpanService {
         if (CollectionUtils.isEmpty(spans)) {
             return new SpanResult(SpanAligner2.FAIL_MATCH, new CallTreeIterator(null));
         }
+
+        final List<PassiveSpanBo> passiveSpanBoList = traceDao.selectPassiveSpan(transactionId);
+
+        PassiveSpanBo.mergePassiveSpan(spans, passiveSpanBoList);
 
         final SpanResult result = order(spans, selectedSpanHint);
         final CallTreeIterator callTreeIterator = result.getCallTree();

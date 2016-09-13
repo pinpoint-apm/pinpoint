@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
+import com.navercorp.pinpoint.common.server.bo.PassiveSpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.dao.TraceDao;
@@ -25,6 +26,16 @@ public class HbaseTraceCompatibilityDao implements TraceDao {
 
         this.master = master;
         this.slave = slave;
+    }
+
+    @Override
+    public List<PassiveSpanBo> selectPassiveSpan(TransactionId transactionId) {
+        List<PassiveSpanBo> passiveSpanBoList = this.master.selectPassiveSpan(transactionId);
+        if (CollectionUtils.isNotEmpty(passiveSpanBoList)) {
+            return passiveSpanBoList;
+        }
+
+        return slave.selectPassiveSpan(transactionId);
     }
 
     @Override

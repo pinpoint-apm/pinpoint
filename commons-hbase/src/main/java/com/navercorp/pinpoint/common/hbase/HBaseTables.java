@@ -73,6 +73,7 @@ public final class HBaseTables {
 
     public static final TableName TRACE_V2 = TableName.valueOf("TraceV2");
     public static final byte[] TRACE_V2_CF_SPAN = Bytes.toBytes("S");  //Span
+    public static final byte[] TRACE_V2_CF_PASSIVE_SPAN = Bytes.toBytes("P");  //PassiveSpan
 
     public static final TableName APPLICATION_INDEX = TableName.valueOf("ApplicationIndex");
     public static final byte[] APPLICATION_INDEX_CF_AGENTS = Bytes.toBytes("Agents");

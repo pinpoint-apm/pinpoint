@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v1.SpanSerialize
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.PassiveSpanBo;
 import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.util.TransactionId;
@@ -95,6 +96,13 @@ public class HbaseTraceDao implements TraceDao {
         if (!success) {
             hbaseTemplate.put(TRACES, put);
         }
+    }
+
+    @Override
+    public void insert(final PassiveSpanBo passiveSpanBo) {
+        // PassiveSpan is not supported at Traces_V1.
+        // throw new UnsupportedOperationException("PassiveSpan is not supported at Traces_V1");
+        logger.warn("PassiveSpan is not supported at Traces_V1: passiveSpanBo={}", passiveSpanBo);
     }
 
     private void addNestedSpanEvent(Put put, SpanBo span) {

@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield;
 
+import com.navercorp.pinpoint.common.server.bo.PassiveSpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.util.BitFieldUtils;
@@ -57,6 +58,42 @@ public class SpanBitFiled {
             spanBitFiled.setLoggingTransactionInfo(true);
         }
         if (CollectionUtils.isNotEmpty(spanBo.getAnnotationBoList())) {
+            spanBitFiled.setAnnotation(true);
+        }
+
+        return spanBitFiled;
+    }
+
+    public static SpanBitFiled build(PassiveSpanBo passiveSpanBo) {
+        if (passiveSpanBo == null) {
+            throw new NullPointerException("passiveSpanBo must not be null");
+        }
+        final SpanBitFiled spanBitFiled = new SpanBitFiled();
+
+
+        if (passiveSpanBo.getServiceType() == passiveSpanBo.getApplicationServiceType()) {
+            spanBitFiled.setApplicationServiceTypeEncodingStrategy(ServiceTypeEncodingStrategy.PREV_EQUALS);
+        } else {
+            spanBitFiled.setApplicationServiceTypeEncodingStrategy(ServiceTypeEncodingStrategy.RAW);
+        }
+
+        // PassiveSpan can not be root.
+        spanBitFiled.setRoot(false);
+
+        if (passiveSpanBo.getErrCode() != 0) {
+            spanBitFiled.setErrorCode(true);
+        }
+
+        // C language has no exception.
+        spanBitFiled.setHasException(false);
+
+        if (passiveSpanBo.getFlag() != 0) {
+            spanBitFiled.setFlag(true);
+        }
+
+        spanBitFiled.setLoggingTransactionInfo(false);
+
+        if (CollectionUtils.isNotEmpty(passiveSpanBo.getAnnotationBoList())) {
             spanBitFiled.setAnnotation(true);
         }
 

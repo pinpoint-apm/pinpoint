@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.dao;
 
 import java.util.List;
 
+import com.navercorp.pinpoint.common.server.bo.PassiveSpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.TransactionId;
 
@@ -26,6 +27,8 @@ import com.navercorp.pinpoint.common.util.TransactionId;
  * @author emeroad
  */
 public interface TraceDao {
+
+    List<PassiveSpanBo> selectPassiveSpan(TransactionId transactionId);
 
     List<SpanBo> selectSpan(TransactionId transactionId);
 

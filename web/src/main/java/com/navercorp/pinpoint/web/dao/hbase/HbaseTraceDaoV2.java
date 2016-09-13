@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.server.bo.PassiveSpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
@@ -47,6 +48,8 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     private RowMapper<List<SpanBo>> spanMapperV2;
 
+    private RowMapper<List<PassiveSpanBo>> passiveSpanMapperV2;
+
 
     @Value("#{pinpointWebProps['web.hbase.selectSpans.limit'] ?: 500}")
     private int selectSpansLimit;
@@ -65,6 +68,27 @@ public class HbaseTraceDaoV2 implements TraceDao {
             spanMapperV2 = CellTraceMapper.wrap(spanMapperV2);
         }
         this.spanMapperV2 = spanMapperV2;
+    }
+
+    @Autowired
+    @Qualifier("passiveSpanMapperV2")
+    public void setPassiveSpanMapperV2(RowMapper<List<PassiveSpanBo>> passiveSpanMapperV2) {
+        final Logger logger = LoggerFactory.getLogger(passiveSpanMapperV2.getClass());
+        if (logger.isDebugEnabled()) {
+            passiveSpanMapperV2 = CellTraceMapper.wrap(passiveSpanMapperV2);
+        }
+        this.passiveSpanMapperV2 = passiveSpanMapperV2;
+    }
+
+    @Override
+    public List<PassiveSpanBo> selectPassiveSpan(TransactionId transactionId) {
+        if (transactionId == null) {
+            throw new NullPointerException("transactionId must not be null");
+        }
+
+        byte[] transactionIdRowKey = rowKeyEncoder.encodeRowKey(transactionId);
+
+        return template2.get(HBaseTables.TRACE_V2, transactionIdRowKey, HBaseTables.TRACE_V2_CF_PASSIVE_SPAN, passiveSpanMapperV2);
     }
 
     @Override

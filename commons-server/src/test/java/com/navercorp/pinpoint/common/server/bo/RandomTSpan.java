@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
+import com.navercorp.pinpoint.thrift.dto.TPassiveSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
@@ -62,6 +63,34 @@ public class RandomTSpan {
             tSpan.setExceptionInfo(exceptionInfo);
         }
         tSpan.setLoggingTransactionInfo((byte) RandomUtils.nextInt(0, 256));
+        return tSpan;
+    }
+
+    public TPassiveSpan randomTPassiveSpan() {
+        final TPassiveSpan tSpan = new TPassiveSpan();
+        tSpan.setAgentStartTime(System.currentTimeMillis());
+
+        tSpan.setTransactionId(TransactionIdUtils.formatByteBuffer("agent", System.currentTimeMillis(), RandomUtils.nextLong(0, Long.MAX_VALUE)));
+        tSpan.setPassiveSpanId(random.nextLong());
+        tSpan.setNextSpanId(random.nextLong());
+        tSpan.setParentSpanId(RandomUtils.nextInt(0, 100000));
+        tSpan.setStartTime(System.currentTimeMillis() + RandomUtils.nextInt(0, 1000));
+        tSpan.setElapsed(RandomUtils.nextInt(0, 2000));
+        tSpan.setRpc(RandomStringUtils.random(10));
+
+        tSpan.setServiceType(randomServerServiceType());
+        tSpan.setEndPoint(RandomStringUtils.random(20));
+        tSpan.setRemoteAddr(RandomStringUtils.random(20));
+
+        List<TAnnotation> tAnnotationList = randomTAnnotationList();
+        if (CollectionUtils.isNotEmpty(tAnnotationList)) {
+            tSpan.setAnnotations(tAnnotationList);
+        }
+        tSpan.setFlag((short) RandomUtils.nextInt(0, 4));
+        tSpan.setErr((short) RandomUtils.nextInt(0, 1));
+//        tSpan.setSpanEventList()
+        tSpan.setApiId(RandomUtils.nextInt(0, 5000));
+
         return tSpan;
     }
 

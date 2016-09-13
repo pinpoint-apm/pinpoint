@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
+import com.navercorp.pinpoint.common.server.bo.PassiveSpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 
@@ -21,6 +22,9 @@ public interface SpanEncoder {
 
     ByteBuffer encodeSpanColumnValue(SpanEncodingContext<SpanBo> encodingContext);
 
+    ByteBuffer encodePassiveSpanQualifier(SpanEncodingContext<PassiveSpanBo> encodingContext);
+
+    ByteBuffer encodePassiveSpanColumnValue(SpanEncodingContext<PassiveSpanBo> encodingContext);
 
     ByteBuffer encodeSpanChunkQualifier(SpanEncodingContext<SpanChunkBo> encodingContext);
 
