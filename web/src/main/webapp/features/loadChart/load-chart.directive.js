@@ -1,14 +1,7 @@
 (function() {
 	'use strict';
-	/**
-	 * (en)loadChartDirective 
-	 * @ko loadChartDirective
-	 * @group Directive
-	 * @name loadChartDirective
-	 * @class
-	 */	
 	pinpointApp.constant('loadChartDirectiveConfig', {});
-	
+
 	pinpointApp.directive('loadChartDirective', ['loadChartDirectiveConfig', '$timeout', 'AnalyticsService', 'PreferenceService', function (cfg, $timeout, analyticsService, preferenceService ) {
 		var responseTypeColor = preferenceService.getResponseTypeColor();
         return {
@@ -246,8 +239,8 @@
                         };
                         if (useChartCursor) {
                             options["chartCursor"] = {
-                                "avoidBalloonOverlapping": false
-                            };
+								"avoidBalloonOverlapping": false
+							};
                         }
                         oChart = AmCharts.makeChart(id, options);
 
@@ -258,7 +251,7 @@
                     });
                 };
                 renderEmpty = function() {
-                	element.append("<h4 style='padding-top:25%'>No Data</h4>");
+                	element.empty().append("<h4 style='padding-top:25%;text-align:center;'>No Data</h4>");
                 };
 
                 /**
@@ -285,7 +278,7 @@
                  */
                 parseTimeSeriesHistogramForAmcharts = function (data) {
                 	if ( angular.isUndefined( data ) ) return [];
-                	
+
                     function getKeyFromNewDataByTime (time) {
                         for (var key in newData) {
                             if (moment(time).format("YYYY-MM-DD HH:mm") === newData[key].time) {

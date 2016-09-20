@@ -18,6 +18,8 @@
 package com.navercorp.pinpoint.common.util.logger;
 
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.MessageFormat;
 
 /**
@@ -48,7 +50,7 @@ public class StdoutCommonLogger implements CommonLogger {
         }
 
 //        this.loggerName = loggerName;
-        this.messagePattern = "{0,date,yyyy-MM-dd HH:mm:ss SSS} [{1}](" + loggerName + ") {2}";
+        this.messagePattern = "{0,date,yyyy-MM-dd HH:mm:ss} [{1}](" + loggerName + ") {2}{3}";
         this.out = out;
         this.err = err;
     }
@@ -75,16 +77,17 @@ public class StdoutCommonLogger implements CommonLogger {
 
     @Override
     public void info(String msg) {
-        String message = format("INFO ", msg);
+        String message = format("INFO ", msg, "");
         this.out.println(message);
     }
 
-    private String format(String logLevel, String msg) {
+    private String format(String logLevel, String msg, String exceptionMessage) {
+        exceptionMessage = defaultString(exceptionMessage, "");
 
         MessageFormat messageFormat = new MessageFormat(messagePattern);
         
         final long date = System.currentTimeMillis();
-        Object[] parameter = {date, logLevel, msg};
+        Object[] parameter = {date, logLevel, msg, exceptionMessage};
         return messageFormat.format(parameter);
     }
 
@@ -100,13 +103,32 @@ public class StdoutCommonLogger implements CommonLogger {
 
     @Override
     public void warn(String msg) {
-        String message = format("WARN ", msg);
-        this.err.println(message);
+        warn(msg, null);
     }
 
     @Override
-    public void warn(String msg, Throwable th) {
-        warn(msg);
-        th.printStackTrace(this.err);
+    public void warn(String msg, Throwable throwable) {
+        String exceptionMessage = toString(throwable);
+        String message = format("WARN ", msg, exceptionMessage);
+        this.err.println(message);
+    }
+
+    private String toString(Throwable throwable) {
+        if (throwable == null) {
+            return "";
+        }
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        pw.println();
+        throwable.printStackTrace(pw);
+        pw.close();
+        return sw.toString();
+    }
+
+    private String defaultString(String exceptionMessage, String defaultValue) {
+        if (exceptionMessage == null) {
+            return defaultValue;
+        }
+        return exceptionMessage;
     }
 }

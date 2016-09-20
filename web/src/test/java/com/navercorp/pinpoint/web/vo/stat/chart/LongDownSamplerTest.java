@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2016 Naver Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,27 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.util.bindvalue.converter;
+package com.navercorp.pinpoint.web.vo.stat.chart;
+
+import org.junit.Assert;
 
 /**
- * @author emeroad
+ * @author HyunGil Jeong
  */
-public interface Converter {
-    String convert(Object[] args);
+public class LongDownSamplerTest extends DownSamplerTestBase<Long> {
+
+    @Override
+    protected DownSampler<Long> getSampler() {
+        return DownSamplers.getLongDownSampler(DEFAULT_VALUE);
+    }
+
+    @Override
+    protected Long createSample() {
+        return RANDOM.nextLong();
+    }
+
+    @Override
+    protected void assertEquals(Long expected, Long actual) {
+        Assert.assertEquals(expected, actual);
+    }
 }

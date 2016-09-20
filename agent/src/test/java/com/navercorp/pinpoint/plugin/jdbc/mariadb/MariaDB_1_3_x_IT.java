@@ -13,12 +13,10 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import com.navercorp.pinpoint.test.plugin.Repository;
 
 @RunWith(PinpointPluginTestSuite.class)
 @JvmVersion(7)
-@Repository("http://jcenter.bintray.com")
-@Dependency({"org.mariadb.jdbc:mariadb-java-client:[1.3.0,1.3.max]", "ch.vorburger.mariaDB4j:mariaDB4j:2.1.3"})
+@Dependency({"org.mariadb.jdbc:mariadb-java-client:[1.3.0,1.3.max]", "ch.vorburger.mariaDB4j:mariaDB4j:2.2.2"})
 public class MariaDB_1_3_x_IT extends MariaDB_IT_Base {
 
     // see CallableParameterMetaData#queryMetaInfos

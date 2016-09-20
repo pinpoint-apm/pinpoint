@@ -28,8 +28,8 @@ import java.util.List;
 @Deprecated
 public class LegacySampledTitledTimeSeriesChartBuilder<Y extends Number> extends LegacySampledTimeSeriesChartBuilder<TitledDataPoint<Long, Y>, Y> {
 
-    public LegacySampledTitledTimeSeriesChartBuilder(DownSampler<Y> downSampler, TimeWindow timeWindow) {
-        super(downSampler, timeWindow);
+    public LegacySampledTitledTimeSeriesChartBuilder(DownSampler<Y> downSampler, Integer avgNumDecimals, TimeWindow timeWindow) {
+        super(downSampler, avgNumDecimals, timeWindow);
     }
 
     @Override

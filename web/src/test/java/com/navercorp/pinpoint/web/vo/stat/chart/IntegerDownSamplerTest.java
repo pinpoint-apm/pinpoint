@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2016 Naver Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,27 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.util.bindvalue;
-
-import com.navercorp.pinpoint.profiler.util.bindvalue.Types;
+package com.navercorp.pinpoint.web.vo.stat.chart;
 
 import org.junit.Assert;
-import org.junit.Test;
 
-import java.lang.reflect.Field;
-import java.util.Map;
+/**
+ * @author HyunGil Jeong
+ */
+public class IntegerDownSamplerTest extends DownSamplerTestBase<Integer> {
 
-public class TypesTest {
+    @Override
+    protected DownSampler<Integer> getSampler() {
+        return DownSamplers.getIntegerDownSampler(DEFAULT_VALUE);
+    }
 
-    @Test
-    public void testInverse() throws Exception {
-        Map<Integer, String> inverse = Types.inverse();
-        Field[] fields = java.sql.Types.class.getFields();
-        Assert.assertEquals(inverse.size(), fields.length);
+    @Override
+    protected Integer createSample() {
+        return RANDOM.nextInt();
+    }
+
+    @Override
+    protected void assertEquals(Integer expected, Integer actual) {
+        Assert.assertEquals(expected, actual);
     }
 }

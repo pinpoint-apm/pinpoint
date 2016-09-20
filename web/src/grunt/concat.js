@@ -198,8 +198,10 @@ module.exports = function( grunt, options ) {
 				'/features/jvmMemoryChart/jvm-memory-chart.directive.js',
 				'/features/cpuLoadChart/cpu-load-chart.directive.js',
 				'/features/tpsChart/tps-chart.directive.js',
+				'/features/activeTraceChart/active-trace-chart.directive.js',
 				'/features/loading/loading.directive.js',
 				'/features/configuration/configuration.controller.js',
+				'/features/configuration/configuration.directive.js',
 				'/features/configuration/general/general.directive.js',
 				'/features/configuration/userGroup/user-group-container.directive.js',
 				'/features/configuration/userGroup/user-group.directive.js',
@@ -210,7 +212,6 @@ module.exports = function( grunt, options ) {
 				'/features/configuration/application/alarm-rule.directive.js',
 				'/features/configuration/help/help.directive.js',
 				'/features/realtimeChart/realtime-chart.controller.js',
-
 				'/pages/main/main.controller.js',
 				'/pages/inspector/inspector.controller.js',
 				'/pages/transactionList/transaction-list.controller.js',

@@ -44,7 +44,7 @@ public class CpuLoadChartGroup implements AgentStatChartGroup {
     public CpuLoadChartGroup(TimeWindow timeWindow, List<SampledCpuLoad> sampledCpuLoads) {
         this.cpuLoadCharts = new HashMap<>();
         List<Point<Long, Double>> jvmCpuLoads = new ArrayList<>(sampledCpuLoads.size());
-        List<Point<Long, Double>> systemCpuLoads = new ArrayList(sampledCpuLoads.size());
+        List<Point<Long, Double>> systemCpuLoads = new ArrayList<>(sampledCpuLoads.size());
         for (SampledCpuLoad sampledCpuLoad : sampledCpuLoads) {
             jvmCpuLoads.add(sampledCpuLoad.getJvmCpuLoad());
             systemCpuLoads.add(sampledCpuLoad.getSystemCpuLoad());

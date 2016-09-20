@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2016 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,17 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package com.navercorp.pinpoint.profiler.util.bindvalue;
+package com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue;
 
 import org.junit.Assert;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.profiler.util.bindvalue.BindValueConverter;
 
 import java.util.Arrays;
 import java.util.Date;

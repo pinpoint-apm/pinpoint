@@ -26,7 +26,9 @@ public class OracleConfig extends JdbcConfig {
     private final boolean profileRollback;
 
     public OracleConfig(ProfilerConfig config) {
-        super(config.readBoolean("profiler.jdbc.oracle.tracesqlbindvalue", config.isTraceSqlBindValue()), config.getMaxSqlBindValueSize());
+        super(config.readBoolean("profiler.jdbc.oracle", false),
+                config.readBoolean("profiler.jdbc.oracle.tracesqlbindvalue", config.isTraceSqlBindValue()),
+                config.getMaxSqlBindValueSize());
         this.profileSetAutoCommit = config.readBoolean("profiler.jdbc.oracle.setautocommit", false);
         this.profileCommit = config.readBoolean("profiler.jdbc.oracle.commit", false);
         this.profileRollback = config.readBoolean("profiler.jdbc.oracle.rollback", false);

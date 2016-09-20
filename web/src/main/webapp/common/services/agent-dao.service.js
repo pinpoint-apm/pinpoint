@@ -177,45 +177,93 @@
 	        	var aUnsampledContinuationData = agentStat.charts['TPS_UNSAMPLED_CONTINUATION'].points;
 	        	var aUnsampledNewData = agentStat.charts['TPS_UNSAMPLED_NEW'].points;
 	        	var aTotalData = agentStat.charts['TPS_TOTAL'].points;
-	        	
+				var newData = [];
+				var DATA_UNAVAILABLE = -1;
+
 	        	var tpsLength = aTotalData.length;
 	        	if ( tpsLength > 0 ) {
 	        		tps.isAvailable = true;
 	        	} else {
-	        		return;
+	        		return newData;
 	        	}
-	            var newData = [],
-	            DATA_UNAVAILABLE = -1;
-	            
+
 	            for ( var i = 0 ; i < tpsLength ; i++ ) {
-	                var thisData = {
-						time: moment(aSampledContinuationData[i].xVal).format( cfg.dateFormat )
-	                };
-	                var sampledContinuationTps     = typeof aSampledContinuationData[i].avgYVal == "number" ? aSampledContinuationData[i].avgYVal.toFixed(2) : 0.00;
-	                var sampledNewTps              = typeof aSampledNewData[i].avgYVal == "number" ? aSampledNewData[i].avgYVal.toFixed(2) : 0.00;
-	                var unsampledContinuationTps   = typeof aUnsampledContinuationData[i].avgYVal == "number" ? aUnsampledContinuationData[i].avgYVal.toFixed(2) : 0.00;
-	                var unsampledNewTps            = typeof aUnsampledNewData[i].avgYVal == "number" ? aUnsampledNewData[i].avgYVal.toFixed(2) : 0.00;
-	                var totalTps                   = typeof aTotalData[i].avgYVal == "number" ? aTotalData[i].avgYVal.toFixed(2) : 0.00;
-	                if ( sampledContinuationTps != DATA_UNAVAILABLE ) {
-                        thisData.sampledContinuationTps = sampledContinuationTps;
-	                }
-	                if ( sampledNewTps != DATA_UNAVAILABLE ) {
-	                    thisData.sampledNewTps = sampledNewTps;
-	                }
-	                if ( unsampledContinuationTps != DATA_UNAVAILABLE ) {
-	                    thisData.unsampledContinuationTps = unsampledContinuationTps;
-	                }
-	                if ( unsampledNewTps != DATA_UNAVAILABLE ) {
-	                    thisData.unsampledNewTps = unsampledNewTps;
-	                }
-	                if ( totalTps != DATA_UNAVAILABLE ) {
-	                    thisData.totalTps = totalTps;
-	                }
-	                newData.push(thisData);
+	            	var obj = {
+						"time" : moment(aSampledContinuationData[i].xVal).format( cfg.dateFormat )
+					};
+					var sampledContinuationTps = getFloatValue( aSampledContinuationData[i].avgYVal );
+					var sampledNewTps = getFloatValue( aSampledNewData[i].avgYVal );
+					var unsampledContinuationTps = getFloatValue( aUnsampledContinuationData[i].avgYVal );
+					var unsampledNewTps = getFloatValue( aUnsampledNewData[i].avgYVal );
+					var totalTps = getFloatValue( aTotalData[i].avgYVal );
+
+					if ( sampledContinuationTps != DATA_UNAVAILABLE ) {
+						obj.sampledContinuationTps = sampledContinuationTps;
+					}
+					if ( sampledNewTps != DATA_UNAVAILABLE ) {
+						obj.sampledNewTps = sampledNewTps;
+					}
+					if ( unsampledContinuationTps != DATA_UNAVAILABLE ) {
+						obj.unsampledContinuationTps = unsampledContinuationTps;
+					}
+					if ( unsampledNewTps != DATA_UNAVAILABLE ) {
+						obj.unsampledNewTps = unsampledNewTps;
+					}
+					if ( totalTps != DATA_UNAVAILABLE ) {
+						obj.totalTps = totalTps;
+					}
+					newData.push( obj );
 	            }
 	            
 	            return newData;
 	        };
+			this.parseActiveTraceChartDataForAmcharts = function (activeTrace, agentStat) {
+				var aActiveTraceFastData = agentStat.charts[ "ACTIVE_TRACE_FAST" ].points;
+				var aActiveTraceNormal = agentStat.charts[ "ACTIVE_TRACE_NORMAL" ].points;
+				var aActiveTraceSlow = agentStat.charts[ "ACTIVE_TRACE_SLOW" ].points;
+				var aActiveTraceVerySlow = agentStat.charts[ "ACTIVE_TRACE_VERY_SLOW" ].points;
+				var newData = [];
+				var DATA_UNAVAILABLE = -1;
+
+				if ( aActiveTraceFastData || aActiveTraceNormal || aActiveTraceSlow || aActiveTraceVerySlow ) {
+					activeTrace.isAvailable = true;
+				} else {
+					return newData;
+				}
+
+				for ( var i = 0 ; i < aActiveTraceFastData.length ; i++ ) {
+					var obj = {
+						"time": moment(aActiveTraceFastData[i].xVal).format(cfg.dateFormat)
+					};
+
+					var fast = getFloatValue( aActiveTraceFastData[i].avgYVal );
+					var normal = getFloatValue( aActiveTraceNormal[i].avgYVal );
+					var slow = getFloatValue( aActiveTraceSlow[i].avgYVal );
+					var verySlow = getFloatValue( aActiveTraceVerySlow[i].avgYVal );
+
+					if ( fast != DATA_UNAVAILABLE ) {
+						obj.fast = fast;
+						obj.fastTitle = aActiveTraceFastData[i].title;
+					}
+					if ( normal != DATA_UNAVAILABLE ) {
+						obj.normal = normal;
+						obj.normalTitle = aActiveTraceNormal[i].title;
+					}
+					if ( slow != DATA_UNAVAILABLE ) {
+						obj.slow = slow;
+						obj.slowTitle = aActiveTraceSlow[i].title;
+					}
+					if ( verySlow != DATA_UNAVAILABLE ) {
+						obj.verySlow = verySlow;
+						obj.verySlowTitle = aActiveTraceVerySlow[i].title;
+					}
+					newData.push( obj );
+				}
+				return newData;
+			};
+			function getFloatValue( val ) {
+				return angular.isNumber( val ) ? val.toFixed(2) : 0.00;
+			}
 	    }
 	]);
 })();

@@ -33,62 +33,65 @@ public class StdoutCommonLoggerTest {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    private PrintStream out = new PrintStream(outputStream);
-
-    private ByteArrayOutputStream errOutputStream = new ByteArrayOutputStream();
-    private PrintStream err = new PrintStream(errOutputStream);
-
-    private StdoutCommonLogger commonLogger;
-
-    @Before
-    public void setUp() throws Exception {
-        this.outputStream = new ByteArrayOutputStream();
-        this.out = new PrintStream(outputStream);
-
-        this.errOutputStream = new ByteArrayOutputStream();
-        this.err= new PrintStream(errOutputStream);
-
-        this.commonLogger = new StdoutCommonLogger("StdoutCommonLoggerTest", out, err);
-    }
-
-    private String getOut() {
-        return getLogMessage(this.outputStream);
-    }
-
-    private String getError() {
-        return getLogMessage(this.errOutputStream);
-    }
-
-    private String getLogMessage(ByteArrayOutputStream byteArrayOutputStream) {
-        String message = byteArrayOutputStream.toString();
-        byteArrayOutputStream.reset();
-        return message;
-    }
 
     @Test
     public void testLogging() {
+        LoggerHolder loggerHolder = new LoggerHolder("StdoutCommonLoggerTest");
+        CommonLogger commonLogger = loggerHolder.getLogger();
 
         commonLogger.debug("info test");
 //        assertMessage(getOut(), null);
 
         commonLogger.info("info test 1");
-        assertMessage(getOut(), "info test 1");
+        assertMessage(loggerHolder.getOut(), "info test 1");
 
         commonLogger.info("info test 2");
-        assertMessage(getOut(), "info test 2");
+        assertMessage(loggerHolder.getOut(), "info test 2");
 
         commonLogger.warn("warn test");
-        assertMessage(getError(), "warn test");
+        assertMessage(loggerHolder.getError(), "warn test");
 
         commonLogger.warn("warn test error", new Exception("testException"));
-        assertMessage(getError(), "warn test");
+        assertMessage(loggerHolder.getError(), "warn test");
     }
 
     private void assertMessage(String out, String message) {
         logger.debug("log-message {}", out);
         Assert.assertTrue(out.contains(message));
 
+    }
+
+
+    private static class LoggerHolder {
+        private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        private final PrintStream out = new PrintStream(outputStream);
+
+        private final ByteArrayOutputStream errOutputStream = new ByteArrayOutputStream();
+        private final PrintStream err = new PrintStream(errOutputStream);
+
+        private final StdoutCommonLogger logger;
+
+        public LoggerHolder(String loggerName) {
+            logger = new StdoutCommonLogger(loggerName, out, err);
+        }
+
+        public CommonLogger getLogger() {
+            return logger;
+        }
+
+        private String getOut() {
+            return getLogMessage(this.outputStream);
+        }
+
+        private String getError() {
+            return getLogMessage(this.errOutputStream);
+        }
+
+        private String getLogMessage(ByteArrayOutputStream byteArrayOutputStream) {
+            String message = byteArrayOutputStream.toString();
+            byteArrayOutputStream.reset();
+            return message;
+        }
     }
 
 }

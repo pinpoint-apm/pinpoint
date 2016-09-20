@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2016 Naver Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.util.bindvalue.converter;
+package com.navercorp.pinpoint.web.vo.stat.chart;
 
-import com.navercorp.pinpoint.profiler.util.ArrayUtils;
+import org.junit.Assert;
 
 /**
- * @author emeroad
+ * @author HyunGil Jeong
  */
-public class BytesConverter implements Converter {
+public class DoubleDownSamplerTest extends DownSamplerTestBase<Double> {
+
     @Override
-    public String convert(Object[] args) {
-        if (args == null) {
-            return "null";
-        }
-        if (args.length == 2) {
-            byte[] bytes = (byte[]) args[1];
-            if (bytes == null) {
-                return "null";
-            } else {
-                return ArrayUtils.dropToString(bytes);
-            }
-        }
-        return "error";
+    protected DownSampler<Double> getSampler() {
+        return DownSamplers.getDoubleDownSampler(DEFAULT_VALUE, DOUBLE_COMPARISON_DELTA);
+    }
+
+    @Override
+    protected Double createSample() {
+        return RANDOM.nextDouble();
+    }
+
+    @Override
+    protected void assertEquals(Double expected, Double actual) {
+        Assert.assertEquals(expected, actual, DOUBLE_COMPARISON_DELTA);
     }
 }

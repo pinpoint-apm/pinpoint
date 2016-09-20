@@ -619,7 +619,6 @@
 						bIsClickDepthInnerArea = false;
 						bIsClickDepthInnerBtn = true;
 						$("#navbar_depth .dropdown-menu").trigger("click.bs.dropdown");
-						console.log( "previous :", prevCallee, prevCaller, ", current :", scope.callee, scope.caller );
 						if ( prevCallee !== scope.callee || prevCaller !== scope.caller ) {
 							analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_CALLEE_RANGE, scope.callee);
 							analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_CALLER_RANGE, scope.caller);
