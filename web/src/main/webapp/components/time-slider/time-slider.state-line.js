@@ -39,7 +39,6 @@
         }
     };
     ts.StateLine.prototype._addEventElement = function( oEvent ) {
-		return;
         if ( typeof oEvent.durationStartTimestamp !== "undefined" ) {
             if ( this.timeSlider.oPositionManager.isInSliderTimeSeries( oEvent.durationStartTimestamp ) === false && this.timeSlider.oPositionManager.isInSliderTimeSeries( oEvent.durationEndTimestamp ) === false ) return;
             this._hasDurationData = true;
