@@ -25,6 +25,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
@@ -33,12 +35,17 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMeth
  * @author dawidmalina
  */
 public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
-
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         MariaDBConfig config = new MariaDBConfig(context.getConfig());
+
+        if (!config.isPluginEnable()) {
+            logger.info("MariaDB plugin is not executed because plugin enable value is false.");
+            return;
+        }
 
         addConnectionTransformer(config);
         addDriverTransformer();

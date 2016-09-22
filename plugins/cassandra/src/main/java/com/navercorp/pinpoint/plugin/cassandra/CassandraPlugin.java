@@ -25,6 +25,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
@@ -32,6 +34,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
  * @author dawidmalina
  */
 public class CassandraPlugin implements ProfilerPlugin, TransformTemplateAware {
+
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     // AbstractSession got added in 2.0.9
     private static final String CLASS_SESSION_MANAGER = "com.datastax.driver.core.SessionManager";
@@ -43,11 +47,14 @@ public class CassandraPlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
         CassandraConfig config = new CassandraConfig(context.getConfig());
 
-        if (config.isCassandra()) {
-            addDefaultPreparedStatementTransformer();
-            addSessionTransformer(config);
-            addClusterTransformer();
+        if (!config.isPluginEnable()) {
+            logger.info("Cassandra plugin is not executed because plugin enable value is false.");
+            return;
         }
+
+        addDefaultPreparedStatementTransformer();
+        addSessionTransformer(config);
+        addClusterTransformer();
     }
 
     private void addDefaultPreparedStatementTransformer() {

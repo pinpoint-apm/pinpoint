@@ -19,11 +19,13 @@
 
 package com.navercorp.pinpoint.collector.cluster.connection;
 
+import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -46,7 +48,9 @@ public class CollectorClusterConnectionRepository {
     }
 
     public List<SocketAddress> getAddressList() {
-        return new ArrayList<>(clusterConnectionRepository.keySet());
+        // fix jdk 8 KeySetView compatibility
+        Set<SocketAddress> socketAddresses = clusterConnectionRepository.keySet();
+        return new ArrayList<>(socketAddresses);
     }
 
     public List<PinpointSocket> getClusterSocketList() {

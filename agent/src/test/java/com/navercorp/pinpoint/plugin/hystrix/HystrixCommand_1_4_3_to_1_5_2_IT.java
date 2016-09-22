@@ -20,11 +20,11 @@ import java.util.concurrent.TimeUnit;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 
 /**
- * Created by jack on 7/4/16.
+ * Created by jack on 4/22/16.
  */
 @RunWith(PinpointPluginTestSuite.class)
-@Dependency({"com.netflix.hystrix:hystrix-core:[1.5.3,)","com.netflix.hystrix:hystrix-metrics-event-stream:1.1.2"})
-public class HystrixCommand_1_5_x_IT {
+@Dependency({"com.netflix.hystrix:hystrix-core:[1.4.3,1.5.2]","com.netflix.hystrix:hystrix-metrics-event-stream:1.1.2"})
+public class HystrixCommand_1_4_3_to_1_5_2_IT {
     private static final ExpectedAnnotation expectedAnnotation = annotation("hystrix.subclass", "SayHelloCommand");
 
     @After
@@ -52,7 +52,8 @@ public class HystrixCommand_1_5_x_IT {
 
         Method queue    = HystrixCommand.class.getMethod("queue");
         Class<?> inner=Class.forName("com.netflix.hystrix.HystrixCommand$1");
-        Method callCmd = inner.getDeclaredMethod("call");
+        Class<?> rx=Class.forName("rx.Subscriber");
+        Method callCmd = inner.getDeclaredMethod("call", rx);
 
         verifier.verifyTrace(Expectations.async(
                 Expectations.event("HYSTRIX_COMMAND", queue),
@@ -81,7 +82,8 @@ public class HystrixCommand_1_5_x_IT {
 
         Method queue    = HystrixCommand.class.getMethod("queue");
         Class<?> inner=Class.forName("com.netflix.hystrix.HystrixCommand$1");
-        Method callCmd = inner.getDeclaredMethod("call");
+        Class<?> rx=Class.forName("rx.Subscriber");
+        Method callCmd = inner.getDeclaredMethod("call", rx);
 
         verifier.verifyTrace(Expectations.async(
                 Expectations.event("HYSTRIX_COMMAND", queue),

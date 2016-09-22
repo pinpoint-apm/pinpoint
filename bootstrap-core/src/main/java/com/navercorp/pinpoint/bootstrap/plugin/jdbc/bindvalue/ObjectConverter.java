@@ -46,13 +46,13 @@ public class ObjectConverter implements Converter {
     }
 
     private String getParameter(Object param) {
-        if(param == null) {
+        if (param == null) {
             return "null";
         } else {
             if (param instanceof Byte) {
                 return dropToString(param);
             } else if (param instanceof String) {
-                return StringUtils.drop((String) param);
+                return dropToString(param);
             } else if (param instanceof BigDecimal) {
                 return dropToString(param);
             } else if (param instanceof Short) {

@@ -14,19 +14,26 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.vo.chart;
+package com.navercorp.pinpoint.common.server.util.concurrent;
+
+import com.lmax.disruptor.WaitStrategy;
 
 /**
- * @author HyunGil Jeong
+ * @author Taejin Koo
  */
-public class UncollectedPoint<X extends Number, Y extends Number> extends Point<X, Y> {
+public final class DisruptorUtils {
 
-    public UncollectedPoint(X xVal, Y uncollectedValue) {
-        super(xVal, uncollectedValue);
+    public static int nextPowerOfTwo(int v) {
+        return 1 << (32 - Integer.numberOfLeadingZeros(v - 1));
     }
 
-    @Override
-    public String toString() {
-        return "UncollectedPoint{" + super.toString() + "}";
+    public static WaitStrategy createStrategy(String strategy) {
+        return createStrategy(strategy, -1L);
     }
+
+    public static WaitStrategy createStrategy(String strategy, long timeout) {
+        DisruptorStrategyType type = DisruptorStrategyType.getValue(strategy);
+        return type.create(timeout);
+    }
+
 }

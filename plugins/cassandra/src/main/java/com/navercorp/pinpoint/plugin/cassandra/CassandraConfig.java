@@ -22,20 +22,15 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConfig;
  */
 public class CassandraConfig extends JdbcConfig {
 
-    private final boolean cassandra;
-
     public CassandraConfig(ProfilerConfig config) {
-        super(config.readBoolean("profiler.cassandra.tracecqlbindvalue", config.isTraceSqlBindValue()), config.getMaxSqlBindValueSize());
-        this.cassandra = config.readBoolean("profiler.cassandra", true);
-    }
-
-    public boolean isCassandra() {
-        return cassandra;
+        super(config.readBoolean("profiler.cassandra", false),
+                config.readBoolean("profiler.cassandra.tracecqlbindvalue", config.isTraceSqlBindValue()),
+                config.getMaxSqlBindValueSize());
     }
 
     @Override
     public String toString() {
-        return "CassandraConfig [cassandra=" + cassandra + "]";
+        return "CassandraConfig [cassandra=" + isPluginEnable() + "]";
     }
 
 }
