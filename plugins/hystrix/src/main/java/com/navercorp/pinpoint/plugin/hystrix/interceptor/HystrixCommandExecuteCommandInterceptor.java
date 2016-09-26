@@ -5,6 +5,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.hystrix.HystrixPluginConstants;
@@ -13,6 +14,7 @@ import com.navercorp.pinpoint.plugin.hystrix.HystrixPluginConstants;
  * for hystrix-core 1.3
  * @author Jiaqi Feng
  */
+@Scope(HystrixPluginConstants.HYSTRIX_COMMAND_EXECUTION_SCOPE)
 public class HystrixCommandExecuteCommandInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
@@ -33,10 +35,8 @@ public class HystrixCommandExecuteCommandInterceptor extends SpanAsyncEventSimpl
         if (isDebug) {
             logger.debug("HystrixCommandExecuteCommandInterceptor.doInAfterTrace()");
         }
-        recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_SERVICE_TYPE);
+        recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
-        if (target != null)
-            recorder.recordAttribute(HystrixPluginConstants.HYSTRIX_SUBCLASS_ANNOTATION_KEY, target.getClass().getSimpleName());
     }
 }
