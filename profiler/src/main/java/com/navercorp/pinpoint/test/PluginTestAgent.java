@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import org.apache.thrift.TBase;
 
 import com.google.common.base.Objects;
@@ -48,6 +47,7 @@ import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
@@ -688,19 +688,61 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
             throw new RuntimeException("Cannot get instrumentClass " + clazz.getName(), e);
         }
 
-        InstrumentMethod methodInfo;
+        String desc = null;
 
         if (method instanceof Method) {
-            methodInfo = getMethodInfo(ic, (Method) method);
+            InstrumentMethod methodInfo = getMethodInfo(ic, (Method) method);
+            if(methodInfo != null) {
+                desc = methodInfo.getDescriptor().getFullName();
+            } else {
+                desc = makeMethodDesc((Method)method);
+            }
         } else if (method instanceof Constructor) {
-            methodInfo = getMethodInfo(ic, (Constructor<?>) method);
+            InstrumentMethod methodInfo = getMethodInfo(ic, (Constructor<?>) method);
+            if(methodInfo != null) {
+                desc = methodInfo.getDescriptor().getFullName();
+            } else {
+                desc = makeConstructorDesc((Constructor<?>) method);
+            }
         } else {
             throw new IllegalArgumentException("method: " + method);
         }
 
-        String desc = methodInfo.getDescriptor().getFullName();
-
         return findApiId(desc);
+    }
+
+    private String makeMethodDesc(Method method) {
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        String[] parameterTypeNames = JavaAssistUtils.toPinpointParameterType(parameterTypes);
+
+        StringBuilder sb = new StringBuilder(256);
+        sb.append(method.getDeclaringClass().getCanonicalName()).append(".");
+        sb.append(method.getName()).append("(");
+        for (int j = 0; j < parameterTypeNames.length; j++) {
+            sb.append(parameterTypeNames[j]).append(" ").append(parameterTypeNames[j]);
+            if (j < (parameterTypeNames.length - 1)) {
+                sb.append(",");
+            }
+        }
+        sb.append(")");
+        return sb.toString();
+    }
+
+    private String makeConstructorDesc(Constructor<?> constructor) {
+        Class<?>[] parameterTypes = constructor.getParameterTypes();
+        String[] parameterTypeNames = JavaAssistUtils.toPinpointParameterType(parameterTypes);
+
+        StringBuilder sb = new StringBuilder(256);
+        sb.append(constructor.getDeclaringClass().getCanonicalName()).append(".");
+        sb.append(constructor.getName()).append("(");
+        for (int j = 0; j < parameterTypeNames.length; j++) {
+            sb.append(parameterTypeNames[j]).append(" ").append(parameterTypeNames[j]);
+            if (j < (parameterTypeNames.length - 1)) {
+                sb.append(",");
+            }
+        }
+        sb.append(")");
+        return sb.toString();
     }
 
     private InstrumentMethod getMethodInfo(InstrumentClass ic, Method method) {
