@@ -69,7 +69,7 @@ public class DynamicTransformService implements DynamicTransformTrigger {
     @Override
     public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, ClassFileTransformer transformer) {
         if (this.logger.isDebugEnabled()) {
-            logger.debug("retransform request classLoader{}, class:{}", classLoader, targetClassName);
+            logger.debug("Add dynamic transform. classLoader={}, class={}", classLoader, targetClassName);
         }
         
         this.dynamicTransformRequestListener.onTransformRequest(classLoader, targetClassName, transformer);

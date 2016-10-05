@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,12 +19,15 @@ import static org.junit.Assert.*;
 import java.util.Properties;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansTargetScope;
 import org.junit.Test;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 
 /**
  * @author Jongho Moon
@@ -42,14 +45,15 @@ public class TargetBeanFilterTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 3 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Repository");
         ProfilerConfig config = new DefaultProfilerConfig(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
+        filter.clear();
 
         if (String.class.getClassLoader() != null) {
             logger.debug("String is not loaded by: {}. Skip test.", String.class.getClassLoader());
             return;
         }
 
-        // should not throw an exception
-        filter.isTarget("someBean", String.class);
+        BeanDefinition beanDefinition = new RootBeanDefinition(String.class);
+        assertEquals(false, filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "someBean", beanDefinition));
     }
 
     @Test
@@ -60,43 +64,66 @@ public class TargetBeanFilterTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "");
         ProfilerConfig config = new DefaultProfilerConfig(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
+        filter.clear();
 
-        assertFalse(filter.isTarget("Target0", String.class));
+        BeanDefinition beanDefinition = new RootBeanDefinition(String.class);
+        assertFalse(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target0", beanDefinition));
 
-        filter.addTransformed(String.class);
+        filter.addTransformed(String.class.getName());
 
-        assertFalse(filter.isTarget("Target0", String.class));
-        assertFalse(filter.isTarget("Target1", String.class));
+        assertFalse(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target0", beanDefinition));
+        assertFalse(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target0", beanDefinition));
     }
 
     @Test
     public void beansNamePattern() {
         Properties properties = new Properties();
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "Target.*");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "A.*");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 3 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "B.*");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 4 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "C.*");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 5 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "antstyle:D*");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 6 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "antstyle:E?");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 7 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "antstyle:F.A*");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 8 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "antstyle:.G*");
+
         ProfilerConfig config = new DefaultProfilerConfig(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
+        filter.clear();
 
-        assertTrue(filter.isTarget("Target0", String.class));
+        BeanDefinition beanDefinition = new RootBeanDefinition(String.class);
+        assertTrue(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target0", beanDefinition));
+        assertTrue(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "AAA", beanDefinition));
+        assertTrue(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "BBB", beanDefinition));
+        assertTrue(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "CCC", beanDefinition));
+        assertTrue(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "DDD", beanDefinition));
+        assertFalse(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "EEE", beanDefinition));
+        assertTrue(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "EE", beanDefinition));
+        assertTrue(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "F.AA", beanDefinition));
+        assertTrue(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, ".GG", beanDefinition));
+        assertFalse(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "GG", beanDefinition));
 
-        filter.addTransformed(String.class);
+        filter.addTransformed(String.class.getName());
 
-        assertFalse(filter.isTarget("Target0", String.class));
-        assertFalse(filter.isTarget("Target1", String.class));
+        assertFalse(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target0", beanDefinition));
+        assertFalse(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target1", beanDefinition));
     }
 
     @Test
     public void classNamePattern() {
         Properties properties = new Properties();
-        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "antstyle:*");
         ProfilerConfig config = new DefaultProfilerConfig(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
+        filter.clear();
 
-        assertTrue(filter.isTarget("Target0", String.class));
+        BeanDefinition beanDefinition = new RootBeanDefinition(String.class);
+        assertTrue(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target0", beanDefinition));
 
-        filter.addTransformed(String.class);
+        filter.addTransformed(String.class.getName());
 
-        assertFalse(filter.isTarget("Target0", String.class));
-        assertFalse(filter.isTarget("Target1", String.class));
+        assertFalse(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target0", beanDefinition));
+        assertFalse(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target1", beanDefinition));
     }
 
     @Test
@@ -105,13 +132,11 @@ public class TargetBeanFilterTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Controller");
         ProfilerConfig config = new DefaultProfilerConfig(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
+        filter.clear();
 
-        assertFalse(filter.isTarget("Target0", String.class));
+        BeanDefinition beanDefinition = new RootBeanDefinition(String.class);
 
-        filter.addTransformed(String.class);
-
-        assertFalse(filter.isTarget("Target0", String.class));
-        assertFalse(filter.isTarget("Target1", String.class));
+        assertFalse(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target0", beanDefinition));
     }
 
 
@@ -123,13 +148,11 @@ public class TargetBeanFilterTest {
 
         ProfilerConfig config = new DefaultProfilerConfig(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
-        assertTrue(filter.isTarget("Target0", String.class));
+        filter.clear();
 
-        filter.addTransformed(String.class);
+        BeanDefinition beanDefinition = new RootBeanDefinition(String.class);
 
-        // after transformed
-        assertFalse(filter.isTarget("Target0", String.class));
-        assertFalse(filter.isTarget("Target1", String.class));
+        assertTrue(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target0", beanDefinition));
     }
 
     @Test
@@ -141,13 +164,11 @@ public class TargetBeanFilterTest {
 
         ProfilerConfig config = new DefaultProfilerConfig(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
-        assertFalse(filter.isTarget("Target0", String.class));
+        filter.clear();
 
-        filter.addTransformed(String.class);
+        BeanDefinition beanDefinition = new RootBeanDefinition(String.class);
 
-        // after transformed
-        assertFalse(filter.isTarget("Target0", String.class));
-        assertFalse(filter.isTarget("Target1", String.class));
+        assertFalse(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target0", beanDefinition));
     }
 
     @Test
@@ -161,13 +182,11 @@ public class TargetBeanFilterTest {
 
         ProfilerConfig config = new DefaultProfilerConfig(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
-        assertTrue(filter.isTarget("Target0", String.class));
+        filter.clear();
 
-        filter.addTransformed(String.class);
+        BeanDefinition beanDefinition = new RootBeanDefinition(String.class);
 
-        // after transformed
-        assertFalse(filter.isTarget("Target0", String.class));
-        assertFalse(filter.isTarget("Target1", String.class));
+        assertTrue(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target0", beanDefinition));
     }
 
     @Test
@@ -179,13 +198,11 @@ public class TargetBeanFilterTest {
 
         ProfilerConfig config = new DefaultProfilerConfig(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
-        assertTrue(filter.isTarget("Target0", String.class));
+        filter.clear();
 
-        filter.addTransformed(String.class);
+        BeanDefinition beanDefinition = new RootBeanDefinition(String.class);
 
-        // after transformed
-        assertFalse(filter.isTarget("Target0", String.class));
-        assertFalse(filter.isTarget("Target1", String.class));
+        assertTrue(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target0", beanDefinition));
     }
 
     @Test
@@ -203,14 +220,12 @@ public class TargetBeanFilterTest {
 
         ProfilerConfig config = new DefaultProfilerConfig(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
-        assertTrue(filter.isTarget("Target0", String.class));
-        assertFalse(filter.isTarget("Foo", String.class));
+        filter.clear();
 
-        filter.addTransformed(String.class);
+        BeanDefinition beanDefinition = new RootBeanDefinition(String.class);
 
-        // after transformed
-        assertFalse(filter.isTarget("Target0", String.class));
-        assertFalse(filter.isTarget("Target1", String.class));
+        assertTrue(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target0", beanDefinition));
+        assertFalse(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Foo", beanDefinition));
     }
 
     @Test
@@ -225,16 +240,13 @@ public class TargetBeanFilterTest {
 
         ProfilerConfig config = new DefaultProfilerConfig(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
-        assertFalse(filter.isTarget("Target0", String.class));
-        assertTrue(filter.isTarget("Target1", String.class));
-        assertTrue(filter.isTarget("Target2", String.class));
+        filter.clear();
 
-        filter.addTransformed(String.class);
+        BeanDefinition beanDefinition = new RootBeanDefinition(String.class);
 
-        // after transformed
-        assertFalse(filter.isTarget("Target0", String.class));
-        assertFalse(filter.isTarget("Target1", String.class));
-        assertFalse(filter.isTarget("Target2", String.class));
+        assertFalse(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target0", beanDefinition));
+        assertTrue(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target1", beanDefinition));
+        assertTrue(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target2", beanDefinition));
     }
 
     @Test
@@ -251,17 +263,13 @@ public class TargetBeanFilterTest {
 
         ProfilerConfig config = new DefaultProfilerConfig(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
-        assertTrue(filter.isTarget("foo", String.class));
-        assertFalse(filter.isTarget("Target0", String.class));
-        assertTrue(filter.isTarget("Target1", String.class));
-        assertTrue(filter.isTarget("Target2", String.class));
+        filter.clear();
 
-        filter.addTransformed(String.class);
+        BeanDefinition beanDefinition = new RootBeanDefinition(String.class);
 
-        // after transformed
-        assertFalse(filter.isTarget("foo", String.class));
-        assertFalse(filter.isTarget("Target0", String.class));
-        assertFalse(filter.isTarget("Target1", String.class));
-        assertFalse(filter.isTarget("Target2", String.class));
+        assertTrue(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "foo", beanDefinition));
+        assertFalse(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target0", beanDefinition));
+        assertTrue(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target1", beanDefinition));
+        assertTrue(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target2", beanDefinition));
     }
 }
