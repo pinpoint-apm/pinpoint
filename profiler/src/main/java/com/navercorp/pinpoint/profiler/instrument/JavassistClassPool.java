@@ -21,6 +21,8 @@ import java.net.URLClassLoader;
 import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.instrument.*;
+import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
+import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import javassist.*;
 
@@ -96,10 +98,6 @@ public class JavassistClassPool implements InstrumentClassPool {
         this.interceptorRegistryBinder = interceptorRegistryBinder;
     }
 
-    public InstrumentClass getClass(ClassLoader classLoader, String jvmInternalClassName, byte[] classFileBuffer) throws NotFoundInstrumentException {
-        final CtClass cc = getCtClass(classLoader, jvmInternalClassName, classFileBuffer);
-        return new JavassistClass(null, interceptorRegistryBinder, classLoader, cc);
-    }
 
     @Override
     public InstrumentClass getClass(InstrumentContext instrumentContext, ClassLoader classLoader, String jvmInternalClassName, byte[] classFileBuffer) throws NotFoundInstrumentException {
@@ -107,14 +105,15 @@ public class JavassistClassPool implements InstrumentClassPool {
             throw new NullPointerException("jvmInternalClassName must not be null");
         }
 
-        if(isDebug) {
+        if (isDebug) {
             logger.debug("Get javassist class {}", jvmInternalClassName);
         }
-        final CtClass cc = getCtClass(classLoader, jvmInternalClassName, classFileBuffer);
+        final CtClass cc = getCtClass(instrumentContext, classLoader, jvmInternalClassName, classFileBuffer);
         return new JavassistClass(instrumentContext, interceptorRegistryBinder, classLoader, cc);
     }
 
-    private CtClass getCtClass(ClassLoader classLoader, String className, byte[] classfileBuffer) throws NotFoundInstrumentException {
+
+    private CtClass getCtClass(InstrumentContext instrumentContext, ClassLoader classLoader, String className, byte[] classfileBuffer) throws NotFoundInstrumentException {
         final NamedClassPool classPool = getClassPool(classLoader);
         try {
             if (classfileBuffer == null) {
@@ -122,7 +121,7 @@ public class JavassistClassPool implements InstrumentClassPool {
                 logger.info("classFileBuffer is null className:{}", className);
                 return classPool.get(className);
             } else {
-                final ClassPool contextCassPool = getContextClassPool(classPool, className, classfileBuffer);
+                final ClassPool contextCassPool = getContextClassPool(instrumentContext, classPool, className, classfileBuffer);
                 return contextCassPool.get(className);
             }
         } catch (NotFoundException e) {
@@ -130,7 +129,7 @@ public class JavassistClassPool implements InstrumentClassPool {
         }
     }
 
-    private ClassPool getContextClassPool(NamedClassPool parent, String jvmInternalClassName, byte[] classfileBuffer) {
+    private ClassPool getContextClassPool(InstrumentContext instrumentContext, NamedClassPool parent, String jvmInternalClassName, byte[] classfileBuffer) throws NotFoundException {
         final ClassPool contextCassPool = new ClassPool(parent);
         contextCassPool.childFirstLookup = true;
 
@@ -140,6 +139,14 @@ public class JavassistClassPool implements InstrumentClassPool {
         }
         final ClassPath byteArrayClassPath = new ByteArrayClassPath(javaName, classfileBuffer);
         contextCassPool.insertClassPath(byteArrayClassPath);
+
+        // append plugin jar for jboss
+        // plugin class not found in jboss classLoader
+        if (instrumentContext instanceof DefaultProfilerPluginContext) {
+            PluginConfig pluginConfig = ((DefaultProfilerPluginContext) instrumentContext).getPluginConfig();
+            String jarPath = pluginConfig.getPluginJar().getPath();
+            contextCassPool.appendClassPath(jarPath);
+        }
         return contextCassPool;
     }
 

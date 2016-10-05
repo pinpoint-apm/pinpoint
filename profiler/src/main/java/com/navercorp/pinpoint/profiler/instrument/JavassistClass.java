@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import javassist.CannotCompileException;
+import javassist.ClassPool;
 import javassist.CtBehavior;
 import javassist.CtClass;
 import javassist.CtConstructor;
@@ -258,7 +259,11 @@ public class JavassistClass implements InstrumentClass {
     @Override
     public boolean hasField(String name, String type) {
         try {
-            String vmType = type == null ? null : JavaAssistUtils.toJvmSignature(type);
+            String vmType = null;
+            if (type != null) {
+                vmType = JavaAssistUtils.toJvmSignature(type);
+            }
+
             ctClass.getField(name, vmType);
         } catch (NotFoundException e) {
             return false;
@@ -278,7 +283,7 @@ public class JavassistClass implements InstrumentClass {
 
         CtClass adviceClass;
         try {
-            adviceClass = ctClass.getClassPool().get(adviceClassName);
+            adviceClass = getCtClass(adviceClassName);
         } catch (NotFoundException e) {
             throw new NotFoundInstrumentException(adviceClassName + " not found. Caused:" + e.getMessage(), e);
         }
@@ -352,8 +357,7 @@ public class JavassistClass implements InstrumentClass {
             } else {
                 ctClass.addField(newField, initValExp);
             }
-
-            final CtClass accessorInterface = ctClass.getClassPool().get(accessorTypeName);
+            final CtClass accessorInterface = getCtClass(accessorTypeName);
             ctClass.addInterface(accessorInterface);
 
             CtMethod getterMethod = CtNewMethod.getter(accessorDetails.getGetter().getName(), newField);
@@ -369,9 +373,10 @@ public class JavassistClass implements InstrumentClass {
     @Override
     public void addGetter(String getterTypeName, String fieldName) throws InstrumentException {
         try {
-            Class<?> getterType = pluginContext.injectClass(classLoader, getterTypeName);
 
-            GetterDetails getterDetails = new GetterAnalyzer().analyze(getterType);
+            Class<?> getterType = pluginContext.injectClass(classLoader, getterTypeName);
+            GetterAnalyzer getterAnalyzer = new GetterAnalyzer();
+            GetterDetails getterDetails = getterAnalyzer.analyze(getterType);
 
             CtField field = ctClass.getField(fieldName);
             String fieldTypeName = JavaAssistUtils.javaClassNameToObjectName(getterDetails.getFieldType().getName());
@@ -388,11 +393,16 @@ public class JavassistClass implements InstrumentClass {
 
             ctClass.addMethod(getterMethod);
 
-            CtClass ctInterface = ctClass.getClassPool().get(getterTypeName);
+            CtClass ctInterface = getCtClass(getterTypeName);
             ctClass.addInterface(ctInterface);
         } catch (Exception e) {
             throw new InstrumentException("Failed to add getter: " + getterTypeName, e);
         }
+    }
+
+    private CtClass getCtClass(String className) throws NotFoundException {
+        final ClassPool classPool = ctClass.getClassPool();
+        return classPool.get(className);
     }
 
     @Override
@@ -405,7 +415,8 @@ public class JavassistClass implements InstrumentClass {
         try {
             Class<?> setterType = pluginContext.injectClass(classLoader, setterTypeName);
 
-            SetterDetails setterDetails = new SetterAnalyzer().analyze(setterType);
+            SetterAnalyzer setterAnalyzer = new SetterAnalyzer();
+            SetterDetails setterDetails = setterAnalyzer.analyze(setterType);
 
             CtField field = ctClass.getField(fieldName);
             String fieldTypeName = JavaAssistUtils.javaClassNameToObjectName(setterDetails.getFieldType().getName());
@@ -437,7 +448,7 @@ public class JavassistClass implements InstrumentClass {
                 }
                 ctClass.addMethod(setterMethod);
 
-                CtClass ctInterface = ctClass.getClassPool().get(setterTypeName);
+                CtClass ctInterface = getCtClass(setterTypeName);
                 ctClass.addInterface(ctInterface);
             }
             catch (Exception e) {

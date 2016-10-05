@@ -123,5 +123,17 @@ public class PluginConfig {
         return pluginPackageFilter;
     }
 
-
+    @Override
+    public String toString() {
+        return "PluginConfig{" +
+                "pluginJar=" + pluginJar +
+                ", pluginJarFile=" + pluginJarFile +
+                ", pluginJarURLExternalForm='" + pluginJarURLExternalForm + '\'' +
+                ", plugin=" + plugin +
+                ", instrumentation=" + instrumentation +
+                ", classPool=" + classPool +
+                ", bootstrapJarPaths=" + bootstrapJarPaths +
+                ", pluginPackageFilter=" + pluginPackageFilter +
+                '}';
+    }
 }

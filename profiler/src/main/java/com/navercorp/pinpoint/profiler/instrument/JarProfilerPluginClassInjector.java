@@ -27,12 +27,13 @@ import com.navercorp.pinpoint.exception.PinpointException;
  * @author Jongho Moon
  *
  */
-public class JarProfilerPluginClassInjector implements ClassInjector {
+public class JarProfilerPluginClassInjector implements PluginClassInjector {
     private final Logger logger = LoggerFactory.getLogger(JarProfilerPluginClassInjector.class);
 
     private final ClassInjector bootstrapClassLoaderHandler;
     private final ClassInjector urlClassLoaderHandler;
     private final ClassInjector plainClassLoaderHandler;
+    private final PluginConfig pluginConfig;
 
     public JarProfilerPluginClassInjector(PluginConfig pluginConfig) {
         if (pluginConfig == null) {
@@ -41,6 +42,12 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
         this.bootstrapClassLoaderHandler = new BootstrapClassLoaderHandler(pluginConfig);
         this.urlClassLoaderHandler = new URLClassLoaderHandler(pluginConfig);
         this.plainClassLoaderHandler = new PlainClassLoaderHandler(pluginConfig);
+        this.pluginConfig = pluginConfig;
+    }
+
+    @Override
+    public PluginConfig getPluginConfig() {
+        return pluginConfig;
     }
 
     @Override
@@ -55,7 +62,8 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
             } else {
                 return (Class<T>)plainClassLoaderHandler.injectClass(classLoader, className);
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
+            // fixed for LinkageError
             logger.warn("Failed to load plugin class {} with classLoader {}", className, classLoader, e);
             throw new PinpointException("Failed to load plugin class " + className + " with classLoader " + classLoader, e);
         }

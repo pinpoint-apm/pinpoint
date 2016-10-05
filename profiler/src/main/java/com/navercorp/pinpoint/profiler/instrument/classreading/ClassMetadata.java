@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2016 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,25 +12,31 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package com.navercorp.pinpoint.profiler.util;
-
-import com.google.common.collect.MapMaker;
-import com.navercorp.pinpoint.common.util.ConcurrentReferenceHashMap;
-
-import java.util.concurrent.ConcurrentMap;
+package com.navercorp.pinpoint.profiler.instrument.classreading;
 
 /**
- * @author emeroad
+ * under-development Class
+ * not fixed.
+ * @author Woonduk Kang(emeroad)
  */
-public final class Maps {
+// @Beta
+public interface ClassMetadata extends SimpleClassMetadata {
 
-    public static <K, V> ConcurrentMap<K, V> newWeakConcurrentMap() {
-        return new ConcurrentReferenceHashMap<K, V>();
-    }
+    String getSignature();
 
-    public static <K, V> ConcurrentMap<K, V> newWeakConcurrentMap(int initialCapacity) {
-        return new ConcurrentReferenceHashMap<K, V>(initialCapacity);
-    }
+    String getSourceFile();
+
+    String getSourceDebug();
+
+    String getOuterClass();
+
+    String getOuterMethod();
+
+    String getOuterMethodDesc();
+
+//    List<MethodMetadata> getMethods();
+
 }

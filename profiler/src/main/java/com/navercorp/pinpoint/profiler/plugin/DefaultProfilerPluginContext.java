@@ -19,10 +19,12 @@ package com.navercorp.pinpoint.profiler.plugin;
 import java.lang.instrument.ClassFileTransformer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.jar.JarFile;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
@@ -34,6 +36,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.DynamicTransformService;
 import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.PluginClassInjector;
 import com.navercorp.pinpoint.profiler.interceptor.scope.DefaultInterceptorScope;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.profiler.util.NameValueList;
@@ -46,7 +49,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     private final List<ClassFileTransformer> classTransformers = new ArrayList<ClassFileTransformer>();
     
     private final NameValueList<InterceptorScope> interceptorScopeList = new NameValueList<InterceptorScope>();
-    
+
     public DefaultProfilerPluginContext(DefaultAgent agent, ClassInjector classInjector) {
         if (agent == null) {
             throw new NullPointerException("agent must not be null");
@@ -61,6 +64,13 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     @Override
     public ProfilerConfig getConfig() {
         return agent.getProfilerConfig();
+    }
+
+    public PluginConfig getPluginConfig() {
+        if (classInjector instanceof PluginClassInjector) {
+            return ((PluginClassInjector) classInjector).getPluginConfig();
+        }
+        return null;
     }
 
     @Override
@@ -89,7 +99,8 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
             throw new NullPointerException("className must not be null");
         }
         try {
-            return agent.getClassPool().getClass(this, classLoader, className, classFileBuffer);
+            final InstrumentClassPool classPool = getClassPool();
+            return classPool.getClass(this, classLoader, className, classFileBuffer);
         } catch (NotFoundInstrumentException e) {
             return null;
         }
@@ -100,8 +111,13 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
         if (className == null) {
             throw new NullPointerException("className must not be null");
         }
+        final InstrumentClassPool classPool = getClassPool();
+        return classPool.hasClass(classLoader, className);
+    }
 
-        return agent.getClassPool().hasClass(classLoader, className);
+    private InstrumentClassPool getClassPool() {
+        InstrumentClassPool classPool = agent.getClassPool();
+        return classPool;
     }
 
     @Override
