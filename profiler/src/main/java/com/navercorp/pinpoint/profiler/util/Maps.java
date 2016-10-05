@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.util;
 
 import com.google.common.collect.MapMaker;
-import com.navercorp.pinpoint.common.util.ConcurrentReferenceHashMap;
 
 import java.util.concurrent.ConcurrentMap;
 
@@ -26,11 +25,21 @@ import java.util.concurrent.ConcurrentMap;
  */
 public final class Maps {
 
+    private static final MapMaker DEFAULT_WEAK_MAP_MAKER = createWeakMapMaker();
+
+    private static MapMaker createWeakMapMaker() {
+        final MapMaker mapMaker = new MapMaker();
+        mapMaker.weakKeys();
+        return mapMaker;
+    }
+
     public static <K, V> ConcurrentMap<K, V> newWeakConcurrentMap() {
-        return new ConcurrentReferenceHashMap<K, V>();
+        return DEFAULT_WEAK_MAP_MAKER.makeMap();
     }
 
     public static <K, V> ConcurrentMap<K, V> newWeakConcurrentMap(int initialCapacity) {
-        return new ConcurrentReferenceHashMap<K, V>(initialCapacity);
+        final MapMaker weakMapMaker = createWeakMapMaker();
+        weakMapMaker.initialCapacity(initialCapacity);
+        return weakMapMaker.makeMap();
     }
 }

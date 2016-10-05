@@ -15,6 +15,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.navercorp.pinpoint.common.util.jsr166.ConcurrentWeakHashMap;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.instrument.classreading.SimpleClassMetadata;
 import com.navercorp.pinpoint.profiler.instrument.classreading.SimpleClassMetadataReader;
@@ -23,7 +24,6 @@ import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 import com.navercorp.pinpoint.profiler.util.ExtensionFilter;
 import com.navercorp.pinpoint.profiler.util.FileBinary;
 import com.navercorp.pinpoint.profiler.util.JarReader;
-import com.navercorp.pinpoint.profiler.util.Maps;
 import javassist.CannotCompileException;
 import javassist.NotFoundException;
 import org.slf4j.Logger;
@@ -53,9 +53,8 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
     private static final List<String> BOOTSTRAP_PACKAGE_LIST = Arrays.asList("com.navercorp.pinpoint.bootstrap", "com.navercorp.pinpoint.common", "com.navercorp.pinpoint.exception");
 
-
     // TODO remove static field
-    private static final ConcurrentMap<ClassLoader, ClassLoaderAttachment> classLoaderAttachment = Maps.newWeakConcurrentMap();
+    private static final ConcurrentMap<ClassLoader, ClassLoaderAttachment> classLoaderAttachment = new ConcurrentWeakHashMap<ClassLoader, ClassLoaderAttachment>();
 
 
     static {
