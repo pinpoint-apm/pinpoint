@@ -24,13 +24,11 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
- * 
  * @author Jongho Moon <jongho.moon@navercorp.com>
- *
  */
 public class PostProcessorInterceptor extends AbstractSpringBeanCreationInterceptor implements AroundInterceptor2 {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
-    
+
     public PostProcessorInterceptor(Instrumentor instrumentor, TransformCallback transformer, TargetBeanFilter filter) {
         super(instrumentor, transformer, filter);
     }
@@ -39,14 +37,15 @@ public class PostProcessorInterceptor extends AbstractSpringBeanCreationIntercep
     @IgnoreMethod
     @Override
     public void before(Object target, Object arg0, Object arg1) {
-
     }
 
     @Override
     public void after(Object target, Object arg0, Object beanNameObject, Object result, Throwable throwable) {
         try {
             if (!(beanNameObject instanceof String)) {
-                logger.warn("invalid type:{}", beanNameObject);
+                if (logger.isWarnEnabled()) {
+                    logger.warn("invalid type:{}", beanNameObject);
+                }
                 return;
             }
             final String beanName = (String) beanNameObject;
