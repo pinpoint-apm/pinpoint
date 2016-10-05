@@ -45,7 +45,7 @@ public class JavassistClassPoolTest {
 
 
         final byte[] originalByteCode = BytecodeUtils.getClassFile(null, mock);
-        final InstrumentClass transformClass = pool.getClass(null, mock, originalByteCode);
+        final InstrumentClass transformClass = pool.getClass(null, null, mock, originalByteCode);
 
         Assert.assertNotNull(transformClass.getDeclaredMethod("test"));
         Assert.assertNull("transform method", transformClass.getDeclaredMethod("transformMethod"));
@@ -59,7 +59,7 @@ public class JavassistClassPoolTest {
 
 
         final byte[] transformByteCode = getTransformByteCode();
-        final InstrumentClass transformClass = pool.getClass(null, mock, transformByteCode);
+        final InstrumentClass transformClass = pool.getClass(null, null, mock, transformByteCode);
 
         Assert.assertNotNull(transformClass.getDeclaredMethod("test"));
         Assert.assertNotNull("transform method", transformClass.getDeclaredMethod("transformMethod"));

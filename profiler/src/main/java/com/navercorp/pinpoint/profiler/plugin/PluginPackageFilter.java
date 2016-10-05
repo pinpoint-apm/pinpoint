@@ -43,4 +43,10 @@ public class PluginPackageFilter implements ClassNameFilter {
         return REJECT;
     }
 
+    @Override
+    public String toString() {
+        return "PluginPackageFilter{" +
+                "packageList=" + packageList +
+                '}';
+    }
 }
