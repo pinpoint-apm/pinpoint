@@ -24,10 +24,6 @@ public final class WorkerOption {
     private final int workerThreadSize;
     private final int workerThreadQueueSize;
 
-    private final boolean enableDisruptorWorker;
-    private final String disruptorStrategyType;
-    private final long disruptorStrategyTimeout;
-
     private final boolean enableCollectMetric;
 
     public WorkerOption(int workerThreadSize, int workerThreadQueueSize) {
@@ -35,10 +31,6 @@ public final class WorkerOption {
     }
 
     public WorkerOption(int workerThreadSize, int workerThreadQueueSize, boolean enableCollectMetric) {
-        this(workerThreadSize, workerThreadQueueSize, false, null, -1, enableCollectMetric);
-    }
-
-    public WorkerOption(int workerThreadSize, int workerThreadQueueSize, boolean enableDisruptorWorker, String disruptorStrategyType, long disruptorStrategyTimeout, boolean enableCollectMetric) {
         if (workerThreadSize <= 0) {
             throw new IllegalArgumentException("workerThreadSize must be greater than 0");
         }
@@ -49,9 +41,6 @@ public final class WorkerOption {
 
         this.workerThreadSize = workerThreadSize;
         this.workerThreadQueueSize = workerThreadQueueSize;
-        this.enableDisruptorWorker = enableDisruptorWorker;
-        this.disruptorStrategyType = disruptorStrategyType;
-        this.disruptorStrategyTimeout = disruptorStrategyTimeout;
         this.enableCollectMetric = enableCollectMetric;
     }
 
@@ -63,18 +52,6 @@ public final class WorkerOption {
         return workerThreadQueueSize;
     }
 
-    public boolean isEnableDisruptorWorker() {
-        return enableDisruptorWorker;
-    }
-
-    public String getDisruptorStrategyType() {
-        return disruptorStrategyType;
-    }
-
-    public long getDisruptorStrategyTimeout() {
-        return disruptorStrategyTimeout;
-    }
-
     public boolean isEnableCollectMetric() {
         return enableCollectMetric;
     }
@@ -84,9 +61,6 @@ public final class WorkerOption {
         return "WorkerOption{" +
                 "workerThreadSize=" + workerThreadSize +
                 ", workerThreadQueueSize=" + workerThreadQueueSize +
-                ", enableDisruptorWorker=" + enableDisruptorWorker +
-                ", disruptorStrategyType='" + disruptorStrategyType + '\'' +
-                ", disruptorStrategyTimeout=" + disruptorStrategyTimeout +
                 ", enableCollectMetric=" + enableCollectMetric +
                 '}';
     }
