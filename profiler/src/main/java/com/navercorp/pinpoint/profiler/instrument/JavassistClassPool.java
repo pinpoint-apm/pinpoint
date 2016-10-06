@@ -143,9 +143,11 @@ public class JavassistClassPool implements InstrumentClassPool {
         // append plugin jar for jboss
         // plugin class not found in jboss classLoader
         if (instrumentContext instanceof DefaultProfilerPluginContext) {
-            PluginConfig pluginConfig = ((DefaultProfilerPluginContext) instrumentContext).getPluginConfig();
-            String jarPath = pluginConfig.getPluginJar().getPath();
-            contextCassPool.appendClassPath(jarPath);
+            final PluginConfig pluginConfig = ((DefaultProfilerPluginContext) instrumentContext).getPluginConfig();
+            if (pluginConfig != null) {
+                String jarPath = pluginConfig.getPluginJar().getPath();
+                contextCassPool.appendClassPath(jarPath);
+            }
         }
         return contextCassPool;
     }
