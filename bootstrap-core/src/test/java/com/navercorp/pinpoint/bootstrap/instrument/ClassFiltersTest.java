@@ -14,7 +14,7 @@ public class ClassFiltersTest {
 
         assertTrue(ClassFilters.name("com.navercorp.mock.TestObjectNestedClass$InstanceInner").accept(clazz));
         assertFalse(ClassFilters.name("com.navercorp.mock.InvalidClassName").accept(clazz));
-        assertFalse(ClassFilters.name(null).accept(clazz));
+        assertFalse(ClassFilters.name((String[]) null).accept(clazz));
         assertFalse(ClassFilters.name(null, null).accept(clazz));
     }
 
