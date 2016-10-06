@@ -3,7 +3,8 @@
 ###  Standalone mode <br/>
  Add following configuration in __standalone.conf__ :- <br/>
 ```java 
-JAVA_OPTS="$JAVA_OPTS -Djboss.modules.system.pkgs=org.jboss.byteman,org.jboss.logmanager,com.navercorp.pinpoint"
+JAVA_OPTS="$JAVA_OPTS -Djboss.modules.system.pkgs=org.jboss.byteman,org.jboss.logmanager,com.navercorp.pinpoint.bootstrap,
+com.navercorp.pinpoint.common,com.navercorp.pinpoint.exception"
 JAVA_OPTS="$JAVA_OPTS -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
 JAVA_OPTS="$JAVA_OPTS -Xbootclasspath/p:$JBOSS_HOME/modules/system/layers/base/org/jboss/logmanager/main/jboss-logmanager-1.5.4.Final-redhat-1.jar"
 JAVA_OPTS="$JAVA_OPTS -javaagent:$PINPOINT_AGENT_HOME/pinpoint-bootstrap-1.6.0-SNAPSHOT.jar"
@@ -18,7 +19,8 @@ JAVA_OPTS="$JAVA_OPTS -Dpinpoint.applicationName=APP-STANDALONE"
  <system-properties>
      ...
         
-    <property name="jboss.modules.system.pkgs" value="com.singularity,org.jboss.logmanager,com.navercorp.pinpoint" boot-time="true"/>
+    <property name="jboss.modules.system.pkgs" value="org.jboss.logmanager,com.navercorp.pinpoint.bootstrap,
+com.navercorp.pinpoint.common,com.navercorp.pinpoint.exception" boot-time="true"/>
     <property name="java.util.logging.manager" value="org.jboss.logmanager.LogManager"/>
     ...
     
@@ -63,5 +65,6 @@ JAVA_OPTS="$JAVA_OPTS -Dpinpoint.applicationName=APP-STANDALONE"
 
 ```
 
-
-#### Set ```profiler.jboss.traceEjb=true``` for remote ejb application in pinpoint.config file
+#### Set ```profiler.applicationservertype=JBOSS``` in pinpoint.config file
+#### Set ```profiler.jboss.traceEjb=true``` for remote ejb based application in pinpoint.config file
+#### Set ```profiler.jboss.traceEjb=false``` for non-ejb based application in pinpoint.config file
