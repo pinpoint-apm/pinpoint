@@ -5,5 +5,6 @@
     <Match>
         <!-- google guava -->
         <Package name="~com\.google.*" />
+		<!-- maintaner allow -->
     </Match>
 </FindBugsFilter>
