@@ -16,6 +16,7 @@
 	
 	            // define private variables of methods
 	            var clear, appendTransactionList, resetIndexToTransactionList;
+				var bIsDetailPageLoading = false;
 	
 	            // initialize scope variables
 	            scope.transactionList = [];
@@ -63,6 +64,9 @@
 	             * @param transaction
 	             */
 	            scope.traceByApplication = function (transaction) {
+					if ( bIsDetailPageLoading === true ) {
+						return;
+					}
 					AnalyticsService.send(AnalyticsService.CONST.CALLSTACK, AnalyticsService.CONST.CLK_TRANSACTION);
 	                scope.currentTransaction = transaction;
 	                scope.$emit('transactionTableDirective.applicationSelected', transaction);
@@ -109,6 +113,9 @@
 	            scope.$on('transactionTableDirective.appendTransactionList', function (event, transactionList) {
 	                appendTransactionList(transactionList);
 	            });
+				scope.$on('transactionTableDirective.completedDetailPageLoad', function () {
+					bIsDetailPageLoading = false;
+				});
 	
 	            /**
 	             * scope event on transactionTableDirective.clear

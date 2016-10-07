@@ -1,4 +1,4 @@
-(function() {
+(function( $ ) {
 	'use strict';
 	/**
 	 * (en)TransactionListCtrl 
@@ -18,7 +18,7 @@
 			analyticsService.send(analyticsService.CONST.TRANSACTION_LIST_PAGE);
 	        // define private variables
 	        var nFetchCount, nLastFetchedIndex, htTransactionInfo, htTransactionData, oTimeSliderVoService;
-			var aParamTransactionInfo;
+			var aParamTransactionInfo, beforeTransactionDetailUrl = "";
 	
 	        // define private variables of methods
 	        var fetchStart, fetchNext, fetchAll, emitTransactionListToTable, getQuery, getTransactionList, changeTransactionDetail,
@@ -300,14 +300,19 @@
 	         * @param transaction
 	         */
 	        changeTransactionDetail = function (transaction) {
-				$location.path( "/transactionList/" + $routeParams.application + "/" + $routeParams.readablePeriod + "/" + $routeParams.queryEndDateTime + "/" + transaction.traceId + "-" + transaction.collectorAcceptTime + "-" + transaction.elapsed , false );
-	            var transactionDetailUrl = 'index.html#/transactionDetail'; // the filename should be existing, if not it's doesn't work on ie and firefox
-	            if (transaction.traceId && transaction.collectorAcceptTime) {
-	                transactionDetailUrl += '/' + $window.encodeURIComponent(transaction.traceId) + '/' + transaction.collectorAcceptTime;
-					$timeout(function() {
+				var transactionDetailUrl = 'index.html#/transactionDetail';
+				if (transaction.traceId && transaction.collectorAcceptTime) {
+					transactionDetailUrl += '/' + $window.encodeURIComponent(transaction.traceId) + '/' + transaction.collectorAcceptTime;
+				}
+				if ( beforeTransactionDetailUrl == transactionDetailUrl ) {
+					$scope.$emit( "transactionTableDirective.completedDetailPageLoad" );
+				} else {
+					beforeTransactionDetailUrl = transactionDetailUrl;
+					$location.path( "/transactionList/" + $routeParams.application + "/" + $routeParams.readablePeriod + "/" + $routeParams.queryEndDateTime + "/" + transaction.traceId + "-" + transaction.collectorAcceptTime + "-" + transaction.elapsed , false );
+					$timeout(function () {
 						$scope.transactionDetailUrl = transactionDetailUrl;
 					});
-	            }
+				}
 	        };
 	
 	        /**
@@ -326,8 +331,10 @@
 	            $timeout(function () {
 	                fetchNext();
 	            }, 1000);
-	
 	        });
+			$scope.completedDetailPageLoad = function() {
+				$scope.$emit( "transactionTableDirective.completedDetailPageLoad" );
+			};
 	    }
 	]);
-})();
+})( jQuery );
