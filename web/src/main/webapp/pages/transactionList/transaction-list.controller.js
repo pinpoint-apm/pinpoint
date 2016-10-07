@@ -334,7 +334,7 @@
 	        });
 			$scope.completedDetailPageLoad = function() {
 				$scope.$emit( "transactionTableDirective.completedDetailPageLoad" );
-			}
+			};
 	    }
 	]);
 })( jQuery );

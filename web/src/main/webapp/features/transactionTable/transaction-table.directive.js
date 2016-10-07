@@ -64,7 +64,7 @@
 	             * @param transaction
 	             */
 	            scope.traceByApplication = function (transaction) {
-					if ( bIsDetailPageLoading == true ) {
+					if ( bIsDetailPageLoading === true ) {
 						return;
 					}
 					bIsDetailPageLoading = true;
