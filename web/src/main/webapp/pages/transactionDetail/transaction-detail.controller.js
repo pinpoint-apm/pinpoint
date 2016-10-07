@@ -198,6 +198,13 @@
 	        });
 
 			tooltipService.init( "callTree" );
-	    }
+
+			// invoke top frame angular method
+			try {
+				top.angular.element( top.document.getElementById("main-container") ).scope().completedDetailPageLoad();
+			} catch(e) {}
+
+
+		}
 	]);
 })();
