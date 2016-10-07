@@ -418,6 +418,7 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
         addTProtocolInterceptors(config, "org.apache.thrift.protocol.TBinaryProtocol");
         addTProtocolInterceptors(config, "org.apache.thrift.protocol.TCompactProtocol");
         addTProtocolInterceptors(config, "org.apache.thrift.protocol.TJSONProtocol");
+        addTProtocolDecoratorEditor();
     }
 
     private void addTProtocolInterceptors(ThriftPluginConfig config, String tProtocolClassName) {
@@ -482,6 +483,20 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                 return target.toBytecode();
             }
 
+        });
+    }
+
+    private void addTProtocolDecoratorEditor() {
+        transformTemplate.transform("org.apache.thrift.protocol.TProtocolDecorator", new TransformCallback() {
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                        ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+
+                final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+                target.addGetter(ThriftConstants.FIELD_GETTER_T_PROTOCOL, "concreteProtocol");
+                return target.toBytecode();
+            }
         });
     }
 

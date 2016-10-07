@@ -14,26 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.util.concurrent;
+package com.navercorp.pinpoint.plugin.thrift.field.getter;
 
-import com.lmax.disruptor.WaitStrategy;
+import org.apache.thrift.protocol.TProtocol;
 
 /**
- * @author Taejin Koo
+ * @author HyunGil Jeong
  */
-public final class DisruptorUtils {
-
-    public static int nextPowerOfTwo(int v) {
-        return 1 << (32 - Integer.numberOfLeadingZeros(v - 1));
-    }
-
-    public static WaitStrategy createStrategy(String strategy) {
-        return createStrategy(strategy, -1L);
-    }
-
-    public static WaitStrategy createStrategy(String strategy, long timeout) {
-        DisruptorStrategyType type = DisruptorStrategyType.getValue(strategy);
-        return type.create(timeout);
-    }
-
+public interface TProtocolFieldGetter {
+    TProtocol _$PINPOINT$_getTProtocol();
 }

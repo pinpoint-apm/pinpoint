@@ -52,10 +52,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.lmax</groupId>
-            <artifactId>disruptor</artifactId>
-        </dependency>
 
         <!-- commons module may be used at agent so there will be problems. you should set optional -->
         <dependency>

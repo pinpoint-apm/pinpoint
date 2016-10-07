@@ -354,12 +354,6 @@
             </dependency>
 
             <dependency>
-                <groupId>com.lmax</groupId>
-                <artifactId>disruptor</artifactId>
-                <version>3.3.4</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
@@ -821,6 +815,7 @@
                     <excludes>
                         <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
 
                         <!--google guava-->
@@ -889,6 +884,7 @@
                     <excludes>
                         <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
 
                         <!--google guava-->
@@ -980,6 +976,7 @@
                     <excludes>
                         <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
 
                         <!--google guava-->
@@ -999,6 +996,7 @@
                     <excludes>
                         <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
 
                         <!--google guava-->
