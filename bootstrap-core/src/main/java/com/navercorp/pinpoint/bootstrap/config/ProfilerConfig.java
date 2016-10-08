@@ -184,4 +184,18 @@ public interface ProfilerConfig {
     boolean readBoolean(String propertyName, boolean defaultValue);
 
     Map<String, String> readPattern(String propertyNamePatternRegex);
+    
+    boolean isJbossTraceEjb();
+
+    String getJbossRealIpHeader();
+
+    String getJbossRealIpEmptyValue();
+
+    boolean isJbossTraceRequestParam();
+
+    Filter<String> getJbossExcludeProfileMethodFilter();
+
+    boolean isJbossHidePinpointHeader();
+
+    Filter<String> getJbossExcludeUrlFilter();
 }
