@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.profiler;
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
 import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInvokerHelper;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -172,12 +172,7 @@ public class DefaultAgent implements Agent {
         this.instrumentation = agentOption.getInstrumentation();
         this.agentOption = agentOption;
 
-        if(this.profilerConfig.isProfileInstrumentASM()) {
-            logger.info("ASM class pool.");
-            this.classPool = new ASMClassPool(interceptorRegistryBinder, agentOption.getBootstrapJarPaths());
-        } else {
-            this.classPool = new JavassistClassPool(interceptorRegistryBinder, agentOption.getBootstrapJarPaths());
-        }
+        this.classPool = createInstrumentEngine(agentOption, interceptorRegistryBinder);
 
         if (logger.isInfoEnabled()) {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
@@ -226,6 +221,26 @@ public class DefaultAgent implements Agent {
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime(), agentStatCollectorFactory);
         
         InterceptorInvokerHelper.setPropagateException(profilerConfig.isPropagateInterceptorException());
+    }
+
+    private InstrumentClassPool createInstrumentEngine(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
+
+        final String instrumentEngine = this.profilerConfig.getProfileInstrumentEngine().toUpperCase();
+
+        if (DefaultProfilerConfig.INSTRUMENT_ENGINE_ASM.equals(instrumentEngine)) {
+            logger.info("ASM InstrumentEngine.");
+
+            return new ASMClassPool(interceptorRegistryBinder, agentOption.getBootstrapJarPaths());
+
+        } else if (DefaultProfilerConfig.INSTRUMENT_ENGINE_JAVASSIST.equals(instrumentEngine)) {
+            logger.info("JAVASSIST InstrumentEngine.");
+
+            return new JavassistClassPool(interceptorRegistryBinder, agentOption.getBootstrapJarPaths());
+        } else {
+            logger.warn("Unknown InstrumentEngine:{}", instrumentEngine);
+
+            throw new IllegalArgumentException("Unknown InstrumentEngine:" + instrumentEngine);
+        }
     }
 
     private ClassFileTransformer wrapClassFileTransformer(ClassFileTransformer classFileTransformerDispatcher) {

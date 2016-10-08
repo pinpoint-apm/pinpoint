@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author emeroad
  */
-public class ProfilerConfigTest {
+public class DefaultProfilerConfigTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
@@ -107,6 +107,6 @@ public class ProfilerConfigTest {
         
         Assert.assertTrue(profilerConfig.isTcpDataSenderCommandAcceptEnable());
     }
-    
+
 
 }

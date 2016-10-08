@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.codahale.gc;
 
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
@@ -47,7 +48,7 @@ public class GarbageCollectorFactoryTest {
     public void testDetailedMetrics() {
         TraceContext testTraceContext = new MockTraceContextFactory().create();
         ProfilerConfig testProfilerConfig = testTraceContext.getProfilerConfig();
-        testProfilerConfig.setProfilerJvmCollectDetailedMetrics(true);
+        ((DefaultProfilerConfig)testProfilerConfig).setProfilerJvmCollectDetailedMetrics(true);
         GarbageCollector collector = new AgentStatCollectorFactory(testTraceContext).getGarbageCollector();
 
         logger.debug("collector.getType():{}", collector);
