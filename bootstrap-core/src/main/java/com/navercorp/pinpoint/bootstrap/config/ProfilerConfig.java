@@ -105,10 +105,6 @@ public interface ProfilerConfig {
 
     String getApplicationServerType();
 
-    boolean isLog4jLoggingTransactionInfo();
-
-    boolean isLogbackLoggingTransactionInfo();
-
     int getCallStackMaxDepth();
 
     boolean isPropagateInterceptorException();

@@ -150,9 +150,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private String applicationServerType;
     private List<String> applicationTypeDetectOrder = Collections.emptyList();
     private List<String> disabledPlugins = Collections.emptyList();
-    private boolean log4jLoggingTransactionInfo;
-    private boolean logbackLoggingTransactionInfo;
-    
+
     private boolean propagateInterceptorException = false;
 
     public DefaultProfilerConfig() {
@@ -382,17 +380,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.applicationServerType = applicationServerType;
     }
     
-    @Override
-    public boolean isLog4jLoggingTransactionInfo() {
-        return this.log4jLoggingTransactionInfo;
-    }
-    
 
-    @Override
-    public boolean isLogbackLoggingTransactionInfo() {
-        return this.logbackLoggingTransactionInfo;
-    }
-    
     @Override
     public int getCallStackMaxDepth() {
         return callStackMaxDepth;
@@ -471,16 +459,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
             this.tomcatExcludeProfileMethodFilter = new ExcludeMethodFilter(tomcatExcludeProfileMethod);
         }
 
-        /**
-         * log4j
-         */
-        this.log4jLoggingTransactionInfo = readBoolean("profiler.log4j.logging.transactioninfo", false);
-        
-        /**
-         * logback
-         */
-        this.logbackLoggingTransactionInfo = readBoolean("profiler.logback.logging.transactioninfo", false);
-        
+
         this.samplingEnable = readBoolean("profiler.sampling.enable", true);
         this.samplingRate = readInt("profiler.sampling.rate", 1);
 
@@ -702,10 +681,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append(applicationTypeDetectOrder);
         builder.append(", disabledPlugins=");
         builder.append(disabledPlugins);
-        builder.append(", log4jLoggingTransactionInfo=");
-        builder.append(log4jLoggingTransactionInfo);
-        builder.append(", logbackLoggingTransactionInfo=");
-        builder.append(logbackLoggingTransactionInfo);
         builder.append("}");
         return builder.toString();
     }
