@@ -21,8 +21,8 @@
          * @param {object}
          */
         $init: function (htOption, $location, analyticsService) {
-        	this.analyticsService = analyticsService;
-        	this._query = "";
+            this.analyticsService = analyticsService;
+            this._query = "";
             this.option({
                 "sContainerId": '',
                 "sOverviewId": '',
@@ -66,6 +66,8 @@
                     'ORACLE_GROUP': 'ORACLE.png',
                     'QUEUE': 'QUEUE.png',
                     'QUEUE_GROUP': 'QUEUE.png',
+                    'SQLITE': 'SQLITE.png',
+                    'SQLITE_GROUP': 'SQLITE.png',
                     'STAND_ALONE': 'STAND_ALONE.png',
                     'STAND_ALONE_GROUP': 'STAND_ALONE.png',
                     'SPRING_BOOT': 'SPRING_BOOT.png',
@@ -89,7 +91,7 @@
                     'NBASE_T_GROUP': 'NBASE_T.png',
                     'USER': 'USER.png',
                     'USER_GROUP': 'USER.png',
-					'UNAUTHORIZED': 'UNAUTHORIZED.png'
+                    'UNAUTHORIZED': 'UNAUTHORIZED.png'
                 },
                 "htNodeTheme": {
                     "default": {
@@ -131,15 +133,15 @@
                 },
                 "htHighlightNode": {
                     //"borderColor": "#25AFF4",
-                	"borderColor": "#53069B",
+                    "borderColor": "#53069B",
                     "backgroundColor": "#289E1D",
                     //"fontColor": "#5cb85c"
                     "fontColor": "#53069B"
                 },
                 "htHighlightLink": {
-                	"fontFamily": "bold 12pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
+                    "fontFamily": "bold 12pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
                     //"borderColor": "#25AFF4",
-                	"borderColor": "#53069B",
+                    "borderColor": "#53069B",
                     "strokeWidth": 2
                 },
                 "htPadding": {
@@ -195,7 +197,7 @@
                 }
             );
             this._oDiagram.animationManager.isEnabled = false;
-			this._oDiagram.scrollMode = go.Diagram.InfiniteScroll;
+            this._oDiagram.scrollMode = go.Diagram.InfiniteScroll;
         },
 
         /**
@@ -236,15 +238,15 @@
                 )
             );
             var calcuResponseSummaryCircleSize = function( sum, value ) {
-            	var size = 0;
-            	if ( value === 0 ) return 0;
-    			var percentage = ( 100 * value ) /sum;
-    			if ( percentage < calcuResponseSummaryCircleSize.minPercentage ) {
-    				size = parseInt((calcuResponseSummaryCircleSize.maxSize * calcuResponseSummaryCircleSize.minPercentage) / 100);
-    			} else {
-    				size = parseInt((calcuResponseSummaryCircleSize.maxSize * percentage) / 100);
-    			}
-    			return size;
+                var size = 0;
+                if ( value === 0 ) return 0;
+                var percentage = ( 100 * value ) /sum;
+                if ( percentage < calcuResponseSummaryCircleSize.minPercentage ) {
+                    size = parseInt((calcuResponseSummaryCircleSize.maxSize * calcuResponseSummaryCircleSize.minPercentage) / 100);
+                } else {
+                    size = parseInt((calcuResponseSummaryCircleSize.maxSize * percentage) / 100);
+                }
+                return size;
             };
             calcuResponseSummaryCircleSize.maxSize = 360;
             calcuResponseSummaryCircleSize.minPercentage = 5;
@@ -262,7 +264,7 @@
                             self._onNodeClicked(e, obj);
                         },
                         doubleClick: function(e, obj) {
-                        	self._onNodeDoubleClicked(e, obj);
+                            self._onNodeDoubleClicked(e, obj);
                         },
                         contextClick: self._onNodeContextClicked.bind(self)
                     },
@@ -305,68 +307,68 @@
                         new go.Binding("key", "key")
                     ),
                     self.$(
-                    	go.Shape, {
-                    		stroke: "red",
-                    		strokeWidth: 4,
-                    		opacity: 0.8,
-                    		margin : new go.Margin( -28, 0, 0, 0 ),
-                    		visible: true
-                    	},
-						new go.Binding("visible", "", function( data ) {
-							return data.isAuthorized && data.isWas;
-						}),
-                    	new go.Binding("geometry", "histogram", function(histogram) {
-                    		return go.Geometry.parse("M30 0 B270 360 30 30 30 30");
-                    	})
+                        go.Shape, {
+                            stroke: "red",
+                            strokeWidth: 4,
+                            opacity: 0.8,
+                            margin : new go.Margin( -28, 0, 0, 0 ),
+                            visible: true
+                        },
+                        new go.Binding("visible", "", function( data ) {
+                            return data.isAuthorized && data.isWas;
+                        }),
+                        new go.Binding("geometry", "histogram", function(histogram) {
+                            return go.Geometry.parse("M30 0 B270 360 30 30 30 30");
+                        })
                     ),
                     self.$(
-                    	go.Shape, {
-                    		stroke: "orange",
-                    		strokeWidth: 4,
-                    		margin : new go.Margin( -28, 0, 0, 0 ),
-                    		visible: true
-                    	},
-						new go.Binding("visible", "", function( data ) {
-							return data.isAuthorized && data.isWas;
-						}),
-                    	new go.Binding("geometry", "histogram", function(histogram) {
-                    		if ( histogram["Slow"] === 0 ) return go.Geometry.parse("M30 0");
-                    		var sum = 0;
-                    		jQuery.each( histogram, function( key, value ) {
-                				sum += value;
-                			});
-                    		return go.Geometry.parse("M30 0 B270 " + (calcuResponseSummaryCircleSize.maxSize - calcuResponseSummaryCircleSize(sum, histogram["Error"])) + " 30 30 30 30");
-                    	})
+                        go.Shape, {
+                            stroke: "orange",
+                            strokeWidth: 4,
+                            margin : new go.Margin( -28, 0, 0, 0 ),
+                            visible: true
+                        },
+                        new go.Binding("visible", "", function( data ) {
+                            return data.isAuthorized && data.isWas;
+                        }),
+                        new go.Binding("geometry", "histogram", function(histogram) {
+                            if ( histogram["Slow"] === 0 ) return go.Geometry.parse("M30 0");
+                            var sum = 0;
+                            jQuery.each( histogram, function( key, value ) {
+                                sum += value;
+                            });
+                            return go.Geometry.parse("M30 0 B270 " + (calcuResponseSummaryCircleSize.maxSize - calcuResponseSummaryCircleSize(sum, histogram["Error"])) + " 30 30 30 30");
+                        })
                     ),
                     self.$(
-                    	go.Shape, {
-                    		stroke : self.$(go.Brush, go.Brush.Linear, { "0.0": "lightgreen", "1.0": "green"}),
-                    		strokeWidth: 4,
-                    		margin : new go.Margin( -28, 0, 0, 0 ),
-                    		visible: true
-                    	},
-						new go.Binding("visible", "", function( data ) {
-							return data.isAuthorized && data.isWas;
-						}),
-                    	new go.Binding("geometry", "histogram", function(histogram) {
-                    		var sum = 0;
-                    		jQuery.each( histogram, function( key, value ) {
-                				sum += value;
-                			});
-                    		var size = calcuResponseSummaryCircleSize.maxSize - calcuResponseSummaryCircleSize(sum, histogram["Slow"]) - calcuResponseSummaryCircleSize(sum, histogram["Error"]);
-                    		if ( size >= 180 ) {
-                    			return go.Geometry.parse("M30 0 B270 " + size + " 30 30 30 30");
-                    		} else {
-                    			return go.Geometry.parse("M30 -60 B270 " + size + " 30 -30 30 30");
-                    		}
+                        go.Shape, {
+                            stroke : self.$(go.Brush, go.Brush.Linear, { "0.0": "lightgreen", "1.0": "green"}),
+                            strokeWidth: 4,
+                            margin : new go.Margin( -28, 0, 0, 0 ),
+                            visible: true
+                        },
+                        new go.Binding("visible", "", function( data ) {
+                            return data.isAuthorized && data.isWas;
+                        }),
+                        new go.Binding("geometry", "histogram", function(histogram) {
+                            var sum = 0;
+                            jQuery.each( histogram, function( key, value ) {
+                                sum += value;
+                            });
+                            var size = calcuResponseSummaryCircleSize.maxSize - calcuResponseSummaryCircleSize(sum, histogram["Slow"]) - calcuResponseSummaryCircleSize(sum, histogram["Error"]);
+                            if ( size >= 180 ) {
+                                return go.Geometry.parse("M30 0 B270 " + size + " 30 30 30 30");
+                            } else {
+                                return go.Geometry.parse("M30 -60 B270 " + size + " 30 -30 30 30");
+                            }
 
-                    	})
+                        })
                     ),
                     self.$(
                         go.Panel,
                         go.Panel.Spot,
                         {
-                        	name: "NODE_PANEL",
+                            name: "NODE_PANEL",
                             alignment: go.Spot.TopLeft,
                             alignmentFocus: go.Spot.TopLeft
                         },
@@ -435,9 +437,9 @@
                                     imageStretch: go.GraphObject.Uniform,
                                     margin: new go.Margin(1, 5, 0, 1)
                                 },
-								new go.Binding("visible", "", function( data ) {
-									return data.isAuthorized && data.hasAlert;
-								})
+                                new go.Binding("visible", "", function( data ) {
+                                    return data.isAuthorized && data.hasAlert;
+                                })
                             ),
                             self.$(
                                 go.Picture,
@@ -508,29 +510,29 @@
                     new go.Binding("visible", "hasAlert")
                 ),
                 self.$(
-                	go.TextBlock, {
-                		name:"NODE_INDEX",
-                		visible: false,
-                		text : "0"
-                	},
-                	new go.Binding("text", "idx")
+                    go.TextBlock, {
+                        name:"NODE_INDEX",
+                        visible: false,
+                        text : "0"
+                    },
+                    new go.Binding("text", "idx")
                 ),
                 self.$(
                     go.TextBlock, {
-                    	name: "NODE_APPLICATION_NAME",
+                        name: "NODE_APPLICATION_NAME",
                         margin: new go.Margin(1, 2),
                         column: 2,
                         font: self.option('sSmallFont'),
                         alignment: go.Spot.Left,
                         click : function(e, obj ) {
-                        	e.bubbles = false;
-                        	if ( obj.part.data.isCollapse ) {
-                        		self._onNodeClicked(e, obj, obj.part.data.unknownNodeGroup[e.targetObject.row].key);
-                        	} else {
-                        		var groupData = obj.part.data.subGroup[parseInt( e.targetObject.panel.findObject("NODE_INDEX").text )];
-                        		self._onNodeSubGroupClicked(e, obj, groupData["groups"][e.targetObject.row].key, groupData.applicationName);
-                        	}
-                        	return false;
+                            e.bubbles = false;
+                            if ( obj.part.data.isCollapse ) {
+                                self._onNodeClicked(e, obj, obj.part.data.unknownNodeGroup[e.targetObject.row].key);
+                            } else {
+                                var groupData = obj.part.data.subGroup[parseInt( e.targetObject.panel.findObject("NODE_INDEX").text )];
+                                self._onNodeSubGroupClicked(e, obj, groupData["groups"][e.targetObject.row].key, groupData.applicationName);
+                            }
+                            return false;
                         }
 
                     },
@@ -553,15 +555,15 @@
                 go.Panel.Vertical,
                 self.$(
                     go.TextBlock, {
-                    	name: "NODE_SUB_APPLICATION_NAME",
+                        name: "NODE_SUB_APPLICATION_NAME",
                         margin: new go.Margin(2, 2),
                         font: "bold 16px avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif"
                     },
                     new go.Binding('text', 'applicationName')
                 ),
                 self.$(
-                	go.Panel,
-                	go.Panel.Table, {
+                    go.Panel,
+                    go.Panel.Table, {
                         padding: 4,
                         minSize: new go.Size(100, 10),
                         defaultStretch: go.GraphObject.Horizontal,
@@ -582,7 +584,7 @@
                         visible: true
                     },
                     new go.Binding("visible", "isLast", function(v) {
-                    	return !v;
+                        return !v;
                     })
                 )
             );
@@ -600,7 +602,7 @@
                             }
                         },
                         doubleClick: function(e, obj) {
-                        	self._onNodeDoubleClicked(e, obj);
+                            self._onNodeDoubleClicked(e, obj);
                         },
                         contextClick: self._onNodeContextClicked.bind(self)
                     },
@@ -618,27 +620,27 @@
                         new go.Binding("key", "key")
                     ),
                     self.$( "Button", {
-                    	alignment: go.Spot.TopLeft,
-                    	width: 20,
-                    	height: 20,
-                    	margin: 2,
-                    	visible : false,
-                    	click: function(e, o) {
-                    		self.analyticsService.send(self.analyticsService.CONST.MAIN, self.analyticsService.CONST.TG_NODE_VIEW);
-                    		e.bubbles = false;
-                    		var isCollapse = o.part.data.isCollapse;
-                    		self._oDiagram.model.setDataProperty( o.part.data, "isCollapse", !isCollapse );
-                    		o.part.findObject("GROUP_BUTTON").text = isCollapse ? " - " : " + ";
-                    	}},
-                    	new go.Binding( "visible", "isMultiGroup" ),
-                    	self.$(
-                    		go.TextBlock, {
-	                    		name: "GROUP_BUTTON",
-	                    		text: " + ",
-	                    		textAlign: "center",
-	                    		font: "bold 14px serif"
-                    		}
-                    	)
+                        alignment: go.Spot.TopLeft,
+                        width: 20,
+                        height: 20,
+                        margin: 2,
+                        visible : false,
+                        click: function(e, o) {
+                            self.analyticsService.send(self.analyticsService.CONST.MAIN, self.analyticsService.CONST.TG_NODE_VIEW);
+                            e.bubbles = false;
+                            var isCollapse = o.part.data.isCollapse;
+                            self._oDiagram.model.setDataProperty( o.part.data, "isCollapse", !isCollapse );
+                            o.part.findObject("GROUP_BUTTON").text = isCollapse ? " - " : " + ";
+                        }},
+                        new go.Binding( "visible", "isMultiGroup" ),
+                        self.$(
+                            go.TextBlock, {
+                                name: "GROUP_BUTTON",
+                                text: " + ",
+                                textAlign: "center",
+                                font: "bold 14px serif"
+                            }
+                        )
                     ),
                     self.$(
                         go.Panel,
@@ -683,7 +685,7 @@
                                 },
                                 new go.Binding("itemArray", "subGroup"),
                                 new go.Binding("visible", "isCollapse", function(v) {
-                                	return !v;
+                                    return !v;
                                 })
                             )
                         )
@@ -727,7 +729,7 @@
             };
 
             _.each(htIcons, function (sVal, sKey) {
-            	if ( sKey.indexOf( "_GROUP" ) != -1 ) {
+                if ( sKey.indexOf( "_GROUP" ) != -1 ) {
                     this._oDiagram.nodeTemplateMap.add(sKey, getUnknownGroupTemplate(sVal));
                 } else {
                     this._oDiagram.nodeTemplateMap.add(sKey, getNodeTemplate(sVal));
@@ -840,7 +842,7 @@
                             self.$(
                                 go.TextBlock,  // the label
                                 {
-                                	name: "LINK_TEXT",
+                                    name: "LINK_TEXT",
                                     textAlign: htOption.fontAlign,
                                     font: htOption.fontFamily,
                                     margin: htOption.margin
@@ -892,7 +894,7 @@
             this._oDiagram.initialContentAlignment = go.Spot.Center;
             this._oDiagram.padding = new go.Margin(htPadding.top, htPadding.right, htPadding.bottom, htPadding.left);
             this._oDiagram.layout = this.$(
-				go.LayeredDigraphLayout,
+                go.LayeredDigraphLayout,
                 {
                     isOngoing: false,
                     layerSpacing: 100,
@@ -943,17 +945,17 @@
          */
         _initOverview: function ( $location ) {
 
-        	if ( /^\/main/.test( $location.path() ) ) {
-	            this._oOverview = this.$( go.Overview,
-	            		this.option('sOverviewId'),
-	            		{ observed: this._oDiagram }
-	            );
-	            this._oOverview.box.elt(0).figure = "RoundedRectangle";
-	            this._oOverview.box.elt(0).stroke = "#53069B";
-	            this._oOverview.box.elt(0).strokeWidth = 4;
-	        } else {
-	        	$( "#" + this.option('sOverviewId') ).hide();
-	        }
+            if ( /^\/main/.test( $location.path() ) ) {
+                this._oOverview = this.$( go.Overview,
+                        this.option('sOverviewId'),
+                        { observed: this._oDiagram }
+                );
+                this._oOverview.box.elt(0).figure = "RoundedRectangle";
+                this._oOverview.box.elt(0).stroke = "#53069B";
+                this._oOverview.box.elt(0).strokeWidth = 4;
+            } else {
+                $( "#" + this.option('sOverviewId') ).hide();
+            }
         },
 
         /**
@@ -984,7 +986,7 @@
          * @method ServerMap#_resetHighlights
          */
         _resetHighlights: function () {
-        	var allNodes = this._oDiagram.nodes;
+            var allNodes = this._oDiagram.nodes;
             var allLinks = this._oDiagram.links;
             while (allNodes.next()) {
                 allNodes.value.highlight = false;
@@ -1100,34 +1102,34 @@
             if (shapeNode === null || textNode === null) {
                 return;
             }
-			var i = 0;
+            var i = 0;
             if (theme) {
-            	shapeNode.stroke = this.option('htHighlightNode').borderColor;
-            	shapeNode.strokeWidth = 2;
-            	shapeNode.part.isShadowed = true;
+                shapeNode.stroke = this.option('htHighlightNode').borderColor;
+                shapeNode.strokeWidth = 2;
+                shapeNode.part.isShadowed = true;
 
-            	var reg = new RegExp( this._query, "i" );
-            	var highlightFont = this.option('htHighlightNode').fontColor;
-            	var defaultFont = this.option('htNodeTheme')["default"].fontColor;
+                var reg = new RegExp( this._query, "i" );
+                var highlightFont = this.option('htHighlightNode').fontColor;
+                var defaultFont = this.option('htNodeTheme')["default"].fontColor;
                 if ( this._query !== "" ) {
-	                if ( angular.isDefined( textNode.rowCount ) ) {
-	                	for( i = 0 ; i < textNode.rowCount ; i++ ) {
-	                		var innerTextNode = textNode.elt(i).elt(2);
-	                		innerTextNode.stroke = reg.test( innerTextNode.text ) ? highlightFont : defaultFont;
-	                	}
+                    if ( angular.isDefined( textNode.rowCount ) ) {
+                        for( i = 0 ; i < textNode.rowCount ; i++ ) {
+                            var innerTextNode = textNode.elt(i).elt(2);
+                            innerTextNode.stroke = reg.test( innerTextNode.text ) ? highlightFont : defaultFont;
+                        }
 
-	                	var nodeSubTextNode = textNode.panel.findObject("NODE_SUB_TEXT");
-	                	var length = nodeSubTextNode.elements.count;
-	                	for( i = 0 ; i < length ; i++ ) {
-	                		var innerTableNode = nodeSubTextNode.elt(i).elt(1);
-                			for( var j = 0 ; j < innerTableNode.elements.count ; j++ ) {
-                				var innerSubTextNode = innerTableNode.elt(j).elt(2);
-                				innerSubTextNode.stroke = reg.test( innerSubTextNode.text ) ? highlightFont : defaultFont;
-                			}
-	                	}
-	                } else {
-	                	textNode.stroke = reg.test( textNode.text ) ? highlightFont : defaultFont;
-	                }
+                        var nodeSubTextNode = textNode.panel.findObject("NODE_SUB_TEXT");
+                        var length = nodeSubTextNode.elements.count;
+                        for( i = 0 ; i < length ; i++ ) {
+                            var innerTableNode = nodeSubTextNode.elt(i).elt(1);
+                            for( var j = 0 ; j < innerTableNode.elements.count ; j++ ) {
+                                var innerSubTextNode = innerTableNode.elt(j).elt(2);
+                                innerSubTextNode.stroke = reg.test( innerSubTextNode.text ) ? highlightFont : defaultFont;
+                            }
+                        }
+                    } else {
+                        textNode.stroke = reg.test( textNode.text ) ? highlightFont : defaultFont;
+                    }
                 }
             } else {
                 var type = (shapeNode.key === this.option('sBoldKey')) ? 'bold' : 'default';
@@ -1136,11 +1138,11 @@
                 shapeNode.part.isShadowed = false;
 
                 if ( angular.isDefined( textNode.rowCount ) ) {
-                	for( i = 0 ; i < textNode.rowCount ; i++ ) {
-                		textNode.elt(i).elt(2).stroke = this.option('htNodeTheme')[type].fontColor;
-                	}
+                    for( i = 0 ; i < textNode.rowCount ; i++ ) {
+                        textNode.elt(i).elt(2).stroke = this.option('htNodeTheme')[type].fontColor;
+                    }
                 } else {
-                	textNode.stroke = this.option('htNodeTheme')[type].fontColor;
+                    textNode.stroke = this.option('htNodeTheme')[type].fontColor;
                 }
             }
         },
@@ -1171,11 +1173,11 @@
             }
         },
         _highlightLinkText: function( nodeText, highlight ) {
-        	if ( highlight ) {
-        		nodeText.font = this.option('htHighlightLink').fontFamily;
-        	} else {
-        		nodeText.font = this.option('htLinkTheme')["default"].fontFamily;
-        	}
+            if ( highlight ) {
+                nodeText.font = this.option('htHighlightLink').fontFamily;
+            } else {
+                nodeText.font = this.option('htLinkTheme')["default"].fontFamily;
+            }
         },
 
         /**
@@ -1267,10 +1269,10 @@
         _onNodeSubGroupClicked: function(e, obj, unknownKey, fromName) {
             var node = obj.part,
             fOnNodeSubGroupClicked = this.option('fOnNodeSubGroupClicked');
-	        if (angular.isFunction(fOnNodeSubGroupClicked)) {
-	        	this.analyticsService.send(this.analyticsService.CONST.MAIN, this.analyticsService.CONST.CLK_NODE);
-	        	fOnNodeSubGroupClicked.call(this, e, node, unknownKey, fromName);
-	        }
+            if (angular.isFunction(fOnNodeSubGroupClicked)) {
+                this.analyticsService.send(this.analyticsService.CONST.MAIN, this.analyticsService.CONST.CLK_NODE);
+                fOnNodeSubGroupClicked.call(this, e, node, unknownKey, fromName);
+            }
         },
         /**
          * event of node click
@@ -1285,9 +1287,9 @@
                 htData = node.data,
                 fOnNodeClicked = this.option('fOnNodeClicked');
             if (angular.isFunction(fOnNodeClicked)) {
-				if ( e.clickCount && e.clickCount > 0 ) {
-					this.analyticsService.send(this.analyticsService.CONST.MAIN, this.analyticsService.CONST.CLK_NODE);
-				}
+                if ( e.clickCount && e.clickCount > 0 ) {
+                    this.analyticsService.send(this.analyticsService.CONST.MAIN, this.analyticsService.CONST.CLK_NODE);
+                }
                 fOnNodeClicked.call(this, e, htData, unknownKey, query);
             }
         },
@@ -1302,9 +1304,9 @@
             var node = obj.part,
             htData = node.data,
             fOnNodeDoubleClicked = this.option('fOnNodeDoubleClicked');
-	        if (angular.isFunction(fOnNodeDoubleClicked)) {
-	            fOnNodeDoubleClicked.call(this, e, node, htData);
-	        }
+            if (angular.isFunction(fOnNodeDoubleClicked)) {
+                fOnNodeDoubleClicked.call(this, e, node, htData);
+            }
         },
 
         /**
@@ -1335,7 +1337,7 @@
                 htData = link.data,
                 fOnLinkClicked = this.option('fOnLinkClicked');
             if (angular.isFunction(fOnLinkClicked)) {
-            	this.analyticsService.send(this.analyticsService.CONST.MAIN, this.analyticsService.CONST.CLK_LINK);
+                this.analyticsService.send(this.analyticsService.CONST.MAIN, this.analyticsService.CONST.CLK_LINK);
                 htData.fromNode = obj.fromNode.part.data;
                 htData.toNode = obj.toNode.part.data;
                 fOnLinkClicked.call(this, e, htData);
@@ -1373,49 +1375,49 @@
             this._oDiagram.contentAlignment = go.Spot.None;
         },
         clearQuery: function() {
-        	this._query = "";
+            this._query = "";
         },
         searchNode: function( query, nodeServiceType ) {
-        	this._query = query;
-        	var allNodes = this._oDiagram.nodes,
-        		selectedNode = null,
-        		selectedIndex = 0,
-        		similarNodeList = [],
-        		returnNodeDataList = [],
-        		reg = new RegExp( query, "i" );
+            this._query = query;
+            var allNodes = this._oDiagram.nodes,
+                selectedNode = null,
+                selectedIndex = 0,
+                similarNodeList = [],
+                returnNodeDataList = [],
+                reg = new RegExp( query, "i" );
 
             while (allNodes.next()) {
                 var node = allNodes.value;
                 if ( node.data.unknownNodeGroup ) {
-                	var unknownNodeGroup = node.data.unknownNodeGroup;
-                	for( var i = 0; i < unknownNodeGroup.length ; i++ ) {
-                		if ( reg.test( unknownNodeGroup[i].applicationName ) ) {
-                			this._addNodeToTemporaryList( similarNodeList, returnNodeDataList, node, unknownNodeGroup[i], this.option("unknownGroupName") );
-                		}
-                	}
+                    var unknownNodeGroup = node.data.unknownNodeGroup;
+                    for( var i = 0; i < unknownNodeGroup.length ; i++ ) {
+                        if ( reg.test( unknownNodeGroup[i].applicationName ) ) {
+                            this._addNodeToTemporaryList( similarNodeList, returnNodeDataList, node, unknownNodeGroup[i], this.option("unknownGroupName") );
+                        }
+                    }
                 } else {
-	                if ( !angular.isUndefined( node.data.applicationName ) ) {
-		                if ( reg.test( node.data.applicationName ) ) {
-		                	this._addNodeToTemporaryList( similarNodeList, returnNodeDataList, node, node.data );
-		                }
-	                }
+                    if ( !angular.isUndefined( node.data.applicationName ) ) {
+                        if ( reg.test( node.data.applicationName ) ) {
+                            this._addNodeToTemporaryList( similarNodeList, returnNodeDataList, node, node.data );
+                        }
+                    }
                 }
             }
-           	this._selectAndHighlight( similarNodeList[selectedIndex] );
+               this._selectAndHighlight( similarNodeList[selectedIndex] );
             if ( angular.isUndefined ( nodeServiceType ) ) {
-            	return returnNodeDataList;
+                return returnNodeDataList;
             }
         },
         _addNodeToTemporaryList : function( similarNodeList, returnNodeDataList, node, nodeData, serviceType ) {
-        	similarNodeList.push( node );
-    		returnNodeDataList.push({
-        		applicationName: nodeData.applicationName,
-        		serviceType: serviceType || nodeData.serviceType
-        	});
+            similarNodeList.push( node );
+            returnNodeDataList.push({
+                applicationName: nodeData.applicationName,
+                serviceType: serviceType || nodeData.serviceType
+            });
         },
         _selectAndHighlight : function( selectedNode ) {
-        	this._oDiagram.clearSelection();
-        	this._oDiagram.select( selectedNode );
+            this._oDiagram.clearSelection();
+            this._oDiagram.select( selectedNode );
             this._oDiagram.centerRect( selectedNode.actualBounds );
             this._onNodeClicked(null, selectedNode, null, this._query );
         }

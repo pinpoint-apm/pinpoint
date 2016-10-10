@@ -142,6 +142,15 @@
             <artifactId>cxf-rt-transports-http</artifactId>
             <version>${cxf.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.8.11.2</version>
+            <!--
+            <version>3.7.2</version>
+            -->
+        </dependency>
     </dependencies>
 
     <build>
