@@ -168,7 +168,7 @@
 	                    var cpuLoad = { id: 'cpuLoad', title: 'JVM/System Cpu Usage', span: 'span12', isAvailable: false};
 
 	                    var tps = { id: 'tps', title: 'Transactions Per Second', span: 'span12', isAvailable: false };
-	                    var activeTrace = { id: "activeTrace", title: "Active Trace Chart", span: "span12", isAvailable: false};
+	                    var activeTrace = { id: "activeTrace", title: "Active Thread Chart", span: "span12", isAvailable: false};
 
 	                    scope.memoryGroup = [ heap, nonheap ];
 	                    scope.cpuLoadChart = cpuLoad;

@@ -72,6 +72,7 @@
 				},
 				link: function (scope, element, attrs) {
 					var oNavbarVoService = null, htScatterSet = {}, htLastNode = null;
+					var enableRealtime = attrs["enableRealtime"] == "true" ? true : false;
 
 					function makeScatter(target, application, w, h, scatterData) {
 						// var from = oNavbarVoService.getQueryStartTime();
@@ -91,7 +92,7 @@
 						options.maxX = to;
 						options.errorImage = cfg.images.error;
 						// options.realtime = isRealtime();
-						options.realtime = UrlVoService.isRealtime();
+						options.realtime = UrlVoService.isRealtime() && enableRealtime;
 
 						var oScatterChart = new BigScatterChart2(options, getAgentList(scatterData), [
 							new BigScatterChart2.SettingPlugin( cfg.images.config ).addCallback( function( oChart, oValue ) {
@@ -105,7 +106,7 @@
 							}),
 							new BigScatterChart2.WideOpenPlugin( cfg.images.fullscreen ).addCallback( function() {
 								// var partialURL = oNavbarVoService.isRealtime() ? "realtime/" + oNavbarVoService.getQueryEndDateTime() : oNavbarVoService.getPartialURL( false, true );
-								var partialURL = UrlVoService.isRealtime() ? "realtime/" + UrlVoService.getQueryEndDateTime() : UrlVoService.getPartialURL( false, true );
+								var partialURL = UrlVoService.isRealtime() && enableRealtime ? "realtime/" + UrlVoService.getQueryEndDateTime() : UrlVoService.getPartialURL( false, true );
 								$window.open( "#/scatterFullScreenMode/" + htLastNode.applicationName + "@" + htLastNode.serviceType + "/" + partialURL + "/" + getAgentList().join(","), "width=900, height=700, resizable=yes");
 							}),
 							new BigScatterChart2.HelpPlugin( tooltipService )
@@ -135,7 +136,7 @@
 							if (angular.isUndefined(scatterData)) {
 								oScatterChart.drawWithDataSource( new BigScatterChart2.DataLoadManager( applicationName, filter, {
 									"url": cfg.scatterDataUrl,
-									"realtime": UrlVoService.isRealtime(),
+									"realtime": UrlVoService.isRealtime() && enableRealtime,
 									"realtimeInterval": 2000,
 									"realtimeDefaultTimeGap": 3000,
 									"realtimeResetTimeGap": 20000,
@@ -160,7 +161,7 @@
 						pauseScatterAll();
 						if ( angular.isDefined(htScatterSet[application]) ) {
 							htScatterSet[application].target.show();
-							if ( UrlVoService.isRealtime() ) {
+							if ( UrlVoService.isRealtime() && enableRealtime ) {
 								commonAjaxService.getServerTime( function( serverTime ) {
 									// serverTime -= 3000;
 									htScatterSet[application].scatter.resume( serverTime - preferenceService.getRealtimeScatterXRange(), serverTime );

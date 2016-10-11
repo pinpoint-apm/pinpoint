@@ -63,7 +63,7 @@
                                     "gridAlpha": 0,
                                     "axisAlpha": 1,
                                     "position": "left",
-                                    "title": "Active Trace",
+                                    "title": "Active Thread",
                                     "minimum" : 0
                                 }
                             ],
