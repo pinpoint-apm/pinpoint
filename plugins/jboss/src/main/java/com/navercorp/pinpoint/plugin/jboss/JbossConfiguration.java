@@ -34,6 +34,7 @@ public class JbossConfiguration {
 
     /** The jboss trace ejb. */
     private final boolean jbossTraceEjb;
+    private final boolean jbossEnable;
 
     /**
      * Instantiates a new jboss configuration.
@@ -41,9 +42,14 @@ public class JbossConfiguration {
      * @param config the config
      */
     public JbossConfiguration(final ProfilerConfig config) {
+        this.jbossEnable = config.readBoolean("profiler.jboss.enable", true);
         this.jbossHidePinpointHeader = config.isJbossHidePinpointHeader();
         this.jbossExcludeUrlFilter = config.getJbossExcludeUrlFilter();
         this.jbossTraceEjb = config.isJbossTraceEjb();
+    }
+
+    public boolean isJbossEnable() {
+        return jbossEnable;
     }
 
     /**
@@ -73,4 +79,14 @@ public class JbossConfiguration {
         return jbossTraceEjb;
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("JbossConfiguration{");
+        sb.append("jbossHidePinpointHeader=").append(jbossHidePinpointHeader);
+        sb.append(", jbossExcludeUrlFilter=").append(jbossExcludeUrlFilter);
+        sb.append(", jbossTraceEjb=").append(jbossTraceEjb);
+        sb.append(", jbossEnable=").append(jbossEnable);
+        sb.append('}');
+        return sb.toString();
+    }
 }

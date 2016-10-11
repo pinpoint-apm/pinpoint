@@ -26,6 +26,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
@@ -35,6 +37,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
  * @author <a href="mailto:suraj.raturi89@gmail.com">Suraj Raturi</a>
  */
 public class JbossPlugin implements ProfilerPlugin, TransformTemplateAware {
+
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     /** The transform template. */
     private TransformTemplate transformTemplate;
@@ -48,6 +52,14 @@ public class JbossPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(final ProfilerPluginSetupContext context) {
         final JbossConfiguration jbossConfiguration = new JbossConfiguration(context.getConfig());
+        if (logger.isInfoEnabled()) {
+            logger.info("JBossPlugin config:{}", jbossConfiguration);
+        }
+        if (!jbossConfiguration.isJbossEnable()) {
+            logger.info("JBossPlugin disabled");
+            return;
+        }
+
         // Instrumenting class on the base of ejb based application or rest based application.
         if (jbossConfiguration.isJbossTraceEjb()) {
             addMethodInvocationMessageHandlerEditor();
