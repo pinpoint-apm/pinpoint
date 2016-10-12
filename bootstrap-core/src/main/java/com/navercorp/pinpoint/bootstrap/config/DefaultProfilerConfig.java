@@ -43,6 +43,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private final Properties properties;
     private final PropertyPlaceholderHelper propertyPlaceholderHelper = new PropertyPlaceholderHelper("${", "}");
 
+    public static final String INSTRUMENT_ENGINE_JAVASSIST = "JAVASSIST";
+    public static final String INSTRUMENT_ENGINE_ASM = "ASM";
+
     public interface ValueResolver {
         String resolve(String value, Properties properties);
     }
@@ -85,7 +88,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private boolean profileEnable = false;
 
-    private boolean profileInstrumentASM = false;
+    private String profileInstrumentEngine = "JAVASSIST";
 
     private int interceptorRegistrySize = 1024*8;
 
@@ -127,43 +130,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private String tomcatRealIpEmptyValue;
     private Filter<String> tomcatExcludeProfileMethodFilter = new SkipFilter<String>();
 
-    private boolean ibatis = true;
-
-    private boolean mybatis = true;
-
-    private boolean redis = true;
-    private boolean redisPipeline = true;
-
-    /**
-     * apache http client 3
-     */
-    private boolean apacheHttpClient3Profile = true;
-    private boolean apacheHttpClient3ProfileCookie = false;
-    private DumpType apacheHttpClient3ProfileCookieDumpType = DumpType.EXCEPTION;
-    private int apacheHttpClient3ProfileCookieSamplingRate = 1;
-    private boolean apacheHttpClient3ProfileEntity = false;
-    private DumpType apacheHttpClient3ProfileEntityDumpType = DumpType.EXCEPTION;
-    private int apacheHttpClient3ProfileEntitySamplingRate = 1;
-    private boolean apacheHttpClient3ProfileIo = true;
-    
-    /**
-     * apache http client 4
-     */
-    private boolean apacheHttpClient4Profile = true;
-    private boolean apacheHttpClient4ProfileCookie = false;
-    private DumpType apacheHttpClient4ProfileCookieDumpType = DumpType.EXCEPTION;
-    private int apacheHttpClient4ProfileCookieSamplingRate = 1;
-    private boolean apacheHttpClient4ProfileEntity = false;
-    private DumpType apacheHttpClient4ProfileEntityDumpType = DumpType.EXCEPTION;
-    private int apacheHttpClient4ProfileEntitySamplingRate = 1;
-    private boolean apacheHttpClient4ProfileStatusCode = true;
-    private boolean apacheHttpClient4ProfileIo = true;
-
-    /**
-     * apache nio http client
-     */
-    private boolean apacheNIOHttpClient4Profile = true;
-
     // Sampling
     private boolean samplingEnable = true;
     private int samplingRate = 1;
@@ -184,10 +150,19 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private String applicationServerType;
     private List<String> applicationTypeDetectOrder = Collections.emptyList();
     private List<String> disabledPlugins = Collections.emptyList();
-    private boolean log4jLoggingTransactionInfo;
-    private boolean logbackLoggingTransactionInfo;
-    
+
     private boolean propagateInterceptorException = false;
+
+    /**
+     * jboss plugin configuration
+     */
+    private boolean jbossTraceEjb = false;
+    private String jbossRealIpHeader;
+    private String jbossRealIpEmptyValue;
+    private boolean jbossTraceRequestParam = true;
+    private Filter<String> jbossExcludeProfileMethodFilter = new SkipFilter<String>();
+    private boolean jbossHidePinpointHeader = true;
+    private Filter<String> jbossExcludeUrlFilter = new SkipFilter<String>();
 
     public DefaultProfilerConfig() {
         this.properties = new Properties();
@@ -352,7 +327,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return profilerJvmCollectDetailedMetrics;
     }
 
-    @Override
     public void setProfilerJvmCollectDetailedMetrics(boolean profilerJvmCollectDetailedMetrics) {
         this.profilerJvmCollectDetailedMetrics = profilerJvmCollectDetailedMetrics;
     }
@@ -392,122 +366,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return tomcatExcludeProfileMethodFilter;
     }
 
-    //-----------------------------------------
-    // http apache client 3
-
-    @Override
-    public boolean isApacheHttpClient3Profile() {
-        return apacheHttpClient3Profile;
-    }
-    
-    @Override
-    public boolean isApacheHttpClient3ProfileCookie() {
-        return apacheHttpClient3ProfileCookie;
-    }
-
-    @Override
-    public DumpType getApacheHttpClient3ProfileCookieDumpType() {
-        return apacheHttpClient3ProfileCookieDumpType;
-    }
-
-    @Override
-    public int getApacheHttpClient3ProfileCookieSamplingRate() {
-        return apacheHttpClient3ProfileCookieSamplingRate;
-    }
-
-    @Override
-    public boolean isApacheHttpClient3ProfileEntity() {
-        return apacheHttpClient3ProfileEntity;
-    }
-
-    @Override
-    public DumpType getApacheHttpClient3ProfileEntityDumpType() {
-        return apacheHttpClient3ProfileEntityDumpType;
-    }
-
-    @Override
-    public int getApacheHttpClient3ProfileEntitySamplingRate() {
-        return apacheHttpClient3ProfileEntitySamplingRate;
-    }
-    
-    @Override
-    public boolean isApacheHttpClient3ProfileIo() {
-        return apacheHttpClient3ProfileIo;
-    }
-    
-    //-----------------------------------------
-    // http apache client 4
-    @Override
-    public boolean isApacheHttpClient4Profile() {
-        return apacheHttpClient4Profile;
-    }
-
-    @Override
-    public boolean isApacheHttpClient4ProfileCookie() {
-        return apacheHttpClient4ProfileCookie;
-    }
-
-    @Override
-    public DumpType getApacheHttpClient4ProfileCookieDumpType() {
-        return apacheHttpClient4ProfileCookieDumpType;
-    }
-
-    @Override
-    public int getApacheHttpClient4ProfileCookieSamplingRate() {
-        return apacheHttpClient4ProfileCookieSamplingRate;
-    }
-
-    @Override
-    public boolean isApacheHttpClient4ProfileEntity() {
-        return apacheHttpClient4ProfileEntity;
-    }
-
-    @Override
-    public DumpType getApacheHttpClient4ProfileEntityDumpType() {
-        return apacheHttpClient4ProfileEntityDumpType;
-    }
-
-    @Override
-    public int getApacheHttpClient4ProfileEntitySamplingRate() {
-        return apacheHttpClient4ProfileEntitySamplingRate;
-    }
-    
-    @Override
-    public boolean isApacheHttpClient4ProfileStatusCode() {
-        return apacheHttpClient4ProfileStatusCode;
-    }
-    
-    @Override
-    public boolean isApacheHttpClient4ProfileIo() {
-        return apacheHttpClient4ProfileIo;
-    }
-
-    //-----------------------------------------
-    // org/apache/http/impl/nio/*
-    @Override
-    public boolean getApacheNIOHttpClient4Profile() {
-        return apacheNIOHttpClient4Profile;
-    }
-
-    @Override
-    public boolean isIBatisEnabled() {
-        return ibatis;
-    }
-
-    @Override
-    public boolean isMyBatisEnabled() {
-        return mybatis;
-    }
-
-    @Override
-    public boolean isRedisEnabled() {
-        return redis;
-    }
-
-    @Override
-    public boolean isRedisPipelineEnabled() {
-        return redisPipeline;
-    }
 
     @Override
     public Filter<String> getProfilableClassFilter() {
@@ -525,37 +383,20 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
-    public void setDisabledPlugins(List<String> disabledPlugins) {
-        this.disabledPlugins = disabledPlugins;
-    }
-
-    @Override
     public String getApplicationServerType() {
         return applicationServerType;
     }
 
-    @Override
     public void setApplicationServerType(String applicationServerType) {
         this.applicationServerType = applicationServerType;
     }
     
-    @Override
-    public boolean isLog4jLoggingTransactionInfo() {
-        return this.log4jLoggingTransactionInfo;
-    }
-    
 
-    @Override
-    public boolean isLogbackLoggingTransactionInfo() {
-        return this.logbackLoggingTransactionInfo;
-    }
-    
     @Override
     public int getCallStackMaxDepth() {
         return callStackMaxDepth;
     }
 
-    @Override
     public void setCallStackMaxDepth(int callStackMaxDepth) {
         this.callStackMaxDepth = callStackMaxDepth;
     }
@@ -566,8 +407,43 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
-    public boolean isProfileInstrumentASM() {
-        return profileInstrumentASM;
+    public String getProfileInstrumentEngine() {
+        return profileInstrumentEngine;
+    }
+
+    @Override
+    public boolean isJbossTraceEjb() {
+        return jbossTraceEjb;
+    }
+
+    @Override
+    public String getJbossRealIpHeader() {
+        return jbossRealIpHeader;
+    }
+
+    @Override
+    public String getJbossRealIpEmptyValue() {
+        return jbossRealIpEmptyValue;
+    }
+
+    @Override
+    public boolean isJbossTraceRequestParam() {
+        return jbossTraceRequestParam;
+    }
+
+    @Override
+    public Filter<String> getJbossExcludeProfileMethodFilter() {
+        return jbossExcludeProfileMethodFilter;
+    }
+
+    @Override
+    public boolean isJbossHidePinpointHeader() {
+        return jbossHidePinpointHeader;
+    }
+
+    @Override
+    public Filter<String> getJbossExcludeUrlFilter() {
+        return jbossExcludeUrlFilter;
     }
 
     // for test
@@ -576,7 +452,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         final ValueResolver placeHolderResolver = new PlaceHolderResolver();
 
         this.profileEnable = readBoolean("profiler.enable", true);
-        this.profileInstrumentASM = readBoolean("profiler.instrument.asm", false);
+        this.profileInstrumentEngine = readString("profiler.instrument.engine", INSTRUMENT_ENGINE_JAVASSIST);
 
         this.interceptorRegistrySize = readInt("profiler.interceptorregistry.size", 1024*8);
 
@@ -629,54 +505,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
             this.tomcatExcludeProfileMethodFilter = new ExcludeMethodFilter(tomcatExcludeProfileMethod);
         }
 
-        /**
-         * apache http client 3
-         */
-        this.apacheHttpClient3Profile = readBoolean("profiler.apache.httpclient3", true);
-        this.apacheHttpClient3ProfileCookie = readBoolean("profiler.apache.httpclient3.cookie", false);
-        this.apacheHttpClient3ProfileCookieDumpType = readDumpType("profiler.apache.httpclient3.cookie.dumptype", DumpType.EXCEPTION);
-        this.apacheHttpClient3ProfileCookieSamplingRate = readInt("profiler.apache.httpclient3.cookie.sampling.rate", 1);
-
-        this.apacheHttpClient3ProfileEntity = readBoolean("profiler.apache.httpclient3.entity", false);
-        this.apacheHttpClient3ProfileEntityDumpType = readDumpType("profiler.apache.httpclient3.entity.dumptype", DumpType.EXCEPTION);
-        this.apacheHttpClient3ProfileEntitySamplingRate = readInt("profiler.apache.httpclient3.entity.sampling.rate", 1);
-        this.apacheHttpClient3ProfileIo = readBoolean("profiler.apache.httpclient3.io", true);
-        /**
-         * apache http client 4
-         */
-        this.apacheHttpClient4Profile = readBoolean("profiler.apache.httpclient4", true);
-        this.apacheHttpClient4ProfileCookie = readBoolean("profiler.apache.httpclient4.cookie", false);
-        this.apacheHttpClient4ProfileCookieDumpType = readDumpType("profiler.apache.httpclient4.cookie.dumptype", DumpType.EXCEPTION);
-        this.apacheHttpClient4ProfileCookieSamplingRate = readInt("profiler.apache.httpclient4.cookie.sampling.rate", 1);
-
-        this.apacheHttpClient4ProfileEntity = readBoolean("profiler.apache.httpclient4.entity", false);
-        this.apacheHttpClient4ProfileEntityDumpType = readDumpType("profiler.apache.httpclient4.entity.dumptype", DumpType.EXCEPTION);
-        this.apacheHttpClient4ProfileEntitySamplingRate = readInt("profiler.apache.httpclient4.entity.sampling.rate", 1);
-
-        this.apacheHttpClient4ProfileStatusCode = readBoolean("profiler.apache.httpclient4.entity.statuscode", true);
-        this.apacheHttpClient4ProfileIo = readBoolean("profiler.apache.httpclient4.io", true);
-        /**
-         * apache nio http client
-         */
-        this.apacheNIOHttpClient4Profile = readBoolean("profiler.apache.nio.httpclient4", true);
-
-        /**
-         * log4j
-         */
-        this.log4jLoggingTransactionInfo = readBoolean("profiler.log4j.logging.transactioninfo", false);
-        
-        /**
-         * logback
-         */
-        this.logbackLoggingTransactionInfo = readBoolean("profiler.logback.logging.transactioninfo", false);
-        
-        // redis & nBase-ARC
-        this.redis = readBoolean("profiler.redis", true);
-        this.redisPipeline = readBoolean("profiler.redis.pipeline", true);
-
-        this.ibatis = readBoolean("profiler.orm.ibatis", true);
-
-        this.mybatis = readBoolean("profiler.orm.mybatis", true);
 
         this.samplingEnable = readBoolean("profiler.sampling.enable", true);
         this.samplingRate = readInt("profiler.sampling.rate", 1);
@@ -712,6 +540,24 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         }
         
         this.propagateInterceptorException = readBoolean("profiler.interceptor.exception.propagate", false);
+
+        /**
+         * jboss plugin configuration initialization
+         */
+        this.jbossTraceEjb = readBoolean("profiler.jboss.traceEjb", false);
+        this.jbossHidePinpointHeader = readBoolean("profiler.jboss.hidepinpointheader", true);
+        this.jbossRealIpHeader = readString("profiler.jboss.realipheader", null);
+        this.jbossRealIpEmptyValue = readString("profiler.jboss.realipemptyvalue", null);
+        this.jbossTraceRequestParam = readBoolean("profiler.jboss.tracerequestparam", true);
+        final String jbossExcludeURL = readString("profiler.jboss.excludeurl", "");
+        if (!jbossExcludeURL.isEmpty()) {
+            this.jbossExcludeUrlFilter = new ExcludePathFilter(jbossExcludeURL);
+        }
+
+        final String jbossExcludeProfileMethod = readString("profiler.jboss.excludemethod", "");
+        if (!jbossExcludeProfileMethod.isEmpty()) {
+            this.jbossExcludeProfileMethodFilter = new ExcludeMethodFilter(jbossExcludeProfileMethod);
+        }
 
         logger.info("configuration loaded successfully.");
     }
@@ -816,8 +662,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("{properties=");
+        StringBuilder builder = new StringBuilder(1024);
+        builder.append("DefaultProfilerConfig{properties=");
         builder.append(properties);
         builder.append(", interceptorRegistrySize=");
         builder.append(interceptorRegistrySize);
@@ -877,50 +723,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append(tomcatExcludeUrlFilter);
         builder.append(", tomcatExcludeProfileMethodFilter=");
         builder.append(tomcatExcludeProfileMethodFilter);
-        builder.append(", ibatis=");
-        builder.append(ibatis);
-        builder.append(", mybatis=");
-        builder.append(mybatis);
-        builder.append(", redis=");
-        builder.append(redis);
-        builder.append(", redisPipeline=");
-        builder.append(redisPipeline);
-        builder.append(", apacheHttpClient3Profile=");
-        builder.append(apacheHttpClient3Profile);
-        builder.append(", apacheHttpClient3ProfileCookie=");
-        builder.append(apacheHttpClient3ProfileCookie);
-        builder.append(", apacheHttpClient3ProfileCookieDumpType=");
-        builder.append(apacheHttpClient3ProfileCookieDumpType);
-        builder.append(", apacheHttpClient3ProfileCookieSamplingRate=");
-        builder.append(apacheHttpClient3ProfileCookieSamplingRate);
-        builder.append(", apacheHttpClient3ProfileEntity=");
-        builder.append(apacheHttpClient3ProfileEntity);
-        builder.append(", apacheHttpClient3ProfileEntityDumpType=");
-        builder.append(apacheHttpClient3ProfileEntityDumpType);
-        builder.append(", apacheHttpClient3ProfileEntitySamplingRate=");
-        builder.append(apacheHttpClient3ProfileEntitySamplingRate);
-        builder.append(", apacheHttpClient3ProfileIo=");
-        builder.append(apacheHttpClient3ProfileIo);
-        builder.append(", apacheHttpClient4Profile=");
-        builder.append(apacheHttpClient4Profile);
-        builder.append(", apacheHttpClient4ProfileCookie=");
-        builder.append(apacheHttpClient4ProfileCookie);
-        builder.append(", apacheHttpClient4ProfileCookieDumpType=");
-        builder.append(apacheHttpClient4ProfileCookieDumpType);
-        builder.append(", apacheHttpClient4ProfileCookieSamplingRate=");
-        builder.append(apacheHttpClient4ProfileCookieSamplingRate);
-        builder.append(", apacheHttpClient4ProfileEntity=");
-        builder.append(apacheHttpClient4ProfileEntity);
-        builder.append(", apacheHttpClient4ProfileEntityDumpType=");
-        builder.append(apacheHttpClient4ProfileEntityDumpType);
-        builder.append(", apacheHttpClient4ProfileEntitySamplingRate=");
-        builder.append(apacheHttpClient4ProfileEntitySamplingRate);
-        builder.append(", apacheHttpClient4ProfileStatusCode=");
-        builder.append(apacheHttpClient4ProfileStatusCode);
-        builder.append(", apacheHttpClient4ProfileIo=");
-        builder.append(apacheHttpClient4ProfileIo);
-        builder.append(", apacheNIOHttpClient4Profile=");
-        builder.append(apacheNIOHttpClient4Profile);
         builder.append(", samplingEnable=");
         builder.append(samplingEnable);
         builder.append(", samplingRate=");
@@ -943,10 +745,20 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append(applicationTypeDetectOrder);
         builder.append(", disabledPlugins=");
         builder.append(disabledPlugins);
-        builder.append(", log4jLoggingTransactionInfo=");
-        builder.append(log4jLoggingTransactionInfo);
-        builder.append(", logbackLoggingTransactionInfo=");
-        builder.append(logbackLoggingTransactionInfo);
+        builder.append(", jbossTraceEjb=");
+        builder.append(jbossTraceEjb);
+        builder.append(", jbossHidePinpointHeader=");
+        builder.append(jbossHidePinpointHeader);
+        builder.append(", jbossTraceRequestParam=");
+        builder.append(jbossTraceRequestParam);
+        builder.append(", jbossExcludeUrlFilter=");
+        builder.append(jbossExcludeUrlFilter);
+        builder.append(", jbossExcludeProfileMethodFilter=");
+        builder.append(jbossExcludeProfileMethodFilter);
+        builder.append(", jbossRealIpHeader=");
+        builder.append(jbossRealIpHeader);
+        builder.append(", jbossRealIpEmptyValue=");
+        builder.append(jbossRealIpEmptyValue);
         builder.append("}");
         return builder.toString();
     }

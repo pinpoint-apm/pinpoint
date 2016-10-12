@@ -34,7 +34,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.instrument.ClassFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
@@ -263,7 +262,7 @@ public class JavassistClassTest {
     private TestClassLoader getTestClassLoader() {
         PLoggerFactory.initialize(new Slf4jLoggerBinder());
 
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
+        DefaultProfilerConfig profilerConfig = new DefaultProfilerConfig();
         profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
         DefaultAgent agent = MockAgent.of(profilerConfig);
 

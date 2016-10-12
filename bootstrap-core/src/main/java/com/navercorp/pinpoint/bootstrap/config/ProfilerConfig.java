@@ -83,8 +83,6 @@ public interface ProfilerConfig {
 
     boolean isProfilerJvmCollectDetailedMetrics();
 
-    void setProfilerJvmCollectDetailedMetrics(boolean profilerJvmCollectDetailedMetrics);
-
     long getAgentInfoSendRetryInterval();
 
     boolean isTomcatHidePinpointHeader();
@@ -99,77 +97,19 @@ public interface ProfilerConfig {
 
     Filter<String> getTomcatExcludeProfileMethodFilter();
 
-    boolean isApacheHttpClient3Profile();
-
-    boolean isApacheHttpClient3ProfileCookie();
-
-    DumpType getApacheHttpClient3ProfileCookieDumpType();
-
-    int getApacheHttpClient3ProfileCookieSamplingRate();
-
-    boolean isApacheHttpClient3ProfileEntity();
-
-    DumpType getApacheHttpClient3ProfileEntityDumpType();
-
-    int getApacheHttpClient3ProfileEntitySamplingRate();
-
-    boolean isApacheHttpClient3ProfileIo();
-
-    //-----------------------------------------
-    // http apache client 4
-    boolean isApacheHttpClient4Profile();
-
-    boolean isApacheHttpClient4ProfileCookie();
-
-    DumpType getApacheHttpClient4ProfileCookieDumpType();
-
-    int getApacheHttpClient4ProfileCookieSamplingRate();
-
-    boolean isApacheHttpClient4ProfileEntity();
-
-    DumpType getApacheHttpClient4ProfileEntityDumpType();
-
-    int getApacheHttpClient4ProfileEntitySamplingRate();
-
-    boolean isApacheHttpClient4ProfileStatusCode();
-
-    boolean isApacheHttpClient4ProfileIo();
-
-    //-----------------------------------------
-    // org/apache/http/impl/nio/*
-    boolean getApacheNIOHttpClient4Profile();
-
-    boolean isIBatisEnabled();
-
-    boolean isMyBatisEnabled();
-
-    boolean isRedisEnabled();
-
-    boolean isRedisPipelineEnabled();
-
     Filter<String> getProfilableClassFilter();
 
     List<String> getApplicationTypeDetectOrder();
 
     List<String> getDisabledPlugins();
 
-    void setDisabledPlugins(List<String> disabledPlugins);
-
     String getApplicationServerType();
-
-    void setApplicationServerType(String applicationServerType);
-
-    boolean isLog4jLoggingTransactionInfo();
-
-    boolean isLogbackLoggingTransactionInfo();
 
     int getCallStackMaxDepth();
 
-    void setCallStackMaxDepth(int callStackMaxDepth);
-
     boolean isPropagateInterceptorException();
 
-    boolean isProfileInstrumentASM();
+    String getProfileInstrumentEngine();
 
     String readString(String propertyName, String defaultValue);
 
@@ -184,4 +124,18 @@ public interface ProfilerConfig {
     boolean readBoolean(String propertyName, boolean defaultValue);
 
     Map<String, String> readPattern(String propertyNamePatternRegex);
+    
+    boolean isJbossTraceEjb();
+
+    String getJbossRealIpHeader();
+
+    String getJbossRealIpEmptyValue();
+
+    boolean isJbossTraceRequestParam();
+
+    Filter<String> getJbossExcludeProfileMethodFilter();
+
+    boolean isJbossHidePinpointHeader();
+
+    Filter<String> getJbossExcludeUrlFilter();
 }
