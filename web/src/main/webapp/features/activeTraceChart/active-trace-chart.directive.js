@@ -71,8 +71,8 @@
                                 {
                                     "balloonText": "[[description]] : [[value]]",
                                     "legendValueText": "([[description]]) [[value]]",
-                                    "lineColor": "rgb(214, 141, 8)",
-                                    "fillColor": "rgb(214, 141, 8)",
+                                    "lineColor": "rgb(44, 160, 44)",
+                                    "fillColor": "rgb(44, 160, 44)",
                                     "title": "Fast",
 									"descriptionField": "fastTitle",
                                     "valueField": "fast",
@@ -81,8 +81,8 @@
                                 },{
                                     "balloonText": "[[description]] : [[value]]",
                                     "legendValueText": "([[description]]) [[value]]",
-                                    "lineColor": "rgb(252, 178, 65)",
-                                    "fillColor": "rgb(252, 178, 65)",
+                                    "lineColor": "rgb(60, 129, 250)",
+                                    "fillColor": "rgb(60, 129, 250)",
                                     "title": "Normal",
 									"descriptionField": "normalTitle",
                                     "valueField": "normal",
@@ -91,8 +91,8 @@
                                 },{
                                     "balloonText": "[[description]] : [[value]]",
                                     "legendValueText": "([[description]]) [[value]]",
-                                    "lineColor": "rgb(90, 103, 166)",
-                                    "fillColor": "rgb(90, 103, 166)",
+                                    "lineColor": "rgb(248, 199, 49)",
+                                    "fillColor": "rgb(248, 199, 49)",
                                     "title": "Slow",
 									"descriptionField": "slowTitle",
                                     "valueField": "slow",
@@ -101,8 +101,8 @@
                                 },{
                                     "balloonText": "[[description]] : [[value]]",
                                     "legendValueText": "([[description]]) [[value]]",
-                                    "lineColor": "rgb(160, 153, 255)",
-                                    "fillColor": "rgb(160, 153, 255)",
+                                    "lineColor": "rgb(246, 145, 36)",
+                                    "fillColor": "rgb(246, 145, 36)",
                                     "title": "Very Slow",
 									"descriptionField": "verySlowTitle",
                                     "valueField": "verySlow",
