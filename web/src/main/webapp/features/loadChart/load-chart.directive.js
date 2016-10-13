@@ -259,16 +259,16 @@
                  * @param data
                  */
                 updateData = function (data) {
-					// if ( angular.isUndefined( oChart ) ) {
-					// 	if ( data.length !== 0 ) {
-					// 		render(data, true);
-					// 	}
-					// } else {
+					if ( angular.isUndefined( oChart ) ) {
+						if ( data.length !== 0 ) {
+							render(data, true);
+						}
+					} else {
 						oChart.dataProvider = data;
 						$timeout(function () {
 							oChart.validateData();
 						});
-					// }
+					}
 				};
 
                 /**

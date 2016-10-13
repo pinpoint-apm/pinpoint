@@ -32,7 +32,7 @@
 	            // initialize private variables;
 	            nFetchCount = 1;
 	            nLastFetchedIndex = 0;
-	            $scope.transactionDetailUrl = 'index.html#/transactionDetail';
+	            $scope.transactionDetailUrl = 'index.html?vs=' + Date.now() + '#/transactionDetail';
 	            $scope.sidebarLoading = true;
 
 				var bHasParent = hasParent();
@@ -300,7 +300,7 @@
 	         * @param transaction
 	         */
 	        changeTransactionDetail = function (transaction) {
-				var transactionDetailUrl = 'index.html#/transactionDetail';
+				var transactionDetailUrl = 'index.html?vs=' + Date.now() + '#/transactionDetail';
 				if (transaction.traceId && transaction.collectorAcceptTime) {
 					transactionDetailUrl += '/' + $window.encodeURIComponent(transaction.traceId) + '/' + transaction.collectorAcceptTime;
 				}
