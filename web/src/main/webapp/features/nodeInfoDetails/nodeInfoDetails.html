@@ -21,7 +21,7 @@
         </div>
 
         <div class="unknown-list">
-            <div class="panel panel-default" ng-repeat="(index, node) in unknownNodeGroup | orderBy:nodeOrderBy:nodeOrderByDesc" ng-show="showUnknownNodeBy(nodeSearch, node)" style="height:241px;">
+            <div class="panel panel-default" ng-repeat="(index, node) in unknownNodeGroup | orderBy:nodeOrderBy:nodeOrderByDesc" ng-show="showUnknownNodeBy(nodeSearch, node)" style="height:252px;">
                 <div class="panel-heading">
                     {{node.applicationName}}<span class="badge pull-right" ng-class="{'alert-danger':node.hasAlert}" title="Total Call Count" data-toggle="tooltip" data-placement="left">{{node.totalCount | number}}</span>
                 </div>
