@@ -34,8 +34,8 @@
                  * @param h
                  */
                 setWidthHeight = function (w, h) {
-                    if (w) element.css('width', w);
-                    if (h) element.css('height', h);
+					element.css('width', w || '100%');
+					element.css('height', h || '220px');
                 };
 
                 /**
@@ -259,16 +259,16 @@
                  * @param data
                  */
                 updateData = function (data) {
-					if ( angular.isUndefined( oChart ) ) {
-						if ( data.length !== 0 ) {
-							render(data, true);
-						}
-					} else {
+					// if ( angular.isUndefined( oChart ) ) {
+					// 	if ( data.length !== 0 ) {
+					// 		render(data, true);
+					// 	}
+					// } else {
 						oChart.dataProvider = data;
-						// $timeout(function () {
+						$timeout(function () {
 							oChart.validateData();
-						// });
-					}
+						});
+					// }
 				};
 
                 /**
