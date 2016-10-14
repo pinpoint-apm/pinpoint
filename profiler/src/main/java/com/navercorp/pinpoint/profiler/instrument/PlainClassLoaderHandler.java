@@ -100,7 +100,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
             }
             logger.info("bootstrapJarPaths:{}", pluginConfig.getBootstrapJarPaths());
 
-             return (Class<T>)injectClass0(classLoader, className);
+            return (Class<T>)injectClass0(classLoader, className);
         } catch (Exception e) {
             logger.warn("Failed to load plugin class {} with classLoader {}", className, classLoader, e);
             throw new PinpointException("Failed to load plugin class " + className + " with classLoader " + classLoader, e);
@@ -140,7 +140,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
             if (!pluginLock.isLoaded()) {
                 pluginLock.setLoaded();
                 defineJarClass(classLoader, attachment);
-    }
+            }
         }
 
         final Class<?> findClazz = attachment.getClass(className);
@@ -152,7 +152,6 @@ public class PlainClassLoaderHandler implements ClassInjector {
             return loadClass(classLoader, className);
         }
         return findClazz;
-
     }
 
     private ClassLoaderAttachment getClassLoaderAttachment(ClassLoader classLoader) {
@@ -160,7 +159,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
         final ClassLoaderAttachment exist = classLoaderAttachment.get(classLoader);
         if (exist != null) {
             return exist;
-    }
+        }
         final ClassLoaderAttachment newInfo = new ClassLoaderAttachment();
         final ClassLoaderAttachment old = classLoaderAttachment.putIfAbsent(classLoader, newInfo);
         if (old != null) {
@@ -183,7 +182,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
             }
             throw new RuntimeException(ex.getMessage(), ex);
         }
-        }
+    }
 
     private void defineJarClass(ClassLoader classLoader, ClassLoaderAttachment attachment) {
         if (isDebug) {
@@ -200,8 +199,8 @@ public class PlainClassLoaderHandler implements ClassInjector {
             ClassLoadingChecker classLoadingChecker = new ClassLoadingChecker();
             classLoadingChecker.isFirstLoad(classMetadata.getClassName());
             define0(classLoader, attachment, classMetadata, classEntryMap, classLoadingChecker);
-                }
-            }
+        }
+    }
 
     private List<FileBinary> readJar() {
         try {
@@ -216,7 +215,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
         for (FileBinary fileBinary : fileBinaryList) {
             SimpleClassMetadata classNode = parseClass(fileBinary);
             parseMap.put(classNode.getClassName(), classNode);
-                }
+        }
         return parseMap;
     }
 
@@ -224,7 +223,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
         byte[] fileBinaryArray = fileBinary.getFileBinary();
         SimpleClassMetadata classMetadata = SimpleClassMetadataReader.readSimpleClassMetadata(fileBinaryArray);
         return classMetadata;
-        }
+    }
 
     private void define0(ClassLoader classLoader, ClassLoaderAttachment attachment, SimpleClassMetadata currentClass, Map<String, SimpleClassMetadata> classMetaMap, ClassLoadingChecker classLoadingChecker) {
         if ("java.lang.Object".equals(currentClass.getClassName())) {
@@ -242,13 +241,13 @@ public class PlainClassLoaderHandler implements ClassInjector {
         if (!"java.lang.Object".equals(superName)) {
             if (!isSkipClass(superName, classLoadingChecker)) {
                 SimpleClassMetadata superClassBinary = classMetaMap.get(superName);
-                    if(isDebug) {
+                if(isDebug) {
                     logger.debug("superClass dependency define super:{} ori:{}", superClassBinary.getClassName(), currentClass.getClassName());
-                    }
+                }
                 define0(classLoader, attachment, superClassBinary, classMetaMap, classLoadingChecker);
 
-                }
             }
+        }
 
         final List<String> interfaceList = currentClass.getInterfaceNames();
         for (String interfaceName : interfaceList) {
@@ -256,14 +255,14 @@ public class PlainClassLoaderHandler implements ClassInjector {
                 SimpleClassMetadata interfaceClassBinary = classMetaMap.get(interfaceName);
                 if (isDebug) {
                     logger.debug("interface dependency define interface:{} ori:{}", interfaceClassBinary.getClassName(), interfaceClassBinary.getClassName());
-        }
+                }
                 define0(classLoader, attachment, interfaceClassBinary, classMetaMap, classLoadingChecker);
+            }
+            final byte[] bytes = ct.toBytecode();
+            Class<?> clazz =  (Class<?>)DEFINE_CLASS.invoke(classLoader, ct.getName(), bytes, 0, bytes.length);
+            RESOLVE_CLASS.invoke(classLoader, clazz);
+            return clazz;
         }
-        final byte[] bytes = ct.toBytecode();
-        Class<?> clazz =  (Class<?>)DEFINE_CLASS.invoke(classLoader, ct.getName(), bytes, 0, bytes.length);
-        RESOLVE_CLASS.invoke(classLoader, clazz);
-        return clazz;
-    }
 
         Class<?> clazz = defineClass(classLoader, currentClass);
         attachment.putClass(currentClass.getClassName(), clazz);
@@ -302,7 +301,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
         if (!isPluginPackage(className)) {
             if (isDebug) {
                 logger.debug("PluginFilter skip class:{}", className);
-}
+            }
             return true;
         }
         if (!classLoadingChecker.isFirstLoad(className)) {
