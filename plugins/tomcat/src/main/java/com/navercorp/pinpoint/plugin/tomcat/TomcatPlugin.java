@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.plugin.tomcat;
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -51,21 +50,20 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
      */
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        ProfilerConfig profilerConfig = context.getConfig();
-        TomcatConfiguration tomcatConfig = new TomcatConfiguration(profilerConfig);
-        if (!tomcatConfig.isTomcatEnabled()) {
+        TomcatConfiguration config = new TomcatConfiguration(context.getConfig());
+        if (!config.isTomcatEnabled()) {
             logger.info("TomcatPlugin disabled");
             return;
         }
 
-        context.addApplicationTypeDetector(new TomcatDetector());
+        context.addApplicationTypeDetector(new TomcatDetector(config.getTomcatBootstrapMains()));
 
-        if (tomcatConfig.isTomcatHidePinpointHeader()) {
+        if (config.isTomcatHidePinpointHeader()) {
             addRequestFacadeEditor();
         }
 
         addRequestEditor();
-        addStandardHostValveEditor(tomcatConfig);
+        addStandardHostValveEditor(config);
         addStandardServiceEditor();
         addTomcatConnectorEditor();
         addWebappLoaderEditor();

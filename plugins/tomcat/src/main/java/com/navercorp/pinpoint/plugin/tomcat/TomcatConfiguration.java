@@ -18,17 +18,21 @@ import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
 
+import java.util.List;
+
 /**
  * @author Jongho Moon
  *
  */
 public class TomcatConfiguration {
     private final boolean tomcatEnabled;
+    private final List<String> tomcatBootstrapMains;
     private final boolean tomcatHidePinpointHeader;
     private final Filter<String> tomcatExcludeUrlFilter;
 
     public TomcatConfiguration(ProfilerConfig config) {
         this.tomcatEnabled = config.readBoolean("profiler.tomcat.enable", true);
+        this.tomcatBootstrapMains = config.readList("profiler.tomcat.bootstrap.main");
         this.tomcatHidePinpointHeader = config.readBoolean("profiler.tomcat.hidepinpointheader", true);
         Filter<String> tomcatExcludeUrlFilter = config.getTomcatExcludeUrlFilter();
         if (tomcatExcludeUrlFilter == null) {
@@ -40,6 +44,10 @@ public class TomcatConfiguration {
 
     public boolean isTomcatEnabled() {
         return tomcatEnabled;
+    }
+
+    public List<String> getTomcatBootstrapMains() {
+        return tomcatBootstrapMains;
     }
 
     public Filter<String> getTomcatExcludeUrlFilter() {

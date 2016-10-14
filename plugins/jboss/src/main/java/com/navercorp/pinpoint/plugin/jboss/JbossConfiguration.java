@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.plugin.jboss;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
+import java.util.List;
+
 /**
  * The Class JbossConfiguration.
  *
@@ -36,6 +38,8 @@ public class JbossConfiguration {
     private final boolean jbossTraceEjb;
     private final boolean jbossEnable;
 
+    private final List<String> jbossBootstrapMains;
+
     /**
      * Instantiates a new jboss configuration.
      *
@@ -43,6 +47,7 @@ public class JbossConfiguration {
      */
     public JbossConfiguration(final ProfilerConfig config) {
         this.jbossEnable = config.readBoolean("profiler.jboss.enable", true);
+        this.jbossBootstrapMains = config.readList("profiler.jboss.bootstrap.main");
         this.jbossHidePinpointHeader = config.isJbossHidePinpointHeader();
         this.jbossExcludeUrlFilter = config.getJbossExcludeUrlFilter();
         this.jbossTraceEjb = config.isJbossTraceEjb();
@@ -50,6 +55,10 @@ public class JbossConfiguration {
 
     public boolean isJbossEnable() {
         return jbossEnable;
+    }
+
+    public List<String> getJbossBootstrapMains() {
+        return jbossBootstrapMains;
     }
 
     /**
