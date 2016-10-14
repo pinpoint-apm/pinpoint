@@ -4,7 +4,7 @@
 		return function( node, start ) {
 			if ( !node || !node.length ) { return; }
 			return node.slice( start );
-		}
+		};
 	});
 
 	pinpointApp.constant("nodeInfoDetailsDirectiveConfig", {
@@ -246,9 +246,10 @@
 						if ( nodeList ) {
 							var count = parseInt(nodeList.length / scope.pagingSize) + ( nodeList.length % scope.pagingSize === 0 ? 0 : 1 );
 							scope.pagingCount = [];
-						}
-						for( var i = 1 ; i <= count ; i++ ) {
-							scope.pagingCount.push( i );
+
+							for( var i = 1 ; i <= count ; i++ ) {
+								scope.pagingCount.push( i );
+							}
 						}
 					}
 					scope.isGroupNode = function() {
