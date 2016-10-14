@@ -18,18 +18,26 @@ package com.navercorp.pinpoint.plugin.dubbo;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
+import java.util.List;
+
 /**
  * @author HyunGil Jeong
  */
 public class DubboConfiguration {
 
     private final boolean dubboEnabled;
+    private final List<String> dubboBootstrapMains;
 
     public DubboConfiguration(ProfilerConfig config) {
         this.dubboEnabled = config.readBoolean("profiler.dubbo.enable", true);
+        this.dubboBootstrapMains = config.readList("profiler.dubbo.bootstrap.main");
     }
 
     public boolean isDubboEnabled() {
         return dubboEnabled;
+    }
+
+    public List<String> getDubboBootstrapMains() {
+        return dubboBootstrapMains;
     }
 }

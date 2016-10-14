@@ -47,7 +47,7 @@ public class SpringBootPlugin implements ProfilerPlugin, TransformTemplateAware 
             return;
         }
 
-        context.addApplicationTypeDetector(new SpringBootDetector());
+        context.addApplicationTypeDetector(new SpringBootDetector(config.getSpringBootBootstrapMains()));
 
         addLauncherEditor();
     }

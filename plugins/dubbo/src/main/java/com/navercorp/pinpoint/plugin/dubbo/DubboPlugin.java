@@ -30,7 +30,7 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
             return;
         }
 
-        this.addApplicationTypeDetector(context);
+        this.addApplicationTypeDetector(context, config);
         this.addTransformers();
     }
 
@@ -60,8 +60,8 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
     /**
      * Pinpoint profiler agent uses this detector to find out the service type of current application.
      */
-    private void addApplicationTypeDetector(ProfilerPluginSetupContext context) {
-        context.addApplicationTypeDetector(new DubboProviderDetector());
+    private void addApplicationTypeDetector(ProfilerPluginSetupContext context, DubboConfiguration config) {
+        context.addApplicationTypeDetector(new DubboProviderDetector(config.getDubboBootstrapMains()));
     }
 
     @Override

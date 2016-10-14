@@ -19,13 +19,17 @@ import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
 
+import java.util.List;
+
 public class JettyConfiguration {
 
     private final boolean jettyEnabled;
+    private final List<String> jettyBootstrapMains;
     private final Filter<String> jettyExcludeUrlFilter;
 
     public JettyConfiguration(ProfilerConfig config) {
         this.jettyEnabled = config.readBoolean("profiler.jetty.enable", true);
+        this.jettyBootstrapMains = config.readList("profiler.jetty.bootstrap.main");
         final String jettyExcludeURL = config.readString("profiler.jetty.excludeurl", "");
 
         if (!jettyExcludeURL.isEmpty()) {
@@ -37,6 +41,10 @@ public class JettyConfiguration {
 
     public boolean isJettyEnabled() {
         return jettyEnabled;
+    }
+
+    public List<String> getJettyBootstrapMains() {
+        return jettyBootstrapMains;
     }
 
     public Filter<String> getJettyExcludeUrlFilter() {

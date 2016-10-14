@@ -44,7 +44,7 @@ public class JettyPlugin implements ProfilerPlugin, TransformTemplateAware {
             return;
         }
 
-        context.addApplicationTypeDetector(new JettyDetector());
+        context.addApplicationTypeDetector(new JettyDetector(config.getJettyBootstrapMains()));
 
         addServerInterceptor(config);
     }

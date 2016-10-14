@@ -366,7 +366,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return tomcatExcludeProfileMethodFilter;
     }
 
-
     @Override
     public Filter<String> getProfilableClassFilter() {
         return profilableClassFilter;
@@ -504,7 +503,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         if (!tomcatExcludeProfileMethod.isEmpty()) {
             this.tomcatExcludeProfileMethodFilter = new ExcludeMethodFilter(tomcatExcludeProfileMethod);
         }
-
 
         this.samplingEnable = readBoolean("profiler.sampling.enable", true);
         this.samplingRate = readInt("profiler.sampling.rate", 1);

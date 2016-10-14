@@ -18,18 +18,26 @@ package com.navercorp.pinpoint.plugin.spring.boot;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
+import java.util.List;
+
 /**
  * @author HyunGil Jeong
  */
 public class SpringBootConfiguration {
 
     private final boolean springBootEnabled;
+    private final List<String> springBootBootstrapMains;
 
     public SpringBootConfiguration(ProfilerConfig config) {
         this.springBootEnabled = config.readBoolean("profiler.springboot.enable", true);
+        this.springBootBootstrapMains = config.readList("profiler.springboot.bootstrap.main");
     }
 
     public boolean isSpringBootEnabled() {
         return springBootEnabled;
+    }
+
+    public List<String> getSpringBootBootstrapMains() {
+        return springBootBootstrapMains;
     }
 }
