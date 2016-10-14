@@ -9,7 +9,7 @@
                         <span class="glyphicon glyphicon-search" style="top:0;"></span>
                     </span>
                     <input type="text" class="form-control" ng-model="nodeSearch" ng-change="nodeSearchChange()" placeholder="Type keywords for filtering.">
-                    <span class="glyphicon glyphicon-remove form-control-feedback" style="top:-2px;z-index:2;" ng-click="nodeSearch=''" ng-show="nodeSearch"></span>
+                    <!--span class="glyphicon glyphicon-remove form-control-feedback" style="top:-2px;z-index:2;" ng-click="nodeSearch=''" ng-show="nodeSearch"></span-->
                 </div>
             </div>
             <div style="float:right">
@@ -19,9 +19,12 @@
                 </div>
             </div>
         </div>
+		<div class="node-paging" style="padding-bottom:4px">
+			<button type="button" style="margin-right:1px" class="btn btn-default btn-sm {{page == currentPage ? 'btn-info' : ''}}" ng-repeat="page in pagingCount" ng-click="movePaging(page)">{{page}}</button>
+		</div>
 
         <div class="unknown-list">
-            <div class="panel panel-default" ng-repeat="(index, node) in unknownNodeGroup | orderBy:nodeOrderBy:nodeOrderByDesc" ng-show="showUnknownNodeBy(nodeSearch, node)" style="height:252px;">
+            <div class="panel panel-default" ng-repeat="(index, node) in unknownNodeGroup | orderBy:nodeOrderBy:nodeOrderByDesc | startFrom:(currentPage - 1) * pagingSize | limitTo:pagingSize  " ng-show="showUnknownNodeBy(nodeSearch, node)" style="height:254px;">
                 <div class="panel-heading">
                     {{node.applicationName}}<span class="badge pull-right" ng-class="{'alert-danger':node.hasAlert}" title="Total Call Count" data-toggle="tooltip" data-placement="left">{{node.totalCount | number}}</span>
                 </div>
