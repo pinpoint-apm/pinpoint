@@ -67,7 +67,7 @@ public class ThreadLocalRandomUtils {
     }
 
     private static void logError(Exception e) {
-        LOGGER.warn("Error creating JdkThreadLocalRandomFactory", e);
+        LOGGER.info("JdkThreadLocalRandomFactory not found.");
     }
 
     public static Random current() {
