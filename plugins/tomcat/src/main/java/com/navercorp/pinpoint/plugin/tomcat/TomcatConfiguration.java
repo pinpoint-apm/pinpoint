@@ -23,10 +23,12 @@ import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
  *
  */
 public class TomcatConfiguration {
+    private final boolean tomcatEnabled;
     private final boolean tomcatHidePinpointHeader;
     private final Filter<String> tomcatExcludeUrlFilter;
 
     public TomcatConfiguration(ProfilerConfig config) {
+        this.tomcatEnabled = config.readBoolean("profiler.tomcat.enable", true);
         this.tomcatHidePinpointHeader = config.readBoolean("profiler.tomcat.hidepinpointheader", true);
         Filter<String> tomcatExcludeUrlFilter = config.getTomcatExcludeUrlFilter();
         if (tomcatExcludeUrlFilter == null) {
@@ -34,6 +36,10 @@ public class TomcatConfiguration {
         } else {
             this.tomcatExcludeUrlFilter = tomcatExcludeUrlFilter;
         }
+    }
+
+    public boolean isTomcatEnabled() {
+        return tomcatEnabled;
     }
 
     public Filter<String> getTomcatExcludeUrlFilter() {
