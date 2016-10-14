@@ -12,6 +12,10 @@
     <name>pinpoint-jboss-plugin</name>
     <packaging>jar</packaging>
 
+    <properties>
+        <test.jdk.home>${env.JAVA_7_HOME}</test.jdk.home>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>

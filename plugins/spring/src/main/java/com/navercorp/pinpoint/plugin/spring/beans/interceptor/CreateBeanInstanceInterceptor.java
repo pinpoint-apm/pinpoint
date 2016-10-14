@@ -41,17 +41,19 @@ public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInt
     @IgnoreMethod
     @Override
     public void before(Object target, Object arg0) {
-
     }
 
     @Override
     public void after(Object target, Object beanNameObject, Object result, Throwable throwable) {
         try {
-            if (result == null) {
+            if (result == null || throwable != null) {
                 return;
             }
+
             if (!(beanNameObject instanceof String)) {
-                logger.warn("invalid type:{}", beanNameObject);
+                if (logger.isWarnEnabled()) {
+                    logger.warn("invalid type:{}", beanNameObject);
+                }
                 return;
             }
             final String beanName = (String) beanNameObject;
@@ -63,11 +65,15 @@ public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInt
                     processBean(beanName, bean);
                 }
             } catch (Exception e) {
-                logger.warn("Fail to get create bean instance", e);
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Fail to get create bean instance", e);
+                }
                 return;
             }
         } catch (Throwable t) {
-            logger.warn("Unexpected exception", t);
+            if (logger.isWarnEnabled()) {
+                logger.warn("Unexpected exception", t);
+            }
         }
     }
 
@@ -90,5 +96,4 @@ public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInt
         }
         return null;
     }
-
 }
