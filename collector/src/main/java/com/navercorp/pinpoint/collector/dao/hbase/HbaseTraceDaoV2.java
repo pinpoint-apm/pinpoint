@@ -9,6 +9,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanChunkSerializerV2;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanSerializerV2;
+import com.navercorp.pinpoint.common.util.TransactionId;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     @Autowired
     @Qualifier("traceRowKeyEncoderV2")
-    private RowKeyEncoder<BasicSpan> rowKeyEncoder;
+    private RowKeyEncoder<TransactionId> rowKeyEncoder;
 
 
     @Override
@@ -53,7 +54,8 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
         long acceptedTime = spanBo.getCollectorAcceptTime();
 
-        final byte[] rowKey = this.rowKeyEncoder.encodeRowKey(spanBo);
+        TransactionId transactionId = spanBo.getTransactionId();
+        final byte[] rowKey = this.rowKeyEncoder.encodeRowKey(transactionId);
         final Put put = new Put(rowKey, acceptedTime);
 
         this.spanSerializer.serialize(spanBo, put, null);
@@ -71,7 +73,8 @@ public class HbaseTraceDaoV2 implements TraceDao {
     @Override
     public void insertSpanChunk(SpanChunkBo spanChunkBo) {
 
-        final byte[] rowKey = this.rowKeyEncoder.encodeRowKey(spanChunkBo);
+        TransactionId transactionId = spanChunkBo.getTransactionId();
+        final byte[] rowKey = this.rowKeyEncoder.encodeRowKey(transactionId);
 
         final long acceptedTime = spanChunkBo.getCollectorAcceptTime();
         final Put put = new Put(rowKey, acceptedTime);

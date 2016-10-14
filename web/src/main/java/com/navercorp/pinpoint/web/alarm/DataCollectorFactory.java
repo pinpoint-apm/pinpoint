@@ -16,14 +16,17 @@
 
 package com.navercorp.pinpoint.web.alarm;
 
+import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.navercorp.pinpoint.web.alarm.collector.AgentStatDataCollector;
 import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
 import com.navercorp.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
-import com.navercorp.pinpoint.web.dao.hbase.HbaseAgentStatDao;
 import com.navercorp.pinpoint.web.dao.hbase.HbaseApplicationIndexDao;
 import com.navercorp.pinpoint.web.dao.hbase.HbaseMapResponseTimeDao;
 import com.navercorp.pinpoint.web.dao.hbase.HbaseMapStatisticsCallerDao;
@@ -43,7 +46,12 @@ public class DataCollectorFactory {
     private HbaseMapResponseTimeDao hbaseMapResponseTimeDao;
 
     @Autowired
-    private HbaseAgentStatDao hbaseAgentStatDao;
+    @Qualifier("jvmGcDaoFactory")
+    private AgentStatDao<JvmGcBo> jvmGcDao;
+
+    @Autowired
+    @Qualifier("cpuLoadDaoFactory")
+    private AgentStatDao<CpuLoadBo> cpuLoadDao;
 
     @Autowired
     private HbaseApplicationIndexDao hbaseApplicationIndexDao;
@@ -56,7 +64,7 @@ public class DataCollectorFactory {
         case RESPONSE_TIME:
             return new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, hbaseMapResponseTimeDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
         case AGENT_STAT:
-            return new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, hbaseAgentStatDao, hbaseApplicationIndexDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            return new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, jvmGcDao, cpuLoadDao, hbaseApplicationIndexDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
         case CALLER_STAT:
             return new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, mapStatisticsCallerDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
         }

@@ -122,7 +122,7 @@
 
 		this._oBubbleTypeManager = new BigScatterChart2.BubbleTypeManager( this.option(), this._oSCManager, this._$elContainer, {
 			"onChange": function( type ) {
-				self._oRendererManager.toggle( type );
+				self._oRendererManager.toggle( self._isAll( self.getCurrentAgent() ), self.getCurrentAgent(), type );
 			},
 			"onSend": function( type, bChecked ) {
 				self._oExternal.sendAnalytics( type, bChecked );
@@ -183,14 +183,11 @@
 			$.each( this._aAgentList, function( index,  agentName ) {
 				if ( self._currentAgent === self._AGENT_ALL || self._currentAgent === agentName ) {
 					$.each( oSum, function( type ) {
-						//if ( self._oBubbleTypeManager.isChecked( type ) ) {
 						if ( bRealtime === true ) {
 							oSum[type] += oDataBlock.getCount( agentName, type, oRangeX.min, oRangeX.max );
 						} else {
 							oSum[type] += oDataBlock.getCount( agentName, type );
 						}
-
-						//}
 					});
 				}
 			});
@@ -515,7 +512,6 @@
 	};
 	BigScatterChart2.prototype.selectAgent = function( agentName, bInitCheck ) {
 		var self = this;
-		var bIsAll = ( agentName === this._AGENT_ALL );
 		var aBubbleTypeInfo = this.option("typeInfo");
 		var oTypeCheckInfo = {};
 
@@ -530,11 +526,14 @@
 			});
 		}
 		this._currentAgent = agentName;
-		this._oRendererManager.showSelectedAgent( bIsAll, agentName, oTypeCheckInfo );
+		this._oRendererManager.showSelectedAgent( this._isAll( agentName ), agentName, oTypeCheckInfo );
 		this._oBubbleTypeManager.showTypeCount( this._getSumCountByType() );
 	};
 	BigScatterChart2.prototype.getCurrentAgent = function() {
 		return this._currentAgent;
+	};
+	BigScatterChart2.prototype._isAll = function( agentName ) {
+		return agentName === this._AGENT_ALL;
 	};
 
 

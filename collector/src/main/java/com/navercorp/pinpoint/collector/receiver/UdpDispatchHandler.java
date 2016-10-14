@@ -30,8 +30,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
  */
 public class UdpDispatchHandler extends AbstractDispatchHandler {
 
-    @Autowired()
-    @Qualifier("agentStatHandler")
+    @Autowired
+    @Qualifier("agentStatHandlerFactory")
     private Handler agentStatHandler;
 
 

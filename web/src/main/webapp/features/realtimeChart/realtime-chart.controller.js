@@ -191,9 +191,9 @@
 						$scope.retryConnection();
 					}
 	        	});
-	        	if ( bConnected ) {
-	        		initChartDirective();
-	        	}
+	        	// if ( bConnected ) {
+	        	// 	initChartDirective();
+	        	// }
 	        }
 	        function receive( data ) {
 				$elWarningMessage.hide();
@@ -218,7 +218,7 @@
 	        	var maxY = Math.max( getMaxOfYValue(), cfg.const.MIN_Y);
 	        	var agentIndexAndCount = 0;
 	        	var bAllError = true;
-	        	
+
 	        	for( var agentName in applicationData ) {
 	        		checkAgentChart( agentName, agentIndexAndCount );
 	        		
@@ -232,6 +232,7 @@
 	        		showAgentChart( agentIndexAndCount );
 	        		agentIndexAndCount++;
 	        	}
+	        	checkNotUseAgentChart( agentIndexAndCount );
         		$scope.$broadcast('realtimeChartDirective.onData.sum', aRequestSum, timeStamp, maxY, bAllError );
 				$elSumChartCount.html(agentIndexAndCount);
 	        }
@@ -258,6 +259,11 @@
 	        function showAgentChart( index ) {
 	        	aAgentChartElementList[index].show();
 	        }
+	        function checkNotUseAgentChart( count ) {
+	        	for( var i = count ; i < aAgentChartElementList.length ; i++ ) {
+					aAgentChartElementList[i].hide();
+				}
+			}
 	        function setAgentName( index, name ) {
 	        	aAgentChartElementList[index].find("div").html(name);
 	        }
@@ -311,13 +317,13 @@
 				});
 				aChildScopeList.length = 0;
 				$timeout(function() {
-					$elSumChartWrapper.find(".agent-sum-chart").empty();
+					$elSumChartWrapper.find("svg").remove();
 					$.each( aAgentChartElementList, function( index, el ) {
 						el.remove();
 					});
 					aAgentChartElementList.length = 0;
 				});
-
+				oNamespaceToIndexMap = {};
 	        }
 	        function showDisconnectedConnectionPopup() {
 	        	$elWarningMessage.css("background-color", "rgba(200, 200, 200, 0.9)");
@@ -378,6 +384,7 @@
 	        		return;
 	        	}
 	        	initNamespaceToIndexMap();
+				initChartDirective();
 	        	adjustWidth();
 	        	$scope.bInitialized = true;
 

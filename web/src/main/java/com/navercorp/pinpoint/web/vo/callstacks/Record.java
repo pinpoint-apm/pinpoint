@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.callstacks;
 
+import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
@@ -53,10 +54,10 @@ public class Record {
     private boolean focused;
     private boolean hasChild;
     private boolean hasException;
-    private int methodType;
+    private MethodTypeEnum methodTypeEnum;
     private boolean isAuthorized;
 
-    public Record(int tab, int id, int parentId, boolean method, String title, String arguments, long begin, long elapsed, long gap, String agent, String applicationName, ServiceType serviceType, String destinationId, boolean hasChild, boolean hasException, String transactionId, long spanId, long executionMilliseconds, int methodType, boolean isAuthorized) {
+    public Record(int tab, int id, int parentId, boolean method, String title, String arguments, long begin, long elapsed, long gap, String agent, String applicationName, ServiceType serviceType, String destinationId, boolean hasChild, boolean hasException, String transactionId, long spanId, long executionMilliseconds, MethodTypeEnum methodTypeEnum, boolean isAuthorized) {
         this.tab = tab;
         this.id = id;
         this.parentId = parentId;
@@ -81,7 +82,7 @@ public class Record {
         this.spanId = spanId;
         
         this.executionMilliseconds = executionMilliseconds;
-        this.methodType = methodType;
+        this.methodTypeEnum = methodTypeEnum;
         this.isAuthorized = isAuthorized;
     }
 
@@ -203,8 +204,8 @@ public class Record {
         return executionMilliseconds;
     }
     
-    public int getMethodType() {
-        return methodType;
+    public MethodTypeEnum getMethodTypeEnum() {
+        return methodTypeEnum;
     }
     
     public boolean isAuthorized() {
@@ -258,8 +259,8 @@ public class Record {
         builder.append(hasChild);
         builder.append(", hasException=");
         builder.append(hasException);
-        builder.append(", methodType=");
-        builder.append(methodType);
+        builder.append(", methodTypeEnum=");
+        builder.append(methodTypeEnum);
         builder.append(", isAuthorized=");
         builder.append(isAuthorized);
         builder.append("}");

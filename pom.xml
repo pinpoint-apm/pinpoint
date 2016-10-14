@@ -31,6 +31,11 @@
             <name>bintray</name>
             <url>http://jcenter.bintray.com</url>
         </repository>
+        <repository>
+            <id>jboss-3rd-party-releases</id>
+            <name>Jboss Third Party Repository</name>
+            <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>
+	    </repository>
     </repositories>
 
     <pluginRepositories>
@@ -44,6 +49,7 @@
     <modules>
         <module>agent</module>
         <module>bootstrap-core</module>
+        <module>bootstrap-core-optional</module>
         <module>bootstrap</module>
         <module>collector</module>
         <module>commons</module>
@@ -58,6 +64,7 @@
         <module>test</module>
         <module>web</module>
         <module>hbase</module>
+        <module>thirdparty</module>
     </modules>
 
     <properties>
@@ -108,6 +115,11 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-google-guava</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-commons-server</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -129,6 +141,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-bootstrap-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-bootstrap-core-optional</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -193,7 +210,6 @@
                 <artifactId>pinpoint-test</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            
 
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -331,27 +347,15 @@
             </dependency>
 
             <dependency>
-                <groupId>com.googlecode.json-simple</groupId>
-                <artifactId>json-simple</artifactId>
-                <version>1.1.1</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.apache.hbase</groupId>
                 <artifactId>hbase-client</artifactId>
-                <version>1.2.0-cdh5.7.0</version>
+                <version>1.2.0-cdh5.7.3</version>
             </dependency>
 
             <dependency>
                 <groupId>com.sematext.hbasewd</groupId>
                 <artifactId>hbasewd</artifactId>
                 <version>0.1.0</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.lmax</groupId>
-                <artifactId>disruptor</artifactId>
-                <version>3.3.4</version>
             </dependency>
 
             <dependency>
@@ -421,7 +425,7 @@
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty</artifactId>
-                <version>3.6.6.Final</version>
+                <version>3.10.6.Final</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
@@ -640,7 +644,7 @@
             <dependency>
                 <groupId>org.apache.zookeeper</groupId>
                 <artifactId>zookeeper</artifactId>
-                <version>3.4.5-cdh5.7.0</version>
+                <version>3.4.5-cdh5.7.3</version>
             </dependency>
 
             <!-- for zookeeper test -->
@@ -692,6 +696,23 @@
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-client</artifactId>
                 <version>5.13.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-frontend-jaxws</artifactId>
+                <version>2.7.18</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-transports-http</artifactId>
+                <version>2.7.18</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.netflix.hystrix</groupId>
+                <artifactId>hystrix-core</artifactId>
+                <version>1.3.20</version>
             </dependency>
 
         </dependencies>
@@ -799,7 +820,11 @@
                     <excludes>
                         <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
+
+                        <!--google guava-->
+                        <exclude>com/google/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -864,7 +889,11 @@
                     <excludes>
                         <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
+
+                        <!--google guava-->
+                        <exclude>com/google/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -907,7 +936,7 @@
                         <goals>
                             <goal>check</goal>
                         </goals>
-                    </execution>      
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
@@ -946,13 +975,17 @@
                     <linkXRef>true</linkXRef>
                     <sourceEncoding>${encoding}</sourceEncoding>
                     <targetJdk>${jdk.version}</targetJdk>
-                    <!-- <rulesets> <ruleset>/rulesets/unusedcode.xml</ruleset> 
-                        <ruleset>/rulesets/basic.xml</ruleset> <ruleset>/rulesets/imports.xml</ruleset> 
+                    <!-- <rulesets> <ruleset>/rulesets/unusedcode.xml</ruleset>
+                        <ruleset>/rulesets/basic.xml</ruleset> <ruleset>/rulesets/imports.xml</ruleset>
                         <ruleset>/rulesets/design.xml</ruleset> </rulesets> -->
                     <excludes>
                         <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
+
+                        <!--google guava-->
+                        <exclude>com/google/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -964,7 +997,16 @@
                     <includesTestSourceRoots>true</includesTestSourceRoots>
                     <licenseLocation>clover.license</licenseLocation>
                     <encoding>${encoding}</encoding>
-                    <jdk>1.6</jdk>
+                    <jdk>${jdk.version}</jdk>
+                    <excludes>
+                        <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
+
+                        <!--google guava-->
+                        <exclude>com/google/**/*.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>

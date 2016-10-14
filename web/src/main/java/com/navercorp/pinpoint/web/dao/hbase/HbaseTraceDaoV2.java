@@ -7,10 +7,16 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.mapper.CellTraceMapper;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
+import org.apache.hadoop.hbase.filter.CompareFilter;
+import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.QualifierFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +25,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,8 +41,8 @@ public class HbaseTraceDaoV2 implements TraceDao {
     private HbaseOperations2 template2;
 
     @Autowired
-    @Qualifier("transactionIdRowKeyEncoderV2")
-    private RowKeyEncoder<TransactionId> transactionIdRowKeyEncoder;
+    @Qualifier("traceRowKeyEncoderV2")
+    private RowKeyEncoder<TransactionId> rowKeyEncoder;
 
 
     private RowMapper<List<SpanBo>> spanMapperV2;
@@ -48,6 +53,9 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     @Value("#{pinpointWebProps['web.hbase.selectAllSpans.limit'] ?: 500}")
     private int selectAllSpansLimit;
+
+    private final Filter spanFilter = createSpanQualifierFilter();
+
 
     @Autowired
     @Qualifier("spanMapperV2")
@@ -65,19 +73,8 @@ public class HbaseTraceDaoV2 implements TraceDao {
             throw new NullPointerException("transactionId must not be null");
         }
 
-        byte[] transactionIdRowKey = transactionIdRowKeyEncoder.encodeRowKey(transactionId);
+        byte[] transactionIdRowKey = rowKeyEncoder.encodeRowKey(transactionId);
         return template2.get(HBaseTables.TRACE_V2, transactionIdRowKey, HBaseTables.TRACE_V2_CF_SPAN, spanMapperV2);
-    }
-
-
-    @Deprecated
-    @Override
-    public List<SpanBo> selectSpanAndAnnotation(TransactionId transactionId) {
-        if (transactionId == null) {
-            throw new NullPointerException("transactionId must not be null");
-        }
-
-        return selectSpan(transactionId);
     }
 
 
@@ -86,85 +83,84 @@ public class HbaseTraceDaoV2 implements TraceDao {
         return selectSpans(transactionIdList, selectSpansLimit);
     }
 
-    public List<List<SpanBo>> selectSpans(List<TransactionId> transactionIdList, int hBaseGetLimitSize) {
-        if (transactionIdList == null) {
-            throw new NullPointerException("transactionIdList must not be null");
+    List<List<SpanBo>> selectSpans(List<TransactionId> transactionIdList, int eachPartitionSize) {
+        if (CollectionUtils.isEmpty(transactionIdList)) {
+            return Collections.emptyList();
         }
 
-        List<List<TransactionId>> splitTransactionIdList = splitTransactionIdList(transactionIdList, hBaseGetLimitSize);
+        List<List<TransactionId>> splitTransactionIdList = partition(transactionIdList, eachPartitionSize);
 
-        return getSpans(splitTransactionIdList, HBaseTables.TRACE_V2_CF_SPAN);
+        return partitionSelect(splitTransactionIdList, HBaseTables.TRACE_V2_CF_SPAN, spanFilter);
     }
 
     @Override
-    public List<List<SpanBo>> selectAllSpans(Collection<TransactionId> transactionIdList) {
+    public List<List<SpanBo>> selectAllSpans(List<TransactionId> transactionIdList) {
         return selectAllSpans(transactionIdList, selectAllSpansLimit);
     }
 
-    public List<List<SpanBo>> selectAllSpans(Collection<TransactionId> transactionIdList, int hBaseGetLimitSize) {
-        if (transactionIdList == null) {
-            throw new NullPointerException("transactionIdList must not be null");
-        }
-
-        List<List<TransactionId>> splitTransactionIdList = splitTransactionIdList(Lists.newArrayList(transactionIdList), hBaseGetLimitSize);
-
-
-        return getSpans(splitTransactionIdList, HBaseTables.TRACE_V2_CF_SPAN);
-    }
-
-
-    private List<List<TransactionId>> splitTransactionIdList(List<TransactionId> transactionIdList, int maxTransactionIdListSize) {
-        if (transactionIdList == null || transactionIdList.isEmpty()) {
+    List<List<SpanBo>> selectAllSpans(List<TransactionId> transactionIdList, int eachPartitionSize) {
+        if (CollectionUtils.isEmpty(transactionIdList)) {
             return Collections.emptyList();
         }
 
-        List<List<TransactionId>> splitTransactionIdList = new ArrayList<>();
+        List<List<TransactionId>> partitionTransactionIdList = partition(transactionIdList, eachPartitionSize);
 
-        int index = 0;
-        int endIndex = transactionIdList.size();
-        while (index < endIndex) {
-            int subListEndIndex = Math.min(index + maxTransactionIdListSize, endIndex);
-            splitTransactionIdList.add(transactionIdList.subList(index, subListEndIndex));
-            index = subListEndIndex;
-        }
-
-        return splitTransactionIdList;
+        return partitionSelect(partitionTransactionIdList, HBaseTables.TRACE_V2_CF_SPAN, null);
     }
 
-    private List<List<SpanBo>> getSpans(List<List<TransactionId>> splitTransactionIdList, byte[] columnFamily) {
-        if (splitTransactionIdList == null || splitTransactionIdList.isEmpty()) {
-            return Collections.emptyList();
-        }
 
-        List<List<SpanBo>> spanBoList = new ArrayList<>();
-        for (List<TransactionId> transactionIdList : splitTransactionIdList) {
-            spanBoList.addAll(getSpans0(transactionIdList, columnFamily));
-        }
-        return spanBoList;
+    private List<List<TransactionId>> partition(List<TransactionId> transactionIdList, int maxTransactionIdListSize) {
+        return Lists.partition(transactionIdList, maxTransactionIdListSize);
     }
 
-    private List<List<SpanBo>> getSpans0(List<TransactionId> transactionIdList, byte[] columnFamily) {
-        if (transactionIdList == null || transactionIdList.isEmpty()) {
+    private List<List<SpanBo>> partitionSelect(List<List<TransactionId>> partitionTransactionIdList, byte[] columnFamily, Filter filter) {
+        if (CollectionUtils.isEmpty(partitionTransactionIdList)) {
             return Collections.emptyList();
         }
-
         if (columnFamily == null) {
             throw new NullPointerException("columnFamily may not be null.");
         }
 
-        final List<Get> getList = new ArrayList<>(transactionIdList.size());
-        for (TransactionId transactionId : transactionIdList) {
-            byte[] transactionIdRowKey = transactionIdRowKeyEncoder.encodeRowKey(transactionId);
-            final Get get = new Get(transactionIdRowKey);
-            get.addFamily(columnFamily);
-
-            getList.add(get);
+        List<List<SpanBo>> spanBoList = new ArrayList<>();
+        for (List<TransactionId> transactionIdList : partitionTransactionIdList) {
+            List<List<SpanBo>> partitionSpanList = select0(transactionIdList, columnFamily, filter);
+            spanBoList.addAll(partitionSpanList);
         }
-        return template2.get(HBaseTables.TRACE_V2, getList, spanMapperV2);
+        return spanBoList;
     }
 
-    @Override
-    public List<SpanBo> selectSpans(TransactionId transactionId) {
-        return selectSpan(transactionId);
+    private List<List<SpanBo>> select0(List<TransactionId> transactionIdList, byte[] columnFamily, Filter filter) {
+        if (CollectionUtils.isEmpty(transactionIdList)) {
+            return Collections.emptyList();
+        }
+
+        final List<Get> multiGet = new ArrayList<>(transactionIdList.size());
+        for (TransactionId transactionId : transactionIdList) {
+            final Get get = createGet(transactionId, columnFamily, filter);
+            multiGet.add(get);
+        }
+        return template2.get(HBaseTables.TRACE_V2, multiGet, spanMapperV2);
     }
+
+    private Get createGet(TransactionId transactionId, byte[] columnFamily, Filter filter) {
+
+        byte[] transactionIdRowKey = rowKeyEncoder.encodeRowKey(transactionId);
+        final Get get = new Get(transactionIdRowKey);
+
+        get.addFamily(columnFamily);
+        if (filter != null) {
+            get.setFilter(filter);
+        }
+        return get;
+    }
+
+
+    public QualifierFilter createSpanQualifierFilter() {
+        byte indexPrefix = SpanEncoder.TYPE_SPAN;
+        BinaryPrefixComparator prefixComparator = new BinaryPrefixComparator(new byte[] {indexPrefix});
+        QualifierFilter qualifierPrefixFilter = new QualifierFilter(CompareFilter.CompareOp.EQUAL, prefixComparator);
+        return qualifierPrefixFilter;
+    }
+
+
 }

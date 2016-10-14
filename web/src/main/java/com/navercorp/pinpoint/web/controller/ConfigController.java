@@ -62,6 +62,10 @@ public class ConfigController {
             result.put("userDepartment", user.getDepartment());
         }
         
+        if(!StringUtils.isEmpty(webProperties.getSecurityGuideUrl())) {
+        	result.put("securityGuideUrl", webProperties.getSecurityGuideUrl());
+        }
+        
         return result;
     }
 }

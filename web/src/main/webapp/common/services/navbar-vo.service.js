@@ -1,19 +1,7 @@
 (function() {
-	'use strict';
-	/**
-	 * (en)NavbarVoService 
-	 * @ko NavbarVoService
-	 * @group Service
-	 * @name NavbarVoService
-	 * @class
-	 */
-	/*
-	pinpointApp.service( "NavbarVoService", [ "PreferenceService", function( preferenceService ) {
+	"use strict";
 
-	});
-	*/
-
-	pinpointApp.factory("NavbarVoService", [ "PreferenceService", function (preferenceService) {
+	pinpointApp.factory("NavbarVoService", [ "PreferenceService", "CommonUtilService", function ( PreferenceService, CommonUtilService ) {
 	    return function () {
 	        // define and initialize private variables;
 	        var self = this;
@@ -30,13 +18,11 @@
 	        this._sReadablePeriod = false;
 	        this._sQueryEndDateTime = false;
 
-			this._nCalleeRange = preferenceService.getCallee();
-	        this._nCallerRange = preferenceService.getCaller();
+			this._nCalleeRange = PreferenceService.getCallee();
+	        this._nCallerRange = PreferenceService.getCaller();
 	        
 	        this._sHint = false;
-	
-	        this._sDateTimeFormat = 'YYYY-MM-DD-HH-mm-ss';
-	
+
 	        this.setApplication = function (application) {
 	            if (angular.isString(application) && application.indexOf('@') > 0) {
 	                self._sApplication = application;
@@ -195,13 +181,13 @@
 	            return self._sQueryEndDateTime;
 	        };
 	        this._parseQueryEndDateTimeToTimestamp = function (queryEndDateTime) {
-	            return moment(queryEndDateTime, self._sDateTimeFormat).valueOf();
+	            return CommonUtilService.getMilliSecond( queryEndDateTime );
 	        };
 	        this.autoCalcultateByQueryStartTimeAndQueryEndTime = function () {
 	            self._nQueryPeriod = self._nQueryEndTime - self._nQueryStartTime;
 	            self._nPeriod = self._nQueryPeriod / 1000 / 60;
 	            self._sReadablePeriod = self._nQueryPeriod / 1000 / 60 + 'm';
-	            self._sQueryEndDateTime = moment(self._nQueryEndTime).format(self._sDateTimeFormat);
+	            self._sQueryEndDateTime = CommonUtilService.formatDate( self._nQueryEndTime );
 	            return self;
 	        };
 	        this.autoCalculateByQueryEndDateTimeAndReadablePeriod = function () {

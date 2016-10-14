@@ -49,16 +49,19 @@ public class PluginConfig {
 
     private final Instrumentation instrumentation;
     private final InstrumentClassPool classPool;
-    private final String bootstrapCoreJarPath;
+    private final List<String> bootstrapJarPaths;
 
     private final ClassNameFilter pluginPackageFilter;
 
-    public PluginConfig(URL pluginJar, ProfilerPlugin plugin, Instrumentation instrumentation, InstrumentClassPool classPool, String bootstrapCoreJarPath, ClassNameFilter pluginPackageFilter) {
+    public PluginConfig(URL pluginJar, ProfilerPlugin plugin, Instrumentation instrumentation, InstrumentClassPool classPool, List<String> bootstrapJarPaths, ClassNameFilter pluginPackageFilter) {
         if (pluginJar == null) {
             throw new NullPointerException("pluginJar must not be null");
         }
         if (plugin == null) {
             throw new NullPointerException("plugin must not be null");
+        }
+        if (bootstrapJarPaths == null) {
+            throw new NullPointerException("bootstrapJarPaths must not be null");
         }
         this.pluginJar = pluginJar;
         this.pluginJarFile = createJarFile(pluginJar);
@@ -66,7 +69,7 @@ public class PluginConfig {
 
         this.instrumentation = instrumentation;
         this.classPool = classPool;
-        this.bootstrapCoreJarPath = bootstrapCoreJarPath;
+        this.bootstrapJarPaths = bootstrapJarPaths;
 
         this.pluginPackageFilter = pluginPackageFilter;
     }
@@ -112,13 +115,25 @@ public class PluginConfig {
         return classPool;
     }
 
-    public String getBootstrapCoreJarPath() {
-        return bootstrapCoreJarPath;
+    public List<String> getBootstrapJarPaths() {
+        return bootstrapJarPaths;
     }
 
     public ClassNameFilter getPluginPackageFilter() {
         return pluginPackageFilter;
     }
 
-
+    @Override
+    public String toString() {
+        return "PluginConfig{" +
+                "pluginJar=" + pluginJar +
+                ", pluginJarFile=" + pluginJarFile +
+                ", pluginJarURLExternalForm='" + pluginJarURLExternalForm + '\'' +
+                ", plugin=" + plugin +
+                ", instrumentation=" + instrumentation +
+                ", classPool=" + classPool +
+                ", bootstrapJarPaths=" + bootstrapJarPaths +
+                ", pluginPackageFilter=" + pluginPackageFilter +
+                '}';
+    }
 }

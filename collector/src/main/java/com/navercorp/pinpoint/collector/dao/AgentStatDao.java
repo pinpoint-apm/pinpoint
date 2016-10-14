@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.thrift.dto.TAgentStat;
  * @author emeroad
  * @author hyungil.jeong
  */
+@Deprecated
 public interface AgentStatDao {
-    void insert(TAgentStat agentStat);
+    @Deprecated void insert(TAgentStat agentStat);
 }

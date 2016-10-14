@@ -116,6 +116,7 @@
                                     "legendValueText": "[[value]]",
                                     "lineColor": "rgba(31, 119, 180, 0)",
                                     "fillColor": "rgba(31, 119, 180, 0)",
+									"title": "Total",
                                     "valueField": "totalTps",
                                     "fillAlphas": 0.4,
                                     "connect": true

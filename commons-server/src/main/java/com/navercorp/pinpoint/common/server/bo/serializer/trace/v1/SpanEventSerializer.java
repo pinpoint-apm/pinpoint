@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v1;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.HbaseSerializer;
 import com.navercorp.pinpoint.common.server.bo.serializer.SerializationContext;
@@ -43,8 +44,10 @@ public class SpanEventSerializer implements HbaseSerializer<SpanEventEncodingCon
 
     private ByteBuffer writeQualifier(SpanEventEncodingContext spanEventEncodingContext) {
         SpanEventBo spanEventBo = spanEventEncodingContext.getSpanEventBo();
+        BasicSpan basicSpan = spanEventEncodingContext.getBasicSpan();
+
         final Buffer rowId = new AutomaticBuffer();
-        rowId.putLong(spanEventEncodingContext.getSpanId());
+        rowId.putLong(basicSpan.getSpanId());
         rowId.putShort(spanEventBo.getSequence());
         rowId.putInt(spanEventBo.getAsyncId());
         rowId.putShort(spanEventBo.getAsyncSequence());
@@ -53,13 +56,15 @@ public class SpanEventSerializer implements HbaseSerializer<SpanEventEncodingCon
 
     public ByteBuffer writeValue(SpanEventEncodingContext spanEventEncodingContext) {
         SpanEventBo spanEventBo = spanEventEncodingContext.getSpanEventBo();
+        BasicSpan basicSpan = spanEventEncodingContext.getBasicSpan();
+
         final Buffer buffer = new AutomaticBuffer(512);
 
         buffer.putByte(spanEventBo.getVersion());
 
-        buffer.putPrefixedString(spanEventBo.getAgentId());
-        buffer.putPrefixedString(spanEventBo.getApplicationId());
-        buffer.putVLong(spanEventBo.getAgentStartTime());
+        buffer.putPrefixedString(basicSpan.getAgentId());
+        buffer.putPrefixedString(basicSpan.getApplicationId());
+        buffer.putVLong(basicSpan.getAgentStartTime());
 
         buffer.putVInt(spanEventBo.getStartElapsed());
         buffer.putVInt(spanEventBo.getEndElapsed());

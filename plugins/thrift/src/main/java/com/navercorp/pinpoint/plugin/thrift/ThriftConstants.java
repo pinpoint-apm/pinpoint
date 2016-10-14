@@ -67,4 +67,5 @@ public final class ThriftConstants {
     private static final String FIELD_GETTER_BASE = "com.navercorp.pinpoint.plugin.thrift.field.getter.";
     public static final String FIELD_GETTER_T_NON_BLOCKING_TRANSPORT = FIELD_GETTER_BASE + "TNonblockingTransportFieldGetter";
     public static final String FIELD_GETTER_T_TRANSPORT = FIELD_GETTER_BASE + "TTransportFieldGetter";
+    public static final String FIELD_GETTER_T_PROTOCOL = FIELD_GETTER_BASE + "TProtocolFieldGetter";
 }

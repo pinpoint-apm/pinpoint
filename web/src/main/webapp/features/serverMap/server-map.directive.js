@@ -457,7 +457,11 @@
 	                    }
 	                    oServerMap.load(htLastMergedMapData);
 	                    oProgressBarService.stopLoading();
-	
+
+						if ( scope.oNavbarVoService.isRealtime() ) {
+							sLastSelection = "node";
+							htLastNode = null;
+						}
 	                    updateLastSelection(selectedNode);
 	                };
 	
@@ -511,7 +515,7 @@
 	                    scope.fromAgentName = '';
 	                    scope.toAgentName = '';
 	
-	                    scope.$broadcast('sidebarTitleDirective.initialize.forServerMap', oSidebarTitleVoService);
+	                    scope.$broadcast('sidebarTitleDirective.initialize.forServerMap', oSidebarTitleVoService, htLastLink);
 	
 	                    $('#filterWizard').modal('show');
 	                    if (!bIsFilterWizardLoaded) {

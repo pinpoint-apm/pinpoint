@@ -69,7 +69,7 @@ public class MockAgent extends DefaultAgent {
                 throw new FileNotFoundException("pinpoint.config not found. configPath:" + configPath);
             }
             profilerConfig = DefaultProfilerConfig.load(resource.getPath());
-            profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
+            ((DefaultProfilerConfig)profilerConfig).setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
         } catch (IOException ex) {
             throw new RuntimeException(ex.getMessage(), ex);
         }

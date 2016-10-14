@@ -42,7 +42,7 @@ public class RedisPluginConfig {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("{pipelineEnabled=");
+        builder.append("RedisPluginConfig{pipelineEnabled=");
         builder.append(pipelineEnabled);
         builder.append(", io=");
         builder.append(io);

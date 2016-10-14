@@ -1,18 +1,18 @@
 (function() {
 	"use strict";
-	/**
-	 * (en)nodeInfoDetailsDirective 
-	 * @ko nodeInfoDetailsDirective
-	 * @group Directive
-	 * @name nodeInfoDetailsDirective
-	 * @class
-	 */	
+	pinpointApp.filter( "startFrom", function () {
+		return function( node, start ) {
+			if ( !node || !node.length ) { return; }
+			return node.slice( start );
+		};
+	});
+
 	pinpointApp.constant("nodeInfoDetailsDirectiveConfig", {
 	    maxTimeToShowLoadAsDefaultForUnknown: 60 * 60 * 12 // 12h
 	});
 	
-	pinpointApp.directive("nodeInfoDetailsDirective", [ "nodeInfoDetailsDirectiveConfig", "$rootScope", "$filter", "$timeout", "isVisibleService", "$window", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService",
-        function (cfg, $rootScope, $filter, $timeout, isVisibleService, $window, analyticsService, preferenceService, tooltipService, commonAjaxService ) {
+	pinpointApp.directive("nodeInfoDetailsDirective", [ "nodeInfoDetailsDirectiveConfig", "$rootScope", "$filter", "$timeout", "isVisibleService", "globalConfig", "$window", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService",
+        function (cfg, $rootScope, $filter, $timeout, isVisibleService, globalConfig, $window, analyticsService, preferenceService, tooltipService, commonAjaxService ) {
             return {
                 restrict: "EA",
                 replace: true,
@@ -82,10 +82,11 @@
                      * show detail information
                      * @param node
                      */
+					scope.pagingSize = 3;
                     showDetailInformation = function (node) {
                         scope.showNodeInfoDetails = true;
                         scope.node = node;
-                        scope.unknownNodeGroup = node.unknownNodeGroup;
+						scope.unknownNodeGroup = node.unknownNodeGroup;
                         scope.serverList = node.serverList;
                         scope.showNodeServers = _.isEmpty(scope.serverList) ? false : true;
                         scope.agentHistogram = node.agentHistogram;
@@ -97,7 +98,7 @@
                             renderLoad("forNode", node.applicationName, node.timeSeriesHistogram, "100%", "220px", true);
                         } else if ( /_GROUP$/.test( node.serviceType ) ){
                             scope.showNodeResponseSummaryForUnknown = (scope.oNavbarVoService.getPeriod() <= cfg.maxTimeToShowLoadAsDefaultForUnknown) ? false : true;
-                            renderAllChartWhichIsVisible(node);
+                            renderAllChartWhichIsVisible(scope.unknownNodeGroup);
                             scope.htLastUnknownNode = node;
 
                             $timeout(function () {
@@ -115,26 +116,31 @@
                      * render all chart which is visible
                      * @param node
                      */
-                    renderAllChartWhichIsVisible = function (node) {
+                    renderAllChartWhichIsVisible = function (nodeList, forPaging) {
                         $timeout(function () {
-                            angular.forEach(node.unknownNodeGroup, function (node){
+                            angular.forEach(nodeList, function (node){
                                 var applicationName = node.applicationName,
                                     className = $filter("applicationNameToClassName")(applicationName);
-                                if (angular.isDefined(htUnknownResponseSummary[applicationName])) return;
-                                if (angular.isDefined(htUnknownLoad[applicationName])) return;
+								if ( forPaging !== true ) {
+									if (angular.isDefined(htUnknownResponseSummary[applicationName])) return;
+									if (angular.isDefined(htUnknownLoad[applicationName])) return;
+								}
 
                                 var elQuery = ".nodeInfoDetails .summaryCharts_" + className,
                                     el = angular.element(elQuery);
-                                var visible = isVisibleService(el.get(0), 1);
-                                if (!visible) return;
 
-                                if (scope.showNodeResponseSummaryForUnknown) {
-                                    htUnknownResponseSummary[applicationName] = true;
-                                    renderResponseSummary(null, applicationName, node.histogram, "100%", "150px");
-                                } else {
-                                    htUnknownLoad[applicationName] = true;
-                                    renderLoad(null, applicationName, node.timeSeriesHistogram, "100%", "220px", true);
-                                }
+								if ( el.length !== 0 ) {
+									var visible = isVisibleService(el.get(0), 1);
+									if (!visible) return;
+
+									if (scope.showNodeResponseSummaryForUnknown) {
+										htUnknownResponseSummary[applicationName] = true;
+										renderResponseSummary(null, applicationName, node.histogram, "100%", "150px");
+									} else {
+										htUnknownLoad[applicationName] = true;
+										renderLoad(null, applicationName, node.timeSeriesHistogram, "100%", "220px", true);
+									}
+								}
                             });
                         });
                     };
@@ -236,6 +242,16 @@
 						});
 						return aLoadSum;
 					}
+					function calcuPagingSize( nodeList ) {
+						if ( nodeList ) {
+							var count = parseInt(nodeList.length / scope.pagingSize) + ( nodeList.length % scope.pagingSize === 0 ? 0 : 1 );
+							scope.pagingCount = [];
+
+							for( var i = 1 ; i <= count ; i++ ) {
+								scope.pagingCount.push( i );
+							}
+						}
+					}
 					scope.isGroupNode = function() {
 						if ( scope.node ) {
 							return scope.node.serviceType.indexOf("_GROUP") != -1 && scope.isAuthorized;
@@ -253,6 +269,9 @@
 					};
 					scope.isNotAuthorized = function() {
 						return scope.isAuthorized === false;
+					};
+					scope.getAuthGuideUrl = function() {
+						return globalConfig.securityGuideUrl;
 					};
 
                     /**
@@ -272,7 +291,7 @@
                         htLastNode = scope.htLastUnknownNode;
                         htUnknownResponseSummary = {};
                         htUnknownLoad = {};
-                        showDetailInformation(htLastNode);
+                        showDetailInformation(htLastNode, scope.currentPage );
 						$rootScope.$broadcast("infoDetail.showDetailInformationClicked", htQuery, htLastNode);
                     };
 
@@ -316,7 +335,20 @@
                      * scope node search change
                      */
                     scope.nodeSearchChange = function () {
-                        renderAllChartWhichIsVisible(htLastNode);
+						scope.currentPage = 1;
+						scope.unknownNodeGroup = [];
+						for( var i = 0 ; i < htLastNode.unknownNodeGroup.length ; i++ ) {
+							var oNode = htLastNode.unknownNodeGroup[i];
+							if (scope.nodeSearch) {
+								if ( oNode.applicationName.indexOf(scope.nodeSearch) > -1 || oNode.totalCount.toString().indexOf(scope.nodeSearch) > -1) {
+									scope.unknownNodeGroup.push( oNode );
+								}
+							} else {
+								scope.unknownNodeGroup.push( oNode );
+							}
+						}
+						calcuPagingSize( scope.unknownNodeGroup );
+                        renderAllChartWhichIsVisible(scope.unknownNodeGroup, true);
                     };
 
                     /**
@@ -336,7 +368,7 @@
                             scope.nodeOrderByDesc = true;
                             scope.nodeOrderBy = "applicationName";
                         }
-                        renderAllChartWhichIsVisible(htLastNode);
+                        renderAllChartWhichIsVisible(scope.unknownNodeGroup, true);
                     };
 
                     /**
@@ -356,7 +388,7 @@
                             scope.nodeOrderByDesc = true;
                             scope.nodeOrderBy = "totalCount";
                         }
-                        renderAllChartWhichIsVisible(htLastNode);
+                        renderAllChartWhichIsVisible(scope.unknownNodeGroup, true);
                     };
 
                     /**
@@ -367,8 +399,7 @@
                      */
                     scope.showUnknownNodeBy = function (nodeSearch, node) {
                         if (nodeSearch) {
-                            if (node.applicationName.indexOf(nodeSearch) > -1 ||
-                                node.totalCount.toString().indexOf(nodeSearch) > -1) {
+                            if (node.applicationName.indexOf(nodeSearch) > -1 ||  node.totalCount.toString().indexOf(nodeSearch) > -1) {
                                 return true;
                             } else {
                                 return false;
@@ -377,6 +408,11 @@
                             return true;
                         }
                     };
+                    scope.movePaging = function( nextPage ) {
+						if (scope.currentPage == nextPage) return;
+						scope.currentPage = nextPage;
+						renderAllChartWhichIsVisible(scope.unknownNodeGroup, true);
+					};
                     /**
                      * scope event on nodeInfoDetailsDirective.initialize
                      */
@@ -390,8 +426,11 @@
                         scope.htLastUnknownNode = false;
                         scope.oNavbarVoService = navbarVoService;
                         scope.nodeSearch = searchQuery || "";
+						scope.currentPage = 1;
                         htServermapData = mapData;
-                        showDetailInformation(node);
+
+						calcuPagingSize( node.unknownNodeGroup );
+						showDetailInformation(node);
                     });
 
                     /**
@@ -405,7 +444,7 @@
                      * scope event on nodeInfoDetailsDirective.lazyRendering
                      */
                     scope.$on("nodeInfoDetailsDirective.lazyRendering", function (event, e) {
-                        renderAllChartWhichIsVisible(htLastNode);
+                        renderAllChartWhichIsVisible(scope.unknownNodeGroup);
                     });
 
                     scope.$on("responseTimeChartDirective.itemClicked.forNode", function (event, data) {
@@ -436,7 +475,7 @@
 							});
 						}
 					});
-					scope.$on("changedCurrentAgent", function( event, agentName ) {
+					scope.$on("changedCurrentAgent.forMain", function( event, agentName ) {
 						var responseSummaryData = null;
 						var loadData = null;
 						if ( agentName === preferenceService.getAgentAllStr() ) {

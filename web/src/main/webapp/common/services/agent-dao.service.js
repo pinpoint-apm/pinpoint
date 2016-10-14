@@ -73,14 +73,14 @@
 	
 	            for (var i = 0; i < pointsCount.length; ++i) {
 	                var thisData = {
-	                    time: moment(pointsTime[i].timestamp).format( cfg.dateFormat )
+	                    time: moment(pointsTime[i].xVal).format( cfg.dateFormat )
 	                };
 	                for (var k in info.line) {
 	                    if (info.line[k].isFgc) {
 	                        var gcCount = 0;
 	                        var gcTime = 0;
-	                        currTime = pointsTime[i].maxVal;
-	                        currCount = pointsCount[i].maxVal;
+	                        currTime = pointsTime[i].maxYVal;
+	                        currCount = pointsCount[i].maxYVal;
 	                        if (!prevTime || !prevCount) {
 	                            prevTime = currTime;
 	                            prevCount = currCount;
@@ -107,7 +107,7 @@
 	                        	thisData[info.line[k].key+"Time"] = gcTime;
 	                        }
 	                    } else {
-	                    	var value = agentStat.charts[info.line[k].id].points[i].maxVal;
+	                    	var value = agentStat.charts[info.line[k].id].points[i].maxYVal;
 	                    	if ( value >= 0 ) {
 	                    		thisData[info.line[k].key] = value;
 	                    	}
@@ -144,15 +144,15 @@
 	            }
 	            
 	            for (var i = 0; i < pointsJvmCpuLoad.length; ++i) {
-	                if (pointsJvmCpuLoad[i].timestamp !== pointsSystemCpuLoad[i].timestamp) {
+	                if (pointsJvmCpuLoad[i].xVal !== pointsSystemCpuLoad[i].xVal) {
 	                	throw new Error('assertion error', 'timestamp mismatch between jvmCpuLoad and systemCpuLoad');
 	                }
 	                var thisData = {
-						time: moment(pointsJvmCpuLoad[i].timestamp).format( cfg.dateFormat ),
+						time: moment(pointsJvmCpuLoad[i].xVal).format( cfg.dateFormat ),
 	                    maxCpuLoad: 100
 	                };
-	                var jvmCpuLoad = typeof agentStat.charts['CPU_LOAD_JVM'].points[i].maxVal == "number" ? agentStat.charts['CPU_LOAD_JVM'].points[i].maxVal.toFixed(2) : 0.00;
-	                var systemCpuLoad = typeof agentStat.charts['CPU_LOAD_SYSTEM'].points[i].maxVal == "number" ? agentStat.charts['CPU_LOAD_SYSTEM'].points[i].maxVal.toFixed(2) : 0.00;
+	                var jvmCpuLoad = typeof agentStat.charts['CPU_LOAD_JVM'].points[i].maxYVal == "number" ? agentStat.charts['CPU_LOAD_JVM'].points[i].maxYVal.toFixed(2) : 0.00;
+	                var systemCpuLoad = typeof agentStat.charts['CPU_LOAD_SYSTEM'].points[i].maxYVal == "number" ? agentStat.charts['CPU_LOAD_SYSTEM'].points[i].maxYVal.toFixed(2) : 0.00;
 	                if ( jvmCpuLoad >= 0 ) {
 	                    thisData.jvmCpuLoad = jvmCpuLoad;
 	                }
@@ -177,45 +177,93 @@
 	        	var aUnsampledContinuationData = agentStat.charts['TPS_UNSAMPLED_CONTINUATION'].points;
 	        	var aUnsampledNewData = agentStat.charts['TPS_UNSAMPLED_NEW'].points;
 	        	var aTotalData = agentStat.charts['TPS_TOTAL'].points;
-	        	
+				var newData = [];
+				var DATA_UNAVAILABLE = -1;
+
 	        	var tpsLength = aTotalData.length;
 	        	if ( tpsLength > 0 ) {
 	        		tps.isAvailable = true;
 	        	} else {
-	        		return;
+	        		return newData;
 	        	}
-	            var newData = [],
-	            DATA_UNAVAILABLE = -1;
-	            
+
 	            for ( var i = 0 ; i < tpsLength ; i++ ) {
-	                var thisData = {
-						time: moment(aSampledContinuationData[i].timestamp).format( cfg.dateFormat )
-	                };
-	                var sampledContinuationTps     = typeof aSampledContinuationData[i].avgVal == "number" ? aSampledContinuationData[i].avgVal.toFixed(2) : 0.00;
-	                var sampledNewTps              = typeof aSampledNewData[i].avgVal == "number" ? aSampledNewData[i].avgVal.toFixed(2) : 0.00;
-	                var unsampledContinuationTps   = typeof aUnsampledContinuationData[i].avgVal == "number" ? aUnsampledContinuationData[i].avgVal.toFixed(2) : 0.00;
-	                var unsampledNewTps            = typeof aUnsampledNewData[i].avgVal == "number" ? aUnsampledNewData[i].avgVal.toFixed(2) : 0.00;
-	                var totalTps                   = typeof aTotalData[i].avgVal == "number" ? aTotalData[i].avgVal.toFixed(2) : 0.00;
-	                if ( sampledContinuationTps != DATA_UNAVAILABLE ) {
-                        thisData.sampledContinuationTps = sampledContinuationTps;
-	                }
-	                if ( sampledNewTps != DATA_UNAVAILABLE ) {
-	                    thisData.sampledNewTps = sampledNewTps;
-	                }
-	                if ( unsampledContinuationTps != DATA_UNAVAILABLE ) {
-	                    thisData.unsampledContinuationTps = unsampledContinuationTps;
-	                }
-	                if ( unsampledNewTps != DATA_UNAVAILABLE ) {
-	                    thisData.unsampledNewTps = unsampledNewTps;
-	                }
-	                if ( totalTps != DATA_UNAVAILABLE ) {
-	                    thisData.totalTps = totalTps;
-	                }
-	                newData.push(thisData);
+	            	var obj = {
+						"time" : moment(aSampledContinuationData[i].xVal).format( cfg.dateFormat )
+					};
+					var sampledContinuationTps = getFloatValue( aSampledContinuationData[i].avgYVal );
+					var sampledNewTps = getFloatValue( aSampledNewData[i].avgYVal );
+					var unsampledContinuationTps = getFloatValue( aUnsampledContinuationData[i].avgYVal );
+					var unsampledNewTps = getFloatValue( aUnsampledNewData[i].avgYVal );
+					var totalTps = getFloatValue( aTotalData[i].avgYVal );
+
+					if ( sampledContinuationTps != DATA_UNAVAILABLE ) {
+						obj.sampledContinuationTps = sampledContinuationTps;
+					}
+					if ( sampledNewTps != DATA_UNAVAILABLE ) {
+						obj.sampledNewTps = sampledNewTps;
+					}
+					if ( unsampledContinuationTps != DATA_UNAVAILABLE ) {
+						obj.unsampledContinuationTps = unsampledContinuationTps;
+					}
+					if ( unsampledNewTps != DATA_UNAVAILABLE ) {
+						obj.unsampledNewTps = unsampledNewTps;
+					}
+					if ( totalTps != DATA_UNAVAILABLE ) {
+						obj.totalTps = totalTps;
+					}
+					newData.push( obj );
 	            }
 	            
 	            return newData;
 	        };
+			this.parseActiveTraceChartDataForAmcharts = function (activeTrace, agentStat) {
+				var aActiveTraceFastData = agentStat.charts[ "ACTIVE_TRACE_FAST" ].points;
+				var aActiveTraceNormal = agentStat.charts[ "ACTIVE_TRACE_NORMAL" ].points;
+				var aActiveTraceSlow = agentStat.charts[ "ACTIVE_TRACE_SLOW" ].points;
+				var aActiveTraceVerySlow = agentStat.charts[ "ACTIVE_TRACE_VERY_SLOW" ].points;
+				var newData = [];
+				var DATA_UNAVAILABLE = -1;
+
+				if ( aActiveTraceFastData || aActiveTraceNormal || aActiveTraceSlow || aActiveTraceVerySlow ) {
+					activeTrace.isAvailable = true;
+				} else {
+					return newData;
+				}
+
+				for ( var i = 0 ; i < aActiveTraceFastData.length ; i++ ) {
+					var obj = {
+						"time": moment(aActiveTraceFastData[i].xVal).format(cfg.dateFormat)
+					};
+
+					var fast = getFloatValue( aActiveTraceFastData[i].avgYVal );
+					var normal = getFloatValue( aActiveTraceNormal[i].avgYVal );
+					var slow = getFloatValue( aActiveTraceSlow[i].avgYVal );
+					var verySlow = getFloatValue( aActiveTraceVerySlow[i].avgYVal );
+
+					if ( fast != DATA_UNAVAILABLE ) {
+						obj.fast = fast;
+						obj.fastTitle = aActiveTraceFastData[i].title;
+					}
+					if ( normal != DATA_UNAVAILABLE ) {
+						obj.normal = normal;
+						obj.normalTitle = aActiveTraceNormal[i].title;
+					}
+					if ( slow != DATA_UNAVAILABLE ) {
+						obj.slow = slow;
+						obj.slowTitle = aActiveTraceSlow[i].title;
+					}
+					if ( verySlow != DATA_UNAVAILABLE ) {
+						obj.verySlow = verySlow;
+						obj.verySlowTitle = aActiveTraceVerySlow[i].title;
+					}
+					newData.push( obj );
+				}
+				return newData;
+			};
+			function getFloatValue( val ) {
+				return angular.isNumber( val ) ? val.toFixed(2) : 0.00;
+			}
 	    }
 	]);
 })();

@@ -19,7 +19,7 @@ import java.util.Map.Entry;
 
 /**
  * @author Jongho Moon
- *
+ * @author jaehong.kim
  */
 public class Cache {
     private static final int SHARD_SIZE_LIMIT = 64;
@@ -35,24 +35,24 @@ public class Cache {
         }
     }
     
-    public boolean contains(Class<?> clazz) {
-        final Shard shard = getShard(clazz);
+    public boolean contains(final String className) {
+        final Shard shard = getShard(className);
         
         synchronized (shard) {
-            return shard.containsKey(clazz);
+            return shard.containsKey(className);
         }
     }
     
-    public void put(Class<?> clazz) {
+    public void put(final String className) {
 
-        final Shard shard = getShard(clazz);
+        final Shard shard = getShard(className);
         synchronized (shard) {
-            shard.put(clazz, Boolean.TRUE);
+            shard.put(className, Boolean.TRUE);
         }
     }
     
-    private Shard getShard(Class<?> clazz) {
-        int idx = clazz.getName().hashCode() % SHARD_NUM;
+    private Shard getShard(final String className) {
+        int idx = className.hashCode() % SHARD_NUM;
         
         if (idx < 0) {
             idx += SHARD_NUM;
@@ -62,10 +62,10 @@ public class Cache {
     }
     
     @SuppressWarnings("serial")
-    private static final class Shard extends LinkedHashMap<Class<?>, Boolean> {
+    private static final class Shard extends LinkedHashMap<String, Boolean> {
 
         @Override
-        protected boolean removeEldestEntry(Entry<Class<?>, Boolean> eldest) {
+        protected boolean removeEldestEntry(Entry<String, Boolean> eldest) {
             return size() > SHARD_SIZE_LIMIT;
         }
         

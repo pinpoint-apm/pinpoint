@@ -89,7 +89,9 @@
                     'NBASE_T_GROUP': 'NBASE_T.png',
                     'USER': 'USER.png',
                     'USER_GROUP': 'USER.png',
-					'UNAUTHORIZED': 'UNAUTHORIZED.png'
+					'UNAUTHORIZED': 'UNAUTHORIZED.png',
+					'JBOSS': 'JBOSS.png',
+                    'JBOSS_GROUP': 'JBOSS.png'
                 },
                 "htNodeTheme": {
                     "default": {
@@ -894,7 +896,7 @@
             this._oDiagram.layout = this.$(
 				go.LayeredDigraphLayout,
                 {
-                    // isOngoing: true,
+                    isOngoing: false,
                     layerSpacing: 100,
                     columnSpacing: 30,
                     setsPortSpots: false

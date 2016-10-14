@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -61,7 +62,7 @@ public class RecordFactory {
                 align.getId(), 
                 parentId, 
                 true, 
-                api.title, 
+                api.getTitle(),
                 argument, 
                 align.getStartTime(), 
                 align.getElapsed(), 
@@ -70,15 +71,15 @@ public class RecordFactory {
                 align.getApplicationId(), 
                 registry.findServiceType(align.getServiceType()),
                 align.getDestinationId(), 
-                align.isHasChild(), 
+                align.hasChild(),
                 false, 
                 align.getTransactionId(), 
                 align.getSpanId(), 
                 align.getExecutionMilliseconds(), 
-                api.type,
+                api.getMethodTypeEnum(),
                 true);
-        record.setSimpleClassName(api.className);
-        record.setFullApiDescription(api.description);
+        record.setSimpleClassName(api.getClassName());
+        record.setFullApiDescription(api.getDescription());
 
         return record;
     }
@@ -88,8 +89,8 @@ public class RecordFactory {
         align.setId(getNextId());
 
         final int parentId = getParentId(node);
-        Api api = getApi(align);
-        
+//        Api api = getApi(align);
+
         final Record record = new Record(align.getDepth(), 
                 align.getId(), 
                 parentId, 
@@ -107,8 +108,8 @@ public class RecordFactory {
                 false, 
                 align.getTransactionId(), 
                 align.getSpanId(), 
-                align.getExecutionMilliseconds(),  
-                0,
+                align.getExecutionMilliseconds(),
+                MethodTypeEnum.DEFAULT,
                 false);
         
         return record;
@@ -129,7 +130,7 @@ public class RecordFactory {
                 align.getTransactionId(), 
                 align.getSpanId(), 
                 align.getExecutionMilliseconds(),
-                0,
+                MethodTypeEnum.DEFAULT,
                 true);
         
         return record;
@@ -158,7 +159,8 @@ public class RecordFactory {
                         false, 
                         key.getName(), 
                         annotation.getValue().toString(), 
-                        0L, 0L, 0, null, null, null, null, false, false, null, 0, 0, 0, annotation.isAuthorized());
+                        0L, 0L, 0, null, null, null, null, false, false, null, 0, 0,
+                        MethodTypeEnum.DEFAULT, annotation.isAuthorized());
                 list.add(record);
             }
         }
@@ -173,14 +175,15 @@ public class RecordFactory {
                 false, 
                 method, 
                 argument, 
-                0L, 0L, 0, null, null, null, null, false, false, null, 0, 0, 0, true);
+                0L, 0L, 0, null, null, null, null, false, false, null, 0, 0,
+                MethodTypeEnum.DEFAULT, true);
     }
     
 
     int getParentId(final CallTreeNode node) {
         final CallTreeNode parent = node.getParent();
         if (parent == null) {
-            if(!node.getValue().isSpan()) {
+            if (!node.getValue().isSpan()) {
                 throw new IllegalStateException("parent is null. node=" + node); 
             }
 
@@ -190,30 +193,35 @@ public class RecordFactory {
         return parent.getValue().getId();
     }
 
-    Api getApi(final SpanAlign align) {
-        final Api api = new Api();
+    private Api getApi(final SpanAlign align) {
 
-        final AnnotationBo annotation =  AnnotationUtils.findAnnotationBo(align.getAnnotationBoList(), AnnotationKey.API_METADATA);
-
+        final AnnotationBo annotation = AnnotationUtils.findAnnotationBo(align.getAnnotationBoList(), AnnotationKey.API_METADATA);
         if (annotation != null) {
+
+            final Api api = new Api();
             final ApiMetaDataBo apiMetaData = (ApiMetaDataBo) annotation.getValue();
-            api.title = api.description = getApiInfo(apiMetaData);
-            if (apiMetaData.getType() == 0) {
+            String apiInfo = getApiInfo(apiMetaData);
+            api.setTitle(apiInfo);
+            api.setDescription(apiInfo);
+            if (apiMetaData.getMethodTypeEnum() == MethodTypeEnum.DEFAULT) {
                 try {
                     ApiDescription apiDescription = apiDescriptionParser.parse(api.description);
-                    api.title = apiDescription.getSimpleMethodDescription();
-                    api.className = apiDescription.getSimpleClassName();
-                } catch(Exception e) {
-                    logger.warn("Failed to api parse. {}", api.description, e);
+                    api.setTitle(apiDescription.getSimpleMethodDescription());
+                    api.setClassName(apiDescription.getSimpleClassName());
+                } catch (Exception e) {
+                    logger.debug("Failed to api parse. {}", api.description, e);
                 }
             }
-            api.type = apiMetaData.getType();
+            api.setMethodTypeEnum(apiMetaData.getMethodTypeEnum());
+            return api;
+
         } else {
+
+            final Api api = new Api();
             AnnotationKey apiMetaDataError = getApiMetaDataError(align.getAnnotationBoList());
-            api.title = apiMetaDataError.getName();
+            api.setTitle(apiMetaDataError.getName());
+            return api;
         }
-        
-        return api;
     }
 
     private String getApiInfo(ApiMetaDataBo apiMetaDataBo) {
@@ -247,6 +255,44 @@ public class RecordFactory {
         private String title = "";
         private String className = "";
         private String description = "";
-        private int type = 0;
+        private MethodTypeEnum methodTypeEnum = MethodTypeEnum.DEFAULT;
+
+        public Api() {
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getClassName() {
+            return className;
+        }
+
+        public void setClassName(String className) {
+            this.className = className;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+
+        public MethodTypeEnum getMethodTypeEnum() {
+            return methodTypeEnum;
+        }
+
+        public void setMethodTypeEnum(MethodTypeEnum methodTypeEnum) {
+            if (methodTypeEnum == null) {
+                throw new NullPointerException("methodTypeEnum must not be null");
+            }
+            this.methodTypeEnum = methodTypeEnum;
+        }
     }
 }

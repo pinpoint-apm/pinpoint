@@ -264,7 +264,7 @@ public class SpanEncoderV0 implements SpanEncoder {
                 // skip bitfield
                 break;
             default:
-                throw new IllegalStateException("unsupported SequenceEncodingStrategy");
+                throw new IllegalStateException("unsupported StartElapsedEncodingStrategy");
         }
         buffer.putVInt(spanEventBo.getEndElapsed());
 

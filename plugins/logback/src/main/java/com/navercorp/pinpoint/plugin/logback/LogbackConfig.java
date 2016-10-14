@@ -36,7 +36,7 @@ public class LogbackConfig {
 
     @Override
     public String toString() {
-        return "LogbackjConfig [ logbackLoggingTransactionInfo=" + logbackLoggingTransactionInfo + "]";
+        return "LogbackConfig [ logbackLoggingTransactionInfo=" + logbackLoggingTransactionInfo + "]";
     }
 
 }

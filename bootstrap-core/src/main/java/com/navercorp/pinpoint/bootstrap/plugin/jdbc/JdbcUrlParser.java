@@ -41,7 +41,14 @@ public abstract class JdbcUrlParser {
             return hit;
         }
 
-        final DatabaseInfo databaseInfo = doParse(url);
+        DatabaseInfo databaseInfo = null;
+        try {
+            databaseInfo = doParse(url);
+        } catch (Exception e) {
+            logger.error("connectionString parse fail. url:{} ", url);
+            databaseInfo = UnKnownDatabaseInfo.INSTANCE;
+        }
+
         final DatabaseInfo old = cache.putIfAbsent(url, databaseInfo);
  
         if (old != null) {

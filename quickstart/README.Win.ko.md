@@ -20,9 +20,9 @@ Pinpoint는 공식적으로는 Linux와 OS X를 지원한다. 하지만 Pinpoint
 
 **Collector** - `quickstart\bin\start-collector.cmd` 실행
 
-**Web UI** - `quickstart\bin\start-web.cmd` 실행
-
 **TestApp** - `quickstart\bin\start-testapp.cmd` 실행
+
+**Web UI** - `quickstart\bin\start-web.cmd` 실행
 
 ### 상태 확인
 HBase와 3개 데몬이 실행한 후 Pinpoint 인스턴스를 테스트하려면 아래 주소로 접속한다.
@@ -34,10 +34,10 @@ TestApp UI를 사용하여 Pinpoint로 추적 데이터를 전송하고, Pinpoin
 
 ## 종료하기
 
-**HBase** - `quickstart\bin\stop-hbase.cmd` 실행
-
-**Collector** - `quickstart\bin\stop-collector.cmd` 실행
-
 **Web UI** - `quickstart\bin\stop-web.cmd` 실행
 
 **TestApp** - `quickstart\bin\stop-testapp.cmd` 실행
+
+**Collector** - `quickstart\bin\stop-collector.cmd` 실행
+
+**HBase** - `quickstart\bin\stop-hbase.cmd` 실행

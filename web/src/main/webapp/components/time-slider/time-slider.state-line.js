@@ -23,7 +23,7 @@
         this._oLineElementHash = {};
     };
     ts.StateLine.prototype._addBaseLine = function() {
-        this._baseColor = TimeSlider.EventColor["base"];
+        this._defaultBaseColor = TimeSlider.EventColor["base"];
         this._aBaseLine = [
 			this._makeRect( 0, this.opt.width, this.opt.topLineY, this.opt.bottomLineY - this.opt.topLineY, "base", "base-" + Date.now() )
 			// this._makeLine( 0, this.opt.width, this.opt.topLineY, "base", "base-" + Date.now() )//,
@@ -35,11 +35,10 @@
     ts.StateLine.prototype._addEventElements = function( ) {
         var len = this._oEventData.count();
         for( var i = 0 ; i < len ; i++ ) {
-            this._addEventElement( this._oEventData.getDataByIndex(i) );
+            this._addEventElement( this._oEventData.getDataByIndex(i), i );
         }
     };
-    ts.StateLine.prototype._addEventElement = function( oEvent ) {
-		return;
+    ts.StateLine.prototype._addEventElement = function( oEvent, index ) {
         if ( typeof oEvent.durationStartTimestamp !== "undefined" ) {
             if ( this.timeSlider.oPositionManager.isInSliderTimeSeries( oEvent.durationStartTimestamp ) === false && this.timeSlider.oPositionManager.isInSliderTimeSeries( oEvent.durationEndTimestamp ) === false ) return;
             this._hasDurationData = true;
@@ -48,6 +47,9 @@
                 this._getX2( oEvent ),
                 oEvent
             );
+			if ( index === 0 ) {
+				this._resetBaseLineColor( TimeSlider.EmptyEventColor[oEvent.eventTypeCode+ ""] );
+			}
         }
     };
     ts.StateLine.prototype._makeID = function( oEvent ) {
@@ -72,14 +74,14 @@
 			"data-id": id
 		});
 	};
-    ts.StateLine.prototype._makeLine = function( x, x2, y, eventType, id ) {
-        return  this.timeSlider.snap.line( x, y, x2, y ).attr({
-            //"filter": this._filterShadow,
-            "stroke": TimeSlider.EventColor[eventType],
-            "data-id": id,
-            "strokeWidth": this.opt.thickness
-        });
-    };
+    // ts.StateLine.prototype._makeLine = function( x, x2, y, eventType, id ) {
+    //     return  this.timeSlider.snap.line( x, y, x2, y ).attr({
+    //         //"filter": this._filterShadow,
+    //         "stroke": TimeSlider.EventColor[eventType],
+    //         "data-id": id,
+    //         "strokeWidth": this.opt.thickness
+    //     });
+    // };
     ts.StateLine.prototype._hasEventData = function( id ) {
         return typeof this._oLineElementHash[id] === "undefined" ? false : true;
     };
@@ -91,7 +93,7 @@
         for( var i = 0 ; i < len ; i++ ) {
             var oEvent = this._oEventData.getDataByIndex(i);
             if ( this._hasEventData( this._makeID( oEvent ) ) === false ) {
-                this._addEventElement( oEvent );
+                this._addEventElement( oEvent, i );
             }
         }
         this.reset();
@@ -103,25 +105,25 @@
             //aLine[1].remove();
         }
         this._oLineElementHash = {};
+        this._hasDurationData = false;
     };
     ts.StateLine.prototype.setDefaultStateLineColor = function( color ) {
-        this._baseColor = color;
+        this._defaultBaseColor = color;
         if ( this._hasDurationData === true ) return;
-        this._aBaseLine.forEach(function( elLine ) {
-            //elLine.attr("stroke", color);
-			elLine.attr("fill", color);
-        });
+		this._resetBaseLineColor();
     };
-    ts.StateLine.prototype._resetBaseLineColor = function() {
+    ts.StateLine.prototype._resetBaseLineColor = function( baseColor ) {
         var self = this;
         this._aBaseLine.forEach(function( elLine ) {
-            //elLine.attr("stroke", self._hasDurationData === true ? TimeSlider.EventColor["base"] : self._baseColor );
-			elLine.attr("fill", self._hasDurationData === true ? TimeSlider.EventColor["base"] : self._baseColor );
+            //elLine.attr("stroke", self._hasDurationData === true ? TimeSlider.EventColor["base"] : self._defaultBaseColor );
+			elLine.attr("fill", self._hasDurationData === true ? baseColor : self._defaultBaseColor );
         });
     };
     ts.StateLine.prototype.reset = function() {
         var self = this;
         var oPM = this.timeSlider.oPositionManager;
+		var lessDurationStartTime = Number.MAX_VALUE;
+		var lessEventTypeCode = "";
         for( var p in this._oLineElementHash ) {
             var aLine = this._oLineElementHash[p];
             var oEvent = this._oEventData.getDataByKey(p.split(consts.ID_SPLITER)[0]);
@@ -137,6 +139,10 @@
 					    "width": self._getX2( oEvent ) - oPM.getPositionFromTime( oEvent.durationStartTimestamp )
 					}, self.opt.duration);
                 });
+				if ( oEvent.durationStartTimestamp < lessDurationStartTime ) {
+					lessDurationStartTime = oEvent.durationStartTimestamp;
+					lessEventTypeCode = oEvent.eventTypeCode;
+				}
             } else {
                 aLine.forEach(function( elLine ) {
                     self.hide( elLine );
@@ -149,7 +155,9 @@
 				"width": oPM.getSliderEndPosition()
             }, self.opt.duration);
         });
-        this._resetBaseLineColor();
+		if ( lessEventTypeCode != "" ) {
+			this._resetBaseLineColor( TimeSlider.EmptyEventColor[lessEventTypeCode] );
+		}
     };
     ts.StateLine.prototype.show = function( el ) {
         el.attr("display", "block");

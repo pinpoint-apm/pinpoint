@@ -15,9 +15,7 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
-import com.navercorp.pinpoint.web.service.AgentStatService;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -34,13 +32,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class ApplicationController {
 
     @Autowired
-    private AgentStatService agentStatService;
-
-    @Autowired
     private AgentInfoService agentInfoService;
-
-    @Autowired
-    private AgentEventService agentEventService;
 
     @RequestMapping(value = "/getApplicationHostInfo", method = RequestMethod.GET)
     @ResponseBody

@@ -81,6 +81,8 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
  * <tr><td>82</td><td>thrift.result</td></tr>
  * <tr><td>90</td><td>dubbo.args</td></tr>
  * <tr><td>91</td><td>dubbo.result</td></tr>
+ * <tr><td>200</td><td>cxf.operation</td></tr>
+ * <tr><td>201</td><td>cxf.args</td></tr>
  * <tr><td>9000</td><td>gson.json.length</td></tr>
  * <tr><td>9001</td><td>jackson.json.length</td></tr>
  * <tr><td>9002</td><td>json-lib.json.length</td></tr>
@@ -119,7 +121,7 @@ public interface AnnotationKey {
 //    API_DID(10, "API-DID"),
 //    @Deprecated  // you should remove static API code. Use only API-DID. dump by int
 //    API_ID(11, "API-ID"),
-    // used for developing the annotation that dumps api by string. you also consider to remove it later.
+    // Dump api by string.
     AnnotationKey API = AnnotationKeyFactory.of(12, "API");
     AnnotationKey API_METADATA = AnnotationKeyFactory.of(13, "API-METADATA");
     AnnotationKey RETURN_DATA = AnnotationKeyFactory.of(14, "RETURN_DATA", VIEW_IN_RECORD_SET);

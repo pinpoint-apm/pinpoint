@@ -99,7 +99,7 @@
 								<div>{{agent.ip}}</div>
 							</td>
 							<td class="text-right"><strong>Start Time</strong></td>
-							<td class="text-left">{{agent.startTimestamp | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
+							<td class="text-left">{{formatDate( agent.startTimestamp )}}</td>
 						</tr>
 						<tr>
 							<td class="text-right"><strong>Service Type</strong></td>
@@ -111,7 +111,7 @@
 								</span>
 							</td>
 							<td class="text-right"><strong>End Status</strong></td>
-							<td class="text-left">{{agent.status.state.desc}} (last checked : {{agent.status.eventTimestamp | date:'yyyy-MM-dd HH:mm:ss Z'}})</td>
+							<td class="text-left">{{agent.status.state.desc}} (last checked : {{formatDate( agent.status.eventTimestamp )}})</td>
 						</tr>
 						</tbody>
 					</table>
@@ -189,6 +189,15 @@
 				<div class="col-md-6">
 					<h4><span class="glyphicon glyphicon-question-sign tpsTooltip" style="cursor:pointer;float:right;"></span> {{tpsChart.title}}</h4>
 					<tps-chart-directive namespace="forTps"></tps-chart-directive>
+				</div>
+			</div>
+			<hr>
+			<div class="row">
+				<div class="col-md-6">
+					<h4><span class="glyphicon glyphicon-question-sign" style="cursor:pointer;float:right;"></span> {{activeTraceChart.title}}</h4>
+					<active-trace-chart-directive namespace="forActiveTrace"></active-trace-chart-directive>
+				</div>
+				<div class="col-md-6">
 				</div>
 			</div>
 		</div>

@@ -19,9 +19,11 @@ package com.navercorp.pinpoint.profiler;
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
 import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInvokerHelper;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
@@ -37,6 +39,7 @@ import com.navercorp.pinpoint.profiler.context.storage.BufferedStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
+import com.navercorp.pinpoint.profiler.instrument.ASMClassPool;
 import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
 import com.navercorp.pinpoint.profiler.instrument.JavassistClassPool;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
@@ -108,7 +111,7 @@ public class DefaultAgent implements Agent {
     private final ServiceTypeRegistryService serviceTypeRegistryService;
     
     private final Instrumentation instrumentation;
-    private final JavassistClassPool classPool;
+    private final InstrumentClassPool classPool;
     private final DynamicTransformService dynamicTransformService;
     private final List<DefaultProfilerPluginContext> pluginContexts;
     
@@ -168,8 +171,9 @@ public class DefaultAgent implements Agent {
         this.profilerConfig = agentOption.getProfilerConfig();
         this.instrumentation = agentOption.getInstrumentation();
         this.agentOption = agentOption;
-        this.classPool = new JavassistClassPool(interceptorRegistryBinder, agentOption.getBootStrapCoreJarPath());
-        
+
+        this.classPool = createInstrumentEngine(agentOption, interceptorRegistryBinder);
+
         if (logger.isInfoEnabled()) {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
@@ -219,6 +223,26 @@ public class DefaultAgent implements Agent {
         InterceptorInvokerHelper.setPropagateException(profilerConfig.isPropagateInterceptorException());
     }
 
+    private InstrumentClassPool createInstrumentEngine(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
+
+        final String instrumentEngine = this.profilerConfig.getProfileInstrumentEngine().toUpperCase();
+
+        if (DefaultProfilerConfig.INSTRUMENT_ENGINE_ASM.equals(instrumentEngine)) {
+            logger.info("ASM InstrumentEngine.");
+
+            return new ASMClassPool(interceptorRegistryBinder, agentOption.getBootstrapJarPaths());
+
+        } else if (DefaultProfilerConfig.INSTRUMENT_ENGINE_JAVASSIST.equals(instrumentEngine)) {
+            logger.info("JAVASSIST InstrumentEngine.");
+
+            return new JavassistClassPool(interceptorRegistryBinder, agentOption.getBootstrapJarPaths());
+        } else {
+            logger.warn("Unknown InstrumentEngine:{}", instrumentEngine);
+
+            throw new IllegalArgumentException("Unknown InstrumentEngine:" + instrumentEngine);
+        }
+    }
+
     private ClassFileTransformer wrapClassFileTransformer(ClassFileTransformer classFileTransformerDispatcher) {
         final boolean enableBytecodeDump = profilerConfig.readBoolean(ASMBytecodeDumpService.ENABLE_BYTECODE_DUMP, ASMBytecodeDumpService.ENABLE_BYTECODE_DUMP_DEFAULT_VALUE);
         if (enableBytecodeDump) {
@@ -228,8 +252,8 @@ public class DefaultAgent implements Agent {
         return classFileTransformerDispatcher;
     }
 
-    public String getBootstrapCoreJar() {
-        return agentOption.getBootStrapCoreJarPath();
+    public List<String> getBootstrapJarPaths() {
+        return agentOption.getBootstrapJarPaths();
     }
 
     protected List<DefaultProfilerPluginContext> loadPlugins(AgentOption agentOption) {
@@ -268,7 +292,7 @@ public class DefaultAgent implements Agent {
         return classFileTransformer;
     }
     
-    public JavassistClassPool getClassPool() {
+    public InstrumentClassPool getClassPool() {
         return classPool;
     }
 

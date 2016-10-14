@@ -44,7 +44,10 @@ public class Log4jPlugin implements ProfilerPlugin, TransformTemplateAware {
     
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        Log4jConfig config = new Log4jConfig(context.getConfig());
+        final Log4jConfig config = new Log4jConfig(context.getConfig());
+        if (logger.isInfoEnabled()) {
+            logger.info("Log4jPlugin config:{}", config);
+        }
         
         if (!config.isLog4jLoggingTransactionInfo()) {
             logger.info("Log4j plugin is not executed because log4j transform enable config value is false.");

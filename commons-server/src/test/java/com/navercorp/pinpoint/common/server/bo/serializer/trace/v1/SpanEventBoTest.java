@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v1;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
-import com.navercorp.pinpoint.common.util.TransactionId;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,9 +48,13 @@ public class SpanEventBoTest {
 
     @Test
     public void testSerialize() throws Exception {
+        SpanBo spanBo = new SpanBo();
+        spanBo.setAgentId("testAgent");
+        spanBo.setApplicationId("testApp");
+        spanBo.setAgentStartTime(1);
+        spanBo.setSpanId(12);
+
         SpanEventBo spanEventBo = new SpanEventBo();
-        spanEventBo.setAgentId("test");
-        spanEventBo.setAgentStartTime(1);
         spanEventBo.setDepth(3);
         spanEventBo.setDestinationId("testdest");
         spanEventBo.setEndElapsed(2);
@@ -63,17 +67,19 @@ public class SpanEventBoTest {
         spanEventBo.setStartElapsed(100);
         spanEventBo.setNextAsyncId(1000);
 
-        SpanEventEncodingContext spanEventEncodingContext = new SpanEventEncodingContext(12, spanEventBo);
+        SpanEventEncodingContext spanEventEncodingContext = new SpanEventEncodingContext(spanBo, spanEventBo);
         ByteBuffer bytes = serializer.writeValue(spanEventEncodingContext);
 
         SpanEventBo newSpanEventBo = new SpanEventBo();
+        SpanDecodingContext spanDecodingContext = new SpanDecodingContext();
         Buffer buffer = new OffsetFixedBuffer(bytes.array(), bytes.arrayOffset(), bytes.remaining());
-        int i = spanDecoder.readSpanEvent(newSpanEventBo, buffer);
+        int i = spanDecoder.readSpanEvent(newSpanEventBo, buffer, spanDecodingContext);
         Assert.assertEquals(bytes.limit(), i);
 
 
-        Assert.assertEquals(spanEventBo.getAgentId(), newSpanEventBo.getAgentId());
-        Assert.assertEquals(spanEventBo.getAgentStartTime(), newSpanEventBo.getAgentStartTime());
+        Assert.assertEquals(spanBo.getAgentId(), spanDecodingContext.getAgentId());
+        Assert.assertEquals(spanBo.getApplicationId(), spanDecodingContext.getApplicationId());
+        Assert.assertEquals(spanBo.getAgentStartTime(), spanDecodingContext.getAgentStartTime());
         Assert.assertEquals(spanEventBo.getDepth(), newSpanEventBo.getDepth());
         Assert.assertEquals(spanEventBo.getDestinationId(), newSpanEventBo.getDestinationId());
         Assert.assertEquals(spanEventBo.getEndElapsed(), newSpanEventBo.getEndElapsed());
@@ -86,11 +92,6 @@ public class SpanEventBoTest {
         Assert.assertEquals(spanEventBo.getStartElapsed(), newSpanEventBo.getStartElapsed());
 
         Assert.assertEquals(spanEventBo.getNextAsyncId(), newSpanEventBo.getNextAsyncId());
-
-        TransactionId transactionId = new TransactionId("test", 3, 1);
-        spanEventBo.setTransactionId(transactionId);
-        newSpanEventBo.setTransactionId(transactionId);
-        Assert.assertEquals(spanEventBo.getTransactionId(), newSpanEventBo.getTransactionId());
 
         spanEventBo.setSequence((short) 3);
         newSpanEventBo.setSequence((short) 3);

@@ -33,9 +33,9 @@ public class SpanBitFiled {
 
 
         if (spanBo.getServiceType() == spanBo.getApplicationServiceType()) {
-            spanBitFiled.setApplicationServiceTypeEncodingStrategy(SimpleServiceTypeEncodingStrategy.PREV_EQUALS);
+            spanBitFiled.setApplicationServiceTypeEncodingStrategy(ServiceTypeEncodingStrategy.PREV_EQUALS);
         } else {
-            spanBitFiled.setApplicationServiceTypeEncodingStrategy(SimpleServiceTypeEncodingStrategy.RAW);
+            spanBitFiled.setApplicationServiceTypeEncodingStrategy(ServiceTypeEncodingStrategy.RAW);
         }
 
         if (spanBo.getParentSpanId() == ROOT_PARENT_SPAN_ID) {
@@ -91,19 +91,19 @@ public class SpanBitFiled {
         return BitFieldUtils.getBit(bitField, position);
     }
 
-    public SimpleServiceTypeEncodingStrategy getApplicationServiceTypeEncodingStrategy() {
+    public ServiceTypeEncodingStrategy getApplicationServiceTypeEncodingStrategy() {
         final int set = getBit(SET_APPLICATION_SERVICE_TYPE_ENCODING_STRATEGY);
         switch (set) {
             case 0:
-                return SimpleServiceTypeEncodingStrategy.PREV_EQUALS;
+                return ServiceTypeEncodingStrategy.PREV_EQUALS;
             case 1:
-                return SimpleServiceTypeEncodingStrategy.RAW;
+                return ServiceTypeEncodingStrategy.RAW;
             default:
                 throw new IllegalArgumentException("SET_APPLICATION_SERVICE_TYPE_ENCODING_STRATEGY");
         }
     }
 
-    void setApplicationServiceTypeEncodingStrategy(SimpleServiceTypeEncodingStrategy strategy) {
+    void setApplicationServiceTypeEncodingStrategy(ServiceTypeEncodingStrategy strategy) {
         switch (strategy) {
             case PREV_EQUALS:
                 setBit(SET_APPLICATION_SERVICE_TYPE_ENCODING_STRATEGY, false);

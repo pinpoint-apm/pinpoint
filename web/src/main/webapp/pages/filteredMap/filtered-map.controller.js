@@ -238,7 +238,7 @@
 	            } else {
 	                $scope.hasFilter = false;
 	            }
-	            $scope.$broadcast('sidebarTitleDirective.initialize.forFilteredMap', oSidebarTitleVoService);
+	            $scope.$broadcast('sidebarTitleDirective.initialize.forFilteredMap', oSidebarTitleVoService, link);
 	            $scope.$broadcast('nodeInfoDetailsDirective.hide');
 	            $scope.$broadcast('linkInfoDetailsDirective.initialize', e, query, link, data, oNavbarVoService, reloadOnlyForLink);
 	            reloadOnlyForLink = false;

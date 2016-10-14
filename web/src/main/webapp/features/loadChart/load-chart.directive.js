@@ -1,14 +1,7 @@
 (function() {
 	'use strict';
-	/**
-	 * (en)loadChartDirective 
-	 * @ko loadChartDirective
-	 * @group Directive
-	 * @name loadChartDirective
-	 * @class
-	 */	
 	pinpointApp.constant('loadChartDirectiveConfig', {});
-	
+
 	pinpointApp.directive('loadChartDirective', ['loadChartDirectiveConfig', '$timeout', 'AnalyticsService', 'PreferenceService', function (cfg, $timeout, analyticsService, preferenceService ) {
 		var responseTypeColor = preferenceService.getResponseTypeColor();
         return {
@@ -41,8 +34,8 @@
                  * @param h
                  */
                 setWidthHeight = function (w, h) {
-                    if (w) element.css('width', w);
-                    if (h) element.css('height', h);
+					element.css('width', w || '100%');
+					element.css('height', h || '220px');
                 };
 
                 /**
@@ -51,6 +44,7 @@
                  * @param useChartCursor
                  */
                 render = function (data, useChartCursor) {
+                	element.empty();
                     $timeout(function () {
                         var options = {
                             "type": "serial",
@@ -245,8 +239,8 @@
                         };
                         if (useChartCursor) {
                             options["chartCursor"] = {
-                                "avoidBalloonOverlapping": false
-                            };
+								"avoidBalloonOverlapping": false
+							};
                         }
                         oChart = AmCharts.makeChart(id, options);
 
@@ -257,7 +251,7 @@
                     });
                 };
                 renderEmpty = function() {
-                	element.append("<h4 style='padding-top:25%'>No Data</h4>");
+                	element.empty().append("<h4 style='padding-top:25%;text-align:center;'>No Data</h4>");
                 };
 
                 /**
@@ -265,18 +259,6 @@
                  * @param data
                  */
                 updateData = function (data) {
-//                 	if ( angular.isDefined( oChart ) ) {
-// 	                    oChart.clear();
-//                 	}
-//                     element.empty();
-//                     $timeout(function () {
-//                     	if( data.length === 0 ) {
-//                     		renderEmpty();
-//                     	} else {
-//                     		render(data, true);
-//                     	}
-//                     });
-
 					if ( angular.isUndefined( oChart ) ) {
 						if ( data.length !== 0 ) {
 							render(data, true);
@@ -296,7 +278,7 @@
                  */
                 parseTimeSeriesHistogramForAmcharts = function (data) {
                 	if ( angular.isUndefined( data ) ) return [];
-                	
+
                     function getKeyFromNewDataByTime (time) {
                         for (var key in newData) {
                             if (moment(time).format("YYYY-MM-DD HH:mm") === newData[key].time) {

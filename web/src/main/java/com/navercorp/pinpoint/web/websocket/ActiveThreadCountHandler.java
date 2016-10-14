@@ -68,7 +68,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
     private final AtomicBoolean onTimerTask = new AtomicBoolean(false);
 
-    private SimpleOrderedThreadPool webSocketflushExecutor;
+    private SimpleOrderedThreadPool webSocketFlushExecutor;
 
     private java.util.Timer flushTimer;
     private static final long DEFAULT_FLUSH_DELAY = 1000;
@@ -105,7 +105,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     @Override
     public void start() {
         PinpointThreadFactory flushThreadFactory = new PinpointThreadFactory(ClassUtils.simpleClassName(this) + "-Flush-Thread", true);
-        webSocketflushExecutor = new SimpleOrderedThreadPool(Runtime.getRuntime().availableProcessors(), 65535, flushThreadFactory);
+        webSocketFlushExecutor = new SimpleOrderedThreadPool(Runtime.getRuntime().availableProcessors(), 65535, flushThreadFactory);
 
         flushTimer = new java.util.Timer(ClassUtils.simpleClassName(this) + "-Flush-Timer", true);
         healthCheckTimer = new java.util.Timer(ClassUtils.simpleClassName(this) + "-HealthCheck-Timer", true);
@@ -133,8 +133,8 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
             reactiveTimer.cancel();
         }
 
-        if (webSocketflushExecutor != null) {
-            webSocketflushExecutor.shutdown();
+        if (webSocketFlushExecutor != null) {
+            webSocketFlushExecutor.shutdown();
         }
     }
 
@@ -304,7 +304,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
                 Collection<PinpointWebSocketResponseAggregator> values = aggregatorRepository.values();
                 for (final PinpointWebSocketResponseAggregator aggregator : values) {
                     try {
-                        aggregator.flush(webSocketflushExecutor);
+                        aggregator.flush(webSocketFlushExecutor);
                     } catch (Exception e) {
                         logger.warn("failed while flushing ActiveThreadCount to aggregator. applicationName:{}, error:{}", aggregator.getApplicationName(), e.getMessage(), e);
                     }
@@ -384,7 +384,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
         private void sendPingMessage(WebSocketSession session, TextMessage pingMessage) {
             try {
-                webSocketflushExecutor.execute(new OrderedWebSocketFlushRunnable(session, pingMessage, true));
+                webSocketFlushExecutor.execute(new OrderedWebSocketFlushRunnable(session, pingMessage, true));
             } catch (RuntimeException e) {
                 logger.warn("failed while to execute. error:{}.", e.getMessage(), e);
             }

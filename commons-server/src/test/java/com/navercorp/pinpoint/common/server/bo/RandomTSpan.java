@@ -44,13 +44,17 @@ public class RandomTSpan {
             tSpan.setAnnotations(tAnnotationList);
         }
         tSpan.setFlag((short) RandomUtils.nextInt(0, 4));
-        tSpan.setErr((short) RandomUtils.nextInt(0, 1));
+        tSpan.setErr((short) RandomUtils.nextInt(0, 2));
 //        tSpan.setSpanEventList()
         tSpan.setParentApplicationName("parentApp");
         tSpan.setParentApplicationType(randomServerServiceType());
         tSpan.setAcceptorHost("acceptHost");
         tSpan.setApiId(RandomUtils.nextInt(0, 5000));
-        tSpan.setApplicationServiceType(randomServerServiceType());
+        if (random.nextBoolean()) {
+            tSpan.setApplicationServiceType(randomServerServiceType());
+        } else {
+            tSpan.setApplicationServiceType(tSpan.getServiceType());
+        }
         if (random.nextBoolean()) {
             TIntStringValue exceptionInfo = new TIntStringValue();
             exceptionInfo.setIntValue(RandomUtils.nextInt(0, 5000));
@@ -110,6 +114,13 @@ public class RandomTSpan {
         tSpanEvent.setAsyncId(randomNegative(RandomUtils.nextInt(0, 10)));
         tSpanEvent.setNextAsyncId(random.nextInt());
         tSpanEvent.setAsyncSequence((short) RandomUtils.nextInt(0, Short.MAX_VALUE));
+
+        if (random.nextBoolean()) {
+            TIntStringValue exceptionInfo = new TIntStringValue();
+            exceptionInfo.setIntValue(RandomUtils.nextInt(0, 5000));
+            exceptionInfo.setStringValue(RandomStringUtils.random(100));
+            tSpanEvent.setExceptionInfo(exceptionInfo);
+        }
 
         return tSpanEvent;
     }

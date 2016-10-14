@@ -23,7 +23,6 @@ import java.util.Map;
 
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
-import org.json.simple.JSONObject;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -32,6 +31,7 @@ import com.navercorp.pinpoint.web.applicationmap.Link;
 import com.navercorp.pinpoint.web.applicationmap.Node;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
  * @author jaehong.kim
@@ -243,8 +243,8 @@ public class TransactionInfoViewModel {
             }
             isMethod = record.isMethod();
             hasChild = record.getHasChild();
-            title = JSONObject.escape(record.getTitle());
-            //arguments = JSONObject.escape(StringEscapeUtils.escapeHtml4(record.getArguments()));
+            title = StringEscapeUtils.escapeJson(record.getTitle());
+            //arguments = StringEscapeUtils.escapeJson(StringEscapeUtils.escapeHtml4(record.getArguments()));
             arguments = record.getArguments();
             if (record.isMethod()) {
                 executeTime = DateUtils.longToDateStr(record.getBegin(), "HH:mm:ss SSS"); // time format
@@ -254,7 +254,7 @@ public class TransactionInfoViewModel {
                 executionMilliseconds = String.valueOf(record.getExecutionMilliseconds());
             }
             simpleClassName = record.getSimpleClassName();
-            methodType = String.valueOf(record.getMethodType());
+            methodType = String.valueOf(record.getMethodTypeEnum().getCode());
             apiType = record.getApiType();
             agent = record.getAgent();
             isFocused = record.isFocused();

@@ -45,6 +45,9 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final RedisPluginConfig config = new RedisPluginConfig(context.getConfig());
+        if (logger.isInfoEnabled()) {
+            logger.info("RedisPlugin config:{}", config);
+        }
         final boolean pipelineEnabled = config.isPipelineEnabled();
 
         // jedis

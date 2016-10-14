@@ -42,17 +42,18 @@ The following script downloads HBase standalone from [Apache download site](http
 
 **Collector** - Run `quickstart/bin/start-collector.sh`
 
+**TestApp** - Run `quickstart/bin/start-testapp.sh`
+
 **Web UI** - Run `quickstart/bin/start-web.sh`
 
-**TestApp** - Run `quickstart/bin/start-testapp.sh`
 
 Once the startup scripts are completed, the last 10 lines of the Tomcat log are tailed to the console:
 
 **Collector** ![Collector quick start successful](../doc/img/ss_quickstart-collector-log.png)
 
-**Web UI** ![Web quick start successful](../doc/img/ss_quickstart-web-log.png)
-
 **TestApp** ![TestApp quick start successful](../doc/img/ss_quickstart-testapp-log.png)
+
+**Web UI** ![Web quick start successful](../doc/img/ss_quickstart-web-log.png)
 
 ### Check Status
 Once HBase and the 3 daemons are running, you may visit the following addresses to test out your very own Pinpoint instance.
@@ -65,13 +66,13 @@ You can feed trace data to Pinpoint using the TestApp UI, and check them using P
 
 ## Stopping
 
-**HBase** - Run `quickstart/bin/stop-hbase.sh`
-
-**Collector** - Run `quickstart/bin/stop-collector.sh`
-
 **Web UI** - Run `quickstart/bin/stop-web.sh`
 
 **TestApp** - Run `quickstart/bin/stop-testapp.sh`
+
+**Collector** - Run `quickstart/bin/stop-collector.sh`
+
+**HBase** - Run `quickstart/bin/stop-hbase.sh`
 
 ## Extra
 

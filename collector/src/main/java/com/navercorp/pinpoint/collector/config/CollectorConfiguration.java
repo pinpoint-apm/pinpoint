@@ -16,9 +16,12 @@
 
 package com.navercorp.pinpoint.collector.config;
 
-import com.navercorp.pinpoint.common.util.PropertyUtils;
-import com.navercorp.pinpoint.common.util.SimpleProperty;
-import com.navercorp.pinpoint.common.util.SystemProperty;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -26,11 +29,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import com.navercorp.pinpoint.common.util.PropertyUtils;
+import com.navercorp.pinpoint.common.util.SimpleProperty;
+import com.navercorp.pinpoint.common.util.SystemProperty;
 
 /**
  * @author emeroad
@@ -39,9 +40,6 @@ public class CollectorConfiguration implements InitializingBean {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-//    cluster.zookeeper.address=dev.zk.pinpoint.navercorp.com
-//            cluster.zookeeper.sessiontimeout=3000
-    
     private static final String CONFIG_FILE_NAME = "pinpoint-collector.properties";
     private static final String DEFAULT_LISTEN_IP = "0.0.0.0";
 
@@ -58,21 +56,22 @@ public class CollectorConfiguration implements InitializingBean {
     
     private int tcpWorkerThread;
     private int tcpWorkerQueueSize;
+    private boolean tcpWorkerMonitor;
 
     private String udpStatListenIp = DEFAULT_LISTEN_IP;
     private int udpStatListenPort;
 
-    private String udpStatWorkerType;
     private int udpStatWorkerThread;
     private int udpStatWorkerQueueSize;
+    private boolean udpStatWorkerMonitor;
     private int udpStatSocketReceiveBufferSize;
 
     private String udpSpanListenIp = DEFAULT_LISTEN_IP;
     private int udpSpanListenPort;
 
-    private String udpSpanWorkerType;
     private int udpSpanWorkerThread;
     private int udpSpanWorkerQueueSize;
+    private boolean udpSpanWorkerMonitor;
     private int udpSpanSocketReceiveBufferSize;
     
     private int agentEventWorkerThreadSize;
@@ -98,6 +97,7 @@ public class CollectorConfiguration implements InitializingBean {
     public int getTcpListenPort() {
         return tcpListenPort;
     }
+
     public void setTcpListenPort(int tcpListenPort) {
         this.tcpListenPort = tcpListenPort;
     }
@@ -118,6 +118,14 @@ public class CollectorConfiguration implements InitializingBean {
         this.tcpWorkerQueueSize = tcpWorkerQueueSize;
     }
 
+    public boolean isTcpWorkerMonitor() {
+        return tcpWorkerMonitor;
+    }
+
+    public void setTcpWorkerMonitor(boolean tcpWorkerMonitor) {
+        this.tcpWorkerMonitor = tcpWorkerMonitor;
+    }
+
     public String getUdpStatListenIp() {
         return udpStatListenIp;
     }
@@ -134,14 +142,6 @@ public class CollectorConfiguration implements InitializingBean {
         this.udpStatListenPort = udpStatListenPort;
     }
 
-    public String getUdpStatWorkerType() {
-        return udpStatWorkerType;
-    }
-
-    public void setUdpStatWorkerType(String udpStatWorkerType) {
-        this.udpStatWorkerType = udpStatWorkerType;
-    }
-
     public int getUdpStatWorkerThread() {
         return udpStatWorkerThread;
     }
@@ -156,6 +156,14 @@ public class CollectorConfiguration implements InitializingBean {
 
     public void setUdpStatWorkerQueueSize(int udpStatWorkerQueueSize) {
         this.udpStatWorkerQueueSize = udpStatWorkerQueueSize;
+    }
+
+    public boolean isUdpStatWorkerMonitor() {
+        return udpStatWorkerMonitor;
+    }
+
+    public void setUdpStatWorkerMonitor(boolean udpStatWorkerMonitor) {
+        this.udpStatWorkerMonitor = udpStatWorkerMonitor;
     }
 
     public int getUdpStatSocketReceiveBufferSize() {
@@ -182,14 +190,6 @@ public class CollectorConfiguration implements InitializingBean {
         this.udpSpanListenPort = udpSpanListenPort;
     }
 
-    public String getUdpSpanWorkerType() {
-        return udpSpanWorkerType;
-    }
-
-    public void setUdpSpanWorkerType(String udpSpanWorkerType) {
-        this.udpSpanWorkerType = udpSpanWorkerType;
-    }
-
     public int getUdpSpanWorkerThread() {
         return udpSpanWorkerThread;
     }
@@ -204,6 +204,14 @@ public class CollectorConfiguration implements InitializingBean {
 
     public void setUdpSpanWorkerQueueSize(int udpSpanWorkerQueueSize) {
         this.udpSpanWorkerQueueSize = udpSpanWorkerQueueSize;
+    }
+
+    public boolean isUdpSpanWorkerMonitor() {
+        return udpSpanWorkerMonitor;
+    }
+
+    public void setUdpSpanWorkerMonitor(boolean udpSpanWorkerMonitor) {
+        this.udpSpanWorkerMonitor = udpSpanWorkerMonitor;
     }
 
     public int getUdpSpanSocketReceiveBufferSize() {
@@ -311,21 +319,22 @@ public class CollectorConfiguration implements InitializingBean {
         
         this.tcpWorkerThread = readInt(properties, "collector.tcpWorkerThread", 128);
         this.tcpWorkerQueueSize = readInt(properties, "collector.tcpWorkerQueueSize", 1024 * 5);
+        this.tcpWorkerMonitor = readBoolean(properties, "collector.tcpWorker.monitor");
 
         this.udpStatListenIp = readString(properties, "collector.udpStatListenIp", DEFAULT_LISTEN_IP);
         this.udpStatListenPort = readInt(properties, "collector.udpStatListenPort", 9995);
 
-        this.udpStatWorkerType = readString(properties, "collector.udpStatWorkerType", "DEFAULT_EXECUTOR");
         this.udpStatWorkerThread = readInt(properties, "collector.udpStatWorkerThread", 128);
         this.udpStatWorkerQueueSize = readInt(properties, "collector.udpStatWorkerQueueSize", 1024);
+        this.udpStatWorkerMonitor = readBoolean(properties, "collector.udpStatWorker.monitor");
         this.udpStatSocketReceiveBufferSize = readInt(properties, "collector.udpStatSocketReceiveBufferSize", 1024 * 4096);
 
         this.udpSpanListenIp = readString(properties, "collector.udpSpanListenIp", DEFAULT_LISTEN_IP);
         this.udpSpanListenPort = readInt(properties, "collector.udpSpanListenPort", udpSpanListenPort);
 
-        this.udpSpanWorkerType = readString(properties, "collector.udpSpanWorkerType", "DEFAULT_EXECUTOR");
         this.udpSpanWorkerThread = readInt(properties, "collector.udpSpanWorkerThread", 256);
         this.udpSpanWorkerQueueSize = readInt(properties, "collector.udpSpanWorkerQueueSize", 1024 * 5);
+        this.udpSpanWorkerMonitor = readBoolean(properties, "collector.udpSpanWorker.monitor");
         this.udpSpanSocketReceiveBufferSize = readInt(properties, "collector.udpSpanSocketReceiveBufferSize", 1024 * 4096);
         
         this.agentEventWorkerThreadSize = readInt(properties, "collector.agentEventWorker.threadSize", 32);
@@ -367,7 +376,16 @@ public class CollectorConfiguration implements InitializingBean {
         }
         return result;
     }
-    
+
+    private long readLong(Properties properties, String propertyName, long defaultValue) {
+        String value = properties.getProperty(propertyName);
+        long result = com.navercorp.pinpoint.bootstrap.util.NumberUtils.parseLong(value, defaultValue);
+        if (logger.isInfoEnabled()) {
+            logger.info(propertyName + "=" + result);
+        }
+        return result;
+    }
+
     private boolean readBoolean(Properties properties, String propertyName) {
         final String value = properties.getProperty(propertyName);
         
@@ -389,17 +407,18 @@ public class CollectorConfiguration implements InitializingBean {
         sb.append(", tcpListenPort=").append(tcpListenPort);
         sb.append(", tcpWorkerThread=").append(tcpWorkerThread);
         sb.append(", tcpWorkerQueueSize=").append(tcpWorkerQueueSize);
+        sb.append(", tcpWorkerMonitor=").append(tcpWorkerMonitor);
         sb.append(", udpStatListenIp='").append(udpStatListenIp).append('\'');
         sb.append(", udpStatListenPort=").append(udpStatListenPort);
-        sb.append(", udpStatWorkerType=").append(udpStatWorkerType);
         sb.append(", udpStatWorkerThread=").append(udpStatWorkerThread);
         sb.append(", udpStatWorkerQueueSize=").append(udpStatWorkerQueueSize);
+        sb.append(", udpStatWorkerMonitor=").append(udpStatWorkerMonitor);
         sb.append(", udpStatSocketReceiveBufferSize=").append(udpStatSocketReceiveBufferSize);
         sb.append(", udpSpanListenIp='").append(udpSpanListenIp).append('\'');
         sb.append(", udpSpanListenPort=").append(udpSpanListenPort);
-        sb.append(", udpSpanWorkerType=").append(udpSpanWorkerType);
         sb.append(", udpSpanWorkerThread=").append(udpSpanWorkerThread);
         sb.append(", udpSpanWorkerQueueSize=").append(udpSpanWorkerQueueSize);
+        sb.append(", udpSpanWorkerMonitor=").append(udpSpanWorkerMonitor);
         sb.append(", udpSpanSocketReceiveBufferSize=").append(udpSpanSocketReceiveBufferSize);
         sb.append(", agentEventWorkerThreadSize=").append(agentEventWorkerThreadSize);
         sb.append(", agentEventWorkerQueueSize=").append(agentEventWorkerQueueSize);
