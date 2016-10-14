@@ -20,15 +20,31 @@ import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
+import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
+import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
 
 /**
  * @author emeroad
  */
 public class MockTraceContextFactory {
+
+    private EnhancedDataSender priorityDataSender = new LoggingDataSender();
+
+    public void setPriorityDataSender(EnhancedDataSender priorityDataSender) {
+        if (priorityDataSender == null) {
+            throw new NullPointerException("priorityDataSender must not be null");
+        }
+        this.priorityDataSender = priorityDataSender;
+    }
+
     public TraceContext create() {
         DefaultTraceContext traceContext = new DefaultTraceContext(new TestAgentInformation()) ;
         ProfilerConfig profilerConfig = new DefaultProfilerConfig();
         traceContext.setProfilerConfig(profilerConfig);
+
+
+        traceContext.setPriorityDataSender(priorityDataSender);
+
         return traceContext;
     }
 }
