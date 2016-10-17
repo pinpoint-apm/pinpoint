@@ -214,13 +214,17 @@
 						htScatterSet = {};
 					}
 					function getAgentList( scatterData ) {
-						var aAgentList = [], server;
-						if ( typeof scatterData !== "undefined" ) {
-							$.each( scatterData.scatter.metadata, function( key, oInfo ) {
-								aAgentList.push( oInfo[0] );
-							});
-							return aAgentList;
-						}
+						var oDupCheck = {};
+												var aAgentList = [], server;
+												if ( typeof scatterData !== "undefined" ) {
+													$.each( scatterData.scatter.metadata, function( key, oInfo ) {
+														if ( typeof oDupCheck[ oInfo[0] ] === "undefined" ) {
+															oDupCheck[ oInfo[0] ] = true;
+															aAgentList.push( oInfo[0] );
+														}
+													});
+													return aAgentList;
+												}
 						if ( htLastNode.agentList ) {
 							return htLastNode.agentList;
 						}
