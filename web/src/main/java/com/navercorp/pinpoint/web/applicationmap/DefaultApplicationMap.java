@@ -18,10 +18,8 @@ package com.navercorp.pinpoint.web.applicationmap;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Node map

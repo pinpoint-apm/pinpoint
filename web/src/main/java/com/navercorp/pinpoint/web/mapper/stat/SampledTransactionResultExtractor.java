@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
 import com.navercorp.pinpoint.web.vo.stat.SampledTransaction;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 

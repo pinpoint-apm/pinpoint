@@ -14,7 +14,6 @@
  */
 package com.navercorp.pinpoint.plugin.hystrix;
 
-import com.navercorp.pinpoint.common.trace.AnnotationKeyMatchers;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 

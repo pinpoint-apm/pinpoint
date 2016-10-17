@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixCommandTransformer;
 
 import java.security.ProtectionDomain;
-import java.util.List;
 
 /**
  * Any Pinpoint profiler plugin must implement ProfilerPlugin interface.

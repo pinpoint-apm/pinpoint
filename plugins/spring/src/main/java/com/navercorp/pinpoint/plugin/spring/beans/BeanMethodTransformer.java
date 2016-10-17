@@ -16,7 +16,6 @@ package com.navercorp.pinpoint.plugin.spring.beans;
 
 import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 

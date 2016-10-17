@@ -23,11 +23,7 @@ import com.navercorp.pinpoint.profiler.instrument.mock.ArgsArrayInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import org.junit.Test;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
-
-import java.util.List;
 
 import static org.junit.Assert.*;
 

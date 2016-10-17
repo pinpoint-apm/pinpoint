@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.plugin;
 import java.lang.instrument.ClassFileTransformer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.jar.JarFile;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
