@@ -67,10 +67,10 @@ public class ASMMethodInsnNodeRemapper {
         }
     }
 
-    private class Filter {
-        private String owner;
-        private String name;
-        private String desc;
+    private static class Filter {
+        private final String owner;
+        private final String name;
+        private final String desc;
 
         public Filter(final String owner, final String name, final String desc) {
             this.owner = owner;

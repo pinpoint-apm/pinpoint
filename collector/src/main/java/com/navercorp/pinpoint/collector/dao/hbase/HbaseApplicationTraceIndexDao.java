@@ -64,7 +64,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         final byte[] value = buffer.getBuffer();
 
         long acceptedTime = acceptedTimeService.getAcceptedTime();
-        final byte[] distributedKey = crateRowKey(span, acceptedTime);
+        final byte[] distributedKey = createRowKey(span, acceptedTime);
         Put put = new Put(distributedKey);
 
         put.addColumn(APPLICATION_TRACE_INDEX_CF_TRACE, makeQualifier(span) , acceptedTime, value);
@@ -81,7 +81,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         return qualifier;
     }
 
-    private byte[] crateRowKey(TSpan span, long acceptedTime) {
+    private byte[] createRowKey(TSpan span, long acceptedTime) {
         // distribute key evenly
         byte[] applicationTraceIndexRowKey = SpanUtils.getApplicationTraceIndexRowKey(span.getApplicationName(), acceptedTime);
         return rowKeyDistributor.getDistributedKey(applicationTraceIndexRowKey);
