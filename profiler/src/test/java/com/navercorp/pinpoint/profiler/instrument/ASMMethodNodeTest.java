@@ -112,7 +112,7 @@ public class ASMMethodNodeTest {
                 }
             }
         });
-        Class clazz = classLoader.loadClass(targetClassName);
+        Class<?> clazz = classLoader.loadClass(targetClassName);
         Method method = clazz.getDeclaredMethod("sum", int.class);
 
         assertEquals(55, method.invoke(clazz.newInstance(), 10));

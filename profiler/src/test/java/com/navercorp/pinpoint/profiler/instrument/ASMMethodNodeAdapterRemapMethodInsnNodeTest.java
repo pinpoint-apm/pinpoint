@@ -52,7 +52,7 @@ public class ASMMethodNodeAdapterRemapMethodInsnNodeTest {
                 }
             }
         });
-        Class clazz = classLoader.loadClass(targetClassName);
+        Class<?> clazz = classLoader.loadClass(targetClassName);
         Method method = clazz.getMethod("getHeader", String.class);
         final String result = (String) method.invoke(clazz.newInstance(), "bar");
         System.out.println(result);

@@ -39,7 +39,7 @@ public class ThreadLocalRandomUtils {
         throw new IllegalAccessError();
     }
 
-    private static final ThreadLocalRandomFactory createThreadLocalRandomFactory() {
+    private static ThreadLocalRandomFactory createThreadLocalRandomFactory() {
         final JvmVersion jvmVersion = JvmUtils.getVersion();
         if (jvmVersion == JvmVersion.JAVA_6) {
             return new PinpointThreadLocalRandomFactory();

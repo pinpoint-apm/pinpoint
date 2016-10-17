@@ -49,7 +49,7 @@ public class ASMMethodNodeAdapterRenameTest {
                 }
             }
         });
-        Class clazz = classLoader.loadClass(targetClassName);
+        Class<?> clazz = classLoader.loadClass(targetClassName);
         Method method = clazz.getDeclaredMethod("sum_rename", int.class);
         method.invoke(clazz.newInstance(), 10);
    }

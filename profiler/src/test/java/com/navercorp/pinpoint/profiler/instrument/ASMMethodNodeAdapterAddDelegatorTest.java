@@ -36,19 +36,19 @@ public class ASMMethodNodeAdapterAddDelegatorTest {
 
     @Test
     public void addDelegatorMethod() throws Exception {
-        Class clazz = addDelegatorMethod("com.navercorp.pinpoint.profiler.instrument.mock.ExtendedClass", "com.navercorp.pinpoint.profiler.instrument.mock.BaseClass", "base");
+        Class<?> clazz = addDelegatorMethod("com.navercorp.pinpoint.profiler.instrument.mock.ExtendedClass", "com.navercorp.pinpoint.profiler.instrument.mock.BaseClass", "base");
         Method method = clazz.getDeclaredMethod("base");
         method.invoke(clazz.newInstance());
     }
 
     @Test
     public void addDelegatorStaticMethod() throws Exception {
-        Class clazz = addDelegatorMethod("com.navercorp.pinpoint.profiler.instrument.mock.ExtendedClass", "com.navercorp.pinpoint.profiler.instrument.mock.BaseClass", "getInstance");
+        Class<?> clazz = addDelegatorMethod("com.navercorp.pinpoint.profiler.instrument.mock.ExtendedClass", "com.navercorp.pinpoint.profiler.instrument.mock.BaseClass", "getInstance");
         Method method = clazz.getDeclaredMethod("getInstance");
         method.invoke(clazz.newInstance());
     }
 
-    private Class addDelegatorMethod(final String targetClassName, final String superClassName, final String methodName) throws Exception {
+    private Class<?> addDelegatorMethod(final String targetClassName, final String superClassName, final String methodName) throws Exception {
         final ClassNode superClassNode = ASMClassNodeLoader.get(superClassName);
         List<MethodNode> methodNodes = superClassNode.methods;
         final MethodNode methodNode = findMethodNode(methodName, methodNodes);

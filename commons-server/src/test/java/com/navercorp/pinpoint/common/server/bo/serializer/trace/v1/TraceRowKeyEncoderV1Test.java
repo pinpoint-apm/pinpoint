@@ -1,7 +1,5 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v1;
 
-import com.navercorp.pinpoint.common.server.bo.BasicSpan;
-import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.util.TransactionId;
@@ -10,8 +8,6 @@ import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Woonduk Kang(emeroad)
