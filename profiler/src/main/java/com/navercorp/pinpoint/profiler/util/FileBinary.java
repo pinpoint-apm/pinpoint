@@ -17,8 +17,6 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import java.util.Arrays;
-
 /**
  * @author Woonduk Kang(emeroad)
  */

@@ -39,7 +39,6 @@ import com.navercorp.pinpoint.profiler.context.DefaultMethodDescriptor;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
 
 /**
  * The Class InvokeMethodInterceptorTest.

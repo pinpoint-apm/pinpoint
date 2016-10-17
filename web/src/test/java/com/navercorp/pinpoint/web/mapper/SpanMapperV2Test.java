@@ -11,7 +11,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingC
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncodingContext;
-import com.navercorp.pinpoint.common.util.AnnotationTranscoder;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

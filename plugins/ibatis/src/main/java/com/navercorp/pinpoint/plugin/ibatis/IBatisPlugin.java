@@ -21,7 +21,6 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
 import java.security.ProtectionDomain;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;

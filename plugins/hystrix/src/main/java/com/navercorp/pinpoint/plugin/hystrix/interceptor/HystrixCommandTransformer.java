@@ -21,12 +21,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
-import com.navercorp.pinpoint.plugin.hystrix.HystrixPluginConstants;
-
-import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 /**
  * @author Jiaqi Feng

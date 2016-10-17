@@ -33,8 +33,6 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import static org.junit.Assert.fail;
-
 public class ASMMethodNodeAdapterTestMain {
     private final static InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
     private int interceptorId;

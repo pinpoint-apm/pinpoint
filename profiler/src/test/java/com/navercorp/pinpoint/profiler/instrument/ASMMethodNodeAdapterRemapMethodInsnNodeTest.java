@@ -23,8 +23,6 @@ import org.objectweb.asm.tree.MethodNode;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-
 public class ASMMethodNodeAdapterRemapMethodInsnNodeTest {
     private ASMClassNodeLoader.TestClassLoader classLoader;
 
