@@ -21,7 +21,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;

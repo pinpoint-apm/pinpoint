@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.plugin.tomcat;
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -25,6 +26,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
@@ -37,6 +40,8 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  */
 public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
 
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
     private TransformTemplate transformTemplate;
 
     /*
@@ -46,16 +51,21 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
      */
     @Override
     public void setup(ProfilerPluginSetupContext context) {
+        ProfilerConfig profilerConfig = context.getConfig();
+        TomcatConfiguration tomcatConfig = new TomcatConfiguration(profilerConfig);
+        if (!tomcatConfig.isTomcatEnabled()) {
+            logger.info("TomcatPlugin disabled");
+            return;
+        }
+
         context.addApplicationTypeDetector(new TomcatDetector());
 
-        TomcatConfiguration config = new TomcatConfiguration(context.getConfig());
-
-        if (config.isTomcatHidePinpointHeader()) {
+        if (tomcatConfig.isTomcatHidePinpointHeader()) {
             addRequestFacadeEditor();
         }
 
         addRequestEditor();
-        addStandardHostValveEditor(config);
+        addStandardHostValveEditor(tomcatConfig);
         addStandardServiceEditor();
         addTomcatConnectorEditor();
         addWebappLoaderEditor();

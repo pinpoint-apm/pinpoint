@@ -20,8 +20,6 @@ import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.catalina.connector.Request;
-
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Header;
@@ -242,7 +240,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
      * @return the trace
      */
     private Trace createTrace(final Object target, final Object[] args) {
-        final Request request = (Request) args[0];
+        final HttpServletRequest request = (HttpServletRequest) args[0];
         if (isAsynchronousProcess(request)) {
             // servlet 3.0
             final Trace trace = getTraceMetadata(request);
@@ -321,7 +319,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
      * @param request the request
      * @param trace the trace
      */
-    private void setTraceMetadata(final Request request, final Trace trace) {
+    private void setTraceMetadata(final HttpServletRequest request, final Trace trace) {
         if (request instanceof TraceAccessor) {
             ((TraceAccessor) request)._$PINPOINT$_setTrace(trace);
         }
@@ -333,7 +331,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
      * @param request the request
      * @return the trace metadata
      */
-    private Trace getTraceMetadata(final Request request) {
+    private Trace getTraceMetadata(final HttpServletRequest request) {
         if (!(request instanceof TraceAccessor)) {
             return null;
         }
@@ -347,7 +345,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
      * @param request the request
      * @return the async metadata
      */
-    private boolean getAsyncMetadata(final Request request) {
+    private boolean getAsyncMetadata(final HttpServletRequest request) {
         if (!(request instanceof AsyncAccessor)) {
             return false;
         }
@@ -361,7 +359,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
      * @param request the request
      * @return true, if is asynchronous process
      */
-    private boolean isAsynchronousProcess(final Request request) {
+    private boolean isAsynchronousProcess(final HttpServletRequest request) {
         if (getTraceMetadata(request) == null) {
             return false;
         }
@@ -547,7 +545,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     private void deleteTrace(final Trace trace, final Object target, final Object[] args, final Object result, final Throwable throwable) {
         trace.traceBlockEnd();
 
-        final Request request = (Request) args[0];
+        final HttpServletRequest request = (HttpServletRequest) args[0];
         if (!isAsynchronousProcess(request)) {
             trace.close();
             // reset

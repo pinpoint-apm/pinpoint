@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.web.vo.SelectedScatterArea;
 import com.navercorp.pinpoint.web.vo.TransactionMetadataQuery;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 
-import java.util.Collection;
 import java.util.List;
 
 public interface ScatterChartService {

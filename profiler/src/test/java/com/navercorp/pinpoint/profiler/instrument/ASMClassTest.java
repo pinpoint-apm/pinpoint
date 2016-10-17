@@ -27,14 +27,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.util.CheckClassAdapter;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.lang.reflect.Method;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;

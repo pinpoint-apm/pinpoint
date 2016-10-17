@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2016 Naver Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin;
+package com.navercorp.pinpoint.plugin.spring.boot;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.Arrays;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 /**
- * @author Woonduk Kang(emeroad)
+ * @author HyunGil Jeong
  */
-public class PluginPackageFilterTest {
+public class SpringBootConfiguration {
 
-    @Test
-    public void testAccept() throws Exception {
-        PluginPackageFilter filter = new PluginPackageFilter(Arrays.asList("com.plugin"));
+    private final boolean springBootEnabled;
 
-        Assert.assertTrue(filter.accept("com.plugin.test.module"));
+    public SpringBootConfiguration(ProfilerConfig config) {
+        this.springBootEnabled = config.readBoolean("profiler.springboot.enable", true);
+    }
 
-        Assert.assertFalse(filter.accept("test"));
+    public boolean isSpringBootEnabled() {
+        return springBootEnabled;
     }
 }

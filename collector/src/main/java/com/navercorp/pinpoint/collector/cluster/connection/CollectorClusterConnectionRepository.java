@@ -19,7 +19,6 @@
 
 package com.navercorp.pinpoint.collector.cluster.connection;
 
-import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 
 import java.net.SocketAddress;

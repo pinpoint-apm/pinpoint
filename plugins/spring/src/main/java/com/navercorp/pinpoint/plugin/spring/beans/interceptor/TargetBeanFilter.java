@@ -48,7 +48,7 @@ public class TargetBeanFilter {
     }
 
     public void clear() {
-        cache = new Cache();
+        cache.clear();
     }
 
     public boolean isTarget(final SpringBeansTargetScope scope, final String beanName, final BeanDefinition beanDefinition) {
