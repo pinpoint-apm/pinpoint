@@ -15,14 +15,19 @@
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-commons</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-bootstrap-core</artifactId>
             <scope>provided</scope>
         </dependency>
-		<dependency>
-			<groupId>org.apache.axis2</groupId>
-			<artifactId>axis2-jaxws</artifactId>
-			<version>1.6.2</version>
-			<scope>provided</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-jaxws</artifactId>
+            <version>1.6.2</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
