@@ -85,17 +85,6 @@ public interface ProfilerConfig {
 
     long getAgentInfoSendRetryInterval();
 
-    boolean isTomcatHidePinpointHeader();
-
-    boolean isTomcatTraceRequestParam();
-
-    Filter<String> getTomcatExcludeUrlFilter();
-
-    String getTomcatRealIpHeader();
-
-    String getTomcatRealIpEmptyValue();
-
-    Filter<String> getTomcatExcludeProfileMethodFilter();
 
     Filter<String> getProfilableClassFilter();
 

@@ -33,7 +33,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -48,10 +47,10 @@ import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 public class InvokeMethodInterceptorTest {
     
     @Mock
-    public HttpServletRequest request;
+    private HttpServletRequest request;
     
     @Mock
-    public HttpServletResponse response;
+    private HttpServletResponse response;
 
     private final MethodDescriptor descriptor = new DefaultMethodDescriptor("org.apache.catalina.core.StandardHostValve", "invoke", new String[] {"org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response"}, new String[] {"request", "response"});
 
@@ -86,7 +85,7 @@ public class InvokeMethodInterceptorTest {
         when(request.getParameterNames()).thenReturn(enumeration);
 
         TraceContext traceContext = spyTraceContext();
-        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>());
+        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor);
 
         interceptor.before("target", new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
@@ -113,7 +112,7 @@ public class InvokeMethodInterceptorTest {
         when(request.getParameterNames()).thenReturn(enumeration);
 
         TraceContext traceContext = spyTraceContext();
-        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>());
+        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor);
         interceptor.before("target",  new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
 
@@ -146,7 +145,7 @@ public class InvokeMethodInterceptorTest {
         when(request.getParameterNames()).thenReturn(enumeration);
 
         TraceContext traceContext = spyTraceContext();
-        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>());
+        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor);
 
         interceptor.before("target", new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
