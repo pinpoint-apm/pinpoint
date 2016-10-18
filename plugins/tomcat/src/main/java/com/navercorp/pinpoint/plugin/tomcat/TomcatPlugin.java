@@ -30,8 +30,6 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
-import static com.navercorp.pinpoint.common.util.VarArgs.va;
-
 /**
  * @author Jongho Moon
  * @author jaehong.kim
@@ -50,20 +48,24 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
      */
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        TomcatConfiguration config = new TomcatConfiguration(context.getConfig());
-        if (!config.isTomcatEnabled()) {
+
+        final TomcatConfig config = new TomcatConfig(context.getConfig());
+        if (logger.isInfoEnabled()) {
+            logger.info("TomcatPlugin config:{}", config);
+        }
+        if (!config.isTomcatEnable()) {
             logger.info("TomcatPlugin disabled");
-            return;
         }
 
-        context.addApplicationTypeDetector(new TomcatDetector(config.getTomcatBootstrapMains()));
+        TomcatDetector tomcatDetector = new TomcatDetector(config.getTomcatBootstrapMains());
+        context.addApplicationTypeDetector(tomcatDetector);
 
         if (config.isTomcatHidePinpointHeader()) {
             addRequestFacadeEditor();
         }
 
         addRequestEditor();
-        addStandardHostValveEditor(config);
+        addStandardHostValveEditor();
         addStandardServiceEditor();
         addTomcatConnectorEditor();
         addWebappLoaderEditor();
@@ -113,7 +115,7 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         });
     }
 
-    private void addStandardHostValveEditor(final TomcatConfiguration config) {
+    private void addStandardHostValveEditor() {
         transformTemplate.transform("org.apache.catalina.core.StandardHostValve", new TransformCallback() {
 
             @Override
@@ -122,7 +124,7 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 InstrumentMethod method = target.getDeclaredMethod("invoke", "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response");
                 if (method != null) {
-                    method.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor", va(config.getTomcatExcludeUrlFilter()));
+                    method.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor");
                 }
 
                 return target.toBytecode();

@@ -123,13 +123,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private boolean traceSqlBindValue = false;
     private int maxSqlBindValueSize = 1024;
 
-    private boolean tomcatHidePinpointHeader = true;
-    private boolean tomcatTraceRequestParam = true;
-    private Filter<String> tomcatExcludeUrlFilter = new SkipFilter<String>();
-    private String tomcatRealIpHeader;
-    private String tomcatRealIpEmptyValue;
-    private Filter<String> tomcatExcludeProfileMethodFilter = new SkipFilter<String>();
-
     // Sampling
     private boolean samplingEnable = true;
     private int samplingRate = 1;
@@ -336,35 +329,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return agentInfoSendRetryInterval;
     }
 
-    @Override
-    public boolean isTomcatHidePinpointHeader() {
-        return tomcatHidePinpointHeader;
-    }
-
-    @Override
-    public boolean isTomcatTraceRequestParam() {
-        return tomcatTraceRequestParam;
-    }
-
-    @Override
-    public Filter<String> getTomcatExcludeUrlFilter() {
-        return tomcatExcludeUrlFilter;
-    }
-
-    @Override
-    public String getTomcatRealIpHeader() {
-        return tomcatRealIpHeader;
-    }
-
-    @Override
-    public String getTomcatRealIpEmptyValue() {
-        return tomcatRealIpEmptyValue;
-    }
-
-    @Override
-    public Filter<String> getTomcatExcludeProfileMethodFilter() {
-        return tomcatExcludeProfileMethodFilter;
-    }
 
     @Override
     public Filter<String> getProfilableClassFilter() {
@@ -490,19 +454,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.jdbcSqlCacheSize = readInt("profiler.jdbc.sqlcachesize", 1024);
         this.traceSqlBindValue = readBoolean("profiler.jdbc.tracesqlbindvalue", false);
 
-        this.tomcatHidePinpointHeader = readBoolean("profiler.tomcat.hidepinpointheader", true);
-        this.tomcatTraceRequestParam = readBoolean("profiler.tomcat.tracerequestparam", true);
-        final String tomcatExcludeURL = readString("profiler.tomcat.excludeurl", "");
-        if (!tomcatExcludeURL.isEmpty()) {
-            this.tomcatExcludeUrlFilter = new ExcludePathFilter(tomcatExcludeURL);
-        }
-        this.tomcatRealIpHeader = readString("profiler.tomcat.realipheader", null);
-        this.tomcatRealIpEmptyValue = readString("profiler.tomcat.realipemptyvalue", null);
-
-        final String tomcatExcludeProfileMethod = readString("profiler.tomcat.excludemethod", "");
-        if (!tomcatExcludeProfileMethod.isEmpty()) {
-            this.tomcatExcludeProfileMethodFilter = new ExcludeMethodFilter(tomcatExcludeProfileMethod);
-        }
 
         this.samplingEnable = readBoolean("profiler.sampling.enable", true);
         this.samplingRate = readInt("profiler.sampling.rate", 1);
@@ -713,14 +664,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append(traceSqlBindValue);
         builder.append(", maxSqlBindValueSize=");
         builder.append(maxSqlBindValueSize);
-        builder.append(", tomcatHidePinpointHeader=");
-        builder.append(tomcatHidePinpointHeader);
-        builder.append(", tomcatTraceRequestParam=");
-        builder.append(tomcatTraceRequestParam);
-        builder.append(", tomcatExcludeUrlFilter=");
-        builder.append(tomcatExcludeUrlFilter);
-        builder.append(", tomcatExcludeProfileMethodFilter=");
-        builder.append(tomcatExcludeProfileMethodFilter);
         builder.append(", samplingEnable=");
         builder.append(samplingEnable);
         builder.append(", samplingRate=");
