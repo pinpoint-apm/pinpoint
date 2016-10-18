@@ -134,6 +134,15 @@ Please note that you will have to complete a  [CLA](https://docs.google.com/form
 
 We would love to see additional tracing support for libraries such as [Storm](https://storm.apache.org "Apache Storm"), [HBase](http://hbase.apache.org "Apache HBase"), as well as profiler support for additional languages (.NET, C++).
 
+## Google Analytics
+The web module has google analytics attached that tracks the number and the order of button clicks in the server map, transaction list, and the inspector view.
+
+This data is used to better understand how users interact with the Web UI which gives us valuable information in improving Pinpoint Web's user experience.
+To disable this for any reason, set the following option to false in *pinpoint-web.properties* for your web instance.
+```
+config.sendUsage=false
+```
+
 ## License
 Pinpoint is licensed under the Apache License, Version 2.0.
 See [LICENSE](LICENSE) for full license text.
