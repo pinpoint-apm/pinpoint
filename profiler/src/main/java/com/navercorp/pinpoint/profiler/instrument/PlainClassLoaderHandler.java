@@ -67,7 +67,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
             throw new PinpointException("Cannot access ClassLoader.defineClass(String, byte[], int, int)", e);
         }
     }
-    
+
     
     static {
         try {
@@ -200,7 +200,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
         return attachment;
     }
-    
+
     private ClassLoaderAttachment getClassLoaderAttachment(ClassLoader classLoader) {
 
         final ClassLoaderAttachment exist = classLoaderAttachment.get(classLoader);
@@ -407,7 +407,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
             final SimpleClassMetadata classMetadata = this.classCache.get(className);
             if(classMetadata == null) {
                 return null;
-    }
+            }
 
             return new ByteArrayInputStream(classMetadata.getClassBinary());
         }
