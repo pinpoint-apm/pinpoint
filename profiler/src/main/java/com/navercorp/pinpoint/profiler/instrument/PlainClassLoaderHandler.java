@@ -258,10 +258,6 @@ public class PlainClassLoaderHandler implements ClassInjector {
                 }
                 define0(classLoader, attachment, interfaceClassBinary, classMetaMap, classLoadingChecker);
             }
-            final byte[] bytes = ct.toBytecode();
-            Class<?> clazz =  (Class<?>)DEFINE_CLASS.invoke(classLoader, ct.getName(), bytes, 0, bytes.length);
-            RESOLVE_CLASS.invoke(classLoader, clazz);
-            return clazz;
         }
 
         Class<?> clazz = defineClass(classLoader, currentClass);
@@ -281,7 +277,9 @@ public class PlainClassLoaderHandler implements ClassInjector {
         final Integer offset = 0;
         final Integer length = classBytes.length;
         try {
-            return (Class<?>) DEFINE_CLASS.invoke(classLoader, classMetadata.getClassName(), classBytes, offset, length);
+            Class<?> clazz = (Class<?>) DEFINE_CLASS.invoke(classLoader, classMetadata.getClassName(), classBytes, offset, length);
+            RESOLVE_CLASS.invoke(classLoader, clazz);
+            return clazz;
         } catch (IllegalAccessException e) {
             throw handleDefineClassFail(e, classLoader, classMetadata);
         } catch (InvocationTargetException e) {
