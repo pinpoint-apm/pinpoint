@@ -214,7 +214,11 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
                     }
 
                     unbindingResponseAggregator(webSocketSession);
-                    bindingResponseAggregator(webSocketSession, applicationName);
+                    if (webSocketSession.isOpen()) {
+                        bindingResponseAggregator(webSocketSession, applicationName);
+                    } else {
+                        logger.warn("WebSocketSession is not opened. skip binding.");
+                    }
                 }
             }
         }
