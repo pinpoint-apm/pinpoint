@@ -15,8 +15,6 @@
  */
 package com.navercorp.pinpoint.plugin.jboss;
 
-import static com.navercorp.pinpoint.common.util.VarArgs.va;
-
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
@@ -51,22 +49,23 @@ public class JbossPlugin implements ProfilerPlugin, TransformTemplateAware {
      */
     @Override
     public void setup(final ProfilerPluginSetupContext context) {
-        final JbossConfiguration jbossConfiguration = new JbossConfiguration(context.getConfig());
+        final JbossConfig jbossConfig = new JbossConfig(context.getConfig());
         if (logger.isInfoEnabled()) {
-            logger.info("JBossPlugin config:{}", jbossConfiguration);
+            logger.info("JBossPlugin config:{}", jbossConfig);
         }
-        if (!jbossConfiguration.isJbossEnable()) {
+        if (!jbossConfig.isJbossEnable()) {
             logger.info("JBossPlugin disabled");
             return;
         }
 
-        context.addApplicationTypeDetector(new JbossDetector(jbossConfiguration.getJbossBootstrapMains()));
+        JbossDetector jbossDetector = new JbossDetector(jbossConfig.getJbossBootstrapMains());
+        context.addApplicationTypeDetector(jbossDetector);
 
         // Instrumenting class on the base of ejb based application or rest based application.
-        if (jbossConfiguration.isJbossTraceEjb()) {
+        if (jbossConfig.isJbossTraceEjb()) {
             addMethodInvocationMessageHandlerEditor();
         } else {
-            addStandardHostValveEditor(jbossConfiguration);
+            addStandardHostValveEditor();
             addContextInvocationEditor();
         }
     }
@@ -124,9 +123,8 @@ public class JbossPlugin implements ProfilerPlugin, TransformTemplateAware {
     /**
      * Adds the standard host valve editor.
      *
-     * @param config the config
      */
-    private void addStandardHostValveEditor(final JbossConfiguration config) {
+    private void addStandardHostValveEditor() {
         transformTemplate.transform("org.apache.catalina.core.StandardHostValve", new TransformCallback() {
 
             @Override
@@ -137,7 +135,7 @@ public class JbossPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 final InstrumentMethod method = target.getDeclaredMethod("invoke", "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response");
                 if (method != null) {
-                    method.addInterceptor("com.navercorp.pinpoint.plugin.jboss.interceptor.StandardHostValveInvokeInterceptor", va(config.getJbossExcludeUrlFilter()));
+                    method.addInterceptor("com.navercorp.pinpoint.plugin.jboss.interceptor.StandardHostValveInvokeInterceptor");
                 }
 
                 return target.toBytecode();
