@@ -41,6 +41,7 @@ import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.jboss.AsyncAccessor;
+import com.navercorp.pinpoint.plugin.jboss.JbossConfig;
 import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
 import com.navercorp.pinpoint.plugin.jboss.ServletAsyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.jboss.ServletSyncMethodDescriptor;
@@ -93,23 +94,23 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
      *
      * @param traceContext the trace context
      * @param descriptor the descriptor
-     * @param excludeFilter the exclude filter
      */
-    public StandardHostValveInvokeInterceptor(final TraceContext traceContext, final MethodDescriptor descriptor, final Filter<String> excludeFilter) {
+    public StandardHostValveInvokeInterceptor(final TraceContext traceContext, final MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
-        this.excludeUrlFilter = excludeFilter;
 
-        final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
-        final String proxyIpHeader = profilerConfig.getJbossRealIpHeader();
+        JbossConfig jbossConfig = new JbossConfig(traceContext.getProfilerConfig());
+        this.excludeUrlFilter = jbossConfig.getJbossExcludeUrlFilter();
+
+        final String proxyIpHeader = jbossConfig.getJbossRealIpHeader();
         if ((proxyIpHeader == null) || proxyIpHeader.isEmpty()) {
             this.remoteAddressResolver = new Bypass<HttpServletRequest>();
         } else {
-            final String jbossRealIpEmptyValue = profilerConfig.getJbossRealIpEmptyValue();
+            final String jbossRealIpEmptyValue = jbossConfig.getJbossRealIpEmptyValue();
             this.remoteAddressResolver = new RealIpHeaderResolver<HttpServletRequest>(proxyIpHeader, jbossRealIpEmptyValue);
         }
-        this.isTraceRequestParam = profilerConfig.isJbossTraceRequestParam();
-        this.excludeProfileMethodFilter = profilerConfig.getJbossExcludeProfileMethodFilter();
+        this.isTraceRequestParam = jbossConfig.isJbossTraceRequestParam();
+        this.excludeProfileMethodFilter = jbossConfig.getJbossExcludeProfileMethodFilter();
 
         traceContext.cacheApi(SERVLET_ASYNCHRONOUS_API_TAG);
         traceContext.cacheApi(SERVLET_SYNCHRONOUS_API_TAG);

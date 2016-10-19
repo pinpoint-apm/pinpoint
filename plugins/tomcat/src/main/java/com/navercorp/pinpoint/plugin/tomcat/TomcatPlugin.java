@@ -55,6 +55,7 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
         if (!config.isTomcatEnable()) {
             logger.info("TomcatPlugin disabled");
+            return;
         }
 
         TomcatDetector tomcatDetector = new TomcatDetector(config.getTomcatBootstrapMains());
