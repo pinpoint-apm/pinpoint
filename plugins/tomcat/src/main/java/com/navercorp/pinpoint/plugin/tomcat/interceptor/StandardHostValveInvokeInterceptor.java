@@ -20,7 +20,6 @@ import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.*;
 
 
@@ -37,6 +36,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.tomcat.AsyncAccessor;
 import com.navercorp.pinpoint.plugin.tomcat.ServletAsyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.tomcat.ServletSyncMethodDescriptor;
+import com.navercorp.pinpoint.plugin.tomcat.TomcatConfig;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
 import com.navercorp.pinpoint.plugin.tomcat.TraceAccessor;
 
@@ -60,21 +60,22 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     private MethodDescriptor methodDescriptor;
     private TraceContext traceContext;
 
-    public StandardHostValveInvokeInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter) {
+    public StandardHostValveInvokeInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
-        this.excludeUrlFilter = excludeFilter;
 
-        ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
-        final String proxyIpHeader = profilerConfig.getTomcatRealIpHeader();
+        TomcatConfig tomcatConfig = new TomcatConfig(traceContext.getProfilerConfig());
+        this.excludeUrlFilter = tomcatConfig.getTomcatExcludeUrlFilter();
+
+        final String proxyIpHeader = tomcatConfig.getTomcatRealIpHeader();
         if (proxyIpHeader == null || proxyIpHeader.isEmpty()) {
             this.remoteAddressResolver = new Bypass<HttpServletRequest>();
         } else {
-            final String tomcatRealIpEmptyValue = profilerConfig.getTomcatRealIpEmptyValue();
+            final String tomcatRealIpEmptyValue = tomcatConfig.getTomcatRealIpEmptyValue();
             this.remoteAddressResolver = new RealIpHeaderResolver<HttpServletRequest>(proxyIpHeader, tomcatRealIpEmptyValue);
         }
-        this.isTraceRequestParam = profilerConfig.isTomcatTraceRequestParam();
-        this.excludeProfileMethodFilter = profilerConfig.getTomcatExcludeProfileMethodFilter();
+        this.isTraceRequestParam = tomcatConfig.isTomcatTraceRequestParam();
+        this.excludeProfileMethodFilter = tomcatConfig.getTomcatExcludeProfileMethodFilter();
 
         traceContext.cacheApi(SERVLET_ASYNCHRONOUS_API_TAG);
         traceContext.cacheApi(SERVLET_SYNCHRONOUS_API_TAG);

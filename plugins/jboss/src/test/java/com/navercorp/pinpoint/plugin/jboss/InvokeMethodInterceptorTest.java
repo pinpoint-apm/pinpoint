@@ -102,7 +102,7 @@ public class InvokeMethodInterceptorTest {
         when(request.getParameterNames()).thenReturn((Enumeration<String>) enumeration);
 
         TraceContext traceContext = spyTraceContext();
-        final StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>());
+        final StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor);
 
         interceptor.before("target", new Object[] { request, response });
         interceptor.after("target", new Object[] { request, response }, new Object(), null);
@@ -133,7 +133,7 @@ public class InvokeMethodInterceptorTest {
         when(request.getParameterNames()).thenReturn((Enumeration<String>) enumeration);
 
         TraceContext traceContext = spyTraceContext();
-        final StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>());
+        final StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor);
         interceptor.before("target", new Object[] { request, response });
         interceptor.after("target", new Object[] { request, response }, new Object(), null);
 
@@ -170,7 +170,7 @@ public class InvokeMethodInterceptorTest {
         when(request.getParameterNames()).thenReturn((Enumeration<String>) enumeration);
 
         TraceContext traceContext = spyTraceContext();
-        final StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>());
+        final StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor);
 
         interceptor.before("target", new Object[] { request, response });
         interceptor.after("target", new Object[] { request, response }, new Object(), null);
