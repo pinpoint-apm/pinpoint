@@ -73,7 +73,7 @@ public class SpringBeansTarget {
     }
 
     public void setNamePatterns(final String namePatternRegex) {
-        this.namePatterns = compilePattern(split(namePatternRegex));
+        this.namePatterns = compilePattern(split(namePatternRegex), "/");
     }
 
     public List<PathMatcher> getNamePatterns() {
@@ -81,7 +81,7 @@ public class SpringBeansTarget {
     }
 
     public void setClassPatterns(final String classPatternRegex) {
-        this.classPatterns = compilePattern(split(classPatternRegex));
+        this.classPatterns = compilePattern(split(classPatternRegex), ".");
     }
 
     public List<PathMatcher> getClassPatterns() {
@@ -114,7 +114,7 @@ public class SpringBeansTarget {
         return result;
     }
 
-    List<PathMatcher> compilePattern(List<String> patternStrings) {
+    List<PathMatcher> compilePattern(List<String> patternStrings, final String separator) {
         if (patternStrings == null || patternStrings.isEmpty()) {
             return null;
         }
@@ -127,7 +127,7 @@ public class SpringBeansTarget {
                 if (prefix.equals(ANT_STYLE_PATTERN_PREFIX)) {
                     final String trimmed = patternString.substring(prefixEnd + 1).trim();
                     if (!trimmed.isEmpty()) {
-                        pathMatchers.add(new AntPathMatcher(trimmed));
+                        pathMatchers.add(new AntPathMatcher(trimmed, separator));
                     }
                     continue;
                 } else if (prefix.equals(REGEX_PATTERN_PREFIX)) {
