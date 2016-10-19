@@ -46,6 +46,7 @@
         <module>cxf</module>
         <module>hystrix</module>
         <module>jboss</module>
+        <module>vertx</module>
     </modules>
 
     <dependencies>
@@ -217,6 +218,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-jboss-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-vertx-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
