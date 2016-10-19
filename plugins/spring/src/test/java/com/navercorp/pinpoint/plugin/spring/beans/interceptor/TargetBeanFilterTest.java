@@ -111,19 +111,29 @@ public class TargetBeanFilterTest {
 
     @Test
     public void classNamePattern() {
+        assertClassNamePattern("antstyle:**");
+        assertClassNamePattern("antstyle:java.*.String");
+        assertClassNamePattern("antstyle:java.**.String");
+        assertClassNamePattern("antstyle:java.*.*");
+        assertClassNamePattern("antstyle:java.**");
+        assertClassNamePattern("antstyle:**.String");
+        assertClassNamePattern("antstyle:java.lang.S*");
+        assertClassNamePattern("antstyle:java.lang.*");
+        assertClassNamePattern("antstyle:java.lang.Strin?");
+        assertClassNamePattern("java.*");
+        assertClassNamePattern("regex:java.*");
+        assertClassNamePattern("regex:java.*.String");
+    }
+
+    private void assertClassNamePattern(final String pattern) {
         Properties properties = new Properties();
-        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "antstyle:*");
+        properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, pattern);
         ProfilerConfig config = new DefaultProfilerConfig(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
         filter.clear();
 
         BeanDefinition beanDefinition = new RootBeanDefinition(String.class);
         assertTrue(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target0", beanDefinition));
-
-        filter.addTransformed(String.class.getName());
-
-        assertFalse(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target0", beanDefinition));
-        assertFalse(filter.isTarget(SpringBeansTargetScope.COMPONENT_SCAN, "Target1", beanDefinition));
     }
 
     @Test
