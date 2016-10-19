@@ -51,7 +51,7 @@
 	                // define private variables
 	                var bUseNodeContextMenu, bUseLinkContextMenu, htLastQuery,
 	                    bUseBackgroundContextMenu, oServerMap, oAlertService, oProgressBarService, htLastMapData, htLastLink, htLastNode,
-	                    sLastSelection, $fromAgentName, $toAgentName, bIsFilterWizardLoaded, htLastMergedMapData, $serverMapTime;
+	                    sLastSelection, $fromAgentName, $toAgentName, bIsFilterWizardLoaded, htLastMergedMapData, $serverMapTime, $urlPattern;
 	
 	                // define private variables of methods
 	                var showServerMap, setNodeContextMenuPosition, reset, emitDataExisting,
@@ -92,6 +92,7 @@
 	                $toAgentName = element.find('.toAgentName');
 	                $fromAgentName.select2();
 	                $toAgentName.select2();
+					$urlPattern = element.find("#urlPattern");
 	                bIsFilterWizardLoaded = false;
 	                scope.mergeTypeList = [];
 	                scope.mergeStatus = {};
@@ -118,7 +119,7 @@
 	                    scope.nodeContextMenuStyle = '';
 	                    scope.linkContextMenuStyle = '';
 	                    scope.backgroundContextMenuStyle = '';
-	                    scope.urlPattern = '';
+						$urlPattern.val("");
 	                    scope.responseTime = {
 	                        from: 0,
 	                        to: 30000
@@ -503,27 +504,24 @@
 	                    oSidebarTitleVoService
 	                        .setImageType2(htLastLink.toNode.serviceType)
 	                        .setTitle2(htLastLink.toNode.applicationName);
-	
-	                    scope.fromAgent = htLastLink.fromAgent || [];
+
+						scope.fromAgent = htLastLink.fromAgent || [];
 	                    scope.toAgent = htLastLink.toAgent || [];
 	                    scope.sourceInfo = htLastLink.sourceInfo;
 	                    scope.targetInfo = htLastLink.targetInfo;
 	                    scope.fromApplicationName = htLastLink.fromNode.applicationName;
 	                    scope.toApplicationName = htLastLink.toNode.applicationName;
-	                    $fromAgentName.select2('val', '');
-	                    $toAgentName.select2('val', '');
-	                    scope.fromAgentName = '';
-	                    scope.toAgentName = '';
-	
+
 	                    scope.$broadcast('sidebarTitleDirective.initialize.forServerMap', oSidebarTitleVoService, htLastLink);
-	
+
 	                    $('#filterWizard').modal('show');
 	                    if (!bIsFilterWizardLoaded) {
 	                        bIsFilterWizardLoaded = true;
 	                        $('#filterWizard')
 	                            .on('shown.bs.modal', function () {
-	//                                scope.$broadcast('loadChartDirective.initAndSimpleRenderWithData.forFilterWizard', htLastLink.timeSeriesHistogram, '100%', '150px');
-	                                $('slider', this).addClass('auto');
+									$fromAgentName.select2().val("").trigger("change");
+									$toAgentName.select2().val("").trigger("change");
+									$('slider', this).addClass('auto');
 	                                setTimeout(function () {
 	                                    $('#filterWizard slider').removeClass('auto');
 	                                }, 500);
@@ -535,13 +533,13 @@
 	                                        htLastLink.toNode.serviceType,
 	                                        scope.oNavbarVoService);
 	                                    if (result) {
-	                                        scope.urlPattern = result.oServerMapFilterVoService.getRequestUrlPattern();
+	                                        $urlPattern.val(result.oServerMapFilterVoService.getRequestUrlPattern());
 	                                        scope.responseTime.from = result.oServerMapFilterVoService.getResponseFrom();
 	                                        var to = result.oServerMapFilterVoService.getResponseTo();
 	                                        scope.responseTime.to = to === 'max' ? 30000 : to;
 	                                        scope.includeFailed = result.oServerMapFilterVoService.getIncludeException();
-	                                        $fromAgentName.select2('val', result.oServerMapFilterVoService.getFromAgentName());
-	                                        $toAgentName.select2('val', result.oServerMapFilterVoService.getToAgentName());
+	                                        $fromAgentName.select2().val(result.oServerMapFilterVoService.getFromAgentName()).trigger("change");
+	                                        $toAgentName.select2().val(result.oServerMapFilterVoService.getToAgentName()).trigger("change");
 	                                    } else {
 	                                        scope.responseTime = {
 	                                            from: 0,
@@ -655,7 +653,7 @@
 	                        .setResponseFrom(scope.responseTime.from)
 	                        .setResponseTo(scope.responseTime.to)
 	                        .setIncludeException(scope.includeFailed)
-	                        .setRequestUrlPattern($base64.encode(scope.urlPattern));
+	                        .setRequestUrlPattern($base64.encode($urlPattern.val()));
 	
 	                    if (scope.fromAgentName) {
 	                        oServerMapFilterVoService.setFromAgentName(scope.fromAgentName);
