@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
 
 /**
  * The Class JbossPlugin.
@@ -61,6 +62,26 @@ public class JbossPlugin implements ProfilerPlugin, TransformTemplateAware {
         JbossDetector jbossDetector = new JbossDetector(jbossConfig.getJbossBootstrapMains());
         context.addApplicationTypeDetector(jbossDetector);
 
+        if (shouldAddTransformers(jbossConfig)) {
+            logger.info("Adding JBoss transformers");
+            addTransformers(jbossConfig);
+        } else {
+            logger.info("Not adding JBoss transformers");
+        }
+    }
+
+    private boolean shouldAddTransformers(JbossConfig jbossConfig) {
+        // Transform if conditional check is disabled
+        if (!jbossConfig.isJbossConditionalTransformEnable()) {
+            return true;
+        }
+        // Only transform if it's a JBoss application
+        ConditionProvider conditionProvider = ConditionProvider.DEFAULT_CONDITION_PROVIDER;
+        boolean isJbossApplication = conditionProvider.checkMainClass(jbossConfig.getJbossBootstrapMains());
+        return isJbossApplication;
+    }
+
+    private void addTransformers(JbossConfig jbossConfig) {
         // Instrumenting class on the base of ejb based application or rest based application.
         if (jbossConfig.isJbossTraceEjb()) {
             addMethodInvocationMessageHandlerEditor();
