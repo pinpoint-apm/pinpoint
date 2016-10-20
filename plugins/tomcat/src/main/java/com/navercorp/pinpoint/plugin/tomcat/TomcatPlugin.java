@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
 
 /**
  * @author Jongho Moon
@@ -61,6 +62,27 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         TomcatDetector tomcatDetector = new TomcatDetector(config.getTomcatBootstrapMains());
         context.addApplicationTypeDetector(tomcatDetector);
 
+        if (shouldAddTransformers(config)) {
+            logger.info("Adding Tomcat transformers");
+            addTransformers(config);
+        } else {
+            logger.info("Not adding Tomcat transfomers");
+        }
+    }
+
+    private boolean shouldAddTransformers(TomcatConfig config) {
+        // Transform if conditional check is disabled
+        if (!config.isTomcatConditionalTransformEnable()) {
+            return true;
+        }
+        // Only transform if it's a Tomcat application or SpringBoot application
+        ConditionProvider conditionProvider = ConditionProvider.DEFAULT_CONDITION_PROVIDER;
+        boolean isTomcatApplication = conditionProvider.checkMainClass(config.getTomcatBootstrapMains());
+        boolean isSpringBootApplication = conditionProvider.checkMainClass(config.getSpringBootBootstrapMains());
+        return isTomcatApplication || isSpringBootApplication;
+}
+
+    private void addTransformers(TomcatConfig config) {
         if (config.isTomcatHidePinpointHeader()) {
             addRequestFacadeEditor();
         }
