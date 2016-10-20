@@ -96,6 +96,7 @@ public class JbossUtility {
         final List<String> remoteAddressInfos = new ArrayList<String>();
         InetAddress inetAddress = null;
         try {
+            // TODO check DNSLookup risk
             inetAddress = InetAddress.getByName(remoteAddress);
         } catch (final UnknownHostException unknownHostException) {
             LOGGER.error("An error occurred while fetching ip address from host name - {}", remoteAddress, unknownHostException);
