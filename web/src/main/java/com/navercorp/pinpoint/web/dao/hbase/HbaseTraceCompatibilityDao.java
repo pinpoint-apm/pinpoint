@@ -42,7 +42,11 @@ public class HbaseTraceCompatibilityDao implements TraceDao {
     public List<List<SpanBo>> selectSpans(List<TransactionId> transactionIdList) {
         List<List<SpanBo>> spanBos = this.master.selectSpans(transactionIdList);
         if (CollectionUtils.isNotEmpty(spanBos)) {
-            return spanBos;
+            for (List<SpanBo> spanBo : spanBos) {
+                if (CollectionUtils.isNotEmpty(spanBo)) {
+                    return spanBos;
+                }
+            }
         }
 
         return slave.selectSpans(transactionIdList);
@@ -52,7 +56,11 @@ public class HbaseTraceCompatibilityDao implements TraceDao {
     public List<List<SpanBo>> selectAllSpans(List<TransactionId> transactionIdList) {
         List<List<SpanBo>> spanBos = this.master.selectAllSpans(transactionIdList);
         if (CollectionUtils.isNotEmpty(spanBos)) {
-            return spanBos;
+            for (List<SpanBo> spanBo : spanBos) {
+                if (CollectionUtils.isNotEmpty(spanBo)) {
+                    return spanBos;
+                }
+            }
         }
 
         return slave.selectAllSpans(transactionIdList);
