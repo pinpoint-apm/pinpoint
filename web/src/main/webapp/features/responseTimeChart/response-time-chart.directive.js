@@ -129,9 +129,7 @@
                      */
                     updateData = function (data) {
                 	    oChart.dataProvider = data;
-                        $timeout(function () {
-                            oChart.validateData();
-                        });                	
+						oChart.validateData();
                     };
 
                     /**

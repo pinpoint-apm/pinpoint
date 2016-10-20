@@ -17,8 +17,6 @@
                     namespace: '@' // string value
                 },
                 link: function postLink(scope, element, attrs) {
-					console.log( "------init" );
-
                     var sId = "", oChart;
 
                     function setIdAutomatically() {
