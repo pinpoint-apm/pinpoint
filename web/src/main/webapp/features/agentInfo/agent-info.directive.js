@@ -75,10 +75,8 @@
 							}
 							oProgressBarService.setLoading(80);
 							showCharts(result);
-							$timeout(function () {
-								oProgressBarService.setLoading(100);
-								oProgressBarService.stopLoading();
-							}, 700);
+							oProgressBarService.setLoading(100);
+							oProgressBarService.stopLoading();
 							callback();
 						});
 					}
