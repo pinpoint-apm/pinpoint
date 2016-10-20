@@ -17,36 +17,29 @@
                     namespace: '@' // string value
                 },
                 link: function postLink(scope, element, attrs) {
+					console.log( "------init" );
 
-                    // define variables
-                    var sId, oChart;
+                    var sId = "", oChart;
 
-                    // define variables of methods
-                    var setIdAutomatically, setWidthHeight, render, showCursorAt, resize;
-
-                    /**
-                     * set id automatically
-                     */
-                    setIdAutomatically = function () {
+                    function setIdAutomatically() {
                         sId = 'multipleValueAxesId-' + scope.namespace;
                         element.attr('id', sId);
-                    };
+                    }
+                    function hasId() {
+						return sId === "" ? false : true;
+					}
 
-                    /**
-                     * set width height
-                     * @param w
-                     * @param h
-                     */
-                    setWidthHeight = function (w, h) {
+                    function setWidthHeight(w, h) {
                         if (w) element.css('width', w);
                         if (h) element.css('height', h);
-                    };
+                    }
 
-                    /**
-                     * render
-                     * @param chartData
-                     */
-                    render = function (chartData) {
+                    function renderUpdate(data) {
+						oChart.dataProvider = data;
+						oChart.validateData();
+					}
+
+                    function render(chartData) {
                         var options = {
                             "type": "serial",
                             "theme": "light",
@@ -145,13 +138,9 @@
                                 scope.$emit('jvmMemoryChartDirective.cursorChanged.' + scope.namespace, event);
                             });
                         });
-                    };
+                    }
 
-                    /**
-                     * show cursor at
-                     * @param category
-                     */
-                    showCursorAt = function (category) {
+                    function showCursorAt(category) {
                         if (category) {
                             if (angular.isNumber(category)) {
                                 category = oChart.dataProvider[category].time;
@@ -160,37 +149,26 @@
                         } else {
                             oChart.chartCursor.hideCursor();
                         }
-                    };
+                    }
 
-                    /**
-                     * resize
-                     */
-                    resize = function () {
+                    function resize() {
                         if (oChart) {
                             oChart.validateNow();
                             oChart.validateSize();
                         }
-                    };
-
-                    /**
-                     * scope event on jvmMemoryChartDirective.initAndRenderWithData.namespace
-                     */
+                    }
                     scope.$on('jvmMemoryChartDirective.initAndRenderWithData.' + scope.namespace, function (event, data, w, h) {
-                        setIdAutomatically();
-                        setWidthHeight(w, h);
-                        render(data);
+						if ( hasId() ) {
+							renderUpdate( data );
+						} else {
+							setIdAutomatically();
+							setWidthHeight(w, h);
+							render(data);
+						}
                     });
-
-                    /**
-                     * scope event on jvmMemoryChartDirective.showCursorAt.namespace
-                     */
                     scope.$on('jvmMemoryChartDirective.showCursorAt.' + scope.namespace, function (event, category) {
                         showCursorAt(category);
                     });
-
-                    /**
-                     * scope event on jvmMemoryChartDirective.resize.namespace
-                     */
                     scope.$on('jvmMemoryChartDirective.resize.' + scope.namespace, function (event) {
                         resize();
                     });

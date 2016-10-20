@@ -19,34 +19,28 @@
                 link: function postLink(scope, element, attrs) {
 
                     // define variables
-                    var sId, oChart;
+                    var sId = "", oChart;
 
-                    // define variables of methods
-                    var setIdAutomatically, setWidthHeight, render, showCursorAt, resize;
-
-                    /**
-                     * set id automatically
-                     */
-                    setIdAutomatically = function () {
+                    function setIdAutomatically() {
                         sId = 'multipleValueAxesId-' + scope.namespace;
                         element.attr('id', sId);
-                    };
+                    }
 
-                    /**
-                     * set width height
-                     * @param w
-                     * @param h
-                     */
-                    setWidthHeight = function (w, h) {
+					function hasId() {
+						return sId === "" ? false : true;
+					}
+
+                    function setWidthHeight(w, h) {
                         if (w) element.css('width', w);
                         if (h) element.css('height', h);
-                    };
+                    }
 
-                    /**
-                     * render
-                     * @param chartData
-                     */
-                    render = function (chartData) {
+					function renderUpdate(data) {
+						oChart.dataProvider = data;
+						oChart.validateData();
+					}
+
+                    function render(chartData) {
                         var options = {
                             "type": "serial",
                             "theme": "light",
@@ -129,13 +123,9 @@
                                 scope.$emit('cpuLoadChartDirective.cursorChanged.' + scope.namespace, event);
                             });
                         });
-                    };
+                    }
 
-                    /**
-                     * show cursor at
-                     * @param category
-                     */
-                    showCursorAt = function (category) {
+                    function showCursorAt(category) {
                         if (category) {
                             if (angular.isNumber(category)) {
                                 category = oChart.dataProvider[category].time;
@@ -144,37 +134,29 @@
                         } else {
                             oChart.chartCursor.hideCursor();
                         }
-                    };
+                    }
 
-                    /**
-                     * resize
-                     */
-                    resize = function () {
+                    function resize() {
                         if (oChart) {
                             oChart.validateNow();
                             oChart.validateSize();
                         }
-                    };
+                    }
 
-                    /**
-                     * scope event on cpuLoadChartDirective.initAndRenderWithData.namespace
-                     */
                     scope.$on('cpuLoadChartDirective.initAndRenderWithData.' + scope.namespace, function (event, data, w, h) {
-                        setIdAutomatically();
-                        setWidthHeight(w, h);
-                        render(data);
+						if ( hasId() ) {
+							renderUpdate( data );
+						} else {
+							setIdAutomatically();
+							setWidthHeight(w, h);
+							render(data);
+						}
                     });
 
-                    /**
-                     * scope event on cpuLoadChartDirective.showCursorAt.namespace
-                     */
                     scope.$on('cpuLoadChartDirective.showCursorAt.' + scope.namespace, function (event, category) {
                         showCursorAt(category);
                     });
 
-                    /**
-                     * scope event on cpuLoadChartDirective.resize.namespace
-                     */
                     scope.$on('cpuLoadChartDirective.resize.' + scope.namespace, function (event) {
                         resize();
                     });
