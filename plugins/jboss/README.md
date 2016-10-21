@@ -1,13 +1,13 @@
-## Pinpoint Jboss plugin configuration
+## Pinpoint JBoss plugin configuration
 
 ###  Standalone mode <br/>
  Add following configuration in __standalone.conf__ :- <br/>
 ```bash 
-JAVA_OPTS="$JAVA_OPTS -Djboss.modules.system.pkgs=com.navercorp.pinpoint.bootstrap,
+JAVA_OPTS="$JAVA_OPTS -Djboss.modules.system.pkgs=org.jboss.byteman,com.navercorp.pinpoint.bootstrap,
 com.navercorp.pinpoint.common,com.navercorp.pinpoint.exception"
 JAVA_OPTS="$JAVA_OPTS -javaagent:$PINPOINT_AGENT_HOME/pinpoint-bootstrap-$PINPOINT_VERSION.jar"
+JAVA_OPTS="$JAVA_OPTS -Dpinpoint.applicationName=APP-APPLICATION-NAME" 
 JAVA_OPTS="$JAVA_OPTS -Dpinpoint.agentId=APP-AGENTID"
-JAVA_OPTS="$JAVA_OPTS -Dpinpoint.applicationName=APP-STANDALONE" 
 ```
 
 ###  Domain mode <br/>
@@ -26,22 +26,38 @@ com.navercorp.pinpoint.common,com.navercorp.pinpoint.exception" boot-time="true"
 ```xml 
 <servers>
     ...
-    <server name="server-three" group="other-server-group" auto-start="true">
+    <server name="server-one" group="main-server-group">
+        ...
         <jvm name="default">
             ...
             <jvm-options>
                 ...
                 <option value="-javaagent:$PINPOINT_AGENT_HOME/pinpoint-bootstrap-$PINPOINT_VERSION.jar"/>
-                <option value="-Dpinpoint.agentId=APP-NODE1"/>
-                <option value="-Dpinpoint.applicationName=APP-DOMAIN"/>
+                <option value="-Dpinpoint.applicationName=APP-APPLICATION-NAME"/>
+                <option value="-Dpinpoint.agentId=APP-AGENT-1"/>
             </jvm-options>
         </jvm>
-        <socket-bindings port-offset="250"/>
+        ...
     </server>
+    
+    <server name="server-two" group="main-server-group" auto-start="true">
+            ...
+            <jvm name="default">
+                ...
+                <jvm-options>
+                    ...
+                    <option value="-javaagent:$PINPOINT_AGENT_HOME/pinpoint-bootstrap-$PINPOINT_VERSION.jar"/>
+                    <option value="-Dpinpoint.applicationName=APP-APPLICATION-NAME"/>
+                    <option value="-Dpinpoint.agentId=APP-AGENT-2"/>
+                </jvm-options>
+            </jvm>
+            ...
+        </server>
+        
+    
 </servers> 
 
 ```
 
-#### Set ```profiler.applicationservertype=JBOSS``` in pinpoint.config file
 #### Set ```profiler.jboss.traceEjb=true``` for remote ejb based application in pinpoint.config file
 #### Set ```profiler.jboss.traceEjb=false``` for non-ejb based application in pinpoint.config file
