@@ -104,6 +104,10 @@ Agent Version | Collector 1.0.x | Collector 1.1.x | Collector 1.5.x | Collector 
 1.5.x | no | no | yes | yes
 1.6.x | no | no | not tested | yes
 
+Pinpoint Web Supported Browsers:
+
+* Chrome
+
 **Installation**
 
 To set up your very own Pinpoint instance you can either **download the build results** from our [**latest release**](https://github.com/naver/pinpoint/releases/latest), or manually build from your Git clone.
