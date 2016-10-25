@@ -42,6 +42,7 @@ public class JbossConfig {
     private final boolean jbossEnable;
 
     private final List<String> jbossBootstrapMains;
+    private final boolean jbossConditionalTransformEnable;
 
     private final String jbossRealIpHeader;
     private final String jbossRealIpEmptyValue;
@@ -58,6 +59,7 @@ public class JbossConfig {
         this.jbossTraceEjb = config.readBoolean("profiler.jboss.traceEjb", false);
 
         this.jbossBootstrapMains = config.readList("profiler.jboss.bootstrap.main");
+        this.jbossConditionalTransformEnable = config.readBoolean("profiler.jboss.conditional.transform", true);
         this.jbossHidePinpointHeader = config.readBoolean("profiler.jboss.hidepinpointheader", true);
 
         this.jbossTraceRequestParam = config.readBoolean("profiler.jboss.tracerequestparam", true);
@@ -84,6 +86,10 @@ public class JbossConfig {
 
     public List<String> getJbossBootstrapMains() {
         return jbossBootstrapMains;
+    }
+
+    public boolean isJbossConditionalTransformEnable() {
+        return jbossConditionalTransformEnable;
     }
 
     /**

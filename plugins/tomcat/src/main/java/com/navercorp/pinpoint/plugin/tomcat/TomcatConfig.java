@@ -32,6 +32,7 @@ public class TomcatConfig {
 
     private final boolean tomcatEnable;
     private final List<String> tomcatBootstrapMains;
+    private final boolean tomcatConditionalTransformEnable;
     private final boolean tomcatHidePinpointHeader;
 
     private final boolean tomcatTraceRequestParam;
@@ -39,6 +40,9 @@ public class TomcatConfig {
     private final String tomcatRealIpHeader;
     private final String tomcatRealIpEmptyValue;
     private final Filter<String> tomcatExcludeProfileMethodFilter;
+
+    // for transform conditional check
+    private final List<String> springBootBootstrapMains;
 
     public TomcatConfig(ProfilerConfig config) {
         if (config == null) {
@@ -48,6 +52,7 @@ public class TomcatConfig {
         // plugin
         this.tomcatEnable = config.readBoolean("profiler.tomcat.enable", true);
         this.tomcatBootstrapMains = config.readList("profiler.tomcat.bootstrap.main");
+        this.tomcatConditionalTransformEnable = config.readBoolean("profiler.tomcat.conditional.transform", true);
         this.tomcatHidePinpointHeader = config.readBoolean("profiler.tomcat.hidepinpointheader", true);
 
         // runtime
@@ -67,6 +72,8 @@ public class TomcatConfig {
         } else {
             this.tomcatExcludeProfileMethodFilter = new SkipFilter<String>();
         }
+
+        this.springBootBootstrapMains = config.readList("profiler.springboot.bootstrap.main");
     }
 
     public boolean isTomcatEnable() {
@@ -75,6 +82,10 @@ public class TomcatConfig {
 
     public List<String> getTomcatBootstrapMains() {
         return tomcatBootstrapMains;
+    }
+
+    public boolean isTomcatConditionalTransformEnable() {
+        return tomcatConditionalTransformEnable;
     }
 
     public boolean isTomcatHidePinpointHeader() {
@@ -101,12 +112,16 @@ public class TomcatConfig {
         return tomcatExcludeProfileMethodFilter;
     }
 
+    public List<String> getSpringBootBootstrapMains() {
+        return springBootBootstrapMains;
+    }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("TomcatConfig{");
         sb.append("tomcatEnable=").append(tomcatEnable);
         sb.append(", tomcatBootstrapMains=").append(tomcatBootstrapMains);
+        sb.append(", tomcatConditionalTransformEnable=").append(tomcatConditionalTransformEnable);
         sb.append(", tomcatHidePinpointHeader=").append(tomcatHidePinpointHeader);
         sb.append(", tomcatTraceRequestParam=").append(tomcatTraceRequestParam);
         sb.append(", tomcatExcludeUrlFilter=").append(tomcatExcludeUrlFilter);
