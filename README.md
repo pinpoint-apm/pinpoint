@@ -44,7 +44,7 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 
 ## Supported Modules
 * JDK 6+
-* Tomcat 6/7/8, Jetty 8/9
+* Tomcat 6/7/8, Jetty 8/9, JBoss EAP 6
 * Spring, Spring Boot
 * Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient
 * Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER
@@ -103,6 +103,10 @@ Agent Version | Collector 1.0.x | Collector 1.1.x | Collector 1.5.x | Collector 
 1.1.x | not tested | yes | yes | yes
 1.5.x | no | no | yes | yes
 1.6.x | no | no | not tested | yes
+
+Pinpoint Web Supported Browsers:
+
+* Chrome
 
 **Installation**
 

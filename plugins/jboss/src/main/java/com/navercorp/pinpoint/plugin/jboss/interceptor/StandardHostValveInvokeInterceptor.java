@@ -386,7 +386,13 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         recorder.recordEndPoint(endPoint);
 
         final String remoteAddress = remoteAddressResolver.resolve(request);
-        recorder.recordRemoteAddress(JbossUtility.fetchRemoteAddressDetails(remoteAddress));
+        // TODO API safety check required
+        // Potential Risk
+        // 1. Implicit DNSLookup (InetAddress.getByName())
+        // 2. DNSLookup can cause thread blocking.
+        // 3. difficult format parsing problem in collector
+//        recorder.recordRemoteAddress(JbossUtility.fetchRemoteAddressDetails(remoteAddress));
+        recorder.recordRemoteAddress(remoteAddress);
         if (!recorder.isRoot()) {
             recordParentInfo(recorder, request);
         }
