@@ -12,8 +12,8 @@
 		PAGE_NAME: "inspector",
 		SLASH: "/"
 	});
-	pinpointApp.controller("InspectorCtrl", [ "InspectorCtrlConfig", "$scope", "$timeout", "$routeParams", "locationService", "CommonUtilService", "UrlVoService", "AnalyticsService",
-	    function ( cfg, $scope, $timeout, $routeParams, locationService, CommonUtilService, UrlVoService, AnalyticsService) {
+	pinpointApp.controller("InspectorCtrl", [ "InspectorCtrlConfig", "$scope", "$routeParams", "locationService", "CommonUtilService", "UrlVoService", "AnalyticsService",
+	    function ( cfg, $scope, $routeParams, locationService, CommonUtilService, UrlVoService, AnalyticsService) {
 			cfg.ID +=  CommonUtilService.getRandomNum();
 			AnalyticsService.send(AnalyticsService.CONST.INSPECTOR_PAGE);
 

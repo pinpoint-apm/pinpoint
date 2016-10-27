@@ -7,8 +7,8 @@
 	 * @name jvmMemoryChartDirective
 	 * @class
 	 */	
-	angular.module('pinpointApp').directive('jvmMemoryChartDirective', ['$timeout',
-        function ($timeout) {
+	angular.module("pinpointApp").directive("jvmMemoryChartDirective", [
+        function () {
             return {
                 template: '<div></div>',
                 replace: true,
@@ -115,11 +115,6 @@
                                     "connect": false
                                 }
                             ],
-                            "chartCursor": {
-                                "categoryBalloonAlpha": 0.7,
-                                "fullWidth": true,
-                                "cursorAlpha": 0.1
-                            },
                             "categoryField": "time",
                             "categoryAxis": {
                                 "axisColor": "#DADADA",
@@ -130,12 +125,16 @@
                                 }
                             }
                         };
-                        $timeout(function () {
-                            oChart = AmCharts.makeChart(sId, options);
-                            oChart.chartCursor.addListener('changed', function (event) {
-                                scope.$emit('jvmMemoryChartDirective.cursorChanged.' + scope.namespace, event);
-                            });
-                        });
+						oChart = AmCharts.makeChart(sId, options);
+						var oChartCursor = new AmCharts.ChartCursor({
+							"categoryBalloonAlpha": 0.7,
+							"fullWidth": true,
+							"cursorAlpha": 0.1
+						});
+						oChartCursor.addListener("changed", function (event) {
+							scope.$emit("jvmMemoryChartDirective.cursorChanged." + scope.namespace, event);
+						});
+						oChart.addChartCursor( oChartCursor );
                     }
 
                     function showCursorAt(category) {

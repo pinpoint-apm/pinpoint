@@ -7,8 +7,8 @@
 	 * @name cpuLoadChartDirective
 	 * @class
 	 */	
-	angular.module('pinpointApp').directive('cpuLoadChartDirective', ['$timeout',
-        function ($timeout) {
+	angular.module("pinpointApp").directive("cpuLoadChartDirective", [
+        function () {
             return {
                 template: '<div></div>',
                 replace: true,
@@ -17,7 +17,6 @@
                     namespace: '@' // string value
                 },
                 link: function postLink(scope, element, attrs) {
-
                     // define variables
                     var sId = "", oChart;
 
@@ -102,11 +101,6 @@
                                     "visibleInLegend": false
                                 }
                             ],
-                            "chartCursor": {
-                                "categoryBalloonAlpha": 0.7,
-                                "fullWidth": true,
-                                "cursorAlpha": 0.1
-                            },
                             "categoryField": "time",
                             "categoryAxis": {
                                 "axisColor": "#DADADA",
@@ -117,12 +111,16 @@
                                 }
                             }
                         };
-                        $timeout(function () {
-                            oChart = AmCharts.makeChart(sId, options);
-                            oChart.chartCursor.addListener('changed', function (event) {
-                                scope.$emit('cpuLoadChartDirective.cursorChanged.' + scope.namespace, event);
-                            });
-                        });
+						oChart = AmCharts.makeChart(sId, options);
+						var oChartCursor = new AmCharts.ChartCursor({
+							"categoryBalloonAlpha": 0.7,
+							"fullWidth": true,
+							"cursorAlpha": 0.1
+						});
+						oChartCursor.addListener('changed', function (event) {
+							scope.$emit('cpuLoadChartDirective.cursorChanged.' + scope.namespace, event);
+						});
+						oChart.addChartCursor( oChartCursor );
                     }
 
                     function showCursorAt(category) {
