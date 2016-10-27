@@ -17,7 +17,6 @@
         <spring.version>4.1.7.RELEASE</spring.version>
         <slf4j.version>1.7.5</slf4j.version>
         <tomcat.version>7.0.47</tomcat.version>
-        <cxf.version>2.7.18</cxf.version>
     </properties>
 
     <dependencies>
@@ -131,17 +130,6 @@
               <groupId>commons-io</groupId>
             <version>2.4</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-jaxws</artifactId>
-            <version>${cxf.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-transports-http</artifactId>
-            <version>${cxf.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -207,40 +195,6 @@
                     <uriEncoding>utf-8</uriEncoding>
                     <warSourceDirectory>${basedir}/target/deploy</warSourceDirectory>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-codegen-plugin</artifactId>
-                <version>${cxf.version}</version>
-                <executions>
-                    <execution>
-                        <id>generate-sources</id>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <sourceRoot>${basedir}/target/generated-sources/cxf</sourceRoot>
-                            <wsdlOptions>
-                                <wsdlOption>
-                                    <wsdl>http://www.webservicex.net/globalweather.asmx?wsdl</wsdl>
-                                    <extraargs>
-                                        <extraarg>-fe</extraarg>
-                                        <extraarg>jaxws21</extraarg>
-                                    </extraargs>
-                                </wsdlOption>
-                                <wsdlOption>
-                                    <wsdl>http://www.w3schools.com/xml/tempconvert.asmx?wsdl</wsdl>
-                                    <extraargs>
-                                        <extraarg>-fe</extraarg>
-                                        <extraarg>jaxws21</extraarg>
-                                    </extraargs>
-                                </wsdlOption>
-                            </wsdlOptions>
-                        </configuration>
-                        <goals>
-                            <goal>wsdl2java</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
