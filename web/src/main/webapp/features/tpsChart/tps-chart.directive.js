@@ -7,8 +7,8 @@
      * @name tpsChartDirective
      * @class
      */ 
-    angular.module('pinpointApp').directive('tpsChartDirective', ['$timeout',
-        function ($timeout) {
+    angular.module("pinpointApp").directive("tpsChartDirective", [
+        function () {
             return {
                 template: '<div></div>',
                 replace: true,
@@ -116,11 +116,6 @@
                                     "connect": true
                                 }
                             ],
-                            "chartCursor": {
-                                "categoryBalloonAlpha": 0.7,
-                                "fullWidth": true,
-                                "cursorAlpha": 0.1
-                            },
                             "categoryField": "time",
                             "categoryAxis": {
                                 "axisColor": "#DADADA",
@@ -131,12 +126,16 @@
                                 }
                             }
                         };
-                        $timeout(function () {
-                            oChart = AmCharts.makeChart(sId, options);
-                            oChart.chartCursor.addListener('changed', function (event) {
-                                scope.$emit('tpsChartDirective.cursorChanged.' + scope.namespace, event);
-                            });
-                        });
+						oChart = AmCharts.makeChart(sId, options);
+						var oChartCursor = new AmCharts.ChartCursor({
+							"categoryBalloonAlpha": 0.7,
+							"fullWidth": true,
+							"cursorAlpha": 0.1
+						});
+						oChartCursor.addListener('changed', function (event) {
+							scope.$emit('tpsChartDirective.cursorChanged.' + scope.namespace, event);
+						});
+						oChart.addChartCursor( oChartCursor );
                     }
 
                     function showCursorAt(category) {

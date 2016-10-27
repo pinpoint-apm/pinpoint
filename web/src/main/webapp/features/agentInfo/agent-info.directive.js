@@ -306,7 +306,7 @@
 								loadAgentInfo( scope.selectTime );
 							}
 						}
-						$timeout(function () {
+						// $timeout(function () {
 							loadChartData(agent.agentId, aSelectionFromTo, period, function() {
 								initTime( scope.selectTime );
 								initTooltip();
@@ -314,8 +314,8 @@
 								setTimeSliderBaseColor();
 								getEventList( agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
 							});
-							scope.$apply();
-						});
+						// 	scope.$apply();
+						// });
 
 					});
 
