@@ -105,10 +105,12 @@
         this._selectPosition = this.getPositionFromTime( time );
     };
 	ts.PositionManager.prototype.getPrevTime = function() {
-		return this._selectTime - ( this._aSelectionTimeSeries[1] - this._aSelectionTimeSeries[0] ) - 1;
+		var gap = this._aSelectionTimeSeries[1] - this._aSelectionTimeSeries[0];
+		return this._aSelectionTimeSeries[0] - parseInt( gap / 2 ) - 1;
 	};
 	ts.PositionManager.prototype.getNextTime = function() {
-		var nextTime = this._selectTime + ( this._aSelectionTimeSeries[1] - this._aSelectionTimeSeries[0] );
+		var gap = this._aSelectionTimeSeries[1] - this._aSelectionTimeSeries[0];
+		var nextTime = this._aSelectionTimeSeries[1] + parseInt( gap / 2 ) + 1;
 		if ( nextTime > Date.now() ) {
 			return Date.now();
 		} else {
