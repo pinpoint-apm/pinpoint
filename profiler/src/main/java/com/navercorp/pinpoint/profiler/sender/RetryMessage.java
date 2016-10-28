@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -80,12 +81,12 @@ public class RetryMessage {
 
     @Override
     public String toString() {
-        StringBuffer toString = new StringBuffer();
+        StringBuilder toString = new StringBuilder();
         toString.append("RetryMessage{");
         if (!StringUtils.isEmpty(messageDescription)) {
             toString.append("message:" + messageDescription + ", ");
         }
-        toString.append("size=" + bytes.length + ", ");
+        toString.append("size=" + ArrayUtils.getLength(bytes) + ", ");
         toString.append("retry=" + retryCount + "/" + maxRetryCount);
         toString.append("}");
 
