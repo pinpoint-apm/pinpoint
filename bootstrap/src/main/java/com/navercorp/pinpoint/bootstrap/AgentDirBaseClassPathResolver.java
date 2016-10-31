@@ -40,20 +40,23 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
 
     private final BootLogger logger = BootLogger.getLogger(this.getClass().getName());
 
-    private static final Pattern DEFAULT_AGENT_PATTERN = Pattern.compile("pinpoint-bootstrap(-[0-9]+\\.[0-9]+\\.[0-9]+(\\-SNAPSHOT)?)?\\.jar");
-    private static final Pattern DEFAULT_AGENT_COMMONS_PATTERN = Pattern.compile("pinpoint-commons(-[0-9]+\\.[0-9]+\\.[0-9]+(\\-SNAPSHOT)?)?\\.jar");
-    private static final Pattern DEFAULT_AGENT_CORE_PATTERN = Pattern.compile("pinpoint-bootstrap-core(-[0-9]+\\.[0-9]+\\.[0-9]+(\\-SNAPSHOT)?)?\\.jar");
-    private static final Pattern DEFAULT_AGENT_CORE_OPTIONAL_PATTERN = Pattern.compile("pinpoint-bootstrap-core-optional(-[0-9]+\\.[0-9]+\\.[0-9]+(\\-SNAPSHOT)?)?\\.jar");
+    static final String VERSION_PATTERN = "(-[0-9]+\\.[0-9]+\\.[0-9]+((\\-SNAPSHOT)|(-RC[0-9]+))?)?";
+    static final Pattern DEFAULT_AGENT_PATTERN = Pattern.compile("pinpoint-bootstrap" +VERSION_PATTERN + "\\.jar");
+    static final Pattern DEFAULT_AGENT_COMMONS_PATTERN = Pattern.compile("pinpoint-commons" + VERSION_PATTERN + "\\.jar");
+    static final Pattern DEFAULT_AGENT_CORE_PATTERN = Pattern.compile("pinpoint-bootstrap-core" + VERSION_PATTERN + "\\.jar");
+    static final Pattern DEFAULT_AGENT_CORE_OPTIONAL_PATTERN = Pattern.compile("pinpoint-bootstrap-core-optional" + VERSION_PATTERN + "\\.jar");
+
+    private final Pattern agentPattern;
+    private final Pattern agentCommonsPattern;
+    private final Pattern agentCorePattern;
+    private final Pattern agentCoreOptionalPattern;
 
     private String classPath;
 
     private String agentJarName;
     private String agentJarFullPath;
     private String agentDirPath;
-    private Pattern agentPattern;
-    private Pattern agentCommonsPattern;
-    private Pattern agentCorePattern;
-    private Pattern agentCoreOptionalPattern;
+
     private List<String> fileExtensionList;
     private String pinpointCommonsJar;
     private String bootStrapCoreJar;

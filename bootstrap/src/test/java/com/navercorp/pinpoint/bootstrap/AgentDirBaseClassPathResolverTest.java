@@ -28,7 +28,7 @@ import java.io.File;
 /**
  * @author emeroad
  */
-//@Ignore
+@Ignore
 public class AgentDirBaseClassPathResolverTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

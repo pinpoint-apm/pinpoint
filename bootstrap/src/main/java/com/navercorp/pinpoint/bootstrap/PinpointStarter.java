@@ -40,7 +40,7 @@ import com.navercorp.pinpoint.exception.PinpointException;
  * @author Jongho Moon
  *
  */
-public class PinpointStarter {
+class PinpointStarter {
 
     private final BootLogger logger = BootLogger.getLogger(PinpointStarter.class.getName());
 
@@ -75,7 +75,7 @@ public class PinpointStarter {
 
     }
 
-    public boolean start() {
+    boolean start() {
         final IdValidator idValidator = new IdValidator();
         final String agentId = idValidator.getAgentId();
         if (agentId == null) {
