@@ -20,21 +20,18 @@ import org.junit.Assert;
 
 import org.junit.Test;
 
-import com.navercorp.pinpoint.bootstrap.PinpointBootStrap;
-
 /**
  * @author emeroad
  */
-public class PinpointBootStrapTest {
+public class LoadStateTest {
     @Test
-    public void testDuplicatedLoadCheck() throws Exception {
-        Assert.assertFalse(PinpointBootStrap.getLoadState());
-        PinpointBootStrap.premain("test", new DummyInstrumentation());
+    public void testStart() throws Exception {
+        LoadState loadState = new LoadState();
 
-        Assert.assertTrue(PinpointBootStrap.getLoadState());
+        Assert.assertTrue(loadState.start());
+        Assert.assertTrue(loadState.getState());
 
-        PinpointBootStrap.premain("test", new DummyInstrumentation());
-        // is leaving a log the only way to test for duplicate loading? 
-        // ? check
+        Assert.assertFalse(loadState.start());
+
     }
 }
