@@ -24,6 +24,7 @@ import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.LoaderClassPath;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -48,6 +49,7 @@ public class JavassistVerifyErrorTest {
      * https://github.com/naver/pinpoint/issues/1807
      * @throws Exception
      */
+    @Ignore("fixed Javassist 3.21.0-GA")
     @Test
     public void bug_regression_BytecodeVerifyError_Invalid_StackMapFrame() throws Exception {
 
