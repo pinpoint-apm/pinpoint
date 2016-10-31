@@ -185,7 +185,7 @@ public class PinpointPluginTestStatement extends Statement {
     }
     
     private String getAgent() {
-        return "-javaagent:" + context.getAgentJar() + "=bootClass=com.navercorp.pinpoint.test.PluginTestAgent";
+        return "-javaagent:" + context.getAgentJar() + "=AGENT_TYPE=PLUGIN_TEST";
     }
     
     private String getClassPathAsString() {
