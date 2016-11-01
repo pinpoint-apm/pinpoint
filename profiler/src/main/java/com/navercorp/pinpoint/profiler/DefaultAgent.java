@@ -191,7 +191,7 @@ public class DefaultAgent implements Agent {
 
         final ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(pluginContexts, applicationServerType, profilerConfig.getApplicationTypeDetectOrder());
         
-        final AgentInformationFactory agentInformationFactory = new AgentInformationFactory();
+        final AgentInformationFactory agentInformationFactory = new AgentInformationFactory(agentOption.getAgentId(), agentOption.getApplicationName());
         this.agentInformation = agentInformationFactory.createAgentInformation(typeResolver.resolve());
         logger.info("agentInformation:{}", agentInformation);
         

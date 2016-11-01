@@ -16,20 +16,59 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+
 /**
  * @author emeroad
  */
 public class RetryMessage {
-    private int retryCount;
-    private byte[] bytes;
 
-    public RetryMessage(int retryCount, byte[] bytes) {
+    private int retryCount = 0;
+    private final int maxRetryCount;
+
+    private final byte[] bytes;
+    private final String messageDescription;
+
+    public RetryMessage(int maxRetryCount, byte[] bytes) {
+        this(0, maxRetryCount, bytes, "");
+    }
+
+    public RetryMessage(int retryCount, int maxRetryCount, byte[] bytes) {
+        this(retryCount, maxRetryCount, bytes, "");
+    }
+
+    public RetryMessage(int maxRetryCount, byte[] bytes, String messageDescription) {
+        this(0, maxRetryCount, bytes, messageDescription);
+    }
+
+    public RetryMessage(int retryCount, int maxRetryCount, byte[] bytes, String messageDescription) {
+        if (retryCount < 0) {
+            throw new IllegalArgumentException("retryCount:" + retryCount + " must be positive number");
+        }
+        if (maxRetryCount < 0) {
+            throw new IllegalArgumentException("maxRetryCount:" + maxRetryCount + " must be positive number");
+        }
+        if (retryCount > maxRetryCount) {
+            throw new IllegalArgumentException("maxRetryCount(" + maxRetryCount + ") must be greater than retryCount(" + retryCount + ")");
+        }
+
         this.retryCount = retryCount;
+        this.maxRetryCount = maxRetryCount;
         this.bytes = bytes;
+        this.messageDescription = messageDescription;
     }
 
     public int getRetryCount() {
         return retryCount;
+    }
+
+    public int getMaxRetryCount() {
+        return maxRetryCount;
+    }
+
+    public boolean isRetryAvailable() {
+        return retryCount < maxRetryCount;
     }
 
     public byte[] getBytes() {
@@ -39,4 +78,19 @@ public class RetryMessage {
     public int fail() {
         return ++retryCount;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder toString = new StringBuilder();
+        toString.append("RetryMessage{");
+        if (!StringUtils.isEmpty(messageDescription)) {
+            toString.append("message:" + messageDescription + ", ");
+        }
+        toString.append("size=" + ArrayUtils.getLength(bytes) + ", ");
+        toString.append("retry=" + retryCount + "/" + maxRetryCount);
+        toString.append("}");
+
+        return toString.toString();
+    }
+
 }

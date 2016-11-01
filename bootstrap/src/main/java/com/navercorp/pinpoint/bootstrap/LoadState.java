@@ -17,39 +17,24 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import java.net.URL;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface ClassPathResolver {
+public class LoadState {
 
-    boolean verify();
+    private static final boolean STATE_NONE = false;
+    private static final boolean STATE_STARTED = true;
 
-    BootstrapJarFile getBootstrapJarFile();
+    private final AtomicBoolean state = new AtomicBoolean(STATE_NONE);
 
-    String getPinpointCommonsJar();
+    // for test
+    boolean getState() {
+        return state.get();
+    }
 
-    String getBootStrapCoreJar();
-
-    String getBootStrapCoreOptionalJar();
-
-    String getAgentJarName();
-
-    String getAgentJarFullPath();
-
-    String getAgentLibPath();
-
-    String getAgentLogFilePath();
-
-    String getAgentPluginPath();
-
-    List<URL> resolveLib();
-
-    URL[] resolvePlugins();
-
-    String getAgentDirPath();
-
-    String getAgentConfigPath();
+    public boolean start() {
+        return state.compareAndSet(STATE_NONE, STATE_STARTED);
+    }
 }

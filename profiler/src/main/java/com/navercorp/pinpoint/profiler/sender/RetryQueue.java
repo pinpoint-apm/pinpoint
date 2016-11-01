@@ -31,15 +31,15 @@ public class RetryQueue {
     // But PriorityQueue of JDK has no size limit, so let's do it without priority for now.
     private final BlockingQueue<RetryMessage> queue;
     private final int capacity;
-    private final int maxRetry;
+    private final int maxRetryCount;
     private final int halfCapacity;
 
 
-    public RetryQueue(int capacity, int maxRetry) {
+    public RetryQueue(int capacity, int maxRetryCount) {
         this.queue = new LinkedBlockingQueue<RetryMessage>();
         this.capacity = capacity;
         this.halfCapacity = capacity / 2;
-        this.maxRetry = maxRetry;
+        this.maxRetryCount = maxRetryCount;
     }
 
     public RetryQueue() {
@@ -51,9 +51,13 @@ public class RetryQueue {
             throw new NullPointerException("retryMessage must not be null");
         }
 
-        final int retryCount = retryMessage.getRetryCount();
-        if (retryCount >= this.maxRetry) {
-            logger.warn("discard retry message. retryCount:{}", retryCount);
+        if (!retryMessage.isRetryAvailable()) {
+            logger.warn("discard retry message({}).", retryMessage);
+            return;
+        }
+        int retryCount = retryMessage.getRetryCount();
+        if (retryCount >= this.maxRetryCount) {
+            logger.warn("discard retry message({}). queue-maxRetryCount:{}", retryMessage, maxRetryCount);
             return;
         }
         final int queueSize = queue.size();
