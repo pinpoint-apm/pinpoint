@@ -168,7 +168,7 @@
     };
     TimeSlider.prototype.addEventData = function( aNewData ) {
         this.oLoading.show();
-        var aBoundary = this.oEventData.addData( aNewData );
+        this.oEventData.addData( aNewData );
         this.oEvents.changeData();
         this.oStateLine.changeData();
         this.oLoading.hide();
@@ -202,6 +202,7 @@
 		this.oPositionManager.setSelectionStartTime( aSelectionFromTo[0] );
 		this.oPositionManager.setSelectionEndTime( aSelectionFromTo[1] );
 		this.oPositionManager.setSelectTime( aSelectionFromTo[1] );
+		this.emptyData();
 		this.reset();
 	};
 	TimeSlider.prototype.movePrev = function() {
