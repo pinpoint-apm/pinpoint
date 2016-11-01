@@ -131,6 +131,7 @@
 							TooltipService.init( "permGen" );
 							TooltipService.init( "cpuUsage" );
 							TooltipService.init( "tps" );
+							TooltipService.init( "activeThread" );
 							bInitTooltip = true;
 	                	}
 	                }
