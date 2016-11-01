@@ -284,6 +284,7 @@
 							scope.hasAgentData = false;
 							return;
 						}
+						scope.showEventInfo = false;
 						scope.hasAgentData = true;
 						scope.agent = agent;
 						scope.chartGroup = null;
