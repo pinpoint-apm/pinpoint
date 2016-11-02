@@ -43,6 +43,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private final Properties properties;
     private final PropertyPlaceholderHelper propertyPlaceholderHelper = new PropertyPlaceholderHelper("${", "}");
 
+    @Deprecated
     public static final String INSTRUMENT_ENGINE_JAVASSIST = "JAVASSIST";
     public static final String INSTRUMENT_ENGINE_ASM = "ASM";
 
@@ -370,7 +371,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         final ValueResolver placeHolderResolver = new PlaceHolderResolver();
 
         this.profileEnable = readBoolean("profiler.enable", true);
-        this.profileInstrumentEngine = readString("profiler.instrument.engine", INSTRUMENT_ENGINE_JAVASSIST);
+        this.profileInstrumentEngine = readString("profiler.instrument.engine", INSTRUMENT_ENGINE_ASM);
 
         this.interceptorRegistrySize = readInt("profiler.interceptorregistry.size", 1024*8);
 
