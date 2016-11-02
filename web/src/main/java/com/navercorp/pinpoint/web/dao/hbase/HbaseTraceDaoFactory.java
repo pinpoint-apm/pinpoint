@@ -34,8 +34,8 @@ public class HbaseTraceDaoFactory implements FactoryBean<TraceDao> {
     @Autowired
     private HBaseAdminTemplate adminTemplate;
 
-    @Value("#{pinpointWebProps['web.experimental.span.format.compatibility.version'] ?: 'v1'}")
-    private String mode = "v1";
+    @Value("#{pinpointWebProps['web.span.format.compatibility.version'] ?: 'v2'}")
+    private String mode = "v2";
 
     @Override
     public TraceDao getObject() throws Exception {
