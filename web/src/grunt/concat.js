@@ -256,7 +256,7 @@ module.exports = function( grunt, options ) {
 				'/linkInfoDetails.css',
 				'/transactionTable.css',
 				'/callStacks.css',
-				'/time-slider.css',
+				'/timeSlider.css',
 				'/agentChartGroup.css',
 				'/sidebarTitle.css',
 				'/serverMap.css',
