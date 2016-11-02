@@ -36,6 +36,7 @@ public class HystrixCommandQueueInterceptor implements AroundInterceptor {
         SpanEventRecorder recorder = trace.traceBlockBegin();
         recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_SERVICE_TYPE);
         recorder.recordApi(descriptor);
+        recorder.recordAttribute(HystrixPluginConstants.HYSTRIX_COMMAND_ANNOTATION_KEY, target.getClass().getSimpleName());
 
         // To trace async invocations, you have to get async trace id like below.
         AsyncTraceId asyncTraceId = trace.getAsyncTraceId();

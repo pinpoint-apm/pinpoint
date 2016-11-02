@@ -1,7 +1,7 @@
 flush 'AgentInfo'
 flush 'AgentStat'
-flush 'AgentStat_Ver2'
-flush 'AgentStatAggr'
+flush 'AgentStatV2'
+
 flush 'AgentLifeCycle'
 flush 'AgentEvent'
 flush 'ApplicationIndex'

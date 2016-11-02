@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.hystrix.interceptor;
+package com.navercorp.pinpoint.plugin.hystrix.transformer;
 
 import java.security.ProtectionDomain;
 
@@ -40,9 +40,20 @@ public class HystrixCommandTransformer implements TransformCallback {
             queue.addInterceptor("com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixCommandQueueInterceptor");
         }
 
+        // pre 1.4.0 - R executeCommand()
         InstrumentMethod executeCommand = target.getDeclaredMethod("executeCommand");
         if (executeCommand != null) {
             executeCommand.addInterceptor("com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixCommandExecuteCommandInterceptor");
+        }
+        // pre 1.4.0 - R getFallbackOrThrowException(HystrixEventType, FailureType, String, Exception)
+        InstrumentMethod getFallbackOrThrowException = target.getDeclaredMethod(
+                "getFallbackOrThrowException",
+                "com.netflix.hystrix.HystrixEventType",
+                "com.netflix.hystrix.exception.HystrixRuntimeException$FailureType",
+                "java.lang.String",
+                "java.lang.Exception");
+        if (getFallbackOrThrowException != null) {
+            getFallbackOrThrowException.addInterceptor("com.navercorp.pinpoint.plugin.hystrix.interceptor.HystrixCommandGetFallbackOrThrowExceptionInterceptor");
         }
 
         return target.toBytecode();

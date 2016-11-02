@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
 /**
  * @author Jiaqi Feng
+ * @author HyunGil Jeong
  *
  */
 public class HystrixTraceMetadataProvider implements TraceMetadataProvider {
@@ -29,6 +30,10 @@ public class HystrixTraceMetadataProvider implements TraceMetadataProvider {
     @Override
     public void setup(TraceMetadataSetupContext context) {
         context.addServiceType(HystrixPluginConstants.HYSTRIX_SERVICE_TYPE);
-        context.addAnnotationKey(HystrixPluginConstants.HYSTRIX_SUBCLASS_ANNOTATION_KEY);
+        context.addServiceType(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE);
+
+        context.addAnnotationKey(HystrixPluginConstants.HYSTRIX_COMMAND_ANNOTATION_KEY);
+        context.addAnnotationKey(HystrixPluginConstants.HYSTRIX_COMMAND_EXECUTION_ANNOTATION_KEY);
+        context.addAnnotationKey(HystrixPluginConstants.HYSTRIX_FALLBACK_CAUSE_ANNOTATION_KEY);
     }
 }
