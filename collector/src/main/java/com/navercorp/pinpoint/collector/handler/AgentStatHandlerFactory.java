@@ -47,8 +47,8 @@ public class AgentStatHandlerFactory implements FactoryBean<Handler> {
     @Autowired
     private HBaseAdminTemplate adminTemplate;
 
-    @Value("#{pinpoint_collector_properties['collector.experimental.stat.format.compatibility.version'] ?: 'v0'}")
-    private String mode = "v1";
+    @Value("#{pinpoint_collector_properties['collector.stat.format.compatibility.version'] ?: 'v2'}")
+    private String mode = "v2";
 
     @Override
     public Handler getObject() throws Exception {
