@@ -36,8 +36,8 @@ public class LegacyAgentStatChartServiceFactory implements FactoryBean<LegacyAge
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("#{pinpointWebProps['web.experimental.stat.format.compatibility.version'] ?: 'v1'}")
-    private String mode = "v1";
+    @Value("#{pinpointWebProps['web.stat.format.compatibility.version'] ?: 'v2'}")
+    private String mode = "v2";
 
     @Autowired
     @Qualifier("legacyAgentStatChartV1Service")

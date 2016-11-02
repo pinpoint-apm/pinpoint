@@ -53,8 +53,8 @@ abstract class SampledAgentStatDaoFactory<S extends SampledAgentStatDataPoint, D
     @Autowired
     private HBaseAdminTemplate adminTemplate;
 
-    @Value("#{pinpointWebProps['web.experimental.stat.format.compatibility.version'] ?: 'v1'}")
-    private String mode = "v1";
+    @Value("#{pinpointWebProps['web.stat.format.compatibility.version'] ?: 'v2'}")
+    private String mode = "v2";
 
     D getDao() throws Exception {
         logger.info("SampledAgentStatDao Compatibility {}", mode);
