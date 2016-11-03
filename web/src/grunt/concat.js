@@ -200,7 +200,6 @@ module.exports = function( grunt, options ) {
 				'/features/tpsChart/tps-chart.directive.js',
 				'/features/activeTraceChart/active-trace-chart.directive.js',
 				'/features/loading/loading.directive.js',
-				'/features/configuration/configuration.controller.js',
 				'/features/configuration/configuration.directive.js',
 				'/features/configuration/general/general.directive.js',
 				'/features/configuration/userGroup/user-group-container.directive.js',
