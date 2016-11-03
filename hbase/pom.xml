@@ -27,6 +27,8 @@
                         <JAVA_HOME>/usr/lib/jvm/java-8-openjdk-amd64</JAVA_HOME>
                         <HBASE_VERSION>1.2.3</HBASE_VERSION>
                         <HBASE_HOME>/opt/hbase/hbase-1.2.3</HBASE_HOME>
+                        <HBASE_REPOSITORY>http://apache.mirrors.pair.com/hbase</HBASE_REPOSITORY>
+                        <HBASE_SUB_REPOSITORY>http://archive.apache.org/dist/hbase</HBASE_SUB_REPOSITORY>
                     </env>
                     <exposes>
                         <expose>2181</expose>
@@ -48,7 +50,7 @@
                         </resource>
                     </resources>
                     <runs>
-                        <run>curl -SL "http://apache.mirrors.pair.com/hbase/$HBASE_VERSION/hbase-$HBASE_VERSION-bin.tar.gz" -o hbase.tar.gz</run>
+                        <run>curl -fSL "$HBASE_REPOSITORY/$HBASE_VERSION/hbase-$HBASE_VERSION-bin.tar.gz" -o hbase.tar.gz || curl -fSL "$HBASE_SUB_REPOSITORY/$HBASE_VERSION/hbase-$HBASE_VERSION-bin.tar.gz" -o hbase.tar.gz</run>
                         <run>tar xfvz hbase.tar.gz -C /opt/hbase</run>
                         <run>rm -rf hbase.tar.gz</run>
                         <run>cp /opt/hbase/hbase-site.xml /opt/hbase/hbase-$HBASE_VERSION/conf/hbase-site.xml</run>
