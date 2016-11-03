@@ -108,7 +108,16 @@ public class MockTrace implements Trace {
     }
 
     @Override
+    public AsyncTraceId getAsyncTraceId(boolean closeable) {
+        return null;
+    }
+
+    @Override
     public void close() {
+    }
+
+    @Override
+    public void flush() {
     }
 
     @Override

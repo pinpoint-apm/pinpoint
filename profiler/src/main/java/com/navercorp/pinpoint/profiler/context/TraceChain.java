@@ -82,6 +82,11 @@ public class TraceChain implements TraceWrap {
     }
 
     @Override
+    public AsyncTraceId getAsyncTraceId(boolean closeable) {
+        return delegate.getAsyncTraceId(closeable);
+    }
+
+    @Override
     public boolean canSampled() {
         return delegate.canSampled();
     }
@@ -109,6 +114,11 @@ public class TraceChain implements TraceWrap {
     @Override
     public void close() {
         delegate.close();
+    }
+
+    @Override
+    public void flush() {
+        delegate.flush();
     }
 
     @Override

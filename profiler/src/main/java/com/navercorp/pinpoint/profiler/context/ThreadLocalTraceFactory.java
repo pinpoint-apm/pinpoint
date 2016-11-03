@@ -69,6 +69,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
 
     /**
      * Return Trace object AFTER validating whether it can be sampled or not.
+     *
      * @return Trace
      */
     @Override
@@ -85,6 +86,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
 
     /**
      * Return Trace object without validating
+     *
      * @return
      */
     @Override
@@ -126,7 +128,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         bind(trace);
         return trace;
     }
-    
+
 
     @Override
     public Trace continueTraceObject(Trace trace) {
@@ -191,9 +193,11 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         return this.threadLocalBinder.remove();
     }
 
+    // internal async trace.
+    @Override
     public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
         checkBeforeTraceObject();
-        
+
         final TraceId parentTraceId = traceId.getParentTraceId();
         final boolean sampling = true;
         final DefaultTrace trace = new DefaultTrace(traceContext, parentTraceId, IdGenerator.UNTRACKED_ID, sampling);
@@ -204,5 +208,43 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         bind(asyncTrace);
 
         return asyncTrace;
+    }
+
+    // entry point async trace.
+    @Override
+    public Trace continueAsyncTraceObject(final TraceId traceId) {
+        checkBeforeTraceObject();
+
+        final boolean sampling = true;
+        final DefaultTrace trace = new DefaultTrace(traceContext, traceId, this.idGenerator.nextContinuedTransactionId(), sampling);
+        final Storage storage = storageFactory.createStorage();
+        trace.setStorage(storage);
+
+        final AsyncTraceCloser closer = new AsyncTraceCloser(trace.getSpan(), storage);
+        final AsyncTrace asyncTrace = new AsyncTrace(trace, closer);
+        bind(asyncTrace);
+        return asyncTrace;
+    }
+
+    // entry point async trace.
+    @Override
+    public Trace newAsyncTraceObject() {
+        checkBeforeTraceObject();
+        final boolean sampling = sampler.isSampling();
+        if (sampling) {
+            final DefaultTrace trace = new DefaultTrace(traceContext, idGenerator.nextTransactionId(), sampling);
+            final Storage storage = storageFactory.createStorage();
+            trace.setStorage(storage);
+
+            final AsyncTraceCloser closer = new AsyncTraceCloser(trace.getSpan(), storage);
+            final AsyncTrace asyncTrace = new AsyncTrace(trace, closer);
+            bind(asyncTrace);
+
+            return asyncTrace;
+        } else {
+            final DisableTrace disableTrace = new DisableTrace(this.idGenerator.nextDisabledId());
+            bind(disableTrace);
+            return disableTrace;
+        }
     }
 }
