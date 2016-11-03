@@ -131,6 +131,16 @@ public class MockTraceContext implements TraceContext {
     }
 
     @Override
+    public Trace newAsyncTraceObject() {
+        return null;
+    }
+
+    @Override
+    public Trace continueAsyncTraceObject(TraceId traceId) {
+        return null;
+    }
+
+    @Override
     public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
         return null;
     }

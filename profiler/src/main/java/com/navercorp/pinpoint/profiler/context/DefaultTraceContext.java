@@ -115,7 +115,7 @@ public class DefaultTraceContext implements TraceContext {
 
     /**
      * Return trace only if current transaction can be sampled.
-     * 
+     *
      * @return
      */
     public Trace currentTraceObject() {
@@ -128,7 +128,7 @@ public class DefaultTraceContext implements TraceContext {
 
     /**
      * Return trace without sampling check.
-     * 
+     *
      * @return
      */
     @Override
@@ -159,19 +159,31 @@ public class DefaultTraceContext implements TraceContext {
         return traceFactory.continueTraceObject(traceID);
     }
 
+
     @Override
     public Trace continueTraceObject(Trace trace) {
         return traceFactory.continueTraceObject(trace);
     }
 
-    @Override
-    public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
-        return traceFactory.continueAsyncTraceObject(traceId, asyncId, startTime);
-    }
 
     @Override
     public Trace newTraceObject() {
         return traceFactory.newTraceObject();
+    }
+
+    @Override
+    public Trace newAsyncTraceObject() {
+        return traceFactory.newAsyncTraceObject();
+    }
+
+    @Override
+    public Trace continueAsyncTraceObject(final TraceId traceId) {
+        return traceFactory.continueAsyncTraceObject(traceId);
+    }
+
+    @Override
+    public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
+        return traceFactory.continueAsyncTraceObject(traceId, asyncId, startTime);
     }
 
     @Override

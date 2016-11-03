@@ -83,6 +83,16 @@ public class MetricTraceFactory implements TraceFactory, TraceFactoryWrapper {
     }
 
     @Override
+    public Trace newAsyncTraceObject() {
+        return delegate.newAsyncTraceObject();
+    }
+
+    @Override
+    public Trace continueAsyncTraceObject(TraceId traceId) {
+        return delegate.continueAsyncTraceObject(traceId);
+    }
+
+    @Override
     public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
         return delegate.continueAsyncTraceObject(traceId, asyncId, startTime);
     }

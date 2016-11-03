@@ -232,7 +232,6 @@
             <artifactId>jackson-databind</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -274,6 +273,7 @@
                         <configuration>
                             <excludes>
                                 <exclude>**/jdk7/**/</exclude>
+                                <exclude>**/jdk8/**/</exclude>
                             </excludes>
                             <!-- AbstractPinpointPluginTestSuite needs this to resolve
                                 path of required jars -->

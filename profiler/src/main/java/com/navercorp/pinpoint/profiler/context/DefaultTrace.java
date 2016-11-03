@@ -120,6 +120,10 @@ public final class DefaultTrace implements Trace {
         this.storage = storage;
     }
 
+    public Span getSpan() {
+        return this.spanRecorder.getSpan();
+    }
+
     @Override
     public SpanEventRecorder traceBlockBegin() {
         return traceBlockBegin(DEFAULT_STACKID);
@@ -211,6 +215,13 @@ public final class DefaultTrace implements Trace {
         }
     }
 
+    @Override
+    public void flush() {
+        if(this.storage != null) {
+            this.storage.flush();
+        }
+    }
+
     /**
      * Get current TraceID. If it was not set this will return null.
      *
@@ -291,6 +302,12 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public AsyncTraceId getAsyncTraceId() {
+        return getAsyncTraceId(false);
+    }
+
+    @Override
+    public AsyncTraceId getAsyncTraceId(boolean closeable) {
+        // ignored closeable.
         return new DefaultAsyncTraceId(traceId, traceContext.getAsyncId(), spanRecorder.getSpan().getStartTime());
     }
 
