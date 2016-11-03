@@ -30,6 +30,12 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons-server</artifactId>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.navercorp.pinpoint</groupId>
+                    <artifactId>pinpoint-commons-hbase</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
