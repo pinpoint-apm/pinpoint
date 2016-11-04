@@ -18,11 +18,15 @@ package com.navercorp.pinpoint.profiler.sender;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Taejin Koo
  */
 public class RetryMessageTest {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
     public void availableTest1() throws Exception {
@@ -61,6 +65,19 @@ public class RetryMessageTest {
     @Test(expected = IllegalArgumentException.class)
     public void illegalArgumentTest3() {
         RetryMessage retryMessage = new RetryMessage(10, 9, new byte[0]);
+    }
+
+    @Test
+    public void test_toSting() {
+        RetryMessage message1 = new RetryMessage(1, new byte[0]);
+        logger.debug("{}", message1.toString());
+
+        // check null safety
+        RetryMessage message2 = new RetryMessage(1, null);
+        logger.debug("{}", message2.toString());
+
+        RetryMessage message3 = new RetryMessage(1, null, null);
+        logger.debug("{}", message3.toString());
     }
 
 
