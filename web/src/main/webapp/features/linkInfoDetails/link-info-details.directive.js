@@ -150,12 +150,11 @@
 	                    var className = $filter('applicationNameToClassName')(toApplicationName);
 						namespace = namespace || 'forLink_' + className;
 	                    if (namespace === 'forLink' && bResponseSummaryForLinkRendered) {
-	                        scope.$broadcast('responseTimeChartDirective.updateData.' + namespace, histogram);
+	                        // scope.$broadcast('responseTimeChartDirective.updateData.' + namespace, histogram);
 	                    } else {
 	                        if (namespace === 'forLink') {
 	                            bResponseSummaryForLinkRendered = true;
 	                        }
-	                        scope.$broadcast('responseTimeChartDirective.initAndRenderWithData.' + namespace, histogram, w, h, true, true);
 	                        scope.$on('responseTimeChartDirective.itemClicked.' + namespace, function (event, data) {
 	                            var label = data.responseTime,
 	                                values = data.count;
@@ -199,6 +198,7 @@
 	                            scope.$emit('linkInfoDetailsDirective.ResponseSummary.barClicked', oServerMapFilterVoService, oServerMapHintVoService);
 	                        });
 	                    }
+						scope.$broadcast('responseTimeChartDirective.initAndRenderWithData.' + namespace, histogram, w, h, true, true);
 	                };
 	
 	                renderResponseSummaryWithLink = function (namespace, link, w, h) {
