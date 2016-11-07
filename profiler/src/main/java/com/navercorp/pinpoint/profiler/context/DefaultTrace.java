@@ -197,15 +197,16 @@ public final class DefaultTrace implements Trace {
             }
             // skip
         } else {
-            Span span = spanRecorder.getSpan();
+            final Span span = spanRecorder.getSpan();
             if (span.isTimeRecording()) {
                 span.markAfterTime();
             }
             logSpan(span);
         }
 
-        if (this.storage != null) {
-            this.storage.close();
+        final Storage copyStorage = this.storage;
+        if (copyStorage != null) {
+            copyStorage.close();
             this.storage = null;
         }
     }
@@ -261,8 +262,9 @@ public final class DefaultTrace implements Trace {
             final Thread th = Thread.currentThread();
             logger.trace("[DefaultTrace] Write {} thread{id={}, name={}}", spanEvent, th.getId(), th.getName());
         }
-        if(this.storage != null) {
-            this.storage.store(spanEvent);
+        final Storage storage = this.storage;
+        if (storage != null) {
+            storage.store(spanEvent);
         }
     }
 
@@ -271,8 +273,9 @@ public final class DefaultTrace implements Trace {
             final Thread th = Thread.currentThread();
             logger.trace("[DefaultTrace] Write {} thread{id={}, name={}}", span, th.getId(), th.getName());
         }
-        if(this.storage != null) {
-            this.storage.store(span);
+        final Storage storage = this.storage;
+        if (storage != null) {
+            storage.store(span);
         }
     }
 
