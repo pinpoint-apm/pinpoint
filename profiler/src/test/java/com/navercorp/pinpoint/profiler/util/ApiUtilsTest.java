@@ -32,4 +32,13 @@ public class ApiUtilsTest {
         String desc = ApiUtils.toMethodDescriptor("com.navercorp.test.pinpoint.plugin.spring.beans.Outer", "setInner", new String[]{"com.navercorp.test.pinpoint.plugin.spring.beans.Inner"});
         assertEquals(result, desc);
     }
+
+    @Test
+    public void toMethodDescriptor_multi_argument() {
+        String result = ApiUtils.toMethodDescriptor("com.navercorp.test.pinpoint.plugin.spring.beans.Outer.setInner(com.navercorp.test.pinpoint.plugin.spring.beans.Inner Inner, java.lang.String String):23");
+        assertEquals("com.navercorp.test.pinpoint.plugin.spring.beans.Outer.setInner(com.navercorp.test.pinpoint.plugin.spring.beans.Inner, java.lang.String)", result);
+
+        String desc = ApiUtils.toMethodDescriptor("com.navercorp.test.pinpoint.plugin.spring.beans.Outer", "setInner", new String[]{"com.navercorp.test.pinpoint.plugin.spring.beans.Inner", "java.lang.String"});
+        assertEquals(result, desc);
+    }
 }
