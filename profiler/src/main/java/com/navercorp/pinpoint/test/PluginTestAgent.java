@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
+import com.navercorp.pinpoint.profiler.util.ApiUtils;
 import org.apache.thrift.TBase;
 
 import com.google.common.base.Objects;
@@ -67,6 +68,7 @@ import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
  * @author emeroad
  * @author koo.taejin
  * @author hyungil.jeong
+ * @author jaehong.kim
  */
 public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier {
 
@@ -679,44 +681,29 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
 
     private int findApiId(Member method) throws AssertionError {
-        Class<?> clazz = method.getDeclaringClass();
-
-        InstrumentClass ic;
-        try {
-            ic = getClassPool().getClass(null, clazz.getClassLoader(), clazz.getName(), null);
-        } catch (InstrumentException e) {
-            throw new RuntimeException("Cannot get instrumentClass " + clazz.getName(), e);
-        }
-
-        InstrumentMethod methodInfo;
-
+        String desc;
         if (method instanceof Method) {
-            methodInfo = getMethodInfo(ic, (Method) method);
+            desc = getMethodInfo((Method) method);
+
         } else if (method instanceof Constructor) {
-            methodInfo = getMethodInfo(ic, (Constructor<?>) method);
+            desc = getMethodInfo((Constructor<?>) method);
         } else {
             throw new IllegalArgumentException("method: " + method);
         }
-
-        String desc = methodInfo.getDescriptor().getFullName();
-
         return findApiId(desc);
     }
 
-    private InstrumentMethod getMethodInfo(InstrumentClass ic, Method method) {
+    private String getMethodInfo(Method method) {
         Class<?>[] parameterTypes = method.getParameterTypes();
         String[] parameterTypeNames = JavaAssistUtils.toPinpointParameterType(parameterTypes);
-
-        return ic.getDeclaredMethod(method.getName(), parameterTypeNames);
+        return ApiUtils.toMethodDescriptor(method.getDeclaringClass().getName(), method.getName(), parameterTypeNames);
     }
 
-    private InstrumentMethod getMethodInfo(InstrumentClass ic, Constructor<?> constructor) {
+    private String getMethodInfo(Constructor<?> constructor) {
         Class<?>[] parameterTypes = constructor.getParameterTypes();
         String[] parameterTypeNames = JavaAssistUtils.getParameterType(parameterTypes);
-
-        return ic.getConstructor(parameterTypeNames);
+        return ApiUtils.toMethodDescriptor(constructor.getDeclaringClass().getName(), constructor.getName(), parameterTypeNames);
     }
-
 
     private int findApiId(String desc) throws AssertionError {
         try {

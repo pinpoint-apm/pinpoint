@@ -15,6 +15,7 @@
 package com.navercorp.pinpoint.test;
 
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
+import com.navercorp.pinpoint.profiler.util.ApiUtils;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
@@ -35,7 +36,7 @@ import java.util.NoSuchElementException;
 
 /**
  * @author Jongho Moon
- *
+ * @author jaehong.kim
  */
 public class TestTcpDataSender implements EnhancedDataSender {
     private final List<TBase<?, ?>> datas = new ArrayList<TBase<?, ?>>();
@@ -74,7 +75,8 @@ public class TestTcpDataSender implements EnhancedDataSender {
             }
             
             apiIdMap.put(md.getApiId(), api);
-            apiDescriptionMap.put(api, md.getApiId());
+            final String key = ApiUtils.toMethodDescriptor(api);
+            apiDescriptionMap.put(key, md.getApiId());
         } else if (data instanceof TSqlMetaData) {
             TSqlMetaData md = (TSqlMetaData)data;
             
