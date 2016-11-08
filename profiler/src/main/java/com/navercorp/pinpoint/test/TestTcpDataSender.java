@@ -42,7 +42,7 @@ public class TestTcpDataSender implements EnhancedDataSender {
     private final List<TBase<?, ?>> datas = new ArrayList<TBase<?, ?>>();
     private final Map<Integer, String> apiIdMap = new HashMap<Integer, String>();
     private final Map<String, Integer> apiDescriptionMap = new HashMap<String, Integer>();
-    
+
     private final Map<String, Integer> sqlMap = new HashMap<String, Integer>();
     private final Map<Integer, String> sqlIdMap = new HashMap<Integer, String>();
     
@@ -57,7 +57,7 @@ public class TestTcpDataSender implements EnhancedDataSender {
         }
         
     };
-    
+
 
     @Override
     public boolean send(TBase<?, ?> data) {
@@ -73,9 +73,9 @@ public class TestTcpDataSender implements EnhancedDataSender {
             if (md.getLine() != -1) {
                 api += ":" + md.getLine();
             }
-            
+
             apiIdMap.put(md.getApiId(), api);
-            final String key = ApiUtils.toMethodDescriptor(api);
+            final String key = createApiMatchingKey(md);
             apiDescriptionMap.put(key, md.getApiId());
         } else if (data instanceof TSqlMetaData) {
             TSqlMetaData md = (TSqlMetaData)data;
@@ -96,6 +96,23 @@ public class TestTcpDataSender implements EnhancedDataSender {
         }
         
         datas.add(data);
+    }
+
+    private String createApiMatchingKey(TApiMetaData apiMetaData) {
+//        1st method type check
+//        int type = apiMetaData.getType();
+//        if (type != MethodType.DEFAULT) {
+//            return apiMetaData.getApiInfo();
+//        }
+
+//       2st Descriptor check
+        String apiInfo = apiMetaData.getApiInfo();
+        if (apiInfo.indexOf('(') == -1) {
+            // exceptional case
+            // eg : async or internal tag api
+            return apiInfo;
+        }
+        return ApiUtils.toMethodDescriptor(apiInfo);
     }
 
     @Override
