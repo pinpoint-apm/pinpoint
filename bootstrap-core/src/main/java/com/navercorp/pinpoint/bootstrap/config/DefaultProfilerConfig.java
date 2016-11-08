@@ -89,7 +89,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private boolean profileEnable = false;
 
-    private String profileInstrumentEngine = "JAVASSIST";
+    private String profileInstrumentEngine = INSTRUMENT_ENGINE_ASM;
 
     private int interceptorRegistrySize = 1024*8;
 
