@@ -50,7 +50,7 @@ import com.navercorp.pinpoint.profiler.instrument.JavassistClassPool;
 import com.navercorp.pinpoint.profiler.interceptor.registry.GlobalInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.test.MockAgent;
-import com.navercorp.pinpoint.test.TestClassLoader;
+import com.navercorp.pinpoint.test.classloader.TestClassLoader;
 
 /**
  * @author emeroad
@@ -167,8 +167,6 @@ public class JavassistClassTest {
             }
         });
 
-        loader.initialize();
-
         Class<?> testObjectClazz = loader.loadClass(javassistClassName);
         final String methodName = "callA";
         logger.info("class:{}", testObjectClazz.toString());
@@ -237,8 +235,6 @@ public class JavassistClassTest {
             }
         });
 
-        loader.initialize();
-
         Class<?> testObjectClazz = loader.loadClass(javassistClassName);
         final String methodName = "callA";
         logger.info("class:{}", testObjectClazz.toString());
@@ -266,7 +262,9 @@ public class JavassistClassTest {
         profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
         DefaultAgent agent = MockAgent.of(profilerConfig);
 
-        return new TestClassLoader(agent);
+        TestClassLoader testClassLoader = new TestClassLoader(agent);
+        testClassLoader.initialize();
+        return testClassLoader;
     }
 
     public void assertEqualsIntField(Object target, String fieldName, int value) throws NoSuchFieldException, IllegalAccessException {
@@ -309,7 +307,6 @@ public class JavassistClassTest {
             }
         });
 
-        loader.initialize();
 
         Class<?> testObjectClazz = loader.loadClass(testClassObject);
         final String methodName = "callA";
@@ -374,7 +371,6 @@ public class JavassistClassTest {
             }
         });
 
-        loader.initialize();
 
         Object testObject = loader.loadClass(targetClassName).newInstance();
 
@@ -444,7 +440,6 @@ public class JavassistClassTest {
             }
         });
 
-        loader.initialize();
 
         Object testObject = loader.loadClass(targetClassName).newInstance();
 

@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.test.MockAgent;
-import com.navercorp.pinpoint.test.TestClassLoader;
-import com.navercorp.pinpoint.test.TestClassLoaderFactory;
+import com.navercorp.pinpoint.test.classloader.TestClassLoader;
+import com.navercorp.pinpoint.test.classloader.TestClassLoaderFactory;
 
 /**
  * @author hyungil.jeong
