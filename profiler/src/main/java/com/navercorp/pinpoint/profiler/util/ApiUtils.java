@@ -20,6 +20,7 @@ import java.util.Arrays;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
 public final class ApiUtils {
 
@@ -63,5 +64,60 @@ public final class ApiUtils {
         buffer.append(methodName);
         buffer.append(parameterDescriptor);
         return buffer.toString();
+    }
+
+    public static String toMethodDescriptor(String className, String methodName, String[] parameterType) {
+        StringBuilder buffer = new StringBuilder(256);
+        buffer.append(className);
+        buffer.append(".");
+        buffer.append(methodName);
+
+        if (parameterType == null || parameterType.length == 0) {
+            buffer.append(EMPTY_ARRAY);
+        } else {
+            buffer.append('(');
+            int end = parameterType.length - 1;
+            for (int i = 0; i < parameterType.length; i++) {
+                buffer.append(parameterType[i]);
+                if (i < end) {
+                    buffer.append(", ");
+                }
+            }
+            buffer.append(')');
+        }
+
+        return buffer.toString();
+    }
+
+    public static String toMethodDescriptor(String apiDescriptor) {
+        if (apiDescriptor == null) {
+            return "";
+        }
+
+        final int methodDescBegin = apiDescriptor.indexOf("(");
+        if (methodDescBegin == -1) {
+            throw new IllegalArgumentException("invalid api descriptor=" + apiDescriptor);
+        }
+        final int methodDescEnd = apiDescriptor.indexOf(")", methodDescBegin);
+        if (methodDescEnd == -1) {
+            throw new IllegalArgumentException("invalid api descriptor=" + apiDescriptor);
+        }
+        final int classNameEnd = apiDescriptor.lastIndexOf(".", methodDescBegin);
+        if (classNameEnd == -1) {
+            throw new IllegalArgumentException("invalid api descriptor=" + apiDescriptor);
+        }
+
+        final String className = apiDescriptor.substring(0, classNameEnd);
+        final String methodName = apiDescriptor.substring(classNameEnd + 1, methodDescBegin);
+        final String methodDesc = apiDescriptor.substring(methodDescBegin + 1, methodDescEnd);
+        final String[] parameterTypes = methodDesc.split(",");
+        for (int i = 0; i < parameterTypes.length; i++) {
+            final int end = parameterTypes[i].indexOf(" ");
+            if (end != -1) {
+                parameterTypes[i] = parameterTypes[i].substring(0, end);
+            }
+        }
+
+        return toMethodDescriptor(className, methodName, parameterTypes);
     }
 }
