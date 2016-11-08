@@ -60,7 +60,7 @@ public final class ApiUtils {
     public static String mergeApiDescriptor(String className, String methodName, String parameterDescriptor) {
         StringBuilder buffer = new StringBuilder(256);
         buffer.append(className);
-        buffer.append(".");
+        buffer.append('.');
         buffer.append(methodName);
         buffer.append(parameterDescriptor);
         return buffer.toString();
@@ -69,7 +69,7 @@ public final class ApiUtils {
     public static String toMethodDescriptor(String className, String methodName, String[] parameterType) {
         StringBuilder buffer = new StringBuilder(256);
         buffer.append(className);
-        buffer.append(".");
+        buffer.append('.');
         buffer.append(methodName);
 
         if (parameterType == null || parameterType.length == 0) {
@@ -94,15 +94,15 @@ public final class ApiUtils {
             return "";
         }
 
-        final int methodDescBegin = apiDescriptor.indexOf("(");
+        final int methodDescBegin = apiDescriptor.indexOf('(');
         if (methodDescBegin == -1) {
             throw new IllegalArgumentException("invalid api descriptor=" + apiDescriptor);
         }
-        final int methodDescEnd = apiDescriptor.indexOf(")", methodDescBegin);
+        final int methodDescEnd = apiDescriptor.indexOf(')', methodDescBegin);
         if (methodDescEnd == -1) {
             throw new IllegalArgumentException("invalid api descriptor=" + apiDescriptor);
         }
-        final int classNameEnd = apiDescriptor.lastIndexOf(".", methodDescBegin);
+        final int classNameEnd = apiDescriptor.lastIndexOf('.', methodDescBegin);
         if (classNameEnd == -1) {
             throw new IllegalArgumentException("invalid api descriptor=" + apiDescriptor);
         }
@@ -112,12 +112,29 @@ public final class ApiUtils {
         final String methodDesc = apiDescriptor.substring(methodDescBegin + 1, methodDescEnd);
         final String[] parameterTypes = methodDesc.split(",");
         for (int i = 0; i < parameterTypes.length; i++) {
-            final int end = parameterTypes[i].indexOf(" ");
-            if (end != -1) {
-                parameterTypes[i] = parameterTypes[i].substring(0, end);
-            }
+            final String parameterType = parameterTypes[i];
+            parameterTypes[i] = extractParameterClass(parameterType);
         }
-
         return toMethodDescriptor(className, methodName, parameterTypes);
+    }
+
+    private static String extractParameterClass(String parameterType) {
+        parameterType = safeTrim(parameterType);
+        final int classEndIndex = parameterType.indexOf(' ');
+        if (classEndIndex != -1) {
+            return parameterType.substring(0, classEndIndex);
+        }
+//        else {
+////          TODO Is it error ?
+//            throw new IllegalArgumentException("parameter variable name not found " + parameterType);
+//        }
+        return parameterType;
+    }
+
+    private static String safeTrim(String parameterType) {
+        if (parameterType == null ||  parameterType.isEmpty()) {
+            return parameterType;
+        }
+        return parameterType.trim();
     }
 }
