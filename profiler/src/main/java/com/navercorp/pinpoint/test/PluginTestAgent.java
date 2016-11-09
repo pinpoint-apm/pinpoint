@@ -28,16 +28,12 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
-import com.navercorp.pinpoint.profiler.util.ApiUtils;
 import org.apache.thrift.TBase;
 
 import com.google.common.base.Objects;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedSql;
@@ -696,13 +692,13 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     private String getMethodInfo(Method method) {
         Class<?>[] parameterTypes = method.getParameterTypes();
         String[] parameterTypeNames = JavaAssistUtils.toPinpointParameterType(parameterTypes);
-        return ApiUtils.toMethodDescriptor(method.getDeclaringClass().getName(), method.getName(), parameterTypeNames);
+        return MethodDescriptionUtils.toJavaMethodDescriptor(method.getDeclaringClass().getName(), method.getName(), parameterTypeNames);
     }
 
     private String getMethodInfo(Constructor<?> constructor) {
         Class<?>[] parameterTypes = constructor.getParameterTypes();
         String[] parameterTypeNames = JavaAssistUtils.getParameterType(parameterTypes);
-        return ApiUtils.toMethodDescriptor(constructor.getDeclaringClass().getName(), constructor.getName(), parameterTypeNames);
+        return MethodDescriptionUtils.toJavaMethodDescriptor(constructor.getDeclaringClass().getName(), null, parameterTypeNames);
     }
 
     private int findApiId(String desc) throws AssertionError {
