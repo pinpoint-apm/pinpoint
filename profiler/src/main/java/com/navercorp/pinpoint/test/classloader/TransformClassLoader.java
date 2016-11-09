@@ -150,7 +150,7 @@ public class TransformClassLoader extends ClassLoader {
         }
     }
 
-    private Object getClassLoadingLock(String className) {
+    protected Object getClassLoadingLock(String className) {
 
         final Object newLock = new Object();
         final Object existLock = lockMap.putIfAbsent(className, newLock);
