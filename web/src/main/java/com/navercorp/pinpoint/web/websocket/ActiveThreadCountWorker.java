@@ -212,11 +212,11 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
         private AgentActiveThreadCount getAgentActiveThreadCount(TBase routeResponse) {
             AgentActiveThreadCount agentActiveThreadCount = new AgentActiveThreadCount(agentId);
 
-            if (routeResponse != null && (routeResponse instanceof TCommandTransferResponse)) {
+            if (routeResponse instanceof TCommandTransferResponse) {
                 byte[] payload = ((TCommandTransferResponse) routeResponse).getPayload();
                 TBase<?, ?> activeThreadCountResponse = agentService.deserializeResponse(payload, null);
 
-                if (activeThreadCountResponse != null && (activeThreadCountResponse instanceof TCmdActiveThreadCountRes)) {
+                if (activeThreadCountResponse instanceof TCmdActiveThreadCountRes) {
                     agentActiveThreadCount.setResult((TCmdActiveThreadCountRes) activeThreadCountResponse);
                 } else {
                     logger.warn("getAgentActiveThreadCount failed. applicationName:{}, agentId:{}, cause:{}", applicationName, agentId, ((TCommandTransferResponse) routeResponse).getRouteResult());

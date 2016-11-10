@@ -54,7 +54,7 @@ public class ClusterManager extends AbstractCollectorManager implements ClusterM
 
         List clusterPointList = clusterPointLocator.getClusterPointList();
         for (Object clusterPoint : clusterPointList) {
-            if (clusterPoint != null && clusterPoint instanceof TargetClusterPoint) {
+            if (clusterPoint instanceof TargetClusterPoint) {
                 TargetClusterPoint agentClusterPoint = (TargetClusterPoint) clusterPoint;
                 result.add(createAgentKey(agentClusterPoint));
             }
