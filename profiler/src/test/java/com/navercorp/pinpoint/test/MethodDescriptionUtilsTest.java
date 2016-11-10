@@ -17,7 +17,13 @@
 
 package com.navercorp.pinpoint.test;
 
+import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Constructor;
+
 
 import static org.junit.Assert.*;
 
@@ -25,6 +31,9 @@ import static org.junit.Assert.*;
  * @author Woonduk Kang(emeroad)
  */
 public class MethodDescriptionUtilsTest {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Test
     public void toMethodDescriptor() {
         String result = MethodDescriptionUtils.toJavaMethodDescriptor("com.navercorp.test.pinpoint.plugin.spring.beans.Outer.setInner(com.navercorp.test.pinpoint.plugin.spring.beans.Inner Inner):23");
@@ -45,12 +54,29 @@ public class MethodDescriptionUtilsTest {
 
     @Test
     public void toMethodDescriptor_constructor() {
-        String result = MethodDescriptionUtils.toJavaMethodDescriptor("com.navercorp.test.pinpoint.plugin.spring.beans.Outer(com.navercorp.test.pinpoint.plugin.spring.beans.Inner Inner):23");
-        assertEquals("com.navercorp.test.pinpoint.plugin.spring.beans.Outer(com.navercorp.test.pinpoint.plugin.spring.beans.Inner)", result);
 
-        String desc = MethodDescriptionUtils.toJavaMethodDescriptor("com.navercorp.test.pinpoint.plugin.spring.beans.Outer", null, new String[]{"com.navercorp.test.pinpoint.plugin.spring.beans.Inner"});
+        String result = MethodDescriptionUtils.toJavaMethodDescriptor("com.navercorp.test.pinpoint.plugin.spring.beans.Outer.Outer(com.navercorp.test.pinpoint.plugin.spring.beans.Inner Inner):23");
+        assertEquals("com.navercorp.test.pinpoint.plugin.spring.beans.Outer.Outer(com.navercorp.test.pinpoint.plugin.spring.beans.Inner)", result);
+
+        String desc = MethodDescriptionUtils.toJavaMethodDescriptor("com.navercorp.test.pinpoint.plugin.spring.beans.Outer", "Outer", new String[]{"com.navercorp.test.pinpoint.plugin.spring.beans.Inner"});
         assertEquals(result, desc);
     }
 
 
+    @Test
+    public void testGetConstructorSimpleName() throws Exception {
+
+        Class<String> stringClass = String.class;
+        Constructor<String> constructor = stringClass.getConstructor();
+        logger.debug("{}", constructor.getName());
+
+        Assert.assertEquals(MethodDescriptionUtils.getConstructorSimpleName(constructor), "String");
+
+    }
+
+    @Test
+    public void testGetConstructorSimpleName_no_package() throws Exception {
+
+        Assert.assertEquals(MethodDescriptionUtils.getConstructorSimpleName("String"), "String");
+    }
 }
