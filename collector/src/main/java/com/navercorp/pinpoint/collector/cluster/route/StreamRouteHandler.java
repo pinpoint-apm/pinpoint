@@ -134,7 +134,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
     public void close(ServerStreamChannelContext consumerContext) {
         Object attachmentListener = consumerContext.getAttribute(ATTACHMENT_KEY);
         
-        if (attachmentListener != null && attachmentListener instanceof StreamRouteManager) {
+        if (attachmentListener instanceof StreamRouteManager) {
             ((StreamRouteManager)attachmentListener).close();
         }
     }
