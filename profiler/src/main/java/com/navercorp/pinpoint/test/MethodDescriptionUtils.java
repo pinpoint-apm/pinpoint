@@ -17,6 +17,8 @@
 
 package com.navercorp.pinpoint.test;
 
+import java.lang.reflect.Constructor;
+
 /**
  * test only
  * @author Woonduk Kang(emeroad)
@@ -29,13 +31,16 @@ final class MethodDescriptionUtils {
     }
 
     public static String toJavaMethodDescriptor(String className, String methodName, String[] parameterType) {
+        if (className == null) {
+            throw new NullPointerException("className must not be null");
+        }
+        if (methodName == null) {
+            throw new NullPointerException("methodName must not be null");
+        }
         StringBuilder buffer = new StringBuilder(256);
         buffer.append(className);
-        if (methodName != null) {
-            // methodName == null is a constructor
-            buffer.append('.');
-            buffer.append(methodName);
-        }
+        buffer.append('.');
+        buffer.append(methodName);
 
         appendParameter(buffer, parameterType);
 
@@ -60,24 +65,21 @@ final class MethodDescriptionUtils {
             throw new IllegalArgumentException("invalid api descriptor=" + apiMetaDataDescriptor);
         }
 
-        final String methodName = apiMetaDataDescriptor.substring(0, methodDescBegin);
+        final int classNameEnd = apiMetaDataDescriptor.lastIndexOf('.', methodDescBegin);
+        if (classNameEnd == -1) {
+            throw new IllegalArgumentException("invalid api descriptor=" + apiMetaDataDescriptor);
+        }
 
+        final String className = apiMetaDataDescriptor.substring(0, classNameEnd);
+        final String methodName = apiMetaDataDescriptor.substring(classNameEnd + 1, methodDescBegin);
         final String methodDesc = apiMetaDataDescriptor.substring(methodDescBegin + 1, methodDescEnd);
+
         final String[] parameterTypes = methodDesc.split(",");
         for (int i = 0; i < parameterTypes.length; i++) {
             final String parameterType = parameterTypes[i];
             parameterTypes[i] = extractParameterClass(parameterType);
         }
-        return toJavaMethodDescriptor(methodName, parameterTypes);
-    }
-
-    private static String toJavaMethodDescriptor(String methodName, String[] parameterType) {
-        StringBuilder buffer = new StringBuilder(256);
-        buffer.append(methodName);
-
-        appendParameter(buffer, parameterType);
-
-        return buffer.toString();
+        return toJavaMethodDescriptor(className, methodName, parameterTypes);
     }
 
     private static void appendParameter(StringBuilder buffer, String[] parameterType) {
@@ -114,5 +116,20 @@ final class MethodDescriptionUtils {
             return parameterType;
         }
         return parameterType.trim();
+    }
+
+
+    public static String getConstructorSimpleName(Constructor<?> constructor) {
+        final String name = constructor.getName();
+        return getConstructorSimpleName(name);
+    }
+
+    static String getConstructorSimpleName(String name) {
+        final int startIndex = name.lastIndexOf('.');
+        if (startIndex == -1) {
+            return name;
+        } else {
+            return name.substring(startIndex + 1, name.length());
+        }
     }
 }
