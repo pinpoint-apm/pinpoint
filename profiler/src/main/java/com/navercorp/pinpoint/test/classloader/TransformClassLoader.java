@@ -207,13 +207,13 @@ public class TransformClassLoader extends ClassLoader {
 
         if (domain == null) {
             if (logger.isLoggable(Level.FINE)) {
-                this.logger.info("defineClass:" + name);
+                this.logger.fine("defineClass:" + name);
             }
             return defineClass(name, classfile, 0, classfile.length);
         }
         else {
             if (logger.isLoggable(Level.FINE)) {
-                this.logger.info("defineClass:" + name);
+                this.logger.fine("defineClass:" + name);
             }
             return defineClass(name, classfile, 0, classfile.length, domain);
         }

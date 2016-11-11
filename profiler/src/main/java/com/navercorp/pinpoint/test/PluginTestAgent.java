@@ -303,7 +303,11 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 //                return null;
                 throw new RuntimeException("Method or MethodSignature is null");
             } else {
-                return findApiId(expected.getMethodSignature());
+                String methodSignature = expected.getMethodSignature();
+                if (methodSignature.indexOf('(') != -1) {
+                    methodSignature = MethodDescriptionUtils.toJavaMethodDescriptor(methodSignature);
+                }
+                return findApiId(methodSignature);
             }
         } else {
             return findApiId(method);

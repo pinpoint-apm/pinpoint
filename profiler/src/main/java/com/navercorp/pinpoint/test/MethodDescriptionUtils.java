@@ -104,10 +104,6 @@ final class MethodDescriptionUtils {
         if (classEndIndex != -1) {
             return parameterType.substring(0, classEndIndex);
         }
-//        else {
-////          TODO Is it error ?
-//            throw new IllegalArgumentException("parameter variable name not found " + parameterType);
-//        }
         return parameterType;
     }
 
