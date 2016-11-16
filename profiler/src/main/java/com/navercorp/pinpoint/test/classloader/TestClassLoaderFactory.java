@@ -37,23 +37,19 @@ public class TestClassLoaderFactory {
 
     public static TestClassLoader createTestClassLoader(DefaultAgent agent) {
         final TestClassLoader testClassLoader = new TestClassLoader(agent);
-        checkClover(testClassLoader, CENQUA_CLOVER);
-        checkClover(testClassLoader, ATLASSIAN_CLOVER);
+        addCloverPackage(testClassLoader, CENQUA_CLOVER);
+        addCloverPackage(testClassLoader, ATLASSIAN_CLOVER);
         return testClassLoader;
     }
 
-    private static void checkClover(TestClassLoader testClassLoader, String className) {
-        if (isCloverRuntimePresent(className)) {
-            testClassLoader.addDelegateClass(getPackageName(className));
-        }
+
+    private static void addCloverPackage(TestClassLoader testClassLoader, String className) {
+        String packageName = getPackageName(className);
+        testClassLoader.addDelegateClass(packageName);
     }
 
     private static String getPackageName(String className) {
         return ClassUtils.getPackageName(className) + ".";
-    }
-
-    private static boolean isCloverRuntimePresent(String cloverFqcnToCheckFor) {
-        return ClassUtils.isLoaded(cloverFqcnToCheckFor);
     }
 
 }
