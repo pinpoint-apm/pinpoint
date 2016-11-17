@@ -60,7 +60,7 @@ public class AnnotatedInterceptorInjector implements MethodRecipe {
         if (scopeName == null) {
             return null;
         } else {
-            return  pluginContext.getInterceptorScope(scopeName);
+            return pluginContext.getInterceptorScope(scopeName);
         }
     }
 
