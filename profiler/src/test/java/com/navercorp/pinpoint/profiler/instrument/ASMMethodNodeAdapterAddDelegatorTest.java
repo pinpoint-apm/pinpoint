@@ -15,13 +15,17 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author jaehong.kim
@@ -48,6 +52,60 @@ public class ASMMethodNodeAdapterAddDelegatorTest {
         method.invoke(clazz.newInstance());
     }
 
+    @Test
+    public void addDelegatorPublicArgByteReturnVoidMethod() throws Exception {
+        Class<?> clazz = addDelegatorMethod("com.navercorp.pinpoint.profiler.instrument.mock.DelegatorClass", "com.navercorp.pinpoint.profiler.instrument.mock.DelegatorSuperClass", "publicArgByteReturnVoid");
+        Method method = clazz.getDeclaredMethod("publicArgByteReturnVoid", byte.class);
+        byte args = 1;
+        method.invoke(clazz.newInstance(), args);
+    }
+
+    @Test
+    public void addDelegatorPublicArgStringReturnStringMethod() throws Exception {
+        Class<?> clazz = addDelegatorMethod("com.navercorp.pinpoint.profiler.instrument.mock.DelegatorClass", "com.navercorp.pinpoint.profiler.instrument.mock.DelegatorSuperClass", "publicArgStringReturnString");
+        Method method = clazz.getDeclaredMethod("publicArgStringReturnString", String.class);
+        String args = "";
+        Object result = method.invoke(clazz.newInstance(), args);
+        System.out.println("result=" + result);
+    }
+
+    @Test
+    public void addDelegatorPublicArgStringReturnStringArrayMethod() throws Exception {
+        Class<?> clazz = addDelegatorMethod("com.navercorp.pinpoint.profiler.instrument.mock.DelegatorClass", "com.navercorp.pinpoint.profiler.instrument.mock.DelegatorSuperClass", "publicArgStringReturnStringArray");
+        Method method = clazz.getDeclaredMethod("publicArgStringReturnStringArray", String.class, String.class);
+        Object result = method.invoke(clazz.newInstance(), "foo", "bar");
+        System.out.println("result=" + result);
+    }
+
+    @Test
+    public void addDelegatorPublicArgStringReturnStringArraysMethod() throws Exception {
+        Class<?> clazz = addDelegatorMethod("com.navercorp.pinpoint.profiler.instrument.mock.DelegatorClass", "com.navercorp.pinpoint.profiler.instrument.mock.DelegatorSuperClass", "publicArgStringReturnStringArrays");
+        Method method = clazz.getDeclaredMethod("publicArgStringReturnStringArrays", String.class, String.class, String.class);
+        Object result = method.invoke(clazz.newInstance(), "foo", "bar", "zoo");
+        if (result instanceof String[][]) {
+            String[][] array = (String[][]) result;
+            for (String entry : array[0]) {
+                System.out.println("result=" + entry);
+            }
+        }
+    }
+
+    @Test
+    public void addDelegatorPublicArgInterfaceReturnVoidMethod() throws Exception {
+        Class<?> clazz = addDelegatorMethod("com.navercorp.pinpoint.profiler.instrument.mock.DelegatorClass", "com.navercorp.pinpoint.profiler.instrument.mock.DelegatorSuperClass", "publicArgInterfaceReturnVoid");
+        Method method = clazz.getDeclaredMethod("publicArgInterfaceReturnVoid", Map.class, Map.class, Map.class);
+        Map map = new HashMap();
+        method.invoke(clazz.newInstance(), map, map, map);
+    }
+
+    @Test
+    public void addDelegatorPublicArgsReturnVoidMethod() throws Exception {
+        Class<?> clazz = addDelegatorMethod("com.navercorp.pinpoint.profiler.instrument.mock.DelegatorClass", "com.navercorp.pinpoint.profiler.instrument.mock.DelegatorSuperClass", "publicArgsReturnVoid");
+        Method method = clazz.getDeclaredMethod("publicArgsReturnVoid", Object[].class);
+        Object[] args = new Object[1];
+        method.invoke(clazz.newInstance(), args);
+    }
+
     private Class<?> addDelegatorMethod(final String targetClassName, final String superClassName, final String methodName) throws Exception {
         final ClassNode superClassNode = ASMClassNodeLoader.get(superClassName);
         List<MethodNode> methodNodes = superClassNode.methods;
@@ -63,8 +121,8 @@ public class ASMMethodNodeAdapterAddDelegatorTest {
                 }
 
                 final MethodNode newMethodNode = new MethodNode(methodNode.access, methodNode.name, methodNode.desc, methodNode.signature, exceptions);
-                final ASMMethodNodeAdapter methodNodeAdapter = new ASMMethodNodeAdapter(targetClassName, newMethodNode);
-                methodNodeAdapter.addDelegator(superClassName.replace('.', '/'));
+                final ASMMethodNodeAdapter methodNodeAdapter = new ASMMethodNodeAdapter(classNode.name, newMethodNode);
+                methodNodeAdapter.addDelegator(JavaAssistUtils.javaNameToJvmName(superClassName));
                 classNode.methods.add(newMethodNode);
             }
         });

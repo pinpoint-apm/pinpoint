@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinit
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorType;
 import com.navercorp.pinpoint.profiler.interceptor.factory.AnnotatedInterceptorFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.objectweb.asm.tree.MethodNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,7 @@ public class ASMMethod implements InstrumentMethod {
     private final MethodDescriptor descriptor;
 
     public ASMMethod(InstrumentContext pluginContext, InterceptorRegistryBinder interceptorRegistryBinder, ASMClass declaringClass, MethodNode methodNode) {
-        this(pluginContext, interceptorRegistryBinder, declaringClass, new ASMMethodNodeAdapter(declaringClass.getName(), methodNode));
+        this(pluginContext, interceptorRegistryBinder, declaringClass, new ASMMethodNodeAdapter(JavaAssistUtils.javaNameToJvmName(declaringClass.getName()), methodNode));
     }
 
     public ASMMethod(InstrumentContext pluginContext, InterceptorRegistryBinder interceptorRegistryBinder, ASMClass declaringClass, ASMMethodNodeAdapter methodNode) {

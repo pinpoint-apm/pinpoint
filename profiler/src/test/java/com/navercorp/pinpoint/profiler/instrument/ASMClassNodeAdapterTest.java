@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.instrument.aspect.Aspect;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.objectweb.asm.tree.ClassNode;
@@ -155,9 +156,9 @@ public class ASMClassNodeAdapterTest {
             @Override
             public void handle(ClassNode classNode) {
                 ASMClassNodeAdapter classNodeAdapter = new ASMClassNodeAdapter(null, classNode);
-                classNodeAdapter.addField("_$PINPOINT$_" + accessorClassName.replace('.', '_').replace('$', '_'), int.class);
+                classNodeAdapter.addField("_$PINPOINT$_" + JavaAssistUtils.javaClassNameToVariableName(accessorClassName), int.class);
                 classNodeAdapter.addInterface(accessorClassName);
-                ASMFieldNodeAdapter fieldNode = classNodeAdapter.getField("_$PINPOINT$_" + accessorClassName.replace('.', '_').replace('$', '_'), null);
+                ASMFieldNodeAdapter fieldNode = classNodeAdapter.getField("_$PINPOINT$_" + JavaAssistUtils.javaClassNameToVariableName(accessorClassName), null);
                 classNodeAdapter.addGetterMethod("_$PINPOINT$_getTraceInt", fieldNode);
                 classNodeAdapter.addSetterMethod("_$PINPOINT$_setTraceInt", fieldNode);
             }
@@ -183,11 +184,12 @@ public class ASMClassNodeAdapterTest {
     @Test
     public void addMethod() throws Exception {
         final MethodNode methodNode = ASMClassNodeLoader.get("com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass", "arg");
-        final ASMMethodNodeAdapter adapter = new ASMMethodNodeAdapter("com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass", methodNode);
+        final ASMMethodNodeAdapter adapter = new ASMMethodNodeAdapter("com/navercorp/pinpoint/profiler/instrument/mock/ArgsClass", methodNode);
 
         final ASMClassNodeLoader.TestClassLoader testClassLoader = ASMClassNodeLoader.getClassLoader();
         final String targetClassName = "com.navercorp.pinpoint.profiler.instrument.mock.BaseClass";
         testClassLoader.setTargetClassName(targetClassName);
+        testClassLoader.setTrace(true);
         testClassLoader.setCallbackHandler(new ASMClassNodeLoader.CallbackHandler() {
             @Override
             public void handle(ClassNode classNode) {

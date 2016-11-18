@@ -350,7 +350,7 @@ public class JavassistClass implements InstrumentClass {
             Class<?> fieldType = accessorDetails.getFieldType();
             String fieldTypeName = JavaAssistUtils.javaClassNameToObjectName(fieldType.getName());
 
-            final CtField newField = CtField.make("private " + fieldTypeName + " " + FIELD_PREFIX + accessorTypeName.replace('.', '_').replace('$', '_') + ";", ctClass);
+            final CtField newField = CtField.make("private " + fieldTypeName + " " + FIELD_PREFIX + JavaAssistUtils.javaClassNameToVariableName(accessorTypeName) + ";", ctClass);
 
             if (initValExp == null) {
                 ctClass.addField(newField);
