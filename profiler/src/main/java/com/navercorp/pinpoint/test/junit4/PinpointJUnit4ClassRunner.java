@@ -57,6 +57,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         try {
             // TODO fix static TestContext
             if (testContext == null) {
+                logger.debug("traceContext is null");
                 this.testContext = new TestContext();
             }
         } catch (Throwable ex) {

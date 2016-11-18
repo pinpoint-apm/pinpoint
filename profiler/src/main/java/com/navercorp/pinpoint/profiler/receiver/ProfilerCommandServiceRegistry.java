@@ -84,7 +84,7 @@ public class ProfilerCommandServiceRegistry implements ProfilerCommandServiceLoc
         }
 
         final ProfilerCommandService service = profilerCommandServiceRepository.get(tBase.getClass());
-        if (service != null && (service instanceof ProfilerSimpleCommandService)) {
+        if (service instanceof ProfilerSimpleCommandService) {
             return (ProfilerSimpleCommandService) service;
         }
 
@@ -98,7 +98,7 @@ public class ProfilerCommandServiceRegistry implements ProfilerCommandServiceLoc
         }
 
         final ProfilerCommandService service = profilerCommandServiceRepository.get(tBase.getClass());
-        if (service != null && (service instanceof ProfilerRequestCommandService)) {
+        if (service instanceof ProfilerRequestCommandService) {
             return (ProfilerRequestCommandService) service;
         }
 
@@ -112,7 +112,7 @@ public class ProfilerCommandServiceRegistry implements ProfilerCommandServiceLoc
         }
 
         final ProfilerCommandService service = profilerCommandServiceRepository.get(tBase.getClass());
-        if (service != null && (service instanceof ProfilerStreamCommandService)) {
+        if (service instanceof ProfilerStreamCommandService) {
             return (ProfilerStreamCommandService) service;
         }
 

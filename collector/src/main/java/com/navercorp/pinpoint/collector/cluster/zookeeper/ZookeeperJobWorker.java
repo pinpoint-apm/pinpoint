@@ -1,8 +1,24 @@
+/*
+ * Copyright 2016 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
-import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.job.ZookeeperJob;
 import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
+import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
@@ -313,20 +329,6 @@ public class ZookeeperJobWorker implements Runnable {
             logger.warn(e.getMessage(), e);
         }
         return false;
-    }
-
-    private String createProfilerContents(PinpointServer pinpointServer) {
-        Map<Object, Object> agentProperties = pinpointServer.getChannelProperties();
-        final String applicationName = MapUtils.getString(agentProperties, AgentHandshakePropertyType.APPLICATION_NAME.getName());
-        final String agentId = MapUtils.getString(agentProperties, AgentHandshakePropertyType.AGENT_ID.getName());
-        final Long startTimeStamp = MapUtils.getLong(agentProperties, AgentHandshakePropertyType.START_TIMESTAMP.getName());
-
-        if (StringUtils.isBlank(applicationName) || StringUtils.isBlank(agentId) || startTimeStamp == null || startTimeStamp <= 0) {
-            logger.warn("ApplicationName({}) and AgentId({}) and startTimeStamp({}) may not be null.", applicationName, agentId);
-            return StringUtils.EMPTY;
-        }
-
-        return applicationName + ":" + agentId + ":" + startTimeStamp;
     }
 
     private String addIfAbsentContents(String contents, String addContents) {

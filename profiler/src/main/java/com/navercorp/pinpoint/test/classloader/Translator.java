@@ -15,17 +15,18 @@
  *
  */
 
-package com.navercorp.pinpoint.collector.manage;
+package com.navercorp.pinpoint.test.classloader;
 
-import java.util.List;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MatchableClassFileTransformer;
 
 /**
- * @Author Taejin Koo
+ * @author Woonduk Kang(emeroad)
  */
-public interface ClusterManagerMBean {
+public interface Translator {
 
-    boolean isEnable();
+    void start();
 
-    List<String> getConnectedAgentList();
+    byte[] transform(String name) throws ClassNotFoundException;
 
+    void addTransformer(MatchableClassFileTransformer transformer);
 }

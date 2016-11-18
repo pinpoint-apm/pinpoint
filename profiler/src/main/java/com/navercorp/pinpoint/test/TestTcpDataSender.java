@@ -14,6 +14,9 @@
  */
 package com.navercorp.pinpoint.test;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Maps;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
@@ -27,7 +30,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,28 +37,32 @@ import java.util.NoSuchElementException;
 
 /**
  * @author Jongho Moon
- *
+ * @author jaehong.kim
  */
 public class TestTcpDataSender implements EnhancedDataSender {
-    private final List<TBase<?, ?>> datas = new ArrayList<TBase<?, ?>>();
-    private final Map<Integer, String> apiIdMap = new HashMap<Integer, String>();
-    private final Map<String, Integer> apiDescriptionMap = new HashMap<String, Integer>();
-    
-    private final Map<String, Integer> sqlMap = new HashMap<String, Integer>();
-    private final Map<Integer, String> sqlIdMap = new HashMap<Integer, String>();
-    
-    private final Map<String, Integer> stringMap = new HashMap<String, Integer>();
-    private final Map<Integer, String> stringIdMap = new HashMap<Integer, String>();
-    
+
+    private final List<TBase<?, ?>> datas = Collections.synchronizedList(new ArrayList<TBase<?, ?>>());
+
+    private final BiMap<Integer, String> apiIdMap = newSynchronizedBiMap();
+
+    private final BiMap<Integer, String> sqlIdMap = newSynchronizedBiMap();
+
+    private final BiMap<Integer, String> stringIdMap = newSynchronizedBiMap();
+
     private static final Comparator<Map.Entry<Integer, String>> COMPARATOR = new Comparator<Map.Entry<Integer, String>>() {
 
         @Override
         public int compare(Entry<Integer, String> o1, Entry<Integer, String> o2) {
             return o1.getKey() > o2.getKey() ? 1 : (o1.getKey() < o2.getKey() ? -1 : 0);
         }
-        
+
     };
-    
+
+    private <K, V> BiMap<K, V> newSynchronizedBiMap() {
+        BiMap<K, V> hashBiMap = HashBiMap.create();
+        return Maps.synchronizedBiMap(hashBiMap);
+    }
+
 
     @Override
     public boolean send(TBase<?, ?> data) {
@@ -67,33 +73,44 @@ public class TestTcpDataSender implements EnhancedDataSender {
     private void addData(TBase<?, ?> data) {
         if (data instanceof TApiMetaData) {
             TApiMetaData md = (TApiMetaData)data;
-            
-            String api = md.getApiInfo();
-            if (md.getLine() != -1) {
-                api += ":" + md.getLine();
-            }
-            
-            apiIdMap.put(md.getApiId(), api);
-            apiDescriptionMap.put(api, md.getApiId());
+
+            final String javaMethodDescriptor = toJavaMethodDescriptor(md);
+            apiIdMap.put(md.getApiId(), javaMethodDescriptor);
+
         } else if (data instanceof TSqlMetaData) {
             TSqlMetaData md = (TSqlMetaData)data;
-            
+
             int id = md.getSqlId();
             String sql = md.getSql();
-            
-            sqlMap.put(sql, id);
+
             sqlIdMap.put(id, sql);
         } else if (data instanceof TStringMetaData) {
             TStringMetaData md = (TStringMetaData)data;
-            
+
             int id = md.getStringId();
             String string = md.getStringValue();
-            
-            stringMap.put(string, id);
+
             stringIdMap.put(id, string);
         }
-        
+
         datas.add(data);
+    }
+
+    private String toJavaMethodDescriptor(TApiMetaData apiMetaData) {
+//        1st method type check
+//        int type = apiMetaData.getType();
+//        if (type != MethodType.DEFAULT) {
+//            return apiMetaData.getApiInfo();
+//        }
+
+//       2st Descriptor check
+        String apiInfo = apiMetaData.getApiInfo();
+        if (apiInfo.indexOf('(') == -1) {
+            // exceptional case
+            // eg : async or internal tag api
+            return apiInfo;
+        }
+        return MethodDescriptionUtils.toJavaMethodDescriptor(apiInfo);
     }
 
     @Override
@@ -128,57 +145,60 @@ public class TestTcpDataSender implements EnhancedDataSender {
     public boolean removeReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
         return false;
     }
-    
+
     public String getApiDescription(int id) {
         return apiIdMap.get(id);
     }
 
     public int getApiId(String description) {
+        BiMap<String, Integer> apiDescriptionMap = apiIdMap.inverse();
         Integer id = apiDescriptionMap.get(description);
-        
+
         if (id == null) {
             throw new NoSuchElementException(description);
         }
-        
+
         return id;
     }
-    
+
     public String getString(int id) {
         return stringIdMap.get(id);
     }
-    
+
     public int getStringId(String string) {
+        BiMap<String, Integer> stringMap = stringIdMap.inverse();
         Integer id = stringMap.get(string);
-        
+
         if (id == null) {
             throw new NoSuchElementException(string);
         }
-        
+
         return id;
     }
-    
+
     public String getSql(int id) {
         return sqlIdMap.get(id);
     }
-    
+
     public int getSqlId(String sql) {
+        BiMap<String, Integer> sqlMap = sqlIdMap.inverse();
         Integer id = sqlMap.get(sql);
-        
+
         if (id == null) {
             throw new NoSuchElementException(sql);
         }
-        
+
         return id;
     }
 
     public List<TBase<?, ?>> getDatas() {
         return datas;
     }
-    
+
     public void clear() {
         datas.clear();
     }
-    
+
     public void printDatas(PrintStream out) {
         out.println("API(" + apiIdMap.size() + "):");
         printApis(out);

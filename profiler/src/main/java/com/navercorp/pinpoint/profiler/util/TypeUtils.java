@@ -49,9 +49,8 @@ public final class TypeUtils {
     }
     
     public static String[] toClassNames(Class<?>... classes) {
-        int length = classes.length;
-        String[] result = new String[length];
-        
+        final int length = classes.length;
+        final String[] result = new String[length];
         for (int i = 0; i < length; i++) {
             result[i] = classes[i].getName();
         }

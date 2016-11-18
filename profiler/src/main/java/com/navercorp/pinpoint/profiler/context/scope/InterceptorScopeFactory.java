@@ -15,17 +15,17 @@
  *
  */
 
-package com.navercorp.pinpoint.collector.manage;
+package com.navercorp.pinpoint.profiler.context.scope;
 
-import java.util.List;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.profiler.interceptor.scope.DefaultInterceptorScope;
 
 /**
- * @Author Taejin Koo
+ * @author Woonduk Kang(emeroad)
  */
-public interface ClusterManagerMBean {
-
-    boolean isEnable();
-
-    List<String> getConnectedAgentList();
-
+public class InterceptorScopeFactory implements PoolObjectFactory<String, InterceptorScope> {
+    @Override
+    public InterceptorScope create(String scopeName) {
+        return new DefaultInterceptorScope(scopeName);
+    }
 }

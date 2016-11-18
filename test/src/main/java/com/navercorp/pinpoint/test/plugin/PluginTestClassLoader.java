@@ -15,17 +15,29 @@
  *
  */
 
-package com.navercorp.pinpoint.collector.manage;
+package com.navercorp.pinpoint.test.plugin;
 
-import java.util.List;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 /**
- * @Author Taejin Koo
+ * @author Woonduk Kang(emeroad)
  */
-public interface ClusterManagerMBean {
+public class PluginTestClassLoader extends URLClassLoader {
 
-    boolean isEnable();
+    public PluginTestClassLoader(URL[] urls, ClassLoader parent) {
+        super(urls, parent);
+    }
 
-    List<String> getConnectedAgentList();
+    public PluginTestClassLoader(URL[] urls) {
+        super(urls);
+    }
 
+
+
+    @Override
+    public Class<?> loadClass(String name) throws ClassNotFoundException {
+        // override for debugging
+        return super.loadClass(name);
+    }
 }

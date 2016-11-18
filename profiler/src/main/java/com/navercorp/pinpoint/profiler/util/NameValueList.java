@@ -15,13 +15,14 @@
 package com.navercorp.pinpoint.profiler.util;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Jongho Moon
  *
  */
 public class NameValueList<T> {
-    private final ArrayList<NameValue<T>> list;
+    private final List<NameValue<T>> list;
     
     public NameValueList() {
         this(0);

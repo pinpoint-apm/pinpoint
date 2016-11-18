@@ -15,17 +15,11 @@
  *
  */
 
-package com.navercorp.pinpoint.collector.manage;
-
-import java.util.List;
+package com.navercorp.pinpoint.profiler.context.scope;
 
 /**
- * @Author Taejin Koo
+ * @author Woonduk Kang(emeroad)
  */
-public interface ClusterManagerMBean {
-
-    boolean isEnable();
-
-    List<String> getConnectedAgentList();
-
+public interface PoolObjectFactory<K, V> {
+    V create(K key);
 }

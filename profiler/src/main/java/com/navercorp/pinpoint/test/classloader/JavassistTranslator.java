@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2016 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,9 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package com.navercorp.pinpoint.test;
+package com.navercorp.pinpoint.test.classloader;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -23,10 +24,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javassist.CannotCompileException;
 import javassist.ClassPool;
-import javassist.NotFoundException;
-import javassist.Translator;
+import javassist.CtClass;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,21 +40,27 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 /**
  * @author emeroad
  */
-public class InstrumentTranslator implements Translator {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+public class JavassistTranslator implements Translator {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ConcurrentMap<String, MatchableClassFileTransformer> transformerMap = new ConcurrentHashMap<String, MatchableClassFileTransformer>();
 
     private final ClassLoader loader;
     private final ClassFileTransformerDispatcher dispatcher;
+    private final ClassPool classPool;
 
-    public InstrumentTranslator(ClassLoader loader, ClassFileTransformerDispatcher defaultTransformer) {
+    public JavassistTranslator(ClassLoader loader, ClassPool classPool, ClassFileTransformerDispatcher defaultTransformer) {
         if (defaultTransformer == null) {
             throw new NullPointerException("dispatcher must not be null");
         }
+        if (classPool == null) {
+            throw new NullPointerException("classPool must not be null");
+        }
+
         this.loader = loader;
         this.dispatcher = defaultTransformer;
+        this.classPool = classPool;
     }
 
     public void addTransformer(MatchableClassFileTransformer transformer) {
@@ -65,8 +70,8 @@ public class InstrumentTranslator implements Translator {
             ClassNameMatcher classNameMatcher = (ClassNameMatcher) matcher;
             String className = classNameMatcher.getClassName();
             addTransformer0(transformer, className);
-        } else if(matcher instanceof MultiClassNameMatcher) {
-            final MultiClassNameMatcher classNameMatcher = (MultiClassNameMatcher)matcher;
+        } else if (matcher instanceof MultiClassNameMatcher) {
+            final MultiClassNameMatcher classNameMatcher = (MultiClassNameMatcher) matcher;
             List<String> classNameList = classNameMatcher.getClassNames();
             for (String className : classNameList) {
                 addTransformer0(transformer, className);
@@ -86,36 +91,43 @@ public class InstrumentTranslator implements Translator {
     }
 
     @Override
-    public void start(ClassPool pool) throws NotFoundException, CannotCompileException {
-//        this.pool = pool;
+    public void start() {
+
     }
 
     @Override
-    public void onLoad(ClassPool pool, String javaClassName) throws NotFoundException, CannotCompileException {
+    public byte[] transform(String javaClassName) throws ClassNotFoundException {
         logger.debug("loading className:{}", javaClassName);
 
         final String jvmClassName = JavaAssistUtils.javaNameToJvmName(javaClassName);
         try {
             // Find Modifier from agent and try transforming
-            byte[] transform = dispatcher.transform(this.loader, jvmClassName, null, null, null);
-            if (transform != null) {
-                makeClass(pool, transform, jvmClassName);
-                return;
+            final byte[] transformBytes = dispatcher.transform(this.loader, jvmClassName, null, null, null);
+            if (transformBytes != null) {
+                logger.debug(jvmClassName + " find in dispatcher");
+                makeClass(classPool, transformBytes, jvmClassName);
+                return transformBytes;
             }
-        } catch (IllegalClassFormatException ex) {
-            throw new RuntimeException(jvmClassName + " not found. Caused:" + ex.getMessage(), ex);
+
+            final byte[] customTransformBytes = customTransformer(classPool, jvmClassName);
+            if (customTransformBytes != null) {
+                logger.debug(jvmClassName + " find in transformerMap");
+                return customTransformBytes;
+            }
+
+            final CtClass ctClass = this.classPool.get(javaClassName);
+            return ctClass.toBytecode();
+        } catch (Throwable th) {
+            throw new RuntimeException(javaClassName + " transform fail" , th);
         }
-        
-         // find from transformerMap
-        onLoadTestModifier(pool, jvmClassName);
 
     }
 
-    private void onLoadTestModifier(ClassPool pool, String jvmClassName) throws NotFoundException, CannotCompileException {
+    private byte[] customTransformer(ClassPool pool, String jvmClassName) {
         logger.info("Modify find classname:{}, loader:{}", jvmClassName, loader);
         MatchableClassFileTransformer transformer = transformerMap.get(jvmClassName);
         if (transformer == null) {
-            return;
+            return null;
         }
         logger.info("Modify jvmClassName:{},  modifier{}, loader:{}", jvmClassName, transformer, loader);
 
@@ -125,20 +137,25 @@ public class InstrumentTranslator implements Translator {
         thread.setContextClassLoader(loader);
         try {
             String javaClassName = JavaAssistUtils.jvmNameToJavaName(jvmClassName);
-            byte[] modify = transformer.transform(loader, javaClassName, null, null, null);
-            makeClass(pool, modify, jvmClassName);
+            byte[] transformBytes = transformer.transform(loader, javaClassName, null, null, null);
+            makeClass(pool, transformBytes, jvmClassName);
+            return transformBytes;
         } catch (IllegalClassFormatException e) {
-            throw new CannotCompileException(e);
+            throw new RuntimeException(jvmClassName + " transform fail" , e);
         } finally {
             thread.setContextClassLoader(beforeClassLoader);
         }
     }
 
-    private void makeClass(ClassPool pool, byte[] transform, String jvmClassName) {
+    private CtClass makeClass(ClassPool pool, byte[] transform, String jvmClassName) {
         try {
-            pool.makeClass(new ByteArrayInputStream(transform));
+            if (logger.isDebugEnabled()) {
+                logger.debug("{} makeClass.", jvmClassName);
+            }
+            return pool.makeClass(new ByteArrayInputStream(transform));
         } catch (IOException ex) {
             throw new RuntimeException("Class make fail. jvmClass:" + jvmClassName + " Caused by:" + ex.getMessage(), ex);
         }
     }
+
 }

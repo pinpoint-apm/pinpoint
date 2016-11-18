@@ -74,4 +74,13 @@ public class MatchableClassFileTransformerGuardDelegate implements MatchableClas
             guard.close();
         }
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("MatchableClassFileTransformerGuardDelegate{");
+        sb.append("matcher=").append(matcher);
+        sb.append(", transformCallback=").append(transformCallback);
+        sb.append('}');
+        return sb.toString();
+    }
 }
