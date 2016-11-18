@@ -105,7 +105,7 @@ public class ASMAspectWeaverTest {
                         final ClassWriter cw = new ClassWriter(0);
                         classNode.accept(cw);
                         final byte[] bytecode = cw.toByteArray();
-                        CheckClassAdapter.verify(new ClassReader(bytecode), false, new PrintWriter(System.out));
+//                        CheckClassAdapter.verify(new ClassReader(bytecode), false, new PrintWriter(System.out));
 
                         return super.defineClass(name, bytecode, 0, bytecode.length);
                     } catch (Exception ex) {

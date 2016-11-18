@@ -189,7 +189,6 @@ public class ASMClassNodeAdapterTest {
         final ASMClassNodeLoader.TestClassLoader testClassLoader = ASMClassNodeLoader.getClassLoader();
         final String targetClassName = "com.navercorp.pinpoint.profiler.instrument.mock.BaseClass";
         testClassLoader.setTargetClassName(targetClassName);
-        testClassLoader.setTrace(true);
         testClassLoader.setCallbackHandler(new ASMClassNodeLoader.CallbackHandler() {
             @Override
             public void handle(ClassNode classNode) {
