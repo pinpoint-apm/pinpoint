@@ -42,15 +42,6 @@ public class ConcurrentPool<K, V> implements Pool<K, V> {
             throw new IllegalArgumentException("key must not be null");
         }
 
-        return pool.get(key);
-    }
-
-    @Override
-    public V add(K key) {
-        if (key == null) {
-            throw new IllegalArgumentException("name must not be null");
-        }
-
         final V alreadyExist = this.pool.get(key);
         if (alreadyExist != null) {
             return alreadyExist;

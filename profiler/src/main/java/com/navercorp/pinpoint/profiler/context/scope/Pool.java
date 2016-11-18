@@ -24,6 +24,4 @@ public interface Pool<K, V> {
 
     V get(K key);
 
-    V add(K key);
-
 }

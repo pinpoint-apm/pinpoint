@@ -190,6 +190,6 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
             throw new NullPointerException("name must not be null");
         }
 
-        return interceptorScopePool.add(name);
+        return interceptorScopePool.get(name);
     }
 }

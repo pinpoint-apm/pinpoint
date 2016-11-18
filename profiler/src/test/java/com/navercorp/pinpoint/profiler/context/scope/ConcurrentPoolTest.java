@@ -35,13 +35,14 @@ public class ConcurrentPoolTest {
 
         final String OBJECT_NAME = "test";
 
-        Assert.assertNull(pool.get(OBJECT_NAME));
-
-        InterceptorScope addedScope = pool.add(OBJECT_NAME);
+        InterceptorScope addedScope = pool.get(OBJECT_NAME);
         Assert.assertSame(pool.get(OBJECT_NAME), addedScope);
 
-        InterceptorScope exist = pool.add(OBJECT_NAME);
+        InterceptorScope exist = pool.get(OBJECT_NAME);
         Assert.assertSame(exist, addedScope);
+
+        InterceptorScope another = pool.get("another");
+        Assert.assertNotSame(exist, another);
     }
 
 }
