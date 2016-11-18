@@ -489,7 +489,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
                             continue;
                         }
 
-                        ASMMethodNodeAdapter methodNodeAdapter = new ASMMethodNodeAdapter(classNode.name.replace('/', '.'), methodNode);
+                        ASMMethodNodeAdapter methodNodeAdapter = new ASMMethodNodeAdapter(classNode.name, methodNode);
                         if (methodNodeAdapter.isAbstract() || methodNodeAdapter.isNative()) {
                             continue;
                         }

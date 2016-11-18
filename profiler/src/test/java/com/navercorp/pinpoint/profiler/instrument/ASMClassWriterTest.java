@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.junit.Test;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.util.TraceClassVisitor;
@@ -32,7 +33,7 @@ public class ASMClassWriterTest {
     @Test
     public void accept() throws Exception {
         final String className = "com.navercorp.pinpoint.profiler.instrument.mock.SampleClass";
-        ClassNode classNode = ASMClassNodeLoader.get(className.replace('.', '/'));
+        ClassNode classNode = ASMClassNodeLoader.get(JavaAssistUtils.javaNameToJvmName(className));
 
         ASMClassWriter cw = new ASMClassWriter(classNode.name, classNode.superName, 0, null);
         TraceClassVisitor tcv = new TraceClassVisitor(cw, new PrintWriter(System.out));

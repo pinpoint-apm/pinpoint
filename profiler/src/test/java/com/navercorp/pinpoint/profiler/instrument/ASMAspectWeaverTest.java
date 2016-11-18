@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.junit.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -91,12 +92,12 @@ public class ASMAspectWeaverTest {
             public Class<?> loadClass(String name) throws ClassNotFoundException {
                 if (name.equals(originalName)) {
                     try {
-                        final ClassReader cr = new ClassReader(getClass().getResourceAsStream("/" + name.replace('.', '/') + ".class"));
+                        final ClassReader cr = new ClassReader(getClass().getResourceAsStream("/" + JavaAssistUtils.javaNameToJvmName(name) + ".class"));
                         final ClassNode classNode = new ClassNode();
                         cr.accept(classNode, 0);
 
                         final ASMClassNodeAdapter sourceClassNode = new ASMClassNodeAdapter(defaultClassLoader, classNode);
-                        final ASMClassNodeAdapter adviceClassNode = ASMClassNodeAdapter.get(defaultClassLoader, aspectName.replace('.', '/'));
+                        final ASMClassNodeAdapter adviceClassNode = ASMClassNodeAdapter.get(defaultClassLoader, JavaAssistUtils.javaNameToJvmName(aspectName));
 
                         final ASMAspectWeaver aspectWeaver = new ASMAspectWeaver();
                         aspectWeaver.weaving(sourceClassNode, adviceClassNode);
