@@ -8,8 +8,8 @@
 * Install agents without changing a single line of code
 * Minimal impact on performance (approximately 3% increase in resource usage)
 
-## Latest Release (2016/11/14)
-In preparation for our next release, we have added a release candidate - [**v1.6.0-RC1**](https://github.com/naver/pinpoint/releases/tag/1.6.0-RC1).<br/>
+## Latest Release (2016/11/21)
+In preparation for our next release, we have added a release candidate - [**v1.6.0-RC2**](https://github.com/naver/pinpoint/releases/tag/1.6.0-RC2).<br/>
 We have added a lot of new features and would very much like to hear your thoughts on how we can flesh it out before finalizing our code for v1.6.0.<br/>
 Please do try it out and feel free to let us know what you think.
 
