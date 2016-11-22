@@ -1,7 +1,7 @@
 <!-- 
     If you're reporting a bug or seeking help because something is not working, 
     please fill out below. 
-    For all else, feel free to delete everything and post away your issue!
+    For all else, feel free to DELETE everything and post away your issue!
 -->
 
 #### Description
