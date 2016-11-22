@@ -3,6 +3,7 @@ Thank you very much for choosing to share your contribution with us. Please read
 ## Issues
 Feel free to open issues on just about anything related to Pinpoint. These can be anything from bug report to feature proposal. A few points to consider before opening a new issue:
 * Please make sure you've searched through the documentation and existing issues to see if what you're posting has already been addressed.
+* If your bulid fails, please take a look at [Travis build status](https://travis-ci.org/naver/pinpoint) to check our current build status.
 * If something is not working, please be as detailed as possible in your description. The more information you provide, the easier it will be for us to provide you with a solution.
 * If something not directly related to Pinpoint is not working (such as HBase), try and see if it's something you can get fixed. Chances are, you might be much better equipped to solve the problem. Even if nothing works, being able to share everything you've tried with us will help resolve the issue a lot quicker.
 * For quick questions, or issues that aren't directly related to the code base, please consider posting them to [Pinpoint Google Group](https://groups.google.com/forum/#!forum/pinpoint_user).
