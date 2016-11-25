@@ -23,6 +23,8 @@ import java.util.List;
 
 public final class StringUtils {
 
+    private static final int DEFAULT_ABBREVIATE_MAX_WIDTH = 64;
+
     private StringUtils() {
     }
 
@@ -64,47 +66,70 @@ public final class StringUtils {
         return result;
     }
 
-
-
+    /**
+     * @deprecated Since 1.6.1. Use {@link StringUtils#abbreviate(String)}
+     */
+    @Deprecated
     public static String drop(final String str) {
-        return drop(str, 64);
+        return abbreviate(str);
     }
 
-    public static String drop(final String str, final int length) {
+
+    public static String abbreviate(final String str) {
+        return abbreviate(str, DEFAULT_ABBREVIATE_MAX_WIDTH);
+    }
+
+    /**
+     * @deprecated Since 1.6.1. Use {@link StringUtils#abbreviate(String, int)}
+     */
+    @Deprecated
+    public static String drop(final String str, final int maxWidth) {
+        return abbreviate(str, maxWidth);
+    }
+
+    public static String abbreviate(final String str, final int maxWidth) {
         if (str == null) {
             return "null";
         }
-        if (length < 0) {
-            throw new IllegalArgumentException("negative length:" + length);
+        if (maxWidth < 0) {
+            throw new IllegalArgumentException("negative maxWidth:" + maxWidth);
         }
-        if (str.length() > length) {
-            StringBuilder buffer = new StringBuilder(length + 10);
-            buffer.append(str, 0, length);
-            appendDropMessage(buffer, str.length());
+        if (str.length() > maxWidth) {
+            StringBuilder buffer = new StringBuilder(maxWidth + 10);
+            buffer.append(str, 0, maxWidth);
+            appendAbbreviateMessage(buffer, str.length());
             return buffer.toString();
         } else {
             return str;
         }
     }
 
-    public static void appendDrop(StringBuilder builder, final String str, final int length) {
+    /**
+     * @deprecated Since 1.6.1. Use {@link StringUtils#appendAbbreviate(StringBuilder, String, int)}
+     */
+    @Deprecated
+    public static void appendDrop(StringBuilder builder, final String str, final int maxWidth) {
+        appendAbbreviate(builder, str, maxWidth);
+    }
+
+    public static void appendAbbreviate(StringBuilder builder, final String str, final int maxWidth) {
         if (str == null) {
             return;
         }
-        if (length < 0) {
+        if (maxWidth < 0) {
             return;
         }
-        if (str.length() > length) {
-            builder.append(str, 0, length);
-            appendDropMessage(builder, str.length());
+        if (str.length() > maxWidth) {
+            builder.append(str, 0, maxWidth);
+            appendAbbreviateMessage(builder, str.length());
         } else {
             builder.append(str);
         }
     }
 
-    private static void appendDropMessage(StringBuilder buffer, int length) {
+    private static void appendAbbreviateMessage(StringBuilder buffer, int strLength) {
         buffer.append("...(");
-        buffer.append(length);
+        buffer.append(strLength);
         buffer.append(')');
     }
 }

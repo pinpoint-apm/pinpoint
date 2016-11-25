@@ -21,7 +21,6 @@ import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 
 import com.navercorp.pinpoint.bootstrap.config.Filter;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.RemoteAddressResolver;
@@ -46,7 +45,6 @@ import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
 import com.navercorp.pinpoint.plugin.jboss.ServletAsyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.jboss.ServletSyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.jboss.TraceAccessor;
-import com.navercorp.pinpoint.plugin.jboss.util.JbossUtility;
 
 /**
  * The Class StandardHostValveInvokeInterceptor.
@@ -530,11 +528,11 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                 return params.toString();
             }
             final String key = attrs.nextElement().toString();
-            params.append(StringUtils.drop(key, eachLimit));
+            params.append(StringUtils.abbreviate(key, eachLimit));
             params.append("=");
             final Object value = request.getParameter(key);
             if (value != null) {
-                params.append(StringUtils.drop(StringUtils.toString(value), eachLimit));
+                params.append(StringUtils.abbreviate(StringUtils.toString(value), eachLimit));
             }
         }
         return params.toString();
