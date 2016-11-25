@@ -223,6 +223,39 @@ log.page.url=XXXX.pinpoint
 log.button.name= log
 ```
 
+**step 3**
+Pinpoint 1.5.0 or later, we improve button to decided enable/disable depending on wherether or not being logged.
+You should implement interceptor for using logging appender. We also developed plugin for logging appdender internally.
+Please refer to Pinpoint Profiler Plugin Sample. [pinpoint plugin sample](https://github.com/naver/pinpoint-plugin-sample).
+This is interceptor example.
+
+```
+public class AppenderInterceptor implements AroundInterceptor0 {
+
+    private final TraceContext traceContext;
+
+    public AppenderInterceptor(TraceContext traceContext) {
+        this.traceContext = traceContext;
+    }
+
+    @Override
+    public void before(Object target) {
+        Trace trace = traceContext.currentTraceObject();
+
+        if (trace != null) {
+            SpanRecorder recorder = trace.getSpanRecorder();
+            recorder.recordLogging(LoggingInfo.LOGGED);
+        }
+    }
+
+    @IgnoreMethod
+    @Override
+    public void after(Object target, Object result, Throwable throwable) {
+
+    }
+}
+```
+
 If those are correctly configured, the buttons are added in the transaction list view.
 ![per-request_feature_2.jpg](img/per-request_feature_2.jpg)
 
@@ -460,6 +493,40 @@ log.enable=true
 log.page.url=XXXX.Pinpoint
 log.button.name=log
 ```
+
+
+**step 3**
+pinpoint 1.5 이후 버전부터 log 기록 여부에 따라 log 버튼의 활성화가 결정되도록 개선 됐기 때문에
+당신이 사용하는 logging appender의 로깅 메소드에 대해 logging 여부를 저장하는 interceptor를 만들어야한다.
+interceptor을 만들려면 플러그인을 개발해야하는데 개발 방법은 다음 링크를 참고하면 된다. [pinpoint-plugin-sample](https://github.com/naver/pinpoint-plugin-sample)
+아래는 interceptor 예제이다.
+```
+public class AppenderInterceptor implements AroundInterceptor0 {
+
+    private final TraceContext traceContext;
+
+    public AppenderInterceptor(TraceContext traceContext) {
+        this.traceContext = traceContext;
+    }
+
+    @Override
+    public void before(Object target) {
+        Trace trace = traceContext.currentTraceObject();
+
+        if (trace != null) {
+            SpanRecorder recorder = trace.getSpanRecorder();
+            recorder.recordLogging(LoggingInfo.LOGGED);
+        }
+    }
+
+    @IgnoreMethod
+    @Override
+    public void after(Object target, Object result, Throwable throwable) {
+
+    }
+}
+```
+
 
 위와 같이 설정 및 구현을 추가하고 pinpoint web을 동작시키면 아래와 같이 버튼이 추가 된다.
 ![per-request_feature_2.jpg](img/per-request_feature_2.jpg)
