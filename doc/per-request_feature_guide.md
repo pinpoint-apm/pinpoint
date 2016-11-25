@@ -225,8 +225,9 @@ log.button.name= log
 
 **step 3**
 Pinpoint 1.5.0 or later, we improve button to decided enable/disable depending on wherether or not being logged.
-You should implement interceptor for using logging appender. We also developed plugin for logging appdender internally.
+You should implement interceptor for using logging appender to add logic wherether or not being logged. you also should create plugin for logging appdender internally.
 Please refer to Pinpoint Profiler Plugin Sample. [pinpoint plugin sample](https://github.com/naver/pinpoint-plugin-sample)
+Location added logic of interceptor is method to log for data of LoggingEvent in appender class. you should review your appender class and find method.
 This is interceptor example.
 
 ```
@@ -497,8 +498,8 @@ log.button.name=log
 
 **step 3**
 pinpoint 1.5 이후 버전부터 log 기록 여부에 따라 log 버튼의 활성화가 결정되도록 개선 됐기 때문에
-당신이 사용하는 logging appender의 로깅 메소드에 대해 logging 여부를 저장하는 interceptor를 만들어야한다.
-interceptor을 만들려면 플러그인을 개발해야하는데 개발 방법은 다음 링크를 참고하면 된다. [pinpoint-plugin-sample](https://github.com/naver/pinpoint-plugin-sample)
+당신이 사용하는 logging appender의 로깅 메소드에 logging 여부를 저장하는 interceptor를 추가하는 플러그인을 개발해야 한다.
+플러그인 개발 방법은 다음 링크를 참고하면 된다. [pinpoint-plugin-sample](https://github.com/naver/pinpoint-plugin-sample) interceptor 로직이 추가되야 하는 위치는 appender class 내에 LoggingEvent 객체의 데이터를 이용하여 로깅을 하는 메소드다.
 아래는 interceptor 예제이다.
 ```
 public class AppenderInterceptor implements AroundInterceptor0 {
