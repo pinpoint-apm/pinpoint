@@ -226,7 +226,7 @@ log.button.name= log
 **step 3**
 Pinpoint 1.5.0 or later, we improve button to decided enable/disable depending on wherether or not being logged.
 You should implement interceptor for using logging appender. We also developed plugin for logging appdender internally.
-Please refer to Pinpoint Profiler Plugin Sample. [pinpoint plugin sample](https://github.com/naver/pinpoint-plugin-sample).
+Please refer to Pinpoint Profiler Plugin Sample. [pinpoint plugin sample](https://github.com/naver/pinpoint-plugin-sample)
 This is interceptor example.
 
 ```
