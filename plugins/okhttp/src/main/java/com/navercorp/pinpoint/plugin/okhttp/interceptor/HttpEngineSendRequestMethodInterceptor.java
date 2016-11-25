@@ -195,7 +195,7 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
         for(String cookie : request.headers("Cookie")) {
             if(cookieSampler.isSampling()) {
                 final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-                recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(cookie, 1024));
+                recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.abbreviate(cookie, 1024));
             }
 
             return;

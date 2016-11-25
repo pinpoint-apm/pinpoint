@@ -77,7 +77,7 @@ public final class BindValueUtils {
                 break;
             }
             final String bindValue = StringUtils.defaultString(bindValueArray[i], "");
-            StringUtils.appendDrop(sb, bindValue, limit);
+            StringUtils.appendAbbreviate(sb, bindValue, limit);
             if (i < end) {
                 sb.append(", ");
             }

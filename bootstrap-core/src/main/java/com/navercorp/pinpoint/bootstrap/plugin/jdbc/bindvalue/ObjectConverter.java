@@ -90,7 +90,7 @@ public class ObjectConverter implements Converter {
     }
 
     private String dropToString(Object param) {
-        return StringUtils.drop(param.toString());
+        return StringUtils.abbreviate(param.toString());
     }
 
     private String getClassName(Object param) {
