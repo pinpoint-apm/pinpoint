@@ -485,17 +485,25 @@
 	                };
 	                movePeriod = function( movedTime ) {
 	                	if ( scope.periodType === cfg.periodType.LAST ) {
-		                	oNavbarVoService.setQueryEndDateTime(moment(oNavbarVoService.getQueryEndTime() + movedTime).format('YYYY-MM-DD-HH-mm-ss'));
+	                		var movedTime = moment(oNavbarVoService.getQueryEndTime() + movedTime).format('YYYY-MM-DD-HH-mm-ss');
+		                	oNavbarVoService.setQueryEndDateTime(movedTime);
 		                    oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
+		                    UrlVoService.setQueryEndDateTime(movedTime);
+							UrlVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 		                    emitAsChanged();
 		                    setDateTime($fromPicker, oNavbarVoService.getQueryStartTime());
 		                    setDateTime($toPicker, oNavbarVoService.getQueryEndTime());
 	                	} else {
 		                    setDateTime($fromPicker, oNavbarVoService.getQueryStartTime() + movedTime);
 		                    setDateTime($toPicker, oNavbarVoService.getQueryEndTime() + movedTime );
-	                        oNavbarVoService.setQueryStartTime(getQueryStartTime());
-	                        oNavbarVoService.setQueryEndTime(getQueryEndTime());
+		                    var starTime = getQueryStartTime();
+		                    var endTime = getQueryEndTime();
+	                        oNavbarVoService.setQueryStartTime(startTime);
+	                        oNavbarVoService.setQueryEndTime(endTime);
 	                        oNavbarVoService.autoCalcultateByQueryStartTimeAndQueryEndTime();
+							UrlVoService.setQueryStartTime(startTime);
+							UrlVoService.setQueryEndTime(endTime);
+							UrlVoService.autoCalcultateByQueryStartTimeAndQueryEndTime();
 	                        emitAsChanged();
 	                	}
 	                };
