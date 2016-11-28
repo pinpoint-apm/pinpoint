@@ -1,20 +1,4 @@
-/*
- * Copyright 2016 Naver Corp.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package com.navercorp.pinpoint.common.server.bo.codec.stat.v1;
+package com.navercorp.pinpoint.common.server.bo.codec.stat.v2;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
@@ -23,8 +7,8 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeader
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderDecoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedLongEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StrategyAnalyzer;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedLongEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
@@ -32,7 +16,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,16 +23,15 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
-@Component("jvmGcDetailedCodecV1")
-public class JvmGcDetailedCodecV1 implements AgentStatCodec<JvmGcDetailedBo> {
+@Component("jvmGcDetailedCodecV2")
+public class JvmGcDetailedCodecV2 implements AgentStatCodec<JvmGcDetailedBo> {
 
-    private static final byte VERSION = 1;
+    private static final byte VERSION = 2;
 
     private final AgentStatDataPointCodec codec;
 
     @Autowired
-    public JvmGcDetailedCodecV1(AgentStatDataPointCodec codec) {
-        Assert.notNull(codec, "agentStatDataPointCodec must not be null");
+    public JvmGcDetailedCodecV2(AgentStatDataPointCodec codec) {
         this.codec = codec;
     }
 
@@ -66,6 +48,7 @@ public class JvmGcDetailedCodecV1 implements AgentStatCodec<JvmGcDetailedBo> {
         final int numValues = jvmGcDetailedBos.size();
         valueBuffer.putVInt(numValues);
 
+        List<Long> startTimestamps = new ArrayList<>(numValues);
         List<Long> timestamps = new ArrayList<>(numValues);
         UnsignedLongEncodingStrategy.Analyzer.Builder gcNewCountAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         UnsignedLongEncodingStrategy.Analyzer.Builder gcNewTimeAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
@@ -76,6 +59,7 @@ public class JvmGcDetailedCodecV1 implements AgentStatCodec<JvmGcDetailedBo> {
         UnsignedLongEncodingStrategy.Analyzer.Builder permGenUsedStrategyAnalyzer = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         UnsignedLongEncodingStrategy.Analyzer.Builder metaspaceUsedStrategyAnalyzer = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         for (JvmGcDetailedBo jvmGcDetailedBo : jvmGcDetailedBos) {
+            startTimestamps.add(jvmGcDetailedBo.getStartTimestamp());
             timestamps.add(jvmGcDetailedBo.getTimestamp());
             gcNewCountAnalyzerBuilder.addValue(jvmGcDetailedBo.getGcNewCount());
             gcNewTimeAnalyzerBuilder.addValue(jvmGcDetailedBo.getGcNewTime());
@@ -86,6 +70,7 @@ public class JvmGcDetailedCodecV1 implements AgentStatCodec<JvmGcDetailedBo> {
             permGenUsedStrategyAnalyzer.addValue(AgentStatUtils.convertDoubleToLong(jvmGcDetailedBo.getPermGenUsed()));
             metaspaceUsedStrategyAnalyzer.addValue(AgentStatUtils.convertDoubleToLong(jvmGcDetailedBo.getMetaspaceUsed()));
         }
+        this.codec.encodeValues(valueBuffer, UnsignedLongEncodingStrategy.REPEAT_COUNT, startTimestamps);
         this.codec.encodeTimestamps(valueBuffer, timestamps);
         this.encodeDataPoints(
                 valueBuffer,
@@ -140,6 +125,7 @@ public class JvmGcDetailedCodecV1 implements AgentStatCodec<JvmGcDetailedBo> {
         final long initialTimestamp = baseTimestamp + timestampDelta;
 
         int numValues = valueBuffer.readVInt();
+        List<Long> startTimestamps = this.codec.decodeValues(valueBuffer, UnsignedLongEncodingStrategy.REPEAT_COUNT, numValues);
         List<Long> timestamps = this.codec.decodeTimestamps(initialTimestamp, valueBuffer, numValues);
 
         // decode headers
@@ -167,6 +153,7 @@ public class JvmGcDetailedCodecV1 implements AgentStatCodec<JvmGcDetailedBo> {
         for (int i = 0; i < numValues; ++i) {
             JvmGcDetailedBo jvmGcDetailedBo = new JvmGcDetailedBo();
             jvmGcDetailedBo.setAgentId(agentId);
+            jvmGcDetailedBo.setStartTimestamp(startTimestamps.get(i));
             jvmGcDetailedBo.setTimestamp(timestamps.get(i));
             jvmGcDetailedBo.setGcNewCount(gcNewCounts.get(i));
             jvmGcDetailedBo.setGcNewTime(gcNewTimes.get(i));

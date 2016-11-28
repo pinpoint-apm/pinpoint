@@ -26,6 +26,7 @@ public class JvmGcBo implements AgentStatDataPoint {
     public static final long UNCOLLECTED_VALUE = -1;
 
     private String agentId;
+    private long startTimestamp;
     private long timestamp;
     private JvmGcType gcType = JvmGcType.UNKNOWN;
     private long heapUsed = UNCOLLECTED_VALUE;
@@ -43,6 +44,16 @@ public class JvmGcBo implements AgentStatDataPoint {
     @Override
     public void setAgentId(String agentId) {
         this.agentId = agentId;
+    }
+
+    @Override
+    public long getStartTimestamp() {
+        return startTimestamp;
+    }
+
+    @Override
+    public void setStartTimestamp(long startTimestamp) {
+        this.startTimestamp = startTimestamp;
     }
 
     @Override
@@ -123,6 +134,7 @@ public class JvmGcBo implements AgentStatDataPoint {
 
         JvmGcBo jvmGcBo = (JvmGcBo) o;
 
+        if (startTimestamp != jvmGcBo.startTimestamp) return false;
         if (timestamp != jvmGcBo.timestamp) return false;
         if (heapUsed != jvmGcBo.heapUsed) return false;
         if (heapMax != jvmGcBo.heapMax) return false;
@@ -132,11 +144,13 @@ public class JvmGcBo implements AgentStatDataPoint {
         if (gcOldTime != jvmGcBo.gcOldTime) return false;
         if (agentId != null ? !agentId.equals(jvmGcBo.agentId) : jvmGcBo.agentId != null) return false;
         return gcType == jvmGcBo.gcType;
+
     }
 
     @Override
     public int hashCode() {
         int result = agentId != null ? agentId.hashCode() : 0;
+        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
         result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
         result = 31 * result + (gcType != null ? gcType.hashCode() : 0);
         result = 31 * result + (int) (heapUsed ^ (heapUsed >>> 32));
@@ -152,6 +166,7 @@ public class JvmGcBo implements AgentStatDataPoint {
     public String toString() {
         return "JvmGcBo{" +
                 "agentId='" + agentId + '\'' +
+                ", startTimestamp=" + startTimestamp +
                 ", timestamp=" + timestamp +
                 ", gcType=" + gcType +
                 ", heapUsed=" + heapUsed +
