@@ -56,6 +56,6 @@ ALTER TABLE alarm_history ADD UNIQUE KEY application_id_checker_name_idx (applic
 
 CREATE TABLE `agent_statistics` (
 	`agent_count` INT(10) UNSIGNED NOT NULL,
-	`date_time`DATETIME NOT NULL,
-	PRIMARY KEY (`date_time`)
+	`date_val`DATETIME NOT NULL,
+	PRIMARY KEY (`date_val`)
 );
