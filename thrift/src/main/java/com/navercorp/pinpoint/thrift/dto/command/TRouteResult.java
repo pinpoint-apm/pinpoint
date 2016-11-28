@@ -69,7 +69,7 @@ public enum TRouteResult implements org.apache.thrift.TEnum {
       case -1:
         return UNKNOWN;
       default:
-        return UNKNOWN;
+        return null;
     }
   }
 }

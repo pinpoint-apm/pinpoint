@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
+import com.navercorp.pinpoint.common.server.bo.PassiveSpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -42,6 +43,9 @@ public class SpanDecoderV0 implements SpanDecoder {
             SpanChunkBo spanChunk = readSpanChunk(qualifier, columnValue, decodingContext);
             return spanChunk;
 
+        } else if (SpanEncoder.TYPE_PASSIVE_SPAN == type) {
+            PassiveSpanBo passiveSpanBo = readPassiveSpan(qualifier, columnValue, decodingContext);
+            return passiveSpanBo;
         } else {
             logger.warn("Unknown span type {}", type);
             return UNKNOWN;
@@ -76,6 +80,20 @@ public class SpanDecoderV0 implements SpanDecoder {
         readSpanValue(columnValue, span, firstSpanEvent, decodingContext);
 
         return span;
+    }
+
+    private PassiveSpanBo readPassiveSpan(Buffer qualifier, Buffer columnValue, SpanDecodingContext decodingContext) {
+        final PassiveSpanBo passiveSpanBo = new PassiveSpanBo();
+
+        final TransactionId transactionId = decodingContext.getTransactionId();
+        passiveSpanBo.setTransactionId(transactionId);
+        passiveSpanBo.setCollectorAcceptTime(decodingContext.getCollectorAcceptedTime());
+
+        SpanEventBo firstSpanEvent = readPassiveQualifier(passiveSpanBo, qualifier);
+
+        readPassiveSpanValue(columnValue, passiveSpanBo, firstSpanEvent, decodingContext);
+
+        return passiveSpanBo;
     }
 
     private void readSpanChunkValue(Buffer buffer, SpanChunkBo spanChunk, SpanEventBo firstSpanEvent, SpanDecodingContext decodingContext) {
@@ -159,6 +177,67 @@ public class SpanDecoderV0 implements SpanDecoder {
         span.addSpanEventBoList(spanEventBoList);
 
 
+    }
+
+    public void readPassiveSpanValue(Buffer buffer, PassiveSpanBo passiveSpanBo, SpanEventBo firstSpanEvent, SpanDecodingContext decodingContext) {
+
+        final byte version = buffer.readByte();
+        if (version != 0) {
+            throw new IllegalStateException("unknown version :" + version);
+        }
+        passiveSpanBo.setVersion(version);
+
+        final SpanBitFiled bitFiled = new SpanBitFiled(buffer.readByte());
+
+        final short serviceType = buffer.readShort();
+        passiveSpanBo.setServiceType(serviceType);
+
+        final short agentType = buffer.readShort();
+        passiveSpanBo.setAgentType(agentType);
+
+        final long proxyFrontEndSpanId = buffer.readLong();
+        passiveSpanBo.setProxyFrontEndSpanId(proxyFrontEndSpanId);
+
+        switch (bitFiled.getApplicationServiceTypeEncodingStrategy()) {
+            case PREV_EQUALS:
+                passiveSpanBo.setApplicationServiceType(serviceType);
+                break;
+            case RAW:
+                passiveSpanBo.setApplicationServiceType(buffer.readShort());
+                break;
+            default:
+                throw new IllegalStateException("applicationServiceType");
+        }
+
+        final long startTimeDelta = buffer.readVLong();
+        final long startTime = passiveSpanBo.getCollectorAcceptTime() - startTimeDelta;
+        passiveSpanBo.setStartTime(startTime);
+        passiveSpanBo.setElapsed(buffer.readVInt());
+
+        passiveSpanBo.setRpc(buffer.readPrefixedString());
+
+        passiveSpanBo.setEndPoint(buffer.readPrefixedString());
+        passiveSpanBo.setRemoteAddr(buffer.readPrefixedString());
+        passiveSpanBo.setApiId(buffer.readSVInt());
+
+        if (bitFiled.isSetErrorCode()) {
+            passiveSpanBo.setErrCode(buffer.readInt());
+        }
+
+        if (bitFiled.isSetFlag()) {
+            passiveSpanBo.setFlag(buffer.readShort());
+        }
+
+        passiveSpanBo.setAcceptorHost(buffer.readPrefixedString());
+
+
+        if (bitFiled.isSetAnnotation()) {
+            List<AnnotationBo> annotationBoList = readAnnotationList(buffer, decodingContext);
+            passiveSpanBo.setAnnotationBoList(annotationBoList);
+        }
+
+        List<SpanEventBo> spanEventBoList = readSpanEvent(buffer, firstSpanEvent, decodingContext);
+        passiveSpanBo.addPassiveSpanEventBoList(spanEventBoList);
     }
 
     private List<SpanEventBo> readSpanEvent(Buffer buffer, SpanEventBo firstSpanEvent, SpanDecodingContext decodingContext) {
@@ -390,6 +469,25 @@ public class SpanDecoderV0 implements SpanDecoder {
 
         long spanId = buffer.readLong();
         basicSpan.setSpanId(spanId);
+
+        int firstSpanEventSequence = buffer.readSVInt();
+        if (firstSpanEventSequence == -1) {
+//            buffer.readByte();
+            // spanEvent not exist ??
+            logger.info("firstSpanEvent is null. bug!!!!");
+            return null;
+        } else {
+            return readQualifierFirstSpanEvent(buffer);
+        }
+    }
+
+    private SpanEventBo readPassiveQualifier(PassiveSpanBo passiveSpanBo, Buffer buffer) {
+
+        long proxyBackEndSpanId = buffer.readLong();
+        passiveSpanBo.setProxyBackEndSpanId(proxyBackEndSpanId);
+
+        long passiveSpanId = buffer.readLong();
+        passiveSpanBo.setPassiveSpanId(passiveSpanId);
 
         int firstSpanEventSequence = buffer.readSVInt();
         if (firstSpanEventSequence == -1) {

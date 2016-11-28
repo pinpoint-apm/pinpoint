@@ -2,12 +2,14 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.TraceDao;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.server.bo.PassiveSpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanChunkSerializerV2;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanSerializerV2;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.PassiveSpanSerializerV2;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
@@ -35,6 +37,9 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     @Autowired
     private SpanSerializerV2 spanSerializer;
+
+    @Autowired
+    private PassiveSpanSerializerV2 passiveSpanSerializer;
 
     @Autowired
     private SpanChunkSerializerV2 spanChunkSerializer;
@@ -67,7 +72,27 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     }
 
+    @Override
+    public void insert(final PassiveSpanBo passiveSpanBo)
+    {
+        if (passiveSpanBo == null) {
+            throw new NullPointerException("passiveSpan must not be null");
+        }
 
+        long acceptedTime = passiveSpanBo.getCollectorAcceptTime();
+
+        TransactionId transactionId = passiveSpanBo.getTransactionId();
+        final byte[] rowKey = this.rowKeyEncoder.encodeRowKey(transactionId);
+        final Put put = new Put(rowKey, acceptedTime);
+
+        this.passiveSpanSerializer.serialize(passiveSpanBo, put, null);
+
+
+        boolean success = hbaseTemplate.asyncPut(TRACE_V2, put);
+        if (!success) {
+            hbaseTemplate.put(TRACE_V2, put);
+        }
+    }
 
     @Override
     public void insertSpanChunk(SpanChunkBo spanChunkBo) {
@@ -92,9 +117,4 @@ public class HbaseTraceDaoV2 implements TraceDao {
             }
         }
     }
-
-
-
-
-
 }

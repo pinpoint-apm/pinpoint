@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.PassiveSpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -43,6 +44,15 @@ public class SpanEncoderV0 implements SpanEncoder {
         return encodeQualifier(TYPE_SPAN_CHUNK, spanChunkBo.getApplicationId(), spanChunkBo.getAgentId(), spanChunkBo.getAgentStartTime(), spanChunkBo.getSpanId(), firstEvent);
     }
 
+    @Override
+    public ByteBuffer encodePassiveSpanQualifier(SpanEncodingContext<PassiveSpanBo> encodingContext) {
+        final PassiveSpanBo passiveSpanBo = encodingContext.getValue();
+        final List<SpanEventBo> spanEventBoList = passiveSpanBo.getPassiveSpanEventBoList();
+        final SpanEventBo firstEvent = getFirstSpanEvent(spanEventBoList);
+
+        return encodePassiveQualifier(TYPE_PASSIVE_SPAN, passiveSpanBo.getProxyBackEndSpanId(), passiveSpanBo.getPassiveSpanId(), firstEvent);
+    }
+
     private ByteBuffer encodeQualifier(byte type, String applicationId, String agentId, long agentStartTime, long spanId, SpanEventBo firstEvent) {
         final Buffer buffer = new AutomaticBuffer(128);
         buffer.putByte(type);
@@ -72,7 +82,33 @@ public class SpanEncoderV0 implements SpanEncoder {
         return buffer.wrapByteBuffer();
     }
 
+    private ByteBuffer encodePassiveQualifier(byte type, long proxyBackEndSpanId, long passiveSpanId, SpanEventBo firstEvent) {
+        final Buffer buffer = new AutomaticBuffer(128);
+        buffer.putByte(type);
 
+        buffer.putLong(proxyBackEndSpanId);
+        buffer.putLong(passiveSpanId);
+
+        if (firstEvent != null) {
+            buffer.putSVInt(firstEvent.getSequence());
+
+            final byte bitField = SpanEventQualifierBitField.buildBitField(firstEvent);
+            buffer.putByte(bitField);
+            // case : async span
+            if (SpanEventQualifierBitField.isSetAsync(bitField)) {
+                buffer.putInt(firstEvent.getAsyncId());
+                buffer.putVInt(firstEvent.getAsyncSequence());
+            }
+        } else {
+            // simple trace case
+//            buffer.putSVInt((short) -1);
+
+//            byte cfBitField = SpanEventQualifierBitField.setAsync((byte) 0, false);
+//            buffer.putByte(cfBitField);
+        }
+
+        return buffer.wrapByteBuffer();
+    }
 
     private SpanEventBo getFirstSpanEvent(List<SpanEventBo> spanEventBoList) {
         if (CollectionUtils.isEmpty(spanEventBoList)) {
@@ -192,6 +228,78 @@ public class SpanEncoderV0 implements SpanEncoder {
         }
 
         final List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
+        writeSpanEventList(buffer, spanEventBoList, encodingContext);
+
+        return buffer.wrapByteBuffer();
+    }
+
+    @Override
+    public ByteBuffer encodePassiveSpanColumnValue(SpanEncodingContext<PassiveSpanBo> encodingContext) {
+        final PassiveSpanBo passiveSpanBo = encodingContext.getValue();
+
+        final SpanBitFiled bitField = SpanBitFiled.build(passiveSpanBo);
+
+        final Buffer buffer = new AutomaticBuffer(256);
+
+        final byte version = passiveSpanBo.getRawVersion();
+        buffer.putByte(version);
+
+        // bit field
+        buffer.putByte(bitField.getBitField());
+
+
+        final short serviceType = passiveSpanBo.getServiceType();
+        buffer.putShort(serviceType);
+
+        final short agentType = passiveSpanBo.getAgentType();
+        buffer.putShort(agentType);
+
+        buffer.putLong(passiveSpanBo.getProxyFrontEndSpanId());
+
+        switch (bitField.getApplicationServiceTypeEncodingStrategy()) {
+            case PREV_EQUALS:
+                break;
+            case RAW:
+                buffer.putShort(passiveSpanBo.getApplicationServiceType());
+                break;
+            default:
+                throw new IllegalStateException("applicationServiceType");
+        }
+
+
+        // prevSpanEvent coding
+        final long startTime = passiveSpanBo.getStartTime();
+        final long startTimeDelta = passiveSpanBo.getCollectorAcceptTime() - startTime;
+        buffer.putVLong(startTimeDelta);
+        buffer.putVInt(passiveSpanBo.getElapsed());
+
+
+        buffer.putPrefixedString(passiveSpanBo.getRpc());
+
+        buffer.putPrefixedString(passiveSpanBo.getEndPoint());
+        buffer.putPrefixedString(passiveSpanBo.getRemoteAddr());
+        buffer.putSVInt(passiveSpanBo.getApiId());
+
+
+        // BIT flag
+        if (bitField.isSetErrorCode()) {
+            buffer.putInt(passiveSpanBo.getErrCode());
+        }
+
+
+        if (bitField.isSetFlag()) {
+            buffer.putShort(passiveSpanBo.getFlag());
+        }
+
+
+        buffer.putPrefixedString(passiveSpanBo.getAcceptorHost());
+
+        if (bitField.isSetAnnotation()) {
+            List<AnnotationBo> annotationBoList = passiveSpanBo.getAnnotationBoList();
+            writeAnnotationList(buffer, annotationBoList, encodingContext);
+        }
+
+        final List<SpanEventBo> spanEventBoList = passiveSpanBo.getPassiveSpanEventBoList();
         writeSpanEventList(buffer, spanEventBoList, encodingContext);
 
         return buffer.wrapByteBuffer();

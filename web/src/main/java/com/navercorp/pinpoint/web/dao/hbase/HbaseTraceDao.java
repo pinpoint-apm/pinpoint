@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.google.common.collect.Lists;
+import com.navercorp.pinpoint.common.server.bo.PassiveSpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
@@ -72,6 +73,12 @@ public class HbaseTraceDao implements TraceDao {
             spanMapper = CellTraceMapper.wrap(spanMapper);
         }
         this.spanMapper = spanMapper;
+    }
+
+    @Override
+    public List<PassiveSpanBo> selectPassiveSpan(TransactionId transactionId) {
+        logger.warn("PassiveSpan is not supported at Trace_V1.");
+        return new ArrayList<>();
     }
 
     @Override

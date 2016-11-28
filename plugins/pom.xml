@@ -43,6 +43,7 @@
         <module>dubbo</module>
         <module>cassandra</module>
         <module>activemq-client</module>
+        <module>httpd</module>
         <module>cxf</module>
         <module>hystrix</module>
         <module>jboss</module>
@@ -122,6 +123,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-tomcat-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-httpd-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
