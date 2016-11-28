@@ -12,18 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
-package com.navercorp.pinpoint.thrift.io;
+package com.navercorp.pinpoint.profiler.instrument.mock;
 
 /**
- * @Author Taejin Koo
+ * @author jaehong.kim
  */
-public interface ResettableOutputStream {
-
-    void mark();
-
-    void resetToMarkIndex();
-
+public class DelegatorClass extends DelegatorSuperClass {
 }

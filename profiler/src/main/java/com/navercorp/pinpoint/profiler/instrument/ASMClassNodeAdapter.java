@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -107,7 +108,7 @@ public class ASMClassNodeAdapter {
     }
 
     public String getInternalName() {
-        return this.classNode.name == null ? null : this.classNode.name.replace('/', '.');
+        return this.classNode.name == null ? null : JavaAssistUtils.jvmNameToJavaName(this.classNode.name);
     }
 
     public String getSuperClassName() {
@@ -115,7 +116,7 @@ public class ASMClassNodeAdapter {
     }
 
     public String getSuperClassInternalName() {
-        return this.classNode.superName == null ? null : this.classNode.superName.replace('/', '.');
+        return this.classNode.superName == null ? null : JavaAssistUtils.jvmNameToJavaName(this.classNode.superName);
     }
 
     public boolean isInterface() {
@@ -136,7 +137,7 @@ public class ASMClassNodeAdapter {
         for (String name : interfaces) {
             if (name != null) {
                 // to internal name.
-                list.add(name.replace('/', '.'));
+                list.add(JavaAssistUtils.jvmNameToJavaName(name));
             }
         }
 
@@ -171,7 +172,7 @@ public class ASMClassNodeAdapter {
             }
 
             if (desc == null || (methodNode.desc != null && methodNode.desc.startsWith(desc))) {
-                return new ASMMethodNodeAdapter(getInternalName(), methodNode);
+                return new ASMMethodNodeAdapter(getName(), methodNode);
             }
         }
 
@@ -193,7 +194,7 @@ public class ASMClassNodeAdapter {
                 // skip constructor(<init>) and static initializer block(<clinit>)
                 continue;
             }
-            methodNodes.add(new ASMMethodNodeAdapter(getInternalName(), methodNode));
+            methodNodes.add(new ASMMethodNodeAdapter(getName(), methodNode));
         }
 
         return methodNodes;
@@ -296,8 +297,8 @@ public class ASMClassNodeAdapter {
             exceptions = superMethodNode.getExceptions().toArray(new String[superMethodNode.getExceptions().size()]);
         }
 
-        final ASMMethodNodeAdapter methodNode = new ASMMethodNodeAdapter(getInternalName(), new MethodNode(superMethodNode.getAccess(), superMethodNode.getName(), superMethodNode.getDesc(), superMethodNode.getSignature(), exceptions));
-        methodNode.addDelegator(superMethodNode.getDeclaringClassInternalName());
+        final ASMMethodNodeAdapter methodNode = new ASMMethodNodeAdapter(getName(), new MethodNode(superMethodNode.getAccess(), superMethodNode.getName(), superMethodNode.getDesc(), superMethodNode.getSignature(), exceptions));
+        methodNode.addDelegator(superMethodNode.getDeclaringClassName());
         if (this.classNode.methods == null) {
             this.classNode.methods = new ArrayList<MethodNode>();
         }
@@ -367,7 +368,7 @@ public class ASMClassNodeAdapter {
         if (this.classNode.interfaces == null) {
             this.classNode.interfaces = new ArrayList<String>();
         }
-        this.classNode.interfaces.add(interfaceInternalName.replace('.', '/'));
+        this.classNode.interfaces.add(JavaAssistUtils.javaNameToJvmName(interfaceInternalName));
     }
 
     public void copyMethod(final ASMMethodNodeAdapter methodNode) {
@@ -377,9 +378,12 @@ public class ASMClassNodeAdapter {
 
         // change local call.
         final ASMMethodInsnNodeRemapper remapper = new ASMMethodInsnNodeRemapper();
-        remapper.addFilter(methodNode.getDeclaringClassInternalName().replace('.', '/'), null, null);
+        remapper.addFilter(methodNode.getDeclaringClassName(), null, null);
         remapper.setOwner(this.classNode.name);
+        // remap method call.
         methodNode.remapMethodInsnNode(remapper);
+        // remap desc of this.
+        methodNode.remapLocalVariables("this", Type.getObjectType(this.classNode.name).getDescriptor());
 
         if (this.classNode.methods == null) {
             this.classNode.methods = new ArrayList<MethodNode>();

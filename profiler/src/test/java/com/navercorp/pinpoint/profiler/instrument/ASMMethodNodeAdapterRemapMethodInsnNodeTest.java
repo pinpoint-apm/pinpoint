@@ -42,7 +42,7 @@ public class ASMMethodNodeAdapterRemapMethodInsnNodeTest {
                 List<MethodNode> methodNodes = classNode.methods;
                 for (MethodNode methodNode : methodNodes) {
                     if (methodNode.name.equals("getHeader")) {
-                        ASMMethodNodeAdapter adapter = new ASMMethodNodeAdapter(targetClassName, methodNode);
+                        ASMMethodNodeAdapter adapter = new ASMMethodNodeAdapter(classNode.name, methodNode);
 
                         final ASMMethodInsnNodeRemapper remapper = new ASMMethodInsnNodeRemapper();
                         remapper.addFilter(null, "__getHeader", methodNode.desc);
