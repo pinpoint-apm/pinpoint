@@ -1,20 +1,4 @@
-/*
- * Copyright 2016 Naver Corp.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package com.navercorp.pinpoint.common.server.bo.codec.stat.v1;
+package com.navercorp.pinpoint.common.server.bo.codec.stat.v2;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
@@ -25,6 +9,7 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHead
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StrategyAnalyzer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedIntegerEncodingStrategy;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedLongEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedShortEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
@@ -44,16 +29,16 @@ import java.util.Map;
 /**
  * @author HyunGil Jeong
  */
-@Component("activeTraceCodecV1")
-public class ActiveTraceCodecV1 implements AgentStatCodec<ActiveTraceBo> {
+@Component("activeTraceCodecV2")
+public class ActiveTraceCodecV2 implements AgentStatCodec<ActiveTraceBo> {
 
-    private static final byte VERSION = 1;
+    private static final byte VERSION = 2;
 
     private final AgentStatDataPointCodec codec;
 
     @Autowired
-    public ActiveTraceCodecV1(AgentStatDataPointCodec codec) {
-        Assert.notNull(codec, "agentStatDataPointCodec must not be null");
+    public ActiveTraceCodecV2(AgentStatDataPointCodec codec) {
+        Assert.notNull("agentStatDataPointCodec must not be null");
         this.codec = codec;
     }
 
@@ -70,6 +55,7 @@ public class ActiveTraceCodecV1 implements AgentStatCodec<ActiveTraceBo> {
         final int numValues = activeTraceBos.size();
         valueBuffer.putVInt(numValues);
 
+        List<Long> startTimestamps = new ArrayList<>(numValues);
         List<Long> timestamps = new ArrayList<>(numValues);
         UnsignedShortEncodingStrategy.Analyzer.Builder versionAnalyzerBuilder = new UnsignedShortEncodingStrategy.Analyzer.Builder();
         UnsignedIntegerEncodingStrategy.Analyzer.Builder schemaTypeAnalyzerBuilder = new UnsignedIntegerEncodingStrategy.Analyzer.Builder();
@@ -78,6 +64,7 @@ public class ActiveTraceCodecV1 implements AgentStatCodec<ActiveTraceBo> {
         UnsignedIntegerEncodingStrategy.Analyzer.Builder slowTraceCountsAnalyzerBuilder = new UnsignedIntegerEncodingStrategy.Analyzer.Builder();
         UnsignedIntegerEncodingStrategy.Analyzer.Builder verySlowTraceCountsAnalyzerBuilder = new UnsignedIntegerEncodingStrategy.Analyzer.Builder();
         for (ActiveTraceBo activeTraceBo : activeTraceBos) {
+            startTimestamps.add(activeTraceBo.getStartTimestamp());
             timestamps.add(activeTraceBo.getTimestamp());
             versionAnalyzerBuilder.addValue(activeTraceBo.getVersion());
             schemaTypeAnalyzerBuilder.addValue(activeTraceBo.getHistogramSchemaType());
@@ -87,6 +74,7 @@ public class ActiveTraceCodecV1 implements AgentStatCodec<ActiveTraceBo> {
             slowTraceCountsAnalyzerBuilder.addValue(MapUtils.getIntValue(activeTraceCounts, SlotType.SLOW, ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT));
             verySlowTraceCountsAnalyzerBuilder.addValue(MapUtils.getIntValue(activeTraceCounts, SlotType.VERY_SLOW, ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT));
         }
+        this.codec.encodeValues(valueBuffer, UnsignedLongEncodingStrategy.REPEAT_COUNT, startTimestamps);
         this.codec.encodeTimestamps(valueBuffer, timestamps);
         this.encodeDataPoints(
                 valueBuffer,
@@ -133,6 +121,7 @@ public class ActiveTraceCodecV1 implements AgentStatCodec<ActiveTraceBo> {
         final long initialTimestamp = baseTimestamp + timestampDelta;
 
         int numValues = valueBuffer.readVInt();
+        List<Long> startTimestamps = this.codec.decodeValues(valueBuffer, UnsignedLongEncodingStrategy.REPEAT_COUNT, numValues);
         List<Long> timestamps = this.codec.decodeTimestamps(initialTimestamp, valueBuffer, numValues);
 
         // decode headers
@@ -156,6 +145,7 @@ public class ActiveTraceCodecV1 implements AgentStatCodec<ActiveTraceBo> {
         for (int i = 0; i < numValues; ++i) {
             ActiveTraceBo activeTraceBo = new ActiveTraceBo();
             activeTraceBo.setAgentId(agentId);
+            activeTraceBo.setStartTimestamp(startTimestamps.get(i));
             activeTraceBo.setTimestamp(timestamps.get(i));
             activeTraceBo.setVersion(versions.get(i));
             activeTraceBo.setHistogramSchemaType(schemaTypes.get(i));

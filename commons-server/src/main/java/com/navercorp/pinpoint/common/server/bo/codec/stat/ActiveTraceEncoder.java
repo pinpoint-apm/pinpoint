@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 public class ActiveTraceEncoder extends AgentStatEncoder<ActiveTraceBo> {
 
     @Autowired
-    public ActiveTraceEncoder(@Qualifier("activeTraceCodecV1") AgentStatCodec<ActiveTraceBo> activeTraceCodec) {
+    public ActiveTraceEncoder(@Qualifier("activeTraceCodecV2") AgentStatCodec<ActiveTraceBo> activeTraceCodec) {
         super(activeTraceCodec);
     }
 }

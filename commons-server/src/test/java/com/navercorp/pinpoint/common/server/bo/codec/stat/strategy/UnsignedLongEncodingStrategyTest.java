@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy;
+package com.navercorp.pinpoint.common.server.bo.codec.stat.strategy;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatDataPointFactory;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;

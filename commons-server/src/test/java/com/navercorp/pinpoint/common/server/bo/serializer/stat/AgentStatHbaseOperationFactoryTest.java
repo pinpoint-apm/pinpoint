@@ -187,8 +187,10 @@ public class AgentStatHbaseOperationFactoryTest {
 
     private AgentStatDataPoint createTestDataPoint(final long testTimestamp) {
         final String testAgentId = "testAgentId";
+        final long testStartTimestamp = 0L;
         return new AgentStatDataPoint() {
             private String agentId = testAgentId;
+            private long startTimestamp = testStartTimestamp;
             private long timestamp = testTimestamp;
 
             @Override
@@ -199,6 +201,16 @@ public class AgentStatHbaseOperationFactoryTest {
             @Override
             public void setAgentId(String agentId) {
                 this.agentId = agentId;
+            }
+
+            @Override
+            public long getStartTimestamp() {
+                return startTimestamp;
+            }
+
+            @Override
+            public void setStartTimestamp(long startTimestamp) {
+                this.startTimestamp = startTimestamp;
             }
 
             @Override

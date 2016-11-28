@@ -183,6 +183,7 @@ public class SampledAgentStatResultExtractorTest {
 
     private static class TestAgentStatDataPoint implements AgentStatDataPoint {
         private String agentId;
+        private long startTimestamp;
         private long timestamp;
         private int value;
 
@@ -194,6 +195,16 @@ public class SampledAgentStatResultExtractorTest {
         @Override
         public void setAgentId(String agentId) {
             this.agentId = agentId;
+        }
+
+        @Override
+        public long getStartTimestamp() {
+            return startTimestamp;
+        }
+
+        @Override
+        public void setStartTimestamp(long startTimestamp) {
+            this.startTimestamp = startTimestamp;
         }
 
         @Override
@@ -220,29 +231,10 @@ public class SampledAgentStatResultExtractorTest {
         }
 
         @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            TestAgentStatDataPoint that = (TestAgentStatDataPoint) o;
-
-            if (timestamp != that.timestamp) return false;
-            if (value != that.value) return false;
-            return agentId != null ? agentId.equals(that.agentId) : that.agentId == null;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = agentId != null ? agentId.hashCode() : 0;
-            result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
-            result = 31 * result + value;
-            return result;
-        }
-
-        @Override
         public String toString() {
             return "TestAgentStatDataPoint{" +
                     "agentId='" + agentId + '\'' +
+                    ", startTimestamp=" + startTimestamp +
                     ", timestamp=" + timestamp +
                     ", value=" + value +
                     '}';

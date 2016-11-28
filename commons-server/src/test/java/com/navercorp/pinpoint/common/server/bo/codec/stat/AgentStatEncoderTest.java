@@ -14,111 +14,83 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.mapper.stat;
+package com.navercorp.pinpoint.common.server.bo.codec.stat;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
-import com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatEncoder;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatRowKeyDecoder;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatRowKeyEncoder;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatSerializer;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
-import com.navercorp.pinpoint.web.mapper.TimestampFilter;
-import com.sematext.hbase.wd.AbstractRowKeyDistributor;
-import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
-import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Result;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
 /**
  * @author HyunGil Jeong
  */
-public class AgentStatMapperV2Test {
+public class AgentStatEncoderTest {
 
-    private static final String AGENT_ID = "testAgent";
-    private static final AgentStatType AGENT_STAT_TYPE = AgentStatType.UNKNOWN;
-    private static final long COLLECT_INVERVAL = 5000L;
+    private static final String AGENT_ID = "testAgentId";
+    private static final long AGENT_START_TIMESTAMP = System.currentTimeMillis();
+    private static final long COLLECT_INTERVAL = 5000L;
     private static final Random RANDOM = new Random();
-    private static final TimestampFilter TEST_FILTER = new TimestampFilter() {
-        @Override
-        public boolean filter(long timestamp) {
-            return false;
-        }
-    };
 
-    private final AgentStatRowKeyEncoder rowKeyEncoder = new AgentStatRowKeyEncoder();
+    private AgentStatCodec<TestAgentStat> codec = new TestAgentStatCodec();
 
-    private final AgentStatRowKeyDecoder rowKeyDecoder = new AgentStatRowKeyDecoder();
+    private AgentStatEncoder<TestAgentStat> encoder = new AgentStatEncoder<>(codec);
 
-    private final AbstractRowKeyDistributor rowKeyDistributor = new RowKeyDistributorByHashPrefix(
-            new RangeOneByteSimpleHash(0, 33, 64));
-
-    private final AgentStatHbaseOperationFactory hbaseOperationFactory = new AgentStatHbaseOperationFactory(
-            this.rowKeyEncoder, this.rowKeyDecoder, this.rowKeyDistributor);
-
-    private final AgentStatCodec<TestAgentStat> codec = new TestAgentStatCodec();
-
-    private final AgentStatEncoder<TestAgentStat> encoder = new TestAgentStatEncoder(this.codec);
-
-    private final AgentStatDecoder<TestAgentStat> decoder = new TestAgentStatDecoder(this.codec);
-
-    private final AgentStatSerializer<TestAgentStat> serializer = new TestAgentStatSerializer(this.encoder);
+    private AgentStatDecoder<TestAgentStat> decoder = new AgentStatDecoder<>(Arrays.asList(codec));
 
     @Test
-    public void mapperTest() throws Exception {
-        // Given
-        List<TestAgentStat> givenAgentStats = new ArrayList<>();
-        List<Put> puts = new ArrayList<>();
+    public void stats_should_be_encoded_and_decoded_into_same_value() {
         long initialTimestamp = System.currentTimeMillis();
-        int numBatch = RANDOM.nextInt(10) + 1;
-        for (int i = 0; i < numBatch; ++i) {
-            int batchSize = RANDOM.nextInt(10) + 1;
-            List<TestAgentStat> agentStatBatch = createAgentStats(initialTimestamp, COLLECT_INVERVAL, batchSize);
-            givenAgentStats.addAll(agentStatBatch);
-            puts.addAll(this.hbaseOperationFactory.createPuts(AGENT_ID, AGENT_STAT_TYPE, agentStatBatch, this.serializer));
-            initialTimestamp += batchSize * COLLECT_INVERVAL;
-        }
-        List<Cell> cellsToPut = new ArrayList<>();
-        for (Put put : puts) {
-            List<Cell> cells = put.getFamilyCellMap().get(HBaseTables.AGENT_STAT_CF_STATISTICS);
-            cellsToPut.addAll(cells);
-        }
-        Result result = Result.create(cellsToPut);
+        int numStats = RANDOM.nextInt(20) + 1;
+        List<TestAgentStat> expectedAgentStats = this.createTestAgentStats(initialTimestamp, numStats);
+        long baseTimestamp = AgentStatUtils.getBaseTimestamp(initialTimestamp);
+        long timestampDelta = initialTimestamp - baseTimestamp;
+        ByteBuffer qualifierBuffer = encoder.encodeQualifier(timestampDelta);
+        ByteBuffer valueBuffer = encoder.encodeValue(expectedAgentStats);
 
-        // When
-        AgentStatMapperV2<TestAgentStat> mapper = new AgentStatMapperV2<>(this.hbaseOperationFactory, this.decoder, TEST_FILTER);
-        List<TestAgentStat> mappedAgentStats = mapper.mapRow(result, 0);
+        Buffer encodedQualifierBuffer = new FixedBuffer(qualifierBuffer.array());
+        Buffer encodedValueBuffer = new FixedBuffer(valueBuffer.array());
 
-        // Then
-        Collections.sort(givenAgentStats, AgentStatMapperV2.REVERSE_TIMESTAMP_COMPARATOR);
-        Assert.assertEquals(givenAgentStats, mappedAgentStats);
+        AgentStatDecodingContext context = new AgentStatDecodingContext();
+        context.setAgentId(AGENT_ID);
+        context.setBaseTimestamp(baseTimestamp);
+        List<TestAgentStat> decodedAgentStats = decode(encodedQualifierBuffer, encodedValueBuffer, context);
+        verify(expectedAgentStats, decodedAgentStats);
     }
 
-    private List<TestAgentStat> createAgentStats(long initialTimestamp, long interval, int batchSize) {
-        List<TestAgentStat> agentStats = new ArrayList<>(batchSize);
-        for (int i = 0; i < batchSize; ++i) {
-            long timestamp = initialTimestamp + (interval * i);
+    private List<TestAgentStat> createTestAgentStats(long initialTimestamp, int numStats) {
+        List<TestAgentStat> agentStats = new ArrayList<>(numStats);
+        for (int i = 0; i < numStats; ++i) {
+            long timestamp = initialTimestamp + (COLLECT_INTERVAL * i);
             TestAgentStat agentStat = new TestAgentStat();
             agentStat.setAgentId(AGENT_ID);
+            agentStat.setStartTimestamp(AGENT_START_TIMESTAMP);
             agentStat.setTimestamp(timestamp);
             agentStat.setValue(RANDOM.nextLong());
             agentStats.add(agentStat);
         }
         return agentStats;
+    }
+
+    protected void verify(List<TestAgentStat> expectedAgentStats, List<TestAgentStat> actualAgentStats) {
+        Assert.assertEquals(expectedAgentStats, actualAgentStats);
+    }
+
+    private List<TestAgentStat> decode(Buffer encodedQualifierBuffer, Buffer encodedValueBuffer, AgentStatDecodingContext decodingContext) {
+        long timestampDelta = decoder.decodeQualifier(encodedQualifierBuffer);
+        decodingContext.setTimestampDelta(timestampDelta);
+        return decoder.decodeValue(encodedValueBuffer, decodingContext);
     }
 
     private static class TestAgentStatCodec implements AgentStatCodec<TestAgentStat> {
@@ -132,6 +104,7 @@ public class AgentStatMapperV2Test {
         public void encodeValues(Buffer valueBuffer, List<TestAgentStat> agentStats) {
             valueBuffer.putInt(agentStats.size());
             for (TestAgentStat agentStat : agentStats) {
+                valueBuffer.putLong(agentStat.getStartTimestamp());
                 valueBuffer.putLong(agentStat.getTimestamp());
                 valueBuffer.putLong(agentStat.getValue());
             }
@@ -144,29 +117,12 @@ public class AgentStatMapperV2Test {
             for (int i = 0; i < size; ++i) {
                 TestAgentStat agentStat = new TestAgentStat();
                 agentStat.setAgentId(decodingContext.getAgentId());
+                agentStat.setStartTimestamp(valueBuffer.readLong());
                 agentStat.setTimestamp(valueBuffer.readLong());
                 agentStat.setValue(valueBuffer.readLong());
                 agentStats.add(agentStat);
             }
             return agentStats;
-        }
-    }
-
-    private static class TestAgentStatEncoder extends AgentStatEncoder<TestAgentStat> {
-        protected TestAgentStatEncoder(AgentStatCodec<TestAgentStat> codec) {
-            super(codec);
-        }
-    }
-
-    private static class TestAgentStatDecoder extends AgentStatDecoder<TestAgentStat> {
-        protected TestAgentStatDecoder(AgentStatCodec<TestAgentStat> codec) {
-            super(Arrays.asList(codec));
-        }
-    }
-
-    private static class TestAgentStatSerializer extends AgentStatSerializer<TestAgentStat> {
-        protected TestAgentStatSerializer(AgentStatEncoder<TestAgentStat> encoder) {
-            super(encoder);
         }
     }
 
@@ -217,7 +173,7 @@ public class AgentStatMapperV2Test {
 
         @Override
         public AgentStatType getAgentStatType() {
-            return AGENT_STAT_TYPE;
+            return AgentStatType.UNKNOWN;
         }
 
         @Override

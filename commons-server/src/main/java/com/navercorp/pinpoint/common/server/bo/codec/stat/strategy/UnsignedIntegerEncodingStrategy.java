@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy;
+package com.navercorp.pinpoint.common.server.bo.codec.stat.strategy;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.ArithmeticOperation;
@@ -34,15 +34,15 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
-public enum UnsignedLongEncodingStrategy implements EncodingStrategy<Long> {
-    NONE(new ValueEncodingStrategy.Unsigned<>(TypedBufferHandler.LONG_BUFFER_HANDLER)),
-    REPEAT_COUNT(new RepeatCountEncodingStrategy.Unsigned<>(TypedBufferHandler.LONG_BUFFER_HANDLER)),
-    DELTA(new DeltaEncodingStrategy.Unsigned<>(TypedBufferHandler.LONG_BUFFER_HANDLER, ArithmeticOperation.LONG_OPERATIONS)),
-    DELTA_OF_DELTA(new DeltaOfDeltaEncodingStrategy.Unsigned<>(TypedBufferHandler.LONG_BUFFER_HANDLER, ArithmeticOperation.LONG_OPERATIONS));
+public enum UnsignedIntegerEncodingStrategy implements EncodingStrategy<Integer> {
+    NONE(new ValueEncodingStrategy.Unsigned<>(TypedBufferHandler.INTEGER_BUFFER_HANDLER)),
+    REPEAT_COUNT(new RepeatCountEncodingStrategy.Unsigned<>(TypedBufferHandler.INTEGER_BUFFER_HANDLER)),
+    DELTA(new DeltaEncodingStrategy.Unsigned<>(TypedBufferHandler.INTEGER_BUFFER_HANDLER, ArithmeticOperation.INTEGER_OPERATIONS)),
+    DELTA_OF_DELTA(new DeltaOfDeltaEncodingStrategy.Unsigned<>(TypedBufferHandler.INTEGER_BUFFER_HANDLER, ArithmeticOperation.INTEGER_OPERATIONS)), ;
 
-    private final EncodingStrategy<Long> delegate;
+    private final EncodingStrategy<Integer> delegate;
 
-    UnsignedLongEncodingStrategy(EncodingStrategy<Long> delegate) {
+    UnsignedIntegerEncodingStrategy(EncodingStrategy<Integer> delegate) {
         this.delegate = delegate;
     }
 
@@ -52,17 +52,17 @@ public enum UnsignedLongEncodingStrategy implements EncodingStrategy<Long> {
     }
 
     @Override
-    public void encodeValues(Buffer buffer, List<Long> values) {
+    public void encodeValues(Buffer buffer, List<Integer> values) {
         this.delegate.encodeValues(buffer, values);
     }
 
     @Override
-    public List<Long> decodeValues(Buffer buffer, int numValues) {
+    public List<Integer> decodeValues(Buffer buffer, int numValues) {
         return this.delegate.decodeValues(buffer, numValues);
     }
 
-    public static UnsignedLongEncodingStrategy getFromCode(int code) {
-        for (UnsignedLongEncodingStrategy encodingStrategy : UnsignedLongEncodingStrategy.values()) {
+    public static UnsignedIntegerEncodingStrategy getFromCode(int code) {
+        for (UnsignedIntegerEncodingStrategy encodingStrategy : UnsignedIntegerEncodingStrategy.values()) {
             if (encodingStrategy.getCode() == (code & 0xFF)) {
                 return encodingStrategy;
             }
@@ -70,31 +70,31 @@ public enum UnsignedLongEncodingStrategy implements EncodingStrategy<Long> {
         return null;
     }
 
-    public static class Analyzer implements StrategyAnalyzer<Long> {
+    public static class Analyzer implements StrategyAnalyzer<Integer> {
 
-        private final EncodingStrategy<Long> bestStrategy;
-        private final List<Long> values;
+        private final EncodingStrategy<Integer> bestStrategy;
+        private final List<Integer> values;
 
-        private Analyzer(EncodingStrategy<Long> bestStrategy, List<Long> values) {
+        private Analyzer(EncodingStrategy<Integer> bestStrategy, List<Integer> values) {
             this.bestStrategy = bestStrategy;
             this.values = values;
         }
 
         @Override
-        public EncodingStrategy<Long> getBestStrategy() {
+        public EncodingStrategy<Integer> getBestStrategy() {
             return this.bestStrategy;
         }
 
         @Override
-        public List<Long> getValues() {
+        public List<Integer> getValues() {
             return this.values;
         }
 
-        public static class Builder implements StrategyAnalyzerBuilder<Long> {
+        public static class Builder implements StrategyAnalyzerBuilder<Integer> {
 
-            private final List<Long> values = new ArrayList<>();
-            private long previousValue = 0L;
-            private long previousDelta = 0L;
+            private final List<Integer> values = new ArrayList<>();
+            private int previousValue = 0;
+            private int previousDelta = 0;
 
             private int byteSizeValue = 0;
             private int byteSizeDelta = 0;
@@ -104,8 +104,8 @@ public enum UnsignedLongEncodingStrategy implements EncodingStrategy<Long> {
             private int repeatedValueCount = 0;
 
             @Override
-            public StrategyAnalyzerBuilder<Long> addValue(Long value) {
-                long delta = value - this.previousValue;
+            public StrategyAnalyzerBuilder<Integer> addValue(Integer value) {
+                int delta = value - this.previousValue;
                 if (this.values.isEmpty()) {
                     initializeByteSizes(value);
                 } else {
@@ -119,11 +119,11 @@ public enum UnsignedLongEncodingStrategy implements EncodingStrategy<Long> {
             }
 
             @Override
-            public StrategyAnalyzer<Long> build() {
+            public StrategyAnalyzer<Integer> build() {
                 if (this.repeatedValueCount > 0) {
                     this.byteSizeRepeatCount += BytesUtils.computeVar32Size(this.repeatedValueCount);
                 }
-                EncodingStrategy<Long> bestStrategy;
+                EncodingStrategy<Integer> bestStrategy;
                 int minimumNumBytesUsed = Collections.min(Arrays.asList(
                         this.byteSizeValue,
                         this.byteSizeDelta,
@@ -138,7 +138,7 @@ public enum UnsignedLongEncodingStrategy implements EncodingStrategy<Long> {
                 } else {
                     bestStrategy = REPEAT_COUNT;
                 }
-                List<Long> values = new ArrayList<>(this.values);
+                List<Integer> values = new ArrayList<>(this.values);
                 this.values.clear();
                 return new Analyzer(bestStrategy, values);
             }
@@ -159,7 +159,7 @@ public enum UnsignedLongEncodingStrategy implements EncodingStrategy<Long> {
                 return byteSizeRepeatCount;
             }
 
-            private void initializeByteSizes(long value) {
+            private void initializeByteSizes(int value) {
                 int expectedNumBytesUsedByValue = expectedBytesVLength(value);
                 this.byteSizeValue = expectedNumBytesUsedByValue;
                 this.byteSizeDelta = expectedNumBytesUsedByValue;
@@ -168,13 +168,13 @@ public enum UnsignedLongEncodingStrategy implements EncodingStrategy<Long> {
                 this.byteSizeRepeatCount = expectedNumBytesUsedByValue;
             }
 
-            private void updateByteSizes(long value, long delta) {
+            private void updateByteSizes(int value, int delta) {
                 int expectedNumBytesUsedByValue = expectedBytesVLength(value);
                 this.byteSizeValue += expectedNumBytesUsedByValue;
                 this.byteSizeDelta += expectedBytesVLength(value ^ this.previousValue);
                 this.byteSizeDeltaOfDelta += expectedBytesSVLength(delta - this.previousDelta);
                 if (this.previousValue != value) {
-                    this.byteSizeRepeatCount += BytesUtils.computeVar32Size(this.repeatedValueCount);
+                    this.byteSizeRepeatCount += expectedBytesVLength(this.repeatedValueCount);
                     this.byteSizeRepeatCount += expectedNumBytesUsedByValue;
                     this.repeatedValueCount = 1;
                 } else {
@@ -182,12 +182,16 @@ public enum UnsignedLongEncodingStrategy implements EncodingStrategy<Long> {
                 }
             }
 
-            private int expectedBytesVLength(long value) {
-                return BytesUtils.computeVar64Size(value);
+            private int expectedBytesVLength(int value) {
+                if (value < 0) {
+                    return BytesUtils.computeVar64Size(value);
+                } else {
+                    return BytesUtils.computeVar32Size(value);
+                }
             }
 
-            private int expectedBytesSVLength(long value) {
-                return expectedBytesVLength(BytesUtils.longToZigZag(value));
+            private int expectedBytesSVLength(int value) {
+                return BytesUtils.computeVar32Size(BytesUtils.intToZigZag(value));
             }
         }
     }

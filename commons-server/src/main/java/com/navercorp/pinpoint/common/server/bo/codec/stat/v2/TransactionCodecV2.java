@@ -1,20 +1,4 @@
-/*
- * Copyright 2016 Naver Corp.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package com.navercorp.pinpoint.common.server.bo.codec.stat.v1;
+package com.navercorp.pinpoint.common.server.bo.codec.stat.v2;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
@@ -23,8 +7,8 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeader
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderDecoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedLongEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StrategyAnalyzer;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedLongEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
@@ -39,15 +23,15 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
-@Component("transactionCodecV1")
-public class TransactionCodecV1 implements AgentStatCodec<TransactionBo> {
+@Component("transactionCodecV2")
+public class TransactionCodecV2 implements AgentStatCodec<TransactionBo> {
 
-    private static final byte VERSION = 1;
+    private static final byte VERSION = 2;
 
     private final AgentStatDataPointCodec codec;
 
     @Autowired
-    public TransactionCodecV1(AgentStatDataPointCodec codec) {
+    public TransactionCodecV2(AgentStatDataPointCodec codec) {
         Assert.notNull(codec, "agentStatDataPointCodec must not be null");
         this.codec = codec;
     }
@@ -65,6 +49,7 @@ public class TransactionCodecV1 implements AgentStatCodec<TransactionBo> {
         final int numValues = transactionBos.size();
         valueBuffer.putVInt(numValues);
 
+        List<Long> startTimestamps = new ArrayList<>(numValues);
         List<Long> timestamps = new ArrayList<>(numValues);
         UnsignedLongEncodingStrategy.Analyzer.Builder collectIntervalAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         UnsignedLongEncodingStrategy.Analyzer.Builder sampledNewCountAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
@@ -72,6 +57,7 @@ public class TransactionCodecV1 implements AgentStatCodec<TransactionBo> {
         UnsignedLongEncodingStrategy.Analyzer.Builder unsampledNewCountAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         UnsignedLongEncodingStrategy.Analyzer.Builder unsampledContinuationCountAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         for (TransactionBo transactionBo : transactionBos) {
+            startTimestamps.add(transactionBo.getStartTimestamp());
             timestamps.add(transactionBo.getTimestamp());
             collectIntervalAnalyzerBuilder.addValue(transactionBo.getCollectInterval());
             sampledNewCountAnalyzerBuilder.addValue(transactionBo.getSampledNewCount());
@@ -79,6 +65,7 @@ public class TransactionCodecV1 implements AgentStatCodec<TransactionBo> {
             unsampledNewCountAnalyzerBuilder.addValue(transactionBo.getUnsampledNewCount());
             unsampledContinuationCountAnalyzerBuilder.addValue(transactionBo.getUnsampledContinuationCount());
         }
+        this.codec.encodeValues(valueBuffer, UnsignedLongEncodingStrategy.REPEAT_COUNT, startTimestamps);
         this.codec.encodeTimestamps(valueBuffer, timestamps);
         this.encodeDataPoints(
                 valueBuffer,
@@ -121,6 +108,7 @@ public class TransactionCodecV1 implements AgentStatCodec<TransactionBo> {
         final long initialTimestamp = baseTimestamp + timestampDelta;
 
         int numValues = valueBuffer.readVInt();
+        List<Long> startTimestamps = this.codec.decodeValues(valueBuffer, UnsignedLongEncodingStrategy.REPEAT_COUNT, numValues);
         List<Long> timestamps = this.codec.decodeTimestamps(initialTimestamp, valueBuffer, numValues);
 
         // decode headers
@@ -142,6 +130,7 @@ public class TransactionCodecV1 implements AgentStatCodec<TransactionBo> {
         for (int i = 0; i < numValues; ++i) {
             TransactionBo transactionBo = new TransactionBo();
             transactionBo.setAgentId(agentId);
+            transactionBo.setStartTimestamp(startTimestamps.get(i));
             transactionBo.setTimestamp(timestamps.get(i));
             transactionBo.setCollectInterval(collectIntervals.get(i));
             transactionBo.setSampledNewCount(sampledNewCounts.get(i));
