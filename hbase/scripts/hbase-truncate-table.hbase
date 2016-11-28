@@ -1,0 +1,20 @@
+truncate 'AgentInfo'
+truncate 'AgentStat'
+truncate 'AgentStatV2'
+
+truncate 'AgentLifeCycle'
+truncate 'AgentEvent'
+truncate 'ApplicationIndex'
+
+truncate 'StringMetaData'
+truncate 'ApiMetaData'
+
+truncate 'SqlMetaData_Ver2'
+
+truncate 'ApplicationMapStatisticsCaller_Ver2'
+truncate 'ApplicationMapStatisticsCallee_Ver2'
+truncate 'ApplicationMapStatisticsSelf_Ver2'
+
+truncate 'HostApplicationMap_Ver2'
+
+exit
