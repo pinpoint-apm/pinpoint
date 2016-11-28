@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
@@ -33,7 +34,7 @@ public class ASMClassNodeLoader {
     // only use for test.
     public static ClassNode get(final String classInternalName) throws Exception {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        ClassReader cr = new ClassReader(classLoader.getResourceAsStream(classInternalName.replace('.', '/') + ".class"));
+        ClassReader cr = new ClassReader(classLoader.getResourceAsStream(JavaAssistUtils.javaNameToJvmName(classInternalName) + ".class"));
         ClassNode classNode = new ClassNode();
         cr.accept(classNode, ClassReader.EXPAND_FRAMES);
 
@@ -83,7 +84,7 @@ public class ASMClassNodeLoader {
         public Class<?> loadClass(final String name) throws ClassNotFoundException {
             if ((targetClassName == null || name.equals(targetClassName))) {
                 try {
-                    ClassNode classNode = ASMClassNodeLoader.get(name.replace('.', '/'));
+                    ClassNode classNode = ASMClassNodeLoader.get(JavaAssistUtils.javaNameToJvmName(name));
 
                     if (this.trace) {
                         System.out.println("## original #############################################################");

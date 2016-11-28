@@ -183,7 +183,7 @@ public class ASMClass implements InstrumentClass {
             throw new NotFoundInstrumentException("advice class internal name must not be null");
         }
 
-        final ASMClassNodeAdapter adviceClassNode = ASMClassNodeAdapter.get(this.classLoader, adviceClassInternalName.replace('.', '/'));
+        final ASMClassNodeAdapter adviceClassNode = ASMClassNodeAdapter.get(this.classLoader, JavaAssistUtils.javaNameToJvmName(adviceClassInternalName));
         if (adviceClassNode == null) {
             throw new NotFoundInstrumentException(adviceClassInternalName + " not found.");
         }
@@ -223,7 +223,7 @@ public class ASMClass implements InstrumentClass {
             final AccessorAnalyzer accessorAnalyzer = new AccessorAnalyzer();
             final AccessorAnalyzer.AccessorDetails accessorDetails = accessorAnalyzer.analyze(accessorType);
 
-            final ASMFieldNodeAdapter fieldNode = this.classNode.addField(FIELD_PREFIX + accessorTypeName.replace('.', '_').replace('$', '_'), accessorDetails.getFieldType());
+            final ASMFieldNodeAdapter fieldNode = this.classNode.addField(FIELD_PREFIX + JavaAssistUtils.javaClassNameToVariableName(accessorTypeName), accessorDetails.getFieldType());
             this.classNode.addInterface(accessorTypeName);
             this.classNode.addGetterMethod(accessorDetails.getGetter().getName(), fieldNode);
             this.classNode.addSetterMethod(accessorDetails.getSetter().getName(), fieldNode);
