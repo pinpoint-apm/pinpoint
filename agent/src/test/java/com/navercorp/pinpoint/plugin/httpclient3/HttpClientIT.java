@@ -36,12 +36,15 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 @Dependency({ "commons-httpclient:commons-httpclient:[3.0],[3.0.1],[3.1]" })
 public class HttpClientIT {
 
-    public static final long CONNECTION_TIMEOUT = 10000;
+    private static final long CONNECTION_TIMEOUT = 10000;
+    private static final int SO_TIMEOUT = 10000;
 
     @Test
     public void test() throws Exception {
         HttpClient client = new HttpClient();
         client.getParams().setConnectionManagerTimeout(CONNECTION_TIMEOUT);
+        client.getParams().setSoTimeout(SO_TIMEOUT);
+
         GetMethod method = new GetMethod("http://google.com");
 
         // Provide custom retry handler is necessary
@@ -64,6 +67,8 @@ public class HttpClientIT {
     public void hostConfig() throws Exception {
         HttpClient client = new HttpClient();
         client.getParams().setConnectionManagerTimeout(CONNECTION_TIMEOUT);
+        client.getParams().setSoTimeout(SO_TIMEOUT);
+
         HostConfiguration config = new HostConfiguration();
         config.setHost("weather.naver.com", 80, "http");
         GetMethod method = new GetMethod("/rgn/cityWetrMain.nhn");
