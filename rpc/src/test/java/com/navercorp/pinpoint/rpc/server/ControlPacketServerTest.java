@@ -16,26 +16,11 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.util.Collections;
-import java.util.Map;
-
 import com.navercorp.pinpoint.rpc.PinpointSocket;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.navercorp.pinpoint.rpc.control.ProtocolException;
 import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
 import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
 import com.navercorp.pinpoint.rpc.packet.PingPacket;
@@ -45,7 +30,22 @@ import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * @author koo.taejin
@@ -254,8 +254,8 @@ public class ControlPacketServerTest {
                 return HandshakeResponseType.ProtocolError.PROTOCOL_ERROR;
             }
 
-            boolean hasAllType = AgentHandshakePropertyType.hasAllType(properties);
-            if (!hasAllType) {
+            boolean hasRequiredKeys = HandshakePropertyType.hasRequiredKeys(properties);
+            if (!hasRequiredKeys) {
                 return HandshakeResponseType.PropertyError.PROPERTY_ERROR;
             }
 

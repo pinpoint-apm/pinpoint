@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
 import com.navercorp.pinpoint.rpc.packet.PingPacket;
@@ -186,12 +187,12 @@ public class TCPReceiver {
                     return HandshakeResponseType.ProtocolError.PROTOCOL_ERROR;
                 }
 
-                boolean hasAllType = AgentHandshakePropertyType.hasAllType(properties);
-                if (!hasAllType) {
+                boolean hasRequiredKeys = HandshakePropertyType.hasRequiredKeys(properties);
+                if (!hasRequiredKeys) {
                     return HandshakeResponseType.PropertyError.PROPERTY_ERROR;
                 }
 
-                boolean supportServer = MapUtils.getBoolean(properties, AgentHandshakePropertyType.SUPPORT_SERVER.getName(), true);
+                boolean supportServer = MapUtils.getBoolean(properties, HandshakePropertyType.SUPPORT_SERVER.getName(), true);
                 if (supportServer) {
                     return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
                 } else {

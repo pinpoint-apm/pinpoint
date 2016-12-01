@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import org.apache.thrift.TBase;
+import org.apache.thrift.TException;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
 
 /**
  * @author koo.taejin
@@ -36,7 +36,7 @@ public class TCommandRegistry implements TBaseLocator {
 
     public TCommandRegistry(List<TCommandType> supportCommandList) {
         for (TCommandType type : supportCommandList) {
-            commandTBaseRepository.put(type.getType(), type);
+            commandTBaseRepository.put(type.getCode(), type);
         }
     }
 

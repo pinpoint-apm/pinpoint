@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
-import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
+import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -88,9 +88,9 @@ public class PinpointServerRepository {
 
     private String getKey(PinpointServer pinpointServer) {
         Map<Object, Object> properties = pinpointServer.getChannelProperties();
-        final String applicationName = MapUtils.getString(properties, AgentHandshakePropertyType.APPLICATION_NAME.getName());
-        final String agentId = MapUtils.getString(properties, AgentHandshakePropertyType.AGENT_ID.getName());
-        final Long startTimeStamp = MapUtils.getLong(properties, AgentHandshakePropertyType.START_TIMESTAMP.getName());
+        final String applicationName = MapUtils.getString(properties, HandshakePropertyType.APPLICATION_NAME.getName());
+        final String agentId = MapUtils.getString(properties, HandshakePropertyType.AGENT_ID.getName());
+        final Long startTimeStamp = MapUtils.getLong(properties, HandshakePropertyType.START_TIMESTAMP.getName());
 
         if (StringUtils.isBlank(applicationName) || StringUtils.isBlank(agentId) || startTimeStamp == null || startTimeStamp <= 0) {
             return StringUtils.EMPTY;

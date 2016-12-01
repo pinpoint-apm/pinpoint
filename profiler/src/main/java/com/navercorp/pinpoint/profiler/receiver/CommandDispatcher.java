@@ -31,6 +31,8 @@ import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 /**
  * @author Taejin Koo
  */
@@ -112,6 +114,10 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
             throw new NullPointerException("commandServiceGroup must not be null");
         }
         this.commandServiceRegistry.addService(commandServiceGroup);
+    }
+
+    public List<Short> getRegisteredCommandServiceCodes() {
+        return commandServiceRegistry.getCommandServiceCodes();
     }
 
 }
