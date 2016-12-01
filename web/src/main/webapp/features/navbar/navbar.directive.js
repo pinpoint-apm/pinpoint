@@ -485,10 +485,10 @@
 	                };
 	                movePeriod = function( movedTime ) {
 	                	if ( scope.periodType === cfg.periodType.LAST ) {
-	                		var movedTime = moment(oNavbarVoService.getQueryEndTime() + movedTime).format('YYYY-MM-DD-HH-mm-ss');
-		                	oNavbarVoService.setQueryEndDateTime(movedTime);
+	                		var nextTime = moment(oNavbarVoService.getQueryEndTime() + movedTime).format('YYYY-MM-DD-HH-mm-ss');
+		                	oNavbarVoService.setQueryEndDateTime(nextTime);
 		                    oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
-		                    UrlVoService.setQueryEndDateTime(movedTime);
+		                    UrlVoService.setQueryEndDateTime(nextTime);
 							UrlVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 		                    emitAsChanged();
 		                    setDateTime($fromPicker, oNavbarVoService.getQueryStartTime());
@@ -496,7 +496,7 @@
 	                	} else {
 		                    setDateTime($fromPicker, oNavbarVoService.getQueryStartTime() + movedTime);
 		                    setDateTime($toPicker, oNavbarVoService.getQueryEndTime() + movedTime );
-		                    var starTime = getQueryStartTime();
+		                    var startTime = getQueryStartTime();
 		                    var endTime = getQueryEndTime();
 	                        oNavbarVoService.setQueryStartTime(startTime);
 	                        oNavbarVoService.setQueryEndTime(endTime);
