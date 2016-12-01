@@ -16,13 +16,21 @@
 
 package com.navercorp.pinpoint.collector.rpc.handler;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Executor;
-
+import com.navercorp.pinpoint.collector.cluster.route.ResponseEvent;
+import com.navercorp.pinpoint.collector.dao.AgentEventDao;
+import com.navercorp.pinpoint.common.server.bo.AgentEventBo;
+import com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializer;
+import com.navercorp.pinpoint.common.server.util.AgentEventType;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
+import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import org.apache.thrift.TBase;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,21 +41,12 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.navercorp.pinpoint.collector.cluster.route.ResponseEvent;
-import com.navercorp.pinpoint.collector.dao.AgentEventDao;
-import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
-import com.navercorp.pinpoint.common.server.bo.AgentEventBo;
-import com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializer;
-import com.navercorp.pinpoint.common.server.util.AgentEventType;
-import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
-import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
-import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
-import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
-import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
-import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Executor;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 /**
  * @author HyunGil Jeong
@@ -189,8 +188,8 @@ public class AgentEventHandlerTest {
 
     private static Map<Object, Object> createChannelProperties(String agentId, long startTimestamp) {
         Map<Object, Object> map = new HashMap<>();
-        map.put(AgentHandshakePropertyType.AGENT_ID.getName(), agentId);
-        map.put(AgentHandshakePropertyType.START_TIMESTAMP.getName(), startTimestamp);
+        map.put(HandshakePropertyType.AGENT_ID.getName(), agentId);
+        map.put(HandshakePropertyType.START_TIMESTAMP.getName(), startTimestamp);
         return map;
     }
 

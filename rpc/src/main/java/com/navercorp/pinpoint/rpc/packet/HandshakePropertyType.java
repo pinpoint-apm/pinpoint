@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2016 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler;
-
-import java.util.Map;
+package com.navercorp.pinpoint.rpc.packet;
 
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 
-/**
- * You must modify {@link com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType} when you modify this enum type.
- * But There is no compatibility issue if you only add some properties.   
- * 
- * @author koo.taejin
- */
-public enum AgentHandshakePropertyType {
+import java.util.List;
+import java.util.Map;
 
-    SUPPORT_SERVER("supportServer", Boolean.class),
+/**
+ * @author Taejin Koo
+ */
+public enum HandshakePropertyType {
+
+    SUPPORT_SERVER("supportServer", Boolean.class, false),
+    SUPPORT_COMMAND_LIST("supportCommandList", List.class, false),
 
     HOSTNAME("hostName", String.class),
     IP("ip", String.class),
@@ -42,10 +41,16 @@ public enum AgentHandshakePropertyType {
 
     private final String name;
     private final Class clazzType;
+    private final boolean isRequired;
 
-    AgentHandshakePropertyType(String name, Class clazzType) {
+    HandshakePropertyType(String name, Class clazzType) {
+        this(name, clazzType, true);
+    }
+
+    HandshakePropertyType(String name, Class clazzType, boolean isRequired) {
         this.name = name;
         this.clazzType = clazzType;
+        this.isRequired = isRequired;
     }
 
     public String getName() {
@@ -56,9 +61,9 @@ public enum AgentHandshakePropertyType {
         return clazzType;
     }
 
-    public static boolean hasAllType(Map properties) {
-        for (AgentHandshakePropertyType type : AgentHandshakePropertyType.values()) {
-            if (type == SUPPORT_SERVER) {
+    public static boolean hasRequiredKeys(Map properties) {
+        for (HandshakePropertyType type : HandshakePropertyType.values()) {
+            if (!type.isRequired) {
                 continue;
             }
 

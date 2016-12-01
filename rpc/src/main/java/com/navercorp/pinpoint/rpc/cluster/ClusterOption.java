@@ -75,4 +75,13 @@ public class ClusterOption {
         return clusterProperties;
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("ClusterOption{");
+        sb.append("enable=").append(enable);
+        sb.append(", id='").append(id).append('\'');
+        sb.append(", roles=").append(roles);
+        sb.append('}');
+        return sb.toString();
+    }
 }
