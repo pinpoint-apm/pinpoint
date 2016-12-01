@@ -9,6 +9,7 @@ To run the HBase scripts, feed in the `.hbase` file into the HBase shell.
 * *hbase-drop.hbase* - disables and drops all tables created for Pinpoint
 * *hbase-flush-table.hbase* - flushes all tables
 * *hbase-major-compact-htable.hbase* - major compacts all tables
+* *hbase-truncate-table.hbase* - clear tables
 
 For example, you can create Pinpoint tables by running the following line from shell:
 
