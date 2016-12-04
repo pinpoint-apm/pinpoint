@@ -42,7 +42,7 @@ public class ASMMethodNodeAdapterRenameTest {
             public void handle(ClassNode classNode) {
                 List<MethodNode> methodNodes = classNode.methods;
                 for (MethodNode methodNode : methodNodes) {
-                    ASMMethodNodeAdapter adapter = new ASMMethodNodeAdapter(targetClassName, methodNode);
+                    ASMMethodNodeAdapter adapter = new ASMMethodNodeAdapter(classNode.name, methodNode);
                     if(!adapter.isConstructor()) {
                         adapter.rename(adapter.getName() + "_rename");
                     }

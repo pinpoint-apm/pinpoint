@@ -256,6 +256,16 @@ public final class JavaAssistUtils {
         }
     }
 
+    // to variable name.
+    // '.' '$' '[' ']' => '_'
+    public static String javaClassNameToVariableName(String javaClassName) {
+        if (javaClassName == null) {
+            throw new NullPointerException("java class name must not be null");
+        }
+
+        return javaClassName.replace('.', '_').replace('$', '_').replace('[', '_').replace(']', '_');
+    }
+
     private static String byteCodeSignatureToObjectType(String signature, int startIndex) {
         final char scheme = signature.charAt(startIndex);
         switch (scheme) {

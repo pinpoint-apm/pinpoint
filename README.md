@@ -8,15 +8,12 @@
 * Install agents without changing a single line of code
 * Minimal impact on performance (approximately 3% increase in resource usage)
 
-## Latest Release (2016/04/08)
-We're happy to announce the release of Pinpoint **v1.5.2**. <br/>
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.5.2)<br/>
-We're now focusing on developing **v1.6.0**.
+## Latest Release (2016/11/21)
+In preparation for our next release, we have added a release candidate - [**v1.6.0-RC2**](https://github.com/naver/pinpoint/releases/tag/1.6.0-RC2).<br/>
+We have added a lot of new features and would very much like to hear your thoughts on how we can flesh it out before finalizing our code for v1.6.0.<br/>
+Please do try it out and feel free to let us know what you think.
 
-Special shout out to dawidmalina, majinkai, jart and many others for your contribution and feedback.<br/>
-Without your help, we would not have been able to reach our current level of product maturity. We are extremely grateful for all your help and will continue to try our very best to provide you with the best possible experience using Pinpoint.<br/>
-We look forward to working with you as we enter the next chapter in development.<br/>
-Thank you.
+The current stable version is [**v1.5.2**](https://github.com/naver/pinpoint/releases/tag/1.5.2).
 
 ### Plugin Development Guide (2016/03/18)
 We now have a [plugin development guide](https://github.com/naver/pinpoint/wiki/Pinpoint-Plugin-Developer-Guide "Pinpoint Plugin Development Guide"). Yay!
@@ -114,7 +111,8 @@ To set up your very own Pinpoint instance you can either **download the build re
 Take a look at our [installation guide](doc/installation.md) for further instructions.
 
 ## Issues
-For feature requests and bug reports, feel free to post them [here](https://github.com/naver/pinpoint/issues "Pinpoint Issues").
+For feature requests and bug reports, feel free to post them [here](https://github.com/naver/pinpoint/issues "Pinpoint Issues").  
+Please take a look at [CONTRIBUTING.md#issues](CONTRIBUTING.md#issues) for some guidelines that'll help us understand your issues better.
 
 
 ## User Group
@@ -129,12 +127,10 @@ We welcome any documentation contribution.
 ## Contribution
 We welcome any and all suggestions.
 
-For plugin development, take a look at our [plugin development guide](https://github.com/naver/pinpoint/wiki/Pinpoint-Plugin-Developer-Guide "Pinpoint Plugin Development Guide"), along with [plugin samples](https://github.com/naver/pinpoint-plugin-sample "Pinpoint Plugin Samples project") project to get an idea of how we do instrumentation. The samples will provide you with example codes to help you get started.
-
+For plugin development, take a look at our [plugin development guide](https://github.com/naver/pinpoint/wiki/Pinpoint-Plugin-Developer-Guide "Pinpoint Plugin Development Guide"), along with [plugin samples](https://github.com/naver/pinpoint-plugin-sample "Pinpoint Plugin Samples project") project to get an idea of how we do instrumentation. The samples will provide you with example codes to help you get started.  
 **Please follow our [guideline](https://github.com/naver/pinpoint/wiki/Pinpoint-Plugin-Developer-Guide#iii-plugin-contribution-guideline "Plugin PR Guideline") when making pull-requests for new plugins.**
-For everything else, please make a pull-request against our `master` branch.
 
-Please note that you will have to complete a  [CLA](https://docs.google.com/forms/d/1oDX26pwmVZSoDfL9MwvwLsM23dHqc5pvgoZCp7jM940/viewform?c=0&w=1 "Contributor License Agreement") for your first pull-request.
+For all pull-requests, make sure you've read through [CONTRIBUTING.md#pull-requests](CONTRIBUTING.md#pull-requests) and note that you will have to complete a  [CLA](https://docs.google.com/forms/d/1oDX26pwmVZSoDfL9MwvwLsM23dHqc5pvgoZCp7jM940/viewform?c=0&w=1 "Contributor License Agreement") for your first pull-request.
 
 We would love to see additional tracing support for libraries such as [Storm](https://storm.apache.org "Apache Storm"), [HBase](http://hbase.apache.org "Apache HBase"), as well as profiler support for additional languages (.NET, C++).
 

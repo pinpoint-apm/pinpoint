@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.test.classloader;
 
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.test.util.BytecodeUtils;
 
 import java.io.InputStream;
@@ -182,7 +183,7 @@ public class TransformClassLoader extends ClassLoader {
                     return null;
                 }
             } else {
-                String jarname = "/" + name.replace('.', '/') + ".class";
+                String jarname = "/" + JavaAssistUtils.javaNameToJvmName(name) + ".class";
                 InputStream in = this.getClass().getClassLoader().getResourceAsStream(jarname);
                 if (in == null) {
                     return null;
@@ -207,13 +208,13 @@ public class TransformClassLoader extends ClassLoader {
 
         if (domain == null) {
             if (logger.isLoggable(Level.FINE)) {
-                this.logger.info("defineClass:" + name);
+                this.logger.fine("defineClass:" + name);
             }
             return defineClass(name, classfile, 0, classfile.length);
         }
         else {
             if (logger.isLoggable(Level.FINE)) {
-                this.logger.info("defineClass:" + name);
+                this.logger.fine("defineClass:" + name);
             }
             return defineClass(name, classfile, 0, classfile.length, domain);
         }

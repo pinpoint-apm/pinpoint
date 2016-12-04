@@ -303,7 +303,11 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 //                return null;
                 throw new RuntimeException("Method or MethodSignature is null");
             } else {
-                return findApiId(expected.getMethodSignature());
+                String methodSignature = expected.getMethodSignature();
+                if (methodSignature.indexOf('(') != -1) {
+                    methodSignature = MethodDescriptionUtils.toJavaMethodDescriptor(methodSignature);
+                }
+                return findApiId(methodSignature);
             }
         } else {
             return findApiId(method);
@@ -677,16 +681,18 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
 
     private int findApiId(Member method) throws AssertionError {
-        String desc;
-        if (method instanceof Method) {
-            desc = getMethodInfo((Method) method);
+        final String desc = getMemberInfo(method);
+        return findApiId(desc);
+    }
 
+    private String getMemberInfo(Member method) {
+        if (method instanceof Method) {
+            return getMethodInfo((Method) method);
         } else if (method instanceof Constructor) {
-            desc = getMethodInfo((Constructor<?>) method);
+            return getConstructorInfo((Constructor<?>) method);
         } else {
             throw new IllegalArgumentException("method: " + method);
         }
-        return findApiId(desc);
     }
 
     private String getMethodInfo(Method method) {
@@ -695,10 +701,12 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         return MethodDescriptionUtils.toJavaMethodDescriptor(method.getDeclaringClass().getName(), method.getName(), parameterTypeNames);
     }
 
-    private String getMethodInfo(Constructor<?> constructor) {
+    private String getConstructorInfo(Constructor<?> constructor) {
         Class<?>[] parameterTypes = constructor.getParameterTypes();
         String[] parameterTypeNames = JavaAssistUtils.getParameterType(parameterTypes);
-        return MethodDescriptionUtils.toJavaMethodDescriptor(constructor.getDeclaringClass().getName(), null, parameterTypeNames);
+
+        final String constructorSimpleName = MethodDescriptionUtils.getConstructorSimpleName(constructor);
+        return MethodDescriptionUtils.toJavaMethodDescriptor(constructor.getDeclaringClass().getName(), constructorSimpleName , parameterTypeNames);
     }
 
     private int findApiId(String desc) throws AssertionError {
