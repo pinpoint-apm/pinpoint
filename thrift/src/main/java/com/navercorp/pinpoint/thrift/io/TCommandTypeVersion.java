@@ -74,6 +74,8 @@ public enum TCommandTypeVersion {
 
     V_1_6_0("1.6.0", V_1_6_0_RC2),
 
+    V_1_6_1_SNAPSHOT("1.6.1-SNAPSHOT", V_1_6_0),
+
     UNKNOWN("UNKNOWN");
 
     private final String versionName;
