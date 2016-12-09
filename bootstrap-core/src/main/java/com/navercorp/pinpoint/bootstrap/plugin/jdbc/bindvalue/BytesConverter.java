@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue;
 
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 
 /**
  * @author emeroad
@@ -28,11 +28,11 @@ public class BytesConverter implements Converter {
             return "null";
         }
         if (args.length == 2) {
-            byte[] bytes = (byte[]) args[1];
+            final byte[] bytes = (byte[]) args[1];
             if (bytes == null) {
                 return "null";
             } else {
-                return ArrayUtils.dropToString(bytes);
+                return ArrayUtils.abbreviate(bytes);
             }
         }
         return "error";
