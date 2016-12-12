@@ -60,6 +60,6 @@ public class TServiceClientReceiveBaseInterceptor extends SpanEventSimpleAroundI
     }
 
     private String getResult(TBase<?, ?> args) {
-        return StringUtils.drop(args.toString(), 256);
+        return StringUtils.abbreviate(args.toString(), 256);
     }
 }

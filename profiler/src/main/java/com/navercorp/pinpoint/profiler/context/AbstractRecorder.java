@@ -42,7 +42,7 @@ public abstract class AbstractRecorder {
         if (throwable == null) {
             return;
         }
-        final String drop = StringUtils.drop(throwable.getMessage(), 256);
+        final String drop = StringUtils.abbreviate(throwable.getMessage(), 256);
         // An exception that is an instance of a proxy class could make something wrong because the class name will vary.
         final int exceptionId = traceContext.cacheString(throwable.getClass().getName());
         setExceptionInfo(markError, exceptionId, drop);

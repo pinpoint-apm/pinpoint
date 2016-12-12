@@ -281,7 +281,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
             final String value = header.getValue();
             if (value != null && !value.isEmpty()) {
                 if (cookieSampler.isSampling()) {
-                    recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, 1024));
+                    recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.abbreviate(value, 1024));
                 }
 
                 // Can a cookie have 2 or more values?

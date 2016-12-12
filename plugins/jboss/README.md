@@ -1,5 +1,8 @@
 ## Pinpoint JBoss plugin configuration
 
+### Known Issue
+There is a bug in our ASM engine in 1.6.0. In order to trace jboss in 1.6.0, **you must set `profiler.instrument.engine=JAVASSIST` in pinpoint.config**.
+
 ###  Standalone mode <br/>
  Add following configuration in __standalone.conf__ :- <br/>
 ```bash 
