@@ -38,33 +38,42 @@ public class NetworkAvailabilityCheckPacketFilterTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private NetworkAvailabilityCheckPacketFilter filter;
-    private DatagramSocket datagramSocket;
+    private DatagramSocket senderSocket;
+    private DatagramSocket receiverSocket;
 
     @Before
     public void setUp() throws Exception {
         filter = new NetworkAvailabilityCheckPacketFilter();
-        datagramSocket = new DatagramSocket(0);
+        senderSocket = new DatagramSocket(0);
+        receiverSocket = new DatagramSocket(0);
     }
 
     @After
     public void tearDown() throws Exception {
         filter.destroy();
-        datagramSocket.close();
+        try {
+            senderSocket.close();
+        } catch (Exception e) {
+        }
+        try {
+            receiverSocket.close();
+        } catch (Exception e) {
+        }
     }
 
     @Test
     public void testFilter() throws Exception {
 
-        SocketAddress localSocketAddress = datagramSocket.getLocalSocketAddress();
+        SocketAddress localSocketAddress = senderSocket.getLocalSocketAddress();
         logger.debug("localSocket:{}", localSocketAddress);
 
         NetworkAvailabilityCheckPacket  packet = new NetworkAvailabilityCheckPacket();
-        boolean skipResult = filter.filter(packet, new InetSocketAddress("localhost", datagramSocket.getLocalPort()));
+        boolean skipResult = filter.filter(receiverSocket, packet, new InetSocketAddress("localhost", senderSocket.getLocalPort()));
 
         Assert.assertEquals(skipResult, TBaseFilter.BREAK);
 
         DatagramPacket receivePacket = new DatagramPacket(new byte[100], 100);
-        datagramSocket.receive(receivePacket);
+        senderSocket.receive(receivePacket);
 
         Assert.assertEquals(receivePacket.getLength(), NetworkAvailabilityCheckPacket.DATA_OK.length);
         Assert.assertArrayEquals(Arrays.copyOf(receivePacket.getData(), NetworkAvailabilityCheckPacket.DATA_OK.length), NetworkAvailabilityCheckPacket.DATA_OK);
@@ -74,11 +83,11 @@ public class NetworkAvailabilityCheckPacketFilterTest {
     @Test
     public void testFilter_Continue() throws Exception {
 
-        SocketAddress localSocketAddress = datagramSocket.getLocalSocketAddress();
+        SocketAddress localSocketAddress = senderSocket.getLocalSocketAddress();
         logger.debug("localSocket:{}", localSocketAddress);
 
         TSpan skip = new TSpan();
-        boolean skipResult = filter.filter(skip, null);
+        boolean skipResult = filter.filter(receiverSocket, skip, null);
 
         Assert.assertEquals(skipResult, TBaseFilter.CONTINUE);
 
