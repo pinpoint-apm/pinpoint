@@ -1,29 +1,30 @@
 (function($) {
 	"use strict";
-	
+
 	/**
-	 * (en) AnalyticsService 
+	 * (en) AnalyticsService
 	 * @ko AnalyticsService
 	 * @group Service
 	 * @name AnalyticsService
 	 * @class
-	 */	
-	
+	 */
+
 	pinpointApp.service( "AnalyticsService", [ "globalConfig", function ( globalConfig) {
-		if ( typeof ga !== "undefined" ) {
-			this.send = function( category, name, label, count, options ) {
-				if ( globalConfig.sendUsage !== true ) return;
-				if ( arguments.length == 1 ) {
-					ga( "send", "pageview", arguments[0] );
+
+		this.send = function( category, name, label, count, options ) {
+			if ( typeof ga !== "undefined" ) {
+				if (globalConfig.sendUsage !== true) return;
+				if (arguments.length == 1) {
+					ga("send", "pageview", arguments[0]);
 				} else {
-					ga( "send", "event", category, name, label, count, options );
+					ga("send", "event", category, name, label, count, options);
 				}
-			};
-			this.sendMain = function( name, label, count, options ) {
-				this.send( this.CONST.MAIN, name, label, count, options );
-			};
-		}
-		
+			}
+		};
+		this.sendMain = function( name, label, count, options ) {
+			this.send( this.CONST.MAIN, name, label, count, options );
+		};
+
 		this.CONST = {};
 		this.CONST.MAIN = "Main";
 		this.CONST.CONTEXT = "Context";
@@ -89,7 +90,7 @@
 		this.CONST.CLK_ALARM_CREATE_RULE = "ClickAlarmCreateUserGroup";
 		this.CONST.CLK_ALARM_REFRESH_RULE = "ClickAlarmRefreshUserGroup";
 		this.CONST.CLK_ALARM_FILTER_RULE = "ClickAlarmFilterUserGroup";
-		
+
 
 		this.CONST.TG_DATE = "ToggleDate";
 		this.CONST.TG_UPDATE_ON = "ToggleUpdateOn";
@@ -105,19 +106,19 @@
 		this.CONST.TG_REALTIME_CHART_RESIZE = "ToggleRealtimeChartResize";
 
 		this.CONST.ST_ = "Sort";
-		
+
 		this.CONST.ASCENDING = "ascending";
 		this.CONST.DESCENDING = "descending";
 
 		this.CONST.ON = "on";
 		this.CONST.OFF = "off";
-		
+
 		this.CONST.MAIN_PAGE = "/main.page";
 		this.CONST.FILTEREDMAP_PAGE = "/filteredMap.page";
 		this.CONST.INSPECTOR_PAGE = "/inspector.page";
 		this.CONST.SCATTER_FULL_SCREEN_PAGE = "/scatterFullScreen.page";
 		this.CONST.TRANSACTION_DETAIL_PAGE = "/transactionDetail.page";
 		this.CONST.TRANSACTION_LIST_PAGE = "/transactionList.page";
-		this.CONST.TRANSACTION_VIEW_PAGE = "/transactionView.page";		
+		this.CONST.TRANSACTION_VIEW_PAGE = "/transactionView.page";
 	}]);
 })(jQuery);
