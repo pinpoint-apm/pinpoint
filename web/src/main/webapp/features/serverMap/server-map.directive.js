@@ -459,7 +459,7 @@
 	                    oServerMap.load(htLastMergedMapData);
 	                    oProgressBarService.stopLoading();
 
-						if ( scope.oNavbarVoService.isRealtime() ) {
+						if ( scope.oNavbarVoService && scope.oNavbarVoService.isRealtime() ) {
 							sLastSelection = "node";
 							htLastNode = null;
 						}
