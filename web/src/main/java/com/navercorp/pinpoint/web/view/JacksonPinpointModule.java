@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 public class JacksonPinpointModule extends Module {
 
     /* (non-Javadoc)
-     * @see org.codehaus.jackson.map.Module#getModuleName()
+     * @see com.fasterxml.jackson.databind.Module#getModuleName()
      */
     @Override
     public String getModuleName() {
@@ -35,7 +35,7 @@ public class JacksonPinpointModule extends Module {
     }
 
     /* (non-Javadoc)
-     * @see org.codehaus.jackson.map.Module#version()
+     * @see com.fasterxml.jackson.databind.Module#version()
      */
     @SuppressWarnings("deprecation")
     @Override
@@ -44,7 +44,7 @@ public class JacksonPinpointModule extends Module {
     }
 
     /* (non-Javadoc)
-     * @see org.codehaus.jackson.map.Module#setupModule(org.codehaus.jackson.map.Module.SetupContext)
+     * @see com.fasterxml.jackson.databind.Module#setupModule(org.codehaus.jackson.map.Module.SetupContext)
      */
     @Override
     public void setupModule(SetupContext context) {

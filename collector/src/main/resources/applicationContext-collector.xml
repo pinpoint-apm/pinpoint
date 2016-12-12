@@ -260,7 +260,7 @@
         <constructor-arg index="5" ref="udpStatWorkerOption"/>
     </bean>
     
-    <bean id="jsonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper">
+    <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
     </bean>
 
     <bean id="hTable" class="com.navercorp.pinpoint.common.hbase.HBaseTables">
