@@ -52,7 +52,6 @@ import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginLoader;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.receiver.service.ActiveThreadService;
 import com.navercorp.pinpoint.profiler.receiver.service.EchoService;
-import com.navercorp.pinpoint.profiler.receiver.service.ThreadDumpService;
 import com.navercorp.pinpoint.profiler.sampler.SamplerFactory;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
@@ -265,12 +264,12 @@ public class DefaultAgent implements Agent {
     private CommandDispatcher createCommandService(TraceContext traceContext) {
         CommandDispatcher commandDispatcher = new CommandDispatcher();
 
-        commandDispatcher.registerCommandService(new ThreadDumpService());
+//        commandDispatcher.registerCommandService(new ThreadDumpService());
         commandDispatcher.registerCommandService(new EchoService());
         if (traceContext instanceof DefaultTraceContext) {
             ActiveTraceLocator activeTraceLocator = ((DefaultTraceContext) traceContext).getActiveTraceLocator();
             if (activeTraceLocator != null) {
-                commandDispatcher.registerCommandService(new ActiveThreadService(activeTraceLocator));
+                commandDispatcher.registerCommandService(new ActiveThreadService(activeTraceLocator, traceContext.getProfilerConfig()));
             }
         }
 
