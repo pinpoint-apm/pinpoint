@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
+import java.io.InputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +42,9 @@ import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.PluginClassInjector;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
-
+/**
+ * @author jaehong.kim
+ */
 public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, InstrumentContext {
     private final DefaultAgent agent;
     private final ClassInjector classInjector;
@@ -174,6 +177,15 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
         }
 
         return classInjector.injectClass(targetClassLoader, className);
+    }
+
+    @Override
+    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String className) {
+        if (className == null) {
+            return null;
+        }
+
+        return classInjector.getResourceAsStream(targetClassLoader, className);
     }
 
     public List<ClassFileTransformer> getClassEditors() {

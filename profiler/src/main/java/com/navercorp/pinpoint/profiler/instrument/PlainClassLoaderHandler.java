@@ -24,12 +24,16 @@ import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 import com.navercorp.pinpoint.profiler.util.ExtensionFilter;
 import com.navercorp.pinpoint.profiler.util.FileBinary;
 import com.navercorp.pinpoint.profiler.util.JarReader;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import javassist.CannotCompileException;
 import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -56,7 +60,6 @@ public class PlainClassLoaderHandler implements ClassInjector {
     // TODO remove static field
     private static final ConcurrentMap<ClassLoader, ClassLoaderAttachment> classLoaderAttachment = new ConcurrentWeakHashMap<ClassLoader, ClassLoaderAttachment>();
 
-
     static {
         try {
             DEFINE_CLASS = ClassLoader.class.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
@@ -76,7 +79,6 @@ public class PlainClassLoaderHandler implements ClassInjector {
         this.pluginJarReader = new JarReader(pluginConfig.getPluginJarFile());
     }
 
-
     @Override
     @SuppressWarnings("unchecked")
     public <T> Class<? extends T> injectClass(ClassLoader classLoader, String className) {
@@ -88,12 +90,44 @@ public class PlainClassLoaderHandler implements ClassInjector {
             if (!isPluginPackage(className)) {
                 return loadClass(classLoader, className);
             }
-            logger.info("bootstrapJarPaths:{}", pluginConfig.getBootstrapJarPaths());
-
             return (Class<T>) injectClass0(classLoader, className);
         } catch (Exception e) {
             logger.warn("Failed to load plugin class {} with classLoader {}", className, classLoader, e);
             throw new PinpointException("Failed to load plugin class " + className + " with classLoader " + classLoader, e);
+        }
+    }
+
+    @Override
+    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String className) {
+        try {
+            String name = JavaAssistUtils.jvmNameToJavaName(className);
+            if (isBootstrapPackage(name)) {
+                ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+                if(systemClassLoader != null) {
+                    return systemClassLoader.getResourceAsStream(className);
+                }
+                return null;
+            }
+            if (!isPluginPackage(name)) {
+                return targetClassLoader.getResourceAsStream(className);
+            }
+            final int fileExtensionPosition = name.lastIndexOf(".class");
+            if(fileExtensionPosition != -1) {
+                name = name.substring(0, fileExtensionPosition);
+            }
+
+            final InputStream inputStream = getInputStream(targetClassLoader, name);
+            if (inputStream == null) {
+                if (logger.isInfoEnabled()) {
+                    logger.info("can not find resource : {} {} ", className, pluginConfig.getPluginJarURLExternalForm());
+                }
+                // fallback
+                return targetClassLoader.getResourceAsStream(className);
+            }
+            return inputStream;
+        } catch (Exception e) {
+            logger.warn("Failed to load plugin resource as stream {} with classLoader {}", className, targetClassLoader, e);
+            return null;
         }
     }
 
@@ -112,11 +146,34 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
     private Class<?> injectClass0(ClassLoader classLoader, String className) throws NotFoundException, IllegalArgumentException, CannotCompileException, IllegalAccessException, InvocationTargetException {
         if (isDebug) {
-            logger.debug("injectClass0 className:{} cl:{}", className, classLoader);
+            logger.debug("Inject class className:{} cl:{}", className, classLoader);
+        }
+        final String pluginJarPath = pluginConfig.getPluginJarURLExternalForm();
+        final ClassLoaderAttachment attachment = getClassLoaderAttachment(classLoader, pluginJarPath);
+        final Class<?> findClazz = attachment.getClass(className);
+        if (findClazz == null) {
+            if (logger.isInfoEnabled()) {
+                logger.info("can not find class : {} {} ", className, pluginConfig.getPluginJarURLExternalForm());
+            }
+            // fallback
+            return loadClass(classLoader, className);
+        }
+        return findClazz;
+
+    }
+
+    private InputStream getInputStream(ClassLoader classLoader, String className) throws NotFoundException, IllegalArgumentException, CannotCompileException, IllegalAccessException, InvocationTargetException {
+        if (isDebug) {
+            logger.debug("Get input stream className:{} cl:{}", className, classLoader);
 
         }
         final String pluginJarPath = pluginConfig.getPluginJarURLExternalForm();
+        final ClassLoaderAttachment attachment = getClassLoaderAttachment(classLoader, pluginJarPath);
+        final InputStream inputStream = attachment.getInputStream(className);
+        return inputStream;
+    }
 
+    private ClassLoaderAttachment getClassLoaderAttachment(ClassLoader classLoader, final String pluginJarPath) {
         final ClassLoaderAttachment attachment = getClassLoaderAttachment(classLoader);
 
 //        this order is thread safe ?
@@ -133,16 +190,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
             }
         }
 
-        final Class<?> findClazz = attachment.getClass(className);
-        if (findClazz == null) {
-            if (logger.isInfoEnabled()) {
-                logger.info("can not find class :{} {} {} ", className, pluginConfig.getPluginJarURLExternalForm());
-            }
-            // fallback
-            return loadClass(classLoader, className);
-        }
-        return findClazz;
-
+        return attachment;
     }
 
     private ClassLoaderAttachment getClassLoaderAttachment(ClassLoader classLoader) {
@@ -251,8 +299,9 @@ public class PlainClassLoaderHandler implements ClassInjector {
             }
         }
 
-        Class<?> clazz = defineClass(classLoader, currentClass);
-        attachment.putClass(currentClass.getClassName(), clazz);
+        final Class<?> clazz = defineClass(classLoader, currentClass);
+        currentClass.setDefinedClass(clazz);
+        attachment.putClass(currentClass.getClassName(), currentClass);
 
     }
 
@@ -305,7 +354,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
         private final ConcurrentMap<String, PluginLock> pluginLock = new ConcurrentHashMap<String, PluginLock>();
 
-        private final ConcurrentMap<String, Class<?>> classCache = new ConcurrentHashMap<String, Class<?>>();
+        private final ConcurrentMap<String, SimpleClassMetadata> classCache = new ConcurrentHashMap<String, SimpleClassMetadata>();
 
         public PluginLock getPluginLock(String jarFile) {
             final PluginLock exist = this.pluginLock.get(jarFile);
@@ -321,8 +370,8 @@ public class PlainClassLoaderHandler implements ClassInjector {
             return newPluginLock;
         }
 
-        public void putClass(String className, Class<?> clazz) {
-            final Class<?> duplicatedClass = this.classCache.putIfAbsent(className, clazz);
+        public void putClass(String className, SimpleClassMetadata classMetadata) {
+            final SimpleClassMetadata duplicatedClass = this.classCache.putIfAbsent(className, classMetadata);
             if (duplicatedClass != null) {
                 if (logger.isWarnEnabled()) {
                     logger.warn("duplicated pluginClass {}", className);
@@ -331,12 +380,27 @@ public class PlainClassLoaderHandler implements ClassInjector {
         }
 
         public Class<?> getClass(String className) {
-            return this.classCache.get(className);
+            final SimpleClassMetadata classMetadata = this.classCache.get(className);
+            if(classMetadata == null) {
+                return null;
+            }
+
+            return classMetadata.getDefinedClass();
         }
 
         public boolean containsClass(String className) {
             return this.classCache.containsKey(className);
         }
+
+        public InputStream getInputStream(String className) {
+            final SimpleClassMetadata classMetadata = this.classCache.get(className);
+            if(classMetadata == null) {
+                return null;
+            }
+
+            return new ByteArrayInputStream(classMetadata.getClassBinary());
+        }
+
     }
 
     private static class PluginLock {

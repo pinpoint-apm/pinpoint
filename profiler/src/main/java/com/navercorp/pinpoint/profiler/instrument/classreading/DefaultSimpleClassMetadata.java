@@ -24,6 +24,7 @@ import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
+ * @author jaehong.kim
  */
 public class DefaultSimpleClassMetadata implements SimpleClassMetadata {
 
@@ -39,6 +40,8 @@ public class DefaultSimpleClassMetadata implements SimpleClassMetadata {
 
     private final byte[] classBinary;
 
+    private Class<?> definedClass;
+
     public DefaultSimpleClassMetadata(int version, int accessFlag, String className, String superClassName, String[] interfaceNameList, byte[] classBinary) {
         this.version = version;
         this.accessFlag = accessFlag;
@@ -47,7 +50,6 @@ public class DefaultSimpleClassMetadata implements SimpleClassMetadata {
         this.interfaceNameList = JavaAssistUtils.jvmNameToJavaName(interfaceNameList);
         this.classBinary = classBinary;
     }
-
 
     @Override
     public int getVersion() {
@@ -76,5 +78,14 @@ public class DefaultSimpleClassMetadata implements SimpleClassMetadata {
     @Override
     public byte[] getClassBinary() {
         return classBinary;
+    }
+
+    public void setDefinedClass(final Class<?> definedClass) {
+        this.definedClass = definedClass;
+    }
+
+    @Override
+    public Class<?> getDefinedClass() {
+        return this.definedClass;
     }
 }

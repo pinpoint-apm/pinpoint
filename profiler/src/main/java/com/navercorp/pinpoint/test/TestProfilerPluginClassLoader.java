@@ -17,9 +17,11 @@ package com.navercorp.pinpoint.test;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
 
+import java.io.InputStream;
+
 /**
  * @author Jongho Moon
- *
+ * @author jaehong.kim
  */
 public class TestProfilerPluginClassLoader implements ClassInjector {
 
@@ -31,5 +33,15 @@ public class TestProfilerPluginClassLoader implements ClassInjector {
         } catch (ClassNotFoundException e) {
             throw new PinpointException("Cannot find class: " + className, e);
         }
+    }
+
+    @Override
+    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String className) {
+        ClassLoader classLoader = targetClassLoader;
+        if(classLoader == null) {
+            classLoader = ClassLoader.getSystemClassLoader();
+        }
+
+        return classLoader.getResourceAsStream(className);
     }
 }
