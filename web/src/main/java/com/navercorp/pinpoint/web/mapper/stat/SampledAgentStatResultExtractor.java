@@ -30,18 +30,22 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
-public abstract class SampledAgentStatResultExtractor<T extends AgentStatDataPoint, S extends SampledAgentStatDataPoint> implements ResultsExtractor<List<S>> {
+public class SampledAgentStatResultExtractor<T extends AgentStatDataPoint, S extends SampledAgentStatDataPoint> implements ResultsExtractor<List<S>> {
+
+    private static final int INITIAL_TIME_WINDOW_INDEX = -1;
 
     private final TimeWindow timeWindow;
     private final AgentStatMapper<T> rowMapper;
+    private final AgentStatSampler<T, S> sampler;
     private final List<S> sampledDataPoints;
 
-    public SampledAgentStatResultExtractor(TimeWindow timeWindow, AgentStatMapper<T> rowMapper) {
+    public SampledAgentStatResultExtractor(TimeWindow timeWindow, AgentStatMapper<T> rowMapper, AgentStatSampler<T, S> sampler) {
         if (timeWindow.getWindowRangeCount() > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("range yields too many timeslots");
         }
         this.timeWindow = timeWindow;
         this.rowMapper = rowMapper;
+        this.sampler = sampler;
         this.sampledDataPoints = new ArrayList<>((int) timeWindow.getWindowRangeCount());
     }
 
@@ -50,39 +54,40 @@ public abstract class SampledAgentStatResultExtractor<T extends AgentStatDataPoi
         int rowNum = 0;
         // Sample straight away, tossing out already sampled data points so they can be garbage collected
         // as soon as possible.
-        // This is mainly important when querying over a long period of time which simply using SampledChartBuilder
-        // could could consume too much memory.
-        List<T> currentBatchToSample = new ArrayList<>();
+        // This is mainly important when querying over a long period of time where sampling after all the data has been
+        // deserialized would consume too much memory.
+        T previous;
+        List<T> currentBatch = new ArrayList<>();
+        int currentTimeWindowIndex = INITIAL_TIME_WINDOW_INDEX;
         long currentTimeslotTimestamp = 0;
         for (Result result : results) {
             List<T> dataPoints = this.rowMapper.mapRow(result, rowNum++);
             for (T dataPoint : dataPoints) {
                 long timestamp = dataPoint.getTimestamp();
-                long timeslotTimestamp = this.timeWindow.refineTimestamp(timestamp);
-                if (currentTimeslotTimestamp == 0 || currentTimeslotTimestamp == timeslotTimestamp) {
-                    currentBatchToSample.add(dataPoint);
-                    currentTimeslotTimestamp = timeslotTimestamp;
-                } else if (timeslotTimestamp < currentTimeslotTimestamp) {
-                    // currentBatchToSample shouldn't be empty at this point
-                    S sampledBatch = sampleCurrentBatch(currentTimeslotTimestamp, currentBatchToSample);
+                int timeWindowIndex = this.timeWindow.getWindowIndex(timestamp);
+                if (currentTimeWindowIndex == INITIAL_TIME_WINDOW_INDEX || currentTimeWindowIndex == timeWindowIndex) {
+                    currentBatch.add(dataPoint);
+                } else if (timeWindowIndex < currentTimeWindowIndex) {
+                    previous = dataPoint;
+                    // currentBatch shouldn't be empty at this point
+                    S sampledBatch = sampler.sampleDataPoints(currentTimeslotTimestamp, currentBatch, previous);
                     this.sampledDataPoints.add(sampledBatch);
-                    currentBatchToSample = new ArrayList<>();
-                    currentBatchToSample.add(dataPoint);
-                    currentTimeslotTimestamp = timeslotTimestamp;
+                    currentBatch = new ArrayList<>();
+                    currentBatch.add(dataPoint);
                 } else {
                     // Results should be sorted in a descending order of their actual timestamp values
                     // as they are stored using reverse timestamp.
                     throw new IllegalStateException("Out of order AgentStatDataPoint");
                 }
+                currentTimeslotTimestamp = this.timeWindow.refineTimestamp(timestamp);
+                currentTimeWindowIndex = timeWindowIndex;
             }
         }
-        if (!currentBatchToSample.isEmpty()) {
-            S sampledBatch = sampleCurrentBatch(currentTimeslotTimestamp, currentBatchToSample);
+        if (!currentBatch.isEmpty()) {
+            S sampledBatch = sampler.sampleDataPoints(currentTimeslotTimestamp, currentBatch, null);
             sampledDataPoints.add(sampledBatch);
         }
         return this.sampledDataPoints;
     }
-
-    protected abstract S sampleCurrentBatch(long timestamp, List<T> dataPointsToSample);
 
 }

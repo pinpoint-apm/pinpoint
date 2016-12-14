@@ -39,6 +39,6 @@ public class LegacySampledTitledTimeSeriesChartBuilder<Y extends Number> extends
         for (TitledDataPoint<Long, Y> sample : samples) {
             values.add(sample.getYVal());
         }
-        return new TitledPoint<>(title, timestamp, sampleMin(values), sampleMax(values), sampleAvg(values));
+        return new TitledPoint<>(title, timestamp, sampleMin(values), sampleMax(values), sampleAvg(values), sampleSum(values));
     }
 }

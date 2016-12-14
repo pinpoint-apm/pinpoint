@@ -50,4 +50,8 @@ public abstract class LegacySampledChartBuilder<D extends DataPoint<X, Y>, X ext
     protected final double sampleAvg(List<Y> sampleBuffer) {
         return this.downSampler.sampleAvg(sampleBuffer, this.avgNumDecimals);
     }
+
+    protected final Y sampleSum(List<Y> sampleBuffer) {
+        return this.downSampler.sampleSum(sampleBuffer);
+    }
 }
