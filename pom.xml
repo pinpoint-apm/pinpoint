@@ -35,7 +35,7 @@
             <id>jboss-3rd-party-releases</id>
             <name>Jboss Third Party Repository</name>
             <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>
-	    </repository>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -75,7 +75,7 @@
         <slf4j.version>1.7.21</slf4j.version>
         <metrics.version>3.1.2</metrics.version>
         <jetty.version>8.1.12.v20130726</jetty.version>
-        <fastxml.jackson.version>2.8.5</fastxml.jackson.version>
+        <fastxml.jackson.version>2.6.7</fastxml.jackson.version>
         <httpcomponents.version>4.3</httpcomponents.version>
         <jedis.version>2.4.2</jedis.version>
         <cloverLicenseLocation>${basedir}/clover.license</cloverLicenseLocation>
