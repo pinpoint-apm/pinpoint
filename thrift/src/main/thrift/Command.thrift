@@ -6,17 +6,18 @@ enum TThreadDumpType {
 }
 struct TCommandThreadDump {
     1: TThreadDumpType   type = TThreadDumpType.TARGET
-	2: optional string	name
-	3: optional i64 pendingTimeMillis
+    2: optional string	name
+    3: optional i64 pendingTimeMillis
 }
 
 enum TThreadState {
-	NEW,
-	RUNNABLE,
-	BLOCKED,
-	WAITING,
-	TIMED_WAITING,
-	TERMINATED
+    NEW,
+    RUNNABLE,
+    BLOCKED,
+    WAITING,
+    TIMED_WAITING,
+    TERMINATED,
+    UNKNOWN
 }
 
 struct TMonitorInfo {
@@ -25,25 +26,31 @@ struct TMonitorInfo {
 }
 
 struct TThreadDump {
-	1: string	threadName
-	2: i64 		threadId
-	3: i64 		blockedTime
-	4: i64 		blockedCount
-	5: i64 		waitedTime
-	6: i64 		waitedCount
-	7: string	lockName
-	8: i64 		lockOwnerId
-	9: string	lockOwnerName
-	10: bool 	inNative
-	11: bool 	suspended
-	12: TThreadState 	threadState
-    13: list<string>   	stackTrace
+    1: string   threadName
+    2: i64      threadId
+    3: i64      blockedTime
+    4: i64      blockedCount
+    5: i64      waitedTime
+    6: i64      waitedCount
+    7: string   lockName
+    8: i64      lockOwnerId
+    9: string   lockOwnerName
+    10: bool    inNative
+    11: bool    suspended
+    12: TThreadState    threadState
+    13: list<string>    stackTrace
     14: list<TMonitorInfo> lockedMonitors
-    15: list<string>	lockedSynchronizers
+    15: list<string>    lockedSynchronizers
+}
+
+struct TThreadLightDump {
+    1: string     threadName
+    2: i64        threadId
+    3: optional TThreadState    threadState
 }
 
 struct TCommandThreadDumpResponse {
-	1: list<TThreadDump> threadDumps
+    1: list<TThreadDump> threadDumps
 }
 
 
@@ -51,23 +58,46 @@ struct TCmdActiveThreadCount {
 }
 
 struct TCmdActiveThreadCountRes {
-	1: i32 	histogramSchemaType
-	2: list<i32> activeThreadCount
-	3: optional i64 timeStamp
+    1: i32 	histogramSchemaType
+    2: list<i32> activeThreadCount
+    3: optional i64 timeStamp
 }
 
 
 struct TActiveThreadDump {
-	1: i64 execTime
-	2: TThreadDump threadDump
+    1: i64 execTime
+    2: i64 traceId
+    3: TThreadDump threadDump
+}
+
+struct TActiveThreadLightDump {
+    1: i64 execTime
+    2: i64 traceId
+    3: TThreadLightDump threadDump
 }
 
 struct TCmdActiveThreadDump {
-	1: optional i64 execTime
+    1: optional i64 execTime
+    2: optional list<string> targetThreadNameList
+    3: optional list<i64> traceIdList
+}
+
+struct TCmdActiveThreadLightDump {
+    1: optional i64 execTime
+    2: optional list<string> targetThreadNameList
+    3: optional list<i64> traceIdList
 }
 
 struct TCmdActiveThreadDumpRes {
-	1: list<TActiveThreadDump> threadDumps
+    1: list<TActiveThreadDump> threadDumps
+    2: optional string jvmType
+    3: optional string jvmVersion
+}
+
+struct TCmdActiveThreadLightDumpRes {
+    1: list<TActiveThreadLightDump> threadDumps
+    2: optional string jvmType
+    3: optional string jvmVersion
 }
 
 struct TCommandEcho {
