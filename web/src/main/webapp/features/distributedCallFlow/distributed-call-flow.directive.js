@@ -18,7 +18,7 @@
 	            },
 	            link: function postLink(scope, element, attrs) {
 	                // initialize variables
-	            	var grid, dataView, lastAgent;
+	            	var grid, dataView, lastAgent, startRow;
 	
 	                // initialize variables of methods
 	                var initialize, treeFormatter, treeFilter, parseData, execTimeFormatter,
@@ -235,6 +235,9 @@
 	                        barRatio = 100 / (callStacks[0][index.end] - callStacks[0][index.begin]);
 	                    angular.forEach(callStacks, function (val, key) {
 	                    	var bAuthorized = typeof val[index['isAuthorized']] === "undefined" ? true : val[index['isAuthorized']];
+							if ( val[index['isFocused']] ) {
+	                    		startRow = key;
+							}
 	                        result.push({
 	                            id: 'id_' + key,
 								isAuthorized: bAuthorized,
@@ -324,7 +327,7 @@
 		                    {id: "agent", name: "Agent", field: "agent", width: 130},
 		                    {id: "application-name", name: "Application", field: "applicationName", width: 150}
 	                    ];
-	                    
+
 	                    grid = new Slick.Grid(element.get(0), dataView, columns, options);
 	                    grid.setSelectionModel(new Slick.RowSelectionModel());
 	
@@ -459,7 +462,9 @@
 	                        grid.render();
 	                    });
 	                    
-	                    
+	                    $timeout(function() {
+							grid.scrollRowToTop( startRow );
+						});
 	                };
 	                $("#customLogPopup").on("click", "button", function() {
 	                	var range = document.createRange();
