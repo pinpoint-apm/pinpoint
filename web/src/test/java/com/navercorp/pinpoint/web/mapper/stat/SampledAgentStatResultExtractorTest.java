@@ -95,7 +95,9 @@ public class SampledAgentStatResultExtractorTest {
         final Map<Long, List<TestAgentStatDataPoint>> expectedDataPointSlotMap = getExpectedDataPointSlotMap(timeWindow, dataPoints);
         when(this.rowMapper.mapRow(this.result, 0)).thenReturn(dataPoints);
 
-        TestResultExtractor resultExtractor = new TestResultExtractor(timeWindow, this.rowMapper);
+        TestAgentStatSampler testAgentStatSampler = new TestAgentStatSampler();
+        SampledAgentStatResultExtractor<TestAgentStatDataPoint, TestSampledAgentStatDataPoint> resultExtractor
+                = new SampledAgentStatResultExtractor<>(timeWindow, this.rowMapper, testAgentStatSampler);
         // When
         List<TestSampledAgentStatDataPoint> sampledDataPoints = resultExtractor.extractData(this.resultScanner);
         // Then
@@ -116,7 +118,9 @@ public class SampledAgentStatResultExtractorTest {
         final Map<Long, List<TestAgentStatDataPoint>> expectedDataPointSlotMap = getExpectedDataPointSlotMap(timeWindow, dataPoints);
         when(this.rowMapper.mapRow(this.result, 0)).thenReturn(dataPoints);
 
-        TestResultExtractor resultExtractor = new TestResultExtractor(timeWindow, this.rowMapper);
+        TestAgentStatSampler testAgentStatSampler = new TestAgentStatSampler();
+        SampledAgentStatResultExtractor<TestAgentStatDataPoint, TestSampledAgentStatDataPoint> resultExtractor
+                = new SampledAgentStatResultExtractor<>(timeWindow, this.rowMapper, testAgentStatSampler);
         // When
         List<TestSampledAgentStatDataPoint> sampledDataPoints = resultExtractor.extractData(this.resultScanner);
         // Then
@@ -137,7 +141,9 @@ public class SampledAgentStatResultExtractorTest {
         final Map<Long, List<TestAgentStatDataPoint>> expectedDataPointSlotMap = getExpectedDataPointSlotMap(timeWindow, dataPoints);
         when(this.rowMapper.mapRow(this.result, 0)).thenReturn(dataPoints);
 
-        TestResultExtractor resultExtractor = new TestResultExtractor(timeWindow, this.rowMapper);
+        TestAgentStatSampler testAgentStatSampler = new TestAgentStatSampler();
+        SampledAgentStatResultExtractor<TestAgentStatDataPoint, TestSampledAgentStatDataPoint> resultExtractor
+                = new SampledAgentStatResultExtractor<>(timeWindow, this.rowMapper, testAgentStatSampler);
         // When
         List<TestSampledAgentStatDataPoint> sampledDataPoints = resultExtractor.extractData(this.resultScanner);
         // Then
@@ -169,15 +175,11 @@ public class SampledAgentStatResultExtractorTest {
         return dataPoints;
     }
 
-    private static class TestResultExtractor extends SampledAgentStatResultExtractor<TestAgentStatDataPoint, TestSampledAgentStatDataPoint> {
-
-        public TestResultExtractor(TimeWindow timeWindow, AgentStatMapperV2<TestAgentStatDataPoint> rowMapper) {
-            super(timeWindow, rowMapper);
-        }
+    private static class TestAgentStatSampler implements AgentStatSampler<TestAgentStatDataPoint, TestSampledAgentStatDataPoint> {
 
         @Override
-        protected TestSampledAgentStatDataPoint sampleCurrentBatch(long timestamp, List<TestAgentStatDataPoint> dataPointsToSample) {
-            return new TestSampledAgentStatDataPoint(timestamp, dataPointsToSample);
+        public TestSampledAgentStatDataPoint sampleDataPoints(long timestamp, List<TestAgentStatDataPoint> dataPoints, TestAgentStatDataPoint previousDataPoint) {
+            return new TestSampledAgentStatDataPoint(timestamp, dataPoints);
         }
     }
 

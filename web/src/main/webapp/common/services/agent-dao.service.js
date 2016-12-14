@@ -41,42 +41,23 @@
 					throw new Error('assertion error', 'time.length != count.length');
 				}
 
-				var currTime, currCount, prevTime, prevCount; // for gc
-
+				// gc time may be spread across consecutive timeslots even for a single gc event
+				var cumulativeGcTime = 0;
 				for (var i = 0; i < pointsCount.length; ++i) {
 					var thisData = {
 						time: moment(pointsTime[i].xVal).format( cfg.dateFormat )
 					};
 					for (var k in info.line) {
 						if (info.line[k].isFgc) {
-							var gcCount = 0;
-							var gcTime = 0;
-							currTime = pointsTime[i].maxYVal;
-							currCount = pointsCount[i].maxYVal;
-							if (!prevTime || !prevCount) {
-								prevTime = currTime;
-								prevCount = currCount;
-							} else {
-								var countDelta = currCount - prevCount;
-								var timeDelta = currTime - prevTime;
-								var fgcOccurred = (Math.abs(countDelta) > 0) && (Math.abs(timeDelta) > 0);
-								var jvmRestarted = countDelta < 0 && timeDelta < 0;
-
-								if (fgcOccurred) {
-									if (jvmRestarted) {
-										gcCount = currCount;
-										gcTime = currTime;
-									} else {
-										gcCount = currCount - prevCount;
-										gcTime = currTime - prevTime;
-									}
-									prevCount = currCount;
-									prevTime = currTime;
-								}
+							var gcCount = pointsCount[i].sumYVal;
+							var gcTime = pointsTime[i].sumYVal;
+							if (gcTime > 0) {
+								cumulativeGcTime += gcTime;
 							}
-							if (gcCount > 0 && gcTime > 0) {
+							if (gcCount > 0) {
 								thisData[info.line[k].key+"Count"] = gcCount;
-								thisData[info.line[k].key+"Time"] = gcTime;
+								thisData[info.line[k].key+"Time"] = cumulativeGcTime;
+								cumulativeGcTime = 0;
 							}
 						} else {
 							var value = agentStat.charts[info.line[k].id].points[i].maxYVal;

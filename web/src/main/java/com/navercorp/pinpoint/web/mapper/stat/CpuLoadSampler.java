@@ -17,11 +17,12 @@
 package com.navercorp.pinpoint.web.mapper.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
-import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Point;
+import com.navercorp.pinpoint.web.vo.chart.UncollectedPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
 import com.navercorp.pinpoint.web.vo.stat.SampledCpuLoad;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,23 +30,23 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
-public class SampledCpuLoadResultExtractor extends SampledAgentStatResultExtractor<CpuLoadBo, SampledCpuLoad> {
+@Component
+public class CpuLoadSampler implements AgentStatSampler<CpuLoadBo, SampledCpuLoad> {
 
-    private static final double UNCOLLECTED_CPU_LOAD = -1D;
     private static final int NUM_DECIMAL_PLACES = 1;
-    public static final DownSampler<Double> DOUBLE_DOWN_SAMPLER = DownSamplers.getDoubleDownSampler(UNCOLLECTED_CPU_LOAD, NUM_DECIMAL_PLACES);
-
-    public SampledCpuLoadResultExtractor(TimeWindow timeWindow, AgentStatMapper<CpuLoadBo> rowMapper) {
-        super(timeWindow, rowMapper);
-    }
+    public static final DownSampler<Double> DOUBLE_DOWN_SAMPLER = DownSamplers.getDoubleDownSampler(CpuLoadBo.UNCOLLECTED_VALUE, NUM_DECIMAL_PLACES);
 
     @Override
-    protected SampledCpuLoad sampleCurrentBatch(long timestamp, List<CpuLoadBo> dataPointsToSample) {
-        List<Double> jvmCpuLoads = new ArrayList<>(dataPointsToSample.size());
-        List<Double> systemCpuLoads = new ArrayList<>(dataPointsToSample.size());
-        for (CpuLoadBo cpuLoadBo : dataPointsToSample) {
-            jvmCpuLoads.add(cpuLoadBo.getJvmCpuLoad() * 100);
-            systemCpuLoads.add(cpuLoadBo.getSystemCpuLoad() * 100);
+    public SampledCpuLoad sampleDataPoints(long timestamp, List<CpuLoadBo> dataPoints, CpuLoadBo previousDataPoint) {
+        List<Double> jvmCpuLoads = new ArrayList<>(dataPoints.size());
+        List<Double> systemCpuLoads = new ArrayList<>(dataPoints.size());
+        for (CpuLoadBo cpuLoadBo : dataPoints) {
+            if (cpuLoadBo.getJvmCpuLoad() != CpuLoadBo.UNCOLLECTED_VALUE) {
+                jvmCpuLoads.add(cpuLoadBo.getJvmCpuLoad() * 100);
+            }
+            if (cpuLoadBo.getSystemCpuLoad() != CpuLoadBo.UNCOLLECTED_VALUE) {
+                systemCpuLoads.add(cpuLoadBo.getSystemCpuLoad() * 100);
+            }
         }
         SampledCpuLoad sampledCpuLoad = new SampledCpuLoad();
         sampledCpuLoad.setJvmCpuLoad(createPoint(timestamp, jvmCpuLoads));
@@ -54,6 +55,15 @@ public class SampledCpuLoadResultExtractor extends SampledAgentStatResultExtract
     }
 
     private Point<Long, Double> createPoint(long timestamp, List<Double> values) {
-        return new Point<>(timestamp, DOUBLE_DOWN_SAMPLER.sampleMin(values), DOUBLE_DOWN_SAMPLER.sampleMax(values), DOUBLE_DOWN_SAMPLER.sampleAvg(values));
+        if (values.isEmpty()) {
+            return new UncollectedPoint<>(timestamp, CpuLoadBo.UNCOLLECTED_VALUE);
+        } else {
+            return new Point<>(
+                    timestamp,
+                    DOUBLE_DOWN_SAMPLER.sampleMin(values),
+                    DOUBLE_DOWN_SAMPLER.sampleMax(values),
+                    DOUBLE_DOWN_SAMPLER.sampleAvg(values),
+                    DOUBLE_DOWN_SAMPLER.sampleSum(values));
+        }
     }
 }

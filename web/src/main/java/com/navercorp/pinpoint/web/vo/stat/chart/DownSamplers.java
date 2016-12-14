@@ -108,6 +108,23 @@ public class DownSamplers {
             }
             return Collections.max(values);
         }
+
+        @Override
+        public Integer sampleSum(Collection<Integer> values) {
+            if (CollectionUtils.isEmpty(values)) {
+                return this.defaultValue;
+            }
+            int sum = 0;
+            for (int value : values) {
+                int newSum = sum + value;
+                // Checks integer overflow - from JDK8 Math.addExact(int, int)
+                if (((sum ^ newSum) & (value ^ newSum)) < 0) {
+                    return Integer.MAX_VALUE;
+                }
+                sum = newSum;
+            }
+            return sum;
+        }
     }
 
     private static class LongDownSampler extends AbstractDownSampler<Long> {
@@ -144,6 +161,23 @@ public class DownSamplers {
                 return this.defaultValue;
             }
             return Collections.max(values);
+        }
+
+        @Override
+        public Long sampleSum(Collection<Long> values) {
+            if (CollectionUtils.isEmpty(values)) {
+                return this.defaultValue;
+            }
+            long sum = 0L;
+            for (long value : values) {
+                long newSum = sum + value;
+                // Checks long overflow - from JDK8 Math.addExact(long, long)
+                if (((sum ^ newSum) & (value ^ newSum)) < 0) {
+                    return Long.MAX_VALUE;
+                }
+                sum = newSum;
+            }
+            return sum;
         }
     }
 
@@ -217,6 +251,18 @@ public class DownSamplers {
             } else {
                 return roundToScale(max, this.numDecimals);
             }
+        }
+
+        @Override
+        public Double sampleSum(Collection<Double> values) {
+            if (CollectionUtils.isEmpty(values)) {
+                return this.defaultValue;
+            }
+            double sum = 0;
+            for (double value : values) {
+                sum += value;
+            }
+            return sum;
         }
 
     }
