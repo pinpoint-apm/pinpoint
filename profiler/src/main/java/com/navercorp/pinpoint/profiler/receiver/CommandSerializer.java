@@ -19,20 +19,15 @@
 
 package com.navercorp.pinpoint.profiler.receiver;
 
-import com.navercorp.pinpoint.common.Version;
-import com.navercorp.pinpoint.thrift.io.*;
+import com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory;
 
 /**
  * @Author Taejin Koo
  */
 public class CommandSerializer {
 
-    public static final CommandHeaderTBaseSerializerFactory SERIALIZER_FACTORY;
-    public static final CommandHeaderTBaseDeserializerFactory DESERIALIZER_FACTORY;
-
-    static {
-        SERIALIZER_FACTORY = new CommandHeaderTBaseSerializerFactory(Version.VERSION);
-        DESERIALIZER_FACTORY = new CommandHeaderTBaseDeserializerFactory(Version.VERSION);
-    }
+    public static final CommandHeaderTBaseSerializerFactory SERIALIZER_FACTORY = new CommandHeaderTBaseSerializerFactory();
+    public static final CommandHeaderTBaseDeserializerFactory DESERIALIZER_FACTORY = new CommandHeaderTBaseDeserializerFactory();
 
 }
