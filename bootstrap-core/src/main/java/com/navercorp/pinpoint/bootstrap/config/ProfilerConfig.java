@@ -23,6 +23,7 @@ import java.util.Map;
  * @author Woonduk Kang(emeroad)
  */
 public interface ProfilerConfig {
+
     int getInterceptorRegistrySize();
 
     String getCollectorSpanServerIp();
@@ -50,6 +51,14 @@ public interface ProfilerConfig {
     int getSpanDataSenderSocketSendBufferSize();
 
     boolean isTcpDataSenderCommandAcceptEnable();
+
+    boolean isTcpDataSenderCommandActiveThreadEnable();
+
+    boolean isTcpDataSenderCommandActiveThreadCountEnable();
+
+    boolean isTcpDataSenderCommandActiveThreadDumpEnable();
+
+    boolean isTcpDataSenderCommandActiveThreadLightDumpEnable();
 
     boolean isTraceAgentActiveThread();
 
