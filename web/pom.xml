@@ -16,6 +16,7 @@
         <jdk.home>${env.JAVA_7_HOME}</jdk.home>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <sniffer.artifactid>java17</sniffer.artifactid>
+        <fastxml.jackson.version>2.8.5</fastxml.jackson.version>
     </properties>
 
     <dependencies>
