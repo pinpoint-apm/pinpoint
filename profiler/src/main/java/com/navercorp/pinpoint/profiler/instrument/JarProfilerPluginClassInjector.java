@@ -14,6 +14,7 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import java.io.InputStream;
 import java.net.URLClassLoader;
 
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
@@ -25,7 +26,7 @@ import com.navercorp.pinpoint.exception.PinpointException;
 
 /**
  * @author Jongho Moon
- *
+ * @author jaehong.kim
  */
 public class JarProfilerPluginClassInjector implements PluginClassInjector {
     private final Logger logger = LoggerFactory.getLogger(JarProfilerPluginClassInjector.class);
@@ -69,4 +70,19 @@ public class JarProfilerPluginClassInjector implements PluginClassInjector {
         }
     }
 
+    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String className) {
+        try {
+            if (targetClassLoader == null) {
+                return bootstrapClassLoaderHandler.getResourceAsStream(null, className);
+            } else if (targetClassLoader instanceof URLClassLoader) {
+                final URLClassLoader urlClassLoader = (URLClassLoader) targetClassLoader;
+                return urlClassLoaderHandler.getResourceAsStream(urlClassLoader, className);
+            } else {
+                return plainClassLoaderHandler.getResourceAsStream(targetClassLoader, className);
+            }
+        } catch (Throwable e) {
+             logger.warn("Failed to load plugin resource as stream {} with classLoader {}", className, targetClassLoader, e);
+            return null;
+        }
+    }
 }

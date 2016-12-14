@@ -20,8 +20,11 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 
+import java.io.InputStream;
+
 /**
  * @author Woonduk Kang(emeroad)
+ * @author jaehong.kim
  */
 public class GuardInstrumentContext implements InstrumentContext {
     private final InstrumentContext instrumentContext;
@@ -63,6 +66,12 @@ public class GuardInstrumentContext implements InstrumentContext {
     public <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className) {
         checkOpen();
         return instrumentContext.injectClass(targetClassLoader, className);
+    }
+
+    @Override
+    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String className) {
+        checkOpen();
+        return instrumentContext.getResourceAsStream(targetClassLoader, className);
     }
 
     @Override

@@ -54,7 +54,7 @@ public class ASMClassPool implements InstrumentClassPool {
 
         try {
             if (classFileBuffer == null) {
-                ASMClassNodeAdapter classNode = ASMClassNodeAdapter.get(classLoader, JavaAssistUtils.javaNameToJvmName(classInternalName));
+                ASMClassNodeAdapter classNode = ASMClassNodeAdapter.get(instrumentContext, classLoader, JavaAssistUtils.javaNameToJvmName(classInternalName));
                 if (classNode == null) {
                     return null;
                 }

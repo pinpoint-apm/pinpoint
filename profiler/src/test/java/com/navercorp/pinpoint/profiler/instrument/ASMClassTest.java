@@ -29,6 +29,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.objectweb.asm.tree.ClassNode;
 
+import java.io.InputStream;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -65,6 +66,19 @@ public class ASMClassTest {
                 return loader.loadClass(name);
             }
 
+        });
+        when(pluginContext.getResourceAsStream(any(ClassLoader.class), any(String.class))).thenAnswer(new Answer<InputStream>() {
+
+            @Override
+            public InputStream answer(InvocationOnMock invocation) throws Throwable {
+                ClassLoader loader = (ClassLoader) invocation.getArguments()[0];
+                String name = (String) invocation.getArguments()[1];
+                if(loader == null) {
+                    loader = ClassLoader.getSystemClassLoader();
+                }
+
+                return loader.getResourceAsStream(name);
+            }
         });
     }
 
