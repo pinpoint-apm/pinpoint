@@ -22,12 +22,13 @@
 	
 	    var self = this;
 	
-	    /**
-	     * get server map data
-	     * @param query
-	     * @param callback
-	     */
-	     this.getServerMapData = function (query, cb) {
+	    this.abort = function() {
+			if ( this._oAjax ) {
+				this._oAjax.abort();
+			}
+		};
+
+		this.getServerMapData = function (query, cb) {
 	    	var data = {
 	            applicationName: query.applicationName,
 	            from: query.from,
@@ -40,7 +41,7 @@
 	    	} else {
 	    		data.serviceTypeCode = query.serviceTypeName;
 	    	}
-	        jQuery.ajax({
+	        this._oAjax = jQuery.ajax({
 	            type: 'GET',
 	            url: cfg.serverMapDataUrl,
 	            cache: false,
@@ -50,11 +51,15 @@
 	                if (angular.isFunction(cb)) {
 	                    cb(null, query, result);
 	                }
+	                self._oAjax = null;
 	            },
 	            error: function (xhr, status, error) {
-	                if (angular.isFunction(cb)) {
-	                    cb(error, query, {});
-	                }
+	            	if ( status !== "abort" ) {
+						if (angular.isFunction(cb)) {
+							cb(error, query, {});
+						}
+					}
+					self._oAjax = null;
 	            }
 	        });
 	    };

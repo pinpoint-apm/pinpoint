@@ -750,6 +750,7 @@
 	                    }
 	                    bUseLinkContextMenu = bUseBackgroundContextMenu = true;
 	                    bUseNodeContextMenu = false;
+						ServerMapDaoService.abort();
 	                    showServerMap(navbarVoService.getApplicationName(), navbarVoService.getServiceTypeName(), navbarVoService.getQueryEndTime(), navbarVoService.getQueryPeriod(), navbarVoService.getFilter(), navbarVoService.getHint(), scope.linkRouting, scope.linkCurve);
 	                });
 	
