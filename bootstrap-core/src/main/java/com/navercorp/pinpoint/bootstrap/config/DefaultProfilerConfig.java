@@ -115,6 +115,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private String statDataSenderSocketType = "OIO";
 
     private boolean tcpDataSenderCommandAcceptEnable = false;
+    private boolean tcpDataSenderCommandActiveThreadEnable = false;
+    private boolean tcpDataSenderCommandActiveThreadCountEnable = false;
+    private boolean tcpDataSenderCommandActiveThreadDumpEnable = false;
+    private boolean tcpDataSenderCommandActiveThreadLightDumpEnable = false;
 
     private boolean traceAgentActiveThread = true;
 
@@ -227,6 +231,26 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public boolean isTcpDataSenderCommandAcceptEnable() {
         return tcpDataSenderCommandAcceptEnable;
+    }
+
+    @Override
+    public boolean isTcpDataSenderCommandActiveThreadEnable() {
+        return tcpDataSenderCommandActiveThreadEnable;
+    }
+
+    @Override
+    public boolean isTcpDataSenderCommandActiveThreadCountEnable() {
+        return tcpDataSenderCommandActiveThreadCountEnable;
+    }
+
+    @Override
+    public boolean isTcpDataSenderCommandActiveThreadDumpEnable() {
+        return tcpDataSenderCommandActiveThreadDumpEnable;
+    }
+
+    @Override
+    public boolean isTcpDataSenderCommandActiveThreadLightDumpEnable() {
+        return tcpDataSenderCommandActiveThreadLightDumpEnable;
     }
 
     @Override
@@ -397,6 +421,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.statDataSenderSocketType = readString("profiler.statdatasender.socket.type", "OIO");
 
         this.tcpDataSenderCommandAcceptEnable = readBoolean("profiler.tcpdatasender.command.accept.enable", false);
+        this.tcpDataSenderCommandActiveThreadEnable = readBoolean("profiler.tcpdatasender.command.activethread.enable", false);
+        this.tcpDataSenderCommandActiveThreadCountEnable = readBoolean("profiler.tcpdatasender.command.activethread.count.enable", false);
+        this.tcpDataSenderCommandActiveThreadDumpEnable = readBoolean("profiler.tcpdatasender.command.activethread.threaddump.enable", false);
+        this.tcpDataSenderCommandActiveThreadLightDumpEnable = readBoolean("profiler.tcpdatasender.command.activethread.threadlightdump.enable", false);
 
         this.traceAgentActiveThread = readBoolean("profiler.pinpoint.activethread", true);
 
@@ -594,6 +622,14 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append(statDataSenderSocketType);
         builder.append(", tcpDataSenderCommandAcceptEnable=");
         builder.append(tcpDataSenderCommandAcceptEnable);
+        builder.append(", tcpDataSenderCommandActiveThreadEnable=");
+        builder.append(tcpDataSenderCommandActiveThreadEnable);
+        builder.append(", tcpDataSenderCommandActiveThreadCountEnable=");
+        builder.append(tcpDataSenderCommandActiveThreadCountEnable);
+        builder.append(", tcpDataSenderCommandActiveThreadDumpEnable=");
+        builder.append(tcpDataSenderCommandActiveThreadDumpEnable);
+        builder.append(", tcpDataSenderCommandActiveThreadLightDumpEnable=");
+        builder.append(tcpDataSenderCommandActiveThreadLightDumpEnable);
         builder.append(", traceAgentActiveThread=");
         builder.append(traceAgentActiveThread);
         builder.append(", callStackMaxDepth=");
