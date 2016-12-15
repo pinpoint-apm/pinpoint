@@ -16,7 +16,8 @@ enum TThreadState {
 	BLOCKED,
 	WAITING,
 	TIMED_WAITING,
-	TERMINATED
+	TERMINATED,
+	UNKNOWN
 }
 
 struct TMonitorInfo {
@@ -64,10 +65,14 @@ struct TActiveThreadDump {
 
 struct TCmdActiveThreadDump {
 	1: optional i64 execTime
+	2: optional list<string> targetThreadNameList
+	3: optional bool includeStackTrace
 }
 
 struct TCmdActiveThreadDumpRes {
-	1: list<TActiveThreadDump> threadDumps
+    1: list<TActiveThreadDump> threadDumps
+    2: optional string jvmType
+    3: optional string jvmVersion
 }
 
 struct TCommandEcho {
