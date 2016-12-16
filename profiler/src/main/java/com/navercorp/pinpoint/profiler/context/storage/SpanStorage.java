@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.context.storage;
 
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.sender.DataSender;
+import com.navercorp.pinpoint.profiler.context.storage.flush.StorageFlusher;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 
 import java.util.ArrayList;
@@ -30,13 +30,13 @@ import java.util.List;
 public class SpanStorage implements Storage {
 
     protected List<TSpanEvent> spanEventList = new ArrayList<TSpanEvent>(10);
-    private final DataSender dataSender;
+    private final StorageFlusher flusher;
 
-    public SpanStorage(DataSender dataSender) {
-        if (dataSender == null) {
-            throw new NullPointerException("dataSender must not be null");
+    public SpanStorage(StorageFlusher flusher) {
+        if (flusher == null) {
+            throw new NullPointerException("storageFlusher must not be null");
         }
-        this.dataSender = dataSender;
+        this.flusher = flusher;
     }
 
     @Override
@@ -59,7 +59,7 @@ public class SpanStorage implements Storage {
         }
         span.setSpanEventList(spanEventList);
         spanEventList = null;
-        this.dataSender.send(span);
+        this.flusher.flush(span);
     }
 
     @Override
@@ -69,4 +69,5 @@ public class SpanStorage implements Storage {
     @Override
     public void close() {
     }
+
 }

@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
-
+import com.navercorp.pinpoint.thrift.dto.TSpanAndSpanChunkList;
 import org.apache.thrift.TBase;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,7 +38,7 @@ public class CountingDataSender implements EnhancedDataSender {
 
     private final AtomicInteger spanCounter = new AtomicInteger();
     private final AtomicInteger spanChunkCounter = new AtomicInteger();
-
+    private final AtomicInteger spanAndSpanChunkListCounter = new AtomicInteger();
 
     @Override
     public boolean request(TBase<?, ?> data) {
@@ -74,6 +74,8 @@ public class CountingDataSender implements EnhancedDataSender {
             this.spanCounter.incrementAndGet();
         } else if (data instanceof SpanChunk) {
             this.spanChunkCounter.incrementAndGet();
+        }  else if (data instanceof TSpanAndSpanChunkList) {
+            this.spanAndSpanChunkListCounter.incrementAndGet();
         }
         return false;
     }
@@ -112,6 +114,10 @@ public class CountingDataSender implements EnhancedDataSender {
         return spanCounter.get();
     }
 
+    public int getSpanAndSpanChunkListCounter() {
+        return spanAndSpanChunkListCounter.get();
+    }
+
     public int getTotalCount() {
         return requestCounter.get() + requestRetryCounter.get() + requestResponseListenerCounter.get() + senderCounter.get();
     }
@@ -124,6 +130,7 @@ public class CountingDataSender implements EnhancedDataSender {
                 ", requestResponseListenerCounter=" + requestResponseListenerCounter +
                 ", senderCounter=" + senderCounter +
                 ", spanCounter=" + spanCounter +
+                ", spanAndSpanChunkListCounter=" + spanAndSpanChunkListCounter +
                 ", spanChunkCounter=" + spanChunkCounter +
                 '}';
     }

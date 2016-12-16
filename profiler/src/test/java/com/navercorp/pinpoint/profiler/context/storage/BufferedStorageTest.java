@@ -24,9 +24,9 @@ import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.storage.BufferedStorage;
+import com.navercorp.pinpoint.profiler.context.storage.flush.RemoteFlusher;
+import com.navercorp.pinpoint.profiler.context.storage.flush.StorageFlusher;
 import com.navercorp.pinpoint.profiler.sender.CountingDataSender;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +45,8 @@ public class BufferedStorageTest {
 
     @Test
     public void testStore_Noflush() throws Exception {
-        BufferedStorage bufferedStorage = new BufferedStorage(countingDataSender, spanChunkFactory, 10);
+        StorageFlusher storageFlusher = new RemoteFlusher(countingDataSender);
+        BufferedStorage bufferedStorage = new BufferedStorage(storageFlusher, spanChunkFactory, 10);
 
         Span span = new Span();
         SpanEvent spanEvent = new SpanEvent(span);
@@ -57,7 +58,8 @@ public class BufferedStorageTest {
 
     @Test
     public void testStore_flush() throws Exception {
-        BufferedStorage bufferedStorage = new BufferedStorage(countingDataSender, spanChunkFactory, 1);
+        StorageFlusher storageFlusher = new RemoteFlusher(countingDataSender);
+        BufferedStorage bufferedStorage = new BufferedStorage(storageFlusher, spanChunkFactory, 1);
 
         Span span = new Span();
         SpanEvent spanEvent = new SpanEvent(span);
@@ -74,7 +76,8 @@ public class BufferedStorageTest {
 
     @Test
     public void testStore_spanFlush() throws Exception {
-        BufferedStorage bufferedStorage = new BufferedStorage(countingDataSender, spanChunkFactory, 10);
+        StorageFlusher storageFlusher = new RemoteFlusher(countingDataSender);
+        BufferedStorage bufferedStorage = new BufferedStorage(storageFlusher, spanChunkFactory, 10);
 
         Span span = new Span();
         bufferedStorage.store(span);
@@ -90,7 +93,8 @@ public class BufferedStorageTest {
 
     @Test
     public void testStore_spanLastFlush() throws Exception {
-        BufferedStorage bufferedStorage = new BufferedStorage(countingDataSender, spanChunkFactory, 10);
+        StorageFlusher storageFlusher = new RemoteFlusher(countingDataSender);
+        BufferedStorage bufferedStorage = new BufferedStorage(storageFlusher, spanChunkFactory, 10);
 
         Span span = new Span();
         SpanEvent spanEvent = new SpanEvent(span);
@@ -104,4 +108,5 @@ public class BufferedStorageTest {
         Assert.assertEquals(0, countingDataSender.getSpanCounter(), 1);
         Assert.assertEquals(0, countingDataSender.getSpanChunkCounter(), 0);
     }
+
 }

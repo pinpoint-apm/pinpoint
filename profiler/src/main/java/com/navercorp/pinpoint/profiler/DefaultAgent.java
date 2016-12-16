@@ -38,6 +38,11 @@ import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
 import com.navercorp.pinpoint.profiler.context.storage.BufferedStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
+import com.navercorp.pinpoint.profiler.context.storage.flush.DispatcherFlusher;
+import com.navercorp.pinpoint.profiler.context.storage.flush.GlobalAutoFlusher;
+import com.navercorp.pinpoint.profiler.context.storage.flush.RemoteFlusher;
+import com.navercorp.pinpoint.profiler.context.storage.flush.SpanEventThresholdCondition;
+import com.navercorp.pinpoint.profiler.context.storage.flush.StorageFlusher;
 import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
 import com.navercorp.pinpoint.profiler.instrument.ASMClassPool;
 import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
@@ -100,6 +105,7 @@ public class DefaultAgent implements Agent {
 
     private final DataSender statDataSender;
     private final DataSender spanDataSender;
+    private final StorageFlusher storageFlusher;
 
     private final AgentInformation agentInformation;
     private final ServerMetaDataHolder serverMetaDataHolder;
@@ -208,6 +214,7 @@ public class DefaultAgent implements Agent {
 
         CommandDispatcher commandService = createCommandService(defaultTraceContext);
         this.tcpDataSender = createTcpDataSender(commandService);
+        this.storageFlusher = createStorageFlusher(spanDataSender, profilerConfig);
 
         defaultTraceContext.setPriorityDataSender(this.tcpDataSender);
         this.traceContext = defaultTraceContext;
@@ -351,12 +358,31 @@ public class DefaultAgent implements Agent {
         return traceContext;
     }
 
+    private StorageFlusher createStorageFlusher(DataSender dataSender, ProfilerConfig config) {
+        if (config.isIoGlobalStorageEnable()) {
+            RemoteFlusher remoteFlusher = new RemoteFlusher(dataSender);
+
+            int globalStorageBufferSize = config.getIoGlobalStorageBufferSize();
+            int upperLimitPercent = config.getIoGlobalStorageUseUpperLimitPercent();
+
+            SpanEventThresholdCondition condition = new SpanEventThresholdCondition(globalStorageBufferSize, upperLimitPercent);
+            GlobalAutoFlusher globalAutoFlusher = new GlobalAutoFlusher(dataSender, globalStorageBufferSize);
+            globalAutoFlusher.start(config.getIoGlobalStorageFlushInterval());
+
+            DispatcherFlusher dispatcherFlusher = new DispatcherFlusher(remoteFlusher, condition, globalAutoFlusher, condition, globalAutoFlusher);
+            return dispatcherFlusher;
+        } else {
+            RemoteFlusher remoteFlusher = new RemoteFlusher(dataSender);
+            return remoteFlusher;
+        }
+    }
+
     protected StorageFactory createStorageFactory() {
         if (profilerConfig.isIoBufferingEnable()) {
-            return new BufferedStorageFactory(this.spanDataSender, this.profilerConfig, this.agentInformation);
+            int bufferSize = profilerConfig.getIoBufferingBufferSize();
+            return new BufferedStorageFactory(storageFlusher, bufferSize, this.agentInformation);
         } else {
-            return new SpanStorageFactory(spanDataSender);
-
+            return new SpanStorageFactory(storageFlusher);
         }
     }
 
@@ -473,6 +499,9 @@ public class DefaultAgent implements Agent {
         // Need to process stop
         this.spanDataSender.stop();
         this.statDataSender.stop();
+
+        // stop storage flusher
+        this.storageFlusher.stop();
 
         closeTcpDataSender();
         // for testcase
