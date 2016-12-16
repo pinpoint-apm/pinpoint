@@ -54,7 +54,7 @@
                         <run>tar xfvz hbase.tar.gz -C /opt/hbase</run>
                         <run>rm -rf hbase.tar.gz</run>
                         <run>cp /opt/hbase/hbase-site.xml /opt/hbase/hbase-$HBASE_VERSION/conf/hbase-site.xml</run>
-                        <run>$HBASE_HOME/bin/start-hbase.sh; sleep 10; $HBASE_HOME/bin/hbase shell /opt/hbase/hbase-create.hbase; ${HBASE_HOME}/bin/stop-hbase.sh</run>
+                        <run>$HBASE_HOME/bin/start-hbase.sh; sleep 10; $HBASE_HOME/bin/hbase shell /opt/hbase/hbase-create.hbase; $HBASE_HOME/bin/stop-hbase.sh</run>
                     </runs>
                 </configuration>
             </plugin>
