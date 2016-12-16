@@ -22,7 +22,7 @@
 	
 	                // initialize variables of methods
 	                var initialize, treeFormatter, treeFilter, parseData, execTimeFormatter,
-	                    getColorByString, progressBarFormatter, argumentFormatter, linkFormatter, hasChildNode, searchRowByTime, selectRow;
+	                    getColorByString, progressBarFormatter, argumentFormatter, linkFormatter, hasChildNode, searchRowByTime, searchRowByWord, selectRow;
 	
 	                // bootstrap
 	                window.callStacks = []; // Due to Slick.Data.DataView, must use window property to resolve scope-related problems.
@@ -504,15 +504,29 @@
 	                	if ( row == -1 ) {
 	                		if ( index > 0 ) {
 	                			selectRow( searchRowByTime(time, 0) );
-	                			scope.$emit("transactionDetail.calltreeSearchCallResult", "Loop" );
+	                			scope.$emit("transactionDetail.searchActionResult", "Loop" );
 	                		} else {
-	                			scope.$emit("transactionDetail.calltreeSearchCallResult", "No call took longer than {time}ms." );
+	                			scope.$emit("transactionDetail.searchActionResult", "No call took longer than " + time + "ms." );
 	                		}
 	                	} else {
 	                		selectRow(row);
-	                		scope.$emit("transactionDetail.calltreeSearchCallResult", "" );
+	                		scope.$emit("transactionDetail.searchActionResult", "" );
 	                	}
 	            	});
+					scope.$on("distributedCallFlowDirective.searchArgument." + scope.namespace, function( event, word, index ) {
+						var row = searchRowByWord(word, index);
+						if ( row == -1 ) {
+							if ( index > 0 ) {
+								selectRow( searchRowByWord(word, 0) );
+								scope.$emit("transactionDetail.searchActionResult", "Loop" );
+							} else {
+								scope.$emit("transactionDetail.searchActionResult", "There is no result.." );
+							}
+						} else {
+							selectRow(row);
+							scope.$emit("transactionDetail.searchActionResult", "" );
+						}
+					});
 	                searchRowByTime = function( time, index ) {
 	                	var count = 0;
 	                	var row = -1;
@@ -528,6 +542,21 @@
 	                	}
 	                	return row;
 	                };
+					searchRowByWord = function( word, index ) {
+						var count = 0;
+						var row = -1;
+						for( var i = 0 ; i < window.callStacks.length ; i++ ) {
+							if ( window.callStacks[i].argument.indexOf( word ) !== -1 ) {
+								if ( count == index ) {
+									row = i;
+									break;
+								} else {
+									count++;
+								}
+							}
+						}
+						return row;
+					};
 	                selectRow = function(row) {
 	                	grid.setSelectedRows( [row] );
 	                	grid.setActiveCell( row, 0 );
