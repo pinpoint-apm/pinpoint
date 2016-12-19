@@ -204,8 +204,8 @@ public class AgentInfo {
     }
 
     @Override
-    public java.lang.String toString() {
-        final java.lang.StringBuilder sb = new java.lang.StringBuilder("AgentInfo{");
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("AgentInfo{");
         sb.append("applicationName='").append(applicationName).append('\'');
         sb.append(", agentId='").append(agentId).append('\'');
         sb.append(", startTimestamp=").append(startTimestamp);

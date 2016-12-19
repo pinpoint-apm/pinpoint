@@ -46,8 +46,8 @@ public class Chart<X extends Number, Y extends Number> {
     }
 
     @Override
-    public java.lang.String toString() {
-        final java.lang.StringBuilder sb = new java.lang.StringBuilder("Chart{");
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Chart{");
         sb.append("points=").append(points);
         sb.append('}');
         return sb.toString();

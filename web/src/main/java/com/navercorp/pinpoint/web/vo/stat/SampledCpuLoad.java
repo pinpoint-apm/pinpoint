@@ -61,8 +61,8 @@ public class SampledCpuLoad implements SampledAgentStatDataPoint {
     }
 
     @Override
-    public java.lang.String toString() {
-        final java.lang.StringBuilder sb = new java.lang.StringBuilder("SampledCpuLoad{");
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("SampledCpuLoad{");
         sb.append("jvmCpuLoad=").append(jvmCpuLoad);
         sb.append(", systemCpuLoad=").append(systemCpuLoad);
         sb.append('}');

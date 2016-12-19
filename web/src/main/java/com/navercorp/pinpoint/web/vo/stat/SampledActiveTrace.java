@@ -83,8 +83,8 @@ public class SampledActiveTrace implements SampledAgentStatDataPoint {
     }
 
     @Override
-    public java.lang.String toString() {
-        final java.lang.StringBuilder sb = new java.lang.StringBuilder("SampledActiveTrace{");
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("SampledActiveTrace{");
         sb.append("fastCounts=").append(fastCounts);
         sb.append(", normalCounts=").append(normalCounts);
         sb.append(", slowCounts=").append(slowCounts);

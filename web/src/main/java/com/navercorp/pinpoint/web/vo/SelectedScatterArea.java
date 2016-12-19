@@ -88,8 +88,8 @@ public final class SelectedScatterArea {
     }
 
     @Override
-    public java.lang.String toString() {
-        final java.lang.StringBuilder sb = new java.lang.StringBuilder("SelectedScatterArea{");
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("SelectedScatterArea{");
         sb.append("timeRange=").append(timeRange);
         sb.append(", responseTimeRange=").append(responseTimeRange);
         sb.append('}');

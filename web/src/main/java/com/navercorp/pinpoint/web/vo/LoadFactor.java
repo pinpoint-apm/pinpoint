@@ -194,10 +194,8 @@ public class LoadFactor {
     }
 
     @Override
-
-    @java.lang.Override
-    public java.lang.String toString() {
-        final java.lang.StringBuilder sb = new java.lang.StringBuilder("LoadFactor{");
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("LoadFactor{");
         sb.append(", timeseriesValueList=").append(timeseriesValueList);
         sb.append(", timeseriesSlotIndex=").append(timeseriesSlotIndex);
         sb.append(", range=").append(range);

@@ -74,8 +74,8 @@ public class AgentActiveThreadCount {
     }
 
     @Override
-    public java.lang.String toString() {
-        final java.lang.StringBuilder sb = new java.lang.StringBuilder("AgentActiveThreadCount{");
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("AgentActiveThreadCount{");
         sb.append("agentId='").append(agentId).append('\'');
         sb.append(", code=").append(code);
         sb.append(", codeMessage='").append(codeMessage).append('\'');

@@ -158,9 +158,9 @@ public class AgentEvent {
         return true;
     }
 
-    @java.lang.Override
-    public java.lang.String toString() {
-        final java.lang.StringBuilder sb = new java.lang.StringBuilder("AgentEvent{");
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("AgentEvent{");
         sb.append("agentId='").append(agentId).append('\'');
         sb.append(", eventTimestamp=").append(eventTimestamp);
         sb.append(", eventTypeCode=").append(eventTypeCode);

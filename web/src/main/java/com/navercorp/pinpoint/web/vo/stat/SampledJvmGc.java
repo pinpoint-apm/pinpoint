@@ -115,8 +115,8 @@ public class SampledJvmGc implements SampledAgentStatDataPoint {
     }
 
     @Override
-    public java.lang.String toString() {
-        final java.lang.StringBuilder sb = new java.lang.StringBuilder("SampledJvmGc{");
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("SampledJvmGc{");
         sb.append("jvmGcType=").append(jvmGcType);
         sb.append(", heapUsed=").append(heapUsed);
         sb.append(", heapMax=").append(heapMax);

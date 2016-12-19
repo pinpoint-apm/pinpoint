@@ -114,9 +114,9 @@ public final class LinkKey {
         return result;
     }
 
-    @java.lang.Override
-    public java.lang.String toString() {
-        final java.lang.StringBuilder sb = new java.lang.StringBuilder("LinkKey{");
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("LinkKey{");
         sb.append("fromApplication='").append(fromApplication).append('\'');
         sb.append(", fromServiceType=").append(fromServiceType);
         sb.append(", toApplication='").append(toApplication).append('\'');

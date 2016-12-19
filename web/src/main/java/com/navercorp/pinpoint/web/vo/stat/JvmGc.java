@@ -115,8 +115,8 @@ public class JvmGc {
     }
 
     @Override
-    public java.lang.String toString() {
-        final java.lang.StringBuilder sb = new java.lang.StringBuilder("JvmGc{");
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("JvmGc{");
         sb.append("agentId='").append(agentId).append('\'');
         sb.append(", timestamp=").append(timestamp);
         sb.append(", heapUsed=").append(heapUsed);

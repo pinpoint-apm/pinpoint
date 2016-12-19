@@ -96,8 +96,8 @@ public class SampledTransaction implements SampledAgentStatDataPoint {
     }
 
     @Override
-    public java.lang.String toString() {
-        final java.lang.StringBuilder sb = new java.lang.StringBuilder("SampledTransaction{");
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("SampledTransaction{");
         sb.append("sampledNew=").append(sampledNew);
         sb.append(", sampledContinuation=").append(sampledContinuation);
         sb.append(", unsampledNew=").append(unsampledNew);

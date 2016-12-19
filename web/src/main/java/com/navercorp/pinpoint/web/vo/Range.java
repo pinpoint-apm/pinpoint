@@ -96,8 +96,8 @@ public final class Range {
     }
 
     @Override
-    public java.lang.String toString() {
-        final java.lang.StringBuilder sb = new java.lang.StringBuilder("Range{");
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Range{");
         sb.append("from=").append(from);
         sb.append(", to=").append(to);
         sb.append(", range=").append(getRange());
@@ -106,7 +106,7 @@ public final class Range {
     }
 
     public String prettyToString() {
-        final java.lang.StringBuilder sb = new java.lang.StringBuilder("Range{");
+        final StringBuilder sb = new StringBuilder("Range{");
         sb.append("from=").append(from);
         sb.append(", to=").append(to);
         sb.append(", range s=").append(TimeUnit.MILLISECONDS.toSeconds(getRange()));

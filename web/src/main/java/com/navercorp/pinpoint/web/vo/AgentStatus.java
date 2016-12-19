@@ -97,8 +97,8 @@ public class AgentStatus {
     }
 
     @Override
-    public java.lang.String toString() {
-        final java.lang.StringBuilder sb = new java.lang.StringBuilder("AgentStatus{");
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("AgentStatus{");
         sb.append("agentId='").append(agentId).append('\'');
         sb.append(", eventTimestamp=").append(eventTimestamp);
         sb.append(", state=").append(state);

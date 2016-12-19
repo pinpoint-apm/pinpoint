@@ -56,10 +56,10 @@ public class TitledPoint<X extends Number, Y extends Number> extends Point<X, Y>
     }
 
     @Override
-    public java.lang.String toString() {
-        final java.lang.StringBuilder sb = new java.lang.StringBuilder("TitledPoint{");
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("TitledPoint{");
         sb.append("title='").append(title).append('\'');
-        sb.append('} ');
+        sb.append('}');
         sb.append(super.toString());
         return sb.toString();
     }

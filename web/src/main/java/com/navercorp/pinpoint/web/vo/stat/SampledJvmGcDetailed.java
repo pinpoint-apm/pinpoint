@@ -129,8 +129,8 @@ public class SampledJvmGcDetailed implements SampledAgentStatDataPoint {
     }
 
     @Override
-    public java.lang.String toString() {
-        final java.lang.StringBuilder sb = new java.lang.StringBuilder("SampledJvmGcDetailed{");
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("SampledJvmGcDetailed{");
         sb.append("gcNewCount=").append(gcNewCount);
         sb.append(", gcNewTime=").append(gcNewTime);
         sb.append(", codeCacheUsed=").append(codeCacheUsed);

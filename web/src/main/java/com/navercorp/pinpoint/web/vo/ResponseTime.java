@@ -115,8 +115,8 @@ public class ResponseTime {
     }
 
     @Override
-    public java.lang.String toString() {
-        final java.lang.StringBuilder sb = new java.lang.StringBuilder("ResponseTime{");
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("ResponseTime{");
         sb.append("applicationName='").append(applicationName).append('\'');
         sb.append(", applicationServiceType=").append(applicationServiceType);
         sb.append(", timeStamp=").append(timeStamp);
