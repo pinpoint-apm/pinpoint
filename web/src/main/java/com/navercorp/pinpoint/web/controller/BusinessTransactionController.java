@@ -86,9 +86,11 @@ public class BusinessTransactionController {
     @RequestMapping(value = "/transactionInfo", method = RequestMethod.GET)
     @ResponseBody
     public TransactionInfoViewModel transactionInfo(@RequestParam("traceId") String traceIdParam,
-                                        @RequestParam(value = "focusTimestamp", required = false, defaultValue = "0") long focusTimestamp,
-                                        @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
-        logger.debug("traceId:{}", traceIdParam);
+                                                    @RequestParam(value = "focusTimestamp", required = false, defaultValue = "0") long focusTimestamp,
+                                                    @RequestParam(value = "agentId", required = false) String agentId,
+                                                    @RequestParam(value = "spanId", required = false, defaultValue = "-1") long spanId,
+                                                    @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
+        logger.debug("GET /transactionInfo params {traceId={}, focusTimestamp={}, agentId={}, spanId={}, v={}}", traceIdParam, focusTimestamp, agentId, spanId, viewVersion);
 
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceIdParam);
 
@@ -98,7 +100,7 @@ public class BusinessTransactionController {
 
         // application map
         ApplicationMap map = filteredMapService.selectApplicationMap(transactionId);
-        RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp);
+        RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp, agentId, spanId);
 
         TransactionInfoViewModel result = new TransactionInfoViewModel(transactionId, map.getNodes(), map.getLinks(), recordSet, spanResult.getCompleteTypeString(), logLinkEnable, logButtonName, logPageUrl, disableButtonMessage);
         return result;
