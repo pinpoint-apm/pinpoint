@@ -83,12 +83,13 @@ public class SampledActiveTrace implements SampledAgentStatDataPoint {
     }
 
     @Override
-    public String toString() {
-        return "SampledActiveTrace{" +
-                "fastCounts=" + fastCounts +
-                ", normalCounts=" + normalCounts +
-                ", slowCounts=" + slowCounts +
-                ", verySlowCounts=" + verySlowCounts +
-                '}';
+    public java.lang.String toString() {
+        final java.lang.StringBuilder sb = new java.lang.StringBuilder("SampledActiveTrace{");
+        sb.append("fastCounts=").append(fastCounts);
+        sb.append(", normalCounts=").append(normalCounts);
+        sb.append(", slowCounts=").append(slowCounts);
+        sb.append(", verySlowCounts=").append(verySlowCounts);
+        sb.append('}');
+        return sb.toString();
     }
 }

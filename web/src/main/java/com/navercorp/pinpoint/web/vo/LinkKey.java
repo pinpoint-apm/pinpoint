@@ -114,13 +114,15 @@ public final class LinkKey {
         return result;
     }
 
-    @Override
-    public String toString() {
-        return "LinkKey{" +
-                "fromApplication='" + fromApplication + '\'' +
-                ", fromServiceType=" + fromServiceType +
-                ", toApplication='" + toApplication + '\'' +
-                ", toServiceType=" + toServiceType +
-                '}';
+    @java.lang.Override
+    public java.lang.String toString() {
+        final java.lang.StringBuilder sb = new java.lang.StringBuilder("LinkKey{");
+        sb.append("fromApplication='").append(fromApplication).append('\'');
+        sb.append(", fromServiceType=").append(fromServiceType);
+        sb.append(", toApplication='").append(toApplication).append('\'');
+        sb.append(", toServiceType=").append(toServiceType);
+        sb.append(", hash=").append(hash);
+        sb.append('}');
+        return sb.toString();
     }
 }

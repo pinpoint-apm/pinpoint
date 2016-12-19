@@ -96,13 +96,14 @@ public class SampledTransaction implements SampledAgentStatDataPoint {
     }
 
     @Override
-    public String toString() {
-        return "SampledTransaction{" +
-                "sampledNew=" + sampledNew +
-                ", sampledContinuation=" + sampledContinuation +
-                ", unsampledNew=" + unsampledNew +
-                ", unsampledContinuation=" + unsampledContinuation +
-                ", total=" + total +
-                '}';
+    public java.lang.String toString() {
+        final java.lang.StringBuilder sb = new java.lang.StringBuilder("SampledTransaction{");
+        sb.append("sampledNew=").append(sampledNew);
+        sb.append(", sampledContinuation=").append(sampledContinuation);
+        sb.append(", unsampledNew=").append(unsampledNew);
+        sb.append(", unsampledContinuation=").append(unsampledContinuation);
+        sb.append(", total=").append(total);
+        sb.append('}');
+        return sb.toString();
     }
 }

@@ -129,16 +129,17 @@ public class SampledJvmGcDetailed implements SampledAgentStatDataPoint {
     }
 
     @Override
-    public String toString() {
-        return "SampledJvmGcDetailed{" +
-                "gcNewCount=" + gcNewCount +
-                ", gcNewTime=" + gcNewTime +
-                ", codeCacheUsed=" + codeCacheUsed +
-                ", newGenUsed=" + newGenUsed +
-                ", oldGenUsed=" + oldGenUsed +
-                ", survivorSpaceUsed=" + survivorSpaceUsed +
-                ", permGenUsed=" + permGenUsed +
-                ", metaspaceUsed=" + metaspaceUsed +
-                '}';
+    public java.lang.String toString() {
+        final java.lang.StringBuilder sb = new java.lang.StringBuilder("SampledJvmGcDetailed{");
+        sb.append("gcNewCount=").append(gcNewCount);
+        sb.append(", gcNewTime=").append(gcNewTime);
+        sb.append(", codeCacheUsed=").append(codeCacheUsed);
+        sb.append(", newGenUsed=").append(newGenUsed);
+        sb.append(", oldGenUsed=").append(oldGenUsed);
+        sb.append(", survivorSpaceUsed=").append(survivorSpaceUsed);
+        sb.append(", permGenUsed=").append(permGenUsed);
+        sb.append(", metaspaceUsed=").append(metaspaceUsed);
+        sb.append('}');
+        return sb.toString();
     }
 }

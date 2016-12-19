@@ -116,8 +116,13 @@ public class TransactionMetadataQuery {
         }
 
         @Override
-        public String toString() {
-            return "QueryCondition [transactionId=" + transactionId + ", collectorAcceptorTime=" + collectorAcceptorTime + ", responseTime=" + responseTime + "]";
+        public java.lang.String toString() {
+            final java.lang.StringBuilder sb = new java.lang.StringBuilder("QueryCondition{");
+            sb.append("transactionId=").append(transactionId);
+            sb.append(", collectorAcceptorTime=").append(collectorAcceptorTime);
+            sb.append(", responseTime=").append(responseTime);
+            sb.append('}');
+            return sb.toString();
         }
     }
 }

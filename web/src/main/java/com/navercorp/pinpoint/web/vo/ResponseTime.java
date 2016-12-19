@@ -115,13 +115,13 @@ public class ResponseTime {
     }
 
     @Override
-    public String toString() {
-        return "ResponseTime{" +
-                "applicationName='" + applicationName + '\'' +
-                ", applicationServiceType=" + applicationServiceType +
-                ", timeStamp=" + timeStamp +
-                ", responseHistogramMap=" + responseHistogramMap +
-                '}';
+    public java.lang.String toString() {
+        final java.lang.StringBuilder sb = new java.lang.StringBuilder("ResponseTime{");
+        sb.append("applicationName='").append(applicationName).append('\'');
+        sb.append(", applicationServiceType=").append(applicationServiceType);
+        sb.append(", timeStamp=").append(timeStamp);
+        sb.append(", responseHistogramMap=").append(responseHistogramMap);
+        sb.append('}');
+        return sb.toString();
     }
-
 }

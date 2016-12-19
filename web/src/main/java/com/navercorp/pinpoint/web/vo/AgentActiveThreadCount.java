@@ -74,13 +74,13 @@ public class AgentActiveThreadCount {
     }
 
     @Override
-    public String toString() {
-        return "AgentActiveThreadCount{" +
-                "agentId='" + agentId + '\'' +
-                ", code=" + getCode() +
-                ", codeMessage=" + getCodeMessage() +
-                ", activeThreadCount=" + activeThreadCount +
-                '}';
+    public java.lang.String toString() {
+        final java.lang.StringBuilder sb = new java.lang.StringBuilder("AgentActiveThreadCount{");
+        sb.append("agentId='").append(agentId).append('\'');
+        sb.append(", code=").append(code);
+        sb.append(", codeMessage='").append(codeMessage).append('\'');
+        sb.append(", activeThreadCount=").append(activeThreadCount);
+        sb.append('}');
+        return sb.toString();
     }
-
 }

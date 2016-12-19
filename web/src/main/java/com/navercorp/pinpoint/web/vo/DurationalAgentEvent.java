@@ -55,17 +55,17 @@ public class DurationalAgentEvent extends AgentEvent {
     }
 
     @Override
-    public String toString() {
-        return "DurationalAgentEvent{" +
-                "agentId=" + super.getAgentId() +
-                ", eventTimestamp=" + super.getEventTimestamp() +
-                ", eventTypeCode=" + super.getEventTypeCode() +
-                ", eventTypeDesc=" + super.getEventTypeDesc() +
-                ", hasEventMessage=" + super.hasEventMessage() +
-                ", eventMessage=" + super.getEventMessage() +
-                ", startTimestamp=" + super.getStartTimestamp() +
-                ", durationStartTimestamp=" + durationStartTimestamp +
-                ", durationEndTimestamp=" + durationEndTimestamp +
-                '}';
+    public java.lang.String toString() {
+        final java.lang.StringBuilder sb = new java.lang.StringBuilder("DurationalAgentEvent{");
+        sb.append("agentId=").append(super.getAGentid());
+        sb.append("eventTimestamp=").append(super.getEventTimestamp());
+        sb.append("eventTypeCode=").append(super.getEventTypeCode());
+        sb.append("eventTypeDesc=").append(super.getEventTypeDesc());
+        sb.append("hasEventMessage=").append(super.hasEventMessage());
+        sb.append("eventMessage=").append(super.getEventMessage());
+        sb.append("durationStartTimestamp=").append(durationStartTimestamp);
+        sb.append(", durationEndTimestamp=").append(durationEndTimestamp);
+        sb.append('}');
+        return sb.toString();
     }
 }

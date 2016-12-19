@@ -158,10 +158,17 @@ public class AgentEvent {
         return true;
     }
 
-    @Override
-    public String toString() {
-        return "AgentEvent [agentId=" + agentId + ", eventTimestamp=" + eventTimestamp + ", eventTypeCode="
-                + eventTypeCode + ", eventTypeDesc=" + eventTypeDesc + ", hasEventMessage=" + hasEventMessage
-                + ", eventMessage=" + eventMessage + ", startTimestamp=" + startTimestamp + "]";
+    @java.lang.Override
+    public java.lang.String toString() {
+        final java.lang.StringBuilder sb = new java.lang.StringBuilder("AgentEvent{");
+        sb.append("agentId='").append(agentId).append('\'');
+        sb.append(", eventTimestamp=").append(eventTimestamp);
+        sb.append(", eventTypeCode=").append(eventTypeCode);
+        sb.append(", eventTypeDesc='").append(eventTypeDesc).append('\'');
+        sb.append(", hasEventMessage=").append(hasEventMessage);
+        sb.append(", startTimestamp=").append(startTimestamp);
+        sb.append(", eventMessage=").append(eventMessage);
+        sb.append('}');
+        return sb.toString();
     }
 }

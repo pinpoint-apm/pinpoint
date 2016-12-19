@@ -204,12 +204,23 @@ public class AgentInfo {
     }
 
     @Override
-    public String toString() {
-        return "AgentInfo [applicationName=" + applicationName + ", agentId=" + agentId + ", startTimestamp="
-                + startTimestamp + ", hostName=" + hostName + ", ip=" + ip + ", ports=" + ports + ", serviceTypeCode="
-                + serviceTypeCode + ", pid=" + pid + ", vmVersion=" + vmVersion + ", agentVersion=" + agentVersion
-                + ", serverMetaData=" + serverMetaData + ", jvmInfo=" + jvmInfo + ", initialStartTimestamp=" + initialStartTimestamp
-                + ", status=" + status + "]";
+    public java.lang.String toString() {
+        final java.lang.StringBuilder sb = new java.lang.StringBuilder("AgentInfo{");
+        sb.append("applicationName='").append(applicationName).append('\'');
+        sb.append(", agentId='").append(agentId).append('\'');
+        sb.append(", startTimestamp=").append(startTimestamp);
+        sb.append(", hostName='").append(hostName).append('\'');
+        sb.append(", ip='").append(ip).append('\'');
+        sb.append(", ports='").append(ports).append('\'');
+        sb.append(", serviceTypeCode=").append(serviceTypeCode);
+        sb.append(", pid=").append(pid);
+        sb.append(", vmVersion='").append(vmVersion).append('\'');
+        sb.append(", agentVersion='").append(agentVersion).append('\'');
+        sb.append(", serverMetaData=").append(serverMetaData);
+        sb.append(", jvmInfo=").append(jvmInfo);
+        sb.append(", initialStartTimestamp=").append(initialStartTimestamp);
+        sb.append(", status=").append(status);
+        sb.append('}');
+        return sb.toString();
     }
-
 }

@@ -83,12 +83,13 @@ public class Point<X extends Number, Y extends Number> {
     }
 
     @Override
-    public String toString() {
-        return "Point{" +
-                "xVal=" + xVal +
-                ", minYVal=" + minYVal +
-                ", maxYVal=" + maxYVal +
-                ", avgYVal=" + avgYVal +
-                '}';
+    public java.lang.String toString() {
+        final java.lang.StringBuilder sb = new java.lang.StringBuilder("Point{");
+        sb.append("xVal=").append(xVal);
+        sb.append(", minYVal=").append(minYVal);
+        sb.append(", maxYVal=").append(maxYVal);
+        sb.append(", avgYVal=").append(avgYVal);
+        sb.append('}');
+        return sb.toString();
     }
 }

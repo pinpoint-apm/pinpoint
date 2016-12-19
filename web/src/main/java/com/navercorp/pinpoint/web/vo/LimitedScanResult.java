@@ -44,8 +44,8 @@ public class LimitedScanResult<V> {
     }
 
     @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("LimitedScanResult{");
+    public java.lang.String toString() {
+        final java.lang.StringBuilder sb = new java.lang.StringBuilder("LimitedScanResult{");
         sb.append("limitedTime=").append(limitedTime);
         sb.append(", data=").append(data);
         sb.append('}');

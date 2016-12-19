@@ -66,12 +66,12 @@ public class AgentActiveThreadCountList {
         return agentActiveThreadRepository;
     }
 
-
     @Override
-    public String toString() {
-        return "AgentActiveThreadCountList{" +
-                "agentActiveThreadRepository=" + agentActiveThreadRepository +
-                '}';
+    public java.lang.String toString() {
+        final java.lang.StringBuilder sb = new java.lang.StringBuilder("AgentActiveThreadCountList{");
+        sb.append("agentActiveThreadRepository=").append(agentActiveThreadRepository);
+        sb.append('}');
+        return sb.toString();
     }
 }
 

@@ -115,16 +115,17 @@ public class JvmGc {
     }
 
     @Override
-    public String toString() {
-        return "JvmGc{" +
-                "agentId='" + agentId + '\'' +
-                ", timestamp=" + timestamp +
-                ", heapUsed=" + heapUsed +
-                ", heapMax=" + heapMax +
-                ", nonHeapUsed=" + nonHeapUsed +
-                ", nonHeapMax=" + nonHeapMax +
-                ", gcOldCount=" + gcOldCount +
-                ", gcOldTime=" + gcOldTime +
-                '}';
+    public java.lang.String toString() {
+        final java.lang.StringBuilder sb = new java.lang.StringBuilder("JvmGc{");
+        sb.append("agentId='").append(agentId).append('\'');
+        sb.append(", timestamp=").append(timestamp);
+        sb.append(", heapUsed=").append(heapUsed);
+        sb.append(", heapMax=").append(heapMax);
+        sb.append(", nonHeapUsed=").append(nonHeapUsed);
+        sb.append(", nonHeapMax=").append(nonHeapMax);
+        sb.append(", gcOldCount=").append(gcOldCount);
+        sb.append(", gcOldTime=").append(gcOldTime);
+        sb.append('}');
+        return sb.toString();
     }
 }
