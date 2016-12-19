@@ -66,12 +66,11 @@ public class AgentCommandController {
     @RequestMapping(value = "/activeThreadDump", method = RequestMethod.GET)
     public ModelAndView getActiveThreadDump(@RequestParam(value = "applicationName") String applicationName,
                                             @RequestParam(value = "agentId") String agentId,
-                                            @RequestParam(value = "startTimeStamp") long startTimeStamp,
                                             @RequestParam(value = "threadName", required = false) String[] threadNameList,
                                             @RequestParam(value = "traceId", required = false) Long[] traceIdList) throws TException {
-        AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId, startTimeStamp);
+        AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId);
         if (agentInfo == null) {
-            return createResponse(false, String.format("Can't find suitable Agent(%s/%s/%d)", applicationName, agentId, startTimeStamp));
+            return createResponse(false, String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
         }
 
         TCmdActiveThreadDump threadDump = new TCmdActiveThreadDump();
@@ -117,12 +116,11 @@ public class AgentCommandController {
     @RequestMapping(value = "/activeThreadLightDump", method = RequestMethod.GET)
     public ModelAndView getActiveThreadLightDump(@RequestParam(value = "applicationName") String applicationName,
                                             @RequestParam(value = "agentId") String agentId,
-                                            @RequestParam(value = "startTimeStamp") long startTimeStamp,
                                             @RequestParam(value = "threadName", required = false) String[] threadNameList,
                                             @RequestParam(value = "traceId", required = false) Long[] traceIdList) throws TException {
-        AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId, startTimeStamp);
+        AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId);
         if (agentInfo == null) {
-            return createResponse(false, String.format("Can't find suitable Agent(%s/%s/%d)", applicationName, agentId, startTimeStamp));
+            return createResponse(false, String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
         }
 
         TCmdActiveThreadLightDump threadDump = new TCmdActiveThreadLightDump();
