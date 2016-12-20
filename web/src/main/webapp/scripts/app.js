@@ -41,10 +41,10 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
     }).when('/transactionDetail', {
         templateUrl: 'pages/transactionDetail/readyForTransactionDetail.html',
         controller: 'TransactionDetailCtrl'
-    }).when('/transactionDetail/:traceId/:focusTimestamp', {
+    }).when('/transactionDetail/:traceId/:focusTimestamp/:agentId/:spanId', {
         templateUrl: 'pages/transactionDetail/transactionDetail.html',
         controller: 'TransactionDetailCtrl'
-    }).when('/transactionView/:agentId/:traceId/:focusTimestamp', {
+    }).when('/transactionView/:agentId/:traceId/:focusTimestamp/:spanId', {
         templateUrl: 'pages/transactionView/transactionView.html',
         controller: 'TransactionViewCtrl'
     }).when('/scatterFullScreenMode/:application/:readablePeriod/:queryEndDateTime/:agentList', {
