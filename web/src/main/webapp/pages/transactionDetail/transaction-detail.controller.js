@@ -38,7 +38,7 @@
 	            if ($routeParams.traceId && $routeParams.focusTimestamp) {
 	                oProgressBarService.startLoading();
 	                oProgressBarService.setLoading(30);
-	                TransactionDaoService.getTransactionDetail($routeParams.traceId, $routeParams.focusTimestamp, function (err, result) {
+	                TransactionDaoService.getTransactionDetail($routeParams.agentId, $routeParams.spanId, $routeParams.traceId, $routeParams.focusTimestamp, function (err, result) {
 	                    if (err || result.exception ) {
                             oProgressBarService.stopLoading();
                             if ( err ) {
@@ -139,7 +139,7 @@
 	         * @param transaction
 	         */
 	        $scope.openTransactionView = function () {
-	            $window.open('/#/transactionView/' + $scope.transactionDetail.agentId + '/' + $scope.transactionDetail.transactionId + '/' + $scope.transactionDetail.callStackStart);
+	            $window.open('/#/transactionView/' + $scope.transactionDetail.agentId + '/' + $scope.transactionDetail.transactionId + '/' + $scope.transactionDetail.callStackStart + '/' + $scope.transactionDetail.spanId);
 	        };
 	        $scope.$on("transactionDetail.selectDistributedCallFlowRow", function( event, rowId ) {
 				analyticsService.send(analyticsService.CONST.CALLSTACK, analyticsService.CONST.CLK_DISTRIBUTED_CALL_FLOW);

@@ -40,9 +40,10 @@
 				var bHasValidParam = hasValidParam();
 				var bHasTransactionInfo = !angular.isUndefined( $routeParams.transactionInfo );
 				if ( bHasTransactionInfo ) {
-					var i2 = $routeParams.transactionInfo.lastIndexOf("-");
-					var i1 = $routeParams.transactionInfo.lastIndexOf("-", i2 -1);
-					aParamTransactionInfo = [ $routeParams.transactionInfo.substring(0, i1), $routeParams.transactionInfo.substring(i1+1, i2), $routeParams.transactionInfo.substring(i2+1) ];
+					// var i2 = $routeParams.transactionInfo.lastIndexOf("-");
+					// var i1 = $routeParams.transactionInfo.lastIndexOf("-", i2 -1);
+					// aParamTransactionInfo = [ $routeParams.transactionInfo.substring(0, i1), $routeParams.transactionInfo.substring(i1+1, i2), $routeParams.transactionInfo.substring(i2+1) ];
+					aParamTransactionInfo = $routeParams.transactionInfo.split(",");
 				}
 				if ( bHasParent && bHasValidParam ) {
 					htTransactionInfo = getTransactionInfoFromWindow($window.name);
@@ -272,6 +273,8 @@
 
 					if ( bHasTransactionInfo ) {
 						changeTransactionDetail({
+							agentId: aParamTransactionInfo[3],
+							spanId: aParamTransactionInfo[4],
 							traceId : aParamTransactionInfo[0],
 							collectorAcceptTime: aParamTransactionInfo[1],
 							elapsed: aParamTransactionInfo[2]
@@ -304,13 +307,13 @@
 	        changeTransactionDetail = function (transaction) {
 				var transactionDetailUrl = 'index.html?vs=' + Date.now() + '#/transactionDetail';
 				if (transaction.traceId && transaction.collectorAcceptTime) {
-					transactionDetailUrl += '/' + $window.encodeURIComponent(transaction.traceId) + '/' + transaction.collectorAcceptTime;
+					transactionDetailUrl += '/' + $window.encodeURIComponent(transaction.traceId) + '/' + transaction.collectorAcceptTime + '/' + transaction.agentId + '/' + transaction.spanId;
 				}
 				if ( beforeTransactionDetailUrl == transactionDetailUrl ) {
 					$scope.$emit( "transactionTableDirective.completedDetailPageLoad" );
 				} else {
 					beforeTransactionDetailUrl = transactionDetailUrl;
-					$location.path( "/transactionList/" + $routeParams.application + "/" + $routeParams.readablePeriod + "/" + $routeParams.queryEndDateTime + "/" + transaction.traceId + "-" + transaction.collectorAcceptTime + "-" + transaction.elapsed , false );
+					$location.path( "/transactionList/" + $routeParams.application + "/" + $routeParams.readablePeriod + "/" + $routeParams.queryEndDateTime + "/" + transaction.traceId + "," + transaction.collectorAcceptTime + "," + transaction.elapsed + "," + transaction.agentId + "," + transaction.spanId, false );
 					$timeout(function () {
 						$scope.transactionDetailUrl = transactionDetailUrl;
 					});

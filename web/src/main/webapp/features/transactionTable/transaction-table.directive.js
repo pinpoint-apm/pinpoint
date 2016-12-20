@@ -77,7 +77,7 @@
 	             * @param transaction
 	             */
 	            scope.openTransactionView = function (transaction) {
-	                $window.open('#/transactionView/' + transaction.agentId + '/' + transaction.traceId + '/' + transaction.collectorAcceptTime);
+	                $window.open('#/transactionView/' + transaction.agentId + '/' + transaction.traceId + '/' + transaction.collectorAcceptTime + '/' + transaction.spanId);
 	            };
 	
 	            /**
