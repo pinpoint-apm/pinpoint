@@ -36,9 +36,10 @@ public class AgentActiveThreadDumpListSerializer extends JsonSerializer<AgentAct
     public void serialize(AgentActiveThreadDumpList agentActiveThreadDumpList, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
         List<AgentActiveThreadDump> agentActiveThreadDumpRepository = agentActiveThreadDumpList.getAgentActiveThreadDumpRepository();
 
-        jgen.writeStartObject();
-
+        jgen.writeStartArray();
         for (AgentActiveThreadDump agentActiveThreadDump : agentActiveThreadDumpRepository) {
+            jgen.writeStartObject();
+
             String hexStringThreadId = Long.toHexString(agentActiveThreadDump.getThreadId());
             jgen.writeStringField("threadId", "0x" + hexStringThreadId);
 
@@ -56,9 +57,9 @@ public class AgentActiveThreadDumpListSerializer extends JsonSerializer<AgentAct
 
             jgen.writeStringField("detailMessage", agentActiveThreadDump.getDetailMessage());
 
+            jgen.writeEndObject();
         }
-
-        jgen.writeEndObject();
+        jgen.writeEndArray();
     }
 
 }
