@@ -40,10 +40,9 @@
 				var bHasValidParam = hasValidParam();
 				var bHasTransactionInfo = !angular.isUndefined( $routeParams.transactionInfo );
 				if ( bHasTransactionInfo ) {
-					// var i2 = $routeParams.transactionInfo.lastIndexOf("-");
-					// var i1 = $routeParams.transactionInfo.lastIndexOf("-", i2 -1);
-					// aParamTransactionInfo = [ $routeParams.transactionInfo.substring(0, i1), $routeParams.transactionInfo.substring(i1+1, i2), $routeParams.transactionInfo.substring(i2+1) ];
-					aParamTransactionInfo = $routeParams.transactionInfo.split(",");
+					var i2 = $routeParams.transactionInfo.lastIndexOf("-");
+					var i1 = $routeParams.transactionInfo.lastIndexOf("-", i2 -1);
+					aParamTransactionInfo = [ $routeParams.transactionInfo.substring(0, i1), $routeParams.transactionInfo.substring(i1+1, i2), $routeParams.transactionInfo.substring(i2+1) ];
 				}
 				if ( bHasParent && bHasValidParam ) {
 					htTransactionInfo = getTransactionInfoFromWindow($window.name);
@@ -273,8 +272,8 @@
 
 					if ( bHasTransactionInfo ) {
 						changeTransactionDetail({
-							agentId: aParamTransactionInfo[3],
-							spanId: aParamTransactionInfo[4],
+							agentId: data.metadata[0].agentId,
+							spanId: data.metadata[0].spanId,
 							traceId : aParamTransactionInfo[0],
 							collectorAcceptTime: aParamTransactionInfo[1],
 							elapsed: aParamTransactionInfo[2]
@@ -313,7 +312,7 @@
 					$scope.$emit( "transactionTableDirective.completedDetailPageLoad" );
 				} else {
 					beforeTransactionDetailUrl = transactionDetailUrl;
-					$location.path( "/transactionList/" + $routeParams.application + "/" + $routeParams.readablePeriod + "/" + $routeParams.queryEndDateTime + "/" + transaction.traceId + "," + transaction.collectorAcceptTime + "," + transaction.elapsed + "," + transaction.agentId + "," + transaction.spanId, false );
+					$location.path( "/transactionList/" + $routeParams.application + "/" + $routeParams.readablePeriod + "/" + $routeParams.queryEndDateTime + "/" + transaction.traceId + "-" + transaction.collectorAcceptTime + "-" + transaction.elapsed, false );
 					$timeout(function () {
 						$scope.transactionDetailUrl = transactionDetailUrl;
 					});
