@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
 import com.navercorp.pinpoint.profiler.util.ThreadDumpUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadDump;
@@ -26,6 +27,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.management.ThreadInfo;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,7 +43,11 @@ public class AgentActiveThreadDumpListSerializerTest {
         AgentActiveThreadDumpList activeThreadDumpList = createThreadDumpList(allThreadInfo);
         String jsonValue = mapper.writeValueAsString(activeThreadDumpList);
 
-        Map map = mapper.readValue(jsonValue, Map.class);
+        List list = mapper.readValue(jsonValue, List.class);
+
+        Assert.assertTrue(CollectionUtils.isNotEmpty(list));
+
+        Map map = (Map) list.get(0);
         Assert.assertTrue(map.containsKey("threadId"));
         Assert.assertTrue(map.containsKey("threadName"));
         Assert.assertTrue(map.containsKey("threadState"));
