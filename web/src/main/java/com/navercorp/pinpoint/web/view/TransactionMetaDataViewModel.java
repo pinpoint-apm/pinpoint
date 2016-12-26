@@ -96,8 +96,8 @@ public class TransactionMetaDataViewModel {
         }
 
         @JsonProperty("spanId")
-        public long getSpanId() {
-            return span.getSpanId();
+        public String getSpanId() {
+            return Long.toString(span.getSpanId());
         }
     }
 }
