@@ -103,7 +103,7 @@ public final class LinkKey {
     @Override
     public int hashCode() {
         final int hash = this.hash;
-        if (hash == 0) {
+        if (hash != 0) {
             return hash;
         }
         int result = fromApplication.hashCode();
