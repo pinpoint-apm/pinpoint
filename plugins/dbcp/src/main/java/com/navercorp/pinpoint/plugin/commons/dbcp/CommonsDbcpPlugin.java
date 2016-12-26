@@ -15,35 +15,46 @@
  */
 package com.navercorp.pinpoint.plugin.commons.dbcp;
 
-import java.security.ProtectionDomain;
-
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
+import java.security.ProtectionDomain;
+
 /**
  * @author Jongho Moon
  */
 public class CommonsDbcpPlugin implements ProfilerPlugin, TransformTemplateAware {
+
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
+
     public static final ServiceType DBCP_SERVICE_TYPE = ServiceTypeFactory.of(6050, "DBCP");
     public static final String DBCP_SCOPE = "DBCP_SCOPE";
+
+    private  CommonsDbcpConfig config;
 
     private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
+        config = new CommonsDbcpConfig(context.getConfig());
+        if (!config.isPluginEnable()) {
+            logger.info("Disable commons dbcp option. 'profiler.jdbc.dbcp=false'");
+            return;
+        }
+
         addBasicDataSourceTransformer();
-        
-        boolean profileClose = context.getConfig().readBoolean("profiler.jdbc.dbcp.connectionclose", false);
-        
-        if (profileClose) {
+        if (config.isProfileClose()) {
             addPoolGuardConnectionWrapperTransformer();
         }
     }
