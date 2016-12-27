@@ -7,7 +7,7 @@
 		 var filter = "";				// #/filteredMap
 		 var hint = "";					// #/filteredMap
 		 var agentId = "";				// #/Inspector
-		 var minutePeriod = 60 * 5;		// 기본 5분
+		 var minutePeriod = 5;			// 기본 5분
 		 var millisecondPeriod = -1;	// queryPeriod ( url에서 readablePeriod 시간을 밀리초로 환산한 값 )
 		 var queryStartTime = -1;		// ??
 		 var readablePeriod = "";		// ??
@@ -140,6 +140,10 @@
 		 };
 		 this.setPeriodType = function( p ) {
 			 periodType = p;
+			 if ( periodType === oPeriodType.REALTIME ) {
+				 minutePeriod = parseInt( PreferenceService.getRealtimeScatterXRangeStr() );
+				 millisecondPeriod = minutePeriod * 60 * 1000;
+			 }
 			 return this;
 		 };
 		 this.setTransactionInfo = function( t ) {
