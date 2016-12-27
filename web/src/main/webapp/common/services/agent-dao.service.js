@@ -1,20 +1,33 @@
 (function() {
 	'use strict';
 
-	/**
-	 * (en)Agent의 Chart 정보를 로드하고 chart library에 사용할 수 있도록 데이터를 가공함.
-	 * @ko Agent의 Chart 정보를 로드하고 chart library에 사용할 수 있도록 데이터를 가공함.
-	 * @group Service
-	 * @name AgentDaoService
-	 * @class
-	 */
 	pinpointApp.constant( "agentDaoServiceConfig", {
+		agentStatUrl: "/getAgentStat.pinpoint",
 		dateFormat: "YYYY-MM-DD HH:mm:ss"
 	});
 
 	pinpointApp.service( "AgentDaoService", [ "agentDaoServiceConfig",
 		function AgentDaoService( cfg ) {
 
+			this.getAgentStat = function (query, cb) {
+				jQuery.ajax({
+					type: 'GET',
+					url: cfg.agentStatUrl,
+					cache: false,
+					dataType: 'json',
+					data: query,
+					success: function (result) {
+						if (angular.isFunction(cb)) {
+							cb(null, result);
+						}
+					},
+					error: function (xhr, status, error) {
+						if (angular.isFunction(cb)) {
+							cb(error, {});
+						}
+					}
+				});
+			};
 			/**
 			 * calculate a sampling rate based on the given period
 			 * @param period in minutes
