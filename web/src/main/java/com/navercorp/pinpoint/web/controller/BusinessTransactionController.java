@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.controller;
 
 
+import java.io.IOException;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.util.DefaultSqlParser;
@@ -25,6 +26,7 @@ import com.navercorp.pinpoint.common.util.SqlParser;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import com.navercorp.pinpoint.web.view.TransactionInfoViewModel;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,8 +112,20 @@ public class BusinessTransactionController {
     @ResponseBody
     public String sqlBind(@RequestParam("sql") String sql,
                           @RequestParam("bind") String bind) {
-        logger.debug("sql={}, bind={}", sql, bind);
+        if (logger.isDebugEnabled()) {
+            logger.debug("GET /sqlBind params {sql={}, bind={}}", sql, bind);
+        }
+
+        if (sql == null) {
+            return "";
+        }
+
         final List<String> bindValues = parameterParser.parseOutputParameter(bind);
-        return sqlParser.combineBindValues(sql, bindValues);
+        final String combineSql = sqlParser.combineBindValues(sql, bindValues);
+        if(logger.isDebugEnabled()) {
+            logger.debug("Combine SQL. sql={}", combineSql);
+        }
+
+        return StringEscapeUtils.escapeHtml4(combineSql);
     }
 }
