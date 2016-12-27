@@ -139,7 +139,7 @@
 	         * @param transaction
 	         */
 	        $scope.openTransactionView = function () {
-	            $window.open('/#/transactionView/' + $scope.transactionDetail.agentId + '/' + $scope.transactionDetail.transactionId + '/' + $scope.transactionDetail.callStackStart + '/' + $scope.transactionDetail.spanId);
+	            $window.open('/#/transactionView/' + $scope.transactionDetail.agentId + '/' + $scope.transactionDetail.transactionId + '/' + $scope.transactionDetail.callStackStart + '/' + $routeParams.spanId);
 	        };
 	        $scope.$on("transactionDetail.selectDistributedCallFlowRow", function( event, rowId ) {
 				analyticsService.send(analyticsService.CONST.CALLSTACK, analyticsService.CONST.CLK_DISTRIBUTED_CALL_FLOW);
