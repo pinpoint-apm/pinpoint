@@ -31,7 +31,7 @@ import java.util.List;
  * @author HyunGil Jeong
  */
 @Component
-public class JvmGcDetailedSampler implements AgentStatSampler<JvmGcDetailedBo, SampledJvmGcDetailed> {
+public class JvmGcDetailedSampler extends AbstractAgentStatSampler<JvmGcDetailedBo, SampledJvmGcDetailed> {
 
     private static final int NUM_DECIMAL_PLACES = 1;
     public static final DownSampler<Long> LONG_DOWN_SAMPLER = DownSamplers.getLongDownSampler(JvmGcDetailedBo.UNCOLLECTED_VALUE);

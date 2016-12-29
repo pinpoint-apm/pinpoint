@@ -36,7 +36,7 @@ import java.util.Map;
  * @author HyunGil Jeong
  */
 @Component
-public class ActiveTraceSampler implements AgentStatSampler<ActiveTraceBo, SampledActiveTrace> {
+public class ActiveTraceSampler extends AbstractAgentStatSampler<ActiveTraceBo, SampledActiveTrace> {
 
     public static final DownSampler<Integer> INTEGER_DOWN_SAMPLER = DownSamplers.getIntegerDownSampler(ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT);
 

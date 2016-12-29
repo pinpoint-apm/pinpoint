@@ -31,7 +31,7 @@ import java.util.List;
  * @author HyunGil Jeong
  */
 @Component
-public class CpuLoadSampler implements AgentStatSampler<CpuLoadBo, SampledCpuLoad> {
+public class CpuLoadSampler extends AbstractAgentStatSampler<CpuLoadBo, SampledCpuLoad> {
 
     private static final int NUM_DECIMAL_PLACES = 1;
     public static final DownSampler<Double> DOUBLE_DOWN_SAMPLER = DownSamplers.getDoubleDownSampler(CpuLoadBo.UNCOLLECTED_VALUE, NUM_DECIMAL_PLACES);

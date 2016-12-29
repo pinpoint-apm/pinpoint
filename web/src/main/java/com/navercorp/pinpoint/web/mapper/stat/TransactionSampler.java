@@ -32,7 +32,7 @@ import java.util.List;
  * @author HyunGil Jeong
  */
 @Component
-public class TransactionSampler implements AgentStatSampler<TransactionBo, SampledTransaction> {
+public class TransactionSampler extends AbstractAgentStatSampler<TransactionBo, SampledTransaction> {
 
     private static final double UNCOLLECTED_TPS = -1D;
     private static final int NUM_DECIMAL_PLACES = 1;

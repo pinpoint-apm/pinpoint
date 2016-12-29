@@ -24,6 +24,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -32,12 +33,9 @@ import java.util.List;
  */
 public class SampledAgentStatResultExtractor<T extends AgentStatDataPoint, S extends SampledAgentStatDataPoint> implements ResultsExtractor<List<S>> {
 
-    private static final int INITIAL_TIME_WINDOW_INDEX = -1;
-
     private final TimeWindow timeWindow;
     private final AgentStatMapper<T> rowMapper;
     private final AgentStatSampler<T, S> sampler;
-    private final List<S> sampledDataPoints;
 
     public SampledAgentStatResultExtractor(TimeWindow timeWindow, AgentStatMapper<T> rowMapper, AgentStatSampler<T, S> sampler) {
         if (timeWindow.getWindowRangeCount() > Integer.MAX_VALUE) {
@@ -46,48 +44,22 @@ public class SampledAgentStatResultExtractor<T extends AgentStatDataPoint, S ext
         this.timeWindow = timeWindow;
         this.rowMapper = rowMapper;
         this.sampler = sampler;
-        this.sampledDataPoints = new ArrayList<>((int) timeWindow.getWindowRangeCount());
     }
 
     @Override
     public List<S> extractData(ResultScanner results) throws Exception {
         int rowNum = 0;
-        // Sample straight away, tossing out already sampled data points so they can be garbage collected
-        // as soon as possible.
-        // This is mainly important when querying over a long period of time where sampling after all the data has been
-        // deserialized would consume too much memory.
-        T previous;
-        List<T> currentBatch = new ArrayList<>();
-        int currentTimeWindowIndex = INITIAL_TIME_WINDOW_INDEX;
-        long currentTimeslotTimestamp = 0;
+        List<T> aggregatedDataPoints = new ArrayList<>();
         for (Result result : results) {
-            List<T> dataPoints = this.rowMapper.mapRow(result, rowNum++);
-            for (T dataPoint : dataPoints) {
-                long timestamp = dataPoint.getTimestamp();
-                int timeWindowIndex = this.timeWindow.getWindowIndex(timestamp);
-                if (currentTimeWindowIndex == INITIAL_TIME_WINDOW_INDEX || currentTimeWindowIndex == timeWindowIndex) {
-                    currentBatch.add(dataPoint);
-                } else if (timeWindowIndex < currentTimeWindowIndex) {
-                    previous = dataPoint;
-                    // currentBatch shouldn't be empty at this point
-                    S sampledBatch = sampler.sampleDataPoints(currentTimeslotTimestamp, currentBatch, previous);
-                    this.sampledDataPoints.add(sampledBatch);
-                    currentBatch = new ArrayList<>();
-                    currentBatch.add(dataPoint);
-                } else {
-                    // Results should be sorted in a descending order of their actual timestamp values
-                    // as they are stored using reverse timestamp.
-                    throw new IllegalStateException("Out of order AgentStatDataPoint");
-                }
-                currentTimeslotTimestamp = this.timeWindow.refineTimestamp(timestamp);
-                currentTimeWindowIndex = timeWindowIndex;
-            }
+            aggregatedDataPoints.addAll(this.rowMapper.mapRow(result, rowNum++));
         }
-        if (!currentBatch.isEmpty()) {
-            S sampledBatch = sampler.sampleDataPoints(currentTimeslotTimestamp, currentBatch, null);
-            sampledDataPoints.add(sampledBatch);
+        List<S> sampledDataPoints;
+        if (aggregatedDataPoints.isEmpty()) {
+            sampledDataPoints = Collections.emptyList();
+        } else {
+            sampledDataPoints = sampler.sampleDataPoints(timeWindow, aggregatedDataPoints);
         }
-        return this.sampledDataPoints;
+        return sampledDataPoints;
     }
 
 }
