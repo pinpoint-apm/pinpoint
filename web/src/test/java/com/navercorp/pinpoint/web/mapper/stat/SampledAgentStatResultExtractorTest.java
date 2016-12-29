@@ -175,7 +175,7 @@ public class SampledAgentStatResultExtractorTest {
         return dataPoints;
     }
 
-    private static class TestAgentStatSampler implements AgentStatSampler<TestAgentStatDataPoint, TestSampledAgentStatDataPoint> {
+    private static class TestAgentStatSampler extends AbstractAgentStatSampler<TestAgentStatDataPoint, TestSampledAgentStatDataPoint> {
 
         @Override
         public TestSampledAgentStatDataPoint sampleDataPoints(long timestamp, List<TestAgentStatDataPoint> dataPoints, TestAgentStatDataPoint previousDataPoint) {

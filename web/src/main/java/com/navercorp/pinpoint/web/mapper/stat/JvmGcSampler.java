@@ -32,7 +32,7 @@ import java.util.List;
  * @author HyunGil Jeong
  */
 @Component
-public class JvmGcSampler implements AgentStatSampler<JvmGcBo, SampledJvmGc> {
+public class JvmGcSampler extends AbstractAgentStatSampler<JvmGcBo, SampledJvmGc> {
 
     public static final DownSampler<Long> LONG_DOWN_SAMPLER = DownSamplers.getLongDownSampler(JvmGcBo.UNCOLLECTED_VALUE);
 
