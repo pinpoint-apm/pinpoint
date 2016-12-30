@@ -5,10 +5,10 @@ import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
@@ -17,21 +17,15 @@ import java.util.TreeMap;
 public abstract class AbstractAgentStatSampler<T extends AgentStatDataPoint, S extends SampledAgentStatDataPoint> implements AgentStatSampler<T, S> {
 
     private static final int INITIAL_TIME_WINDOW_INDEX = -1;
-    private static final Comparator<Long> REVERSE_TIMESTAMP_COMPARATOR = new Comparator<Long>() {
-        @Override
-        public int compare(Long o1, Long o2) {
-            return o2.compareTo(o1);
-        }
-    };
 
     @Override
     public final List<S> sampleDataPoints(TimeWindow timeWindow, List<T> dataPoints) {
         Map<Long, List<T>> dataPointPartitions = partitionDataPoints(dataPoints);
 
-        Map<Long, Map<Long, S>> sampledPointProjection = mapProjection(timeWindow, dataPointPartitions);
+        Map<Long, SortedMap<Long, S>> sampledPointProjection = mapProjection(timeWindow, dataPointPartitions);
 
         List<S> sampledDataPoints = new ArrayList<>(sampledPointProjection.size());
-        for (Map<Long, S> sampledPointCandidates : sampledPointProjection.values()) {
+        for (SortedMap<Long, S> sampledPointCandidates : sampledPointProjection.values()) {
             sampledDataPoints.add(reduceSampledPoints(sampledPointCandidates));
         }
         return sampledDataPoints;
@@ -67,8 +61,8 @@ public abstract class AbstractAgentStatSampler<T extends AgentStatDataPoint, S e
      * @param dataPointPartitions a map of data points partitioned by their agent start timestamp
      * @return a map of timeslots with sampled data points mapped by their agent start timestamp as values
      */
-    private Map<Long, Map<Long, S>> mapProjection(TimeWindow timeWindow, Map<Long, List<T>> dataPointPartitions) {
-        Map<Long, Map<Long, S>> sampledPointProjection = new TreeMap<>();
+    private Map<Long, SortedMap<Long, S>> mapProjection(TimeWindow timeWindow, Map<Long, List<T>> dataPointPartitions) {
+        Map<Long, SortedMap<Long, S>> sampledPointProjection = new TreeMap<>();
         for (Map.Entry<Long, List<T>> dataPointPartitionEntry : dataPointPartitions.entrySet()) {
             Long startTimestamp = dataPointPartitionEntry.getKey();
             List<T> dataPointPartition = dataPointPartitionEntry.getValue();
@@ -77,9 +71,9 @@ public abstract class AbstractAgentStatSampler<T extends AgentStatDataPoint, S e
             for (Map.Entry<Long, S> e : sampledDataPointPartition.entrySet()) {
                 Long timeslotTimestamp = e.getKey();
                 S sampledDataPoint = e.getValue();
-                Map<Long, S> timeslotSampleEntry = sampledPointProjection.get(timeslotTimestamp);
+                SortedMap<Long, S> timeslotSampleEntry = sampledPointProjection.get(timeslotTimestamp);
                 if (timeslotSampleEntry == null) {
-                    timeslotSampleEntry = new TreeMap<>(REVERSE_TIMESTAMP_COMPARATOR);
+                    timeslotSampleEntry = new TreeMap<>();
                     sampledPointProjection.put(timeslotTimestamp, timeslotSampleEntry);
                 }
                 timeslotSampleEntry.put(startTimestamp, sampledDataPoint);
@@ -131,20 +125,12 @@ public abstract class AbstractAgentStatSampler<T extends AgentStatDataPoint, S e
     /**
      * Returns the sampled data point of the most recently started agent out of multiple candidates.
      *
-     * @param sampledPointCandidates a map of sampled data points to reduce mapped by their agent start timestamp
+     * @param sampledPointCandidates a sorted map of sampled data points in ascending order of agent start timestamp
      * @return sampled data point of the most recently started agent
      */
-    protected S reduceSampledPoints(Map<Long, S> sampledPointCandidates) {
-        long latestStartTimestamp = -1L;
-        S sampledPointToUse = null;
-        for (Map.Entry<Long, S> e : sampledPointCandidates.entrySet()) {
-            long startTimestamp = e.getKey();
-            if (startTimestamp > latestStartTimestamp) {
-                latestStartTimestamp = startTimestamp;
-                sampledPointToUse = e.getValue();
-            }
-        }
-        return sampledPointToUse;
+    protected S reduceSampledPoints(SortedMap<Long, S> sampledPointCandidates) {
+        Long lastKey = sampledPointCandidates.lastKey();
+        return sampledPointCandidates.get(lastKey);
     }
 
     protected abstract S sampleDataPoints(int timeWindowIndex, long timestamp, List<T> dataPoints, T previousDataPoint);
