@@ -30,11 +30,11 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
-public class AgentActiveThreadDumpListSerializer extends JsonSerializer<AgentActiveThreadDumpList> {
+public class    AgentActiveThreadDumpListSerializer extends JsonSerializer<AgentActiveThreadDumpList> {
 
     @Override
     public void serialize(AgentActiveThreadDumpList agentActiveThreadDumpList, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
-        List<AgentActiveThreadDump> agentActiveThreadDumpRepository = agentActiveThreadDumpList.getAgentActiveThreadDumpRepository();
+        List<AgentActiveThreadDump> agentActiveThreadDumpRepository = agentActiveThreadDumpList.getSortOldestAgentActiveThreadDumpRepository();
 
         jgen.writeStartArray();
         for (AgentActiveThreadDump agentActiveThreadDump : agentActiveThreadDumpRepository) {
@@ -52,8 +52,13 @@ public class AgentActiveThreadDumpListSerializer extends JsonSerializer<AgentAct
                 jgen.writeStringField("threadState", agentActiveThreadDump.getThreadState().name());
             }
 
-            jgen.writeNumberField("threadExecTime", agentActiveThreadDump.getExecTime());
-            jgen.writeNumberField("traceId", agentActiveThreadDump.getTraceId());
+            jgen.writeNumberField("startTime", agentActiveThreadDump.getStartTime());
+            jgen.writeNumberField("execTime", agentActiveThreadDump.getExecTime());
+            jgen.writeNumberField("localTraceId", agentActiveThreadDump.getLocalTraceId());
+
+            jgen.writeBooleanField("sampled", agentActiveThreadDump.isSampled());
+            jgen.writeStringField("transactionId", agentActiveThreadDump.getTransactionId());
+            jgen.writeStringField("entryPoint", agentActiveThreadDump.getEntryPoint());
 
             jgen.writeStringField("detailMessage", agentActiveThreadDump.getDetailMessage());
 

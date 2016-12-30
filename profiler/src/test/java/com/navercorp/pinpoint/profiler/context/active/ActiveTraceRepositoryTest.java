@@ -105,8 +105,8 @@ public class ActiveTraceRepositoryTest {
         assertEquals(expectedTotalTransactionCount, transactionCounter.getTotalTransactionCount());
         
         for (ActiveTraceInfo activeTraceInfo : activeTraceInfos) {
-            TraceThreadTuple executedTrace = executedTraceMap.get(activeTraceInfo.getId());
-            assertEquals(executedTrace.id, activeTraceInfo.getId());
+            TraceThreadTuple executedTrace = executedTraceMap.get(activeTraceInfo.getLocalTraceId());
+            assertEquals(executedTrace.id, activeTraceInfo.getLocalTraceId());
             assertEquals(executedTrace.startTime, activeTraceInfo.getStartTime());
             assertEquals(executedTrace.thread, activeTraceInfo.getThread());
         }

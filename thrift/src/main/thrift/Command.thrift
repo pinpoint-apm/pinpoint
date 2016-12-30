@@ -65,15 +65,21 @@ struct TCmdActiveThreadCountRes {
 
 
 struct TActiveThreadDump {
-    1: i64 execTime
-    2: i64 traceId
+    1: i64 startTime
+    2: i64 localTraceId
     3: TThreadDump threadDump
+    4: bool sampled = false
+    5: optional string transactionId
+    6: optional string entryPoint
 }
 
 struct TActiveThreadLightDump {
-    1: i64 execTime
-    2: i64 traceId
+    1: i64 startTime
+    2: i64 localTraceId
     3: TThreadLightDump threadDump
+    4: bool sampled = false
+    5: optional string transactionId
+    6: optional string entryPoint
 }
 
 struct TCmdActiveThreadDump {
