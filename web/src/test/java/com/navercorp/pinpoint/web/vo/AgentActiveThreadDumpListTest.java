@@ -16,13 +16,14 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
+import com.navercorp.pinpoint.bootstrap.util.jdk.ThreadLocalRandom;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.profiler.util.ThreadDumpUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadDump;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.management.ThreadInfo;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,33 +31,132 @@ import java.util.List;
  */
 public class AgentActiveThreadDumpListTest {
 
-    @Test
-    public void addAndGetTest() throws Exception {
-        ThreadInfo[] allThreadInfo = ThreadMXBeanUtils.dumpAllThread();
-        AgentActiveThreadDumpList activeThreadDumpList = createThreadDumpList(allThreadInfo);
+    private static final int CREATE_DUMP_SIZE = 10;
 
-        Assert.assertEquals(allThreadInfo.length, activeThreadDumpList.getAgentActiveThreadDumpRepository().size());
+    private final PinpointThreadFactory pinpointThreadFactory = new PinpointThreadFactory(this.getClass().getSimpleName());
+
+    @Test
+    public void basicFunctionTest1() throws Exception {
+        List<WaitingJob> waitingJobList = createWaitingJobList(CREATE_DUMP_SIZE);
+        try {
+            Thread[] threads = createThread(waitingJobList);
+
+            AgentActiveThreadDumpList activeThreadDumpList = createThreadDumpList(threads);
+
+            Assert.assertEquals(CREATE_DUMP_SIZE, activeThreadDumpList.getAgentActiveThreadDumpRepository().size());
+        } finally {
+            clearResource(waitingJobList);
+        }
+    }
+
+    @Test
+    public void basicFunctionTest2() throws Exception {
+        List<WaitingJob> waitingJobList = createWaitingJobList(CREATE_DUMP_SIZE);
+        try {
+            Thread[] threads = createThread(waitingJobList);
+
+            AgentActiveThreadDumpList activeThreadDumpList = createThreadDumpList(threads);
+
+            List<AgentActiveThreadDump> sortOldestAgentActiveThreadDumpRepository = activeThreadDumpList.getSortOldestAgentActiveThreadDumpRepository();
+
+            long before = 0;
+            for (AgentActiveThreadDump dump : sortOldestAgentActiveThreadDumpRepository) {
+                long startTime = dump.getStartTime();
+                if (before > startTime) {
+                    Assert.fail();
+                }
+                before = startTime;
+            }
+        } finally {
+            clearResource(waitingJobList);
+        }
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void checkunmodifiableList() throws Exception {
-        ThreadInfo[] allThreadInfo = ThreadMXBeanUtils.dumpAllThread();
-        AgentActiveThreadDumpList activeThreadDumpList = createThreadDumpList(allThreadInfo);
+    public void checkUnmodifiableList() throws Exception {
+        List<WaitingJob> waitingJobList = createWaitingJobList(CREATE_DUMP_SIZE);
+        try {
+            Thread[] threads = createThread(waitingJobList);
 
-        List<AgentActiveThreadDump> agentActiveThreadDumpRepository = activeThreadDumpList.getAgentActiveThreadDumpRepository();
-        agentActiveThreadDumpRepository.remove(0);
+            AgentActiveThreadDumpList activeThreadDumpList = createThreadDumpList(threads);
+
+            List<AgentActiveThreadDump> agentActiveThreadDumpRepository = activeThreadDumpList.getAgentActiveThreadDumpRepository();
+            agentActiveThreadDumpRepository.remove(0);
+        } finally {
+            clearResource(waitingJobList);
+        }
     }
 
-    private AgentActiveThreadDumpList createThreadDumpList(ThreadInfo[] allThreadInfo) {
-        AgentActiveThreadDumpList activeThreadDumpList = new AgentActiveThreadDumpList();
-        for (ThreadInfo threadInfo : allThreadInfo) {
-            TActiveThreadDump tActiveThreadDump = new TActiveThreadDump();
-            tActiveThreadDump.setExecTime(1000);
-            tActiveThreadDump.setThreadDump(ThreadDumpUtils.createTThreadDump(threadInfo));
+    private List<WaitingJob> createWaitingJobList(int createActiveTraceLocatorSize) {
+        List<WaitingJob> waitingJobList = new ArrayList<WaitingJob>();
+        for (int i = 0; i < createActiveTraceLocatorSize; i++) {
+            waitingJobList.add(new WaitingJob(100));
+        }
+        return waitingJobList;
+    }
 
+    private Thread[] createThread(List<WaitingJob> runnableList) {
+        Thread[] threads = new Thread[runnableList.size()];
+
+        for (int i = 0; i < runnableList.size(); i++) {
+            Thread thread = createThread(runnableList.get(i));
+            threads[i] = thread;
+        }
+
+        return threads;
+    }
+
+    private Thread createThread(Runnable runnable) {
+        Thread thread = pinpointThreadFactory.newThread(runnable);
+        thread.start();
+        return thread;
+    }
+
+    private AgentActiveThreadDumpList createThreadDumpList(Thread[] threads) {
+        AgentActiveThreadDumpList activeThreadDumpList = new AgentActiveThreadDumpList();
+        for (Thread thread : threads) {
+            TActiveThreadDump tActiveThreadDump = new TActiveThreadDump();
+            tActiveThreadDump.setStartTime(System.currentTimeMillis() - ThreadLocalRandom.current().nextLong(100000));
+            tActiveThreadDump.setThreadDump(ThreadDumpUtils.createTThreadDump(thread));
             activeThreadDumpList.add(new AgentActiveThreadDump(tActiveThreadDump));
         }
         return activeThreadDumpList;
+    }
+
+    private void clearResource(List<WaitingJob> waitingJobList) {
+        if (waitingJobList == null) {
+            return;
+        }
+
+        for (WaitingJob waitingJob : waitingJobList) {
+            waitingJob.close();
+        }
+    }
+
+    private static class WaitingJob implements Runnable {
+
+        private final long timeIntervalMillis;
+        private boolean close = false;
+
+        public WaitingJob(long timeIntervalMillis) {
+            this.timeIntervalMillis = timeIntervalMillis;
+        }
+
+        @Override
+        public void run() {
+            while (!close) {
+                try {
+                    Thread.sleep(timeIntervalMillis);
+                } catch (InterruptedException e) {
+                    close = true;
+                }
+            }
+        }
+
+        public void close() {
+            this.close = true;
+        }
+
     }
 
 }

@@ -60,7 +60,7 @@ public class AgentActiveThreadDumpListSerializerTest {
         AgentActiveThreadDumpList activeThreadDumpList = new AgentActiveThreadDumpList();
         for (ThreadInfo threadInfo : allThreadInfo) {
             TActiveThreadDump tActiveThreadDump = new TActiveThreadDump();
-            tActiveThreadDump.setExecTime(1000);
+            tActiveThreadDump.setStartTime(System.currentTimeMillis() - 1000);
             tActiveThreadDump.setThreadDump(ThreadDumpUtils.createTThreadDump(threadInfo));
 
             activeThreadDumpList.add(new AgentActiveThreadDump(tActiveThreadDump));

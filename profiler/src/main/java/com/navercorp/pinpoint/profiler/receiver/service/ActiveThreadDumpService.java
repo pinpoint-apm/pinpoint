@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceInfo;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
+import com.navercorp.pinpoint.profiler.util.ActiveThreadDumpUtils;
 import com.navercorp.pinpoint.profiler.util.ThreadDumpUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDump;
@@ -30,6 +31,8 @@ import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDumpRes;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
 import org.apache.thrift.TBase;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -46,57 +49,70 @@ public class ActiveThreadDumpService implements ProfilerRequestCommandService {
     @Override
     public TBase<?, ?> requestCommandService(TBase tBase) {
         TCmdActiveThreadDump request = (TCmdActiveThreadDump) tBase;
-        boolean enableFilterThreadName = request.getTargetThreadNameListSize() > 0;
-        boolean enableFilterTraceId = request.getTraceIdListSize() > 0;
+
+        List<TActiveThreadDump> activeThreadDumpList = getActiveThreadDumpList(request);
 
         TCmdActiveThreadDumpRes response = new TCmdActiveThreadDumpRes();
-
-        long currentTime = System.currentTimeMillis();
-        List<ActiveTraceInfo> collectedActiveTraceInfo = activeTraceLocator.collect();
-        for (ActiveTraceInfo activeTraceInfo : collectedActiveTraceInfo) {
-            long execTime = currentTime - activeTraceInfo.getStartTime();
-            if (execTime >= request.getExecTime()) {
-                if (!isTraceThread(activeTraceInfo, enableFilterThreadName, request.getTargetThreadNameList(), enableFilterTraceId, request.getTraceIdList())) {
-                    continue;
-                }
-
-                Thread thread = activeTraceInfo.getThread();
-                TThreadDump threadDump = createThreadDump(thread, true);
-                if (threadDump != null) {
-                    TActiveThreadDump activeThreadDump = new TActiveThreadDump();
-                    activeThreadDump.setExecTime(execTime);
-                    activeThreadDump.setTraceId(activeTraceInfo.getId());
-                    activeThreadDump.setThreadDump(threadDump);
-
-                    response.addToThreadDumps(activeThreadDump);
-                }
-            }
-        }
-        response.setJvmType(JvmUtils.getType().name());
-        response.setJvmVersion(JvmUtils.getVersion().name());
+        response.setType("JAVA");
+        response.setSubType(JvmUtils.getType().name());
+        response.setVersion(JvmUtils.getVersion().name());
+        response.setThreadDumps(activeThreadDumpList);
         return response;
     }
 
-    private boolean isTraceThread(ActiveTraceInfo activeTraceInfo, boolean enableFilterThreadName, List<String> threadNameList, boolean enableFilterTraceId, List<Long> traceIdList) {
+    private List<TActiveThreadDump> getActiveThreadDumpList(TCmdActiveThreadDump request) {
+        List<ActiveTraceInfo> activeTraceInfoList = activeTraceLocator.collect();
+
+        int limit = request.getLimit();
+        if (limit > 0) {
+            Collections.sort(activeTraceInfoList, ActiveThreadDumpUtils.getActiveTraceInfoComparator());
+        } else {
+            limit = Integer.MAX_VALUE;
+        }
+
+        return getActiveThreadDumpList(request, limit, activeTraceInfoList);
+    }
+
+    private List<TActiveThreadDump> getActiveThreadDumpList(TCmdActiveThreadDump request, int limit, List<ActiveTraceInfo> activeTraceInfoList) {
+        int targetThreadNameListSize = request.getTargetThreadNameListSize();
+        int localTraceIdListSize = request.getLocalTraceIdListSize();
+        boolean filterEnable = (targetThreadNameListSize + localTraceIdListSize) > 0;
+
+        List<TActiveThreadDump> activeThreadDumpList = new ArrayList<TActiveThreadDump>(Math.min(limit, activeTraceInfoList.size()));
+        if (filterEnable) {
+            for (ActiveTraceInfo activeTraceInfo : activeTraceInfoList) {
+                if (!ActiveThreadDumpUtils.isTraceThread(activeTraceInfo, request.getTargetThreadNameList(), request.getLocalTraceIdList())) {
+                    continue;
+                }
+
+                TActiveThreadDump activeThreadDump = createActiveThreadDump(activeTraceInfo);
+                if (activeThreadDump != null) {
+                    if (limit > activeThreadDumpList.size()) {
+                        activeThreadDumpList.add(activeThreadDump);
+                    }
+                }
+            }
+        } else {
+            for (ActiveTraceInfo activeTraceInfo : activeTraceInfoList) {
+                TActiveThreadDump activeThreadDump = createActiveThreadDump(activeTraceInfo);
+                if (activeThreadDump != null) {
+                    if (limit > activeThreadDumpList.size()) {
+                        activeThreadDumpList.add(activeThreadDump);
+                    }
+                }
+            }
+        }
+
+        return activeThreadDumpList;
+    }
+
+    private TActiveThreadDump createActiveThreadDump(ActiveTraceInfo activeTraceInfo) {
         Thread thread = activeTraceInfo.getThread();
-        if (thread == null) {
-            return false;
+        TThreadDump threadDump = createThreadDump(thread, true);
+        if (threadDump != null) {
+            return createTActiveThreadDump(activeTraceInfo, threadDump);
         }
-        if (!enableFilterThreadName && !enableFilterTraceId) {
-            return true;
-        }
-        if (enableFilterTraceId) {
-            long traceId = activeTraceInfo.getId();
-            if (traceIdList.contains(traceId)) {
-                return true;
-            }
-        }
-        if (enableFilterThreadName) {
-            if (threadNameList.contains(thread.getName())) {
-                return true;
-            }
-        }
-        return false;
+        return null;
     }
 
     private TThreadDump createThreadDump(Thread thread, boolean isIncludeStackTrace) {
@@ -109,6 +125,20 @@ public class ActiveThreadDumpService implements ProfilerRequestCommandService {
         } else {
             return ThreadDumpUtils.createTThreadDump(thread, 0);
         }
+    }
+
+    private TActiveThreadDump createTActiveThreadDump(ActiveTraceInfo activeTraceInfo, TThreadDump threadDump) {
+        TActiveThreadDump activeThreadDump = new TActiveThreadDump();
+        activeThreadDump.setStartTime(activeTraceInfo.getStartTime());
+        activeThreadDump.setLocalTraceId(activeTraceInfo.getLocalTraceId());
+        activeThreadDump.setThreadDump(threadDump);
+
+        if (activeTraceInfo.isSampled()) {
+            activeThreadDump.setSampled(true);
+            activeThreadDump.setTransactionId(activeTraceInfo.getTransactionId());
+            activeThreadDump.setEntryPoint(activeTraceInfo.getEntryPoint());
+        }
+        return activeThreadDump;
     }
 
     @Override
