@@ -38,8 +38,13 @@ public class AgentActiveThreadDump {
     private final String threadName;
     private final TThreadState threadState;
 
+    private final long startTime;
     private final long execTime;
-    private final long traceId;
+    private final long localTraceId;
+
+    private final boolean sampled;
+    private final String transactionId;
+    private final String entryPoint;
 
     private final String detailMessage;
 
@@ -58,8 +63,13 @@ public class AgentActiveThreadDump {
             this.threadState = activeThreadDump.getThreadState();
         }
 
-        this.execTime = tActiveThreadDump.getExecTime();
-        this.traceId = tActiveThreadDump.getTraceId();
+        this.startTime = tActiveThreadDump.getStartTime();
+        this.execTime = System.currentTimeMillis() - startTime;
+        this.localTraceId = tActiveThreadDump.getLocalTraceId();
+
+        this.sampled = tActiveThreadDump.isSampled();
+        this.transactionId = tActiveThreadDump.getTransactionId();
+        this.entryPoint = tActiveThreadDump.getEntryPoint();
 
         this.detailMessage = createDumpMessage(activeThreadDump);
     }
@@ -79,8 +89,13 @@ public class AgentActiveThreadDump {
             this.threadState = activeThreadDump.getThreadState();
         }
 
-        this.execTime = tActiveThreadLightDump.getExecTime();
-        this.traceId = tActiveThreadLightDump.getTraceId();
+        this.startTime = tActiveThreadLightDump.getStartTime();
+        this.execTime = System.currentTimeMillis() - startTime;
+        this.localTraceId = tActiveThreadLightDump.getLocalTraceId();
+
+        this.sampled = tActiveThreadLightDump.isSampled();
+        this.transactionId = tActiveThreadLightDump.getTransactionId();
+        this.entryPoint = tActiveThreadLightDump.getEntryPoint();
 
         this.detailMessage = StringUtils.EMPTY;
     }
@@ -174,12 +189,28 @@ public class AgentActiveThreadDump {
         return threadState;
     }
 
+    public long getStartTime() {
+        return startTime;
+    }
+
     public long getExecTime() {
         return execTime;
     }
 
-    public long getTraceId() {
-        return traceId;
+    public long getLocalTraceId() {
+        return localTraceId;
+    }
+
+    public boolean isSampled() {
+        return sampled;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public String getEntryPoint() {
+        return entryPoint;
     }
 
     public String getDetailMessage() {

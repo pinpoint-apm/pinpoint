@@ -19,12 +19,10 @@ package com.navercorp.pinpoint.profiler.context.active;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.navercorp.pinpoint.profiler.context.ActiveTrace;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
@@ -44,6 +42,7 @@ public class ActiveTraceRepository implements ActiveTraceLocator {
     public ActiveTraceRepository() {
         this(DEFAULT_MAX_ACTIVE_TRACE_SIZE);
     }
+
     public ActiveTraceRepository(int maxActiveTraceSize) {
         this.activeTraceInfoMap = createCache(maxActiveTraceSize);
     }
@@ -68,27 +67,6 @@ public class ActiveTraceRepository implements ActiveTraceLocator {
         return this.activeTraceInfoMap.get(key);
     }
 
-
-    // @ThreadSafe
-    public Object getStackTrace(Long key) {
-        final ActiveTrace trace = get(key);
-        if (trace == null) {
-            return null;
-        }
-
-        final Thread bindThread = trace.getBindThread();
-        if (bindThread == null) {
-            return null;
-        }
-        // TODO sudo code
-        StackTraceElement[] stackTrace = bindThread.getStackTrace();
-        logger.info("stackTrace:{}", Arrays.toString(stackTrace));
-
-//      copy TraceCallStack data
-//        CallStack callStack = trace.copyCallStack();
-        return null;
-    }
-
     public ActiveTrace remove(Long key) {
         return this.activeTraceInfoMap.remove(key);
     }
@@ -96,17 +74,23 @@ public class ActiveTraceRepository implements ActiveTraceLocator {
     // @ThreadSafe
     @Override
     public List<ActiveTraceInfo> collect() {
-        List<ActiveTraceInfo> collectData = new ArrayList<ActiveTraceInfo>();
         final Collection<ActiveTrace> copied = this.activeTraceInfoMap.values();
+        List<ActiveTraceInfo> collectData = new ArrayList<ActiveTraceInfo>(copied.size());
         for (ActiveTrace trace : copied) {
             final long startTime = trace.getStartTime();
             // not started
             if (startTime > 0) {
-                // clear Trace reference
-                ActiveTraceInfo activeTraceInfo = new ActiveTraceInfo(trace.getId(), startTime, trace.getBindThread());
-                collectData.add(activeTraceInfo);
+                if (trace.isSampled()) {
+                    ActiveTraceInfo activeTraceInfo = new ActiveTraceInfo(trace.getId(), startTime, trace.getBindThread(), true, trace.getTransactionId(), trace.getEntryPoint());
+                    collectData.add(activeTraceInfo);
+                } else {
+                    // clear Trace reference
+                    ActiveTraceInfo activeTraceInfo = new ActiveTraceInfo(trace.getId(), startTime, trace.getBindThread());
+                    collectData.add(activeTraceInfo);
+                }
             }
         }
         return collectData;
     }
+
 }
