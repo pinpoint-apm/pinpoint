@@ -35,7 +35,7 @@ public class JvmGcSamplerTest {
         List<JvmGcBo> jvmGcBos = Arrays.asList(jvmGcBo);
 
         // When
-        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(System.currentTimeMillis(), jvmGcBos, previousJvmGcBo);
+        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(0, System.currentTimeMillis(), jvmGcBos, previousJvmGcBo);
 
         // Then
         long expectedGcCount = gcCount - previousGcCount;
@@ -56,7 +56,7 @@ public class JvmGcSamplerTest {
         List<JvmGcBo> jvmGcBos = Arrays.asList(jvmGcBo);
 
         // When
-        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(System.currentTimeMillis(), jvmGcBos, null);
+        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(0, System.currentTimeMillis(), jvmGcBos, null);
 
         // Then
         long expectedGcCount = 0L;
@@ -85,7 +85,7 @@ public class JvmGcSamplerTest {
         List<JvmGcBo> jvmGcBos = Arrays.asList(secondJvmGcBo, firstJvmGcBo);
 
         // When
-        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(System.currentTimeMillis(), jvmGcBos, previousJvmGcBo);
+        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(0, System.currentTimeMillis(), jvmGcBos, previousJvmGcBo);
 
         // Then
         long expectedGcCount = secondGcCount - previousGcCount;
@@ -110,7 +110,7 @@ public class JvmGcSamplerTest {
         List<JvmGcBo> jvmGcBos = Arrays.asList(secondJvmGcBo, firstJvmGcBo);
 
         // When
-        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(System.currentTimeMillis(), jvmGcBos, null);
+        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(0, System.currentTimeMillis(), jvmGcBos, null);
 
         // Then
         long expectedGcCount = secondGcCount - firstGcCount;
@@ -149,7 +149,7 @@ public class JvmGcSamplerTest {
         List<JvmGcBo> jvmGcBos = Arrays.asList(secondJvmGcBo_2, firstJvmGcBo_2, secondJvmGcBo_1, firstJvmGcBo_1);
 
         // When
-        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(System.currentTimeMillis(), jvmGcBos, previousJvmGcBo);
+        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(0, System.currentTimeMillis(), jvmGcBos, previousJvmGcBo);
 
         // Then
         long gcCountsBeforeJvmRestart = secondGcCount_1 - previousGcCount;
@@ -188,7 +188,7 @@ public class JvmGcSamplerTest {
         List<JvmGcBo> jvmGcBos = Arrays.asList(secondJvmGcBo_2, firstJvmGcBo_2, secondJvmGcBo_1, firstJvmGcBo_1);
 
         // When
-        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(System.currentTimeMillis(), jvmGcBos, null);
+        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(0, System.currentTimeMillis(), jvmGcBos, null);
 
         // Then
         long gcCountsBeforeJvmRestart = secondGcCount_1 - firstGcCount_1;
@@ -224,7 +224,7 @@ public class JvmGcSamplerTest {
         List<JvmGcBo> jvmGcBos = Arrays.asList(secondJvmGcBo, uncollectedJvmGcBo3, uncollectedJvmGcBo2, firstJvmGcBo, uncollectedJvmGcBo1);
 
         // When
-        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(System.currentTimeMillis(), jvmGcBos, previousJvmGcBo);
+        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(0, System.currentTimeMillis(), jvmGcBos, previousJvmGcBo);
 
         // Then
         long expectedGcCount = secondGcCount - previousGcCount;
@@ -251,7 +251,7 @@ public class JvmGcSamplerTest {
         List<JvmGcBo> jvmGcBos = Arrays.asList(uncollectedJvmGcBo3, secondJvmGcBo, uncollectedJvmGcBo2, uncollectedJvmGcBo1, firstJvmGcBo);
 
         // When
-        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(System.currentTimeMillis(), jvmGcBos, null);
+        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(0, System.currentTimeMillis(), jvmGcBos, null);
 
         // Then
         long expectedGcCount = secondGcCount - firstGcCount;
@@ -281,7 +281,7 @@ public class JvmGcSamplerTest {
         List<JvmGcBo> jvmGcBos = Arrays.asList(secondJvmGcBo, uncollectedJvmGcBo2, firstJvmGcBo, uncollectedJvmGcBo1);
 
         // When
-        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(System.currentTimeMillis(), jvmGcBos, previousJvmGcBo);
+        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(0, System.currentTimeMillis(), jvmGcBos, previousJvmGcBo);
 
         // Then
         long expectedGcCount = secondGcCount - firstGcCount;
@@ -327,7 +327,7 @@ public class JvmGcSamplerTest {
         );
 
         // When
-        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(System.currentTimeMillis(), jvmGcBos, previousJvmGcBo);
+        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(0, System.currentTimeMillis(), jvmGcBos, previousJvmGcBo);
 
         // Then
         long gcCountsBeforeJvmRestart = firstGcCount_1 - previousGcCount;
@@ -373,7 +373,7 @@ public class JvmGcSamplerTest {
         );
 
         // When
-        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(System.currentTimeMillis(), jvmGcBos, null);
+        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(0, System.currentTimeMillis(), jvmGcBos, null);
 
         // Then
         long gcCountsBeforeJvmRestart = 0L;
@@ -424,7 +424,7 @@ public class JvmGcSamplerTest {
         );
 
         // When
-        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(System.currentTimeMillis(), jvmGcBos, previousJvmGcBo);
+        SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(0, System.currentTimeMillis(), jvmGcBos, previousJvmGcBo);
 
         // Then
         long gcCountsBeforeJvmRestart = secondGcCount_1 - firstGcCount_1;

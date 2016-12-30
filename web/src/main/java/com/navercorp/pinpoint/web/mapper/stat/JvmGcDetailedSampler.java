@@ -38,7 +38,7 @@ public class JvmGcDetailedSampler extends AbstractAgentStatSampler<JvmGcDetailed
     public static final DownSampler<Double> DOUBLE_DOWN_SAMPLER = DownSamplers.getDoubleDownSampler(JvmGcDetailedBo.UNCOLLECTED_PERCENTAGE, NUM_DECIMAL_PLACES);
 
     @Override
-    public SampledJvmGcDetailed sampleDataPoints(long timestamp, List<JvmGcDetailedBo> dataPoints, JvmGcDetailedBo previousDataPoint) {
+    public SampledJvmGcDetailed sampleDataPoints(int timeWindowIndex, long timestamp, List<JvmGcDetailedBo> dataPoints, JvmGcDetailedBo previousDataPoint) {
         List<Long> gcNewCounts = new ArrayList<>(dataPoints.size());
         List<Long> gcNewTimes = new ArrayList<>(dataPoints.size());
         List<Double> codeCacheUseds = new ArrayList<>(dataPoints.size());

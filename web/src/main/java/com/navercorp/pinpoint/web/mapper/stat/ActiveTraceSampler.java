@@ -41,7 +41,7 @@ public class ActiveTraceSampler extends AbstractAgentStatSampler<ActiveTraceBo, 
     public static final DownSampler<Integer> INTEGER_DOWN_SAMPLER = DownSamplers.getIntegerDownSampler(ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT);
 
     @Override
-    public SampledActiveTrace sampleDataPoints(long timestamp, List<ActiveTraceBo> dataPoints, ActiveTraceBo previousDataPoint) {
+    public SampledActiveTrace sampleDataPoints(int timeWindowIndex, long timestamp, List<ActiveTraceBo> dataPoints, ActiveTraceBo previousDataPoint) {
         SampledActiveTrace sampledActiveTrace = new SampledActiveTrace();
         HistogramSchema schema = BaseHistogramSchema.getDefaultHistogramSchemaByTypeCode(dataPoints.get(0).getHistogramSchemaType());
         if (schema == null) {

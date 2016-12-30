@@ -109,7 +109,7 @@ public abstract class AbstractAgentStatSampler<T extends AgentStatDataPoint, S e
             } else if (timeWindowIndex < currentTimeWindowIndex) {
                 previous = dataPoint;
                 // currentBatch shouldn't be empty at this point
-                S sampledBatch = sampleDataPoints(currentTimeslotTimestamp, currentBatch, previous);
+                S sampledBatch = sampleDataPoints(currentTimeWindowIndex, currentTimeslotTimestamp, currentBatch, previous);
                 sampledDataPoints.put(currentTimeslotTimestamp, sampledBatch);
                 currentBatch = new ArrayList<>(currentBatch.size());
                 currentBatch.add(dataPoint);
@@ -122,7 +122,7 @@ public abstract class AbstractAgentStatSampler<T extends AgentStatDataPoint, S e
             currentTimeWindowIndex = timeWindowIndex;
         }
         if (!currentBatch.isEmpty()) {
-            S sampledBatch = sampleDataPoints(currentTimeslotTimestamp, currentBatch, null);
+            S sampledBatch = sampleDataPoints(currentTimeWindowIndex, currentTimeslotTimestamp, currentBatch, null);
             sampledDataPoints.put(currentTimeslotTimestamp, sampledBatch);
         }
         return sampledDataPoints;
@@ -147,5 +147,5 @@ public abstract class AbstractAgentStatSampler<T extends AgentStatDataPoint, S e
         return sampledPointToUse;
     }
 
-    protected abstract S sampleDataPoints(long timestamp, List<T> dataPoints, T previousDataPoint);
+    protected abstract S sampleDataPoints(int timeWindowIndex, long timestamp, List<T> dataPoints, T previousDataPoint);
 }

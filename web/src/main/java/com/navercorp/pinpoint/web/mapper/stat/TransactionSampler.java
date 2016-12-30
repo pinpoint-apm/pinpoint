@@ -39,7 +39,7 @@ public class TransactionSampler extends AbstractAgentStatSampler<TransactionBo, 
     public static final DownSampler<Double> DOUBLE_DOWN_SAMPLER = DownSamplers.getDoubleDownSampler(UNCOLLECTED_TPS, NUM_DECIMAL_PLACES);
 
     @Override
-    public SampledTransaction sampleDataPoints(long timestamp, List<TransactionBo> dataPoints, TransactionBo previousDataPoint) {
+    public SampledTransaction sampleDataPoints(int timeWindowIndex, long timestamp, List<TransactionBo> dataPoints, TransactionBo previousDataPoint) {
         List<Double> sampledNews = new ArrayList<>(dataPoints.size());
         List<Double> sampledContinuations = new ArrayList<>(dataPoints.size());
         List<Double> unsampledNews = new ArrayList<>(dataPoints.size());

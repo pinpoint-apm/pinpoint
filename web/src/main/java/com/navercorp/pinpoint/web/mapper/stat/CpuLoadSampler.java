@@ -37,7 +37,7 @@ public class CpuLoadSampler extends AbstractAgentStatSampler<CpuLoadBo, SampledC
     public static final DownSampler<Double> DOUBLE_DOWN_SAMPLER = DownSamplers.getDoubleDownSampler(CpuLoadBo.UNCOLLECTED_VALUE, NUM_DECIMAL_PLACES);
 
     @Override
-    public SampledCpuLoad sampleDataPoints(long timestamp, List<CpuLoadBo> dataPoints, CpuLoadBo previousDataPoint) {
+    public SampledCpuLoad sampleDataPoints(int timeWindowIndex, long timestamp, List<CpuLoadBo> dataPoints, CpuLoadBo previousDataPoint) {
         List<Double> jvmCpuLoads = new ArrayList<>(dataPoints.size());
         List<Double> systemCpuLoads = new ArrayList<>(dataPoints.size());
         for (CpuLoadBo cpuLoadBo : dataPoints) {
