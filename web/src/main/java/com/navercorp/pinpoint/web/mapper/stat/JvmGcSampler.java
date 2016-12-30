@@ -37,7 +37,7 @@ public class JvmGcSampler extends AbstractAgentStatSampler<JvmGcBo, SampledJvmGc
     public static final DownSampler<Long> LONG_DOWN_SAMPLER = DownSamplers.getLongDownSampler(JvmGcBo.UNCOLLECTED_VALUE);
 
     @Override
-    public SampledJvmGc sampleDataPoints(long timestamp, List<JvmGcBo> dataPoints, JvmGcBo previousDataPoint) {
+    public SampledJvmGc sampleDataPoints(int timeWindowIndex, long timestamp, List<JvmGcBo> dataPoints, JvmGcBo previousDataPoint) {
         JvmGcType jvmGcType = JvmGcType.UNKNOWN;
         List<Long> heapUseds = new ArrayList<>(dataPoints.size());
         List<Long> heapMaxes = new ArrayList<>(dataPoints.size());
@@ -45,7 +45,7 @@ public class JvmGcSampler extends AbstractAgentStatSampler<JvmGcBo, SampledJvmGc
         List<Long> nonHeapMaxes = new ArrayList<>(dataPoints.size());
         List<Long> gcOldCounts = new ArrayList<>(dataPoints.size());
         List<Long> gcOldTimes = new ArrayList<>(dataPoints.size());
-        // dataPointsToSample is in descending order
+        // dataPoints are in descending order
         JvmGcBo previousBo = previousDataPoint;
         for (int i = dataPoints.size() - 1; i >= 0; --i) {
             JvmGcBo jvmGcBo = dataPoints.get(i);
@@ -64,6 +64,9 @@ public class JvmGcSampler extends AbstractAgentStatSampler<JvmGcBo, SampledJvmGc
             }
 
             if (previousBo != null) {
+                // Technically, this should not be needed as data should already be partitioned by their agent start
+                // timestamp and should only contain data from a single jvm life cycle.
+                // Added to maintain backwards compatibility for data that do not have agent start timestamp.
                 if (checkJvmRestart(previousBo, jvmGcBo)) {
                     if (isGcCollected(jvmGcBo)) {
                         gcOldCounts.add(jvmGcBo.getGcOldCount());
@@ -85,8 +88,13 @@ public class JvmGcSampler extends AbstractAgentStatSampler<JvmGcBo, SampledJvmGc
                 }
             } else {
                 if (isGcCollected(jvmGcBo)) {
-                    gcOldCounts.add(0L);
-                    gcOldTimes.add(0L);
+                    if (timeWindowIndex > 0) {
+                        gcOldCounts.add(jvmGcBo.getGcOldCount());
+                        gcOldTimes.add(jvmGcBo.getGcOldTime());
+                    } else {
+                        gcOldCounts.add(0L);
+                        gcOldTimes.add(0L);
+                    }
                 }
             }
             previousBo = jvmGcBo;
@@ -107,9 +115,6 @@ public class JvmGcSampler extends AbstractAgentStatSampler<JvmGcBo, SampledJvmGc
     }
 
     private boolean checkJvmRestart(JvmGcBo previous, JvmGcBo current) {
-        if (previous == null) {
-            return false;
-        }
         if (previous.getStartTimestamp() > 0 && current.getStartTimestamp() > 0) {
             return previous.getStartTimestamp() != current.getStartTimestamp();
         } else {
