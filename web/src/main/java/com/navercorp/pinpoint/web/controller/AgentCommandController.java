@@ -66,19 +66,24 @@ public class AgentCommandController {
     @RequestMapping(value = "/activeThreadDump", method = RequestMethod.GET)
     public ModelAndView getActiveThreadDump(@RequestParam(value = "applicationName") String applicationName,
                                             @RequestParam(value = "agentId") String agentId,
+                                            @RequestParam(value = "limit", required = false) int limit,
                                             @RequestParam(value = "threadName", required = false) String[] threadNameList,
-                                            @RequestParam(value = "traceId", required = false) Long[] traceIdList) throws TException {
+                                            @RequestParam(value = "localTraceId", required = false) Long[] localTraceIdList) throws TException {
         AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId);
         if (agentInfo == null) {
             return createResponse(false, String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
         }
 
         TCmdActiveThreadDump threadDump = new TCmdActiveThreadDump();
+        if (limit > 0) {
+            threadDump.setLimit(limit);
+        }
+
         if (threadNameList != null) {
             threadDump.setTargetThreadNameList(Arrays.asList(threadNameList));
         }
-        if (traceIdList != null) {
-            threadDump.setTraceIdList(Arrays.asList(traceIdList));
+        if (localTraceIdList != null) {
+            threadDump.setLocalTraceIdList(Arrays.asList(localTraceIdList));
         }
 
         try {
@@ -98,8 +103,9 @@ public class AgentCommandController {
 
                     Map<String, Object> response =new HashMap<>(3);
                     response.put("threadDumpData", activeThreadDumpList);
-                    response.put("jvmType", activeThreadDumpResponse.getJvmType());
-                    response.put("jvmVersion", activeThreadDumpResponse.getJvmVersion());
+                    response.put("type", activeThreadDumpResponse.getType());
+                    response.put("subType", activeThreadDumpResponse.getSubType());
+                    response.put("version", activeThreadDumpResponse.getVersion());
 
                     return createResponse(true, response);
                 } else {
@@ -116,19 +122,23 @@ public class AgentCommandController {
     @RequestMapping(value = "/activeThreadLightDump", method = RequestMethod.GET)
     public ModelAndView getActiveThreadLightDump(@RequestParam(value = "applicationName") String applicationName,
                                             @RequestParam(value = "agentId") String agentId,
+                                            @RequestParam(value = "limit", required = false) int limit,
                                             @RequestParam(value = "threadName", required = false) String[] threadNameList,
-                                            @RequestParam(value = "traceId", required = false) Long[] traceIdList) throws TException {
+                                            @RequestParam(value = "localTraceId", required = false) Long[] localTraceIdList) throws TException {
         AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId);
         if (agentInfo == null) {
             return createResponse(false, String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
         }
 
         TCmdActiveThreadLightDump threadDump = new TCmdActiveThreadLightDump();
+        if (limit > 0) {
+            threadDump.setLimit(limit);
+        }
         if (threadNameList != null) {
             threadDump.setTargetThreadNameList(Arrays.asList(threadNameList));
         }
-        if (traceIdList != null) {
-            threadDump.setTraceIdList(Arrays.asList(traceIdList));
+        if (localTraceIdList != null) {
+            threadDump.setLocalTraceIdList(Arrays.asList(localTraceIdList));
         }
 
         try {
@@ -148,8 +158,9 @@ public class AgentCommandController {
 
                     Map<String, Object> response =new HashMap<>(3);
                     response.put("threadDumpData", activeThreadDumpList);
-                    response.put("jvmType", activeThreadDumpResponse.getJvmType());
-                    response.put("jvmVersion", activeThreadDumpResponse.getJvmVersion());
+                    response.put("type", activeThreadDumpResponse.getType());
+                    response.put("subType", activeThreadDumpResponse.getSubType());
+                    response.put("version", activeThreadDumpResponse.getVersion());
 
                     return createResponse(true, response);
                 } else {
