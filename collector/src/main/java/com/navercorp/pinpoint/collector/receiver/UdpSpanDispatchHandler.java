@@ -39,11 +39,13 @@ public class UdpSpanDispatchHandler extends AbstractDispatchHandler {
     @Qualifier("spanChunkHandler")
     private SimpleHandler spanChunkHandler;
 
+    @Autowired()
+    @Qualifier("spanAndSpanChunkListHandler")
+    private SimpleHandler spanAndSpanChunkListHandler;
+
     public UdpSpanDispatchHandler() {
         this.logger = LoggerFactory.getLogger(this.getClass());
     }
-
-
 
     @Override
     SimpleHandler getSimpleHandler(TBase<?, ?> tBase) {
@@ -52,6 +54,9 @@ public class UdpSpanDispatchHandler extends AbstractDispatchHandler {
         }
         if (tBase instanceof TSpanChunk) {
             return spanChunkHandler;
+        }
+        if (tBase instanceof TSpanAndSpanChunkList) {
+            return spanAndSpanChunkListHandler;
         }
 
         return null;

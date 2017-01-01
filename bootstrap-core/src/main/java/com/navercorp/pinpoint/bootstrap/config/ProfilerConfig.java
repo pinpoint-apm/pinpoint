@@ -86,6 +86,14 @@ public interface ProfilerConfig {
 
     int getIoBufferingBufferSize();
 
+    boolean isIoGlobalStorageEnable();
+
+    int getIoGlobalStorageBufferSize();
+
+    int getIoGlobalStorageUseUpperLimitPercent();
+
+    long getIoGlobalStorageFlushInterval();
+
     int getProfileJvmCollectInterval();
 
     String getProfilerJvmVendorName();
