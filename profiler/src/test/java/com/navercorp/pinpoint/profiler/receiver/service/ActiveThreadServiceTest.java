@@ -22,8 +22,8 @@ package com.navercorp.pinpoint.profiler.receiver.service;
 import com.navercorp.pinpoint.profiler.context.ActiveTrace;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
+import com.navercorp.pinpoint.profiler.context.TestAgentInformation;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.test.TestAgentInformation;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 
@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ActiveThreadServiceTest {
 

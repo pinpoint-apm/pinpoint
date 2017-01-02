@@ -26,6 +26,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 
+import com.navercorp.pinpoint.profiler.context.TestAgentInformation;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,7 +45,6 @@ import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.navercorp.pinpoint.profiler.metadata.LRUCache;
 import com.navercorp.pinpoint.profiler.sampler.SamplingRateSampler;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
-import com.navercorp.pinpoint.test.TestAgentInformation;
 
 /**
  * @author HyunGil Jeong
