@@ -48,13 +48,18 @@ public class AgentActiveThreadDumpListSerializerTest {
         Assert.assertTrue(CollectionUtils.isNotEmpty(list));
 
         Map map = (Map) list.get(0);
+
         Assert.assertTrue(map.containsKey("threadId"));
         Assert.assertTrue(map.containsKey("threadName"));
         Assert.assertTrue(map.containsKey("threadState"));
-        Assert.assertTrue(map.containsKey("threadExecTime"));
+        Assert.assertTrue(map.containsKey("startTime"));
+        Assert.assertTrue(map.containsKey("execTime"));
+        Assert.assertTrue(map.containsKey("localTraceId"));
+        Assert.assertTrue(map.containsKey("sampled"));
+        Assert.assertTrue(map.containsKey("transactionId"));
+        Assert.assertTrue(map.containsKey("entryPoint"));
         Assert.assertTrue(map.containsKey("detailMessage"));
     }
-
 
     private AgentActiveThreadDumpList createThreadDumpList(ThreadInfo[] allThreadInfo) {
         AgentActiveThreadDumpList activeThreadDumpList = new AgentActiveThreadDumpList();
