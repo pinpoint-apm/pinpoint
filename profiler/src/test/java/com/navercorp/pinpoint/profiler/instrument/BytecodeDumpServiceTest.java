@@ -1,8 +1,9 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
+import com.navercorp.pinpoint.profiler.util.BytecodeUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import com.navercorp.pinpoint.test.util.BytecodeUtils;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -20,7 +21,7 @@ import static org.mockito.Mockito.times;
 @RunWith(MockitoJUnitRunner.class)
 public class BytecodeDumpServiceTest {
 
-    private final String jvmClassName = JavaAssistUtils.javaNameToJvmName("java.lang.String");;
+    private final String jvmClassName = JavaAssistUtils.javaNameToJvmName("java.lang.String");
 
     @Mock
     private ASMBytecodeDisassembler disassembler;

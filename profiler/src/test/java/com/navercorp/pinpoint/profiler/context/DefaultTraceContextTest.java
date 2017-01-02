@@ -22,14 +22,11 @@ import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter.SamplingType;
 import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.navercorp.pinpoint.profiler.metadata.LRUCache;
 import com.navercorp.pinpoint.profiler.sampler.SamplingRateSampler;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
-import com.navercorp.pinpoint.test.TestAgentInformation;
 
 import org.junit.Assert;
 import org.junit.Test;

@@ -59,6 +59,7 @@
         <module>plugins</module>
         <module>profiler</module>
         <module>profiler-optional</module>
+        <module>profiler-test</module>
         <module>rpc</module>
         <module>thrift</module>
         <module>test</module>
@@ -161,6 +162,11 @@
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-profiler-optional</artifactId>
                 <type>pom</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-profiler-test</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
