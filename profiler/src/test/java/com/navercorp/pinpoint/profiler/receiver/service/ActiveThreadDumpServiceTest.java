@@ -232,7 +232,7 @@ public class ActiveThreadDumpServiceTest {
             request.setLimit(limit);
         }
         if (threadNameList != null) {
-            request.setTargetThreadNameList(threadNameList);
+            request.setThreadNameList(threadNameList);
         }
         if (localTraceIdList != null) {
             request.setLocalTraceIdList(localTraceIdList);

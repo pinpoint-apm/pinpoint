@@ -230,7 +230,7 @@ public class ActiveThreadLightDumpServiceTest {
             request.setLimit(limit);
         }
         if (threadNameList != null) {
-            request.setTargetThreadNameList(threadNameList);
+            request.setThreadNameList(threadNameList);
         }
         if (localTraceIdList != null) {
             request.setLocalTraceIdList(localTraceIdList);

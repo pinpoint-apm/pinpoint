@@ -71,14 +71,14 @@ public class ActiveThreadLightDumpService implements ProfilerRequestCommandServi
     }
 
     private List<TActiveThreadLightDump> getTActiveThreadDumpList(TCmdActiveThreadLightDump request, int limit, List<ActiveTraceInfo> activeTraceInfoList) {
-        int targetThreadNameListSize = request.getTargetThreadNameListSize();
+        int targetThreadNameListSize = request.getThreadNameListSize();
         int localTraceIdListSize = request.getLocalTraceIdListSize();
         boolean filterEnable = (targetThreadNameListSize + localTraceIdListSize) > 0;
 
         List<TActiveThreadLightDump> activeThreadDumpList = new ArrayList<TActiveThreadLightDump>(Math.min(limit, activeTraceInfoList.size()));
         if (filterEnable) {
             for (ActiveTraceInfo activeTraceInfo : activeTraceInfoList) {
-                if (!ActiveThreadDumpUtils.isTraceThread(activeTraceInfo, request.getTargetThreadNameList(), request.getLocalTraceIdList())) {
+                if (!ActiveThreadDumpUtils.isTraceThread(activeTraceInfo, request.getThreadNameList(), request.getLocalTraceIdList())) {
                     continue;
                 }
 

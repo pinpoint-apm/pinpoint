@@ -66,7 +66,7 @@ public class AgentCommandController {
     @RequestMapping(value = "/activeThreadDump", method = RequestMethod.GET)
     public ModelAndView getActiveThreadDump(@RequestParam(value = "applicationName") String applicationName,
                                             @RequestParam(value = "agentId") String agentId,
-                                            @RequestParam(value = "limit", required = false) int limit,
+                                            @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
                                             @RequestParam(value = "threadName", required = false) String[] threadNameList,
                                             @RequestParam(value = "localTraceId", required = false) Long[] localTraceIdList) throws TException {
         AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId);
@@ -80,7 +80,7 @@ public class AgentCommandController {
         }
 
         if (threadNameList != null) {
-            threadDump.setTargetThreadNameList(Arrays.asList(threadNameList));
+            threadDump.setThreadNameList(Arrays.asList(threadNameList));
         }
         if (localTraceIdList != null) {
             threadDump.setLocalTraceIdList(Arrays.asList(localTraceIdList));
@@ -122,7 +122,7 @@ public class AgentCommandController {
     @RequestMapping(value = "/activeThreadLightDump", method = RequestMethod.GET)
     public ModelAndView getActiveThreadLightDump(@RequestParam(value = "applicationName") String applicationName,
                                             @RequestParam(value = "agentId") String agentId,
-                                            @RequestParam(value = "limit", required = false) int limit,
+                                            @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
                                             @RequestParam(value = "threadName", required = false) String[] threadNameList,
                                             @RequestParam(value = "localTraceId", required = false) Long[] localTraceIdList) throws TException {
         AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId);
@@ -135,7 +135,7 @@ public class AgentCommandController {
             threadDump.setLimit(limit);
         }
         if (threadNameList != null) {
-            threadDump.setTargetThreadNameList(Arrays.asList(threadNameList));
+            threadDump.setThreadNameList(Arrays.asList(threadNameList));
         }
         if (localTraceIdList != null) {
             threadDump.setLocalTraceIdList(Arrays.asList(localTraceIdList));

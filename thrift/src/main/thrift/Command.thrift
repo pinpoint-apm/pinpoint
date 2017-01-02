@@ -83,27 +83,29 @@ struct TActiveThreadLightDump {
 }
 
 struct TCmdActiveThreadDump {
-    1: optional i64 execTime
-    2: optional list<string> targetThreadNameList
-    3: optional list<i64> traceIdList
+    1: optional i32 limit
+    2: optional list<string> threadNameList
+    3: optional list<i64> localTraceIdList
 }
 
 struct TCmdActiveThreadLightDump {
-    1: optional i64 execTime
-    2: optional list<string> targetThreadNameList
-    3: optional list<i64> traceIdList
+    1: optional i32 limit
+    2: optional list<string> threadNameList
+    3: optional list<i64> localTraceIdList
 }
 
 struct TCmdActiveThreadDumpRes {
     1: list<TActiveThreadDump> threadDumps
-    2: optional string jvmType
-    3: optional string jvmVersion
+    2: optional string type
+    3: optional string subType
+    4: optional string version
 }
 
 struct TCmdActiveThreadLightDumpRes {
     1: list<TActiveThreadLightDump> threadDumps
-    2: optional string jvmType
-    3: optional string jvmVersion
+    2: optional string type
+    3: optional string subType
+    4: optional string version
 }
 
 struct TCommandEcho {
