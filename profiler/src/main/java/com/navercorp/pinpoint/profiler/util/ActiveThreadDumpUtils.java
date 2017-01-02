@@ -74,6 +74,6 @@ public class ActiveThreadDumpUtils {
             return CHANGE_TO_NEW_ELEMENT;
         }
 
-    };
+    }
 
 }

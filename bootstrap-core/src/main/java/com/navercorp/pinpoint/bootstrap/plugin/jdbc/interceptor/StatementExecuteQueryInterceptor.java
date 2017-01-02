@@ -38,7 +38,7 @@ public class StatementExecuteQueryInterceptor extends SpanEventSimpleAroundInter
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, final Object target, Object[] args) {
-        /**
+        /*
          * If method was not called by request handler, we skip tagging.
          */
         DatabaseInfo databaseInfo = (target instanceof DatabaseInfoAccessor) ? ((DatabaseInfoAccessor)target)._$PINPOINT$_getDatabaseInfo() : null;

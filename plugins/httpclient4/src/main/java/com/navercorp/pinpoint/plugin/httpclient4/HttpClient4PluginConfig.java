@@ -39,7 +39,7 @@ public class HttpClient4PluginConfig {
     private boolean io;
 
     public HttpClient4PluginConfig(ProfilerConfig src) {
-        /**
+        /*
          * apache http client 4
          */
         this.param = src.readBoolean("profiler.apache.httpclient4.param", true);

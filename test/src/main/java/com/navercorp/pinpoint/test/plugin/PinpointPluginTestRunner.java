@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import java.util.List;
  * We have referred OrderedThreadPoolExecutor ParentRunner of JUnit.
  *
  * @author Jongho Moon
- * @Author Taejin Koo
+ * @author Taejin Koo
  *
  */
 public class PinpointPluginTestRunner extends BlockJUnit4ClassRunner {
