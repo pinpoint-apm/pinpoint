@@ -16,10 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.jdk7.activemq.client;
 
-/**
- * @author HyunGil Jeong
- */
-
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.plugin.jdk7.activemq.client.util.ActiveMQClientITHelper;
 import com.navercorp.pinpoint.plugin.jdk7.activemq.client.util.TestBroker;
@@ -33,6 +29,9 @@ import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 
+/**
+ * @author HyunGil Jeong
+ */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent("agent/target/pinpoint-agent-" + Version.VERSION)
 @PinpointConfig("activemq/client/pinpoint-activemq-client.config")

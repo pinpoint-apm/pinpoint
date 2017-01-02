@@ -16,9 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-/**
- * @author emeroad
- */
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import org.junit.Assert;
 import org.junit.Test;

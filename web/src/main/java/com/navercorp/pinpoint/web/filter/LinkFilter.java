@@ -259,7 +259,7 @@ public class LinkFilter implements Filter {
     }
 
     private boolean wasToUnknownFilter(List<SpanBo> transaction) {
-        /**
+        /*
          * WAS -> UNKNOWN
          */
         final List<SpanBo> fromNode = findFromNode(transaction);
@@ -310,7 +310,7 @@ public class LinkFilter implements Filter {
      * WAS -> WAS
      */
     private boolean wasToWasFilter(List<SpanBo> transaction) {
-        /**
+        /*
          * WAS -> WAS
          * if destination is a "WAS", the span of src and dest may exists. need to check if be circular or not.
          * find src first. span (from, to) may exist more than one. so (spanId == parentSpanID) should be checked.

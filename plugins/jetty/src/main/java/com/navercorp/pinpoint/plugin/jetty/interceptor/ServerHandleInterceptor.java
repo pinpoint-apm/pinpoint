@@ -8,7 +8,7 @@ import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.Request;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 @TargetMethod(name = "handle", paramTypes = { "org.eclipse.jetty.server.HttpChannel" })
 public class ServerHandleInterceptor extends AbstractServerHandleInterceptor {

@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-
-import java.io.IOException;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.util.DefaultSqlParser;
