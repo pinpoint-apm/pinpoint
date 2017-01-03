@@ -1,0 +1,32 @@
+<div id="threadDump">
+	<div class="panel panel-info">
+		<div class="panel-heading">Thread Dump <i class="xi-spinner-2 xi-spin"></i> <button ng-click="hideThreadDump()" class="btn btn-sm"><span class="glyphicon glyphicon-remove"></span></button></div>
+		<table class="table table-info thread-header">
+			<thead>
+				<tr>
+					<th>&nbsp;</th>
+					<th>id</th>
+					<th>state</th>
+					<th>start time</th>
+					<th>path</th>
+					<th>&nbsp;</th>
+				</tr>
+				<tr>
+					<th>&nbsp;</th>
+					<th>name</th>
+					<th>sampled</th>
+					<th>exec(ms)</th>
+					<th>transaction id</th>
+					<th>&nbsp;</th>
+				</tr>
+			</thead>
+		</table>
+		<div class="thread-list">
+			<table class="table table-info">
+				<tbody ng-click="loadDetailMessage($event)"></tbody>
+			</table>
+		</div>
+		<div class="panel-body">There is no data</div>
+	</div>
+	<textarea></textarea>
+</div>

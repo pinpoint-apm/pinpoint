@@ -47,7 +47,7 @@
 	<link rel="stylesheet" href="styles/xeicon.min.css?v=${buildTime}">
 	<!-- pinpoint.css###-->
 </head>
-<body ng-app="pinpointApp">
+<body ng-app="pinpointApp" style="overflow:hidden;">
 
 <div class="modal"  id="customLogPopup">
 	<div class="modal-dialog modal-lg" style="width:800px;">
@@ -189,6 +189,7 @@
 </div>
 
 <configuration-directive></configuration-directive>
+<thread-dump-info-layer-directive></thread-dump-info-layer-directive>
 
 <!--###base-lib.min.js -->
 <script src="components/jquery/dist/jquery.min.js?v=${buildTime}"></script>
@@ -360,6 +361,7 @@
 <script src="features/configuration/application/application-group.directive.js?v=${buildTime}"></script>
 <script src="features/configuration/application/alarm-rule.directive.js?v=${buildTime}"></script>
 <script src="features/configuration/help/help.directive.js?v=${buildTime}"></script>
+<script src="features/threadDumpInfoLayer/thread-dump-info-layer.directive.js?v=${buildTime}"></script>
 <script src="features/realtimeChart/realtime-chart.controller.js?v=${buildTime}"></script>
 
 <script src="pages/main/main.controller.js?v=${buildTime}"></script>

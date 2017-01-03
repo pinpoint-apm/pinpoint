@@ -238,3 +238,113 @@ canvas {outline:none}
 	background: url("/images/circle.png") no-repeat left center;
 	padding-left: 20px;
 }
+
+#threadDump {
+    display: none;
+    z-index: 999999;
+    position: absolute;
+    background-color: #FFF;
+
+}
+#threadDump i {
+    color: #F00;
+    display: none;
+}
+#threadDump .panel {
+    border: 4px solid black;
+    obrder-color: transparent;
+    margin-bottom: 0px;
+}
+#threadDump .panel-heading button {
+    float: right;
+    border-radius: 14px;
+    padding: 0px 3px;
+}
+#threadDump .panel-body {
+    display: none;
+    text-align: center;
+    padding-top: 50px;
+    font-weight: bold;
+}
+#threadDump .thread-list {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+#threadDump textarea {
+    color: #FFF;
+    width: 100%;
+    display: none;
+    padding: 10px;
+    position: relative;
+    margin-top: 0px;
+    background-color: #000;
+}
+#threadDump .thread-header th {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+#threadDump .thread-header tr {
+    background-color: #fffff0;
+}
+#threadDump .thread-header tr th:nth-child(1) {
+    width: 5%;
+}
+#threadDump .thread-header tr th:nth-child(2) {
+    width: 20%;
+}
+#threadDump .thread-header tr th:nth-child(3) {
+    width: 20%;
+}
+#threadDump .thread-header tr th:nth-child(4) {
+    width: 20%;
+}
+#threadDump .thread-header tr th:nth-child(5) {
+    width: 30%;
+}
+#threadDump .thread-header tr th:nth-child(6) {
+    width: 5%;
+}
+#threadDump .thread-header tr:first-child th {
+    border-bottom: 1px solid #EEE;
+}
+#threadDump .thread-header tr:first-child th:first-child {
+    border: transparent;
+}
+#threadDump .thread-header tr:first-child th:last-child {
+    border: transparent;
+}
+#threadDump .thread-header tr:last-child th {
+    border: transparent;
+}
+
+#threadDump .thread-list tr td:nth-child(1) {
+    width: 5%;
+    text-align: center;
+    vertical-align: middle;
+}
+#threadDump .thread-list tr:nth-child(even) td:nth-child(1) {
+    text-align: left;
+}
+#threadDump .thread-list tr td:nth-child(2) {
+    width: 20%;
+}
+#threadDump .thread-list tr td:nth-child(3) {
+    width: 20%;
+}
+#threadDump .thread-list tr td:nth-child(4) {
+    width: 20%;
+}
+#threadDump .thread-list tr td:nth-child(5) {
+    width: 30%;
+}
+#threadDump .thread-list tr td:nth-child(6) {
+    width: 5%;
+    text-align: center;
+    vertical-align: middle;
+}
+#threadDump .thread-list tr:nth-child(4n+3) {
+    background-color: #EFEFEF;
+}
+#threadDump .thread-list tr:nth-child(4n+4) {
+    background-color: #EFEFEF;
+}
