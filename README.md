@@ -69,13 +69,13 @@ For details, please refer to the [quick-start guide](quickstart/README.md).
 ## Installation
 **Build Requirements**
 
-* JDK 6 installed ([jdk1.6_45](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase6-419409.html))
-* JDK 7 installed
+* JDK 6 installed ([jdk1.6.0_45](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase6-419409.html#jdk-6u45-oth-JPR) recommended)
+* JDK 7 installed ([jdk1.7.0_80](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html#jdk-7u80-oth-JPR) recommended)
 * JDK 8 installed
 * Maven 3.2.x+ installed
 * JAVA_6_HOME environment variable set to JDK 6 home directory.
 * JAVA_7_HOME environment variable set to JDK 7 home directory.
-* JAVA_8_HOME environment variable set to JDK 8+ home directory.
+* JAVA_8_HOME environment variable set to JDK 8 home directory.
 
 **Prerequisites**
 
