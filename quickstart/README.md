@@ -13,16 +13,40 @@ In order to build Pinpoint, the following requirements must be met:
 * JAVA_6_HOME environment variable set to JDK 6 home directory.
 * JAVA_7_HOME environment variable set to JDK 7 home directory.
 * JAVA_8_HOME environment variable set to JDK 8+ home directory.
+* MAVEN_HOME environment variable set to Maven home directory.
 
 QuickStart supports Linux, OSX, and Windows.
 
+## Starting
 
-## Starting 
 Download Pinpoint with `git clone https://github.com/naver/pinpoint.git` or [download](https://github.com/naver/pinpoint/archive/master.zip) the project as a zip file and unzip.
 
-Install Pinpoint with maven by `cd pinpoint` and running `mvn install -Dmaven.test.skip=true`
+To install Pinpoint and build Docker Images run `./install.sh` on pinpoint path OR run `mvn install -Dmaven.test.skip=true`
 
-### Install & Start HBase
+### Start and Stop with Docker
+
+This is an easy and automatically way to run Pinpoint, if you need to run manually go to [Install & Start HBase](#install&stophbase)
+
+To use _docker-compose_, you must have ran `./install.sh`.
+
+This commands below are just that you need to _start_ and _stop_ Pinpoint with _docker-compose_, you do not need to read the rest of this markdown if you use _docker-compose_.
+
+**Start**: `docker-compose up`
+
+**Stop**: `docker-compose down`
+
+Pinpoint Web accessible in http://localhost:3080
+
+Configure the Agent, in _pinpoint.config_ file, setting the Collector to these ports:
+```
+profiler.collector.span.port=9996
+profiler.collector.stat.port=9995
+profiler.collector.tcp.port=9994
+```
+
+Both commands are running in pinpoint root path.
+
+### <a name="install&stophbase"></a> Install & Start HBase manually
 
 The following script downloads HBase standalone from [Apache download site](http://apache.mirror.cdnetworks.com/hbase/).
 
