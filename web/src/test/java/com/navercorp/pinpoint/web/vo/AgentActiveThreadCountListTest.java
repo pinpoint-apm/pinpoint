@@ -37,13 +37,14 @@ public class AgentActiveThreadCountListTest {
         String hostName1 = "hostName1";
         String hostName2 = "hostName2";
 
-        AgentActiveThreadCount status1 = new AgentActiveThreadCount(hostName1);
-        status1.setFail(TRouteResult.NOT_ACCEPTABLE.name());
+        AgentActiveThreadCountFactory factory = new AgentActiveThreadCountFactory();
+        factory.setAgentId(hostName1);
+        AgentActiveThreadCount status1 = factory.createFail(TRouteResult.NOT_ACCEPTABLE.name());
 
         TCmdActiveThreadCountRes response = new TCmdActiveThreadCountRes();
         response.setActiveThreadCount(Arrays.asList(1, 2, 3, 4));
-        AgentActiveThreadCount status2 = new AgentActiveThreadCount(hostName2);
-        status2.setResult(response);
+        factory.setAgentId(hostName2);
+        AgentActiveThreadCount status2 = factory.create(response);
 
         AgentActiveThreadCountList list = new AgentActiveThreadCountList(5);
         list.add(status1);
@@ -59,7 +60,6 @@ public class AgentActiveThreadCountListTest {
 
         assertDataWithSerializedJsonString((Map) map.get(hostName1), TRouteResult.NOT_ACCEPTABLE, null);
         assertDataWithSerializedJsonString((Map) map.get(hostName2), TRouteResult.OK, Arrays.asList(1, 2, 3, 4));
-
     }
 
     void assertDataWithSerializedJsonString(Map data, TRouteResult routeResult, List<Integer> status) {
@@ -83,9 +83,15 @@ public class AgentActiveThreadCountListTest {
         String hostName2 = "hostName2";
         String hostName3 = "hostName3";
 
-        AgentActiveThreadCount status1 = new AgentActiveThreadCount(hostName1);
-        AgentActiveThreadCount status2 = new AgentActiveThreadCount(hostName2);
-        AgentActiveThreadCount status3 = new AgentActiveThreadCount(hostName3);
+        AgentActiveThreadCountFactory factory = new AgentActiveThreadCountFactory();
+        factory.setAgentId(hostName1);
+        AgentActiveThreadCount status1 = factory.createFail("UNKNOWN ERROR");
+
+        factory.setAgentId(hostName2);
+        AgentActiveThreadCount status2 = factory.createFail("UNKNOWN ERROR");
+
+        factory.setAgentId(hostName3);
+        AgentActiveThreadCount status3 = factory.createFail("UNKNOWN ERROR");
 
         AgentActiveThreadCountList list = new AgentActiveThreadCountList(5);
         list.add(status2);

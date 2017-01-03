@@ -228,7 +228,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
                 if (agentActiveThreadCount != null) {
                     response.add(agentActiveThreadCount);
                 } else {
-                    response.add(activeThreadCountWorker.getDefaultFailedResponse());
+                    response.add(activeThreadCountWorker.getDefaultFailResponse());
                 }
             }
             activeThreadCountMap = new HashMap<>(activeThreadCountWorkerRepository.size());

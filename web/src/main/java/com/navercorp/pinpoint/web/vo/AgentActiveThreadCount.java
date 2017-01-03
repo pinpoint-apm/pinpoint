@@ -16,68 +16,108 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
+import java.util.List;
 
 /**
  * @Author Taejin Koo
  */
 public class AgentActiveThreadCount {
 
-    private static final short OK_CODE = 0;
-    private static final String OK_CODE_MESSAGE = "OK";
-
     private final String agentId;
+    private final List<Integer> activeThreadCountList;
+    private final Status status;
 
-    private short code = -1;
-    private String codeMessage = "UNKNOWN";
-
-    private TCmdActiveThreadCountRes activeThreadCount;
-
-    public AgentActiveThreadCount(String agentId) {
-        this.agentId = agentId;
-    }
-
-    public void setResult(TCmdActiveThreadCountRes activeThreadCount) {
-        if (activeThreadCount != null) {
-            this.activeThreadCount = activeThreadCount;
-            this.code = OK_CODE;
-            this.codeMessage = OK_CODE_MESSAGE;
-        }
-    }
-
-    public void setFail(String codeMessage) {
-        setFail((short) -1, codeMessage);
-    }
-
-    public void setFail(short code, String codeMessage) {
-        this.code = code;
-        this.codeMessage = codeMessage;
+    private AgentActiveThreadCount(Builder builder) {
+        this.agentId = builder.agentId;
+        this.activeThreadCountList = builder.activeThreadCountList;
+        this.status = builder.status;
     }
 
     public String getAgentId() {
         return agentId;
     }
 
+    public List<Integer> getActiveThreadCountList() {
+        return activeThreadCountList;
+    }
+
     public short getCode() {
-        return code;
+        return status.code;
     }
 
     public String getCodeMessage() {
-        return codeMessage;
-    }
-
-    public TCmdActiveThreadCountRes getActiveThreadCount() {
-        return activeThreadCount;
+        return status.codeMessage;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("AgentActiveThreadCount{");
         sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", code=").append(code);
-        sb.append(", codeMessage='").append(codeMessage).append('\'');
-        sb.append(", activeThreadCount=").append(activeThreadCount);
+        sb.append(", activeThreadCountList=").append(activeThreadCountList);
+        sb.append(", code=").append(status.code);
+        sb.append(", codeMessage='").append(status.codeMessage).append('\'');
         sb.append('}');
         return sb.toString();
     }
+
+    static class Builder {
+
+        static final Status SUCCESS_STATUS = new Status((short) 0, "OK");
+        static final Status UNKNOWN_STATUS = new Status((short) -1, "UNKNOWN");
+
+        private String agentId;
+        private List<Integer> activeThreadCountList;
+        private Status status;
+
+        Builder() {
+        }
+
+        Builder setAgentId(String agentId) {
+            this.agentId = agentId;
+            return this;
+        }
+
+        Builder setStatus(short code, String codeMessage) {
+            this.status = new Status(code, codeMessage);
+            return this;
+        }
+
+        Builder setActiveThreadCountList(List<Integer> activeThreadCountList) {
+            this.activeThreadCountList = activeThreadCountList;
+            return this;
+        }
+
+        Builder setStatus(Status status) {
+            this.status = status;
+            return this;
+        }
+
+        AgentActiveThreadCount build() {
+            if (agentId == null) {
+                throw new NullPointerException("agentId may not be null");
+            }
+            if (activeThreadCountList == null) {
+                throw new NullPointerException("activeThreadCountList may not be null");
+            }
+            if (status == null) {
+                throw new NullPointerException("status may not be null");
+            }
+
+            return new AgentActiveThreadCount(this);
+        }
+
+    }
+
+    static class Status {
+
+        private final short code;
+        private final String codeMessage;
+
+        Status(short code, String codeMessage) {
+            this.code = code;
+            this.codeMessage = codeMessage;
+        }
+
+    }
+
 }
