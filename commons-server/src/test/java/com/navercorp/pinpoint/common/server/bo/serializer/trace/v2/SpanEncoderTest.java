@@ -148,7 +148,7 @@ public class SpanEncoderTest {
     private void assertSpan(SpanBo spanBo) {
         spanBo.setCollectorAcceptTime(getCollectorAcceptTime());
 
-        SpanEncodingContext<SpanBo> encodingContext = new SpanEncodingContext<>(spanBo);
+        SpanEncodingContext<SpanBo> encodingContext = new SpanEncodingContext<SpanBo>(spanBo);
         Buffer qualifier = wrapBuffer(spanEncoder.encodeSpanQualifier(encodingContext));
         Buffer column = wrapBuffer(spanEncoder.encodeSpanColumnValue(encodingContext));
 
@@ -176,7 +176,7 @@ public class SpanEncoderTest {
     private void assertSpanChunk(SpanChunkBo spanChunkBo) {
         spanChunkBo.setCollectorAcceptTime(getCollectorAcceptTime());
 
-        SpanEncodingContext<SpanChunkBo> encodingContext = new SpanEncodingContext<>(spanChunkBo);
+        SpanEncodingContext<SpanChunkBo> encodingContext = new SpanEncodingContext<SpanChunkBo>(spanChunkBo);
         Buffer qualifier = wrapBuffer(spanEncoder.encodeSpanChunkQualifier(encodingContext));
         Buffer column = wrapBuffer(spanEncoder.encodeSpanChunkColumnValue(encodingContext));
 

@@ -66,8 +66,8 @@ public class CpuLoadCodecV2 implements AgentStatCodec<CpuLoadBo> {
         final int numValues = cpuLoadBos.size();
         valueBuffer.putVInt(numValues);
 
-        List<Long> startTimestamps = new ArrayList<>(numValues);
-        List<Long> timestamps = new ArrayList<>(numValues);
+        List<Long> startTimestamps = new ArrayList<Long>(numValues);
+        List<Long> timestamps = new ArrayList<Long>(numValues);
         UnsignedLongEncodingStrategy.Analyzer.Builder jvmCpuLoadAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         UnsignedLongEncodingStrategy.Analyzer.Builder systemCpuLoadAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         for (CpuLoadBo cpuLoadBo : cpuLoadBos) {
@@ -116,7 +116,7 @@ public class CpuLoadCodecV2 implements AgentStatCodec<CpuLoadBo> {
         List<Long> jvmCpuLoads = this.codec.decodeValues(valueBuffer, jvmCpuLoadEncodingStrategy, numValues);
         List<Long> systemCpuLoads = this.codec.decodeValues(valueBuffer, systemCpuLoadEncodingStrategy, numValues);
 
-        List<CpuLoadBo> cpuLoadBos = new ArrayList<>(numValues);
+        List<CpuLoadBo> cpuLoadBos = new ArrayList<CpuLoadBo>(numValues);
         for (int i = 0; i < numValues; ++i) {
             CpuLoadBo cpuLoadBo = new CpuLoadBo();
             cpuLoadBo.setAgentId(agentId);

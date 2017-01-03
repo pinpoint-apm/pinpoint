@@ -64,8 +64,8 @@ public class JvmGcDetailedCodecV2 implements AgentStatCodec<JvmGcDetailedBo> {
         final int numValues = jvmGcDetailedBos.size();
         valueBuffer.putVInt(numValues);
 
-        List<Long> startTimestamps = new ArrayList<>(numValues);
-        List<Long> timestamps = new ArrayList<>(numValues);
+        List<Long> startTimestamps = new ArrayList<Long>(numValues);
+        List<Long> timestamps = new ArrayList<Long>(numValues);
         UnsignedLongEncodingStrategy.Analyzer.Builder gcNewCountAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         UnsignedLongEncodingStrategy.Analyzer.Builder gcNewTimeAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         UnsignedLongEncodingStrategy.Analyzer.Builder codeCacheUsedStrategyAnalyzer = new UnsignedLongEncodingStrategy.Analyzer.Builder();
@@ -165,7 +165,7 @@ public class JvmGcDetailedCodecV2 implements AgentStatCodec<JvmGcDetailedBo> {
         List<Long> permGenUseds = this.codec.decodeValues(valueBuffer, permGenUsedEncodingStrategy, numValues);
         List<Long> metaspaceUseds = this.codec.decodeValues(valueBuffer, metaspaceUsedEncodingStrategy, numValues);
 
-        List<JvmGcDetailedBo> jvmGcDetailedBos = new ArrayList<>(numValues);
+        List<JvmGcDetailedBo> jvmGcDetailedBos = new ArrayList<JvmGcDetailedBo>(numValues);
         for (int i = 0; i < numValues; ++i) {
             JvmGcDetailedBo jvmGcDetailedBo = new JvmGcDetailedBo();
             jvmGcDetailedBo.setAgentId(agentId);

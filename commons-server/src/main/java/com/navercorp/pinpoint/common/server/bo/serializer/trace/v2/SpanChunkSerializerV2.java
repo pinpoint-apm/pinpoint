@@ -24,7 +24,7 @@ public class SpanChunkSerializerV2 implements HbaseSerializer<SpanChunkBo, Put> 
             throw new NullPointerException("spanChunkBo must not be null");
         }
 
-        SpanEncodingContext<SpanChunkBo> encodingContext = new SpanEncodingContext<>(spanChunkBo);
+        SpanEncodingContext<SpanChunkBo> encodingContext = new SpanEncodingContext<SpanChunkBo>(spanChunkBo);
 
         ByteBuffer qualifier = spanEncoder.encodeSpanChunkQualifier(encodingContext);
         ByteBuffer columnValue = spanEncoder.encodeSpanChunkColumnValue(encodingContext);

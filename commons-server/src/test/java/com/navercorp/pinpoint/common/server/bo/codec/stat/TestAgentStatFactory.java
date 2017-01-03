@@ -48,7 +48,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<JvmGcBo> createJvmGcBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
-        List<JvmGcBo> jvmGcBos = new ArrayList<>(numValues);
+        List<JvmGcBo> jvmGcBos = new ArrayList<JvmGcBo>(numValues);
         List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
         List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
         List<Long> heapUseds = TestAgentStatDataPointFactory.LONG.createFluctuatingValues(
@@ -106,7 +106,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<JvmGcDetailedBo> createJvmGcDetailedBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
-        List<JvmGcDetailedBo> jvmGcDetailedBos = new ArrayList<>(numValues);
+        List<JvmGcDetailedBo> jvmGcDetailedBos = new ArrayList<JvmGcDetailedBo>(numValues);
         List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
         List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
         List<Long> gcNewCounts = TestAgentStatDataPointFactory.LONG.createIncreasingValues(
@@ -151,7 +151,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<CpuLoadBo> createCpuLoadBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
-        List<CpuLoadBo> cpuLoadBos = new ArrayList<>(numValues);
+        List<CpuLoadBo> cpuLoadBos = new ArrayList<CpuLoadBo>(numValues);
         List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
         List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
         List<Double> jvmCpuLoads = createRandomPercentageValues(numValues);
@@ -174,7 +174,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<TransactionBo> createTransactionBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
-        List<TransactionBo> transactionBos = new ArrayList<>(numValues);
+        List<TransactionBo> transactionBos = new ArrayList<TransactionBo>(numValues);
         List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
         List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
         List<Long> collectIntervals = TestAgentStatDataPointFactory.LONG.createFluctuatingValues(
@@ -228,7 +228,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<ActiveTraceBo> createActiveTraceBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
-        List<ActiveTraceBo> activeTraceBos = new ArrayList<>(numValues);
+        List<ActiveTraceBo> activeTraceBos = new ArrayList<ActiveTraceBo>(numValues);
         List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
         List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
         List<Integer> fastTraceCounts = TestAgentStatDataPointFactory.INTEGER.createRandomValues(0, 1000, numValues);
@@ -243,7 +243,7 @@ public class TestAgentStatFactory {
             activeTraceBo.setTimestamp(timestamps.get(i));
             activeTraceBo.setHistogramSchemaType(histogramSchemaType);
             if (RANDOM.nextInt(5) > 0) {
-                Map<SlotType, Integer> activeTraceCounts = new HashMap<>();
+                Map<SlotType, Integer> activeTraceCounts = new HashMap<SlotType, Integer>();
                 activeTraceCounts.put(SlotType.FAST, fastTraceCounts.get(i));
                 activeTraceCounts.put(SlotType.NORMAL, normalTraceCounts.get(i));
                 activeTraceCounts.put(SlotType.SLOW, slowTraceCounts.get(i));
@@ -268,7 +268,7 @@ public class TestAgentStatFactory {
     }
 
     private static List<Double> createRandomPercentageValues(int numValues) {
-        List<Double> values = new ArrayList<>(numValues);
+        List<Double> values = new ArrayList<Double>(numValues);
         for (int i = 0; i < numValues; ++i) {
             int randomInt = RANDOM.nextInt(101);
             double value = randomInt;
