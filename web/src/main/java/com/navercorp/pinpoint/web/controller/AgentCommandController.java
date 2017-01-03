@@ -31,10 +31,13 @@ import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadDump;
+import com.navercorp.pinpoint.web.vo.AgentActiveThreadDumpFactory;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadDumpList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,6 +56,8 @@ import java.util.Map;
 @Controller
 @RequestMapping("/agent")
 public class AgentCommandController {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
@@ -96,8 +101,14 @@ public class AgentCommandController {
                     AgentActiveThreadDumpList activeThreadDumpList = new AgentActiveThreadDumpList(activeThreadDumpResponse.getThreadDumpsSize());
                     List<TActiveThreadDump> activeThreadDumps = activeThreadDumpResponse.getThreadDumps();
                     if (activeThreadDumps != null) {
+                        AgentActiveThreadDumpFactory factory = new AgentActiveThreadDumpFactory();
                         for (TActiveThreadDump activeThreadDump : activeThreadDumps) {
-                            activeThreadDumpList.add(new AgentActiveThreadDump(activeThreadDump));
+                            try {
+                                AgentActiveThreadDump agentActiveThreadDump = factory.create(activeThreadDump);
+                                activeThreadDumpList.add(agentActiveThreadDump);
+                            } catch (Exception e) {
+                                logger.warn("create AgentActiveThreadDump fail. arguments(TActiveThreadDump:{})", activeThreadDump);
+                            }
                         }
                     }
 
@@ -151,8 +162,14 @@ public class AgentCommandController {
                     AgentActiveThreadDumpList activeThreadDumpList = new AgentActiveThreadDumpList(activeThreadDumpResponse.getThreadDumpsSize());
                     List<TActiveThreadLightDump> activeThreadDumps = activeThreadDumpResponse.getThreadDumps();
                     if (activeThreadDumps != null) {
+                        AgentActiveThreadDumpFactory factory = new AgentActiveThreadDumpFactory();
                         for (TActiveThreadLightDump activeThreadDump : activeThreadDumps) {
-                            activeThreadDumpList.add(new AgentActiveThreadDump(activeThreadDump));
+                            try {
+                                AgentActiveThreadDump agentActiveThreadDump = factory.create(activeThreadDump);
+                                activeThreadDumpList.add(agentActiveThreadDump);
+                            } catch (Exception e) {
+                                logger.warn("create AgentActiveThreadDump fail. arguments(TActiveThreadDump:{})", activeThreadDump);
+                            }
                         }
                     }
 

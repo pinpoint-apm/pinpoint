@@ -16,15 +16,10 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
+import com.navercorp.pinpoint.web.view.AgentActiveThreadCountListSerializer;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -70,41 +65,5 @@ public class AgentActiveThreadCountList {
         sb.append('}');
         return sb.toString();
     }
-}
 
-class AgentActiveThreadCountListSerializer extends JsonSerializer<AgentActiveThreadCountList>
-{
-    @Override
-    public void serialize(AgentActiveThreadCountList agentActiveThreadStatusList, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
-        List<AgentActiveThreadCount> agentActiveThreadRepository = agentActiveThreadStatusList.getAgentActiveThreadRepository();
-
-        jgen.writeStartObject();
-
-        for (AgentActiveThreadCount agentActiveThread : agentActiveThreadRepository) {
-            jgen.writeFieldName(agentActiveThread.getAgentId());
-            jgen.writeStartObject();
-
-            jgen.writeNumberField("code", agentActiveThread.getCode());
-            jgen.writeStringField("message", agentActiveThread.getCodeMessage());
-
-            TCmdActiveThreadCountRes activeThreadCount = agentActiveThread.getActiveThreadCount();
-            if (activeThreadCount != null) {
-                if (activeThreadCount.getActiveThreadCountSize() >= 4) {
-                    List<Integer> values = activeThreadCount.getActiveThreadCount();
-
-                    jgen.writeFieldName("status");
-                    jgen.writeStartArray();
-                    jgen.writeNumber(values.get(0));
-                    jgen.writeNumber(values.get(1));
-                    jgen.writeNumber(values.get(2));
-                    jgen.writeNumber(values.get(3));
-                    jgen.writeEndArray();
-                }
-            }
-
-            jgen.writeEndObject();
-        }
-
-        jgen.writeEndObject();
-    }
 }

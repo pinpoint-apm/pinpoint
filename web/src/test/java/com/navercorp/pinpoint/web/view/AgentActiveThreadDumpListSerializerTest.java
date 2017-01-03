@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
 import com.navercorp.pinpoint.profiler.util.ThreadDumpUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadDump;
-import com.navercorp.pinpoint.web.vo.AgentActiveThreadDump;
+import com.navercorp.pinpoint.web.vo.AgentActiveThreadDumpFactory;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadDumpList;
 import org.junit.Assert;
 import org.junit.Test;
@@ -62,13 +62,15 @@ public class AgentActiveThreadDumpListSerializerTest {
     }
 
     private AgentActiveThreadDumpList createThreadDumpList(ThreadInfo[] allThreadInfo) {
+        AgentActiveThreadDumpFactory factory = new AgentActiveThreadDumpFactory();
+
         AgentActiveThreadDumpList activeThreadDumpList = new AgentActiveThreadDumpList();
         for (ThreadInfo threadInfo : allThreadInfo) {
             TActiveThreadDump tActiveThreadDump = new TActiveThreadDump();
             tActiveThreadDump.setStartTime(System.currentTimeMillis() - 1000);
             tActiveThreadDump.setThreadDump(ThreadDumpUtils.createTThreadDump(threadInfo));
 
-            activeThreadDumpList.add(new AgentActiveThreadDump(tActiveThreadDump));
+            activeThreadDumpList.add(factory.create(tActiveThreadDump));
         }
         return activeThreadDumpList;
     }

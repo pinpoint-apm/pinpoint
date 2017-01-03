@@ -26,7 +26,6 @@ import java.util.*;
  */
 public enum ActiveThreadCountErrorType {
 
-
     UNSUPPORTED_VERSION((short) 111, "UNSUPPORTED VERSION", StreamCode.TYPE_UNSUPPORT.name()),
     CLUSTER_OPTION_NOT_SET((short) 121, "CLUSTER OPTION NOT SET", StreamCode.CONNECTION_UNSUPPORT.name()),
 

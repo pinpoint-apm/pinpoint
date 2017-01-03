@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.util.jdk.ThreadLocalRandom;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.profiler.util.ThreadDumpUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadDump;
+import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadLightDump;
+import com.navercorp.pinpoint.thrift.dto.command.TThreadLightDump;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -55,7 +57,7 @@ public class AgentActiveThreadDumpListTest {
         try {
             Thread[] threads = createThread(waitingJobList);
 
-            AgentActiveThreadDumpList activeThreadDumpList = createThreadDumpList(threads);
+            AgentActiveThreadDumpList activeThreadDumpList = createThreadLightDumpList(threads);
 
             List<AgentActiveThreadDump> sortOldestAgentActiveThreadDumpRepository = activeThreadDumpList.getSortOldestAgentActiveThreadDumpRepository();
 
@@ -113,14 +115,37 @@ public class AgentActiveThreadDumpListTest {
     }
 
     private AgentActiveThreadDumpList createThreadDumpList(Thread[] threads) {
+        AgentActiveThreadDumpFactory factory = new AgentActiveThreadDumpFactory();
+
         AgentActiveThreadDumpList activeThreadDumpList = new AgentActiveThreadDumpList();
         for (Thread thread : threads) {
             TActiveThreadDump tActiveThreadDump = new TActiveThreadDump();
             tActiveThreadDump.setStartTime(System.currentTimeMillis() - ThreadLocalRandom.current().nextLong(100000));
             tActiveThreadDump.setThreadDump(ThreadDumpUtils.createTThreadDump(thread));
-            activeThreadDumpList.add(new AgentActiveThreadDump(tActiveThreadDump));
+            activeThreadDumpList.add(factory.create(tActiveThreadDump));
         }
         return activeThreadDumpList;
+    }
+
+    private AgentActiveThreadDumpList createThreadLightDumpList(Thread[] threads) {
+        AgentActiveThreadDumpFactory factory = new AgentActiveThreadDumpFactory();
+
+        AgentActiveThreadDumpList activeThreadDumpList = new AgentActiveThreadDumpList();
+        for (Thread thread : threads) {
+            TActiveThreadLightDump tActiveThreadDump = new TActiveThreadLightDump();
+            tActiveThreadDump.setStartTime(System.currentTimeMillis() - ThreadLocalRandom.current().nextLong(100000));
+            tActiveThreadDump.setThreadDump(createTThreadLightDump(thread));
+            activeThreadDumpList.add(factory.create(tActiveThreadDump));
+        }
+        return activeThreadDumpList;
+    }
+
+    private TThreadLightDump createTThreadLightDump(Thread thread) {
+        TThreadLightDump threadDump = new TThreadLightDump();
+        threadDump.setThreadName(thread.getName());
+        threadDump.setThreadId(thread.getId());
+        threadDump.setThreadState(ThreadDumpUtils.toTThreadState(thread.getState()));
+        return threadDump;
     }
 
     private void clearResource(List<WaitingJob> waitingJobList) {

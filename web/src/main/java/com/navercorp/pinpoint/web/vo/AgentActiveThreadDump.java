@@ -16,23 +16,16 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadDump;
-import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadLightDump;
-import com.navercorp.pinpoint.thrift.dto.command.TMonitorInfo;
-import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
-import com.navercorp.pinpoint.thrift.dto.command.TThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Taejin Koo
  */
 public class AgentActiveThreadDump {
 
-    public static final String LINE_SEPARATOR = System.getProperty("line.separator");
-    public static final String TAB_SEPARATOR = "    "; // tab to 4 spaces
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgentActiveThreadDump.class);
 
     private final long threadId;
     private final String threadName;
@@ -48,133 +41,20 @@ public class AgentActiveThreadDump {
 
     private final String detailMessage;
 
-    public AgentActiveThreadDump(TActiveThreadDump tActiveThreadDump) {
-        if (tActiveThreadDump == null) {
-            throw new NullPointerException("tActiveThreadDump");
-        }
+    private AgentActiveThreadDump(Builder builder) {
+        this.threadId = builder.threadId;
+        this.threadName = builder.threadName;
+        this.threadState = builder.threadState;
 
-        TThreadDump activeThreadDump = tActiveThreadDump.getThreadDump();
-        this.threadName = activeThreadDump.getThreadName();
-        this.threadId = activeThreadDump.getThreadId();
+        this.startTime = builder.startTime;
+        this.execTime = builder.execTime;
+        this.localTraceId = builder.localTraceId;
 
-        if (activeThreadDump.getThreadState() == null) {
-            this.threadState = TThreadState.UNKNOWN;
-        } else {
-            this.threadState = activeThreadDump.getThreadState();
-        }
+        this.sampled = builder.sampled;
+        this.transactionId = builder.transactionId;
+        this.entryPoint = builder.entryPoint;
 
-        this.startTime = tActiveThreadDump.getStartTime();
-        this.execTime = System.currentTimeMillis() - startTime;
-        this.localTraceId = tActiveThreadDump.getLocalTraceId();
-
-        this.sampled = tActiveThreadDump.isSampled();
-        this.transactionId = tActiveThreadDump.getTransactionId();
-        this.entryPoint = tActiveThreadDump.getEntryPoint();
-
-        this.detailMessage = createDumpMessage(activeThreadDump);
-    }
-
-    public AgentActiveThreadDump(TActiveThreadLightDump tActiveThreadLightDump) {
-        if (tActiveThreadLightDump == null) {
-            throw new NullPointerException("tActiveThreadLightDump");
-        }
-
-        TThreadLightDump activeThreadDump = tActiveThreadLightDump.getThreadDump();
-        this.threadName = activeThreadDump.getThreadName();
-        this.threadId = activeThreadDump.getThreadId();
-
-        if (activeThreadDump.getThreadState() == null) {
-            this.threadState = TThreadState.UNKNOWN;
-        } else {
-            this.threadState = activeThreadDump.getThreadState();
-        }
-
-        this.startTime = tActiveThreadLightDump.getStartTime();
-        this.execTime = System.currentTimeMillis() - startTime;
-        this.localTraceId = tActiveThreadLightDump.getLocalTraceId();
-
-        this.sampled = tActiveThreadLightDump.isSampled();
-        this.transactionId = tActiveThreadLightDump.getTransactionId();
-        this.entryPoint = tActiveThreadLightDump.getEntryPoint();
-
-        this.detailMessage = StringUtils.EMPTY;
-    }
-
-    public String createDumpMessage(TThreadDump threadDump) {
-        // set threadName
-        StringBuilder message = new StringBuilder("\"" + threadDump.getThreadName() + "\"");
-
-        // set threadId
-        String hexStringThreadId = Long.toHexString(threadId);
-        message.append(" Id=0x" + hexStringThreadId);
-
-        // set threadState
-        message.append(" " + threadState.name());
-
-        if (!StringUtils.isBlank(threadDump.getLockName())) {
-            message.append(" on ").append(threadDump.getLockName());
-        }
-
-        if (!StringUtils.isBlank(threadDump.getLockOwnerName())) {
-            message.append(" owned by \"").append(threadDump.getLockOwnerName()).append("\" Id=").append(threadDump.getLockOwnerId());
-        }
-
-        if (threadDump.isSuspended()) {
-            message.append(" (suspended)");
-        }
-        if (threadDump.isInNative()) {
-            message.append(" (in native)");
-        }
-        message.append(LINE_SEPARATOR);
-
-        // set StackTrace
-        for (int i = 0; i < threadDump.getStackTraceSize(); i++) {
-            String stackTrace = threadDump.getStackTrace().get(i);
-            message.append(TAB_SEPARATOR + "at ").append(stackTrace);
-            message.append(LINE_SEPARATOR);
-
-            if (i == 0 && !StringUtils.isBlank(threadDump.getLockName())) {
-                switch (threadState) {
-                    case BLOCKED:
-                        message.append(TAB_SEPARATOR + "-  blocked on ").append(threadDump.getLockName());
-                        message.append(LINE_SEPARATOR);
-                        break;
-                    case WAITING:
-                        message.append(TAB_SEPARATOR + "-  waiting on ").append(threadDump.getLockName());
-                        message.append(LINE_SEPARATOR);
-                        break;
-                    case TIMED_WAITING:
-                        message.append(TAB_SEPARATOR + "-  waiting on ").append(threadDump.getLockName());
-                        message.append(LINE_SEPARATOR);
-                        break;
-                    default:
-                }
-            }
-
-            if (threadDump.getLockedMonitors() != null) {
-                for (TMonitorInfo lockedMonitor : threadDump.getLockedMonitors()) {
-                    if (lockedMonitor.getStackDepth() == i) {
-                        message.append(TAB_SEPARATOR + "-  locked ").append(lockedMonitor.getStackFrame());
-                        message.append(LINE_SEPARATOR);
-                    }
-                }
-            }
-        }
-
-        // set Locks
-        List<String> lockedSynchronizers = threadDump.getLockedSynchronizers();
-        if (lockedSynchronizers != null) {
-            if (!lockedSynchronizers.isEmpty()) {
-                message.append(LINE_SEPARATOR + TAB_SEPARATOR + "Number of locked synchronizers = ").append(lockedSynchronizers.size());
-                message.append(LINE_SEPARATOR);
-                for (String lockedSynchronizer : lockedSynchronizers) {
-                    message.append(TAB_SEPARATOR + "- ").append(lockedSynchronizer);
-                    message.append(LINE_SEPARATOR);
-                }
-            }
-        }
-        message.append(LINE_SEPARATOR);
-        return message.toString();
+        this.detailMessage = builder.detailMessage;
     }
 
     public long getThreadId() {
@@ -215,6 +95,87 @@ public class AgentActiveThreadDump {
 
     public String getDetailMessage() {
         return detailMessage;
+    }
+
+    static class Builder {
+
+        private long threadId;
+        private String threadName;
+        private TThreadState threadState;
+
+        private long startTime;
+        private long execTime;
+        private long localTraceId;
+
+        private boolean sampled;
+        private String transactionId;
+        private String entryPoint;
+
+        private String detailMessage;
+
+        void setThreadId(long threadId) {
+            this.threadId = threadId;
+        }
+
+        void setThreadName(String threadName) {
+            this.threadName = threadName;
+        }
+
+        void setThreadState(TThreadState threadState) {
+            this.threadState = threadState;
+        }
+
+        void setStartTime(long startTime) {
+            this.startTime = startTime;
+        }
+
+        void setExecTime(long execTime) {
+            this.execTime = execTime;
+        }
+
+        void setLocalTraceId(long localTraceId) {
+            this.localTraceId = localTraceId;
+        }
+
+        void setSampled(boolean sampled) {
+            this.sampled = sampled;
+        }
+
+        void setTransactionId(String transactionId) {
+            this.transactionId = transactionId;
+        }
+
+        void setEntryPoint(String entryPoint) {
+            this.entryPoint = entryPoint;
+        }
+
+        void setDetailMessage(String detailMessage) {
+            this.detailMessage = detailMessage;
+        }
+
+        AgentActiveThreadDump build() {
+            if (threadName == null) {
+                throw new NullPointerException("threadName may not be null");
+            }
+            if (threadState == null) {
+                throw new NullPointerException("threadState may not be null");
+            }
+
+            if (startTime <= 0) {
+                throw new IllegalArgumentException("startTime must be positive number");
+            }
+            if (execTime <= 0) {
+                // execTime can be negative number because of time issues between servers.
+                LOGGER.warn("execTime is {}, you can get negativeNumber because of time issues between servers", execTime);
+            }
+
+            if (detailMessage == null) {
+                throw new NullPointerException("detailMessage may not be null");
+            }
+
+            return new AgentActiveThreadDump(this);
+        }
+
     }
 
 }
