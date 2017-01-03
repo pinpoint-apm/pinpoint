@@ -27,6 +27,8 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -74,7 +76,6 @@ public class ASMClassNodeLoader {
         });
     }
 
-
     // only use for test.
     public static ClassNode get(final String classInternalName) throws Exception {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -102,6 +103,8 @@ public class ASMClassNodeLoader {
     }
 
     public static class TestClassLoader extends ClassLoader {
+        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
         private String targetClassName;
         private String targetMethodName;
         private CallbackHandler callbackHandler;
@@ -131,7 +134,7 @@ public class ASMClassNodeLoader {
                     ClassNode classNode = ASMClassNodeLoader.get(JavaAssistUtils.javaNameToJvmName(name));
 
                     if (this.trace) {
-                        System.out.println("## original #############################################################");
+                        logger.debug("## original #############################################################");
                         ASMClassWriter cw = new ASMClassWriter(pluginContext, classNode.name, classNode.superName, 0, null);
                         TraceClassVisitor tcv = new TraceClassVisitor(cw, new PrintWriter(System.out));
                         classNode.accept(tcv);
@@ -143,7 +146,7 @@ public class ASMClassNodeLoader {
 
                      ASMClassWriter cw = new ASMClassWriter(pluginContext, classNode.name, classNode.superName, ClassWriter.COMPUTE_FRAMES, null);
                     if (this.trace) {
-                        System.out.println("## modified #############################################################");
+                        logger.debug("## modified #############################################################");
                         TraceClassVisitor tcv = new TraceClassVisitor(cw, new PrintWriter(System.out));
                         classNode.accept(tcv);
                     } else {

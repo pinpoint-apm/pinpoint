@@ -53,7 +53,6 @@ public class ApiIdAwareInterceptor implements ApiIdAwareAroundInterceptor {
         this.beforeTarget = target;
         this.beforeApiId = apiId;
         this.beforeArgs = args;
-        System.out.println(getClass().getName() + " BEFORE " + target + " " + apiId + " " + toArgs(args));
     }
 
     @Override
@@ -64,8 +63,6 @@ public class ApiIdAwareInterceptor implements ApiIdAwareAroundInterceptor {
         this.afterArgs = args;
         this.result = result;
         this.throwable = throwable;
-
-        System.out.println("AFTER " + target + " " + apiId + " " + toArgs(args) + " " + result + " " + throwable);
     }
 
     private String toArgs(Object[] args) {

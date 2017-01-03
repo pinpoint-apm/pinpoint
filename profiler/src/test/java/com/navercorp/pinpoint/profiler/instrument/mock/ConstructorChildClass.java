@@ -32,7 +32,6 @@ public class ConstructorChildClass extends ConstructorParentClass {
 
 
     public ConstructorChildClass(String s, int i) {
-        System.out.println("Constructor child.");
     }
 
     public ConstructorChildClass(Object o) {

@@ -66,7 +66,6 @@ public class ASMMethodNodeAdapterAddDelegatorTest {
         Method method = clazz.getDeclaredMethod("publicArgStringReturnString", String.class);
         String args = "";
         Object result = method.invoke(clazz.newInstance(), args);
-        System.out.println("result=" + result);
     }
 
     @Test
@@ -74,7 +73,6 @@ public class ASMMethodNodeAdapterAddDelegatorTest {
         Class<?> clazz = addDelegatorMethod("com.navercorp.pinpoint.profiler.instrument.mock.DelegatorClass", "com.navercorp.pinpoint.profiler.instrument.mock.DelegatorSuperClass", "publicArgStringReturnStringArray");
         Method method = clazz.getDeclaredMethod("publicArgStringReturnStringArray", String.class, String.class);
         Object result = method.invoke(clazz.newInstance(), "foo", "bar");
-        System.out.println("result=" + result);
     }
 
     @Test
@@ -84,9 +82,6 @@ public class ASMMethodNodeAdapterAddDelegatorTest {
         Object result = method.invoke(clazz.newInstance(), "foo", "bar", "zoo");
         if (result instanceof String[][]) {
             String[][] array = (String[][]) result;
-            for (String entry : array[0]) {
-                System.out.println("result=" + entry);
-            }
         }
     }
 
