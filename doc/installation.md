@@ -15,8 +15,9 @@ To try out a simple quickstart project, please refer to the [quick-start guide](
 2. Build Pinpoint (Only required if you're building from source)
 	1. Clone Pinpoint - `git clone $PINPOINT_GIT_REPOSITORY`
 	2. Set JAVA_6_HOME environment variable to JDK 6 home directory.
-	2. Set JAVA_7_HOME environment variable to JDK 7+ home directory.
-	3. Run `mvn install -Dmaven.test.skip=true` in Pinpoint home directory.
+	3. Set JAVA_7_HOME environment variable to JDK 7+ home directory.
+	4. Set JAVA_8_HOME environment variable to JDK 8 home directory.
+	5. Run `mvn install -Dmaven.test.skip=true` in Pinpoint home directory.
 3. Pinpoint Collector ([details](#pinpoint-collector))
 	1. Deploy *pinpoint-collector-$VERSION.war* to a web container.
 	2. Configure *pinpoint-collector.properties*, *hbase.properties*.
@@ -68,8 +69,9 @@ There are two options:
 	* Maven 3.2.x+ installed
 	* JAVA_6_HOME environment variable set to JDK 6 home directory.
 	* JAVA_7_HOME environment variable set to JDK 7+ home directory.
+	* JAVA_8_HOME environment variable set to JDK 8 home directory.
 
-	JDK 7+ and JAVA_7_HOME environment variable are required to build **profiler-optional**. For more information about the optional package, please take a look [here](../profiler-optional/README.md).
+	JDK 7+ and JAVA_7_HOME, JAVA_8_HOME environment variable are required to build **profiler-optional**. For more information about the optional package, please take a look [here](../profiler-optional/README.md).
 
 	Additionally, the required Java version to run each Pinpoint component is given below:
 
