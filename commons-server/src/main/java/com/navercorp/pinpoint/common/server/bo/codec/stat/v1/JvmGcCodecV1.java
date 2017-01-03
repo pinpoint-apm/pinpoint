@@ -68,7 +68,7 @@ public class JvmGcCodecV1 implements AgentStatCodec<JvmGcBo> {
         final int numValues = jvmGcBos.size();
         valueBuffer.putVInt(numValues);
 
-        List<Long> timestamps = new ArrayList<>(numValues);
+        List<Long> timestamps = new ArrayList<Long>(numValues);
         UnsignedLongEncodingStrategy.Analyzer.Builder heapUsedAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         UnsignedLongEncodingStrategy.Analyzer.Builder heapMaxAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         UnsignedLongEncodingStrategy.Analyzer.Builder nonHeapUsedAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
@@ -151,7 +151,7 @@ public class JvmGcCodecV1 implements AgentStatCodec<JvmGcBo> {
         List<Long> gcOldCounts = this.codec.decodeValues(valueBuffer, gcOldCountEncodingStrategy,  numValues);
         List<Long> gcOldTimes = this.codec.decodeValues(valueBuffer, gcOldTimeEncodingStrategy, numValues);
 
-        List<JvmGcBo> jvmGcBos = new ArrayList<>(numValues);
+        List<JvmGcBo> jvmGcBos = new ArrayList<JvmGcBo>(numValues);
         for (int i = 0; i < numValues; ++i) {
             JvmGcBo jvmGcBo = new JvmGcBo();
             jvmGcBo.setAgentId(agentId);

@@ -70,7 +70,7 @@ public class ActiveTraceCodecV1 implements AgentStatCodec<ActiveTraceBo> {
         final int numValues = activeTraceBos.size();
         valueBuffer.putVInt(numValues);
 
-        List<Long> timestamps = new ArrayList<>(numValues);
+        List<Long> timestamps = new ArrayList<Long>(numValues);
         UnsignedShortEncodingStrategy.Analyzer.Builder versionAnalyzerBuilder = new UnsignedShortEncodingStrategy.Analyzer.Builder();
         UnsignedIntegerEncodingStrategy.Analyzer.Builder schemaTypeAnalyzerBuilder = new UnsignedIntegerEncodingStrategy.Analyzer.Builder();
         UnsignedIntegerEncodingStrategy.Analyzer.Builder fastTraceCountsAnalyzerBuilder = new UnsignedIntegerEncodingStrategy.Analyzer.Builder();
@@ -152,14 +152,14 @@ public class ActiveTraceCodecV1 implements AgentStatCodec<ActiveTraceBo> {
         List<Integer> slowTraceCounts = this.codec.decodeValues(valueBuffer, slowTraceCountsEncodingStrategy, numValues);
         List<Integer> verySlowTraceCounts = this.codec.decodeValues(valueBuffer, verySlowTraceCountsEncodingStrategy, numValues);
 
-        List<ActiveTraceBo> activeTraceBos = new ArrayList<>(numValues);
+        List<ActiveTraceBo> activeTraceBos = new ArrayList<ActiveTraceBo>(numValues);
         for (int i = 0; i < numValues; ++i) {
             ActiveTraceBo activeTraceBo = new ActiveTraceBo();
             activeTraceBo.setAgentId(agentId);
             activeTraceBo.setTimestamp(timestamps.get(i));
             activeTraceBo.setVersion(versions.get(i));
             activeTraceBo.setHistogramSchemaType(schemaTypes.get(i));
-            Map<SlotType, Integer> activeTraceCounts = new HashMap<>();
+            Map<SlotType, Integer> activeTraceCounts = new HashMap<SlotType, Integer>();
             activeTraceCounts.put(SlotType.FAST, fastTraceCounts.get(i));
             activeTraceCounts.put(SlotType.NORMAL, normalTraceCounts.get(i));
             activeTraceCounts.put(SlotType.SLOW, slowTraceCounts.get(i));

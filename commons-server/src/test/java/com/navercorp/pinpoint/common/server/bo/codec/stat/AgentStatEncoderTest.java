@@ -43,9 +43,9 @@ public class AgentStatEncoderTest {
 
     private AgentStatCodec<TestAgentStat> codec = new TestAgentStatCodec();
 
-    private AgentStatEncoder<TestAgentStat> encoder = new AgentStatEncoder<>(codec);
+    private AgentStatEncoder<TestAgentStat> encoder = new AgentStatEncoder<TestAgentStat>(codec);
 
-    private AgentStatDecoder<TestAgentStat> decoder = new AgentStatDecoder<>(Arrays.asList(codec));
+    private AgentStatDecoder<TestAgentStat> decoder = new AgentStatDecoder<TestAgentStat>(Arrays.asList(codec));
 
     @Test
     public void stats_should_be_encoded_and_decoded_into_same_value() {
@@ -68,7 +68,7 @@ public class AgentStatEncoderTest {
     }
 
     private List<TestAgentStat> createTestAgentStats(long initialTimestamp, int numStats) {
-        List<TestAgentStat> agentStats = new ArrayList<>(numStats);
+        List<TestAgentStat> agentStats = new ArrayList<TestAgentStat>(numStats);
         for (int i = 0; i < numStats; ++i) {
             long timestamp = initialTimestamp + (COLLECT_INTERVAL * i);
             TestAgentStat agentStat = new TestAgentStat();
@@ -111,7 +111,7 @@ public class AgentStatEncoderTest {
         @Override
         public List<TestAgentStat> decodeValues(Buffer valueBuffer, AgentStatDecodingContext decodingContext) {
             int size = valueBuffer.readInt();
-            List<TestAgentStat> agentStats = new ArrayList<>(size);
+            List<TestAgentStat> agentStats = new ArrayList<TestAgentStat>(size);
             for (int i = 0; i < size; ++i) {
                 TestAgentStat agentStat = new TestAgentStat();
                 agentStat.setAgentId(decodingContext.getAgentId());

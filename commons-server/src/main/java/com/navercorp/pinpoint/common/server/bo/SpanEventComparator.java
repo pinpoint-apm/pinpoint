@@ -1,5 +1,8 @@
 package com.navercorp.pinpoint.common.server.bo;
 
+import com.navercorp.pinpoint.common.server.util.IntegerUtils;
+import com.navercorp.pinpoint.common.server.util.ShortUtils;
+
 import java.util.Comparator;
 
 /**
@@ -11,13 +14,13 @@ public class SpanEventComparator implements Comparator<SpanEventBo> {
 
     @Override
     public int compare(SpanEventBo o1, SpanEventBo o2) {
-        final int sequenceCompare = Short.compare(o1.getSequence(), o2.getSequence());
+        final int sequenceCompare = ShortUtils.compare(o1.getSequence(), o2.getSequence());
         if (sequenceCompare != 0) {
             return sequenceCompare;
         }
         final int asyncId1 = o1.getAsyncId();
         final int asyncId2 = o2.getAsyncId();
-        final int asyncIdCompare = Integer.compare(asyncId1, asyncId2);
+        final int asyncIdCompare = IntegerUtils.compare(asyncId1, asyncId2);
         if (asyncIdCompare != 0) {
 //                bug Comparison method violates its general contract!
 //                TODO temporary fix
@@ -29,6 +32,6 @@ public class SpanEventComparator implements Comparator<SpanEventBo> {
 //                }
             return asyncIdCompare;
         }
-        return Integer.compare(o1.getAsyncSequence(), o2.getAsyncSequence());
+        return IntegerUtils.compare(o1.getAsyncSequence(), o2.getAsyncSequence());
     }
 }

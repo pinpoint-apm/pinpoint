@@ -34,7 +34,7 @@ public class BitCountingHeaderEncoderTest {
     public void test_with_random_codes() {
         // Given
         final int numCodes = RANDOM.nextInt(20) + 1;
-        final List<Integer> givenCodes = new ArrayList<>(numCodes);
+        final List<Integer> givenCodes = new ArrayList<Integer>(numCodes);
         for (int i = 0; i < numCodes; ++i) {
             givenCodes.add(RANDOM.nextInt(5));
         }
@@ -45,7 +45,7 @@ public class BitCountingHeaderEncoderTest {
         }
         final byte[] header = encoder.getHeader();
         // Then
-        List<Integer> decodedCodes = new ArrayList<>(numCodes);
+        List<Integer> decodedCodes = new ArrayList<Integer>(numCodes);
         BitCountingHeaderDecoder decoder = new BitCountingHeaderDecoder(header);
         for (int i = 0; i < numCodes; ++i) {
             int code = decoder.getCode();
@@ -77,7 +77,7 @@ public class BitCountingHeaderEncoderTest {
         final int numZeroes = RANDOM.nextInt(20) + 1;
         final int numRandomCodes = RANDOM.nextInt(20) + 1;
         final int numTotalCodes = numZeroes + numRandomCodes;
-        List<Integer> givenCodes = new ArrayList<>(numTotalCodes);
+        List<Integer> givenCodes = new ArrayList<Integer>(numTotalCodes);
         for (int i = 0; i < numZeroes; ++i) {
             givenCodes.add(0);
         }
@@ -92,7 +92,7 @@ public class BitCountingHeaderEncoderTest {
         final byte[] header = encoder.getHeader();
         // Then
         BitCountingHeaderDecoder decoder = new BitCountingHeaderDecoder(header);
-        List<Integer> decodedCodes = new ArrayList<>(numTotalCodes);
+        List<Integer> decodedCodes = new ArrayList<Integer>(numTotalCodes);
         for (int i = 0; i < numTotalCodes; ++i) {
             decodedCodes.add(decoder.getCode());
         }

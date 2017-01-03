@@ -35,10 +35,10 @@ import java.util.List;
  * @author HyunGil Jeong
  */
 public enum UnsignedIntegerEncodingStrategy implements EncodingStrategy<Integer> {
-    NONE(new ValueEncodingStrategy.Unsigned<>(TypedBufferHandler.INTEGER_BUFFER_HANDLER)),
-    REPEAT_COUNT(new RepeatCountEncodingStrategy.Unsigned<>(TypedBufferHandler.INTEGER_BUFFER_HANDLER)),
-    DELTA(new DeltaEncodingStrategy.Unsigned<>(TypedBufferHandler.INTEGER_BUFFER_HANDLER, ArithmeticOperation.INTEGER_OPERATIONS)),
-    DELTA_OF_DELTA(new DeltaOfDeltaEncodingStrategy.Unsigned<>(TypedBufferHandler.INTEGER_BUFFER_HANDLER, ArithmeticOperation.INTEGER_OPERATIONS)), ;
+    NONE(new ValueEncodingStrategy.Unsigned<Integer>(TypedBufferHandler.INTEGER_BUFFER_HANDLER)),
+    REPEAT_COUNT(new RepeatCountEncodingStrategy.Unsigned<Integer>(TypedBufferHandler.INTEGER_BUFFER_HANDLER)),
+    DELTA(new DeltaEncodingStrategy.Unsigned<Integer>(TypedBufferHandler.INTEGER_BUFFER_HANDLER, ArithmeticOperation.INTEGER_OPERATIONS)),
+    DELTA_OF_DELTA(new DeltaOfDeltaEncodingStrategy.Unsigned<Integer>(TypedBufferHandler.INTEGER_BUFFER_HANDLER, ArithmeticOperation.INTEGER_OPERATIONS)), ;
 
     private final EncodingStrategy<Integer> delegate;
 
@@ -92,7 +92,7 @@ public enum UnsignedIntegerEncodingStrategy implements EncodingStrategy<Integer>
 
         public static class Builder implements StrategyAnalyzerBuilder<Integer> {
 
-            private final List<Integer> values = new ArrayList<>();
+            private final List<Integer> values = new ArrayList<Integer>();
             private int previousValue = 0;
             private int previousDelta = 0;
 
@@ -138,7 +138,7 @@ public enum UnsignedIntegerEncodingStrategy implements EncodingStrategy<Integer>
                 } else {
                     bestStrategy = REPEAT_COUNT;
                 }
-                List<Integer> values = new ArrayList<>(this.values);
+                List<Integer> values = new ArrayList<Integer>(this.values);
                 this.values.clear();
                 return new Analyzer(bestStrategy, values);
             }
