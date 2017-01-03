@@ -228,14 +228,14 @@
     <div ng-controller="RealtimeChartCtrl" class="realtime" style="bottom:-180px;" ng-show="bInitialized">
 		<div class="chart-title">
 			<span>Realtime Active Thread Chart</span>
-			<span class="chart-expand glyphicon glyphicon-fullscreen" aria-hidden="true" ng-click="resizePopup()"></span>
+			<span class="chart-expand glyphicon glyphicon-resize-full" aria-hidden="true" ng-click="resizePopup($event)"></span>
 			<span class="chart-expand glyphicon glyphicon-pushpin" aria-hidden="true" ng-click="pin()"></span>
 			<span class="glyphicon glyphicon-question-sign realtimeTooltip tooltipstered" style="float:right;cursor:pointer;color:#FFF;font-size:17px;padding-right:6px;"></span>
 		</div>
 		<div class="agent-sum-chart">
 			<div><span></span> (<span></span>)</div>
 		</div>
-		<div class="agent-chart-list"></div>
+		<div class="agent-chart-list" ng-click="showAgentInfo($event)"></div>
 		<div class="connection-message">
 			<h4></h4>
 			<button type="button" class="btn btn-warning" style="display:none" ng-click="retryConnection()"><span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> Retry</button>
