@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.handler;
 
 import com.navercorp.pinpoint.collector.mapper.thrift.stat.AgentStatBatchMapper;
 import com.navercorp.pinpoint.collector.mapper.thrift.stat.AgentStatMapper;
+import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
@@ -64,6 +65,9 @@ public class AgentStatHandlerV2 implements Handler {
     @Autowired
     private AgentStatDaoV2<ActiveTraceBo> activeTraceDao;
 
+    @Autowired(required = false)
+    private AgentStatService agentStatService;
+
     @Override
     public void handle(TBase<?, ?> tbase) {
         // FIXME (2014.08) Legacy - TAgentStat should not be sent over the wire.
@@ -76,6 +80,11 @@ public class AgentStatHandlerV2 implements Handler {
         } else {
             throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + TAgentStat.class.getName() + " or " + TAgentStatBatch.class.getName());
         }
+
+        if (agentStatService != null) {
+            agentStatService.save(tbase);
+        }
+
     }
 
     private void handleAgentStat(TAgentStat tAgentStat) {

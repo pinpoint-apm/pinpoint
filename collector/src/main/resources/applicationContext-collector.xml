@@ -27,6 +27,7 @@
 
     <bean id="propertyConfigurer"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
         <property name="locations">
             <list>
                 <value>classpath:hbase.properties</value>
@@ -147,7 +148,7 @@
             </list>
         </constructor-arg>
     </bean>
-    
+
     <bean id="streamResponseFilterChain" class="com.navercorp.pinpoint.collector.cluster.route.DefaultRouteFilterChain">
         <constructor-arg>
             <list value-type="com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter">
