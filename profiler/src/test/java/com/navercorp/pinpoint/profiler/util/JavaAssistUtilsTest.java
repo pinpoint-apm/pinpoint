@@ -217,7 +217,6 @@ public class JavaAssistUtilsTest {
     }
 
     public void getLineNumber_testAPI(String params) {
-        System.out.println("testGetLineNumber test api");
     }
 
     @Test

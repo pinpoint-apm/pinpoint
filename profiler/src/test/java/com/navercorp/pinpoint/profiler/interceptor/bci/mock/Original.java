@@ -81,11 +81,10 @@ public class Original {
 
 
     public void methodA() {
-        System.out.println("---a");
     }
 
     public void methodB() {
-        System.out.println("---b");
+
     }
 
 

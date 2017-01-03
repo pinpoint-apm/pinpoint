@@ -23,7 +23,6 @@ import java.util.Map;
 public class DelegatorSuperClass {
 
     public void publicArgByteReturnVoid(byte b) {
-        System.out.println("publicArgByteReturnVoid");
     }
 
     public void publicArgByteArrayReturnVoid(byte[] bArray) {
@@ -39,19 +38,16 @@ public class DelegatorSuperClass {
     }
 
     public void publicArgInterfaceReturnVoid(Map map, Map<String, String> strMap, Map<Object, Object> objectMap) {
-        System.out.println("publicArgInterfaceReturnVoid");
     }
 
     public void publicArgEnumReturnVoid(Enum e) {
     }
 
     public String publicArgStringReturnString(String a) {
-        System.out.println("publicArgStringReturnString");
         return "publicArgStringReturnString";
     }
 
     public String[] publicArgStringReturnStringArray(String a, String b) {
-        System.out.println("publicArgStringReturnStringArray");
         String[] result = new String[2];
         result[0] = a;
         result[1] = b;
@@ -60,7 +56,6 @@ public class DelegatorSuperClass {
     }
 
     public String[][] publicArgStringReturnStringArrays(String a, String b, String c) {
-        System.out.println("publicArgStringReturnStringArrays");
         String[][] result = new String[1][3];
         result[0][0] = a;
         result[0][1] = b;

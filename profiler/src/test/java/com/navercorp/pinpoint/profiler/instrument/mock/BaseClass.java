@@ -29,7 +29,6 @@ public class BaseClass {
     public static final Object o = new Object();
 
     public static BaseClass getInstance() {
-        System.out.println("getInstance");
         return new BaseClass();
     }
 
@@ -38,7 +37,6 @@ public class BaseClass {
     }
 
     public void base() {
-        System.out.println("base");
     }
 
 }
