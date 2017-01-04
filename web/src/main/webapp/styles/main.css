@@ -65,14 +65,18 @@ canvas {outline:none}
 
 /* sidebar */
 .sidebar {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding-left: 12px;
-  padding-right: 10px;
-  width: 422px;
-  height: 100%;
-  border-left: 1px solid #ddd;
+    top: 0;
+    right: 0;
+    width: 422px;
+    height: 100%;
+    z-index: 100;
+    position: absolute;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-left: 1px solid #DDD;
+    padding-left: 12px;
+    padding-right: 10px;
+    background-color: #FFF;
 }
 .sidebar.smallsize {
   width: 0;
@@ -254,6 +258,9 @@ canvas {outline:none}
     border: 4px solid black;
     obrder-color: transparent;
     margin-bottom: 0px;
+}
+#threadDump .panel-heading {
+    cursor: pointer;
 }
 #threadDump .panel-heading button {
     float: right;

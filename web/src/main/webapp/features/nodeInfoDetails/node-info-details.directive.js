@@ -33,17 +33,17 @@
                     bShown = false;
                     scope.htLastUnknownNode = false;
 
-                    angular.element($window).bind("resize",function(e) {
-                        if (bShown && /_GROUP$/.test( htLastNode.category ) ) {
-                            renderAllChartWhichIsVisible(htLastNode);
-                        }
-                    });
-
-                    element
-                        .find(".unknown-list")
-                        .bind("scroll", function (e) {
-                            renderAllChartWhichIsVisible(htLastNode);
-                        });
+                    // angular.element($window).bind("resize",function(e) {
+                    //     if (bShown && /_GROUP$/.test( htLastNode.category ) ) {
+                    //         renderAllChartWhichIsVisible(htLastNode);
+                    //     }
+                    // });
+					//
+                    // element
+                    //     .find(".unknown-list")
+                    //     .bind("scroll", function (e) {
+                    //         renderAllChartWhichIsVisible(htLastNode);
+                    //     });
 
                     /**
                      * reset
