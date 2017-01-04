@@ -11,12 +11,11 @@
 	    function (cfg, $scope, $routeParams, $timeout, TimeSliderVoService, NavbarVoService, $window, SidebarTitleVoService, filteredMapUtilService, $rootElement, analyticsService) {
 			analyticsService.send(analyticsService.CONST.FILTEREDMAP_PAGE);
 	        // define private variables
-	        var oNavbarVoService, oTimeSliderVoService, bNodeSelected, bNoData, reloadOnlyForNode, reloadOnlyForLink, bLoadingPause = false, bIngRequest = true, bDoneRequest = false;
+	        var oNavbarVoService, oTimeSliderVoService, bNodeSelected, reloadOnlyForNode, reloadOnlyForLink, bLoadingPause = false, bIngRequest = true, bDoneRequest = false;
 
 	        // initialize scope variables
 	        $scope.hasScatter = false;
 	        $window.htoScatter = {};
-	        bNoData = true;
 	        reloadOnlyForNode = false;
 	        reloadOnlyForLink = false;
 	        $scope.sidebarLoading = false;
@@ -91,7 +90,6 @@
 	
 	        $scope.getMainContainerClass = function () {
 				return "";
-	            // return bNoData ? 'no-data' : '';
 	        };
 	
 	        $scope.getInfoDetailsClass = function () {
@@ -107,14 +105,13 @@
 	            return infoDetailsClass.join(' ');
 	        };
 	
-	        $scope.$on('serverMapDirective.hasData', function (event) {
-	            bNoData = false;
+	        $scope.$on('serverMapDirective.hasData', function () {
 	            $scope.sidebarLoading = false;
 	        });
-	
-	        $scope.$on('serverMap.hasNoData', function (event) {
-	            bNoData = true;
+
+			$scope.$on('serverMapDirective.hasNoData', function () {
 	            $scope.sidebarLoading = false;
+				checkNextLoading();
 	        });
 	
 	        $scope.$on('serverMapDirective.fetched', function (event, lastFetchedTimestamp, mapData) {
@@ -144,10 +141,10 @@
 					loadData();
 				}
 			});
-	        $scope.$on('timeSliderDirective.moreClicked', function (event) {
+	        $scope.$on('timeSliderDirective.moreClicked', function () {
 	        	loadData();
 	        });
-	
+
 	        $scope.$on('serverMapDirective.nodeClicked', function (event, e, query, node, data) {
 	            bNodeSelected = true;
 	            var oSidebarTitleVoService = new SidebarTitleVoService();
