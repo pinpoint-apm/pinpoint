@@ -69,6 +69,7 @@
 		this.CONST.CLK_CHANGE_AGENT_INSPECTOR = "ClickChangeAgentInspector";
 		this.CONST.CLK_CHANGE_AGENT_MAIN = "ClickChangeAgentMain";
 		this.CONST.CLK_START_REALTIME = "ClickStartRealtime";
+		this.CONST.CLK_OPEN_THREAD_DUMP_LAYER = "ClickOpenThreadDumpLayer";
 
 		this.CONST.CLK_CONFIGURATION = "ClickConfiguration";
 		this.CONST.CLK_GENERAL = "ClickConfigurationGeneral";

@@ -1,32 +1,45 @@
 <div id="threadDump">
-	<div class="panel panel-info">
-		<div class="panel-heading">Thread Dump <i class="xi-spinner-2 xi-spin"></i> <button ng-click="hideThreadDump()" class="btn btn-sm"><span class="glyphicon glyphicon-remove"></span></button></div>
-		<table class="table table-info thread-header">
-			<thead>
-				<tr>
-					<th>&nbsp;</th>
-					<th>id</th>
-					<th>state</th>
-					<th>start time</th>
-					<th>path</th>
-					<th>&nbsp;</th>
-				</tr>
-				<tr>
-					<th>&nbsp;</th>
-					<th>name</th>
-					<th>sampled</th>
-					<th>exec(ms)</th>
-					<th>transaction id</th>
-					<th>&nbsp;</th>
-				</tr>
-			</thead>
-		</table>
-		<div class="thread-list">
+	<div class="panel">
+		<div class="panel-heading">Thread Dump <i class="xi-spinner-2 xi-spin"></i> <button ng-click="hideThreadDump()" class="btn btn-sm">X</button></div>
+		<div class="thread-header" ng-hide="threadList.length === 0">
 			<table class="table table-info">
-				<tbody ng-click="loadDetailMessage($event)"></tbody>
+				<thead>
+					<tr>
+						<th>&nbsp;</th>
+						<th ng-click="changeSortType('threadId')">id</th>
+						<th ng-click="changeSortType('threadName')">name</th>
+						<th ng-click="changeSortType('threadState')">state</th>
+						<th>sampled</th>
+						<th ng-click="changeSortType('startTime')">start time</th>
+						<th ng-click="changeSortType('execTime')">exec(ms)</th>
+						<th ng-click="changeSortType('entryPoint')">path</th>
+						<th ng-click="changeSortType('transactionId')">transaction id</th>
+						<th>&nbsp;</th>
+					</tr>
+				</thead>
 			</table>
 		</div>
-		<div class="panel-body">There is no data</div>
+		<div class="thread-list" ng-hide="threadList.length === 0">
+			<table class="table table-info">
+				<tbody ng-click="loadDetailMessage($event)">
+					<tr ng-repeat="oThread in threadList | orderBy:sortType" data-traceId="{{oThread.localTraceId}}">
+						<td>{{ $index + 1 }}</td>
+						<td>{{ oThread.threadId }}</td>
+						<td>{{ oThread.threadName }}</td>
+						<td>{{ oThread.threadState }}</td>
+						<td>{{ oThread.sampled }}</td>
+						<td>{{ formatDate( oThread.startTime ) }}</td>
+						<td>{{ oThread.execTime }}</td>
+						<td>{{ oThread.entryPoint }}</td>
+						<td>{{ oThread.transactionId }}</td>
+						<td><button class="btn btn-xs btn-default"><span class="glyphicon glyphicon-search"></span></button></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="panel-body" ng-show="threadList.length === 0">There is no data</div>
 	</div>
-	<textarea></textarea>
+	<div class="detail-message">
+		<textarea></textarea>
+	</div>
 </div>

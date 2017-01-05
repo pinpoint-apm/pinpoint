@@ -248,110 +248,152 @@ canvas {outline:none}
     z-index: 999999;
     position: absolute;
     background-color: #FFF;
-
+    box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.75);
 }
 #threadDump i {
     color: #F00;
     display: none;
 }
 #threadDump .panel {
-    border: 4px solid black;
-    obrder-color: transparent;
+    border-color: transparent;
     margin-bottom: 0px;
 }
 #threadDump .panel-heading {
-    cursor: pointer;
+    color: #498ED2;
+    cursor: move;
+    padding: 24px 30px 24px 30px;
+    font-size: 20px;
+    font-weight: 100;
+    font-family: sans-serif;
+    border-bottom: 1px solid #EAEDF4;
 }
 #threadDump .panel-heading button {
     float: right;
-    border-radius: 14px;
     padding: 0px 3px;
+    font-size: 32px;
+    margin-top: -6px;
+    font-weight: 100;
+    font-family: sans-serif;
+    background-color: #FFF;
 }
 #threadDump .panel-body {
-    display: none;
     text-align: center;
     padding-top: 50px;
     font-weight: bold;
 }
 #threadDump .thread-list {
+    margin: 0px 30px 29px 30px;
     overflow-x: hidden;
     overflow-y: auto;
 }
-#threadDump textarea {
-    color: #FFF;
-    width: 100%;
-    display: none;
-    padding: 10px;
-    position: relative;
-    margin-top: 0px;
-    background-color: #000;
+#threadDump .detail-message {
+    padding: 30px;
+    border-top: 1px solid #E7E8ED;
+    background-color: #F7F8FC;
 }
-#threadDump .thread-header th {
-    padding-top: 2px;
-    padding-bottom: 2px;
+#threadDump textarea {
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    border: 1px solid #D0D7E1;
+}
+#threadDump .thread-header {
+    margin: 29px 30px 0px 30px;
+}
+#threadDump .thread-header table {
+    margin-bottom: 0px;
+    border-top: 1px solid #E7E8ED;
+    border-bottom: 1px solid #E7E8ED;
 }
 #threadDump .thread-header tr {
-    background-color: #fffff0;
+    background-color: #F7F8FC;
 }
-#threadDump .thread-header tr th:nth-child(1) {
-    width: 5%;
-}
-#threadDump .thread-header tr th:nth-child(2) {
-    width: 20%;
-}
-#threadDump .thread-header tr th:nth-child(3) {
-    width: 20%;
-}
-#threadDump .thread-header tr th:nth-child(4) {
-    width: 20%;
-}
-#threadDump .thread-header tr th:nth-child(5) {
-    width: 30%;
-}
-#threadDump .thread-header tr th:nth-child(6) {
-    width: 5%;
-}
-#threadDump .thread-header tr:first-child th {
-    border-bottom: 1px solid #EEE;
-}
-#threadDump .thread-header tr:first-child th:first-child {
-    border: transparent;
-}
-#threadDump .thread-header tr:first-child th:last-child {
-    border: transparent;
-}
-#threadDump .thread-header tr:last-child th {
-    border: transparent;
+#threadDump .thread-header th {
+    padding: 8px 2px 8px 2px;
+    border: 0px solid #E7E8ED;
 }
 
-#threadDump .thread-list tr td:nth-child(1) {
-    width: 5%;
-    text-align: center;
-    vertical-align: middle;
+#threadDump .thread-header tr th:nth-child(1) {
+    width: 3%;
 }
-#threadDump .thread-list tr:nth-child(even) td:nth-child(1) {
-    text-align: left;
+#threadDump .thread-header tr th:nth-child(2) {
+    width: 5%;
+    cursor: pointer;
+}
+#threadDump .thread-header tr th:nth-child(3) {
+    width: 15%;
+    cursor: pointer;
+}
+#threadDump .thread-header tr th:nth-child(4) {
+    width: 12%;
+    cursor: pointer;
+}
+#threadDump .thread-header tr th:nth-child(5) {
+    width: 5%;
+}
+#threadDump .thread-header tr th:nth-child(6) {
+    width: 12%;
+    cursor: pointer;
+}
+#threadDump .thread-header tr th:nth-child(7) {
+    width: 5%;
+    cursor: pointer;
+}
+#threadDump .thread-header tr th:nth-child(8) {
+    width: 18%;
+    cursor: pointer;
+}
+#threadDump .thread-header tr th:nth-child(9) {
+    width: 22%;
+    cursor: pointer;
+}
+#threadDump .thread-header tr th:nth-child(10) {
+    width: 3%;
+}
+
+#threadDump .thread-list tr.selected {
+    background-color: #FAFAFC;
+}
+#threadDump .thread-list tr.selected button {
+    color: #4799E2;
+    background-color: #FAFAFC;
+}
+#threadDump .thread-list td {
+    padding: 8px 2px 8px 2px;
+    border-top: 0px solid #E7E8ED;
+    border-bottom: 1px solid #E7E8ED;
+}
+#threadDump .thread-list button {
+    border: 0px solid #FFF;
+}
+#threadDump .thread-list tr td:nth-child(1) {
+    width: 3%;
+    text-align: center;
 }
 #threadDump .thread-list tr td:nth-child(2) {
-    width: 20%;
+    width: 5%;
 }
 #threadDump .thread-list tr td:nth-child(3) {
-    width: 20%;
+    width: 15%;
 }
 #threadDump .thread-list tr td:nth-child(4) {
-    width: 20%;
+    width: 12%;
 }
 #threadDump .thread-list tr td:nth-child(5) {
-    width: 30%;
+    width: 5%;
 }
 #threadDump .thread-list tr td:nth-child(6) {
+    width: 12%;
+}
+#threadDump .thread-list tr td:nth-child(7) {
     width: 5%;
-    text-align: center;
-    vertical-align: middle;
 }
-#threadDump .thread-list tr:nth-child(4n+3) {
-    background-color: #EFEFEF;
+#threadDump .thread-list tr td:nth-child(8) {
+    width: 18%;
 }
-#threadDump .thread-list tr:nth-child(4n+4) {
-    background-color: #EFEFEF;
+#threadDump .thread-list tr td:nth-child(9) {
+    width: 22%;
+}
+#threadDump .thread-list tr td:nth-child(10) {
+    width: 3%;
 }
