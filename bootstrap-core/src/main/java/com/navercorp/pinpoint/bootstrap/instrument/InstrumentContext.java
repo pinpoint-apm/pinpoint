@@ -38,7 +38,7 @@ public interface InstrumentContext {
 
     <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className);
 
-    InputStream getResourceAsStream(ClassLoader targetClassLoader, String className);
+    InputStream getResourceAsStream(ClassLoader targetClassLoader, String classPath);
 
     void addClassFileTransformer(ClassLoader classLoader, String targetClassName, TransformCallback transformCallback);
 

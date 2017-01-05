@@ -74,15 +74,15 @@ public class URLClassLoaderHandler implements ClassInjector {
     }
 
     @Override
-    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String className) {
+    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String classPath) {
         try {
             if (targetClassLoader instanceof URLClassLoader) {
                 final URLClassLoader urlClassLoader = (URLClassLoader) targetClassLoader;
                 addPluginURLIfAbsent(urlClassLoader);
-                return targetClassLoader.getResourceAsStream(className);
+                return targetClassLoader.getResourceAsStream(classPath);
             }
         } catch (Exception e) {
-            logger.warn("Failed to load plugin resource as stream {} with classLoader {}", className, targetClassLoader, e);
+            logger.warn("Failed to load plugin resource as stream {} with classLoader {}", classPath, targetClassLoader, e);
             return null;
         }
         return null;

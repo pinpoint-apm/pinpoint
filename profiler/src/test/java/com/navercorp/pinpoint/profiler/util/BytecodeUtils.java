@@ -63,8 +63,8 @@ public final class BytecodeUtils {
             throw new NullPointerException("className must not be null");
         }
 
-        final String jvmClassName = JavaAssistUtils.javaNameToJvmName(className);
-        final InputStream is = classLoader.getResourceAsStream(jvmClassName + ".class");
+        final String classInternalName = JavaAssistUtils.javaNameToJvmName(className);
+        final InputStream is = classLoader.getResourceAsStream(classInternalName + ".class");
         if (is == null) {
             throw new RuntimeException("No such class file: " + className);
         }

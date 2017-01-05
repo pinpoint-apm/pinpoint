@@ -24,6 +24,6 @@ public interface ClassInjector  {
 
     <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className);
 
-    InputStream getResourceAsStream(ClassLoader targetClassLoader, String className);
+    InputStream getResourceAsStream(ClassLoader targetClassLoader, String classPath);
 
 }

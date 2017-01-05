@@ -104,13 +104,13 @@ public class ASMClassNodeAdapterTest {
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         ASMClassNodeAdapter adapter = ASMClassNodeAdapter.get(pluginContext, classLoader, "com/navercorp/pinpoint/profiler/instrument/mock/ExtendedClass");
         // name
-        assertEquals("com/navercorp/pinpoint/profiler/instrument/mock/ExtendedClass", adapter.getName());
-        assertEquals("com.navercorp.pinpoint.profiler.instrument.mock.ExtendedClass", adapter.getInternalName());
-        assertEquals("com/navercorp/pinpoint/profiler/instrument/mock/BaseClass", adapter.getSuperClassName());
-        assertEquals("com.navercorp.pinpoint.profiler.instrument.mock.BaseClass", adapter.getSuperClassInternalName());
+        assertEquals("com/navercorp/pinpoint/profiler/instrument/mock/ExtendedClass", adapter.getInternalName());
+        assertEquals("com.navercorp.pinpoint.profiler.instrument.mock.ExtendedClass", adapter.getName());
+        assertEquals("com/navercorp/pinpoint/profiler/instrument/mock/BaseClass", adapter.getSuperClassInternalName());
+        assertEquals("com.navercorp.pinpoint.profiler.instrument.mock.BaseClass", adapter.getSuperClassName());
         assertEquals(false, adapter.isInterface());
         assertEquals(false, adapter.isAnnotation());
-        assertEquals(0, adapter.getInterfaceInternalNames().length);
+        assertEquals(0, adapter.getInterfaceNames().length);
 
         // method
         List<ASMMethodNodeAdapter> methods = adapter.getDeclaredMethods();
@@ -139,7 +139,7 @@ public class ASMClassNodeAdapterTest {
 
         // implement
         adapter = ASMClassNodeAdapter.get(pluginContext, classLoader, "com/navercorp/pinpoint/profiler/instrument/mock/BaseImplementClass");
-        String[] interfaceNames = adapter.getInterfaceInternalNames();
+        String[] interfaceNames = adapter.getInterfaceNames();
         assertEquals(1, interfaceNames.length);
         assertEquals("com.navercorp.pinpoint.profiler.instrument.mock.BaseInterface", interfaceNames[0]);
 
@@ -248,13 +248,13 @@ public class ASMClassNodeAdapterTest {
     public void subclassOf() {
         ASMClassNodeAdapter adapter = ASMClassNodeAdapter.get(pluginContext, null, "com/navercorp/pinpoint/profiler/instrument/mock/ExtendedClass");
         // self
-        assertEquals(true, adapter.subclassOf("com.navercorp.pinpoint.profiler.instrument.mock.ExtendedClass"));
+        assertEquals(true, adapter.subclassOf("com/navercorp/pinpoint/profiler/instrument/mock/ExtendedClass"));
 
         // super
-        assertEquals(true, adapter.subclassOf("com.navercorp.pinpoint.profiler.instrument.mock.BaseClass"));
-        assertEquals(true, adapter.subclassOf("java.lang.Object"));
+        assertEquals(true, adapter.subclassOf("com/navercorp/pinpoint/profiler/instrument/mock/BaseClass"));
+        assertEquals(true, adapter.subclassOf("java/lang/Object"));
 
         // not
-        assertEquals(false, adapter.subclassOf("com.navercorp.pinpoint.profiler.instrument.mock.NormalClass"));
+        assertEquals(false, adapter.subclassOf("com/navercorp/pinpoint/profiler/instrument/mock/NormalClass"));
     }
 }

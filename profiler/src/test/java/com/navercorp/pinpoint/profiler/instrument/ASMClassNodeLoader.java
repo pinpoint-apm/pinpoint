@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.instrument;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.junit.Before;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.objectweb.asm.ClassReader;
@@ -77,9 +76,9 @@ public class ASMClassNodeLoader {
     }
 
     // only use for test.
-    public static ClassNode get(final String classInternalName) throws Exception {
+    public static ClassNode get(final String className) throws Exception {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        ClassReader cr = new ClassReader(classLoader.getResourceAsStream(JavaAssistUtils.javaNameToJvmName(classInternalName) + ".class"));
+        ClassReader cr = new ClassReader(classLoader.getResourceAsStream(JavaAssistUtils.javaNameToJvmName(className) + ".class"));
         ClassNode classNode = new ClassNode();
         cr.accept(classNode, ClassReader.EXPAND_FRAMES);
 
