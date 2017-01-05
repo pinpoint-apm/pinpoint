@@ -153,7 +153,7 @@ Pinpoint is licensed under the Apache License, Version 2.0.
 See [LICENSE](LICENSE) for full license text.
 
 ```
-Copyright 2015 Naver Corp.
+Copyright 2017 NAVER Corp.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
