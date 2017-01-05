@@ -186,7 +186,7 @@ public class ClassPoolBase_PlainClassLoaderHandler implements ClassInjector {
     }
 
     @Override
-    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String className) {
+    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String classPath) {
         return null;
     }
 }

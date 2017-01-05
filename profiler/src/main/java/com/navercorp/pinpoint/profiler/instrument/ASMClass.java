@@ -60,6 +60,7 @@ public class ASMClass implements InstrumentClass {
 
     private final ASMClassNodeAdapter classNode;
     private boolean modified = false;
+    private String name;
 
     public ASMClass(final InstrumentContext pluginContext, final InterceptorRegistryBinder interceptorRegistryBinder, final ClassLoader classLoader, final ClassNode classNode) {
         this(pluginContext, interceptorRegistryBinder, classLoader, new ASMClassNodeAdapter(pluginContext, classLoader, classNode));
@@ -70,6 +71,8 @@ public class ASMClass implements InstrumentClass {
         this.interceptorRegistryBinder = interceptorRegistryBinder;
         this.classLoader = classLoader;
         this.classNode = classNode;
+        // for performance.
+        this.name = classNode.getName();
     }
 
     public ClassLoader getClassLoader() {
@@ -92,17 +95,17 @@ public class ASMClass implements InstrumentClass {
 
     @Override
     public String getName() {
-        return this.classNode.getInternalName();
+        return this.name;
     }
 
     @Override
     public String getSuperClass() {
-        return this.classNode.getSuperClassInternalName();
+        return this.classNode.getSuperClassName();
     }
 
     @Override
     public String[] getInterfaces() {
-        return this.classNode.getInterfaceInternalNames();
+        return this.classNode.getInterfaceNames();
     }
 
     @Override
@@ -178,14 +181,14 @@ public class ASMClass implements InstrumentClass {
     }
 
     @Override
-    public void weave(final String adviceClassInternalName) throws InstrumentException {
-        if (adviceClassInternalName == null) {
-            throw new NotFoundInstrumentException("advice class internal name must not be null");
+    public void weave(final String adviceClassName) throws InstrumentException {
+        if (adviceClassName == null) {
+            throw new NotFoundInstrumentException("advice class name must not be null");
         }
 
-        final ASMClassNodeAdapter adviceClassNode = ASMClassNodeAdapter.get(this.pluginContext, this.classLoader, JavaAssistUtils.javaNameToJvmName(adviceClassInternalName));
+        final ASMClassNodeAdapter adviceClassNode = ASMClassNodeAdapter.get(this.pluginContext, this.classLoader, JavaAssistUtils.javaNameToJvmName(adviceClassName));
         if (adviceClassNode == null) {
-            throw new NotFoundInstrumentException(adviceClassInternalName + " not found.");
+            throw new NotFoundInstrumentException(adviceClassName + " not found.");
         }
 
         final ASMAspectWeaver aspectWeaver = new ASMAspectWeaver();
@@ -200,9 +203,9 @@ public class ASMClass implements InstrumentClass {
             throw new InstrumentException(getName() + " already have method(" + methodName + ").");
         }
 
-        final ASMClassNodeAdapter superClassNode = ASMClassNodeAdapter.get(this.pluginContext, this.classLoader, this.classNode.getSuperClassName());
+        final ASMClassNodeAdapter superClassNode = ASMClassNodeAdapter.get(this.pluginContext, this.classLoader, this.classNode.getSuperClassInternalName());
         if (superClassNode == null) {
-            throw new NotFoundInstrumentException(getName() + " not found super class(" + this.classNode.getSuperClassName() + ")");
+            throw new NotFoundInstrumentException(getName() + " not found super class(" + this.classNode.getSuperClassInternalName() + ")");
         }
 
         final String desc = JavaAssistUtils.javaTypeToJvmSignature(paramTypes);

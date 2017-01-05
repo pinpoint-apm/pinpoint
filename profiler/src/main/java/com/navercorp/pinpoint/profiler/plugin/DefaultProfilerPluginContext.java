@@ -180,12 +180,12 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     }
 
     @Override
-    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String className) {
-        if (className == null) {
+    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String classPath) {
+        if (classPath == null) {
             return null;
         }
 
-        return classInjector.getResourceAsStream(targetClassLoader, className);
+        return classInjector.getResourceAsStream(targetClassLoader, classPath);
     }
 
     public List<ClassFileTransformer> getClassEditors() {

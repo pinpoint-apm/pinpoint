@@ -127,12 +127,12 @@ public class LegacyProfilerPluginClassInjector implements ClassInjector {
     }
 
     @Override
-    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String className) {
+    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String classPath) {
         ClassLoader classLoader = targetClassLoader;
         if(classLoader == null) {
             classLoader = ClassLoader.getSystemClassLoader();
         }
 
-        return classLoader.getResourceAsStream(className);
+        return classLoader.getResourceAsStream(classPath);
     }
 }

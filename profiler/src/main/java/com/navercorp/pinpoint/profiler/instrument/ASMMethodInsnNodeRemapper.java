@@ -29,16 +29,16 @@ public class ASMMethodInsnNodeRemapper {
     private String name;
     private String desc;
 
-    public void addFilter(final String owner, final String name, final String desc) {
-        this.filters.add(new Filter(owner, name, desc));
+    public void addFilter(final String ownerClassInternalName, final String name, final String desc) {
+        this.filters.add(new Filter(ownerClassInternalName, name, desc));
     }
 
-    public void setOwner(final String owner) {
-        this.owner = owner;
+    public void setOwner(final String ownerClassInternalName) {
+        this.owner = ownerClassInternalName;
     }
 
-    private String mapOwner(final String owner) {
-        return this.owner != null ? this.owner : owner;
+    private String mapOwner(final String ownerClassInternalName) {
+        return this.owner != null ? this.owner : ownerClassInternalName;
     }
 
     public void setName(final String name) {

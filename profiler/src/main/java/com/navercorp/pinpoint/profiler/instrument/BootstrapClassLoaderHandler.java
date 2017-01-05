@@ -73,7 +73,7 @@ public class BootstrapClassLoaderHandler implements ClassInjector {
     }
 
     @Override
-    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String className) {
+    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String classPath) {
         try {
             if (targetClassLoader == null) {
                 ClassLoader classLoader = ClassLoader.getSystemClassLoader();
@@ -81,10 +81,10 @@ public class BootstrapClassLoaderHandler implements ClassInjector {
                     return null;
                 }
                 appendToBootstrapClassLoaderSearch();
-                return classLoader.getResourceAsStream(className);
+                return classLoader.getResourceAsStream(classPath);
             }
         } catch (Exception e) {
-            logger.warn("Failed to load plugin resource as stream {} with classLoader {}", className, targetClassLoader, e);
+            logger.warn("Failed to load plugin resource as stream {} with classLoader {}", classPath, targetClassLoader, e);
             return null;
         }
         logger.warn("Invalid bootstrap class loader. cl={}", targetClassLoader);

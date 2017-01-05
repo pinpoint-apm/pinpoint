@@ -70,18 +70,18 @@ public class JarProfilerPluginClassInjector implements PluginClassInjector {
         }
     }
 
-    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String className) {
+    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String classPath) {
         try {
             if (targetClassLoader == null) {
-                return bootstrapClassLoaderHandler.getResourceAsStream(null, className);
+                return bootstrapClassLoaderHandler.getResourceAsStream(null, classPath);
             } else if (targetClassLoader instanceof URLClassLoader) {
                 final URLClassLoader urlClassLoader = (URLClassLoader) targetClassLoader;
-                return urlClassLoaderHandler.getResourceAsStream(urlClassLoader, className);
+                return urlClassLoaderHandler.getResourceAsStream(urlClassLoader, classPath);
             } else {
-                return plainClassLoaderHandler.getResourceAsStream(targetClassLoader, className);
+                return plainClassLoaderHandler.getResourceAsStream(targetClassLoader, classPath);
             }
         } catch (Throwable e) {
-             logger.warn("Failed to load plugin resource as stream {} with classLoader {}", className, targetClassLoader, e);
+             logger.warn("Failed to load plugin resource as stream {} with classLoader {}", classPath, targetClassLoader, e);
             return null;
         }
     }

@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -98,18 +97,18 @@ public class PlainClassLoaderHandler implements ClassInjector {
     }
 
     @Override
-    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String className) {
+    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String classPath) {
         try {
-            String name = JavaAssistUtils.jvmNameToJavaName(className);
+            String name = JavaAssistUtils.jvmNameToJavaName(classPath);
             if (isBootstrapPackage(name)) {
                 ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
                 if(systemClassLoader != null) {
-                    return systemClassLoader.getResourceAsStream(className);
+                    return systemClassLoader.getResourceAsStream(classPath);
                 }
                 return null;
             }
             if (!isPluginPackage(name)) {
-                return targetClassLoader.getResourceAsStream(className);
+                return targetClassLoader.getResourceAsStream(classPath);
             }
             final int fileExtensionPosition = name.lastIndexOf(".class");
             if(fileExtensionPosition != -1) {
@@ -119,14 +118,14 @@ public class PlainClassLoaderHandler implements ClassInjector {
             final InputStream inputStream = getInputStream(targetClassLoader, name);
             if (inputStream == null) {
                 if (logger.isInfoEnabled()) {
-                    logger.info("can not find resource : {} {} ", className, pluginConfig.getPluginJarURLExternalForm());
+                    logger.info("can not find resource : {} {} ", classPath, pluginConfig.getPluginJarURLExternalForm());
                 }
                 // fallback
-                return targetClassLoader.getResourceAsStream(className);
+                return targetClassLoader.getResourceAsStream(classPath);
             }
             return inputStream;
         } catch (Exception e) {
-            logger.warn("Failed to load plugin resource as stream {} with classLoader {}", className, targetClassLoader, e);
+            logger.warn("Failed to load plugin resource as stream {} with classLoader {}", classPath, targetClassLoader, e);
             return null;
         }
     }

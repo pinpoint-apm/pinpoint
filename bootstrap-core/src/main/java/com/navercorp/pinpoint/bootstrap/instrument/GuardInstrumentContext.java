@@ -69,9 +69,9 @@ public class GuardInstrumentContext implements InstrumentContext {
     }
 
     @Override
-    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String className) {
+    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String classPath) {
         checkOpen();
-        return instrumentContext.getResourceAsStream(targetClassLoader, className);
+        return instrumentContext.getResourceAsStream(targetClassLoader, classPath);
     }
 
     @Override
