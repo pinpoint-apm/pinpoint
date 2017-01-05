@@ -106,4 +106,38 @@ public class BitCountingHeaderEncoderTest {
         BitCountingHeaderDecoder decoder = new BitCountingHeaderDecoder(header);
         Assert.assertEquals(0, decoder.getCode());
     }
+
+    @Test
+    public void regression_against_jdk7() {
+        final int numRuns = 10000;
+        for (int numRun = 0; numRun < numRuns; ++numRun) {
+            final int numCodes = RANDOM.nextInt(20) + 1;
+            final List<Integer> givenCodes = new ArrayList<Integer>();
+            for (int i = 0; i < numCodes; ++i) {
+                givenCodes.add(RANDOM.nextInt(5));
+            }
+            BitCountingHeaderEncoder encoder = new BitCountingHeaderEncoder();
+            Jdk7BitCountingHeaderEncoder jdk7Encoder = new Jdk7BitCountingHeaderEncoder();
+            for (int givenCode : givenCodes) {
+                encoder.addCode(givenCode);
+                jdk7Encoder.addCode(givenCode);
+            }
+            final byte[] encodedHeader = encoder.getHeader();
+            final byte[] jdk7EncodedHeader = encoder.getHeader();
+            Assert.assertArrayEquals(jdk7EncodedHeader, encodedHeader);
+
+            BitCountingHeaderDecoder decoder = new BitCountingHeaderDecoder(encodedHeader);
+            Jdk7BitCountingHeaderDecoder jdk7Decoder = new Jdk7BitCountingHeaderDecoder(encodedHeader);
+            List<Integer> decodedCodes = new ArrayList<Integer>();
+            List<Integer> jdk7DecodedCodes = new ArrayList<Integer>();
+            for (int i = 0; i < numCodes; ++i) {
+                decodedCodes.add(decoder.getCode());
+                jdk7DecodedCodes.add(jdk7Decoder.getCode());
+            }
+            Assert.assertEquals(givenCodes, decodedCodes);
+            Assert.assertEquals(givenCodes, jdk7DecodedCodes);
+            Assert.assertEquals(0, decoder.getCode());
+            Assert.assertEquals(0, jdk7Decoder.getCode());
+        }
+    }
 }
