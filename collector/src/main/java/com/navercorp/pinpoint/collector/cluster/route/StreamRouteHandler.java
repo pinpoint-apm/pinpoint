@@ -24,12 +24,17 @@ import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.rpc.stream.*;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
+import com.navercorp.pinpoint.rpc.stream.StreamChannelStateCode;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
-import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
@@ -96,8 +101,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
             return createResponse(TRouteResult.NOT_FOUND);
         }
 
-        TCommandTypeVersion commandVersion = TCommandTypeVersion.getVersion(clusterPoint.gerVersion());
-        if (!commandVersion.isSupportCommand(requestObject)) {
+        if (!clusterPoint.isSupportCommand(requestObject)) {
             return createResponse(TRouteResult.NOT_SUPPORTED_REQUEST);
         }
 
@@ -134,7 +138,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
     public void close(ServerStreamChannelContext consumerContext) {
         Object attachmentListener = consumerContext.getAttribute(ATTACHMENT_KEY);
         
-        if (attachmentListener != null && attachmentListener instanceof StreamRouteManager) {
+        if (attachmentListener instanceof StreamRouteManager) {
             ((StreamRouteManager)attachmentListener).close();
         }
     }

@@ -20,10 +20,29 @@ import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author HyunGil Jeong
  */
 public class SpringBootDetector implements ApplicationTypeDetector {
+
+    private static final String[] DEFAULT_SPRING_BOOT_BOOSTRAP_MAINS = {
+            "org.springframework.boot.loader.JarLauncher",
+            "org.springframework.boot.loader.WarLauncher",
+            "org.springframework.boot.loader.PropertiesLauncher"
+    };
+
+    private final List<String> bootstrapMains;
+
+    public SpringBootDetector(List<String> bootstrapMains) {
+        if (bootstrapMains == null || bootstrapMains.isEmpty()) {
+            this.bootstrapMains = Arrays.asList(DEFAULT_SPRING_BOOT_BOOSTRAP_MAINS);
+        } else {
+            this.bootstrapMains = bootstrapMains;
+        }
+    }
 
     @Override
     public ServiceType getApplicationType() {
@@ -32,8 +51,7 @@ public class SpringBootDetector implements ApplicationTypeDetector {
 
     @Override
     public boolean detect(ConditionProvider provider) {
-        String bootstrapMainClass = provider.getMainClass();
-        return bootstrapMainClass.startsWith(SpringBootConstants.BOOTSTRAP_MAIN_PREFIX);
+        return provider.checkMainClass(bootstrapMains);
     }
 
 }

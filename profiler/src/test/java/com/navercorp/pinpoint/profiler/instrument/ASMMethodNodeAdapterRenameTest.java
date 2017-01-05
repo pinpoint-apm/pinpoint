@@ -23,8 +23,6 @@ import org.objectweb.asm.tree.MethodNode;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-
 public class ASMMethodNodeAdapterRenameTest {
     private ASMClassNodeLoader.TestClassLoader classLoader;
 
@@ -44,14 +42,14 @@ public class ASMMethodNodeAdapterRenameTest {
             public void handle(ClassNode classNode) {
                 List<MethodNode> methodNodes = classNode.methods;
                 for (MethodNode methodNode : methodNodes) {
-                    ASMMethodNodeAdapter adapter = new ASMMethodNodeAdapter(targetClassName, methodNode);
+                    ASMMethodNodeAdapter adapter = new ASMMethodNodeAdapter(classNode.name, methodNode);
                     if(!adapter.isConstructor()) {
                         adapter.rename(adapter.getName() + "_rename");
                     }
                 }
             }
         });
-        Class clazz = classLoader.loadClass(targetClassName);
+        Class<?> clazz = classLoader.loadClass(targetClassName);
         Method method = clazz.getDeclaredMethod("sum_rename", int.class);
         method.invoke(clazz.newInstance(), 10);
    }

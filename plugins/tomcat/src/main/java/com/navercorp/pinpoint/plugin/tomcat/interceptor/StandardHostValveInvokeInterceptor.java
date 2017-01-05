@@ -20,9 +20,8 @@ import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.*;
-import org.apache.catalina.connector.Request;
+
 
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
@@ -37,6 +36,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.tomcat.AsyncAccessor;
 import com.navercorp.pinpoint.plugin.tomcat.ServletAsyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.tomcat.ServletSyncMethodDescriptor;
+import com.navercorp.pinpoint.plugin.tomcat.TomcatConfig;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
 import com.navercorp.pinpoint.plugin.tomcat.TraceAccessor;
 
@@ -60,21 +60,22 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     private MethodDescriptor methodDescriptor;
     private TraceContext traceContext;
 
-    public StandardHostValveInvokeInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter) {
+    public StandardHostValveInvokeInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
-        this.excludeUrlFilter = excludeFilter;
 
-        ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
-        final String proxyIpHeader = profilerConfig.getTomcatRealIpHeader();
+        TomcatConfig tomcatConfig = new TomcatConfig(traceContext.getProfilerConfig());
+        this.excludeUrlFilter = tomcatConfig.getTomcatExcludeUrlFilter();
+
+        final String proxyIpHeader = tomcatConfig.getTomcatRealIpHeader();
         if (proxyIpHeader == null || proxyIpHeader.isEmpty()) {
             this.remoteAddressResolver = new Bypass<HttpServletRequest>();
         } else {
-            final String tomcatRealIpEmptyValue = profilerConfig.getTomcatRealIpEmptyValue();
+            final String tomcatRealIpEmptyValue = tomcatConfig.getTomcatRealIpEmptyValue();
             this.remoteAddressResolver = new RealIpHeaderResolver<HttpServletRequest>(proxyIpHeader, tomcatRealIpEmptyValue);
         }
-        this.isTraceRequestParam = profilerConfig.isTomcatTraceRequestParam();
-        this.excludeProfileMethodFilter = profilerConfig.getTomcatExcludeProfileMethodFilter();
+        this.isTraceRequestParam = tomcatConfig.isTomcatTraceRequestParam();
+        this.excludeProfileMethodFilter = tomcatConfig.getTomcatExcludeProfileMethodFilter();
 
         traceContext.cacheApi(SERVLET_ASYNCHRONOUS_API_TAG);
         traceContext.cacheApi(SERVLET_SYNCHRONOUS_API_TAG);
@@ -156,7 +157,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     }
 
     private Trace createTrace(Object target, Object[] args) {
-        final Request request = (Request) args[0];
+        final HttpServletRequest request = (HttpServletRequest) args[0];
 
         if (isAsynchronousProcess(request)) {
             // servlet 3.0
@@ -227,13 +228,13 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         }
     }
 
-    private void setTraceMetadata(final Request request, final Trace trace) {
+    private void setTraceMetadata(final HttpServletRequest request, final Trace trace) {
         if (request instanceof TraceAccessor) {
             ((TraceAccessor) request)._$PINPOINT$_setTrace(trace);
         }
     }
 
-    private Trace getTraceMetadata(final Request request) {
+    private Trace getTraceMetadata(final HttpServletRequest request) {
         if (!(request instanceof TraceAccessor)) {
             return null;
         }
@@ -241,7 +242,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         return ((TraceAccessor) request)._$PINPOINT$_getTrace();
     }
 
-    private boolean getAsyncMetadata(final Request request) {
+    private boolean getAsyncMetadata(final HttpServletRequest request) {
         if (!(request instanceof AsyncAccessor)) {
             return false;
         }
@@ -249,7 +250,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         return ((AsyncAccessor) request)._$PINPOINT$_isAsync();
     }
 
-    private boolean isAsynchronousProcess(final Request request) {
+    private boolean isAsynchronousProcess(final HttpServletRequest request) {
         if (getTraceMetadata(request) == null) {
             return false;
         }
@@ -382,11 +383,11 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                 return params.toString();
             }
             String key = attrs.nextElement().toString();
-            params.append(StringUtils.drop(key, eachLimit));
+            params.append(StringUtils.abbreviate(key, eachLimit));
             params.append("=");
             Object value = request.getParameter(key);
             if (value != null) {
-                params.append(StringUtils.drop(StringUtils.toString(value), eachLimit));
+                params.append(StringUtils.abbreviate(StringUtils.toString(value), eachLimit));
             }
         }
         return params.toString();
@@ -395,7 +396,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     private void deleteTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
         trace.traceBlockEnd();
 
-        final Request request = (Request) args[0];
+        final HttpServletRequest request = (HttpServletRequest) args[0];
         if (!isAsynchronousProcess(request)) {
             trace.close();
             // reset

@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
+import java.io.InputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.jar.JarFile;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -35,12 +35,16 @@ import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.DynamicTransformService;
+import com.navercorp.pinpoint.profiler.context.scope.ConcurrentPool;
+import com.navercorp.pinpoint.profiler.context.scope.InterceptorScopeFactory;
+import com.navercorp.pinpoint.profiler.context.scope.Pool;
 import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.PluginClassInjector;
-import com.navercorp.pinpoint.profiler.interceptor.scope.DefaultInterceptorScope;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import com.navercorp.pinpoint.profiler.util.NameValueList;
 
+/**
+ * @author jaehong.kim
+ */
 public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, InstrumentContext {
     private final DefaultAgent agent;
     private final ClassInjector classInjector;
@@ -48,7 +52,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
     private final List<ClassFileTransformer> classTransformers = new ArrayList<ClassFileTransformer>();
     
-    private final NameValueList<InterceptorScope> interceptorScopeList = new NameValueList<InterceptorScope>();
+    private final Pool<String, InterceptorScope> interceptorScopePool = new ConcurrentPool<String, InterceptorScope>(new InterceptorScopeFactory());
 
     public DefaultProfilerPluginContext(DefaultAgent agent, ClassInjector classInjector) {
         if (agent == null) {
@@ -175,6 +179,15 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
         return classInjector.injectClass(targetClassLoader, className);
     }
 
+    @Override
+    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String className) {
+        if (className == null) {
+            return null;
+        }
+
+        return classInjector.getResourceAsStream(targetClassLoader, className);
+    }
+
     public List<ClassFileTransformer> getClassEditors() {
         return classTransformers;
     }
@@ -188,13 +201,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
         if (name == null) {
             throw new NullPointerException("name must not be null");
         }
-        InterceptorScope scope = interceptorScopeList.get(name);
-        
-        if (scope == null) {
-            scope = new DefaultInterceptorScope(name);
-            interceptorScopeList.add(name, scope);
-        }
-        
-        return scope;
+
+        return interceptorScopePool.get(name);
     }
 }

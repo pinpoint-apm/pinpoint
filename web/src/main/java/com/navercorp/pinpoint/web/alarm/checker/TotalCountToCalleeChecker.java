@@ -31,7 +31,7 @@ public class TotalCountToCalleeChecker extends AlarmChecker {
 
     @Override
     protected long getDetectedValue() {
-        String calleName = rule.getNotes();
-        return ((MapStatisticsCallerDataCollector)dataCollector).getCount(calleName, DataCategory.TOTAL_COUNT);
+        String calleeName = rule.getNotes();
+        return ((MapStatisticsCallerDataCollector)dataCollector).getCount(calleeName, DataCategory.TOTAL_COUNT);
     }
 }

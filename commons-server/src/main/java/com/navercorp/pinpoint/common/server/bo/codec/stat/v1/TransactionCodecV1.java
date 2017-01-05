@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeader
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderDecoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.UnsignedLongEncodingStrategy;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.StrategyAnalyzer;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedLongEncodingStrategy;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StrategyAnalyzer;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
@@ -65,7 +65,7 @@ public class TransactionCodecV1 implements AgentStatCodec<TransactionBo> {
         final int numValues = transactionBos.size();
         valueBuffer.putVInt(numValues);
 
-        List<Long> timestamps = new ArrayList<>(numValues);
+        List<Long> timestamps = new ArrayList<Long>(numValues);
         UnsignedLongEncodingStrategy.Analyzer.Builder collectIntervalAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         UnsignedLongEncodingStrategy.Analyzer.Builder sampledNewCountAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         UnsignedLongEncodingStrategy.Analyzer.Builder sampledContinuationCountAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
@@ -138,7 +138,7 @@ public class TransactionCodecV1 implements AgentStatCodec<TransactionBo> {
         List<Long> unsampledNewCounts = this.codec.decodeValues(valueBuffer, unsampledNewCountEncodingStrategy, numValues);
         List<Long> unsampledContinuationCounts = this.codec.decodeValues(valueBuffer, unsampledContinuationCountEncodingStrategy, numValues);
 
-        List<TransactionBo> transactionBos = new ArrayList<>(numValues);
+        List<TransactionBo> transactionBos = new ArrayList<TransactionBo>(numValues);
         for (int i = 0; i < numValues; ++i) {
             TransactionBo transactionBo = new TransactionBo();
             transactionBo.setAgentId(agentId);

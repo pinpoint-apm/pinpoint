@@ -18,8 +18,9 @@ package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-import com.navercorp.pinpoint.test.TestInterceptorRegistryBinder;
-import com.navercorp.pinpoint.test.util.BytecodeUtils;
+
+import com.navercorp.pinpoint.profiler.util.BytecodeUtils;
+import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;

@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -234,7 +235,7 @@ public class SpanStreamUDPSenderTest {
         private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
         @Override
-        public boolean filter(TBase<?, ?> tBase, T remoteHostAddress) {
+        public boolean filter(DatagramSocket localSocket, TBase<?, ?> tBase, T remoteHostAddress) {
             logger.debug("filter");
             return false;
         }

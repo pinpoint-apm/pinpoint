@@ -12,13 +12,12 @@
 		PAGE_NAME: "inspector",
 		SLASH: "/"
 	});
-	pinpointApp.controller("InspectorCtrl", [ "InspectorCtrlConfig", "$scope", "$timeout", "$routeParams", "locationService", "CommonUtilService", "UrlVoService", "AnalyticsService",
-	    function ( cfg, $scope, $timeout, $routeParams, locationService, CommonUtilService, UrlVoService, AnalyticsService) {
+	pinpointApp.controller("InspectorCtrl", [ "InspectorCtrlConfig", "$scope", "$routeParams", "locationService", "CommonUtilService", "UrlVoService", "AnalyticsService",
+	    function ( cfg, $scope, $routeParams, locationService, CommonUtilService, UrlVoService, AnalyticsService) {
 			cfg.ID +=  CommonUtilService.getRandomNum();
 			AnalyticsService.send(AnalyticsService.CONST.INSPECTOR_PAGE);
 
 			$scope.$on( "up.changed.application", function ( event, invokerId, newAppName ) {
-				console.log( cfg.ID + " up.changed.application", invokerId );
 				UrlVoService.setApplication( newAppName );
 				UrlVoService.setAgentId( "" );
 	            changeLocation(function() {
@@ -27,7 +26,6 @@
 				});
 			});
 			$scope.$on( "up.changed.period", function ( event, invokerId ) {
-				console.log( cfg.ID + " up.changed.period", invokerId );
 				changeLocation(function() {
 					$scope.$broadcast( "down.changed.period", true, invokerId );
 				});
@@ -46,7 +44,6 @@
 			});
 	        var changeLocation = function ( callback ) {
 				var newPath = getLocation();
-				console.log( "changeLocation : ", locationService.path() , newPath );
 	            if ( locationService.path() !== newPath ) {
                 	locationService.skipReload().path( newPath ).replace();
 					callback();
@@ -61,7 +58,6 @@
 					UrlVoService.getQueryEndDateTime()
 				].join( cfg.SLASH );
 
-				console.log( "getLocation :", UrlVoService.getAgentId() );
 	            if ( UrlVoService.getAgentId() !== "" ) {
 	                url += cfg.SLASH + UrlVoService.getAgentId();
 	            }

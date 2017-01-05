@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <version>1.6.0-SNAPSHOT</version>
+        <version>1.6.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-plugins</artifactId>
@@ -24,6 +24,7 @@
         <module>postgresql-jdbc</module>
         <module>jtds</module>
         <module>dbcp</module>
+        <module>dbcp2</module>
         <module>oracle-jdbc</module>
         <module>jdk-http</module>
         <module>json-lib</module>
@@ -109,6 +110,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons-dbcp-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-commons-dbcp2-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

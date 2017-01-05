@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -109,14 +110,14 @@ public class AgentInformation {
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<String, Object>();
 
-        map.put(AgentHandshakePropertyType.AGENT_ID.getName(), this.agentId);
-        map.put(AgentHandshakePropertyType.APPLICATION_NAME.getName(), this.applicationName);
-        map.put(AgentHandshakePropertyType.HOSTNAME.getName(), this.machineName);
-        map.put(AgentHandshakePropertyType.IP.getName(), this.hostIp);
-        map.put(AgentHandshakePropertyType.PID.getName(), this.pid);
-        map.put(AgentHandshakePropertyType.SERVICE_TYPE.getName(), this.serverType.getCode());
-        map.put(AgentHandshakePropertyType.START_TIMESTAMP.getName(), this.startTime);
-        map.put(AgentHandshakePropertyType.VERSION.getName(), this.agentVersion);
+        map.put(HandshakePropertyType.AGENT_ID.getName(), this.agentId);
+        map.put(HandshakePropertyType.APPLICATION_NAME.getName(), this.applicationName);
+        map.put(HandshakePropertyType.HOSTNAME.getName(), this.machineName);
+        map.put(HandshakePropertyType.IP.getName(), this.hostIp);
+        map.put(HandshakePropertyType.PID.getName(), this.pid);
+        map.put(HandshakePropertyType.SERVICE_TYPE.getName(), this.serverType.getCode());
+        map.put(HandshakePropertyType.START_TIMESTAMP.getName(), this.startTime);
+        map.put(HandshakePropertyType.VERSION.getName(), this.agentVersion);
 
         return map;
     }

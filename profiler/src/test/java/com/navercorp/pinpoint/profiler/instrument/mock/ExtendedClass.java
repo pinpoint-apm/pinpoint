@@ -29,6 +29,5 @@ public class ExtendedClass extends BaseClass {
     }
 
     public void extended() {
-        System.out.println("extended");
     }
 }

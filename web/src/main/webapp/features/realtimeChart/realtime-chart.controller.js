@@ -35,7 +35,7 @@
 		css : {
 			borderWidth: 2,
 			height: 180,
-			navbarHeight: 70,
+			navbarHeight: 50,
 			titleHeight: 30
 		},
 		sumChart: {
@@ -51,8 +51,8 @@
 		}
 	});
 	
-	pinpointApp.controller( "RealtimeChartCtrl", [ "RealtimeChartCtrlConfig", "$scope", "$element", "$rootScope", "$compile", "$timeout", "$window", "globalConfig", "UrlVoService", "RealtimeWebsocketService", "AnalyticsService", "TooltipService",
-	    function (cfg, $scope, $element, $rootScope, $compile, $timeout, $window, globalConfig, UrlVoService, webSocketService, analyticsService, tooltipService) {
+	pinpointApp.controller( "RealtimeChartCtrl", [ "RealtimeChartCtrlConfig", "$scope", "$element", "$rootScope", "$compile", "$timeout", "$window", "$http",  "globalConfig", "UrlVoService", "RealtimeWebsocketService", "AnalyticsService", "TooltipService",
+	    function (cfg, $scope, $element, $rootScope, $compile, $timeout, $window, $http, globalConfig, UrlVoService, webSocketService, AnalyticsService, tooltipService) {
 	    	$element = $($element);
 			//@TODO will move to preference-service 
 	    	var TIMEOUT_MAX_COUNT = 10;
@@ -307,9 +307,9 @@
         		webSocketService.stopReceive( makeRequest("") );
 	        }
 	        function stopChart() {
-	        	$rootScope.$broadcast('realtimeChartDirective.clear.sum');
+	        	$rootScope.$broadcast("realtimeChartDirective.clear.sum");
 	        	$.each( aAgentChartElementList, function(index, el) {
-	        		$rootScope.$broadcast('realtimeChartDirective.clear.' + index);
+	        		$rootScope.$broadcast("realtimeChartDirective.clear." + index);
 	        		el.hide();
 	        	});
 				$.each( aChildScopeList, function(index, childScope) {
@@ -338,6 +338,7 @@
 				$elWarningMessage.show();
 	        }
 	        function hidePopup() {
+				hideSub();
 	        	$element.animate({
 	        		bottom: -popupHeight,
 	        		left: 0
@@ -367,6 +368,8 @@
 	        	setPinColor();
 	        });
 	        $scope.$on( "realtimeChartController.initialize", function (event, was, applicationName, urlParam ) {
+	        	hideSub();
+	        	// $elThreadDump.hide();
 	        	if ( bIsPinned === true && preUrlParam === urlParam ) return;
 	        	if ( UrlVoService.isRealtime() === false ) return;
 	        	bIsWas = angular.isUndefined( was ) ? false : was;
@@ -402,11 +405,12 @@
 	        };
 	        $scope.pin = function() {
 	        	bIsPinned = !bIsPinned;
-				analyticsService.send( analyticsService.CONST.MAIN, bIsPinned ? analyticsService.CONST.CLK_REALTIME_CHART_PIN_ON : analyticsService.CONST.CLK_REALTIME_CHART_PIN_OFF );
+				AnalyticsService.send( AnalyticsService.CONST.MAIN, bIsPinned ? AnalyticsService.CONST.CLK_REALTIME_CHART_PIN_ON : AnalyticsService.CONST.CLK_REALTIME_CHART_PIN_OFF );
 	        	setPinColor();
 	        };
-	        $scope.resizePopup = function() {
-	        	analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.TG_REALTIME_CHART_RESIZE );
+	        $scope.resizePopup = function($event) {
+	        	AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.TG_REALTIME_CHART_RESIZE );
+	        	var $elBtn = $($event.target);
 	        	if ( bIsFullWindow ) {
 	        		popupHeight = cfg.css.height;
 	        		$element.css({
@@ -414,16 +418,30 @@
 	        			"bottom": "0px"
 	        		});
 	        		$elAgentChartListWrapper.css("height", "150px");
+	        		$elBtn.removeClass("glyphicon-resize-small").addClass("glyphicon-resize-full");
 	        	} else {
-	        		popupHeight = $window.innerHeight - cfg.css.navbarHeight;
+	        		popupHeight = parseInt($element.parent().css("height"));//$window.innerHeight - cfg.css.navbarHeight;
 	        		$element.css({
 	        			"height": popupHeight + "px",
 	        			"bottom": "0px"
 	        		});
 	        		$elAgentChartListWrapper.css("height", (popupHeight - cfg.css.titleHeight) + "px");
+					$elBtn.removeClass("glyphicon-resize-full").addClass("glyphicon-resize-small");
 	        	}
 	        	bIsFullWindow = !bIsFullWindow;
 	        };
+	        $scope.showAgentInfo = function( $event ) {
+				var $target = $( $event.target );
+				if ( $target.hasClass("agent-chart-list") ) {
+					return;
+				}
+				var agentId = $target.hasClass("agent-chart" ) ? $target.find( "> div" ).html() : $target.parent(".agent-chart").find("> div").html();
+				$rootScope.$broadcast( "thread-dump-info-layer.open", currentApplicationName, agentId );
+				AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_OPEN_THREAD_DUMP_LAYER );
+			};
+			function hideSub() {
+				$rootScope.$broadcast( "thread-dump-info-layer.close" );
+			}
 	        function resetStatus() {
 	        	stopReceive();
 	        	stopChart();

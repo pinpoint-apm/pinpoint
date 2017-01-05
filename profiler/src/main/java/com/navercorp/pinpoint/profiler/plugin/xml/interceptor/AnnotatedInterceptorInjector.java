@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ public class AnnotatedInterceptorInjector implements MethodRecipe {
         if (scopeName == null) {
             return null;
         } else {
-            return  pluginContext.getInterceptorScope(scopeName);
+            return pluginContext.getInterceptorScope(scopeName);
         }
     }
 

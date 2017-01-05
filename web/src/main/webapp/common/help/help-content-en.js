@@ -572,6 +572,27 @@
                     }]
                 }]
             },
+			activeThread: {
+				mainStyle: "",
+				title: "Active Thread",
+				desc: "Snapshots of the agent's active thread count, categorized by how long they have active for serving a request.",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "Fast (1s)",
+						desc: "Number of threads that have been active for less than or equal to 1s"
+					},{
+						name: "Normal (3s)",
+						desc: "Number of threads that have been active for less than or equal to 3s but longer than 1s"
+					},{
+						name: "Slow (5s)",
+						desc: "Number of threads that have been active for less than or equal to 5s but longer than 3s"
+					},{
+						name: "Very Slow (slow)",
+						desc: "Number of threads that have been active for longer than 5s"
+					}]
+				}]
+			},
 			wrongApp: [
 				"<div style='font-size:12px'>The agent is currently registered under {{application2}} due to the following:<br>",
 				"1. The agent has moved from {{application1}} to {{application2}}<br>",

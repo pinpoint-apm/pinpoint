@@ -86,7 +86,7 @@ public class HbaseAgentStatDaoOperationsV2 {
             logger.debug("checking for stat data existence : agentId={}, {}", agentId, range);
         }
 
-        int resultLimit = 1;
+        int resultLimit = 20;
         Scan scan = this.createScan(agentStatType, agentId, range, resultLimit);
 
         List<List<T>> result = hbaseOperations2.findParallel(HBaseTables.AGENT_STAT_VER2, scan, this.operationFactory.getRowKeyDistributor(), resultLimit, mapper, AGENT_STAT_VER2_NUM_PARTITIONS);

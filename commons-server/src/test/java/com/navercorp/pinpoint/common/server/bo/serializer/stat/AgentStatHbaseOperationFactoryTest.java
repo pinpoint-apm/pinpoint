@@ -156,7 +156,7 @@ public class AgentStatHbaseOperationFactoryTest {
         final int numDataPoints = 6;
         final long initialTimestamp = System.currentTimeMillis() - (TEST_COLLECTION_INTERVAL * numDataPoints);
         final List<AgentStatDataPoint> testDataPoints = createTestDataPoints(initialTimestamp, TEST_COLLECTION_INTERVAL, numDataPoints);
-        final Set<Long> uniqueTimeslots = new TreeSet<>();
+        final Set<Long> uniqueTimeslots = new TreeSet<Long>();
         for (AgentStatDataPoint testDataPoint : testDataPoints) {
             uniqueTimeslots.add(AgentStatUtils.getBaseTimestamp(testDataPoint.getTimestamp()));
         }
@@ -175,7 +175,7 @@ public class AgentStatHbaseOperationFactoryTest {
     }
 
     private List<AgentStatDataPoint> createTestDataPoints(long initialTimestamp, long interval, int count) {
-        List<AgentStatDataPoint> dataPoints = new ArrayList<>(count);
+        List<AgentStatDataPoint> dataPoints = new ArrayList<AgentStatDataPoint>(count);
         long timestamp = initialTimestamp;
         for (int i = 0; i < count; ++i) {
             AgentStatDataPoint dataPoint = createTestDataPoint(timestamp);
@@ -187,8 +187,10 @@ public class AgentStatHbaseOperationFactoryTest {
 
     private AgentStatDataPoint createTestDataPoint(final long testTimestamp) {
         final String testAgentId = "testAgentId";
+        final long testStartTimestamp = 0L;
         return new AgentStatDataPoint() {
             private String agentId = testAgentId;
+            private long startTimestamp = testStartTimestamp;
             private long timestamp = testTimestamp;
 
             @Override
@@ -199,6 +201,16 @@ public class AgentStatHbaseOperationFactoryTest {
             @Override
             public void setAgentId(String agentId) {
                 this.agentId = agentId;
+            }
+
+            @Override
+            public long getStartTimestamp() {
+                return startTimestamp;
+            }
+
+            @Override
+            public void setStartTimestamp(long startTimestamp) {
+                this.startTimestamp = startTimestamp;
             }
 
             @Override

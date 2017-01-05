@@ -52,7 +52,6 @@ import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginLoader;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.receiver.service.ActiveThreadService;
 import com.navercorp.pinpoint.profiler.receiver.service.EchoService;
-import com.navercorp.pinpoint.profiler.receiver.service.ThreadDumpService;
 import com.navercorp.pinpoint.profiler.sampler.SamplerFactory;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
@@ -63,6 +62,7 @@ import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.rpc.ClassPreLoader;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -191,14 +191,10 @@ public class DefaultAgent implements Agent {
 
         final ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(pluginContexts, applicationServerType, profilerConfig.getApplicationTypeDetectOrder());
         
-        final AgentInformationFactory agentInformationFactory = new AgentInformationFactory();
+        final AgentInformationFactory agentInformationFactory = new AgentInformationFactory(agentOption.getAgentId(), agentOption.getApplicationName());
         this.agentInformation = agentInformationFactory.createAgentInformation(typeResolver.resolve());
         logger.info("agentInformation:{}", agentInformation);
         
-        CommandDispatcher commandDispatcher = new CommandDispatcher();
-
-        this.tcpDataSender = createTcpDataSender(commandDispatcher);
-
         this.serverMetaDataHolder = createServerMetaDataHolder();
 
         this.spanDataSender = createUdpSpanDataSender(this.profilerConfig.getCollectorSpanServerPort(), "Pinpoint-UdpSpanDataExecutor",
@@ -208,9 +204,13 @@ public class DefaultAgent implements Agent {
                 this.profilerConfig.getStatDataSenderWriteQueueSize(), this.profilerConfig.getStatDataSenderSocketTimeout(),
                 this.profilerConfig.getStatDataSenderSocketSendBufferSize());
 
-        this.traceContext = createTraceContext();
+        DefaultTraceContext defaultTraceContext = createTraceContext();
 
-        addCommandService(commandDispatcher, traceContext);
+        CommandDispatcher commandService = createCommandService(defaultTraceContext);
+        this.tcpDataSender = createTcpDataSender(commandService);
+
+        defaultTraceContext.setPriorityDataSender(this.tcpDataSender);
+        this.traceContext = defaultTraceContext;
 
         AgentStatCollectorFactory agentStatCollectorFactory = new AgentStatCollectorFactory(this.traceContext);
 
@@ -261,16 +261,19 @@ public class DefaultAgent implements Agent {
         return loader.load(agentOption.getPluginJars());
     }
 
-    private void addCommandService(CommandDispatcher commandDispatcher, TraceContext traceContext) {
-        commandDispatcher.registerCommandService(new ThreadDumpService());
-        commandDispatcher.registerCommandService(new EchoService());
+    private CommandDispatcher createCommandService(TraceContext traceContext) {
+        CommandDispatcher commandDispatcher = new CommandDispatcher();
 
+//        commandDispatcher.registerCommandService(new ThreadDumpService());
+        commandDispatcher.registerCommandService(new EchoService());
         if (traceContext instanceof DefaultTraceContext) {
             ActiveTraceLocator activeTraceLocator = ((DefaultTraceContext) traceContext).getActiveTraceLocator();
             if (activeTraceLocator != null) {
-                commandDispatcher.registerCommandService(new ActiveThreadService(activeTraceLocator));
+                commandDispatcher.registerCommandService(new ActiveThreadService(activeTraceLocator, traceContext.getProfilerConfig()));
             }
         }
+
+        return commandDispatcher;
     }
     
     private TransactionCounter getTransactionCounter(TraceContext traceContext) {
@@ -333,7 +336,7 @@ public class DefaultAgent implements Agent {
         PLoggerFactory.initialize(binder);
     }
 
-    private TraceContext createTraceContext() {
+    private DefaultTraceContext createTraceContext() {
         final StorageFactory storageFactory = createStorageFactory();
         logger.info("StorageFactoryType:{}", storageFactory);
 
@@ -343,7 +346,6 @@ public class DefaultAgent implements Agent {
         final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
         final boolean traceActiveThread = profilerConfig.isTraceAgentActiveThread();
         final DefaultTraceContext traceContext = new DefaultTraceContext(jdbcSqlCacheSize, this.agentInformation, storageFactory, sampler, this.serverMetaDataHolder, traceActiveThread);
-        traceContext.setPriorityDataSender(this.tcpDataSender);
         traceContext.setProfilerConfig(profilerConfig);
 
         return traceContext;
@@ -384,9 +386,10 @@ public class DefaultAgent implements Agent {
             pinpointClientFactory.setMessageListener(commandDispatcher);
             pinpointClientFactory.setServerStreamChannelMessageListener(commandDispatcher);
 
-            properties.put(AgentHandshakePropertyType.SUPPORT_SERVER.getName(), true);
+            properties.put(HandshakePropertyType.SUPPORT_SERVER.getName(), true);
+            properties.put(HandshakePropertyType.SUPPORT_COMMAND_LIST.getName(), commandDispatcher.getRegisteredCommandServiceCodes());
         } else {
-            properties.put(AgentHandshakePropertyType.SUPPORT_SERVER.getName(), false);
+            properties.put(HandshakePropertyType.SUPPORT_SERVER.getName(), false);
         }
 
         pinpointClientFactory.setProperties(properties);

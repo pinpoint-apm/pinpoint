@@ -34,9 +34,6 @@ public class TestObjectContextClassLoader {
     }
 
     public String hello(String a) {
-        System.out.println("a:" + a);
-        System.out.println("test");
-//        throw new RuntimeException("test");
         return "a";
     }
 

@@ -20,10 +20,7 @@ import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.catalina.connector.Request;
-
 import com.navercorp.pinpoint.bootstrap.config.Filter;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.RemoteAddressResolver;
@@ -43,11 +40,11 @@ import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.jboss.AsyncAccessor;
+import com.navercorp.pinpoint.plugin.jboss.JbossConfig;
 import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
 import com.navercorp.pinpoint.plugin.jboss.ServletAsyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.jboss.ServletSyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.jboss.TraceAccessor;
-import com.navercorp.pinpoint.plugin.jboss.util.JbossUtility;
 
 /**
  * The Class StandardHostValveInvokeInterceptor.
@@ -95,23 +92,23 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
      *
      * @param traceContext the trace context
      * @param descriptor the descriptor
-     * @param excludeFilter the exclude filter
      */
-    public StandardHostValveInvokeInterceptor(final TraceContext traceContext, final MethodDescriptor descriptor, final Filter<String> excludeFilter) {
+    public StandardHostValveInvokeInterceptor(final TraceContext traceContext, final MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
-        this.excludeUrlFilter = excludeFilter;
 
-        final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
-        final String proxyIpHeader = profilerConfig.getJbossRealIpHeader();
+        JbossConfig jbossConfig = new JbossConfig(traceContext.getProfilerConfig());
+        this.excludeUrlFilter = jbossConfig.getJbossExcludeUrlFilter();
+
+        final String proxyIpHeader = jbossConfig.getJbossRealIpHeader();
         if ((proxyIpHeader == null) || proxyIpHeader.isEmpty()) {
             this.remoteAddressResolver = new Bypass<HttpServletRequest>();
         } else {
-            final String jbossRealIpEmptyValue = profilerConfig.getJbossRealIpEmptyValue();
+            final String jbossRealIpEmptyValue = jbossConfig.getJbossRealIpEmptyValue();
             this.remoteAddressResolver = new RealIpHeaderResolver<HttpServletRequest>(proxyIpHeader, jbossRealIpEmptyValue);
         }
-        this.isTraceRequestParam = profilerConfig.isJbossTraceRequestParam();
-        this.excludeProfileMethodFilter = profilerConfig.getJbossExcludeProfileMethodFilter();
+        this.isTraceRequestParam = jbossConfig.isJbossTraceRequestParam();
+        this.excludeProfileMethodFilter = jbossConfig.getJbossExcludeProfileMethodFilter();
 
         traceContext.cacheApi(SERVLET_ASYNCHRONOUS_API_TAG);
         traceContext.cacheApi(SERVLET_SYNCHRONOUS_API_TAG);
@@ -242,7 +239,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
      * @return the trace
      */
     private Trace createTrace(final Object target, final Object[] args) {
-        final Request request = (Request) args[0];
+        final HttpServletRequest request = (HttpServletRequest) args[0];
         if (isAsynchronousProcess(request)) {
             // servlet 3.0
             final Trace trace = getTraceMetadata(request);
@@ -321,7 +318,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
      * @param request the request
      * @param trace the trace
      */
-    private void setTraceMetadata(final Request request, final Trace trace) {
+    private void setTraceMetadata(final HttpServletRequest request, final Trace trace) {
         if (request instanceof TraceAccessor) {
             ((TraceAccessor) request)._$PINPOINT$_setTrace(trace);
         }
@@ -333,7 +330,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
      * @param request the request
      * @return the trace metadata
      */
-    private Trace getTraceMetadata(final Request request) {
+    private Trace getTraceMetadata(final HttpServletRequest request) {
         if (!(request instanceof TraceAccessor)) {
             return null;
         }
@@ -347,7 +344,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
      * @param request the request
      * @return the async metadata
      */
-    private boolean getAsyncMetadata(final Request request) {
+    private boolean getAsyncMetadata(final HttpServletRequest request) {
         if (!(request instanceof AsyncAccessor)) {
             return false;
         }
@@ -361,7 +358,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
      * @param request the request
      * @return true, if is asynchronous process
      */
-    private boolean isAsynchronousProcess(final Request request) {
+    private boolean isAsynchronousProcess(final HttpServletRequest request) {
         if (getTraceMetadata(request) == null) {
             return false;
         }
@@ -387,7 +384,13 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         recorder.recordEndPoint(endPoint);
 
         final String remoteAddress = remoteAddressResolver.resolve(request);
-        recorder.recordRemoteAddress(JbossUtility.fetchRemoteAddressDetails(remoteAddress));
+        // TODO API safety check required
+        // Potential Risk
+        // 1. Implicit DNSLookup (InetAddress.getByName())
+        // 2. DNSLookup can cause thread blocking.
+        // 3. difficult format parsing problem in collector
+//        recorder.recordRemoteAddress(JbossUtility.fetchRemoteAddressDetails(remoteAddress));
+        recorder.recordRemoteAddress(remoteAddress);
         if (!recorder.isRoot()) {
             recordParentInfo(recorder, request);
         }
@@ -525,11 +528,11 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                 return params.toString();
             }
             final String key = attrs.nextElement().toString();
-            params.append(StringUtils.drop(key, eachLimit));
+            params.append(StringUtils.abbreviate(key, eachLimit));
             params.append("=");
             final Object value = request.getParameter(key);
             if (value != null) {
-                params.append(StringUtils.drop(StringUtils.toString(value), eachLimit));
+                params.append(StringUtils.abbreviate(StringUtils.toString(value), eachLimit));
             }
         }
         return params.toString();
@@ -547,7 +550,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     private void deleteTrace(final Trace trace, final Object target, final Object[] args, final Object result, final Throwable throwable) {
         trace.traceBlockEnd();
 
-        final Request request = (Request) args[0];
+        final HttpServletRequest request = (HttpServletRequest) args[0];
         if (!isAsynchronousProcess(request)) {
             trace.close();
             // reset

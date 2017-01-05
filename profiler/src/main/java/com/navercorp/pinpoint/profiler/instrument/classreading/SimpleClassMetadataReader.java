@@ -17,11 +17,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classreading;
 
-import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.objectweb.asm.ClassReader;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)

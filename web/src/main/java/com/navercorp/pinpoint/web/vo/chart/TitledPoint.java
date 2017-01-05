@@ -28,8 +28,8 @@ public class TitledPoint<X extends Number, Y extends Number> extends Point<X, Y>
         this.title = title;
     }
 
-    public TitledPoint(String title, X xVal, Y minYVal, Y maxYVal, Double avgYVal) {
-        super(xVal, minYVal, maxYVal, avgYVal);
+    public TitledPoint(String title, X xVal, Y minYVal, Y maxYVal, Double avgYVal, Y sumYVal) {
+        super(xVal, minYVal, maxYVal, avgYVal, sumYVal);
         this.title = title;
     }
 
@@ -57,8 +57,10 @@ public class TitledPoint<X extends Number, Y extends Number> extends Point<X, Y>
 
     @Override
     public String toString() {
-        return "TitledPoint{" +
-                "title='" + title + '\'' +
-                "} " + super.toString();
+        final StringBuilder sb = new StringBuilder("TitledPoint{");
+        sb.append("title='").append(title).append('\'');
+        sb.append('}');
+        sb.append(super.toString());
+        return sb.toString();
     }
 }

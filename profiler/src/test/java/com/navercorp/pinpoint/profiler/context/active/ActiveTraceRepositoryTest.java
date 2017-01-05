@@ -26,6 +26,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 
+import com.navercorp.pinpoint.profiler.context.TestAgentInformation;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,7 +45,6 @@ import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.navercorp.pinpoint.profiler.metadata.LRUCache;
 import com.navercorp.pinpoint.profiler.sampler.SamplingRateSampler;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
-import com.navercorp.pinpoint.test.TestAgentInformation;
 
 /**
  * @author HyunGil Jeong
@@ -105,8 +105,8 @@ public class ActiveTraceRepositoryTest {
         assertEquals(expectedTotalTransactionCount, transactionCounter.getTotalTransactionCount());
         
         for (ActiveTraceInfo activeTraceInfo : activeTraceInfos) {
-            TraceThreadTuple executedTrace = executedTraceMap.get(activeTraceInfo.getId());
-            assertEquals(executedTrace.id, activeTraceInfo.getId());
+            TraceThreadTuple executedTrace = executedTraceMap.get(activeTraceInfo.getLocalTraceId());
+            assertEquals(executedTrace.id, activeTraceInfo.getLocalTraceId());
             assertEquals(executedTrace.startTime, activeTraceInfo.getStartTime());
             assertEquals(executedTrace.thread, activeTraceInfo.getThread());
         }

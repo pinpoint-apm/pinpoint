@@ -1,8 +1,8 @@
 .timeslider .timeslider_wrapper {
     position:absolute;
     top:-2px;
-    left:340px;
-    right:30px;
+    left:200px;
+    right:200px;
 }
 .timeslider .jslider .jslider-value {
     top: 12px;
@@ -20,7 +20,7 @@
 .timeslider_more {
     position: absolute;
     top:4px;
-    left: 200px;
+    right: 10px;
 }
 
 .timeslider .jslider .jslider-transition {

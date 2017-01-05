@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,16 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import java.io.InputStream;
+
 /**
  * @author Jongho Moon
- *
+ * @author jaehong.kim
  */
-public interface ClassInjector {
+public interface ClassInjector  {
 
     <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className);
+
+    InputStream getResourceAsStream(ClassLoader targetClassLoader, String className);
 
 }

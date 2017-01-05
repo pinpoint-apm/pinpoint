@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.udp;
 
 import org.apache.thrift.TBase;
 
+import java.net.DatagramSocket;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,12 +38,13 @@ public class TBaseFilterChain<T extends SocketAddress> implements TBaseFilter<T>
     }
 
     @Override
-    public boolean filter(TBase<?, ?> tBase, T remoteHostAddress) {
+    public boolean filter(DatagramSocket localSocket, TBase<?, ?> tBase, T remoteHostAddress) {
         for (TBaseFilter tBaseFilter : filterChain) {
-            if (tBaseFilter.filter(tBase, remoteHostAddress) == TBaseFilter.BREAK) {
+            if (tBaseFilter.filter(localSocket, tBase, remoteHostAddress) == TBaseFilter.BREAK) {
                 return BREAK;
             }
         }
         return TBaseFilter.CONTINUE;
     }
+
 }

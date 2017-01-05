@@ -20,8 +20,11 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 
+import java.io.InputStream;
+
 /**
  * @author Woonduk Kang(emeroad)
+ * @author jaehong.kim
  */
 public interface InstrumentContext {
 
@@ -34,6 +37,8 @@ public interface InstrumentContext {
     InterceptorScope getInterceptorScope(String name);
 
     <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className);
+
+    InputStream getResourceAsStream(ClassLoader targetClassLoader, String className);
 
     void addClassFileTransformer(ClassLoader classLoader, String targetClassName, TransformCallback transformCallback);
 

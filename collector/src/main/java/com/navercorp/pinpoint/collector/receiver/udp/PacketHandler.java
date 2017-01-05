@@ -16,9 +16,13 @@
 
 package com.navercorp.pinpoint.collector.receiver.udp;
 
+import java.net.DatagramSocket;
+
 /**
  * @author emeroad
  */
 public interface PacketHandler<T> {
-    void receive(T packet);
+
+    void receive(DatagramSocket localSocket, T packet);
+
 }

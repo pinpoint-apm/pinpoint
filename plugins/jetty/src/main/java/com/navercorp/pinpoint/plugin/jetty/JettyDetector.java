@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,22 @@ import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class JettyDetector implements ApplicationTypeDetector {
 
-    private static final String REQUIRED_MAIN_CLASS = "org.eclipse.jetty.start.Main";
+    private static final String DEFAULT_BOOTSTRAP_MAIN = "org.eclipse.jetty.start.Main";
+
+    private final List<String> bootstrapMains;
+
+    public JettyDetector(List<String> bootstrapMains) {
+        if (bootstrapMains == null || bootstrapMains.isEmpty()) {
+            this.bootstrapMains = Arrays.asList(DEFAULT_BOOTSTRAP_MAIN);
+        } else {
+            this.bootstrapMains = bootstrapMains;
+        }
+    }
 
     @Override
     public ServiceType getApplicationType() {
@@ -29,6 +42,6 @@ public class JettyDetector implements ApplicationTypeDetector {
 
     @Override
     public boolean detect(ConditionProvider provider) {
-        return provider.checkMainClass(REQUIRED_MAIN_CLASS);
+        return provider.checkMainClass(bootstrapMains);
     }
 }

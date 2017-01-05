@@ -56,6 +56,7 @@ public class AgentStatMapper implements ThriftBoMapper<AgentStatBo, TAgentStat> 
             return null;
         }
         final String agentId = tAgentStat.getAgentId();
+        final long startTimestamp = tAgentStat.getStartTimestamp();
         final long timestamp = tAgentStat.getTimestamp();
         AgentStatBo agentStatBo = new AgentStatBo();
         agentStatBo.setAgentId(agentId);
@@ -63,6 +64,7 @@ public class AgentStatMapper implements ThriftBoMapper<AgentStatBo, TAgentStat> 
         if (tAgentStat.isSetGc()) {
             JvmGcBo jvmGcBo = this.jvmGcBoMapper.map(tAgentStat.getGc());
             jvmGcBo.setAgentId(agentId);
+            jvmGcBo.setStartTimestamp(startTimestamp);
             jvmGcBo.setTimestamp(timestamp);
             agentStatBo.setJvmGcBos(Arrays.asList(jvmGcBo));
         }
@@ -71,6 +73,7 @@ public class AgentStatMapper implements ThriftBoMapper<AgentStatBo, TAgentStat> 
             if (tAgentStat.getGc().isSetJvmGcDetailed()) {
                 JvmGcDetailedBo jvmGcDetailedBo = this.jvmGcDetailedBoMapper.map(tAgentStat.getGc().getJvmGcDetailed());
                 jvmGcDetailedBo.setAgentId(agentId);
+                jvmGcDetailedBo.setStartTimestamp(startTimestamp);
                 jvmGcDetailedBo.setTimestamp(timestamp);
                 agentStatBo.setJvmGcDetailedBos(Arrays.asList(jvmGcDetailedBo));
             }
@@ -79,6 +82,7 @@ public class AgentStatMapper implements ThriftBoMapper<AgentStatBo, TAgentStat> 
         if (tAgentStat.isSetCpuLoad()) {
             CpuLoadBo cpuLoadBo = this.cpuLoadBoMapper.map(tAgentStat.getCpuLoad());
             cpuLoadBo.setAgentId(agentId);
+            cpuLoadBo.setStartTimestamp(startTimestamp);
             cpuLoadBo.setTimestamp(timestamp);
             agentStatBo.setCpuLoadBos(Arrays.asList(cpuLoadBo));
         }
@@ -86,6 +90,7 @@ public class AgentStatMapper implements ThriftBoMapper<AgentStatBo, TAgentStat> 
         if (tAgentStat.isSetTransaction()) {
             TransactionBo transactionBo = this.transactionBoMapper.map(tAgentStat.getTransaction());
             transactionBo.setAgentId(agentId);
+            transactionBo.setStartTimestamp(startTimestamp);
             transactionBo.setTimestamp(timestamp);
             transactionBo.setCollectInterval(tAgentStat.getCollectInterval());
             agentStatBo.setTransactionBos(Arrays.asList(transactionBo));
@@ -94,6 +99,7 @@ public class AgentStatMapper implements ThriftBoMapper<AgentStatBo, TAgentStat> 
         if (tAgentStat.isSetActiveTrace() && tAgentStat.getActiveTrace().isSetHistogram()) {
             ActiveTraceBo activeTraceBo = this.activeTraceBoMapper.map(tAgentStat.getActiveTrace());
             activeTraceBo.setAgentId(agentId);
+            activeTraceBo.setStartTimestamp(startTimestamp);
             activeTraceBo.setTimestamp(timestamp);
             agentStatBo.setActiveTraceBos(Arrays.asList(activeTraceBo));
         }

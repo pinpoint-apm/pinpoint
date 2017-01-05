@@ -28,6 +28,7 @@ public class ActiveTraceBo implements AgentStatDataPoint {
     public static final int UNCOLLECTED_ACTIVE_TRACE_COUNT = -1;
 
     private String agentId;
+    private long startTimestamp;
     private long timestamp;
     private short version = 0;
     private int histogramSchemaType;
@@ -41,6 +42,16 @@ public class ActiveTraceBo implements AgentStatDataPoint {
     @Override
     public void setAgentId(String agentId) {
         this.agentId = agentId;
+    }
+
+    @Override
+    public long getStartTimestamp() {
+        return startTimestamp;
+    }
+
+    @Override
+    public void setStartTimestamp(long startTimestamp) {
+        this.startTimestamp = startTimestamp;
     }
 
     @Override
@@ -89,16 +100,19 @@ public class ActiveTraceBo implements AgentStatDataPoint {
 
         ActiveTraceBo that = (ActiveTraceBo) o;
 
+        if (startTimestamp != that.startTimestamp) return false;
         if (timestamp != that.timestamp) return false;
         if (version != that.version) return false;
         if (histogramSchemaType != that.histogramSchemaType) return false;
         if (agentId != null ? !agentId.equals(that.agentId) : that.agentId != null) return false;
         return activeTraceCounts != null ? activeTraceCounts.equals(that.activeTraceCounts) : that.activeTraceCounts == null;
+
     }
 
     @Override
     public int hashCode() {
         int result = agentId != null ? agentId.hashCode() : 0;
+        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
         result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
         result = 31 * result + (int) version;
         result = 31 * result + histogramSchemaType;
@@ -110,6 +124,7 @@ public class ActiveTraceBo implements AgentStatDataPoint {
     public String toString() {
         return "ActiveTraceBo{" +
                 "agentId='" + agentId + '\'' +
+                ", startTimestamp=" + startTimestamp +
                 ", timestamp=" + timestamp +
                 ", version=" + version +
                 ", histogramSchemaType=" + histogramSchemaType +

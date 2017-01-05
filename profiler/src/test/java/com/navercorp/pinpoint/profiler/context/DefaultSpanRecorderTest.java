@@ -23,8 +23,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
-
 /**
  * @author Woonduk Kang(emeroad)
  */

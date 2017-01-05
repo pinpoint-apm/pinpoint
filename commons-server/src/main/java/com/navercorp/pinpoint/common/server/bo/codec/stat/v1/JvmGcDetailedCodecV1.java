@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeader
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderDecoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.UnsignedLongEncodingStrategy;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.StrategyAnalyzer;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedLongEncodingStrategy;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StrategyAnalyzer;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
@@ -66,7 +66,7 @@ public class JvmGcDetailedCodecV1 implements AgentStatCodec<JvmGcDetailedBo> {
         final int numValues = jvmGcDetailedBos.size();
         valueBuffer.putVInt(numValues);
 
-        List<Long> timestamps = new ArrayList<>(numValues);
+        List<Long> timestamps = new ArrayList<Long>(numValues);
         UnsignedLongEncodingStrategy.Analyzer.Builder gcNewCountAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         UnsignedLongEncodingStrategy.Analyzer.Builder gcNewTimeAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         UnsignedLongEncodingStrategy.Analyzer.Builder codeCacheUsedStrategyAnalyzer = new UnsignedLongEncodingStrategy.Analyzer.Builder();
@@ -163,7 +163,7 @@ public class JvmGcDetailedCodecV1 implements AgentStatCodec<JvmGcDetailedBo> {
         List<Long> permGenUseds = this.codec.decodeValues(valueBuffer, permGenUsedEncodingStrategy, numValues);
         List<Long> metaspaceUseds = this.codec.decodeValues(valueBuffer, metaspaceUsedEncodingStrategy, numValues);
 
-        List<JvmGcDetailedBo> jvmGcDetailedBos = new ArrayList<>(numValues);
+        List<JvmGcDetailedBo> jvmGcDetailedBos = new ArrayList<JvmGcDetailedBo>(numValues);
         for (int i = 0; i < numValues; ++i) {
             JvmGcDetailedBo jvmGcDetailedBo = new JvmGcDetailedBo();
             jvmGcDetailedBo.setAgentId(agentId);

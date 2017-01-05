@@ -29,7 +29,7 @@ public final class IdValidateUtils {
 
     private static final int DEFAULT_MAX_LENGTH = PinpointConstants.AGENT_NAME_MAX_LEN;
 
-//    private static final Pattern ID_PATTERN = Pattern.compile("[a-zA-Z0-9\\._\\-]{1,24}");
+    //    private static final Pattern ID_PATTERN = Pattern.compile("[a-zA-Z0-9\\._\\-]{1,24}");
     private static final Pattern ID_PATTERN = Pattern.compile("[a-zA-Z0-9\\._\\-]+");
 
     private IdValidateUtils() {
@@ -47,21 +47,44 @@ public final class IdValidateUtils {
             throw new IllegalArgumentException("negative maxLength:" + maxLength);
         }
 
-        final Matcher matcher = ID_PATTERN.matcher(id);
-        if (matcher.matches()) {
-            return checkBytesLength(id, maxLength);
-        } else {
+        if (!checkPattern(id)) {
             return false;
         }
+        if (!checkLength(id, maxLength)) {
+            return false;
+        }
+
+        return true;
     }
 
-    private static boolean checkBytesLength(String id, int maxLength) {
-        // try encode
-        final byte[] idBytes = BytesUtils.toBytes(id);
-        if (idBytes == null || idBytes.length == 0) {
-            throw new IllegalArgumentException("toBytes fail. id:" + id);
+    public static boolean checkPattern(String id) {
+        final Matcher matcher = ID_PATTERN.matcher(id);
+        return matcher.matches();
+    }
+
+    public static boolean checkLength(String id, int maxLength) {
+        if (id == null) {
+            throw new NullPointerException("id must not be null");
         }
-        return idBytes.length <= maxLength;
+        // try encode
+        final int idLength = getLength(id);
+        if (idLength <= 0) {
+            return false;
+        }
+        return idLength <= maxLength;
+    }
+
+    public static int getLength(String id) {
+        if (id == null) {
+            return -1;
+        }
+
+        final byte[] idBytes = BytesUtils.toBytes(id);
+        if (idBytes == null) {
+            // encoding fail
+            return -1;
+        }
+        return idBytes.length;
     }
 
 }

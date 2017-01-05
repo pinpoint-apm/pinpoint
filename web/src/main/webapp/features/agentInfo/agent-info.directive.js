@@ -1,16 +1,16 @@
 (function( $ ) {
 	pinpointApp.constant( "agentInfoDirectiveConfig", {
 		ID: "AGENT_INFO_DRTV_",
-	    agentStatUrl: "/getAgentStat.pinpoint"
+		agentStatUrl: "/getAgentStat.pinpoint"
 	});
-	
+
 	pinpointApp.directive( "agentInfoDirective", [ "agentInfoDirectiveConfig", "$timeout", "CommonUtilService", "UrlVoService", "AlertsService", "ProgressBarService", "AgentDaoService", "AgentAjaxService", "TooltipService", "AnalyticsService", "helpContentService",
-	    function ( cfg, $timeout, CommonUtilService, UrlVoService, AlertsService, ProgressBarService, AgentDaoService, AgentAjaxService, TooltipService, AnalyticsService, helpContentService ) {
-	        return {
-	            restrict: 'EA',
-	            replace: true,
-	            templateUrl: 'features/agentInfo/agentInfoMain.html?v' + G_BUILD_TIME,
-	            link: function postLink(scope, element, attrs) {
+		function ( cfg, $timeout, CommonUtilService, UrlVoService, AlertsService, ProgressBarService, AgentDaoService, AgentAjaxService, TooltipService, AnalyticsService, helpContentService ) {
+			return {
+				restrict: 'EA',
+				replace: true,
+				templateUrl: 'features/agentInfo/agentInfoMain.html?v' + G_BUILD_TIME,
+				link: function postLink(scope, element, attrs) {
 					cfg.ID += CommonUtilService.getRandomNum();
 					scope.agent = {};
 					scope.hasAgentData = false;
@@ -18,8 +18,8 @@
 					scope.showDetail = false;
 					scope.selectTime = -1;
 					var timeSlider = null, bInitTooltip = false;
-	                var oAlertService = new AlertsService();
-	                var oProgressBarService = new ProgressBarService();
+					var oAlertService = new AlertsService();
+					var oProgressBarService = new ProgressBarService();
 
 					function initTime( time ) {
 						$("#target-picker").val( moment( time ).format( "YYYY-MM-DD HH:mm:ss" ) );
@@ -56,31 +56,56 @@
 					}
 
 					function loadChartData( agentId, aFromTo, period, callback ) {
-						oProgressBarService.startLoading();
-						oProgressBarService.setLoading(40);
-						AgentAjaxService.getAgentStateForChart({
+						var hasError = false;
+						var responseCount = 0;
+						var oParam = {
 							"agentId": agentId,
 							"from": aFromTo[0],
 							"to": aFromTo[1],
-							"sampleRate": AgentDaoService.getSampleRate(period)
-						}, function (result) {
-							if ( result.errorCode || result.status ) {
-								oProgressBarService.stopLoading();
-								oAlertService.showError('There is some error.');
-								return;
+							"sampleRate": AgentDaoService.getSampleRate( period )
+						};
+						oProgressBarService.startLoading();
+						oProgressBarService.setLoading(20);
+
+						AgentAjaxService.getJVMChartData( oParam, function (result) {
+							if ( checkResponse( result ) ) {
+								if (angular.isDefined(result.type) && result.type) {
+									scope.agent['jvmGcType'] = result.type;
+								}
+								showJvmChart(result);
 							}
-							scope.agentStat = result;
-							if (angular.isDefined(result.type) && result.type) {
-								scope.agent['jvmGcType'] =  result.type;
-							}
-							oProgressBarService.setLoading(80);
-							showCharts(result);
-							$timeout(function () {
-								oProgressBarService.setLoading(100);
-								oProgressBarService.stopLoading();
-							}, 700);
-							callback();
 						});
+						AgentAjaxService.getCpuLoadChartData( oParam, function (result) {
+							if ( checkResponse( result ) ) {
+								showCpuLoadChart(result);
+							}
+						});
+						AgentAjaxService.getTPSChartData( oParam, function (result) {
+							if ( checkResponse( result ) ) {
+								showTpsChart(result);
+							}
+						});
+						AgentAjaxService.getActiveTraceChartData( oParam, function (result) {
+							if ( checkResponse( result ) ) {
+								showActiveTraceChart(result);
+							}
+						});
+						function checkResponse( result ) {
+							responseCount++;
+							oProgressBarService.setLoading(20 + (responseCount * 20) );
+							if ( responseCount >= 4 ) {
+								oProgressBarService.stopLoading();
+								if ( hasError ) {
+									oAlertService.showError('There is some error.');
+								}
+								callback();
+							}
+							if ( result.errorCode || result.status ) {
+								hasError = true;
+								return false;
+							}
+							return true;
+						}
 					}
 					function loadAgentInfo( time ) {
 						oProgressBarService.startLoading();
@@ -127,60 +152,62 @@
 							}
 						}
 					}
-	                function initTooltip() {
-	                	if ( bInitTooltip === false ) {
+					function initTooltip() {
+						if ( bInitTooltip === false ) {
 							TooltipService.init( "heap" );
 							TooltipService.init( "permGen" );
 							TooltipService.init( "cpuUsage" );
 							TooltipService.init( "tps" );
+							TooltipService.init( "activeThread" );
 							bInitTooltip = true;
-	                	}
-	                }
-	                function initServiceInfo(agent) {
-	                    if (agent.serverMetaData && agent.serverMetaData.serviceInfos) {
-	                        var serviceInfos = agent.serverMetaData.serviceInfos;
-	                        for (var i = 0; i < serviceInfos.length; ++i) {
-	                            if (serviceInfos[i].serviceLibs.length > 0) {
-	                                return serviceInfos[i];
-	                            }
-	                        }
-	                    }
-	                    return;
-	                }
+						}
+					}
+					function initServiceInfo(agent) {
+						if (agent.serverMetaData && agent.serverMetaData.serviceInfos) {
+							var serviceInfos = agent.serverMetaData.serviceInfos;
+							for (var i = 0; i < serviceInfos.length; ++i) {
+								if (serviceInfos[i].serviceLibs.length > 0) {
+									return serviceInfos[i];
+								}
+							}
+						}
+						return;
+					}
+					function showJvmChart( chartData ) {
+						var heap = { id: 'heap', title: 'Heap Usage', span: 'span12', line: [
+							{ id: 'JVM_MEMORY_HEAP_USED', key: 'Used', values: [], isFgc: false },
+							{ id: 'JVM_MEMORY_HEAP_MAX', key: 'Max', values: [], isFgc: false },
+							{ id: 'fgc', key: 'FGC', values: [], bar: true, isFgc: true }
+						]};
+						var nonheap = { id: 'nonheap', title: 'PermGen Usage', span: 'span12', line: [
+							{ id: 'JVM_MEMORY_NON_HEAP_USED', key: 'Used', values: [], isFgc: false },
+							{ id: 'JVM_MEMORY_NON_HEAP_MAX', key: 'Max', values: [], isFgc: false },
+							{ id: 'fgc', key: 'FGC', values: [], bar: true, isFgc: true }
+						]};
+						scope.memoryGroup = [ heap, nonheap ];
 
-	                /**
-	                 * show charts
-	                 * @param agentStat
-	                 */
-	                function showCharts(agentStat) {
-	                    var heap = { id: 'heap', title: 'Heap Usage', span: 'span12', line: [
-	                        { id: 'JVM_MEMORY_HEAP_USED', key: 'Used', values: [], isFgc: false },
-	                        { id: 'JVM_MEMORY_HEAP_MAX', key: 'Max', values: [], isFgc: false },
-	                        { id: 'fgc', key: 'FGC', values: [], bar: true, isFgc: true }
-	                    ]};
+						scope.$broadcast( "jvmMemoryChartDirective.initAndRenderWithData.forHeap", AgentDaoService.parseMemoryChartDataForAmcharts(heap, chartData), '100%', '270px');
+						scope.$broadcast( "jvmMemoryChartDirective.initAndRenderWithData.forNonHeap", AgentDaoService.parseMemoryChartDataForAmcharts(nonheap, chartData), '100%', '270px');
 
-	                    var nonheap = { id: 'nonheap', title: 'PermGen Usage', span: 'span12', line: [
-	                        { id: 'JVM_MEMORY_NON_HEAP_USED', key: 'Used', values: [], isFgc: false },
-	                        { id: 'JVM_MEMORY_NON_HEAP_MAX', key: 'Max', values: [], isFgc: false },
-	                        { id: 'fgc', key: 'FGC', values: [], bar: true, isFgc: true }
-	                    ]};
+					}
+					function showCpuLoadChart( chartData ) {
+						var cpuLoad = { id: 'cpuLoad', title: 'JVM/System Cpu Usage', span: 'span12', isAvailable: false};
+						scope.cpuLoadChart = cpuLoad;
 
-	                    var cpuLoad = { id: 'cpuLoad', title: 'JVM/System Cpu Usage', span: 'span12', isAvailable: false};
+						scope.$broadcast( "cpuLoadChartDirective.initAndRenderWithData.forCpuLoad", AgentDaoService.parseCpuLoadChartDataForAmcharts(cpuLoad, chartData), '100%', '270px');
+					}
+					function showTpsChart( chartData ) {
+						var tps = { id: 'tps', title: 'Transactions Per Second', span: 'span12', isAvailable: false };
+						scope.tpsChart = tps;
 
-	                    var tps = { id: 'tps', title: 'Transactions Per Second', span: 'span12', isAvailable: false };
-	                    var activeTrace = { id: "activeTrace", title: "Active Thread", span: "span12", isAvailable: false};
-
-	                    scope.memoryGroup = [ heap, nonheap ];
-	                    scope.cpuLoadChart = cpuLoad;
-	                    scope.tpsChart = tps;
+						scope.$broadcast( "tpsChartDirective.initAndRenderWithData.forTps", AgentDaoService.parseTpsChartDataForAmcharts(tps, chartData), '100%', '270px');
+					}
+					function showActiveTraceChart( chartData ) {
+						var activeTrace = { id: "activeTrace", title: "Active Thread", span: "span12", isAvailable: false};
 						scope.activeTraceChart = activeTrace;
 
-	                    scope.$broadcast( "jvmMemoryChartDirective.initAndRenderWithData.forHeap", AgentDaoService.parseMemoryChartDataForAmcharts(heap, agentStat), '100%', '270px');
-	                    scope.$broadcast( "jvmMemoryChartDirective.initAndRenderWithData.forNonHeap", AgentDaoService.parseMemoryChartDataForAmcharts(nonheap, agentStat), '100%', '270px');
-	                    scope.$broadcast( "cpuLoadChartDirective.initAndRenderWithData.forCpuLoad", AgentDaoService.parseCpuLoadChartDataForAmcharts(cpuLoad, agentStat), '100%', '270px');
-	                    scope.$broadcast( "tpsChartDirective.initAndRenderWithData.forTps", AgentDaoService.parseTpsChartDataForAmcharts(tps, agentStat), '100%', '270px');
-						scope.$broadcast( "activeTraceChartDirective.initAndRenderWithData.forActiveTrace", AgentDaoService.parseActiveTraceChartDataForAmcharts(activeTrace, agentStat), '100%', '270px');
-	                }
+						scope.$broadcast( "activeTraceChartDirective.initAndRenderWithData.forActiveTrace", AgentDaoService.parseActiveTraceChartDataForAmcharts(activeTrace, chartData), '100%', '270px');
+					}
 					function getEventList( agentId, aFromTo ) {
 						AgentAjaxService.getEventList({
 							"agentId": agentId,
@@ -194,16 +221,16 @@
 							}
 						});
 					}
-	                function broadcastToCpuLoadChart(e, event) {
-	                	if (scope.cpuLoadChart.isAvailable) {
-	                        scope.$broadcast('cpuLoadChartDirective.showCursorAt.forCpuLoad', event.index);
-	                	}
-	                }
-	                function broadcastToTpsChart(e, event) {
-	                    if (scope.tpsChart.isAvailable) {
-	                        scope.$broadcast('tpsChartDirective.showCursorAt.forTps', event.index);
-	                    }
-	                }
+					function broadcastToCpuLoadChart(e, event) {
+						if (scope.cpuLoadChart.isAvailable) {
+							scope.$broadcast('cpuLoadChartDirective.showCursorAt.forCpuLoad', event.index);
+						}
+					}
+					function broadcastToTpsChart(e, event) {
+						if (scope.tpsChart.isAvailable) {
+							scope.$broadcast('tpsChartDirective.showCursorAt.forTps', event.index);
+						}
+					}
 					function broadcastToActiveTraceChart(e, event) {
 						if (scope.activeTraceChart.isAvailable) {
 							scope.$broadcast('activeTraceChartDirective.showCursorAt.forActiveTrace', event.index);
@@ -260,17 +287,17 @@
 							$(".detailIndicator").css("left", "0px");
 						}
 					};
-	                scope.hasDuplicate = function( libName, index ) {
-	                	var len = scope.currentServiceInfo.serviceLibs.length;
-	                	var bHas = false;
-	                	for( var i = 0 ; i < len ; i++ ) {
-	                		if ( scope.currentServiceInfo.serviceLibs[i] == libName && i != index ) {
-	                			bHas = true;
-	                			break;
-	                		}
-	                	}
-	                	return bHas ? "color:#F00" : "";
-	                };
+					scope.hasDuplicate = function( libName, index ) {
+						var len = scope.currentServiceInfo.serviceLibs.length;
+						var bHas = false;
+						for( var i = 0 ; i < len ; i++ ) {
+							if ( scope.currentServiceInfo.serviceLibs[i] == libName && i != index ) {
+								bHas = true;
+								break;
+							}
+						}
+						return bHas ? "color:#F00" : "";
+					};
 
 					scope.selectServiceInfo = function(serviceInfo) {
 						if (serviceInfo.serviceLibs.length > 0) {
@@ -286,6 +313,7 @@
 							scope.hasAgentData = false;
 							return;
 						}
+						scope.showEventInfo = false;
 						scope.hasAgentData = true;
 						scope.agent = agent;
 						scope.chartGroup = null;
@@ -308,51 +336,52 @@
 								loadAgentInfo( scope.selectTime );
 							}
 						}
-						$timeout(function () {
-							loadChartData(agent.agentId, aSelectionFromTo, period, function() {
-								initTime( scope.selectTime );
-								initTooltip();
-								initTimeSlider( aSelectionFromTo, aFromTo );
-								setTimeSliderBaseColor();
-								getEventList( agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
-							});
-							scope.$apply();
+						loadChartData(agent.agentId, aSelectionFromTo, period, function() {
+							initTimeSliderUI( aSelectionFromTo, aFromTo );
 						});
 
-					});
+						initTooltip();
 
-	                scope.$on('jvmMemoryChartDirective.cursorChanged.forHeap', function (e, event) {
-	                    scope.$broadcast('jvmMemoryChart.showCursorAt.forNonHeap', event.index);
-	                    broadcastToCpuLoadChart(e, event);
-	                    broadcastToTpsChart(e, event);
+					});
+					function initTimeSliderUI( aSelectionFromTo, aFromTo ) {
+						initTime( scope.selectTime );
+						initTimeSlider( aSelectionFromTo, aFromTo );
+						setTimeSliderBaseColor();
+						getEventList( scope.agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
+					}
+
+					scope.$on('jvmMemoryChartDirective.cursorChanged.forHeap', function (e, event) {
+						scope.$broadcast('jvmMemoryChart.showCursorAt.forNonHeap', event.index);
+						broadcastToCpuLoadChart(e, event);
+						broadcastToTpsChart(e, event);
 						broadcastToActiveTraceChart(e, event);
-	                });
-	                scope.$on('jvmMemoryChartDirective.cursorChanged.forNonHeap', function (e, event) {
-	                    scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
-	                    broadcastToCpuLoadChart(e, event);
-	                    broadcastToTpsChart(e, event);
+					});
+					scope.$on('jvmMemoryChartDirective.cursorChanged.forNonHeap', function (e, event) {
+						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
+						broadcastToCpuLoadChart(e, event);
+						broadcastToTpsChart(e, event);
 						broadcastToActiveTraceChart(e, event);
-	                });
-	                scope.$on('cpuLoadChartDirective.cursorChanged.forCpuLoad', function (e, event) {
-	                    scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
-	                    scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', event.index);
-	                    broadcastToTpsChart(e, event);
+					});
+					scope.$on('cpuLoadChartDirective.cursorChanged.forCpuLoad', function (e, event) {
+						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
+						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', event.index);
+						broadcastToTpsChart(e, event);
 						broadcastToActiveTraceChart(e, event);
-	                });
-                    scope.$on('tpsChartDirective.cursorChanged.forTps', function (e, event) {
-                        scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
-                        scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', event.index);
-                        broadcastToCpuLoadChart(e, event);
+					});
+					scope.$on('tpsChartDirective.cursorChanged.forTps', function (e, event) {
+						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
+						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', event.index);
+						broadcastToCpuLoadChart(e, event);
 						broadcastToActiveTraceChart(e, event);
-                    });
+					});
 					scope.$on('activeTraceChartDirective.cursorChanged.forActiveTrace', function (e, event) {
 						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
 						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', event.index);
 						broadcastToCpuLoadChart(e, event);
 						broadcastToTpsChart(e, event);
 					});
-	            }
-	        };
-	    }
+				}
+			};
+		}
 	]);
 })(jQuery);

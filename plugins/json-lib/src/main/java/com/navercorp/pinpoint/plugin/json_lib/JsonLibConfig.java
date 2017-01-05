@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.json_lib;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class JsonLibConfig {
 

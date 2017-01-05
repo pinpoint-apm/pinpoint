@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-
 import java.util.List;
 
 import com.navercorp.pinpoint.common.util.DefaultSqlParser;
@@ -25,12 +24,12 @@ import com.navercorp.pinpoint.common.util.SqlParser;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import com.navercorp.pinpoint.web.view.TransactionInfoViewModel;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -87,9 +86,11 @@ public class BusinessTransactionController {
     @RequestMapping(value = "/transactionInfo", method = RequestMethod.GET)
     @ResponseBody
     public TransactionInfoViewModel transactionInfo(@RequestParam("traceId") String traceIdParam,
-                                        @RequestParam(value = "focusTimestamp", required = false, defaultValue = "0") long focusTimestamp,
-                                        @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
-        logger.debug("traceId:{}", traceIdParam);
+                                                    @RequestParam(value = "focusTimestamp", required = false, defaultValue = "0") long focusTimestamp,
+                                                    @RequestParam(value = "agentId", required = false) String agentId,
+                                                    @RequestParam(value = "spanId", required = false, defaultValue = "-1") long spanId,
+                                                    @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
+        logger.debug("GET /transactionInfo params {traceId={}, focusTimestamp={}, agentId={}, spanId={}, v={}}", traceIdParam, focusTimestamp, agentId, spanId, viewVersion);
 
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceIdParam);
 
@@ -99,7 +100,7 @@ public class BusinessTransactionController {
 
         // application map
         ApplicationMap map = filteredMapService.selectApplicationMap(transactionId);
-        RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp);
+        RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp, agentId, spanId);
 
         TransactionInfoViewModel result = new TransactionInfoViewModel(transactionId, map.getNodes(), map.getLinks(), recordSet, spanResult.getCompleteTypeString(), logLinkEnable, logButtonName, logPageUrl, disableButtonMessage);
         return result;
@@ -109,8 +110,20 @@ public class BusinessTransactionController {
     @ResponseBody
     public String sqlBind(@RequestParam("sql") String sql,
                           @RequestParam("bind") String bind) {
-        logger.debug("sql={}, bind={}", sql, bind);
+        if (logger.isDebugEnabled()) {
+            logger.debug("GET /sqlBind params {sql={}, bind={}}", sql, bind);
+        }
+
+        if (sql == null) {
+            return "";
+        }
+
         final List<String> bindValues = parameterParser.parseOutputParameter(bind);
-        return sqlParser.combineBindValues(sql, bindValues);
+        final String combineSql = sqlParser.combineBindValues(sql, bindValues);
+        if(logger.isDebugEnabled()) {
+            logger.debug("Combine SQL. sql={}", combineSql);
+        }
+
+        return StringEscapeUtils.escapeHtml4(combineSql);
     }
 }

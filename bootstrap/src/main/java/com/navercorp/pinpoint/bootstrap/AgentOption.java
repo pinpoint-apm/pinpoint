@@ -29,9 +29,11 @@ import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
  */
 public interface AgentOption {
 
-    String getAgentArgs();
-
     Instrumentation getInstrumentation();
+
+    String getAgentId();
+
+    String getApplicationName();
 
     ProfilerConfig getProfilerConfig();
 

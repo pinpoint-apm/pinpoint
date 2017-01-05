@@ -23,6 +23,7 @@ import java.util.Map;
  * @author Woonduk Kang(emeroad)
  */
 public interface ProfilerConfig {
+
     int getInterceptorRegistrySize();
 
     String getCollectorSpanServerIp();
@@ -50,6 +51,14 @@ public interface ProfilerConfig {
     int getSpanDataSenderSocketSendBufferSize();
 
     boolean isTcpDataSenderCommandAcceptEnable();
+
+    boolean isTcpDataSenderCommandActiveThreadEnable();
+
+    boolean isTcpDataSenderCommandActiveThreadCountEnable();
+
+    boolean isTcpDataSenderCommandActiveThreadDumpEnable();
+
+    boolean isTcpDataSenderCommandActiveThreadLightDumpEnable();
 
     boolean isTraceAgentActiveThread();
 
@@ -85,17 +94,6 @@ public interface ProfilerConfig {
 
     long getAgentInfoSendRetryInterval();
 
-    boolean isTomcatHidePinpointHeader();
-
-    boolean isTomcatTraceRequestParam();
-
-    Filter<String> getTomcatExcludeUrlFilter();
-
-    String getTomcatRealIpHeader();
-
-    String getTomcatRealIpEmptyValue();
-
-    Filter<String> getTomcatExcludeProfileMethodFilter();
 
     Filter<String> getProfilableClassFilter();
 
@@ -124,18 +122,5 @@ public interface ProfilerConfig {
     boolean readBoolean(String propertyName, boolean defaultValue);
 
     Map<String, String> readPattern(String propertyNamePatternRegex);
-    
-    boolean isJbossTraceEjb();
 
-    String getJbossRealIpHeader();
-
-    String getJbossRealIpEmptyValue();
-
-    boolean isJbossTraceRequestParam();
-
-    Filter<String> getJbossExcludeProfileMethodFilter();
-
-    boolean isJbossHidePinpointHeader();
-
-    Filter<String> getJbossExcludeUrlFilter();
 }

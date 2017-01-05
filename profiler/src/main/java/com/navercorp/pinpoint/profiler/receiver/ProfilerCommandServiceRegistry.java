@@ -16,10 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.receiver;
 
+import com.navercorp.pinpoint.thrift.io.TCommandType;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -84,7 +88,7 @@ public class ProfilerCommandServiceRegistry implements ProfilerCommandServiceLoc
         }
 
         final ProfilerCommandService service = profilerCommandServiceRepository.get(tBase.getClass());
-        if (service != null && (service instanceof ProfilerSimpleCommandService)) {
+        if (service instanceof ProfilerSimpleCommandService) {
             return (ProfilerSimpleCommandService) service;
         }
 
@@ -98,7 +102,7 @@ public class ProfilerCommandServiceRegistry implements ProfilerCommandServiceLoc
         }
 
         final ProfilerCommandService service = profilerCommandServiceRepository.get(tBase.getClass());
-        if (service != null && (service instanceof ProfilerRequestCommandService)) {
+        if (service instanceof ProfilerRequestCommandService) {
             return (ProfilerRequestCommandService) service;
         }
 
@@ -112,11 +116,38 @@ public class ProfilerCommandServiceRegistry implements ProfilerCommandServiceLoc
         }
 
         final ProfilerCommandService service = profilerCommandServiceRepository.get(tBase.getClass());
-        if (service != null && (service instanceof ProfilerStreamCommandService)) {
+        if (service instanceof ProfilerStreamCommandService) {
             return (ProfilerStreamCommandService) service;
         }
 
         return null;
+    }
+
+    @Override
+    public List<Class<? extends TBase>> getCommandServiceClasses() {
+        List<Class<? extends TBase>> commandServiceClasses = new ArrayList<Class<? extends TBase>>(profilerCommandServiceRepository.size());
+
+        Enumeration<Class<? extends TBase>> classes = profilerCommandServiceRepository.keys();
+        while (classes.hasMoreElements()) {
+            commandServiceClasses.add(classes.nextElement());
+        }
+
+        return commandServiceClasses;
+    }
+
+    @Override
+    public List<Short> getCommandServiceCodes() {
+        List<Short> commandServiceCodes = new ArrayList<Short>(profilerCommandServiceRepository.size());
+
+        Enumeration<Class<? extends TBase>> classes = profilerCommandServiceRepository.keys();
+        while (classes.hasMoreElements()) {
+            TCommandType commandType = TCommandType.getType(classes.nextElement());
+            if (commandType != null) {
+                commandServiceCodes.add(commandType.getCode());
+            }
+        }
+
+        return commandServiceCodes;
     }
 
 }

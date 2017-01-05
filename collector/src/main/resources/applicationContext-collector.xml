@@ -27,6 +27,7 @@
 
     <bean id="propertyConfigurer"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
         <property name="locations">
             <list>
                 <value>classpath:hbase.properties</value>
@@ -97,11 +98,9 @@
 
     <!-- Serializer Factory Beans -->
     <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory">
-        <constructor-arg value="#{T(com.navercorp.pinpoint.common.Version).VERSION}" />
     </bean>
 
     <bean id="commandHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory">
-        <constructor-arg value="#{T(com.navercorp.pinpoint.common.Version).VERSION}" />
     </bean>
 
     <!-- Agent Event/Lifecycle related Beans -->
@@ -149,7 +148,7 @@
             </list>
         </constructor-arg>
     </bean>
-    
+
     <bean id="streamResponseFilterChain" class="com.navercorp.pinpoint.collector.cluster.route.DefaultRouteFilterChain">
         <constructor-arg>
             <list value-type="com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter">
@@ -260,7 +259,7 @@
         <constructor-arg index="5" ref="udpStatWorkerOption"/>
     </bean>
     
-    <bean id="jsonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper">
+    <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
     </bean>
 
     <bean id="hTable" class="com.navercorp.pinpoint.common.hbase.HBaseTables">

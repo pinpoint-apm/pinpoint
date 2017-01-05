@@ -15,10 +15,10 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,12 +35,14 @@ public final class ASMClassWriter extends ClassWriter {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final InstrumentContext pluginContext;
     private ClassLoader classLoader;
     private String className;
     private String superClassName;
 
-    public ASMClassWriter(final String className, final String superClassName, final int flags, final ClassLoader classLoader) {
+    public ASMClassWriter(final InstrumentContext pluginContext, final String className, final String superClassName, final int flags, final ClassLoader classLoader) {
         super(flags);
+        this.pluginContext = pluginContext;
         this.className = className;
         this.superClassName = superClassName;
         this.classLoader = classLoader;
@@ -198,20 +200,9 @@ public final class ASMClassWriter extends ClassWriter {
     }
 
     private ClassReader getClassReader(final String className) {
-        ClassLoader aClassLoader = classLoader;
-        if (aClassLoader == null) {
-            // bootstrap class loader.
-            aClassLoader = ClassLoader.getSystemClassLoader();
-        }
-
-        if (aClassLoader == null) {
-            // not initialized system classloader.
-            return null;
-        }
-
         InputStream in = null;
         try {
-            in = aClassLoader.getResourceAsStream(className + ".class");
+            in = pluginContext.getResourceAsStream(this.classLoader, className + ".class");
             if (in != null) {
                 return new ClassReader(in);
             }

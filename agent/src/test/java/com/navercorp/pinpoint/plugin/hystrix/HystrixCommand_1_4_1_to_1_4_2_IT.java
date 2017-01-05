@@ -17,68 +17,63 @@
 package com.navercorp.pinpoint.plugin.hystrix;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
-import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.plugin.hystrix.commands.SayHelloCommand;
+import com.navercorp.pinpoint.plugin.hystrix.commands.ThrowExceptionCommand;
+import com.navercorp.pinpoint.plugin.hystrix.commands.ThrowExceptionCommandWithFallback;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import com.netflix.hystrix.Hystrix;
 import com.netflix.hystrix.HystrixCommand;
-import junit.framework.Assert;
-import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import rx.Subscriber;
 
 import java.lang.reflect.Method;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 
 /**
- * Java 6 was dropped for Hystrix 1.4.1 and 1.4.2 - https://github.com/Netflix/Hystrix/issues/702
- *
+ * Integration test for hystrix-core 1.4.1 - 1.4.2 traces the following :
+ * <p>
+ * <tt>HystrixCommand.queue()</tt><br/>
+ * <tt>HystrixCommand$1.call(Subscriber<? super R>)</tt> - Anonymous inner class that invokes run()<br/>
+ * <tt>HystrixCommand$2.call(Subscriber<? super R>)</tt> - Anonymous inner class that invokes getFallback()<br/>
+ * <p>
+ * The cause of fallback is not traced as AbstractCommand.getExecutionException() method is missing.
+ * <p>
+ * Same as {@link HystrixCommand_1_4_3_to_1_5_2_IT} but separated as Java 6 was dropped for
+ * Hystrix 1.4.1 and 1.4.2 - https://github.com/Netflix/Hystrix/issues/702
+ * <p>
  * Created by jack on 4/22/16.
  */
 @RunWith(PinpointPluginTestSuite.class)
 @JvmVersion(7)
-@Dependency({"com.netflix.hystrix:hystrix-core:[1.4.1,1.4.2]","com.netflix.hystrix:hystrix-metrics-event-stream:1.1.2"})
-public class HystrixCommand_1_4_1_to_1_4_2_IT {
-    private static final ExpectedAnnotation expectedAnnotation = annotation("hystrix.subclass", "SayHelloCommand");
+@Dependency({"com.netflix.hystrix:hystrix-core:[1.4.1,1.4.2]", "com.netflix.hystrix:hystrix-metrics-event-stream:1.1.2"})
+public class HystrixCommand_1_4_1_to_1_4_2_IT extends HystrixCommandITBase {
 
-    @After
-    public void teardown() {
-        Hystrix.reset(60, TimeUnit.SECONDS);
-    }
+    private static final String EXECUTION_OBSERVABLE_INNER_CLASS = "com.netflix.hystrix.HystrixCommand$1";
+    private static final String FALLBACK_OBSERVABLE_INNER_CLASS = "com.netflix.hystrix.HystrixCommand$2";
 
     @Test
     public void testSyncCall() throws Exception {
         String name = "Pinpoint";
-
-        SayHelloCommand cmd = new SayHelloCommand(name);
-        String result = cmd.execute();
-
-        Assert.assertEquals("Hello Pinpoint!", result);
-
-        /* when get the result from HystrixCommand, the com.netflix.hystrix.HystrixCommand$1.call()
-         * intercepted may not done yet, so wait 2 sec for the spanEvent to be collected.
-         * More info ref to HystrixObservableCallInterceptor.
-         */
-        try {Thread.sleep(1000*2);} catch (InterruptedException e) {e.printStackTrace();}
+        executeSayHelloCommand(name);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
 
-        Method queue    = HystrixCommand.class.getMethod("queue");
-        Class<?> inner=Class.forName("com.netflix.hystrix.HystrixCommand$1");
-        Class<?> rx=Class.forName("rx.Subscriber");
-        Method callCmd = inner.getDeclaredMethod("call", rx);
+        Method queue = HystrixCommand.class.getMethod("queue");
+        Class<?> executionObservableClazz = Class.forName(EXECUTION_OBSERVABLE_INNER_CLASS);
+        Method executioObservableCallCmd = executionObservableClazz.getDeclaredMethod("call", Subscriber.class);
 
         verifier.verifyTrace(Expectations.async(
-                Expectations.event("HYSTRIX_COMMAND", queue),
+                Expectations.event("HYSTRIX_COMMAND", queue, annotation("hystrix.command", SayHelloCommand.class.getSimpleName())),
                 Expectations.event("ASYNC", "Asynchronous Invocation"),
-                Expectations.event("HYSTRIX_COMMAND", callCmd, expectedAnnotation)));
+                Expectations.event("HYSTRIX_COMMAND_INTERNAL", executioObservableCallCmd,
+                        annotation("hystrix.command.execution", "run"))
+        ));
 
         // no more traces
         verifier.verifyTraceCount(0);
@@ -87,31 +82,91 @@ public class HystrixCommand_1_4_1_to_1_4_2_IT {
     @Test
     public void testAsyncCall() throws Exception {
         String name = "Pinpoint";
-
-        SayHelloCommand cmd = new SayHelloCommand(name);
-        Future<String> future = cmd.queue();
-        String result = future.get(6000, TimeUnit.MILLISECONDS);
-
-        Assert.assertEquals("Hello Pinpoint!", result);
-
-        // see comments above in testSyncCall()
-        try {Thread.sleep(1000*2);} catch (InterruptedException e) {e.printStackTrace();}
+        queueAndGetSayHelloCommand(name);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
 
-        Method queue    = HystrixCommand.class.getMethod("queue");
-        Class<?> inner=Class.forName("com.netflix.hystrix.HystrixCommand$1");
-        Class<?> rx=Class.forName("rx.Subscriber");
-        Method callCmd = inner.getDeclaredMethod("call", rx);
+        Method queue = HystrixCommand.class.getMethod("queue");
+        Class<?> executionObservableClazz = Class.forName(EXECUTION_OBSERVABLE_INNER_CLASS);
+        Method executionObservableCallCmd = executionObservableClazz.getDeclaredMethod("call", Subscriber.class);
 
         verifier.verifyTrace(Expectations.async(
-                Expectations.event("HYSTRIX_COMMAND", queue),
+                Expectations.event("HYSTRIX_COMMAND", queue, annotation("hystrix.command", SayHelloCommand.class.getSimpleName())),
                 Expectations.event("ASYNC", "Asynchronous Invocation"),
-                Expectations.event("HYSTRIX_COMMAND", callCmd, expectedAnnotation)
+                Expectations.event("HYSTRIX_COMMAND_INTERNAL", executionObservableCallCmd,
+                        annotation("hystrix.command.execution", "run"))
         ));
 
         // no more traces
         verifier.verifyTraceCount(0);
+    }
+
+    @Test
+    public void testExecutionException() throws Exception {
+        Exception expectedException = new RuntimeException("expected");
+        executeThrowExceptionCommand(expectedException);
+
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printCache();
+
+        Method queue = HystrixCommand.class.getMethod("queue");
+        Class<?> executionObservableClazz = Class.forName(EXECUTION_OBSERVABLE_INNER_CLASS);
+        Method executionObservableCallCmd = executionObservableClazz.getDeclaredMethod("call", Subscriber.class);
+        Class<?> fallbackObservableClazz = Class.forName(FALLBACK_OBSERVABLE_INNER_CLASS);
+        Method fallbackObservableCallCmd = fallbackObservableClazz.getDeclaredMethod("call", Subscriber.class);
+
+        verifier.verifyTrace(Expectations.async(
+                Expectations.event("HYSTRIX_COMMAND", queue, annotation("hystrix.command", ThrowExceptionCommand.class.getSimpleName())),
+                Expectations.event("ASYNC", "Asynchronous Invocation"),
+                Expectations.event("HYSTRIX_COMMAND_INTERNAL", executionObservableCallCmd,
+                        annotation("hystrix.command.execution", "run")),
+                Expectations.event("HYSTRIX_COMMAND_INTERNAL", fallbackObservableCallCmd,
+                        annotation("hystrix.command.execution", "fallback"))
+        ));
+
+        // no more traces
+        verifier.verifyTraceCount(0);
+    }
+
+    @Test
+    public void testExecutionExceptionWithFallback() throws Exception {
+        Exception expectedException = new RuntimeException("expected");
+        String fallbackMessage = "Fallback";
+        executeThrowExceptionWithFallbackCommand(expectedException, fallbackMessage);
+
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printCache();
+
+        Method queue = HystrixCommand.class.getMethod("queue");
+        Class<?> executionObservableClazz = Class.forName(EXECUTION_OBSERVABLE_INNER_CLASS);
+        Method executionObservableCallCmd = executionObservableClazz.getDeclaredMethod("call", Subscriber.class);
+        Class<?> fallbackObservableClazz = Class.forName(FALLBACK_OBSERVABLE_INNER_CLASS);
+        Method fallbackObservableCallCmd = fallbackObservableClazz.getDeclaredMethod("call", Subscriber.class);
+
+        verifier.verifyTrace(Expectations.async(
+                Expectations.event("HYSTRIX_COMMAND", queue, annotation("hystrix.command", ThrowExceptionCommandWithFallback.class.getSimpleName())),
+                Expectations.event("ASYNC", "Asynchronous Invocation"),
+                Expectations.event("HYSTRIX_COMMAND_INTERNAL", executionObservableCallCmd,
+                        annotation("hystrix.command.execution", "run")),
+                Expectations.event("HYSTRIX_COMMAND_INTERNAL", fallbackObservableCallCmd,
+                        annotation("hystrix.command.execution", "fallback"))
+        ));
+
+        // no more traces
+        verifier.verifyTraceCount(0);
+    }
+
+    @Test
+    public void testTraceContinuation() throws Exception {
+        String name = "Pinpoint";
+        executeInvokeSayHelloCommand(name);
+
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printCache();
+
+        // If the trace is propagated properly to a HystrixCommand's run() method, there should be 6 total traces.
+        // 3 for InvokeSayHelloCommand, 3 for SayHelloCommand.
+        verifier.verifyTraceCount(6);
     }
 }

@@ -18,15 +18,11 @@ package com.navercorp.pinpoint.web.dao.hbase.stat.v1;
 
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDetailedDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV1;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.apache.thrift.TException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author HyunGil Jeong

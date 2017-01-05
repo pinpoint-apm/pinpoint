@@ -103,7 +103,7 @@ public final class LinkKey {
     @Override
     public int hashCode() {
         final int hash = this.hash;
-        if (hash == 0) {
+        if (hash != 0) {
             return hash;
         }
         int result = fromApplication.hashCode();
@@ -116,11 +116,13 @@ public final class LinkKey {
 
     @Override
     public String toString() {
-        return "LinkKey{" +
-                "fromApplication='" + fromApplication + '\'' +
-                ", fromServiceType=" + fromServiceType +
-                ", toApplication='" + toApplication + '\'' +
-                ", toServiceType=" + toServiceType +
-                '}';
+        final StringBuilder sb = new StringBuilder("LinkKey{");
+        sb.append("fromApplication='").append(fromApplication).append('\'');
+        sb.append(", fromServiceType=").append(fromServiceType);
+        sb.append(", toApplication='").append(toApplication).append('\'');
+        sb.append(", toServiceType=").append(toServiceType);
+        sb.append(", hash=").append(hash);
+        sb.append('}');
+        return sb.toString();
     }
 }

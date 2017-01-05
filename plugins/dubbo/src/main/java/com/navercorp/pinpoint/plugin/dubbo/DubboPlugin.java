@@ -6,6 +6,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
@@ -16,11 +18,19 @@ import java.security.ProtectionDomain;
  */
 public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
 
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
     private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        this.addApplicationTypeDetector(context);
+        DubboConfiguration config = new DubboConfiguration(context.getConfig());
+        if (!config.isDubboEnabled()) {
+            logger.info("DubboPlugin disabled");
+            return;
+        }
+
+        this.addApplicationTypeDetector(context, config);
         this.addTransformers();
     }
 
@@ -50,8 +60,8 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
     /**
      * Pinpoint profiler agent uses this detector to find out the service type of current application.
      */
-    private void addApplicationTypeDetector(ProfilerPluginSetupContext context) {
-        context.addApplicationTypeDetector(new DubboProviderDetector());
+    private void addApplicationTypeDetector(ProfilerPluginSetupContext context, DubboConfiguration config) {
+        context.addApplicationTypeDetector(new DubboProviderDetector(config.getDubboBootstrapMains()));
     }
 
     @Override

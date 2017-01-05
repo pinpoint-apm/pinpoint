@@ -411,6 +411,9 @@
 	};
 	BigScatterChart2.prototype._drawWithDataSource = function() {
 		var self = this;
+		if ( typeof this._oDataLoadManager === "undefined" ) {
+			return;
+		}
 		if (this._bPause || this._bRequesting || this._oDataLoadManager.isCompleted() ) {
 			return;
 		}
@@ -485,7 +488,9 @@
 	};
 	BigScatterChart2.prototype.abort = function() {
 		this._bPause = true;
-		this._oDataLoadManager.abort();
+		if ( this._oDataLoadManager ) {
+			this._oDataLoadManager.abort();
+		}
 	};
 	BigScatterChart2.prototype.pause = function() {
 		this._bPause = true;

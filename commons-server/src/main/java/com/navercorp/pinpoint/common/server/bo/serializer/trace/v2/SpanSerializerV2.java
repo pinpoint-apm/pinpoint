@@ -29,7 +29,7 @@ public class SpanSerializerV2 implements HbaseSerializer<SpanBo, Put> {
     @Override
     public void serialize(SpanBo spanBo, Put put, SerializationContext context) {
 
-        final SpanEncodingContext<SpanBo> encodingContext = new SpanEncodingContext<>(spanBo);
+        final SpanEncodingContext<SpanBo> encodingContext = new SpanEncodingContext<SpanBo>(spanBo);
 
         ByteBuffer qualifier = spanEncoder.encodeSpanQualifier(encodingContext);
         ByteBuffer columnValue = spanEncoder.encodeSpanColumnValue(encodingContext);

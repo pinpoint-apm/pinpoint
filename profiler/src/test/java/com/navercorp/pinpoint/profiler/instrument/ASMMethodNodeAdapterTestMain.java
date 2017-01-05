@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.profiler.instrument.mock.ArgsArrayInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
@@ -32,8 +33,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
-import static org.junit.Assert.fail;
 
 public class ASMMethodNodeAdapterTestMain {
     private final static InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
@@ -88,14 +87,13 @@ public class ASMMethodNodeAdapterTestMain {
         final boolean trace = false;
         final boolean verify = false;
 
-        final String classInternalName = className.replace('/', '.');
+        final String classInternalName = JavaAssistUtils.jvmNameToJavaName(className);
         ClassLoader classLoader = new ClassLoader() {
             @Override
             public Class<?> loadClass(String name) throws ClassNotFoundException {
-                System.out.println("## load=" + name + ", internal=" + classInternalName);
                 if (!name.startsWith("java") && !name.startsWith("sun") && super.findLoadedClass(name) == null) {
                     try {
-                        ClassNode classNode = ASMClassNodeLoader.get(name.replace('.', '/'));
+                        ClassNode classNode = ASMClassNodeLoader.get(JavaAssistUtils.javaNameToJvmName(name));
                         ASMClass asmClass = new ASMClass(null, interceptorRegistryBinder, null, classNode);
                         if (asmClass.isInterceptable()) {
                             for (InstrumentMethod method : asmClass.getDeclaredMethods()) {
@@ -108,7 +106,6 @@ public class ASMMethodNodeAdapterTestMain {
                         }
 
                         byte[] bytes = asmClass.toBytecode();
-                        System.out.println("bytes=" + bytes + ", " + bytes.length);
                         if (trace) {
                             ClassReader classReader = new ClassReader(bytes);
                             ClassWriter cw = new ClassWriter(0);
@@ -119,7 +116,6 @@ public class ASMMethodNodeAdapterTestMain {
                             CheckClassAdapter.verify(new ClassReader(bytes), false, new PrintWriter(System.out));
                         }
 
-                        System.out.println("define");
                         return super.defineClass(name, bytes, 0, bytes.length);
                     } catch (Throwable ex) {
                         ex.printStackTrace();

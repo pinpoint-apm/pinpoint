@@ -164,9 +164,9 @@ public class SpanDecoderV0 implements SpanDecoder {
     private List<SpanEventBo> readSpanEvent(Buffer buffer, SpanEventBo firstSpanEvent, SpanDecodingContext decodingContext) {
         final int spanEventSize = buffer.readVInt();
         if (spanEventSize <= 0) {
-            return new ArrayList<>();
+            return new ArrayList<SpanEventBo>();
         }
-        final List<SpanEventBo> spanEventBoList = new ArrayList<>();
+        final List<SpanEventBo> spanEventBoList = new ArrayList<SpanEventBo>();
         SpanEventBo prev = null;
         for (int i = 0; i < spanEventSize; i++) {
             SpanEventBo spanEvent;
@@ -329,7 +329,7 @@ public class SpanDecoderV0 implements SpanDecoder {
 
     private List<AnnotationBo> readAnnotationList(Buffer buffer, SpanDecodingContext decodingContext) {
         int annotationListSize = buffer.readVInt();
-        List<AnnotationBo> annotationBoList = new ArrayList<>(annotationListSize);
+        List<AnnotationBo> annotationBoList = new ArrayList<AnnotationBo>(annotationListSize);
 
 //        AnnotationBo prev = decodingContext.getPrevFirstAnnotationBo();
         AnnotationBo prev = null;

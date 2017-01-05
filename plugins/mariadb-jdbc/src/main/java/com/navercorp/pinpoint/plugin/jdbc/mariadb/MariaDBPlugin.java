@@ -185,6 +185,8 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
         };
 
         transformTemplate.transform("org.mariadb.jdbc.AbstractMariaDbPrepareStatement", transformer);
+        // Class renamed in 1.5.6 - https://github.com/MariaDB/mariadb-connector-j/commit/16c8313960cf4fbc6b2b83136504d1ba9e662919
+        transformTemplate.transform("org.mariadb.jdbc.AbstractPrepareStatement", transformer);
 
     }
 

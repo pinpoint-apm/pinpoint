@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeader
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderDecoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.UnsignedLongEncodingStrategy;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.v1.strategy.StrategyAnalyzer;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedLongEncodingStrategy;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StrategyAnalyzer;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
@@ -47,7 +47,6 @@ public class CpuLoadCodecV1 implements AgentStatCodec<CpuLoadBo> {
 
     private final AgentStatDataPointCodec codec;
 
-
     @Autowired
     public CpuLoadCodecV1(AgentStatDataPointCodec codec) {
         Assert.notNull(codec, "agentStatDataPointCodec must not be null");
@@ -67,7 +66,7 @@ public class CpuLoadCodecV1 implements AgentStatCodec<CpuLoadBo> {
         final int numValues = cpuLoadBos.size();
         valueBuffer.putVInt(numValues);
 
-        List<Long> timestamps = new ArrayList<>(numValues);
+        List<Long> timestamps = new ArrayList<Long>(numValues);
         UnsignedLongEncodingStrategy.Analyzer.Builder jvmCpuLoadAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         UnsignedLongEncodingStrategy.Analyzer.Builder systemCpuLoadAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         for (CpuLoadBo cpuLoadBo : cpuLoadBos) {
@@ -113,7 +112,7 @@ public class CpuLoadCodecV1 implements AgentStatCodec<CpuLoadBo> {
         List<Long> jvmCpuLoads = this.codec.decodeValues(valueBuffer, jvmCpuLoadEncodingStrategy, numValues);
         List<Long> systemCpuLoads = this.codec.decodeValues(valueBuffer, systemCpuLoadEncodingStrategy, numValues);
 
-        List<CpuLoadBo> cpuLoadBos = new ArrayList<>(numValues);
+        List<CpuLoadBo> cpuLoadBos = new ArrayList<CpuLoadBo>(numValues);
         for (int i = 0; i < numValues; ++i) {
             CpuLoadBo cpuLoadBo = new CpuLoadBo();
             cpuLoadBo.setAgentId(agentId);

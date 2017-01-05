@@ -52,7 +52,7 @@ public class CpuLoadMetricSetSelector {
             vmType = JvmUtils.getType();
         }
         JvmVersion vmVersion = JvmUtils.getVersion();
-        if (vmType == JvmType.ORACLE) {
+        if (vmType == JvmType.ORACLE || vmType == JvmType.OPENJDK) {
             if (vmVersion.onOrAfter(JvmVersion.JAVA_7)) {
                 classToLoad = ORACLE_CPU_LOAD_METRIC_SET_FQCN;
             } else if (vmVersion.onOrAfter(JvmVersion.JAVA_5)) {

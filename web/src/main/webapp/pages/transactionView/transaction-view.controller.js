@@ -35,7 +35,7 @@
 	            if ($routeParams.agentId && $routeParams.traceId && $routeParams.focusTimestamp) {
 	                oProgressBarService.startLoading();
 	                oProgressBarService.setLoading(30);
-	                TransactionDaoService.getTransactionDetail($routeParams.traceId, $routeParams.focusTimestamp, function (err, result) {
+	                TransactionDaoService.getTransactionDetail($routeParams.agentId, $routeParams.spanId, $routeParams.traceId, $routeParams.focusTimestamp, function (err, result) {
 	                    if (err || result.exception ) {
                             oProgressBarService.stopLoading();
                             if ( err ) {
