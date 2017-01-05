@@ -52,7 +52,7 @@
 	});
 	
 	pinpointApp.controller( "RealtimeChartCtrl", [ "RealtimeChartCtrlConfig", "$scope", "$element", "$rootScope", "$compile", "$timeout", "$window", "$http",  "globalConfig", "UrlVoService", "RealtimeWebsocketService", "AnalyticsService", "TooltipService",
-	    function (cfg, $scope, $element, $rootScope, $compile, $timeout, $window, $http, globalConfig, UrlVoService, webSocketService, analyticsService, tooltipService) {
+	    function (cfg, $scope, $element, $rootScope, $compile, $timeout, $window, $http, globalConfig, UrlVoService, webSocketService, AnalyticsService, tooltipService) {
 	    	$element = $($element);
 			//@TODO will move to preference-service 
 	    	var TIMEOUT_MAX_COUNT = 10;
@@ -405,11 +405,11 @@
 	        };
 	        $scope.pin = function() {
 	        	bIsPinned = !bIsPinned;
-				analyticsService.send( analyticsService.CONST.MAIN, bIsPinned ? analyticsService.CONST.CLK_REALTIME_CHART_PIN_ON : analyticsService.CONST.CLK_REALTIME_CHART_PIN_OFF );
+				AnalyticsService.send( AnalyticsService.CONST.MAIN, bIsPinned ? AnalyticsService.CONST.CLK_REALTIME_CHART_PIN_ON : AnalyticsService.CONST.CLK_REALTIME_CHART_PIN_OFF );
 	        	setPinColor();
 	        };
 	        $scope.resizePopup = function($event) {
-	        	analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.TG_REALTIME_CHART_RESIZE );
+	        	AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.TG_REALTIME_CHART_RESIZE );
 	        	var $elBtn = $($event.target);
 	        	if ( bIsFullWindow ) {
 	        		popupHeight = cfg.css.height;
@@ -437,6 +437,7 @@
 				}
 				var agentId = $target.hasClass("agent-chart" ) ? $target.find( "> div" ).html() : $target.parent(".agent-chart").find("> div").html();
 				$rootScope.$broadcast( "thread-dump-info-layer.open", currentApplicationName, agentId );
+				AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_OPEN_THREAD_DUMP_LAYER );
 			};
 			function hideSub() {
 				$rootScope.$broadcast( "thread-dump-info-layer.close" );
