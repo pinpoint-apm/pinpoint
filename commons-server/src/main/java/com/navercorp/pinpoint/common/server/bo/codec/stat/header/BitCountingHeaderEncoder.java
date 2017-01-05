@@ -34,7 +34,9 @@ import java.util.BitSet;
  */
 public class BitCountingHeaderEncoder implements AgentStatHeaderEncoder {
 
-    private BitSet headerBitSet = new BitSet();
+    private static final int NUM_BITS_PER_BYTE = 8;
+
+    private final BitSet headerBitSet = new BitSet();
     private int position = 0;
 
     @Override
@@ -50,6 +52,19 @@ public class BitCountingHeaderEncoder implements AgentStatHeaderEncoder {
 
     @Override
     public byte[] getHeader() {
-        return this.headerBitSet.toByteArray();
+        if (position == 0) {
+            return new byte[0];
+        }
+        // strictly follows JDK 7's BitSet.toByteArray()
+        int len = (headerBitSet.length() + (NUM_BITS_PER_BYTE - 1)) / NUM_BITS_PER_BYTE;
+        byte[] header = new byte[len];
+        for (int i = 0; i < len * NUM_BITS_PER_BYTE; ++i) {
+            int index = i / NUM_BITS_PER_BYTE;
+            int bitMask = (headerBitSet.get(i) ? 1 : 0) << (i % NUM_BITS_PER_BYTE);
+            header[index] |= bitMask;
+        }
+        return header;
+        // use below when using JDK 7+
+//        return this.headerBitSet.toByteArray();
     }
 }
