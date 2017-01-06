@@ -47,6 +47,7 @@
         <module>cxf</module>
         <module>hystrix</module>
         <module>jboss</module>
+        <module>resin</module>
     </modules>
 
     <dependencies>
@@ -223,6 +224,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-jboss-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-resin-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
