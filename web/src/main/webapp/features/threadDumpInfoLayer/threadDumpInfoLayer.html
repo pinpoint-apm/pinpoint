@@ -9,9 +9,9 @@
 						<th ng-click="changeSortType('threadId')">id</th>
 						<th ng-click="changeSortType('threadName')">name</th>
 						<th ng-click="changeSortType('threadState')">state</th>
-						<th>sampled</th>
 						<th ng-click="changeSortType('startTime')">start time</th>
 						<th ng-click="changeSortType('execTime')">exec(ms)</th>
+						<th>sampled</th>
 						<th ng-click="changeSortType('entryPoint')">path</th>
 						<th ng-click="changeSortType('transactionId')">transaction id</th>
 						<th>&nbsp;</th>
@@ -27,9 +27,9 @@
 						<td>{{ oThread.threadId }}</td>
 						<td>{{ oThread.threadName }}</td>
 						<td>{{ oThread.threadState }}</td>
-						<td>{{ oThread.sampled }}</td>
 						<td>{{ formatDate( oThread.startTime ) }}</td>
 						<td>{{ oThread.execTime }}</td>
+						<td>{{ oThread.sampled }}</td>
 						<td>{{ oThread.entryPoint }}</td>
 						<td>{{ oThread.transactionId }}</td>
 						<td><button class="btn btn-xs btn-default"><span class="glyphicon glyphicon-search"></span></button></td>
