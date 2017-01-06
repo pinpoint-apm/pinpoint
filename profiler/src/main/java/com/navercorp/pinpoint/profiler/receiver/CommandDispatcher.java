@@ -31,7 +31,7 @@ import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * @author Taejin Koo
@@ -40,9 +40,14 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ProfilerCommandServiceRegistry commandServiceRegistry = new ProfilerCommandServiceRegistry();
+    private final ProfilerCommandServiceLocator commandServiceLocator;
 
-    public CommandDispatcher() {
+    public CommandDispatcher(ProfilerCommandServiceLocator commandServiceLocator) {
+        if (commandServiceLocator == null) {
+            throw new NullPointerException("commandServiceLocator may not be null");
+        }
+
+        this.commandServiceLocator = commandServiceLocator;
     }
 
     @Override
@@ -64,7 +69,7 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
 
             response = tResult;
         } else {
-            final ProfilerRequestCommandService service = commandServiceRegistry.getRequestService(request);
+            final ProfilerRequestCommandService service = commandServiceLocator.getRequestService(request);
             if (service == null) {
                 TResult tResult = new TResult(false);
                 tResult.setMessage("Can't find suitable service(" + request + ").");
@@ -90,7 +95,7 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
             return StreamCode.TYPE_UNKNOWN;
         }
         
-        final ProfilerStreamCommandService service = commandServiceRegistry.getStreamService(request);
+        final ProfilerStreamCommandService service = commandServiceLocator.getStreamService(request);
         if (service == null) {
             return StreamCode.TYPE_UNSUPPORT;
         }
@@ -102,22 +107,8 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
     public void handleStreamClose(ServerStreamChannelContext streamChannelContext, StreamClosePacket packet) {
     }
 
-    public boolean registerCommandService(ProfilerCommandService commandService) {
-        if (commandService == null) {
-            throw new NullPointerException("commandService must not be null");
-        }
-        return this.commandServiceRegistry.addService(commandService);
-    }
-
-    public void registerCommandService(ProfilerCommandServiceGroup commandServiceGroup) {
-        if (commandServiceGroup == null) {
-            throw new NullPointerException("commandServiceGroup must not be null");
-        }
-        this.commandServiceRegistry.addService(commandServiceGroup);
-    }
-
-    public List<Short> getRegisteredCommandServiceCodes() {
-        return commandServiceRegistry.getCommandServiceCodes();
+    public Set<Short> getRegisteredCommandServiceCodes() {
+        return commandServiceLocator.getCommandServiceCodes();
     }
 
 }

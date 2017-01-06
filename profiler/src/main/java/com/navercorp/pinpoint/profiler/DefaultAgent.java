@@ -50,6 +50,7 @@ import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactor
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginLoader;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
+import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandLocatorBuilder;
 import com.navercorp.pinpoint.profiler.receiver.service.ActiveThreadService;
 import com.navercorp.pinpoint.profiler.receiver.service.EchoService;
 import com.navercorp.pinpoint.profiler.sampler.SamplerFactory;
@@ -262,17 +263,17 @@ public class DefaultAgent implements Agent {
     }
 
     private CommandDispatcher createCommandService(TraceContext traceContext) {
-        CommandDispatcher commandDispatcher = new CommandDispatcher();
-
-//        commandDispatcher.registerCommandService(new ThreadDumpService());
-        commandDispatcher.registerCommandService(new EchoService());
+        ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
+        builder.addService(new EchoService());
         if (traceContext instanceof DefaultTraceContext) {
             ActiveTraceLocator activeTraceLocator = ((DefaultTraceContext) traceContext).getActiveTraceLocator();
             if (activeTraceLocator != null) {
-                commandDispatcher.registerCommandService(new ActiveThreadService(activeTraceLocator, traceContext.getProfilerConfig()));
+                ActiveThreadService activeThreadService = new ActiveThreadService(activeTraceLocator, traceContext.getProfilerConfig());
+                builder.addService(activeThreadService);
             }
         }
 
+        CommandDispatcher commandDispatcher = new CommandDispatcher(builder.build());
         return commandDispatcher;
     }
     
