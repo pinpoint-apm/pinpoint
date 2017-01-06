@@ -329,15 +329,15 @@ canvas {outline:none}
     cursor: pointer;
 }
 #threadDump .thread-header tr th:nth-child(5) {
-    width: 5%;
+    width: 12%;
+    cursor: pointer;
 }
 #threadDump .thread-header tr th:nth-child(6) {
-    width: 12%;
+    width: 5%;
     cursor: pointer;
 }
 #threadDump .thread-header tr th:nth-child(7) {
     width: 5%;
-    cursor: pointer;
 }
 #threadDump .thread-header tr th:nth-child(8) {
     width: 18%;
@@ -380,10 +380,10 @@ canvas {outline:none}
     width: 12%;
 }
 #threadDump .thread-list tr td:nth-child(5) {
-    width: 5%;
+    width: 12%;
 }
 #threadDump .thread-list tr td:nth-child(6) {
-    width: 12%;
+    width: 5%;
 }
 #threadDump .thread-list tr td:nth-child(7) {
     width: 5%;

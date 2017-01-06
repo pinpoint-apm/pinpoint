@@ -133,18 +133,15 @@
 						});
 						oRefListAjax.ing = true;
 					}
-					function initLayerSizeNPosition( openType ) {
-						var docWidth = $window.document.body.clientWidth;
-						var docHeight = $window.document.body.clientHeight;
-						var paddingWidthPixel = parseInt(( cfg.PADDING_WIDTH * docWidth ) / 100);
-						var paddingHeightPixel = parseInt(( cfg.PADDING_HEIGHT * docHeight ) / 100);
-						var titleHeight = 78;
+					function initLayerSizeNPosition() {
+						var oBaseSize = getBaseSizeInfo();
+						var paddingWidthPixel = parseInt(( cfg.PADDING_WIDTH * oBaseSize.docWidth ) / 100);
+						var paddingHeightPixel = parseInt(( cfg.PADDING_HEIGHT * oBaseSize.docHeight ) / 100);
 
-						var layerWidth = docWidth - ( paddingWidthPixel * 2 );
-						var layerHeight = docHeight - ( paddingHeightPixel * 2 );
-						var layerHeightHalf = parseInt( (layerHeight - titleHeight) / 2 );
+						var layerWidth = oBaseSize.docWidth - ( paddingWidthPixel * 2 );
+						var layerHeight = oBaseSize.docHeight - ( paddingHeightPixel * 2 );
+						var layerHeightHalf = parseInt( (layerHeight - oBaseSize.titleHeight) / 2 );
 
-						// thead: 67
 						$el.css({
 							"top": paddingHeightPixel,
 							"left": paddingWidthPixel,
@@ -152,7 +149,7 @@
 							"height": layerHeight
 						});
 						$elListWrapper.css({
-							"height": layerHeightHalf - 67 - 30
+							"height": layerHeightHalf - oBaseSize.tableHeadHeight - oBaseSize.margin
 						});
 						$elEmpty.css({
 							"height": layerHeightHalf
@@ -167,20 +164,17 @@
 						resetSize();
 					}
 					function resetSize () {
-						var docHeight = $window.document.body.clientHeight;
-						var navHeight = 40;
-						var titleHeight = 78;
-						var layerHeightHalf = parseInt( (docHeight - titleHeight - navHeight) / 2 );
+						var oBaseSize = getBaseSizeInfo();
+						var layerHeightHalf = parseInt( (oBaseSize.docHeight - oBaseSize.titleHeight - oBaseSize.navHeight) / 2 );
 
-						// thead: 67
 						$el.css({
-							"top": navHeight + "px",
+							"top": oBaseSize.navHeight + "px",
 							"left": "0px",
 							"width": "100%",
 							"height": "100%"
 						});
 						$elListWrapper.css({
-							"height": layerHeightHalf - 67 - 30
+							"height": layerHeightHalf - oBaseSize.tableHeadHeight - oBaseSize.margin
 						});
 						$elEmpty.css({
 							"height": layerHeightHalf
@@ -188,6 +182,22 @@
 						$elDetailMessage.css({
 							"height": layerHeightHalf
 						});
+						$(window).on("resize", function() {
+							var oNewBase = getBaseSizeInfo();
+							$elListWrapper.css({
+								"height": oNewBase.docHeight - oNewBase.titleHeight - oNewBase.navHeight - layerHeightHalf - oNewBase.tableHeadHeight - oNewBase.margin
+							});
+						});
+					}
+					function getBaseSizeInfo() {
+						return {
+							docWidth: $window.document.body.clientWidth,
+							docHeight: $window.document.body.clientHeight,
+							navHeight: 40,
+							titleHeight: 78,
+							tableHeadHeight: 67,
+							margin: 30
+						};
 					}
 				}
 			};
