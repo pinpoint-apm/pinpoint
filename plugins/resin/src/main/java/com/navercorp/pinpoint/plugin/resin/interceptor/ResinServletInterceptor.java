@@ -64,6 +64,7 @@ public class ResinServletInterceptor implements AroundInterceptor {
         this.traceContext = traceContext;
         this.remoteAddressResolver = new Bypass<HttpServletRequest>();
         this.excludeUrlFilter = resinConfig.getResinExcludeUrlFilter();
+        traceContext.cacheApi(SERVLET_API_TAG);
     }
 
     public void before(Object target, Object[] args) {
