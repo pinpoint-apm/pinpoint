@@ -173,6 +173,7 @@ module.exports = function( grunt, options ) {
 				'/common/services/agent-ajax.service.js',
 				'/common/services/tooltip.service.js',
 				'/common/services/common-util.service.js',
+				'/common/services/local-storage-manager.service.js',
 
 				'/features/applicationList/application-list.directive.js',
 				'/features/periodSelector/period-selector.directive.js',
@@ -218,7 +219,8 @@ module.exports = function( grunt, options ) {
 				'/pages/transactionDetail/transaction-detail.controller.js',
 				'/pages/filteredMap/filtered-map.controller.js',
 				'/pages/transactionView/transaction-view.controller.js',
-				'/pages/scatterFullScreenMode/scatter-full-screen-mode.controller.js'
+				'/pages/scatterFullScreenMode/scatter-full-screen-mode.controller.js',
+				'/pages/threadDump/thread-dump.controller.js'
 
 			], options.RESOURCE_PATH.ROOT ),
 			dest: options.RESOURCE_PATH.DEST_JS + '/pinpoint.js'

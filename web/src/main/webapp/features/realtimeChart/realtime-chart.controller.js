@@ -51,8 +51,8 @@
 		}
 	});
 	
-	pinpointApp.controller( "RealtimeChartCtrl", [ "RealtimeChartCtrlConfig", "$scope", "$element", "$rootScope", "$compile", "$timeout", "$window", "$http",  "globalConfig", "UrlVoService", "RealtimeWebsocketService", "AnalyticsService", "TooltipService",
-	    function (cfg, $scope, $element, $rootScope, $compile, $timeout, $window, $http, globalConfig, UrlVoService, webSocketService, AnalyticsService, tooltipService) {
+	pinpointApp.controller( "RealtimeChartCtrl", [ "RealtimeChartCtrlConfig", "$scope", "$element", "$location", "$rootScope", "$compile", "$timeout", "$window", "$http",  "globalConfig", "LocalStorageManagerService", "UrlVoService", "RealtimeWebsocketService", "AnalyticsService", "TooltipService",
+	    function (cfg, $scope, $element, $location, $rootScope, $compile, $timeout, $window, $http, globalConfig, LocalStorageManagerService, UrlVoService, webSocketService, AnalyticsService, tooltipService) {
 	    	$element = $($element);
 			//@TODO will move to preference-service 
 	    	var TIMEOUT_MAX_COUNT = 10;
@@ -436,9 +436,24 @@
 					return;
 				}
 				var agentId = $target.hasClass("agent-chart" ) ? $target.find( "> div" ).html() : $target.parent(".agent-chart").find("> div").html();
-				$rootScope.$broadcast( "thread-dump-info-layer.open", currentApplicationName, agentId );
+				var openType = LocalStorageManagerService.getThreadDumpLayerOpenType();
+				if ( openType === null || openType === "window" ) {
+					$window.open(
+						getOpenUrl() +
+						"/threadDump/" + currentApplicationName + "/" + agentId,
+						"Thread Dump Info",
+						"width=1280px,height=800px,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=no,status=no"
+					);
+				} else {
+					$rootScope.$broadcast( "thread-dump-info-layer.open", currentApplicationName, agentId );
+				}
 				AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_OPEN_THREAD_DUMP_LAYER );
 			};
+	        function getOpenUrl() {
+	        	var url = $location.absUrl();
+	        	var index = url.indexOf( $location.path() );
+	        	return url.substring(0, index);
+			}
 			function hideSub() {
 				$rootScope.$broadcast( "thread-dump-info-layer.close" );
 			}

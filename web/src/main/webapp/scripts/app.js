@@ -53,6 +53,9 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
     }).when('/scatterFullScreenMode/:application/:readablePeriod/:queryEndDateTime/:filter', {
         templateUrl: 'pages/scatterFullScreenMode/scatterFullScreenMode.html',
         controller: 'ScatterFullScreenModeCtrl'
+	}).when('/threadDump/:application/:agentId', {
+		templateUrl: 'pages/threadDump/threadDump.html',
+		controller: 'ThreadDumpCtrl'
     }).otherwise({
         redirectTo: '/main'
     });

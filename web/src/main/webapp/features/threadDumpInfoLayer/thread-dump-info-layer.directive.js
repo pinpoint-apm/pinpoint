@@ -49,29 +49,20 @@
 						oRef.obj = null;
 						oRef.ing = false;
 					}
-					scope.$on( "thread-dump-info-layer.open", function( event, appName, agentId ) {
+					scope.$on( "thread-dump-info-window.open", function( event, appName, agentId) {
+						setForWindow();
+						currentApplicationName = appName;
+						currentAgentId = agentId;
+						openLayer();
+					});
+					scope.$on( "thread-dump-info-layer.open", function( event, appName, agentId) {
 						initAjax( oRefListAjax, true );
 						if ( $el.is(":visible") ) {
 							$elSpin.show();
 						}
 						currentApplicationName = appName;
 						currentAgentId = agentId;
-						oRefListAjax.obj = $http( {
-							"url": cfg.ACTIVE_THREAD_LIGHT_DUMP_URL +
-								"?applicationName=" + appName +
-								"&agentId=" + agentId,
-							"method": "GET"
-						}).then(function ( oResult ) {
-							scope.threadList = oResult.data.message.threadDumpData;
-							$elTextarea.val("");
-							$elSpin.hide();
-							$el.show();
-							initAjax( oRefListAjax );
-						}, function () {
-							$elSpin.hide();
-							console.log( arguments );
-						});
-						oRefListAjax.ing = true;
+						openLayer();
 					});
 
 					scope.$on( "thread-dump-info-layer.close", function() {
@@ -124,7 +115,25 @@
 					scope.formatDate = function( startTime ) {
 						return CommonUtilService.formatDate(startTime, "MM/DD HH:mm:ss SSS");
 					};
-					function initLayerSizeNPosition() {
+					function openLayer() {
+						oRefListAjax.obj = $http( {
+							"url": cfg.ACTIVE_THREAD_LIGHT_DUMP_URL +
+							"?applicationName=" + currentApplicationName +
+							"&agentId=" + currentAgentId,
+							"method": "GET"
+						}).then(function ( oResult ) {
+							scope.threadList = oResult.data.message.threadDumpData;
+							$elTextarea.val("");
+							$elSpin.hide();
+							$el.show();
+							initAjax( oRefListAjax );
+						}, function () {
+							$elSpin.hide();
+							console.log( arguments );
+						});
+						oRefListAjax.ing = true;
+					}
+					function initLayerSizeNPosition( openType ) {
 						var docWidth = $window.document.body.clientWidth;
 						var docHeight = $window.document.body.clientHeight;
 						var paddingWidthPixel = parseInt(( cfg.PADDING_WIDTH * docWidth ) / 100);
@@ -141,6 +150,34 @@
 							"left": paddingWidthPixel,
 							"width": layerWidth,
 							"height": layerHeight
+						});
+						$elListWrapper.css({
+							"height": layerHeightHalf - 67 - 30
+						});
+						$elEmpty.css({
+							"height": layerHeightHalf
+						});
+						$elDetailMessage.css({
+							"height": layerHeightHalf
+						});
+					}
+					function setForWindow() {
+						$el.draggable("destroy");
+						$el.find(".panel-heading").css("cursor", "default").find("button").hide();
+						resetSize();
+					}
+					function resetSize () {
+						var docHeight = $window.document.body.clientHeight;
+						var navHeight = 40;
+						var titleHeight = 78;
+						var layerHeightHalf = parseInt( (docHeight - titleHeight - navHeight) / 2 );
+
+						// thead: 67
+						$el.css({
+							"top": navHeight + "px",
+							"left": "0px",
+							"width": "100%",
+							"height": "100%"
 						});
 						$elListWrapper.css({
 							"height": layerHeightHalf - 67 - 30
