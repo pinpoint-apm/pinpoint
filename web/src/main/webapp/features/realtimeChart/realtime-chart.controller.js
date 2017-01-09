@@ -35,7 +35,7 @@
 		css : {
 			borderWidth: 2,
 			height: 180,
-			navbarHeight: 50,
+			navBarHeight: 42,
 			titleHeight: 30
 		},
 		sumChart: {
@@ -59,7 +59,7 @@
 			var X_AXIS_COUNT = 10;
 	    	var RECEIVE_SUCCESS = 0;
 
-			var $elSumChartWrapper, $elTitle, $elSumChartCount, $elAgentChartListWrapper, $elWarningMessage, $elHandleGlyphicon, $elPin;
+			var $elSumChartWrapper, $elTitle, $elSumChartCount, $elAgentChartListWrapper, $elWarningMessage, $elPin;
 	    	var preUrlParam = "";
 			var currentApplicationName = "";
 	    	var aAgentChartElementList = [];
@@ -69,9 +69,7 @@
 			var bIsFirstInit = true;
 	    	var bIsPinned = true;
 	    	var bIsWas = false;
-	    	var bIsFullWindow = false;
 	    	var bShowRealtimeChart = true;
-	    	var popupHeight = cfg.css.height;
 	    	var wsPongTemplate = (function() {
 	    		var o = {};
 	    		o[cfg.keys.TYPE] = cfg.values.PONG;
@@ -119,7 +117,6 @@
 				$elSumChartCount = $element.find("div.agent-sum-chart div:first-child span:last-child");
 				$elAgentChartListWrapper = $element.find("div.agent-chart-list");
 				$elWarningMessage = $element.find(".connection-message");
-				$elHandleGlyphicon = $element.find(".handle .glyphicon");
 				$elPin = $element.find(".glyphicon-pushpin");
 				$elWarningMessage.hide();
 				$elTitle.html("");
@@ -339,19 +336,18 @@
 	        }
 	        function hidePopup() {
 				hideSub();
-	        	$element.animate({
-	        		bottom: -popupHeight,
-	        		left: 0
+	        	$element.css("top", "initial").animate({
+					left: 0,
+	        		bottom: -parseInt(LocalStorageManagerService.getRealtimeLayerHeight())
 	        	}, 500, function() {
-	        		$elHandleGlyphicon.removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
 	        	});
 	        }
 	        function showPopup() {
+				$element.css("height", LocalStorageManagerService.getRealtimeLayerHeight() || cfg.css.height);
 	        	$element.animate({
 	        		bottom: 0,
 	        		left: 0
 	        	}, 500, function() {
-	        		$elHandleGlyphicon.removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
 	        	});
 	        }
 	        function adjustWidth() {
@@ -369,7 +365,6 @@
 	        });
 	        $scope.$on( "realtimeChartController.initialize", function (event, was, applicationName, urlParam ) {
 	        	hideSub();
-	        	// $elThreadDump.hide();
 	        	if ( bIsPinned === true && preUrlParam === urlParam ) return;
 	        	if ( UrlVoService.isRealtime() === false ) return;
 	        	bIsWas = angular.isUndefined( was ) ? false : was;
@@ -408,28 +403,6 @@
 				AnalyticsService.send( AnalyticsService.CONST.MAIN, bIsPinned ? AnalyticsService.CONST.CLK_REALTIME_CHART_PIN_ON : AnalyticsService.CONST.CLK_REALTIME_CHART_PIN_OFF );
 	        	setPinColor();
 	        };
-	        $scope.resizePopup = function($event) {
-	        	AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.TG_REALTIME_CHART_RESIZE );
-	        	var $elBtn = $($event.target);
-	        	if ( bIsFullWindow ) {
-	        		popupHeight = cfg.css.height;
-	        		$element.css({
-	        			"height": cfg.css.height + "px",
-	        			"bottom": "0px"
-	        		});
-	        		$elAgentChartListWrapper.css("height", "150px");
-	        		$elBtn.removeClass("glyphicon-resize-small").addClass("glyphicon-resize-full");
-	        	} else {
-	        		popupHeight = parseInt($element.parent().css("height"));//$window.innerHeight - cfg.css.navbarHeight;
-	        		$element.css({
-	        			"height": popupHeight + "px",
-	        			"bottom": "0px"
-	        		});
-	        		$elAgentChartListWrapper.css("height", (popupHeight - cfg.css.titleHeight) + "px");
-					$elBtn.removeClass("glyphicon-resize-full").addClass("glyphicon-resize-small");
-	        	}
-	        	bIsFullWindow = !bIsFullWindow;
-	        };
 	        $scope.showAgentInfo = function( $event ) {
 				var $target = $( $event.target );
 				if ( $target.hasClass("agent-chart-list") ) {
@@ -466,7 +439,17 @@
 	        }
 	        $($window).on("resize", function() {
 	        	adjustWidth();
+	        	var newHeight = $window.innerHeight - cfg.css.navBarHeight;
+				$element.resizable("option", "maxHeight", newHeight);
 	        });
-	    }
+			$element.resizable({
+	        	minHeight: cfg.css.height,
+				maxHeight: $window.innerHeight - cfg.css.navBarHeight,
+				handles: "n",
+				resize: function( event, ui ) {
+					LocalStorageManagerService.setRealtimeLayerHeight( ui.size.height );
+				}
+			});
+		}
 	]);
 })(jQuery);

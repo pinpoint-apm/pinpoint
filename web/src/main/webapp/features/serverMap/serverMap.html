@@ -211,7 +211,7 @@
                 <li>
 					<a href ng-click="toggleLinkCurve('JumpGap')">
 						<span class="glyphicon" style="width:14px" ng-class="{'glyphicon-ok': linkCurve == 'JumpGap'}"></span>JumpGap
-					</a>
+					</a>LocalStorageManagerService.getRealtimeLayerHeight()
 				</li>
                 <li>
 					<a href ng-click="toggleLinkCurve('Bezier')">
@@ -226,9 +226,8 @@
         </li>
     </ul>
     <div ng-controller="RealtimeChartCtrl" class="realtime" style="bottom:-180px;" ng-show="bInitialized">
-		<div class="chart-title">
+		<div class="chart-title ui-resizable-n ui-resizable-handle" style="height:24px;font-size:14px;top:0px;cursor:ns-resize;">
 			<span>Realtime Active Thread Chart</span>
-			<span class="chart-expand glyphicon glyphicon-resize-full" aria-hidden="true" ng-click="resizePopup($event)"></span>
 			<span class="chart-expand glyphicon glyphicon-pushpin" aria-hidden="true" ng-click="pin()"></span>
 			<span class="glyphicon glyphicon-question-sign realtimeTooltip tooltipstered" style="float:right;cursor:pointer;color:#FFF;font-size:17px;padding-right:6px;"></span>
 		</div>
