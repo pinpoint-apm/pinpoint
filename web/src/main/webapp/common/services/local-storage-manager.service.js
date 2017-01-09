@@ -15,6 +15,6 @@
 		};
 		this.getRealtimeLayerHeight = function() {
 			return webStorage.get(cfg.REAL_TIME_LAYER_HEIGHT);
-		}
+		};
 	}]);
 })();
