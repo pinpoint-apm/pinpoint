@@ -36,7 +36,7 @@ public class HttpClientImplGetConnectionForRequest extends SpanEventSimpleAround
             return;
         }
 
-        final int port = (int) args[0];
+        final int port = (Integer) args[0];
         final String host = (String) args[1];
         if (host != null) {
             // connection address(host:port)
