@@ -146,7 +146,7 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
 
         if (this.cookieSampler.isSampling()) {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(cookie, MAX_READ_SIZE));
+            recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.abbreviate(cookie, MAX_READ_SIZE));
         }
     }
 
