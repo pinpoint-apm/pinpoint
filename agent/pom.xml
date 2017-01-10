@@ -232,6 +232,14 @@
             <artifactId>jackson-databind</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- Hikari CP -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP-java6</artifactId>
+            <version>2.3.13</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
