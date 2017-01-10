@@ -220,7 +220,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         final Storage storage = storageFactory.createStorage();
         trace.setStorage(storage);
 
-        final AsyncTraceCloser closer = new AsyncTraceCloser(trace.getSpan(), storage);
+        final AsyncTraceCloser closer = new AsyncTraceCloser(trace.getSpan(), storageFactory.createStorage());
         final AsyncTrace asyncTrace = new AsyncTrace(trace, closer);
         bind(asyncTrace);
         return asyncTrace;
@@ -236,7 +236,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
             final Storage storage = storageFactory.createStorage();
             trace.setStorage(storage);
 
-            final AsyncTraceCloser closer = new AsyncTraceCloser(trace.getSpan(), storage);
+            final AsyncTraceCloser closer = new AsyncTraceCloser(trace.getSpan(), storageFactory.createStorage());
             final AsyncTrace asyncTrace = new AsyncTrace(trace, closer);
             bind(asyncTrace);
 
