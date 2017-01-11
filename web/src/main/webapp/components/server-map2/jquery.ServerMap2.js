@@ -93,7 +93,9 @@
 					'JBOSS': 'JBOSS.png',
                     'JBOSS_GROUP': 'JBOSS.png',
 					'VERTX': 'VERTX.png',
-					'VERTX_GROUP': 'VERTX.png'
+					'VERTX_GROUP': 'VERTX.png',
+					'RESIN': 'RESIN.png',
+                    'RESIN_GROUP': 'RESIN.png'
                 },
                 "htNodeTheme": {
                     "default": {
