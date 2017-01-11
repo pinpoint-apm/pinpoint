@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.dao.hbase.stat.v1;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.web.dao.stat.SampledCpuLoadDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV1;
-import com.navercorp.pinpoint.web.mapper.stat.CpuLoadSampler;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.CpuLoadSampler;
 import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;

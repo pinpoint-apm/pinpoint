@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Naver Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.mapper.stat;
+package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
@@ -36,7 +36,7 @@ import java.util.Map;
  * @author HyunGil Jeong
  */
 @Component
-public class ActiveTraceSampler extends AbstractAgentStatSampler<ActiveTraceBo, SampledActiveTrace> {
+public class ActiveTraceSampler implements AgentStatSampler<ActiveTraceBo, SampledActiveTrace> {
 
     public static final DownSampler<Integer> INTEGER_DOWN_SAMPLER = DownSamplers.getIntegerDownSampler(ActiveTraceBo.UNCOLLECTED_ACTIVE_TRACE_COUNT);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Naver Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.mapper.stat;
+package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
@@ -32,7 +32,7 @@ import java.util.List;
  * @author HyunGil Jeong
  */
 @Component
-public class JvmGcSampler extends AbstractAgentStatSampler<JvmGcBo, SampledJvmGc> {
+public class JvmGcSampler implements AgentStatSampler<JvmGcBo, SampledJvmGc> {
 
     public static final DownSampler<Long> LONG_DOWN_SAMPLER = DownSamplers.getLongDownSampler(JvmGcBo.UNCOLLECTED_VALUE);
 
