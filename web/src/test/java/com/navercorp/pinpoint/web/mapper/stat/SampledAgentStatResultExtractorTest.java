@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.mapper.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -175,7 +176,7 @@ public class SampledAgentStatResultExtractorTest {
         return dataPoints;
     }
 
-    private static class TestAgentStatSampler extends AbstractAgentStatSampler<TestAgentStatDataPoint, TestSampledAgentStatDataPoint> {
+    private static class TestAgentStatSampler implements AgentStatSampler<TestAgentStatDataPoint, TestSampledAgentStatDataPoint> {
 
         @Override
         public TestSampledAgentStatDataPoint sampleDataPoints(int timeWindowIndex, long timestamp, List<TestAgentStatDataPoint> dataPoints, TestAgentStatDataPoint previousDataPoint) {

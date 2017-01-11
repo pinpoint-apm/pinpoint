@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Naver Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.mapper.stat;
+package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
@@ -32,7 +32,7 @@ import java.util.List;
  * @author HyunGil Jeong
  */
 @Component
-public class TransactionSampler extends AbstractAgentStatSampler<TransactionBo, SampledTransaction> {
+public class TransactionSampler implements AgentStatSampler<TransactionBo, SampledTransaction> {
 
     private static final double UNCOLLECTED_TPS = -1D;
     private static final int NUM_DECIMAL_PLACES = 1;

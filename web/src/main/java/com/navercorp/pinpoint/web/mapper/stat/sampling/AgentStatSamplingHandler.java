@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Naver Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.mapper.stat;
+package com.navercorp.pinpoint.web.mapper.stat.sampling;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
-import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
 
 import java.util.List;
@@ -25,7 +24,9 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
-public interface AgentStatSampler<T extends AgentStatDataPoint, S extends SampledAgentStatDataPoint> {
+public interface AgentStatSamplingHandler<T extends AgentStatDataPoint, S extends SampledAgentStatDataPoint> {
 
-    List<S> sampleDataPoints(TimeWindow timeWindow, List<T> dataPoints);
+    void addDataPoint(T dataPoint);
+
+    List<S> getSampledDataPoints();
 }
