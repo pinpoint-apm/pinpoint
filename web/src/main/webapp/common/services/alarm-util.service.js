@@ -12,7 +12,7 @@
 		"hideClass": "hide-me"
 	});
 	
-	pinpointApp.service( "AlarmUtilService", [ "AlarmUtilServiceConfig", "$timeout", "AlarmAjaxService", "globalConfig", function ( $config, $timeout, $ajaxService, globalConfig ) {
+	pinpointApp.service( "AlarmUtilService", [ "AlarmUtilServiceConfig", "$timeout", "AlarmAjaxService", "SystemConfigurationService", function ( $config, $timeout, $ajaxService, SystemConfigService ) {
 		var self = this;
 		this.show = function( $el ) {
 			$el.removeClass( $config.hideClass );
@@ -25,7 +25,7 @@
 		this.sendCRUD = function( funcName, data, successCallback, failCallback ) {
 			if ( ( angular.isUndefined( data ) || data === "" ) ) {
 				data = {
-					"userId" : ( globalConfig.userId || "" )
+					"userId" : ( SystemConfigService.get("userId") || "" )
 				}; 
 			}
 

@@ -1,7 +1,7 @@
 (function() {
 	"use strict";
 
-	pinpointApp.factory("NavbarVoService", [ "PreferenceService", "CommonUtilService", function ( PreferenceService, CommonUtilService ) {
+	pinpointApp.factory("NavbarVoService", [ "UserConfigurationService", "CommonUtilService", function ( UserConfigService, CommonUtilService ) {
 	    return function () {
 	        // define and initialize private variables;
 	        var self = this;
@@ -18,8 +18,8 @@
 	        this._sReadablePeriod = false;
 	        this._sQueryEndDateTime = false;
 
-			this._nCalleeRange = PreferenceService.getCallee();
-	        this._nCallerRange = PreferenceService.getCaller();
+			this._nCalleeRange = UserConfigService.getCallee();
+	        this._nCallerRange = UserConfigService.getCaller();
 	        
 	        this._sHint = false;
 

@@ -5,8 +5,8 @@
 		AT: "@"
 	});
 
-	pinpointApp.directive( "applicationListDirective", [ "applicationListDirectiveConfig", "$rootScope", "$http", "$timeout", "AnalyticsService", "PreferenceService", "CommonAjaxService", "CommonUtilService",
-		function ( cfg, $rootScope, $http, $timeout, AnalyticsService, PreferenceService, CommonAjaxService, CommonUtilService ) {
+	pinpointApp.directive( "applicationListDirective", [ "applicationListDirectiveConfig", "$rootScope", "$http", "$timeout", "AnalyticsService", "PreferenceService", "UserConfigurationService", "CommonAjaxService", "CommonUtilService",
+		function ( cfg, $rootScope, $http, $timeout, AnalyticsService, PreferenceService, UserConfigService, CommonAjaxService, CommonUtilService ) {
 			return {
 				restrict: 'EA',
 				replace: true,
@@ -51,13 +51,13 @@
 								return m;
 							}
 						}).on("select2:select", function () {
-							changeApplication();
+							changeApplication( $application.val(), $($application.select2("data")[0].element).attr("data-code") );
 						});
 					}
-					function changeApplication() {
+					function changeApplication( application, code ) {
 						AnalyticsService.sendMain( AnalyticsService.CONST.CLK_APPLICATION );
-						scope.selectedApplication = $application.val();
-						scope.$emit( "up.changed.application", cfg.ID, scope.selectedApplication );
+						scope.selectedApplication = application;
+						scope.$emit( "up.changed.application", cfg.ID, scope.selectedApplication, code );
 					}
 					function getApplicationList() {
 						CommonAjaxService.getApplicationList( function( data ) {
@@ -92,29 +92,38 @@
 						var aGeneralList = [];
 
 						if ( bUseFavorite ) {
-							var aSavedFavoriteList = PreferenceService.getFavoriteList();
-							scope.favoriteCount = aSavedFavoriteList.length;
+							UserConfigService.getFavoriteList(function(aSavedFavoriteList) {
+								scope.favoriteCount = aSavedFavoriteList.length;
 
-							var aFavoriteList = [];
-							angular.forEach(applicationOriginalData, function (oValue) {
-								var fullName = oValue.applicationName + cfg.AT + oValue.serviceType;
-								var value = {
-									text: fullName,
-									value: oValue.applicationName + cfg.AT + oValue.code
-								};
-								if (aSavedFavoriteList.indexOf(fullName) === -1) {
-									aGeneralList.push(value);
-								} else {
-									aFavoriteList.push(value);
-								}
+								var aFavoriteList = [];
+								angular.forEach(applicationOriginalData, function (oValue) {
+									var bFavorite = false;
+									for( var j = 0 ; j < aSavedFavoriteList.length ; j++ ) {
+										if ( aSavedFavoriteList[j].applicationName === oValue.applicationName && aSavedFavoriteList[j].serviceType === oValue.serviceType ) {
+											bFavorite = true;
+											break;
+										}
+									}
+									var value = {
+										text: oValue.applicationName + cfg.AT + oValue.serviceType,
+										value: oValue.applicationName + cfg.AT + oValue.code,
+										code: oValue.code
+									};
+									if ( bFavorite ) {
+										aFavoriteList.push(value);
+									} else {
+										aGeneralList.push(value);
+									}
+								});
+								scope.applicationList = aFavoriteList.concat(aGeneralList);
 							});
-							scope.applicationList = aFavoriteList.concat(aGeneralList);
 						} else {
 							scope.favoriteCount = 0;
 							angular.forEach(applicationOriginalData, function (oValue) {
 								aGeneralList.push({
 									text: oValue.applicationName + cfg.AT + oValue.serviceType,
-									value: oValue.applicationName + cfg.AT + oValue.code
+									value: oValue.applicationName + cfg.AT + oValue.code,
+									code: oValue.code
 								});
 							});
 							scope.applicationList = aGeneralList;

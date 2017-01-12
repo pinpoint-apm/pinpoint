@@ -68,9 +68,8 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
 //    $sceProvider.enabled(false);
 }]);
 
-pinpointApp.value("globalConfig", {});
-pinpointApp.run([ "$rootScope", "$window", "$timeout", "$location", "$route", "$http", "globalConfig", "PreferenceService",
-    function ($rootScope, $window, $timeout, $location, $route, $http, globalConfig, PreferenceService ) {
+pinpointApp.run([ "$rootScope", "$window", "$timeout", "$location", "$route", "SystemConfigurationService", "UserConfigurationService",
+    function ($rootScope, $window, $timeout, $location, $route, SystemConfigService, UserConfigService ) {
         var original = $location.path;
         $location.path = function (path, reload) {
             if (reload === false) {
@@ -83,22 +82,20 @@ pinpointApp.run([ "$rootScope", "$window", "$timeout", "$location", "$route", "$
             return original.apply($location, [path]);
         };
 
-		$http.get('/configuration.pinpoint').then(function(result) {
-			if ( result.data.errorCode == 302 ) {
-				$window.location = result.data.redirect;
+		SystemConfigService.getConfig().then(function(oSystemConfig) {
+
+			if ( oSystemConfig.errorCode == 302 ) {
+				$window.location = oSystemConfig.redirect;
 				return;
 			}
+		});
 
-			for( var p in result.data ) {
-				globalConfig[p] = result.data[p];
-			}
-		}, function(error) {});
         if (!isCanvasSupported()) {
             $timeout(function () {
                 $('#supported-browsers').modal();
             }, 500);
         }
-        moment.tz.setDefault( PreferenceService.getTimezone() );
+        moment.tz.setDefault( UserConfigService.getTimezone() );
     }
 ]);
 

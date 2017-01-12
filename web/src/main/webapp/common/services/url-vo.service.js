@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 
-	 pinpointApp.service( "UrlVoService", [ "$location", "$routeParams", "PreferenceService", "CommonUtilService", function( $location, $routeParams, PreferenceService, CommonUtilService ) {
+	 pinpointApp.service( "UrlVoService", [ "$location", "$routeParams", "PreferenceService", "UserConfigurationService", "CommonUtilService", function( $location, $routeParams, PreferenceService, UserConfigService, CommonUtilService ) {
 		 var application = "";			// applicationName@serviceType 		- common
 		 var periodType = "";			// last or range or realtime		- common
 		 var filter = "";				// #/filteredMap
@@ -16,8 +16,8 @@
 		 var transactionInfo = "";		// #/transactionList
 		 var agentList = "";			// #/scatterFullScreenMode
 
-		 var callee = PreferenceService.getCallee();
-		 var caller = PreferenceService.getCaller();
+		 var callee = UserConfigService.getCallee();
+		 var caller = UserConfigService.getCaller();
 		 var oPeriodType = PreferenceService.getPeriodType();
 		 var aPeriodTime = PreferenceService.getPeriodTime();
 

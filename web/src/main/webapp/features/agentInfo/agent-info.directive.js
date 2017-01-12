@@ -174,16 +174,24 @@
 						return;
 					}
 					function showJvmChart( chartData ) {
-						var heap = { id: 'heap', title: 'Heap Usage', span: 'span12', line: [
-							{ id: 'JVM_MEMORY_HEAP_USED', key: 'Used', values: [], isFgc: false },
-							{ id: 'JVM_MEMORY_HEAP_MAX', key: 'Max', values: [], isFgc: false },
-							{ id: 'fgc', key: 'FGC', values: [], bar: true, isFgc: true }
-						]};
-						var nonheap = { id: 'nonheap', title: 'PermGen Usage', span: 'span12', line: [
-							{ id: 'JVM_MEMORY_NON_HEAP_USED', key: 'Used', values: [], isFgc: false },
-							{ id: 'JVM_MEMORY_NON_HEAP_MAX', key: 'Max', values: [], isFgc: false },
-							{ id: 'fgc', key: 'FGC', values: [], bar: true, isFgc: true }
-						]};
+						var heap = {
+							id: 'heap',
+							title: 'Heap Usage',
+							line: [
+								{ id: 'JVM_MEMORY_HEAP_USED', key: 'Used', isFgc: false },
+								{ id: 'JVM_MEMORY_HEAP_MAX', key: 'Max', isFgc: false },
+								{ id: 'fgc', key: 'FGC', isFgc: true }
+							]
+						};
+						var nonheap = {
+							id: 'nonheap',
+							title: 'PermGen Usage',
+							line: [
+								{ id: 'JVM_MEMORY_NON_HEAP_USED', key: 'Used', isFgc: false },
+								{ id: 'JVM_MEMORY_NON_HEAP_MAX', key: 'Max', isFgc: false },
+								{ id: 'fgc', key: 'FGC', isFgc: true }
+							]
+						};
 						scope.memoryGroup = [ heap, nonheap ];
 
 						scope.$broadcast( "jvmMemoryChartDirective.initAndRenderWithData.forHeap", AgentDaoService.parseMemoryChartDataForAmcharts(heap, chartData), '100%', '270px');
@@ -191,19 +199,19 @@
 
 					}
 					function showCpuLoadChart( chartData ) {
-						var cpuLoad = { id: 'cpuLoad', title: 'JVM/System Cpu Usage', span: 'span12', isAvailable: false};
+						var cpuLoad = { id: 'cpuLoad', title: 'JVM/System Cpu Usage', isAvailable: false};
 						scope.cpuLoadChart = cpuLoad;
 
 						scope.$broadcast( "cpuLoadChartDirective.initAndRenderWithData.forCpuLoad", AgentDaoService.parseCpuLoadChartDataForAmcharts(cpuLoad, chartData), '100%', '270px');
 					}
 					function showTpsChart( chartData ) {
-						var tps = { id: 'tps', title: 'Transactions Per Second', span: 'span12', isAvailable: false };
+						var tps = { id: 'tps', title: 'Transactions Per Second', isAvailable: false };
 						scope.tpsChart = tps;
 
 						scope.$broadcast( "tpsChartDirective.initAndRenderWithData.forTps", AgentDaoService.parseTpsChartDataForAmcharts(tps, chartData), '100%', '270px');
 					}
 					function showActiveTraceChart( chartData ) {
-						var activeTrace = { id: "activeTrace", title: "Active Thread", span: "span12", isAvailable: false};
+						var activeTrace = { id: "activeTrace", title: "Active Thread", isAvailable: false};
 						scope.activeTraceChart = activeTrace;
 
 						scope.$broadcast( "activeTraceChartDirective.initAndRenderWithData.forActiveTrace", AgentDaoService.parseActiveTraceChartDataForAmcharts(activeTrace, chartData), '100%', '270px');
