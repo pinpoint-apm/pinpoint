@@ -71,7 +71,7 @@
 									"descriptionField": "fastTitle",
                                     "valueField": "fast",
                                     "fillAlphas": 0.4,
-                                    "connect": true
+                                    "connect": false
                                 },{
                                     "balloonText": "[[description]] : [[value]]",
                                     "legendValueText": "([[description]]) [[value]]",
@@ -81,7 +81,7 @@
 									"descriptionField": "normalTitle",
                                     "valueField": "normal",
                                     "fillAlphas": 0.4,
-                                    "connect": true
+                                    "connect": false
                                 },{
                                     "balloonText": "[[description]] : [[value]]",
                                     "legendValueText": "([[description]]) [[value]]",
@@ -91,7 +91,7 @@
 									"descriptionField": "slowTitle",
                                     "valueField": "slow",
                                     "fillAlphas": 0.4,
-                                    "connect": true
+                                    "connect": false
                                 },{
                                     "balloonText": "[[description]] : [[value]]",
                                     "legendValueText": "([[description]]) [[value]]",
@@ -101,7 +101,7 @@
 									"descriptionField": "verySlowTitle",
                                     "valueField": "verySlow",
                                     "fillAlphas": 0.4,
-                                    "connect": true
+                                    "connect": false
                                 }
                             ],
                             "categoryField": "time",
