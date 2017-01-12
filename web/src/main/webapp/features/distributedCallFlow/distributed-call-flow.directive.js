@@ -7,8 +7,8 @@
 	 * @name distributedCallFlowDirective
 	 * @class
 	 */	
-	pinpointApp.directive( "distributedCallFlowDirective", [ "$timeout", "CommonAjaxService", "CommonUtilService", "globalConfig",
-	    function ( $timeout, CommonAjaxService, CommonUtilService, globalConfig ) {
+	pinpointApp.directive( "distributedCallFlowDirective", [ "$timeout", "CommonAjaxService", "CommonUtilService", "SystemConfigurationService",
+	    function ( $timeout, CommonAjaxService, CommonUtilService, SystemConfigService ) {
 	        return {
 	            restrict: "E",
 	            replace: true,
@@ -34,7 +34,7 @@
 						if ( bIsAuthorized ) {
 							return removeTag( text );
 						} else {
-							return "<i style='color:#AAA;'>" + removeTag( text ) + "</i> <a href='" + globalConfig.securityGuideUrl + "' target='_blank' style='color:#AAA;'><span class='glyphicon glyphicon-share'></span></a>";
+							return "<i style='color:#AAA;'>" + removeTag( text ) + "</i> <a href='" + SystemConfigService.get("securityGuideUrl") + "' target='_blank' style='color:#AAA;'><span class='glyphicon glyphicon-share'></span></a>";
 						}
 					};
 	                /**

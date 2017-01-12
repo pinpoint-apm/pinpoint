@@ -1,8 +1,8 @@
 (function( $ ) {
 	"use strict";
 
-	pinpointApp.directive( "generalDirective", [ "PreferenceService", "AnalyticsService", "helpContentService",
-		function ( PreferenceService, AnalyticsService, helpContentService ) {
+	pinpointApp.directive( "generalDirective", [ "PreferenceService", "UserConfigurationService", "AnalyticsService", "helpContentService",
+		function ( PreferenceService, UserConfigService, AnalyticsService, helpContentService ) {
 			return {
 				restrict: "EA",
 				replace: true,
@@ -16,19 +16,22 @@
 					var $depthPopup = $element.find(".inout-bound");
 					var bCloseDepthPopup = false;
 					$element[ attr["initState"] ]();
+					scope.savedFavoriteList = [];
 
 					init();
 
 					function init() {
 						scope.depthList = PreferenceService.getDepthList();
-						scope.caller = PreferenceService.getCaller();
-						scope.callee = PreferenceService.getCallee();
+						scope.caller = UserConfigService.getCaller();
+						scope.callee = UserConfigService.getCallee();
 						scope.periodTime = PreferenceService.getPeriodTime();
-						scope.period = PreferenceService.getPeriod();
-						scope.savedFavoriteList = PreferenceService.getFavoriteList();
+						scope.period = UserConfigService.getPeriod();
+						UserConfigService.getFavoriteList(function(aFavoriteList) {
+							scope.savedFavoriteList = aFavoriteList;
+						}, true);
 						scope.timezone = moment.tz.names();
-						scope.userTimezone = PreferenceService.getTimezone();
-						scope.newUserTimezone = PreferenceService.getTimezone();
+						scope.userTimezone = UserConfigService.getTimezone();
+						scope.newUserTimezone = UserConfigService.getTimezone();
 
 						$element.find( "div.general-warning" ).html( helpContentService.configuration.general.warning );
 						$element.find( "div.favorite-empty" ).html( helpContentService.configuration.general.empty );
@@ -43,37 +46,41 @@
 							bCloseDepthPopup = false;
 						});
 					}
-					function addToFavoriteList( newAppName ) {
+					function addToFavoriteList( newAppName, newAppCode ) {
 						AnalyticsService.sendMain( AnalyticsService.CONST.CLK_GENERAL_SET_FAVORITE );
-						PreferenceService.addFavorite( newAppName );
-						scope.$apply(function() {
-							scope.savedFavoriteList = PreferenceService.getFavoriteList();
-							scope.$emit( "up.changed.favorite" );
+						UserConfigService.addFavorite( newAppName, newAppCode, function() {
+							UserConfigService.getFavoriteList(function (aFavoriteList) {
+								scope.savedFavoriteList = aFavoriteList;
+							}, true);
+							scope.$emit("up.changed.favorite");
 						});
 					}
 					scope.changeCaller = function( caller ) {
 						scope.caller = caller;
 						AnalyticsService.sendMain( AnalyticsService.CONST.CLK_GENERAL_SET_DEPTH, scope.caller );
-						PreferenceService.setCaller( scope.caller );
+						UserConfigService.setCaller( scope.caller );
 					};
 					scope.changeCallee = function( callee ) {
 						scope.callee = callee;
 						AnalyticsService.sendMain( AnalyticsService.CONST.CLK_GENERAL_SET_DEPTH, scope.callee );
-						PreferenceService.setCallee( scope.callee );
+						UserConfigService.setCallee( scope.callee );
 					};
 					scope.changePeriod = function() {
 						AnalyticsService.sendMain( AnalyticsService.CONST.CLK_GENERAL_SET_PERIOD, scope.period );
-						PreferenceService.setPeriod( scope.period );
+						UserConfigService.setPeriod( scope.period );
 					};
-					scope.removeFavorite = function( applicationName ) {
+					scope.removeFavorite = function( appName, appType ) {
 						AnalyticsService.sendMain( AnalyticsService.CONST.CLK_GENERAL_SET_FAVORITE );
-						PreferenceService.removeFavorite( applicationName );
-						scope.savedFavoriteList = PreferenceService.getFavoriteList();
-						scope.$emit( "up.changed.favorite" );
+						UserConfigService.removeFavorite( appName, appType, function() {
+							UserConfigService.getFavoriteList(function (aFavoriteList) {
+								scope.savedFavoriteList = aFavoriteList;
+							}, true);
+							scope.$emit("up.changed.favorite");
+						});
 					};
 					scope.applyNReload = function() {
 						AnalyticsService.sendMain( AnalyticsService.CONST.CLK_GENERAL_SET_TIMEZONE, scope.newUserTimezone );
-						PreferenceService.setTimezone( scope.newUserTimezone );
+						UserConfigService.setTimezone( scope.newUserTimezone );
 						window.location.reload(true);
 					};
 
@@ -92,8 +99,8 @@
 							$element.hide();
 						}
 					});
-					scope.$on( "up.changed.application", function( event, invokeId, newAppName ) {
-						addToFavoriteList( newAppName, invokeId );
+					scope.$on( "up.changed.application", function( event, invokeId, newAppName, newAppCode ) {
+						addToFavoriteList( newAppName, newAppCode, invokeId );
 						event.stopPropagation();
 					});
 				}

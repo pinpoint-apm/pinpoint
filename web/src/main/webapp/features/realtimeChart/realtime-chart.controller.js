@@ -51,8 +51,8 @@
 		}
 	});
 	
-	pinpointApp.controller( "RealtimeChartCtrl", [ "RealtimeChartCtrlConfig", "$scope", "$element", "$location", "$rootScope", "$compile", "$timeout", "$window", "$http",  "globalConfig", "LocalStorageManagerService", "UrlVoService", "RealtimeWebsocketService", "AnalyticsService", "TooltipService",
-	    function (cfg, $scope, $element, $location, $rootScope, $compile, $timeout, $window, $http, globalConfig, LocalStorageManagerService, UrlVoService, webSocketService, AnalyticsService, tooltipService) {
+	pinpointApp.controller( "RealtimeChartCtrl", [ "RealtimeChartCtrlConfig", "$scope", "$element", "$location", "$rootScope", "$compile", "$timeout", "$window", "$http",  "SystemConfigurationService", "LocalStorageManagerService", "UrlVoService", "RealtimeWebsocketService", "AnalyticsService", "TooltipService",
+	    function (cfg, $scope, $element, $location, $rootScope, $compile, $timeout, $window, $http, SystemConfigService, LocalStorageManagerService, UrlVoService, webSocketService, AnalyticsService, tooltipService) {
 	    	$element = $($element);
 			//@TODO will move to preference-service 
 	    	var TIMEOUT_MAX_COUNT = 10;
@@ -375,7 +375,7 @@
 					initElements();
 					bIsFirstInit = false;
 				}
-	        	if ( globalConfig.useRealTime === false ) return;
+	        	if ( SystemConfigService.get("showActiveThread") === false ) return;
 	        	if ( bShowRealtimeChart === false ) return;
 	        	if ( bIsWas === false ) {
 	        		hidePopup();

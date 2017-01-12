@@ -1,31 +1,6 @@
 (function( $ ) {
-	'use strict';
-	/**
-	 * (en)PreferenceService 
-	 * @ko PreferenceService
-	 * @group Service
-	 * @name PreferenceService
-	 * @class
-	 */
-	pinpointApp.constant('PreferenceServiceConfig', {
-		names: {
-			favorite: "preference.favorite"
-		},
-		defaults: {
-			callee: 1,
-			caller: 1,
-			period: "5m"
-		},
-		list: [{
-			name: "caller",
-			type: "number"
-		},{
-			name: "callee",
-			type: "number"
-		},{
-			name: "period",
-			type: "string"
-		}],
+	"use strict";
+	pinpointApp.constant("PreferenceServiceConfig", {
 		cst: {
 			periodType: {
 				"RANGE": "range",
@@ -34,7 +9,6 @@
 			},
 			periodTime: [ "5m", "20m", "1h", "3h", "6h", "12h", "1d", "2d"],
 			depthList: [ 1, 2, 3, 4],
-			maxFavorite: 5000,
 			maxPeriod: 2,
 			realtimeScatterPeriod: 5 * 60 * 1000,//5m
 			responseType: [ "1s", "3s", "5s", "Slow", "Error" ],
@@ -57,31 +31,8 @@
 		}
 	});
 	
-	pinpointApp.service( "PreferenceService", [ "PreferenceServiceConfig", "webStorage", function( cfg, webStorage ) {
-		var self = this;
-		var oDefault = {};
-		var aFavoriteList = [];
-		
-		loadPreference();
-		this.addFavorite = function( applicationName ) {
-			if ( aFavoriteList.length === cfg.cst.maxFavorite || aFavoriteList.indexOf( applicationName ) !== -1 ) {
-				return;
-			}
-			aFavoriteList.push( applicationName );
-			setFavoriteList();
-		};
-		this.removeFavorite = function( applicationName ) {
-			var index = aFavoriteList.indexOf( applicationName ); 
-			if ( index === -1 ) return;
-			aFavoriteList.splice( index, 1 );
-			setFavoriteList();
-		};
-		function setFavoriteList() {
-			webStorage.add(cfg.names.favorite, JSON.stringify(aFavoriteList) );
-		}
-		this.getFavoriteList = function() {
-			return aFavoriteList;
-		};
+	pinpointApp.service( "PreferenceService", [ "PreferenceServiceConfig", "webStorage", "UserConfigurationService", function( cfg, webStorage, UserConfigService ) {
+
 		this.getDepthList = function() {
 			return cfg.cst.depthList;
 		};
@@ -118,16 +69,16 @@
 		};
 		this.getCalleeByApp = function(app) {
 			if ( angular.isUndefined( app ) ) {
-				return this.getCallee();
+				return UserConfigService.getCallee();
 			} else {
-				return webStorage.get( app + "+callee" ) || this.getCallee();
+				return webStorage.get( app + "+callee" ) || UserConfigService.getCallee();
 			}
 		};
 		this.getCallerByApp = function(app) {
 			if ( angular.isUndefined( app ) ) {
-				return this.getCaller();
+				return UserConfigService.getCaller();
 			} else {
-				return webStorage.get(app + "+caller") || this.getCaller();
+				return webStorage.get(app + "+caller") || UserConfigService.getCaller();
 			}
 		};
 		this.setDepthByApp = function( app, depth ) {
@@ -139,41 +90,5 @@
 		this.getIconPath = function() {
 			return cfg.cst.iconPath;
 		};
-		this.getTimezone = function() {
-			return webStorage.get( "pinpoint-timezone" ) || moment.tz.guess();
-		};
-		this.setTimezone = function( timezone ) {
-			webStorage.add( "pinpoint-timezone", timezone );
-		};
-		
-		
-		function loadPreference() {
-			// set value of webStorage or default
-			// and make getter and setter function
-			$.each( cfg.list, function( index, value ) {
-				var name = value.name;
-				oDefault[name] = webStorage.get( name ) || cfg.defaults[name];
-				switch( value.type ) {
-					case "number":
-						oDefault[name] = parseInt( oDefault[name] );
-						break;
-				}
-				var fnPostfix = name.substring(0, 1).toUpperCase() + name.substring(1);
-				self["get" + fnPostfix] = function() {
-					return oDefault[name];
-				};
-				self["set" + fnPostfix] = function(v) {
-					webStorage.add(name, v);
-					oDefault[name] = v;
-				};
-			});
-			try {
-				aFavoriteList = JSON.parse(webStorage.get(cfg.names.favorite) || "[]");
-			}catch(e){
-				aFavoriteList = [];
-				console.log( e );
-			}
-		}
-		
 	}]);
 })( jQuery );

@@ -18,7 +18,7 @@
 	    FILTER_FETCH_LIMIT: 5000
 	});
 	
-	pinpointApp.service('ServerMapDaoService', [ 'serverMapDaoServiceConfig', 'PreferenceService', function ServerMapDao(cfg, preferenceService) {
+	pinpointApp.service('ServerMapDaoService', [ 'serverMapDaoServiceConfig', function(cfg) {
 	
 	    var self = this;
 	

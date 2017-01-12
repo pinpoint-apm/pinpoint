@@ -9,11 +9,11 @@
 	 * @class
 	 */
 
-	pinpointApp.service( "AnalyticsService", [ "globalConfig", function ( globalConfig) {
+	pinpointApp.service( "AnalyticsService", [ "SystemConfigurationService", function ( SystemConfigService ) {
 
 		this.send = function( category, name, label, count, options ) {
 			if ( typeof ga !== "undefined" ) {
-				if (globalConfig.sendUsage !== true) return;
+				if (SystemConfigService.get("sendUsage") !== true) return;
 				if (arguments.length == 1) {
 					ga("send", "pageview", arguments[0]);
 				} else {

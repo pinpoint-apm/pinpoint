@@ -16,8 +16,8 @@
 		}
 	});
 	
-	pinpointApp.directive('navbarDirective', [ "navbarDirectiveConfig", "$route", "$rootScope", "$http","$document", "$timeout", "$window",  "webStorage", "helpContentService", "UrlVoService", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService", "CommonUtilService",
-	    function (cfg, $route, $rootScope, $http, $document, $timeout, $window, webStorage, helpContentService, UrlVoService, analyticsService, preferenceService, tooltipService, commonAjaxService, CommonUtilService ) {
+	pinpointApp.directive('navbarDirective', [ "navbarDirectiveConfig", "$route", "$rootScope", "$http","$document", "$timeout", "$window",  "webStorage", "helpContentService", "UrlVoService", "AnalyticsService", "PreferenceService", "UserConfigurationService", "TooltipService", "CommonAjaxService", "CommonUtilService",
+	    function (cfg, $route, $rootScope, $http, $document, $timeout, $window, webStorage, helpContentService, UrlVoService, AnalyticsService, PreferenceService, UserConfigService, TooltipService, CommonAjaxService, CommonUtilService ) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -37,14 +37,14 @@
 
 					scope.bIsInspector = false;
 	                scope.periodDelay = false;
-	                scope.aReadablePeriodList = preferenceService.getPeriodTime();
+	                scope.aReadablePeriodList = PreferenceService.getPeriodTime();
 	                scope.autoUpdate = false;
 	                scope.timeLeft = 10;
 	                scope.timeCountDown = 10;
-	                scope.timeList = preferenceService.getUpdateTimes();
-					scope.callee = prevCallee = preferenceService.getCalleeByApp( scope.application );
-	                scope.caller = prevCaller = preferenceService.getCallerByApp( scope.application );
-	                scope.rangeList = preferenceService.getDepthList();
+	                scope.timeList = PreferenceService.getUpdateTimes();
+					scope.callee = prevCallee = PreferenceService.getCalleeByApp( scope.application );
+	                scope.caller = prevCaller = PreferenceService.getCallerByApp( scope.application );
+	                scope.rangeList = PreferenceService.getDepthList();
 	                scope.applications = [
 	                    {
 	                        text: 'Select an application.',
@@ -54,7 +54,7 @@
 	                element.bind('selectstart', function (e) {
 	                    return false;
 	                });
-					tooltipService.init( "navbar" );
+					TooltipService.init( "navbar" );
 
 					function initDepth() {
 						$("#navbar_depth div").on("show.bs.dropdown", function() {
@@ -97,12 +97,12 @@
 	                    ];
 	                    scope.application = oNavbarVoService.getApplication() || "";
 						// if ( scope.application !== "" ) {
-							scope.callee = prevCallee = preferenceService.getCalleeByApp( scope.application );
-							scope.caller = prevCaller = preferenceService.getCallerByApp( scope.application );
+							scope.callee = prevCallee = PreferenceService.getCalleeByApp( scope.application );
+							scope.caller = prevCaller = PreferenceService.getCallerByApp( scope.application );
 						// }
 	                    scope.disableApplication = true;
-	                    scope.readablePeriod = oNavbarVoService.getReadablePeriod() || preferenceService.getPeriod();
-						scope.periodCalendar = oNavbarVoService.getReadablePeriod() || preferenceService.getPeriod();
+	                    scope.readablePeriod = oNavbarVoService.getReadablePeriod() || UserConfigService.getPeriod();
+						scope.periodCalendar = oNavbarVoService.getReadablePeriod() || UserConfigService.getPeriod();
 	                    scope.queryEndTime = oNavbarVoService.getQueryEndTime() || "";
 
 	                    initializeApplication();
@@ -121,8 +121,8 @@
 	                    $application = element.find('.application');
 	                    scope.application = oNavbarVoService.getApplication() || '';
 	                    scope.applicationName = oNavbarVoService.getApplicationName() || '';
-	                    scope.readablePeriod = oNavbarVoService.getReadablePeriod() || preferenceService.getPeriod();
-						scope.periodCalendar = oNavbarVoService.getReadablePeriod() || preferenceService.getPeriod();
+	                    scope.readablePeriod = oNavbarVoService.getReadablePeriod() || UserConfigService.getPeriod();
+						scope.periodCalendar = oNavbarVoService.getReadablePeriod() || UserConfigService.getPeriod();
 	                    scope.queryEndTime = oNavbarVoService.getQueryEndTime() || '';
 
 						$("#ui-datepicker-div").remove();
@@ -137,7 +137,7 @@
 	                 */
 	                initializeDateTimePicker = function () {
 						$fromToCalendarPopup = $("#ui-datepicker-div");
-						$fromToCalendarPopup.find(".guide").html(helpContentService.navbar.searchPeriod.guide.replace(/\{\{day\}\}/, preferenceService.getMaxPeriod() ) );
+						$fromToCalendarPopup.find(".guide").html(helpContentService.navbar.searchPeriod.guide.replace(/\{\{day\}\}/, PreferenceService.getMaxPeriod() ) );
 						$fromToCalendarPopup.find("button.ui-datepicker-close").on("click", function() {
 							$fromToCalendarPopup.hide();
 						});
@@ -155,7 +155,7 @@
 	                        onSelect: function () {
 	                        	var momentFrom = moment(getDate($fromPicker));
 	                        	var momentTo = moment(getDate($toPicker));
-	                        	if ( momentTo.isAfter( moment(getDate($fromPicker)).add(preferenceService.getMaxPeriod(), "days") ) || momentFrom.isAfter(momentTo) ) {
+	                        	if ( momentTo.isAfter( moment(getDate($fromPicker)).add(PreferenceService.getMaxPeriod(), "days") ) || momentFrom.isAfter(momentTo) ) {
 									var aPeriodTime = getPeriodForCalendar();
 	                        		setDateTime($toPicker, momentFrom.add( aPeriodTime[0], aPeriodTime[1] ).format());
 	                        	}
@@ -185,7 +185,7 @@
 	                        onSelect: function () {
 	                        	var momentFrom = moment(getDate($fromPicker));
 	                        	var momentTo = moment(getDate($toPicker));
-	                        	if ( momentFrom.isBefore(moment(getDate($toPicker)).subtract(preferenceService.getMaxPeriod(), "days")) || momentFrom.isAfter(momentTo) ) {
+	                        	if ( momentFrom.isBefore(moment(getDate($toPicker)).subtract(PreferenceService.getMaxPeriod(), "days")) || momentFrom.isAfter(momentTo) ) {
 									var aPeriodTime = getPeriodForCalendar();
 	                        		setDateTime($fromPicker, momentTo.subtract(aPeriodTime[0], aPeriodTime[1]).format());
 	                        	}
@@ -279,8 +279,8 @@
 	                    oNavbarVoService.setApplication(scope.application);
 						UrlVoService.setApplication(scope.application);
 
-						scope.callee = prevCallee = preferenceService.getCalleeByApp(scope.application);
-	                    scope.caller = prevCaller = preferenceService.getCallerByApp(scope.application);
+						scope.callee = prevCallee = PreferenceService.getCalleeByApp(scope.application);
+	                    scope.caller = prevCaller = PreferenceService.getCallerByApp(scope.application);
 
 						oNavbarVoService.setCalleeRange( scope.callee );
 	                    oNavbarVoService.setCallerRange( scope.caller );
@@ -306,7 +306,7 @@
 							oNavbarVoService.setPeriodType( cfg.periodType.REALTIME );
 							UrlVoService.setPeriodType( cfg.periodType.REALTIME );
 							getQueryEndTimeFromServer(function (currentServerTime) {
-								oNavbarVoService.setReadablePeriod( preferenceService.getRealtimeScatterXRangeStr() );
+								oNavbarVoService.setReadablePeriod( PreferenceService.getRealtimeScatterXRangeStr() );
 								oNavbarVoService.setQueryEndDateTime( CommonUtilService.formatDate( currentServerTime ) );
 								oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 								UrlVoService.setQueryEndDateTime( CommonUtilService.formatDate( currentServerTime ) );
@@ -341,7 +341,7 @@
 	                 * @param cb
 	                 */
 	                getQueryEndTimeFromServer = function (cb) {
-						commonAjaxService.getServerTime( function( serverTime ) {
+						CommonAjaxService.getServerTime( function( serverTime ) {
 							cb( serverTime );
 						});
 	                };
@@ -350,7 +350,7 @@
 	                 * get Application List
 	                 */
 	                getApplicationList = function () {
-						commonAjaxService.getApplicationList( function( data ) {
+						CommonAjaxService.getApplicationList( function( data ) {
 							if (angular.isArray(data) === false || data.length === 0) {
 								scope.applications[0].text = 'Application not found.';
 							} else {
@@ -396,32 +396,37 @@
 	                 * parse Application List
 	                 */
 	                parseApplicationList = function (data, cb) {
-	                	var aSavedFavoriteList = preferenceService.getFavoriteList();
-	                	scope.favoriteCount = aSavedFavoriteList.length;
-	                    scope.applications = [{
-	                        text: '',
-	                        value: ''
-	                    }];
-	                    var aFavoriteList = [];
-	                    var aGeneralList = [];
-	                    angular.forEach(data, function (value, key) {
-	                    	var fullName = value.applicationName + "@" + value.serviceType;
-	                    	if ( aSavedFavoriteList.indexOf( fullName ) === -1 ) {
-	                    		aGeneralList.push({
-		                            text: fullName,
-		                            value: value.applicationName + "@" + value.code
-		                        });
-	                    	} else {
-	                    		aFavoriteList.push({
-		                            text: fullName,
-		                            value: value.applicationName + "@" + value.code
-		                        });
-	                    	}
-	                    });
-	                    scope.applications = aFavoriteList.concat( aGeneralList );
-	                    if (angular.isFunction(cb)) {
-	                        cb.apply(scope);
-	                    }
+	                	UserConfigService.getFavoriteList(function( aSavedFavoriteList ){
+							scope.favoriteCount = aSavedFavoriteList.length;
+							scope.applications = [{
+								text: '',
+								value: ''
+							}];
+							var aFavoriteList = [];
+							var aGeneralList = [];
+							angular.forEach(data, function (value, key) {
+								var bFavorite = false;
+								var oValue = {
+									text: value.applicationName + "@" + value.serviceType,
+									value: value.applicationName + "@" + value.code
+								};
+								for( var j = 0 ; j< aSavedFavoriteList.length ; j++ ) {
+									if ( aSavedFavoriteList[j].applicationName === value.applicationName && aSavedFavoriteList[j].serviceType === value.serviceType ) {
+										bFavorite = true;
+										break;
+									}
+								}
+								if ( bFavorite ) {
+									aFavoriteList.push(oValue);
+								} else {
+									aGeneralList.push(oValue);
+								}
+							});
+							scope.applications = aFavoriteList.concat( aGeneralList );
+							if (angular.isFunction(cb)) {
+								cb.apply(scope);
+							}
+						});
 	                };
 	
 	                /**
@@ -460,7 +465,7 @@
 	                        }
 	                    });
 						$application.on("select2:select", function (e) {
-	                    	analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_APPLICATION );
+	                    	AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_APPLICATION );
 	                        scope.application = $application.val();
 	                        scope.$digest();
 	                        broadcast();
@@ -508,7 +513,7 @@
 	                	}
 	                };
 	                selectPeriod = function( readablePeriod ) {
-	                	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_TIME, readablePeriod);
+	                	AnalyticsService.send(AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_TIME, readablePeriod);
 	                    scope.periodDelay = true;
 	                    scope.readablePeriod = readablePeriod;
 	                    scope.autoUpdate = false;
@@ -580,7 +585,7 @@
 						}
 	                };
 					scope.changeUpdateSetting = function() {
-						analyticsService.send(analyticsService.CONST.MAIN, scope.autoUpdate ? analyticsService.CONST.TG_UPDATE_OFF : analyticsService.CONST.TG_UPDATE_ON );
+						AnalyticsService.send(AnalyticsService.CONST.MAIN, scope.autoUpdate ? AnalyticsService.CONST.TG_UPDATE_OFF : AnalyticsService.CONST.TG_UPDATE_ON );
 					};
 	
 	                /**
@@ -613,7 +618,7 @@
 	                 * @param time
 	                 */
 	                scope.setAutoUpdateTime = function (time) {
-	                	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_UPDATE_TIME, time + "s");
+	                	AnalyticsService.send(AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_UPDATE_TIME, time + "s");
 	                    scope.timeCountDown = time;
 	                    scope.timeLeft = time;
 	                };
@@ -628,12 +633,12 @@
 						bIsClickDepthInnerBtn = true;
 						$("#navbar_depth .dropdown-menu").trigger("click.bs.dropdown");
 						if ( prevCallee !== scope.callee || prevCaller !== scope.caller ) {
-							analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_CALLEE_RANGE, scope.callee);
-							analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_CALLER_RANGE, scope.caller);
+							AnalyticsService.send(AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_CALLEE_RANGE, scope.callee);
+							AnalyticsService.send(AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_CALLER_RANGE, scope.caller);
 							prevCallee = scope.callee;
 							prevCaller = scope.caller;
-							preferenceService.setDepthByApp( scope.application + "+callee", scope.callee );
-							preferenceService.setDepthByApp( scope.application + "+caller", scope.caller );
+							PreferenceService.setDepthByApp( scope.application + "+callee", scope.callee );
+							PreferenceService.setDepthByApp( scope.application + "+caller", scope.caller );
 
 							window.location.reload(true);
 							// broadcast();
@@ -673,13 +678,13 @@
 	                 * @param type
 	                 */
 	                scope.togglePeriod = function (type) {
-	                	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.TG_DATE, type);
+	                	AnalyticsService.send(AnalyticsService.CONST.MAIN, AnalyticsService.CONST.TG_DATE, type);
 	                    scope.periodType = type;
 	                    scope.autoUpdate = false;
 	                };
 					scope.setRealtime = function () {
 						if ( scope.periodType === cfg.periodType.REALTIME ) return;
-						analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_START_REALTIME );
+						AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_START_REALTIME );
 						scope.periodType = cfg.periodType.REALTIME;
 						scope.autoUpdate = false;
 						broadcast();
@@ -712,12 +717,12 @@
 	                scope.$on('navbarDirective.initialize.andReload', function (event, navbarVo) {
 	                    initialize(navbarVo);
 	                    scope.periodType = cfg.periodType.LAST;
-	                    selectPeriod(preferenceService.getPeriod());
+	                    selectPeriod(UserConfigService.getPeriod());
 	                });
 					scope.$on('navbarDirective.initialize.realtime.andReload', function (event, navbarVo) {
 						initialize(navbarVo);
 						scope.periodType = cfg.periodType.REALTIME;
-						selectPeriod(preferenceService.getPeriod());
+						selectPeriod(UserConfigService.getPeriod());
 					});
 	
 	                /**

@@ -174,6 +174,8 @@ module.exports = function( grunt, options ) {
 				'/common/services/tooltip.service.js',
 				'/common/services/common-util.service.js',
 				'/common/services/local-storage-manager.service.js',
+				'/common/services/system-configuration.service.js',
+				'/common/services/user-configuration.service.js',
 
 				'/features/applicationList/application-list.directive.js',
 				'/features/periodSelector/period-selector.directive.js',
