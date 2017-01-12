@@ -77,7 +77,7 @@
                                     "title": "S.C",
                                     "valueField": "sampledContinuationTps",
                                     "fillAlphas": 0.4,
-                                    "connect": true
+                                    "connect": false
                                 },{
                                     "balloonText": "Sampled New : [[value]]",
                                     "legendValueText": "[[value]]",
@@ -86,7 +86,7 @@
                                     "title": "S.N",
                                     "valueField": "sampledNewTps",
                                     "fillAlphas": 0.4,
-                                    "connect": true
+                                    "connect": false
                                 },{
                                     "balloonText": "Unsampled Continuation : [[value]]",
                                     "legendValueText": "[[value]]",
@@ -95,7 +95,7 @@
                                     "title": "U.C",
                                     "valueField": "unsampledContinuationTps",
                                     "fillAlphas": 0.4,
-                                    "connect": true
+                                    "connect": false
                                 },{
                                     "balloonText": "Unsampled New : [[value]]",
                                     "legendValueText": "[[value]]",
@@ -104,7 +104,7 @@
                                     "title": "U.N",
                                     "valueField": "unsampledNewTps",
                                     "fillAlphas": 0.4,
-                                    "connect": true
+                                    "connect": false
                                 },{
                                     "balloonText": "Total : [[value]]",
                                     "legendValueText": "[[value]]",
@@ -113,7 +113,7 @@
 									"title": "Total",
                                     "valueField": "totalTps",
                                     "fillAlphas": 0.4,
-                                    "connect": true
+                                    "connect": false
                                 }
                             ],
                             "categoryField": "time",
