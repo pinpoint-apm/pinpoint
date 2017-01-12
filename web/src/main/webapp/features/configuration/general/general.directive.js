@@ -20,6 +20,17 @@
 
 					init();
 
+					function duplicateData( aList ) {
+						var a = [];
+						for( var i = 0 ; i < aList.length ; i++ ) {
+							a.push({
+								"applicationName": aList[i].applicationName,
+								"serviceType": aList[i].serviceType,
+								"code": aList[i].code
+							});
+						}
+						return a;
+					}
 					function init() {
 						scope.depthList = PreferenceService.getDepthList();
 						scope.caller = UserConfigService.getCaller();
@@ -27,7 +38,7 @@
 						scope.periodTime = PreferenceService.getPeriodTime();
 						scope.period = UserConfigService.getPeriod();
 						UserConfigService.getFavoriteList(function(aFavoriteList) {
-							scope.savedFavoriteList = aFavoriteList;
+							scope.savedFavoriteList = duplicateData( aFavoriteList );
 						}, true);
 						scope.timezone = moment.tz.names();
 						scope.userTimezone = UserConfigService.getTimezone();
@@ -50,9 +61,9 @@
 						AnalyticsService.sendMain( AnalyticsService.CONST.CLK_GENERAL_SET_FAVORITE );
 						UserConfigService.addFavorite( newAppName, newAppCode, function() {
 							UserConfigService.getFavoriteList(function (aFavoriteList) {
-								scope.savedFavoriteList = aFavoriteList;
+								scope.savedFavoriteList = duplicateData( aFavoriteList );
+								scope.$emit("up.changed.favorite");
 							}, true);
-							scope.$emit("up.changed.favorite");
 						});
 					}
 					scope.changeCaller = function( caller ) {
@@ -73,9 +84,9 @@
 						AnalyticsService.sendMain( AnalyticsService.CONST.CLK_GENERAL_SET_FAVORITE );
 						UserConfigService.removeFavorite( appName, appType, function() {
 							UserConfigService.getFavoriteList(function (aFavoriteList) {
-								scope.savedFavoriteList = aFavoriteList;
+								scope.savedFavoriteList = duplicateData( aFavoriteList );
+								scope.$emit("up.changed.favorite");
 							}, true);
-							scope.$emit("up.changed.favorite");
 						});
 					};
 					scope.applyNReload = function() {
