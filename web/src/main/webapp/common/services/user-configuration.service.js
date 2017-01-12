@@ -99,6 +99,8 @@
 					});
 				}
 				setFavoriteList(function(){});
+			} else {
+				aFavoriteList = aLocalList;
 			}
 		}catch(e){
 			aFavoriteList = [];
