@@ -47,6 +47,7 @@
     </pluginRepositories>
 
     <modules>
+        <module>annotations</module>
         <module>agent</module>
         <module>bootstrap-core</module>
         <module>bootstrap-core-optional</module>
@@ -108,6 +109,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-annotations</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-commons</artifactId>
