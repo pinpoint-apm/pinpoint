@@ -7,9 +7,11 @@
 				"LAST": "last",
 				"REALTIME": "realtime"
 			},
+			inspectorPeriodTime: [ "5m", "20m", "1h", "3h", "6h", "12h", "1d", "2d", "7d" ],
 			periodTime: [ "5m", "20m", "1h", "3h", "6h", "12h", "1d", "2d"],
 			depthList: [ 1, 2, 3, 4],
 			maxPeriod: 2,
+			inspectorMaxPeriod: 7,
 			realtimeScatterPeriod: 5 * 60 * 1000,//5m
 			responseType: [ "1s", "3s", "5s", "Slow", "Error" ],
 			responseTypeColor: [ "#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034" ],
@@ -31,19 +33,20 @@
 		}
 	});
 	
-	pinpointApp.service( "PreferenceService", [ "PreferenceServiceConfig", "webStorage", "UserConfigurationService", function( cfg, webStorage, UserConfigService ) {
+	pinpointApp.service( "PreferenceService", [ "PreferenceServiceConfig", "$route", "webStorage", "UserConfigurationService", function( cfg, $route, webStorage, UserConfigService ) {
+		var bInspectorPage = $route.current.loadedTemplateUrl.indexOf("/inspector") === -1 ? false : true;
 
 		this.getDepthList = function() {
 			return cfg.cst.depthList;
 		};
 		this.getPeriodTime = function() {
-			return cfg.cst.periodTime;
+			return bInspectorPage ? cfg.cst.inspectorPeriodTime : cfg.cst.periodTime;
 		};
 		this.getPeriodType = function() {
 			return cfg.cst.periodType;
 		};
 		this.getMaxPeriod = function() {
-			return cfg.cst.maxPeriod;
+			return bInspectorPage ? cfg.cst.inspectorMaxPeriod : cfg.cst.maxPeriod;
 		};
 		this.getRealtimeScatterXRange = function() {
 			return cfg.cst.realtimeScatterPeriod;

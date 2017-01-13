@@ -47,7 +47,7 @@
                             "marginTop": 10,
                             "marginLeft": 70,
                             "marginRight": 70,
-                            "marginBottom": 30,
+                            "marginBottom": 40,
                             "legend": {
                                 "useGraphSettings": true,
                                 "autoMargins": true,
@@ -106,8 +106,8 @@
                                 "axisColor": "#DADADA",
                                 "startOnAxis": true,
                                 "gridPosition": "start",
-                                "labelFunction": function (valueText, serialDataItem, categoryAxis) {
-                                	return moment(valueText).format("HH:mm:ss");
+                                "labelFunction": function (valueText) {
+									return valueText.replace(/\s/, "<br>").replace(/-/g, ".").substring(2);
                                 }
                             }
                         };

@@ -139,14 +139,14 @@
 					}
 					function calcuSliderTimeSeries( aFromTo ) {
 						var from = aFromTo[0], to = aFromTo[1];
-						var twoDay = 172800000;
+						var maxDay = TimeSlider.MAX_TIME_RANGE;
 						var fromTo = to - from;
-						if ( fromTo > twoDay  ) {
-							return [to - twoDay, to];
+						if ( fromTo > maxDay  ) {
+							return [to - maxDay, to];
 						} else {
 							var calcuFrom = fromTo * 3;
-							if ( calcuFrom > twoDay ) {
-								return [ to - twoDay, to ];
+							if ( calcuFrom > maxDay ) {
+								return [ to - maxDay, to ];
 							} else {
 								return [ to - calcuFrom, to ];
 							}
