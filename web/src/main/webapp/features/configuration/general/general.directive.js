@@ -12,6 +12,7 @@
 				},
 				link: function( scope, element, attr ) {
 					var $element = element;
+					var $elFavoriteList = $element.find("ul.favorite-list");
 					var myName = attr["name"];
 					var $depthPopup = $element.find(".inout-bound");
 					var bCloseDepthPopup = false;
@@ -20,16 +21,17 @@
 
 					init();
 
-					function duplicateData( aList ) {
-						var a = [];
-						for( var i = 0 ; i < aList.length ; i++ ) {
-							a.push({
-								"applicationName": aList[i].applicationName,
-								"serviceType": aList[i].serviceType,
-								"code": aList[i].code
-							});
+					function renderList() {
+						$elFavoriteList.empty();
+						for( var i = 0 ; i < scope.savedFavoriteList.length ; i++ ) {
+							var oFavor = scope.savedFavoriteList[i];
+							renderElement( oFavor.applicationName, oFavor.serviceType, oFavor.code );
 						}
-						return a;
+					}
+					function renderElement( appName, appType, code ) {
+						$elFavoriteList.append(
+							'<li data-name="' + appName + '" data-type="' + appType + '" data-code="' + code + '"><img src="/images/icons/' + appType + '.png" height="25px"/>' + appName + '<button class="btn btn-danger btn-xs" style="float:right"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></li>'
+						);
 					}
 					function init() {
 						scope.depthList = PreferenceService.getDepthList();
@@ -38,7 +40,8 @@
 						scope.periodTime = PreferenceService.getPeriodTime();
 						scope.period = UserConfigService.getPeriod();
 						UserConfigService.getFavoriteList(function(aFavoriteList) {
-							scope.savedFavoriteList = duplicateData( aFavoriteList );
+							scope.savedFavoriteList = aFavoriteList;
+							renderList();
 						}, true);
 						scope.timezone = moment.tz.names();
 						scope.userTimezone = UserConfigService.getTimezone();
@@ -61,8 +64,9 @@
 						AnalyticsService.sendMain( AnalyticsService.CONST.CLK_GENERAL_SET_FAVORITE );
 						UserConfigService.addFavorite( newAppName, newAppCode, function() {
 							UserConfigService.getFavoriteList(function (aFavoriteList) {
-								scope.savedFavoriteList = duplicateData( aFavoriteList );
+								scope.savedFavoriteList = aFavoriteList;
 								scope.$emit("up.changed.favorite");
+								renderElement( newAppName.split("@")[0], newAppName.split("@")[1], newAppCode );
 							}, true);
 						});
 					}
@@ -80,14 +84,19 @@
 						AnalyticsService.sendMain( AnalyticsService.CONST.CLK_GENERAL_SET_PERIOD, scope.period );
 						UserConfigService.setPeriod( scope.period );
 					};
-					scope.removeFavorite = function( appName, appType ) {
-						AnalyticsService.sendMain( AnalyticsService.CONST.CLK_GENERAL_SET_FAVORITE );
-						UserConfigService.removeFavorite( appName, appType, function() {
-							UserConfigService.getFavoriteList(function (aFavoriteList) {
-								scope.savedFavoriteList = duplicateData( aFavoriteList );
-								scope.$emit("up.changed.favorite");
-							}, true);
-						});
+					scope.removeFavorite = function( $event ) {
+						var tagName = $event.target.tagName.toLowerCase();
+						if ( tagName === "button" || tagName === "span" ) {
+							var $elLi = $( $event.target ).parents("li");
+							AnalyticsService.sendMain( AnalyticsService.CONST.CLK_GENERAL_SET_FAVORITE );
+							UserConfigService.removeFavorite( $elLi.attr("data-name"), $elLi.attr("data-type"), function() {
+								UserConfigService.getFavoriteList(function (aFavoriteList) {
+									scope.savedFavoriteList = aFavoriteList;
+									scope.$emit("up.changed.favorite");
+									$elLi.remove();
+								}, true);
+							});
+						}
 					};
 					scope.applyNReload = function() {
 						AnalyticsService.sendMain( AnalyticsService.CONST.CLK_GENERAL_SET_TIMEZONE, scope.newUserTimezone );
