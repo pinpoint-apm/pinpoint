@@ -19,15 +19,22 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+
 /**
  * @author jaehong.kim
  */
 public class DefaultAsyncTraceId implements AsyncTraceId {
 
+    private static final AtomicIntegerFieldUpdater<DefaultAsyncTraceId> ASYNC_SEQUENCE_UPDATER
+            = AtomicIntegerFieldUpdater.newUpdater(DefaultAsyncTraceId.class, "asyncSequence");
+
     private final TraceId traceId;
     private final int asyncId;
     private final long startTime;
-    private short asyncSequence = 0;
+
+    @SuppressWarnings("unused")
+    private volatile int asyncSequence = 0;
 
     public DefaultAsyncTraceId(final TraceId traceId, final int asyncId, final long startTime) {
         if (traceId == null) {
@@ -43,9 +50,8 @@ public class DefaultAsyncTraceId implements AsyncTraceId {
         return asyncId;
     }
 
-    public synchronized short nextAsyncSequence() {
-        this.asyncSequence += 1;
-        return this.asyncSequence;
+    public short nextAsyncSequence() {
+        return (short) ASYNC_SEQUENCE_UPDATER.incrementAndGet(this);
     }
 
     @Override

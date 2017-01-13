@@ -40,7 +40,7 @@ public class CloseableAsyncTraceId implements AsyncTraceId, AsyncTraceCloseable 
     }
 
     @Override
-    public synchronized short nextAsyncSequence() {
+    public short nextAsyncSequence() {
         return this.traceId.nextAsyncSequence();
     }
 
@@ -101,8 +101,9 @@ public class CloseableAsyncTraceId implements AsyncTraceId, AsyncTraceCloseable 
 
     @Override
     public void close() {
-        if (this.closeable != null) {
-            this.closeable.close();
+        final AsyncTraceCloseable copy = this.closeable;
+        if (copy != null) {
+            copy.close();
         }
     }
 }
