@@ -24,7 +24,7 @@
             "headerZoneHeight": 20,       // 상단 시간 표시영역의 height
             "stateLineThickness": 4,       // 상태선의 두께
             "minSliderTimeSeries": 6000,             // 6sec
-            "maxSelectionTimeSeries": 172800000,	// 2day
+			"maxSelectionTimeSeries": TimeSlider.MAX_TIME_RANGE,	// 7day
             "headerTextTopPadding": 10,   // 상단 상태선과 시간 text의 간격
             "selectionPointRadius": 4
         };
@@ -274,5 +274,6 @@
 	};
 	TimeSlider.GREEN = "10100";
 	TimeSlider.RED = "10200";
+	TimeSlider.MAX_TIME_RANGE = 604800000;
     w.TimeSlider = TimeSlider;
 })(window, jQuery);
