@@ -5,7 +5,7 @@
 	pinpointApp.directive("loadChartDirective", ["loadChartDirectiveConfig", "$timeout", "AnalyticsService", "PreferenceService", "CommonUtilService", function (cfg, $timeout, AnalyticsService, PreferenceService, CommonUtilService ) {
 		var responseTypeColor = PreferenceService.getResponseTypeColor();
         return {
-			template: "<div style='text-align:center'></div>",
+			template: "<div style='text-align:center;user-select:none;'></div>",
             replace: true,
             restrict: 'EA',
             scope: {
@@ -152,39 +152,39 @@
                 function renderChart(data, useChartCursor) {
                 	element.empty().append("<canvas>");
 					oChart = new Chart(element.find("canvas"), {
-						type: 'bar',
+						type: "bar",
 						data: {
 							labels: data.labels,
 							borderWidth: 0,
 							datasets: [{
 								label: data.keyValues[0].key,
 								data: data.keyValues[0].values,
-								backgroundColor: 'rgba(44, 160, 44, 0.2)',
-								borderColor: 'rgba(120, 119, 121, 0.8)',
+								backgroundColor: "rgba(44, 160, 44, 0.2)",
+								borderColor: "rgba(120, 119, 121, 0.8)",
 								borderWidth: 0
 							},{
 								label: data.keyValues[1].key,
 								data: data.keyValues[1].values,
-								backgroundColor: 'rgba(60, 129, 250, 0.2)',
-								borderColor: 'rgba(120, 119, 121, 0.8)',
+								backgroundColor: "rgba(60, 129, 250, 0.2)",
+								borderColor: "rgba(120, 119, 121, 0.8)",
 								borderWidth: 0
 							},{
 								label: data.keyValues[2].key,
 								data: data.keyValues[2].values,
-								backgroundColor: 'rgba(248, 199, 49, 0.2)',
-								borderColor: 'rgba(120, 119, 121, 0.8)',
+								backgroundColor: "rgba(248, 199, 49, 0.2)",
+								borderColor: "rgba(120, 119, 121, 0.8)",
 								borderWidth: 0
 							},{
 								label: data.keyValues[3].key,
 								data: data.keyValues[3].values,
-								backgroundColor: 'rgba(246, 145, 36, 0.2)',
-								borderColor: 'rgba(120, 119, 121, 0.8)',
+								backgroundColor: "rgba(246, 145, 36, 0.2)",
+								borderColor: "rgba(120, 119, 121, 0.8)",
 								borderWidth: 0
 							},{
 								label: data.keyValues[4].key,
 								data: data.keyValues[4].values,
-								backgroundColor: 'rgba(245, 48, 52, 0.2)',
-								borderColor: 'rgba(120, 119, 121, 0.8)',
+								backgroundColor: "rgba(245, 48, 52, 0.2)",
+								borderColor: "rgba(120, 119, 121, 0.8)",
 								borderWidth: 0
 							}]
 						},
@@ -199,9 +199,13 @@
 							},
 							scales: {
 								yAxes: [{
+									gridLines: {
+										zeroLineColor: "rgba(0, 0, 0, 1)",
+										zeroLineWidth: 0.5
+									},
 									ticks: {
 										beginAtZero: true,
-										maxTicksLimit: 3,
+										maxTicksLimit: 5,
 										callback: function(label) {
 											if ( label >= 1000 ) {
 												return label/1000 + 'k';
@@ -213,9 +217,12 @@
 									stacked: true
 								}],
 								xAxes: [{
+									gridLines: {
+										zeroLineColor: "rgba(0, 0, 0, 1)",
+										zeroLineWidth: 0.5
+									},
 									ticks: {
-										autoSkip: true,
-										padding: 20
+										autoSkip: true
 									},
 									categoryPercentage: 1.0,
 									barPercentage: 1.0,
@@ -406,7 +413,7 @@
 							bHasData = true;
 							newValues.push( data[i].values[j][1] );
 							if ( i === 0 ) {
-								newData.labels.push( CommonUtilService.formatDate(data[i].values[j][0], "MM-DD HH:mm").split(" ").join("\n") );
+								newData.labels.push( CommonUtilService.formatDate(data[i].values[j][0], "MM-DD HH:mm").split(" ") );
 							}
 						}
 						newData.keyValues.push({
@@ -418,12 +425,10 @@
 				}
 
                 scope.$on("loadChartDirective.initAndRenderWithData." + scope.namespace, function (event, data, w, h, useChartCursor) {
-                	console.log( "loadChart : ", data );
                     setIdAutomatically();
                     setWidthHeight(w, h);
                     // var parsedData = parseTimeSeriesHistogramForAmcharts(data);
                     var parsedData = parseTimeSeriesHistogram(data);
-                    console.log( "parsedData", parsedData );
                     if ( parsedData.length === 0 ) {
                     	// renderEmpty();
 						renderEmptyChart();
