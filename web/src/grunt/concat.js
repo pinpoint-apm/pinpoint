@@ -21,7 +21,8 @@ module.exports = function( grunt, options ) {
 				'/d3/d3.min.js',
 				'/amcharts/amcharts.js',
 				'/amcharts/serial.js',
-				'/amcharts/themes/light.js'
+				'/amcharts/themes/light.js',
+				'/chartjs/Chart.min.js'
 			], options.RESOURCE_PATH.COMPONENT ),
 			dest: options.RESOURCE_PATH.DEST_JS + '/draw-lib.min.js'
 		},
