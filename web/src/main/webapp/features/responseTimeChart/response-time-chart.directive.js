@@ -8,7 +8,7 @@
         function (cfg, $timeout, AnalyticsService, PreferenceService, CommonUtilService ) {
 			var responseTypeColor = PreferenceService.getResponseTypeColor();
             return {
-                template: "<div></div>",
+                template: "<div style='user-select:none;'></div>",
                 replace: true,
                 restrict: "EA",
                 scope: {
@@ -71,7 +71,6 @@
                             		scope.$emit('responseTimeChartDirective.showErrorTransactionList', event.item.category );
                             	}
                             	if ( useFilterTransaction ) {
-                            		console.log( "useFilter : ", event.item.serialDataItem.dataContext );
                             		scope.$emit('responseTimeChartDirective.itemClicked.' + scope.namespace, event.item.serialDataItem.dataContext);
                             	}
                             });
@@ -105,7 +104,7 @@
 										"rgba(120, 119, 121, 0.8)",
 										"rgba(120, 119, 121, 0.8)"
 									],
-									borderWidth: 1
+									borderWidth: 0.5
 								}]
 							},
 							options: {
@@ -123,21 +122,24 @@
 											});
 										}
 									}
+									event.preventDefault();
 								},
 								maintainAspectRatio: false,
 								legend: {
 									display: false
 								},
 								title: {
-									text: "Response Summary",
-									display: false,
-									padding: 10,
-									fontSize: 16
+									text: "",
+									display: true,
+									fontSize: 8,
+									padding: 4
 								},
 								scales: {
 									yAxes: [{
 										gridLines: {
-											color: "rgba(0, 0, 0, 0.1)"
+											color: "rgba(0, 0, 0, 0.1)",
+											zeroLineColor: "rgba(0, 0, 0, 1)",
+											zeroLineWidth: 0.5
 										},
 										ticks: {
 											beginAtZero:true,
@@ -153,8 +155,11 @@
 									}],
 									xAxes: [{
 										gridLines: {
-											color: "rgba(0, 0, 0, 0)"
-										}									}]
+											color: "rgba(255, 255, 255, 0)",
+											zeroLineColor: "rgba(0, 0, 0, 1)",
+											zeroLineWidth: 0.5
+										}
+									}]
 								},
 								animation: {
 									duration: 0,
