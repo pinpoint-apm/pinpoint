@@ -338,7 +338,7 @@
 				hideSub();
 	        	$element.css("top", "initial").animate({
 					left: 0,
-	        		bottom: -parseInt(LocalStorageManagerService.getRealtimeLayerHeight())
+	        		bottom: -parseInt(LocalStorageManagerService.getRealtimeLayerHeight() || cfg.css.height)
 	        	}, 500, function() {
 	        	});
 	        }
