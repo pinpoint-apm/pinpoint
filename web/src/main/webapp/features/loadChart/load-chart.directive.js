@@ -211,7 +211,7 @@
 												return "   " + label/1000 + 'k';
 											} else {
 												if ( label % 1 === 0 ) {
-													return "    " + label;
+													return getPreSpace(""+label) + label;
 												}
 											}
 										}
@@ -244,6 +244,14 @@
 							}
 						}
 					});
+				}
+				function getPreSpace( str ) {
+                	var space = "       "; //7 is max space
+					if ( str.length > space.length ) {
+						return str;
+					} else {
+						return space.substr(0, space.length - str.length);
+					}
 				}
 
 //                 function renderSimple(data, useChartCursor) {
