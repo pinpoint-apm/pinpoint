@@ -351,7 +351,7 @@
 	        	});
 	        }
 	        function adjustWidth() {
-	        	$element.innerWidth( $element.parent().width() - cfg.css.borderWidth + "px" );
+	        	$element.css("top", "initial").innerWidth( $element.parent().width() - cfg.css.borderWidth + "px" );
 	        }
 	        function setPinColor() {
 	        	$elPin.css("color", bIsPinned ? "red": "");
@@ -441,6 +441,9 @@
 	        	adjustWidth();
 	        	var newHeight = $window.innerHeight - cfg.css.navBarHeight;
 				$element.resizable("option", "maxHeight", newHeight);
+				if ( parseInt($element.css("height")) > newHeight && newHeight > cfg.css.height ) {
+					$element.css("height", newHeight);
+				}
 	        });
 			$element.resizable({
 	        	minHeight: cfg.css.height,
