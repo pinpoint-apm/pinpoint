@@ -208,9 +208,11 @@
 										maxTicksLimit: 5,
 										callback: function(label) {
 											if ( label >= 1000 ) {
-												return label/1000 + 'k';
+												return "   " + label/1000 + 'k';
 											} else {
-												return label;
+												if ( label % 1 === 0 ) {
+													return "    " + label;
+												}
 											}
 										}
 									},
@@ -354,7 +356,7 @@
 						if ( data.length === 0 ) {
 							renderEmptyChart();
 						} else {
-							element.find("canvas").show();
+							element.find("h4").hide().end().find("canvas").show();
 							oChart.data.datasets[0].data = data.keyValues[0].values;
 							oChart.data.datasets[1].data = data.keyValues[1].values;
 							oChart.data.datasets[2].data = data.keyValues[2].values;
@@ -413,7 +415,7 @@
 							bHasData = true;
 							newValues.push( data[i].values[j][1] );
 							if ( i === 0 ) {
-								newData.labels.push( CommonUtilService.formatDate(data[i].values[j][0], "MM-DD HH:mm").split(" ") );
+								newData.labels.push( CommonUtilService.formatDate(data[i].values[j][0], "MM-DD HH:mm") );
 							}
 						}
 						newData.keyValues.push({
