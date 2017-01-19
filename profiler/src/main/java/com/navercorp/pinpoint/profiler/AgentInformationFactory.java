@@ -50,7 +50,7 @@ public class AgentInformationFactory {
             throw new NullPointerException("serverType must not be null");
         }
         final String machineName = NetworkUtils.getHostName();
-        final String hostIp = NetworkUtils.getHostIp();
+        final String hostIp = NetworkUtils.getRepresentationHostIp();
         final long startTime = RuntimeMXBeanUtils.getVmStartTime();
         final int pid = RuntimeMXBeanUtils.getPid();
         final String jvmVersion = JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION);
