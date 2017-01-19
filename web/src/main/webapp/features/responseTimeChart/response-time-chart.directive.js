@@ -132,7 +132,7 @@
 									text: "",
 									display: true,
 									fontSize: 8,
-									padding: 4
+									padding: 6
 								},
 								scales: {
 									yAxes: [{
@@ -146,9 +146,9 @@
 											maxTicksLimit: 3,
 											callback: function(label) {
 												if ( label >= 1000 ) {
-													return label/1000 + 'k';
+													return "    " + label/1000 + 'k';
 												} else {
-													return label;
+													return "    " + label;
 												}
 											}
 										}
@@ -218,6 +218,12 @@
                         return newData;
                     }
                     function parseHistogram(data) {
+                    	if ( typeof data === "undefined" || data === null ) {
+                    		return {
+                    			keys: ["1s", "3s", "5s", "Slow", "Error"],
+								values: [0, 0, 0, 0, 0]
+							};
+						}
 						var oRet = {
 							keys: [],
 							values: []
