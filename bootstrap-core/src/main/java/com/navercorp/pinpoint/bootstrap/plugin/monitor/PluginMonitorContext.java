@@ -21,6 +21,6 @@ package com.navercorp.pinpoint.bootstrap.plugin.monitor;
  */
 public interface PluginMonitorContext {
 
-    PluginMonitorWrapperLocator<DataSourceMonitorWrapper> getDataSourceMonitorLocator();
+    PluginMonitorRegistry<DataSourceMonitor> getDataSourceMonitorRegistry();
 
 }

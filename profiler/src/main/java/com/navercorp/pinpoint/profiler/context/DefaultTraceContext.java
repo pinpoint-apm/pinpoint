@@ -16,11 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
@@ -29,6 +24,9 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DefaultPluginMonitorContext;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DisabledPluginMonitorContext;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorContext;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceFactory;
@@ -44,6 +42,10 @@ import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
 import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author emeroad
@@ -56,6 +58,7 @@ public class DefaultTraceContext implements TraceContext {
     private final boolean isDebug = logger.isDebugEnabled();
 
     private static final boolean TRACE_ACTIVE_THREAD = true;
+    private static final boolean TRACE_DATASOURCE = false;
 
     private final TraceFactory traceFactory;
 
@@ -74,16 +77,22 @@ public class DefaultTraceContext implements TraceContext {
 
     private final AtomicInteger asyncId = new AtomicInteger();
 
+    private final PluginMonitorContext pluginMonitorContext;
+
     private final IdGenerator idGenerator = new IdGenerator();
 
     private final TransactionCounter transactionCounter = new DefaultTransactionCounter(this.idGenerator);
 
     // for test
     public DefaultTraceContext(final AgentInformation agentInformation) {
-        this(LRUCache.DEFAULT_CACHE_SIZE, agentInformation, new LogStorageFactory(), new TrueSampler(), new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs()), TRACE_ACTIVE_THREAD);
+        this(LRUCache.DEFAULT_CACHE_SIZE, agentInformation, new LogStorageFactory(), new TrueSampler(), new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs()), TRACE_ACTIVE_THREAD, TRACE_DATASOURCE);
     }
 
     public DefaultTraceContext(final int sqlCacheSize, final AgentInformation agentInformation, StorageFactory storageFactory, Sampler sampler, ServerMetaDataHolder serverMetaDataHolder, final boolean traceActiveThread) {
+        this(sqlCacheSize, agentInformation, storageFactory, sampler, serverMetaDataHolder, traceActiveThread, TRACE_DATASOURCE);
+    }
+
+    public DefaultTraceContext(final int sqlCacheSize, final AgentInformation agentInformation, StorageFactory storageFactory, Sampler sampler, ServerMetaDataHolder serverMetaDataHolder, final boolean traceActiveThread, final boolean traceDataSource) {
         if (agentInformation == null) {
             throw new NullPointerException("agentInformation must not be null");
         }
@@ -100,6 +109,12 @@ public class DefaultTraceContext implements TraceContext {
         this.traceFactory = createTraceFactory(storageFactory, sampler, traceActiveThread);
 
         this.serverMetaDataHolder = serverMetaDataHolder;
+
+        if (traceDataSource) {
+            this.pluginMonitorContext = new DefaultPluginMonitorContext();
+        } else {
+            this.pluginMonitorContext = new DisabledPluginMonitorContext();
+        }
     }
 
     private TraceFactory createTraceFactory(StorageFactory storageFactory, Sampler sampler, boolean recordActiveThread) {
@@ -316,6 +331,11 @@ public class DefaultTraceContext implements TraceContext {
     public int getAsyncId() {
         final int id = asyncId.incrementAndGet();
         return id == -1 ? asyncId.incrementAndGet() : id;
+    }
+
+    @Override
+    public PluginMonitorContext getPluginMonitorContext() {
+        return pluginMonitorContext;
     }
 
     public ActiveTraceLocator getActiveTraceLocator() {

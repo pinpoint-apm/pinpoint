@@ -19,26 +19,27 @@ package com.navercorp.pinpoint.bootstrap.plugin.monitor;
 /**
  * @author Taejin Koo
  */
-public class DefaultPluginMonitorContext implements PluginMonitorContext {
+public class DisabledPluginMonitorContext implements PluginMonitorContext {
 
-    private final DataSourceMonitorList dataSourceMonitorList;
-
-    // it will be changed using ProfilerConfig
-    public DefaultPluginMonitorContext() {
-        this(5);
-    }
-
-    public DefaultPluginMonitorContext(int limitIdNumber) {
-        dataSourceMonitorList = new DataSourceMonitorList(limitIdNumber);
-    }
+    private static DisabledPluginMonitorRegistry<DataSourceMonitor> DISABLED_DATASOURCE_REGISTRY = new DisabledPluginMonitorRegistry<DataSourceMonitor>();
 
     @Override
     public PluginMonitorRegistry<DataSourceMonitor> getDataSourceMonitorRegistry() {
-        return dataSourceMonitorList;
+        return DISABLED_DATASOURCE_REGISTRY;
     }
 
-    public PluginMonitorWrapperLocator<DataSourceMonitorWrapper> getDataSourceMonitorLocator() {
-        return dataSourceMonitorList;
+    private static class DisabledPluginMonitorRegistry<T> implements PluginMonitorRegistry<T> {
+
+        @Override
+        public boolean register(T pluginMonitor) {
+            return false;
+        }
+
+        @Override
+        public boolean unregister(T pluginMonitor) {
+            return false;
+        }
+
     }
 
 }
