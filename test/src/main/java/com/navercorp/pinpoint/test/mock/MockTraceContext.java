@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorContext;
 
 /**
  * @author emeroad
@@ -148,6 +149,11 @@ public class MockTraceContext implements TraceContext {
     @Override
     public int getAsyncId() {
         return 0;
+    }
+
+    @Override
+    public PluginMonitorContext getPluginMonitorContext() {
+        return null;
     }
 
     @Override

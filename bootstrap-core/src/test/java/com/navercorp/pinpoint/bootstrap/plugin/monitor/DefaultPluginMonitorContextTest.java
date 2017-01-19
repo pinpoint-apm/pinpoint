@@ -30,42 +30,44 @@ public class DefaultPluginMonitorContextTest {
     @Test
     public void registerTest1() throws Exception {
         DefaultPluginMonitorContext context = new DefaultPluginMonitorContext();
-        DataSourceMonitorRegistry dataSourceMonitorRegistry = context.getDataSourceMonitorRegistry();
-        int remainingCapacity = dataSourceMonitorRegistry.getRemainingIdNumber();
+        PluginMonitorWrapperLocator<DataSourceMonitorWrapper> dataSourceMonitorLocator = context.getDataSourceMonitorLocator();
+        DataSourceMonitorList dataSourceMonitorList = (DataSourceMonitorList) dataSourceMonitorLocator;
+        int remainingCapacity = dataSourceMonitorList.getRemainingIdNumber();
 
-        MockDataSourceMonitor[] mockDataSourceMonitors = createMockDataSourceMonitor(dataSourceMonitorRegistry, remainingCapacity);
-        Assert.assertEquals(remainingCapacity, dataSourceMonitorRegistry.getPluginMonitorWrapperList().size());
+        MockDataSourceMonitor[] mockDataSourceMonitors = createMockDataSourceMonitor(dataSourceMonitorList, remainingCapacity);
+        Assert.assertEquals(remainingCapacity, dataSourceMonitorList.getPluginMonitorWrapperList().size());
 
-        addOverDataSourceMonitor(dataSourceMonitorRegistry);
-        Assert.assertEquals(remainingCapacity, dataSourceMonitorRegistry.getPluginMonitorWrapperList().size());
+        addOverDataSourceMonitor(dataSourceMonitorList);
+        Assert.assertEquals(remainingCapacity, dataSourceMonitorList.getPluginMonitorWrapperList().size());
 
         for (MockDataSourceMonitor mockMonitor : mockDataSourceMonitors) {
-            boolean unregister = dataSourceMonitorRegistry.unregister(mockMonitor);
+            boolean unregister = dataSourceMonitorList.unregister(mockMonitor);
             Assert.assertTrue(unregister);
         }
-        Assert.assertEquals(0, dataSourceMonitorRegistry.getPluginMonitorWrapperList().size());
+        Assert.assertEquals(0, dataSourceMonitorLocator.getPluginMonitorWrapperList().size());
 
     }
 
     @Test
     public void registerTest2() throws Exception {
         DefaultPluginMonitorContext context = new DefaultPluginMonitorContext();
-        DataSourceMonitorRegistry dataSourceMonitorRegistry = context.getDataSourceMonitorRegistry();
-        int remainingCapacity = dataSourceMonitorRegistry.getRemainingIdNumber();
+        PluginMonitorWrapperLocator<DataSourceMonitorWrapper> dataSourceMonitorLocator = context.getDataSourceMonitorLocator();
+        DataSourceMonitorList dataSourceMonitorList = (DataSourceMonitorList) dataSourceMonitorLocator;
+        int remainingCapacity = dataSourceMonitorList.getRemainingIdNumber();
 
-        MockDataSourceMonitor[] mockDataSourceMonitors = createMockDataSourceMonitor(dataSourceMonitorRegistry, remainingCapacity);
-        Assert.assertEquals(remainingCapacity, dataSourceMonitorRegistry.getPluginMonitorWrapperList().size());
+        MockDataSourceMonitor[] mockDataSourceMonitors = createMockDataSourceMonitor(dataSourceMonitorList, remainingCapacity);
+        Assert.assertEquals(remainingCapacity, dataSourceMonitorList.getPluginMonitorWrapperList().size());
 
-        addOverDataSourceMonitor(dataSourceMonitorRegistry);
-        Assert.assertEquals(remainingCapacity, dataSourceMonitorRegistry.getPluginMonitorWrapperList().size());
+        addOverDataSourceMonitor(dataSourceMonitorList);
+        Assert.assertEquals(remainingCapacity, dataSourceMonitorList.getPluginMonitorWrapperList().size());
 
         for (MockDataSourceMonitor mockMonitor : mockDataSourceMonitors) {
             mockMonitor.close();
         }
-        Assert.assertEquals(0, dataSourceMonitorRegistry.getPluginMonitorWrapperList().size());
+        Assert.assertEquals(0, dataSourceMonitorList.getPluginMonitorWrapperList().size());
     }
 
-    private MockDataSourceMonitor[] createMockDataSourceMonitor(DataSourceMonitorRegistry dataSourceMonitorRegistry, int remainingCapacity) {
+    private MockDataSourceMonitor[] createMockDataSourceMonitor(DataSourceMonitorList dataSourceMonitorRegistry, int remainingCapacity) {
         MockDataSourceMonitor[] mockDataSourceMonitors = new MockDataSourceMonitor[remainingCapacity];
         for (int i = 0; i < remainingCapacity; i++) {
             MockDataSourceMonitor mock = new MockDataSourceMonitor();
@@ -76,7 +78,7 @@ public class DefaultPluginMonitorContextTest {
         return mockDataSourceMonitors;
     }
 
-    private void addOverDataSourceMonitor(DataSourceMonitorRegistry dataSourceMonitorRegistry) {
+    private void addOverDataSourceMonitor(DataSourceMonitorList dataSourceMonitorRegistry) {
         Random random = new Random(System.currentTimeMillis());
         int additionalRegisterCount = random.nextInt(10);
         for (int i = 0; i < additionalRegisterCount; i++) {
@@ -101,12 +103,12 @@ public class DefaultPluginMonitorContextTest {
         }
 
         @Override
-        public int getActiveConnectionCount() {
+        public int getActiveConnectionSize() {
             return 0;
         }
 
         @Override
-        public int getMaxCount() {
+        public int getMaxConnectionSize() {
             return 10;
         }
 

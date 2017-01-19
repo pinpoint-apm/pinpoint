@@ -16,23 +16,13 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.monitor;
 
-import com.navercorp.pinpoint.common.trace.ServiceType;
-
 /**
  * @author Taejin Koo
  */
-public interface DataSourceMonitor {
+public interface PluginMonitorRegistry<T> {
 
-    ServiceType getServiceType();
+    boolean register(T pluginMonitor);
 
-    String getName();
-
-    String getUrl();
-
-    int getActiveConnectionSize();
-
-    int getMaxConnectionSize();
-
-    boolean isDisabled();
+    boolean unregister(T pluginMonitor);
 
 }

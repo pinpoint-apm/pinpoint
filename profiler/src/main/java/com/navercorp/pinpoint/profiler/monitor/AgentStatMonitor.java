@@ -16,16 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.monitor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
 import com.navercorp.pinpoint.profiler.monitor.codahale.activetrace.ActiveTraceMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.CpuLoadCollector;
+import com.navercorp.pinpoint.profiler.monitor.codahale.datasource.DataSourceCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.gc.GarbageCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.tps.TransactionMetricCollector;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
@@ -35,9 +30,14 @@ import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
 import com.navercorp.pinpoint.thrift.dto.TTransaction;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * AgentStat monitor
@@ -107,6 +107,7 @@ public class AgentStatMonitor {
         private final CpuLoadCollector cpuLoadCollector;
         private final TransactionMetricCollector transactionMetricCollector;
         private final ActiveTraceMetricCollector activeTraceMetricCollector;
+        private final DataSourceCollector dataSourceCollector;
 
         // Not thread safe. For use with single thread ONLY
         private final int numStatsPerBatch;
@@ -119,6 +120,7 @@ public class AgentStatMonitor {
             this.cpuLoadCollector = agentStatCollectorFactory.getCpuLoadCollector();
             this.transactionMetricCollector = agentStatCollectorFactory.getTransactionMetricCollector();
             this.activeTraceMetricCollector = agentStatCollectorFactory.getActiveTraceMetricCollector();
+            this.dataSourceCollector = agentStatCollectorFactory.getDataSourceCollector();
             this.numStatsPerBatch = numStatsPerBatch;
             this.agentStats = new ArrayList<TAgentStat>(this.numStatsPerBatch);
         }
@@ -153,6 +155,11 @@ public class AgentStatMonitor {
             agentStat.setTransaction(transaction);
             final TActiveTrace activeTrace = activeTraceMetricCollector.collect();
             agentStat.setActiveTrace(activeTrace);
+
+            // TDataSourceList not set, yet
+            // final TDataSourceList dataSourceList = dataSourceCollector.collect();
+            // agentStat.setDataSourceList(dataSourceList);
+
             return agentStat;
         }
 

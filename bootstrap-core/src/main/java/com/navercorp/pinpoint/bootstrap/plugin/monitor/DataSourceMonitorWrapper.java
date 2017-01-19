@@ -102,19 +102,19 @@ public class DataSourceMonitorWrapper implements PluginMonitorWrapper, DataSourc
     }
 
     @Override
-    public int getActiveConnectionCount() {
+    public int getActiveConnectionSize() {
         DataSourceMonitor dataSourceMonitor = getInstance();
         if (dataSourceMonitor != null) {
-            return dataSourceMonitor.getActiveConnectionCount();
+            return dataSourceMonitor.getActiveConnectionSize();
         }
         return -1;
     }
 
     @Override
-    public int getMaxCount() {
+    public int getMaxConnectionSize() {
         DataSourceMonitor dataSourceMonitor = getInstance();
         if (dataSourceMonitor != null) {
-            return dataSourceMonitor.getMaxCount();
+            return dataSourceMonitor.getMaxConnectionSize();
         }
         return -1;
     }

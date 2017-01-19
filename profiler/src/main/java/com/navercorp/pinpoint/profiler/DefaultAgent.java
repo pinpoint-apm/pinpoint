@@ -346,7 +346,8 @@ public class DefaultAgent implements Agent {
         
         final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
         final boolean traceActiveThread = profilerConfig.isTraceAgentActiveThread();
-        final DefaultTraceContext traceContext = new DefaultTraceContext(jdbcSqlCacheSize, this.agentInformation, storageFactory, sampler, this.serverMetaDataHolder, traceActiveThread);
+        final boolean traceDataSource = profilerConfig.isTraceAgentDataSource();
+        final DefaultTraceContext traceContext = new DefaultTraceContext(jdbcSqlCacheSize, this.agentInformation, storageFactory, sampler, this.serverMetaDataHolder, traceActiveThread, traceDataSource);
         traceContext.setProfilerConfig(profilerConfig);
 
         return traceContext;

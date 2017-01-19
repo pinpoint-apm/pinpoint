@@ -26,7 +26,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * @author Taejin Koo
  */
-public class DataSourceMonitorRegistry implements PluginMonitorWrapperLocator<DataSourceMonitorWrapper> {
+public class DataSourceMonitorList implements PluginMonitorRegistry<DataSourceMonitor>, PluginMonitorWrapperLocator<DataSourceMonitorWrapper> {
 
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final boolean loggerInfoEnabled = logger.isInfoEnabled();
@@ -37,10 +37,11 @@ public class DataSourceMonitorRegistry implements PluginMonitorWrapperLocator<Da
 
     private final DataSourceMonitorWrapperFactory wrapperFactory = new DataSourceMonitorWrapperFactory();
 
-    public DataSourceMonitorRegistry(int limitIdNumber) {
+    public DataSourceMonitorList(int limitIdNumber) {
         this.limitIdNumber = limitIdNumber;
     }
 
+    @Override
     public boolean register(DataSourceMonitor dataSourceMonitor) {
         if (wrapperFactory.latestIssuedId() >= limitIdNumber) {
             if (loggerInfoEnabled) {
@@ -53,6 +54,7 @@ public class DataSourceMonitorRegistry implements PluginMonitorWrapperLocator<Da
         return repository.add(dataSourceMonitorWrapper);
     }
 
+    @Override
     public boolean unregister(DataSourceMonitor dataSourceMonitor) {
         for (DataSourceMonitorWrapper dataSourceMonitorWrapper : repository) {
             if (dataSourceMonitorWrapper.equalsWithUnwrap(dataSourceMonitor)) {
@@ -87,6 +89,5 @@ public class DataSourceMonitorRegistry implements PluginMonitorWrapperLocator<Da
     public int getRemainingIdNumber() {
         return limitIdNumber - wrapperFactory.latestIssuedId();
     }
-
 
 }
