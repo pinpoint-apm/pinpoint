@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.context;
 
 
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 
 /**
  * @author emeroad
@@ -39,6 +40,10 @@ public interface Trace extends StackOperation {
 
     AsyncTraceId getAsyncTraceId();
 
+    /**
+     * internal experimental api
+     */
+    @InterfaceAudience.LimitedPrivate("vert.x")
     AsyncTraceId getAsyncTraceId(boolean closeable);
 
     boolean canSampled();
@@ -53,6 +58,10 @@ public interface Trace extends StackOperation {
     
     void close();
 
+    /**
+     * internal experimental api
+     */
+    @InterfaceAudience.LimitedPrivate("vert.x")
     void flush();
 
     TraceScope getScope(String name);
