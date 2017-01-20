@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.monitor.codahale.datasource.metric;
 
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricSet;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorWrapper;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorWrapperLocator;
+import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorWrapper;
+import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorWrapperLocator;
 import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
 
 import java.util.HashMap;

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.monitor;
+package com.navercorp.pinpoint.profiler.context.monitor;
 
+import com.navercorp.pinpoint.bootstrap.context.DataSourceMonitor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.junit.Assert;
 import org.junit.Test;

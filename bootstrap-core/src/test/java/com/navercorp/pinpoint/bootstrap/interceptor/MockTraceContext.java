@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorContext;
+import com.navercorp.pinpoint.bootstrap.context.PluginMonitorContext;
 
 /**
  * @author emeroad
