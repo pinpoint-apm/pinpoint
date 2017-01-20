@@ -1,11 +1,11 @@
 <div class="sidebar-title-directive">
     <h3 ng-show="stTitle">
-        <span ng-show="stTitle" data-toggle="tooltip" data-placement="bottom" title="{{stTitle}}">
+        <span style="float:left;" ng-show="stTitle" data-toggle="tooltip" data-placement="bottom" title="{{stTitle}}">
             <img ng-src="{{stImage}}" style="height:25px;" ng-if="stImageShow"/>
             <span>{{stTitle}}</span>
         </span>
-        <span ng-show="stTitle2" class="glyphicon glyphicon-arrow-right"></span>
-        <span ng-show="stTitle2" data-toggle="tooltip" data-placement="bottom" title="{{stTitle2}}">
+        <span style="float:left;padding:12px;" ng-show="stTitle2" class="glyphicon glyphicon-arrow-right"></span>
+        <span style="float:left;" ng-show="stTitle2" data-toggle="tooltip" data-placement="bottom" title="{{stTitle2}}">
             <img ng-src="{{stImage2}}" style="height:25px;" ng-if="stImage2Show"/>
             <span>{{stTitle2}}</span>
         </span>

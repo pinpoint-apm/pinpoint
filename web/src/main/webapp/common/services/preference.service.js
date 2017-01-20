@@ -34,19 +34,20 @@
 	});
 	
 	pinpointApp.service( "PreferenceService", [ "PreferenceServiceConfig", "$route", "webStorage", "UserConfigurationService", function( cfg, $route, webStorage, UserConfigService ) {
-		var bInspectorPage = $route.current.loadedTemplateUrl.indexOf("/inspector") === -1 ? false : true;
-
+		function isInspector() {
+			return $route.current.loadedTemplateUrl.indexOf("/inspector") !== -1;
+		}
 		this.getDepthList = function() {
 			return cfg.cst.depthList;
 		};
 		this.getPeriodTime = function() {
-			return bInspectorPage ? cfg.cst.inspectorPeriodTime : cfg.cst.periodTime;
+			return isInspector() ? cfg.cst.inspectorPeriodTime : cfg.cst.periodTime;
 		};
 		this.getPeriodType = function() {
 			return cfg.cst.periodType;
 		};
 		this.getMaxPeriod = function() {
-			return bInspectorPage ? cfg.cst.inspectorMaxPeriod : cfg.cst.maxPeriod;
+			return isInspector() ? cfg.cst.inspectorMaxPeriod: cfg.cst.maxPeriod;
 		};
 		this.getRealtimeScatterXRange = function() {
 			return cfg.cst.realtimeScatterPeriod;
