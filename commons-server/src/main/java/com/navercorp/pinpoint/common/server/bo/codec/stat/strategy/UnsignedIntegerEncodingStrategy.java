@@ -67,7 +67,7 @@ public enum UnsignedIntegerEncodingStrategy implements EncodingStrategy<Integer>
                 return encodingStrategy;
             }
         }
-        return null;
+        throw new IllegalArgumentException("Unknown code : " + code);
     }
 
     public static class Analyzer implements StrategyAnalyzer<Integer> {

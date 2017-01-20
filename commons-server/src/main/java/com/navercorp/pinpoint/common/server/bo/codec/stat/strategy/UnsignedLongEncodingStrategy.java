@@ -67,7 +67,7 @@ public enum UnsignedLongEncodingStrategy implements EncodingStrategy<Long> {
                 return encodingStrategy;
             }
         }
-        return null;
+        throw new IllegalArgumentException("Unknown code : " + code);
     }
 
     public static class Analyzer implements StrategyAnalyzer<Long> {
