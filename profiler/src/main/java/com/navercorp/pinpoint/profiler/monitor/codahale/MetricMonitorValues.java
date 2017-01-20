@@ -16,14 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.monitor.codahale;
 
-import java.util.Map;
-import java.util.SortedMap;
-
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Metric;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+import java.util.SortedMap;
 
 /**
  * @author emeroad
@@ -113,6 +112,8 @@ public final class MetricMonitorValues {
 
     public static final String ACTIVE_TRACE = "active.trace";
     public static final String ACTIVE_TRACE_COUNT = ACTIVE_TRACE + ".count";
+
+    public static final String DATASOURCE = "datasource";
 
     private MetricMonitorValues() {
     }

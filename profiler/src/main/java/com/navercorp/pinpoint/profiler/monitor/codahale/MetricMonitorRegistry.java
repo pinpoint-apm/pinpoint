@@ -24,6 +24,8 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorWrapperLocator;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
 import com.navercorp.pinpoint.profiler.monitor.CounterMonitor;
@@ -34,6 +36,7 @@ import com.navercorp.pinpoint.profiler.monitor.MonitorRegistry;
 import com.navercorp.pinpoint.profiler.monitor.codahale.activetrace.metric.ActiveTraceMetricSet;
 import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.CpuLoadMetricSetSelector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.CpuLoadMetricSet;
+import com.navercorp.pinpoint.profiler.monitor.codahale.datasource.metric.DataSourceMetricSet;
 import com.navercorp.pinpoint.profiler.monitor.codahale.tps.metric.TransactionMetricSet;
 
 /**
@@ -109,6 +112,11 @@ public class MetricMonitorRegistry implements MonitorRegistry {
     public ThreadStatesGaugeSet registerJvmThreadStatesMonitor(MonitorName monitorName) {
         validateMonitorName(monitorName);
         return this.delegate.register(monitorName.getName(), new ThreadStatesGaugeSet());
+    }
+
+    public DataSourceMetricSet registerDataSourceMonitor(MonitorName monitorName, PluginMonitorWrapperLocator<DataSourceMonitorWrapper> dataSourceMonitorLocator) {
+        validateMonitorName(monitorName);
+        return this.delegate.register(monitorName.getName(), new DataSourceMetricSet(dataSourceMonitorLocator));
     }
 
     public MetricRegistry getRegistry() {

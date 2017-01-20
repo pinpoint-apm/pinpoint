@@ -19,16 +19,23 @@ package com.navercorp.pinpoint.profiler.monitor.codahale;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DefaultPluginMonitorContext;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorContext;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorWrapperLocator;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
 import com.navercorp.pinpoint.profiler.monitor.MonitorName;
-import com.navercorp.pinpoint.profiler.monitor.codahale.activetrace.DefaultActiveTraceMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.activetrace.ActiveTraceMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.codahale.activetrace.DefaultActiveTraceMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.activetrace.metric.ActiveTraceMetricSet;
-import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.DefaultCpuLoadCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.CpuLoadCollector;
+import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.DefaultCpuLoadCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.CpuLoadMetricSet;
+import com.navercorp.pinpoint.profiler.monitor.codahale.datasource.DataSourceCollector;
+import com.navercorp.pinpoint.profiler.monitor.codahale.datasource.DefaultDataSourceCollector;
+import com.navercorp.pinpoint.profiler.monitor.codahale.datasource.metric.DataSourceMetricSet;
 import com.navercorp.pinpoint.profiler.monitor.codahale.gc.CmsCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.gc.CmsDetailedMetricsCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.gc.G1Collector;
@@ -42,11 +49,10 @@ import com.navercorp.pinpoint.profiler.monitor.codahale.gc.UnknownGarbageCollect
 import com.navercorp.pinpoint.profiler.monitor.codahale.tps.DefaultTransactionMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.tps.TransactionMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.tps.metric.TransactionMetricSet;
-
-import java.util.Collection;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
 
 import static com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues.*;
 
@@ -63,6 +69,7 @@ public class AgentStatCollectorFactory {
     private final CpuLoadCollector cpuLoadCollector;
     private final TransactionMetricCollector transactionMetricCollector;
     private final ActiveTraceMetricCollector activeTraceMetricCollector;
+    private final DataSourceCollector dataSourceCollector;
 
     public AgentStatCollectorFactory(TraceContext traceContext) {
         if (traceContext == null) {
@@ -77,6 +84,7 @@ public class AgentStatCollectorFactory {
         this.cpuLoadCollector = createCpuLoadCollector(profilerConfig.getProfilerJvmVendorName());
         this.transactionMetricCollector = createTransactionMetricCollector(traceContext);
         this.activeTraceMetricCollector = createActiveTraceCollector(traceContext, profilerConfig.isTraceAgentActiveThread());
+        this.dataSourceCollector = createDataSourceCollector(traceContext);
     }
 
     private MetricMonitorRegistry createRegistry() {
@@ -163,6 +171,20 @@ public class AgentStatCollectorFactory {
         return ActiveTraceMetricCollector.EMPTY_ACTIVE_TRACE_COLLECTOR;
     }
 
+    private DataSourceCollector createDataSourceCollector(TraceContext traceContext) {
+        if (traceContext instanceof DefaultTraceContext) {
+            PluginMonitorContext pluginMonitorContext = traceContext.getPluginMonitorContext();
+            if (pluginMonitorContext instanceof DefaultPluginMonitorContext) {
+                PluginMonitorWrapperLocator<DataSourceMonitorWrapper> dataSourceMonitorLocator = ((DefaultPluginMonitorContext) pluginMonitorContext).getDataSourceMonitorLocator();
+                if (dataSourceMonitorLocator != null) {
+                    DataSourceMetricSet dataSourceMetricSet = this.monitorRegistry.registerDataSourceMonitor(new MonitorName(MetricMonitorValues.DATASOURCE), dataSourceMonitorLocator);
+                    return new DefaultDataSourceCollector(dataSourceMetricSet);
+                }
+            }
+        }
+        return DataSourceCollector.EMPTY_DATASOURCE_COLLECTOR;
+    }
+
     public GarbageCollector getGarbageCollector() {
         return this.garbageCollector;
     }
@@ -177,6 +199,10 @@ public class AgentStatCollectorFactory {
 
     public ActiveTraceMetricCollector getActiveTraceMetricCollector() {
         return this.activeTraceMetricCollector;
+    }
+
+    public DataSourceCollector getDataSourceCollector() {
+        return this.dataSourceCollector;
     }
 
 }

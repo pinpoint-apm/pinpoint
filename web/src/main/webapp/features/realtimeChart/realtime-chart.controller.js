@@ -443,6 +443,7 @@
 				$element.resizable("option", "maxHeight", newHeight);
 				if ( parseInt($element.css("height")) > newHeight && newHeight > cfg.css.height ) {
 					$element.css("height", newHeight);
+					LocalStorageManagerService.setRealtimeLayerHeight( newHeight );
 				}
 	        });
 			$element.resizable({

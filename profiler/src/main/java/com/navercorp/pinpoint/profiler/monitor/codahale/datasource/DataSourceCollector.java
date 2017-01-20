@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.monitor;
+package com.navercorp.pinpoint.profiler.monitor.codahale.datasource;
 
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollector;
+import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
 
 /**
  * @author Taejin Koo
  */
-public interface DataSourceMonitor {
+public interface DataSourceCollector extends AgentStatCollector<TDataSourceList> {
 
-    ServiceType getServiceType();
+    DataSourceCollector EMPTY_DATASOURCE_COLLECTOR = new DataSourceCollector() {
 
-    String getName();
+        @Override
+        public TDataSourceList collect() {
+            return null;
+        }
 
-    String getUrl();
-
-    int getActiveConnectionSize();
-
-    int getMaxConnectionSize();
-
-    boolean isDisabled();
+    };
 
 }

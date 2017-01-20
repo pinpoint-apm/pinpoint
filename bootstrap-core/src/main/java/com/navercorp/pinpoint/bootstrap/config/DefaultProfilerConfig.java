@@ -121,6 +121,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private boolean tcpDataSenderCommandActiveThreadLightDumpEnable = false;
 
     private boolean traceAgentActiveThread = true;
+    private boolean traceAgentDataSource = false;
 
     private int callStackMaxDepth = 512;
 
@@ -256,6 +257,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public boolean isTraceAgentActiveThread() {
         return traceAgentActiveThread;
+    }
+
+    @Override
+    public boolean isTraceAgentDataSource() {
+        return traceAgentDataSource;
     }
 
     @Override
@@ -427,6 +433,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.tcpDataSenderCommandActiveThreadLightDumpEnable = readBoolean("profiler.tcpdatasender.command.activethread.threadlightdump.enable", false);
 
         this.traceAgentActiveThread = readBoolean("profiler.pinpoint.activethread", true);
+        this.traceAgentDataSource = readBoolean("profiler.pinpoint.datasource", false);
 
         // CallStck
         this.callStackMaxDepth = readInt("profiler.callstack.max.depth", 64);
@@ -632,6 +639,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append(tcpDataSenderCommandActiveThreadLightDumpEnable);
         builder.append(", traceAgentActiveThread=");
         builder.append(traceAgentActiveThread);
+        builder.append(", traceAgentDataSource=");
+        builder.append(traceAgentDataSource);
         builder.append(", callStackMaxDepth=");
         builder.append(callStackMaxDepth);
         builder.append(", jdbcSqlCacheSize=");
