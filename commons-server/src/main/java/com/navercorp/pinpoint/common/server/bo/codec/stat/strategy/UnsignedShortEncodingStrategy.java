@@ -62,7 +62,7 @@ public enum UnsignedShortEncodingStrategy implements EncodingStrategy<Short> {
                 return encodingStrategy;
             }
         }
-        return null;
+        throw new IllegalArgumentException("Unknown code : " + code);
     }
 
     public static class Analyzer implements StrategyAnalyzer<Short> {
