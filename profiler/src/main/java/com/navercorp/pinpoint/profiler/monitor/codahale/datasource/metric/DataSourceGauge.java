@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.monitor.codahale.datasource.metric;
 
 import com.codahale.metrics.Gauge;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorWrapper;
+import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorWrapper;
 import com.navercorp.pinpoint.thrift.dto.TDataSource;
 
 /**

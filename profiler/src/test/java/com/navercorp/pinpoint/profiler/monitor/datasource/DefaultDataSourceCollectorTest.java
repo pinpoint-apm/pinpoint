@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.profiler.monitor.datasource;
 
 import com.codahale.metrics.Metric;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitor;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorList;
+import com.navercorp.pinpoint.bootstrap.context.DataSourceMonitor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorList;
 import com.navercorp.pinpoint.profiler.monitor.codahale.datasource.DefaultDataSourceCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.datasource.metric.DataSourceGauge;
 import com.navercorp.pinpoint.profiler.monitor.codahale.datasource.metric.DataSourceMetricSet;

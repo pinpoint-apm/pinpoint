@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.monitor;
+package com.navercorp.pinpoint.profiler.context.monitor;
+
+import com.navercorp.pinpoint.bootstrap.context.DataSourceMonitor;
+import com.navercorp.pinpoint.bootstrap.context.PluginMonitorContext;
+import com.navercorp.pinpoint.bootstrap.context.PluginMonitorRegistry;
 
 /**
  * @author Taejin Koo
