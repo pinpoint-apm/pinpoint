@@ -49,6 +49,7 @@
         <module>hystrix</module>
         <module>jboss</module>
         <module>vertx</module>
+        <module>resin</module>
     </modules>
 
     <dependencies>
@@ -235,6 +236,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-vertx-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-resin-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

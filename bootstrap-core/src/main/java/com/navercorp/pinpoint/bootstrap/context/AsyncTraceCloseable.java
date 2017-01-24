@@ -15,9 +15,12 @@
  */
 package com.navercorp.pinpoint.bootstrap.context;
 
+import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
+
 /**
  * @author jaehong.kim
  */
+@InterfaceAudience.LimitedPrivate("vert.x")
 public interface AsyncTraceCloseable {
 
     void close();

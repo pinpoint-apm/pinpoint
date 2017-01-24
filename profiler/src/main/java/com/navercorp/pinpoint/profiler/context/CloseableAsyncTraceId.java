@@ -18,10 +18,12 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceCloseable;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 
 /**
  * @author jaehong.kim
  */
+@InterfaceAudience.LimitedPrivate("vert.x")
 public class CloseableAsyncTraceId implements AsyncTraceId, AsyncTraceCloseable {
     private final AsyncTraceId traceId;
     private final AsyncTraceCloseable closeable;

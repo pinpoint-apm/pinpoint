@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
+import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.storage.AsyncStorage;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
@@ -211,6 +212,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     }
 
     // entry point async trace.
+    @InterfaceAudience.LimitedPrivate("vert.x")
     @Override
     public Trace continueAsyncTraceObject(final TraceId traceId) {
         checkBeforeTraceObject();
@@ -227,6 +229,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     }
 
     // entry point async trace.
+    @InterfaceAudience.LimitedPrivate("vert.x")
     @Override
     public Trace newAsyncTraceObject() {
         checkBeforeTraceObject();
