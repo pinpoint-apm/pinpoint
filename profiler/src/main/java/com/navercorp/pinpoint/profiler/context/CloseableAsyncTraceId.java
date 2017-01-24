@@ -29,9 +29,13 @@ public class CloseableAsyncTraceId implements AsyncTraceId, AsyncTraceCloseable 
     private final AsyncTraceCloseable closeable;
 
     public CloseableAsyncTraceId(final AsyncTraceId traceId, final AsyncTraceCloseable closeable) {
-        if (traceId == null || closeable == null) {
-            throw new IllegalArgumentException("traceId or closeable must not be null");
+        if (traceId == null ) {
+            throw new IllegalArgumentException("traceId must not be null");
         }
+        if (closeable == null) {
+            throw new NullPointerException("closeable must not be null");
+        }
+
         this.traceId = traceId;
         this.closeable = closeable;
     }

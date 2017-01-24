@@ -16,45 +16,38 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceCloseable;
-import com.navercorp.pinpoint.profiler.context.storage.Storage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 
 /**
  * @author jaehong.kim
  */
+@InterfaceAudience.LimitedPrivate("vert.x")
 public class AsyncTraceCloser implements AsyncTraceCloseable {
-    private Span span;
-    private Storage storage;
+
+    private final CompletionCallback completionCallback;
 
     private boolean closed = false;
     private boolean setup = false;
     private boolean await = false;
 
-    public AsyncTraceCloser(final Span span, final Storage storage) {
-        if (span == null || storage == null) {
-            throw new IllegalArgumentException("span or storage must not be null.");
+    public AsyncTraceCloser(CompletionCallback completionCallback) {
+        if (completionCallback == null) {
+            throw new NullPointerException("completionCallback must not be null");
         }
-        this.span = span;
-        this.storage = storage;
+        this.completionCallback = completionCallback;
     }
 
     @Override
     public void close() {
+        boolean fireCallback = false;
         synchronized (this) {
             if (this.await && !this.closed) {
-                if (span.isTimeRecording()) {
-                    span.markAfterTime();
-                }
-                this.storage.store(this.span);
-
-                // clear
-                final Storage temp = this.storage;
-                temp.close();
-                this.storage = null;
-                this.span = null;
+                fireCallback = true;
             }
             this.closed = true;
+        }
+        if (fireCallback) {
+            completionCallback.onComplete();
         }
     }
 
@@ -74,13 +67,18 @@ public class AsyncTraceCloser implements AsyncTraceCloseable {
         }
     }
 
+    @InterfaceAudience.LimitedPrivate("LocalTraceContext")
+    public interface CompletionCallback {
+        void onComplete();
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("{");
-        sb.append("closed=").append(closed);
-        sb.append(", setup=").append(setup);
-        sb.append(", await=").append(await);
-        sb.append('}');
-        return sb.toString();
+        return "AsyncTraceCloser{" +
+                "completionCallback=" + completionCallback +
+                ", closed=" + closed +
+                ", setup=" + setup +
+                ", await=" + await +
+                '}';
     }
 }
