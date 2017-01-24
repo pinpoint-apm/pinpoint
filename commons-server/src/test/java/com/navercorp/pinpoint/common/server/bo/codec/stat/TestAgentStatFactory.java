@@ -19,9 +19,12 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat;
 import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.SlotType;
 
 import java.util.ArrayList;
@@ -256,6 +259,54 @@ public class TestAgentStatFactory {
         }
         return activeTraceBos;
     }
+
+    private static final int MIN_VALUE_OF_MAX_CONNECTION_SIZE = 20;
+
+    public static List<DataSourceListBo> createDataSourceListBos(String agentId, long startTimestamp, long initialTimestamp) {
+        final int numValues = RANDOM.nextInt(MAX_NUM_TEST_VALUES) + 1;
+        return createDataSourceListBos(agentId, startTimestamp, initialTimestamp, numValues);
+    }
+
+    public static List<DataSourceListBo> createDataSourceListBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
+        List<DataSourceListBo> dataSourceListBos = new ArrayList<DataSourceListBo>(numValues);
+
+        for (int i = 0; i < numValues; ++i) {
+            int maxConnectionSize = RANDOM.nextInt(MIN_VALUE_OF_MAX_CONNECTION_SIZE) + MIN_VALUE_OF_MAX_CONNECTION_SIZE;
+            int dataSourceBoSize = RANDOM.nextInt(MAX_NUM_TEST_VALUES) + 1;
+            DataSourceListBo dataSourceListBo = createDataSourceListBo(agentId, startTimestamp, initialTimestamp, i + 1, maxConnectionSize, dataSourceBoSize);
+            dataSourceListBos.add(dataSourceListBo);
+        }
+        return dataSourceListBos;
+    }
+
+    private static DataSourceListBo createDataSourceListBo(String agentId, long startTimestamp, long initialTimestamp, int id, int maxConnectionSize, int numValues) {
+        DataSourceListBo dataSourceListBo = new DataSourceListBo();
+        dataSourceListBo.setAgentId(agentId);
+        dataSourceListBo.setStartTimestamp(startTimestamp);
+        dataSourceListBo.setTimestamp(initialTimestamp);
+
+        List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
+        List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
+
+        for (int i = 0; i < numValues; i++) {
+            DataSourceBo dataSourceBo = new DataSourceBo();
+            dataSourceBo.setAgentId(agentId);
+            dataSourceBo.setStartTimestamp(startTimestamps.get(i));
+            dataSourceBo.setTimestamp(timestamps.get(i));
+
+            dataSourceBo.setId(id);
+            dataSourceBo.setServiceTypeCode(ServiceType.UNKNOWN.getCode());
+            dataSourceBo.setName("name-" + id);
+            dataSourceBo.setJdbcUrl("jdbcurl-" + id);
+            dataSourceBo.setActiveConnectionSize(RANDOM.nextInt(maxConnectionSize));
+            dataSourceBo.setMaxConnectionSize(maxConnectionSize);
+
+            dataSourceListBo.add(dataSourceBo);
+        }
+
+        return dataSourceListBo;
+    }
+
 
     private static List<Long> createStartTimestamps(long startTimestamp, int numValues) {
         return TestAgentStatDataPointFactory.LONG.createConstantValues(startTimestamp, startTimestamp, numValues);
