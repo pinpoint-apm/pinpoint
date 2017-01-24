@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.context;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorContext;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 
 /**

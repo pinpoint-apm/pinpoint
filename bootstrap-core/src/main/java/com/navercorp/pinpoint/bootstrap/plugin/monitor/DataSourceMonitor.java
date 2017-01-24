@@ -14,15 +14,26 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.context;
+package com.navercorp.pinpoint.bootstrap.plugin.monitor;
+
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * @author Taejin Koo
  */
-public interface PluginMonitorRegistry<T> {
+public interface DataSourceMonitor {
 
-    boolean register(T pluginMonitor);
+    ServiceType getServiceType();
 
-    boolean unregister(T pluginMonitor);
+    String getName();
+
+    String getUrl();
+
+    int getActiveConnectionSize();
+
+    int getMaxConnectionSize();
+
+    boolean isDisabled();
+
 
 }
