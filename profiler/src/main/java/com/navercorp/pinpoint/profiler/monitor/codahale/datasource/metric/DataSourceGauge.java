@@ -47,7 +47,12 @@ public class DataSourceGauge implements Gauge<TDataSource> {
             dataSource.setUrl(jdbcUrl);
         }
 
-        dataSource.setActiveConnectionSize(dataSourceMonitorWrapper.getActiveConnectionSize());
+        int activeConnectionSize = dataSourceMonitorWrapper.getActiveConnectionSize();
+        // this field is optional (default value is 0)
+        if (activeConnectionSize != 0) {
+            dataSource.setActiveConnectionSize(activeConnectionSize);
+        }
+
         dataSource.setMaxConnectionSize(dataSourceMonitorWrapper.getMaxConnectionSize());
 
         return dataSource;
