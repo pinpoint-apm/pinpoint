@@ -52,8 +52,7 @@ public class InterfaceAudience {
      * Intended for use by any project or application.
      */
     @Documented
-    //    @Retention(RetentionPolicy.RUNTIME)
-    @Retention(RetentionPolicy.SOURCE)
+    @Retention(RetentionPolicy.RUNTIME)
     public @interface Public {};
 
     /**
@@ -61,8 +60,7 @@ public class InterfaceAudience {
      * For example, "profiler", "bootstrap", "bootstrap-core".
      */
     @Documented
-    //    @Retention(RetentionPolicy.RUNTIME)
-    @Retention(RetentionPolicy.SOURCE)
+    @Retention(RetentionPolicy.RUNTIME)
     public @interface LimitedPrivate {
         String[] value();
     };
@@ -71,8 +69,7 @@ public class InterfaceAudience {
      * Intended for use only within pinpoint itself.
      */
     @Documented
-    //    @Retention(RetentionPolicy.RUNTIME)
-    @Retention(RetentionPolicy.SOURCE)
+    @Retention(RetentionPolicy.RUNTIME)
     public @interface Private {};
 
     private InterfaceAudience() {} // Audience can't exist on its own
