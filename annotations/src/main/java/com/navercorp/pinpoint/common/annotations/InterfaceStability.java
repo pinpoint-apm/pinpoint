@@ -44,16 +44,14 @@ public class InterfaceStability {
      * can break compatibility only at major release (ie. at m.0).
      */
     @Documented
-//    @Retention(RetentionPolicy.RUNTIME)
-    @Retention(RetentionPolicy.SOURCE)
+    @Retention(RetentionPolicy.RUNTIME)
     public @interface Stable {};
 
     /**
      * Evolving, but can break compatibility at minor release (i.e. m.x)
      */
     @Documented
-//    @Retention(RetentionPolicy.RUNTIME)
-    @Retention(RetentionPolicy.SOURCE)
+    @Retention(RetentionPolicy.RUNTIME)
     public @interface Evolving {};
 
     /**
@@ -61,8 +59,7 @@ public class InterfaceStability {
      * level of release granularity.
      */
     @Documented
-    //    @Retention(RetentionPolicy.RUNTIME)
-    @Retention(RetentionPolicy.SOURCE)
+    @Retention(RetentionPolicy.RUNTIME)
     public @interface Unstable {};
 }
 
