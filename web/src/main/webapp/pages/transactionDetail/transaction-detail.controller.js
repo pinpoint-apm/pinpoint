@@ -32,6 +32,7 @@
 
 	        var currentTab = cfg.CALL_STACK;
 	        var $elSearchForm = $("#traceTabs ._searchForm");
+			var $elSearchInput = $elSearchForm.find("input");
 			$("#customLogPopup").modal("hide");
 	
 	        $timeout(function () {
@@ -96,7 +97,7 @@
 	        function initSearchVar() {
 	        	bChangedColumn = true;
 				searchIndex = 0;
-				$scope.searchText = "";
+				$elSearchInput.val("");
 				$scope.searchColumn = "self";
 				$scope.searchPlaceholder = "1000(ms)";
 				$elSearchForm.find("input").val("").attr("placeholder", "1000(ms)");
@@ -121,10 +122,7 @@
 	        		window.open(url);
 	        	}
 	        };
-	        $scope.$watch( "searchText", function() {
-	        	searchIndex = 0;
-	        });
-	
+
 	        $scope.openInNewWindow = function () {
 	            $window.open($location.absUrl());
 	        };
@@ -159,7 +157,7 @@
 				}
 			});
 
-	        $scope.searchText = "";
+	        $elSearchInput.val("");
 	        $scope.searchColumn = "self";
 	        $scope.searchPlaceholder = "1000(ms)";
 	        $scope.selectSearchColumn = function() {
@@ -171,7 +169,7 @@
 				}
 			};
 	        $scope.searchByClick = function() {
-	        	var trimVal = $.trim( $scope.searchText );
+	        	var trimVal = $.trim( $elSearchInput.val() );
 	        	if ( trimVal === "" ) return;
 
 	        	if ( bChangedColumn ) {
@@ -192,6 +190,8 @@
 	        $scope.searchByKeydown = function( $event ) {
 				if ( $event.keyCode === 13 ) {
 					$scope.searchByClick();
+				} else {
+					searchIndex = 0;
 				}
 			};
 
