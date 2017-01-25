@@ -35,14 +35,13 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 /**
  * Integration test for THsHaServer with asynchronous processor.
  * 
- * Tests against libthrift 0.10.0 due to breaking change made to generated code - THRIFT-3112
- * Previously tested against 0.9.2 - 0.9.3
+ * Tests against libthrift 0.9.2+ due to THRIFT-2274
  * 
  * @author HyunGil Jeong
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent("agent/target/pinpoint-agent-" + Version.VERSION)
-@Dependency({ "org.apache.thrift:libthrift:[0.10.0,)", "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.22" })
+@Dependency({ "org.apache.thrift:libthrift:[0.9.2,0.9.max]", "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.22" })
 public class ThriftHalfSyncHalfAsyncServerAsyncIT extends EchoTestRunner<THsHaServer> {
 
     @Override
