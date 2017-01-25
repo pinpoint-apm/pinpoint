@@ -14,13 +14,29 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.context;
+package com.navercorp.pinpoint.common.server.bo.codec;
+
+import com.navercorp.pinpoint.common.buffer.Buffer;
 
 /**
  * @author Taejin Koo
  */
-public interface PluginMonitorContext {
+public interface StringTypedBufferHandler {
+    void put(Buffer buffer, String value);
+    String read(Buffer buffer);
 
-    PluginMonitorRegistry<DataSourceMonitor> getDataSourceMonitorRegistry();
+    StringTypedBufferHandler VARIABLE_HANDLER = new StringTypedBufferHandler() {
+
+        @Override
+        public void put(Buffer buffer, String value) {
+            buffer.putPrefixedString(value);
+        }
+
+        @Override
+        public String read(Buffer buffer) {
+            return buffer.readPrefixedString();
+        }
+
+    };
 
 }

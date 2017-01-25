@@ -114,7 +114,7 @@ struct TDataSource {
 	2: optional i16	            serviceTypeCode
     3: optional string          name
     4: optional string          url
-    5: i32                      activeConnectionSize
+    5: optional i32             activeConnectionSize = 0
     6: optional i32             maxConnectionSize
 }
 

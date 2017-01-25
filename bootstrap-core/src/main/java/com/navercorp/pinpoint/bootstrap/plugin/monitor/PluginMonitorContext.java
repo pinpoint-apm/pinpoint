@@ -14,25 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.monitor;
-
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitor;
-
-import java.util.concurrent.atomic.AtomicInteger;
+package com.navercorp.pinpoint.bootstrap.plugin.monitor;
 
 /**
  * @author Taejin Koo
  */
-public class DataSourceMonitorWrapperFactory {
+public interface PluginMonitorContext {
 
-    private final AtomicInteger idGenerator = new AtomicInteger();
-
-    public DataSourceMonitorWrapper create(DataSourceMonitor pluginMonitor) {
-        return new DataSourceMonitorWrapper(idGenerator.incrementAndGet(), pluginMonitor);
-    }
-
-    public int latestIssuedId() {
-        return idGenerator.get();
-    }
+    PluginMonitorRegistry<DataSourceMonitor> getDataSourceMonitorRegistry();
 
 }

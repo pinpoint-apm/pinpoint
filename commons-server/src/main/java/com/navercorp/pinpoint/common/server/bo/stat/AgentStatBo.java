@@ -29,6 +29,7 @@ public class AgentStatBo {
     private List<CpuLoadBo> cpuLoadBos;
     private List<TransactionBo> transactionBos;
     private List<ActiveTraceBo> activeTraceBos;
+    private List<DataSourceListBo> dataSourceListBos;
 
     public String getAgentId() {
         return agentId;
@@ -78,6 +79,14 @@ public class AgentStatBo {
         this.activeTraceBos = activeTraceBos;
     }
 
+    public List<DataSourceListBo> getDataSourceListBos() {
+        return dataSourceListBos;
+    }
+
+    public void setDataSourceListBos(List<DataSourceListBo> dataSourceListBos) {
+        this.dataSourceListBos = dataSourceListBos;
+    }
+
     @Override
     public String toString() {
         return "AgentStatBatchBo{" +
@@ -87,6 +96,8 @@ public class AgentStatBo {
                 ", cpuLoadBos=" + cpuLoadBos +
                 ", transactionBos=" + transactionBos +
                 ", activeTraceBos=" + activeTraceBos +
+                ", dataSourceListBos=" + dataSourceListBos +
                 '}';
     }
+
 }

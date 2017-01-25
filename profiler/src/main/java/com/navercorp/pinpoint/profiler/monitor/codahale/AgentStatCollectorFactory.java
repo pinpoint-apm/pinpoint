@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.monitor.codahale;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.PluginMonitorContext;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter;

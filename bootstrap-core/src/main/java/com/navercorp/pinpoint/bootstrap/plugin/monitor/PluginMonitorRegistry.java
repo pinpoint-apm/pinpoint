@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.context;
+package com.navercorp.pinpoint.bootstrap.plugin.monitor;
 
 /**
  * @author Taejin Koo

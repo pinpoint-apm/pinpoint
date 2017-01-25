@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.context.monitor;
 
-import com.navercorp.pinpoint.bootstrap.context.DataSourceMonitor;
-import com.navercorp.pinpoint.bootstrap.context.PluginMonitorContext;
-import com.navercorp.pinpoint.bootstrap.context.PluginMonitorRegistry;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitor;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorContext;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorRegistry;
 
 /**
  * @author Taejin Koo
