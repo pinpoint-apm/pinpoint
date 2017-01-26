@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -222,8 +223,8 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         final Storage storage = storageFactory.createStorage();
         trace.setStorage(storage);
 
-        final SpanCompletionCallback callback = new SpanCompletionCallback(trace.getSpan(), storageFactory.createStorage());
-        final AsyncTraceCloser closer = new AsyncTraceCloser(callback);
+        final SpanAsyncStateListener callback = new SpanAsyncStateListener(trace.getSpan(), storageFactory.createStorage());
+        final ListenableAsyncState closer = new ListenableAsyncState(callback);
         final AsyncTrace asyncTrace = new AsyncTrace(trace, closer);
         bind(asyncTrace);
         return asyncTrace;
@@ -240,8 +241,8 @@ public class ThreadLocalTraceFactory implements TraceFactory {
             final Storage storage = storageFactory.createStorage();
             trace.setStorage(storage);
 
-            final SpanCompletionCallback callback = new SpanCompletionCallback(trace.getSpan(), storageFactory.createStorage());
-            final AsyncTraceCloser closer = new AsyncTraceCloser(callback);
+            final SpanAsyncStateListener callback = new SpanAsyncStateListener(trace.getSpan(), storageFactory.createStorage());
+            final AsyncState closer = new ListenableAsyncState(callback);
             final AsyncTrace asyncTrace = new AsyncTrace(trace, closer);
             bind(asyncTrace);
 

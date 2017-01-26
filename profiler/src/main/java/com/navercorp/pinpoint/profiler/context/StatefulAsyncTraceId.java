@@ -15,7 +15,8 @@
  */
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceCloseable;
+import com.navercorp.pinpoint.bootstrap.context.AsyncState;
+import com.navercorp.pinpoint.bootstrap.context.AsyncStateSupport;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
@@ -24,20 +25,19 @@ import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
  * @author jaehong.kim
  */
 @InterfaceAudience.LimitedPrivate("vert.x")
-public class CloseableAsyncTraceId implements AsyncTraceId, AsyncTraceCloseable {
+public class StatefulAsyncTraceId implements AsyncTraceId, AsyncStateSupport {
     private final AsyncTraceId traceId;
-    private final AsyncTraceCloseable closeable;
+    private final AsyncState asyncState;
 
-    public CloseableAsyncTraceId(final AsyncTraceId traceId, final AsyncTraceCloseable closeable) {
+    public StatefulAsyncTraceId(final AsyncTraceId traceId, final AsyncState asyncState) {
         if (traceId == null ) {
             throw new IllegalArgumentException("traceId must not be null");
         }
-        if (closeable == null) {
-            throw new NullPointerException("closeable must not be null");
+        if (asyncState == null) {
+            throw new NullPointerException("asyncState must not be null");
         }
-
         this.traceId = traceId;
-        this.closeable = closeable;
+        this.asyncState = asyncState;
     }
 
     @Override
@@ -106,10 +106,8 @@ public class CloseableAsyncTraceId implements AsyncTraceId, AsyncTraceCloseable 
     }
 
     @Override
-    public void close() {
-        final AsyncTraceCloseable copy = this.closeable;
-        if (copy != null) {
-            copy.close();
-        }
+    public AsyncState getAsyncState() {
+        return asyncState;
     }
+
 }

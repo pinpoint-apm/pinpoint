@@ -15,51 +15,53 @@
  */
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceCloseable;
+import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 
 /**
  * @author jaehong.kim
  */
 @InterfaceAudience.LimitedPrivate("vert.x")
-public class AsyncTraceCloser implements AsyncTraceCloseable {
+public class ListenableAsyncState implements AsyncState {
 
-    private final CompletionCallback completionCallback;
+    private final AsyncStateListener asyncStateListener;
 
-    private boolean closed = false;
     private boolean setup = false;
     private boolean await = false;
+    private boolean finish = false;
 
-    public AsyncTraceCloser(CompletionCallback completionCallback) {
-        if (completionCallback == null) {
-            throw new NullPointerException("completionCallback must not be null");
+    public ListenableAsyncState(AsyncStateListener asyncStateListener) {
+        if (asyncStateListener == null) {
+            throw new NullPointerException("asyncStateListener must not be null");
         }
-        this.completionCallback = completionCallback;
+        this.asyncStateListener = asyncStateListener;
     }
 
     @Override
-    public void close() {
-        boolean fireCallback = false;
+    public void finish() {
+        boolean finished = false;
         synchronized (this) {
-            if (this.await && !this.closed) {
-                fireCallback = true;
+            if (this.await && !this.finish) {
+                finished = true;
             }
-            this.closed = true;
+            this.finish = true;
         }
-        if (fireCallback) {
-            completionCallback.onComplete();
+        if (finished) {
+            this.asyncStateListener.finish();
         }
     }
 
+    @Override
     public void setup() {
         synchronized (this) {
             this.setup = true;
         }
     }
 
+    @Override
     public boolean await() {
         synchronized (this) {
-            if (!this.setup || this.closed) {
+            if (!this.setup || this.finish) {
                 return false;
             }
             this.await = true;
@@ -68,17 +70,17 @@ public class AsyncTraceCloser implements AsyncTraceCloseable {
     }
 
     @InterfaceAudience.LimitedPrivate("LocalTraceContext")
-    public interface CompletionCallback {
-        void onComplete();
+    public interface AsyncStateListener {
+        void finish();
     }
 
     @Override
     public String toString() {
-        return "AsyncTraceCloser{" +
-                "completionCallback=" + completionCallback +
-                ", closed=" + closed +
+        return "ListenableAsyncState{" +
+                "asyncStateListener=" + asyncStateListener +
                 ", setup=" + setup +
                 ", await=" + await +
+                ", finish=" + finish +
                 '}';
     }
 }

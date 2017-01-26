@@ -21,7 +21,11 @@ import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
  * @author jaehong.kim
  */
 @InterfaceAudience.LimitedPrivate("vert.x")
-public interface AsyncTraceCloseable {
+public interface AsyncState {
 
-    void close();
+    void setup();
+
+    boolean await();
+
+    void finish();
 }

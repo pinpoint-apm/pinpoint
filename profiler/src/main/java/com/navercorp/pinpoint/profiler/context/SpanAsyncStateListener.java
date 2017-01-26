@@ -25,19 +25,20 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
  * @author Woonduk Kang(emeroad)
  */
 @InterfaceAudience.LimitedPrivate("vert.x")
-public class SpanCompletionCallback implements AsyncTraceCloser.CompletionCallback {
+public class SpanAsyncStateListener implements ListenableAsyncState.AsyncStateListener {
 
-    private final AtomicIntegerFieldUpdater<SpanCompletionCallback> CLOSED_UPDATER
-            = AtomicIntegerFieldUpdater.newUpdater(SpanCompletionCallback.class, "closed");
+    private final AtomicIntegerFieldUpdater<SpanAsyncStateListener> CLOSED_UPDATER
+            = AtomicIntegerFieldUpdater.newUpdater(SpanAsyncStateListener.class, "closed");
     private static final int OPEN = 0;
     private static final int CLOSED = 1;
 
+    @SuppressWarnings("unused")
     private volatile int closed = OPEN;
 
     private final Span span;
     private final Storage storage;
 
-    SpanCompletionCallback(Span span, Storage storage) {
+    SpanAsyncStateListener(Span span, Storage storage) {
         if (span == null) {
             throw new NullPointerException("span must not be null");
         }
@@ -49,7 +50,7 @@ public class SpanCompletionCallback implements AsyncTraceCloser.CompletionCallba
     }
 
     @Override
-    public void onComplete() {
+    public void finish() {
         if (CLOSED_UPDATER.compareAndSet(this, OPEN, CLOSED)) {
             if (span.isTimeRecording()) {
                 span.markAfterTime();
