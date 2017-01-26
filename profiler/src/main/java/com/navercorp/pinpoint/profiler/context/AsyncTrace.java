@@ -31,15 +31,14 @@ public class AsyncTrace implements Trace {
 
     private int asyncId;
     private short asyncSequence;
-    private AsyncTraceCloser closer;
+    private AsyncState asyncState;
 
-    public AsyncTrace(final Trace trace, final AsyncTraceCloser closer) {
-        if (closer == null) {
-            throw new IllegalArgumentException("closer must not be null.");
+    public AsyncTrace(final Trace trace, final AsyncState asyncState) {
+        if (asyncState == null) {
+            throw new IllegalArgumentException("asyncState must not be null.");
         }
-
         this.trace = trace;
-        this.closer = closer;
+        this.asyncState = asyncState;
         this.entryPoint = true;
     }
 
@@ -48,7 +47,7 @@ public class AsyncTrace implements Trace {
         this.asyncId = asyncId;
         this.asyncSequence = asyncSequence;
 
-        this.closer = null;
+        this.asyncState = null;
         this.entryPoint = false;
 
         this.trace.getSpanRecorder().recordStartTime(startTime);
@@ -157,9 +156,10 @@ public class AsyncTrace implements Trace {
     @Override
     public AsyncTraceId getAsyncTraceId(boolean closeable) {
         final AsyncTraceId asyncTraceId = this.trace.getAsyncTraceId();
-        if (closeable && this.entryPoint && this.closer != null) {
-            this.closer.setup();
-            return new CloseableAsyncTraceId(asyncTraceId, this.closer);
+        final AsyncState asyncState = this.asyncState;
+        if (closeable && this.entryPoint && asyncState != null) {
+            asyncState.setup();
+            return new StatefulAsyncTraceId(asyncTraceId, asyncState);
         }
 
         return asyncTraceId;
@@ -176,24 +176,25 @@ public class AsyncTrace implements Trace {
     }
 
     private void closeOrFlush() {
-        if (this.closer == null) {
+        final AsyncState asyncState = this.asyncState;
+        if (asyncState == null) {
             return;
         }
 
-        if (this.closer.await()) {
+        if (asyncState.await()) {
             // flush.
             this.trace.flush();
             if (isDebug) {
-                logger.debug("Flush trace={}, closer={}", this, this.closer);
+                logger.debug("Flush trace={}, asyncState={}", this, this.asyncState);
             }
         } else {
             // close.
             this.trace.close();
             if (isDebug) {
-                logger.debug("Close trace={}. closer={}", this, this.closer);
+                logger.debug("Close trace={}. asyncState={}", this, this.asyncState);
             }
         }
-        this.closer = null;
+        this.asyncState = null;
     }
 
     @Override

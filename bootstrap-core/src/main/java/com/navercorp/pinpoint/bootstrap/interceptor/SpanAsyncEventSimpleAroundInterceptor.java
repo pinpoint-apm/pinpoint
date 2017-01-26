@@ -16,7 +16,8 @@
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceCloseable;
+import com.navercorp.pinpoint.bootstrap.context.AsyncState;
+import com.navercorp.pinpoint.bootstrap.context.AsyncStateSupport;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -133,7 +134,7 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
             if (isAsyncTraceDestination(trace)) {
                 deleteAsyncTrace(trace);
             }
-            closeAsyncTraceId(asyncTraceId);
+            finishAsyncState(asyncTraceId);
         }
     }
 
@@ -210,13 +211,11 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
         return scope != null && !scope.isActive();
     }
 
-    private void closeAsyncTraceId(final AsyncTraceId asyncTraceId) {
-        if (asyncTraceId instanceof AsyncTraceCloseable) {
-            AsyncTraceCloseable closeable = (AsyncTraceCloseable) asyncTraceId;
-            closeable.close();
-            if (isDebug) {
-                logger.debug("Close AsyncTraceCloseable. asyncTraceId={}", asyncTraceId);
-            }
+    private void finishAsyncState(final AsyncTraceId asyncTraceId) {
+        if (asyncTraceId instanceof AsyncStateSupport) {
+            final AsyncStateSupport asyncStateSupport = (AsyncStateSupport) asyncTraceId;
+            AsyncState asyncState = asyncStateSupport.getAsyncState();
+            asyncState.finish();
         }
     }
 

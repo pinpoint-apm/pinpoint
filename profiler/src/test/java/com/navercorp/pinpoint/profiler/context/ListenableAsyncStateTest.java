@@ -23,41 +23,41 @@ import static org.mockito.Mockito.*;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class AsyncTraceCloserTest {
+public class ListenableAsyncStateTest {
     @Test
     public void close() throws Exception {
-        SpanCompletionCallback mock = mock(SpanCompletionCallback.class);
+        SpanAsyncStateListener mock = mock(SpanAsyncStateListener.class);
 
-        AsyncTraceCloser asyncTraceCloser = new AsyncTraceCloser(mock);
-        asyncTraceCloser.setup();
-        asyncTraceCloser.await();
-        asyncTraceCloser.close();
+        ListenableAsyncState listenableAsyncState = new ListenableAsyncState(mock);
+        listenableAsyncState.setup();
+        listenableAsyncState.await();
+        listenableAsyncState.finish();
 
-        verify(mock, times(1)).onComplete();
+        verify(mock, times(1)).finish();
     }
 
 
     @Test
     public void close_setup() throws Exception {
-        SpanCompletionCallback mock = mock(SpanCompletionCallback.class);
+        SpanAsyncStateListener mock = mock(SpanAsyncStateListener.class);
 
-        AsyncTraceCloser asyncTraceCloser = new AsyncTraceCloser(mock);
-        asyncTraceCloser.setup();
-        asyncTraceCloser.close();
+        ListenableAsyncState listenableAsyncState = new ListenableAsyncState(mock);
+        listenableAsyncState.setup();
+        listenableAsyncState.finish();
 
-        verify(mock, times(0)).onComplete();
+        verify(mock, times(0)).finish();
     }
 
 
     @Test
     public void close_await() throws Exception {
-        SpanCompletionCallback mock = mock(SpanCompletionCallback.class);
+        SpanAsyncStateListener mock = mock(SpanAsyncStateListener.class);
 
-        AsyncTraceCloser asyncTraceCloser = new AsyncTraceCloser(mock);
-        asyncTraceCloser.await();
-        asyncTraceCloser.close();
+        ListenableAsyncState listenableAsyncState = new ListenableAsyncState(mock);
+        listenableAsyncState.await();
+        listenableAsyncState.finish();
 
-        verify(mock, times(0)).onComplete();
+        verify(mock, times(0)).finish();
     }
 
 }

@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -27,7 +26,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SpanCompletionCallbackTest {
+public class SpanAsyncStateListenerTest {
 
 
     @Test
@@ -35,14 +34,14 @@ public class SpanCompletionCallbackTest {
         Span span = mock(Span.class);
         Storage storage = mock(Storage.class);
 
-        SpanCompletionCallback callback = new SpanCompletionCallback(span, storage);
-        callback.onComplete();
+        ListenableAsyncState.AsyncStateListener listener = new SpanAsyncStateListener(span, storage);
+        listener.finish();
 
         verify(span, times(1)).isTimeRecording();
         verify(storage, times(1)).store(span);
 
         //
-        callback.onComplete();
+        listener.finish();
         verify(span, times(1)).isTimeRecording();
         verify(storage, times(1)).store(span);
     }
@@ -52,9 +51,9 @@ public class SpanCompletionCallbackTest {
         Span span = mock(Span.class);
         Storage storage = mock(Storage.class);
 
-        SpanCompletionCallback callback = new SpanCompletionCallback(span, storage);
-        callback.onComplete();
-        callback.onComplete();
+        ListenableAsyncState.AsyncStateListener listener = new SpanAsyncStateListener(span, storage);
+        listener.finish();
+        listener.finish();
         verify(span, times(1)).isTimeRecording();
         verify(storage, times(1)).store(span);
     }
