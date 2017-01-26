@@ -19,12 +19,17 @@ package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
+import com.navercorp.pinpoint.thrift.dto.TDataSource;
+import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -52,6 +57,9 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
     @Autowired
     private ActiveTraceBoMapper activeTraceBoMapper;
 
+    @Autowired
+    private DataSourceBoMapper dataSourceBoMapper;
+
     @Override
     public AgentStatBo map(TAgentStatBatch tAgentStatBatch) {
         if (!tAgentStatBatch.isSetAgentStats()) {
@@ -66,50 +74,56 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
         List<CpuLoadBo> cpuLoadBos = new ArrayList<>(tAgentStatBatch.getAgentStatsSize());
         List<TransactionBo> transactionBos = new ArrayList<>(tAgentStatBatch.getAgentStatsSize());
         List<ActiveTraceBo> activeTraceBos = new ArrayList<>(tAgentStatBatch.getAgentStatsSize());
+        List<DataSourceListBo> dataSourceListBos = new ArrayList<DataSourceListBo>(tAgentStatBatch.getAgentStatsSize());
         for (TAgentStat tAgentStat : tAgentStatBatch.getAgentStats()) {
             final long timestamp = tAgentStat.getTimestamp();
             // jvmGc
             if (tAgentStat.isSetGc()) {
                 JvmGcBo jvmGcBo = this.jvmGcBoMapper.map(tAgentStat.getGc());
-                jvmGcBo.setAgentId(agentId);
-                jvmGcBo.setStartTimestamp(startTimestamp);
-                jvmGcBo.setTimestamp(timestamp);
+                setBaseData(jvmGcBo, agentId, startTimestamp, timestamp);
                 jvmGcBos.add(jvmGcBo);
             }
             // jvmGcDetailed
             if (tAgentStat.isSetGc()) {
                 if (tAgentStat.getGc().isSetJvmGcDetailed()) {
                     JvmGcDetailedBo jvmGcDetailedBo = this.jvmGcDetailedBoMapper.map(tAgentStat.getGc().getJvmGcDetailed());
-                    jvmGcDetailedBo.setAgentId(agentId);
-                    jvmGcDetailedBo.setStartTimestamp(startTimestamp);
-                    jvmGcDetailedBo.setTimestamp(timestamp);
+                    setBaseData(jvmGcDetailedBo, agentId, startTimestamp, timestamp);
                     jvmGcDetailedBos.add(jvmGcDetailedBo);
                 }
             }
             // cpuLoad
             if (tAgentStat.isSetCpuLoad()) {
                 CpuLoadBo cpuLoadBo = this.cpuLoadBoMapper.map(tAgentStat.getCpuLoad());
-                cpuLoadBo.setAgentId(agentId);
-                cpuLoadBo.setStartTimestamp(startTimestamp);
-                cpuLoadBo.setTimestamp(timestamp);
+                setBaseData(cpuLoadBo, agentId, startTimestamp, timestamp);
                 cpuLoadBos.add(cpuLoadBo);
             }
             // transaction
             if (tAgentStat.isSetTransaction()) {
                 TransactionBo transactionBo = this.transactionBoMapper.map(tAgentStat.getTransaction());
-                transactionBo.setAgentId(agentId);
-                transactionBo.setStartTimestamp(startTimestamp);
-                transactionBo.setTimestamp(timestamp);
+                setBaseData(transactionBo, agentId, startTimestamp, timestamp);
                 transactionBo.setCollectInterval(tAgentStat.getCollectInterval());
                 transactionBos.add(transactionBo);
             }
             // activeTrace
             if (tAgentStat.isSetActiveTrace() && tAgentStat.getActiveTrace().isSetHistogram()) {
                 ActiveTraceBo activeTraceBo = this.activeTraceBoMapper.map(tAgentStat.getActiveTrace());
-                activeTraceBo.setAgentId(agentId);
-                activeTraceBo.setStartTimestamp(startTimestamp);
-                activeTraceBo.setTimestamp(timestamp);
+                setBaseData(activeTraceBo, agentId, startTimestamp, timestamp);
                 activeTraceBos.add(activeTraceBo);
+            }
+
+            // datasource
+            if (tAgentStat.isSetDataSourceList()) {
+                DataSourceListBo dataSourceListBo = new DataSourceListBo();
+                setBaseData(dataSourceListBo, agentId, startTimestamp, timestamp);
+
+                TDataSourceList dataSourceList = tAgentStat.getDataSourceList();
+                for (TDataSource dataSource : dataSourceList.getDataSourceList()) {
+                    DataSourceBo dataSourceBo = dataSourceBoMapper.map(dataSource);
+                    setBaseData(dataSourceBo, agentId, startTimestamp, timestamp);
+                    dataSourceListBo.add(dataSourceBo);
+                }
+
+                dataSourceListBos.add(dataSourceListBo);
             }
         }
         agentStatBo.setJvmGcBos(jvmGcBos);
@@ -117,6 +131,14 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
         agentStatBo.setCpuLoadBos(cpuLoadBos);
         agentStatBo.setTransactionBos(transactionBos);
         agentStatBo.setActiveTraceBos(activeTraceBos);
+        agentStatBo.setDataSourceListBos(dataSourceListBos);
         return agentStatBo;
     }
+
+    private void setBaseData(AgentStatDataPoint agentStatDataPoint, String agentId, long startTimestamp, long timestamp) {
+        agentStatDataPoint.setAgentId(agentId);
+        agentStatDataPoint.setStartTimestamp(startTimestamp);
+        agentStatDataPoint.setTimestamp(timestamp);
+    }
+
 }

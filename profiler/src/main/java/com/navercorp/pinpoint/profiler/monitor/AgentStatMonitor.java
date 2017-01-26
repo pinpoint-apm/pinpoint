@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.thrift.dto.TActiveTrace;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
+import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
 import com.navercorp.pinpoint.thrift.dto.TTransaction;
 import org.slf4j.Logger;
@@ -155,10 +156,8 @@ public class AgentStatMonitor {
             agentStat.setTransaction(transaction);
             final TActiveTrace activeTrace = activeTraceMetricCollector.collect();
             agentStat.setActiveTrace(activeTrace);
-
-            // TDataSourceList not set, yet
-            // final TDataSourceList dataSourceList = dataSourceCollector.collect();
-            // agentStat.setDataSourceList(dataSourceList);
+             final TDataSourceList dataSourceList = dataSourceCollector.collect();
+             agentStat.setDataSourceList(dataSourceList);
 
             return agentStat;
         }

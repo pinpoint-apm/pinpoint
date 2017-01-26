@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
@@ -64,6 +65,9 @@ public class AgentStatHandlerV2 implements Handler {
 
     @Autowired
     private AgentStatDaoV2<ActiveTraceBo> activeTraceDao;
+
+    @Autowired
+    private AgentStatDaoV2<DataSourceListBo> dataSourceListDao;
 
     @Autowired(required = false)
     private AgentStatService agentStatService;
@@ -114,8 +118,10 @@ public class AgentStatHandlerV2 implements Handler {
             this.cpuLoadDao.insert(agentId, agentStatBo.getCpuLoadBos());
             this.transactionDao.insert(agentId, agentStatBo.getTransactionBos());
             this.activeTraceDao.insert(agentId, agentStatBo.getActiveTraceBos());
+            this.dataSourceListDao.insert(agentId, agentStatBo.getDataSourceListBos());
         } catch (Exception e) {
             logger.warn("Error inserting AgentStatBo. Caused:{}", e.getMessage(), e);
         }
     }
+
 }
