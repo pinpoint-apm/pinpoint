@@ -216,6 +216,9 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
             final AsyncStateSupport asyncStateSupport = (AsyncStateSupport) asyncTraceId;
             AsyncState asyncState = asyncStateSupport.getAsyncState();
             asyncState.finish();
+            if (isDebug) {
+                logger.debug("finished asyncState. asyncTraceId={}", asyncTraceId);
+            }
         }
     }
 

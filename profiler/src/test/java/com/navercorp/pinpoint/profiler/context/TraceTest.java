@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
@@ -37,10 +39,11 @@ public class TraceTest {
 
     @Test
     public void trace() {
-        DefaultTraceId traceId = new DefaultTraceId("agent", 0, 1);
-        DefaultTraceContext defaultTraceContext = getDefaultTraceContext();
-        DefaultTrace trace = new DefaultTrace(defaultTraceContext, traceId, 0L, true);
-        trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
+        TraceId traceId = new DefaultTraceId("agent", 0, 1);
+        TraceContext traceContext = getDefaultTraceContext();
+        SpanStorage storage = new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER);
+
+        Trace trace = new DefaultTrace(traceContext, storage, traceId, 0L, true);
         trace.traceBlockBegin();
 
         // get data form db
@@ -54,17 +57,20 @@ public class TraceTest {
 
     @Test
     public void popEventTest() {
-        DefaultTraceId traceId = new DefaultTraceId("agent", 0, 1);
-        DefaultTraceContext defaultTraceContext = getDefaultTraceContext();
-        DefaultTrace trace = new DefaultTrace(defaultTraceContext, traceId, 0L, true);
+        TraceId traceId = new DefaultTraceId("agent", 0, 1);
+        TraceContext traceContext = getDefaultTraceContext();
+
         TestDataSender dataSender = new TestDataSender();
-        trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
+        SpanStorage storage = new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER);
+
+        Trace trace = new DefaultTrace(traceContext, storage, traceId, 0L, true);
+
         trace.close();
 
         logger.info(String.valueOf(dataSender.event));
     }
 
-    private DefaultTraceContext getDefaultTraceContext() {
+    private TraceContext getDefaultTraceContext() {
         DefaultTraceContext defaultTraceContext = new DefaultTraceContext(new TestAgentInformation());
         return defaultTraceContext;
     }

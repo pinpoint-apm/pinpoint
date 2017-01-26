@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.profiler.context.storage.Storage;
  * @author jaehong.kim
  */
 public final class DefaultTrace implements Trace {
+
     private static final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
     private static final boolean isTrace = logger.isTraceEnabled();
     private static final boolean isWarn = logger.isWarnEnabled();
@@ -40,24 +41,29 @@ public final class DefaultTrace implements Trace {
 
     private final long id;
     private final TraceId traceId;
-
     private final CallStack callStack;
 
-    private Storage storage;
-
     private final TraceContext traceContext;
+    private final Storage storage;
+
     private final WrappedSpanEventRecorder spanEventRecorder;
     private final DefaultSpanRecorder spanRecorder;
+
     private boolean closed = false;
 
     private Thread bindThread;
     private final DefaultTraceScopePool scopePool = new DefaultTraceScopePool();
 
-    public DefaultTrace(final TraceContext traceContext, long transactionId, boolean sampling) {
+    public DefaultTrace(final TraceContext traceContext, Storage storage, long transactionId, boolean sampling) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
         }
+        if (storage == null) {
+            throw new NullPointerException("storage must not be null");
+        }
+
         this.traceContext = traceContext;
+        this.storage = storage;
         this.traceId = new DefaultTraceId(traceContext.getAgentId(), traceContext.getAgentStartTime(), transactionId);
         this.id = this.traceId.getTransactionSequence();
         this.sampling = sampling;
@@ -70,14 +76,19 @@ public final class DefaultTrace implements Trace {
         setCurrentThread();
     }
 
-    public DefaultTrace(TraceContext traceContext, TraceId continueTraceId, long transactionId, boolean sampling) {
+    public DefaultTrace(TraceContext traceContext, Storage storage, TraceId continueTraceId, long transactionId, boolean sampling) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
+        }
+        if (storage == null) {
+            throw new NullPointerException("storage must not be null");
         }
         if (continueTraceId == null) {
             throw new NullPointerException("continueTraceId must not be null");
         }
+
         this.traceContext = traceContext;
+        this.storage = storage;
         this.traceId = continueTraceId;
         this.id = transactionId;
         this.sampling = sampling;
@@ -114,10 +125,6 @@ public final class DefaultTrace implements Trace {
         final WrappedSpanEventRecorder spanEventRecorder = this.spanEventRecorder;
         spanEventRecorder.setWrapped(spanEvent);
         return spanEventRecorder;
-    }
-
-    public void setStorage(Storage storage) {
-        this.storage = storage;
     }
 
     public Span getSpan() {
@@ -208,18 +215,13 @@ public final class DefaultTrace implements Trace {
             logSpan(span);
         }
 
-        final Storage copyStorage = this.storage;
-        if (copyStorage != null) {
-            copyStorage.close();
-            this.storage = null;
-        }
+        this.storage.close();
+
     }
 
     @Override
     public void flush() {
-        if(this.storage != null) {
-            this.storage.flush();
-        }
+        this.storage.flush();
     }
 
     /**
@@ -273,10 +275,7 @@ public final class DefaultTrace implements Trace {
             final Thread th = Thread.currentThread();
             logger.trace("[DefaultTrace] Write {} thread{id={}, name={}}", spanEvent, th.getId(), th.getName());
         }
-        final Storage storage = this.storage;
-        if (storage != null) {
-            storage.store(spanEvent);
-        }
+        storage.store(spanEvent);
     }
 
     private void logSpan(Span span) {
@@ -284,10 +283,7 @@ public final class DefaultTrace implements Trace {
             final Thread th = Thread.currentThread();
             logger.trace("[DefaultTrace] Write {} thread{id={}, name={}}", span, th.getId(), th.getName());
         }
-        final Storage storage = this.storage;
-        if (storage != null) {
-            storage.store(span);
-        }
+        this.storage.store(span);
     }
 
     @Override
