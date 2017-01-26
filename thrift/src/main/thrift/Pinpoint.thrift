@@ -100,6 +100,7 @@ struct TAgentStat {
     20: optional TCpuLoad   cpuLoad
     30: optional TTransaction   transaction
     40: optional TActiveTrace   activeTrace
+    50: optional TDataSourceList dataSourceList
     200: optional string    metadata
 }
 
@@ -111,7 +112,7 @@ struct TAgentStatBatch {
 
 struct TDataSource {
     1: i32                      id
-	2: optional i16	            serviceTypeCode
+    2: optional i16             serviceTypeCode
     3: optional string          name
     4: optional string          url
     5: optional i32             activeConnectionSize = 0
