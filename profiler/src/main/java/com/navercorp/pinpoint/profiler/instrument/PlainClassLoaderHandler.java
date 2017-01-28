@@ -51,7 +51,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private static final Method DEFINE_CLASS, RESOLVE_CLASS;;
+    private static final Method DEFINE_CLASS, RESOLVE_CLASS;
     private final JarReader pluginJarReader;
 
     private static final List<String> BOOTSTRAP_PACKAGE_LIST = Arrays.asList("com.navercorp.pinpoint.bootstrap", "com.navercorp.pinpoint.common", "com.navercorp.pinpoint.exception");
@@ -67,7 +67,8 @@ public class PlainClassLoaderHandler implements ClassInjector {
             throw new PinpointException("Cannot access ClassLoader.defineClass(String, byte[], int, int)", e);
         }
     }
-
+    
+    
     static {
         try {
             RESOLVE_CLASS = ClassLoader.class.getDeclaredMethod("resolveClass", Class.class);
@@ -75,8 +76,8 @@ public class PlainClassLoaderHandler implements ClassInjector {
         } catch (Exception e) {
             throw new PinpointException("Cannot access URLClassLoader.loadClass(class, boolean)", e);
         }
-    } 
-    
+    }    
+
     private final PluginConfig pluginConfig;
 
     public PlainClassLoaderHandler(PluginConfig pluginConfig) {
@@ -167,7 +168,6 @@ public class PlainClassLoaderHandler implements ClassInjector {
             return loadClass(classLoader, className);
         }
         return findClazz;
-
     }
 
     private InputStream getInputStream(ClassLoader classLoader, String className) throws NotFoundException, IllegalArgumentException, CannotCompileException, IllegalAccessException, InvocationTargetException {
@@ -200,7 +200,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
         return attachment;
     }
-
+    
     private ClassLoaderAttachment getClassLoaderAttachment(ClassLoader classLoader) {
 
         final ClassLoaderAttachment exist = classLoaderAttachment.get(classLoader);
@@ -326,6 +326,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
         final Integer length = classBytes.length;
         try {
             Class<?> clazz = (Class<?>) DEFINE_CLASS.invoke(classLoader, classMetadata.getClassName(), classBytes, offset, length);
+            //TODO: investigate if we need resolve class; seems to need it for certain web containers
             RESOLVE_CLASS.invoke(classLoader, clazz);
             return clazz;
         } catch (IllegalAccessException e) {
@@ -406,7 +407,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
             final SimpleClassMetadata classMetadata = this.classCache.get(className);
             if(classMetadata == null) {
                 return null;
-            }
+    }
 
             return new ByteArrayInputStream(classMetadata.getClassBinary());
         }
