@@ -57,10 +57,10 @@ public class HbaseConfigurationFactoryBean implements InitializingBean, FactoryB
         configuration = (hadoopConfig != null ? HBaseConfiguration.create(hadoopConfig) : HBaseConfiguration.create());
         addProperties(configuration, properties);
     }
-    
+
     /**
-     * Adds the specified properties to the given {@link Configuration} object.  
-     * 
+     * Adds the specified properties to the given {@link Configuration} object.
+     *
      * @param configuration configuration to manipulate. Should not be null.
      * @param properties properties to add to the configuration. May be null.
      */

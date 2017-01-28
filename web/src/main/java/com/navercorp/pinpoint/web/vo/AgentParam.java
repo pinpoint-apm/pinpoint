@@ -15,15 +15,15 @@ public class AgentParam implements Serializable {
     public String getAgentId() {
         return agentId;
     }
-    
+
     public void setAgentId(String agentId) {
         this.agentId = agentId;
     }
-    
+
     public long getTimeStamp() {
         return timeStamp;
     }
-    
+
     public void setTimeStamp(long timeStamp) {
         this.timeStamp = timeStamp;
     }

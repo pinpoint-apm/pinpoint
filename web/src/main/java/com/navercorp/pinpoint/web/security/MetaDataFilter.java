@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.web.vo.callstacks.RecordFactory;
  * @author minwoo.jung
  */
 public interface MetaDataFilter {
-    
+
     public enum MetaData {
         API, SQL, PARAM
     }
