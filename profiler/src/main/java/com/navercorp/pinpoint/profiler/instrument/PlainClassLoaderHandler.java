@@ -158,7 +158,6 @@ public class PlainClassLoaderHandler implements ClassInjector {
             return loadClass(classLoader, className);
         }
         return findClazz;
-
     }
 
     private InputStream getInputStream(ClassLoader classLoader, String className) throws NotFoundException, IllegalArgumentException, CannotCompileException, IllegalAccessException, InvocationTargetException {
@@ -317,6 +316,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
         final Integer length = classBytes.length;
         try {
             Class<?> clazz = (Class<?>) DEFINE_CLASS.invoke(classLoader, classMetadata.getClassName(), classBytes, offset, length);
+            //TODO: investigate if we need resolve class; seems to need it for certain web containers
             RESOLVE_CLASS.invoke(classLoader, clazz);
             return clazz;
         } catch (IllegalAccessException e) {
