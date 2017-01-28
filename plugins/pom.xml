@@ -66,11 +66,6 @@
         </dependency> 
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-axis2-jaxws-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency> 
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-ning-asynchttpclient-plugin</artifactId>
             <version>${project.version}</version>
         </dependency> 

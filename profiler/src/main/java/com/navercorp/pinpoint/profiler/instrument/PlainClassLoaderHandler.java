@@ -99,7 +99,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
             if (!isPluginPackage(className)) {
                 return loadClass(classLoader, className);
             }
-            return (Class<T>)injectClass0(classLoader, className);
+            return (Class<T>) injectClass0(classLoader, className);
         } catch (Exception e) {
             logger.warn("Failed to load plugin class {} with classLoader {}", className, classLoader, e);
             throw new PinpointException("Failed to load plugin class " + className + " with classLoader " + classLoader, e);
@@ -168,8 +168,8 @@ public class PlainClassLoaderHandler implements ClassInjector {
             return loadClass(classLoader, className);
         }
         return findClazz;
-
-        }
+    
+    }
 
     private InputStream getInputStream(ClassLoader classLoader, String className) throws NotFoundException, IllegalArgumentException, CannotCompileException, IllegalAccessException, InvocationTargetException {
         if (isDebug) {
@@ -200,7 +200,8 @@ public class PlainClassLoaderHandler implements ClassInjector {
         }
 
         return attachment;
-            }
+    }
+    
     private ClassLoaderAttachment getClassLoaderAttachment(ClassLoader classLoader) {
 
         final ClassLoaderAttachment exist = classLoaderAttachment.get(classLoader);
@@ -288,7 +289,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
         if (!"java.lang.Object".equals(superName)) {
             if (!isSkipClass(superName, classLoadingChecker)) {
                 SimpleClassMetadata superClassBinary = classMetaMap.get(superName);
-                if(isDebug) {
+                if (isDebug) {
                     logger.debug("superClass dependency define super:{} ori:{}", superClassBinary.getClassName(), currentClass.getClassName());
                 }
                 define0(classLoader, attachment, superClassBinary, classMetaMap, classLoadingChecker);

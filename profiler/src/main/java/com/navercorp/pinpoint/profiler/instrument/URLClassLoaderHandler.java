@@ -104,7 +104,7 @@ public class URLClassLoaderHandler implements ClassInjector {
             final boolean hasPluginJar = hasPluginJar(urls);
             if (!hasPluginJar) {
                 if (isDebug) {
-                logger.debug("add Jar:{}", pluginURLString);
+                    logger.debug("add Jar:{}", pluginURLString);
                 }
                 ADD_URL.invoke(classLoader, pluginURL);
             }
