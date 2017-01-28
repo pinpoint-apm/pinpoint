@@ -19,8 +19,9 @@ package com.navercorp.pinpoint.profiler.monitor.codahale.gc;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.profiler.context.MockTraceContextFactory;
 import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
-import com.navercorp.pinpoint.test.MockTraceContextFactory;
+
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
 
 import org.junit.Test;

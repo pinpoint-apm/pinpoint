@@ -123,9 +123,11 @@ public class LegacyAgentStatChartGroup implements AgentStatChartGroup {
     }
 
     public void addAgentStats(List<AgentStat> agentStats) {
-        for (AgentStat agentStat : agentStats) {
+        for (int i = agentStats.size() - 1; i >= 0; --i) {
+            AgentStat agentStat = agentStats.get(i);
             if (agentStat != null) {
-                addMemoryGcData(agentStat);
+                AgentStat previous = i == agentStats.size() - 1 ? null : agentStats.get(i + 1);
+                addMemoryGcData(agentStat, previous);
                 addCpuLoadData(agentStat);
                 addTransactionData(agentStat);
                 addActiveTraceData(agentStat);
@@ -158,7 +160,7 @@ public class LegacyAgentStatChartGroup implements AgentStatChartGroup {
         }
     }
 
-    private void addMemoryGcData(AgentStat agentStat) {
+    private void addMemoryGcData(AgentStat agentStat, AgentStat previous) {
         this.type = agentStat.getGcType();
         long timestamp = agentStat.getTimestamp();
         if (agentStat.getHeapUsed() != UNCOLLECTED_DATA) {
@@ -173,12 +175,44 @@ public class LegacyAgentStatChartGroup implements AgentStatChartGroup {
         if (agentStat.getNonHeapMax() != UNCOLLECTED_DATA) {
             this.nonHeapMaxChartBuilder.addDataPoint(new DataPoint<>(timestamp, agentStat.getNonHeapMax()));
         }
-        if (agentStat.getGcOldCount() != UNCOLLECTED_DATA) {
-            this.gcOldCountChartBuilder.addDataPoint(new DataPoint<>(timestamp, agentStat.getGcOldCount()));
+        if (previous != null) {
+            if (checkJvmRestart(previous, agentStat)) {
+                if (isGcCollected(agentStat)) {
+                    this.gcOldCountChartBuilder.addDataPoint(new DataPoint<>(timestamp, agentStat.getGcOldCount()));
+                    this.gcOldTimeChartBuilder.addDataPoint(new DataPoint<>(timestamp, agentStat.getGcOldTime()));
+                } else {
+                    agentStat.setGcOldCount(0L);
+                    agentStat.setGcOldTime(0L);
+                }
+            } else {
+                if (isGcCollected(agentStat) && isGcCollected(previous)) {
+                    long gcOldCount = agentStat.getGcOldCount() - previous.getGcOldCount();
+                    long gcOldTime = agentStat.getGcOldTime() - previous.getGcOldTime();
+                    this.gcOldCountChartBuilder.addDataPoint(new DataPoint<>(timestamp, gcOldCount));
+                    this.gcOldTimeChartBuilder.addDataPoint(new DataPoint<>(timestamp, gcOldTime));
+                } else {
+                    if (!isGcCollected(agentStat)) {
+                        agentStat.setGcOldCount(previous.getGcOldCount());
+                        agentStat.setGcOldTime(previous.getGcOldTime());
+                    }
+                }
+            }
+        } else {
+            if (isGcCollected(agentStat)) {
+                this.gcOldCountChartBuilder.addDataPoint(new DataPoint<>(timestamp, 0L));
+                this.gcOldTimeChartBuilder.addDataPoint(new DataPoint<>(timestamp, 0L));
+            }
         }
-        if (agentStat.getGcOldTime() != UNCOLLECTED_DATA) {
-            this.gcOldTimeChartBuilder.addDataPoint(new DataPoint<>(timestamp, agentStat.getGcOldTime()));
-        }
+    }
+
+    private boolean isGcCollected(AgentStat agentStat) {
+        return agentStat.getGcOldCount() != UNCOLLECTED_DATA && agentStat.getGcOldTime() != UNCOLLECTED_DATA;
+    }
+
+    private boolean checkJvmRestart(AgentStat previous, AgentStat current) {
+        long countDelta = current.getGcOldCount() - previous.getGcOldCount();
+        long timeDelta = current.getGcOldTime() - previous.getGcOldTime();
+        return countDelta < 0 && timeDelta < 0;
     }
 
     private void addCpuLoadData(AgentStat agentStat) {
@@ -235,18 +269,26 @@ public class LegacyAgentStatChartGroup implements AgentStatChartGroup {
         HistogramSchema schema = agentStat.getHistogramSchema();
         if (schema != null) {
             Map<SlotType, Integer> activeTraceCounts = agentStat.getActiveTraceCounts();
-
-            TitledDataPoint<Long, Integer> fastDataPoint = new TitledDataPoint<>(schema.getFastSlot().getSlotName(), timestamp, activeTraceCounts.get(SlotType.FAST));
-            this.activeTraceFastChartBuilder.addDataPoint(fastDataPoint);
-
-            TitledDataPoint<Long, Integer> normalDataPoint = new TitledDataPoint<>(schema.getNormalSlot().getSlotName(), timestamp, activeTraceCounts.get(SlotType.NORMAL));
-            this.activeTraceNormalChartBuilder.addDataPoint(normalDataPoint);
-
-            TitledDataPoint<Long, Integer> slowDataPoint = new TitledDataPoint<>(schema.getSlowSlot().getSlotName(), timestamp, activeTraceCounts.get(SlotType.SLOW));
-            this.activeTraceSlowChartBuilder.addDataPoint(slowDataPoint);
-
-            TitledDataPoint<Long, Integer> verySlowDataPoint = new TitledDataPoint<>(schema.getVerySlowSlot().getSlotName(), timestamp, activeTraceCounts.get(SlotType.VERY_SLOW));
-            this.activeTraceVerySlowChartBuilder.addDataPoint(verySlowDataPoint);
+            int fastCount = activeTraceCounts.get(SlotType.FAST);
+            if (fastCount != UNCOLLECTED_DATA) {
+                TitledDataPoint<Long, Integer> fastDataPoint = new TitledDataPoint<>(schema.getFastSlot().getSlotName(), timestamp, fastCount);
+                this.activeTraceFastChartBuilder.addDataPoint(fastDataPoint);
+            }
+            int normalCount = activeTraceCounts.get(SlotType.NORMAL);
+            if (normalCount != UNCOLLECTED_DATA) {
+                TitledDataPoint<Long, Integer> normalDataPoint = new TitledDataPoint<>(schema.getNormalSlot().getSlotName(), timestamp, normalCount);
+                this.activeTraceNormalChartBuilder.addDataPoint(normalDataPoint);
+            }
+            int slowCount = activeTraceCounts.get(SlotType.SLOW);
+            if (slowCount != UNCOLLECTED_DATA) {
+                TitledDataPoint<Long, Integer> slowDataPoint = new TitledDataPoint<>(schema.getSlowSlot().getSlotName(), timestamp, slowCount);
+                this.activeTraceSlowChartBuilder.addDataPoint(slowDataPoint);
+            }
+            int verySlowCount = activeTraceCounts.get(SlotType.VERY_SLOW);
+            if (verySlowCount != UNCOLLECTED_DATA) {
+                TitledDataPoint<Long, Integer> verySlowDataPoint = new TitledDataPoint<>(schema.getVerySlowSlot().getSlotName(), timestamp, verySlowCount);
+                this.activeTraceVerySlowChartBuilder.addDataPoint(verySlowDataPoint);
+            }
         }
     }
 

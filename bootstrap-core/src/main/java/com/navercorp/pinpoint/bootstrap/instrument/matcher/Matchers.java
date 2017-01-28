@@ -28,8 +28,8 @@ public final class Matchers {
     private Matchers() {
     }
 
-    public static Matcher newClassNameMatcher(String className) {
-        return new DefaultClassNameMatcher(className);
+    public static Matcher newClassNameMatcher(String classInternalName) {
+        return new DefaultClassNameMatcher(classInternalName);
     }
 
     public static Matcher newMultiClassNameMatcher(List<String> classNameList) {

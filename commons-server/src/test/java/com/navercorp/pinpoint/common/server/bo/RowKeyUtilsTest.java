@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
-
 import org.junit.Assert;
 
 import org.junit.Test;
@@ -36,7 +34,7 @@ public class RowKeyUtilsTest {
         SqlMetaDataBo sqlId = new SqlMetaDataBo();
         sqlId.readRowKey(agents);
         Assert.assertEquals(sqlId.getAgentId(), "agent");
-        Assert.assertEquals(sqlId.getHashCode(), 1);
+        Assert.assertEquals(sqlId.getSqlId(), 1);
         Assert.assertEquals(sqlId.getStartTime(), startTime);
     }
 }

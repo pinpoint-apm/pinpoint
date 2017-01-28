@@ -28,7 +28,7 @@ public class SqlMetaDataBo {
     private String agentId;
     private long startTime;
 
-    private int hashCode;
+    private int sqlId;
 
     private String sql;
 
@@ -36,12 +36,12 @@ public class SqlMetaDataBo {
     }
 
 
-    public SqlMetaDataBo(String agentId, long startTime, int hashCode) {
+    public SqlMetaDataBo(String agentId, long startTime, int sqlId) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
         this.agentId = agentId;
-        this.hashCode = hashCode;
+        this.sqlId = sqlId;
         this.startTime = startTime;
     }
 
@@ -53,13 +53,29 @@ public class SqlMetaDataBo {
         this.agentId = agentId;
     }
 
-
+    /**
+     * @deprecated Since 1.6.1. Use {@link #getSqlId()}
+     */
+    @Deprecated
     public int getHashCode() {
-        return hashCode;
+        return getSqlId();
     }
 
-    public void setHashCode(int hashCode) {
-        this.hashCode = hashCode;
+
+    /**
+     * @deprecated Since 1.6.1. Use {@link #setSqlId(int)}
+     */
+    @Deprecated
+    public void setHashCode(int sqlId) {
+        this.setSqlId(sqlId);
+    }
+
+    public int getSqlId() {
+        return sqlId;
+    }
+
+    public void setSqlId(int sqlId) {
+        this.sqlId = sqlId;
     }
 
     public long getStartTime() {
@@ -81,7 +97,7 @@ public class SqlMetaDataBo {
     public void readRowKey(byte[] rowKey) {
         this.agentId = BytesUtils.safeTrim(BytesUtils.toString(rowKey, 0, PinpointConstants.AGENT_NAME_MAX_LEN));
         this.startTime = TimeUtils.recoveryTimeMillis(readTime(rowKey));
-        this.hashCode = readKeyCode(rowKey);
+        this.sqlId = readSqlId(rowKey);
     }
 
 
@@ -89,12 +105,12 @@ public class SqlMetaDataBo {
         return BytesUtils.bytesToLong(rowKey, PinpointConstants.AGENT_NAME_MAX_LEN);
     }
 
-    private static int readKeyCode(byte[] rowKey) {
+    private static int readSqlId(byte[] rowKey) {
         return BytesUtils.bytesToInt(rowKey, PinpointConstants.AGENT_NAME_MAX_LEN + BytesUtils.LONG_BYTE_LENGTH);
     }
 
     public byte[] toRowKey() {
-        return RowKeyUtils.getMetaInfoRowKey(this.agentId, this.startTime, this.hashCode);
+        return RowKeyUtils.getMetaInfoRowKey(this.agentId, this.startTime, this.sqlId);
     }
 
     @Override
@@ -102,7 +118,7 @@ public class SqlMetaDataBo {
         return "SqlMetaDataBo{" +
                 "agentId='" + agentId + '\'' +
                 ", startTime=" + startTime +
-                ", hashCode=" + hashCode +
+                ", sqlId=" + sqlId +
                 ", sql='" + sql + '\'' +
                 '}';
     }

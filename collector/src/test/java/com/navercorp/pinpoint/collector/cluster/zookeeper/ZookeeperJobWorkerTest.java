@@ -3,12 +3,10 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 import com.navercorp.pinpoint.collector.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.collector.TestAwaitUtils;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.PinpointZookeeperException;
-import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
+import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import org.junit.Assert;
 import org.junit.Test;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +16,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @Author Taejin Koo
@@ -127,9 +128,9 @@ public class ZookeeperJobWorkerTest {
 
     private PinpointServer createMockPinpointServer(String applicationName, String agentId, long startTimeStamp) {
         Map<Object, Object> properties = new HashMap<>();
-        properties.put(AgentHandshakePropertyType.APPLICATION_NAME.getName(), applicationName);
-        properties.put(AgentHandshakePropertyType.AGENT_ID.getName(), agentId);
-        properties.put(AgentHandshakePropertyType.START_TIMESTAMP.getName(), startTimeStamp);
+        properties.put(HandshakePropertyType.APPLICATION_NAME.getName(), applicationName);
+        properties.put(HandshakePropertyType.AGENT_ID.getName(), agentId);
+        properties.put(HandshakePropertyType.START_TIMESTAMP.getName(), startTimeStamp);
 
         PinpointServer mockServer = mock(PinpointServer.class);
         when(mockServer.getChannelProperties()).thenReturn(properties);

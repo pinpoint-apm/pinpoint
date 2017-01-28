@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,17 +30,27 @@ import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
  * @author emeroad
  */
 public class DefaultAgentOption implements AgentOption {
-    private final String agentArgs;
+
     private final Instrumentation instrumentation;
+
+    private final String agentId;
+    private final String applicationName;
+
     private final ProfilerConfig profilerConfig;
     private final URL[] pluginJars;
     private final List<String> bootstrapJarPaths;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
     private final AnnotationKeyRegistryService annotationKeyRegistryService;
 
-    public DefaultAgentOption(final String agentArgs, final Instrumentation instrumentation, final ProfilerConfig profilerConfig, final URL[] pluginJars, final List<String> bootstrapJarPaths, final ServiceTypeRegistryService serviceTypeRegistryService, final AnnotationKeyRegistryService annotationKeyRegistryService) {
+    public DefaultAgentOption(final Instrumentation instrumentation, String agentId, String applicationName, final ProfilerConfig profilerConfig, final URL[] pluginJars, final List<String> bootstrapJarPaths, final ServiceTypeRegistryService serviceTypeRegistryService, final AnnotationKeyRegistryService annotationKeyRegistryService) {
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
+        }
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
         }
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
@@ -53,8 +64,9 @@ public class DefaultAgentOption implements AgentOption {
         if (serviceTypeRegistryService == null) {
             throw new NullPointerException("serviceTypeRegistryService must not be null");
         }
-        this.agentArgs = agentArgs;
         this.instrumentation = instrumentation;
+        this.agentId = agentId;
+        this.applicationName = applicationName;
         this.profilerConfig = profilerConfig;
         this.pluginJars = pluginJars;
         if (bootstrapJarPaths == null) {
@@ -67,13 +79,18 @@ public class DefaultAgentOption implements AgentOption {
     }
 
     @Override
-    public String getAgentArgs() {
-        return this.agentArgs;
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
     }
 
     @Override
-    public Instrumentation getInstrumentation() {
-        return this.instrumentation;
+    public String getAgentId() {
+        return agentId;
+    }
+
+    @Override
+    public String getApplicationName() {
+        return applicationName;
     }
 
     @Override
@@ -103,11 +120,16 @@ public class DefaultAgentOption implements AgentOption {
 
     @Override
     public String toString() {
-        return "DefaultAgentOption{" +
-                "agentArgs='" + agentArgs + '\'' +
-                ", instrumentation=" + instrumentation +
-                ", profilerConfig=" + profilerConfig +
-                ", bootstrapJarPaths='" + bootstrapJarPaths +
-                '}';
+        final StringBuilder sb = new StringBuilder("DefaultAgentOption{");
+        sb.append("instrumentation=").append(instrumentation);
+        sb.append(", agentId='").append(agentId).append('\'');
+        sb.append(", applicationName='").append(applicationName).append('\'');
+        sb.append(", profilerConfig=").append(profilerConfig);
+        sb.append(", pluginJars=").append(Arrays.toString(pluginJars));
+        sb.append(", bootstrapJarPaths=").append(bootstrapJarPaths);
+        sb.append(", serviceTypeRegistryService=").append(serviceTypeRegistryService);
+        sb.append(", annotationKeyRegistryService=").append(annotationKeyRegistryService);
+        sb.append('}');
+        return sb.toString();
     }
 }

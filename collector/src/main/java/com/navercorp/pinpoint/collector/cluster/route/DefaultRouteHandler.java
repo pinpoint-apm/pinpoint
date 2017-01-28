@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
-import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
 import org.apache.thrift.TBase;
 
 /**
@@ -76,8 +75,7 @@ public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
             return createResponse(TRouteResult.NOT_FOUND);
         }
 
-        TCommandTypeVersion commandVersion = TCommandTypeVersion.getVersion(clusterPoint.gerVersion());
-        if (!commandVersion.isSupportCommand(requestObject)) {
+        if (!clusterPoint.isSupportCommand(requestObject)) {
             return createResponse(TRouteResult.NOT_SUPPORTED_REQUEST);
         }
 

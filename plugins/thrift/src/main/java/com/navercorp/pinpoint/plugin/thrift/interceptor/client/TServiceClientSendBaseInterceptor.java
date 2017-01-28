@@ -174,7 +174,7 @@ public class TServiceClientSendBaseInterceptor implements AroundInterceptor {
     }
 
     private String getMethodArgs(TBase<?, ?> args) {
-        return StringUtils.drop(args.toString(), 256);
+        return StringUtils.abbreviate(args.toString(), 256);
     }
 
 }

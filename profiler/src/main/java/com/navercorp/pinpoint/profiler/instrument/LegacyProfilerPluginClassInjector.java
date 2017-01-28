@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -123,5 +124,15 @@ public class LegacyProfilerPluginClassInjector implements ClassInjector {
         
         byte[] bytes = ct.toBytecode();
         return (Class<?>)DEFINE_CLASS.invoke(classLoader, ct.getName(), bytes, 0, bytes.length);
+    }
+
+    @Override
+    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String classPath) {
+        ClassLoader classLoader = targetClassLoader;
+        if(classLoader == null) {
+            classLoader = ClassLoader.getSystemClassLoader();
+        }
+
+        return classLoader.getResourceAsStream(classPath);
     }
 }

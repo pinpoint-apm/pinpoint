@@ -1,30 +1,59 @@
+/*
+ * Copyright 2016 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.navercorp.pinpoint.profiler.context;
+
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+
+/**
+ * @author jaehong.kim
+ */
 public class DefaultAsyncTraceId implements AsyncTraceId {
+
+    private static final AtomicIntegerFieldUpdater<DefaultAsyncTraceId> ASYNC_SEQUENCE_UPDATER
+            = AtomicIntegerFieldUpdater.newUpdater(DefaultAsyncTraceId.class, "asyncSequence");
 
     private final TraceId traceId;
     private final int asyncId;
     private final long startTime;
-    private short asyncSequence = 0;
-    
+
+    @SuppressWarnings("unused")
+    private volatile int asyncSequence = 0;
+
     public DefaultAsyncTraceId(final TraceId traceId, final int asyncId, final long startTime) {
+        if (traceId == null) {
+            throw new IllegalArgumentException("traceId must not be null.");
+        }
+
         this.traceId = traceId;
         this.asyncId = asyncId;
         this.startTime = startTime;
     }
-    
+
     public int getAsyncId() {
         return asyncId;
     }
 
-    public synchronized short nextAsyncSequence() {
-        this.asyncSequence += 1;
-        return this.asyncSequence;
+    public short nextAsyncSequence() {
+        return (short) ASYNC_SEQUENCE_UPDATER.incrementAndGet(this);
     }
-    
+
     @Override
     public TraceId getNextTraceId() {
         return traceId.getNextTraceId();
@@ -82,14 +111,12 @@ public class DefaultAsyncTraceId implements AsyncTraceId {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("{traceId=");
-        builder.append(traceId);
-        builder.append(", asyncId=");
-        builder.append(asyncId);
-        builder.append(", startTime=");
-        builder.append(startTime);
-        builder.append("}");
-        return builder.toString();
+        final StringBuilder sb = new StringBuilder("{");
+        sb.append("traceId=").append(traceId);
+        sb.append(", asyncId=").append(asyncId);
+        sb.append(", startTime=").append(startTime);
+        sb.append(", asyncSequence=").append(asyncSequence);
+        sb.append('}');
+        return sb.toString();
     }
 }

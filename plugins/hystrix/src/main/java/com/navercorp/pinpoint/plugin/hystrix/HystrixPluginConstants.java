@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,22 +18,25 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
-import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
+
+import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_RECORD_SET;
 
 /**
  * @author Jiaqi Feng
- *
+ * @author HyunGil Jeong
  */
 public interface HystrixPluginConstants {
-    public static final ServiceType HYSTRIX_SERVICE_TYPE = ServiceTypeFactory.of(9120, "HYSTRIX_COMMAND");
-    AnnotationKey HYSTRIX_SUBCLASS_ANNOTATION_KEY = AnnotationKeyFactory.of(98, "hystrix.subclass", VIEW_IN_RECORD_SET);
+    ServiceType HYSTRIX_SERVICE_TYPE = ServiceTypeFactory.of(9120, "HYSTRIX_COMMAND");
+    ServiceType HYSTRIX_INTERNAL_SERVICE_TYPE = ServiceTypeFactory.of(9121, "HYSTRIX_COMMAND_INTERNAL", "HYSTRIX_COMMAND");
 
-    public static final String META_DO_NOT_TRACE = "_Hystrix_DO_NOT_TRACE";
-    public static final String META_TRANSACTION_ID = "_Hystrix_TRASACTION_ID";
-    public static final String META_SPAN_ID = "_Hystrix_SPAN_ID";
-    public static final String META_PARENT_SPAN_ID = "_Hystrix_PARENT_SPAN_ID";
-    public static final String META_PARENT_APPLICATION_NAME = "_Hystrix_PARENT_APPLICATION_NAME";
-    public static final String META_PARENT_APPLICATION_TYPE = "_Hystrix_PARENT_APPLICATION_TYPE";
-    public static final String META_FLAGS = "_Hystrix_FLAGS";
+    AnnotationKey HYSTRIX_COMMAND_ANNOTATION_KEY = AnnotationKeyFactory.of(110, "hystrix.command", VIEW_IN_RECORD_SET);
+    AnnotationKey HYSTRIX_COMMAND_EXECUTION_ANNOTATION_KEY = AnnotationKeyFactory.of(111, "hystrix.command.execution", VIEW_IN_RECORD_SET);
+    AnnotationKey HYSTRIX_FALLBACK_CAUSE_ANNOTATION_KEY = AnnotationKeyFactory.of(112, "hystrix.command.fallback.cause", VIEW_IN_RECORD_SET);
 
+    String HYSTRIX_COMMAND_EXECUTION_SCOPE = "HystrixCommandExecutionScope";
+
+    String HYSTRIX_COMMAND_GET_EXECUTION_EXCEPTION_METHOD_NAME = "getExecutionException";
+
+    String EXECUTION_TYPE_EXECUTION = "run";
+    String EXECUTION_TYPE_FALLBACK = "fallback";
 }

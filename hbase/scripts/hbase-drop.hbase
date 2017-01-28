@@ -1,7 +1,7 @@
 disable 'AgentInfo'
 disable 'AgentStat'
-disable 'AgentStat_Ver2'
-disable 'AgentStatAggr'
+disable 'AgentStatV2'
+
 disable 'AgentLifeCycle'
 disable 'AgentEvent'
 disable 'ApplicationIndex'
@@ -25,7 +25,7 @@ disable 'HostApplicationMap_Ver2'
 
 drop 'AgentInfo'
 drop 'AgentStat'
-drop 'AgentStat_Ver2'
+drop 'AgentStatV2'
 drop 'AgentLifeCycle'
 drop 'AgentEvent'
 drop 'ApplicationIndex'
@@ -37,7 +37,7 @@ drop 'SqlMetaData_Ver2'
 
 drop 'ApplicationTraceIndex'
 drop 'Traces'
-drop 'TracesV2'
+drop 'TraceV2'
 
 drop 'ApplicationMapStatisticsCaller_Ver2'
 drop 'ApplicationMapStatisticsCallee_Ver2'

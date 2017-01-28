@@ -8,15 +8,17 @@
 * Install agents without changing a single line of code
 * Minimal impact on performance (approximately 3% increase in resource usage)
 
-## Latest Release (2016/04/08)
-We're happy to announce the release of Pinpoint **v1.5.2**. <br/>
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.5.2)<br/>
-We're now focusing on developing **v1.6.0**.
+## Latest Release (2016/12/08)
+We're happy to announce the release of Pinpoint v1.6.0.
+Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.6.0)
+We're now focusing on developing v1.6.1.
 
-Special shout out to dawidmalina, majinkai, jart and many others for your contribution and feedback.<br/>
-Without your help, we would not have been able to reach our current level of product maturity. We are extremely grateful for all your help and will continue to try our very best to provide you with the best possible experience using Pinpoint.<br/>
-We look forward to working with you as we enter the next chapter in development.<br/>
+Special shout out to dawidmalina, jiaqifeng, suraj-raturi, barneykim, fanyeren, abhijith0505, guindous, 999fg, mvlbarcelos and many others for your contribution and feedback.
+Without your help, we would not have been able to reach our current level of product maturity. We are extremely grateful for all your help and will continue to try our very best to provide you with the best possible experience using Pinpoint.
+We look forward to working with you as we enter the next chapter in development.
 Thank you.
+
+The current stable version is [**v1.6.0**](https://github.com/naver/pinpoint/releases/tag/1.6.0).
 
 ### Plugin Development Guide (2016/03/18)
 We now have a [plugin development guide](https://github.com/naver/pinpoint/wiki/Pinpoint-Plugin-Developer-Guide "Pinpoint Plugin Development Guide"). Yay!
@@ -44,7 +46,7 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 
 ## Supported Modules
 * JDK 6+
-* Tomcat 6/7/8, Jetty 8/9
+* Tomcat 6/7/8, Jetty 8/9, JBoss EAP 6
 * Spring, Spring Boot
 * Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient
 * Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER
@@ -67,13 +69,13 @@ For details, please refer to the [quick-start guide](quickstart/README.md).
 ## Installation
 **Build Requirements**
 
-* JDK 6 installed ([jdk1.6_45](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase6-419409.html))
-* JDK 7 installed
+* JDK 6 installed ([jdk1.6.0_45](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase6-419409.html#jdk-6u45-oth-JPR) recommended)
+* JDK 7 installed ([jdk1.7.0_80](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html#jdk-7u80-oth-JPR) recommended)
 * JDK 8 installed
 * Maven 3.2.x+ installed
 * JAVA_6_HOME environment variable set to JDK 6 home directory.
 * JAVA_7_HOME environment variable set to JDK 7 home directory.
-* JAVA_8_HOME environment variable set to JDK 8+ home directory.
+* JAVA_8_HOME environment variable set to JDK 8 home directory.
 
 **Prerequisites**
 
@@ -104,13 +106,18 @@ Agent Version | Collector 1.0.x | Collector 1.1.x | Collector 1.5.x | Collector 
 1.5.x | no | no | yes | yes
 1.6.x | no | no | not tested | yes
 
+Pinpoint Web Supported Browsers:
+
+* Chrome
+
 **Installation**
 
 To set up your very own Pinpoint instance you can either **download the build results** from our [**latest release**](https://github.com/naver/pinpoint/releases/latest), or manually build from your Git clone.
 Take a look at our [installation guide](doc/installation.md) for further instructions.
 
 ## Issues
-For feature requests and bug reports, feel free to post them [here](https://github.com/naver/pinpoint/issues "Pinpoint Issues").
+For feature requests and bug reports, feel free to post them [here](https://github.com/naver/pinpoint/issues "Pinpoint Issues").  
+Please take a look at [CONTRIBUTING.md#issues](CONTRIBUTING.md#issues) for some guidelines that'll help us understand your issues better.
 
 
 ## User Group
@@ -125,21 +132,28 @@ We welcome any documentation contribution.
 ## Contribution
 We welcome any and all suggestions.
 
-For plugin development, take a look at our [plugin development guide](https://github.com/naver/pinpoint/wiki/Pinpoint-Plugin-Developer-Guide "Pinpoint Plugin Development Guide"), along with [plugin samples](https://github.com/naver/pinpoint-plugin-sample "Pinpoint Plugin Samples project") project to get an idea of how we do instrumentation. The samples will provide you with example codes to help you get started.
-
+For plugin development, take a look at our [plugin development guide](https://github.com/naver/pinpoint/wiki/Pinpoint-Plugin-Developer-Guide "Pinpoint Plugin Development Guide"), along with [plugin samples](https://github.com/naver/pinpoint-plugin-sample "Pinpoint Plugin Samples project") project to get an idea of how we do instrumentation. The samples will provide you with example codes to help you get started.  
 **Please follow our [guideline](https://github.com/naver/pinpoint/wiki/Pinpoint-Plugin-Developer-Guide#iii-plugin-contribution-guideline "Plugin PR Guideline") when making pull-requests for new plugins.**
-For everything else, please make a pull-request against our `master` branch.
 
-Please note that you will have to complete a  [CLA](https://docs.google.com/forms/d/1oDX26pwmVZSoDfL9MwvwLsM23dHqc5pvgoZCp7jM940/viewform?c=0&w=1 "Contributor License Agreement") for your first pull-request.
+For all pull-requests, make sure you've read through [CONTRIBUTING.md#pull-requests](CONTRIBUTING.md#pull-requests) and note that you will have to complete a  [CLA](https://docs.google.com/forms/d/1oDX26pwmVZSoDfL9MwvwLsM23dHqc5pvgoZCp7jM940/viewform?c=0&w=1 "Contributor License Agreement") for your first pull-request.
 
 We would love to see additional tracing support for libraries such as [Storm](https://storm.apache.org "Apache Storm"), [HBase](http://hbase.apache.org "Apache HBase"), as well as profiler support for additional languages (.NET, C++).
+
+## Google Analytics
+The web module has google analytics attached that tracks the number and the order of button clicks in the server map, transaction list, and the inspector view.
+
+This data is used to better understand how users interact with the Web UI which gives us valuable information in improving Pinpoint Web's user experience.
+To disable this for any reason, set the following option to false in *pinpoint-web.properties* for your web instance.
+```
+config.sendUsage=false
+```
 
 ## License
 Pinpoint is licensed under the Apache License, Version 2.0.
 See [LICENSE](LICENSE) for full license text.
 
 ```
-Copyright 2015 Naver Corp.
+Copyright 2017 NAVER Corp.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

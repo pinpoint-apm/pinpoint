@@ -88,23 +88,35 @@ public enum TCommandType {
         public TBase newObject() {
             return new TCmdActiveThreadDumpRes();
         }
+    },
+    ACTIVE_THREAD_LIGHT_DUMP((short) 750, TCmdActiveThreadLightDump.class) {
+        @Override
+        public TBase newObject() {
+            return new TCmdActiveThreadLightDump();
+        }
+    },
+    ACTIVE_THREAD_LIGHT_DUMP_RESPONSE((short) 751, TCmdActiveThreadLightDumpRes.class) {
+        @Override
+        public TBase newObject() {
+            return new TCmdActiveThreadLightDumpRes();
+        }
     };
 
-    private final short type;
+    private final short code;
     private final Class<? extends TBase> clazz;
     private final Header header;
 
-    private TCommandType(short type, Class<? extends TBase> clazz) {
-        this.type = type;
+    private TCommandType(short code, Class<? extends TBase> clazz) {
+        this.code = code;
         this.clazz = clazz;
-        this.header = createHeader(type);
+        this.header = createHeader(code);
     }
 
-    protected short getType() {
-        return type;
+    public short getCode() {
+        return code;
     }
 
-    protected Class getClazz() {
+    public Class getClazz() {
         return clazz;
     }
 
@@ -118,10 +130,32 @@ public enum TCommandType {
 
     public abstract TBase newObject();
 
-    private static Header createHeader(short type) {
+    private static Header createHeader(short code) {
         Header header = new Header();
-        header.setType(type);
+        header.setType(code);
         return header;
+    }
+
+    public static TCommandType getType(Class<? extends TBase> clazz) {
+        TCommandType[] commandTypes = values();
+        for (TCommandType commandType : commandTypes) {
+            if (commandType.getClazz() == clazz) {
+                return commandType;
+            }
+        }
+
+        return null;
+    }
+
+    public static TCommandType getType(short code) {
+        TCommandType[] commandTypes = values();
+        for (TCommandType commandType : commandTypes) {
+            if (commandType.getCode() == code) {
+                return commandType;
+            }
+        }
+
+        return null;
     }
 
 }

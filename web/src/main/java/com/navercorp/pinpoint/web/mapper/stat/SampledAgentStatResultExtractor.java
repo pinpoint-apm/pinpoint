@@ -18,71 +18,44 @@ package com.navercorp.pinpoint.web.mapper.stat;
 
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.AgentStatSamplingHandler;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.EagerSamplingHandler;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * @author HyunGil Jeong
  */
-public abstract class SampledAgentStatResultExtractor<T extends AgentStatDataPoint, S extends SampledAgentStatDataPoint> implements ResultsExtractor<List<S>> {
+public class SampledAgentStatResultExtractor<T extends AgentStatDataPoint, S extends SampledAgentStatDataPoint> implements ResultsExtractor<List<S>> {
 
     private final TimeWindow timeWindow;
     private final AgentStatMapper<T> rowMapper;
-    private final List<S> sampledDataPoints;
+    private final AgentStatSampler<T, S> sampler;
 
-    public SampledAgentStatResultExtractor(TimeWindow timeWindow, AgentStatMapper<T> rowMapper) {
+    public SampledAgentStatResultExtractor(TimeWindow timeWindow, AgentStatMapper<T> rowMapper, AgentStatSampler<T, S> sampler) {
         if (timeWindow.getWindowRangeCount() > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("range yields too many timeslots");
         }
         this.timeWindow = timeWindow;
         this.rowMapper = rowMapper;
-        this.sampledDataPoints = new ArrayList<>((int) timeWindow.getWindowRangeCount());
+        this.sampler = sampler;
     }
 
     @Override
     public List<S> extractData(ResultScanner results) throws Exception {
         int rowNum = 0;
-        // Sample straight away, tossing out already sampled data points so they can be garbage collected
-        // as soon as possible.
-        // This is mainly important when querying over a long period of time which simply using SampledChartBuilder
-        // could could consume too much memory.
-        List<T> currentBatchToSample = new ArrayList<>();
-        long currentTimeslotTimestamp = 0;
+        AgentStatSamplingHandler<T, S> samplingHandler = new EagerSamplingHandler<>(timeWindow, sampler);
         for (Result result : results) {
-            List<T> dataPoints = this.rowMapper.mapRow(result, rowNum++);
-            for (T dataPoint : dataPoints) {
-                long timestamp = dataPoint.getTimestamp();
-                long timeslotTimestamp = this.timeWindow.refineTimestamp(timestamp);
-                if (currentTimeslotTimestamp == 0 || currentTimeslotTimestamp == timeslotTimestamp) {
-                    currentBatchToSample.add(dataPoint);
-                    currentTimeslotTimestamp = timeslotTimestamp;
-                } else if (timeslotTimestamp < currentTimeslotTimestamp) {
-                    // currentBatchToSample shouldn't be empty at this point
-                    S sampledBatch = sampleCurrentBatch(currentTimeslotTimestamp, currentBatchToSample);
-                    this.sampledDataPoints.add(sampledBatch);
-                    currentBatchToSample = new ArrayList<>();
-                    currentBatchToSample.add(dataPoint);
-                    currentTimeslotTimestamp = timeslotTimestamp;
-                } else {
-                    // Results should be sorted in a descending order of their actual timestamp values
-                    // as they are stored using reverse timestamp.
-                    throw new IllegalStateException("Out of order AgentStatDataPoint");
-                }
+            for (T dataPoint : this.rowMapper.mapRow(result, rowNum++)) {
+                samplingHandler.addDataPoint(dataPoint);
             }
         }
-        if (!currentBatchToSample.isEmpty()) {
-            S sampledBatch = sampleCurrentBatch(currentTimeslotTimestamp, currentBatchToSample);
-            sampledDataPoints.add(sampledBatch);
-        }
-        return this.sampledDataPoints;
+        return samplingHandler.getSampledDataPoints();
     }
-
-    protected abstract S sampleCurrentBatch(long timestamp, List<T> dataPointsToSample);
-
 }

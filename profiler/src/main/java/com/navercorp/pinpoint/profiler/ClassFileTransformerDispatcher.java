@@ -72,25 +72,25 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
     }
 
     @Override
-    public byte[] transform(ClassLoader classLoader, String jvmClassName, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws IllegalClassFormatException {
-        if (!pinpointClassFilter.accept(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer)) {
+    public byte[] transform(ClassLoader classLoader, String classInternalName, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws IllegalClassFormatException {
+        if (!pinpointClassFilter.accept(classLoader, classInternalName, classBeingRedefined, protectionDomain, classFileBuffer)) {
             return null;
         }
 
-        final ClassFileTransformer dynamicTransformer = dynamicTransformerRegistry.getTransformer(classLoader, jvmClassName);
+        final ClassFileTransformer dynamicTransformer = dynamicTransformerRegistry.getTransformer(classLoader, classInternalName);
         if (dynamicTransformer != null) {
-            return transform0(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer, dynamicTransformer);
+            return transform0(classLoader, classInternalName, classBeingRedefined, protectionDomain, classFileBuffer, dynamicTransformer);
         }
 
-        if (!unmodifiableFilter.accept(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer)) {
+        if (!unmodifiableFilter.accept(classLoader, classInternalName, classBeingRedefined, protectionDomain, classFileBuffer)) {
             return null;
         }
 
-        ClassFileTransformer transformer = this.transformerRegistry.findTransformer(jvmClassName);
+        ClassFileTransformer transformer = this.transformerRegistry.findTransformer(classInternalName);
         if (transformer == null) {
             // For debug
             // TODO What if a modifier is duplicated?
-            if (this.debugTargetFilter.filter(jvmClassName)) {
+            if (this.debugTargetFilter.filter(classInternalName)) {
                 // Added to see if call stack view is OK on a test machine.
                 transformer = debugTransformer;
             } else {
@@ -98,17 +98,17 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
             }
         }
 
-        return transform0(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
+        return transform0(classLoader, classInternalName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
     }
 
-    private byte[] transform0(ClassLoader classLoader, String jvmClassName, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer, ClassFileTransformer transformer) {
-        final String javaClassName = JavaAssistUtils.jvmNameToJavaName(jvmClassName);
+    private byte[] transform0(ClassLoader classLoader, String classInternalName, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer, ClassFileTransformer transformer) {
+        final String className = JavaAssistUtils.jvmNameToJavaName(classInternalName);
 
         if (isDebug) {
             if (classBeingRedefined == null) {
-                logger.debug("[transform] classLoader:{} className:{} transformer:{}", classLoader, javaClassName, transformer.getClass().getName());
+                logger.debug("[transform] classLoader:{} className:{} transformer:{}", classLoader, className, transformer.getClass().getName());
             } else {
-                logger.debug("[retransform] classLoader:{} className:{} transformer:{}", classLoader, javaClassName, transformer.getClass().getName());
+                logger.debug("[retransform] classLoader:{} className:{} transformer:{}", classLoader, className, transformer.getClass().getName());
             }
         }
 
@@ -117,7 +117,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
             final ClassLoader before = getContextClassLoader(thread);
             thread.setContextClassLoader(this.agentClassLoader);
             try {
-                return transformer.transform(classLoader, javaClassName, classBeingRedefined, protectionDomain, classFileBuffer);
+                return transformer.transform(classLoader, className, classBeingRedefined, protectionDomain, classFileBuffer);
             } finally {
                 // The context class loader have to be recovered even if it was null.
                 thread.setContextClassLoader(before);

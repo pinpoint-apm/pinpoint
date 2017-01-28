@@ -16,9 +16,9 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
-import com.navercorp.pinpoint.test.util.BytecodeUtils;
+
+import com.navercorp.pinpoint.profiler.util.BytecodeUtils;
 import org.junit.Test;
-import org.mockito.asm.ClassReader;
 
 import static org.junit.Assert.*;
 

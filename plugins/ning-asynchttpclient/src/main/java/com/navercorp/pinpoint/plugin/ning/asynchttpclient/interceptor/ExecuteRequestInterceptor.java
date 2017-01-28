@@ -241,7 +241,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
                     sb.append(",");
                 }
             }
-            recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(sb.toString(), config.getCookieDumpSize()));
+            recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.abbreviate(sb.toString(), config.getCookieDumpSize()));
         }
     }
 
@@ -264,7 +264,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
     protected void recordNonMultipartData(final com.ning.http.client.Request httpRequest, final SpanEventRecorder recorder) {
         final String stringData = httpRequest.getStringData();
         if (stringData != null) {
-            recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(stringData, config.getEntityDumpSize()));
+            recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.abbreviate(stringData, config.getEntityDumpSize()));
             return;
         }
 
@@ -335,7 +335,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
                     sb.append(",");
                 }
             }
-            recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(sb.toString(), config.getEntityDumpSize()));
+            recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.abbreviate(sb.toString(), config.getEntityDumpSize()));
         }
     }
 
@@ -350,7 +350,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
             FluentStringsMap requestParams = httpRequest.getParams();
             if (requestParams != null) {
                 String params = paramsToString(requestParams, config.getParamDumpSize());
-                recorder.recordAttribute(AnnotationKey.HTTP_PARAM, StringUtils.drop(params, config.getParamDumpSize()));
+                recorder.recordAttribute(AnnotationKey.HTTP_PARAM, StringUtils.abbreviate(params, config.getParamDumpSize()));
             }
         }
     }

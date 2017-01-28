@@ -34,4 +34,6 @@ public interface DownSampler<T extends Number> {
 
     T sampleMax(Collection<T> values);
 
+    T sampleSum(Collection<T> values);
+
 }

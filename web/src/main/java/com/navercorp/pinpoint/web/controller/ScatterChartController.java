@@ -148,6 +148,13 @@ public class ScatterChartController {
             @RequestParam(value = "filter", required = false) String filterText,
             @RequestParam(value = "_callback", required = false) String jsonpCallback,
             @RequestParam(value = "v", required = false, defaultValue = "1") int version) {
+        if (xGroupUnit <= 0) {
+            throw new IllegalArgumentException("xGroupUnit(" + xGroupUnit + ") must be positive number");
+        }
+        if (yGroupUnit < 0) {
+            throw new IllegalArgumentException("yGroupUnit(" + yGroupUnit + ") may not be negative number");
+        }
+
         limit = LimitUtils.checkRange(limit);
 
         StopWatch watch = new StopWatch();
@@ -159,9 +166,9 @@ public class ScatterChartController {
 
         ModelAndView mv = null;
         if (StringUtils.isEmpty(filterText)) {
-            mv = selectScatterData(applicationName, range, xGroupUnit, yGroupUnit, limit, backwardDirection, version);
+            mv = selectScatterData(applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection, version);
         } else {
-            mv = selectFilterScatterData(applicationName, range, xGroupUnit, yGroupUnit, limit, backwardDirection, filterText, version);
+            mv = selectFilterScatterData(applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection, filterText, version);
         }
 
         if (jsonpCallback == null) {

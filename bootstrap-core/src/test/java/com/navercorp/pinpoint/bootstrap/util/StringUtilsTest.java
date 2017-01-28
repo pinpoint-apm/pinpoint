@@ -49,29 +49,29 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void drop() {
+    public void abbreviate() {
 
-        Assert.assertEquals(StringUtils.drop(null), "null");
-        Assert.assertEquals(StringUtils.drop(null, 4), "null");
-        Assert.assertEquals(StringUtils.drop(null, 0), "null");
-        Assert.assertEquals(StringUtils.drop(null, -4), "null");
+        Assert.assertEquals(StringUtils.abbreviate(null), "null");
+        Assert.assertEquals(StringUtils.abbreviate(null, 4), "null");
+        Assert.assertEquals(StringUtils.abbreviate(null, 0), "null");
+        Assert.assertEquals(StringUtils.abbreviate(null, -4), "null");
 
-        Assert.assertEquals(StringUtils.drop(longString), "This is a very long string for testing drop function. Length of ...(100)");
-        Assert.assertEquals(StringUtils.drop(longString, 4), "This...(100)");
-        Assert.assertEquals(StringUtils.drop(longString, 0), "...(100)");
+        Assert.assertEquals(StringUtils.abbreviate(longString), "This is a very long string for testing drop function. Length of ...(100)");
+        Assert.assertEquals(StringUtils.abbreviate(longString, 4), "This...(100)");
+        Assert.assertEquals(StringUtils.abbreviate(longString, 0), "...(100)");
         try {
-            StringUtils.drop(longString, -4);
+            StringUtils.abbreviate(longString, -4);
             Assert.fail();
         } catch (IllegalArgumentException ignored) {
         } catch (Exception e) {
             Assert.fail();
         }
 
-        Assert.assertEquals(StringUtils.drop(shortString), shortString);
-        Assert.assertEquals(StringUtils.drop(shortString, 4), "This...(22)");
-        Assert.assertEquals(StringUtils.drop(shortString, 0), "...(22)");
+        Assert.assertEquals(StringUtils.abbreviate(shortString), shortString);
+        Assert.assertEquals(StringUtils.abbreviate(shortString, 4), "This...(22)");
+        Assert.assertEquals(StringUtils.abbreviate(shortString, 0), "...(22)");
         try {
-            StringUtils.drop(shortString, -4);
+            StringUtils.abbreviate(shortString, -4);
             Assert.fail();
         } catch (IllegalArgumentException ignored) {
         } catch (Exception e) {
@@ -80,60 +80,60 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void appendDrop() {
+    public void appendAbbreviate() {
         StringBuilder buffer = new StringBuilder();
 
-        StringUtils.appendDrop(buffer, null, 4);
+        StringUtils.appendAbbreviate(buffer, null, 4);
         Assert.assertEquals(buffer.toString(), "");
 
-        StringUtils.appendDrop(buffer, null, 0);
+        StringUtils.appendAbbreviate(buffer, null, 0);
         Assert.assertEquals(buffer.toString(), "");
 
-        StringUtils.appendDrop(buffer, null, -4);
+        StringUtils.appendAbbreviate(buffer, null, -4);
         Assert.assertEquals(buffer.toString(), "");
 
-        StringUtils.appendDrop(buffer, shortString, 4);
+        StringUtils.appendAbbreviate(buffer, shortString, 4);
         Assert.assertEquals(buffer.toString(), "This...(22)");
 
-        StringUtils.appendDrop(buffer, longString, 16);
+        StringUtils.appendAbbreviate(buffer, longString, 16);
         Assert.assertEquals(buffer.toString(), "This...(22)This is a very l...(100)");
     }
 
 
     @Test
-    public void testDrop1() throws Exception {
+    public void testAbbreviate1() throws Exception {
         String string = "abc";
-        String drop = StringUtils.drop(string, 1);
+        String drop = StringUtils.abbreviate(string, 1);
         Assert.assertEquals("a...(3)", drop);
     }
 
     @Test
-    public void testDrop2() throws Exception {
+    public void testAbbreviate2() throws Exception {
         String string = "abc";
-        String drop = StringUtils.drop(string, 5);
+        String drop = StringUtils.abbreviate(string, 5);
         Assert.assertEquals("abc", drop);
     }
 
     @Test
-    public void testDrop3() throws Exception {
+    public void testAbbreviate3() throws Exception {
         String string = "abc";
-        String drop = StringUtils.drop(string, 3);
+        String drop = StringUtils.abbreviate(string, 3);
         Assert.assertEquals("abc", drop);
     }
 
     @Test
-    public void testDrop4() throws Exception {
+    public void testAbbreviate4() throws Exception {
         String string = "abc";
-        String drop = StringUtils.drop(string, 0);
+        String drop = StringUtils.abbreviate(string, 0);
         Assert.assertEquals("...(3)", drop);
 
     }
 
     @Test
-    public void testDropNegative() throws Exception {
+    public void testAbbreviateNegative() throws Exception {
         String string = "abc";
         try {
-            StringUtils.drop(string, -1);
+            StringUtils.abbreviate(string, -1);
             Assert.fail();
         } catch (Exception ignore) {
             // skip

@@ -15,10 +15,10 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,89 +31,91 @@ import java.util.Set;
  * @author jaehong.kim
  */
 public final class ASMClassWriter extends ClassWriter {
-    private static final String OBJECT = "java/lang/Object";
+    private static final String OBJECT_CLASS_INTERNAL_NAME = "java/lang/Object";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final InstrumentContext pluginContext;
     private ClassLoader classLoader;
-    private String className;
-    private String superClassName;
+    private String classInternalName;
+    private String superClassInternalName;
 
-    public ASMClassWriter(final String className, final String superClassName, final int flags, final ClassLoader classLoader) {
+    public ASMClassWriter(final InstrumentContext pluginContext, final String classInternalName, final String superClassInternalName, final int flags, final ClassLoader classLoader) {
         super(flags);
-        this.className = className;
-        this.superClassName = superClassName;
+        this.pluginContext = pluginContext;
+        this.classInternalName = classInternalName;
+        this.superClassInternalName = superClassInternalName;
         this.classLoader = classLoader;
     }
 
     @Override
-    protected String getCommonSuperClass(String type1, String type2) {
+    protected String getCommonSuperClass(String type1ClassInternalName, String type2ClassInternalName) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Getting common super class. type1={}, type2={}", type1, type2);
+            logger.debug("Getting common super class. type1ClassInternalName={}, type2ClassInternalName={}", type1ClassInternalName, type2ClassInternalName);
         }
 
-        final String className = get(type1, type2);
+        final String classInternalName = get(type1ClassInternalName, type2ClassInternalName);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Common super class is '{}'. type1={}, type2={}", className, type1, type2);
+            logger.debug("Common super class is '{}'. type1ClassInternalName={}, type2ClassInternalName={}", classInternalName, type1ClassInternalName, type2ClassInternalName);
         }
 
-        return className;
+        return classInternalName;
     }
 
-    private String get(final String type1, final String type2) {
-        if (type1 == null || type1.equals(OBJECT) || type2 == null || type2.equals(OBJECT)) {
+    private String get(final String type1ClassInternalName, final String type2ClassInternalName) {
+        if (type1ClassInternalName == null || type1ClassInternalName.equals(OBJECT_CLASS_INTERNAL_NAME) || type2ClassInternalName == null || type2ClassInternalName.equals(OBJECT_CLASS_INTERNAL_NAME)) {
             // object is the root of the class hierarchy.
-            return OBJECT;
+            return OBJECT_CLASS_INTERNAL_NAME;
         }
 
-        if (type1.equals(type2)) {
+        if (type1ClassInternalName.equals(type2ClassInternalName)) {
             // two equal.
-            return type1;
+            return type1ClassInternalName;
         }
 
         // current class.
-        if (type1.equals(className)) {
-            return getCommonSuperClass(superClassName, type2);
-        } else if (type2.equals(className)) {
-            return getCommonSuperClass(type1, superClassName);
+        if (type1ClassInternalName.equals(classInternalName)) {
+            return getCommonSuperClass(superClassInternalName, type2ClassInternalName);
+        } else if (type2ClassInternalName.equals(classInternalName)) {
+            return getCommonSuperClass(type1ClassInternalName, superClassInternalName);
         }
 
-        ClassReader type1ClassReader = getClassReader(type1);
-        ClassReader type2ClassReader = getClassReader(type2);
+        ClassReader type1ClassReader = getClassReader(type1ClassInternalName);
+        ClassReader type2ClassReader = getClassReader(type2ClassInternalName);
         if (type1ClassReader == null || type2ClassReader == null) {
-            logger.warn("Skip get common super class. not found class {type1={}, reader={}}, {type2={}, reader={}}", type1, type1ClassReader, type2, type2ClassReader);
-            return OBJECT;
+            logger.warn("Skip get common super class. not found class {type1ClassInternalName={}, reader={}}, {type2ClassInternalName={}, reader={}}", type1ClassInternalName, type1ClassReader, type2ClassInternalName, type2ClassReader);
+            return OBJECT_CLASS_INTERNAL_NAME;
         }
 
         // interface.
         if (isInterface(type1ClassReader)) {
-            String interfaceName = type1;
-            if (isImplements(interfaceName, type2ClassReader)) {
-                return interfaceName;
+            String interfaceInternalName = type1ClassInternalName;
+            if (isImplements(interfaceInternalName, type2ClassReader)) {
+                return interfaceInternalName;
             }
             if (isInterface(type2ClassReader)) {
-                interfaceName = type2;
-                if (isImplements(interfaceName, type1ClassReader)) {
-                    return interfaceName;
+                interfaceInternalName = type2ClassInternalName;
+                if (isImplements(interfaceInternalName, type1ClassReader)) {
+                    return interfaceInternalName;
                 }
             }
-            return OBJECT;
+            return OBJECT_CLASS_INTERNAL_NAME;
         }
 
         // interface.
         if (isInterface(type2ClassReader)) {
-            String interfaceName = type2;
+            String interfaceName = type2ClassInternalName;
             if (isImplements(interfaceName, type1ClassReader)) {
                 return interfaceName;
             }
-            return OBJECT;
+            return OBJECT_CLASS_INTERNAL_NAME;
         }
 
         // class.
         final Set<String> superClassNames = new HashSet<String>();
-        superClassNames.add(type1);
-        superClassNames.add(type2);
+        superClassNames.add(type1ClassInternalName);
+        superClassNames.add(type2ClassInternalName);
 
         String type1SuperClassName = type1ClassReader.getSuperName();
         if (!superClassNames.add(type1SuperClassName)) {
@@ -129,7 +131,7 @@ public final class ASMClassWriter extends ClassWriter {
 
         while (type1SuperClassName != null || type2SuperClassName != null) {
             if (type1SuperClassName != null) {
-                type1SuperClassName = getSuperClassName(type1SuperClassName);
+                type1SuperClassName = getSuperClassInternalName(type1SuperClassName);
                 if (type1SuperClassName != null) {
                     if (!superClassNames.add(type1SuperClassName)) {
                         return type1SuperClassName;
@@ -138,7 +140,7 @@ public final class ASMClassWriter extends ClassWriter {
             }
 
             if (type2SuperClassName != null) {
-                type2SuperClassName = getSuperClassName(type2SuperClassName);
+                type2SuperClassName = getSuperClassInternalName(type2SuperClassName);
                 if (type2SuperClassName != null) {
                     if (!superClassNames.add(type2SuperClassName)) {
                         return type2SuperClassName;
@@ -147,7 +149,7 @@ public final class ASMClassWriter extends ClassWriter {
             }
         }
 
-        return OBJECT;
+        return OBJECT_CLASS_INTERNAL_NAME;
     }
 
 
@@ -155,41 +157,41 @@ public final class ASMClassWriter extends ClassWriter {
         return (classReader.getAccess() & Opcodes.ACC_INTERFACE) != 0;
     }
 
-    private boolean isImplements(final String interfaceName, final ClassReader classReader) {
+    private boolean isImplements(final String interfaceInternalName, final ClassReader classReader) {
         ClassReader classInfo = classReader;
 
         while (classInfo != null) {
-            final String[] interfaceNames = classInfo.getInterfaces();
-            for (String name : interfaceNames) {
-                if (name != null && name.equals(interfaceName)) {
+            final String[] interfaceInternalNames = classInfo.getInterfaces();
+            for (String name : interfaceInternalNames) {
+                if (name != null && name.equals(interfaceInternalName)) {
                     return true;
                 }
             }
 
-            for (String name : interfaceNames) {
+            for (String name : interfaceInternalNames) {
                 if(name != null) {
                     final ClassReader interfaceInfo = getClassReader(name);
                     if (interfaceInfo != null) {
-                        if (isImplements(interfaceName, interfaceInfo)) {
+                        if (isImplements(interfaceInternalName, interfaceInfo)) {
                             return true;
                         }
                     }
                 }
             }
 
-            final String superClassName = classInfo.getSuperName();
-            if (superClassName == null || superClassName.equals(OBJECT)) {
+            final String superClassInternalName = classInfo.getSuperName();
+            if (superClassInternalName == null || superClassInternalName.equals(OBJECT_CLASS_INTERNAL_NAME)) {
                 break;
             }
-            classInfo = getClassReader(superClassName);
+            classInfo = getClassReader(superClassInternalName);
         }
 
         return false;
     }
 
 
-    private String getSuperClassName(final String className) {
-        final ClassReader classReader = getClassReader(className);
+    private String getSuperClassInternalName(final String classInternalName) {
+        final ClassReader classReader = getClassReader(classInternalName);
         if (classReader == null) {
             return null;
         }
@@ -197,21 +199,10 @@ public final class ASMClassWriter extends ClassWriter {
         return classReader.getSuperName();
     }
 
-    private ClassReader getClassReader(final String className) {
-        ClassLoader aClassLoader = classLoader;
-        if (aClassLoader == null) {
-            // bootstrap class loader.
-            aClassLoader = ClassLoader.getSystemClassLoader();
-        }
-
-        if (aClassLoader == null) {
-            // not initialized system classloader.
-            return null;
-        }
-
+    private ClassReader getClassReader(final String classInternalName) {
         InputStream in = null;
         try {
-            in = aClassLoader.getResourceAsStream(className + ".class");
+            in = pluginContext.getResourceAsStream(this.classLoader, classInternalName + ".class");
             if (in != null) {
                 return new ClassReader(in);
             }

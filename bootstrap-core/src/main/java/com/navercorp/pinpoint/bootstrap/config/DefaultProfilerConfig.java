@@ -43,6 +43,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private final Properties properties;
     private final PropertyPlaceholderHelper propertyPlaceholderHelper = new PropertyPlaceholderHelper("${", "}");
 
+    @Deprecated
     public static final String INSTRUMENT_ENGINE_JAVASSIST = "JAVASSIST";
     public static final String INSTRUMENT_ENGINE_ASM = "ASM";
 
@@ -88,7 +89,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private boolean profileEnable = false;
 
-    private String profileInstrumentEngine = "JAVASSIST";
+    private String profileInstrumentEngine = INSTRUMENT_ENGINE_ASM;
 
     private int interceptorRegistrySize = 1024*8;
 
@@ -114,21 +115,19 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private String statDataSenderSocketType = "OIO";
 
     private boolean tcpDataSenderCommandAcceptEnable = false;
+    private boolean tcpDataSenderCommandActiveThreadEnable = false;
+    private boolean tcpDataSenderCommandActiveThreadCountEnable = false;
+    private boolean tcpDataSenderCommandActiveThreadDumpEnable = false;
+    private boolean tcpDataSenderCommandActiveThreadLightDumpEnable = false;
 
     private boolean traceAgentActiveThread = true;
+    private boolean traceAgentDataSource = false;
 
     private int callStackMaxDepth = 512;
 
     private int jdbcSqlCacheSize = 1024;
     private boolean traceSqlBindValue = false;
     private int maxSqlBindValueSize = 1024;
-
-    private boolean tomcatHidePinpointHeader = true;
-    private boolean tomcatTraceRequestParam = true;
-    private Filter<String> tomcatExcludeUrlFilter = new SkipFilter<String>();
-    private String tomcatRealIpHeader;
-    private String tomcatRealIpEmptyValue;
-    private Filter<String> tomcatExcludeProfileMethodFilter = new SkipFilter<String>();
 
     // Sampling
     private boolean samplingEnable = true;
@@ -152,17 +151,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private List<String> disabledPlugins = Collections.emptyList();
 
     private boolean propagateInterceptorException = false;
-
-    /**
-     * jboss plugin configuration
-     */
-    private boolean jbossTraceEjb = false;
-    private String jbossRealIpHeader;
-    private String jbossRealIpEmptyValue;
-    private boolean jbossTraceRequestParam = true;
-    private Filter<String> jbossExcludeProfileMethodFilter = new SkipFilter<String>();
-    private boolean jbossHidePinpointHeader = true;
-    private Filter<String> jbossExcludeUrlFilter = new SkipFilter<String>();
 
     public DefaultProfilerConfig() {
         this.properties = new Properties();
@@ -247,8 +235,33 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
+    public boolean isTcpDataSenderCommandActiveThreadEnable() {
+        return tcpDataSenderCommandActiveThreadEnable;
+    }
+
+    @Override
+    public boolean isTcpDataSenderCommandActiveThreadCountEnable() {
+        return tcpDataSenderCommandActiveThreadCountEnable;
+    }
+
+    @Override
+    public boolean isTcpDataSenderCommandActiveThreadDumpEnable() {
+        return tcpDataSenderCommandActiveThreadDumpEnable;
+    }
+
+    @Override
+    public boolean isTcpDataSenderCommandActiveThreadLightDumpEnable() {
+        return tcpDataSenderCommandActiveThreadLightDumpEnable;
+    }
+
+    @Override
     public boolean isTraceAgentActiveThread() {
         return traceAgentActiveThread;
+    }
+
+    @Override
+    public boolean isTraceAgentDataSource() {
+        return traceAgentDataSource;
     }
 
     @Override
@@ -336,36 +349,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return agentInfoSendRetryInterval;
     }
 
-    @Override
-    public boolean isTomcatHidePinpointHeader() {
-        return tomcatHidePinpointHeader;
-    }
-
-    @Override
-    public boolean isTomcatTraceRequestParam() {
-        return tomcatTraceRequestParam;
-    }
-
-    @Override
-    public Filter<String> getTomcatExcludeUrlFilter() {
-        return tomcatExcludeUrlFilter;
-    }
-
-    @Override
-    public String getTomcatRealIpHeader() {
-        return tomcatRealIpHeader;
-    }
-
-    @Override
-    public String getTomcatRealIpEmptyValue() {
-        return tomcatRealIpEmptyValue;
-    }
-
-    @Override
-    public Filter<String> getTomcatExcludeProfileMethodFilter() {
-        return tomcatExcludeProfileMethodFilter;
-    }
-
 
     @Override
     public Filter<String> getProfilableClassFilter() {
@@ -411,40 +394,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return profileInstrumentEngine;
     }
 
-    @Override
-    public boolean isJbossTraceEjb() {
-        return jbossTraceEjb;
-    }
-
-    @Override
-    public String getJbossRealIpHeader() {
-        return jbossRealIpHeader;
-    }
-
-    @Override
-    public String getJbossRealIpEmptyValue() {
-        return jbossRealIpEmptyValue;
-    }
-
-    @Override
-    public boolean isJbossTraceRequestParam() {
-        return jbossTraceRequestParam;
-    }
-
-    @Override
-    public Filter<String> getJbossExcludeProfileMethodFilter() {
-        return jbossExcludeProfileMethodFilter;
-    }
-
-    @Override
-    public boolean isJbossHidePinpointHeader() {
-        return jbossHidePinpointHeader;
-    }
-
-    @Override
-    public Filter<String> getJbossExcludeUrlFilter() {
-        return jbossExcludeUrlFilter;
-    }
 
     // for test
     void readPropertyValues() {
@@ -452,7 +401,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         final ValueResolver placeHolderResolver = new PlaceHolderResolver();
 
         this.profileEnable = readBoolean("profiler.enable", true);
-        this.profileInstrumentEngine = readString("profiler.instrument.engine", INSTRUMENT_ENGINE_JAVASSIST);
+        this.profileInstrumentEngine = readString("profiler.instrument.engine", INSTRUMENT_ENGINE_ASM);
 
         this.interceptorRegistrySize = readInt("profiler.interceptorregistry.size", 1024*8);
 
@@ -478,8 +427,13 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.statDataSenderSocketType = readString("profiler.statdatasender.socket.type", "OIO");
 
         this.tcpDataSenderCommandAcceptEnable = readBoolean("profiler.tcpdatasender.command.accept.enable", false);
+        this.tcpDataSenderCommandActiveThreadEnable = readBoolean("profiler.tcpdatasender.command.activethread.enable", false);
+        this.tcpDataSenderCommandActiveThreadCountEnable = readBoolean("profiler.tcpdatasender.command.activethread.count.enable", false);
+        this.tcpDataSenderCommandActiveThreadDumpEnable = readBoolean("profiler.tcpdatasender.command.activethread.threaddump.enable", false);
+        this.tcpDataSenderCommandActiveThreadLightDumpEnable = readBoolean("profiler.tcpdatasender.command.activethread.threadlightdump.enable", false);
 
         this.traceAgentActiveThread = readBoolean("profiler.pinpoint.activethread", true);
+        this.traceAgentDataSource = readBoolean("profiler.pinpoint.datasource", false);
 
         // CallStck
         this.callStackMaxDepth = readInt("profiler.callstack.max.depth", 64);
@@ -490,20 +444,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         // JDBC
         this.jdbcSqlCacheSize = readInt("profiler.jdbc.sqlcachesize", 1024);
         this.traceSqlBindValue = readBoolean("profiler.jdbc.tracesqlbindvalue", false);
-
-        this.tomcatHidePinpointHeader = readBoolean("profiler.tomcat.hidepinpointheader", true);
-        this.tomcatTraceRequestParam = readBoolean("profiler.tomcat.tracerequestparam", true);
-        final String tomcatExcludeURL = readString("profiler.tomcat.excludeurl", "");
-        if (!tomcatExcludeURL.isEmpty()) {
-            this.tomcatExcludeUrlFilter = new ExcludePathFilter(tomcatExcludeURL);
-        }
-        this.tomcatRealIpHeader = readString("profiler.tomcat.realipheader", null);
-        this.tomcatRealIpEmptyValue = readString("profiler.tomcat.realipemptyvalue", null);
-
-        final String tomcatExcludeProfileMethod = readString("profiler.tomcat.excludemethod", "");
-        if (!tomcatExcludeProfileMethod.isEmpty()) {
-            this.tomcatExcludeProfileMethodFilter = new ExcludeMethodFilter(tomcatExcludeProfileMethod);
-        }
 
 
         this.samplingEnable = readBoolean("profiler.sampling.enable", true);
@@ -541,23 +481,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         
         this.propagateInterceptorException = readBoolean("profiler.interceptor.exception.propagate", false);
 
-        /**
-         * jboss plugin configuration initialization
-         */
-        this.jbossTraceEjb = readBoolean("profiler.jboss.traceEjb", false);
-        this.jbossHidePinpointHeader = readBoolean("profiler.jboss.hidepinpointheader", true);
-        this.jbossRealIpHeader = readString("profiler.jboss.realipheader", null);
-        this.jbossRealIpEmptyValue = readString("profiler.jboss.realipemptyvalue", null);
-        this.jbossTraceRequestParam = readBoolean("profiler.jboss.tracerequestparam", true);
-        final String jbossExcludeURL = readString("profiler.jboss.excludeurl", "");
-        if (!jbossExcludeURL.isEmpty()) {
-            this.jbossExcludeUrlFilter = new ExcludePathFilter(jbossExcludeURL);
-        }
 
-        final String jbossExcludeProfileMethod = readString("profiler.jboss.excludemethod", "");
-        if (!jbossExcludeProfileMethod.isEmpty()) {
-            this.jbossExcludeProfileMethodFilter = new ExcludeMethodFilter(jbossExcludeProfileMethod);
-        }
 
         logger.info("configuration loaded successfully.");
     }
@@ -705,8 +629,18 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append(statDataSenderSocketType);
         builder.append(", tcpDataSenderCommandAcceptEnable=");
         builder.append(tcpDataSenderCommandAcceptEnable);
+        builder.append(", tcpDataSenderCommandActiveThreadEnable=");
+        builder.append(tcpDataSenderCommandActiveThreadEnable);
+        builder.append(", tcpDataSenderCommandActiveThreadCountEnable=");
+        builder.append(tcpDataSenderCommandActiveThreadCountEnable);
+        builder.append(", tcpDataSenderCommandActiveThreadDumpEnable=");
+        builder.append(tcpDataSenderCommandActiveThreadDumpEnable);
+        builder.append(", tcpDataSenderCommandActiveThreadLightDumpEnable=");
+        builder.append(tcpDataSenderCommandActiveThreadLightDumpEnable);
         builder.append(", traceAgentActiveThread=");
         builder.append(traceAgentActiveThread);
+        builder.append(", traceAgentDataSource=");
+        builder.append(traceAgentDataSource);
         builder.append(", callStackMaxDepth=");
         builder.append(callStackMaxDepth);
         builder.append(", jdbcSqlCacheSize=");
@@ -715,14 +649,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append(traceSqlBindValue);
         builder.append(", maxSqlBindValueSize=");
         builder.append(maxSqlBindValueSize);
-        builder.append(", tomcatHidePinpointHeader=");
-        builder.append(tomcatHidePinpointHeader);
-        builder.append(", tomcatTraceRequestParam=");
-        builder.append(tomcatTraceRequestParam);
-        builder.append(", tomcatExcludeUrlFilter=");
-        builder.append(tomcatExcludeUrlFilter);
-        builder.append(", tomcatExcludeProfileMethodFilter=");
-        builder.append(tomcatExcludeProfileMethodFilter);
         builder.append(", samplingEnable=");
         builder.append(samplingEnable);
         builder.append(", samplingRate=");
@@ -745,20 +671,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append(applicationTypeDetectOrder);
         builder.append(", disabledPlugins=");
         builder.append(disabledPlugins);
-        builder.append(", jbossTraceEjb=");
-        builder.append(jbossTraceEjb);
-        builder.append(", jbossHidePinpointHeader=");
-        builder.append(jbossHidePinpointHeader);
-        builder.append(", jbossTraceRequestParam=");
-        builder.append(jbossTraceRequestParam);
-        builder.append(", jbossExcludeUrlFilter=");
-        builder.append(jbossExcludeUrlFilter);
-        builder.append(", jbossExcludeProfileMethodFilter=");
-        builder.append(jbossExcludeProfileMethodFilter);
-        builder.append(", jbossRealIpHeader=");
-        builder.append(jbossRealIpHeader);
-        builder.append(", jbossRealIpEmptyValue=");
-        builder.append(jbossRealIpEmptyValue);
         builder.append("}");
         return builder.toString();
     }

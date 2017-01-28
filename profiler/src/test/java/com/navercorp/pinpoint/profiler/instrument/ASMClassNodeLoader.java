@@ -15,25 +15,70 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.List;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
 
 /**
  * @author jaehong.kim
  */
 public class ASMClassNodeLoader {
 
+    private final static DefaultProfilerPluginContext pluginContext = mock(DefaultProfilerPluginContext.class);
+    private final static TraceContext traceContext = mock(TraceContext.class);
+
+    static {
+        reset(traceContext);
+        when(pluginContext.getTraceContext()).thenReturn(traceContext);
+        when(pluginContext.injectClass(any(ClassLoader.class), any(String.class))).thenAnswer(new Answer<Class<?>>() {
+
+            @Override
+            public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+                ClassLoader loader = (ClassLoader) invocation.getArguments()[0];
+                String name = (String) invocation.getArguments()[1];
+
+                return loader.loadClass(name);
+            }
+
+        });
+        when(pluginContext.getResourceAsStream(any(ClassLoader.class), any(String.class))).thenAnswer(new Answer<InputStream>() {
+
+            @Override
+            public InputStream answer(InvocationOnMock invocation) throws Throwable {
+                ClassLoader loader = (ClassLoader) invocation.getArguments()[0];
+                String name = (String) invocation.getArguments()[1];
+                if(loader == null) {
+                    loader = ClassLoader.getSystemClassLoader();
+                }
+
+                return loader.getResourceAsStream(name);
+            }
+        });
+    }
+
     // only use for test.
-    public static ClassNode get(final String classInternalName) throws Exception {
+    public static ClassNode get(final String className) throws Exception {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        ClassReader cr = new ClassReader(classLoader.getResourceAsStream(classInternalName.replace('.', '/') + ".class"));
+        ClassReader cr = new ClassReader(classLoader.getResourceAsStream(JavaAssistUtils.javaNameToJvmName(className) + ".class"));
         ClassNode classNode = new ClassNode();
         cr.accept(classNode, ClassReader.EXPAND_FRAMES);
 
@@ -57,6 +102,8 @@ public class ASMClassNodeLoader {
     }
 
     public static class TestClassLoader extends ClassLoader {
+        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
         private String targetClassName;
         private String targetMethodName;
         private CallbackHandler callbackHandler;
@@ -83,11 +130,11 @@ public class ASMClassNodeLoader {
         public Class<?> loadClass(final String name) throws ClassNotFoundException {
             if ((targetClassName == null || name.equals(targetClassName))) {
                 try {
-                    ClassNode classNode = ASMClassNodeLoader.get(name.replace('.', '/'));
+                    ClassNode classNode = ASMClassNodeLoader.get(JavaAssistUtils.javaNameToJvmName(name));
 
                     if (this.trace) {
-                        System.out.println("## original #############################################################");
-                        ASMClassWriter cw = new ASMClassWriter(classNode.name, classNode.superName, 0, null);
+                        logger.debug("## original #############################################################");
+                        ASMClassWriter cw = new ASMClassWriter(pluginContext, classNode.name, classNode.superName, 0, null);
                         TraceClassVisitor tcv = new TraceClassVisitor(cw, new PrintWriter(System.out));
                         classNode.accept(tcv);
                     }
@@ -96,9 +143,9 @@ public class ASMClassNodeLoader {
                         callbackHandler.handle(classNode);
                     }
 
-                     ASMClassWriter cw = new ASMClassWriter(classNode.name, classNode.superName, ClassWriter.COMPUTE_FRAMES, null);
+                     ASMClassWriter cw = new ASMClassWriter(pluginContext, classNode.name, classNode.superName, ClassWriter.COMPUTE_FRAMES, null);
                     if (this.trace) {
-                        System.out.println("## modified #############################################################");
+                        logger.debug("## modified #############################################################");
                         TraceClassVisitor tcv = new TraceClassVisitor(cw, new PrintWriter(System.out));
                         classNode.accept(tcv);
                     } else {

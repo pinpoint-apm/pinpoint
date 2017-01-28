@@ -213,9 +213,9 @@ public class SpanFactory {
 
     private List<SpanEventBo> buildSpanEventBoList(List<TSpanEvent> spanEventList) {
         if (CollectionUtils.isEmpty(spanEventList)) {
-            return new ArrayList<>();
+            return new ArrayList<SpanEventBo>();
         }
-        List<SpanEventBo> spanEventBoList = new ArrayList<>(spanEventList.size());
+        List<SpanEventBo> spanEventBoList = new ArrayList<SpanEventBo>(spanEventList.size());
         for (TSpanEvent tSpanEvent : spanEventList) {
             final SpanEventBo spanEventBo = buildSpanEventBo(tSpanEvent);
             if (!spanEventFilter.filter(spanEventBo)) {
@@ -230,9 +230,9 @@ public class SpanFactory {
 
     private List<AnnotationBo> buildAnnotationList(List<TAnnotation> tAnnotationList) {
         if (tAnnotationList == null) {
-            return new ArrayList<>();
+            return new ArrayList<AnnotationBo>();
         }
-        List<AnnotationBo> boList = new ArrayList<>(tAnnotationList.size());
+        List<AnnotationBo> boList = new ArrayList<AnnotationBo>(tAnnotationList.size());
         for (TAnnotation tAnnotation : tAnnotationList) {
             final AnnotationBo annotationBo = newAnnotationBo(tAnnotation);
             boList.add(annotationBo);

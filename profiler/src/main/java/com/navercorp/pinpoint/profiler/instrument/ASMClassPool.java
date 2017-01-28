@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
@@ -46,14 +47,14 @@ public class ASMClassPool implements InstrumentClassPool {
     }
 
     @Override
-    public InstrumentClass getClass(InstrumentContext instrumentContext, ClassLoader classLoader, String classInternalName, byte[] classFileBuffer) throws NotFoundInstrumentException {
-        if (classInternalName == null) {
-            throw new NullPointerException("class internal name must not be null.");
+    public InstrumentClass getClass(InstrumentContext instrumentContext, ClassLoader classLoader, String className, byte[] classFileBuffer) throws NotFoundInstrumentException {
+        if (className == null) {
+            throw new NullPointerException("class name must not be null.");
         }
 
         try {
             if (classFileBuffer == null) {
-                ASMClassNodeAdapter classNode = ASMClassNodeAdapter.get(classLoader, classInternalName.replace('.', '/'));
+                ASMClassNodeAdapter classNode = ASMClassNodeAdapter.get(instrumentContext, classLoader, JavaAssistUtils.javaNameToJvmName(className));
                 if (classNode == null) {
                     return null;
                 }
@@ -73,8 +74,9 @@ public class ASMClassPool implements InstrumentClassPool {
     }
 
     @Override
-    public boolean hasClass(ClassLoader classLoader, String classBinaryName) {
-        return classLoader.getResource(classBinaryName.replace('.', '/') + ".class") != null;
+    public boolean hasClass(ClassLoader classLoader, String className) {
+        // TODO deprecated
+        return classLoader.getResource(JavaAssistUtils.javaNameToJvmName(className) + ".class") != null;
     }
 
     @Override

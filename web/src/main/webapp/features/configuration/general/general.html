@@ -53,9 +53,7 @@
 				</td>
 				<td class="col-md-5" colspan="2">
 					<div class="favorite-list-wrapper">
-						<ul class="favorite-list">
-							<li ng-repeat="fav in savedFavoriteList"><img ng-src='/images/icons/{{fav.split("@")[1]}}.png' height="25px"/> {{fav.split('@')[0]}} <button class="btn btn-danger btn-xs" style="float:right" ng-click="removeFavorite(fav)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></li>
-						</ul>
+						<ul class="favorite-list" ng-click="removeFavorite($event)"></ul>
 						<div ng-show="savedFavoriteList.length == 0" style="color:#F00" class="favorite-empty"></div>
 					</div>
 				</td>

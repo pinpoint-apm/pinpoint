@@ -42,7 +42,7 @@ public class ExceptionClass {
     }
 
     public void condition() {
-        if(true) {
+        if (true) {
             runtime();
         }
     }

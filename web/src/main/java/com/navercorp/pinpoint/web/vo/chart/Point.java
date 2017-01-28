@@ -24,6 +24,7 @@ public class Point<X extends Number, Y extends Number> {
     private final Y minYVal;
     private final Y maxYVal;
     private final Double avgYVal;
+    private final Y sumYVal;
 
     public Point(X xVal, Y yVal) {
         this.xVal = xVal;
@@ -34,13 +35,15 @@ public class Point<X extends Number, Y extends Number> {
         } else {
             this.avgYVal = yVal.doubleValue();
         }
+        this.sumYVal = yVal;
     }
 
-    public Point(X xVal, Y minYVal, Y maxYVal, Double avgYVal) {
+    public Point(X xVal, Y minYVal, Y maxYVal, Double avgYVal, Y sumYVal) {
         this.xVal = xVal;
         this.minYVal = minYVal;
         this.maxYVal = maxYVal;
         this.avgYVal = avgYVal;
+        this.sumYVal = sumYVal;
     }
 
     public X getxVal() {
@@ -59,6 +62,10 @@ public class Point<X extends Number, Y extends Number> {
         return avgYVal;
     }
 
+    public Y getSumYVal() {
+        return sumYVal;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -69,8 +76,8 @@ public class Point<X extends Number, Y extends Number> {
         if (xVal != null ? !xVal.equals(point.xVal) : point.xVal != null) return false;
         if (minYVal != null ? !minYVal.equals(point.minYVal) : point.minYVal != null) return false;
         if (maxYVal != null ? !maxYVal.equals(point.maxYVal) : point.maxYVal != null) return false;
-        return avgYVal != null ? avgYVal.equals(point.avgYVal) : point.avgYVal == null;
-
+        if (avgYVal != null ? !avgYVal.equals(point.avgYVal) : point.avgYVal != null) return false;
+        return sumYVal != null ? sumYVal.equals(point.sumYVal) : point.sumYVal == null;
     }
 
     @Override
@@ -79,16 +86,19 @@ public class Point<X extends Number, Y extends Number> {
         result = 31 * result + (minYVal != null ? minYVal.hashCode() : 0);
         result = 31 * result + (maxYVal != null ? maxYVal.hashCode() : 0);
         result = 31 * result + (avgYVal != null ? avgYVal.hashCode() : 0);
+        result = 31 * result + (sumYVal != null ? sumYVal.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return "Point{" +
-                "xVal=" + xVal +
-                ", minYVal=" + minYVal +
-                ", maxYVal=" + maxYVal +
-                ", avgYVal=" + avgYVal +
-                '}';
+        final StringBuilder sb = new StringBuilder("Point{");
+        sb.append("xVal=").append(xVal);
+        sb.append(", minYVal=").append(minYVal);
+        sb.append(", maxYVal=").append(maxYVal);
+        sb.append(", avgYVal=").append(avgYVal);
+        sb.append(", sumYVal=").append(sumYVal);
+        sb.append('}');
+        return sb.toString();
     }
 }

@@ -16,11 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
+import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.storage.AsyncStorage;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
@@ -69,6 +71,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
 
     /**
      * Return Trace object AFTER validating whether it can be sampled or not.
+     *
      * @return Trace
      */
     @Override
@@ -85,6 +88,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
 
     /**
      * Return Trace object without validating
+     *
      * @return
      */
     @Override
@@ -119,14 +123,13 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         // always set true because the decision of sampling has been  made on previous nodes
         // TODO need to consider as a target to sample in case Trace object has a sampling flag (true) marked on previous node.
         final boolean sampling = true;
-        final DefaultTrace trace = new DefaultTrace(traceContext, traceId, this.idGenerator.nextContinuedTransactionId(), sampling);
-        // final Storage storage = storageFactory.createStorage();
         final Storage storage = storageFactory.createStorage();
-        trace.setStorage(storage);
+        final Trace trace = new DefaultTrace(traceContext, storage, traceId, this.idGenerator.nextContinuedTransactionId(), sampling);
+
         bind(trace);
         return trace;
     }
-    
+
 
     @Override
     public Trace continueTraceObject(Trace trace) {
@@ -153,9 +156,9 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         // TODO need to modify how to inject a datasender
         final boolean sampling = sampler.isSampling();
         if (sampling) {
-            final DefaultTrace trace = new DefaultTrace(traceContext, idGenerator.nextTransactionId(), sampling);
             final Storage storage = storageFactory.createStorage();
-            trace.setStorage(storage);
+            final Trace trace = new DefaultTrace(traceContext, storage, idGenerator.nextTransactionId(), sampling);
+
             bind(trace);
             return trace;
         } else {
@@ -191,18 +194,61 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         return this.threadLocalBinder.remove();
     }
 
+    // internal async trace.
+    @Override
     public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
         checkBeforeTraceObject();
-        
+
         final TraceId parentTraceId = traceId.getParentTraceId();
         final boolean sampling = true;
-        final DefaultTrace trace = new DefaultTrace(traceContext, parentTraceId, IdGenerator.UNTRACKED_ID, sampling);
         final Storage storage = storageFactory.createStorage();
-        trace.setStorage(new AsyncStorage(storage));
+        final Storage asyncStorage = new AsyncStorage(storage);
+        final Trace trace = new DefaultTrace(traceContext, asyncStorage, parentTraceId, IdGenerator.UNTRACKED_ID, sampling);
 
         final AsyncTrace asyncTrace = new AsyncTrace(trace, asyncId, traceId.nextAsyncSequence(), startTime);
         bind(asyncTrace);
 
         return asyncTrace;
+    }
+
+    // entry point async trace.
+    @InterfaceAudience.LimitedPrivate("vert.x")
+    @Override
+    public Trace continueAsyncTraceObject(final TraceId traceId) {
+        checkBeforeTraceObject();
+
+        final boolean sampling = true;
+
+        final Storage storage = storageFactory.createStorage();
+        final DefaultTrace trace = new DefaultTrace(traceContext, storage, traceId, this.idGenerator.nextContinuedTransactionId(), sampling);
+
+        final SpanAsyncStateListener callback = new SpanAsyncStateListener(trace.getSpan(), storageFactory.createStorage());
+        final ListenableAsyncState closer = new ListenableAsyncState(callback);
+        final AsyncTrace asyncTrace = new AsyncTrace(trace, closer);
+        bind(asyncTrace);
+        return asyncTrace;
+    }
+
+    // entry point async trace.
+    @InterfaceAudience.LimitedPrivate("vert.x")
+    @Override
+    public Trace newAsyncTraceObject() {
+        checkBeforeTraceObject();
+        final boolean sampling = sampler.isSampling();
+        if (sampling) {
+            final Storage storage = storageFactory.createStorage();
+            final DefaultTrace trace = new DefaultTrace(traceContext, storage, idGenerator.nextTransactionId(), sampling);
+
+            final SpanAsyncStateListener callback = new SpanAsyncStateListener(trace.getSpan(), storageFactory.createStorage());
+            final AsyncState closer = new ListenableAsyncState(callback);
+            final AsyncTrace asyncTrace = new AsyncTrace(trace, closer);
+            bind(asyncTrace);
+
+            return asyncTrace;
+        } else {
+            final DisableTrace disableTrace = new DisableTrace(this.idGenerator.nextDisabledId());
+            bind(disableTrace);
+            return disableTrace;
+        }
     }
 }

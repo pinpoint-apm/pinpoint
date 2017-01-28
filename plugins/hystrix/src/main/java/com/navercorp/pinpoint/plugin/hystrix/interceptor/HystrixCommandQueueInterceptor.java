@@ -3,7 +3,6 @@ package com.navercorp.pinpoint.plugin.hystrix.interceptor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.hystrix.HystrixPluginConstants;
@@ -37,6 +36,7 @@ public class HystrixCommandQueueInterceptor implements AroundInterceptor {
         SpanEventRecorder recorder = trace.traceBlockBegin();
         recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_SERVICE_TYPE);
         recorder.recordApi(descriptor);
+        recorder.recordAttribute(HystrixPluginConstants.HYSTRIX_COMMAND_ANNOTATION_KEY, target.getClass().getSimpleName());
 
         // To trace async invocations, you have to get async trace id like below.
         AsyncTraceId asyncTraceId = trace.getAsyncTraceId();

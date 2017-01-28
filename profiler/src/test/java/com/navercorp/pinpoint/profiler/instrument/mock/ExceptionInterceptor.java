@@ -33,7 +33,6 @@ public class ExceptionInterceptor implements AroundInterceptor {
         this.beforeTarget = target;
         this.beforeArgs = args;
 
-        System.out.println(getClass().getName() + " BEFORE " + target + " " + toArgs(args));
         throw new RuntimeException("before exception");
     }
 
@@ -45,7 +44,6 @@ public class ExceptionInterceptor implements AroundInterceptor {
         this.result = result;
         this.throwable = throwable;
 
-        System.out.println(getClass().getName() + " AFTER " + target + " " + toArgs(args) + " " + result + " " + throwable);
         throw new RuntimeException("after exception");
     }
 

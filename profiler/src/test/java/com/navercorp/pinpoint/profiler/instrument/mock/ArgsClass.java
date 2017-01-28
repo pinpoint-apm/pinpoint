@@ -5,7 +5,6 @@ import java.util.Map;
 public class ArgsClass {
 
     public void arg() {
-        System.out.println("arg");
     }
 
     public void argByteType(byte b) {

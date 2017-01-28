@@ -138,6 +138,7 @@
         } else {
             this.timeSlider.oPositionManager.resetBySelectTime( time, bIsNow );
             this.timeSlider.reset();
+			this._fireChangeZoneEvent();
             this.timeSlider.fireEvent( "selectTime", time );
         }
     };

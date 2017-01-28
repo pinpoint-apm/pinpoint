@@ -60,7 +60,7 @@ public class LegacySampledTimeSeriesChartBuilder<D extends DataPoint<Long, Y>, Y
         for (D sample : samples) {
             values.add(sample.getYVal());
         }
-        return new Point<>(timestamp, sampleMin(values), sampleMax(values), sampleAvg(values));
+        return new Point<>(timestamp, sampleMin(values), sampleMax(values), sampleAvg(values), sampleSum(values));
     }
 
     private List<List<D>> createTimeSlots(List<D> dataPoints) {

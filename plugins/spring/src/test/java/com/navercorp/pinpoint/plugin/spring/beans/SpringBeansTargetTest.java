@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,13 +39,13 @@ public class SpringBeansTargetTest {
     @Test
     public void compilePattern() {
         SpringBeansTarget target = new SpringBeansTarget();
-        List<PathMatcher> list = target.compilePattern(Arrays.asList("1", "regex:2", "antstyle:3"));
+        List<PathMatcher> list = target.compilePattern(Arrays.asList("1", "regex:2", "antstyle:3"), ".");
         assertEquals(3, list.size());
-        list = target.compilePattern(Arrays.asList("1", "regex: 2", "antstyle:  3"));
+        list = target.compilePattern(Arrays.asList("1", "regex: 2", "antstyle:  3"), ".");
         assertEquals(3, list.size());
-        list = target.compilePattern(Arrays.asList("1", "regex:", "antstyle:"));
+        list = target.compilePattern(Arrays.asList("1", "regex:", "antstyle:"), ".");
         assertEquals(1, list.size());
-        list = target.compilePattern(Arrays.asList("1", "regex: 1", "antstyle: 2"));
+        list = target.compilePattern(Arrays.asList("1", "regex: 1", "antstyle: 2"), ".");
         assertEquals(3, list.size());
     }
 }

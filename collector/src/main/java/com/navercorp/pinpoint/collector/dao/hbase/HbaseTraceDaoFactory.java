@@ -1,6 +1,9 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.TraceDao;
+import com.navercorp.pinpoint.common.hbase.HBaseAdminTemplate;
+import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import org.apache.hadoop.hbase.TableName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
@@ -25,25 +28,49 @@ public class HbaseTraceDaoFactory implements FactoryBean<TraceDao> {
     @Qualifier("hbaseTraceDaoV2")
     private TraceDao v2;
 
-    @Value("#{pinpoint_collector_properties['collector.experimental.span.format.compatibility.version'] ?: 'v1'}")
-    private String mode = "v1";
+    @Autowired
+    private HBaseAdminTemplate adminTemplate;
+
+    @Value("#{pinpoint_collector_properties['collector.span.format.compatibility.version'] ?: 'v2'}")
+    private String mode = "v2";
 
     @Override
     public TraceDao getObject() throws Exception {
 
         logger.info("TraceDao Compatibility {}", mode);
 
+        final TableName v1TableName = HBaseTables.TRACES;
+        final TableName v2TableName = HBaseTables.TRACE_V2;
+
         if (mode.equalsIgnoreCase("v1")) {
-            return v1;
+            if (this.adminTemplate.tableExists(v1TableName)) {
+                return v1;
+            } else {
+                logger.error("TraceDao configured for v1, but {} table does not exist", v1TableName);
+                throw new IllegalStateException(v1TableName + " table does not exist");
+            }
         }
         else if (mode.equalsIgnoreCase("v2")) {
-            return v2;
+            if (this.adminTemplate.tableExists(v2TableName)) {
+                return v2;
+            } else {
+                logger.error("TraceDao configured for v2, but {} table does not exist", v2TableName);
+                throw new IllegalStateException(v2TableName + " table does not exist");
+            }
         }
         else if(mode.equalsIgnoreCase("dualWrite")) {
-            return new DualWriteHbaseTraceDao(v1, v2);
+            boolean v1TableExists = this.adminTemplate.tableExists(v1TableName);
+            boolean v2TableExists = this.adminTemplate.tableExists(v2TableName);
+            if (v1TableExists && v2TableExists) {
+                return new DualWriteHbaseTraceDao(v1, v2);
+            } else {
+                logger.error("TraceDao configured for dualWrite, but {} and {} tables do not exist", v1TableName, v2TableName);
+                throw new IllegalStateException(v1TableName + ", " + v2TableName + " tables do not exist");
+            }
         }
-
-        return v1;
+        else {
+            throw new IllegalStateException("Unknown TraceDao configuration : " + mode);
+        }
     }
 
     @Override

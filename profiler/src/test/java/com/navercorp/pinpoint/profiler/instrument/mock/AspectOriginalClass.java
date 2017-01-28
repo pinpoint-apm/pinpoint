@@ -31,70 +31,59 @@ public class AspectOriginalClass {
     public int touchAfter;
 
     public void testVoid() {
-        System.out.println("Original testVoid()");
         touchVoid++;
     }
 
     public int getTouchVoid() {
-        System.out.println("Original getTouchVoid()");
         return touchVoid;
     }
 
     public int testInt() {
-        System.out.println("Original testInt()");
         return ++touchInt;
     }
 
     public int getTouchInt() {
-        System.out.println("Original getTouchInt()");
         return touchInt;
     }
 
     public String testString() {
-        System.out.println("Original testString()");
         return "testString";
     }
 
     public int testUtilMethod() {
-        System.out.println("Original testUtilMethod()");
         return ++touchUtil;
     }
 
     void touchBefore() {
-        System.out.println("Original touchBefore()");
         touchBefore++;
     }
 
     public int getTouchBefore() {
-        System.out.println("Original getTouchBefore()");
         return touchBefore;
     }
 
     void touchAfter() {
-        System.out.println("Original touchAfter()");
         touchAfter++;
     }
 
     public int getTouchAfter() {
-        System.out.println("getTouchAfter");
         return touchAfter;
     }
 
     public void testNoTouch() {
-        System.out.println("Original testNoTouch()");
+
     }
 
     public void methodA() {
-        System.out.println("---a");
+
     }
 
     public void methodB() {
-        System.out.println("---b");
+
     }
 
 
     public void testInternalMethod() {
-        System.out.println("Original testInternalMethod()");
         touchBefore();
         touchAfter();
         //super
@@ -102,16 +91,14 @@ public class AspectOriginalClass {
     }
 
     public int testSignatureMiss() {
-        System.out.println("Original testSignatureMiss()");
         return -1;
     }
 
     public void testMethodCall() {
-        System.out.println("Original testMethodCall()");
+
     }
 
     public Map<String, String> testGeneric() {
-        System.out.println("Original testGeneric()");
         return Collections.emptyMap();
     }
 }

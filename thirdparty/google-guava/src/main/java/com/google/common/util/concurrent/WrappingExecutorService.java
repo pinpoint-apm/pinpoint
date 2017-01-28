@@ -80,7 +80,7 @@ abstract class WrappingExecutorService implements ExecutorService {
    *
    * @throws NullPointerException if any element of {@code tasks} is null
    */
-  private final <T> ImmutableList<Callable<T>> wrapTasks(
+  private <T> ImmutableList<Callable<T>> wrapTasks(
       Collection<? extends Callable<T>> tasks) {
     ImmutableList.Builder<Callable<T>> builder = ImmutableList.builder();
     for (Callable<T> task : tasks) {

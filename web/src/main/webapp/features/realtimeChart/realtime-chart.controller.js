@@ -35,7 +35,7 @@
 		css : {
 			borderWidth: 2,
 			height: 180,
-			navbarHeight: 70,
+			navBarHeight: 42,
 			titleHeight: 30
 		},
 		sumChart: {
@@ -51,15 +51,15 @@
 		}
 	});
 	
-	pinpointApp.controller( "RealtimeChartCtrl", [ "RealtimeChartCtrlConfig", "$scope", "$element", "$rootScope", "$compile", "$timeout", "$window", "globalConfig", "UrlVoService", "RealtimeWebsocketService", "AnalyticsService", "TooltipService",
-	    function (cfg, $scope, $element, $rootScope, $compile, $timeout, $window, globalConfig, UrlVoService, webSocketService, analyticsService, tooltipService) {
+	pinpointApp.controller( "RealtimeChartCtrl", [ "RealtimeChartCtrlConfig", "$scope", "$element", "$location", "$rootScope", "$compile", "$timeout", "$window", "$http",  "SystemConfigurationService", "LocalStorageManagerService", "UrlVoService", "RealtimeWebsocketService", "AnalyticsService", "TooltipService",
+	    function (cfg, $scope, $element, $location, $rootScope, $compile, $timeout, $window, $http, SystemConfigService, LocalStorageManagerService, UrlVoService, webSocketService, AnalyticsService, tooltipService) {
 	    	$element = $($element);
 			//@TODO will move to preference-service 
 	    	var TIMEOUT_MAX_COUNT = 10;
 			var X_AXIS_COUNT = 10;
 	    	var RECEIVE_SUCCESS = 0;
 
-			var $elSumChartWrapper, $elTitle, $elSumChartCount, $elAgentChartListWrapper, $elWarningMessage, $elHandleGlyphicon, $elPin;
+			var $elSumChartWrapper, $elTitle, $elSumChartCount, $elAgentChartListWrapper, $elWarningMessage, $elPin;
 	    	var preUrlParam = "";
 			var currentApplicationName = "";
 	    	var aAgentChartElementList = [];
@@ -69,9 +69,7 @@
 			var bIsFirstInit = true;
 	    	var bIsPinned = true;
 	    	var bIsWas = false;
-	    	var bIsFullWindow = false;
 	    	var bShowRealtimeChart = true;
-	    	var popupHeight = cfg.css.height;
 	    	var wsPongTemplate = (function() {
 	    		var o = {};
 	    		o[cfg.keys.TYPE] = cfg.values.PONG;
@@ -119,7 +117,6 @@
 				$elSumChartCount = $element.find("div.agent-sum-chart div:first-child span:last-child");
 				$elAgentChartListWrapper = $element.find("div.agent-chart-list");
 				$elWarningMessage = $element.find(".connection-message");
-				$elHandleGlyphicon = $element.find(".handle .glyphicon");
 				$elPin = $element.find(".glyphicon-pushpin");
 				$elWarningMessage.hide();
 				$elTitle.html("");
@@ -307,9 +304,9 @@
         		webSocketService.stopReceive( makeRequest("") );
 	        }
 	        function stopChart() {
-	        	$rootScope.$broadcast('realtimeChartDirective.clear.sum');
+	        	$rootScope.$broadcast("realtimeChartDirective.clear.sum");
 	        	$.each( aAgentChartElementList, function(index, el) {
-	        		$rootScope.$broadcast('realtimeChartDirective.clear.' + index);
+	        		$rootScope.$broadcast("realtimeChartDirective.clear." + index);
 	        		el.hide();
 	        	});
 				$.each( aChildScopeList, function(index, childScope) {
@@ -338,23 +335,23 @@
 				$elWarningMessage.show();
 	        }
 	        function hidePopup() {
-	        	$element.animate({
-	        		bottom: -popupHeight,
-	        		left: 0
+				hideSub();
+	        	$element.css("top", "initial").animate({
+					left: 0,
+	        		bottom: -parseInt(LocalStorageManagerService.getRealtimeLayerHeight() || cfg.css.height)
 	        	}, 500, function() {
-	        		$elHandleGlyphicon.removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
 	        	});
 	        }
 	        function showPopup() {
+				$element.css("height", LocalStorageManagerService.getRealtimeLayerHeight() || cfg.css.height);
 	        	$element.animate({
 	        		bottom: 0,
 	        		left: 0
 	        	}, 500, function() {
-	        		$elHandleGlyphicon.removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
 	        	});
 	        }
 	        function adjustWidth() {
-	        	$element.innerWidth( $element.parent().width() - cfg.css.borderWidth + "px" );
+	        	$element.css("top", "initial").innerWidth( $element.parent().width() - cfg.css.borderWidth + "px" );
 	        }
 	        function setPinColor() {
 	        	$elPin.css("color", bIsPinned ? "red": "");
@@ -367,6 +364,7 @@
 	        	setPinColor();
 	        });
 	        $scope.$on( "realtimeChartController.initialize", function (event, was, applicationName, urlParam ) {
+	        	hideSub();
 	        	if ( bIsPinned === true && preUrlParam === urlParam ) return;
 	        	if ( UrlVoService.isRealtime() === false ) return;
 	        	bIsWas = angular.isUndefined( was ) ? false : was;
@@ -377,7 +375,7 @@
 					initElements();
 					bIsFirstInit = false;
 				}
-	        	if ( globalConfig.useRealTime === false ) return;
+	        	if ( SystemConfigService.get("showActiveThread") === false ) return;
 	        	if ( bShowRealtimeChart === false ) return;
 	        	if ( bIsWas === false ) {
 	        		hidePopup();
@@ -402,28 +400,36 @@
 	        };
 	        $scope.pin = function() {
 	        	bIsPinned = !bIsPinned;
-				analyticsService.send( analyticsService.CONST.MAIN, bIsPinned ? analyticsService.CONST.CLK_REALTIME_CHART_PIN_ON : analyticsService.CONST.CLK_REALTIME_CHART_PIN_OFF );
+				AnalyticsService.send( AnalyticsService.CONST.MAIN, bIsPinned ? AnalyticsService.CONST.CLK_REALTIME_CHART_PIN_ON : AnalyticsService.CONST.CLK_REALTIME_CHART_PIN_OFF );
 	        	setPinColor();
 	        };
-	        $scope.resizePopup = function() {
-	        	analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.TG_REALTIME_CHART_RESIZE );
-	        	if ( bIsFullWindow ) {
-	        		popupHeight = cfg.css.height;
-	        		$element.css({
-	        			"height": cfg.css.height + "px",
-	        			"bottom": "0px"
-	        		});
-	        		$elAgentChartListWrapper.css("height", "150px");
-	        	} else {
-	        		popupHeight = $window.innerHeight - cfg.css.navbarHeight;
-	        		$element.css({
-	        			"height": popupHeight + "px",
-	        			"bottom": "0px"
-	        		});
-	        		$elAgentChartListWrapper.css("height", (popupHeight - cfg.css.titleHeight) + "px");
-	        	}
-	        	bIsFullWindow = !bIsFullWindow;
-	        };
+	        $scope.showAgentInfo = function( $event ) {
+				var $target = $( $event.target );
+				if ( $target.hasClass("agent-chart-list") ) {
+					return;
+				}
+				var agentId = $target.hasClass("agent-chart" ) ? $target.find( "> div" ).html() : $target.parent(".agent-chart").find("> div").html();
+				var openType = LocalStorageManagerService.getThreadDumpLayerOpenType();
+				if ( openType === null || openType === "window" ) {
+					$window.open(
+						getOpenUrl() +
+						"/threadDump/" + currentApplicationName + "/" + agentId,
+						"Thread Dump Info",
+						"width=1280px,height=800px,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=no,status=no"
+					);
+				} else {
+					$rootScope.$broadcast( "thread-dump-info-layer.open", currentApplicationName, agentId );
+				}
+				AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_OPEN_THREAD_DUMP_LAYER );
+			};
+	        function getOpenUrl() {
+	        	var url = $location.absUrl();
+	        	var index = url.indexOf( $location.path() );
+	        	return url.substring(0, index);
+			}
+			function hideSub() {
+				$rootScope.$broadcast( "thread-dump-info-layer.close" );
+			}
 	        function resetStatus() {
 	        	stopReceive();
 	        	stopChart();
@@ -433,7 +439,21 @@
 	        }
 	        $($window).on("resize", function() {
 	        	adjustWidth();
+	        	var newHeight = $window.innerHeight - cfg.css.navBarHeight;
+				$element.resizable("option", "maxHeight", newHeight);
+				if ( parseInt($element.css("height")) > newHeight && newHeight > cfg.css.height ) {
+					$element.css("height", newHeight);
+					LocalStorageManagerService.setRealtimeLayerHeight( newHeight );
+				}
 	        });
-	    }
+			$element.resizable({
+	        	minHeight: cfg.css.height,
+				maxHeight: $window.innerHeight - cfg.css.navBarHeight,
+				handles: "n",
+				resize: function( event, ui ) {
+					LocalStorageManagerService.setRealtimeLayerHeight( ui.size.height );
+				}
+			});
+		}
 	]);
 })(jQuery);

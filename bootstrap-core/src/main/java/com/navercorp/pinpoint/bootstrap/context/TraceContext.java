@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.bootstrap.context;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorContext;
+import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 
 /**
  * @author emeroad
@@ -39,6 +41,18 @@ public interface TraceContext {
     Trace continueTraceObject(Trace trace);
 
     Trace newTraceObject();
+
+    /**
+     * internal experimental api
+     */
+    @InterfaceAudience.LimitedPrivate("vert.x")
+    Trace newAsyncTraceObject();
+
+    /**
+     * internal experimental api
+     */
+    @InterfaceAudience.LimitedPrivate("vert.x")
+    Trace continueAsyncTraceObject(TraceId traceId);
 
     Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime);
 
@@ -74,4 +88,7 @@ public interface TraceContext {
     ServerMetaDataHolder getServerMetaDataHolder();
 
     int getAsyncId();
+
+    PluginMonitorContext getPluginMonitorContext();
+
 }

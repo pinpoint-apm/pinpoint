@@ -24,7 +24,7 @@
             "headerZoneHeight": 20,       // 상단 시간 표시영역의 height
             "stateLineThickness": 4,       // 상태선의 두께
             "minSliderTimeSeries": 6000,             // 6sec
-            "maxSelectionTimeSeries": 172800000,	// 2day
+			"maxSelectionTimeSeries": TimeSlider.MAX_TIME_RANGE,	// 7day
             "headerTextTopPadding": 10,   // 상단 상태선과 시간 text의 간격
             "selectionPointRadius": 4
         };
@@ -168,7 +168,7 @@
     };
     TimeSlider.prototype.addEventData = function( aNewData ) {
         this.oLoading.show();
-        var aBoundary = this.oEventData.addData( aNewData );
+        this.oEventData.addData( aNewData );
         this.oEvents.changeData();
         this.oStateLine.changeData();
         this.oLoading.hide();
@@ -202,6 +202,7 @@
 		this.oPositionManager.setSelectionStartTime( aSelectionFromTo[0] );
 		this.oPositionManager.setSelectionEndTime( aSelectionFromTo[1] );
 		this.oPositionManager.setSelectTime( aSelectionFromTo[1] );
+		this.emptyData();
 		this.reset();
 	};
 	TimeSlider.prototype.movePrev = function() {
@@ -273,5 +274,6 @@
 	};
 	TimeSlider.GREEN = "10100";
 	TimeSlider.RED = "10200";
+	TimeSlider.MAX_TIME_RANGE = 604800000;
     w.TimeSlider = TimeSlider;
 })(window, jQuery);

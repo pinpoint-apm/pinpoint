@@ -60,9 +60,9 @@ public class ASMAspectWeaver {
         // advice class hierarchy check.
         final boolean isSubclass = adviceClassNode.subclassOf(sourceClassNode.getInternalName());
         if (!isSubclass) {
-            final String superInternalName = adviceClassNode.getSuperClassInternalName();
-            if (superInternalName == null || !superInternalName.equals("java.lang.Object")) {
-                throw new InstrumentException("invalid class hierarchy. source class=" + sourceClassNode.getInternalName() + ", advice class=" + adviceClassNode.getInternalName() + ", super class=" + superInternalName);
+            final String superClassInternalName = adviceClassNode.getSuperClassInternalName();
+            if (superClassInternalName == null || !superClassInternalName.equals("java/lang/Object")) {
+                throw new InstrumentException("invalid class hierarchy. source class=" + sourceClassNode.getInternalName() + ", advice class=" + adviceClassNode.getInternalName() + ", super class=" + superClassInternalName);
             }
         }
 
@@ -139,7 +139,7 @@ public class ASMAspectWeaver {
         }
     }
 
-    private class MethodNodes {
+    private static class MethodNodes {
         public final List<ASMMethodNodeAdapter> pointCuts = new ArrayList<ASMMethodNodeAdapter>();
         public final List<ASMMethodNodeAdapter> jointPoints = new ArrayList<ASMMethodNodeAdapter>();
         public final List<ASMMethodNodeAdapter> utils = new ArrayList<ASMMethodNodeAdapter>();

@@ -20,10 +20,12 @@ import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 
 /**
  * @author Woonduk Kang(emeroad)
+ * @author jaehong.kim
  */
 public class BootstrapClassLoaderHandler implements ClassInjector {
 
@@ -46,7 +48,7 @@ public class BootstrapClassLoaderHandler implements ClassInjector {
     public <T> Class<? extends T> injectClass(ClassLoader classLoader, String className) {
         try {
             if (classLoader == null) {
-                return (Class<T>)injectClass0(className);
+                return (Class<T>) injectClass0(className);
             }
         } catch (Exception e) {
             logger.warn("Failed to load plugin class {} with classLoader {}", className, classLoader, e);
@@ -56,6 +58,11 @@ public class BootstrapClassLoaderHandler implements ClassInjector {
     }
 
     private Class<?> injectClass0(String className) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
+        appendToBootstrapClassLoaderSearch();
+        return Class.forName(className, false, null);
+    }
+
+    private void appendToBootstrapClassLoaderSearch() {
         synchronized (lock) {
             if (this.injectedToRoot == false) {
                 this.injectedToRoot = true;
@@ -63,8 +70,24 @@ public class BootstrapClassLoaderHandler implements ClassInjector {
                 pluginConfig.getClassPool().appendToBootstrapClassPath(pluginConfig.getPluginJarFile().getName());
             }
         }
-        return Class.forName(className, false, null);
     }
 
-
+    @Override
+    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String classPath) {
+        try {
+            if (targetClassLoader == null) {
+                ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+                if (classLoader == null) {
+                    return null;
+                }
+                appendToBootstrapClassLoaderSearch();
+                return classLoader.getResourceAsStream(classPath);
+            }
+        } catch (Exception e) {
+            logger.warn("Failed to load plugin resource as stream {} with classLoader {}", classPath, targetClassLoader, e);
+            return null;
+        }
+        logger.warn("Invalid bootstrap class loader. cl={}", targetClassLoader);
+        return null;
+    }
 }

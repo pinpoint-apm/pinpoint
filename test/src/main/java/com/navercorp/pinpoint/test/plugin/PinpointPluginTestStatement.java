@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -185,7 +185,7 @@ public class PinpointPluginTestStatement extends Statement {
     }
     
     private String getAgent() {
-        return "-javaagent:" + context.getAgentJar() + "=bootClass=com.navercorp.pinpoint.test.PluginTestAgent";
+        return "-javaagent:" + context.getAgentJar() + "=AGENT_TYPE=PLUGIN_TEST";
     }
     
     private String getClassPathAsString() {

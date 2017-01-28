@@ -385,7 +385,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         if (value != null && !value.isEmpty()) {
             if (cookieSampler.isSampling()) {
                 final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-                recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, MAX_READ_SIZE));
+                recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.abbreviate(value, MAX_READ_SIZE));
             }
         }
     }

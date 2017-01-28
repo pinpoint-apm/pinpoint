@@ -56,7 +56,7 @@ public abstract class ValueEncodingStrategy<T extends Number> implements Encodin
 
         @Override
         public List<T> decodeValues(Buffer buffer, int numValues) {
-            List<T> values = new ArrayList<>(numValues);
+            List<T> values = new ArrayList<T>(numValues);
             for (int i = 0; i < numValues; ++i) {
                 values.add(this.bufferHandler.readV(buffer));
             }

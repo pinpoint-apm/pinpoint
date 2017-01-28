@@ -370,7 +370,7 @@ public class CollectorConfiguration implements InitializingBean {
 
     private int readInt(Properties properties, String propertyName, int defaultValue) {
         final String value = properties.getProperty(propertyName);
-        int result = NumberUtils.toInt(value, defaultValue);
+        final int result = NumberUtils.toInt(value, defaultValue);
         if (logger.isInfoEnabled()) {
             logger.info("{}={}", propertyName, result);
         }
@@ -378,10 +378,10 @@ public class CollectorConfiguration implements InitializingBean {
     }
 
     private long readLong(Properties properties, String propertyName, long defaultValue) {
-        String value = properties.getProperty(propertyName);
-        long result = com.navercorp.pinpoint.bootstrap.util.NumberUtils.parseLong(value, defaultValue);
+        final String value = properties.getProperty(propertyName);
+        final long result = NumberUtils.toLong(value, defaultValue);
         if (logger.isInfoEnabled()) {
-            logger.info(propertyName + "=" + result);
+            logger.info("{}={}", propertyName, result);
         }
         return result;
     }
@@ -392,7 +392,7 @@ public class CollectorConfiguration implements InitializingBean {
         // if a default value will be needed afterwards, may match string value instead of Utils.
         // for now stay unmodified because of no need.
 
-        boolean result = Boolean.valueOf(value);
+        final boolean result = Boolean.valueOf(value);
         if (logger.isInfoEnabled()) {
             logger.info("{}={}", propertyName, result);
         }

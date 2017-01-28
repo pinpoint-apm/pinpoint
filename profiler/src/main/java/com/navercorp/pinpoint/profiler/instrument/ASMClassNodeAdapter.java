@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -40,29 +42,18 @@ import java.util.List;
  */
 public class ASMClassNodeAdapter {
 
-    public static ASMClassNodeAdapter get(final ClassLoader classLoader, final String className) {
-        return get(classLoader, className, false);
+    public static ASMClassNodeAdapter get(final InstrumentContext pluginContext, final ClassLoader classLoader, final String classInternalName) {
+        return get(pluginContext, classLoader, classInternalName, false);
     }
 
-    public static ASMClassNodeAdapter get(final ClassLoader classLoader, final String className, final boolean skipCode) {
-        if (className == null) {
-            throw new IllegalArgumentException("class name must not be null.");
-        }
-
-        ClassLoader aClassLoader = classLoader;
-        if (aClassLoader == null) {
-            // bootstrap class loader.
-            aClassLoader = ClassLoader.getSystemClassLoader();
-        }
-
-        if (aClassLoader == null) {
-            // not initialized system classloader.
-            return null;
+    public static ASMClassNodeAdapter get(final InstrumentContext pluginContext, final ClassLoader classLoader, final String classInternalName, final boolean skipCode) {
+        if (pluginContext == null || classInternalName == null) {
+            throw new IllegalArgumentException("plugin context or class name must not be null.");
         }
 
         InputStream in = null;
         try {
-            in = aClassLoader.getResourceAsStream(className + ".class");
+            in = pluginContext.getResourceAsStream(classLoader, classInternalName + ".class");
             if (in != null) {
                 final ClassReader classReader = new ClassReader(in);
                 final ClassNode classNode = new ClassNode();
@@ -72,7 +63,7 @@ public class ASMClassNodeAdapter {
                     classReader.accept(classNode, 0);
                 }
 
-                return new ASMClassNodeAdapter(classLoader, classNode, skipCode);
+                return new ASMClassNodeAdapter(pluginContext, classLoader, classNode, skipCode);
             }
         } catch (IOException ignored) {
             // not found class.
@@ -88,34 +79,36 @@ public class ASMClassNodeAdapter {
         return null;
     }
 
+    private final InstrumentContext pluginContext;
     private final ClassLoader classLoader;
     private final ClassNode classNode;
     private final boolean skipCode;
 
-    public ASMClassNodeAdapter(final ClassLoader classLoader, final ClassNode classNode) {
-        this(classLoader, classNode, false);
+    public ASMClassNodeAdapter(final InstrumentContext pluginContext, final ClassLoader classLoader, final ClassNode classNode) {
+        this(pluginContext, classLoader, classNode, false);
     }
 
-    public ASMClassNodeAdapter(final ClassLoader classLoader, final ClassNode classNode, final boolean skipCode) {
+    public ASMClassNodeAdapter(final InstrumentContext pluginContext, final ClassLoader classLoader, final ClassNode classNode, final boolean skipCode) {
+        this.pluginContext = pluginContext;
         this.classLoader = classLoader;
         this.classNode = classNode;
         this.skipCode = skipCode;
     }
 
-    public String getName() {
+    public String getInternalName() {
         return this.classNode.name;
     }
 
-    public String getInternalName() {
-        return this.classNode.name == null ? null : this.classNode.name.replace('/', '.');
-    }
-
-    public String getSuperClassName() {
-        return this.classNode.superName;
+    public String getName() {
+        return this.classNode.name == null ? null : JavaAssistUtils.jvmNameToJavaName(this.classNode.name);
     }
 
     public String getSuperClassInternalName() {
-        return this.classNode.superName == null ? null : this.classNode.superName.replace('/', '.');
+        return this.classNode.superName;
+    }
+
+    public String getSuperClassName() {
+        return this.classNode.superName == null ? null : JavaAssistUtils.jvmNameToJavaName(this.classNode.superName);
     }
 
     public boolean isInterface() {
@@ -126,7 +119,7 @@ public class ASMClassNodeAdapter {
         return (classNode.access & Opcodes.ACC_ANNOTATION) != 0;
     }
 
-    public String[] getInterfaceInternalNames() {
+    public String[] getInterfaceNames() {
         final List<String> interfaces = this.classNode.interfaces;
         if (interfaces == null || interfaces.size() == 0) {
             return new String[0];
@@ -135,8 +128,7 @@ public class ASMClassNodeAdapter {
         final List<String> list = new ArrayList<String>();
         for (String name : interfaces) {
             if (name != null) {
-                // to internal name.
-                list.add(name.replace('/', '.'));
+                list.add(JavaAssistUtils.jvmNameToJavaName(name));
             }
         }
 
@@ -218,7 +210,7 @@ public class ASMClassNodeAdapter {
 
         if (this.classNode.superName != null) {
             // skip code.
-            final ASMClassNodeAdapter classNode = ASMClassNodeAdapter.get(this.classLoader, this.classNode.superName, true);
+            final ASMClassNodeAdapter classNode = ASMClassNodeAdapter.get(this.pluginContext, this.classLoader, this.classNode.superName, true);
             if (classNode != null) {
                 return classNode.hasMethod(methodName, desc);
             }
@@ -247,7 +239,7 @@ public class ASMClassNodeAdapter {
                     continue;
                 }
 
-                final ASMClassNodeAdapter classNodeAdapter = ASMClassNodeAdapter.get(this.classLoader, interfaceClassName, true);
+                final ASMClassNodeAdapter classNodeAdapter = ASMClassNodeAdapter.get(this.pluginContext, this.classLoader, interfaceClassName, true);
                 if (classNodeAdapter != null) {
                     final ASMFieldNodeAdapter fieldNode = classNodeAdapter.getField(fieldName, fieldDesc);
                     if (fieldNode != null) {
@@ -259,7 +251,7 @@ public class ASMClassNodeAdapter {
 
         // find super class.
         if (this.classNode.superName != null) {
-            final ASMClassNodeAdapter classNodeAdapter = ASMClassNodeAdapter.get(this.classLoader, this.classNode.superName, true);
+            final ASMClassNodeAdapter classNodeAdapter = ASMClassNodeAdapter.get(this.pluginContext, this.classLoader, this.classNode.superName, true);
             if (classNodeAdapter != null) {
                 final ASMFieldNodeAdapter fieldNode = classNodeAdapter.getField(fieldName, fieldDesc);
                 if (fieldNode != null) {
@@ -359,15 +351,15 @@ public class ASMClassNodeAdapter {
         this.classNode.methods.add(methodNode);
     }
 
-    public void addInterface(final String interfaceInternalName) {
-        if (interfaceInternalName == null) {
-            throw new IllegalArgumentException("interface internal name must not be null.");
+    public void addInterface(final String interfaceName) {
+        if (interfaceName == null) {
+            throw new IllegalArgumentException("interface name must not be null.");
         }
 
         if (this.classNode.interfaces == null) {
             this.classNode.interfaces = new ArrayList<String>();
         }
-        this.classNode.interfaces.add(interfaceInternalName.replace('.', '/'));
+        this.classNode.interfaces.add(JavaAssistUtils.javaNameToJvmName(interfaceName));
     }
 
     public void copyMethod(final ASMMethodNodeAdapter methodNode) {
@@ -377,9 +369,12 @@ public class ASMClassNodeAdapter {
 
         // change local call.
         final ASMMethodInsnNodeRemapper remapper = new ASMMethodInsnNodeRemapper();
-        remapper.addFilter(methodNode.getDeclaringClassInternalName().replace('.', '/'), null, null);
+        remapper.addFilter(methodNode.getDeclaringClassInternalName(), null, null);
         remapper.setOwner(this.classNode.name);
+        // remap method call.
         methodNode.remapMethodInsnNode(remapper);
+        // remap desc of this.
+        methodNode.remapLocalVariables("this", Type.getObjectType(this.classNode.name).getDescriptor());
 
         if (this.classNode.methods == null) {
             this.classNode.methods = new ArrayList<MethodNode>();
@@ -410,30 +405,30 @@ public class ASMClassNodeAdapter {
         return false;
     }
 
-    public boolean subclassOf(final String superInternalName) {
-        if (superInternalName == null) {
+    public boolean subclassOf(final String classInternalName) {
+        if (classInternalName == null) {
             return false;
         }
 
-        if (superInternalName.equals("java.lang.Object")) {
+        if (classInternalName.equals("java/lang/Object")) {
             // super is root.
             return true;
         }
 
         ASMClassNodeAdapter classNode = this;
         while (classNode != null) {
-            if (superInternalName.equals(classNode.getInternalName())) {
+            if (classInternalName.equals(classNode.getInternalName())) {
                 return true;
             }
 
-            final String superClassName = classNode.getSuperClassName();
-            if (superClassName == null || superClassName.equals("java/lang/Object")) {
+            final String superClassInternalName = classNode.getSuperClassInternalName();
+            if (superClassInternalName == null || superClassInternalName.equals("java/lang/Object")) {
                 // find root annotation.
                 return false;
             }
 
             // skip code.
-            classNode = ASMClassNodeAdapter.get(this.classLoader, superClassName, true);
+            classNode = ASMClassNodeAdapter.get(this.pluginContext, this.classLoader, superClassInternalName, true);
         }
 
         return false;
@@ -451,7 +446,7 @@ public class ASMClassNodeAdapter {
                 continue;
             }
             // skip code.
-            ASMClassNodeAdapter adapter = get(this.classLoader, node.name, true);
+            ASMClassNodeAdapter adapter = get(this.pluginContext, this.classLoader, node.name, true);
             if (adapter != null) {
                 innerClasses.add(adapter);
             }
@@ -468,7 +463,7 @@ public class ASMClassNodeAdapter {
             flags = ClassWriter.COMPUTE_MAXS;
         }
 
-        final ClassWriter classWriter = new ASMClassWriter(this.classNode.name, this.classNode.superName, flags, this.classLoader);
+        final ClassWriter classWriter = new ASMClassWriter(this.pluginContext, this.classNode.name, this.classNode.superName, flags, this.classLoader);
         this.classNode.accept(classWriter);
         return classWriter.toByteArray();
     }

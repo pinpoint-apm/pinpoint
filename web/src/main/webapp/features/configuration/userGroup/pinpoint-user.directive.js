@@ -8,8 +8,8 @@
 	 * @class
 	 */	
 	
-	pinpointApp.directive( "pinpointUserDirective", [ "helpContentTemplate", "helpContentService", "AlarmUtilService", "AnalyticsService", "globalConfig",
-	    function ( helpContentTemplate, helpContentService, AlarmUtilService, AnalyticsService, globalConfig) {
+	pinpointApp.directive( "pinpointUserDirective", [ "helpContentTemplate", "helpContentService", "AlarmUtilService", "AnalyticsService", "SystemConfigurationService",
+	    function ( helpContentTemplate, helpContentService, AlarmUtilService, AnalyticsService, SystemConfigService) {
         return {
             restrict: 'EA',
             replace: true,
@@ -35,7 +35,7 @@
 				scope.pinpointUserList = [];
 				
 				scope.getCreateAllow = function() {
-					return globalConfig.editUserInfo;
+					return SystemConfigService.get("editUserInfo");
 				};
 				function cancelPreviousWork() {
 					AddPinpointUser.cancelAction( aEditNode, hideEditArea );

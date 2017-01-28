@@ -77,6 +77,8 @@
                     'DUBBO_PROVIDER_GROUP': 'DUBBO.png',
                     'JETTY': 'JETTY.png',
                     'JETTY_GROUP': 'JETTY.png',
+                    'RESIN': 'RESIN.png',
+                    'RESIN_GROUP': 'RESIN_GROUP.png',
                     'UNDEFINED': 'UNDEFINED.png',
                     'UNDEFINED_GROUP': 'UNDEFINED.png',
                     'UNKNOWN': 'UNKNOWN.png',
@@ -89,9 +91,11 @@
                     'NBASE_T_GROUP': 'NBASE_T.png',
                     'USER': 'USER.png',
                     'USER_GROUP': 'USER.png',
-					'UNAUTHORIZED': 'UNAUTHORIZED.png',
-					'JBOSS': 'JBOSS.png',
-                    'JBOSS_GROUP': 'JBOSS.png'
+                    'UNAUTHORIZED': 'UNAUTHORIZED.png',
+                    'JBOSS': 'JBOSS.png',
+                    'JBOSS_GROUP': 'JBOSS.png',
+                    'VERTX': 'VERTX.png',
+                    'VERTX_GROUP': 'VERTX.png'
                 },
                 "htNodeTheme": {
                     "default": {

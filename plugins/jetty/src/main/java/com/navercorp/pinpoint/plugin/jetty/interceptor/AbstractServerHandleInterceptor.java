@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -192,11 +192,11 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
                 return params.toString();
             }
             String key = attrs.nextElement().toString();
-            params.append(StringUtils.drop(key, eachLimit));
+            params.append(StringUtils.abbreviate(key, eachLimit));
             params.append("=");
             Object value = request.getParameter(key);
             if (value != null) {
-                params.append(StringUtils.drop(StringUtils.toString(value), eachLimit));
+                params.append(StringUtils.abbreviate(StringUtils.toString(value), eachLimit));
             }
         }
         return params.toString();

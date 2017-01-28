@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <version>1.6.0-SNAPSHOT</version>
+        <version>1.6.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-plugins</artifactId>
@@ -24,6 +24,8 @@
         <module>postgresql-jdbc</module>
         <module>jtds</module>
         <module>dbcp</module>
+        <module>dbcp2</module>
+        <module>hikaricp</module>
         <module>oracle-jdbc</module>
         <module>jdk-http</module>
         <module>json-lib</module>
@@ -48,6 +50,8 @@
         <module>cxf</module>
         <module>hystrix</module>
         <module>jboss</module>
+        <module>vertx</module>
+        <module>resin</module>
     </modules>
 
     <dependencies>
@@ -109,6 +113,16 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons-dbcp-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-commons-dbcp2-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-hikaricp-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -229,6 +243,16 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-jboss-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-vertx-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-resin-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

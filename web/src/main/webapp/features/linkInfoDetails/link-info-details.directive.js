@@ -35,17 +35,17 @@
 	                bShown = false;
 	                scope.htLastUnknownLink = false;
 	
-	                angular.element($window).bind('resize',function(e) {
-	                    if (bShown && htLastLink.targetRawData) {
-	                        renderAllChartWhichIsVisible(htLastLink);
-	                    }
-	                });
-	
-	                element
-	                    .find('.unknown-list')
-	                    .bind('scroll', function (e) {
-	                        renderAllChartWhichIsVisible(htLastLink);
-	                    });
+	                // angular.element($window).bind('resize',function(e) {
+	                //     if (bShown && htLastLink.targetRawData) {
+	                //         renderAllChartWhichIsVisible(htLastLink);
+	                //     }
+	                // });
+					//
+	                // element
+	                //     .find('.unknown-list')
+	                //     .bind('scroll', function (e) {
+	                //         renderAllChartWhichIsVisible(htLastLink);
+	                //     });
 	
 	                /**
 	                 * reset
@@ -80,15 +80,19 @@
 	                 * show detail information
 	                 * @param link
 	                 */
+					scope.pagingSize = 3;
 	                showDetailInformation = function (link) {
+						scope.showLinkInfoDetails = true;
 	                    scope.link = link;
+	                    scope.unknownLinkGroup = link.unknownLinkGroup;
+
 	                    if (link.unknownLinkGroup) {
 	                        scope.unknownLinkGroup = link.unknownLinkGroup;
 	                        scope.htLastUnknownLink = link;
 	
 	                        scope.showLinkResponseSummaryForUnknown = (scope.oNavbarVoService.getPeriod() <= cfg.maxTimeToShowLoadAsDefaultForUnknown) ? false : true;
 	
-	                        renderAllChartWhichIsVisible(link);
+	                        renderAllChartWhichIsVisible(scope.unknownLinkGroup);
 	                        $timeout(function () {
 	                            element.find('[data-toggle="tooltip"]').tooltip('destroy').tooltip();
 	                        });
@@ -104,7 +108,6 @@
 	                        scope.fromNode = link.fromNode;
 	                    }
 	
-	                    scope.showLinkInfoDetails = true;
 	                    if (!scope.$$phase) {
 	                        scope.$digest();
 	                    }
@@ -114,26 +117,31 @@
 	                 * render all chart which is visible
 	                 * @param link
 	                 */
-	                renderAllChartWhichIsVisible = function (link) {
+	                renderAllChartWhichIsVisible = function (linkList, forPaging) {
 	                    $timeout(function () {
-	                        angular.forEach(link.unknownLinkGroup, function (link, index) {
+	                        angular.forEach(linkList, function (link) {
 	                            var applicationName = link.targetInfo.applicationName,
 	                                className = $filter('applicationNameToClassName')(applicationName);
-	                            if (angular.isDefined(htUnknownResponseSummary[applicationName])) return;
-	                            if (angular.isDefined(htUnknownLoad[applicationName])) return;
+								if ( forPaging !== true ) {
+									if (angular.isDefined(htUnknownResponseSummary[applicationName])) return;
+									if (angular.isDefined(htUnknownLoad[applicationName])) return;
+								}
 	
 	                            var elQuery = '.linkInfoDetails .summaryCharts_' + className,
 	                                el = angular.element(elQuery);
-	                            var visible = isVisibleService(el.get(0), 1);
-	                            if (!visible) return;
-	
-	                            if (scope.showLinkResponseSummaryForUnknown) {
-	                                htUnknownResponseSummary[applicationName] = true;
-	                                renderResponseSummaryWithLink(null, link, '100%', '180px');
-	                            } else {
-	                                htUnknownLoad[applicationName] = true;
-	                                renderLoad(null, applicationName, link.timeSeriesHistogram, '100%', '200px', true);
-	                            }
+
+								if ( el.length !== 0 ) {
+									var visible = isVisibleService(el.get(0), 1);
+									if (!visible) return;
+
+									if (scope.showLinkResponseSummaryForUnknown) {
+										htUnknownResponseSummary[applicationName] = true;
+										renderResponseSummaryWithLink(null, link, '100%', '180px');
+									} else {
+										htUnknownLoad[applicationName] = true;
+										renderLoad(null, applicationName, link.timeSeriesHistogram, '100%', '200px', true);
+									}
+								}
 	                        });
 	                    });
 	                };
@@ -150,12 +158,11 @@
 	                    var className = $filter('applicationNameToClassName')(toApplicationName);
 						namespace = namespace || 'forLink_' + className;
 	                    if (namespace === 'forLink' && bResponseSummaryForLinkRendered) {
-	                        scope.$broadcast('responseTimeChartDirective.updateData.' + namespace, histogram);
+	                        // scope.$broadcast('responseTimeChartDirective.updateData.' + namespace, histogram);
 	                    } else {
 	                        if (namespace === 'forLink') {
 	                            bResponseSummaryForLinkRendered = true;
 	                        }
-	                        scope.$broadcast('responseTimeChartDirective.initAndRenderWithData.' + namespace, histogram, w, h, true, true);
 	                        scope.$on('responseTimeChartDirective.itemClicked.' + namespace, function (event, data) {
 	                            var label = data.responseTime,
 	                                values = data.count;
@@ -199,6 +206,7 @@
 	                            scope.$emit('linkInfoDetailsDirective.ResponseSummary.barClicked', oServerMapFilterVoService, oServerMapHintVoService);
 	                        });
 	                    }
+						scope.$broadcast('responseTimeChartDirective.initAndRenderWithData.' + namespace, histogram, w, h, true, true);
 	                };
 	
 	                renderResponseSummaryWithLink = function (namespace, link, w, h) {
@@ -287,6 +295,16 @@
 	                	}
 	                	return link;
 	                };
+					function calcuPagingSize( linkList ) {
+						if ( linkList ) {
+							var count = parseInt(linkList.length / scope.pagingSize) + ( linkList.length % scope.pagingSize === 0 ? 0 : 1 );
+							scope.pagingCount = [];
+
+							for( var i = 1 ; i <= count ; i++ ) {
+								scope.pagingCount.push( i );
+							}
+						}
+					}
 	
 	                /**
 	                 * show link detail information of scope
@@ -305,7 +323,7 @@
 	                    htLastLink = scope.htLastUnknownLink;
 	                    htUnknownResponseSummary = {};
 	                    htUnknownLoad = {};
-	                    showDetailInformation(htLastLink);
+	                    showDetailInformation(htLastLink, scope.currentPage);
 						$rootScope.$broadcast("infoDetail.showDetailInformationClicked", htQuery, htLastLink);
 	                };
 	
@@ -365,7 +383,7 @@
 	                        scope.linkOrderByDesc = true;
 	                        scope.linkOrderBy = 'targetInfo.applicationName';
 	                    }
-	                    renderAllChartWhichIsVisible(htLastLink);
+	                    renderAllChartWhichIsVisible(htLastLink, true);
 	                };
 	
 	                /**
@@ -385,7 +403,7 @@
 	                        scope.linkOrderByDesc = true;
 	                        scope.linkOrderBy = 'totalCount';
 	                    }
-	                    renderAllChartWhichIsVisible(htLastLink);
+	                    renderAllChartWhichIsVisible(htLastLink, true);
 	                };
 	
 	                /**
@@ -396,8 +414,7 @@
 	                 */
 	                scope.showUnknownLinkBy = function (linkSearch, link) {
 	                    if (linkSearch) {
-	                        if (link.targetInfo.applicationName.indexOf(linkSearch) > -1 ||
-	                            link.totalCount.toString().indexOf(linkSearch) > -1) {
+	                        if (link.targetInfo.applicationName.indexOf(linkSearch) > -1 || link.totalCount.toString().indexOf(linkSearch) > -1) {
 	                            return true;
 	                        } else {
 	                            return false;
@@ -406,7 +423,12 @@
 	                        return true;
 	                    }
 	                };
-	
+
+					scope.movePaging = function( nextPage ) {
+						if (scope.currentPage == nextPage) return;
+						scope.currentPage = nextPage;
+						renderAllChartWhichIsVisible(scope.unknownLinkGroup, true);
+					};
 	                /**
 	                 * passing transaction map from link info details
 	                 * @param index
@@ -455,7 +477,20 @@
 	                 * link search change
 	                 */
 	                scope.linkSearchChange = function () {
-	                    renderAllChartWhichIsVisible(htLastLink);
+						scope.currentPage = 1;
+						scope.unknownLinkGroup = [];
+						for( var i = 0 ; i < htLastLink.unknownLinkGroup.length ; i++ ) {
+							var oLink = htLastLink.unknownLinkGroup[i];
+							if (scope.linkSearch) {
+								if ( oLink.targetInfo.applicationName.indexOf(scope.linkSearch) > -1 || oLink.totalCount.toString().indexOf(scope.linkSearch) > -1) {
+									scope.unknownLinkGroup.push( oLink );
+								}
+							} else {
+								scope.unknownLinkGroup.push( oLink );
+							}
+						}
+						calcuPagingSize( scope.unknownLinkGroup );
+	                    renderAllChartWhichIsVisible( scope.unknownLinkGroup, true );
 	                };
 	
 	                /**
@@ -468,7 +503,7 @@
 	                /**
 	                 * scope event on linkInfoDetailsDirective.linkClicked
 	                 */
-	                scope.$on('linkInfoDetailsDirective.initialize', function (event, e, query, link, linkData, navbarVoService, reloadOnly) {
+	                scope.$on('linkInfoDetailsDirective.initialize', function (event, e, query, link, linkData, navbarVoService, reloadOnly, searchQuery) {
 	                    show();
 	                    //if (angular.equals(sLastKey, link.key)) {
 	                    //    //if (htLastLink.targetRawData) {
@@ -482,6 +517,10 @@
 	                    htLastLink = link;
 	                    scope.htLastUnknownLink = false;
 	                    scope.oNavbarVoService = navbarVoService;
+	                    scope.linkSearch = searchQuery || "";
+	                    scope.currentPage = 1;
+
+	                    calcuPagingSize( link.unknownLinkGroup );
 	                    showDetailInformation(link);
 	                });
 	

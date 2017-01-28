@@ -47,7 +47,7 @@
 	<link rel="stylesheet" href="styles/xeicon.min.css?v=${buildTime}">
 	<!-- pinpoint.css###-->
 </head>
-<body ng-app="pinpointApp">
+<body ng-app="pinpointApp" style="overflow:hidden;">
 
 <div class="modal"  id="customLogPopup">
 	<div class="modal-dialog modal-lg" style="width:800px;">
@@ -128,7 +128,7 @@
 	</div>
 </script>
 <script id="sidebarLoading" type="text/ng-template">
-    <div class="cg-busy cg-busy-animation ng-hide" ng-show="!!showLoading">
+    <div class="cg-busy cg-busy-animation ng-hide" ng-show="!!showLoading" style="z-index:1000">
         <div class="cg-busy cg-busy-backdrop"></div>
         <div class="cg-busy-default-wrapper" style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px;">
             <div class="cg-busy-default-sign">
@@ -189,6 +189,7 @@
 </div>
 
 <configuration-directive></configuration-directive>
+<thread-dump-info-layer-directive></thread-dump-info-layer-directive>
 
 <!--###base-lib.min.js -->
 <script src="components/jquery/dist/jquery.min.js?v=${buildTime}"></script>
@@ -210,15 +211,6 @@
 <script src="components/angular-base64/angular-base64.min.js?v=${buildTime}"></script>
 <script src="components/angular-timer/dist/angular-timer.min.js?v=${buildTime}"></script>
 <!-- angular-lib.min.js###-->
-
-<!--###draw-lib.min.js -->
-<script src="components/gojs/go.js?v=${buildTime}"></script>
-<script src="components/snap.svg/snap.svg.min.js?v=${buildTime}"></script>
-<script src="components/d3/d3.min.js?v=${buildTime}"></script>
-<script src="components/amcharts/amcharts.js?v=${buildTime}"></script>
-<script src="components/amcharts/serial.js?v=${buildTime}"></script>
-<script src="components/amcharts/themes/light.js?v=${buildTime}"></script>
-<!-- draw-lib.min.js###-->
 
 <!--###util-lib.min.js -->
 <script src="components/bootstrap/dist/js/bootstrap.min.js?v=${buildTime}"></script>
@@ -251,6 +243,17 @@
 <script src="components/bootstrap/js/bootstrap-tooltip.js?v=${buildTime}"></script>
 <script src="components/bootstrap/js/bootstrap-popover.js?v=${buildTime}"></script>
 <!-- util-lib.min.js###-->
+
+<!--###draw-lib.min.js -->
+<script src="components/gojs/go.js?v=${buildTime}"></script>
+<script src="components/snap.svg/snap.svg.min.js?v=${buildTime}"></script>
+<script src="components/d3/d3.min.js?v=${buildTime}"></script>
+<script src="components/amcharts/amcharts.js?v=${buildTime}"></script>
+<script src="components/amcharts/serial.js?v=${buildTime}"></script>
+<script src="components/amcharts/themes/light.js?v=${buildTime}"></script>
+<script src="components/chartjs/Chart.min.js?v=${buildTime}"></script>
+<!-- draw-lib.min.js###-->
+
 
 <!--###pinpoint-component.min.js -->
 <script src="components/time-slider/time-slider.js?v=${buildTime}"></script>
@@ -323,6 +326,9 @@
 <script src="common/services/agent-ajax.service.js?v=${buildTime}"></script>
 <script src="common/services/tooltip.service.js?v=${buildTime}"></script>
 <script src="common/services/common-util.service.js?v=${buildTime}"></script>
+<script src="common/services/local-storage-manager.service.js?v=${buildTime}"></script>
+<script src="common/services/system-configuration.service.js?v=${buildTime}"></script>
+<script src="common/services/user-configuration.service.js?v=${buildTime}"></script>
 
 <script src="features/applicationList/application-list.directive.js?v=${buildTime}"></script>
 <script src="features/periodSelector/period-selector.directive.js?v=${buildTime}"></script>
@@ -360,6 +366,7 @@
 <script src="features/configuration/application/application-group.directive.js?v=${buildTime}"></script>
 <script src="features/configuration/application/alarm-rule.directive.js?v=${buildTime}"></script>
 <script src="features/configuration/help/help.directive.js?v=${buildTime}"></script>
+<script src="features/threadDumpInfoLayer/thread-dump-info-layer.directive.js?v=${buildTime}"></script>
 <script src="features/realtimeChart/realtime-chart.controller.js?v=${buildTime}"></script>
 
 <script src="pages/main/main.controller.js?v=${buildTime}"></script>
@@ -369,6 +376,7 @@
 <script src="pages/filteredMap/filtered-map.controller.js?v=${buildTime}"></script>
 <script src="pages/transactionView/transaction-view.controller.js?v=${buildTime}"></script>
 <script src="pages/scatterFullScreenMode/scatter-full-screen-mode.controller.js?v=${buildTime}"></script>
+<script src="pages/threadDump/thread-dump.controller.js?v={buildTime}"></script>
 <!-- pinpoint.min.js###-->
 
 <script>

@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.collector.handler;
 
+import com.navercorp.pinpoint.common.hbase.HBaseAdminTemplate;
+import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import org.apache.hadoop.hbase.TableName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
@@ -41,20 +44,45 @@ public class AgentStatHandlerFactory implements FactoryBean<Handler> {
     @Qualifier("agentStatHandlerV2")
     private AgentStatHandlerV2 v2;
 
-    @Value("#{pinpoint_collector_properties['collector.experimental.stat.format.compatibility.version'] ?: 'v0'}")
-    private String mode = "v1";
+    @Autowired
+    private HBaseAdminTemplate adminTemplate;
+
+    @Value("#{pinpoint_collector_properties['collector.stat.format.compatibility.version'] ?: 'v2'}")
+    private String mode = "v2";
 
     @Override
     public Handler getObject() throws Exception {
         logger.info("AgentStatHandler Mode {}", mode);
+
+        final TableName v1TableName = HBaseTables.AGENT_STAT;
+        final TableName v2TableName = HBaseTables.AGENT_STAT_VER2;
+
         if (mode.equalsIgnoreCase("v1")) {
-            return v1;
+            if (this.adminTemplate.tableExists(v1TableName)) {
+                return v1;
+            } else {
+                logger.error("AgentStatHandler configured for v1, but {} table does not exist", v1TableName);
+                throw new IllegalStateException(v1TableName + " table does not exist");
+            }
         } else if (mode.equalsIgnoreCase("v2")) {
-            return v2;
+            if (this.adminTemplate.tableExists(v2TableName)) {
+                return v2;
+            } else {
+                logger.error("AgentStatHandler configured for v2, but {} table does not exist", v2TableName);
+                throw new IllegalStateException(v2TableName + " table does not exist");
+            }
         } else if (mode.equalsIgnoreCase("dualWrite")) {
-            return new DualAgentStatHandler(v1, v2);
+            boolean v1TableExists = this.adminTemplate.tableExists(v1TableName);
+            boolean v2TableExists = this.adminTemplate.tableExists(v2TableName);
+            if (v1TableExists && v2TableExists) {
+                return new DualAgentStatHandler(v1, v2);
+            } else {
+                logger.error("AgentStatHandler configured for dualWrite, but {} and {} tables do not exist", v1TableName, v2TableName);
+                throw new IllegalStateException(v1TableName + ", " + v2TableName + " tables do not exist");
+            }
+        } else {
+            throw new IllegalStateException("Unknown AgentStatHandler configuration : " + mode);
         }
-        return v1;
     }
 
     @Override

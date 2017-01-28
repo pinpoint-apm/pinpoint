@@ -35,7 +35,6 @@ import org.junit.Test;
 
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import com.navercorp.pinpoint.test.TestableServerMetaDataListener;
 
 /**
  * @author hyungil.jeong

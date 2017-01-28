@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.udp;
 
 import org.apache.thrift.TBase;
 
+import java.net.DatagramSocket;
 import java.net.SocketAddress;
 
 /**
@@ -27,13 +28,15 @@ public interface TBaseFilter<T> {
     boolean CONTINUE = true;
     boolean BREAK = false;
 
-    boolean filter(TBase<?, ?> tBase, T remoteHostAddress);
+    boolean filter(DatagramSocket localSocket, TBase<?, ?> tBase, T remoteHostAddress);
 
     // TODO fix generic type
     TBaseFilter CONTINUE_FILTER = new TBaseFilter<SocketAddress>() {
+
         @Override
-        public boolean filter(TBase<?, ?> tBase, SocketAddress remoteHostAddress) {
+        public boolean filter(DatagramSocket localSocket, TBase<?, ?> tBase, SocketAddress remoteHostAddress) {
             return CONTINUE;
         }
+
     };
 }

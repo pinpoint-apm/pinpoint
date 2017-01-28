@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorType;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.Method;
@@ -185,6 +186,27 @@ public class ASMMethodVariables {
         return false;
     }
 
+    // new method only.
+    public void initLocalVariables(final InsnList instructions) {
+        // find enter & exit instruction.
+        final LabelNode variableStartLabelNode = new LabelNode();
+        final LabelNode variableEndLabelNode = new LabelNode();
+        if(instructions.getFirst() != null) {
+            instructions.insertBefore(instructions.getFirst(), variableStartLabelNode);
+        } else {
+            instructions.insert(variableStartLabelNode);
+        }
+        instructions.insert(instructions.getLast(), variableEndLabelNode);
+
+        if (!isStatic()) {
+            addLocalVariable("this", Type.getObjectType(this.declaringClassInternalName).getDescriptor(), variableStartLabelNode, variableEndLabelNode);
+        }
+
+        for (Type type : this.argumentTypes) {
+            addLocalVariable(JavaAssistUtils.javaClassNameToVariableName(type.getClassName()), type.getDescriptor(), variableStartLabelNode, variableEndLabelNode);
+        }
+    }
+
     public boolean initInterceptorLocalVariables(final InsnList instructions, final int interceptorId, final InterceptorDefinition interceptorDefinition, final int apiId) {
         if (this.initializedInterceptorLocalVariables) {
             return false;
@@ -199,7 +221,7 @@ public class ASMMethodVariables {
         }
 
         if (this.enterInsnNode == null) {
-            throw new IllegalStateException("not found enter code. " + declaringClassInternalName + "." + methodNode.name + methodNode.desc);
+            throw new IllegalStateException("not found enter code. " + declaringClassInternalName + "/" + methodNode.name + methodNode.desc);
         }
 
         this.exitInsnNode = methodNode.instructions.getLast();
@@ -274,56 +296,56 @@ public class ASMMethodVariables {
 
     private void initInterceptorVar(final InsnList instructions, final int interceptorId) {
         assertInitializedInterceptorLocalVariables();
-        this.interceptorVarIndex = addLocalVariable("_$PINPOINT$_interceptor", "Lcom/navercorp/pinpoint/bootstrap/interceptor/Interceptor;");
+        this.interceptorVarIndex = addInterceptorLocalVariable("_$PINPOINT$_interceptor", "Lcom/navercorp/pinpoint/bootstrap/interceptor/Interceptor;");
         push(instructions, interceptorId);
         instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(InterceptorRegistry.class), "getInterceptor", "(I)" + Type.getDescriptor(Interceptor.class), false));
         storeVar(instructions, this.interceptorVarIndex);
-        this.resultVarIndex = addLocalVariable("_$PINPOINT$_result", "Ljava/lang/Object;");
+        this.resultVarIndex = addInterceptorLocalVariable("_$PINPOINT$_result", "Ljava/lang/Object;");
         loadNull(instructions);
         storeVar(instructions, this.resultVarIndex);
-        this.throwableVarIndex = addLocalVariable("_$PINPOINT$_throwable", "Ljava/lang/Throwable;");
+        this.throwableVarIndex = addInterceptorLocalVariable("_$PINPOINT$_throwable", "Ljava/lang/Throwable;");
         loadNull(instructions);
         storeVar(instructions, this.throwableVarIndex);
     }
 
     private void initArgsVar(final InsnList instructions) {
         assertInitializedInterceptorLocalVariables();
-        this.argsVarIndex = addLocalVariable("_$PINPOINT$_args", "[Ljava/lang/Object;");
+        this.argsVarIndex = addInterceptorLocalVariable("_$PINPOINT$_args", "[Ljava/lang/Object;");
         loadArgsVar(instructions);
         storeVar(instructions, this.argsVarIndex);
     }
 
     private void initClassNameVar(InsnList instructions) {
         assertInitializedInterceptorLocalVariables();
-        this.classNameVarIndex = addLocalVariable("_$PINPOINT$_className", "Ljava/lang/String;");
-        push(instructions, this.declaringClassInternalName);
+        this.classNameVarIndex = addInterceptorLocalVariable("_$PINPOINT$_className", "Ljava/lang/String;");
+        push(instructions, JavaAssistUtils.jvmNameToJavaName(this.declaringClassInternalName));
         storeVar(instructions, this.classNameVarIndex);
     }
 
     private void initMethodNameVar(InsnList instructions) {
         assertInitializedInterceptorLocalVariables();
-        this.methodNameVarIndex = addLocalVariable("_$PINPOINT$_methodName", "Ljava/lang/String;");
+        this.methodNameVarIndex = addInterceptorLocalVariable("_$PINPOINT$_methodName", "Ljava/lang/String;");
         push(instructions, this.methodNode.name);
         storeVar(instructions, this.methodNameVarIndex);
     }
 
     private void initParameterDescriptionVar(InsnList instructions) {
         assertInitializedInterceptorLocalVariables();
-        this.parameterDescriptionVarIndex = addLocalVariable("_$PINPOINT$_parameterDescription", "Ljava/lang/String;");
+        this.parameterDescriptionVarIndex = addInterceptorLocalVariable("_$PINPOINT$_parameterDescription", "Ljava/lang/String;");
         push(instructions, this.methodNode.desc);
         storeVar(instructions, this.parameterDescriptionVarIndex);
     }
 
     private void initApiIdVar(int apiId, InsnList instructions) {
         assertInitializedInterceptorLocalVariables();
-        this.apiIdVarIndex = addLocalVariable("_$PINPOINT$_apiId", "I");
+        this.apiIdVarIndex = addInterceptorLocalVariable("_$PINPOINT$_apiId", "I");
         push(instructions, apiId);
         storeInt(instructions, this.apiIdVarIndex);
     }
 
     private void initArg0Var(InsnList instructions) {
         assertInitializedInterceptorLocalVariables();
-        this.arg0VarIndex = addLocalVariable("_$PINPOINT$_arg0", "Ljava/lang/String;");
+        this.arg0VarIndex = addInterceptorLocalVariable("_$PINPOINT$_arg0", "Ljava/lang/String;");
         loadArg(instructions, this.argumentTypes, 0);
         box(instructions, this.argumentTypes[0]);
         storeVar(instructions, this.arg0VarIndex);
@@ -331,7 +353,7 @@ public class ASMMethodVariables {
 
     private void initArg1Var(InsnList instructions) {
         assertInitializedInterceptorLocalVariables();
-        this.arg1VarIndex = addLocalVariable("_$PINPOINT$_arg1", "Ljava/lang/String;");
+        this.arg1VarIndex = addInterceptorLocalVariable("_$PINPOINT$_arg1", "Ljava/lang/String;");
         loadArg(instructions, this.argumentTypes, 1);
         box(instructions, this.argumentTypes[1]);
         storeVar(instructions, this.arg1VarIndex);
@@ -339,7 +361,7 @@ public class ASMMethodVariables {
 
     private void initArg2Var(InsnList instructions) {
         assertInitializedInterceptorLocalVariables();
-        this.arg2VarIndex = addLocalVariable("_$PINPOINT$_arg2", "Ljava/lang/String;");
+        this.arg2VarIndex = addInterceptorLocalVariable("_$PINPOINT$_arg2", "Ljava/lang/String;");
         loadArg(instructions, this.argumentTypes, 2);
         box(instructions, this.argumentTypes[2]);
         storeVar(instructions, this.arg2VarIndex);
@@ -347,7 +369,7 @@ public class ASMMethodVariables {
 
     private void initArg3Var(InsnList instructions) {
         assertInitializedInterceptorLocalVariables();
-        this.arg3VarIndex = addLocalVariable("_$PINPOINT$_arg3", "Ljava/lang/String;");
+        this.arg3VarIndex = addInterceptorLocalVariable("_$PINPOINT$_arg3", "Ljava/lang/String;");
         loadArg(instructions, this.argumentTypes, 3);
         box(instructions, this.argumentTypes[3]);
         storeVar(instructions, this.arg3VarIndex);
@@ -355,7 +377,7 @@ public class ASMMethodVariables {
 
     private void initArg4Var(InsnList instructions) {
         assertInitializedInterceptorLocalVariables();
-        this.arg4VarIndex = addLocalVariable("_$PINPOINT$_arg4", "Ljava/lang/String;");
+        this.arg4VarIndex = addInterceptorLocalVariable("_$PINPOINT$_arg4", "Ljava/lang/String;");
         loadArg(instructions, this.argumentTypes, 4);
         box(instructions, this.argumentTypes[4]);
         storeVar(instructions, this.arg4VarIndex);
@@ -654,10 +676,15 @@ public class ASMMethodVariables {
         instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, owner, method.getName(), method.getDescriptor(), false));
     }
 
-    int addLocalVariable(final String name, final String desc) {
+
+    int addInterceptorLocalVariable(final String name, final String desc) {
+        return addLocalVariable(name, desc, this.interceptorVariableStartLabelNode, this.interceptorVariableEndLabelNode);
+    }
+
+    int addLocalVariable(final String name, final String desc, final LabelNode start, final LabelNode end) {
         int index = this.nextLocals;
         this.nextLocals += 1;
-        final LocalVariableNode node = new LocalVariableNode(name, desc, null, this.interceptorVariableStartLabelNode, this.interceptorVariableEndLabelNode, index);
+        final LocalVariableNode node = new LocalVariableNode(name, desc, null, start, end, index);
         this.methodNode.localVariables.add(node);
 
         return index;
@@ -679,5 +706,10 @@ public class ASMMethodVariables {
         if (!this.initializedInterceptorLocalVariables) {
             throw new IllegalStateException("The interceptor local variables must be initialized.");
         }
+    }
+
+    // test only.
+    List<LocalVariableNode> getLocalVariables() {
+        return this.methodNode.localVariables;
     }
 }

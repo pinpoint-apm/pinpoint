@@ -16,24 +16,13 @@
 
 package com.navercorp.pinpoint.collector.rpc.handler;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Executor;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.collections.MapUtils;
-import org.apache.thrift.TException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.navercorp.pinpoint.collector.cluster.route.ResponseEvent;
 import com.navercorp.pinpoint.collector.dao.AgentEventDao;
-import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
 import com.navercorp.pinpoint.common.server.bo.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializer;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentEventTypeCategory;
+import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
@@ -41,6 +30,15 @@ import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.thrift.TException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Resource;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executor;
 
 /**
  * @author HyunGil Jeong
@@ -79,9 +77,9 @@ public class AgentEventHandler {
 
         Map<Object, Object> channelProperties = pinpointServer.getChannelProperties();
 
-        final String agentId = MapUtils.getString(channelProperties, AgentHandshakePropertyType.AGENT_ID.getName());
+        final String agentId = MapUtils.getString(channelProperties, HandshakePropertyType.AGENT_ID.getName());
         final long startTimestamp = MapUtils.getLong(channelProperties,
-                AgentHandshakePropertyType.START_TIMESTAMP.getName());
+                HandshakePropertyType.START_TIMESTAMP.getName());
 
         this.executor.execute(new AgentEventHandlerDispatch(agentId, startTimestamp, eventTimestamp, eventType,
                 eventMessage));

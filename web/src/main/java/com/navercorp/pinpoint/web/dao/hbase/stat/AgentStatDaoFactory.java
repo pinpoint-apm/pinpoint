@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat;
 
+import com.navercorp.pinpoint.common.hbase.HBaseAdminTemplate;
+import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
@@ -29,6 +31,7 @@ import com.navercorp.pinpoint.web.dao.stat.CpuLoadDao;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDao;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDetailedDao;
 import com.navercorp.pinpoint.web.dao.stat.TransactionDao;
+import org.apache.hadoop.hbase.TableName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
@@ -47,19 +50,44 @@ abstract class AgentStatDaoFactory<T extends AgentStatDataPoint, D extends Agent
     protected D v1;
     protected D v2;
 
-    @Value("#{pinpointWebProps['web.experimental.stat.format.compatibility.version'] ?: 'v1'}")
-    private String mode = "v1";
+    @Autowired
+    private HBaseAdminTemplate adminTemplate;
+
+    @Value("#{pinpointWebProps['web.stat.format.compatibility.version'] ?: 'v2'}")
+    private String mode = "v2";
 
     D getDao() throws Exception {
         logger.info("AgentStatDao Compatibility {}", mode);
+
+        final TableName v1TableName = HBaseTables.AGENT_STAT;
+        final TableName v2TableName = HBaseTables.AGENT_STAT_VER2;
+
         if (mode.equalsIgnoreCase("v1")) {
-            return v1;
+            if (this.adminTemplate.tableExists(v1TableName)) {
+                return v1;
+            } else {
+                logger.error("AgentStatDao configured for v1, but {} table does not exist", v1TableName);
+                throw new IllegalStateException(v1TableName + " table does not exist");
+            }
         } else if (mode.equalsIgnoreCase("v2")) {
-            return v2;
+            if (this.adminTemplate.tableExists(v2TableName)) {
+                return v2;
+            } else {
+                logger.error("AgentStatDao configured for v2, but {} table does not exist", v2TableName);
+                throw new IllegalStateException(v2TableName + " table does not exist");
+            }
         } else if (mode.equalsIgnoreCase("compatibilityMode")) {
-            return getCompatibilityDao(this.v1, this.v2);
+            boolean v1TableExists = this.adminTemplate.tableExists(v1TableName);
+            boolean v2TableExists = this.adminTemplate.tableExists(v2TableName);
+            if (v1TableExists && v2TableExists) {
+                return getCompatibilityDao(this.v1, this.v2);
+            } else {
+                logger.error("AgentStatDao configured for compatibilityMode, but {} and {} tables do not exist", v1TableName, v2TableName);
+                throw new IllegalStateException(v1TableName + ", " + v2TableName + " tables do not exist");
+            }
+        } else {
+            throw new IllegalStateException("Unknown AgentStatDao configuration : " + mode);
         }
-        return v1;
     }
 
     abstract D getCompatibilityDao(D v1, D v2);

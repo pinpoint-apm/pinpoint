@@ -82,7 +82,7 @@ public class SpanChunkHandler implements SimpleHandler {
                     final int elapsed = spanEvent.getEndElapsed();
                     final boolean hasException = spanEvent.hasException();
 
-                    /**
+                    /*
                      * save information to draw a server map based on statistics
                      */
                     // save the information of caller (the spanevent that span called)
@@ -111,7 +111,7 @@ public class SpanChunkHandler implements SimpleHandler {
     }
 
     private ServiceType getApplicationServiceType(SpanChunkBo spanChunk) {
-        final short applicationServiceTypeCode = spanChunk.getApplicationServiceType();;
+        final short applicationServiceTypeCode = spanChunk.getApplicationServiceType();
         return registry.findServiceType(applicationServiceTypeCode);
     }
 }

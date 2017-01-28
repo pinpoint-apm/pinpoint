@@ -21,7 +21,8 @@ module.exports = function( grunt, options ) {
 				'/d3/d3.min.js',
 				'/amcharts/amcharts.js',
 				'/amcharts/serial.js',
-				'/amcharts/themes/light.js'
+				'/amcharts/themes/light.js',
+				'/chartjs/Chart.min.js'
 			], options.RESOURCE_PATH.COMPONENT ),
 			dest: options.RESOURCE_PATH.DEST_JS + '/draw-lib.min.js'
 		},
@@ -173,6 +174,9 @@ module.exports = function( grunt, options ) {
 				'/common/services/agent-ajax.service.js',
 				'/common/services/tooltip.service.js',
 				'/common/services/common-util.service.js',
+				'/common/services/local-storage-manager.service.js',
+				'/common/services/system-configuration.service.js',
+				'/common/services/user-configuration.service.js',
 
 				'/features/applicationList/application-list.directive.js',
 				'/features/periodSelector/period-selector.directive.js',
@@ -200,7 +204,6 @@ module.exports = function( grunt, options ) {
 				'/features/tpsChart/tps-chart.directive.js',
 				'/features/activeTraceChart/active-trace-chart.directive.js',
 				'/features/loading/loading.directive.js',
-				'/features/configuration/configuration.controller.js',
 				'/features/configuration/configuration.directive.js',
 				'/features/configuration/general/general.directive.js',
 				'/features/configuration/userGroup/user-group-container.directive.js',
@@ -211,6 +214,7 @@ module.exports = function( grunt, options ) {
 				'/features/configuration/application/application-group.directive.js',
 				'/features/configuration/application/alarm-rule.directive.js',
 				'/features/configuration/help/help.directive.js',
+				'/features/threadDumpInfoLayer/thread-dump-info-layer.directive.js',
 				'/features/realtimeChart/realtime-chart.controller.js',
 				'/pages/main/main.controller.js',
 				'/pages/inspector/inspector.controller.js',
@@ -218,7 +222,8 @@ module.exports = function( grunt, options ) {
 				'/pages/transactionDetail/transaction-detail.controller.js',
 				'/pages/filteredMap/filtered-map.controller.js',
 				'/pages/transactionView/transaction-view.controller.js',
-				'/pages/scatterFullScreenMode/scatter-full-screen-mode.controller.js'
+				'/pages/scatterFullScreenMode/scatter-full-screen-mode.controller.js',
+				'/pages/threadDump/thread-dump.controller.js'
 
 			], options.RESOURCE_PATH.ROOT ),
 			dest: options.RESOURCE_PATH.DEST_JS + '/pinpoint.js'
@@ -256,7 +261,7 @@ module.exports = function( grunt, options ) {
 				'/linkInfoDetails.css',
 				'/transactionTable.css',
 				'/callStacks.css',
-				'/time-slider.css',
+				'/timeSlider.css',
 				'/agentChartGroup.css',
 				'/sidebarTitle.css',
 				'/serverMap.css',

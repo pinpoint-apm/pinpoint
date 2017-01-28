@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,13 @@
 package com.navercorp.pinpoint.plugin.hystrix;
 
 import java.lang.reflect.Method;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
-import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
-import com.netflix.hystrix.Hystrix;
+import com.navercorp.pinpoint.plugin.hystrix.commands.SayHelloCommand;
+import com.navercorp.pinpoint.plugin.hystrix.commands.ThrowExceptionCommand;
+import com.navercorp.pinpoint.plugin.hystrix.commands.ThrowExceptionCommandWithFallback;
 import com.netflix.hystrix.HystrixCommand;
-import junit.framework.Assert;
-import org.junit.After;
+import com.netflix.hystrix.HystrixEventType;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -35,26 +34,25 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 
 /**
+ * Integration test for hystrix-core 1.3.20 traces the following :
+ * <p>
+ * <tt>HystrixCommand.queue()</tt><br/>
+ * <tt>HystrixCommand.executeCommand</tt><br/>
+ * <tt>HystrixCommand.getFallbackOrThrowException(HystrixEventType, FailureType, String, Exception)</tt><br/>
+ * <p>
+ * Additionally, the cause of fallback should be traced
+ *
  * @see HystrixCommand_1_3_20_IT
  * @author Jiaqi Feng
  */
 @RunWith(PinpointPluginTestSuite.class)
 @Dependency({"com.netflix.hystrix:hystrix-core:1.3.20","com.netflix.hystrix:hystrix-metrics-event-stream:1.1.2"})
-public class HystrixCommand_1_3_20_IT {
-    private static final ExpectedAnnotation expectedAnnotation = annotation("hystrix.subclass", "SayHelloCommand");
-    @After
-    public void teardown() {
-        Hystrix.reset(1, TimeUnit.SECONDS);
-    }
+public class HystrixCommand_1_3_20_IT extends HystrixCommandITBase {
 
     @Test
     public void testSyncCall() throws Exception {
         String name = "Pinpoint";
-
-        SayHelloCommand cmd = new SayHelloCommand(name);
-        String result = cmd.execute();
-
-        Assert.assertEquals("Hello Pinpoint!", result);
+        executeSayHelloCommand(name);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
@@ -63,9 +61,9 @@ public class HystrixCommand_1_3_20_IT {
         Method executeCmd = HystrixCommand.class.getDeclaredMethod("executeCommand");
 
         verifier.verifyTrace(Expectations.async(
-                Expectations.event("HYSTRIX_COMMAND", queue),
+                Expectations.event("HYSTRIX_COMMAND", queue, annotation("hystrix.command", SayHelloCommand.class.getSimpleName())),
                 Expectations.event("ASYNC", "Asynchronous Invocation"),
-                Expectations.event("HYSTRIX_COMMAND", executeCmd, expectedAnnotation)));
+                Expectations.event("HYSTRIX_COMMAND_INTERNAL", executeCmd)));
 
         // no more traces
         verifier.verifyTraceCount(0);
@@ -74,12 +72,7 @@ public class HystrixCommand_1_3_20_IT {
     @Test
     public void testAsyncCall() throws Exception {
         String name = "Pinpoint";
-
-        SayHelloCommand cmd = new SayHelloCommand(name);
-        Future<String> future = cmd.queue();
-        String result = future.get(100, TimeUnit.MILLISECONDS);
-
-        Assert.assertEquals("Hello Pinpoint!", result);
+        queueAndGetSayHelloCommand(name);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
@@ -88,11 +81,73 @@ public class HystrixCommand_1_3_20_IT {
         Method executeCmd = HystrixCommand.class.getDeclaredMethod("executeCommand");
 
         verifier.verifyTrace(Expectations.async(
-                Expectations.event("HYSTRIX_COMMAND", queue),
+                Expectations.event("HYSTRIX_COMMAND", queue, annotation("hystrix.command", SayHelloCommand.class.getSimpleName())),
                 Expectations.event("ASYNC", "Asynchronous Invocation"),
-                Expectations.event("HYSTRIX_COMMAND", executeCmd, expectedAnnotation)));
+                Expectations.event("HYSTRIX_COMMAND_INTERNAL", executeCmd)));
 
         // no more traces
         verifier.verifyTraceCount(0);
+    }
+
+    @Test
+    public void testExecutionException() throws Exception {
+        Exception expectedException = new RuntimeException("expected");
+        executeThrowExceptionCommand(expectedException);
+
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printCache();
+
+        Method queue = HystrixCommand.class.getMethod("queue");
+        Method executeCmd = HystrixCommand.class.getDeclaredMethod("executeCommand");
+        Method getFallbackOrThrowException = HystrixCommand.class.getDeclaredMethod("getFallbackOrThrowException", HystrixEventType.class, HystrixRuntimeException.FailureType.class, String.class, Exception.class);
+
+        verifier.verifyTrace(Expectations.async(
+                Expectations.event("HYSTRIX_COMMAND", queue, annotation("hystrix.command", ThrowExceptionCommand.class.getSimpleName())),
+                Expectations.event("ASYNC", "Asynchronous Invocation"),
+                Expectations.event("HYSTRIX_COMMAND_INTERNAL", executeCmd),
+                Expectations.event("HYSTRIX_COMMAND_INTERNAL", getFallbackOrThrowException,
+                        annotation("hystrix.command.fallback.cause", expectedException.toString()))
+        ));
+
+        // no more traces
+        verifier.verifyTraceCount(0);
+    }
+
+    @Test
+    public void testExecutionExceptionWithFallback() throws Exception {
+        Exception expectedException = new RuntimeException("expected");
+        String fallbackMessage = "Fallback";
+        executeThrowExceptionWithFallbackCommand(expectedException, fallbackMessage);
+
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printCache();
+
+        Method queue = HystrixCommand.class.getMethod("queue");
+        Method executeCmd = HystrixCommand.class.getDeclaredMethod("executeCommand");
+        Method getFallbackOrThrowException = HystrixCommand.class.getDeclaredMethod("getFallbackOrThrowException", HystrixEventType.class, HystrixRuntimeException.FailureType.class, String.class, Exception.class);
+
+        verifier.verifyTrace(Expectations.async(
+                Expectations.event("HYSTRIX_COMMAND", queue, annotation("hystrix.command", ThrowExceptionCommandWithFallback.class.getSimpleName())),
+                Expectations.event("ASYNC", "Asynchronous Invocation"),
+                Expectations.event("HYSTRIX_COMMAND_INTERNAL", executeCmd),
+                Expectations.event("HYSTRIX_COMMAND_INTERNAL", getFallbackOrThrowException,
+                        annotation("hystrix.command.fallback.cause", expectedException.toString()))
+        ));
+
+        // no more traces
+        verifier.verifyTraceCount(0);
+    }
+
+    @Test
+    public void testTraceContinuation() throws Exception {
+        String name = "Pinpoint";
+        executeInvokeSayHelloCommand(name);
+
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printCache();
+
+        // If the trace is propagated properly to a HystrixCommand's run() method, there should be 6 total traces.
+        // 3 for InvokeSayHelloCommand, 3 for SayHelloCommand.
+        verifier.verifyTraceCount(6);
     }
 }

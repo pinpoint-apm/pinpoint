@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,17 @@ import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
 
+import java.util.List;
+
 public class JettyConfiguration {
 
+    private final boolean jettyEnabled;
+    private final List<String> jettyBootstrapMains;
     private final Filter<String> jettyExcludeUrlFilter;
 
     public JettyConfiguration(ProfilerConfig config) {
+        this.jettyEnabled = config.readBoolean("profiler.jetty.enable", true);
+        this.jettyBootstrapMains = config.readList("profiler.jetty.bootstrap.main");
         final String jettyExcludeURL = config.readString("profiler.jetty.excludeurl", "");
 
         if (!jettyExcludeURL.isEmpty()) {
@@ -31,6 +37,14 @@ public class JettyConfiguration {
         } else{
             this.jettyExcludeUrlFilter = new  SkipFilter<String>();
         }
+    }
+
+    public boolean isJettyEnabled() {
+        return jettyEnabled;
+    }
+
+    public List<String> getJettyBootstrapMains() {
+        return jettyBootstrapMains;
     }
 
     public Filter<String> getJettyExcludeUrlFilter() {

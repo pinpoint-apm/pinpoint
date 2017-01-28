@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.web.service.stat;
 
+import com.navercorp.pinpoint.common.hbase.HBaseAdminTemplate;
+import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import org.apache.hadoop.hbase.TableName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
@@ -33,8 +36,8 @@ public class LegacyAgentStatChartServiceFactory implements FactoryBean<LegacyAge
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("#{pinpointWebProps['web.experimental.stat.format.compatibility.version'] ?: 'v1'}")
-    private String mode = "v1";
+    @Value("#{pinpointWebProps['web.stat.format.compatibility.version'] ?: 'v2'}")
+    private String mode = "v2";
 
     @Autowired
     @Qualifier("legacyAgentStatChartV1Service")
@@ -48,17 +51,42 @@ public class LegacyAgentStatChartServiceFactory implements FactoryBean<LegacyAge
     @Qualifier("legacyAgentStatChartCompatibilityService")
     private LegacyAgentStatChartService compatibility;
 
+    @Autowired
+    private HBaseAdminTemplate adminTemplate;
+
     @Override
     public LegacyAgentStatChartService getObject() throws Exception {
         logger.info("LegacyAgentStatService Compatibility {}", mode);
+
+        final TableName v1TableName = HBaseTables.AGENT_STAT;
+        final TableName v2TableName = HBaseTables.AGENT_STAT_VER2;
+
         if (mode.equalsIgnoreCase("v1")) {
-            return v1;
+            if (this.adminTemplate.tableExists(v1TableName)) {
+                return v1;
+            } else {
+                logger.error("LegacyAgentStatService configured for v1, but {} table does not exist", v1TableName);
+                throw new IllegalStateException(v1TableName + " table does not exist");
+            }
         } else if (mode.equalsIgnoreCase("v2")) {
-            return v2;
+            if (this.adminTemplate.tableExists(v2TableName)) {
+                return v2;
+            } else {
+                logger.error("LegacyAgentStatService configured for v2, but {} table does not exist", v2TableName);
+                throw new IllegalStateException(v2TableName + " table does not exist");
+            }
         } else if (mode.equalsIgnoreCase("compatibilityMode")) {
-            return compatibility;
+            boolean v1TableExists = this.adminTemplate.tableExists(v1TableName);
+            boolean v2TableExists = this.adminTemplate.tableExists(v2TableName);
+            if (v1TableExists && v2TableExists) {
+                return compatibility;
+            } else {
+                logger.error("LegacyAgentStatService configured for compatibilityMode, but {} and {} tables do not exist", v1TableName, v2TableName);
+                throw new IllegalStateException(v1TableName + ", " + v2TableName + " tables do not exist");
+            }
+        } else {
+            throw new IllegalStateException("Unknown LegacyAgentStatService configuration : " + mode);
         }
-        return v1;
     }
 
     @Override

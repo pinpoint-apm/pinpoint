@@ -22,8 +22,10 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.LineNumberNode;
+import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+
 
 import java.util.List;
 
@@ -66,7 +68,7 @@ public class ASMMethodNodeAdapter {
     public String getName() {
         if (isConstructor()) {
             // simple class name.
-            int index = this.declaringClassInternalName.lastIndexOf('.');
+            int index = this.declaringClassInternalName.lastIndexOf('/');
             if (index < 0) {
                 return this.declaringClassInternalName;
             } else {
@@ -134,7 +136,7 @@ public class ASMMethodNodeAdapter {
     }
 
     public String getLongName() {
-        return this.declaringClassInternalName + "." + getName() + getDesc();
+        return this.declaringClassInternalName + "/" + getName() + getDesc();
     }
 
     public boolean isStatic() {
@@ -183,11 +185,13 @@ public class ASMMethodNodeAdapter {
 
         final InsnList instructions = this.methodNode.instructions;
         if (isStatic()) {
+            this.methodVariables.initLocalVariables(instructions);
             // load parameters
             this.methodVariables.loadArgs(instructions);
             // invoke static
             instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, superClassInternalName, this.methodNode.name, this.methodNode.desc, false));
         } else {
+            this.methodVariables.initLocalVariables(instructions);
             // load this
             this.methodVariables.loadVar(instructions, 0);
             // load parameters
@@ -205,7 +209,7 @@ public class ASMMethodNodeAdapter {
         }
 
         final ASMMethodInsnNodeRemapper remapper = new ASMMethodInsnNodeRemapper();
-        remapper.addFilter(this.declaringClassInternalName.replace('.', '/'), this.methodNode.name, this.methodNode.desc);
+        remapper.addFilter(this.declaringClassInternalName, this.methodNode.name, this.methodNode.desc);
         remapper.setName(name);
         // change recursive call.
         remapMethodInsnNode(remapper);
@@ -225,6 +229,19 @@ public class ASMMethodNodeAdapter {
         }
     }
 
+    public void remapLocalVariables(final String name, final String desc) {
+        if (methodNode.localVariables == null) {
+            return;
+        }
+
+        final List<LocalVariableNode> localVariableNodes = methodNode.localVariables;
+        for (LocalVariableNode node : localVariableNodes) {
+            if (node.name.equals(name)) {
+                node.desc = desc;
+            }
+        }
+    }
+
     private void initInterceptorLocalVariables(final int interceptorId, final InterceptorDefinition interceptorDefinition, final int apiId) {
         final InsnList instructions = new InsnList();
         if (this.methodVariables.initInterceptorLocalVariables(instructions, interceptorId, interceptorDefinition, apiId)) {
@@ -232,7 +249,6 @@ public class ASMMethodNodeAdapter {
             this.methodNode.instructions.insertBefore(this.methodVariables.getEnterInsnNode(), instructions);
         }
     }
-
 
     public void addBeforeInterceptor(final int interceptorId, final InterceptorDefinition interceptorDefinition, final int apiId) {
         initInterceptorLocalVariables(interceptorId, interceptorDefinition, apiId);

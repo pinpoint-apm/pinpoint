@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.dao.hbase.stat.v1;
 import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -103,52 +102,6 @@ public class HbaseAgentStatDaoOperations {
         return merged;
     }
 
-    private <T extends AgentStatDataPoint> List<T> getAggregatedAgentStatList(AgentStatMapperV1<T> mapper, Aggregator<T> aggregator, String agentId, Range range) {
-        Scan scan = createScan(agentId, range);
-
-        List<List<T>> intermediate = hbaseOperations2.find(HBaseTables.AGENT_STAT_AGGR, scan, rowKeyDistributor, mapper);
-
-        List<T> merged = new ArrayList<>();
-
-        for (List<T> each : intermediate) {
-            merged.addAll(each);
-        }
-
-        Collections.sort(merged, Aggregator.TIMESTAMP_COMPARATOR);
-
-        List<Range> missingRanges = new ArrayList<>();
-        long last = range.getFrom();
-
-        for (T stat : merged) {
-            if (last + Aggregator.AGGR_SAMPLE_INTERVAL * 2 < stat.getTimestamp()) {
-                Range r = new Range(last, stat.getTimestamp() - Aggregator.AGGR_SAMPLE_INTERVAL);
-                missingRanges.add(r);
-            }
-
-            last = stat.getTimestamp();
-        }
-
-        if (last + Aggregator.AGGR_SAMPLE_INTERVAL * 2 < range.getTo()) {
-            Range r = new Range(last, range.getTo());
-            missingRanges.add(r);
-        }
-
-        for (Range r : missingRanges) {
-            logger.debug("AgentStatAggr doesn't have range: " + r.prettyToString() + " of " + agentId);
-
-            List<T> list = getAgentStatListFromRaw(mapper, agentId, r);
-
-            if (list.isEmpty()) {
-                logger.debug("AgentStat also doesn't have range: " + r.prettyToString() + " of " + agentId);
-                continue;
-            }
-
-            List<T> aggregated = aggregator.aggregate(list, Aggregator.AGGR_SAMPLE_INTERVAL);
-            merged.addAll(aggregated);
-        }
-
-        return merged;
-    }
 
     <T extends AgentStatDataPoint> boolean agentStatExists(AgentStatMapperV1<T> mapper, String agentId, Range range) {
         if (agentId == null) {

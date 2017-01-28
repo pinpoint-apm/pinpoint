@@ -16,23 +16,20 @@
 
 package com.navercorp.pinpoint.collector.rpc.handler;
 
-import static com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType.*;
-
-import java.util.Map;
-import java.util.concurrent.Executor;
-
-import javax.annotation.Resource;
-
+import com.navercorp.pinpoint.collector.dao.AgentLifeCycleDao;
+import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
+import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.navercorp.pinpoint.collector.dao.AgentLifeCycleDao;
-import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
-import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
-import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
+import javax.annotation.Resource;
+import java.util.Map;
+import java.util.concurrent.Executor;
 
 /**
  * @author HyunGil Jeong
@@ -72,8 +69,8 @@ public class AgentLifeCycleHandler {
             return;
         }
 
-        final String agentId = MapUtils.getString(channelProperties, AGENT_ID.getName());
-        final long startTimestamp = MapUtils.getLong(channelProperties, START_TIMESTAMP.getName());
+        final String agentId = MapUtils.getString(channelProperties, HandshakePropertyType.AGENT_ID.getName());
+        final long startTimestamp = MapUtils.getLong(channelProperties, HandshakePropertyType.START_TIMESTAMP.getName());
         final long eventIdentifier = createEventIdentifier(socketId, eventCounter);
 
         final AgentLifeCycleBo agentLifeCycleBo = new AgentLifeCycleBo(agentId, startTimestamp, eventTimestamp,

@@ -96,8 +96,23 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
     }
 
     @Override
+    public Trace continueAsyncTraceObject(TraceId traceID) {
+        final Trace trace = this.delegate.continueAsyncTraceObject(traceID);
+        // Sampled continuation
+        attachTrace(trace);
+        return trace;
+    }
+
+    @Override
     public Trace newTraceObject() {
         final Trace trace = this.delegate.newTraceObject();
+        attachTrace(trace);
+        return trace;
+    }
+
+    @Override
+    public Trace newAsyncTraceObject() {
+        final Trace trace = this.delegate.newAsyncTraceObject();
         attachTrace(trace);
         return trace;
     }

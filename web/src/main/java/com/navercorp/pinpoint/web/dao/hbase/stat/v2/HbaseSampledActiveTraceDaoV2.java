@@ -21,7 +21,8 @@ import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.web.dao.stat.SampledActiveTraceDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.web.mapper.stat.SampledActiveTraceResultExtractor;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ActiveTraceSampler;
+import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledActiveTrace;
@@ -40,6 +41,9 @@ public class HbaseSampledActiveTraceDaoV2 implements SampledActiveTraceDao {
     private ActiveTraceDecoder activeTraceDecoder;
 
     @Autowired
+    private ActiveTraceSampler activeTraceSampler;
+
+    @Autowired
     private HbaseAgentStatDaoOperationsV2 operations;
 
     @Override
@@ -48,7 +52,7 @@ public class HbaseSampledActiveTraceDaoV2 implements SampledActiveTraceDao {
         long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
         Range range = new Range(scanFrom, scanTo);
         AgentStatMapperV2<ActiveTraceBo> mapper = operations.createRowMapper(activeTraceDecoder, range);
-        SampledActiveTraceResultExtractor resultExtractor = new SampledActiveTraceResultExtractor(timeWindow, mapper);
+        SampledAgentStatResultExtractor<ActiveTraceBo, SampledActiveTrace> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, activeTraceSampler);
         return operations.getSampledAgentStatList(AgentStatType.ACTIVE_TRACE, resultExtractor, agentId, range);
     }
 }
