@@ -26,12 +26,12 @@ import com.navercorp.pinpoint.web.websocket.message.RequestMessage;
  * @author minwoo.jung
  */
 public interface ServerMapDataFilter {
-
+    
     boolean filter(Application application);
-
+    
     boolean filter(WebSocketSession webSocketSession, RequestMessage requestMessage);
-
+    
     CloseStatus getCloseStatus(RequestMessage requestMessage);
-
+    
     ApplicationMap dataFiltering(ApplicationMap map);
 }
