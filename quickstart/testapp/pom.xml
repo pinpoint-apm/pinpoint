@@ -8,7 +8,7 @@
     <groupId>com.navercorp.pinpoint</groupId>
     <artifactId>pinpoint-quickstart-testapp</artifactId>
     <name>Pinpoint TestApp QuickStart</name>
-    <version>1.5.2-SNAPSHOT</version>
+    <version>${maven.pinpoint.version}</version>
     <packaging>war</packaging>
 
     <properties>
@@ -78,24 +78,6 @@
             <version>2.1</version>
             <scope>provided</scope>
         </dependency>
-		<dependency>
-			<groupId>org.apache.axis2</groupId>
-			<artifactId>axis2-jaxws</artifactId>
-			<version>1.6.2</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.axis2</groupId>
-			<artifactId>axis2-codegen</artifactId>
-			<version>1.6.2</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.axis2</groupId>
-			<artifactId>axis2-kernel</artifactId>
-			<version>1.6.2</version>
-			<scope>provided</scope>
-		</dependency>
         <dependency>
             <groupId>javax.servlet.jsp.jstl</groupId>
             <artifactId>jstl-api</artifactId>

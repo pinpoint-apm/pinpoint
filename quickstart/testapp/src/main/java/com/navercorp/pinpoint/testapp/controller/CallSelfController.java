@@ -23,6 +23,7 @@ public class CallSelfController {
     
     private static final String GET_CURRENT_TIMESTAMP_PATH = "/getCurrentTimestamp";
     private static final String GET_GEO_CODE_PATH = "/httpclient4/getGeoCode";
+    private static final String GET_TWITTER_URL_COUNT_PATH = "/httpclient4/getTwitterUrlCount";
     
     private static final String DEFAULT_LOCAL_IP = "127.0.0.1";
     private static final String LOCAL_IP = getLocalHostIp();
@@ -55,6 +56,16 @@ public class CallSelfController {
     @Description("Calls self for " + GET_GEO_CODE_PATH + " over HTTP.")
     public Map<String, Object> httpClient4GetGeoCode(HttpServletRequest request) throws Exception {
         String url = createTargetUrl(request, request.getContextPath() + GET_GEO_CODE_PATH);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> response = remoteService.get(url, Map.class);
+        return response;
+    }
+    
+    @RequestMapping("/httpclient4/getTwitterUrlCount")
+    @ResponseBody
+    @Description("Calls self for " + GET_TWITTER_URL_COUNT_PATH + " over HTTP.")
+    public Map<String, Object> httpClient4GetTwitterUrlCount(HttpServletRequest request) throws Exception {
+        String url = createTargetUrl(request, GET_TWITTER_URL_COUNT_PATH);
         @SuppressWarnings("unchecked")
         Map<String, Object> response = remoteService.get(url, Map.class);
         return response;
