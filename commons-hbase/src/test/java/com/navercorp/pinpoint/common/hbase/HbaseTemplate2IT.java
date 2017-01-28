@@ -47,7 +47,7 @@ public class HbaseTemplate2IT {
         Configuration cfg = HBaseConfiguration.create();
         cfg.set("hbase.zookeeper.quorum", properties.getProperty("hbase.client.host"));
         cfg.set("hbase.zookeeper.property.clientPort", properties.getProperty("hbase.client.port"));
-
+        
         hbaseTemplate2 = new HbaseTemplate2();
         hbaseTemplate2.setConfiguration(cfg);
         hbaseTemplate2.setTableFactory(new PooledHTableFactory(cfg));
@@ -70,7 +70,7 @@ public class HbaseTemplate2IT {
         } catch (HbaseSystemException e) {
             RetriesExhaustedWithDetailsException exception = (RetriesExhaustedWithDetailsException)(e.getCause());
             if (!(exception.getCause(0) instanceof TableNotFoundException)) {
-                Assert.fail("unexpected exception :" + e.getCause());
+                Assert.fail("unexpected exception :" + e.getCause()); 
             }
         }
 
