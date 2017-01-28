@@ -64,7 +64,7 @@ public class URLClassLoaderHandler implements ClassInjector {
             if (classLoader instanceof URLClassLoader) {
                 final URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
                 addPluginURLIfAbsent(urlClassLoader);
-                return (Class<T>) urlClassLoader.loadClass(className);
+                return (Class<T>) LOAD_CLASS.invoke(urlClassLoader, className, true);
             }
         } catch (Exception e) {
             logger.warn("Failed to load plugin class {} with classLoader {}", className, classLoader, e);
