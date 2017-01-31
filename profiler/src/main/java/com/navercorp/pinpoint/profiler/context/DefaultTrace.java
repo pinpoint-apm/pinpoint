@@ -39,7 +39,7 @@ public final class DefaultTrace implements Trace {
 
     private final boolean sampling;
 
-    private final long id;
+    private final long localTransactionId;
     private final TraceId traceId;
     private final CallStack callStack;
 
@@ -54,48 +54,26 @@ public final class DefaultTrace implements Trace {
     private Thread bindThread;
     private final DefaultTraceScopePool scopePool = new DefaultTraceScopePool();
 
-    public DefaultTrace(final TraceContext traceContext, Storage storage, long transactionId, boolean sampling) {
+    public DefaultTrace(TraceContext traceContext, Storage storage, TraceId traceId, long localTransactionId, boolean sampling) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
         }
         if (storage == null) {
             throw new NullPointerException("storage must not be null");
         }
-
-        this.traceContext = traceContext;
-        this.storage = storage;
-        this.traceId = new DefaultTraceId(traceContext.getAgentId(), traceContext.getAgentStartTime(), transactionId);
-        this.id = this.traceId.getTransactionSequence();
-        this.sampling = sampling;
-
-        final Span span = createSpan();
-        this.spanRecorder = new DefaultSpanRecorder(traceContext, span, traceId, sampling);
-        this.spanRecorder.recordTraceId(traceId);
-        this.spanEventRecorder = new WrappedSpanEventRecorder(traceContext);
-        this.callStack = createCallStack(traceContext.getProfilerConfig(), span);
-        setCurrentThread();
-    }
-
-    public DefaultTrace(TraceContext traceContext, Storage storage, TraceId continueTraceId, long transactionId, boolean sampling) {
-        if (traceContext == null) {
-            throw new NullPointerException("traceContext must not be null");
-        }
-        if (storage == null) {
-            throw new NullPointerException("storage must not be null");
-        }
-        if (continueTraceId == null) {
+        if (traceId == null) {
             throw new NullPointerException("continueTraceId must not be null");
         }
 
         this.traceContext = traceContext;
         this.storage = storage;
-        this.traceId = continueTraceId;
-        this.id = transactionId;
+        this.traceId = traceId;
+        this.localTransactionId = localTransactionId;
         this.sampling = sampling;
 
         final Span span = createSpan();
-        this.spanRecorder = new DefaultSpanRecorder(traceContext, span, traceId, sampling);
-        this.spanRecorder.recordTraceId(traceId);
+        this.spanRecorder = new DefaultSpanRecorder(traceContext, span, this.traceId, sampling);
+        this.spanRecorder.recordTraceId(this.traceId);
         this.spanEventRecorder = new WrappedSpanEventRecorder(traceContext);
         this.callStack = createCallStack(traceContext.getProfilerConfig(), span);
         setCurrentThread();
@@ -236,7 +214,7 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public long getId() {
-        return this.id;
+        return this.localTransactionId;
     }
 
     @Override

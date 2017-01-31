@@ -108,7 +108,8 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     @Override
     public Trace disableSampling() {
         checkBeforeTraceObject();
-        final Trace metricTrace = new DisableTrace(this.idGenerator.nextContinuedDisabledId());
+        final long localTransactionId = this.idGenerator.nextContinuedDisabledId();
+        final Trace metricTrace = new DisableTrace(localTransactionId);
         bind(metricTrace);
 
         return metricTrace;
@@ -124,7 +125,8 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         // TODO need to consider as a target to sample in case Trace object has a sampling flag (true) marked on previous node.
         final boolean sampling = true;
         final Storage storage = storageFactory.createStorage();
-        final Trace trace = new DefaultTrace(traceContext, storage, traceId, this.idGenerator.nextContinuedTransactionId(), sampling);
+        final long localTransactionId = this.idGenerator.nextContinuedTransactionId();
+        final Trace trace = new DefaultTrace(traceContext, storage, traceId, localTransactionId, sampling);
 
         bind(trace);
         return trace;
@@ -157,7 +159,10 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         final boolean sampling = sampler.isSampling();
         if (sampling) {
             final Storage storage = storageFactory.createStorage();
-            final Trace trace = new DefaultTrace(traceContext, storage, idGenerator.nextTransactionId(), sampling);
+
+            final long localTransactionId = idGenerator.nextTransactionId();
+            final TraceId traceId = new DefaultTraceId(traceContext.getAgentId(), traceContext.getAgentStartTime(), localTransactionId);
+            final Trace trace = new DefaultTrace(traceContext, storage, traceId, localTransactionId, sampling);
 
             bind(trace);
             return trace;
@@ -220,10 +225,11 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         final boolean sampling = true;
 
         final Storage storage = storageFactory.createStorage();
-        final DefaultTrace trace = new DefaultTrace(traceContext, storage, traceId, this.idGenerator.nextContinuedTransactionId(), sampling);
+        final long localTransactionId = this.idGenerator.nextContinuedTransactionId();
+        final DefaultTrace trace = new DefaultTrace(traceContext, storage, traceId, localTransactionId, sampling);
 
-        final SpanAsyncStateListener callback = new SpanAsyncStateListener(trace.getSpan(), storageFactory.createStorage());
-        final ListenableAsyncState closer = new ListenableAsyncState(callback);
+        final SpanAsyncStateListener asyncStateListener = new SpanAsyncStateListener(trace.getSpan(), storageFactory.createStorage());
+        final ListenableAsyncState closer = new ListenableAsyncState(asyncStateListener);
         final AsyncTrace asyncTrace = new AsyncTrace(trace, closer);
         bind(asyncTrace);
         return asyncTrace;
@@ -237,10 +243,12 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         final boolean sampling = sampler.isSampling();
         if (sampling) {
             final Storage storage = storageFactory.createStorage();
-            final DefaultTrace trace = new DefaultTrace(traceContext, storage, idGenerator.nextTransactionId(), sampling);
+            final long localTransactionId = idGenerator.nextTransactionId();
+            final TraceId traceId = new DefaultTraceId(traceContext.getAgentId(), traceContext.getAgentStartTime(), localTransactionId);
+            final DefaultTrace trace = new DefaultTrace(traceContext, storage, traceId, localTransactionId, sampling);
 
-            final SpanAsyncStateListener callback = new SpanAsyncStateListener(trace.getSpan(), storageFactory.createStorage());
-            final AsyncState closer = new ListenableAsyncState(callback);
+            final SpanAsyncStateListener asyncStateListener = new SpanAsyncStateListener(trace.getSpan(), storageFactory.createStorage());
+            final AsyncState closer = new ListenableAsyncState(asyncStateListener);
             final AsyncTrace asyncTrace = new AsyncTrace(trace, closer);
             bind(asyncTrace);
 

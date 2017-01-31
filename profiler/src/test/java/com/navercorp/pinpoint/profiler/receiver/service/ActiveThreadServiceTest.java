@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.profiler.context.ActiveTrace;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
+import com.navercorp.pinpoint.profiler.context.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.TestAgentInformation;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
@@ -31,7 +33,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Taejin Koo
@@ -39,7 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ActiveThreadServiceTest {
 
     private final DefaultTraceContext defaultTraceContext = new DefaultTraceContext(new TestAgentInformation());
-    private final AtomicInteger idGenerator = new AtomicInteger(0);
+    private final AtomicLong idGenerator = new AtomicLong(0);
 
     @Test
     public void serviceTest1() throws InterruptedException {
@@ -70,7 +72,9 @@ public class ActiveThreadServiceTest {
 
     private ActiveTrace createActiveTrace() {
         Storage storage = LogStorageFactory.DEFAULT_STORAGE;
-        DefaultTrace trace = new DefaultTrace(defaultTraceContext, storage, idGenerator.incrementAndGet(), true);
+        long localTransactionId = idGenerator.incrementAndGet();
+        TraceId traceId = new DefaultTraceId("agentId", System.currentTimeMillis(), 0);
+        DefaultTrace trace = new DefaultTrace(defaultTraceContext, storage, traceId, localTransactionId, true);
         return new ActiveTrace(trace);
     }
 

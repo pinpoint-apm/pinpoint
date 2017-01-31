@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
 import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
@@ -44,8 +45,9 @@ public class DefaultTraceTest {
     public void testPushPop() {
         TraceContext traceContext = new DefaultTraceContext(new TestAgentInformation());
         SpanStorage storage = new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER);
-
-        Trace trace = new DefaultTrace(traceContext, storage, 1, true);
+        long localTransactionId = 1;
+        TraceId traceId = new DefaultTraceId("agentId", System.currentTimeMillis(), localTransactionId);
+        Trace trace = new DefaultTrace(traceContext, storage, traceId, localTransactionId, true);
         trace.traceBlockBegin();
         trace.traceBlockBegin();
         trace.traceBlockEnd();
