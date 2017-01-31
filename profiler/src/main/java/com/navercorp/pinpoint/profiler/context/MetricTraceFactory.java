@@ -73,8 +73,8 @@ public class MetricTraceFactory implements TraceFactory, TraceFactoryWrapper {
     }
 
     @Override
-    public Trace continueTraceObject(TraceId traceID) {
-        return delegate.continueTraceObject(traceID);
+    public Trace continueTraceObject(TraceId traceId) {
+        return delegate.continueTraceObject(traceId);
     }
 
     @Override

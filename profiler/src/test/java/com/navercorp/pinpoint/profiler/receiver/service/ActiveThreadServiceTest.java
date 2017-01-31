@@ -16,66 +16,74 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.profiler.context.ActiveTrace;
-import com.navercorp.pinpoint.profiler.context.DefaultTrace;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceId;
-import com.navercorp.pinpoint.profiler.context.TestAgentInformation;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
-import com.navercorp.pinpoint.profiler.context.storage.Storage;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 
 import org.apache.thrift.TBase;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Taejin Koo
  */
 public class ActiveThreadServiceTest {
 
-    private final DefaultTraceContext defaultTraceContext = new DefaultTraceContext(new TestAgentInformation());
-    private final AtomicLong idGenerator = new AtomicLong(0);
+    // defence weak value
+    private List<ActiveTrace> weakList;
+    private long activeTraceId = 0;
+
+    @Before
+    public void setUp() throws Exception {
+        this.weakList = new ArrayList<ActiveTrace>();
+    }
 
     @Test
     public void serviceTest1() throws InterruptedException {
-        int normalCount = 5;
         ActiveTraceRepository activeTraceRepository = new ActiveTraceRepository();
-        addActiveTrace(activeTraceRepository, normalCount);
 
-        Thread.sleep(1100);
+        int normalCount = 5;
+        long normalExecutionTime = 1500;
+        addActiveTrace(activeTraceRepository, normalExecutionTime, normalCount);
+
         int fastCount = 3;
-        addActiveTrace(activeTraceRepository, fastCount);
+        long fastExecutionTime = 500;
+        addActiveTrace(activeTraceRepository, fastExecutionTime, fastCount);
 
         ActiveThreadCountService service = new ActiveThreadCountService(activeTraceRepository);
         TBase<?, ?> tBase = service.requestCommandService(new TCmdActiveThreadCount());
         if (tBase instanceof TCmdActiveThreadCountRes) {
             List<Integer> activeThreadCount = ((TCmdActiveThreadCountRes) tBase).getActiveThreadCount();
-            Assert.assertEquals(activeThreadCount.get(0), new Integer(fastCount));
-            Assert.assertEquals(activeThreadCount.get(1), new Integer(normalCount));
+            Assert.assertEquals(activeThreadCount.get(0), Integer.valueOf(fastCount));
+            Assert.assertEquals(activeThreadCount.get(1), Integer.valueOf(normalCount));
         } else {
             Assert.fail();
         }
     }
 
-    private void addActiveTrace(ActiveTraceRepository activeTraceRepository, int addCount) {
+    private void addActiveTrace(ActiveTraceRepository activeTraceRepository, long executionTime, int addCount) {
         for (int i = 0; i < addCount; i++) {
-            activeTraceRepository.put(createActiveTrace());
+            ActiveTrace activeTrace = createActiveTrace(executionTime);
+            this.weakList.add(activeTrace);
+            activeTraceRepository.put(activeTrace);
         }
     }
 
-    private ActiveTrace createActiveTrace() {
-        Storage storage = LogStorageFactory.DEFAULT_STORAGE;
-        long localTransactionId = idGenerator.incrementAndGet();
-        TraceId traceId = new DefaultTraceId("agentId", System.currentTimeMillis(), 0);
-        DefaultTrace trace = new DefaultTrace(defaultTraceContext, storage, traceId, localTransactionId, true);
-        return new ActiveTrace(trace);
+    private ActiveTrace createActiveTrace(long executionTime) {
+        ActiveTrace activeTrace = Mockito.mock(ActiveTrace.class);
+        Mockito.when(activeTrace.getStartTime()).thenReturn(System.currentTimeMillis() - executionTime);
+        Mockito.when(activeTrace.getId()).thenReturn(nextLocalTransactionId());
+        return activeTrace;
+    }
+
+    private long nextLocalTransactionId() {
+        return activeTraceId++;
     }
 
 }
