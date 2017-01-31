@@ -119,14 +119,19 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     private TraceFactory createTraceFactory(StorageFactory storageFactory, Sampler sampler, boolean recordActiveThread) {
-        // TODO extract chain TraceFactory??
-        final TraceFactory threadLocalTraceFactory = new ThreadLocalTraceFactory(this, storageFactory, sampler, this.idGenerator);
-        if (recordActiveThread) {
-            ActiveTraceFactory activeTraceFactory = (ActiveTraceFactory) ActiveTraceFactory.wrap(threadLocalTraceFactory);
-            return activeTraceFactory;
-        } else {
-            return threadLocalTraceFactory;
+        // TODO extract TraceFactory builder?
+        BaseTraceFactory baseTraceFactory = new DefaultBaseTraceFactory(this, storageFactory, sampler, this.idGenerator);
+        Logger baseTraceFactoryLogger = LoggerFactory.getLogger(DefaultBaseTraceFactory.class);
+        if (baseTraceFactoryLogger.isDebugEnabled()) {
+            baseTraceFactory = LoggingBaseTraceFactory.wrap(baseTraceFactory);
         }
+
+        TraceFactory traceFactory = new ThreadLocalTraceFactory(baseTraceFactory);
+        if (recordActiveThread) {
+            traceFactory = ActiveTraceFactory.wrap(traceFactory);
+        }
+
+        return traceFactory;
     }
 
     /**
@@ -171,8 +176,8 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     @Override
-    public Trace continueTraceObject(final TraceId traceID) {
-        return traceFactory.continueTraceObject(traceID);
+    public Trace continueTraceObject(final TraceId traceId) {
+        return traceFactory.continueTraceObject(traceId);
     }
 
 
