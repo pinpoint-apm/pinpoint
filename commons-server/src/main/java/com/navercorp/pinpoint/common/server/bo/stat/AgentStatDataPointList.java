@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Naver Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.service.stat;
-
-import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.stat.chart.AgentStatChartGroup;
+package com.navercorp.pinpoint.common.server.bo.stat;
 
 import java.util.List;
 
 /**
- * @author HyunGil Jeong
+ * @author Taejin Koo
  */
-public interface AgentStatChartService {
+public interface AgentStatDataPointList<E extends AgentStatDataPoint> extends AgentStatDataPoint {
 
-    AgentStatChartGroup selectAgentChart(String agentId, TimeWindow timeWindow);
-
-    List<AgentStatChartGroup> selectAgentChartList(String agentId, TimeWindow timeWindow);
+    boolean add(E element);
+    boolean remove(E element);
+    int size();
+    List<E> getList();
 
 }

@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,4 +52,15 @@ public class ActiveTraceChartService implements AgentStatChartService {
         List<SampledActiveTrace> sampledActiveTraces = this.sampledActiveTraceDao.getSampledAgentStatList(agentId, timeWindow);
         return new ActiveTraceChartGroup(timeWindow, sampledActiveTraces);
     }
+
+    @Override
+    public List<AgentStatChartGroup> selectAgentChartList(String agentId, TimeWindow timeWindow) {
+        AgentStatChartGroup agentStatChartGroup = selectAgentChart(agentId, timeWindow);
+
+        List<AgentStatChartGroup> result = new ArrayList<>(1);
+        result.add(agentStatChartGroup);
+
+        return result;
+    }
+
 }

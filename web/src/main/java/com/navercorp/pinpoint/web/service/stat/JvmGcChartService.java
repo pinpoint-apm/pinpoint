@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,6 +50,18 @@ public class JvmGcChartService implements AgentStatChartService {
             throw new NullPointerException("timeWindow must not be null");
         }
         List<SampledJvmGc> sampledJvmGcs = this.sampledJvmGcDao.getSampledAgentStatList(agentId, timeWindow);
+
         return new JvmGcChartGroup(timeWindow, sampledJvmGcs);
     }
+
+    @Override
+    public List<AgentStatChartGroup> selectAgentChartList(String agentId, TimeWindow timeWindow) {
+        AgentStatChartGroup agentStatChartGroup = selectAgentChart(agentId, timeWindow);
+
+        List<AgentStatChartGroup> result = new ArrayList<>(1);
+        result.add(agentStatChartGroup);
+
+        return result;
+    }
+
 }

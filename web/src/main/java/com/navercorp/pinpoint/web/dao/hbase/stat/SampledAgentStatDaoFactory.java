@@ -22,12 +22,14 @@ import com.navercorp.pinpoint.web.dao.SampledAgentStatDao;
 import com.navercorp.pinpoint.web.dao.hbase.stat.compatibility.HbaseSampledAgentStatDualReadDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledActiveTraceDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledCpuLoadDao;
+import com.navercorp.pinpoint.web.dao.stat.SampledDataSourceDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledJvmGcDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledJvmGcDetailedDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledTransactionDao;
 import com.navercorp.pinpoint.web.vo.stat.SampledActiveTrace;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
 import com.navercorp.pinpoint.web.vo.stat.SampledCpuLoad;
+import com.navercorp.pinpoint.web.vo.stat.SampledDataSourceList;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGc;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGcDetailed;
 import com.navercorp.pinpoint.web.vo.stat.SampledTransaction;
@@ -261,4 +263,39 @@ abstract class SampledAgentStatDaoFactory<S extends SampledAgentStatDataPoint, D
             return new HbaseSampledAgentStatDualReadDao.SampledActiveTraceDualReadDao(v2, v1);
         }
     }
+
+    @Repository("sampledDataSourceDaoFactory")
+    public static class SampledDataSourceDaoFactory extends SampledAgentStatDaoFactory<SampledDataSourceList, SampledDataSourceDao> implements FactoryBean<SampledDataSourceDao> {
+
+        @Autowired
+        public void setV1(@Qualifier("sampledDataSourceDaoV1") SampledDataSourceDao v1) {
+            this.v1 = v1;
+        }
+
+        @Autowired
+        public void setV2(@Qualifier("sampledDataSourceDaoV2") SampledDataSourceDao v2) {
+            this.v2 = v2;
+        }
+
+        @Override
+        public SampledDataSourceDao getObject() throws Exception {
+            return super.getDao();
+        }
+
+        @Override
+        public Class<?> getObjectType() {
+            return SampledDataSourceDao.class;
+        }
+
+        @Override
+        public boolean isSingleton() {
+            return true;
+        }
+
+        @Override
+        SampledDataSourceDao getCompatibilityDao(SampledDataSourceDao v1, SampledDataSourceDao v2) {
+            return new HbaseSampledAgentStatDualReadDao.SampledDataSourceDualReadDao(v2, v1);
+        }
+    }
+
 }

@@ -78,7 +78,7 @@ public class HbaseDataSourceListDao implements AgentStatDaoV2<DataSourceListBo> 
         MultiKeyMap dataSourceListBoMap = new MultiKeyMap();
 
         for (DataSourceListBo dataSourceListBo : dataSourceListBos) {
-            for (DataSourceBo dataSourceBo : dataSourceListBo.getDataSourceList()) {
+            for (DataSourceBo dataSourceBo : dataSourceListBo.getList()) {
                 int id = dataSourceBo.getId();
                 long timestamp = dataSourceBo.getTimestamp();
                 long timeSlot = AgentStatUtils.getBaseTimestamp(timestamp);

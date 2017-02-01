@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
-public class DataSourceListBo implements AgentStatDataPoint {
+public class DataSourceListBo implements AgentStatDataPointList<DataSourceBo> {
 
     private final List<DataSourceBo> dataSourceBoList = new ArrayList<DataSourceBo>();
 
@@ -65,16 +65,28 @@ public class DataSourceListBo implements AgentStatDataPoint {
         return AgentStatType.DATASOURCE;
     }
 
-    public void add(DataSourceBo dataSourceBo) {
-        dataSourceBoList.add(dataSourceBo);
+    @Override
+    public boolean add(DataSourceBo element) {
+        return dataSourceBoList.add(element);
     }
 
-    public List<DataSourceBo> getDataSourceList() {
-        return dataSourceBoList;
+    @Override
+    public boolean remove(DataSourceBo element) {
+        return dataSourceBoList.remove(element);
     }
 
+    @Override
     public int size() {
-        return (dataSourceBoList == null) ? 0 : dataSourceBoList.size();
+        if (dataSourceBoList == null) {
+            return 0;
+        }
+
+        return dataSourceBoList.size();
+    }
+
+    @Override
+    public List<DataSourceBo> getList() {
+        return new ArrayList<DataSourceBo>(dataSourceBoList);
     }
 
     @Override
