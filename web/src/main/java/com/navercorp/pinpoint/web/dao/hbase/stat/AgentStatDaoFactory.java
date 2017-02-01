@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
@@ -28,6 +29,7 @@ import com.navercorp.pinpoint.web.dao.hbase.stat.compatibility.HbaseAgentStatDua
 import com.navercorp.pinpoint.web.dao.stat.ActiveTraceDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.dao.stat.CpuLoadDao;
+import com.navercorp.pinpoint.web.dao.stat.DataSourceDao;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDao;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDetailedDao;
 import com.navercorp.pinpoint.web.dao.stat.TransactionDao;
@@ -261,4 +263,39 @@ abstract class AgentStatDaoFactory<T extends AgentStatDataPoint, D extends Agent
             return new HbaseAgentStatDualReadDao.ActiveTraceDualReadDao(v2, v1);
         }
     }
+
+    @Repository("dataSourceDaoFactory")
+    public static class DataSourceDaoFactory extends AgentStatDaoFactory<DataSourceListBo, DataSourceDao> implements FactoryBean<DataSourceDao> {
+
+        @Autowired
+        public void setV1(@Qualifier("dataSourceDaoV1") DataSourceDao v1) {
+            this.v1 = v1;
+        }
+
+        @Autowired
+        public void setV2(@Qualifier("dataSourceDaoV2") DataSourceDao v2) {
+            this.v2 = v2;
+        }
+
+        @Override
+        public DataSourceDao getObject() throws Exception {
+            return super.getDao();
+        }
+
+        @Override
+        public Class<?> getObjectType() {
+            return DataSourceDao.class;
+        }
+
+        @Override
+        public boolean isSingleton() {
+            return true;
+        }
+
+        @Override
+        DataSourceDao getCompatibilityDao(DataSourceDao v1, DataSourceDao v2) {
+            return new HbaseAgentStatDualReadDao.DataSourceDualReadDao(v2, v1);
+        }
+    }
+
 }

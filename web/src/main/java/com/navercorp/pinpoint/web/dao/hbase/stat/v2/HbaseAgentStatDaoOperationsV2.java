@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
@@ -26,7 +27,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.web.mapper.RangeTimestampFilter;
 import com.navercorp.pinpoint.web.mapper.TimestampFilter;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
 import org.apache.hadoop.hbase.client.Scan;
@@ -97,7 +97,7 @@ public class HbaseAgentStatDaoOperationsV2 {
         }
     }
 
-    <T extends AgentStatDataPoint, S extends SampledAgentStatDataPoint> List<S> getSampledAgentStatList(AgentStatType agentStatType, SampledAgentStatResultExtractor<T, S> resultExtractor, String agentId, Range range) {
+    <S extends SampledAgentStatDataPoint> List<S> getSampledAgentStatList(AgentStatType agentStatType, ResultsExtractor<List<S>> resultExtractor, String agentId, Range range) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }

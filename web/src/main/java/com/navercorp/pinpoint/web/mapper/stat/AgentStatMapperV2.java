@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPointList;
 import com.navercorp.pinpoint.web.mapper.TimestampFilter;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -81,8 +82,7 @@ public class AgentStatMapperV2<T extends AgentStatDataPoint> implements AgentSta
                 decodingContext.setTimestampDelta(timestampDelta);
                 List<T> candidates = this.decoder.decodeValue(valueBuffer, decodingContext);
                 for (T candidate : candidates) {
-                    long timestamp = candidate.getTimestamp();
-                    if (this.filter.filter(timestamp)) {
+                    if (filter(candidate)) {
                         continue;
                     }
                     dataPoints.add(candidate);
@@ -93,4 +93,21 @@ public class AgentStatMapperV2<T extends AgentStatDataPoint> implements AgentSta
         Collections.sort(dataPoints, REVERSE_TIMESTAMP_COMPARATOR);
         return dataPoints;
     }
+
+    private boolean filter(T candidate) {
+        if (candidate instanceof AgentStatDataPointList) {
+            List<AgentStatDataPointList> list = ((AgentStatDataPointList) candidate).getList();
+            for (AgentStatDataPoint agentStatDataPoint : list) {
+                long timestamp = agentStatDataPoint.getTimestamp();
+                if (!this.filter.filter(timestamp)) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            long timestamp = candidate.getTimestamp();
+            return this.filter.filter(timestamp);
+        }
+    }
+
 }

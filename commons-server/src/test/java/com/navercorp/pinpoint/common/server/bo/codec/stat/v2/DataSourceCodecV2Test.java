@@ -56,8 +56,8 @@ public class DataSourceCodecV2Test extends AgentStatCodecTestBase<DataSourceList
         Assert.assertEquals("timestamp", expected.getTimestamp(), actual.getTimestamp());
         Assert.assertEquals(expected.size(), actual.size());
 
-        List<DataSourceBo> expectedDataSourceList = expected.getDataSourceList();
-        List<DataSourceBo> actualDataSourceList = actual.getDataSourceList();
+        List<DataSourceBo> expectedDataSourceList = expected.getList();
+        List<DataSourceBo> actualDataSourceList = actual.getList();
 
         for (int i = 0; i < expectedDataSourceList.size(); i++) {
             verify(expectedDataSourceList.get(i), actualDataSourceList.get(i));

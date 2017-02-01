@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Naver Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,25 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.service.stat;
+package com.navercorp.pinpoint.web.dao.hbase.stat.v1;
 
+import com.navercorp.pinpoint.web.dao.stat.SampledDataSourceDao;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.stat.chart.AgentStatChartGroup;
+import com.navercorp.pinpoint.web.vo.stat.SampledDataSourceList;
+import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
- * @author HyunGil Jeong
+ * @author Taejin Koo
  */
-public interface AgentStatChartService {
+@Repository("sampledDataSourceDaoV1")
+public class HbaseSampledDataSourceDao implements SampledDataSourceDao {
 
-    AgentStatChartGroup selectAgentChart(String agentId, TimeWindow timeWindow);
-
-    List<AgentStatChartGroup> selectAgentChartList(String agentId, TimeWindow timeWindow);
+    @Override
+    public List<SampledDataSourceList> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
+        return Collections.emptyList();
+    }
 
 }

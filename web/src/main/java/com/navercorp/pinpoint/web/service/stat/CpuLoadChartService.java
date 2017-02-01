@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,4 +52,15 @@ public class CpuLoadChartService implements AgentStatChartService {
         List<SampledCpuLoad> sampledCpuLoads = this.sampledCpuLoadDao.getSampledAgentStatList(agentId, timeWindow);
         return new CpuLoadChartGroup(timeWindow, sampledCpuLoads);
     }
+
+    @Override
+    public List<AgentStatChartGroup> selectAgentChartList(String agentId, TimeWindow timeWindow) {
+        AgentStatChartGroup agentStatChartGroup = selectAgentChart(agentId, timeWindow);
+
+        List<AgentStatChartGroup> result = new ArrayList<>(1);
+        result.add(agentStatChartGroup);
+
+        return result;
+    }
+
 }

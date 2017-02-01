@@ -98,7 +98,7 @@ public class DataSourceCodecV2 implements AgentStatCodec<DataSourceListBo> {
         UnsignedIntegerEncodingStrategy.Analyzer.Builder activeConnectionSizeAnalyzerBuilder = new UnsignedIntegerEncodingStrategy.Analyzer.Builder();
         UnsignedIntegerEncodingStrategy.Analyzer.Builder maxConnectionSizeAnalyzerBuilder = new UnsignedIntegerEncodingStrategy.Analyzer.Builder();
 
-        for (DataSourceBo dataSourceBo : dataSourceListBo.getDataSourceList()) {
+        for (DataSourceBo dataSourceBo : dataSourceListBo.getList()) {
             startTimestamps.add(dataSourceBo.getStartTimestamp());
             timestamps.add(dataSourceBo.getTimestamp());
 
