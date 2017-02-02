@@ -74,8 +74,7 @@ public class TraceTest {
 
     private TraceContext getDefaultTraceContext() {
         ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        TraceContext traceContext = MockTraceContextFactory.newTestTraceContext(profilerConfig);
-        return traceContext;
+        return MockTraceContextFactory.newTestTraceContext(profilerConfig);
     }
 
     public class TestDataSender implements EnhancedDataSender {

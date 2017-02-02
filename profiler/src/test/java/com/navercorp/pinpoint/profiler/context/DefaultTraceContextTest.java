@@ -18,22 +18,12 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorContext;
-import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
-import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter.SamplingType;
-import com.navercorp.pinpoint.profiler.context.monitor.DefaultPluginMonitorContext;
-import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
-import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
-import com.navercorp.pinpoint.profiler.sampler.SamplingRateSampler;
-import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -94,23 +84,15 @@ public class DefaultTraceContextTest {
     @Test
     public void transactionCountTest() {
         final int samplingRate = 5;
-        final Sampler sampler = new SamplingRateSampler(samplingRate);
 
         final ProfilerConfig profilerConfig = Mockito.mock(ProfilerConfig.class);
         Mockito.when(profilerConfig.isTraceAgentActiveThread()).thenReturn(true);
+        Mockito.when((profilerConfig.getSamplingRate())).thenReturn(samplingRate);
+        Mockito.when((profilerConfig.isSamplingEnable())).thenReturn(true);
 
-        StorageFactory storageFactory = new LogStorageFactory();
-        IdGenerator idGenerator = new IdGenerator();
-        final TransactionCounter transactionCounter = new DefaultTransactionCounter(idGenerator);
-
-        AgentInformation agentInformation = new TestAgentInformation();
-        ServerMetaDataHolder serverMetaDataHolder = new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs());
-        TraceFactoryBuilder traceFactoryBuilder = new DefaultTraceFactoryBuilder(storageFactory, sampler, idGenerator, null);
-
-
-        PluginMonitorContext pluginMonitorContext = new DefaultPluginMonitorContext();
-
-        final DefaultTraceContext traceContext = new DefaultTraceContext(profilerConfig, idGenerator, agentInformation, traceFactoryBuilder, pluginMonitorContext, serverMetaDataHolder);
+        MockTraceContextFactory mockTraceContextFactory = MockTraceContextFactory.newTestTraceContextFactory(profilerConfig);
+        final TraceContext traceContext = mockTraceContextFactory.getTraceContext();
+        final TransactionCounter transactionCounter = new DefaultTransactionCounter(mockTraceContextFactory.getIdGenerator());
 
 
         final long newTransactionCount = 22L;
@@ -135,7 +117,7 @@ public class DefaultTraceContextTest {
         }
         
         final long expectedTotalTransactionCount = expectedSampledNewCount + expectedUnsampledNewCount + expectedSampledContinuationCount + expectedUnsampledContinuationCount;
-        
+
         Assert.assertEquals(expectedSampledNewCount, transactionCounter.getTransactionCount(SamplingType.SAMPLED_NEW));
         Assert.assertEquals(expectedUnsampledNewCount, transactionCounter.getTransactionCount(SamplingType.UNSAMPLED_NEW));
         Assert.assertEquals(expectedSampledContinuationCount, transactionCounter.getTransactionCount(SamplingType.SAMPLED_CONTINUATION));

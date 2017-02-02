@@ -27,12 +27,9 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorContext;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.metadata.Result;
-import com.navercorp.pinpoint.profiler.metadata.SimpleCache;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
-import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
-import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,18 +41,14 @@ import org.slf4j.LoggerFactory;
 public class DefaultTraceContext implements TraceContext {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceFactory traceFactory;
 
     private final AgentInformation agentInformation;
 
-    private EnhancedDataSender priorityDataSender;
-
-    private final CachingSqlNormalizer cachingSqlNormalizer;
-
-    private final SimpleCache<String> apiCache = new SimpleCache<String>();
-    private final SimpleCache<String> stringCache = new SimpleCache<String>();
+    private final ApiMetaDataService apiMetaDataService;
+    private final StringMetaDataService stringMetaDataService;
+    private final SqlMetaDataService sqlMetaDataService;
 
     private final ProfilerConfig profilerConfig;
 
@@ -65,34 +58,45 @@ public class DefaultTraceContext implements TraceContext {
 
     private final AsyncIdGenerator asyncIdGenerator = new AsyncIdGenerator();
 
-    public DefaultTraceContext(ProfilerConfig profilerConfig, IdGenerator idGenerator, final AgentInformation agentInformation, TraceFactoryBuilder traceFactoryBuilder,
-                               PluginMonitorContext pluginMonitorContext, ServerMetaDataHolder serverMetaDataHolder) {
+    public DefaultTraceContext(ProfilerConfig profilerConfig, final AgentInformation agentInformation,
+                               TraceFactoryBuilder traceFactoryBuilder,
+                               PluginMonitorContext pluginMonitorContext,
+                               ServerMetaDataHolder serverMetaDataHolder,
+                               ApiMetaDataService apiMetaDataService,
+                               StringMetaDataService stringMetaDataService,
+                               SqlMetaDataService sqlMetaDataService
+    ) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
         if (agentInformation == null) {
             throw new NullPointerException("agentInformation must not be null");
         }
-        if (idGenerator == null) {
-            throw new NullPointerException("idGenerator must not be null");
-        }
         if (traceFactoryBuilder == null) {
             throw new NullPointerException("traceFactoryBuilder must not be null");
         }
-
+        if (pluginMonitorContext == null) {
+            throw new NullPointerException("pluginMonitorContext must not be null");
+        }
+        if (apiMetaDataService == null) {
+            throw new NullPointerException("apiMetaDataService must not be null");
+        }
+        if (stringMetaDataService == null) {
+            throw new NullPointerException("stringMetaDataService must not be null");
+        }
+        if (sqlMetaDataService == null) {
+            throw new NullPointerException("sqlMetaDataService must not be null");
+        }
         this.profilerConfig = profilerConfig;
         this.agentInformation = agentInformation;
         this.serverMetaDataHolder = serverMetaDataHolder;
 
-        this.cachingSqlNormalizer = createSqlNormalizer(profilerConfig);
-
         this.traceFactory = traceFactoryBuilder.build(this);
         this.pluginMonitorContext = pluginMonitorContext;
-    }
 
-    private CachingSqlNormalizer createSqlNormalizer(ProfilerConfig profilerConfig) {
-        final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
-        return new DefaultCachingSqlNormalizer(jdbcSqlCacheSize);
+        this.apiMetaDataService = apiMetaDataService;
+        this.stringMetaDataService = stringMetaDataService;
+        this.sqlMetaDataService = sqlMetaDataService;
     }
 
     /**
@@ -200,43 +204,12 @@ public class DefaultTraceContext implements TraceContext {
 
     @Override
     public int cacheApi(final MethodDescriptor methodDescriptor) {
-        final String fullName = methodDescriptor.getFullName();
-        final Result result = this.apiCache.put(fullName);
-
-        methodDescriptor.setApiId(result.getId());
-
-        if (result.isNewValue()) {
-            final TApiMetaData apiMetadata = new TApiMetaData();
-            apiMetadata.setAgentId(getAgentId());
-            apiMetadata.setAgentStartTime(getAgentStartTime());
-
-            apiMetadata.setApiId(result.getId());
-            apiMetadata.setApiInfo(methodDescriptor.getApiDescriptor());
-            apiMetadata.setLine(methodDescriptor.getLineNumber());
-            apiMetadata.setType(methodDescriptor.getType());
-
-            this.priorityDataSender.request(apiMetadata);
-        }
-
-        return result.getId();
+        return this.apiMetaDataService.cacheApi(methodDescriptor);
     }
 
     @Override
     public int cacheString(final String value) {
-        if (value == null) {
-            return 0;
-        }
-        final Result result = this.stringCache.put(value);
-        if (result.isNewValue()) {
-            final TStringMetaData stringMetaData = new TStringMetaData();
-            stringMetaData.setAgentId(getAgentId());
-            stringMetaData.setAgentStartTime(getAgentStartTime());
-
-            stringMetaData.setStringId(result.getId());
-            stringMetaData.setStringValue(value);
-            this.priorityDataSender.request(stringMetaData);
-        }
-        return result.getId();
+        return this.stringMetaDataService.cacheString(value);
     }
 
     @Override
@@ -250,40 +223,12 @@ public class DefaultTraceContext implements TraceContext {
 
     @Override
     public ParsingResult parseSql(final String sql) {
-        // lazy sql normalization
-        return this.cachingSqlNormalizer.wrapSql(sql);
+        return this.sqlMetaDataService.parseSql(sql);
     }
 
     @Override
     public boolean cacheSql(ParsingResult parsingResult) {
-        if (parsingResult == null) {
-            return false;
-        }
-        // lazy sql parsing
-        boolean isNewValue = this.cachingSqlNormalizer.normalizedSql(parsingResult);
-        if (isNewValue) {
-            if (isDebug) {
-                // TODO logging hit ratio could help debugging
-                logger.debug("NewSQLParsingResult:{}", parsingResult);
-            }
-
-            // isNewValue means that the value is newly cached.
-            // So the sql could be new one. We have to send sql metadata to collector.
-            final TSqlMetaData sqlMetaData = new TSqlMetaData();
-            sqlMetaData.setAgentId(getAgentId());
-            sqlMetaData.setAgentStartTime(getAgentStartTime());
-
-            sqlMetaData.setSqlId(parsingResult.getId());
-            sqlMetaData.setSql(parsingResult.getSql());
-
-            this.priorityDataSender.request(sqlMetaData);
-        }
-        return isNewValue;
-    }
-
-    @Deprecated
-    public void setPriorityDataSender(final EnhancedDataSender priorityDataSender) {
-        this.priorityDataSender = priorityDataSender;
+        return this.sqlMetaDataService.cacheSql(parsingResult);
     }
 
     @Override

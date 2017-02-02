@@ -52,6 +52,12 @@ import com.navercorp.pinpoint.profiler.instrument.JavassistClassPool;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataCacheService;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataCacheService;
+import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.StringMetaDataCacheService;
+import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
@@ -213,18 +219,15 @@ public class DefaultAgent implements Agent {
                 this.profilerConfig.getStatDataSenderSocketSendBufferSize());
 
         final ActiveTraceRepository activeTraceRepository = createActiveTraceRepository();
+        final CommandDispatcher commandService = createCommandService(profilerConfig, activeTraceRepository);
+        this.tcpDataSender = createTcpDataSender(commandService);
+
         final IdGenerator idGenerator = new IdGenerator();
         final TransactionCounter transactionCounter = new DefaultTransactionCounter(idGenerator);
 
         final PluginMonitorContext pluginMonitorContext = createPluginMonitorContext();
 
-        this.traceContext = createTraceContext(idGenerator, activeTraceRepository, pluginMonitorContext);
-
-        CommandDispatcher commandService = createCommandService(profilerConfig, activeTraceRepository);
-        this.tcpDataSender = createTcpDataSender(commandService);
-
-        ((DefaultTraceContext)traceContext).setPriorityDataSender(this.tcpDataSender);
-
+        this.traceContext = createTraceContext(tcpDataSender, idGenerator, activeTraceRepository, pluginMonitorContext);
         final AgentStatCollectorFactory agentStatCollectorFactory = new AgentStatCollectorFactory(profilerConfig, activeTraceRepository, transactionCounter, pluginMonitorContext);
 
         final JvmInformationFactory jvmInformationFactory = new JvmInformationFactory(agentStatCollectorFactory.getGarbageCollector());
@@ -343,7 +346,7 @@ public class DefaultAgent implements Agent {
         PLoggerFactory.initialize(binder);
     }
 
-    private TraceContext createTraceContext(IdGenerator idGenerator, ActiveTraceRepository activeTraceRepository, PluginMonitorContext pluginMonitorContext) {
+    private TraceContext createTraceContext(EnhancedDataSender enhancedDataSender, IdGenerator idGenerator, ActiveTraceRepository activeTraceRepository, PluginMonitorContext pluginMonitorContext) {
 
         final StorageFactory storageFactory = createStorageFactory();
         logger.info("StorageFactoryType:{}", storageFactory);
@@ -351,10 +354,21 @@ public class DefaultAgent implements Agent {
         final Sampler sampler = createSampler();
         logger.info("SamplerType:{}", sampler);
 
+        final TraceFactoryBuilder traceFactoryBuilder = createTraceFactory(storageFactory, sampler, idGenerator, activeTraceRepository);
 
-        TraceFactoryBuilder traceFactoryBuilder = createTraceFactory(storageFactory, sampler, idGenerator, activeTraceRepository);
+        final String agentId = this.agentInformation.getAgentId();
+        final long agentStartTime = this.agentInformation.getStartTime();
 
-        final TraceContext traceContext = new DefaultTraceContext(this.profilerConfig, idGenerator, this.agentInformation, traceFactoryBuilder, pluginMonitorContext, this.serverMetaDataHolder);
+        final ApiMetaDataService apiMetaDataService = new ApiMetaDataCacheService(agentId, agentStartTime, enhancedDataSender);
+        final StringMetaDataService stringMetaDataService = new StringMetaDataCacheService(agentId, agentStartTime, enhancedDataSender);
+
+        int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
+        final SqlMetaDataService sqlMetaDataService = new SqlMetaDataCacheService(agentId, agentStartTime, enhancedDataSender, jdbcSqlCacheSize);
+
+        final TraceContext traceContext = new DefaultTraceContext(this.profilerConfig, this.agentInformation,
+                traceFactoryBuilder, pluginMonitorContext, this.serverMetaDataHolder,
+                apiMetaDataService, stringMetaDataService, sqlMetaDataService
+        );
 
         return traceContext;
     }

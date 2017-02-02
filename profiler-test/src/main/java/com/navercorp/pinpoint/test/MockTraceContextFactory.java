@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.test;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -32,10 +31,14 @@ import com.navercorp.pinpoint.profiler.context.TraceFactoryBuilder;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
-import com.navercorp.pinpoint.profiler.sampler.TrueSampler;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataCacheService;
+import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataCacheService;
+import com.navercorp.pinpoint.profiler.metadata.StringMetaDataCacheService;
+import com.navercorp.pinpoint.profiler.sampler.SamplerFactory;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
+
 
 /**
  * @author emeroad
@@ -45,46 +48,131 @@ public class MockTraceContextFactory {
     private static final boolean TRACE_ACTIVE_THREAD = true;
     private static final boolean TRACE_DATASOURCE = false;
 
-    private EnhancedDataSender priorityDataSender = new LoggingDataSender();
+    private final AgentInformation agentInformation;
 
-    public void setPriorityDataSender(EnhancedDataSender priorityDataSender) {
-        if (priorityDataSender == null) {
-            throw new NullPointerException("priorityDataSender must not be null");
-        }
-        this.priorityDataSender = priorityDataSender;
-    }
+    private final StorageFactory storageFactory;
 
-    public TraceContext create() {
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        TraceContext traceContext = newTestTraceContext(profilerConfig) ;
-        ((DefaultTraceContext)traceContext).setPriorityDataSender(priorityDataSender);
+    private final IdGenerator idGenerator;
+    private final Sampler sampler;
+    private final ActiveTraceRepository activeTraceRepository;
 
-        return traceContext;
-    }
+
+    private final PluginMonitorContext pluginMonitorContext;
+
+    private final ServerMetaDataHolder serverMetaDataHolder;
+
+    private final EnhancedDataSender enhancedDataSender;
+
+    private final ApiMetaDataCacheService apiMetaDataCacheService;
+    private final StringMetaDataCacheService stringMetaDataCacheService;
+    private final SqlMetaDataCacheService sqlMetaDataCacheService;
+
+    private final TraceContext traceContext;
 
     public static TraceContext newTestTraceContext(ProfilerConfig profilerConfig) {
-
-        AgentInformation agentInformation = new TestAgentInformation();
-
-        StorageFactory logStorageFactory = new LogStorageFactory();
-        Sampler sampler = new TrueSampler();
-        IdGenerator idGenerator = new IdGenerator();
-        ActiveTraceRepository activeTraceLocator = newActiveTraceRepository();
-        TraceFactoryBuilder traceFactoryBuilder = new DefaultTraceFactoryBuilder(logStorageFactory, sampler, idGenerator, activeTraceLocator);
-
-
-        PluginMonitorContextBuilder pluginMonitorContextBuilder = new PluginMonitorContextBuilder(TRACE_DATASOURCE);
-        PluginMonitorContext pluginMonitorContext = pluginMonitorContextBuilder.build();
-
-        ServerMetaDataHolder serverMetaDataHolder = new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs());
-
-        return new DefaultTraceContext(profilerConfig, idGenerator, agentInformation, traceFactoryBuilder, pluginMonitorContext, serverMetaDataHolder);
+        MockTraceContextFactory mockTraceContextFactory = newTestTraceContextFactory(profilerConfig);
+        return mockTraceContextFactory.getTraceContext();
     }
+
+    public static MockTraceContextFactory newTestTraceContextFactory(ProfilerConfig profilerConfig) {
+
+        return new MockTraceContextFactory(profilerConfig);
+    }
+
+
+    public MockTraceContextFactory(ProfilerConfig profilerConfig) {
+        this.agentInformation = new TestAgentInformation();
+
+        this.storageFactory = new LogStorageFactory();
+
+
+        final SamplerFactory samplerFactory = new SamplerFactory();
+        this.sampler = createSampler(profilerConfig, samplerFactory);
+
+        this.idGenerator = new IdGenerator();
+        this.activeTraceRepository = newActiveTraceRepository();
+
+        final TraceFactoryBuilder traceFactoryBuilder = new DefaultTraceFactoryBuilder(storageFactory, sampler, idGenerator, activeTraceRepository);
+        final PluginMonitorContextBuilder pluginMonitorContextBuilder = new PluginMonitorContextBuilder(TRACE_DATASOURCE);
+        this.pluginMonitorContext = pluginMonitorContextBuilder.build();
+
+        this.serverMetaDataHolder = new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs());
+
+        final String agentId = agentInformation.getAgentId();
+        final long agentStartTime = agentInformation.getStartTime();
+        this.enhancedDataSender = new LoggingDataSender();
+
+        this.apiMetaDataCacheService = new ApiMetaDataCacheService(agentId, agentStartTime, enhancedDataSender);
+        this.stringMetaDataCacheService = new StringMetaDataCacheService(agentId, agentStartTime, enhancedDataSender);
+
+        final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
+        this.sqlMetaDataCacheService = new SqlMetaDataCacheService(agentId, agentStartTime, enhancedDataSender, jdbcSqlCacheSize);
+
+        this.traceContext = new DefaultTraceContext(profilerConfig, agentInformation,
+                traceFactoryBuilder, pluginMonitorContext, serverMetaDataHolder,
+                apiMetaDataCacheService, stringMetaDataCacheService, sqlMetaDataCacheService
+        );
+    }
+
+    private Sampler createSampler(ProfilerConfig profilerConfig, SamplerFactory samplerFactory) {
+        boolean samplingEnable = profilerConfig.isSamplingEnable();
+        int samplingRate = profilerConfig.getSamplingRate();
+        return samplerFactory.createSampler(samplingEnable, samplingRate);
+    }
+
 
     private static ActiveTraceRepository newActiveTraceRepository() {
         if (TRACE_ACTIVE_THREAD) {
             return new ActiveTraceRepository();
         }
         return null;
+    }
+
+    public AgentInformation getAgentInformation() {
+        return agentInformation;
+    }
+
+    public StorageFactory getStorageFactory() {
+        return storageFactory;
+    }
+
+    public IdGenerator getIdGenerator() {
+        return idGenerator;
+    }
+
+    public Sampler getSampler() {
+        return sampler;
+    }
+
+    public ActiveTraceRepository getActiveTraceRepository() {
+        return activeTraceRepository;
+    }
+
+    public PluginMonitorContext getPluginMonitorContext() {
+        return pluginMonitorContext;
+    }
+
+    public ServerMetaDataHolder getServerMetaDataHolder() {
+        return serverMetaDataHolder;
+    }
+
+    public EnhancedDataSender getEnhancedDataSender() {
+        return enhancedDataSender;
+    }
+
+    public ApiMetaDataCacheService getApiMetaDataCacheService() {
+        return apiMetaDataCacheService;
+    }
+
+    public StringMetaDataCacheService getStringMetaDataCacheService() {
+        return stringMetaDataCacheService;
+    }
+
+    public SqlMetaDataCacheService getSqlMetaDataCacheService() {
+        return sqlMetaDataCacheService;
+    }
+
+    public TraceContext getTraceContext() {
+        return traceContext;
     }
 }
