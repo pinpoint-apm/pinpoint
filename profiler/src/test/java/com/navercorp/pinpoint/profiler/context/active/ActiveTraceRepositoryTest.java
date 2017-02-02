@@ -26,7 +26,17 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorContext;
+import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.context.DefaultTraceFactoryBuilder;
+import com.navercorp.pinpoint.profiler.context.DefaultTransactionCounter;
+import com.navercorp.pinpoint.profiler.context.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.TestAgentInformation;
+import com.navercorp.pinpoint.profiler.context.TraceFactoryBuilder;
+import com.navercorp.pinpoint.profiler.context.monitor.DefaultPluginMonitorContext;
+import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,9 +52,9 @@ import com.navercorp.pinpoint.profiler.context.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter.SamplingType;
 import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
-import com.navercorp.pinpoint.profiler.metadata.LRUCache;
 import com.navercorp.pinpoint.profiler.sampler.SamplingRateSampler;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
+import org.mockito.Mockito;
 
 /**
  * @author HyunGil Jeong
@@ -59,17 +69,33 @@ public class ActiveTraceRepositoryTest {
 
     @Before
     public void setUp() {
-        final LogStorageFactory logStorageFactory = new LogStorageFactory();
+
+
+        final ProfilerConfig profilerConfig = Mockito.mock(ProfilerConfig.class);
+        Mockito.when(profilerConfig.isTraceAgentActiveThread()).thenReturn(true);
+
+        final IdGenerator idGenerator = new IdGenerator();
+        final TransactionCounter transactionCounter = new DefaultTransactionCounter(idGenerator);
+
         final Sampler sampler = new SamplingRateSampler(SAMPLING_RATE);
+        AgentInformation agentInformation = new TestAgentInformation();
+
+        ServerMetaDataHolder serverMetaDataHolder = new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs());
+        StorageFactory storageFactory = new LogStorageFactory();
+        ActiveTraceRepository activeTraceRepository = new ActiveTraceRepository();
+        TraceFactoryBuilder traceFactoryBuilder = new DefaultTraceFactoryBuilder(storageFactory, sampler, idGenerator, activeTraceRepository);
+
+        PluginMonitorContext pluginMonitorContext = new DefaultPluginMonitorContext();
+
         this.traceContext = new DefaultTraceContext(
-                LRUCache.DEFAULT_CACHE_SIZE,
-                new TestAgentInformation(),
-                logStorageFactory,
-                sampler,
-                new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs()),
-                true);
-        this.transactionCounter = this.traceContext.getTransactionCounter();
-        this.activeTraceRepository = this.traceContext.getActiveTraceLocator();
+                profilerConfig,
+                idGenerator,
+                agentInformation,
+                traceFactoryBuilder,
+                pluginMonitorContext,
+                serverMetaDataHolder);
+        this.transactionCounter = transactionCounter;
+        this.activeTraceRepository = activeTraceRepository;
     }
 
     @Test

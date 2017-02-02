@@ -30,14 +30,28 @@ import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.is;
+
 /**
  * @author Taejin Koo
  */
 public class ActiveThreadServiceTest {
 
-    // defence weak value
+    // defence weakReference
     private List<ActiveTrace> weakList;
     private long activeTraceId = 0;
+
+    private static final int FAST_COUNT = 1;
+    private static final long FAST_EXECUTION_TIME = 500;
+
+    private static final int NORMAL_COUNT = 2;
+    private static final long NORMAL_EXECUTION_TIME = 1500;
+
+    private static final int SLOW_COUNT = 3;
+    private static final long SLOW_EXECUTION_TIME = 3500;
+
+    private static final int VERY_SLOW_COUNT = 4;
+    private static final long VERY_SLOW_EXECUTION_TIME = 5500;
 
     @Before
     public void setUp() throws Exception {
@@ -48,20 +62,19 @@ public class ActiveThreadServiceTest {
     public void serviceTest1() throws InterruptedException {
         ActiveTraceRepository activeTraceRepository = new ActiveTraceRepository();
 
-        int normalCount = 5;
-        long normalExecutionTime = 1500;
-        addActiveTrace(activeTraceRepository, normalExecutionTime, normalCount);
-
-        int fastCount = 3;
-        long fastExecutionTime = 500;
-        addActiveTrace(activeTraceRepository, fastExecutionTime, fastCount);
+        addActiveTrace(activeTraceRepository, FAST_EXECUTION_TIME, FAST_COUNT);
+        addActiveTrace(activeTraceRepository, NORMAL_EXECUTION_TIME, NORMAL_COUNT);
+        addActiveTrace(activeTraceRepository, SLOW_EXECUTION_TIME, SLOW_COUNT);
+        addActiveTrace(activeTraceRepository, VERY_SLOW_EXECUTION_TIME, VERY_SLOW_COUNT);
 
         ActiveThreadCountService service = new ActiveThreadCountService(activeTraceRepository);
         TBase<?, ?> tBase = service.requestCommandService(new TCmdActiveThreadCount());
         if (tBase instanceof TCmdActiveThreadCountRes) {
             List<Integer> activeThreadCount = ((TCmdActiveThreadCountRes) tBase).getActiveThreadCount();
-            Assert.assertEquals(activeThreadCount.get(0), Integer.valueOf(fastCount));
-            Assert.assertEquals(activeThreadCount.get(1), Integer.valueOf(normalCount));
+            Assert.assertThat(activeThreadCount.get(0), is(FAST_COUNT));
+            Assert.assertThat(activeThreadCount.get(1), is(NORMAL_COUNT));
+            Assert.assertThat(activeThreadCount.get(2), is(SLOW_COUNT));
+            Assert.assertThat(activeThreadCount.get(3), is(VERY_SLOW_COUNT));
         } else {
             Assert.fail();
         }

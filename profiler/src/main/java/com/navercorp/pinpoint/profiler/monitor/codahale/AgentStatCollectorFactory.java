@@ -16,13 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.monitor.codahale;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorWrapper;
 import com.navercorp.pinpoint.profiler.context.monitor.DefaultPluginMonitorContext;
 import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorWrapperLocator;
@@ -64,6 +61,7 @@ import static com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValu
 public class AgentStatCollectorFactory {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final MetricMonitorRegistry monitorRegistry;
     private final GarbageCollector garbageCollector;
     private final CpuLoadCollector cpuLoadCollector;
@@ -71,20 +69,25 @@ public class AgentStatCollectorFactory {
     private final ActiveTraceMetricCollector activeTraceMetricCollector;
     private final DataSourceCollector dataSourceCollector;
 
-    public AgentStatCollectorFactory(TraceContext traceContext) {
-        if (traceContext == null) {
-            throw new NullPointerException("traceContext must not be null");
-        }
-        ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
+    public AgentStatCollectorFactory(ProfilerConfig profilerConfig, ActiveTraceRepository activeTraceRepository, TransactionCounter transactionCounter, PluginMonitorContext pluginMonitorContext) {
         if (profilerConfig == null) {
-            profilerConfig = new DefaultProfilerConfig();
+            throw new NullPointerException("profilerConfig must not be null");
         }
+//        if (activeTraceRepository == null) {
+//            throw new NullPointerException("activeTraceRepository must not be null");
+//        }
+        if (transactionCounter == null) {
+            throw new NullPointerException("transactionCounter must not be null");
+        }
+//        if (pluginMonitorContext == null) {
+//            throw new NullPointerException("pluginMonitorContext must not be null");
+//        }
         this.monitorRegistry = createRegistry();
         this.garbageCollector = createGarbageCollector(profilerConfig.isProfilerJvmCollectDetailedMetrics());
         this.cpuLoadCollector = createCpuLoadCollector(profilerConfig.getProfilerJvmVendorName());
-        this.transactionMetricCollector = createTransactionMetricCollector(traceContext);
-        this.activeTraceMetricCollector = createActiveTraceCollector(traceContext, profilerConfig.isTraceAgentActiveThread());
-        this.dataSourceCollector = createDataSourceCollector(traceContext);
+        this.transactionMetricCollector = createTransactionMetricCollector(transactionCounter);
+        this.activeTraceMetricCollector = createActiveTraceCollector(activeTraceRepository, profilerConfig.isTraceAgentActiveThread());
+        this.dataSourceCollector = createDataSourceCollector(pluginMonitorContext);
     }
 
     private MetricMonitorRegistry createRegistry() {
@@ -139,47 +142,43 @@ public class AgentStatCollectorFactory {
         return new DefaultCpuLoadCollector(cpuLoadMetricSet);
     }
 
-    private TransactionMetricCollector createTransactionMetricCollector(TraceContext traceContext) {
-        if (traceContext instanceof DefaultTraceContext) {
-            TransactionCounter transactionCounter = ((DefaultTraceContext) traceContext).getTransactionCounter();
-            TransactionMetricSet transactionMetricSet = this.monitorRegistry.registerTpsMonitor(new MonitorName(MetricMonitorValues.TRANSACTION), transactionCounter);
-            if (logger.isInfoEnabled()) {
-                logger.info("loaded : {}", transactionMetricSet);
-            }
-            return new DefaultTransactionMetricCollector(transactionMetricSet);
-        } else {
+    private TransactionMetricCollector createTransactionMetricCollector(TransactionCounter transactionCounter) {
+        if (transactionCounter == null) {
             return TransactionMetricCollector.EMPTY_TRANSACTION_METRIC_COLLECTOR;
         }
+
+        MonitorName monitorName = new MonitorName(MetricMonitorValues.TRANSACTION);
+        TransactionMetricSet transactionMetricSet = this.monitorRegistry.registerTpsMonitor(monitorName, transactionCounter);
+        if (logger.isInfoEnabled()) {
+            logger.info("loaded : {}", transactionMetricSet);
+        }
+        return new DefaultTransactionMetricCollector(transactionMetricSet);
+
     }
 
-    private ActiveTraceMetricCollector createActiveTraceCollector(TraceContext traceContext, boolean isTraceAgentActiveThread) {
+    private ActiveTraceMetricCollector createActiveTraceCollector(ActiveTraceRepository activeTraceRepository, boolean isTraceAgentActiveThread) {
         if (!isTraceAgentActiveThread) {
             return ActiveTraceMetricCollector.EMPTY_ACTIVE_TRACE_COLLECTOR;
         }
-        if (traceContext instanceof DefaultTraceContext) {
-            ActiveTraceLocator activeTraceLocator = ((DefaultTraceContext) traceContext).getActiveTraceLocator();
-            if (activeTraceLocator != null) {
-                ActiveTraceMetricSet activeTraceMetricSet = this.monitorRegistry.registerActiveTraceMetricSet(new MonitorName(MetricMonitorValues.ACTIVE_TRACE), activeTraceLocator);
-                if (logger.isInfoEnabled()) {
-                    logger.info("loaded : {}", activeTraceMetricSet);
-                }
-                return new DefaultActiveTraceMetricCollector(activeTraceMetricSet);
-            } else {
-                logger.warn("agent set to trace active threads but no ActiveTraceLocator found");
+
+        if (activeTraceRepository != null) {
+            ActiveTraceMetricSet activeTraceMetricSet = this.monitorRegistry.registerActiveTraceMetricSet(new MonitorName(MetricMonitorValues.ACTIVE_TRACE), activeTraceRepository);
+            if (logger.isInfoEnabled()) {
+                logger.info("loaded : {}", activeTraceMetricSet);
             }
+            return new DefaultActiveTraceMetricCollector(activeTraceMetricSet);
+        } else {
+            logger.warn("agent set to trace active threads but no ActiveTraceLocator found");
         }
         return ActiveTraceMetricCollector.EMPTY_ACTIVE_TRACE_COLLECTOR;
     }
 
-    private DataSourceCollector createDataSourceCollector(TraceContext traceContext) {
-        if (traceContext instanceof DefaultTraceContext) {
-            PluginMonitorContext pluginMonitorContext = traceContext.getPluginMonitorContext();
-            if (pluginMonitorContext instanceof DefaultPluginMonitorContext) {
-                PluginMonitorWrapperLocator<DataSourceMonitorWrapper> dataSourceMonitorLocator = ((DefaultPluginMonitorContext) pluginMonitorContext).getDataSourceMonitorLocator();
-                if (dataSourceMonitorLocator != null) {
-                    DataSourceMetricSet dataSourceMetricSet = this.monitorRegistry.registerDataSourceMonitor(new MonitorName(MetricMonitorValues.DATASOURCE), dataSourceMonitorLocator);
-                    return new DefaultDataSourceCollector(dataSourceMetricSet);
-                }
+    private DataSourceCollector createDataSourceCollector(PluginMonitorContext pluginMonitorContext) {
+        if (pluginMonitorContext instanceof DefaultPluginMonitorContext) {
+            PluginMonitorWrapperLocator<DataSourceMonitorWrapper> dataSourceMonitorLocator = ((DefaultPluginMonitorContext) pluginMonitorContext).getDataSourceMonitorLocator();
+            if (dataSourceMonitorLocator != null) {
+                DataSourceMetricSet dataSourceMetricSet = this.monitorRegistry.registerDataSourceMonitor(new MonitorName(MetricMonitorValues.DATASOURCE), dataSourceMonitorLocator);
+                return new DefaultDataSourceCollector(dataSourceMetricSet);
             }
         }
         return DataSourceCollector.EMPTY_DATASOURCE_COLLECTOR;

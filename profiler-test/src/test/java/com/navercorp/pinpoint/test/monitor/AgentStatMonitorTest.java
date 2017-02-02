@@ -17,12 +17,18 @@
 
 package com.navercorp.pinpoint.test.monitor;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorContext;
+import com.navercorp.pinpoint.profiler.context.DefaultTransactionCounter;
+import com.navercorp.pinpoint.profiler.context.IdGenerator;
+import com.navercorp.pinpoint.profiler.context.TransactionCounter;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.monitor.DefaultPluginMonitorContext;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.test.ListenableDataSender;
-import com.navercorp.pinpoint.test.MockTraceContextFactory;
 import com.navercorp.pinpoint.test.TBaseRecorder;
 import com.navercorp.pinpoint.test.TBaseRecorderAdaptor;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
@@ -64,9 +70,7 @@ public class AgentStatMonitorTest {
         final int minNumBatchToTest = 2;
         final long totalTestDurationMs = collectionIntervalMs + collectionIntervalMs * numCollectionsPerBatch * minNumBatchToTest;
         // When
-        System.setProperty("pinpoint.log", "test.");
-        TraceContext testTraceContext = new MockTraceContextFactory().create();
-        AgentStatCollectorFactory agentStatCollectorFactory = new AgentStatCollectorFactory(testTraceContext);
+        AgentStatCollectorFactory agentStatCollectorFactory = newAgentStatCollectorFactory();
 
         AgentStatMonitor monitor = new AgentStatMonitor(this.dataSender, "agentId", System.currentTimeMillis(),
                 agentStatCollectorFactory, collectionIntervalMs, numCollectionsPerBatch);
@@ -79,6 +83,15 @@ public class AgentStatMonitorTest {
             logger.debug("agentStatBatch:{}", agentStatBatch);
             assertTrue(agentStatBatch.getAgentStats().size() <= numCollectionsPerBatch);
         }
+    }
+
+    private AgentStatCollectorFactory newAgentStatCollectorFactory() {
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
+        ActiveTraceRepository activeTraceRepository = new ActiveTraceRepository();
+        IdGenerator idGenerator = new IdGenerator();
+        TransactionCounter transactionCounter = new DefaultTransactionCounter(idGenerator);
+        PluginMonitorContext pluginMonitorContext = new DefaultPluginMonitorContext();
+        return new AgentStatCollectorFactory(profilerConfig, activeTraceRepository, transactionCounter, pluginMonitorContext);
     }
 
 }
