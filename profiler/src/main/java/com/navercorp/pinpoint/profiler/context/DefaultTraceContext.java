@@ -25,28 +25,16 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorContext;
-import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceFactory;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
-import com.navercorp.pinpoint.profiler.context.monitor.DefaultPluginMonitorContext;
-import com.navercorp.pinpoint.profiler.context.monitor.DisabledPluginMonitorContext;
-import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
-import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
-import com.navercorp.pinpoint.profiler.metadata.LRUCache;
 import com.navercorp.pinpoint.profiler.metadata.Result;
 import com.navercorp.pinpoint.profiler.metadata.SimpleCache;
-import com.navercorp.pinpoint.profiler.sampler.TrueSampler;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
 import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author emeroad
@@ -58,12 +46,9 @@ public class DefaultTraceContext implements TraceContext {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private static final boolean TRACE_ACTIVE_THREAD = true;
-    private static final boolean TRACE_DATASOURCE = false;
-
     private final TraceFactory traceFactory;
 
-    private AgentInformation agentInformation;
+    private final AgentInformation agentInformation;
 
     private EnhancedDataSender priorityDataSender;
 
@@ -72,66 +57,42 @@ public class DefaultTraceContext implements TraceContext {
     private final SimpleCache<String> apiCache = new SimpleCache<String>();
     private final SimpleCache<String> stringCache = new SimpleCache<String>();
 
-    private ProfilerConfig profilerConfig;
+    private final ProfilerConfig profilerConfig;
 
     private final ServerMetaDataHolder serverMetaDataHolder;
 
-    private final AtomicInteger asyncId = new AtomicInteger();
-
     private final PluginMonitorContext pluginMonitorContext;
 
-    private final IdGenerator idGenerator = new IdGenerator();
+    private final AsyncIdGenerator asyncIdGenerator = new AsyncIdGenerator();
 
-    private final TransactionCounter transactionCounter = new DefaultTransactionCounter(this.idGenerator);
-
-    // for test
-    public DefaultTraceContext(final AgentInformation agentInformation) {
-        this(LRUCache.DEFAULT_CACHE_SIZE, agentInformation, new LogStorageFactory(), new TrueSampler(), new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs()), TRACE_ACTIVE_THREAD, TRACE_DATASOURCE);
-    }
-
-    public DefaultTraceContext(final int sqlCacheSize, final AgentInformation agentInformation, StorageFactory storageFactory, Sampler sampler, ServerMetaDataHolder serverMetaDataHolder, final boolean traceActiveThread) {
-        this(sqlCacheSize, agentInformation, storageFactory, sampler, serverMetaDataHolder, traceActiveThread, TRACE_DATASOURCE);
-    }
-
-    public DefaultTraceContext(final int sqlCacheSize, final AgentInformation agentInformation, StorageFactory storageFactory, Sampler sampler, ServerMetaDataHolder serverMetaDataHolder, final boolean traceActiveThread, final boolean traceDataSource) {
+    public DefaultTraceContext(ProfilerConfig profilerConfig, IdGenerator idGenerator, final AgentInformation agentInformation, TraceFactoryBuilder traceFactoryBuilder,
+                               PluginMonitorContext pluginMonitorContext, ServerMetaDataHolder serverMetaDataHolder) {
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig must not be null");
+        }
         if (agentInformation == null) {
             throw new NullPointerException("agentInformation must not be null");
         }
-        if (storageFactory == null) {
-            throw new NullPointerException("storageFactory must not be null");
+        if (idGenerator == null) {
+            throw new NullPointerException("idGenerator must not be null");
         }
-        if (sampler == null) {
-            throw new NullPointerException("sampler must not be null");
+        if (traceFactoryBuilder == null) {
+            throw new NullPointerException("traceFactoryBuilder must not be null");
         }
+
+        this.profilerConfig = profilerConfig;
         this.agentInformation = agentInformation;
-
-        this.cachingSqlNormalizer = new DefaultCachingSqlNormalizer(sqlCacheSize);
-
-        this.traceFactory = createTraceFactory(storageFactory, sampler, traceActiveThread);
-
         this.serverMetaDataHolder = serverMetaDataHolder;
 
-        if (traceDataSource) {
-            this.pluginMonitorContext = new DefaultPluginMonitorContext();
-        } else {
-            this.pluginMonitorContext = new DisabledPluginMonitorContext();
-        }
+        this.cachingSqlNormalizer = createSqlNormalizer(profilerConfig);
+
+        this.traceFactory = traceFactoryBuilder.build(this);
+        this.pluginMonitorContext = pluginMonitorContext;
     }
 
-    private TraceFactory createTraceFactory(StorageFactory storageFactory, Sampler sampler, boolean recordActiveThread) {
-        // TODO extract TraceFactory builder?
-        BaseTraceFactory baseTraceFactory = new DefaultBaseTraceFactory(this, storageFactory, sampler, this.idGenerator);
-        Logger baseTraceFactoryLogger = LoggerFactory.getLogger(DefaultBaseTraceFactory.class);
-        if (baseTraceFactoryLogger.isDebugEnabled()) {
-            baseTraceFactory = LoggingBaseTraceFactory.wrap(baseTraceFactory);
-        }
-
-        TraceFactory traceFactory = new ThreadLocalTraceFactory(baseTraceFactory);
-        if (recordActiveThread) {
-            traceFactory = ActiveTraceFactory.wrap(traceFactory);
-        }
-
-        return traceFactory;
+    private CachingSqlNormalizer createSqlNormalizer(ProfilerConfig profilerConfig) {
+        final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
+        return new DefaultCachingSqlNormalizer(jdbcSqlCacheSize);
     }
 
     /**
@@ -163,12 +124,6 @@ public class DefaultTraceContext implements TraceContext {
         return traceFactory.disableSampling();
     }
 
-    public void setProfilerConfig(final ProfilerConfig profilerConfig) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
-        this.profilerConfig = profilerConfig;
-    }
 
     @Override
     public ProfilerConfig getProfilerConfig() {
@@ -285,12 +240,12 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     @Override
-    public TraceId createTraceId(final String transactionId, final long parentSpanID, final long spanID, final short flags) {
+    public TraceId createTraceId(final String transactionId, final long parentSpanID, final long spanId, final short flags) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
         // TODO Should handle exception when parsing failed.
-        return DefaultTraceId.parse(transactionId, parentSpanID, spanID, flags);
+        return DefaultTraceId.parse(transactionId, parentSpanID, spanId, flags);
     }
 
     @Override
@@ -326,6 +281,7 @@ public class DefaultTraceContext implements TraceContext {
         return isNewValue;
     }
 
+    @Deprecated
     public void setPriorityDataSender(final EnhancedDataSender priorityDataSender) {
         this.priorityDataSender = priorityDataSender;
     }
@@ -337,25 +293,12 @@ public class DefaultTraceContext implements TraceContext {
 
     @Override
     public int getAsyncId() {
-        final int id = asyncId.incrementAndGet();
-        return id == -1 ? asyncId.incrementAndGet() : id;
+        return this.asyncIdGenerator.nextAsyncId();
     }
 
     @Override
     public PluginMonitorContext getPluginMonitorContext() {
         return pluginMonitorContext;
-    }
-
-    public ActiveTraceLocator getActiveTraceLocator() {
-        if (traceFactory instanceof ActiveTraceFactory) {
-            return (ActiveTraceLocator) ((ActiveTraceFactory) traceFactory).getActiveTraceLocator();
-        } else {
-            return null;
-        }
-    }
-
-    public TransactionCounter getTransactionCounter() {
-        return this.transactionCounter;
     }
 
 }

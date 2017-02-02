@@ -28,13 +28,20 @@ import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInvokerHelper;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorContext;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
+import com.navercorp.pinpoint.profiler.context.DefaultTraceFactoryBuilder;
+import com.navercorp.pinpoint.profiler.context.DefaultTransactionCounter;
+import com.navercorp.pinpoint.profiler.context.IdGenerator;
+import com.navercorp.pinpoint.profiler.context.PluginMonitorContextBuilder;
+import com.navercorp.pinpoint.profiler.context.SystemPropertyDumper;
+import com.navercorp.pinpoint.profiler.context.TraceFactoryBuilder;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.storage.BufferedStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
@@ -51,6 +58,7 @@ import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginLoader;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandLocatorBuilder;
+import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceLocator;
 import com.navercorp.pinpoint.profiler.receiver.service.ActiveThreadService;
 import com.navercorp.pinpoint.profiler.receiver.service.EchoService;
 import com.navercorp.pinpoint.profiler.sampler.SamplerFactory;
@@ -72,8 +80,6 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 
 /**
  * @author emeroad
@@ -106,6 +112,7 @@ public class DefaultAgent implements Agent {
     private final ServerMetaDataHolder serverMetaDataHolder;
     private final AgentOption agentOption;
 
+    private final Object agentStatusLock = new Object();
     private volatile AgentStatus agentStatus;
 
     private final InterceptorRegistryBinder interceptorRegistryBinder;
@@ -205,23 +212,35 @@ public class DefaultAgent implements Agent {
                 this.profilerConfig.getStatDataSenderWriteQueueSize(), this.profilerConfig.getStatDataSenderSocketTimeout(),
                 this.profilerConfig.getStatDataSenderSocketSendBufferSize());
 
-        DefaultTraceContext defaultTraceContext = createTraceContext();
+        final ActiveTraceRepository activeTraceRepository = createActiveTraceRepository();
+        final IdGenerator idGenerator = new IdGenerator();
+        final TransactionCounter transactionCounter = new DefaultTransactionCounter(idGenerator);
 
-        CommandDispatcher commandService = createCommandService(defaultTraceContext);
+        final PluginMonitorContext pluginMonitorContext = createPluginMonitorContext();
+
+        this.traceContext = createTraceContext(idGenerator, activeTraceRepository, pluginMonitorContext);
+
+        CommandDispatcher commandService = createCommandService(profilerConfig, activeTraceRepository);
         this.tcpDataSender = createTcpDataSender(commandService);
 
-        defaultTraceContext.setPriorityDataSender(this.tcpDataSender);
-        this.traceContext = defaultTraceContext;
+        ((DefaultTraceContext)traceContext).setPriorityDataSender(this.tcpDataSender);
 
-        AgentStatCollectorFactory agentStatCollectorFactory = new AgentStatCollectorFactory(this.traceContext);
+        final AgentStatCollectorFactory agentStatCollectorFactory = new AgentStatCollectorFactory(profilerConfig, activeTraceRepository, transactionCounter, pluginMonitorContext);
 
-        JvmInformationFactory jvmInformationFactory = new JvmInformationFactory(agentStatCollectorFactory.getGarbageCollector());
+        final JvmInformationFactory jvmInformationFactory = new JvmInformationFactory(agentStatCollectorFactory.getGarbageCollector());
 
         this.agentInfoSender = new AgentInfoSender.Builder(tcpDataSender, this.agentInformation, jvmInformationFactory.createJvmInformation()).sendInterval(profilerConfig.getAgentInfoSendRetryInterval()).build();
         this.serverMetaDataHolder.addListener(this.agentInfoSender);
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime(), agentStatCollectorFactory);
         
         InterceptorInvokerHelper.setPropagateException(profilerConfig.isPropagateInterceptorException());
+    }
+
+    private ActiveTraceRepository createActiveTraceRepository() {
+        if (this.profilerConfig.isTraceAgentActiveThread()) {
+            return new ActiveTraceRepository();
+        }
+        return null;
     }
 
     private InstrumentClassPool createInstrumentEngine(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
@@ -262,28 +281,20 @@ public class DefaultAgent implements Agent {
         return loader.load(agentOption.getPluginJars());
     }
 
-    private CommandDispatcher createCommandService(TraceContext traceContext) {
+    private CommandDispatcher createCommandService(ProfilerConfig profilerConfig, ActiveTraceRepository activeTraceRepository) {
         ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
         builder.addService(new EchoService());
-        if (traceContext instanceof DefaultTraceContext) {
-            ActiveTraceLocator activeTraceLocator = ((DefaultTraceContext) traceContext).getActiveTraceLocator();
-            if (activeTraceLocator != null) {
-                ActiveThreadService activeThreadService = new ActiveThreadService(activeTraceLocator, traceContext.getProfilerConfig());
-                builder.addService(activeThreadService);
-            }
+        if (activeTraceRepository != null) {
+            ActiveThreadService activeThreadService = new ActiveThreadService(profilerConfig, activeTraceRepository);
+            builder.addService(activeThreadService);
         }
 
-        CommandDispatcher commandDispatcher = new CommandDispatcher(builder.build());
+        ProfilerCommandServiceLocator commandServiceLocator = builder.build();
+        CommandDispatcher commandDispatcher = new CommandDispatcher(commandServiceLocator);
         return commandDispatcher;
     }
-    
-    private TransactionCounter getTransactionCounter(TraceContext traceContext) {
-        if (traceContext instanceof DefaultTraceContext) {
-            return ((DefaultTraceContext) traceContext).getTransactionCounter();
-        }
-        return null;
-    }
-    
+
+
     public DynamicTransformService getDynamicTransformService() {
         return dynamicTransformService;
     }
@@ -301,13 +312,8 @@ public class DefaultAgent implements Agent {
     }
 
     private void dumpSystemProperties() {
-        if (logger.isInfoEnabled()) {
-            Properties properties = System.getProperties();
-            Set<String> strings = properties.stringPropertyNames();
-            for (String key : strings) {
-                logger.info("SystemProperties {}={}", key, properties.get(key));
-            }
-        }
+        SystemPropertyDumper dumper = new SystemPropertyDumper();
+        dumper.dump();
     }
 
     private void dumpConfig(ProfilerConfig profilerConfig) {
@@ -337,20 +343,32 @@ public class DefaultAgent implements Agent {
         PLoggerFactory.initialize(binder);
     }
 
-    private DefaultTraceContext createTraceContext() {
+    private TraceContext createTraceContext(IdGenerator idGenerator, ActiveTraceRepository activeTraceRepository, PluginMonitorContext pluginMonitorContext) {
+
         final StorageFactory storageFactory = createStorageFactory();
         logger.info("StorageFactoryType:{}", storageFactory);
 
         final Sampler sampler = createSampler();
         logger.info("SamplerType:{}", sampler);
-        
-        final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
-        final boolean traceActiveThread = profilerConfig.isTraceAgentActiveThread();
-        final boolean traceDataSource = profilerConfig.isTraceAgentDataSource();
-        final DefaultTraceContext traceContext = new DefaultTraceContext(jdbcSqlCacheSize, this.agentInformation, storageFactory, sampler, this.serverMetaDataHolder, traceActiveThread, traceDataSource);
-        traceContext.setProfilerConfig(profilerConfig);
+
+
+        TraceFactoryBuilder traceFactoryBuilder = createTraceFactory(storageFactory, sampler, idGenerator, activeTraceRepository);
+
+        final TraceContext traceContext = new DefaultTraceContext(this.profilerConfig, idGenerator, this.agentInformation, traceFactoryBuilder, pluginMonitorContext, this.serverMetaDataHolder);
 
         return traceContext;
+    }
+
+    private PluginMonitorContext createPluginMonitorContext() {
+        final boolean traceDataSource = profilerConfig.isTraceAgentDataSource();
+        final PluginMonitorContextBuilder monitorContextBuilder = new PluginMonitorContextBuilder(traceDataSource);
+        return monitorContextBuilder.build();
+    }
+
+    private TraceFactoryBuilder createTraceFactory(StorageFactory storageFactory, Sampler sampler, IdGenerator idGenerator, ActiveTraceRepository activeTraceRepository) {
+
+        final TraceFactoryBuilder builder = new DefaultTraceFactoryBuilder(storageFactory, sampler, idGenerator, activeTraceRepository);
+        return builder;
     }
 
     protected StorageFactory createStorageFactory() {
@@ -358,7 +376,6 @@ public class DefaultAgent implements Agent {
             return new BufferedStorageFactory(this.spanDataSender, this.profilerConfig, this.agentInformation);
         } else {
             return new SpanStorageFactory(spanDataSender);
-
         }
     }
 
@@ -440,7 +457,7 @@ public class DefaultAgent implements Agent {
     
     @Override
     public void start() {
-        synchronized (this) {
+        synchronized (agentStatusLock) {
             if (this.agentStatus == AgentStatus.INITIALIZING) {
                 changeStatus(AgentStatus.RUNNING);
             } else {
@@ -459,7 +476,7 @@ public class DefaultAgent implements Agent {
     }
 
     public void stop(boolean staticResourceCleanup) {
-        synchronized (this) {
+        synchronized (agentStatusLock) {
             if (this.agentStatus == AgentStatus.RUNNING) {
                 changeStatus(AgentStatus.STOPPED);
             } else {

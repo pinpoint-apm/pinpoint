@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -71,8 +73,9 @@ public class TraceTest {
     }
 
     private TraceContext getDefaultTraceContext() {
-        DefaultTraceContext defaultTraceContext = new DefaultTraceContext(new TestAgentInformation());
-        return defaultTraceContext;
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
+        TraceContext traceContext = MockTraceContextFactory.newTestTraceContext(profilerConfig);
+        return traceContext;
     }
 
     public class TestDataSender implements EnhancedDataSender {

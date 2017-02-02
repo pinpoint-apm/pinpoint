@@ -65,7 +65,6 @@ public class InvokeMethodInterceptorTest {
     }
 
     private TraceContext spyTraceContext() {
-//        return new MockTraceContext();
         MockTraceContextFactory traceContextFactory = new MockTraceContextFactory();
         TraceContext traceContext = traceContextFactory.create();
         return spy(traceContext);

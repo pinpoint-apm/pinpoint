@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -43,7 +45,8 @@ public class DefaultTraceTest {
 
     @Test
     public void testPushPop() {
-        TraceContext traceContext = new DefaultTraceContext(new TestAgentInformation());
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
+        TraceContext traceContext = MockTraceContextFactory.newTestTraceContext(profilerConfig);
         SpanStorage storage = new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER);
         long localTransactionId = 1;
         TraceId traceId = new DefaultTraceId("agentId", System.currentTimeMillis(), localTransactionId);

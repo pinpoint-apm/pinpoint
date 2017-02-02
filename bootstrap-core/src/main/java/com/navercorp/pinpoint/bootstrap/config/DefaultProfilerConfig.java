@@ -340,10 +340,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return profilerJvmCollectDetailedMetrics;
     }
 
-    public void setProfilerJvmCollectDetailedMetrics(boolean profilerJvmCollectDetailedMetrics) {
-        this.profilerJvmCollectDetailedMetrics = profilerJvmCollectDetailedMetrics;
-    }
-
     @Override
     public long getAgentInfoSendRetryInterval() {
         return agentInfoSendRetryInterval;

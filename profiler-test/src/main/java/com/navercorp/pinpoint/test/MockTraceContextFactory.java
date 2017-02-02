@@ -18,15 +18,32 @@ package com.navercorp.pinpoint.test;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorContext;
+import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
+import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
+import com.navercorp.pinpoint.profiler.context.DefaultTraceFactoryBuilder;
+import com.navercorp.pinpoint.profiler.context.IdGenerator;
+import com.navercorp.pinpoint.profiler.context.PluginMonitorContextBuilder;
+import com.navercorp.pinpoint.profiler.context.TraceFactoryBuilder;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
+import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
+import com.navercorp.pinpoint.profiler.sampler.TrueSampler;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
+import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 
 /**
  * @author emeroad
  */
 public class MockTraceContextFactory {
+
+    private static final boolean TRACE_ACTIVE_THREAD = true;
+    private static final boolean TRACE_DATASOURCE = false;
 
     private EnhancedDataSender priorityDataSender = new LoggingDataSender();
 
@@ -38,13 +55,36 @@ public class MockTraceContextFactory {
     }
 
     public TraceContext create() {
-        DefaultTraceContext traceContext = new DefaultTraceContext(new TestAgentInformation()) ;
         ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        traceContext.setProfilerConfig(profilerConfig);
-
-
-        traceContext.setPriorityDataSender(priorityDataSender);
+        TraceContext traceContext = newTestTraceContext(profilerConfig) ;
+        ((DefaultTraceContext)traceContext).setPriorityDataSender(priorityDataSender);
 
         return traceContext;
+    }
+
+    public static TraceContext newTestTraceContext(ProfilerConfig profilerConfig) {
+
+        AgentInformation agentInformation = new TestAgentInformation();
+
+        StorageFactory logStorageFactory = new LogStorageFactory();
+        Sampler sampler = new TrueSampler();
+        IdGenerator idGenerator = new IdGenerator();
+        ActiveTraceRepository activeTraceLocator = newActiveTraceRepository();
+        TraceFactoryBuilder traceFactoryBuilder = new DefaultTraceFactoryBuilder(logStorageFactory, sampler, idGenerator, activeTraceLocator);
+
+
+        PluginMonitorContextBuilder pluginMonitorContextBuilder = new PluginMonitorContextBuilder(TRACE_DATASOURCE);
+        PluginMonitorContext pluginMonitorContext = pluginMonitorContextBuilder.build();
+
+        ServerMetaDataHolder serverMetaDataHolder = new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs());
+
+        return new DefaultTraceContext(profilerConfig, idGenerator, agentInformation, traceFactoryBuilder, pluginMonitorContext, serverMetaDataHolder);
+    }
+
+    private static ActiveTraceRepository newActiveTraceRepository() {
+        if (TRACE_ACTIVE_THREAD) {
+            return new ActiveTraceRepository();
+        }
+        return null;
     }
 }

@@ -18,13 +18,18 @@ package com.navercorp.pinpoint.profiler.monitor.codahale.gc;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.profiler.context.MockTraceContextFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorContext;
+import com.navercorp.pinpoint.profiler.context.DefaultTransactionCounter;
+import com.navercorp.pinpoint.profiler.context.IdGenerator;
+import com.navercorp.pinpoint.profiler.context.TransactionCounter;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.monitor.DefaultPluginMonitorContext;
 import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
 
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,10 +37,27 @@ public class GarbageCollectorFactoryTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+
+    private AgentStatCollectorFactory newAgentStatCollectorFactory(boolean detailedMetrics) {
+        ProfilerConfig profilerConfig = Mockito.mock(DefaultProfilerConfig.class);
+        if (detailedMetrics) {
+            Mockito.when(profilerConfig.isProfilerJvmCollectDetailedMetrics()).thenReturn(true);
+        }
+
+        ActiveTraceRepository activeTraceRepository = new ActiveTraceRepository();
+        IdGenerator idGenerator = new IdGenerator();
+        TransactionCounter transactionCounter = new DefaultTransactionCounter(idGenerator);
+        PluginMonitorContext pluginMonitorContext = new DefaultPluginMonitorContext();
+
+        return new AgentStatCollectorFactory(profilerConfig, activeTraceRepository, transactionCounter, pluginMonitorContext);
+    }
+
+
     @Test
     public void test() {
-        TraceContext mockTraceContext = new MockTraceContextFactory().create();
-        GarbageCollector collector = new AgentStatCollectorFactory(mockTraceContext).getGarbageCollector();
+        AgentStatCollectorFactory agentStatCollectorFactory = newAgentStatCollectorFactory(false);
+
+        GarbageCollector collector = agentStatCollectorFactory.getGarbageCollector();
 
         logger.debug("collector.getType():{}", collector);
         TJvmGc collect1 = collector.collect();
@@ -45,12 +67,12 @@ public class GarbageCollectorFactoryTest {
         logger.debug("collector.collect():{}", collect2);
     }
 
+
     @Test
     public void testDetailedMetrics() {
-        TraceContext testTraceContext = new MockTraceContextFactory().create();
-        ProfilerConfig testProfilerConfig = testTraceContext.getProfilerConfig();
-        ((DefaultProfilerConfig)testProfilerConfig).setProfilerJvmCollectDetailedMetrics(true);
-        GarbageCollector collector = new AgentStatCollectorFactory(testTraceContext).getGarbageCollector();
+
+        AgentStatCollectorFactory agentStatCollectorFactory = newAgentStatCollectorFactory(true);
+        GarbageCollector collector = agentStatCollectorFactory.getGarbageCollector();
 
         logger.debug("collector.getType():{}", collector);
         TJvmGc collect1 = collector.collect();

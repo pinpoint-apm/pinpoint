@@ -34,7 +34,7 @@ public class ActiveThreadService implements ProfilerCommandServiceGroup {
 
     private final List<ProfilerCommandService> serviceList;
 
-    public ActiveThreadService(ActiveTraceLocator activeTraceLocator, ProfilerConfig profilerConfig) {
+    public ActiveThreadService(ProfilerConfig profilerConfig, ActiveTraceLocator activeTraceLocator) {
         serviceList = new ArrayList<ProfilerCommandService>();
 
         if (!profilerConfig.isTcpDataSenderCommandActiveThreadEnable()) {
