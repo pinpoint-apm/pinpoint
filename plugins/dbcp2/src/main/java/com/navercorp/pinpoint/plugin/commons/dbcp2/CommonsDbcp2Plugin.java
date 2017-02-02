@@ -26,17 +26,12 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 import java.security.ProtectionDomain;
 
 public class CommonsDbcp2Plugin implements ProfilerPlugin, TransformTemplateAware {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-
-    public static final ServiceType DBCP2_SERVICE_TYPE = ServiceTypeFactory.of(6052, "DBCP2");
-    public static final String DBCP2_SCOPE = "DBCP2_SCOPE";
 
     private CommonsDbcp2Config config;
 
@@ -62,7 +57,7 @@ public class CommonsDbcp2Plugin implements ProfilerPlugin, TransformTemplateAwar
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addInterceptor("com.navercorp.pinpoint.plugin.commons.dbcp2.interceptor.DataSourceCloseInterceptor");
+                target.addInterceptor(CommonsDbcp2Constants.INTERCEPTOR_CLOSE_CONNECTION);
                 return target.toBytecode();
             }
         });
@@ -70,14 +65,36 @@ public class CommonsDbcp2Plugin implements ProfilerPlugin, TransformTemplateAwar
 
     private void addBasicDataSourceTransformer() {
         transformTemplate.transform("org.apache.commons.dbcp2.BasicDataSource", new TransformCallback() {
-            
+
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addInterceptor("com.navercorp.pinpoint.plugin.commons.dbcp2.interceptor.DataSourceGetConnectionInterceptor");
+
+                if (isAvailableDataSourceMonitor(target)) {
+                    target.addField(CommonsDbcp2Constants.ACCESSOR_DATASOURCE_MONITOR);
+                    target.addInterceptor(CommonsDbcp2Constants.INTERCEPTOR_CONSTRUCTOR);
+                    target.addInterceptor(CommonsDbcp2Constants.INTERCEPTOR_CLOSE);
+                }
+
+                target.addInterceptor(CommonsDbcp2Constants.INTERCEPTOR_GET_CONNECTION);
                 return target.toBytecode();
             }
         });
+    }
+
+    private boolean isAvailableDataSourceMonitor(InstrumentClass target) {
+        boolean hasMethod = target.hasMethod("getUrl");
+        if (!hasMethod) {
+            return false;
+        }
+
+        hasMethod = target.hasMethod("getNumActive");
+        if (!hasMethod) {
+            return false;
+        }
+
+        hasMethod = target.hasMethod("getMaxTotal");
+        return hasMethod;
     }
 
     @Override
