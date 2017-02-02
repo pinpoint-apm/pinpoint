@@ -20,6 +20,8 @@ import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceId;
 import com.navercorp.pinpoint.test.MockTraceContextFactory;
@@ -77,9 +79,8 @@ public class InvokeMethodInterceptorTest {
     }
 
     private TraceContext spyTraceContext() {
-//        return new MockTraceContext();
-        MockTraceContextFactory traceContextFactory = new MockTraceContextFactory();
-        TraceContext traceContext = traceContextFactory.create();
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
+        TraceContext traceContext = MockTraceContextFactory.newTestTraceContext(profilerConfig);
         return spy(traceContext);
     }
 
