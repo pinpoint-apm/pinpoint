@@ -90,7 +90,7 @@ public enum StringEncodingStrategy implements EncodingStrategy<String> {
 
         public static class Builder implements StrategyAnalyzerBuilder<String> {
 
-            private static final int MAX_BYTES_PER_CHAR_UTF8  = (int) Charset.forName("UTF-8").newEncoder().maxBytesPerChar();
+            private static final int MAX_BYTES_PER_CHAR_UTF8 = (int) Charset.forName("UTF-8").newEncoder().maxBytesPerChar();
 
             private final List<String> values = new ArrayList<String>();
 
@@ -152,7 +152,15 @@ public enum StringEncodingStrategy implements EncodingStrategy<String> {
                 this.byteSizeValue += maxBytesUsedByValue;
 
                 // for null
-                if (this.previousValue == value || this.previousValue.equals(value)) {
+                if (this.previousValue == null) {
+                    if (value == null) {
+                        this.repeatedValueCount++;
+                    } else {
+                        this.byteSizeRepeatCount += expectedBytesVLength(this.repeatedValueCount);
+                        this.byteSizeRepeatCount += maxBytesUsedByValue;
+                        this.repeatedValueCount = 1;
+                    }
+                } else if (this.previousValue.equals(value)) {
                     this.repeatedValueCount++;
                 } else {
                     this.byteSizeRepeatCount += expectedBytesVLength(this.repeatedValueCount);

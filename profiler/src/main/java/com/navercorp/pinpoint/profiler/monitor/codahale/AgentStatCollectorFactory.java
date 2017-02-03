@@ -17,11 +17,11 @@
 package com.navercorp.pinpoint.profiler.monitor.codahale;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorContext;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorWrapper;
 import com.navercorp.pinpoint.profiler.context.monitor.DefaultPluginMonitorContext;
+import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
 import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorWrapperLocator;
 import com.navercorp.pinpoint.profiler.monitor.MonitorName;
 import com.navercorp.pinpoint.profiler.monitor.codahale.activetrace.ActiveTraceMetricCollector;

@@ -23,9 +23,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitor;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorContext;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorRegistry;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.plugin.commons.dbcp2.CommonsDbcp2Constants;
 import com.navercorp.pinpoint.plugin.commons.dbcp2.DataSourceMonitorAccessor;
@@ -42,11 +40,13 @@ public class DataSourceConstructorInterceptor implements AroundInterceptor {
     private static final PLogger logger = PLoggerFactory.getLogger(DataSourceConstructorInterceptor.class);
 
     private final TraceContext traceContext;
+    private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
     private final MethodDescriptor methodDescriptor;
 
 
-    public DataSourceConstructorInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    public DataSourceConstructorInterceptor(TraceContext traceContext, DataSourceMonitorRegistry dataSourceMonitorRegistry, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
+        this.dataSourceMonitorRegistry = dataSourceMonitorRegistry;
         this.methodDescriptor = methodDescriptor;
     }
 
@@ -60,13 +60,7 @@ public class DataSourceConstructorInterceptor implements AroundInterceptor {
             return;
         }
 
-        PluginMonitorContext pluginMonitorContext = traceContext.getPluginMonitorContext();
-        PluginMonitorRegistry<DataSourceMonitor> dataSourceMonitorRegistry = pluginMonitorContext.getDataSourceMonitorRegistry();
-        if (dataSourceMonitorRegistry == null) {
-            return;
-        }
-
-        if ((target instanceof DataSourceMonitorAccessor)) {
+        if ((target instanceof DataSourceMonitorAccessor) && (target instanceof BasicDataSource)) {
             Dbcp2DataSourceMonitor dbcpDataSourceMonitor = new Dbcp2DataSourceMonitor((BasicDataSource)target);
             dataSourceMonitorRegistry.register(dbcpDataSourceMonitor);
 

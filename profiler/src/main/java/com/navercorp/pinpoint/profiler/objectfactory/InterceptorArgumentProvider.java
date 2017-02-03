@@ -14,8 +14,6 @@
  */
 package com.navercorp.pinpoint.profiler.objectfactory;
 
-import java.lang.annotation.Annotation;
-
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
@@ -23,8 +21,14 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.NoCache;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
+import com.navercorp.pinpoint.profiler.context.monitor.DisabledPluginMonitorContext;
+import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
 import com.navercorp.pinpoint.profiler.util.TypeUtils;
+
+import java.lang.annotation.Annotation;
 
 /**
  * @author Jongho Moon
@@ -69,6 +73,13 @@ public class InterceptorArgumentProvider implements ArgumentProvider {
                 }
             } else {
                 return Option.empty();
+            }
+        } else if (type == DataSourceMonitorRegistry.class) {
+            if (traceContext instanceof DefaultTraceContext) {
+                PluginMonitorContext pluginMonitorContext = ((DefaultTraceContext)traceContext).getPluginMonitorContext();
+                return Option.withValue(pluginMonitorContext.getDataSourceMonitorRegistry());
+            } else {
+                return Option.withValue(DisabledPluginMonitorContext.DISABLED_DATASOURCE_MONITOR_REGISTRY);
             }
         }
         

@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.context.monitor;
 
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitor;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorRegistry;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitor;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * @author Taejin Koo
  */
-public class DataSourceMonitorList implements PluginMonitorRegistry<DataSourceMonitor>, PluginMonitorWrapperLocator<DataSourceMonitorWrapper> {
+public class DataSourceMonitorList implements DataSourceMonitorRegistry, PluginMonitorWrapperLocator<DataSourceMonitorWrapper> {
 
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final boolean loggerInfoEnabled = logger.isInfoEnabled();

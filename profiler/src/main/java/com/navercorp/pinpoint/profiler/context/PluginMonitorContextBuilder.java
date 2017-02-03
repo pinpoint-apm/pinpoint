@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorContext;
 import com.navercorp.pinpoint.profiler.context.monitor.DefaultPluginMonitorContext;
 import com.navercorp.pinpoint.profiler.context.monitor.DisabledPluginMonitorContext;
+import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
 
 /**
  * @author Woonduk Kang(emeroad)
