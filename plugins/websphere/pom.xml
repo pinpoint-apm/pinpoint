@@ -25,7 +25,7 @@
         </dependency>
     </dependencies>
     
-        <build>
+    <build>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -50,6 +50,7 @@
                 <configuration>
                     <includes>
                         <include>com/navercorp/**/*</include>
+                        <include>META-INF/**/*</include>
                     </includes>
                 </configuration>
             </plugin>
