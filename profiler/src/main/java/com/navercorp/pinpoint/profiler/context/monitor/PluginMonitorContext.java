@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.monitor;
+package com.navercorp.pinpoint.profiler.context.monitor;
+
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 
 /**
  * @author Taejin Koo
  */
-public interface PluginMonitorRegistry<T> {
+public interface PluginMonitorContext {
 
-    boolean register(T pluginMonitor);
-
-    boolean unregister(T pluginMonitor);
+    DataSourceMonitorRegistry getDataSourceMonitorRegistry();
 
 }

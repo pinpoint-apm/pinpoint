@@ -16,9 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.monitor;
 
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitor;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorContext;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.PluginMonitorRegistry;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 
 /**
  * @author Taejin Koo
@@ -37,7 +35,7 @@ public class DefaultPluginMonitorContext implements PluginMonitorContext {
     }
 
     @Override
-    public PluginMonitorRegistry<DataSourceMonitor> getDataSourceMonitorRegistry() {
+    public DataSourceMonitorRegistry getDataSourceMonitorRegistry() {
         return dataSourceMonitorList;
     }
 

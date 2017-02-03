@@ -19,8 +19,11 @@ package com.navercorp.pinpoint.bootstrap.plugin.monitor;
 /**
  * @author Taejin Koo
  */
-public interface PluginMonitorContext {
+public interface DataSourceMonitorRegistry {
 
-    PluginMonitorRegistry<DataSourceMonitor> getDataSourceMonitorRegistry();
+    boolean register(DataSourceMonitor dataSourceMonitor);
+
+    boolean unregister(DataSourceMonitor dataSourceMonitor);
+
 
 }
