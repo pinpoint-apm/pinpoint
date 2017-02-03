@@ -25,8 +25,8 @@ public final class WebsphereConstants {
 
     public static final String TYPE_NAME = "WEBSPHERE";
 
-    public static final ServiceType WEBSPHERE = ServiceTypeFactory.of(1040, "WEBSPHERE", RECORD_STATISTICS);
-    public static final ServiceType WEBSPHERE_METHOD = ServiceTypeFactory.of(1041, "WEBSPHERE_METHOD");
+    public static final ServiceType WEBSPHERE = ServiceTypeFactory.of(1060, "WEBSPHERE", RECORD_STATISTICS);
+    public static final ServiceType WEBSPHERE_METHOD = ServiceTypeFactory.of(1061, "WEBSPHERE_METHOD");
 
     public static final String METADATA_TRACE = "trace";
     public static final String METADATA_ASYNC = "async";
