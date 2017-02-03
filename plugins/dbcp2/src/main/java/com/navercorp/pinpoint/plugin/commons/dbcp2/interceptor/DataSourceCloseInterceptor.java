@@ -21,8 +21,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.plugin.commons.dbcp2.CommonsDbcp2Constants;
 import com.navercorp.pinpoint.plugin.commons.dbcp2.DataSourceMonitorAccessor;
@@ -34,8 +32,6 @@ import com.navercorp.pinpoint.plugin.commons.dbcp2.Dbcp2DataSourceMonitor;
 @Scope(CommonsDbcp2Constants.SCOPE)
 @TargetMethod(name="close")
 public class DataSourceCloseInterceptor implements AroundInterceptor {
-
-    private static final PLogger logger = PLoggerFactory.getLogger(DataSourceCloseInterceptor.class);
 
     private final TraceContext traceContext;
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;

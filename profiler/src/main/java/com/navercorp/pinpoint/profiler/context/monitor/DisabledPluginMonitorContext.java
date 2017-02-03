@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry
  */
 public class DisabledPluginMonitorContext implements PluginMonitorContext {
 
-    public static DisabledDataSourceMonitorRegistry DISABLED_DATASOURCE_MONITOR_REGISTRY = new DisabledDataSourceMonitorRegistry();
+    public static final DisabledDataSourceMonitorRegistry DISABLED_DATASOURCE_MONITOR_REGISTRY = new DisabledDataSourceMonitorRegistry();
 
     @Override
     public DataSourceMonitorRegistry getDataSourceMonitorRegistry() {
