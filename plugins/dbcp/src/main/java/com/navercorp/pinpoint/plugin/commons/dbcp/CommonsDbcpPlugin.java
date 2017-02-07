@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.navercorp.pinpoint.plugin.commons.dbcp;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
@@ -25,8 +26,6 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 import java.security.ProtectionDomain;
 
@@ -36,10 +35,6 @@ import java.security.ProtectionDomain;
 public class CommonsDbcpPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-
-
-    public static final ServiceType DBCP_SERVICE_TYPE = ServiceTypeFactory.of(6050, "DBCP");
-    public static final String DBCP_SCOPE = "DBCP_SCOPE";
 
     private  CommonsDbcpConfig config;
 
@@ -65,7 +60,7 @@ public class CommonsDbcpPlugin implements ProfilerPlugin, TransformTemplateAware
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addInterceptor("com.navercorp.pinpoint.plugin.commons.dbcp.interceptor.DataSourceCloseInterceptor");
+                target.addInterceptor(CommonsDbcpConstants.INTERCEPTOR_CLOSE_CONNECTION);
                 return target.toBytecode();
             }
         });
@@ -77,10 +72,32 @@ public class CommonsDbcpPlugin implements ProfilerPlugin, TransformTemplateAware
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addInterceptor("com.navercorp.pinpoint.plugin.commons.dbcp.interceptor.DataSourceGetConnectionInterceptor");
+
+                if (isAvailableDataSourceMonitor(target)) {
+                    target.addField(CommonsDbcpConstants.ACCESSOR_DATASOURCE_MONITOR);
+                    target.addInterceptor(CommonsDbcpConstants.INTERCEPTOR_CONSTRUCTOR);
+                    target.addInterceptor(CommonsDbcpConstants.INTERCEPTOR_CLOSE);
+                }
+
+                target.addInterceptor(CommonsDbcpConstants.INTERCEPTOR_GET_CONNECTION);
                 return target.toBytecode();
             }
         });
+    }
+
+    private boolean isAvailableDataSourceMonitor(InstrumentClass target) {
+        boolean hasMethod = target.hasMethod("getUrl");
+        if (!hasMethod) {
+            return false;
+        }
+
+        hasMethod = target.hasMethod("getNumActive");
+        if (!hasMethod) {
+            return false;
+        }
+
+        hasMethod = target.hasMethod("getMaxActive");
+        return hasMethod;
     }
 
     @Override

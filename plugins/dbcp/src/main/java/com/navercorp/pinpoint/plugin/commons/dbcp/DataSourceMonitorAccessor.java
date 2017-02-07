@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.navercorp.pinpoint.plugin.commons.dbcp;
 
-import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
-import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
-
 /**
- * @author Jongho Moon
+ * @author Taejin Koo
  */
-public class CommonsDbcpMetadataProvider implements TraceMetadataProvider {
-    /**
-     * @see TraceMetadataProvider#setup(TraceMetadataSetupContext)
-     */
-    @Override
-    public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(CommonsDbcpConstants.SERVICE_TYPE);
-    }
+public interface DataSourceMonitorAccessor {
+
+    void _$PINPOINT$_setDataSourceMonitor(DbcpDataSourceMonitor dataSourceMonitor);
+    DbcpDataSourceMonitor _$PINPOINT$_getDataSourceMonitor();
+
 }

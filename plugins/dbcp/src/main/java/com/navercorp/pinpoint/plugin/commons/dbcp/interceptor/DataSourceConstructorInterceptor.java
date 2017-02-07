@@ -20,24 +20,26 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructor;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
+import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.plugin.commons.dbcp.CommonsDbcpConstants;
 import com.navercorp.pinpoint.plugin.commons.dbcp.DataSourceMonitorAccessor;
 import com.navercorp.pinpoint.plugin.commons.dbcp.DbcpDataSourceMonitor;
+import org.apache.commons.dbcp.BasicDataSource;
 
 /**
  * @author Taejin Koo
  */
 @Scope(CommonsDbcpConstants.SCOPE)
-@TargetMethod(name="close")
-public class DataSourceCloseInterceptor implements AroundInterceptor {
+@TargetConstructor
+public class DataSourceConstructorInterceptor implements AroundInterceptor {
 
     private final TraceContext traceContext;
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
     private final MethodDescriptor methodDescriptor;
 
-    public DataSourceCloseInterceptor(TraceContext traceContext, DataSourceMonitorRegistry dataSourceMonitorRegistry, MethodDescriptor methodDescriptor) {
+    public DataSourceConstructorInterceptor(TraceContext traceContext, DataSourceMonitorRegistry dataSourceMonitorRegistry, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
         this.dataSourceMonitorRegistry = dataSourceMonitorRegistry;
         this.methodDescriptor = methodDescriptor;
@@ -45,20 +47,20 @@ public class DataSourceCloseInterceptor implements AroundInterceptor {
 
     @Override
     public void before(Object target, Object[] args) {
-        if ((target instanceof DataSourceMonitorAccessor)) {
-            DbcpDataSourceMonitor dataSourceMonitor = ((DataSourceMonitorAccessor) target)._$PINPOINT$_getDataSourceMonitor();
-
-            if (dataSourceMonitor != null) {
-                ((DataSourceMonitorAccessor) target)._$PINPOINT$_setDataSourceMonitor(null);
-                dataSourceMonitor.close();
-                dataSourceMonitorRegistry.unregister(dataSourceMonitor);
-            }
-        }
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        if (!InterceptorUtils.isSuccess(throwable)) {
+            return;
+        }
 
+        if ((target instanceof DataSourceMonitorAccessor) && (target instanceof BasicDataSource)) {
+            DbcpDataSourceMonitor dataSourceMonitor = new DbcpDataSourceMonitor((BasicDataSource)target);
+            dataSourceMonitorRegistry.register(dataSourceMonitor);
+
+            ((DataSourceMonitorAccessor) target)._$PINPOINT$_setDataSourceMonitor(dataSourceMonitor);
+        }
     }
 
 }
