@@ -79,10 +79,10 @@
 			},
 			depth : {
 				mainStyle: "",
-				title: '<img src="images/inbound.png" width="22px" height="22px" style="margin-top:-4px;"> Inbound 와 <img src="images/outbound.png" width="22px" height="22px" style="margin-top:-4px"> Outbound',
+				title: '<img src="images/inbound.png" width="22px" height="22px" style="margin-top:-4px;"> Inbound and <img src="images/outbound.png" width="22px" height="22px" style="margin-top:-4px"> Outbound',
 				desc: "Search-depth of server map.",
 				category : [{
-					title: "[범례]",
+					title: "[Legend]",
 					items: [{
 						name: "Inbound",
 						desc: "Number of depth to render for requests coming in to the selected node."
