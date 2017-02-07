@@ -9,15 +9,16 @@
 	 * @class
 	 */
 	pinpointApp.constant('AgentAjaxServiceConfig', {
-		"agentList"			: "/getAgentList.pinpoint",				// agentId, timestamp ( or agentId, from, to )
-		"agentInfo"			: "/getAgentInfo.pinpoint", 				// agentId, timestamp
-		"agetEvent"			: "/getAgentEvent.pinpoint", 				// agentId, eventTimestamp, eventTypeCode
-		"agentStatus"		: "/getAgentStatus.pinpoint", 			// agentId, timestamp
-		"agentEventList"	: "/getAgentEvents.pinpoint", 		// agentId, from, to
+		"agentList"			: "/getAgentList.pinpoint",							// agentId, timestamp ( or agentId, from, to )
+		"agentInfo"			: "/getAgentInfo.pinpoint", 						// agentId, timestamp
+		"agentEvent"		: "/getAgentEvent.pinpoint", 						// agentId, eventTimestamp, eventTypeCode
+		"agentStatus"		: "/getAgentStatus.pinpoint", 						// agentId, timestamp
+		"agentEventList"	: "/getAgentEvents.pinpoint", 						// agentId, from, to
 		"jvmChart"			: "/getAgentStat/jvmGc/chart.pinpoint",
 		"cpuLoadChart"		: "/getAgentStat/cpuLoad/chart.pinpoint",
 		"tpsChart"			: "/getAgentStat/transaction/chart.pinpoint",
 		"activeTraceChart"	: "/getAgentStat/activeTrace/chart.pinpoint",
+		"dataSourceChart"	: "/getAgentStat/dataSource/chartList.pinpoint",
 		"agentStateForChart": "/getAgentStat.pinpoint"
 	});
 
@@ -40,6 +41,9 @@
 		this.getActiveTraceChartData = function( data, callback ) {
 			retrieve($config.activeTraceChart, data, callback);
 		};
+		this.getDataSourceChartData = function( data, callback ) {
+			retrieve($config.dataSourceChart, data, callback);
+		};
 		this.getAgentInfo = function( data, callback ) {
 			retrieve($config.agentInfo, data, callback);
 		};
@@ -48,7 +52,7 @@
 			retrieve($config.agentEventList, data, callback);
 		};
 		this.getEvent = function( data, callback ) {
-			retrieve($config.agetEvent, data, callback);
+			retrieve($config.agentEvent, data, callback);
 		};
 
 		function retrieve(url, data, callback) {

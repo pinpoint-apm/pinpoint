@@ -17,6 +17,7 @@
 					scope.showEventInfo = false;
 					scope.showDetail = false;
 					scope.selectTime = -1;
+					var $elDSMessage = element.find(".ds-detail");
 					var timeSlider = null, bInitTooltip = false;
 					var oAlertService = new AlertsService();
 					var oProgressBarService = new ProgressBarService();
@@ -90,10 +91,15 @@
 								showActiveTraceChart(result);
 							}
 						});
+						AgentAjaxService.getDataSourceChartData( oParam, function (result) {
+							if ( checkResponse( result ) ) {
+								showDataSourceChart(result);
+							}
+						});
 						function checkResponse( result ) {
 							responseCount++;
-							oProgressBarService.setLoading(20 + (responseCount * 20) );
-							if ( responseCount >= 4 ) {
+							oProgressBarService.setLoading(20 + (responseCount * 16) );
+							if ( responseCount >= 5 ) {
 								oProgressBarService.stopLoading();
 								if ( hasError ) {
 									oAlertService.showError('There is some error.');
@@ -216,6 +222,18 @@
 
 						scope.$broadcast( "activeTraceChartDirective.initAndRenderWithData.forActiveTrace", AgentDaoService.parseActiveTraceChartDataForAmcharts(activeTrace, chartData), '100%', '270px');
 					}
+					scope.dsChartData;
+					function showDataSourceChart( chartData ) {
+						var dataSource = { id: "dataSource", title: "Data Source", isAvailable: false };
+						dataSource["keys"] = chartData.map(function(v, i) {
+							return i+1;
+						});
+						scope.dsChartData = chartData;
+						scope.currentDS = 1;
+						scope.dataSourceChart = dataSource;
+
+						scope.$broadcast( "dsChartDirective.initAndRenderWithData.forDataSource", AgentDaoService.parseDataSourceChartDataForAmcharts(dataSource, chartData[scope.currentDS-1]), '100%', '270px');
+					}
 					function getEventList( agentId, aFromTo ) {
 						AgentAjaxService.getEventList({
 							"agentId": agentId,
@@ -244,6 +262,19 @@
 							scope.$broadcast('activeTraceChartDirective.showCursorAt.forActiveTrace', event.index);
 						}
 					}
+					function broadcastToDataSourceChart(e, event) {
+						if (scope.dataSourceChart.isAvailable) {
+							scope.$broadcast('dsChartDirective.showCursorAt.forDataSource', event.index);
+						}
+					}
+					scope.currentDS = 1;
+					scope.changeDS = function() {
+						var index = parseInt(scope.currentDS) - 1;
+						scope.$broadcast( "dsChartDirective.initAndRenderWithData.forDataSource", AgentDaoService.parseDataSourceChartDataForAmcharts(scope.dataSourceChart, scope.dsChartData[index]), '100%', '270px');
+					};
+					scope.showDataSourceDetail = function() {
+						$elDSMessage.toggle();
+					};
 					scope.toggleHelp = function() {
 						$("._wrongApp").popover({
 							"title": "<span class='label label-info'>" + UrlVoService.getApplicationName() + "</span> <span class='glyphicon glyphicon-resize-horizontal'></span> <span class='label label-info'>" + scope.agent.applicationName + "</span>",
@@ -321,6 +352,7 @@
 							scope.hasAgentData = false;
 							return;
 						}
+						$elDSMessage.hide();
 						scope.showEventInfo = false;
 						scope.hasAgentData = true;
 						scope.agent = agent;
@@ -363,30 +395,42 @@
 						broadcastToCpuLoadChart(e, event);
 						broadcastToTpsChart(e, event);
 						broadcastToActiveTraceChart(e, event);
+						broadcastToDataSourceChart(e, event);
 					});
 					scope.$on('jvmMemoryChartDirective.cursorChanged.forNonHeap', function (e, event) {
 						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
 						broadcastToCpuLoadChart(e, event);
 						broadcastToTpsChart(e, event);
 						broadcastToActiveTraceChart(e, event);
+						broadcastToDataSourceChart(e, event);
 					});
 					scope.$on('cpuLoadChartDirective.cursorChanged.forCpuLoad', function (e, event) {
 						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
 						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', event.index);
 						broadcastToTpsChart(e, event);
 						broadcastToActiveTraceChart(e, event);
+						broadcastToDataSourceChart(e, event);
 					});
 					scope.$on('tpsChartDirective.cursorChanged.forTps', function (e, event) {
 						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
 						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', event.index);
 						broadcastToCpuLoadChart(e, event);
 						broadcastToActiveTraceChart(e, event);
+						broadcastToDataSourceChart(e, event);
 					});
 					scope.$on('activeTraceChartDirective.cursorChanged.forActiveTrace', function (e, event) {
 						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
 						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', event.index);
 						broadcastToCpuLoadChart(e, event);
 						broadcastToTpsChart(e, event);
+						broadcastToDataSourceChart(e, event);
+					});
+					scope.$on('dsChartDirective.cursorChanged.forDataSource', function (e, event) {
+						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
+						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', event.index);
+						broadcastToCpuLoadChart(e, event);
+						broadcastToTpsChart(e, event);
+						broadcastToActiveTraceChart(e, event);
 					});
 				}
 			};

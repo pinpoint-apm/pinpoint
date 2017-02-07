@@ -227,6 +227,42 @@
 				}
 				return newData;
 			};
+			this.parseDataSourceChartDataForAmcharts = function (info, agentStat) {
+				var activeConnectionData = agentStat.charts['ACTIVE_CONNECTION_SIZE'];
+				var maxConnectionData = agentStat.charts['MAX_CONNECTION_SIZE'];
+				if (activeConnectionData || maxConnectionData) {
+					info.isAvailable = true;
+				} else {
+					return;
+				}
+				var newData = [],
+					pointsActiveConnection = activeConnectionData.points,
+					pointsMaxConnection = maxConnectionData.points;
+
+				if (pointsActiveConnection.length !== pointsMaxConnection.length) {
+					throw new Error('assertion error', 'activeConnection.length != maxConnection.length');
+				}
+
+				for (var i = 0; i < pointsActiveConnection.length; ++i) {
+					if (pointsActiveConnection[i].xVal !== pointsMaxConnection[i].xVal) {
+						throw new Error('assertion error', 'timestamp mismatch between jvmCpuLoad and systemCpuLoad');
+					}
+					var thisData = {
+						time: moment(pointsActiveConnection[i].xVal).format( cfg.dateFormat )
+					};
+					var activeConnection = pointsActiveConnection[i].maxYVal;
+					var maxConnection = pointsMaxConnection[i].maxYVal;
+					if ( activeConnection >= 0 ) {
+						thisData.activeConnection = activeConnection;
+					}
+					if ( maxConnection >= 0 ) {
+						thisData.maxConnection = maxConnection;
+					}
+					newData.push(thisData);
+				}
+				return newData;
+			};
+
 			function getFloatValue( val ) {
 				return angular.isNumber( val ) ? val.toFixed(2) : 0.00;
 			}
