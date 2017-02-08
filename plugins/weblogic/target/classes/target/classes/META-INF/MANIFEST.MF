@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-Built-By: lihainan
-Build-Jdk: 1.8.0_45
-Created-By: Maven Integration for Eclipse
-
