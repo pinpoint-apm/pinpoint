@@ -612,6 +612,21 @@
 					}]
 				}]
 			},
+			dataSource: {
+				mainStyle: "",
+				title: "Data Source",
+				desc: "에이전트의 DataSource의 현황을 보여줍니다.",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "Active",
+						desc: "사용중인 connection 의 갯수"
+					},{
+						name: "Max",
+						desc: "최대 사용이 가능한 connection의 갯수"
+					}]
+				}]
+			},
 			wrongApp: [
 				"<div style='font-size:12px'>해당 agent는 {{application1}}이 아닌 {{application2}}에 포함되어 있습니다.<br>",
 				"원인은 다음 중 하나입니다.<hr>",

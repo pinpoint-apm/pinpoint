@@ -198,12 +198,23 @@
 					<active-trace-chart-directive namespace="forActiveTrace"></active-trace-chart-directive>
 				</div>
 				<div class="col-md-6">
-					<h4><span class="glyphicon glyphicon-question-sign dataSourceTooltip" style="cursor:pointer;float:right;"></span> {{dataSourceChart.title}} <select style="margin-left:20px;" ng-show="dataSourceChart.keys.length > 0" ng-change="changeDS(currentDS)" ng-model="currentDS"><option ng-repeat="k in dataSourceChart.keys" value="{{k}}">{{k}}</option></select> <span ng-click="showDataSourceDetail()" class="label label-info" style="float:right;margin-right:20px;cursor:pointer;">{{ dsChartData[currentDS-1].serviceType }} <span class="glyphicon glyphicon-chevron-down"></span></span></h4>
-					<div style="display:none;border: 3px solid #DDD;padding:4px 6px;position:absolute;background-color:#FFF;z-index:1000;" class="ds-detail">
-						<span class="label label-info">URL</span>
-						<div style="word-wrap:break-word">{{dsChartData[currentDS-1].jdbcUrl}}</div>
-						<span class="label label-info">POOL NAME</span>
-						<div>{{dsChartData[currentDS-1].poolName  || "-" }}</div>
+					<h4><span class="glyphicon glyphicon-question-sign dataSourceTooltip" style="cursor:pointer;float:right;"></span> {{dataSourceChart.title}} <select style="margin-left:20px;" ng-if="dsChartData" ng-change="changeDS(currentDS)" ng-model="currentDS"><option ng-repeat="k in dataSourceChart.keys" value="{{k.value}}">{{k.display}}</option></select> <span ng-click="showDataSourceDetail()" class="glyphicon glyphicon-info-sign" style="float:right;margin-right:20px;cursor:pointer;"></span></h4>
+					<div style="display:none;font-size:12px;top:-140px;padding:10px 6px;position:absolute;background-color:#FFF;z-index:1000;width:95%;" class="ds-detail">
+						<div class="panel panel-default" style="margin-bottom:0px;">
+							<div class="panel-heading">{{ dsChartData[currentDS].serviceType }} - Service Type</div>
+							<div class="panel-body" style="padding: 6px 6px;">
+								<div class="row">
+									<div class="col-md-12">URL</div>
+								</div>
+								<div class="row">
+									<div class="col-md-12">{{dsChartData[currentDS].jdbcUrl}}</div>
+								</div>
+								<div class="row" style="margin-top:10px;">
+									<div class="col-md-6">Pool Name</div>
+									<div class="col-md-6">{{dsChartData[currentDS].poolName  || "-" }}</div>
+								</div>
+							</div>
+						</div>
 					</div>
 					<ds-chart-directive namespace="forDataSource"></ds-chart-directive>
 				</div>

@@ -24,8 +24,10 @@
 						if (h) element.css('height', h);
 					}
 					function renderUpdate(data) {
-						oChart.dataProvider = data;
-						oChart.validateData();
+						// oChart.dataProvider = data;
+						// oChart.validateData();
+						oChart.valueAxes[0].maximum = data.max;
+						oChart.validateNow( data.list );
 					}
 					function render(chartData) {
 						var options = {
@@ -44,7 +46,7 @@
 								"valueWidth": 70
 							},
 							"usePrefixes": true,
-							"dataProvider": chartData,
+							"dataProvider": chartData.list,
 							"valueAxes": [
 								{
 									"id": "v1",
@@ -52,7 +54,7 @@
 									"axisAlpha": 1,
 									"position": "left",
 									"title": "Connection",
-									"maximum" : 100,
+									"maximum" : chartData.max,
 									"minimum" : 0
 								}
 							],
@@ -63,7 +65,7 @@
 									"legendValueText": "[[value]]",
 									"lineColor": "rgb(31, 119, 180)",
 									"fillColor": "rgb(31, 119, 180)",
-									"title": "JVM",
+									"title": "Active",
 									"valueField": "activeConnection",
 									"fillAlphas": 0.4,
 									"connect": false
@@ -74,7 +76,7 @@
 									"legendValueText": "[[value]]",
 									"lineColor": "rgb(174, 199, 232)",
 									"fillColor": "rgb(174, 199, 232)",
-									"title": "System",
+									"title": "Max",
 									"valueField": "maxConnection",
 									"fillAlphas": 0.4,
 									"connect": false
