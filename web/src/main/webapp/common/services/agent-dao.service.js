@@ -235,7 +235,7 @@
 				} else {
 					return;
 				}
-				var newData = [],
+				var newData = [], max = -1,
 					pointsActiveConnection = activeConnectionData.points,
 					pointsMaxConnection = maxConnectionData.points;
 
@@ -250,8 +250,9 @@
 					var thisData = {
 						time: moment(pointsActiveConnection[i].xVal).format( cfg.dateFormat )
 					};
-					var activeConnection = pointsActiveConnection[i].maxYVal;
-					var maxConnection = pointsMaxConnection[i].maxYVal;
+					var activeConnection = pointsActiveConnection[i].avgYVal;
+					var maxConnection = pointsMaxConnection[i].avgYVal;
+					max = Math.max( max, pointsActiveConnection[i].maxYVal, pointsMaxConnection[i].maxYVal );
 					if ( activeConnection >= 0 ) {
 						thisData.activeConnection = activeConnection;
 					}
@@ -260,7 +261,10 @@
 					}
 					newData.push(thisData);
 				}
-				return newData;
+				return {
+					"list": newData,
+					"max": max
+				};
 			};
 
 			function getFloatValue( val ) {

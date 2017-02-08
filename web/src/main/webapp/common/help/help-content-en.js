@@ -593,6 +593,21 @@
 					}]
 				}]
 			},
+			dataSource: {
+				mainStyle: "",
+				title: "Data Source",
+				desc: "Show the status of agent's data source.",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "Active",
+						desc: "The number of active connections"
+					},{
+						name: "Max",
+						desc: "The maximum number of active connections that can be allocated at the same time"
+					}]
+				}]
+			},
 			wrongApp: [
 				"<div style='font-size:12px'>The agent is currently registered under {{application2}} due to the following:<br>",
 				"1. The agent has moved from {{application1}} to {{application2}}<br>",

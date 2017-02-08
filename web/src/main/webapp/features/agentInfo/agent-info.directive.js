@@ -165,6 +165,7 @@
 							TooltipService.init( "cpuUsage" );
 							TooltipService.init( "tps" );
 							TooltipService.init( "activeThread" );
+							TooltipService.init( "dataSource" );
 							bInitTooltip = true;
 						}
 					}
@@ -226,13 +227,16 @@
 					function showDataSourceChart( chartData ) {
 						var dataSource = { id: "dataSource", title: "Data Source", isAvailable: false };
 						dataSource["keys"] = chartData.map(function(v, i) {
-							return i+1;
+							return {
+								display: v.id,
+								value: i
+							};
 						});
 						scope.dsChartData = chartData;
-						scope.currentDS = 1;
+						scope.currentDS = 0;
 						scope.dataSourceChart = dataSource;
 
-						scope.$broadcast( "dsChartDirective.initAndRenderWithData.forDataSource", AgentDaoService.parseDataSourceChartDataForAmcharts(dataSource, chartData[scope.currentDS-1]), '100%', '270px');
+						scope.$broadcast( "dsChartDirective.initAndRenderWithData.forDataSource", AgentDaoService.parseDataSourceChartDataForAmcharts(dataSource, chartData[scope.currentDS]), '100%', '270px');
 					}
 					function getEventList( agentId, aFromTo ) {
 						AgentAjaxService.getEventList({
@@ -267,9 +271,9 @@
 							scope.$broadcast('dsChartDirective.showCursorAt.forDataSource', event.index);
 						}
 					}
-					scope.currentDS = 1;
+					scope.currentDS = 0;
 					scope.changeDS = function() {
-						var index = parseInt(scope.currentDS) - 1;
+						var index = parseInt(scope.currentDS);
 						scope.$broadcast( "dsChartDirective.initAndRenderWithData.forDataSource", AgentDaoService.parseDataSourceChartDataForAmcharts(scope.dataSourceChart, scope.dsChartData[index]), '100%', '270px');
 					};
 					scope.showDataSourceDetail = function() {
@@ -350,6 +354,7 @@
 						if( cfg.ID === invokerId ) return;
 						if ( CommonUtilService.isEmpty( agent.agentId ) ) {
 							scope.hasAgentData = false;
+							scope.dsChartData = [];
 							return;
 						}
 						$elDSMessage.hide();
