@@ -222,7 +222,7 @@
 
 						scope.$broadcast( "activeTraceChartDirective.initAndRenderWithData.forActiveTrace", AgentDaoService.parseActiveTraceChartDataForAmcharts(activeTrace, chartData), '100%', '270px');
 					}
-					scope.dsChartData;
+					scope.dsChartData = [];
 					function showDataSourceChart( chartData ) {
 						var dataSource = { id: "dataSource", title: "Data Source", isAvailable: false };
 						dataSource["keys"] = chartData.map(function(v, i) {
