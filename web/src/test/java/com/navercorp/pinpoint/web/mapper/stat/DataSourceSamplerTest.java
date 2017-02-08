@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.web.mapper.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DataSourceSampler;
+import com.navercorp.pinpoint.web.test.util.DataSourceTestUtils;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -41,30 +41,11 @@ public class DataSourceSamplerTest {
     public void sampleDataPointsTest1() throws Exception {
         int testObjectSize = RANDOM.nextInt(CREATE_TEST_OBJECT_MAX_SIZE) + 1;
         int maxConnectionSize = RANDOM.nextInt(MIN_VALUE_OF_MAX_CONNECTION_SIZE) + MIN_VALUE_OF_MAX_CONNECTION_SIZE;
-        List<DataSourceBo> dataSourceBoList = createDataSourceBoList(testObjectSize, maxConnectionSize);
+        List<DataSourceBo> dataSourceBoList = DataSourceTestUtils.createDataSourceBoList(1, testObjectSize, maxConnectionSize);
 
         SampledDataSource sampledDataSource = sampler.sampleDataPoints(0, System.currentTimeMillis(), dataSourceBoList, null);
 
         assertEquals(sampledDataSource, dataSourceBoList);
-    }
-
-    private List<DataSourceBo> createDataSourceBoList(int dataSourceSize, int maxConnectionSize) {
-        List<DataSourceBo> result = new ArrayList<>(dataSourceSize);
-
-        for (int i = 0; i < dataSourceSize; i++) {
-            DataSourceBo dataSourceBo = createDataSourceBo(maxConnectionSize);
-            result.add(dataSourceBo);
-        }
-
-        return result;
-    }
-
-    private DataSourceBo createDataSourceBo(int maxConnectionSize) {
-        DataSourceBo dataSourceBo = new DataSourceBo();
-        dataSourceBo.setActiveConnectionSize(RANDOM.nextInt(maxConnectionSize));
-        dataSourceBo.setMaxConnectionSize(maxConnectionSize);
-
-        return dataSourceBo;
     }
 
     private void assertEquals(SampledDataSource sampledDataSource, List<DataSourceBo> dataSourceBoList) {

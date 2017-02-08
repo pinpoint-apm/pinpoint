@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.vo.stat.chart;
+package com.navercorp.pinpoint.web.view;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -23,17 +24,15 @@ import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DataSourceSampler
 import com.navercorp.pinpoint.web.test.util.DataSourceTestUtils;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.chart.Chart;
-import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
-import junit.framework.Assert;
+import com.navercorp.pinpoint.web.vo.stat.chart.DataSourceChartGroup;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -44,13 +43,15 @@ import static org.mockito.Mockito.when;
 /**
  * @author Taejin Koo
  */
-public class DataSourceChartGroupTest {
+public class DataSourceChartGroupSerializerTest {
 
     private static final Random RANDOM = new Random(System.currentTimeMillis());
     private static final int MIN_VALUE_OF_MAX_CONNECTION_SIZE = 20;
     private static final int CREATE_TEST_OBJECT_MAX_SIZE = 10;
 
     private final DataSourceSampler sampler = new DataSourceSampler();
+
+    private ObjectMapper mapper = new ObjectMapper();
 
     @Mock
     private ServiceTypeRegistryService serviceTypeRegistryService;
@@ -62,28 +63,21 @@ public class DataSourceChartGroupTest {
     }
 
     @Test
-    public void basicFunctionTest1() throws Exception {
+    public void serializeTest() throws Exception {
         long currentTimeMillis = System.currentTimeMillis();
         TimeWindow timeWindow = new TimeWindow(new Range(currentTimeMillis - 300000, currentTimeMillis));
 
         List<SampledDataSource> sampledDataSourceList = createSampledDataSourceList(timeWindow);
         DataSourceChartGroup dataSourceChartGroup = new DataSourceChartGroup(timeWindow, sampledDataSourceList, serviceTypeRegistryService);
 
-        assertEquals(sampledDataSourceList, dataSourceChartGroup);
-    }
+        String jsonValue = mapper.writeValueAsString(dataSourceChartGroup);
+        Map map = mapper.readValue(jsonValue, Map.class);
 
-    @Test
-    public void basicFunctionTest2() throws Exception {
-        long currentTimeMillis = System.currentTimeMillis();
-        TimeWindow timeWindow = new TimeWindow(new Range(currentTimeMillis - 300000, currentTimeMillis));
-
-        List<SampledDataSource> sampledDataSourceList = Collections.emptyList();
-        DataSourceChartGroup dataSourceChartGroup = new DataSourceChartGroup(timeWindow, sampledDataSourceList, serviceTypeRegistryService);
-
-        Assert.assertEquals(-1, dataSourceChartGroup.getId());
-        Assert.assertEquals(null, dataSourceChartGroup.getJdbcUrl());
-        Assert.assertEquals(null, dataSourceChartGroup.getPoolName());
-        Assert.assertEquals(null, dataSourceChartGroup.getServiceTypeName());
+        Assert.assertTrue(map.containsKey("id"));
+        Assert.assertTrue(map.containsKey("jdbcUrl"));
+        Assert.assertTrue(map.containsKey("poolName"));
+        Assert.assertTrue(map.containsKey("serviceType"));
+        Assert.assertTrue(map.containsKey("charts"));
     }
 
     private List<SampledDataSource> createSampledDataSourceList(TimeWindow timeWindow) {
@@ -105,29 +99,6 @@ public class DataSourceChartGroupTest {
         int testObjectSize = RANDOM.nextInt(CREATE_TEST_OBJECT_MAX_SIZE) + 1;
         List<DataSourceBo> dataSourceBoList = DataSourceTestUtils.createDataSourceBoList(1, testObjectSize, maxConnectionSize);
         return sampler.sampleDataPoints(0, timestamp, dataSourceBoList, null);
-    }
-
-    private void assertEquals(List<SampledDataSource> sampledDataSourceList, DataSourceChartGroup dataSourceChartGroup) {
-        Map<AgentStatChartGroup.ChartType, Chart> charts = dataSourceChartGroup.getCharts();
-
-        Chart activeConnectionSizeChart = charts.get(DataSourceChartGroup.DataSourceChartType.ACTIVE_CONNECTION_SIZE);
-        List<Point> activeConnectionSizeChartPointList = activeConnectionSizeChart.getPoints();
-
-        for (int i = 0; i < sampledDataSourceList.size(); i++) {
-            SampledDataSource sampledDataSource = sampledDataSourceList.get(i);
-            Point<Long, Integer> point = sampledDataSource.getActiveConnectionSize();
-
-            Assert.assertEquals(activeConnectionSizeChartPointList.get(i), point);
-        }
-
-        Chart maxConnectionSizeChart = charts.get(DataSourceChartGroup.DataSourceChartType.MAX_CONNECTION_SIZE);
-        List<Point> maxConnectionSizeChartPointList = maxConnectionSizeChart.getPoints();
-        for (int i = 0; i < sampledDataSourceList.size(); i++) {
-            SampledDataSource sampledDataSource = sampledDataSourceList.get(i);
-            Point<Long, Integer> point = sampledDataSource.getMaxConnectionSize();
-
-            Assert.assertEquals(maxConnectionSizeChartPointList.get(i), point);
-        }
     }
 
 }
