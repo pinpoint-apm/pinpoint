@@ -280,13 +280,8 @@
 						}
 					}
 					function changeDSChart() {
-						var oR = AgentDaoService.parseDataSourceChartDataForAmcharts(scope.dataSourceChart, scope.dsChartData[scope.selectedDSIndex]);
-						if ( scope.selectedDSIndex === 1 ) {
-							oR.max = 120;
-						}
-						scope.$broadcast( "dsChartDirective.initAndRenderWithData.forDataSource", oR, '100%', '270px');
-						// scope.$broadcast( "dsChartDirective.initAndRenderWithData.forDataSource", AgentDaoService.parseDataSourceChartDataForAmcharts(scope.dataSourceChart, scope.dsChartData[scope.selectedDSIndex]), '100%', '270px');
-					};
+						scope.$broadcast( "dsChartDirective.initAndRenderWithData.forDataSource", AgentDaoService.parseDataSourceChartDataForAmcharts(scope.dataSourceChart, scope.dsChartData[scope.selectedDSIndex]), '100%', '270px');
+					}
 					scope.showDataSourceDetail = function() {
 						$elDSMessage.toggle();
 					};
