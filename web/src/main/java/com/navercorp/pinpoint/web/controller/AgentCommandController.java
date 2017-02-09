@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
+import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadDump;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadDumpFactory;
@@ -68,12 +69,19 @@ public class AgentCommandController {
     @Autowired
     private AgentService agentService;
 
+    @Autowired
+    private ConfigProperties webProperties;
+
     @RequestMapping(value = "/activeThreadDump", method = RequestMethod.GET)
     public ModelAndView getActiveThreadDump(@RequestParam(value = "applicationName") String applicationName,
                                             @RequestParam(value = "agentId") String agentId,
                                             @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
                                             @RequestParam(value = "threadName", required = false) String[] threadNameList,
                                             @RequestParam(value = "localTraceId", required = false) Long[] localTraceIdList) throws TException {
+        if (!webProperties.isEnableActiveThreadDump()) {
+            return createResponse(false, "Disable activeThreadDump option. 'config.enable.activeThreadDump=false'");
+        }
+
         AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId);
         if (agentInfo == null) {
             return createResponse(false, String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
@@ -136,6 +144,10 @@ public class AgentCommandController {
                                             @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
                                             @RequestParam(value = "threadName", required = false) String[] threadNameList,
                                             @RequestParam(value = "localTraceId", required = false) Long[] localTraceIdList) throws TException {
+        if (!webProperties.isEnableActiveThreadDump()) {
+            return createResponse(false, "Disable activeThreadDump option. 'config.enable.activeThreadDump=false'");
+        }
+
         AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId);
         if (agentInfo == null) {
             return createResponse(false, String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
