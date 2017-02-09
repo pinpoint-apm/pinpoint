@@ -251,10 +251,14 @@
 						time: moment(pointsActiveConnection[i].xVal).format( cfg.dateFormat )
 					};
 					var activeConnection = pointsActiveConnection[i].avgYVal;
+					var activeMaxConnection =pointsActiveConnection[i].maxYVal;
 					var maxConnection = pointsMaxConnection[i].avgYVal;
 					max = Math.max( max, pointsActiveConnection[i].maxYVal, pointsMaxConnection[i].maxYVal );
 					if ( activeConnection >= 0 ) {
 						thisData.activeConnection = activeConnection;
+					}
+					if ( activeMaxConnection >= 0 ) {
+						thisData.activeMaxConnection = activeMaxConnection;
 					}
 					if ( maxConnection >= 0 ) {
 						thisData.maxConnection = maxConnection;

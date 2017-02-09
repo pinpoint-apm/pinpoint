@@ -24,10 +24,10 @@
 						if (h) element.css('height', h);
 					}
 					function renderUpdate(data) {
-						// oChart.dataProvider = data;
-						// oChart.validateData();
 						oChart.valueAxes[0].maximum = data.max;
-						oChart.validateNow( data.list );
+						oChart.validateNow();
+						oChart.dataProvider = data.list;
+						oChart.validateData();
 					}
 					function render(chartData) {
 						var options = {
@@ -61,35 +61,37 @@
 							"graphs": [
 								{
 									"valueAxis": "v1",
-									"balloonText": "[[value]]",
+									"balloonText": "[[title]] : [[value]]",
 									"legendValueText": "[[value]]",
-									"lineColor": "rgb(31, 119, 180)",
-									"fillColor": "rgb(31, 119, 180)",
-									"title": "Active",
+									"lineColor": "rgb(174, 199, 232)",
+									"fillColor": "rgb(174, 199, 232)",
+									"title": "Active(avg)",
 									"valueField": "activeConnection",
 									"fillAlphas": 0.4,
 									"connect": false
 								},
 								{
 									"valueAxis": "v1",
-									"balloonText": "[[value]]",
+									"balloonText": "[[title]] : [[value]]",
 									"legendValueText": "[[value]]",
-									"lineColor": "rgb(174, 199, 232)",
-									"fillColor": "rgb(174, 199, 232)",
+									"lineColor": "rgb(31, 119, 180)",
+									"fillColor": "rgb(31, 119, 180)",
+									"title": "Active(max)",
+									"valueField": "activeMaxConnection",
+									"fillAlphas": 0.4,
+									"connect": false
+								},
+								{
+									"valueAxis": "v1",
+									"balloonText": "[[title]] : [[value]]",
+									"legendValueText": "[[value]]",
+									"lineColor": "#FF6600",
+									//"fillColor": "rgb(174, 199, 232)",
 									"title": "Max",
 									"valueField": "maxConnection",
 									"fillAlphas": 0.4,
 									"connect": false
-								}//,
-								// {
-								// 	"valueAxis": "v1",
-								// 	"showBalloon": false,
-								// 	"lineColor": "#FF6600",
-								// 	"title": "Max",
-								// 	"valueField": "maxCpuLoad",
-								// 	"fillAlphas": 0,
-								// 	"visibleInLegend": false
-								// }
+								}
 							],
 							"categoryField": "time",
 							"categoryAxis": {
@@ -116,12 +118,13 @@
 					function showCursorAt(category) {
 						if (category) {
 							if (angular.isNumber(category)) {
-								category = oChart.dataProvider[category].time;
+								if ( oChart.dataProvider[category] && oChart.dataProvider[category].time ) {
+									oChart.chartCursor.showCursorAt(oChart.dataProvider[category].time);
+									return;
+								}
 							}
-							oChart.chartCursor.showCursorAt(category);
-						} else {
-							oChart.chartCursor.hideCursor();
 						}
+						oChart.chartCursor.hideCursor();
 					}
 
 					function resize() {

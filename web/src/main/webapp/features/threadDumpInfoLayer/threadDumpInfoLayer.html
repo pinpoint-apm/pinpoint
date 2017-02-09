@@ -2,7 +2,7 @@
 	<div class="panel">
 		<div class="panel-heading">Thread Dump <i class="xi-spinner-2 xi-spin"></i> <button ng-click="hideThreadDump()" class="btn btn-sm">X</button></div>
 		<div class="thread-header" ng-hide="threadList.length === 0">
-			<table class="table table-info">
+			<table class="table table-info" style="table-layout:fixed;word-break: break-all">
 				<thead>
 					<tr>
 						<th>&nbsp;</th>
@@ -20,9 +20,9 @@
 			</table>
 		</div>
 		<div class="thread-list" ng-hide="threadList.length === 0">
-			<table class="table table-info">
+			<table class="table table-info" style="table-layout:fixed;word-break: break-all">
 				<tbody ng-click="loadDetailMessage($event)">
-					<tr ng-repeat="oThread in threadList | orderBy:sortType" data-traceId="{{oThread.localTraceId}}">
+					<tr ng-repeat="oThread in threadList | orderBy:sortType" data-traceId="{{oThread.localTraceId}}" data-transactionId="{{oThread.transactionId}}">
 						<td>{{ $index + 1 }}</td>
 						<td>{{ oThread.threadId }}</td>
 						<td>{{ oThread.threadName }}</td>

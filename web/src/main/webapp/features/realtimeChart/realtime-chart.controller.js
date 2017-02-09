@@ -369,6 +369,7 @@
 	        	if ( UrlVoService.isRealtime() === false ) return;
 	        	bIsWas = angular.isUndefined( was ) ? false : was;
 	        	applicationName = angular.isUndefined( applicationName ) ? "" : applicationName;
+
 	        	preUrlParam = urlParam;
 
 				if ( bIsFirstInit === true ) {
@@ -413,7 +414,7 @@
 				if ( openType === null || openType === "window" ) {
 					$window.open(
 						getOpenUrl() +
-						"/threadDump/" + currentApplicationName + "/" + agentId,
+						"/threadDump/" + preUrlParam.split("/")[0] + "/" + agentId,
 						"Thread Dump Info",
 						"width=1280px,height=800px,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=no,status=no"
 					);

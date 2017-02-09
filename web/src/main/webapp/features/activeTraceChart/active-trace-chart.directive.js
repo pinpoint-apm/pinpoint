@@ -126,16 +126,17 @@
 						oChart.addChartCursor( oChartCursor );
                     }
 
-                   function showCursorAt(category) {
-                        if (category) {
-                            if (angular.isNumber(category)) {
-                                category = oChart.dataProvider[category].time;
-                            }
-                            oChart.chartCursor.showCursorAt(category);
-                        } else {
-                            oChart.chartCursor.hideCursor();
-                        }
-                    }
+					function showCursorAt(category) {
+						if (category) {
+							if (angular.isNumber(category)) {
+								if ( oChart.dataProvider[category] && oChart.dataProvider[category].time ) {
+									oChart.chartCursor.showCursorAt(oChart.dataProvider[category].time);
+									return;
+								}
+							}
+						}
+						oChart.chartCursor.hideCursor();
+					}
 
                     function resize() {
                         if (oChart) {
