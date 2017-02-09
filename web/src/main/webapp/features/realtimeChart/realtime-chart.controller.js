@@ -405,23 +405,25 @@
 	        	setPinColor();
 	        };
 	        $scope.showAgentInfo = function( $event ) {
-				var $target = $( $event.target );
-				if ( $target.hasClass("agent-chart-list") ) {
-					return;
+				if ( SystemConfigService.get("showActiveThreadDump") == true ) {
+					var $target = $( $event.target );
+					if ($target.hasClass("agent-chart-list")) {
+						return;
+					}
+					var agentId = $target.hasClass("agent-chart") ? $target.find("> div").html() : $target.parent(".agent-chart").find("> div").html();
+					var openType = LocalStorageManagerService.getThreadDumpLayerOpenType();
+					if (openType === null || openType === "window") {
+						$window.open(
+							getOpenUrl() +
+							"/threadDump/" + preUrlParam.split("/")[0] + "/" + agentId,
+							"Thread Dump Info",
+							"width=1280px,height=800px,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=no,status=no"
+						);
+					} else {
+						$rootScope.$broadcast("thread-dump-info-layer.open", currentApplicationName, agentId);
+					}
+					AnalyticsService.send(AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_OPEN_THREAD_DUMP_LAYER);
 				}
-				var agentId = $target.hasClass("agent-chart" ) ? $target.find( "> div" ).html() : $target.parent(".agent-chart").find("> div").html();
-				var openType = LocalStorageManagerService.getThreadDumpLayerOpenType();
-				if ( openType === null || openType === "window" ) {
-					$window.open(
-						getOpenUrl() +
-						"/threadDump/" + preUrlParam.split("/")[0] + "/" + agentId,
-						"Thread Dump Info",
-						"width=1280px,height=800px,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=no,status=no"
-					);
-				} else {
-					$rootScope.$broadcast( "thread-dump-info-layer.open", currentApplicationName, agentId );
-				}
-				AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_OPEN_THREAD_DUMP_LAYER );
 			};
 	        function getOpenUrl() {
 	        	var url = $location.absUrl();

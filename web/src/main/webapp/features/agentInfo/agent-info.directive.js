@@ -4,8 +4,8 @@
 		agentStatUrl: "/getAgentStat.pinpoint"
 	});
 
-	pinpointApp.directive( "agentInfoDirective", [ "agentInfoDirectiveConfig", "$timeout", "CommonUtilService", "UrlVoService", "AlertsService", "ProgressBarService", "AgentDaoService", "AgentAjaxService", "TooltipService", "AnalyticsService", "helpContentService",
-		function ( cfg, $timeout, CommonUtilService, UrlVoService, AlertsService, ProgressBarService, AgentDaoService, AgentAjaxService, TooltipService, AnalyticsService, helpContentService ) {
+	pinpointApp.directive( "agentInfoDirective", [ "agentInfoDirectiveConfig", "$timeout", "SystemConfigurationService", "CommonUtilService", "UrlVoService", "AlertsService", "ProgressBarService", "AgentDaoService", "AgentAjaxService", "TooltipService", "AnalyticsService", "helpContentService",
+		function ( cfg, $timeout, SystemConfigService, CommonUtilService, UrlVoService, AlertsService, ProgressBarService, AgentDaoService, AgentAjaxService, TooltipService, AnalyticsService, helpContentService ) {
 			return {
 				restrict: 'EA',
 				replace: true,
@@ -18,6 +18,7 @@
 					scope.showDetail = false;
 					scope.selectTime = -1;
 					scope.selectedDSIndex = 0;
+					scope.showDataSourceChart = SystemConfigService.get("showInspectorDataSource") == true;
 					var $elDSMessage = element.find(".ds-detail");
 					var $elDataSourceSelect = element.find("select.data-source-select");
 					var timeSlider = null, bInitTooltip = false;

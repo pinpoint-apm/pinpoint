@@ -197,12 +197,13 @@
 					<h4><span class="glyphicon glyphicon-question-sign activeThreadTooltip" style="cursor:pointer;float:right;"></span> {{activeTraceChart.title}}</h4>
 					<active-trace-chart-directive namespace="forActiveTrace"></active-trace-chart-directive>
 				</div>
-				<div class="col-md-6">
+				<div class="col-md-6" ng-if="showDataSourceChart">
 					<h4>
 						<span class="glyphicon glyphicon-question-sign dataSourceTooltip" style="cursor:pointer;float:right;"></span> {{dataSourceChart.title}}
-						<select style="margin-left:20px;" class="data-source-select">
+						<select style="margin-left:20px;" class="data-source-select" ng-show="dataSourceChart.keys[0].display != -1">
 							<option ng-repeat="k in dataSourceChart.keys" value="{{k.value}}" {{ $index === 0 ? 'selected' : '' }}>{{k.display}}</option>
 						</select>
+						<span class="label label-primary" style="margin-left:20px;" ng-show="dataSourceChart.keys[0].display == -1">NOT FOUND</span>
 						<span ng-click="showDataSourceDetail()" class="glyphicon glyphicon-info-sign" style="float:right;margin-right:20px;cursor:pointer;"></span>
 					</h4>
 					<div style="display:none;font-size:12px;top:-180px;padding:10px 6px;position:absolute;background-color:#FFF;z-index:1000;width:95%;" class="ds-detail">
