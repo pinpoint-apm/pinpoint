@@ -214,7 +214,7 @@
 	         */
 	        fetchNext = function () {
 	            getTransactionList(getQuery(), function (data) {
-	                if (data.metadata.length === 0) {
+	                if (data.metadata.length === 0 ) {
 	                    $scope.$emit('timeSliderDirective.disableMore');
 	                    $scope.$emit('timeSliderDirective.changeMoreToDone');
 	                    return false;
@@ -245,36 +245,47 @@
 	        /**
 	         * fetch start
 	         */
+	        var fetchStartLoadTryCount = 0;
+	        var fetchStartLoadTryMaxCount = 3;
 	        fetchStart = function ( bHasTransactionInfo ) {
 				var query = getQuery();
 	            getTransactionList(query, function (data) {
-	                if (data.metadata.length === 0) {
-	                    $scope.$emit('timeSliderDirective.disableMore');
-	                    $scope.$emit('timeSliderDirective.changeMoreToDone');
-	                    return false;
-	                } else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE || oTimeSliderVoService.getTotal() === data.metadata.length) {
-	                    $scope.$emit('timeSliderDirective.disableMore');
-	                    $scope.$emit('timeSliderDirective.changeMoreToDone');
-	                    oTimeSliderVoService.setInnerFrom(htTransactionInfo.nXFrom);
-	                } else {
-	                    $scope.$emit('timeSliderDirective.enableMore');
-	                    oTimeSliderVoService.setInnerFrom(_.last(data.metadata).collectorAcceptTime);
-	                }
-	                emitTransactionListToTable(data);
-	
-	                oTimeSliderVoService.setFrom(htTransactionInfo.nXFrom);
-	                oTimeSliderVoService.setTo(htTransactionInfo.nXTo);
-	                oTimeSliderVoService.setInnerTo(htTransactionInfo.nXTo);
-	                oTimeSliderVoService.setCount(data.metadata.length);
-	
-	                $scope.$emit('timeSliderDirective.initialize', oTimeSliderVoService);
-	                $scope.sidebarLoading = false;
+					if (data.metadata.length === 0 || true) {
+						$scope.$emit('timeSliderDirective.disableMore');
+						$scope.$emit('timeSliderDirective.changeMoreToDone');
+						if ( fetchStartLoadTryCount < fetchStartLoadTryMaxCount ) {
+							fetchStartLoadTryCount++;
+							$timeout(function() {
+								fetchStart(bHasTransactionInfo);
+							}, 3000);
+						} else {
+							$window.alert("There is no data.");
+							$window.close();
+						}
+						return false;
+					} else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE || oTimeSliderVoService.getTotal() === data.metadata.length) {
+						$scope.$emit('timeSliderDirective.disableMore');
+						$scope.$emit('timeSliderDirective.changeMoreToDone');
+						oTimeSliderVoService.setInnerFrom(htTransactionInfo.nXFrom);
+					} else {
+						$scope.$emit('timeSliderDirective.enableMore');
+						oTimeSliderVoService.setInnerFrom(_.last(data.metadata).collectorAcceptTime);
+					}
+					emitTransactionListToTable(data);
 
-					if ( bHasTransactionInfo ) {
+					oTimeSliderVoService.setFrom(htTransactionInfo.nXFrom);
+					oTimeSliderVoService.setTo(htTransactionInfo.nXTo);
+					oTimeSliderVoService.setInnerTo(htTransactionInfo.nXTo);
+					oTimeSliderVoService.setCount(data.metadata.length);
+
+					$scope.$emit('timeSliderDirective.initialize', oTimeSliderVoService);
+					$scope.sidebarLoading = false;
+
+					if (bHasTransactionInfo) {
 						changeTransactionDetail({
 							agentId: data.metadata[0].agentId,
 							spanId: data.metadata[0].spanId,
-							traceId : aParamTransactionInfo[0],
+							traceId: aParamTransactionInfo[0],
 							collectorAcceptTime: aParamTransactionInfo[1],
 							elapsed: aParamTransactionInfo[2]
 						});

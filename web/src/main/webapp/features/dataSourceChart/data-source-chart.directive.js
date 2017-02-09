@@ -86,10 +86,10 @@
 									"balloonText": "[[title]] : [[value]]",
 									"legendValueText": "[[value]]",
 									"lineColor": "#FF6600",
-									//"fillColor": "rgb(174, 199, 232)",
+									// "fillColor": "rgb(174, 199, 232, 0)",
 									"title": "Max",
 									"valueField": "maxConnection",
-									"fillAlphas": 0.4,
+									"fillAlphas": 0,
 									"connect": false
 								}
 							],
