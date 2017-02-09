@@ -133,16 +133,13 @@
 							"&agentId=" + currentAgentId,
 							"method": "GET"
 						}).then(function ( oResult ) {
-							oResult ={"data":{"message":{"subType":"ORACLE","threadDumpData":[{"threadId":"0x2a1","threadName":"http-bio-19000-exec-2","threadState":"TIMED_WAITING","startTime":1486540643994,"execTime":59,"localTraceId":107741,"sampled":true,"transactionId":"dev-pinpoint-web02.ncl^1486357632934^107741","entryPoint":"/agent/activeThreadLightDump.pinpoint","detailMessage":""}],"type":"JAVA","version":"JAVA_8"},"code":0},"status":200,"config":{"method":"GET","transformRequest":[null],"transformResponse":[null],"url":"agent/activeThreadLightDump.pinpoint?applicationName=DEV-PINPOINT-WEB&agentId=dev-pinpoint-web02.ncl","headers":{"Accept":"application/json, text/plain, */*"}},"statusText":"OK"};
 							scope.threadList = oResult.data.message.threadDumpData;
-							console.log( oResult );
 							$elTextarea.val("");
 							$elSpin.hide();
 							$el.show();
 							initAjax( oRefListAjax );
 						}, function () {
 							$elSpin.hide();
-							console.log( arguments );
 						});
 						oRefListAjax.ing = true;
 					}

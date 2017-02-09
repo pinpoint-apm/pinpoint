@@ -255,7 +255,7 @@
 					var maxConnection = pointsMaxConnection[i].avgYVal;
 					max = Math.max( max, pointsActiveConnection[i].maxYVal, pointsMaxConnection[i].maxYVal );
 					if ( activeConnection >= 0 ) {
-						thisData.activeConnection = activeConnection;
+						thisData.activeConnection = activeConnection.toFixed(3);
 					}
 					if ( activeMaxConnection >= 0 ) {
 						thisData.activeMaxConnection = activeMaxConnection;
