@@ -27,7 +27,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
+import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.context.ApplicationContext;
+import com.navercorp.pinpoint.profiler.context.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.context.provider.Provider;
+import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.rpc.client.PinpointClient;
+import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.apache.thrift.TBase;
 
 import com.google.common.base.Objects;
@@ -50,7 +59,6 @@ import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
@@ -73,6 +81,10 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     private final List<Short> ignoredServiceTypes = new ArrayList<Short>();
 
+    private TestTcpDataSender tcpDataSender;
+    private OrderedSpanRecorder orderedSpanRecorder;
+
+
     public PluginTestAgent(AgentOption agentOption) {
         super(agentOption, new DefaultInterceptorRegistryBinder());
         this.annotationKeyRegistryService = agentOption.getAnnotationKeyRegistryService();
@@ -80,29 +92,83 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
 
     @Override
-    protected DataSender createUdpStatDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
-        return new ListenableDataSender<TBase<?, ?>>();
+    protected ApplicationContext newApplicationContext(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
+        final DataSender spanDataSender = createUdpSpanDataSender();
+
+        final DataSender statDataSender = createUdpStatDataSender();
+        final ServerMetaDataHolder serverMetaDataHolder = createServerMetaDataHolder();
+        final EnhancedDataSender tcpDataSender = createTcpDataSender();
+
+        ApplicationContext applicationContext = new DefaultApplicationContext(agentOption, interceptorRegistryBinder) {
+            @Override
+            protected Provider<DataSender> newUdpSpanDataSenderProvider() {
+                return new DelegateProvider<DataSender>(spanDataSender);
+            }
+
+            @Override
+            protected Provider<DataSender> newUdpStatDataSenderProvider() {
+                return new DelegateProvider<DataSender>(statDataSender);
+            }
+
+            @Override
+            protected Provider<StorageFactory> newStorageFactoryProvider(ProfilerConfig profilerConfig, DataSender spanDataSender, AgentInformation agentInformation) {
+                System.out.println("spanDataSender:" + spanDataSender);
+                StorageFactory storageFactory = new SimpleSpanStorageFactory(spanDataSender);
+                return new DelegateProvider<StorageFactory>(storageFactory);
+            }
+
+            @Override
+            protected Provider<ServerMetaDataHolder> newServerMetaDataHolderProvider() {
+                return new DelegateProvider<ServerMetaDataHolder>(serverMetaDataHolder);
+            }
+
+            // skip tcp connection
+            public Provider<PinpointClientFactory> newPinpointClientFactoryProvider() {
+                return new NullProvider<PinpointClientFactory>();
+            }
+
+            // skip tcp connection
+            public Provider<PinpointClient> newPinpointClientProvider(ProfilerConfig profilerConfig, PinpointClientFactory clientFactory) {
+                return new NullProvider<PinpointClient>();
+            }
+
+            @Override
+            protected Provider<EnhancedDataSender> newTcpDataSenderProvider(PinpointClient client) {
+                return new DelegateProvider<EnhancedDataSender>(tcpDataSender);
+            }
+
+        };
+
+
+        return applicationContext;
+
     }
 
-    @Override
-    protected DataSender createUdpSpanDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
-        ListenableDataSender<TBase<?, ?>> sender = new ListenableDataSender<TBase<?, ?>>();
-        sender.setListener(new OrderedSpanRecorder());
+    private DataSender createUdpStatDataSender() {
+        return new ListenableDataSender<TBase<?, ?>>("StatDataSender");
+    }
+
+    private DataSender createUdpSpanDataSender() {
+
+        ListenableDataSender<TBase<?, ?>> sender = new ListenableDataSender<TBase<?, ?>>("SpanDataSender");
+        OrderedSpanRecorder orderedSpanRecorder = new OrderedSpanRecorder();
+        sender.setListener(orderedSpanRecorder);
+        this.orderedSpanRecorder = orderedSpanRecorder;
         return sender;
     }
 
-    @Override
-    protected StorageFactory createStorageFactory() {
-        return new SimpleSpanStorageFactory(super.getSpanDataSender());
+    private StorageFactory createStorageFactory(DataSender dataSender) {
+        return new SimpleSpanStorageFactory(dataSender);
     }
 
-    @Override
-    protected EnhancedDataSender createTcpDataSender(CommandDispatcher commandDispatcher) {
-        return new TestTcpDataSender();
+    protected EnhancedDataSender createTcpDataSender() {
+        TestTcpDataSender tcpDataSender = new TestTcpDataSender();
+        this.tcpDataSender = tcpDataSender;
+        return tcpDataSender;
     }
 
-    @Override
-    protected ServerMetaDataHolder createServerMetaDataHolder() {
+
+    private ServerMetaDataHolder createServerMetaDataHolder() {
         List<String> vmArgs = RuntimeMXBeanUtils.getVmArgs();
         ServerMetaDataHolder serverMetaDataHolder = new ResettableServerMetaDataHolder(vmArgs);
         this.serverMetaDataListener = new TestableServerMetaDataListener();
@@ -112,8 +178,10 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     @Override
     public void verifyServerType(String serviceTypeName) {
+        final ApplicationContext applicationContext = getApplicationContext();
+
         ServiceType expectedType = findServiceType(serviceTypeName);
-        ServiceType actualType = getAgentInformation().getServerType();
+        ServiceType actualType = applicationContext.getAgentInformation().getServerType();
 
         if (!expectedType.equals(actualType)) {
             throw new AssertionError("ResolvedExpectedTrace server type: " + expectedType.getName() + "[" + expectedType.getCode() + "] but was " + actualType + "[" + actualType.getCode() + "]");
@@ -261,10 +329,9 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         for (ExpectedTrace expected : expectations) {
             ResolvedExpectedTrace resolved = resolveExpectedTrace(expected, null);
 
-            Object actual = popSpan();
-
+            final Object actual = popSpan();
             if (actual == null) {
-                throw new AssertionError("Expected a " + resolved.type.getSimpleName() + " but there is no trace");
+                throw new AssertionError("Expected a " + resolved.toString() + " but there is no trace");
             }
 
             ActualTrace wrapped = wrap(actual);
@@ -718,17 +785,17 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
 
     private TestTcpDataSender getTestTcpDataSender() {
-        return (TestTcpDataSender) getTcpDataSender();
+        return tcpDataSender;
     }
 
     private OrderedSpanRecorder getRecorder() {
-        return (OrderedSpanRecorder) ((ListenableDataSender<?>) getSpanDataSender()).getListener();
+        return this.orderedSpanRecorder;
     }
 
     private Object popSpan() {
         while (true) {
-            Object obj = getRecorder().pop();
-
+            OrderedSpanRecorder recorder = getRecorder();
+            Object obj = recorder.pop();
             if (obj == null) {
                 return null;
             }
@@ -753,7 +820,8 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     @Override
     public void initialize(boolean createTraceObject) {
         if (createTraceObject) {
-            getTraceContext().newTraceObject();
+            final TraceContext traceContext = getTraceContext();
+            traceContext.newTraceObject();
         }
 
         getRecorder().clear();
@@ -764,12 +832,18 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     @Override
     public void cleanUp(boolean detachTraceObject) {
         if (detachTraceObject) {
-            getTraceContext().removeTraceObject();
+            final TraceContext traceContext = getTraceContext();
+            traceContext.removeTraceObject();
         }
 
         getRecorder().clear();
         getTestTcpDataSender().clear();
         ignoredServiceTypes.clear();
+    }
+
+    private TraceContext getTraceContext() {
+        ApplicationContext applicationContext = getApplicationContext();
+        return applicationContext.getTraceContext();
     }
 
     @Override

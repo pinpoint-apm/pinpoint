@@ -21,7 +21,8 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.profiler.DefaultAgent;
+import com.navercorp.pinpoint.profiler.context.ApplicationContext;
+import com.navercorp.pinpoint.profiler.context.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.instrument.JavassistClassPool;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.util.TypeUtils;
@@ -41,8 +42,8 @@ public class DefaultClassEditorBuilderTest {
         InstrumentClass aClass = mock(InstrumentClass.class);
         InstrumentMethod aMethod = mock(InstrumentMethod.class);
         MethodDescriptor aDescriptor = mock(MethodDescriptor.class);
-        DefaultAgent agent = mock(DefaultAgent.class);
-        DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(agent, new TestProfilerPluginClassLoader());
+        ApplicationContext applicationContext = mock(ApplicationContext.class);
+        DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(applicationContext, new TestProfilerPluginClassLoader());
         
         ClassLoader classLoader = getClass().getClassLoader();
         String className = "someClass";
@@ -51,8 +52,8 @@ public class DefaultClassEditorBuilderTest {
         Class<?>[] parameterTypes = new Class<?>[] { String.class };
         String[] parameterTypeNames = TypeUtils.toClassNames(parameterTypes);
         
-        when(agent.getClassPool()).thenReturn(pool);
-        when(agent.getTraceContext()).thenReturn(traceContext);
+        when(applicationContext.getClassPool()).thenReturn(pool);
+        when(applicationContext.getTraceContext()).thenReturn(traceContext);
         when(pool.getClass(context, classLoader, className, classFileBuffer)).thenReturn(aClass);
         when(aClass.getDeclaredMethod(methodName, parameterTypeNames)).thenReturn(aMethod);
         when(aMethod.getName()).thenReturn(methodName);

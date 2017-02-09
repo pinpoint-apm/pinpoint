@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.navercorp.pinpoint.test.MockAgent;
+import com.navercorp.pinpoint.test.MockApplicationContext;
 
 /**
  * @author hyungil.jeong
@@ -42,14 +42,14 @@ public class TestContext implements Closeable {
 
     private final PLoggerBinder loggerBinder = new Slf4jLoggerBinder();
     private final TestClassLoader classLoader;
-    private final MockAgent mockAgent;
+    private final MockApplicationContext mockApplicationContext;
 
     private final Class<?> baseTestClass;
 
 
     public TestContext() {
-        this.mockAgent = createMockAgent();
-        this.classLoader = TestClassLoaderFactory.createTestClassLoader(mockAgent);
+        this.mockApplicationContext = createMockApplicationContext();
+        this.classLoader = TestClassLoaderFactory.createTestClassLoader(mockApplicationContext);
         this.classLoader.initialize();
         try {
             this.baseTestClass = classLoader.loadClass(BASE_TEST_CLASS_NAME);
@@ -59,17 +59,17 @@ public class TestContext implements Closeable {
     }
 
 
-    private MockAgent createMockAgent() {
+    private MockApplicationContext createMockApplicationContext() {
         logger.trace("agent create");
-        return MockAgent.of("pinpoint.config");
+        return MockApplicationContext.of("pinpoint.config");
     }
 
     public ClassLoader getClassLoader() {
         return classLoader;
     }
 
-    public MockAgent getMockAgent() {
-        return mockAgent;
+    public MockApplicationContext getMockApplicationContext() {
+        return mockApplicationContext;
     }
 
     public TestClass createTestClass(Class<?> testClass) {
@@ -87,8 +87,8 @@ public class TestContext implements Closeable {
 
     @Override
     public void close() throws IOException {
-        if (mockAgent != null) {
-            mockAgent.stop(true);
+        if (mockApplicationContext != null) {
+            mockApplicationContext.close();
         }
         PLoggerFactory.unregister(loggerBinder);
     }

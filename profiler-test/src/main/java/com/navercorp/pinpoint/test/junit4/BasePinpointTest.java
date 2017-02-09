@@ -22,7 +22,7 @@ import java.util.List;
 import com.navercorp.pinpoint.common.server.bo.SpanFactory;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.test.ListenableDataSender;
-import com.navercorp.pinpoint.test.MockAgent;
+import com.navercorp.pinpoint.test.MockApplicationContext;
 import com.navercorp.pinpoint.test.ResettableServerMetaDataHolder;
 import com.navercorp.pinpoint.test.TestableServerMetaDataListener;
 
@@ -84,9 +84,9 @@ public abstract class BasePinpointTest {
     }
 
     public void setup(TestContext testContext) {
-        MockAgent mockAgent = testContext.getMockAgent();
+        MockApplicationContext mockApplicationContext = testContext.getMockApplicationContext();
 
-        DataSender spanDataSender = mockAgent.getSpanDataSender();
+        DataSender spanDataSender = mockApplicationContext.getSpanDataSender();
         if (spanDataSender instanceof ListenableDataSender) {
             ListenableDataSender listenableDataSender = (ListenableDataSender) spanDataSender;
 
@@ -101,7 +101,7 @@ public abstract class BasePinpointTest {
             setTBaseRecorder(tBaseRecord);
         }
 
-        ServerMetaDataHolder serverMetaDataHolder = mockAgent.getTraceContext().getServerMetaDataHolder();
+        ServerMetaDataHolder serverMetaDataHolder = mockApplicationContext.getTraceContext().getServerMetaDataHolder();
         if (serverMetaDataHolder instanceof ResettableServerMetaDataHolder) {
             ResettableServerMetaDataHolder resettableServerMetaDataHolder = (ResettableServerMetaDataHolder) serverMetaDataHolder;
             this.setServerMetaDataHolder(resettableServerMetaDataHolder);

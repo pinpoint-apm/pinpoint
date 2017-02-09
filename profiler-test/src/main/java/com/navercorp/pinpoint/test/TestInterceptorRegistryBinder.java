@@ -33,7 +33,8 @@ public class TestInterceptorRegistryBinder implements InterceptorRegistryBinder 
         try {
             InterceptorRegistry.bind(interceptorRegistryAdaptor, lock);
         } catch (IllegalStateException e) {
-            // ignore
+            System.out.println("bind fail");
+            e.printStackTrace();
         }
     }
 
@@ -42,7 +43,8 @@ public class TestInterceptorRegistryBinder implements InterceptorRegistryBinder 
         try {
             InterceptorRegistry.unbind(lock);
         } catch (IllegalStateException e) {
-            // ignore
+            System.out.println("unbind fail");
+            e.printStackTrace();
         }
     }
 

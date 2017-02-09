@@ -23,6 +23,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
+import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.instrument.ASMClassPool;
 import com.navercorp.pinpoint.profiler.instrument.JavassistClassPool;
 import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformerGuardDelegate;
@@ -33,7 +34,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.common.util.Asserts;
-import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.instrument.LegacyProfilerPluginClassInjector;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 
@@ -45,16 +45,16 @@ public class TestClassLoader extends TransformClassLoader {
 
     private final Logger logger = Logger.getLogger(TestClassLoader.class.getName());
 
-    private final DefaultAgent agent;
+    private final ApplicationContext applicationContext;
     private Translator instrumentTranslator;
     private final DefaultProfilerPluginContext context;
     private final List<String> delegateClass;
 
-    public TestClassLoader(DefaultAgent agent) {
-        Asserts.notNull(agent, "agent");
+    public TestClassLoader(ApplicationContext applicationContext) {
+        Asserts.notNull(applicationContext, "applicationContext");
 
-        this.agent = agent;
-        this.context = new DefaultProfilerPluginContext(agent, new LegacyProfilerPluginClassInjector(getClass().getClassLoader()));
+        this.applicationContext = applicationContext;
+        this.context = new DefaultProfilerPluginContext(applicationContext, new LegacyProfilerPluginClassInjector(getClass().getClassLoader()));
 
         this.delegateClass = new ArrayList<String>();
     }
@@ -89,7 +89,7 @@ public class TestClassLoader extends TransformClassLoader {
     }
 
     public ProfilerConfig getProfilerConfig() {
-        return agent.getProfilerConfig();
+        return applicationContext.getProfilerConfig();
     }
 
     public void addTransformer(final String targetClassName, final TransformCallback transformer) {
@@ -118,25 +118,25 @@ public class TestClassLoader extends TransformClassLoader {
     }
 
     public void addTranslator() {
-        final InstrumentClassPool pool = agent.getClassPool();
+        final InstrumentClassPool pool = applicationContext.getClassPool();
         if (pool instanceof JavassistClassPool) {
 
             logger.info("JAVASSIST BCI engine");
             ClassPool classPool = ((JavassistClassPool) pool).getClassPool(this);
-            this.instrumentTranslator = new JavassistTranslator(this, classPool, agent.getClassFileTransformerDispatcher());
+            this.instrumentTranslator = new JavassistTranslator(this, classPool, applicationContext.getClassFileTransformerDispatcher());
             this.addTranslator(instrumentTranslator);
 
         } else if (pool instanceof ASMClassPool) {
 
             logger.info("ASM BCI engine");
-            this.instrumentTranslator = new DefaultTranslator(this, agent.getClassFileTransformerDispatcher());
+            this.instrumentTranslator = new DefaultTranslator(this, applicationContext.getClassFileTransformerDispatcher());
             this.addTranslator(instrumentTranslator);
 
         } else {
 
             logger.info("Unknown BCI engine");
 
-            this.instrumentTranslator = new DefaultTranslator(this, agent.getClassFileTransformerDispatcher());
+            this.instrumentTranslator = new DefaultTranslator(this, applicationContext.getClassFileTransformerDispatcher());
             this.addTranslator(instrumentTranslator);
         }
     }

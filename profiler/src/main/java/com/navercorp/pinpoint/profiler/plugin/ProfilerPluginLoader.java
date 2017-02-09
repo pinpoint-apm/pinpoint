@@ -31,12 +31,12 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
-import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.JarProfilerPluginClassInjector;
 
@@ -46,20 +46,20 @@ import com.navercorp.pinpoint.profiler.instrument.JarProfilerPluginClassInjector
  */
 public class ProfilerPluginLoader {
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final DefaultAgent agent;
+    private final ApplicationContext applicationContext;
 
     private final ClassNameFilter profilerPackageFilter = new PinpointProfilerPackageSkipFilter();
 
-    public ProfilerPluginLoader(DefaultAgent agent) {
-        if (agent == null) {
-            throw new NullPointerException("agent must not be null");
+    public ProfilerPluginLoader(ApplicationContext applicationContext) {
+        if (applicationContext == null) {
+            throw new NullPointerException("applicationContext must not be null");
         }
-        this.agent = agent;
+        this.applicationContext = applicationContext;
     }
     
     public List<DefaultProfilerPluginContext> load(URL[] pluginJars) {
         List<DefaultProfilerPluginContext> pluginContexts = new ArrayList<DefaultProfilerPluginContext>(pluginJars.length);
-        List<String> disabled = agent.getProfilerConfig().getDisabledPlugins();
+        List<String> disabled = applicationContext.getProfilerConfig().getDisabledPlugins();
         
         for (URL jar : pluginJars) {
 
@@ -81,7 +81,7 @@ public class ProfilerPluginLoader {
                 
                 logger.info("Loading plugin:{} pluginPackage:{}", plugin.getClass().getName(), plugin);
 
-                PluginConfig pluginConfig = new PluginConfig(jar, plugin, agent.getInstrumentation(), agent.getClassPool(), agent.getBootstrapJarPaths(), pluginFilterChain);
+                PluginConfig pluginConfig = new PluginConfig(jar, plugin, applicationContext.getInstrumentation(), applicationContext.getClassPool(), applicationContext.getBootstrapJarPaths(), pluginFilterChain);
                 final DefaultProfilerPluginContext context = setupPlugin(pluginConfig);
                 pluginContexts.add(context);
             }
@@ -152,7 +152,7 @@ public class ProfilerPluginLoader {
 
     private DefaultProfilerPluginContext setupPlugin(PluginConfig pluginConfig) {
         final ClassInjector classInjector = new JarProfilerPluginClassInjector(pluginConfig);
-        final DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(agent, classInjector);
+        final DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(applicationContext, classInjector);
 
         final GuardProfilerPluginContext guardPluginContext = new GuardProfilerPluginContext(context);
         final GuardInstrumentContext guardInstrumentContext = preparePlugin(pluginConfig.getPlugin(), context);

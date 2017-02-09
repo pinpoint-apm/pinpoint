@@ -107,20 +107,6 @@ public class AgentInformation {
         return agentVersion;
     }
 
-    public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<String, Object>();
-
-        map.put(HandshakePropertyType.AGENT_ID.getName(), this.agentId);
-        map.put(HandshakePropertyType.APPLICATION_NAME.getName(), this.applicationName);
-        map.put(HandshakePropertyType.HOSTNAME.getName(), this.machineName);
-        map.put(HandshakePropertyType.IP.getName(), this.hostIp);
-        map.put(HandshakePropertyType.PID.getName(), this.pid);
-        map.put(HandshakePropertyType.SERVICE_TYPE.getName(), this.serverType.getCode());
-        map.put(HandshakePropertyType.START_TIMESTAMP.getName(), this.startTime);
-        map.put(HandshakePropertyType.VERSION.getName(), this.agentVersion);
-
-        return map;
-    }
 
     @Override
     public String toString() {

@@ -33,8 +33,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.DynamicTransformService;
+import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.scope.ConcurrentPool;
 import com.navercorp.pinpoint.profiler.context.scope.InterceptorScopeFactory;
 import com.navercorp.pinpoint.profiler.context.scope.Pool;
@@ -46,7 +46,7 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
  * @author jaehong.kim
  */
 public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, InstrumentContext {
-    private final DefaultAgent agent;
+    private final ApplicationContext applicationContext;
     private final ClassInjector classInjector;
     
     private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
@@ -54,20 +54,20 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     
     private final Pool<String, InterceptorScope> interceptorScopePool = new ConcurrentPool<String, InterceptorScope>(new InterceptorScopeFactory());
 
-    public DefaultProfilerPluginContext(DefaultAgent agent, ClassInjector classInjector) {
-        if (agent == null) {
-            throw new NullPointerException("agent must not be null");
+    public DefaultProfilerPluginContext(ApplicationContext applicationContext, ClassInjector classInjector) {
+        if (applicationContext == null) {
+            throw new NullPointerException("applicationContext must not be null");
         }
         if (classInjector == null) {
             throw new NullPointerException("classInjector must not be null");
         }
-        this.agent = agent;
+        this.applicationContext = applicationContext;
         this.classInjector = classInjector;
     }
 
     @Override
     public ProfilerConfig getConfig() {
-        return agent.getProfilerConfig();
+        return applicationContext.getProfilerConfig();
     }
 
     public PluginConfig getPluginConfig() {
@@ -79,7 +79,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
 
     @Override
     public TraceContext getTraceContext() {
-        final TraceContext context = agent.getTraceContext();
+        final TraceContext context = applicationContext.getTraceContext();
         if (context == null) {
             throw new IllegalStateException("TraceContext is not created yet");
         }
@@ -120,7 +120,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     }
 
     private InstrumentClassPool getClassPool() {
-        InstrumentClassPool classPool = agent.getClassPool();
+        InstrumentClassPool classPool = applicationContext.getClassPool();
         return classPool;
     }
 
@@ -149,7 +149,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
 
         final ClassFileTransformerGuardDelegate classFileTransformerGuardDelegate = new ClassFileTransformerGuardDelegate(this, transformCallback);
 
-        final DynamicTransformService dynamicTransformService = agent.getDynamicTransformService();
+        final DynamicTransformService dynamicTransformService = applicationContext.getDynamicTransformService();
         dynamicTransformService.addClassFileTransformer(classLoader, targetClassName, classFileTransformerGuardDelegate);
     }
 
@@ -165,7 +165,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
 
         final ClassFileTransformerGuardDelegate classFileTransformerGuardDelegate = new ClassFileTransformerGuardDelegate(this, transformCallback);
 
-        final DynamicTransformService dynamicTransformService = agent.getDynamicTransformService();
+        final DynamicTransformService dynamicTransformService = applicationContext.getDynamicTransformService();
         dynamicTransformService.retransform(target, classFileTransformerGuardDelegate);
     }
 
