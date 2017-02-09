@@ -17,11 +17,19 @@
 					scope.showEventInfo = false;
 					scope.showDetail = false;
 					scope.selectTime = -1;
+					scope.selectedDSIndex = 0;
 					var $elDSMessage = element.find(".ds-detail");
+					var $elDataSourceSelect = element.find("select.data-source-select");
 					var timeSlider = null, bInitTooltip = false;
 					var oAlertService = new AlertsService();
 					var oProgressBarService = new ProgressBarService();
 
+					$elDataSourceSelect.on("change", function($event) {
+						scope.$apply(function() {
+							scope.selectedDSIndex = parseInt($event.target.value);
+						});
+						changeDSChart();
+					});
 					function initTime( time ) {
 						$("#target-picker").val( moment( time ).format( "YYYY-MM-DD HH:mm:ss" ) );
 					}
@@ -233,10 +241,10 @@
 							};
 						});
 						scope.dsChartData = chartData;
-						scope.currentDS = 0;
+						scope.selectedDSIndex = 0;
 						scope.dataSourceChart = dataSource;
 
-						scope.$broadcast( "dsChartDirective.initAndRenderWithData.forDataSource", AgentDaoService.parseDataSourceChartDataForAmcharts(dataSource, chartData[scope.currentDS]), '100%', '270px');
+						scope.$broadcast( "dsChartDirective.initAndRenderWithData.forDataSource", AgentDaoService.parseDataSourceChartDataForAmcharts(dataSource, chartData[scope.selectedDSIndex]), '100%', '270px');
 					}
 					function getEventList( agentId, aFromTo ) {
 						AgentAjaxService.getEventList({
@@ -271,10 +279,13 @@
 							scope.$broadcast('dsChartDirective.showCursorAt.forDataSource', event.index);
 						}
 					}
-					scope.currentDS = 0;
-					scope.changeDS = function() {
-						var index = parseInt(scope.currentDS);
-						scope.$broadcast( "dsChartDirective.initAndRenderWithData.forDataSource", AgentDaoService.parseDataSourceChartDataForAmcharts(scope.dataSourceChart, scope.dsChartData[index]), '100%', '270px');
+					function changeDSChart() {
+						var oR = AgentDaoService.parseDataSourceChartDataForAmcharts(scope.dataSourceChart, scope.dsChartData[scope.selectedDSIndex]);
+						if ( scope.selectedDSIndex === 1 ) {
+							oR.max = 120;
+						}
+						scope.$broadcast( "dsChartDirective.initAndRenderWithData.forDataSource", oR, '100%', '270px');
+						// scope.$broadcast( "dsChartDirective.initAndRenderWithData.forDataSource", AgentDaoService.parseDataSourceChartDataForAmcharts(scope.dataSourceChart, scope.dsChartData[scope.selectedDSIndex]), '100%', '270px');
 					};
 					scope.showDataSourceDetail = function() {
 						$elDSMessage.toggle();

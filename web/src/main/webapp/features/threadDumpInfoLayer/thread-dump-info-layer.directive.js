@@ -6,8 +6,8 @@
 		PADDING_WIDTH: 5, 	// %
 		PADDING_HEIGHT: 15  	// %
 	});
-	pinpointApp.directive( "threadDumpInfoLayerDirective", [ "ThreadDumpInfoLayerDirectiveConfig", "$rootScope", "$timeout", "$http", "$window", "CommonUtilService",
-		function ( cfg, $rootScope, $timeout, $http, $window, CommonUtilService ) {
+	pinpointApp.directive( "threadDumpInfoLayerDirective", [ "ThreadDumpInfoLayerDirectiveConfig", "$routeParams", "$timeout", "$http", "$window", "CommonUtilService", "CommonAjaxService",
+		function ( cfg, $routeParams, $timeout, $http, $window, CommonUtilService, CommonAjaxService ) {
 			return {
 				restrict: "EA",
 				replace: true,
@@ -97,10 +97,21 @@
 								"method": "GET"
 							}).then(function ( oResult ) {
 								var msg = "";
-								if ( oResult.data.message.threadDumpData.length > 0 ) {
+								if ( false && oResult.data.message.threadDumpData.length > 0 ) {
 									msg = oResult.data.message.threadDumpData[0].detailMessage;
 								} else {
 									msg = "There is no message";
+									CommonAjaxService.getServerTime( function( serverTime ) {
+										var aUrlParam = [
+											"transactionList",
+											$routeParams.application,
+											"5m",
+											CommonUtilService.formatDate( serverTime ),
+											$elThread.attr("data-transactionId")
+										];
+
+										$window.parent.open( "#/" + aUrlParam.join("/") );
+									});
 								}
 								$elThread.attr("data-detail-message", msg );
 								$elTextarea.val( msg );
@@ -122,7 +133,9 @@
 							"&agentId=" + currentAgentId,
 							"method": "GET"
 						}).then(function ( oResult ) {
+							oResult ={"data":{"message":{"subType":"ORACLE","threadDumpData":[{"threadId":"0x2a1","threadName":"http-bio-19000-exec-2","threadState":"TIMED_WAITING","startTime":1486540643994,"execTime":59,"localTraceId":107741,"sampled":true,"transactionId":"dev-pinpoint-web02.ncl^1486357632934^107741","entryPoint":"/agent/activeThreadLightDump.pinpoint","detailMessage":""}],"type":"JAVA","version":"JAVA_8"},"code":0},"status":200,"config":{"method":"GET","transformRequest":[null],"transformResponse":[null],"url":"agent/activeThreadLightDump.pinpoint?applicationName=DEV-PINPOINT-WEB&agentId=dev-pinpoint-web02.ncl","headers":{"Accept":"application/json, text/plain, */*"}},"statusText":"OK"};
 							scope.threadList = oResult.data.message.threadDumpData;
+							console.log( oResult );
 							$elTextarea.val("");
 							$elSpin.hide();
 							$el.show();
