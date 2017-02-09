@@ -204,4 +204,11 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener, Itera
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return "OrderedSpanRecorder{" +
+                "list=" + list +
+                '}';
+    }
 }

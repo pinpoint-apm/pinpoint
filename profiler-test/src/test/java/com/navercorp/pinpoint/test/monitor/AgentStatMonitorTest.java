@@ -57,7 +57,7 @@ public class AgentStatMonitorTest {
         this.tBaseRecorder = new TBaseRecorder<TAgentStatBatch>();
         TBaseRecorderAdaptor recorderAdaptor = new TBaseRecorderAdaptor(tBaseRecorder);
 
-        ListenableDataSender listenableDataSender = new ListenableDataSender();
+        ListenableDataSender listenableDataSender = new ListenableDataSender("testDataSender");
         listenableDataSender.setListener(recorderAdaptor);
         this.dataSender = listenableDataSender;
     }

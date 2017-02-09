@@ -27,7 +27,13 @@ import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.context.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.context.provider.Provider;
 import com.navercorp.pinpoint.profiler.plugin.GuardProfilerPluginContext;
+import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
+import com.navercorp.pinpoint.rpc.client.PinpointClient;
+import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.apache.thrift.TBase;
 
 import com.navercorp.pinpoint.bootstrap.AgentOption;
@@ -40,14 +46,12 @@ import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
-import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
@@ -58,13 +62,13 @@ import com.navercorp.pinpoint.thrift.dto.TAnnotation;
  * @author koo.taejin
  * @author hyungil.jeong
  */
-public class MockAgent extends DefaultAgent {
+public class MockApplicationContext extends DefaultApplicationContext {
+    private InterceptorRegistryBinder interceptorRegistryBinder;
 
-
-    public static MockAgent of(String configPath) {
+    public static MockApplicationContext of(String configPath) {
         ProfilerConfig profilerConfig = null;
         try {
-            URL resource = MockAgent.class.getClassLoader().getResource(configPath);
+            URL resource = MockApplicationContext.class.getClassLoader().getResource(configPath);
             if (resource == null) {
                 throw new FileNotFoundException("pinpoint.config not found. configPath:" + configPath);
             }
@@ -73,55 +77,66 @@ public class MockAgent extends DefaultAgent {
         } catch (IOException ex) {
             throw new RuntimeException(ex.getMessage(), ex);
         }
-        
         return of(profilerConfig);
     }
     
-    public static MockAgent of(ProfilerConfig config) {
+    public static MockApplicationContext of(ProfilerConfig config) {
         AgentOption agentOption = new DefaultAgentOption(new DummyInstrumentation(), "mockAgent", "mockApplicationName", config, new URL[0], null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
         InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
+
         
-        return new MockAgent(agentOption, binder);
+        return new MockApplicationContext(agentOption, binder);
     }
 
-    public MockAgent(AgentOption agentOption) {
-        this(agentOption, new TestInterceptorRegistryBinder());
-    }
-    
-    public MockAgent(AgentOption agentOption, InterceptorRegistryBinder binder) {
+    public MockApplicationContext(AgentOption agentOption, InterceptorRegistryBinder binder) {
         super(agentOption, binder);
+        this.interceptorRegistryBinder = binder;
+        binder.bind();
     }
 
     @Override
-    protected DataSender createUdpStatDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
-        return new ListenableDataSender<TBase<?, ?>>();
+    protected Provider<DataSender> newUdpStatDataSenderProvider() {
+
+        DataSender dataSender = new ListenableDataSender<TBase<?, ?>>("StatDataSender");
+        return new DelegateProvider<DataSender>(dataSender);
     }
 
     @Override
-    protected DataSender createUdpSpanDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
-        return new ListenableDataSender<TBase<?, ?>>();
-    }
-
-    public DataSender getSpanDataSender() {
-        return super.getSpanDataSender();
-    }
-
-
-    @Override
-    protected StorageFactory createStorageFactory() {
-        return new SimpleSpanStorageFactory(super.getSpanDataSender());
+    protected Provider<DataSender> newUdpSpanDataSenderProvider() {
+        DataSender dataSender = new ListenableDataSender<TBase<?, ?>>("SpanDataSender");
+        return new DelegateProvider<DataSender>(dataSender);
     }
 
 
     @Override
-    protected EnhancedDataSender createTcpDataSender(CommandDispatcher commandDispatcher) {
-        return new TestTcpDataSender();
+    protected Provider<StorageFactory> newStorageFactoryProvider(ProfilerConfig profilerConfig, DataSender spanDataSender, AgentInformation agentInformation) {
+        StorageFactory storageFactory = new SimpleSpanStorageFactory(spanDataSender);
+        return new DelegateProvider<StorageFactory>(storageFactory);
+    }
+
+
+    @Override
+    protected Provider<PinpointClientFactory> newPinpointClientFactoryProvider(ProfilerConfig profilerConfig, AgentInformation agentInformation, CommandDispatcher commandDispatcher) {
+        return new NullProvider<PinpointClientFactory>();
     }
 
     @Override
-    protected ServerMetaDataHolder createServerMetaDataHolder() {
+    protected Provider<PinpointClient> newPinpointClientProvider(ProfilerConfig profilerConfig, PinpointClientFactory clientFactory) {
+        return new NullProvider<PinpointClient>();
+    }
+
+    @Override
+    protected Provider<EnhancedDataSender> newTcpDataSenderProvider(PinpointClient client) {
+        EnhancedDataSender enhancedDataSender = new TestTcpDataSender();
+        return new DelegateProvider<EnhancedDataSender>(enhancedDataSender);
+    }
+
+
+    @Override
+    protected Provider<ServerMetaDataHolder> newServerMetaDataHolderProvider() {
         List<String> vmArgs = RuntimeMXBeanUtils.getVmArgs();
-        return new ResettableServerMetaDataHolder(vmArgs);
+        ServerMetaDataHolder serverMetaDataHolder = new ResettableServerMetaDataHolder(vmArgs);
+        return new DelegateProvider<ServerMetaDataHolder>(serverMetaDataHolder);
     }
     
     @Override
@@ -146,6 +161,14 @@ public class MockAgent extends DefaultAgent {
         
         return pluginContexts;
 
+    }
+
+    @Override
+    public void close() {
+        super.close();
+        if (this.interceptorRegistryBinder != null) {
+            interceptorRegistryBinder.unbind();
+        }
     }
 
     /**
@@ -210,7 +233,7 @@ public class MockAgent extends DefaultAgent {
         builder.append(serviceCode);
         builder.append(", ");
         builder.append(Arrays.deepToString(annotations));
-        builder.append(")");
+        builder.append(')');
         
         return builder.toString();
     }

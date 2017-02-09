@@ -18,7 +18,6 @@
 package com.navercorp.pinpoint.test.javasssit;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.instrument.ClassFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
@@ -27,27 +26,13 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.DefaultAgent;
+import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.instrument.JavassistClassPool;
 import com.navercorp.pinpoint.profiler.interceptor.registry.GlobalInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.navercorp.pinpoint.test.MockAgent;
+import com.navercorp.pinpoint.test.MockApplicationContext;
 import com.navercorp.pinpoint.test.classloader.TestClassLoader;
-import com.navercorp.pinpoint.test.javasssit.accessor.BindValueTraceValue;
-import com.navercorp.pinpoint.test.javasssit.accessor.DatabaseInfoTraceValue;
-import com.navercorp.pinpoint.test.javasssit.accessor.IntArrayGetter;
-import com.navercorp.pinpoint.test.javasssit.accessor.IntArraySetter;
-import com.navercorp.pinpoint.test.javasssit.accessor.IntArrayTraceValue;
-import com.navercorp.pinpoint.test.javasssit.accessor.IntGetter;
-import com.navercorp.pinpoint.test.javasssit.accessor.IntSetter;
-import com.navercorp.pinpoint.test.javasssit.accessor.IntTraceValue;
-import com.navercorp.pinpoint.test.javasssit.accessor.IntegerArrayGetter;
-import com.navercorp.pinpoint.test.javasssit.accessor.IntegerArraySetter;
-import com.navercorp.pinpoint.test.javasssit.accessor.IntegerArrayTraceValue;
-import com.navercorp.pinpoint.test.javasssit.accessor.ObjectTraceValue;
-import com.navercorp.pinpoint.test.javasssit.accessor.StringGetter;
 import com.navercorp.pinpoint.test.util.BytecodeUtils;
 import javassist.bytecode.Descriptor;
 import org.junit.Assert;
@@ -164,10 +149,12 @@ public class JavassistClassTest {
                     InstrumentClass aClass = instrumentor.getInstrumentClass(classLoader, javassistClassName, classfileBuffer);
 
                     String methodName = "callA";
-                    aClass.getDeclaredMethod(methodName).addInterceptor("com.navercorp.pinpoint.test.javasssit.TestBeforeInterceptor");
+                    InstrumentMethod callaMethod = aClass.getDeclaredMethod(methodName);
+                    callaMethod.addInterceptor("com.navercorp.pinpoint.test.javasssit.TestBeforeInterceptor");
 
-                    return aClass.toBytecode();
-                } catch (InstrumentException e) {
+                    byte[] bytes = aClass.toBytecode();
+                    return bytes;
+                } catch (Throwable e) {
                     e.printStackTrace();
                     throw new RuntimeException(e.getMessage(), e);
                 }
@@ -177,6 +164,8 @@ public class JavassistClassTest {
         Class<?> testObjectClazz = loader.loadClass(javassistClassName);
         final String methodName = "callA";
         logger.info("class:{}", testObjectClazz.toString());
+        logger.info("class cl:{}", testObjectClazz.getClassLoader());
+
         final Object testObject = testObjectClazz.newInstance();
         Method callA = testObjectClazz.getMethod(methodName);
         callA.invoke(testObject);
@@ -190,7 +179,9 @@ public class JavassistClassTest {
     }
 
     private Interceptor getInterceptor(final TestClassLoader loader, int index) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException {
-        Interceptor interceptor = (Interceptor) loader.loadClass("com.navercorp.pinpoint.test.javasssit.TestInterceptors").getMethod("get", int.class).invoke(null, index);
+        Class<?> interceptorClazz = loader.loadClass("com.navercorp.pinpoint.test.javasssit.TestInterceptors");
+        Method getMethod = interceptorClazz.getMethod("get", int.class);
+        Interceptor interceptor = (Interceptor) getMethod.invoke(null, index);
         return interceptor;
     }
 
@@ -199,9 +190,9 @@ public class JavassistClassTest {
 
         DefaultProfilerConfig profilerConfig = new DefaultProfilerConfig();
         profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
-        DefaultAgent agent = MockAgent.of(profilerConfig);
+        ApplicationContext applicationContext = MockApplicationContext.of(profilerConfig);
 
-        TestClassLoader testClassLoader = new TestClassLoader(agent);
+        TestClassLoader testClassLoader = new TestClassLoader(applicationContext);
         testClassLoader.initialize();
         return testClassLoader;
     }

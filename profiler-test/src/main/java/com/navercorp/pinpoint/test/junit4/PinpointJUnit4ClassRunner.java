@@ -19,8 +19,7 @@ package com.navercorp.pinpoint.test.junit4;
 import java.lang.reflect.Method;
 
 
-
-
+import com.navercorp.pinpoint.test.MockApplicationContext;
 import org.junit.internal.runners.model.EachTestNotifier;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -71,6 +70,11 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         return testContext.createTestClass(testClass);
     }
 
+    private TraceContext getTraceContext() {
+        MockApplicationContext mockApplicationContext = testContext.getMockApplicationContext();
+        return mockApplicationContext.getTraceContext();
+    }
+
     @Override
     protected void runChild(FrameworkMethod method, RunNotifier notifier) {
         beginTracing(method);
@@ -87,7 +91,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
     private void beginTracing(FrameworkMethod method) {
         if (shouldCreateNewTraceObject(method)) {
-            TraceContext traceContext = testContext.getMockAgent().getTraceContext();
+            TraceContext traceContext = getTraceContext();
             Trace trace = traceContext.newTraceObject();
             SpanRecorder recorder = trace.getSpanRecorder();
             recorder.recordServiceType(ServiceType.TEST);
@@ -96,7 +100,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
     private void endTracing(FrameworkMethod method, RunNotifier notifier) {
         if (shouldCreateNewTraceObject(method)) {
-            TraceContext traceContext = testContext.getMockAgent().getTraceContext();
+            TraceContext traceContext = getTraceContext();
             try {
                 Trace trace = traceContext.currentRawTraceObject();
                 if (trace == null) {
@@ -163,7 +167,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
     public void beforeClass() throws Throwable {
         logger.debug("beforeClass");
-        // TODO MockAgent.start();
+        // TODO MockApplicationContext.start();
     }
 
     @Override
@@ -179,6 +183,6 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
     public void afterClass() throws Throwable {
         logger.debug("afterClass");
-        // TODO MockAgent.close()
+        // TODO MockApplicationContext.close()
     }
 }

@@ -20,7 +20,9 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.RequestHandle;
+import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,13 +57,14 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
     private final ClassFileFilter pinpointClassFilter;
     private final ClassFileFilter unmodifiableFilter;
 
-    public ClassFileTransformerDispatcher(DefaultAgent agent, List<DefaultProfilerPluginContext> pluginContexts) {
-        if (agent == null) {
-            throw new NullPointerException("agent must not be null");
+    public ClassFileTransformerDispatcher(ApplicationContext applicationContext, List<DefaultProfilerPluginContext> pluginContexts) {
+        if (applicationContext == null) {
+            throw new NullPointerException("applicationContext must not be null");
         }
 
-        this.globalContext = new DefaultProfilerPluginContext(agent, new LegacyProfilerPluginClassInjector(getClass().getClassLoader()));
-        this.debugTargetFilter = agent.getProfilerConfig().getProfilableClassFilter();
+        this.globalContext = new DefaultProfilerPluginContext(applicationContext, new LegacyProfilerPluginClassInjector(getClass().getClassLoader()));
+        ProfilerConfig profilerConfig = applicationContext.getProfilerConfig();
+        this.debugTargetFilter = profilerConfig.getProfilableClassFilter();
         this.debugTransformer = new DebugTransformer(globalContext);
 
         this.pinpointClassFilter = new PinpointClassFilter(agentClassLoader);

@@ -19,73 +19,23 @@ package com.navercorp.pinpoint.profiler;
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
 import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInvokerHelper;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceFactoryBuilder;
-import com.navercorp.pinpoint.profiler.context.DefaultTransactionCounter;
-import com.navercorp.pinpoint.profiler.context.IdGenerator;
-import com.navercorp.pinpoint.profiler.context.PluginMonitorContextBuilder;
+import com.navercorp.pinpoint.profiler.context.ApplicationContext;
+import com.navercorp.pinpoint.profiler.context.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.SystemPropertyDumper;
-import com.navercorp.pinpoint.profiler.context.TraceFactoryBuilder;
-import com.navercorp.pinpoint.profiler.context.TransactionCounter;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
-import com.navercorp.pinpoint.profiler.context.storage.BufferedStorageFactory;
-import com.navercorp.pinpoint.profiler.context.storage.SpanStorageFactory;
-import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
-import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
-import com.navercorp.pinpoint.profiler.instrument.ASMClassPool;
-import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
-import com.navercorp.pinpoint.profiler.instrument.JavassistClassPool;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataCacheService;
-import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
-import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataCacheService;
-import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
-import com.navercorp.pinpoint.profiler.metadata.StringMetaDataCacheService;
-import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
-import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
-import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
-import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginLoader;
-import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
-import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandLocatorBuilder;
-import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceLocator;
-import com.navercorp.pinpoint.profiler.receiver.service.ActiveThreadService;
-import com.navercorp.pinpoint.profiler.receiver.service.EchoService;
-import com.navercorp.pinpoint.profiler.sampler.SamplerFactory;
-import com.navercorp.pinpoint.profiler.sender.DataSender;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
-import com.navercorp.pinpoint.profiler.sender.UdpDataSenderFactory;
-import com.navercorp.pinpoint.profiler.util.ApplicationServerTypeResolver;
-import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
+
 import com.navercorp.pinpoint.rpc.ClassPreLoader;
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
-import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
-import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.Instrumentation;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author emeroad
@@ -98,36 +48,16 @@ public class DefaultAgent implements Agent {
 
     private final PLoggerBinder binder;
 
-    private final ClassFileTransformerDispatcher classFileTransformer;
-    
     private final ProfilerConfig profilerConfig;
 
-    private final AgentInfoSender agentInfoSender;
-    private final AgentStatMonitor agentStatMonitor;
+    private final  ApplicationContext applicationContext;
 
-    private final TraceContext traceContext;
-
-    private PinpointClientFactory clientFactory;
-    private PinpointClient client;
-    private final EnhancedDataSender tcpDataSender;
-
-    private final DataSender statDataSender;
-    private final DataSender spanDataSender;
-
-    private final AgentInformation agentInformation;
-    private final ServerMetaDataHolder serverMetaDataHolder;
-    private final AgentOption agentOption;
 
     private final Object agentStatusLock = new Object();
     private volatile AgentStatus agentStatus;
 
     private final InterceptorRegistryBinder interceptorRegistryBinder;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
-    
-    private final Instrumentation instrumentation;
-    private final InstrumentClassPool classPool;
-    private final DynamicTransformService dynamicTransformService;
-    private final List<DefaultProfilerPluginContext> pluginContexts;
     
 
     static {
@@ -181,137 +111,22 @@ public class DefaultAgent implements Agent {
         dumpConfig(agentOption.getProfilerConfig());
 
         changeStatus(AgentStatus.INITIALIZING);
-        
+
         this.profilerConfig = agentOption.getProfilerConfig();
-        this.instrumentation = agentOption.getInstrumentation();
-        this.agentOption = agentOption;
 
-        this.classPool = createInstrumentEngine(agentOption, interceptorRegistryBinder);
+        this.applicationContext = newApplicationContext(agentOption, interceptorRegistryBinder);
 
-        if (logger.isInfoEnabled()) {
-            logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
-        }
-
-        pluginContexts = loadPlugins(agentOption);
-
-        this.classFileTransformer = new ClassFileTransformerDispatcher(this, pluginContexts);
-        this.dynamicTransformService = new DynamicTransformService(instrumentation, classFileTransformer);
-
-        ClassFileTransformer wrappedTransformer = wrapClassFileTransformer(classFileTransformer);
-        instrumentation.addTransformer(wrappedTransformer, true);
-
-        String applicationServerTypeString = profilerConfig.getApplicationServerType();
-        ServiceType applicationServerType = this.serviceTypeRegistryService.findServiceTypeByName(applicationServerTypeString);
-
-        final ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(pluginContexts, applicationServerType, profilerConfig.getApplicationTypeDetectOrder());
-        
-        final AgentInformationFactory agentInformationFactory = new AgentInformationFactory(agentOption.getAgentId(), agentOption.getApplicationName());
-        this.agentInformation = agentInformationFactory.createAgentInformation(typeResolver.resolve());
-        logger.info("agentInformation:{}", agentInformation);
-        
-        this.serverMetaDataHolder = createServerMetaDataHolder();
-
-        this.spanDataSender = createUdpSpanDataSender(this.profilerConfig.getCollectorSpanServerPort(), "Pinpoint-UdpSpanDataExecutor",
-                this.profilerConfig.getSpanDataSenderWriteQueueSize(), this.profilerConfig.getSpanDataSenderSocketTimeout(),
-                this.profilerConfig.getSpanDataSenderSocketSendBufferSize());
-        this.statDataSender = createUdpStatDataSender(this.profilerConfig.getCollectorStatServerPort(), "Pinpoint-UdpStatDataExecutor",
-                this.profilerConfig.getStatDataSenderWriteQueueSize(), this.profilerConfig.getStatDataSenderSocketTimeout(),
-                this.profilerConfig.getStatDataSenderSocketSendBufferSize());
-
-        final ActiveTraceRepository activeTraceRepository = createActiveTraceRepository();
-        final CommandDispatcher commandService = createCommandService(profilerConfig, activeTraceRepository);
-        this.tcpDataSender = createTcpDataSender(commandService);
-
-        final IdGenerator idGenerator = new IdGenerator();
-        final TransactionCounter transactionCounter = new DefaultTransactionCounter(idGenerator);
-
-        final PluginMonitorContext pluginMonitorContext = createPluginMonitorContext();
-
-        this.traceContext = createTraceContext(tcpDataSender, idGenerator, activeTraceRepository, pluginMonitorContext);
-        final AgentStatCollectorFactory agentStatCollectorFactory = new AgentStatCollectorFactory(profilerConfig, activeTraceRepository, transactionCounter, pluginMonitorContext);
-
-        final JvmInformationFactory jvmInformationFactory = new JvmInformationFactory(agentStatCollectorFactory.getGarbageCollector());
-
-        this.agentInfoSender = new AgentInfoSender.Builder(tcpDataSender, this.agentInformation, jvmInformationFactory.createJvmInformation()).sendInterval(profilerConfig.getAgentInfoSendRetryInterval()).build();
-        this.serverMetaDataHolder.addListener(this.agentInfoSender);
-        this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime(), agentStatCollectorFactory);
         
         InterceptorInvokerHelper.setPropagateException(profilerConfig.isPropagateInterceptorException());
     }
 
-    private ActiveTraceRepository createActiveTraceRepository() {
-        if (this.profilerConfig.isTraceAgentActiveThread()) {
-            return new ActiveTraceRepository();
-        }
-        return null;
-    }
-
-    private InstrumentClassPool createInstrumentEngine(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
-
-        final String instrumentEngine = this.profilerConfig.getProfileInstrumentEngine().toUpperCase();
-
-        if (DefaultProfilerConfig.INSTRUMENT_ENGINE_ASM.equals(instrumentEngine)) {
-            logger.info("ASM InstrumentEngine.");
-
-            return new ASMClassPool(interceptorRegistryBinder, agentOption.getBootstrapJarPaths());
-
-        } else if (DefaultProfilerConfig.INSTRUMENT_ENGINE_JAVASSIST.equals(instrumentEngine)) {
-            logger.info("JAVASSIST InstrumentEngine.");
-
-            return new JavassistClassPool(interceptorRegistryBinder, agentOption.getBootstrapJarPaths());
-        } else {
-            logger.warn("Unknown InstrumentEngine:{}", instrumentEngine);
-
-            throw new IllegalArgumentException("Unknown InstrumentEngine:" + instrumentEngine);
-        }
-    }
-
-    private ClassFileTransformer wrapClassFileTransformer(ClassFileTransformer classFileTransformerDispatcher) {
-        final boolean enableBytecodeDump = profilerConfig.readBoolean(ASMBytecodeDumpService.ENABLE_BYTECODE_DUMP, ASMBytecodeDumpService.ENABLE_BYTECODE_DUMP_DEFAULT_VALUE);
-        if (enableBytecodeDump) {
-            logger.info("wrapBytecodeDumpTransformer");
-            return BytecodeDumpTransformer.wrap(classFileTransformerDispatcher, profilerConfig);
-        }
-        return classFileTransformerDispatcher;
-    }
-
-    public List<String> getBootstrapJarPaths() {
-        return agentOption.getBootstrapJarPaths();
-    }
-
-    protected List<DefaultProfilerPluginContext> loadPlugins(AgentOption agentOption) {
-        final ProfilerPluginLoader loader = new ProfilerPluginLoader(this);
-        return loader.load(agentOption.getPluginJars());
-    }
-
-    private CommandDispatcher createCommandService(ProfilerConfig profilerConfig, ActiveTraceRepository activeTraceRepository) {
-        ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
-        builder.addService(new EchoService());
-        if (activeTraceRepository != null) {
-            ActiveThreadService activeThreadService = new ActiveThreadService(profilerConfig, activeTraceRepository);
-            builder.addService(activeThreadService);
-        }
-
-        ProfilerCommandServiceLocator commandServiceLocator = builder.build();
-        CommandDispatcher commandDispatcher = new CommandDispatcher(commandServiceLocator);
-        return commandDispatcher;
+    protected ApplicationContext newApplicationContext(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
+        return new DefaultApplicationContext(agentOption, interceptorRegistryBinder);
     }
 
 
-    public DynamicTransformService getDynamicTransformService() {
-        return dynamicTransformService;
-    }
-
-    public Instrumentation getInstrumentation() {
-        return instrumentation;
-    }
-
-    public ClassFileTransformerDispatcher getClassFileTransformerDispatcher() {
-        return classFileTransformer;
-    }
-    
-    public InstrumentClassPool getClassPool() {
-        return classPool;
+    protected ApplicationContext getApplicationContext() {
+        return applicationContext;
     }
 
     private void dumpSystemProperties() {
@@ -346,125 +161,7 @@ public class DefaultAgent implements Agent {
         PLoggerFactory.initialize(binder);
     }
 
-    private TraceContext createTraceContext(EnhancedDataSender enhancedDataSender, IdGenerator idGenerator, ActiveTraceRepository activeTraceRepository, PluginMonitorContext pluginMonitorContext) {
 
-        final StorageFactory storageFactory = createStorageFactory();
-        logger.info("StorageFactoryType:{}", storageFactory);
-
-        final Sampler sampler = createSampler();
-        logger.info("SamplerType:{}", sampler);
-
-        final TraceFactoryBuilder traceFactoryBuilder = createTraceFactory(storageFactory, sampler, idGenerator, activeTraceRepository);
-
-        final String agentId = this.agentInformation.getAgentId();
-        final long agentStartTime = this.agentInformation.getStartTime();
-
-        final ApiMetaDataService apiMetaDataService = new ApiMetaDataCacheService(agentId, agentStartTime, enhancedDataSender);
-        final StringMetaDataService stringMetaDataService = new StringMetaDataCacheService(agentId, agentStartTime, enhancedDataSender);
-
-        int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
-        final SqlMetaDataService sqlMetaDataService = new SqlMetaDataCacheService(agentId, agentStartTime, enhancedDataSender, jdbcSqlCacheSize);
-
-        final TraceContext traceContext = new DefaultTraceContext(this.profilerConfig, this.agentInformation,
-                traceFactoryBuilder, pluginMonitorContext, this.serverMetaDataHolder,
-                apiMetaDataService, stringMetaDataService, sqlMetaDataService
-        );
-
-        return traceContext;
-    }
-
-    private PluginMonitorContext createPluginMonitorContext() {
-        final boolean traceDataSource = profilerConfig.isTraceAgentDataSource();
-        final PluginMonitorContextBuilder monitorContextBuilder = new PluginMonitorContextBuilder(traceDataSource);
-        return monitorContextBuilder.build();
-    }
-
-    private TraceFactoryBuilder createTraceFactory(StorageFactory storageFactory, Sampler sampler, IdGenerator idGenerator, ActiveTraceRepository activeTraceRepository) {
-
-        final TraceFactoryBuilder builder = new DefaultTraceFactoryBuilder(storageFactory, sampler, idGenerator, activeTraceRepository);
-        return builder;
-    }
-
-    protected StorageFactory createStorageFactory() {
-        if (profilerConfig.isIoBufferingEnable()) {
-            return new BufferedStorageFactory(this.spanDataSender, this.profilerConfig, this.agentInformation);
-        } else {
-            return new SpanStorageFactory(spanDataSender);
-        }
-    }
-
-    private Sampler createSampler() {
-        boolean samplingEnable = this.profilerConfig.isSamplingEnable();
-        int samplingRate = this.profilerConfig.getSamplingRate();
-
-        SamplerFactory samplerFactory = new SamplerFactory();
-        return samplerFactory.createSampler(samplingEnable, samplingRate);
-    }
-    
-    protected ServerMetaDataHolder createServerMetaDataHolder() {
-        List<String> vmArgs = RuntimeMXBeanUtils.getVmArgs();
-        ServerMetaDataHolder serverMetaDataHolder = new DefaultServerMetaDataHolder(vmArgs);
-        return serverMetaDataHolder;
-    }
-
-    protected PinpointClientFactory createPinpointClientFactory(CommandDispatcher commandDispatcher) {
-        PinpointClientFactory pinpointClientFactory = new PinpointClientFactory();
-        pinpointClientFactory.setTimeoutMillis(1000 * 5);
-
-        Map<String, Object> properties = this.agentInformation.toMap();
-        
-        boolean isSupportServerMode = this.profilerConfig.isTcpDataSenderCommandAcceptEnable();
-        
-        if (isSupportServerMode) {
-            pinpointClientFactory.setMessageListener(commandDispatcher);
-            pinpointClientFactory.setServerStreamChannelMessageListener(commandDispatcher);
-
-            properties.put(HandshakePropertyType.SUPPORT_SERVER.getName(), true);
-            properties.put(HandshakePropertyType.SUPPORT_COMMAND_LIST.getName(), commandDispatcher.getRegisteredCommandServiceCodes());
-        } else {
-            properties.put(HandshakePropertyType.SUPPORT_SERVER.getName(), false);
-        }
-
-        pinpointClientFactory.setProperties(properties);
-        return pinpointClientFactory;
-    }
-
-    protected EnhancedDataSender createTcpDataSender(CommandDispatcher commandDispatcher) {
-        this.clientFactory = createPinpointClientFactory(commandDispatcher);
-        this.client = ClientFactoryUtils.createPinpointClient(this.profilerConfig.getCollectorTcpServerIp(), this.profilerConfig.getCollectorTcpServerPort(), clientFactory);
-        return new TcpDataSender(client);
-    }
-
-    protected DataSender createUdpStatDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
-        UdpDataSenderFactory factory = new UdpDataSenderFactory(this.profilerConfig.getCollectorStatServerIp(), port, threadName, writeQueueSize, timeout, sendBufferSize);
-        return factory.create(profilerConfig.getStatDataSenderSocketType());
-    }
-    
-    protected DataSender createUdpSpanDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
-        UdpDataSenderFactory factory = new UdpDataSenderFactory(this.profilerConfig.getCollectorSpanServerIp(), port, threadName, writeQueueSize, timeout, sendBufferSize);
-        return factory.create(profilerConfig.getSpanDataSenderSocketType());
-    }
-
-    protected EnhancedDataSender getTcpDataSender() {
-        return tcpDataSender;
-    }
-
-    protected DataSender getStatDataSender() {
-        return statDataSender;
-    }
-
-    protected DataSender getSpanDataSender() {
-        return spanDataSender;
-    }
-
-    public TraceContext getTraceContext() {
-        return traceContext;
-    }
-
-    public AgentInformation getAgentInformation() {
-        return agentInformation;
-    }
-    
     public ServiceTypeRegistryService getServiceTypeRegistryService() {
         return serviceTypeRegistryService;
     }
@@ -480,8 +177,8 @@ public class DefaultAgent implements Agent {
             }
         }
         logger.info("Starting {} Agent.", ProductInfo.NAME);
-        this.agentInfoSender.start();
-        this.agentStatMonitor.start();
+        this.applicationContext.start();
+
     }
 
     @Override
@@ -499,31 +196,12 @@ public class DefaultAgent implements Agent {
             }
         }
         logger.info("Stopping {} Agent.", ProductInfo.NAME);
+        this.applicationContext.close();
 
-        this.agentInfoSender.stop();
-        this.agentStatMonitor.stop();
-
-        // Need to process stop
-        this.spanDataSender.stop();
-        this.statDataSender.stop();
-
-        closeTcpDataSender();
         // for testcase
         if (staticResourceCleanup) {
             PLoggerFactory.unregister(this.binder);
             this.interceptorRegistryBinder.unbind();
-        }
-    }
-
-    private void closeTcpDataSender() {
-        if (this.tcpDataSender != null) {
-            this.tcpDataSender.stop();
-        }
-        if (this.client != null) {
-            this.client.close();
-        }
-        if (this.clientFactory != null) {
-            this.clientFactory.release();
         }
     }
 

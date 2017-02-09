@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,28 +14,26 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap;
+package com.navercorp.pinpoint.test;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.profiler.context.provider.Provider;
 
 /**
- * @author emeroad
- * @author hyungil.jeong
+ * @author Woonduk Kang(emeroad)
  */
-public class DummyAgent implements Agent {
+public class DelegateProvider<T> implements Provider<T> {
+    private final T delegate;
 
-    public DummyAgent(AgentOption option) {
+    public DelegateProvider(T delegate) {
+        if (delegate == null) {
+            throw new NullPointerException("delegate must not be null");
+        }
 
+        this.delegate = delegate;
     }
 
     @Override
-    public void start() {
+    public T get() {
+        return delegate;
     }
-
-    @Override
-    public void stop() {
-    }
-
-
 }
