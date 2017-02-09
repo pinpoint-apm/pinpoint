@@ -397,7 +397,7 @@
 	                 */
 	                parseApplicationList = function (data, cb) {
 	                	UserConfigService.getFavoriteList(function( aSavedFavoriteList ){
-							scope.favoriteCount = aSavedFavoriteList.length;
+							// scope.favoriteCount = aSavedFavoriteList.length;
 							scope.applications = [{
 								text: '',
 								value: ''
@@ -422,6 +422,7 @@
 									aGeneralList.push(oValue);
 								}
 							});
+							scope.favoriteCount = aFavoriteList.length;
 							scope.applications = aFavoriteList.concat( aGeneralList );
 							if (angular.isFunction(cb)) {
 								cb.apply(scope);

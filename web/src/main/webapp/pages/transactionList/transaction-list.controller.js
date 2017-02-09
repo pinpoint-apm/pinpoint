@@ -250,7 +250,7 @@
 	        fetchStart = function ( bHasTransactionInfo ) {
 				var query = getQuery();
 	            getTransactionList(query, function (data) {
-					if (data.metadata.length === 0 || true) {
+					if (data.metadata.length === 0) {
 						$scope.$emit('timeSliderDirective.disableMore');
 						$scope.$emit('timeSliderDirective.changeMoreToDone');
 						if ( fetchStartLoadTryCount < fetchStartLoadTryMaxCount ) {
