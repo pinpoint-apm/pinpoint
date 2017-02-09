@@ -117,6 +117,12 @@ module.exports = function (grunt) {
 		'regex-replace:html'
 	]);
 
+	grunt.registerTask('build_release_without_lint', [
+		'build_all_js',
+		'build_all_css',
+		'replace_static',
+		'clean:origin_folder'
+	]);
 	grunt.registerTask('build_release', [
 		'lint',
 		'build_all_js',
