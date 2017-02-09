@@ -456,7 +456,7 @@
                             <goal>grunt</goal>
                         </goals>
                         <configuration>
-                            <arguments>build_release</arguments>
+                            <arguments>build_release_without_lint</arguments>
                         </configuration>
                     </execution>
                 </executions>
