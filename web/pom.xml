@@ -17,6 +17,7 @@
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <sniffer.artifactid>java17</sniffer.artifactid>
         <fastxml.jackson.version>2.8.5</fastxml.jackson.version>
+        <grunt.build.command>build_release_without_lint</grunt.build.command>
     </properties>
 
     <dependencies>
@@ -456,7 +457,7 @@
                             <goal>grunt</goal>
                         </goals>
                         <configuration>
-                            <arguments>build_release_without_lint</arguments>
+                            <arguments>${grunt.build.command}</arguments>
                         </configuration>
                     </execution>
                 </executions>
