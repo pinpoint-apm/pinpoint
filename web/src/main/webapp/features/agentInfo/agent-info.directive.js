@@ -19,7 +19,6 @@
 					scope.selectTime = -1;
 					scope.selectedDSIndex = 0;
 					scope.showDataSourceChart = SystemConfigService.get("showInspectorDataSource") === true;
-					var $elDSMessage = element.find(".ds-detail");
 					var $elDataSourceSelect = element.find("select.data-source-select");
 					var timeSlider = null, bInitTooltip = false;
 					var oAlertService = new AlertsService();
@@ -284,7 +283,7 @@
 						scope.$broadcast( "dsChartDirective.initAndRenderWithData.forDataSource", AgentDaoService.parseDataSourceChartDataForAmcharts(scope.dataSourceChart, scope.dsChartData[scope.selectedDSIndex]), '100%', '270px');
 					}
 					scope.showDataSourceDetail = function() {
-						$elDSMessage.toggle();
+						element.find(".ds-detail").toggle();
 					};
 					scope.toggleHelp = function() {
 						$("._wrongApp").popover({
@@ -364,7 +363,7 @@
 							scope.dsChartData = [];
 							return;
 						}
-						$elDSMessage.hide();
+						element.find(".ds-detail").hide();
 						scope.showEventInfo = false;
 						scope.hasAgentData = true;
 						scope.agent = agent;
