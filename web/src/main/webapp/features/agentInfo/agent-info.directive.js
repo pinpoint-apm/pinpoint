@@ -18,7 +18,7 @@
 					scope.showDetail = false;
 					scope.selectTime = -1;
 					scope.selectedDSIndex = 0;
-					scope.showDataSourceChart = SystemConfigService.get("showInspectorDataSource") == true;
+					scope.showDataSourceChart = SystemConfigService.get("showInspectorDataSource") === true;
 					var $elDSMessage = element.find(".ds-detail");
 					var $elDataSourceSelect = element.find("select.data-source-select");
 					var timeSlider = null, bInitTooltip = false;

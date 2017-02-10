@@ -405,7 +405,7 @@
 	        	setPinColor();
 	        };
 	        $scope.showAgentInfo = function( $event ) {
-				if ( SystemConfigService.get("showActiveThreadDump") == true ) {
+				if ( SystemConfigService.get("showActiveThreadDump") === true ) {
 					var $target = $( $event.target );
 					if ($target.hasClass("agent-chart-list")) {
 						return;
