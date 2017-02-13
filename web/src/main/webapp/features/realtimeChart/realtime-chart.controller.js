@@ -343,11 +343,13 @@
 	        	});
 	        }
 	        function showPopup() {
-				$element.css("height", LocalStorageManagerService.getRealtimeLayerHeight() || cfg.css.height);
+				var savedHeight = LocalStorageManagerService.getRealtimeLayerHeight() || cfg.css.height;
+				$element.css("height", savedHeight);
 	        	$element.animate({
 	        		bottom: 0,
 	        		left: 0
 	        	}, 500, function() {
+					$elAgentChartListWrapper.css("height", savedHeight - cfg.css.titleHeight );
 	        	});
 	        }
 	        function adjustWidth() {
@@ -454,6 +456,7 @@
 				maxHeight: $window.innerHeight - cfg.css.navBarHeight,
 				handles: "n",
 				resize: function( event, ui ) {
+					$elAgentChartListWrapper.css("height", ui.size.height - cfg.css.titleHeight );
 					LocalStorageManagerService.setRealtimeLayerHeight( ui.size.height );
 				}
 			});
