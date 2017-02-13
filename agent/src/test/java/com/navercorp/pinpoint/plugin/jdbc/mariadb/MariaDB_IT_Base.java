@@ -67,6 +67,7 @@ public class MariaDB_IT_Base {
     }
 
     protected final void executeStatement() throws Exception {
+        final int expectedResultSize = 1;
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(JDBC_URL, "root", null);
@@ -75,13 +76,20 @@ public class MariaDB_IT_Base {
             try {
                 statement = connection.createStatement();
 
-                ResultSet result = null;
+                ResultSet rs = null;
                 try {
-                    result = statement.executeQuery(STATEMENT_QUERY);
-                    result.first();
-                    assertEquals(3, result.getInt(1));
+                    rs = statement.executeQuery(STATEMENT_QUERY);
+                    int resultCount = 0;
+                    while (rs.next()) {
+                        ++resultCount;
+                        if (resultCount > expectedResultSize) {
+                            fail();
+                        }
+                        assertEquals(3, rs.getInt(1));
+                    }
+                    assertEquals(expectedResultSize, resultCount);
                 } finally {
-                    closeResultSet(result);
+                    closeResultSet(rs);
                 }
             } finally {
                 closeStatement(statement);
@@ -92,6 +100,7 @@ public class MariaDB_IT_Base {
     }
 
     protected final void executePreparedStatement() throws Exception {
+        final int expectedResultSize = 1;
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(JDBC_URL, "root", null);
@@ -101,13 +110,20 @@ public class MariaDB_IT_Base {
                 ps = connection.prepareStatement(PREPARED_STATEMENT_QUERY);
                 ps.setInt(1, 3);
 
-                ResultSet result = null;
+                ResultSet rs = null;
                 try {
-                    result = ps.executeQuery();
-                    result.first();
-                    assertEquals("THREE", result.getString(2));
+                    rs = ps.executeQuery();
+                    int resultCount = 0;
+                    while (rs.next()) {
+                        ++resultCount;
+                        if (resultCount > expectedResultSize) {
+                            fail();
+                        }
+                        assertEquals("THREE", rs.getString(2));
+                    }
+                    assertEquals(expectedResultSize, resultCount);
                 } finally {
-                    closeResultSet(result);
+                    closeResultSet(rs);
                 }
             } finally {
                 closeStatement(ps);
@@ -119,8 +135,8 @@ public class MariaDB_IT_Base {
 
     protected final void executeCallableStatement() throws Exception {
 
+        final int expectedResultSize = 1;
         final int expectedTotalCount = 3;
-        final int expectedMatchingCount = 1;
         final int expectedMatchingId = 2;
         final String outputParamCountName = "outputParamCount";
 
@@ -137,16 +153,16 @@ public class MariaDB_IT_Base {
                 ResultSet rs = null;
                 try {
                     rs = cs.executeQuery();
-                    int matchingCount = 0;
+                    int resultCount = 0;
                     while (rs.next()) {
-                        ++matchingCount;
-                        if (matchingCount > expectedMatchingCount) {
+                        ++resultCount;
+                        if (resultCount > expectedResultSize) {
                             fail();
                         }
                         assertEquals(expectedMatchingId, rs.getInt(1));
                         assertEquals(CALLABLE_STATEMENT_INPUT_PARAM, rs.getString(2));
                     }
-                    assertEquals(expectedMatchingCount, matchingCount);
+                    assertEquals(expectedResultSize, resultCount);
                 } finally {
                     closeResultSet(rs);
                 }
