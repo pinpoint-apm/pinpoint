@@ -9,27 +9,27 @@ AmCharts.themes.patterns = {
 	AmCoordinateChart: {
 		colors:["#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000"],
 		patterns:[
-		{"url":"../amcharts/patterns/black/pattern1.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern2.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern3.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern4.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern5.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern6.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern7.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern8.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern9.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern10.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern11.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern12.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern13.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern14.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern15.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern16.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern17.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern18.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern19.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern20.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern21.png", "width":4, "height":4}]
+		{"url":"patterns/black/pattern1.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern2.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern3.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern4.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern5.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern6.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern7.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern8.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern9.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern10.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern11.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern12.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern13.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern14.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern15.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern16.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern17.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern18.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern19.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern20.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern21.png", "width":4, "height":4}]
 	},
 
 
@@ -51,33 +51,33 @@ AmCharts.themes.patterns = {
 		labelTickColor: "#000000",
 		labelTickAlpha: 0.3,
 		patterns:[
-		{"url":"../amcharts/patterns/black/pattern1.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern2.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern3.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern4.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern5.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern6.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern7.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern8.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern9.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern10.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern11.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern12.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern13.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern14.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern15.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern16.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern17.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern18.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern19.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern20.png", "width":4, "height":4},
-		{"url":"../amcharts/patterns/black/pattern21.png", "width":4, "height":4}]
+		{"url":"patterns/black/pattern1.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern2.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern3.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern4.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern5.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern6.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern7.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern8.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern9.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern10.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern11.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern12.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern13.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern14.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern15.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern16.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern17.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern18.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern19.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern20.png", "width":4, "height":4},
+		{"url":"patterns/black/pattern21.png", "width":4, "height":4}]
 	},
 
 	AmRectangularChart: {
 		zoomOutButtonColor: '#000000',
 		zoomOutButtonRollOverAlpha: 0.15,
-		zoomOutButtonImage: "lens.png"
+		zoomOutButtonImage: "lens"
 	},
 
 
@@ -120,7 +120,7 @@ AmCharts.themes.patterns = {
 
 	AmAngularGauge:{
 		faceAlpha:0.5,
-		facePattern:{"url":"../amcharts/patterns/black/pattern1.png", "width":4, "height":4}
+		facePattern:{"url":"patterns/black/pattern1.png", "width":4, "height":4}
 	},
 
 
@@ -185,10 +185,7 @@ AmCharts.themes.patterns = {
 	ZoomControl: {
 		buttonRollOverColor: "#3c5bdc",
 		buttonFillColor: "#f15135",
-		buttonFillAlpha: 0.8,
-		buttonBorderColor: "#000000",
-		gridBackgroundColor: "#000000",
-		gridAlpha: 0.8
+		buttonFillAlpha: 0.8
 	},
 
 	SmallMap: {

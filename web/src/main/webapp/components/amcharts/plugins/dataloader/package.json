@@ -1,0 +1,10 @@
+{
+  "name": "amcharts3-dataloader",
+  "version": "1.0.16",
+  "license": "SEE LICENSE IN LICENSE",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amcharts/dataloader.git"
+  }
+}

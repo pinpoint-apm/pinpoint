@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="35px" height="35px" viewBox="0 0 35 35">
+
+	<defs>
+		<filter id="f1" >
+			<feGaussianBlur in="SourceGraphic" stdDeviation="1"/>
+		</filter>
+	</defs>
+
+	<circle cx="17.5" cy="18.5" fill="#000000" opacity="0.3" r="15.5" filter="url(#f1)"/>
+	<circle cx="17.5" cy="17.5" fill="#000000" r="15.5"/>
+	<line y1="16.5" x1="12" y2="16.5" x2="23" stroke="#A9A9A9"/>
+	<line y1="19.5" x1="12" y2="19.5" x2="23" stroke="#A9A9A9"/>
+</svg>
