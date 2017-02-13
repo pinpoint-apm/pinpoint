@@ -1,0 +1,25 @@
+[ {
+  "innerRadius": 70,
+  "nailRadius": 0,
+  "radius": "80%",
+  "startWidth": 10,
+  "endWidth": 10,
+  "value": 4
+}, {
+  "innerRadius": 70,
+  "nailRadius": 0,
+  "radius": "100%",
+  "startWidth": 6,
+  "endWidth": 6,
+  "value": 8
+}, {
+  "axis": "axis2",
+  "color": "#CC0000",
+  "innerRadius": 50,
+  "nailRadius": 0,
+  "radius": "100%",
+  "startWidth": 6,
+  "endWidth": 6,
+  "alpha": 1,
+  "value": 11
+} ]
