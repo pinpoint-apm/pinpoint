@@ -16,8 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.context.provider;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.storage.BufferedStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
@@ -32,7 +35,8 @@ public class StorageFactoryProvider implements Provider<StorageFactory> {
     private final DataSender spanDataSender;
     private final AgentInformation agentInformation;
 
-    public StorageFactoryProvider(ProfilerConfig profilerConfig, DataSender spanDataSender, AgentInformation agentInformation) {
+    @Inject
+    public StorageFactoryProvider(ProfilerConfig profilerConfig, @SpanDataSender DataSender spanDataSender, AgentInformation agentInformation) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }

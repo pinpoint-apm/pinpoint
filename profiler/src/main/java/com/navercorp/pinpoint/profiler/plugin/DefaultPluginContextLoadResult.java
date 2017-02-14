@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.test;
+package com.navercorp.pinpoint.profiler.plugin;
 
-
-import com.navercorp.pinpoint.profiler.context.provider.Provider;
+import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class NullProvider<T> implements Provider<T> {
+public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
+    private final List<DefaultProfilerPluginContext> pluginContextList;
+
+    public DefaultPluginContextLoadResult(List<DefaultProfilerPluginContext> pluginContextList) {
+        this.pluginContextList = pluginContextList;
+    }
 
     @Override
-    public T get() {
-        return null;
+    public List<DefaultProfilerPluginContext> getProfilerPluginContextList() {
+        return pluginContextList;
     }
 }

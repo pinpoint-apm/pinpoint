@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context.provider;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
@@ -28,6 +30,7 @@ public class PinpointClientProvider implements Provider<PinpointClient> {
     private final ProfilerConfig profilerConfig;
     private final PinpointClientFactory clientFactory;
 
+    @Inject
     public PinpointClientProvider(ProfilerConfig profilerConfig, PinpointClientFactory clientFactory) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");

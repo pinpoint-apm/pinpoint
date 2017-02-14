@@ -20,6 +20,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 
+import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.instrument.RequestHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,11 @@ public class DynamicTransformService implements DynamicTransformTrigger {
     private final Instrumentation instrumentation;
 
     private DynamicTransformRequestListener dynamicTransformRequestListener;
+
+    @Inject
+    public DynamicTransformService(Instrumentation instrumentation, ClassFileTransformerDispatcher listener) {
+        this(instrumentation, (DynamicTransformRequestListener)listener);
+    }
 
     public DynamicTransformService(Instrumentation instrumentation, DynamicTransformRequestListener listener) {
         Asserts.notNull(instrumentation, "instrumentation");

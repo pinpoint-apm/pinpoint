@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.google.inject.Inject;
+
 /**
  * @author HyunGil Jeong
  */
@@ -23,6 +25,7 @@ public class DefaultTransactionCounter implements TransactionCounter {
 
     private final IdGenerator idGenerator;
 
+    @Inject
     public DefaultTransactionCounter(IdGenerator idGenerator) {
         if (idGenerator == null) {
             throw new NullPointerException("idGenerator cannot be null");
@@ -35,13 +38,13 @@ public class DefaultTransactionCounter implements TransactionCounter {
         // overflow improbable
         switch (samplingType) {
         case SAMPLED_NEW:
-            return idGenerator.currentTransactionId() - IdGenerator.INITIAL_TRANSACTION_ID;
+            return idGenerator.currentTransactionId() - AtomicIdGenerator.INITIAL_TRANSACTION_ID;
         case SAMPLED_CONTINUATION:
-            return Math.abs(idGenerator.currentContinuedTransactionId() - IdGenerator.INITIAL_CONTINUED_TRANSACTION_ID) / IdGenerator.DECREMENT_CYCLE;
+            return Math.abs(idGenerator.currentContinuedTransactionId() - AtomicIdGenerator.INITIAL_CONTINUED_TRANSACTION_ID) / AtomicIdGenerator.DECREMENT_CYCLE;
         case UNSAMPLED_NEW:
-            return Math.abs(idGenerator.currentDisabledId() - IdGenerator.INITIAL_DISABLED_ID) / IdGenerator.DECREMENT_CYCLE;
+            return Math.abs(idGenerator.currentDisabledId() - AtomicIdGenerator.INITIAL_DISABLED_ID) / AtomicIdGenerator.DECREMENT_CYCLE;
         case UNSAMPLED_CONTINUATION:
-            return Math.abs(idGenerator.currentContinuedDisabledId() - IdGenerator.INITIAL_CONTINUED_DISABLED_ID) / IdGenerator.DECREMENT_CYCLE;
+            return Math.abs(idGenerator.currentContinuedDisabledId() - AtomicIdGenerator.INITIAL_CONTINUED_DISABLED_ID) / AtomicIdGenerator.DECREMENT_CYCLE;
         default:
             return 0L;
         }

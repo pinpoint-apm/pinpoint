@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.profiler.plugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.instrument.Instrumentation;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -26,10 +27,8 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import com.navercorp.pinpoint.bootstrap.instrument.GuardInstrumentContext;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import org.slf4j.Logger;
@@ -46,17 +45,20 @@ import com.navercorp.pinpoint.profiler.instrument.JarProfilerPluginClassInjector
  */
 public class ProfilerPluginLoader {
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final ApplicationContext applicationContext;
 
+    private final ApplicationContext applicationContext;
     private final ClassNameFilter profilerPackageFilter = new PinpointProfilerPackageSkipFilter();
 
-    public ProfilerPluginLoader(ApplicationContext applicationContext) {
+    private final PluginSetup pluginSetup;
+
+    public ProfilerPluginLoader(ApplicationContext applicationContext, PluginSetup pluginSetup) {
         if (applicationContext == null) {
             throw new NullPointerException("applicationContext must not be null");
         }
         this.applicationContext = applicationContext;
+        this.pluginSetup = pluginSetup;
     }
-    
+
     public List<DefaultProfilerPluginContext> load(URL[] pluginJars) {
         List<DefaultProfilerPluginContext> pluginContexts = new ArrayList<DefaultProfilerPluginContext>(pluginJars.length);
         List<String> disabled = applicationContext.getProfilerConfig().getDisabledPlugins();
@@ -82,7 +84,8 @@ public class ProfilerPluginLoader {
                 logger.info("Loading plugin:{} pluginPackage:{}", plugin.getClass().getName(), plugin);
 
                 PluginConfig pluginConfig = new PluginConfig(jar, plugin, applicationContext.getInstrumentation(), applicationContext.getClassPool(), applicationContext.getBootstrapJarPaths(), pluginFilterChain);
-                final DefaultProfilerPluginContext context = setupPlugin(pluginConfig);
+                final ClassInjector classInjector = new JarProfilerPluginClassInjector(pluginConfig);
+                final DefaultProfilerPluginContext context = pluginSetup.setupPlugin(plugin, classInjector);
                 pluginContexts.add(context);
             }
         }
@@ -136,38 +139,5 @@ public class ProfilerPluginLoader {
         return StringUtils.splitAndTrim(pluginPackage, ",");
     }
 
-
-    private GuardInstrumentContext preparePlugin(ProfilerPlugin plugin, InstrumentContext context) {
-
-        final GuardInstrumentContext guardInstrumentContext = new GuardInstrumentContext(context);
-        if (plugin instanceof TransformTemplateAware) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("{}.setTransformTemplate", plugin.getClass().getName());
-            }
-            final TransformTemplate transformTemplate = new TransformTemplate(guardInstrumentContext);
-            ((TransformTemplateAware) plugin).setTransformTemplate(transformTemplate);
-        }
-        return guardInstrumentContext;
-    }
-
-    private DefaultProfilerPluginContext setupPlugin(PluginConfig pluginConfig) {
-        final ClassInjector classInjector = new JarProfilerPluginClassInjector(pluginConfig);
-        final DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(applicationContext, classInjector);
-
-        final GuardProfilerPluginContext guardPluginContext = new GuardProfilerPluginContext(context);
-        final GuardInstrumentContext guardInstrumentContext = preparePlugin(pluginConfig.getPlugin(), context);
-        try {
-            // WARN external plugin api
-            final ProfilerPlugin plugin = pluginConfig.getPlugin();
-            if (logger.isInfoEnabled()) {
-                logger.info("{} Plugin setup", plugin.getClass().getName());
-            }
-            plugin.setup(guardPluginContext);
-        } finally {
-            guardPluginContext.close();
-            guardInstrumentContext.close();
-        }
-        return context;
-    }
 
 }

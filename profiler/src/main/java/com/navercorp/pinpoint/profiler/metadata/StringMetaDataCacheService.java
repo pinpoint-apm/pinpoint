@@ -16,6 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.metadata;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import com.navercorp.pinpoint.profiler.context.module.AgentId;
+import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
 
@@ -30,7 +34,8 @@ public class StringMetaDataCacheService implements StringMetaDataService {
     private final long agentStartTime;
     private final EnhancedDataSender enhancedDataSender;
 
-    public StringMetaDataCacheService(String agentId, long agentStartTime, EnhancedDataSender enhancedDataSender) {
+    @Inject
+    public StringMetaDataCacheService(@AgentId String agentId, @AgentStartTime long agentStartTime, EnhancedDataSender enhancedDataSender) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }

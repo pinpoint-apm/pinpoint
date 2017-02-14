@@ -39,9 +39,9 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     private final StorageFactory storageFactory;
     private final Sampler sampler;
 
-    private final IdGenerator idGenerator;
+    private final AtomicIdGenerator idGenerator;
 
-    public DefaultBaseTraceFactory(TraceContext traceContext, StorageFactory storageFactory, Sampler sampler, IdGenerator idGenerator) {
+    public DefaultBaseTraceFactory(TraceContext traceContext, StorageFactory storageFactory, Sampler sampler, AtomicIdGenerator idGenerator) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
         }
@@ -109,7 +109,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         final boolean sampling = true;
         final Storage storage = storageFactory.createStorage();
         final Storage asyncStorage = new AsyncStorage(storage);
-        final Trace trace = new DefaultTrace(traceContext, asyncStorage, parentTraceId, IdGenerator.UNTRACKED_ID, sampling);
+        final Trace trace = new DefaultTrace(traceContext, asyncStorage, parentTraceId, AtomicIdGenerator.UNTRACKED_ID, sampling);
 
         final AsyncTrace asyncTrace = new AsyncTrace(trace, asyncId, traceId.nextAsyncSequence(), startTime);
 

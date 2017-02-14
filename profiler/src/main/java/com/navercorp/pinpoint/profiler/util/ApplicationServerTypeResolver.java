@@ -21,6 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.inject.Inject;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.context.module.AgentServiceType;
+import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +46,12 @@ public class ApplicationServerTypeResolver {
     private final ApplicationServerTypePluginResolver resolver;
     private final List<ApplicationTypeDetector> detectors = new ArrayList<ApplicationTypeDetector>();
 
-    public ApplicationServerTypeResolver(List<DefaultProfilerPluginContext> plugins, ServiceType defaultType, List<String> orderedDetectors) {
+    @Inject
+    public ApplicationServerTypeResolver(PluginContextLoadResult plugins, @AgentServiceType  ServiceType defaultType, ProfilerConfig profilerConfig) {
+        this(plugins, defaultType, profilerConfig.getApplicationTypeDetectOrder());
+    }
+
+    public ApplicationServerTypeResolver(PluginContextLoadResult plugins, @AgentServiceType  ServiceType defaultType, List<String> orderedDetectors) {
         if (isValidApplicationServerType(defaultType)) {
             this.defaultType = defaultType;
         } else {
@@ -58,9 +67,10 @@ public class ApplicationServerTypeResolver {
         this.resolver = new ApplicationServerTypePluginResolver(this.detectors);
     }
     
-    private Map<String, ApplicationTypeDetector> getRegisteredServerTypeDetectors(List<DefaultProfilerPluginContext> plugins) {
+    private Map<String, ApplicationTypeDetector> getRegisteredServerTypeDetectors(PluginContextLoadResult plugins) {
         Map<String, ApplicationTypeDetector> registeredDetectors = new HashMap<String, ApplicationTypeDetector>();
-        for (DefaultProfilerPluginContext context : plugins) {
+        List<DefaultProfilerPluginContext> profilerPluginContextList = plugins.getProfilerPluginContextList();
+        for (DefaultProfilerPluginContext context : profilerPluginContextList) {
             for (ApplicationTypeDetector detector : context.getApplicationTypeDetectors()) {
                 registeredDetectors.put(detector.getClass().getName(), detector);
             }

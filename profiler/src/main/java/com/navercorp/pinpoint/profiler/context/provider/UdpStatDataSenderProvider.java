@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context.provider;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.UdpDataSenderFactory;
@@ -34,7 +36,7 @@ public class UdpStatDataSenderProvider implements Provider<DataSender> {
     private final int sendBufferSize;
     private final String senderType;
 
-
+    @Inject
     public UdpStatDataSenderProvider(ProfilerConfig profilerConfig) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");

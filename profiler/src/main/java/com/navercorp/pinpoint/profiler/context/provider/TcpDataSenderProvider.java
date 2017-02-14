@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context.provider;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
@@ -26,6 +28,7 @@ import com.navercorp.pinpoint.rpc.client.PinpointClient;
 public class TcpDataSenderProvider implements Provider<EnhancedDataSender> {
     private final PinpointClient client;
 
+    @Inject
     public TcpDataSenderProvider(PinpointClient client) {
         if (client == null) {
             throw new NullPointerException("client must not be null");

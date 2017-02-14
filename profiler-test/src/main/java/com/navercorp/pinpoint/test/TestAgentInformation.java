@@ -20,12 +20,12 @@ import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.SystemPropertyKey;
-import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.DefaultAgentInformation;
 
 /**
  * @author HyunGil Jeong
  */
-public class TestAgentInformation extends AgentInformation {
+public class TestAgentInformation extends DefaultAgentInformation {
     
     private static final String AGENT_ID = "test-agent";
     private static final String APPLICATION_NAME = "TEST_APPLICATION";

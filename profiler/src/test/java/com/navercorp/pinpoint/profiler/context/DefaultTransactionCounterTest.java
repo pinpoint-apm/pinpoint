@@ -28,12 +28,12 @@ import com.navercorp.pinpoint.profiler.context.TransactionCounter.SamplingType;
  */
 public class DefaultTransactionCounterTest {
 
-    private IdGenerator idGenerator;
+    private AtomicIdGenerator idGenerator;
     private TransactionCounter transactionCounter;
 
     @Before
     public void setUp() throws Exception {
-        this.idGenerator = new IdGenerator();
+        this.idGenerator = new AtomicIdGenerator();
         this.transactionCounter = new DefaultTransactionCounter(this.idGenerator);
     }
 

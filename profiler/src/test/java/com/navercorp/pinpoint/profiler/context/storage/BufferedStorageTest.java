@@ -21,10 +21,10 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.SystemPropertyKey;
 import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.DefaultAgentInformation;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.storage.BufferedStorage;
 import com.navercorp.pinpoint.profiler.sender.CountingDataSender;
 
 import org.junit.Assert;
@@ -33,7 +33,7 @@ import org.junit.Test;
 
 public class BufferedStorageTest {
 
-    private AgentInformation agentInformation = new AgentInformation("agentId", "applicationName", 0, 1, "hostName", "127.0.0.1", ServiceType.STAND_ALONE,
+    private AgentInformation agentInformation = new DefaultAgentInformation("agentId", "applicationName", 0, 1, "hostName", "127.0.0.1", ServiceType.STAND_ALONE,
             JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION), Version.VERSION);
     private SpanChunkFactory spanChunkFactory = new SpanChunkFactory(agentInformation);
     private CountingDataSender countingDataSender = new CountingDataSender();
