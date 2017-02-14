@@ -10,8 +10,8 @@
     </appender>
 
     <appender name="dailyRollingFile" class="org.apache.log4j.DailyRollingFileAppender">
-        <param name="file" value="${pinpoint.log}/${pinpoint.agentId}-pinpoint.log"/>
-        <param name="Append" value="true"/>
+        <param name="file" value="${pinpoint.log}/${pinpoint.agentId}-pinpoint.log" />
+        <param name="Append" value="true" />
         <param name="DatePattern" value="'.'yyyy-MM-dd"/>
 
         <layout class="org.apache.log4j.EnhancedPatternLayout">
@@ -21,8 +21,8 @@
     </appender>
 
     <appender name="rollingFile" class="org.apache.log4j.RollingFileAppender">
-        <param name="file" value="${pinpoint.log}/${pinpoint.agentId}-pinpoint.log"/>
-        <param name="append" value="true"/>
+        <param name="file" value="${pinpoint.log}/${pinpoint.agentId}-pinpoint.log" />
+        <param name="append" value="true" />
         <param name="maxFileSize" value="10MB"/>
         <param name="maxBackupIndex" value="20"/>
         <layout class="org.apache.log4j.EnhancedPatternLayout">
@@ -32,14 +32,14 @@
     </appender>
 
     <logger name="com.navercorp.pinpoint" additivity="false">
-        <level value="DEBUG"/>
-        <appender-ref ref="console"/>
+        <level value="DEBUG" />
+        <appender-ref ref="console" />
         <appender-ref ref="rollingFile"/>
     </logger>
 
     <root>
-        <level value="DEBUG"/>
-        <appender-ref ref="console"/>
+        <level value="DEBUG" />
+        <appender-ref ref="console" />
         <appender-ref ref="rollingFile"/>
     </root>
 

@@ -5,20 +5,13 @@
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pom</artifactId>
         <relativePath>../..</relativePath>
-        <version>1.5.2-SNAPSHOT</version>
+        <version>1.6.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-websphere-plugin</artifactId>
     <name>pinpoint-websphere-plugin</name>
     <packaging>jar</packaging>
 
-	<!--<repositories>
-		<repository>
-			<id>project.local</id>
-			<name>project</name>
-			<url>file:${project.basedir}/lib</url>
-		</repository>
-	</repositories>-->
 
     <dependencies>
         <dependency>
@@ -26,12 +19,41 @@
             <artifactId>pinpoint-bootstrap-core</artifactId>
             <scope>provided</scope>
         </dependency>
-		<dependency>
-			<artifactId>com.ibm.ws.webcontainer</artifactId>
-			<groupId>websphere-container</groupId>
-			<version>1.0.0</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/lib/com.ibm.ws.webcontainer.jar</systemPath>
-		</dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
+    
+        <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.10</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals><goal>add-source</goal></goals>
+                        <configuration>
+                            <sources>
+                                <source>src/main/java-ibm</source>
+                                <source>src/main/java-oracle</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>com/navercorp/**/*</include>
+                    </includes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
