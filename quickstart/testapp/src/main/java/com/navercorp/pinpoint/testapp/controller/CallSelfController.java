@@ -45,7 +45,7 @@ public class CallSelfController {
     @ResponseBody
     @Description("Calls self for " + GET_CURRENT_TIMESTAMP_PATH + " over HTTP.")
     public Map<String, Object> getCurrentTimeStamp(HttpServletRequest request) throws Exception {
-        String url = createTargetUrl(request, GET_CURRENT_TIMESTAMP_PATH);
+        String url = createTargetUrl(request, request.getContextPath() + GET_CURRENT_TIMESTAMP_PATH);
         @SuppressWarnings("unchecked")
         Map<String, Object> response = remoteService.get(url, Map.class);
         return response;
@@ -55,7 +55,7 @@ public class CallSelfController {
     @ResponseBody
     @Description("Calls self for " + GET_GEO_CODE_PATH + " over HTTP.")
     public Map<String, Object> httpClient4GetGeoCode(HttpServletRequest request) throws Exception {
-        String url = createTargetUrl(request, GET_GEO_CODE_PATH);
+        String url = createTargetUrl(request, request.getContextPath() + GET_GEO_CODE_PATH);
         @SuppressWarnings("unchecked")
         Map<String, Object> response = remoteService.get(url, Map.class);
         return response;
@@ -75,7 +75,7 @@ public class CallSelfController {
         return new URIBuilder()
                 .setScheme("http")
                 .setHost(LOCAL_IP)
-                .setPort(request.getLocalPort())
+                .setPort(request.getServerPort())
                 .setPath(path + ".pinpoint")
                 .build()
                 .toString();

@@ -51,7 +51,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private static final Method DEFINE_CLASS;
+    private static final Method DEFINE_CLASS, RESOLVE_CLASS;;
     private final JarReader pluginJarReader;
 
     private static final List<String> BOOTSTRAP_PACKAGE_LIST = Arrays.asList("com.navercorp.pinpoint.bootstrap", "com.navercorp.pinpoint.common", "com.navercorp.pinpoint.exception");
@@ -68,6 +68,15 @@ public class PlainClassLoaderHandler implements ClassInjector {
         }
     }
 
+    static {
+        try {
+            RESOLVE_CLASS = ClassLoader.class.getDeclaredMethod("resolveClass", Class.class);
+            RESOLVE_CLASS.setAccessible(true);
+        } catch (Exception e) {
+            throw new PinpointException("Cannot access URLClassLoader.loadClass(class, boolean)", e);
+        }
+    } 
+    
     private final PluginConfig pluginConfig;
 
     public PlainClassLoaderHandler(PluginConfig pluginConfig) {
@@ -316,7 +325,10 @@ public class PlainClassLoaderHandler implements ClassInjector {
         final Integer offset = 0;
         final Integer length = classBytes.length;
         try {
-            return (Class<?>) DEFINE_CLASS.invoke(classLoader, classMetadata.getClassName(), classBytes, offset, length);
+            Class<?> clazz = (Class<?>) DEFINE_CLASS.invoke(classLoader, classMetadata.getClassName(), classBytes, offset, length);
+            //TODO: investigate if we need resolve class; seems to need it for certain web containers
+            RESOLVE_CLASS.invoke(classLoader, clazz);
+            return clazz;
         } catch (IllegalAccessException e) {
             throw handleDefineClassFail(e, classLoader, classMetadata);
         } catch (InvocationTargetException e) {

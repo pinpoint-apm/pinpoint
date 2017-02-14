@@ -35,6 +35,7 @@
         <module>arcus</module>
         <module>google-httpclient</module>
         <module>jetty</module>
+	    <module>websphere</module>
         <module>spring</module>
         <module>spring-boot</module>
         <module>ibatis</module>
@@ -171,6 +172,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-jetty-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-websphere-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
