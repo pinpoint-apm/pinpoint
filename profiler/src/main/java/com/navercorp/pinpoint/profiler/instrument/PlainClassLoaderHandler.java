@@ -51,7 +51,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private static final Method DEFINE_CLASS;
+    private static final Method DEFINE_CLASS, RESOLVE_CLASS;;
     private final JarReader pluginJarReader;
 
     private static final List<String> BOOTSTRAP_PACKAGE_LIST = Arrays.asList("com.navercorp.pinpoint.bootstrap", "com.navercorp.pinpoint.common", "com.navercorp.pinpoint.exception");
@@ -68,6 +68,15 @@ public class PlainClassLoaderHandler implements ClassInjector {
         }
     }
 
+    static {
+        try {
+            RESOLVE_CLASS = ClassLoader.class.getDeclaredMethod("resolveClass", Class.class);
+            RESOLVE_CLASS.setAccessible(true);
+        } catch (Exception e) {
+            throw new PinpointException("Cannot access URLClassLoader.loadClass(class, boolean)", e);
+        }
+    } 
+    
     private final PluginConfig pluginConfig;
 
     public PlainClassLoaderHandler(PluginConfig pluginConfig) {
