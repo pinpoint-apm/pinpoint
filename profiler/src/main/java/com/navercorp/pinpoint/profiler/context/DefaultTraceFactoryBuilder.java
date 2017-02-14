@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceFactory;
@@ -33,10 +34,11 @@ public class DefaultTraceFactoryBuilder implements TraceFactoryBuilder {
 
     private final StorageFactory storageFactory;
     private final Sampler sampler;
-    private final IdGenerator idGenerator;
+    private final AtomicIdGenerator idGenerator;
     private final ActiveTraceRepository activeTraceRepository;
 
-    public DefaultTraceFactoryBuilder(StorageFactory storageFactory, Sampler sampler, IdGenerator idGenerator, ActiveTraceRepository activeTraceRepository) {
+    @Inject
+    public DefaultTraceFactoryBuilder(StorageFactory storageFactory, Sampler sampler, AtomicIdGenerator idGenerator, ActiveTraceRepository activeTraceRepository) {
         if (storageFactory == null) {
             throw new NullPointerException("storageFactory must not be null");
         }

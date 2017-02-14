@@ -19,14 +19,16 @@ package com.navercorp.pinpoint.test.monitor;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.context.AtomicIdGenerator;
 import com.navercorp.pinpoint.profiler.context.DefaultTransactionCounter;
-import com.navercorp.pinpoint.profiler.context.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.monitor.DefaultPluginMonitorContext;
 import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
+import com.navercorp.pinpoint.profiler.monitor.DefaultAgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
+import com.navercorp.pinpoint.profiler.monitor.codahale.DefaultAgentStatCollectorFactory;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.test.ListenableDataSender;
 import com.navercorp.pinpoint.test.TBaseRecorder;
@@ -72,7 +74,7 @@ public class AgentStatMonitorTest {
         // When
         AgentStatCollectorFactory agentStatCollectorFactory = newAgentStatCollectorFactory();
 
-        AgentStatMonitor monitor = new AgentStatMonitor(this.dataSender, "agentId", System.currentTimeMillis(),
+        AgentStatMonitor monitor = new DefaultAgentStatMonitor(this.dataSender, "agentId", System.currentTimeMillis(),
                 agentStatCollectorFactory, collectionIntervalMs, numCollectionsPerBatch);
         monitor.start();
         Thread.sleep(totalTestDurationMs);
@@ -88,10 +90,10 @@ public class AgentStatMonitorTest {
     private AgentStatCollectorFactory newAgentStatCollectorFactory() {
         ProfilerConfig profilerConfig = new DefaultProfilerConfig();
         ActiveTraceRepository activeTraceRepository = new ActiveTraceRepository();
-        IdGenerator idGenerator = new IdGenerator();
+        AtomicIdGenerator idGenerator = new AtomicIdGenerator();
         TransactionCounter transactionCounter = new DefaultTransactionCounter(idGenerator);
         PluginMonitorContext pluginMonitorContext = new DefaultPluginMonitorContext();
-        return new AgentStatCollectorFactory(profilerConfig, activeTraceRepository, transactionCounter, pluginMonitorContext);
+        return new DefaultAgentStatCollectorFactory(profilerConfig, activeTraceRepository, transactionCounter, pluginMonitorContext);
     }
 
 }

@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
+import com.navercorp.pinpoint.profiler.context.provider.PluginMonitorContextProvider;
 import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataCacheService;
@@ -46,7 +47,7 @@ public class MockTraceContextFactory {
 
     private final StorageFactory storageFactory;
 
-    private final IdGenerator idGenerator;
+    private final AtomicIdGenerator idGenerator;
     private final Sampler sampler;
     private final ActiveTraceRepository activeTraceRepository;
 
@@ -81,12 +82,12 @@ public class MockTraceContextFactory {
         final SamplerFactory samplerFactory = new SamplerFactory();
         this.sampler = createSampler(profilerConfig, samplerFactory);
 
-        this.idGenerator = new IdGenerator();
+        this.idGenerator = new AtomicIdGenerator();
         this.activeTraceRepository = newActiveTraceRepository();
 
         final TraceFactoryBuilder traceFactoryBuilder = new DefaultTraceFactoryBuilder(storageFactory, sampler, idGenerator, activeTraceRepository);
-        final PluginMonitorContextBuilder pluginMonitorContextBuilder = new PluginMonitorContextBuilder(TRACE_DATASOURCE);
-        this.pluginMonitorContext = pluginMonitorContextBuilder.build();
+        final PluginMonitorContextProvider pluginMonitorContextBuilder = new PluginMonitorContextProvider(TRACE_DATASOURCE);
+        this.pluginMonitorContext = pluginMonitorContextBuilder.get();
 
         this.serverMetaDataHolder = new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs());
 

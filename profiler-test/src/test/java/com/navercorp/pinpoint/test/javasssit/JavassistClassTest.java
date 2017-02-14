@@ -190,7 +190,7 @@ public class JavassistClassTest {
 
         DefaultProfilerConfig profilerConfig = new DefaultProfilerConfig();
         profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
-        ApplicationContext applicationContext = MockApplicationContext.of(profilerConfig);
+        MockApplicationContext applicationContext = MockApplicationContext.of(profilerConfig);
 
         TestClassLoader testClassLoader = new TestClassLoader(applicationContext);
         testClassLoader.initialize();

@@ -16,7 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.metadata;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.profiler.context.module.AgentId;
+import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 
@@ -31,7 +35,8 @@ public class ApiMetaDataCacheService implements ApiMetaDataService {
     private final long agentStartTime;
     private final EnhancedDataSender enhancedDataSender;
 
-    public ApiMetaDataCacheService(String agentId, long agentStartTime, EnhancedDataSender enhancedDataSender) {
+    @Inject
+    public ApiMetaDataCacheService(@AgentId String agentId, @AgentStartTime long agentStartTime, EnhancedDataSender enhancedDataSender) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }

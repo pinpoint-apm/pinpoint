@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.profiler.context.ApplicationContext;
-import com.navercorp.pinpoint.profiler.context.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.instrument.JavassistClassPool;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.util.TypeUtils;

@@ -19,42 +19,24 @@ package com.navercorp.pinpoint.test;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.google.inject.Module;
+import com.google.inject.util.Modules;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
-import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.DefaultApplicationContext;
-import com.navercorp.pinpoint.profiler.context.provider.Provider;
-import com.navercorp.pinpoint.profiler.plugin.GuardProfilerPluginContext;
-import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
-import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import org.apache.thrift.TBase;
 
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
-import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
-import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
-import com.navercorp.pinpoint.profiler.sender.DataSender;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 
 /**
@@ -68,7 +50,7 @@ public class MockApplicationContext extends DefaultApplicationContext {
     public static MockApplicationContext of(String configPath) {
         ProfilerConfig profilerConfig = null;
         try {
-            URL resource = MockApplicationContext.class.getClassLoader().getResource(configPath);
+            final URL resource = MockApplicationContext.class.getClassLoader().getResource(configPath);
             if (resource == null) {
                 throw new FileNotFoundException("pinpoint.config not found. configPath:" + configPath);
             }
@@ -83,85 +65,28 @@ public class MockApplicationContext extends DefaultApplicationContext {
     public static MockApplicationContext of(ProfilerConfig config) {
         AgentOption agentOption = new DefaultAgentOption(new DummyInstrumentation(), "mockAgent", "mockApplicationName", config, new URL[0], null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
         InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
+        binder.bind();
 
-        
         return new MockApplicationContext(agentOption, binder);
     }
+
 
     public MockApplicationContext(AgentOption agentOption, InterceptorRegistryBinder binder) {
         super(agentOption, binder);
         this.interceptorRegistryBinder = binder;
-        binder.bind();
     }
 
     @Override
-    protected Provider<DataSender> newUdpStatDataSenderProvider() {
+    protected Module newApplicationContextModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
+        Module applicationContextModule = super.newApplicationContextModule(agentOption, interceptorRegistryBinder);
+        MockApplicationContextModule mockApplicationContextModule = new MockApplicationContextModule();
 
-        DataSender dataSender = new ListenableDataSender<TBase<?, ?>>("StatDataSender");
-        return new DelegateProvider<DataSender>(dataSender);
-    }
-
-    @Override
-    protected Provider<DataSender> newUdpSpanDataSenderProvider() {
-        DataSender dataSender = new ListenableDataSender<TBase<?, ?>>("SpanDataSender");
-        return new DelegateProvider<DataSender>(dataSender);
+        return Modules.override(applicationContextModule).with(mockApplicationContextModule);
     }
 
 
-    @Override
-    protected Provider<StorageFactory> newStorageFactoryProvider(ProfilerConfig profilerConfig, DataSender spanDataSender, AgentInformation agentInformation) {
-        StorageFactory storageFactory = new SimpleSpanStorageFactory(spanDataSender);
-        return new DelegateProvider<StorageFactory>(storageFactory);
-    }
 
 
-    @Override
-    protected Provider<PinpointClientFactory> newPinpointClientFactoryProvider(ProfilerConfig profilerConfig, AgentInformation agentInformation, CommandDispatcher commandDispatcher) {
-        return new NullProvider<PinpointClientFactory>();
-    }
-
-    @Override
-    protected Provider<PinpointClient> newPinpointClientProvider(ProfilerConfig profilerConfig, PinpointClientFactory clientFactory) {
-        return new NullProvider<PinpointClient>();
-    }
-
-    @Override
-    protected Provider<EnhancedDataSender> newTcpDataSenderProvider(PinpointClient client) {
-        EnhancedDataSender enhancedDataSender = new TestTcpDataSender();
-        return new DelegateProvider<EnhancedDataSender>(enhancedDataSender);
-    }
-
-
-    @Override
-    protected Provider<ServerMetaDataHolder> newServerMetaDataHolderProvider() {
-        List<String> vmArgs = RuntimeMXBeanUtils.getVmArgs();
-        ServerMetaDataHolder serverMetaDataHolder = new ResettableServerMetaDataHolder(vmArgs);
-        return new DelegateProvider<ServerMetaDataHolder>(serverMetaDataHolder);
-    }
-    
-    @Override
-    protected List<DefaultProfilerPluginContext> loadPlugins(AgentOption agentOption) {
-        List<DefaultProfilerPluginContext> pluginContexts = new ArrayList<DefaultProfilerPluginContext>();
-        ClassInjector classInjector = new TestProfilerPluginClassLoader();
-
-        List<ProfilerPlugin> plugins = PluginLoader.load(ProfilerPlugin.class, ClassLoader.getSystemClassLoader());
-        
-        for (ProfilerPlugin plugin : plugins) {
-            final DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(this, classInjector);
-            final GuardProfilerPluginContext guard = new GuardProfilerPluginContext(context);
-            try {
-                preparePlugin(plugin, context);
-                plugin.setup(guard);
-            } finally {
-                guard.close();
-            }
-            pluginContexts.add(context);
-        }
-        
-        
-        return pluginContexts;
-
-    }
 
     @Override
     public void close() {
@@ -171,18 +96,7 @@ public class MockApplicationContext extends DefaultApplicationContext {
         }
     }
 
-    /**
-     * TODO duplicated code : com/navercorp/pinpoint/profiler/plugin/ProfilerPluginLoader.java
-     * @param plugin
-     * @param context
-     */
-    private void preparePlugin(ProfilerPlugin plugin, InstrumentContext context) {
 
-        if (plugin instanceof TransformTemplateAware) {
-            final TransformTemplate transformTemplate = new TransformTemplate(context);
-            ((TransformTemplateAware) plugin).setTransformTemplate(transformTemplate);
-        }
-    }
 
 
     public static String toString(Span span) {

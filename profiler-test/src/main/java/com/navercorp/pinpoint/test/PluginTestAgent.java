@@ -27,21 +27,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.google.inject.Module;
+import com.google.inject.util.Modules;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
-import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.DefaultApplicationContext;
-import com.navercorp.pinpoint.profiler.context.provider.Provider;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
-import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import org.apache.thrift.TBase;
 
 import com.google.common.base.Objects;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
@@ -57,12 +52,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.sender.DataSender;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
@@ -76,13 +67,12 @@ import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
  */
 public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier {
 
-    private TestableServerMetaDataListener serverMetaDataListener;
+
     private AnnotationKeyRegistryService annotationKeyRegistryService;
 
     private final List<Short> ignoredServiceTypes = new ArrayList<Short>();
 
-    private TestTcpDataSender tcpDataSender;
-    private OrderedSpanRecorder orderedSpanRecorder;
+    private PluginApplicationContextModule pluginApplicationContextModule;
 
 
     public PluginTestAgent(AgentOption agentOption) {
@@ -93,87 +83,22 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     @Override
     protected ApplicationContext newApplicationContext(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
-        final DataSender spanDataSender = createUdpSpanDataSender();
 
-        final DataSender statDataSender = createUdpStatDataSender();
-        final ServerMetaDataHolder serverMetaDataHolder = createServerMetaDataHolder();
-        final EnhancedDataSender tcpDataSender = createTcpDataSender();
+        this.pluginApplicationContextModule = new PluginApplicationContextModule();
 
         ApplicationContext applicationContext = new DefaultApplicationContext(agentOption, interceptorRegistryBinder) {
-            @Override
-            protected Provider<DataSender> newUdpSpanDataSenderProvider() {
-                return new DelegateProvider<DataSender>(spanDataSender);
-            }
 
             @Override
-            protected Provider<DataSender> newUdpStatDataSenderProvider() {
-                return new DelegateProvider<DataSender>(statDataSender);
-            }
+            protected Module newApplicationContextModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
+                Module applicationContextModule = super.newApplicationContextModule(agentOption, interceptorRegistryBinder);
 
-            @Override
-            protected Provider<StorageFactory> newStorageFactoryProvider(ProfilerConfig profilerConfig, DataSender spanDataSender, AgentInformation agentInformation) {
-                System.out.println("spanDataSender:" + spanDataSender);
-                StorageFactory storageFactory = new SimpleSpanStorageFactory(spanDataSender);
-                return new DelegateProvider<StorageFactory>(storageFactory);
+                return Modules.override(applicationContextModule).with(pluginApplicationContextModule);
             }
-
-            @Override
-            protected Provider<ServerMetaDataHolder> newServerMetaDataHolderProvider() {
-                return new DelegateProvider<ServerMetaDataHolder>(serverMetaDataHolder);
-            }
-
-            // skip tcp connection
-            public Provider<PinpointClientFactory> newPinpointClientFactoryProvider() {
-                return new NullProvider<PinpointClientFactory>();
-            }
-
-            // skip tcp connection
-            public Provider<PinpointClient> newPinpointClientProvider(ProfilerConfig profilerConfig, PinpointClientFactory clientFactory) {
-                return new NullProvider<PinpointClient>();
-            }
-
-            @Override
-            protected Provider<EnhancedDataSender> newTcpDataSenderProvider(PinpointClient client) {
-                return new DelegateProvider<EnhancedDataSender>(tcpDataSender);
-            }
-
         };
 
 
         return applicationContext;
 
-    }
-
-    private DataSender createUdpStatDataSender() {
-        return new ListenableDataSender<TBase<?, ?>>("StatDataSender");
-    }
-
-    private DataSender createUdpSpanDataSender() {
-
-        ListenableDataSender<TBase<?, ?>> sender = new ListenableDataSender<TBase<?, ?>>("SpanDataSender");
-        OrderedSpanRecorder orderedSpanRecorder = new OrderedSpanRecorder();
-        sender.setListener(orderedSpanRecorder);
-        this.orderedSpanRecorder = orderedSpanRecorder;
-        return sender;
-    }
-
-    private StorageFactory createStorageFactory(DataSender dataSender) {
-        return new SimpleSpanStorageFactory(dataSender);
-    }
-
-    protected EnhancedDataSender createTcpDataSender() {
-        TestTcpDataSender tcpDataSender = new TestTcpDataSender();
-        this.tcpDataSender = tcpDataSender;
-        return tcpDataSender;
-    }
-
-
-    private ServerMetaDataHolder createServerMetaDataHolder() {
-        List<String> vmArgs = RuntimeMXBeanUtils.getVmArgs();
-        ServerMetaDataHolder serverMetaDataHolder = new ResettableServerMetaDataHolder(vmArgs);
-        this.serverMetaDataListener = new TestableServerMetaDataListener();
-        serverMetaDataHolder.addListener(this.serverMetaDataListener);
-        return serverMetaDataHolder;
     }
 
     @Override
@@ -190,7 +115,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     @Override
     public void verifyServerInfo(String expected) {
-        String actualName = this.serverMetaDataListener.getServerMetaData().getServerInfo();
+        String actualName = this.pluginApplicationContextModule.getServerMetaDataListener().getServerMetaData().getServerInfo();
 
         if (!actualName.equals(expected)) {
             throw new AssertionError("ResolvedExpectedTrace server name [" + expected + "] but was [" + actualName + "]");
@@ -199,7 +124,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     @Override
     public void verifyConnector(String protocol, int port) {
-        Map<Integer, String> connectorMap = this.serverMetaDataListener.getServerMetaData().getConnectors();
+        Map<Integer, String> connectorMap = this.pluginApplicationContextModule.getServerMetaDataListener().getServerMetaData().getConnectors();
         String actualProtocol = connectorMap.get(port);
 
         if (actualProtocol == null || !actualProtocol.equals(protocol)) {
@@ -209,7 +134,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     @Override
     public void verifyService(String name, List<String> libs) {
-        List<ServiceInfo> serviceInfos = this.serverMetaDataListener.getServerMetaData().getServiceInfos();
+        List<ServiceInfo> serviceInfos = this.pluginApplicationContextModule.getServerMetaDataListener().getServerMetaData().getServiceInfos();
 
         for (ServiceInfo serviceInfo : serviceInfos) {
             if (serviceInfo.getServiceName().equals(name)) {
@@ -785,11 +710,11 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
 
     private TestTcpDataSender getTestTcpDataSender() {
-        return tcpDataSender;
+        return this.pluginApplicationContextModule.getTcpDataSender();
     }
 
     private OrderedSpanRecorder getRecorder() {
-        return this.orderedSpanRecorder;
+        return this.pluginApplicationContextModule.getOrderedSpanRecorder();
     }
 
     private Object popSpan() {

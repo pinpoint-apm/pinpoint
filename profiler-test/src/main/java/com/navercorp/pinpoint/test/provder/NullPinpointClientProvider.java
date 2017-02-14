@@ -14,26 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.test;
+package com.navercorp.pinpoint.test.provder;
 
-import com.navercorp.pinpoint.profiler.context.provider.Provider;
+import com.google.inject.Provider;
+import com.navercorp.pinpoint.rpc.client.PinpointClient;
+import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class DelegateProvider<T> implements Provider<T> {
-    private final T delegate;
-
-    public DelegateProvider(T delegate) {
-        if (delegate == null) {
-            throw new NullPointerException("delegate must not be null");
-        }
-
-        this.delegate = delegate;
-    }
+public class NullPinpointClientProvider implements Provider<PinpointClient> {
 
     @Override
-    public T get() {
-        return delegate;
+    public PinpointClient get() {
+        return null;
     }
 }

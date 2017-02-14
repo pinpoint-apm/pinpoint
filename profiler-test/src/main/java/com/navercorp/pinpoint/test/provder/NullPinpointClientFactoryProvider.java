@@ -14,11 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.provider;
+package com.navercorp.pinpoint.test.provder;
+
+import com.google.inject.Provider;
+import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface Provider<T> {
-    T get();
+public class NullPinpointClientFactoryProvider implements Provider<PinpointClientFactory> {
+
+    @Override
+    public PinpointClientFactory get() {
+        return null;
+    }
 }

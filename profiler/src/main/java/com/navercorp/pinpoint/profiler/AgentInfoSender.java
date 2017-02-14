@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.navercorp.pinpoint.profiler.context.provider.JvmInformationProvider;
 import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
 import com.navercorp.pinpoint.thrift.dto.TJvmInfo;
 import org.slf4j.Logger;
@@ -215,7 +216,7 @@ public class AgentInfoSender implements ServerMetaDataListener {
         private int maxTryPerAttempt = DEFAULT_MAX_TRY_COUNT_PER_ATTEMPT;
 
         Builder(EnhancedDataSender dataSender, AgentInformation agentInformation) {
-            this(dataSender, agentInformation, new JvmInformationFactory().createJvmInformation());
+            this(dataSender, agentInformation, new JvmInformationProvider().get());
         }
 
         public Builder(EnhancedDataSender dataSender, AgentInformation agentInformation, JvmInformation jvmInformation) {

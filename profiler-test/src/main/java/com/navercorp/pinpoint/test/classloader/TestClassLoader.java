@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.instrument.ASMClassPool;
 import com.navercorp.pinpoint.profiler.instrument.JavassistClassPool;
 import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformerGuardDelegate;
+import com.navercorp.pinpoint.test.MockApplicationContext;
 import javassist.ClassPool;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
@@ -45,15 +46,16 @@ public class TestClassLoader extends TransformClassLoader {
 
     private final Logger logger = Logger.getLogger(TestClassLoader.class.getName());
 
-    private final ApplicationContext applicationContext;
+    private final MockApplicationContext applicationContext;
     private Translator instrumentTranslator;
     private final DefaultProfilerPluginContext context;
     private final List<String> delegateClass;
 
-    public TestClassLoader(ApplicationContext applicationContext) {
+    public TestClassLoader(MockApplicationContext applicationContext) {
         Asserts.notNull(applicationContext, "applicationContext");
 
         this.applicationContext = applicationContext;
+
         this.context = new DefaultProfilerPluginContext(applicationContext, new LegacyProfilerPluginClassInjector(getClass().getClassLoader()));
 
         this.delegateClass = new ArrayList<String>();
