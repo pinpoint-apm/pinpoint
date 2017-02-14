@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
-        <artifactId>pom</artifactId>
+        <artifactId>pinpoint</artifactId>
         <relativePath>../..</relativePath>
         <version>1.6.1-SNAPSHOT</version>
     </parent>
