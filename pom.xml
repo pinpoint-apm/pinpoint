@@ -66,7 +66,6 @@
         <module>test</module>
         <module>web</module>
         <module>hbase</module>
-        <module>thirdparty</module>
     </modules>
 
     <properties>
@@ -117,11 +116,6 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-commons</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-google-guava</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -829,9 +823,6 @@
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
-
-                        <!--google guava-->
-                        <exclude>com/google/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -898,9 +889,6 @@
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
-
-                        <!--google guava-->
-                        <exclude>com/google/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -990,9 +978,6 @@
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
-
-                        <!--google guava-->
-                        <exclude>com/google/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -1010,9 +995,6 @@
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
-
-                        <!--google guava-->
-                        <exclude>com/google/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
