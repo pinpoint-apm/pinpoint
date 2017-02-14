@@ -12,13 +12,6 @@
     <name>pinpoint-websphere-plugin</name>
     <packaging>jar</packaging>
 
-	<!--<repositories>
-		<repository>
-			<id>project.local</id>
-			<name>project</name>
-			<url>file:${project.basedir}/lib</url>
-		</repository>
-	</repositories>-->
 
     <dependencies>
         <dependency>
