@@ -12,27 +12,12 @@
     <name>pinpoint-websphere-plugin</name>
     <packaging>jar</packaging>
 
-	<!--<repositories>
-		<repository>
-			<id>project.local</id>
-			<name>project</name>
-			<url>file:${project.basedir}/lib</url>
-		</repository>
-	</repositories>-->
-
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-bootstrap-core</artifactId>
             <scope>provided</scope>
         </dependency>
-		<dependency>
-			<artifactId>com.ibm.ws.webcontainer</artifactId>
-			<groupId>websphere-container</groupId>
-			<version>1.0.0</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/lib/com.ibm.ws.webcontainer.jar</systemPath>
-		</dependency>
     </dependencies>
     
     <build>
