@@ -35,7 +35,7 @@ public class URLClassLoaderHandler implements ClassInjector {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private static final Method ADD_URL;
+    private static final Method ADD_URL, LOAD_CLASS;;
 
     static {
         try {
@@ -45,6 +45,15 @@ public class URLClassLoaderHandler implements ClassInjector {
             throw new PinpointException("Cannot access URLClassLoader.addURL(URL)", e);
         }
     }
+    
+    static {
+        try {
+            LOAD_CLASS = ClassLoader.class.getDeclaredMethod("loadClass", String.class, boolean.class);
+            LOAD_CLASS.setAccessible(true);
+        } catch (Exception e) {
+            throw new PinpointException("Cannot access URLClassLoader.loadClass(class, boolean)", e);
+        }
+    }    
 
     private final URL pluginURL;
     private final String pluginURLString;
@@ -64,6 +73,8 @@ public class URLClassLoaderHandler implements ClassInjector {
             if (classLoader instanceof URLClassLoader) {
                 final URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
                 addPluginURLIfAbsent(urlClassLoader);
+                //TODO: investigate if the line below is any different from one used
+                //return (Class<T>) urlClassLoader.loadClass(className);
                 return (Class<T>) LOAD_CLASS.invoke(urlClassLoader, className, true);
             }
         } catch (Exception e) {
