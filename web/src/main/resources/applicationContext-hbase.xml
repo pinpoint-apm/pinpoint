@@ -9,6 +9,9 @@
                 <prop key="hbase.zookeeper.quorum">${hbase.client.host}</prop>
                 <prop key="hbase.zookeeper.property.clientPort">${hbase.client.port}</prop>
 
+                <!--Root ZNode for HBase in ZooKeeper.-->
+                <prop key="zookeeper.znode.parent">${hbase.zookeeper.znode.parent:/hbase}</prop>
+
                 <!-- hbase default:true -->
                 <prop key="hbase.ipc.client.tcpnodelay">${hbase.ipc.client.tcpnodelay}</prop>
                 <!-- hbase default:60000 -->
