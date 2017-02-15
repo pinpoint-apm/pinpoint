@@ -395,8 +395,8 @@ public class SpanDecoderV0 implements SpanDecoder {
         if (firstSpanEventSequence == -1) {
 //            buffer.readByte();
             // spanEvent not exist ??
-            logger.info("firstSpanEvent is null. bug!!!!");
-            return null;
+            logger.warn("firstSpanEvent is null. bug!!!! firstSpanEventSequence:{}", firstSpanEventSequence);
+            throw new IllegalStateException("firstSpanEvent is null");
         } else {
             return readQualifierFirstSpanEvent(buffer);
         }
