@@ -16,12 +16,10 @@
 
 package com.navercorp.pinpoint.test;
 
-import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
-import com.navercorp.pinpoint.profiler.plugin.DefaultPluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.plugin.PluginSetup;
@@ -32,19 +30,16 @@ import java.util.List;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class MockPluginContextLoadResult implements Provider<PluginContextLoadResult> {
+public class MockPluginContextLoadResult implements PluginContextLoadResult {
+    private final Provider<PluginSetup> provider;
 
-
-    private PluginSetup pluginSetup;
-
-    @Inject
-    public MockPluginContextLoadResult(PluginSetup pluginSetup) {
-
-        this.pluginSetup = pluginSetup;
+    public MockPluginContextLoadResult(Provider<PluginSetup> provider ) {
+        this.provider = provider;
     }
 
     @Override
-    public PluginContextLoadResult get() {
+    public List<DefaultProfilerPluginContext> getProfilerPluginContextList() {
+        PluginSetup pluginSetup = provider.get();
         List<DefaultProfilerPluginContext> pluginContexts = new ArrayList<DefaultProfilerPluginContext>();
         ClassInjector classInjector = new TestProfilerPluginClassLoader();
 
@@ -54,10 +49,6 @@ public class MockPluginContextLoadResult implements Provider<PluginContextLoadRe
             DefaultProfilerPluginContext context = pluginSetup.setupPlugin(plugin, classInjector);
             pluginContexts.add(context);
         }
-
-
-        return new DefaultPluginContextLoadResult(pluginContexts);
+        return pluginContexts;
     }
-
-
 }

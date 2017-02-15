@@ -75,7 +75,7 @@ public class MockApplicationContextModule extends AbstractModule {
 
 
         bind(PluginSetup.class).to(MockPluginSetup.class).in(Scopes.SINGLETON);
-        bind(PluginContextLoadResult.class).toProvider(MockPluginContextLoadResult.class).in(Scopes.SINGLETON);
+        bind(PluginContextLoadResult.class).toProvider(MockPluginContextLoadResultProvider.class).in(Scopes.SINGLETON);
     }
 
 

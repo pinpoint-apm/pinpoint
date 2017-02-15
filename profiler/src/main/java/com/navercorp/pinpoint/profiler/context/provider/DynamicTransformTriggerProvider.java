@@ -30,10 +30,10 @@ import java.lang.instrument.Instrumentation;
 public class DynamicTransformTriggerProvider implements Provider<DynamicTransformTrigger> {
 
     private final Instrumentation instrumentation;
-    private final ClassFileTransformerDispatcher listener;
+    private final Provider<ClassFileTransformerDispatcher> listener;
 
     @Inject
-    public DynamicTransformTriggerProvider(Instrumentation instrumentation, ClassFileTransformerDispatcher listener) {
+    public DynamicTransformTriggerProvider(Instrumentation instrumentation, Provider<ClassFileTransformerDispatcher> listener) {
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
         }
@@ -47,7 +47,7 @@ public class DynamicTransformTriggerProvider implements Provider<DynamicTransfor
 
     @Override
     public DynamicTransformTrigger get() {
-
-        return new DynamicTransformService(instrumentation, listener);
+        ClassFileTransformerDispatcher classFileTransformerDispatcher = listener.get();
+        return new DynamicTransformService(instrumentation, classFileTransformerDispatcher);
     }
 }
