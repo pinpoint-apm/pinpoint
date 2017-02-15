@@ -3,9 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
-        <artifactId>pom</artifactId>
+        <artifactId>pinpoint</artifactId>
         <relativePath>../..</relativePath>
-        <version>1.5.2-SNAPSHOT</version>
+        <version>1.6.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-websphere-plugin</artifactId>
@@ -16,6 +16,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-bootstrap-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -33,7 +38,6 @@
                         <configuration>
                             <sources>
                                 <source>src/main/java-ibm</source>
-                                <source>src/main/java-oracle</source>
                             </sources>
                         </configuration>
                     </execution>
