@@ -67,7 +67,7 @@ public class BootstrapClassLoaderHandler implements ClassInjector {
             if (this.injectedToRoot == false) {
                 this.injectedToRoot = true;
                 pluginConfig.getInstrumentation().appendToBootstrapClassLoaderSearch(pluginConfig.getPluginJarFile());
-                pluginConfig.getClassPool().appendToBootstrapClassPath(pluginConfig.getPluginJarFile().getName());
+                pluginConfig.getInstrumentEngine().appendToBootstrapClassPath(pluginConfig.getPluginJarFile().getName());
             }
         }
     }

@@ -28,9 +28,8 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
-import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.BootstrapJarPaths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,11 +51,11 @@ public class ProfilerPluginLoader {
     private final ProfilerConfig profilerConfig;
     private final PluginSetup pluginSetup;
     private final Instrumentation instrumentation;
-    private final InstrumentClassPool instrumentClassPool;
+    private final InstrumentEngine instrumentEngine;
     private final List<String> bootstrapJarPaths;
 
 
-    public ProfilerPluginLoader(ProfilerConfig profilerConfig, PluginSetup pluginSetup, Instrumentation instrumentation, InstrumentClassPool instrumentClassPool, @BootstrapJarPaths  List<String> bootstrapJarPaths) {
+    public ProfilerPluginLoader(ProfilerConfig profilerConfig, PluginSetup pluginSetup, Instrumentation instrumentation, InstrumentEngine instrumentEngine, @BootstrapJarPaths  List<String> bootstrapJarPaths) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
@@ -67,8 +66,8 @@ public class ProfilerPluginLoader {
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
         }
-        if (instrumentClassPool == null) {
-            throw new NullPointerException("instrumentClassPool must not be null");
+        if (instrumentEngine == null) {
+            throw new NullPointerException("instrumentEngine must not be null");
         }
         if (bootstrapJarPaths == null) {
             throw new NullPointerException("bootstrapJarPaths must not be null");
@@ -77,7 +76,7 @@ public class ProfilerPluginLoader {
         this.profilerConfig = profilerConfig;
         this.pluginSetup = pluginSetup;
         this.instrumentation = instrumentation;
-        this.instrumentClassPool = instrumentClassPool;
+        this.instrumentEngine = instrumentEngine;
         this.bootstrapJarPaths = bootstrapJarPaths;
     }
 
@@ -105,7 +104,7 @@ public class ProfilerPluginLoader {
                 
                 logger.info("Loading plugin:{} pluginPackage:{}", plugin.getClass().getName(), plugin);
 
-                PluginConfig pluginConfig = new PluginConfig(jar, plugin, instrumentation, instrumentClassPool, bootstrapJarPaths, pluginFilterChain);
+                PluginConfig pluginConfig = new PluginConfig(jar, plugin, instrumentation, instrumentEngine, bootstrapJarPaths, pluginFilterChain);
                 final ClassInjector classInjector = new JarProfilerPluginClassInjector(pluginConfig);
                 final DefaultProfilerPluginContext context = pluginSetup.setupPlugin(plugin, classInjector);
                 pluginContexts.add(context);

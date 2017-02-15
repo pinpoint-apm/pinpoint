@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,12 +48,12 @@ public class PluginConfig {
     private final ProfilerPlugin plugin;
 
     private final Instrumentation instrumentation;
-    private final InstrumentClassPool classPool;
+    private final InstrumentEngine instrumentEngine;
     private final List<String> bootstrapJarPaths;
 
     private final ClassNameFilter pluginPackageFilter;
 
-    public PluginConfig(URL pluginJar, ProfilerPlugin plugin, Instrumentation instrumentation, InstrumentClassPool classPool, List<String> bootstrapJarPaths, ClassNameFilter pluginPackageFilter) {
+    public PluginConfig(URL pluginJar, ProfilerPlugin plugin, Instrumentation instrumentation, InstrumentEngine instrumentEngine, List<String> bootstrapJarPaths, ClassNameFilter pluginPackageFilter) {
         if (pluginJar == null) {
             throw new NullPointerException("pluginJar must not be null");
         }
@@ -63,8 +63,8 @@ public class PluginConfig {
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
         }
-        if (classPool == null) {
-            throw new NullPointerException("classPool must not be null");
+        if (instrumentEngine == null) {
+            throw new NullPointerException("instrumentEngine must not be null");
         }
         if (bootstrapJarPaths == null) {
             throw new NullPointerException("bootstrapJarPaths must not be null");
@@ -74,7 +74,7 @@ public class PluginConfig {
         this.plugin = plugin;
 
         this.instrumentation = instrumentation;
-        this.classPool = classPool;
+        this.instrumentEngine = instrumentEngine;
         this.bootstrapJarPaths = bootstrapJarPaths;
 
         this.pluginPackageFilter = pluginPackageFilter;
@@ -117,8 +117,8 @@ public class PluginConfig {
         return instrumentation;
     }
 
-    public InstrumentClassPool getClassPool() {
-        return classPool;
+    public InstrumentEngine getInstrumentEngine() {
+        return instrumentEngine;
     }
 
     public List<String> getBootstrapJarPaths() {
@@ -137,7 +137,7 @@ public class PluginConfig {
                 ", pluginJarURLExternalForm='" + pluginJarURLExternalForm + '\'' +
                 ", plugin=" + plugin +
                 ", instrumentation=" + instrumentation +
-                ", classPool=" + classPool +
+                ", instrumentEngine=" + instrumentEngine +
                 ", bootstrapJarPaths=" + bootstrapJarPaths +
                 ", pluginPackageFilter=" + pluginPackageFilter +
                 '}';

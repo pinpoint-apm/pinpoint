@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
@@ -76,7 +76,7 @@ public class DefaultApplicationContext implements ApplicationContext {
     private final ClassFileTransformerDispatcher classFileDispatcher;
 
     private final Instrumentation instrumentation;
-    private final InstrumentClassPool classPool;
+    private final InstrumentEngine instrumentEngine;
     private final DynamicTransformTrigger dynamicTransformTrigger;
 
     private final Injector injector;
@@ -102,7 +102,7 @@ public class DefaultApplicationContext implements ApplicationContext {
         final Module applicationContextModule = newApplicationContextModule(agentOption, interceptorRegistryBinder);
         this.injector = Guice.createInjector(Stage.PRODUCTION, applicationContextModule);
 
-        this.classPool = injector.getInstance(InstrumentClassPool.class);
+        this.instrumentEngine = injector.getInstance(InstrumentEngine.class);
 
         this.classFileDispatcher = injector.getInstance(ClassFileTransformerDispatcher.class);
         this.dynamicTransformTrigger = injector.getInstance(DynamicTransformTrigger.class);
@@ -177,9 +177,8 @@ public class DefaultApplicationContext implements ApplicationContext {
         return spanDataSender;
     }
 
-    @Override
-    public InstrumentClassPool getClassPool() {
-        return classPool;
+    public InstrumentEngine getInstrumentEngine() {
+        return instrumentEngine;
     }
 
 

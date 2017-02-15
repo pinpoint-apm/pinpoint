@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.profiler.context.ApplicationContext;
-import com.navercorp.pinpoint.profiler.instrument.JavassistClassPool;
+import com.navercorp.pinpoint.profiler.instrument.JavassistEngine;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.util.TypeUtils;
 import com.navercorp.pinpoint.test.TestProfilerPluginClassLoader;
@@ -36,7 +36,7 @@ public class DefaultClassEditorBuilderTest {
 
     @Test
     public void test() throws Exception {
-        JavassistClassPool pool = mock(JavassistClassPool.class);
+        JavassistEngine pool = mock(JavassistEngine.class);
         TraceContext traceContext = mock(TraceContext.class);
         InstrumentClass aClass = mock(InstrumentClass.class);
         InstrumentMethod aMethod = mock(InstrumentMethod.class);
@@ -51,7 +51,7 @@ public class DefaultClassEditorBuilderTest {
         Class<?>[] parameterTypes = new Class<?>[] { String.class };
         String[] parameterTypeNames = TypeUtils.toClassNames(parameterTypes);
         
-        when(applicationContext.getClassPool()).thenReturn(pool);
+        when(applicationContext.getInstrumentEngine()).thenReturn(pool);
         when(applicationContext.getTraceContext()).thenReturn(traceContext);
         when(pool.getClass(context, classLoader, className, classFileBuffer)).thenReturn(aClass);
         when(aClass.getDeclaredMethod(methodName, parameterTypeNames)).thenReturn(aMethod);

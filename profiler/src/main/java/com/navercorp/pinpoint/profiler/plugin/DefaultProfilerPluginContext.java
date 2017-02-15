@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
@@ -103,8 +103,8 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
             throw new NullPointerException("className must not be null");
         }
         try {
-            final InstrumentClassPool classPool = getClassPool();
-            return classPool.getClass(this, classLoader, className, classFileBuffer);
+            final InstrumentEngine instrumentEngine = getInstrumentEngine();
+            return instrumentEngine.getClass(this, classLoader, className, classFileBuffer);
         } catch (NotFoundInstrumentException e) {
             return null;
         }
@@ -115,13 +115,13 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
         if (className == null) {
             throw new NullPointerException("className must not be null");
         }
-        final InstrumentClassPool classPool = getClassPool();
-        return classPool.hasClass(classLoader, className);
+        final InstrumentEngine instrumentEngine = getInstrumentEngine();
+        return instrumentEngine.hasClass(classLoader, className);
     }
 
-    private InstrumentClassPool getClassPool() {
-        InstrumentClassPool classPool = applicationContext.getClassPool();
-        return classPool;
+    private InstrumentEngine getInstrumentEngine() {
+        InstrumentEngine instrumentEngine = applicationContext.getInstrumentEngine();
+        return instrumentEngine;
     }
 
     @Override

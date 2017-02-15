@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.context.module.BootstrapJarPaths;
 
 import javax.inject.Provider;
@@ -33,21 +33,21 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
     private final Provider<PluginSetup> pluginSetup;
     private final URL[] pluginJars;
     private final Instrumentation instrumentation;
-    private final InstrumentClassPool instrumentClassPool;
+    private final InstrumentEngine instrumentEngine;
     private final List<String> bootstrapJarPaths;
     private final ProfilerConfig profilerConfig;
 
     private List<DefaultProfilerPluginContext> lazy;
 
-    public DefaultPluginContextLoadResult(ProfilerConfig profilerConfig, Instrumentation instrumentation, InstrumentClassPool instrumentClassPool, @BootstrapJarPaths List<String> bootstrapJarPaths, Provider<PluginSetup> pluginSetup, URL[] pluginJars) {
+    public DefaultPluginContextLoadResult(ProfilerConfig profilerConfig, Instrumentation instrumentation, InstrumentEngine instrumentEngine, @BootstrapJarPaths List<String> bootstrapJarPaths, Provider<PluginSetup> pluginSetup, URL[] pluginJars) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
         }
-        if (instrumentClassPool == null) {
-            throw new NullPointerException("instrumentClassPool must not be null");
+        if (instrumentEngine == null) {
+            throw new NullPointerException("instrumentEngine must not be null");
         }
         if (bootstrapJarPaths == null) {
             throw new NullPointerException("bootstrapJarPaths must not be null");
@@ -62,7 +62,7 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
         this.pluginSetup = pluginSetup;
         this.pluginJars = pluginJars;
         this.instrumentation = instrumentation;
-        this.instrumentClassPool = instrumentClassPool;
+        this.instrumentEngine = instrumentEngine;
         this.bootstrapJarPaths = bootstrapJarPaths;
     }
 
@@ -76,7 +76,7 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
 
     private List<DefaultProfilerPluginContext> load() {
         PluginSetup pluginSetup = this.pluginSetup.get();
-        final ProfilerPluginLoader loader = new ProfilerPluginLoader(profilerConfig, pluginSetup, instrumentation, instrumentClassPool, bootstrapJarPaths);
+        final ProfilerPluginLoader loader = new ProfilerPluginLoader(profilerConfig, pluginSetup, instrumentation, instrumentEngine, bootstrapJarPaths);
         List<DefaultProfilerPluginContext> load = loader.load(pluginJars);
         return load;
     }

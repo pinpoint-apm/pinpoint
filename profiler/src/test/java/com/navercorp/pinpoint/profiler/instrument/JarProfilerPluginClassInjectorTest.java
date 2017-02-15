@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.LibClass;
 import com.navercorp.pinpoint.bootstrap.PinpointURLClassLoader;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
@@ -53,13 +53,13 @@ public class JarProfilerPluginClassInjectorTest {
 
         final ClassLoader contextTypeMatchClassLoader = createContextTypeMatchClassLoader(new URL[]{sampleJar});
 
-        InstrumentClassPool pool = Mockito.mock(InstrumentClassPool.class);
+        InstrumentEngine instrumentEngine = Mockito.mock(InstrumentEngine.class);
         final Instrumentation instrumentation = Mockito.mock(Instrumentation.class);
         final ProfilerPlugin profilerPlugin = Mockito.mock(ProfilerPlugin.class);
 
         final PluginPackageFilter pluginPackageFilter = new PluginPackageFilter(Arrays.asList(LOG4_IMPL));
         List<String> bootstrapJarPaths = Arrays.asList(sampleJar.getPath());
-        PluginConfig pluginConfig = new PluginConfig(sampleJar, profilerPlugin, instrumentation, pool, bootstrapJarPaths, pluginPackageFilter);
+        PluginConfig pluginConfig = new PluginConfig(sampleJar, profilerPlugin, instrumentation, instrumentEngine, bootstrapJarPaths, pluginPackageFilter);
         logger.debug("pluginConfig:{}", pluginConfig);
 
         PlainClassLoaderHandler injector = new PlainClassLoaderHandler(pluginConfig);
