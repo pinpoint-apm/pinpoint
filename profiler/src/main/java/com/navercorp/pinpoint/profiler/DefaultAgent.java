@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler;
 
-import com.google.inject.Guice;
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
@@ -65,6 +64,7 @@ public class DefaultAgent implements Agent {
         // Preload classes related to pinpoint-rpc module.
         ClassPreLoader.preload();
     }
+
     public DefaultAgent(AgentOption agentOption) {
         this(agentOption, createInterceptorRegistry(agentOption));
     }
