@@ -17,13 +17,13 @@
 package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import com.google.inject.Provider;
 import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.DefaultClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 
-import javax.inject.Provider;
+
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -31,22 +31,23 @@ import javax.inject.Provider;
 public class ClassFileTransformerDispatcherProvider implements Provider<ClassFileTransformerDispatcher> {
 
     private final ApplicationContext applicationContext;
-    private final PluginContextLoadResult pluginContextLoadResult;
+    private final Provider<PluginContextLoadResult> pluginContextLoadResultProvider;
 
     @Inject
-    public ClassFileTransformerDispatcherProvider(ApplicationContext applicationContext, PluginContextLoadResult pluginContextLoadResult) {
+    public ClassFileTransformerDispatcherProvider(ApplicationContext applicationContext, Provider<PluginContextLoadResult> pluginContextLoadResultProvider) {
         if (applicationContext == null) {
             throw new NullPointerException("applicationContext must not be null");
         }
-        if (pluginContextLoadResult == null) {
+        if (pluginContextLoadResultProvider == null) {
             throw new NullPointerException("pluginContextLoadResult must not be null");
         }
         this.applicationContext = applicationContext;
-        this.pluginContextLoadResult = pluginContextLoadResult;
+        this.pluginContextLoadResultProvider = pluginContextLoadResultProvider;
     }
 
     @Override
     public ClassFileTransformerDispatcher get() {
+        PluginContextLoadResult pluginContextLoadResult = pluginContextLoadResultProvider.get();
         return new DefaultClassFileTransformerDispatcher(applicationContext, pluginContextLoadResult);
     }
 }

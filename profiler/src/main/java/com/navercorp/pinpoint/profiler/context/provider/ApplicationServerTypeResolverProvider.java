@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.module.AgentServiceType;
@@ -30,14 +29,14 @@ import com.navercorp.pinpoint.profiler.util.ApplicationServerTypeResolver;
  */
 public class ApplicationServerTypeResolverProvider implements Provider<ApplicationServerTypeResolver> {
 
-    private final PluginContextLoadResult pluginContextLoadResult;
+    private final Provider<PluginContextLoadResult> pluginContextLoadResultProvider;
     private final ServiceType serviceType;
     private final ProfilerConfig profilerConfig;
 
     @Inject
-    public ApplicationServerTypeResolverProvider(PluginContextLoadResult pluginContextLoadResult, @AgentServiceType ServiceType serviceType, ProfilerConfig profilerConfig) {
-        if (pluginContextLoadResult == null) {
-            throw new NullPointerException("pluginContextLoadResult must not be null");
+    public ApplicationServerTypeResolverProvider(Provider<PluginContextLoadResult> pluginContextLoadResultProvider, @AgentServiceType ServiceType serviceType, ProfilerConfig profilerConfig) {
+        if (pluginContextLoadResultProvider == null) {
+            throw new NullPointerException("pluginContextLoadResultProvider must not be null");
         }
         if (serviceType == null) {
             throw new NullPointerException("serviceType must not be null");
@@ -45,13 +44,14 @@ public class ApplicationServerTypeResolverProvider implements Provider<Applicati
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
-        this.pluginContextLoadResult = pluginContextLoadResult;
+        this.pluginContextLoadResultProvider = pluginContextLoadResultProvider;
         this.serviceType = serviceType;
         this.profilerConfig = profilerConfig;
     }
 
     @Override
     public ApplicationServerTypeResolver get() {
+        PluginContextLoadResult pluginContextLoadResult = this.pluginContextLoadResultProvider.get();
         return new ApplicationServerTypeResolver(pluginContextLoadResult, serviceType, profilerConfig.getApplicationTypeDetectOrder());
     }
 }
