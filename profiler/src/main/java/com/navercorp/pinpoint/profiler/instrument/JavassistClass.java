@@ -68,7 +68,7 @@ public class JavassistClass implements InstrumentClass {
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final InstrumentContext pluginContext;
-    // private final JavassistClassPool instrumentClassPool;
+    // private final JavassistEngine instrumentClassPool;
     private final InterceptorRegistryBinder interceptorRegistryBinder;
     private final ClassLoader classLoader;
     private final CtClass ctClass;

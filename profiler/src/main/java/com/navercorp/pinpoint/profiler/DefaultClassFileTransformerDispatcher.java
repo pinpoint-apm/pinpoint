@@ -21,13 +21,8 @@ import java.security.ProtectionDomain;
 import java.util.List;
 
 import com.google.inject.Inject;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
 import com.navercorp.pinpoint.bootstrap.instrument.RequestHandle;
 import com.navercorp.pinpoint.profiler.context.ApplicationContext;
-import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
