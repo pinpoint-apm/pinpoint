@@ -60,6 +60,12 @@ public class PluginConfig {
         if (plugin == null) {
             throw new NullPointerException("plugin must not be null");
         }
+        if (instrumentation == null) {
+            throw new NullPointerException("instrumentation must not be null");
+        }
+        if (classPool == null) {
+            throw new NullPointerException("classPool must not be null");
+        }
         if (bootstrapJarPaths == null) {
             throw new NullPointerException("bootstrapJarPaths must not be null");
         }

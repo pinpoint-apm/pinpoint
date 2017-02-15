@@ -68,7 +68,11 @@ public class MockApplicationContextModuleTest {
                 return applicationContext;
             }
         };
-//        pluginTestAgent.start();
+        try {
+            pluginTestAgent.start();
+        } finally {
+            pluginTestAgent.stop(true);
+        }
     }
 
     @Test
@@ -89,6 +93,7 @@ public class MockApplicationContextModuleTest {
         };
 
         Injector injector = applicationContext.getInjector();
+        // singleton check
         AgentInfoSender instance1 = injector.getInstance(AgentInfoSender.class);
         AgentInfoSender instance2 = injector.getInstance(AgentInfoSender.class);
         Assert.assertSame(instance1, instance2);
