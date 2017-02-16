@@ -18,13 +18,12 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.AgentInformationFactory;
 import com.navercorp.pinpoint.profiler.DefaultAgentInformationFactory;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
-import com.navercorp.pinpoint.profiler.context.module.AgentServiceType;
+import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
 
@@ -39,7 +38,7 @@ public class AgentInformationProvider implements Provider<AgentInformation> {
     private final ServiceType serverType;
 
     @Inject
-    public AgentInformationProvider(@AgentId String agentId, @ApplicationName String applicationName, @AgentStartTime long agentStartTime, @AgentServiceType  ServiceType serverType) {
+    public AgentInformationProvider(@AgentId String agentId, @ApplicationName String applicationName, @AgentStartTime long agentStartTime, @ApplicationServerType ServiceType serverType) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }

@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.SystemPropertyKey;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
-import com.navercorp.pinpoint.profiler.context.module.AgentServiceType;
+import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
@@ -41,7 +41,7 @@ public class DefaultAgentInformationFactory implements AgentInformationFactory {
     private final ServiceType serverType;
 
     @Inject
-    public DefaultAgentInformationFactory(@AgentId String agentId, @ApplicationName String applicationName, @AgentStartTime long agentStartTime, @AgentServiceType  ServiceType serverType) {
+    public DefaultAgentInformationFactory(@AgentId String agentId, @ApplicationName String applicationName, @AgentStartTime long agentStartTime, @ApplicationServerType ServiceType serverType) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
