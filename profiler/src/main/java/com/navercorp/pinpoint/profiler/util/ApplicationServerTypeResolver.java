@@ -21,9 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.inject.Inject;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.profiler.context.module.AgentServiceType;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,12 +43,8 @@ public class ApplicationServerTypeResolver {
     private final ApplicationServerTypePluginResolver resolver;
     private final List<ApplicationTypeDetector> detectors = new ArrayList<ApplicationTypeDetector>();
 
-    @Inject
-    public ApplicationServerTypeResolver(PluginContextLoadResult plugins, @AgentServiceType  ServiceType defaultType, ProfilerConfig profilerConfig) {
-        this(plugins, defaultType, profilerConfig.getApplicationTypeDetectOrder());
-    }
 
-    public ApplicationServerTypeResolver(PluginContextLoadResult plugins, @AgentServiceType  ServiceType defaultType, List<String> orderedDetectors) {
+    public ApplicationServerTypeResolver(PluginContextLoadResult plugins, ServiceType defaultType, List<String> orderedDetectors) {
         if (isValidApplicationServerType(defaultType)) {
             this.defaultType = defaultType;
         } else {
