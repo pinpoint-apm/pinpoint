@@ -85,6 +85,9 @@ There are two options:
 
 	`mvn install -Dmaven.test.skip=true`
 	
+	The default agent built this way will have log level set to DEBUG by default. If you're building an agent for release and need a higher log level, you can set maven profile to *release* when building :  
+	`mvn install -Prelease -Dmaven.test.skip=true`
+	
 	The guide will refer to the full path of the pinpoint home directory as `$PINPOINT_PATH`.
 
 	
