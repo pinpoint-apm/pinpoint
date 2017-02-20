@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.DefaultClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.context.ApplicationContext;
@@ -32,22 +33,27 @@ public class ClassFileTransformerDispatcherProvider implements Provider<ClassFil
 
     private final ApplicationContext applicationContext;
     private final Provider<PluginContextLoadResult> pluginContextLoadResultProvider;
+    private final InstrumentEngine instrumentEngine;
 
     @Inject
-    public ClassFileTransformerDispatcherProvider(ApplicationContext applicationContext, Provider<PluginContextLoadResult> pluginContextLoadResultProvider) {
+    public ClassFileTransformerDispatcherProvider(ApplicationContext applicationContext, InstrumentEngine instrumentEngine, Provider<PluginContextLoadResult> pluginContextLoadResultProvider) {
         if (applicationContext == null) {
             throw new NullPointerException("applicationContext must not be null");
+        }
+        if (instrumentEngine == null) {
+            throw new NullPointerException("instrumentEngine must not be null");
         }
         if (pluginContextLoadResultProvider == null) {
             throw new NullPointerException("pluginContextLoadResult must not be null");
         }
         this.applicationContext = applicationContext;
+        this.instrumentEngine = instrumentEngine;
         this.pluginContextLoadResultProvider = pluginContextLoadResultProvider;
     }
 
     @Override
     public ClassFileTransformerDispatcher get() {
         PluginContextLoadResult pluginContextLoadResult = pluginContextLoadResultProvider.get();
-        return new DefaultClassFileTransformerDispatcher(applicationContext, pluginContextLoadResult);
+        return new DefaultClassFileTransformerDispatcher(applicationContext, pluginContextLoadResult, instrumentEngine);
     }
 }

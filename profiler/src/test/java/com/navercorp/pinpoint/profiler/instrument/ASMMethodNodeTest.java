@@ -16,11 +16,11 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.profiler.instrument.mock.ArgsArrayInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -45,7 +45,7 @@ public class ASMMethodNodeTest {
 
     private final static InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
 
-    private final DefaultProfilerPluginContext pluginContext = mock(DefaultProfilerPluginContext.class);
+    private final InstrumentContext pluginContext = mock(InstrumentContext.class);
     private final TraceContext traceContext = mock(TraceContext.class);
 
     @Before

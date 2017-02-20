@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.GuardInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
@@ -32,35 +33,47 @@ import org.slf4j.LoggerFactory;
 public class DefaultPluginSetup implements PluginSetup {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final ProfilerConfig profilerConfig;
     private final ApplicationContext applicationContext;
 
 
-    public DefaultPluginSetup(ApplicationContext applicationContext) {
+    public DefaultPluginSetup(ProfilerConfig profilerConfig, ApplicationContext applicationContext) {
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig must not be null");
+        }
+        if (applicationContext == null) {
+            throw new NullPointerException("applicationContext must not be null");
+        }
+        this.profilerConfig = profilerConfig;
         this.applicationContext = applicationContext;
     }
 
     @Override
-    public DefaultProfilerPluginContext setupPlugin(ProfilerPlugin plugin, ClassInjector classInjector) {
+    public SetupResult setupPlugin(ProfilerPlugin profilerPlugin, ClassInjector classInjector) {
 
-        final DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(applicationContext, classInjector);
-        final GuardProfilerPluginContext guard = new GuardProfilerPluginContext(context);
-        final GuardInstrumentContext guardInstrumentContext = preparePlugin(plugin, context);
+        final ClassFileTransformerLoader transformerRegistry = new ClassFileTransformerLoader(applicationContext);
+        final DefaultProfilerPluginSetupContext setupContext = new DefaultProfilerPluginSetupContext(profilerConfig);
+        final GuardProfilerPluginContext guardSetupContext = new GuardProfilerPluginContext(setupContext);
+
+        final InstrumentContext instrumentContext = new PluginInstrumentContext(applicationContext, classInjector, transformerRegistry );
+        final GuardInstrumentContext guardInstrumentContext = preparePlugin(profilerPlugin, instrumentContext);
         try {
             // WARN external plugin api
             if (logger.isInfoEnabled()) {
-                logger.info("{} Plugin setup", plugin.getClass().getName());
+                logger.info("{} Plugin setup", profilerPlugin.getClass().getName());
             }
-            plugin.setup(guard);
+            profilerPlugin.setup(guardSetupContext);
         } finally {
-            guard.close();
+            guardSetupContext.close();
             guardInstrumentContext.close();
         }
-        return context;
+        SetupResult setupResult = new SetupResult(setupContext, transformerRegistry);
+        return setupResult;
     }
 
-    private GuardInstrumentContext preparePlugin(ProfilerPlugin plugin, InstrumentContext context) {
+    private GuardInstrumentContext preparePlugin(ProfilerPlugin plugin, InstrumentContext instrumentContext) {
 
-        final GuardInstrumentContext guardInstrumentContext = new GuardInstrumentContext(context);
+        final GuardInstrumentContext guardInstrumentContext = new GuardInstrumentContext(instrumentContext);
         if (plugin instanceof TransformTemplateAware) {
             if (logger.isDebugEnabled()) {
                 logger.debug("{}.setTransformTemplate", plugin.getClass().getName());

@@ -80,10 +80,10 @@ public class ProfilerPluginLoader {
         this.bootstrapJarPaths = bootstrapJarPaths;
     }
 
-    public List<DefaultProfilerPluginContext> load(URL[] pluginJars) {
-        List<DefaultProfilerPluginContext> pluginContexts = new ArrayList<DefaultProfilerPluginContext>(pluginJars.length);
-        List<String> disabled = profilerConfig.getDisabledPlugins();
-        
+    public List<SetupResult> load(URL[] pluginJars) {
+
+        List<SetupResult> pluginContexts = new ArrayList<SetupResult>(pluginJars.length);
+
         for (URL jar : pluginJars) {
 
             final JarFile pluginJarFile = createJarFile(jar);
@@ -91,14 +91,12 @@ public class ProfilerPluginLoader {
 
             final ClassNameFilter pluginFilterChain = createPluginFilterChain(pluginPackageList);
 
-            final List<ProfilerPlugin> plugins = PluginLoader.load(ProfilerPlugin.class, new URL[] { jar });
+            final List<ProfilerPlugin> original = PluginLoader.load(ProfilerPlugin.class, new URL[] { jar });
+
+            List<ProfilerPlugin> plugins = filterDisablePlugin(original);
 
             for (ProfilerPlugin plugin : plugins) {
-                if (disabled.contains(plugin.getClass().getName())) {
-                    logger.info("Skip disabled plugin: {}", plugin.getClass().getName());
-                    continue;
-                }
-                if (logger.isInfoEnabled()) {
+                 if (logger.isInfoEnabled()) {
                     logger.info("{} Plugin {}:{}", plugin.getClass(), PluginConfig.PINPOINT_PLUGIN_PACKAGE, pluginPackageList);
                 }
                 
@@ -106,13 +104,28 @@ public class ProfilerPluginLoader {
 
                 PluginConfig pluginConfig = new PluginConfig(jar, plugin, instrumentation, instrumentEngine, bootstrapJarPaths, pluginFilterChain);
                 final ClassInjector classInjector = new JarProfilerPluginClassInjector(pluginConfig);
-                final DefaultProfilerPluginContext context = pluginSetup.setupPlugin(plugin, classInjector);
-                pluginContexts.add(context);
+                final SetupResult result = pluginSetup.setupPlugin(plugin, classInjector);
+                pluginContexts.add(result);
             }
         }
         
 
         return pluginContexts;
+    }
+
+    private List<ProfilerPlugin> filterDisablePlugin(List<ProfilerPlugin> plugins) {
+
+        List<String> disabled = profilerConfig.getDisabledPlugins();
+
+        List<ProfilerPlugin> result = new ArrayList<ProfilerPlugin>();
+        for (ProfilerPlugin plugin : plugins) {
+            if (disabled.contains(plugin.getClass().getName())) {
+                logger.info("Skip disabled plugin: {}", plugin.getClass().getName());
+                continue;
+            }
+            result.add(plugin);
+        }
+        return result;
     }
 
     private ClassNameFilter createPluginFilterChain(List<String> packageList) {

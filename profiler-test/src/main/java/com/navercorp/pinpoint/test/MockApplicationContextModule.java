@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
-import com.navercorp.pinpoint.profiler.plugin.PluginSetup;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
@@ -74,7 +73,6 @@ public class MockApplicationContextModule extends AbstractModule {
         bind(ServerMetaDataHolder.class).toInstance(serverMetaDataHolder);
 
 
-        bind(PluginSetup.class).to(MockPluginSetup.class).in(Scopes.SINGLETON);
         bind(PluginContextLoadResult.class).toProvider(MockPluginContextLoadResultProvider.class).in(Scopes.SINGLETON);
     }
 

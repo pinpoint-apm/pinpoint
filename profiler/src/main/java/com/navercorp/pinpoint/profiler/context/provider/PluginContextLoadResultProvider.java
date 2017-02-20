@@ -20,11 +20,11 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.BootstrapJarPaths;
 import com.navercorp.pinpoint.profiler.context.module.PluginJars;
 import com.navercorp.pinpoint.profiler.plugin.DefaultPluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
-import com.navercorp.pinpoint.profiler.plugin.PluginSetup;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
@@ -39,12 +39,12 @@ public class PluginContextLoadResultProvider implements Provider<PluginContextLo
     private final Instrumentation instrumentation;
     private final InstrumentEngine instrumentEngine;
     private final List<String> bootstrapJarPaths;
-    private final javax.inject.Provider<PluginSetup> pluginSetup;
     private final URL[] pluginJars;
+    private final ApplicationContext applicationContext;
 
     @Inject
-    public PluginContextLoadResultProvider(ProfilerConfig profilerConfig, Instrumentation instrumentation, InstrumentEngine instrumentEngine,
-                                           @BootstrapJarPaths List<String> bootstrapJarPaths, Provider<PluginSetup> pluginSetup, @PluginJars URL[] pluginJars) {
+    public PluginContextLoadResultProvider(ProfilerConfig profilerConfig, ApplicationContext applicationContext, Instrumentation instrumentation, InstrumentEngine instrumentEngine,
+                                           @BootstrapJarPaths List<String> bootstrapJarPaths, @PluginJars URL[] pluginJars) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
@@ -57,24 +57,22 @@ public class PluginContextLoadResultProvider implements Provider<PluginContextLo
         if (bootstrapJarPaths == null) {
             throw new NullPointerException("bootstrapJarPaths must not be null");
         }
-        if (pluginSetup == null) {
-            throw new NullPointerException("pluginSetup must not be null");
-        }
         if (pluginJars == null) {
             throw new NullPointerException("pluginJars must not be null");
         }
+
         this.profilerConfig = profilerConfig;
+        this.applicationContext = applicationContext;
         this.instrumentation = instrumentation;
         this.instrumentEngine = instrumentEngine;
         this.bootstrapJarPaths = bootstrapJarPaths;
-        this.pluginSetup = pluginSetup;
         this.pluginJars = pluginJars;
     }
 
     @Override
     public PluginContextLoadResult get() {
 
-        return new DefaultPluginContextLoadResult(profilerConfig, instrumentation, instrumentEngine, bootstrapJarPaths, pluginSetup, pluginJars);
+        return new DefaultPluginContextLoadResult(profilerConfig, applicationContext, instrumentation, instrumentEngine, bootstrapJarPaths, pluginJars);
 
     }
 }

@@ -21,8 +21,8 @@ import java.net.URLClassLoader;
 import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.instrument.*;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
+import com.navercorp.pinpoint.profiler.plugin.PluginInstrumentContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import javassist.*;
 
@@ -143,8 +143,8 @@ public class JavassistEngine implements InstrumentEngine {
 
         // append plugin jar for jboss
         // plugin class not found in jboss classLoader
-        if (instrumentContext instanceof DefaultProfilerPluginContext) {
-            final PluginConfig pluginConfig = ((DefaultProfilerPluginContext) instrumentContext).getPluginConfig();
+        if (instrumentContext instanceof PluginInstrumentContext) {
+            final PluginConfig pluginConfig = ((PluginInstrumentContext) instrumentContext).getPluginConfig();
             if (pluginConfig != null) {
                 String jarPath = pluginConfig.getPluginJar().getPath();
                 contextCassPool.appendClassPath(jarPath);

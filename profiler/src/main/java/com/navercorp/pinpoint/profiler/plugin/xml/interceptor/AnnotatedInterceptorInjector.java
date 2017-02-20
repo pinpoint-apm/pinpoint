@@ -17,11 +17,11 @@ package com.navercorp.pinpoint.profiler.plugin.xml.interceptor;
 import java.util.Arrays;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MethodRecipe;
 
 /**
@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MethodRecipe;
  */
 
 public class AnnotatedInterceptorInjector implements MethodRecipe {
-    private final DefaultProfilerPluginContext pluginContext;
+    private final InstrumentContext pluginContext;
     
     protected final String interceptorClassName;
     private final Object[] providedArguments;
@@ -38,7 +38,7 @@ public class AnnotatedInterceptorInjector implements MethodRecipe {
     private final String scopeName;
     private final ExecutionPolicy executionPolicy;
     
-    public AnnotatedInterceptorInjector(DefaultProfilerPluginContext pluginContext, String interceptorName, Object[] constructorArguments, String scopeName, ExecutionPolicy executionPolicy) {
+    public AnnotatedInterceptorInjector(InstrumentContext pluginContext, String interceptorName, Object[] constructorArguments, String scopeName, ExecutionPolicy executionPolicy) {
         this.pluginContext = pluginContext;
         this.interceptorClassName = interceptorName;
         this.providedArguments = constructorArguments;

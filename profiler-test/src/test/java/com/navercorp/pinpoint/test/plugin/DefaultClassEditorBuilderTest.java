@@ -20,12 +20,11 @@ package com.navercorp.pinpoint.test.plugin;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.profiler.context.ApplicationContext;
-import com.navercorp.pinpoint.profiler.instrument.JavassistEngine;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.util.TypeUtils;
-import com.navercorp.pinpoint.test.TestProfilerPluginClassLoader;
 import org.junit.Test;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
@@ -36,13 +35,13 @@ public class DefaultClassEditorBuilderTest {
 
     @Test
     public void test() throws Exception {
-        JavassistEngine pool = mock(JavassistEngine.class);
+        InstrumentEngine instrumentEngine = mock(InstrumentEngine.class);
         TraceContext traceContext = mock(TraceContext.class);
         InstrumentClass aClass = mock(InstrumentClass.class);
         InstrumentMethod aMethod = mock(InstrumentMethod.class);
         MethodDescriptor aDescriptor = mock(MethodDescriptor.class);
         ApplicationContext applicationContext = mock(ApplicationContext.class);
-        DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(applicationContext, new TestProfilerPluginClassLoader());
+        InstrumentContext context = mock(InstrumentContext.class);
         
         ClassLoader classLoader = getClass().getClassLoader();
         String className = "someClass";
@@ -51,9 +50,9 @@ public class DefaultClassEditorBuilderTest {
         Class<?>[] parameterTypes = new Class<?>[] { String.class };
         String[] parameterTypeNames = TypeUtils.toClassNames(parameterTypes);
         
-        when(applicationContext.getInstrumentEngine()).thenReturn(pool);
+        when(applicationContext.getInstrumentEngine()).thenReturn(instrumentEngine);
         when(applicationContext.getTraceContext()).thenReturn(traceContext);
-        when(pool.getClass(context, classLoader, className, classFileBuffer)).thenReturn(aClass);
+        when(instrumentEngine.getClass(context, classLoader, className, classFileBuffer)).thenReturn(aClass);
         when(aClass.getDeclaredMethod(methodName, parameterTypeNames)).thenReturn(aMethod);
         when(aMethod.getName()).thenReturn(methodName);
         when(aMethod.getParameterTypes()).thenReturn(parameterTypeNames);
