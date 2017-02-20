@@ -19,12 +19,15 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.util.ApplicationServerTypeResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 
 /**
@@ -57,7 +60,8 @@ public class ApplicationServerTypeProvider implements Provider<ServiceType> {
         logger.info("default ApplicationServerType={}", applicationServiceType);
 
         PluginContextLoadResult pluginContextLoadResult = this.pluginContextLoadResultProvider.get();
-        ApplicationServerTypeResolver applicationServerTypeResolver = new ApplicationServerTypeResolver(pluginContextLoadResult, applicationServiceType, profilerConfig.getApplicationTypeDetectOrder());
+        List<ApplicationTypeDetector> applicationTypeDetectorList = pluginContextLoadResult.getApplicationTypeDetectorList();
+        ApplicationServerTypeResolver applicationServerTypeResolver = new ApplicationServerTypeResolver(applicationTypeDetectorList, applicationServiceType, profilerConfig.getApplicationTypeDetectOrder());
         ServiceType resolve = applicationServerTypeResolver.resolve();
         logger.info("resolved ApplicationServerType={}", resolve);
         return resolve;

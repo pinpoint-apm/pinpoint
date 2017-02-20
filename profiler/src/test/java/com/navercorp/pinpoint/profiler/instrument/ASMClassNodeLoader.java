@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
  */
 public class ASMClassNodeLoader {
 
-    private final static DefaultProfilerPluginContext pluginContext = mock(DefaultProfilerPluginContext.class);
+    private final static InstrumentContext pluginContext = mock(InstrumentContext.class);
     private final static TraceContext traceContext = mock(TraceContext.class);
 
     static {

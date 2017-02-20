@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,10 +25,8 @@ import org.mockito.stubbing.Answer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.util.CheckClassAdapter;
 
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.lang.reflect.Method;
 
 import static org.mockito.Matchers.any;
@@ -53,7 +51,7 @@ public class ASMAspectWeaverTest {
 
     private final String ERROR_ASPECT_INVALID_EXTENTS = "com.navercorp.pinpoint.profiler.instrument.mock.AspectInterceptorInvalidExtendClass";
 
-    private final DefaultProfilerPluginContext pluginContext = mock(DefaultProfilerPluginContext.class);
+    private final InstrumentContext pluginContext = mock(InstrumentContext.class);
     private final TraceContext traceContext = mock(TraceContext.class);
 
     @Before

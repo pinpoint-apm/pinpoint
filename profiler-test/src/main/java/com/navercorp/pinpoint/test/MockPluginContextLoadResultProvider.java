@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.test;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.plugin.PluginSetup;
 /**
@@ -25,18 +27,24 @@ import com.navercorp.pinpoint.profiler.plugin.PluginSetup;
  */
 public class MockPluginContextLoadResultProvider implements Provider<PluginContextLoadResult> {
 
-
-    private final Provider<PluginSetup> pluginSetupProvider;
+    private final ProfilerConfig profilerConfig;
+    private final ApplicationContext applicationContext;
 
     @Inject
-    public MockPluginContextLoadResultProvider(Provider<PluginSetup> pluginSetupProvider) {
-        this.pluginSetupProvider = pluginSetupProvider;
+    public MockPluginContextLoadResultProvider(ProfilerConfig profilerConfig, ApplicationContext applicationContext) {
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig must not be null");
+        }
+        if (applicationContext == null) {
+            throw new NullPointerException("applicationContext must not be null");
+        }
+        this.profilerConfig = profilerConfig;
+        this.applicationContext = applicationContext;
     }
 
     @Override
     public PluginContextLoadResult get() {
-
-        return new MockPluginContextLoadResult(pluginSetupProvider);
+        return new MockPluginContextLoadResult(profilerConfig, applicationContext);
     }
 
 

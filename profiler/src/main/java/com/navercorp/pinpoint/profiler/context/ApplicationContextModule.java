@@ -54,7 +54,6 @@ import com.navercorp.pinpoint.profiler.context.provider.PinpointClientFactoryPro
 import com.navercorp.pinpoint.profiler.context.provider.PinpointClientProvider;
 import com.navercorp.pinpoint.profiler.context.provider.PluginContextLoadResultProvider;
 import com.navercorp.pinpoint.profiler.context.provider.PluginMonitorContextProvider;
-import com.navercorp.pinpoint.profiler.context.provider.PluginSetupProvider;
 import com.navercorp.pinpoint.profiler.context.provider.SamplerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataHolderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.StorageFactoryProvider;
@@ -143,7 +142,6 @@ public class ApplicationContextModule extends AbstractModule {
         bind(AgentStatCollectorFactory.class).to(DefaultAgentStatCollectorFactory.class).in(Scopes.SINGLETON);
         bind(AgentStatMonitor.class).to(DefaultAgentStatMonitor.class).in(Scopes.SINGLETON);
 
-        bind(PluginSetup.class).toProvider(PluginSetupProvider.class).in(Scopes.SINGLETON);
         bind(PluginContextLoadResult.class).toProvider(PluginContextLoadResultProvider.class).in(Scopes.SINGLETON);
         bind(AgentInformation.class).toProvider(AgentInformationProvider.class).in(Scopes.SINGLETON);
 

@@ -24,9 +24,24 @@ import java.util.List;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface PluginContextLoadResult {
+public class SetupResult {
 
-    List<ClassFileTransformer> getClassFileTransformer();
+    private final DefaultProfilerPluginSetupContext setupContext;
+    private final ClassFileTransformerLoader transformerRegistry;
 
-    List<ApplicationTypeDetector> getApplicationTypeDetectorList();
+    public SetupResult(DefaultProfilerPluginSetupContext setupContext, ClassFileTransformerLoader transformerRegistry) {
+        this.setupContext = setupContext;
+        this.transformerRegistry = transformerRegistry;
+    }
+
+
+    public List<ApplicationTypeDetector> getApplicationTypeDetectors() {
+        return this.setupContext.getApplicationTypeDetectors();
+    }
+
+    public List<ClassFileTransformer> getClassTransformerList() {
+        return transformerRegistry.getClassTransformerList();
+    }
+
+
 }

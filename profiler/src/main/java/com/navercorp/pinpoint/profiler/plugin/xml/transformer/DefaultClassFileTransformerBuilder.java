@@ -21,9 +21,9 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.xml.FieldInjector;
 import com.navercorp.pinpoint.profiler.plugin.xml.GetterInjector;
 import com.navercorp.pinpoint.profiler.plugin.xml.OverrideMethodInjector;
@@ -32,7 +32,7 @@ import com.navercorp.pinpoint.profiler.plugin.xml.interceptor.TargetAnnotatedInt
 
 public class DefaultClassFileTransformerBuilder implements ClassFileTransformerBuilder, ConditionalClassFileTransformerBuilder, RecipeBuilder<ClassRecipe> {
 
-    private final DefaultProfilerPluginContext pluginContext;
+    private final InstrumentContext pluginContext;
     
     private final List<ClassRecipe> recipes = new ArrayList<ClassRecipe>();
     private final List<RecipeBuilder<ClassRecipe>> recipeBuilders = new ArrayList<RecipeBuilder<ClassRecipe>>();
@@ -40,11 +40,11 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
     private final ClassCondition condition;
     private final String targetClassName;
 
-    public DefaultClassFileTransformerBuilder(DefaultProfilerPluginContext pluginContext, String targetClassName) {
+    public DefaultClassFileTransformerBuilder(InstrumentContext pluginContext, String targetClassName) {
         this(pluginContext, targetClassName, null);
     }
     
-    private DefaultClassFileTransformerBuilder(DefaultProfilerPluginContext pluginContext, String targetClassName, ClassCondition condition) {
+    private DefaultClassFileTransformerBuilder(InstrumentContext pluginContext, String targetClassName, ClassCondition condition) {
         this.pluginContext = pluginContext;
         this.targetClassName = targetClassName;
         this.condition = condition;

@@ -23,5 +23,5 @@ import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
  * @author Woonduk Kang(emeroad)
  */
 public interface PluginSetup {
-    DefaultProfilerPluginContext setupPlugin(ProfilerPlugin plugin, ClassInjector classInjector);
+    SetupResult setupPlugin(ProfilerPlugin plugin, ClassInjector classInjector);
 }
