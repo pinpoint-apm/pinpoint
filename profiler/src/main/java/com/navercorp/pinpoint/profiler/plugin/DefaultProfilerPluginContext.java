@@ -47,6 +47,7 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
  */
 public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, InstrumentContext {
     private final ApplicationContext applicationContext;
+    private final DynamicTransformTrigger dynamicTransformTrigger;
     private final ClassInjector classInjector;
     
     private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
@@ -54,14 +55,18 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     
     private final Pool<String, InterceptorScope> interceptorScopePool = new ConcurrentPool<String, InterceptorScope>(new InterceptorScopeFactory());
 
-    public DefaultProfilerPluginContext(ApplicationContext applicationContext, ClassInjector classInjector) {
+    public DefaultProfilerPluginContext(ApplicationContext applicationContext, DynamicTransformTrigger dynamicTransformTrigger, ClassInjector classInjector) {
         if (applicationContext == null) {
             throw new NullPointerException("applicationContext must not be null");
+        }
+        if (dynamicTransformTrigger == null) {
+            throw new NullPointerException("dynamicTransformTrigger must not be null");
         }
         if (classInjector == null) {
             throw new NullPointerException("classInjector must not be null");
         }
         this.applicationContext = applicationContext;
+        this.dynamicTransformTrigger = dynamicTransformTrigger;
         this.classInjector = classInjector;
     }
 
@@ -149,8 +154,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
 
         final ClassFileTransformerGuardDelegate classFileTransformerGuardDelegate = new ClassFileTransformerGuardDelegate(this, transformCallback);
 
-        final DynamicTransformTrigger dynamicTransformService = applicationContext.getDynamicTransformTrigger();
-        dynamicTransformService.addClassFileTransformer(classLoader, targetClassName, classFileTransformerGuardDelegate);
+        dynamicTransformTrigger.addClassFileTransformer(classLoader, targetClassName, classFileTransformerGuardDelegate);
     }
 
 
@@ -165,8 +169,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
 
         final ClassFileTransformerGuardDelegate classFileTransformerGuardDelegate = new ClassFileTransformerGuardDelegate(this, transformCallback);
 
-        final DynamicTransformTrigger dynamicTransformService = applicationContext.getDynamicTransformTrigger();
-        dynamicTransformService.retransform(target, classFileTransformerGuardDelegate);
+        dynamicTransformTrigger.retransform(target, classFileTransformerGuardDelegate);
     }
 
 
