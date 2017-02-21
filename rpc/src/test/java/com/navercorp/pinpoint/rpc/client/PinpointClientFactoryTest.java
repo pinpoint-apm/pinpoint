@@ -152,9 +152,9 @@ public class PinpointClientFactoryTest {
 
         try {
             PinpointClient client = clientFactory.connect("127.0.0.1", bindPort);
-            logger.info("send1");
+            logger.debug("send1");
             client.send(new byte[20]);
-            logger.info("send2");
+            logger.debug("send2");
             client.sendSync(new byte[20]);
 
             PinpointRPCTestUtils.close(client);

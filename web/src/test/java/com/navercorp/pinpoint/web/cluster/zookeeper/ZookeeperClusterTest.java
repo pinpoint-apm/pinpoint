@@ -267,7 +267,7 @@ public class ZookeeperClusterTest {
             }
 
             String result = zookeeper.create(subPath, new byte[0], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            logger.info("Create path {} success.", result);
+            logger.debug("Create path {} success.", result);
         } while (pos < path.length());
     }
 

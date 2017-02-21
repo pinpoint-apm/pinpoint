@@ -47,14 +47,14 @@ public class RecordedStreamChannelMessageListener implements ClientStreamChannel
 
     @Override
     public void handleStreamData(ClientStreamChannelContext streamChannelContext, StreamResponsePacket packet) {
-        logger.info("handleStreamData {}, {}", streamChannelContext, packet);
+        logger.debug("handleStreamData {}, {}", streamChannelContext, packet);
         receivedMessageList.add(packet.getPayload());
         latch.countDown();
     }
 
     @Override
     public void handleStreamClose(ClientStreamChannelContext streamChannelContext, StreamClosePacket packet) {
-        logger.info("handleClose {}, {}", streamChannelContext, packet);
+        logger.debug("handleClose {}, {}", streamChannelContext, packet);
         receivedMessageList.add(packet.getPayload());
         latch.countDown();
     }

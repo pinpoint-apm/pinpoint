@@ -90,6 +90,6 @@ public class ClassLoaderUtilsTest {
     @Test
     public void append() throws Exception {
         String log = ClassLoaderUtils.dumpStandardClassLoader();
-        logger.info("StandardClassLoader dump:{}", log);
+        logger.debug("StandardClassLoader dump:{}", log);
     }
 }
