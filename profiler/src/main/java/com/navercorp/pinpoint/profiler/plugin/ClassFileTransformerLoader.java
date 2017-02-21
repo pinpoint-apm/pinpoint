@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 import java.lang.instrument.ClassFileTransformer;
@@ -33,15 +32,15 @@ import java.util.List;
  */
 public class ClassFileTransformerLoader {
 
-    private final ApplicationContext applicationContext;
+    private final DynamicTransformTrigger dynamicTransformTrigger;
 
     private final List<ClassFileTransformer> classTransformers = new ArrayList<ClassFileTransformer>();
 
-    public ClassFileTransformerLoader(ApplicationContext applicationContext) {
-        if (applicationContext == null) {
-            throw new NullPointerException("applicationContext must not be null");
+    public ClassFileTransformerLoader(DynamicTransformTrigger dynamicTransformTrigger) {
+        if (dynamicTransformTrigger == null) {
+            throw new NullPointerException("dynamicTransformTrigger must not be null");
         }
-        this.applicationContext = applicationContext;
+        this.dynamicTransformTrigger = dynamicTransformTrigger;
     }
 
     public void addClassFileTransformer(InstrumentContext instrumentContext, final String targetClassName, final TransformCallback transformCallback) {
@@ -67,8 +66,7 @@ public class ClassFileTransformerLoader {
 
         final ClassFileTransformerGuardDelegate classFileTransformerGuardDelegate = new ClassFileTransformerGuardDelegate(instrumentContext, transformCallback);
 
-        final DynamicTransformTrigger dynamicTransformService = applicationContext.getDynamicTransformTrigger();
-        dynamicTransformService.addClassFileTransformer(classLoader, targetClassName, classFileTransformerGuardDelegate);
+        this.dynamicTransformTrigger.addClassFileTransformer(classLoader, targetClassName, classFileTransformerGuardDelegate);
     }
 
     public List<ClassFileTransformer> getClassTransformerList() {

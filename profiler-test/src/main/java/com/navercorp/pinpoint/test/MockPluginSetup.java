@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.test;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
@@ -39,12 +40,14 @@ public class MockPluginSetup implements PluginSetup {
 
     private final ProfilerConfig profilerConfig;
     private final ApplicationContext applicationContext;
+    private final DynamicTransformTrigger dynamicTransformTrigger;
 
     @Inject
-    public MockPluginSetup(ProfilerConfig profilerConfig, ApplicationContext applicationContext) {
+    public MockPluginSetup(ProfilerConfig profilerConfig, ApplicationContext applicationContext, DynamicTransformTrigger dynamicTransformTrigger) {
         this.profilerConfig = profilerConfig;
 
         this.applicationContext = applicationContext;
+        this.dynamicTransformTrigger = dynamicTransformTrigger;
     }
 
     @Override
@@ -53,8 +56,8 @@ public class MockPluginSetup implements PluginSetup {
         final DefaultProfilerPluginSetupContext pluginSetupContext = new DefaultProfilerPluginSetupContext(profilerConfig);
         final GuardProfilerPluginContext guardPluginSetupContext = new GuardProfilerPluginContext(pluginSetupContext);
 
-        ClassFileTransformerLoader classFileTransformerLoader = new ClassFileTransformerLoader(applicationContext);
-        InstrumentContext instrumentContext = new PluginInstrumentContext(applicationContext, classInjector, classFileTransformerLoader);
+        ClassFileTransformerLoader classFileTransformerLoader = new ClassFileTransformerLoader(dynamicTransformTrigger);
+        InstrumentContext instrumentContext = new PluginInstrumentContext(applicationContext, dynamicTransformTrigger, classInjector, classFileTransformerLoader);
         try {
             preparePlugin(plugin, instrumentContext);
             plugin.setup(guardPluginSetupContext);

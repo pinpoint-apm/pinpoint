@@ -60,10 +60,10 @@ public class TestClassLoader extends TransformClassLoader {
 
         this.applicationContext = applicationContext;
 
-        this.classFileTransformerLoader = new ClassFileTransformerLoader(applicationContext);
+        this.classFileTransformerLoader = new ClassFileTransformerLoader(applicationContext.getDynamicTransformTrigger());
 
         ClassInjector legacyProfilerPluginClassInjector = new LegacyProfilerPluginClassInjector(getClass().getClassLoader());
-        this.instrumentContext = new PluginInstrumentContext(applicationContext, legacyProfilerPluginClassInjector, classFileTransformerLoader);
+        this.instrumentContext = new PluginInstrumentContext(applicationContext, applicationContext.getDynamicTransformTrigger(), legacyProfilerPluginClassInjector, classFileTransformerLoader);
 
         this.delegateClass = new ArrayList<String>();
     }

@@ -39,15 +39,19 @@ import java.io.InputStream;
 public class PluginInstrumentContext implements InstrumentContext {
 
     private final ApplicationContext applicationContext;
+    private final DynamicTransformTrigger dynamicTransformTrigger;
     private final ClassInjector classInjector;
 
     private final Pool<String, InterceptorScope> interceptorScopePool = new ConcurrentPool<String, InterceptorScope>(new InterceptorScopeFactory());
 
     private final ClassFileTransformerLoader transformerRegistry;
 
-    public PluginInstrumentContext(ApplicationContext applicationContext, ClassInjector classInjector, ClassFileTransformerLoader transformerRegistry) {
+    public PluginInstrumentContext(ApplicationContext applicationContext, DynamicTransformTrigger dynamicTransformTrigger, ClassInjector classInjector, ClassFileTransformerLoader transformerRegistry) {
         if (applicationContext == null) {
             throw new NullPointerException("applicationContext must not be null");
+        }
+        if (dynamicTransformTrigger == null) {
+            throw new NullPointerException("dynamicTransformTrigger must not be null");
         }
         if (classInjector == null) {
             throw new NullPointerException("classInjector must not be null");
@@ -56,6 +60,7 @@ public class PluginInstrumentContext implements InstrumentContext {
             throw new NullPointerException("transformerRegistry must not be null");
         }
         this.applicationContext = applicationContext;
+        this.dynamicTransformTrigger = dynamicTransformTrigger;
         this.classInjector = classInjector;
         this.transformerRegistry = transformerRegistry;
     }
@@ -128,7 +133,7 @@ public class PluginInstrumentContext implements InstrumentContext {
             throw new NullPointerException("transformCallback must not be null");
         }
 
-        transformerRegistry.addClassFileTransformer(this, classLoader, targetClassName, transformCallback);
+        this.transformerRegistry.addClassFileTransformer(this, classLoader, targetClassName, transformCallback);
     }
 
 
@@ -143,8 +148,7 @@ public class PluginInstrumentContext implements InstrumentContext {
 
         final ClassFileTransformerGuardDelegate classFileTransformerGuardDelegate = new ClassFileTransformerGuardDelegate(this, transformCallback);
 
-        final DynamicTransformTrigger dynamicTransformService = applicationContext.getDynamicTransformTrigger();
-        dynamicTransformService.retransform(target, classFileTransformerGuardDelegate);
+        this.dynamicTransformTrigger.retransform(target, classFileTransformerGuardDelegate);
     }
 
 
