@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserManager;
 import com.navercorp.pinpoint.profiler.context.monitor.DefaultPluginMonitorContext;
 import com.navercorp.pinpoint.profiler.context.monitor.DisabledPluginMonitorContext;
 import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
@@ -29,14 +30,16 @@ import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
 public class PluginMonitorContextProvider implements Provider<PluginMonitorContext> {
 
     private final boolean traceAgentDataSource;
+    private final JdbcUrlParserManager jdbcUrlParserManager;
 
     @Inject
-    public PluginMonitorContextProvider(ProfilerConfig profilerConfig) {
-        this(profilerConfig.isTraceAgentDataSource());
+    public PluginMonitorContextProvider(ProfilerConfig profilerConfig, JdbcUrlParserManager jdbcUrlParserManager) {
+        this(profilerConfig.isTraceAgentDataSource(), jdbcUrlParserManager);
     }
 
-    public PluginMonitorContextProvider(boolean traceAgentDataSource) {
+    public PluginMonitorContextProvider(boolean traceAgentDataSource, JdbcUrlParserManager jdbcUrlParserManager) {
         this.traceAgentDataSource = traceAgentDataSource;
+        this.jdbcUrlParserManager = jdbcUrlParserManager;
     }
 
 
@@ -47,4 +50,5 @@ public class PluginMonitorContextProvider implements Provider<PluginMonitorConte
 
         return new DisabledPluginMonitorContext();
     }
+
 }

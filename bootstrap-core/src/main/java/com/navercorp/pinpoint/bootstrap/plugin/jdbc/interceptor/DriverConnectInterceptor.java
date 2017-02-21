@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 
 /**
@@ -35,8 +36,8 @@ import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
  */
 @TargetMethod(name="connect", paramTypes={ "java.lang.String", "java.util.Properties" })
 public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
-    
-    private final JdbcUrlParser jdbcUrlParser;
+
+    private final ServiceType serviceType;
     private final boolean recordConnection;
 
 
@@ -47,9 +48,11 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorFo
     public DriverConnectInterceptor(TraceContext context, MethodDescriptor descriptor, JdbcUrlParser jdbcUrlParser, boolean recordConnection) {
         super(context, descriptor);
 
-        this.jdbcUrlParser = jdbcUrlParser;
+        this.serviceType = jdbcUrlParser.getServiceType();
         // option for mysql loadbalance only. Destination is recorded at lower implementations.
         this.recordConnection = recordConnection;
+
+        context.getJdbcUrlParserManager().addJdbcUrlParser(jdbcUrlParser);
     }
 
     @Override
@@ -114,9 +117,9 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorFo
         if (url == null) {
             return UnKnownDatabaseInfo.INSTANCE;
         }
-        
-        final DatabaseInfo databaseInfo = jdbcUrlParser.parse(url);
-        
+
+        final DatabaseInfo databaseInfo = traceContext.getJdbcUrlParserManager().parse(serviceType, url);
+
         if (isDebug) {
             logger.debug("parse DatabaseInfo:{}", databaseInfo);
         }

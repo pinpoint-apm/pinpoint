@@ -16,14 +16,14 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.mysql;
 
-import java.net.URI;
-
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParsingResult;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import java.net.URI;
 
 /**
  * @author emeroad
@@ -56,8 +56,10 @@ public class MySqlUrlParserTest {
 
     @Test
     public void mysqlParse1() {
+        JdbcUrlParsingResult parsingResult = jdbcUrlParser.parse("jdbc:mysql://ip_address:3306/database_name?useUnicode=yes&amp;characterEncoding=UTF-8");
+        Assert.assertTrue(parsingResult.isSuccess());
 
-        DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:mysql://ip_address:3306/database_name?useUnicode=yes&amp;characterEncoding=UTF-8");
+        DatabaseInfo dbInfo = parsingResult.getDatabaseInfo();
         Assert.assertEquals(dbInfo.getType(), MySqlConstants.MYSQL);
         Assert.assertEquals(dbInfo.getHost().get(0), ("ip_address:3306"));
         Assert.assertEquals(dbInfo.getDatabaseId(), "database_name");
@@ -66,8 +68,10 @@ public class MySqlUrlParserTest {
 
     @Test
     public void mysqlParse2() {
+        JdbcUrlParsingResult parsingResult = jdbcUrlParser.parse("jdbc:mysql://10.98.133.22:3306/test_lucy_db");
+        Assert.assertTrue(parsingResult.isSuccess());
 
-        DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:mysql://10.98.133.22:3306/test_lucy_db");
+        DatabaseInfo dbInfo = parsingResult.getDatabaseInfo();
         Assert.assertEquals(dbInfo.getType(), MySqlConstants.MYSQL);
         Assert.assertEquals(dbInfo.getHost().get(0), "10.98.133.22:3306");
 
@@ -79,7 +83,10 @@ public class MySqlUrlParserTest {
 
     @Test
     public void mysqlParse3() {
-        DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:mysql://61.74.71.31/log?useUnicode=yes&amp;characterEncoding=UTF-8");
+        JdbcUrlParsingResult parsingResult = jdbcUrlParser.parse("jdbc:mysql://61.74.71.31/log?useUnicode=yes&amp;characterEncoding=UTF-8");
+        Assert.assertTrue(parsingResult.isSuccess());
+
+        DatabaseInfo dbInfo = parsingResult.getDatabaseInfo();
         Assert.assertEquals(dbInfo.getType(), MySqlConstants.MYSQL);
         Assert.assertEquals(dbInfo.getHost().get(0), "61.74.71.31");
         Assert.assertEquals(dbInfo.getDatabaseId(), "log");
@@ -89,7 +96,10 @@ public class MySqlUrlParserTest {
 
     @Test
     public void mysqlParseCookierunMaster() {
-        DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:mysql://10.115.8.209:5605/db_cookierun?useUnicode=true&characterEncoding=UTF-8&noAccessToProcedureBodies=true&autoDeserialize=true&elideSetAutoCommits=true&sessionVariables=time_zone='%2B09:00',tx_isolation='READ-COMMITTED'");
+        JdbcUrlParsingResult parsingResult = jdbcUrlParser.parse("jdbc:mysql://10.115.8.209:5605/db_cookierun?useUnicode=true&characterEncoding=UTF-8&noAccessToProcedureBodies=true&autoDeserialize=true&elideSetAutoCommits=true&sessionVariables=time_zone='%2B09:00',tx_isolation='READ-COMMITTED'");
+        Assert.assertTrue(parsingResult.isSuccess());
+
+        DatabaseInfo dbInfo = parsingResult.getDatabaseInfo();
         Assert.assertEquals(dbInfo.getType(), MySqlConstants.MYSQL);
         Assert.assertEquals(dbInfo.getHost().get(0), "10.115.8.209:5605");
         Assert.assertEquals(dbInfo.getDatabaseId(), "db_cookierun");
@@ -100,7 +110,10 @@ public class MySqlUrlParserTest {
 
     @Test
     public void mysqlParseCookierunSlave() {
-        DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:mysql:loadbalance://10.118.222.35:5605/db_cookierun?useUnicode=true&characterEncoding=UTF-8&noAccessToProcedureBodies=true&autoDeserialize=true&elideSetAutoCommits=true&sessionVariables=time_zone='%2B09:00',tx_isolation='READ-UNCOMMITTED'");
+        JdbcUrlParsingResult parsingResult = jdbcUrlParser.parse("jdbc:mysql:loadbalance://10.118.222.35:5605/db_cookierun?useUnicode=true&characterEncoding=UTF-8&noAccessToProcedureBodies=true&autoDeserialize=true&elideSetAutoCommits=true&sessionVariables=time_zone='%2B09:00',tx_isolation='READ-UNCOMMITTED'");
+        Assert.assertTrue(parsingResult.isSuccess());
+
+        DatabaseInfo dbInfo = parsingResult.getDatabaseInfo();
         Assert.assertEquals(dbInfo.getType(), MySqlConstants.MYSQL);
         Assert.assertEquals(dbInfo.getHost().get(0), "10.118.222.35:5605");
         Assert.assertEquals(dbInfo.getDatabaseId(), "db_cookierun");
@@ -110,7 +123,10 @@ public class MySqlUrlParserTest {
 
     @Test
     public void mysqlParseCookierunSlave2() {
-        DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:mysql:loadbalance://10.118.222.35:5605,10.118.222.36:5605/db_cookierun?useUnicode=true&characterEncoding=UTF-8&noAccessToProcedureBodies=true&autoDeserialize=true&elideSetAutoCommits=true&sessionVariables=time_zone='%2B09:00',tx_isolation='READ-UNCOMMITTED'");
+        JdbcUrlParsingResult parsingResult = jdbcUrlParser.parse("jdbc:mysql:loadbalance://10.118.222.35:5605,10.118.222.36:5605/db_cookierun?useUnicode=true&characterEncoding=UTF-8&noAccessToProcedureBodies=true&autoDeserialize=true&elideSetAutoCommits=true&sessionVariables=time_zone='%2B09:00',tx_isolation='READ-UNCOMMITTED'");
+        Assert.assertTrue(parsingResult.isSuccess());
+
+        DatabaseInfo dbInfo = parsingResult.getDatabaseInfo();
         Assert.assertEquals(dbInfo.getType(), MySqlConstants.MYSQL);
         Assert.assertEquals(dbInfo.getHost().get(0), "10.118.222.35:5605");
         Assert.assertEquals(dbInfo.getHost().get(1), "10.118.222.36:5605");

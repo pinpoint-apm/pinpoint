@@ -71,7 +71,7 @@ public class DataSourceCodecV2Test extends AgentStatCodecTestBase<DataSourceList
 
         Assert.assertEquals("id", expected.getId(), actual.getId());
         Assert.assertEquals("serviceTypeCode", expected.getServiceTypeCode(), actual.getServiceTypeCode());
-        Assert.assertEquals("name", expected.getName(), actual.getName());
+        Assert.assertEquals("databaseName", expected.getDatabaseName(), actual.getDatabaseName());
         Assert.assertEquals("jdbcUrl", expected.getJdbcUrl(), actual.getJdbcUrl());
         Assert.assertEquals("activeConnectionSize", expected.getActiveConnectionSize(), actual.getActiveConnectionSize());
         Assert.assertEquals("maxConnectionSize", expected.getMaxConnectionSize(), actual.getMaxConnectionSize());

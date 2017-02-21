@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserManager;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
@@ -59,6 +60,8 @@ public class DefaultTraceContext implements TraceContext {
 
     private final AsyncIdGenerator asyncIdGenerator = new AsyncIdGenerator();
 
+    private final JdbcUrlParserManager jdbcUrlParserManager;
+
     @Inject
     public DefaultTraceContext(ProfilerConfig profilerConfig, final AgentInformation agentInformation,
                                TraceFactoryBuilder traceFactoryBuilder,
@@ -66,7 +69,8 @@ public class DefaultTraceContext implements TraceContext {
                                ServerMetaDataHolder serverMetaDataHolder,
                                ApiMetaDataService apiMetaDataService,
                                StringMetaDataService stringMetaDataService,
-                               SqlMetaDataService sqlMetaDataService
+                               SqlMetaDataService sqlMetaDataService,
+                               JdbcUrlParserManager jdbcUrlParserManager
     ) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
@@ -99,6 +103,7 @@ public class DefaultTraceContext implements TraceContext {
         this.apiMetaDataService = apiMetaDataService;
         this.stringMetaDataService = stringMetaDataService;
         this.sqlMetaDataService = sqlMetaDataService;
+        this.jdbcUrlParserManager = jdbcUrlParserManager;
     }
 
     /**
@@ -241,6 +246,11 @@ public class DefaultTraceContext implements TraceContext {
     @Override
     public int getAsyncId() {
         return this.asyncIdGenerator.nextAsyncId();
+    }
+
+    @Override
+    public JdbcUrlParserManager getJdbcUrlParserManager() {
+        return jdbcUrlParserManager;
     }
 
     public PluginMonitorContext getPluginMonitorContext() {

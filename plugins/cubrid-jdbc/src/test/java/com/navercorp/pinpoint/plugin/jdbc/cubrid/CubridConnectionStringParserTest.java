@@ -16,14 +16,14 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.cubrid;
 
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultJdbcUrlParserManager;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserManager;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParsingResult;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
-import com.navercorp.pinpoint.plugin.jdbc.cubrid.CubridConstants;
-import com.navercorp.pinpoint.plugin.jdbc.cubrid.CubridJdbcUrlParser;
 
 /**
  * @author emeroad
@@ -35,9 +35,10 @@ public class CubridConnectionStringParserTest {
     @Test
     public void testParse() {
         String cubrid = "jdbc:cubrid:10.99.196.126:34001:nrdwapw:::?charset=utf-8:";
+        JdbcUrlParsingResult parsingResult = parser.parse(cubrid);
+        Assert.assertTrue(parsingResult.isSuccess());
 
-        DatabaseInfo dbInfo = parser.parse(cubrid);
-
+        DatabaseInfo dbInfo = parsingResult.getDatabaseInfo();
         Assert.assertEquals(CubridConstants.CUBRID, dbInfo.getType());
         Assert.assertEquals("10.99.196.126:34001", dbInfo.getHost().get(0));
         Assert.assertEquals("nrdwapw", dbInfo.getDatabaseId());
@@ -46,7 +47,11 @@ public class CubridConnectionStringParserTest {
 
     @Test
     public void testNullParse() {
-        DatabaseInfo dbInfo = parser.parse(null);
+        JdbcUrlParserManager jdbcUrlParserManager = new DefaultJdbcUrlParserManager();
+        jdbcUrlParserManager.addJdbcUrlParser(parser);
+
+        DatabaseInfo dbInfo =  jdbcUrlParserManager.parse(null);
         Assert.assertEquals(UnKnownDatabaseInfo.INSTANCE, dbInfo);
     }
+
 }

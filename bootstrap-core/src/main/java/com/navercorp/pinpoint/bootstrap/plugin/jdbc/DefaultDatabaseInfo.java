@@ -26,13 +26,13 @@ import java.util.List;
  */
 public class DefaultDatabaseInfo implements DatabaseInfo {
 
-    private ServiceType type = ServiceType.UNKNOWN_DB;
-    private ServiceType executeQueryType = ServiceType.UNKNOWN_DB_EXECUTE_QUERY;
-    private String databaseId;
-    private String realUrl; // URL BEFORE refinement
-    private String normalizedUrl;
-    private List<String> host;
-    private String multipleHost;
+    private final ServiceType type;
+    private final ServiceType executeQueryType;
+    private final String databaseId;
+    private final String realUrl; // URL BEFORE refinement
+    private final String normalizedUrl;
+    private final List<String> host;
+    private final String multipleHost;
 
     public DefaultDatabaseInfo(ServiceType type, ServiceType executeQueryType, String realUrl, String normalizedUrl, List<String> host, String databaseId) {
         if (type == null) {

@@ -20,6 +20,7 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DisabledJdbcUrlParserManager;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
@@ -86,7 +87,7 @@ public class MockTraceContextFactory {
         this.activeTraceRepository = newActiveTraceRepository();
 
         final TraceFactoryBuilder traceFactoryBuilder = new DefaultTraceFactoryBuilder(storageFactory, sampler, idGenerator, activeTraceRepository);
-        final PluginMonitorContextProvider pluginMonitorContextBuilder = new PluginMonitorContextProvider(TRACE_DATASOURCE);
+        final PluginMonitorContextProvider pluginMonitorContextBuilder = new PluginMonitorContextProvider(TRACE_DATASOURCE, new DisabledJdbcUrlParserManager());
         this.pluginMonitorContext = pluginMonitorContextBuilder.get();
 
         this.serverMetaDataHolder = new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs());
@@ -103,7 +104,8 @@ public class MockTraceContextFactory {
 
         this.traceContext = new DefaultTraceContext(profilerConfig, agentInformation,
                 traceFactoryBuilder, pluginMonitorContext, serverMetaDataHolder,
-                apiMetaDataCacheService, stringMetaDataCacheService, sqlMetaDataCacheService
+                apiMetaDataCacheService, stringMetaDataCacheService, sqlMetaDataCacheService,
+                new DisabledJdbcUrlParserManager()
         );
     }
 

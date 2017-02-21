@@ -94,11 +94,6 @@ public class DefaultPluginMonitorContextTest {
         private boolean closed = false;
 
         @Override
-        public String getName() {
-            return "name";
-        }
-
-        @Override
         public String getUrl() {
             return "url";
         }

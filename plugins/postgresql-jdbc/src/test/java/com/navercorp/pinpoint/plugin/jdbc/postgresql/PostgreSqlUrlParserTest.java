@@ -16,14 +16,14 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.postgresql;
 
-import java.net.URI;
-
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParsingResult;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import java.net.URI;
 
 /**
  * @author Brad Hong
@@ -56,8 +56,10 @@ public class PostgreSqlUrlParserTest {
 
     @Test
     public void postgresqlParse1() {
+        JdbcUrlParsingResult parsingResult = jdbcUrlParser.parse("jdbc:postgresql://ip_address:3306/database_name?useUnicode=yes&amp;characterEncoding=UTF-8");
+        Assert.assertTrue(parsingResult.isSuccess());
 
-        DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:postgresql://ip_address:3306/database_name?useUnicode=yes&amp;characterEncoding=UTF-8");
+        DatabaseInfo dbInfo = parsingResult.getDatabaseInfo();
         Assert.assertEquals(dbInfo.getType(), PostgreSqlConstants.POSTGRESQL);
         Assert.assertEquals(dbInfo.getHost().get(0), ("ip_address:3306"));
         Assert.assertEquals(dbInfo.getDatabaseId(), "database_name");
@@ -66,8 +68,10 @@ public class PostgreSqlUrlParserTest {
 
     @Test
     public void postgresqlParse2() {
+        JdbcUrlParsingResult parsingResult = jdbcUrlParser.parse("jdbc:postgresql://10.98.133.22:3306/test_lucy_db");
+        Assert.assertTrue(parsingResult.isSuccess());
 
-        DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:postgresql://10.98.133.22:3306/test_lucy_db");
+        DatabaseInfo dbInfo = parsingResult.getDatabaseInfo();
         Assert.assertEquals(dbInfo.getType(), PostgreSqlConstants.POSTGRESQL);
         Assert.assertEquals(dbInfo.getHost().get(0), "10.98.133.22:3306");
 
@@ -79,7 +83,10 @@ public class PostgreSqlUrlParserTest {
 
     @Test
     public void postgresqlParse3() {
-        DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:postgresql://61.74.71.31/log?useUnicode=yes&amp;characterEncoding=UTF-8");
+        JdbcUrlParsingResult parsingResult = jdbcUrlParser.parse("jdbc:postgresql://61.74.71.31/log?useUnicode=yes&amp;characterEncoding=UTF-8");
+        Assert.assertTrue(parsingResult.isSuccess());
+
+        DatabaseInfo dbInfo = parsingResult.getDatabaseInfo();
         Assert.assertEquals(dbInfo.getType(), PostgreSqlConstants.POSTGRESQL);
         Assert.assertEquals(dbInfo.getHost().get(0), "61.74.71.31");
         Assert.assertEquals(dbInfo.getDatabaseId(), "log");
@@ -89,7 +96,10 @@ public class PostgreSqlUrlParserTest {
 
     @Test
     public void postgresqlParseCookierunMaster() {
-        DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:postgresql://10.115.8.209:5605/db_cookierun?useUnicode=true&characterEncoding=UTF-8&noAccessToProcedureBodies=true&autoDeserialize=true&elideSetAutoCommits=true&sessionVariables=time_zone='%2B09:00',tx_isolation='READ-COMMITTED'");
+        JdbcUrlParsingResult parsingResult = jdbcUrlParser.parse("jdbc:postgresql://10.115.8.209:5605/db_cookierun?useUnicode=true&characterEncoding=UTF-8&noAccessToProcedureBodies=true&autoDeserialize=true&elideSetAutoCommits=true&sessionVariables=time_zone='%2B09:00',tx_isolation='READ-COMMITTED'");
+        Assert.assertTrue(parsingResult.isSuccess());
+
+        DatabaseInfo dbInfo = parsingResult.getDatabaseInfo();
         Assert.assertEquals(dbInfo.getType(), PostgreSqlConstants.POSTGRESQL);
         Assert.assertEquals(dbInfo.getHost().get(0), "10.115.8.209:5605");
         Assert.assertEquals(dbInfo.getDatabaseId(), "db_cookierun");
@@ -100,7 +110,10 @@ public class PostgreSqlUrlParserTest {
 
     @Test
     public void postgresqlParseCookierunSlave() {
-        DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:postgresql:loadbalance://10.118.222.35:5605/db_cookierun?useUnicode=true&characterEncoding=UTF-8&noAccessToProcedureBodies=true&autoDeserialize=true&elideSetAutoCommits=true&sessionVariables=time_zone='%2B09:00',tx_isolation='READ-UNCOMMITTED'");
+        JdbcUrlParsingResult parsingResult = jdbcUrlParser.parse("jdbc:postgresql:loadbalance://10.118.222.35:5605/db_cookierun?useUnicode=true&characterEncoding=UTF-8&noAccessToProcedureBodies=true&autoDeserialize=true&elideSetAutoCommits=true&sessionVariables=time_zone='%2B09:00',tx_isolation='READ-UNCOMMITTED'");
+        Assert.assertTrue(parsingResult.isSuccess());
+
+        DatabaseInfo dbInfo = parsingResult.getDatabaseInfo();
         Assert.assertEquals(dbInfo.getType(), PostgreSqlConstants.POSTGRESQL);
         Assert.assertEquals(dbInfo.getHost().get(0), "10.118.222.35:5605");
         Assert.assertEquals(dbInfo.getDatabaseId(), "db_cookierun");
@@ -110,7 +123,10 @@ public class PostgreSqlUrlParserTest {
 
     @Test
     public void postgresqlParseCookierunSlave2() {
-        DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:postgresql:loadbalance://10.118.222.35:5605,10.118.222.36:5605/db_cookierun?useUnicode=true&characterEncoding=UTF-8&noAccessToProcedureBodies=true&autoDeserialize=true&elideSetAutoCommits=true&sessionVariables=time_zone='%2B09:00',tx_isolation='READ-UNCOMMITTED'");
+        JdbcUrlParsingResult parsingResult = jdbcUrlParser.parse("jdbc:postgresql:loadbalance://10.118.222.35:5605,10.118.222.36:5605/db_cookierun?useUnicode=true&characterEncoding=UTF-8&noAccessToProcedureBodies=true&autoDeserialize=true&elideSetAutoCommits=true&sessionVariables=time_zone='%2B09:00',tx_isolation='READ-UNCOMMITTED'");
+        Assert.assertTrue(parsingResult.isSuccess());
+
+        DatabaseInfo dbInfo = parsingResult.getDatabaseInfo();
         Assert.assertEquals(dbInfo.getType(), PostgreSqlConstants.POSTGRESQL);
         Assert.assertEquals(dbInfo.getHost().get(0), "10.118.222.35:5605");
         Assert.assertEquals(dbInfo.getHost().get(1), "10.118.222.36:5605");

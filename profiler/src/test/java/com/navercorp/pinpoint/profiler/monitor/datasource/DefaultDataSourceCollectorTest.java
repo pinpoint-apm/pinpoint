@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.monitor.datasource;
 
 import com.codahale.metrics.Metric;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DisabledJdbcUrlParserManager;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorList;
@@ -49,7 +50,7 @@ public class DefaultDataSourceCollectorTest {
         DataSourceMonitorList dataSourceMonitorList = new DataSourceMonitorList(createMockObjectSize);
         MockDataSourceMonitor[] mockDataSourceMonitors = createMockDataSourceMonitor(dataSourceMonitorList, dataSourceMonitorList.getRemainingIdNumber());
 
-        DataSourceMetricSet metricSet = new DataSourceMetricSet(dataSourceMonitorList);
+        DataSourceMetricSet metricSet = new DataSourceMetricSet(dataSourceMonitorList, new DisabledJdbcUrlParserManager());
         DefaultDataSourceCollector dataSourceCollector = new DefaultDataSourceCollector(metricSet);
         TDataSourceList collect = dataSourceCollector.collect();
         assertIdIsUnique(collect.getDataSourceList());
@@ -94,9 +95,9 @@ public class DefaultDataSourceCollectorTest {
 
     private void assertContainsAndEquals(DataSourceMonitor dataSourceMonitor, List<TDataSource> dataSourceList) {
         for (TDataSource dataSource : dataSourceList) {
-            String name = dataSourceMonitor.getName();
+            String url = dataSourceMonitor.getUrl();
 
-            if (name.equals(dataSource.getName())) {
+            if (url.equals(dataSource.getUrl())) {
                 Assert.assertEquals(dataSourceMonitor.getUrl(), dataSource.getUrl());
                 Assert.assertEquals(dataSourceMonitor.getActiveConnectionSize(), dataSource.getActiveConnectionSize());
                 Assert.assertEquals(dataSourceMonitor.getMaxConnectionSize(), dataSource.getMaxConnectionSize());
@@ -126,11 +127,6 @@ public class DefaultDataSourceCollectorTest {
             this.serviceType = SERVICE_TYPE_LIST[RANDOM.nextInt(SERVICE_TYPE_LIST.length)];
             this.maxConnectionSize = MIN_VALUE_OF_MAX_CONNECTION_SIZE + RANDOM.nextInt(MIN_VALUE_OF_MAX_CONNECTION_SIZE);
             this.activeConnectionSize = RANDOM.nextInt(maxConnectionSize);
-        }
-
-        @Override
-        public String getName() {
-            return "name" + id;
         }
 
         @Override

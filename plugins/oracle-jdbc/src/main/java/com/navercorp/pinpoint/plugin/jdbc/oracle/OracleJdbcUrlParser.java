@@ -16,32 +16,40 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.oracle;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParsingResult;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.Description;
 import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.KeyValue;
 import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.OracleConnectionStringException;
 import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.OracleNetConnectionDescriptorParser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author emeroad
  */
-public class OracleJdbcUrlParser extends JdbcUrlParser {
+public class OracleJdbcUrlParser implements JdbcUrlParser {
+
+    private static final String JDBC_URL_PREFIX = "jdbc:oracle:";
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     @Override
-    public DatabaseInfo doParse(String url) {
+    public JdbcUrlParsingResult parse(String url) {
+        if (url == null) {
+            return new JdbcUrlParsingResult(false, UnKnownDatabaseInfo.createUnknownDataBase(OracleConstants.ORACLE, OracleConstants.ORACLE_EXECUTE_QUERY, null));
+        }
+
         StringMaker maker = new StringMaker(url);
-        maker.after("jdbc:oracle:").after(":");
+        maker.after(JDBC_URL_PREFIX).after(":");
         String description = maker.after('@').value().trim();
         if (description.startsWith("(")) {
             return parseNetConnectionUrl(url);
@@ -60,9 +68,9 @@ public class OracleJdbcUrlParser extends JdbcUrlParser {
 //    thin driver url
 //    jdbc:oracle:thin:@hostname:port:SID
 //    "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE";
-    
-//    With proper indentation and line break, 
-    
+
+//    With proper indentation and line break,
+
 //    jdbc:oracle:thin:
 //    @(
 //         Description=(LOAD_BALANCE=on)
@@ -76,28 +84,29 @@ public class OracleJdbcUrlParser extends JdbcUrlParser {
 //             CONNECT_DATA=(SERVICE_NAME=service)
 //         )
 //    )
-    private DatabaseInfo parseNetConnectionUrl(String url) {
+    private JdbcUrlParsingResult parseNetConnectionUrl(String url) {
         try {
             // oracle new URL : for rac
             OracleNetConnectionDescriptorParser parser = new OracleNetConnectionDescriptorParser(url);
             KeyValue keyValue = parser.parse();
             // TODO Need to handle oci driver. It's more popular.
 //                parser.getDriverType();
-            return createOracleDatabaseInfo(keyValue, url);
+            DatabaseInfo databaseInfo = createOracleDatabaseInfo(keyValue, url);
+            return new JdbcUrlParsingResult(databaseInfo);
         } catch (OracleConnectionStringException ex) {
             logger.warn("OracleConnectionString parse error. url: " + url + " Caused: " + ex.getMessage(), ex);
 
             // Log error and just create unknownDataBase
-            return UnKnownDatabaseInfo.createUnknownDataBase(OracleConstants.ORACLE, OracleConstants.ORACLE_EXECUTE_QUERY, url);
+            return new JdbcUrlParsingResult(false, UnKnownDatabaseInfo.createUnknownDataBase(OracleConstants.ORACLE, OracleConstants.ORACLE_EXECUTE_QUERY, url));
         } catch (Throwable ex) {
-            // If we throw exception more precisely later, catch OracleConnectionStringException only. 
+            // If we throw exception more precisely later, catch OracleConnectionStringException only.
             logger.warn("OracleConnectionString parse error. url: " + url + " Caused: " + ex.getMessage(), ex);
             // Log error and just create unknownDataBase
-            return UnKnownDatabaseInfo.createUnknownDataBase(OracleConstants.ORACLE, OracleConstants.ORACLE_EXECUTE_QUERY, url);
+            return new JdbcUrlParsingResult(false, UnKnownDatabaseInfo.createUnknownDataBase(OracleConstants.ORACLE, OracleConstants.ORACLE_EXECUTE_QUERY, url));
         }
     }
 
-    private DefaultDatabaseInfo parseSimpleUrl(String url, StringMaker maker) {
+    private JdbcUrlParsingResult parseSimpleUrl(String url, StringMaker maker) {
         // thin driver
         // jdbc:oracle:thin:@hostname:port:SID
         // "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE";
@@ -108,7 +117,8 @@ public class OracleJdbcUrlParser extends JdbcUrlParser {
 
         List<String> hostList = new ArrayList<String>(1);
         hostList.add(host + ":" + port);
-        return new DefaultDatabaseInfo(OracleConstants.ORACLE, OracleConstants.ORACLE_EXECUTE_QUERY, url, url, hostList, databaseId);
+        DatabaseInfo databaseInfo = new DefaultDatabaseInfo(OracleConstants.ORACLE, OracleConstants.ORACLE_EXECUTE_QUERY, url, url, hostList, databaseId);
+        return new JdbcUrlParsingResult(databaseInfo);
     }
 
     private DatabaseInfo createOracleDatabaseInfo(KeyValue keyValue, String url) {
@@ -119,4 +129,19 @@ public class OracleJdbcUrlParser extends JdbcUrlParser {
         return new DefaultDatabaseInfo(OracleConstants.ORACLE, OracleConstants.ORACLE_EXECUTE_QUERY, url, url, jdbcHost, description.getDatabaseId());
 
     }
+
+    @Override
+    public ServiceType getServiceType() {
+        return OracleConstants.ORACLE;
+    }
+
+    @Override
+    public boolean isPrefixMatch(String url) {
+        if (url == null) {
+            return false;
+        }
+
+        return url.startsWith(JDBC_URL_PREFIX);
+    }
+
 }
