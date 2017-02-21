@@ -67,12 +67,12 @@ public class JavassistClassTest {
 
     @Test
     public void testClassHierarchy() throws InstrumentException {
-        JavassistEngine pool = new JavassistEngine(new GlobalInterceptorRegistryBinder(), null);
+        JavassistEngine engine = new JavassistEngine(new GlobalInterceptorRegistryBinder(), null);
 
         String testObjectName = "com.navercorp.pinpoint.test.javasssit.mock.TestObject";
 
         byte[] testObjectByteCode = readByteCode(testObjectName);
-        InstrumentClass testObject = pool.getClass(null, null, testObjectName, testObjectByteCode);
+        InstrumentClass testObject = engine.getClass(null, null, testObjectName, testObjectByteCode);
 
         Assert.assertEquals(testObject.getName(), testObjectName);
 
@@ -84,7 +84,7 @@ public class JavassistClassTest {
 
         final String classHierarchyTestMockName = "com.navercorp.pinpoint.test.javasssit.mock.ClassHierarchyTestMock";
         byte[] classHierarchyTestMockByteCode = readByteCode(classHierarchyTestMockName);
-        InstrumentClass classHierarchyObject = pool.getClass(null, null, classHierarchyTestMockName, classHierarchyTestMockByteCode);
+        InstrumentClass classHierarchyObject = engine.getClass(null, null, classHierarchyTestMockName, classHierarchyTestMockByteCode);
         String hierarchySuperClass = classHierarchyObject.getSuperClass();
         Assert.assertEquals("java.util.HashMap", hierarchySuperClass);
 
@@ -97,11 +97,11 @@ public class JavassistClassTest {
     @Test
     public void testDeclaredMethod() throws InstrumentException {
 
-        JavassistEngine pool = new JavassistEngine(new GlobalInterceptorRegistryBinder(), null);
+        JavassistEngine engine = new JavassistEngine(new GlobalInterceptorRegistryBinder(), null);
 
         String testObjectName = "com.navercorp.pinpoint.test.javasssit.mock.TestObject";
         byte[] testObjectByteCode = readByteCode(testObjectName);
-        InstrumentClass testObject = pool.getClass(null, null, testObjectName, testObjectByteCode);
+        InstrumentClass testObject = engine.getClass(null, null, testObjectName, testObjectByteCode);
 
         Assert.assertEquals(testObject.getName(), testObjectName);
 
@@ -113,11 +113,11 @@ public class JavassistClassTest {
     @Test
     public void testDeclaredMethods() throws InstrumentException {
 
-        JavassistEngine pool = new JavassistEngine(new GlobalInterceptorRegistryBinder(), null);
+        JavassistEngine engine = new JavassistEngine(new GlobalInterceptorRegistryBinder(), null);
 
         String testObjectName = "com.navercorp.pinpoint.test.javasssit.mock.TestObject";
         byte[] testObjectByteCode = readByteCode(testObjectName);
-        InstrumentClass testObject = pool.getClass(null, null, testObjectName, testObjectByteCode);
+        InstrumentClass testObject = engine.getClass(null, null, testObjectName, testObjectByteCode);
         Assert.assertEquals(testObject.getName(), testObjectName);
 
         int findMethodCount = 0;
@@ -271,18 +271,18 @@ public class JavassistClassTest {
     @Test
     public void nullDescriptor() {
         String nullDescriptor = Descriptor.ofParameters(null);
-        logger.info("Descript null:{}", nullDescriptor);
+        logger.debug("Descriptor null:{}", nullDescriptor);
     }
 
 
 
     @Test
     public void getNestedClasses() throws Exception {
-        JavassistEngine pool = new JavassistEngine(new GlobalInterceptorRegistryBinder(), null);
+        JavassistEngine engine = new JavassistEngine(new GlobalInterceptorRegistryBinder(), null);
         String testObjectName = "com.navercorp.pinpoint.test.javasssit.mock.TestObjectNestedClass";
 
         byte[] testObjectByteCode = readByteCode(testObjectName);
-        InstrumentClass testObject = pool.getClass(null, null, testObjectName, testObjectByteCode);
+        InstrumentClass testObject = engine.getClass(null, null, testObjectName, testObjectByteCode);
         Assert.assertEquals(testObject.getName(), testObjectName);
 
         // find class name condition.
@@ -303,11 +303,11 @@ public class JavassistClassTest {
 
     @Test
     public void hasEnclodingMethod() throws Exception {
-        JavassistEngine pool = new JavassistEngine(new GlobalInterceptorRegistryBinder(), null);
+        JavassistEngine engine = new JavassistEngine(new GlobalInterceptorRegistryBinder(), null);
         String testObjectName = "com.navercorp.pinpoint.test.javasssit.mock.TestObjectNestedClass";
 
         byte[] testObjectByteCode = readByteCode(testObjectName);
-        InstrumentClass testObject = pool.getClass(null, null, testObjectName, testObjectByteCode);
+        InstrumentClass testObject = engine.getClass(null, null, testObjectName, testObjectByteCode);
         Assert.assertEquals(testObject.getName(), testObjectName);
 
         assertEquals(1, testObject.getNestedClasses(ClassFilters.enclosingMethod("enclosingMethod", "java.lang.String", "int")).size());

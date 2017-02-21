@@ -496,12 +496,12 @@ public class AgentInfoSenderTest {
 
         @Override
         public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-            logger.info("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
+            logger.debug("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
         }
 
         @Override
         public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-            logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
+            logger.debug("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
 
             int requestCount = this.requestCount.incrementAndGet();
             if (requestCount < successCondition) {
@@ -530,7 +530,7 @@ public class AgentInfoSenderTest {
 
         @Override
         public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
-            logger.info("ping received {} {} ", pingPacket, pinpointServer);
+            logger.debug("ping received {} {} ", pingPacket, pinpointServer);
         }
     }
 

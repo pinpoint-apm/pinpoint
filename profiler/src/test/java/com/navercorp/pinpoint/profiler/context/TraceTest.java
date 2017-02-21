@@ -69,7 +69,7 @@ public class TraceTest {
 
         trace.close();
 
-        logger.info(String.valueOf(dataSender.event));
+        logger.debug(String.valueOf(dataSender.event));
     }
 
     private TraceContext getDefaultTraceContext() {

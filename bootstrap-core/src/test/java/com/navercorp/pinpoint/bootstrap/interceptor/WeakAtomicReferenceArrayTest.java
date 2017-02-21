@@ -158,12 +158,12 @@ public class WeakAtomicReferenceArrayTest {
 
         private boolean checkInteger(int findIndex, Integer findResult) {
             if (findResult == null) {
-                logger.info("null find:{} result:{}", findIndex, nextId.get());
+                logger.debug("null find:{} result:{}", findIndex, nextId.get());
                 return false;
             }
             final boolean result = findResult == findIndex;
             if (!result) {
-                logger.info("not equals findResult:{}, findIndex:{}", findResult, findIndex);
+                logger.debug("not equals findResult:{}, findIndex:{}", findResult, findIndex);
             }
             return result;
         }
@@ -256,7 +256,7 @@ public class WeakAtomicReferenceArrayTest {
         final Runnable writeJob = new Runnable() {
             @Override
             public void run() {
-                logger.info("WriteJob-start");
+                logger.debug("WriteJob-start");
                 int i =0;
                 while (start.get()) {
 
@@ -269,7 +269,7 @@ public class WeakAtomicReferenceArrayTest {
                     }
                     i++;
                 }
-                logger.info("WriteJob-end");
+                logger.debug("WriteJob-end");
             }
 
         };
@@ -277,7 +277,7 @@ public class WeakAtomicReferenceArrayTest {
         final Runnable readJob = new Runnable() {
             @Override
             public void run() {
-                logger.info("ReaderJob-start");
+                logger.debug("ReaderJob-start");
                 while (start.get()) {
 
                     AtomicReferenceTest atomicReferenceTest = getTestMock();
@@ -299,7 +299,7 @@ public class WeakAtomicReferenceArrayTest {
 //                        e.printStackTrace();
 //                    }
                 }
-                logger.info("ReaderJob-end");
+                logger.debug("ReaderJob-end");
             }
         };
 
@@ -310,10 +310,10 @@ public class WeakAtomicReferenceArrayTest {
             writer.execute(writeJob);
         }
 
-        logger.info("start");
+        logger.debug("start");
         for (int i = 0; i < 100; i++) {
             Thread.sleep(1000);
-            logger.info("failCounter:{}", failCounter.get());
+            logger.debug("failCounter:{}", failCounter.get());
         }
         start.set(false);
         Thread.sleep(1000);
