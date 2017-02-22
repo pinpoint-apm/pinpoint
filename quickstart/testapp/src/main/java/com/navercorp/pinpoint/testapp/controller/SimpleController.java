@@ -1,15 +1,29 @@
 package com.navercorp.pinpoint.testapp.controller;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPBodyElement;
+import javax.xml.soap.SOAPConnection;
+import javax.xml.soap.SOAPConnectionFactory;
+import javax.xml.soap.SOAPElement;
+import javax.xml.soap.SOAPFactory;
+import javax.xml.soap.SOAPHeader;
+import javax.xml.soap.SOAPMessage;
 
+import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMFactory;
+import org.apache.axiom.om.OMNamespace;
+import org.apache.axiom.om.OMText;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.addressing.EndpointReference;
 import org.apache.axis2.client.Options;
-import org.apache.axis2.rpc.client.RPCServiceClient;
+import org.apache.axis2.client.ServiceClient;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -74,52 +88,99 @@ public class SimpleController {
 
     @RequestMapping("/webserviceJAXWS")
     @ResponseBody
-    @Description("Call a webservice")
+    @Description("Call a webservice using jax ws client")
     public Map<String, Object> webserviceJAX() throws InterruptedException {
         Map<String, Object> map = new HashMap<String, Object>();
         String response = "ok";
         
         try {
             StockQuote service = new StockQuote();
-            System.out.println("Retrieving the port from the following service: " + service);
             StockQuoteSoap soap = service.getStockQuoteSoap();
-            System.out.println("Invoking the sayHello operation on the port.");
 
             response = soap.getQuote("KO");
             System.out.println(response);
         } catch (Exception e) {
             e.printStackTrace();
-}
+        }
         
         map.put("message", response);
         return map;
     }
     
-    @RequestMapping("/webserviceAxis2RPC")
+    @RequestMapping("/webserviceJAXRPC")
     @ResponseBody
-    @Description("Call a webservice")
+    @Description("Call a webservice using jax rpc client")
     public Map<String, Object> webserviceAxis() throws InterruptedException {
         Map<String, Object> map = new HashMap<String, Object>();
         String response = "ok";
 
         try {
-            RPCServiceClient serviceClient = new RPCServiceClient();
+            OMFactory fac = OMAbstractFactory.getOMFactory();
+            OMNamespace opN = fac.createOMNamespace("http://www.webserviceX.NET/", "");
+            ServiceClient serviceClient = new ServiceClient();
 
             Options options = serviceClient.getOptions();
-
-            EndpointReference targetEPR = new EndpointReference(
-                    "http://www.webservicex.net/stockquote.asmx?WSDL");
+            EndpointReference targetEPR = new EndpointReference("http://www.webservicex.net/stockquote.asmx");
             options.setTo(targetEPR);
-            options.setAction("urn:GetQuote");
+            options.setAction("http://www.webserviceX.NET/GetQuote");
+            
+            OMElement opGetQuote = fac.createOMElement("GetQuote", opN); 
+            
+            OMElement symbol = fac.createOMElement("symbol", opN); 
+            OMText textNode = fac.createOMText("KO");
+            symbol.addChild(textNode);
+            
+            opGetQuote.addChild(symbol);
 
-            QName opGetQuote = new QName("http://ws.axis2.apache.org", "GetQuote", "req");
-
-            OMElement result = serviceClient.invokeBlocking(opGetQuote, new Object[] { "KO" });
+            OMElement result = serviceClient.sendReceive(opGetQuote);
 
             response = result.getFirstElement().getText();
             System.out.println(response);
         } catch (AxisFault e) {
             e.printStackTrace();
+        }
+        
+        map.put("message", response);
+        return map;
+    }
+    
+    @RequestMapping("/webserviceSAAJ")
+    @ResponseBody
+    @Description("Call a webservice using SAAJ")
+    public Map<String, Object> webserviceSaaj() throws InterruptedException {
+        Map<String, Object> map = new HashMap<String, Object>();
+        String response = "ok";
+
+        try {
+            SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
+            SOAPConnection connection = soapConnectionFactory.createConnection();
+
+            MessageFactory factory = MessageFactory.newInstance();
+            SOAPMessage message = factory.createMessage();
+            message.getMimeHeaders().addHeader("SOAPAction", "http://www.webserviceX.NET/GetQuote");
+
+            SOAPHeader header = message.getSOAPHeader();
+            SOAPBody body = message.getSOAPBody();
+            header.detachNode();
+            
+            QName bodyName = new QName("http://www.webserviceX.NET/", "GetQuote");
+            SOAPBodyElement bodyElement = body.addBodyElement(bodyName);
+
+            QName name = new QName("http://www.webserviceX.NET/", "symbol");
+            SOAPElement symbol = bodyElement.addChildElement(name);
+            symbol.addTextNode("KO");
+
+            URL endpoint = new URL("http://www.webservicex.net/stockquote.asmx");
+            SOAPMessage result = connection.call(message, endpoint);
+
+            connection.close();
+
+            SOAPBody soapBody = result.getSOAPBody();
+
+            response = soapBody.getTextContent();
+            System.out.print(response);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
         
         map.put("message", response);

@@ -238,6 +238,12 @@
                 </dependency>
                 <dependency>
                     <groupId>org.apache.axis2</groupId>
+                    <artifactId>axis2-transport-local</artifactId>
+                    <version>1.6.2</version>
+                    <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.axis2</groupId>
                     <artifactId>axis2-kernel</artifactId>
                     <version>1.6.2</version>
                     <scope>compile</scope>
