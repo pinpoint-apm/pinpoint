@@ -380,7 +380,7 @@ public class FixedBufferTest {
         if (offset != -1) {
             Assert.assertEquals(buffer.getOffset(), offset);
         } else {
-            logger.info("{} offsetSize:{}", v, buffer.getOffset());
+            logger.debug("{} offsetSize:{}", v, buffer.getOffset());
         }
         buffer.setOffset(0);
         int readV = buffer.readVInt();
@@ -423,12 +423,12 @@ public class FixedBufferTest {
             try {
                 int i = buffer.readVInt();
             } catch (IllegalArgumentException e) {
-                logger.info(e.getMessage(), e);
+                logger.debug(e.getMessage(), e);
                 String binaryString = BytesUtils.toString(bytes);
-                logger.info(binaryString);
+                logger.debug(binaryString);
                 for (byte aByte : bytes) {
                     String code = String.valueOf((int) aByte);
-                    logger.info(code);
+                    logger.debug(code);
                 }
                 return;
             }
@@ -446,12 +446,12 @@ public class FixedBufferTest {
             try {
                 long i = buffer.readVLong();
             } catch (IllegalArgumentException e) {
-                logger.info(e.getMessage(), e);
+                logger.debug(e.getMessage(), e);
                 String binaryString = BytesUtils.toString(bytes);
-                logger.info(binaryString);
+                logger.debug(binaryString);
                 for (byte aByte : bytes) {
                     String code = String.valueOf((int) aByte);
-                    logger.info(code);
+                    logger.debug(code);
                 }
                 return;
             }
@@ -490,7 +490,7 @@ public class FixedBufferTest {
         if (offset != -1) {
             Assert.assertEquals(buffer.getOffset(), offset);
         } else {
-            logger.info("{} offsetSize:{}", v, buffer.getOffset());
+            logger.debug("{} offsetSize:{}", v, buffer.getOffset());
         }
         buffer.setOffset(0);
         int readV = buffer.readSVInt();

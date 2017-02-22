@@ -18,13 +18,14 @@ package com.navercorp.pinpoint.profiler.monitor.codahale.gc;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.context.AtomicIdGenerator;
 import com.navercorp.pinpoint.profiler.context.DefaultTransactionCounter;
-import com.navercorp.pinpoint.profiler.context.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.monitor.DefaultPluginMonitorContext;
 import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
 import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
+import com.navercorp.pinpoint.profiler.monitor.codahale.DefaultAgentStatCollectorFactory;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -43,11 +44,11 @@ public class GarbageCollectorFactoryTest {
         }
 
         ActiveTraceRepository activeTraceRepository = new ActiveTraceRepository();
-        IdGenerator idGenerator = new IdGenerator();
+        AtomicIdGenerator idGenerator = new AtomicIdGenerator();
         TransactionCounter transactionCounter = new DefaultTransactionCounter(idGenerator);
         PluginMonitorContext pluginMonitorContext = new DefaultPluginMonitorContext();
 
-        return new AgentStatCollectorFactory(profilerConfig, activeTraceRepository, transactionCounter, pluginMonitorContext);
+        return new DefaultAgentStatCollectorFactory(profilerConfig, activeTraceRepository, transactionCounter, pluginMonitorContext);
     }
 
 

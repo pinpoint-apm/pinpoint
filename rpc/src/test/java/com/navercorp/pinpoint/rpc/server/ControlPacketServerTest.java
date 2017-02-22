@@ -239,12 +239,12 @@ public class ControlPacketServerTest {
 
         @Override
         public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-            logger.info("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
+            logger.debug("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
         }
 
         @Override
         public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-            logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
+            logger.debug("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
             pinpointSocket.response(requestPacket, requestPacket.getPayload());
         }
 

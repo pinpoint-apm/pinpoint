@@ -156,7 +156,7 @@ public class AnnotationTranscoderTest {
 
         protocol.writeI32(value);
         byte[] buffer = baos.toByteArray();
-        logger.info(Arrays.toString(buffer));
+        logger.debug(Arrays.toString(buffer));
     }
 
     @Test

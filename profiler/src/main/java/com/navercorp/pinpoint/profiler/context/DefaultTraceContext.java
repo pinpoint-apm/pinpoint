@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
@@ -58,6 +59,7 @@ public class DefaultTraceContext implements TraceContext {
 
     private final AsyncIdGenerator asyncIdGenerator = new AsyncIdGenerator();
 
+    @Inject
     public DefaultTraceContext(ProfilerConfig profilerConfig, final AgentInformation agentInformation,
                                TraceFactoryBuilder traceFactoryBuilder,
                                PluginMonitorContext pluginMonitorContext,

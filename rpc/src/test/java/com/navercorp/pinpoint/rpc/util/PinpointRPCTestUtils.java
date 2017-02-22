@@ -164,13 +164,13 @@ public final class PinpointRPCTestUtils {
 
         @Override
         public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-            logger.info("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
+            logger.debug("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
             sendPacketRepository.add(sendPacket);
         }
 
         @Override
         public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-            logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
+            logger.debug("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
 
             requestPacketRepository.add(requestPacket);
             pinpointSocket.response(requestPacket, requestPacket.getPayload());
@@ -178,7 +178,7 @@ public final class PinpointRPCTestUtils {
 
         @Override
         public HandshakeResponseCode handleHandshake(Map properties) {
-            logger.info("handle Handshake {}", properties);
+            logger.debug("handle Handshake {}", properties);
             return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
         }
 

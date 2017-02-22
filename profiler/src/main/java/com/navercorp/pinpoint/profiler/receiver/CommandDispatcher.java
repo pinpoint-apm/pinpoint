@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.receiver;
 
+import com.google.inject.Inject;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
@@ -42,6 +43,7 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
 
     private final ProfilerCommandServiceLocator commandServiceLocator;
 
+    @Inject
     public CommandDispatcher(ProfilerCommandServiceLocator commandServiceLocator) {
         if (commandServiceLocator == null) {
             throw new NullPointerException("commandServiceLocator may not be null");

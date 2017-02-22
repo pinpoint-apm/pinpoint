@@ -64,6 +64,7 @@ public class DefaultAgent implements Agent {
         // Preload classes related to pinpoint-rpc module.
         ClassPreLoader.preload();
     }
+
     public DefaultAgent(AgentOption agentOption) {
         this(agentOption, createInterceptorRegistry(agentOption));
     }
@@ -139,10 +140,6 @@ public class DefaultAgent implements Agent {
             logger.info("{}\n{}", "dumpConfig", profilerConfig);
 
         }
-    }
-
-    public ProfilerConfig getProfilerConfig() {
-        return profilerConfig;
     }
 
     private void changeStatus(AgentStatus status) {

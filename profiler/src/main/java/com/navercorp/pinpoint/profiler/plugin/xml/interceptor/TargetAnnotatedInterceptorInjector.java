@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructor;
@@ -32,7 +33,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.objectfactory.AutoBindingObjectFactory;
 import com.navercorp.pinpoint.profiler.objectfactory.InterceptorArgumentProvider;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.xml.transformer.ClassCookBook;
 import com.navercorp.pinpoint.profiler.plugin.xml.transformer.ClassRecipe;
 import com.navercorp.pinpoint.profiler.plugin.xml.transformer.ConstructorTransformer;
@@ -47,7 +47,7 @@ import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MethodTransformer;
  */
 
 public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
-    private final DefaultProfilerPluginContext pluginContext;
+    private final InstrumentContext pluginContext;
     private final String interceptorClassName;
     private final Object[] providedArguments;
     
@@ -55,7 +55,7 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
     private final ExecutionPolicy executionPoint;
 
 
-    public TargetAnnotatedInterceptorInjector(DefaultProfilerPluginContext pluginContext, String interceptorClassName, Object[] providedArguments, String scopeName, ExecutionPolicy executionPoint) {
+    public TargetAnnotatedInterceptorInjector(InstrumentContext pluginContext, String interceptorClassName, Object[] providedArguments, String scopeName, ExecutionPolicy executionPoint) {
         this.pluginContext = pluginContext;
         this.interceptorClassName = interceptorClassName;
         this.providedArguments = providedArguments;

@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
+import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
-import com.navercorp.pinpoint.profiler.DynamicTransformService;
 
 import java.lang.instrument.Instrumentation;
 import java.util.List;
@@ -35,11 +35,11 @@ public interface ApplicationContext {
 
     TraceContext getTraceContext();
 
-    InstrumentClassPool getClassPool();
+    InstrumentEngine getInstrumentEngine();
 
     List<String> getBootstrapJarPaths();
 
-    DynamicTransformService getDynamicTransformService();
+    DynamicTransformTrigger getDynamicTransformTrigger();
 
     Instrumentation getInstrumentation();
 

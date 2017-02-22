@@ -22,6 +22,7 @@ import static org.mockito.Mockito.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -40,7 +41,7 @@ import com.navercorp.pinpoint.profiler.plugin.TestInterceptors.TestInterceptor1;
 import com.navercorp.pinpoint.profiler.plugin.TestInterceptors.TestInterceptor2;
 
 public class AnnotatedInterceptorFactoryTest {
-    private final DefaultProfilerPluginContext pluginContext = mock(DefaultProfilerPluginContext.class);
+    private final InstrumentContext pluginContext = mock(InstrumentContext.class);
     private final TraceContext traceContext = mock(TraceContext.class);
     private final InstrumentClass aClass = mock(InstrumentClass.class);
     private final InstrumentMethod aMethod = mock(InstrumentMethod.class);

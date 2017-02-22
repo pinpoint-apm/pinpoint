@@ -51,10 +51,10 @@ public class JavaAssistUtilsTest {
         CtMethod substring = ctClass.getDeclaredMethod("substring", new CtClass[]{CtClass.intType});
 
         String ctDescription = JavaAssistUtils.getParameterDescription(substring.getParameterTypes());
-        logger.info(ctDescription);
+        logger.debug(ctDescription);
 
         String clsDescription = JavaAssistUtils.getParameterDescription(new Class[]{int.class});
-        logger.info(clsDescription);
+        logger.debug(clsDescription);
         Assert.assertEquals(ctDescription, clsDescription);
     }
 
@@ -234,23 +234,23 @@ public class JavaAssistUtilsTest {
 
         CtMethod setParams = ctClass.getDeclaredMethod("getLineNumber_testAPI", new CtClass[]{params});
         int lineNumber = JavaAssistUtils.getLineNumber(setParams);
-        logger.info("line:{}", lineNumber);
+        logger.debug("line:{}", lineNumber);
 
-        logger.info(setParams.getName());
-        logger.info(setParams.getLongName());
+        logger.debug(setParams.getName());
+        logger.debug(setParams.getLongName());
 
         String[] paramName = JavaAssistUtils.getParameterVariableName(setParams);
-        logger.info(Arrays.toString(paramName));
+        logger.debug(Arrays.toString(paramName));
         Assert.assertEquals(paramName.length, 1);
         Assert.assertEquals(paramName[0], "params");
 
         String[] parameterType = JavaAssistUtils.parseParameterSignature(setParams.getSignature());
         String[] parameterType2 = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
-        logger.info(Arrays.toString(parameterType));
+        logger.debug(Arrays.toString(parameterType));
         Assert.assertArrayEquals(parameterType, parameterType2);
 
         String s = ApiUtils.mergeParameterVariableNameDescription(parameterType, paramName);
-        logger.info(s);
+        logger.debug(s);
     }
 
     public void testVariableNameError1_testAPI(boolean autoCommitFlag) {
@@ -262,23 +262,23 @@ public class JavaAssistUtilsTest {
         CtClass ctClass = pool.get(TEST_CLASS_NAME);
         CtMethod setParams = ctClass.getDeclaredMethod("testVariableNameError1_testAPI", new CtClass[]{CtClass.booleanType});
         int lineNumber = JavaAssistUtils.getLineNumber(setParams);
-        logger.info("line:{}", lineNumber);
+        logger.debug("line:{}", lineNumber);
 
-        logger.info(setParams.getName());
-        logger.info(setParams.getLongName());
+        logger.debug(setParams.getName());
+        logger.debug(setParams.getLongName());
 
         String[] paramName = JavaAssistUtils.getParameterVariableName(setParams);
-        logger.info(Arrays.toString(paramName));
+        logger.debug(Arrays.toString(paramName));
         Assert.assertEquals(paramName.length, 1);
         Assert.assertEquals(paramName[0], "autoCommitFlag");
 
         String[] parameterType = JavaAssistUtils.parseParameterSignature(setParams.getSignature());
         String[] parameterType2 = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
-        logger.info(Arrays.toString(parameterType));
+        logger.debug(Arrays.toString(parameterType));
         Assert.assertArrayEquals(parameterType, parameterType2);
 
         String s = ApiUtils.mergeParameterVariableNameDescription(parameterType, paramName);
-        logger.info(s);
+        logger.debug(s);
     }
 
     public void testVariableNameError2_testAPI(String sql) {
@@ -292,28 +292,28 @@ public class JavaAssistUtilsTest {
         CtMethod setParams = ctClass.getDeclaredMethod("testVariableNameError2_testAPI", new CtClass[]{params});
         int lineNumber = JavaAssistUtils.getLineNumber(setParams);
 
-        logger.info(setParams.getName());
-        logger.info(setParams.getLongName());
+        logger.debug(setParams.getName());
+        logger.debug(setParams.getLongName());
 
         String[] paramName = JavaAssistUtils.getParameterVariableName(setParams);
-        logger.info(Arrays.toString(paramName));
+        logger.debug(Arrays.toString(paramName));
         Assert.assertEquals(paramName.length, 1);
         Assert.assertEquals(paramName[0], "sql");
 
         String[] parameterType = JavaAssistUtils.parseParameterSignature(setParams.getSignature());
         String[] parameterType2 = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
-        logger.info(Arrays.toString(parameterType));
+        logger.debug(Arrays.toString(parameterType));
         Assert.assertArrayEquals(parameterType, parameterType2);
 
         String s = ApiUtils.mergeParameterVariableNameDescription(parameterType, paramName);
-        logger.info(s);
+        logger.debug(s);
     }
 
 
     @Test
     public void testGetParameterDescription2() throws Exception {
         String clsDescription = JavaAssistUtils.getParameterDescription(new Class[]{String.class, Integer.class});
-        logger.info(clsDescription);
+        logger.debug(clsDescription);
         Assert.assertEquals("(java.lang.String, java.lang.Integer)", clsDescription);
     }
 
