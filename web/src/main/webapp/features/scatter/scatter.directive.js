@@ -118,11 +118,11 @@
 								return webStorage.get( key + scope.namespace );
 							},
 							onSelect: function( oDragAreaPosition, oDragXY ) {
-								if ( arguments.length === 4 ) {
+								if ( arguments.length === 5 ) {
 									// $window.open("#/transactionList/" + oNavbarVoService.getPartialURL(true, false), application + "|" + arguments[0] + "|" + arguments[1] + "|" + arguments[2] + "|" + arguments[3] );
-									$window.open("#/transactionList/" + UrlVoService.getPartialURL(true, false), application + "|" + arguments[0] + "|" + arguments[1] + "|" + arguments[2] + "|" + arguments[3] );
+									$window.open("#/transactionList/" + UrlVoService.getPartialURL(true, false), application + "|" + arguments[0] + "|" + arguments[1] + "|" + arguments[2] + "|" + arguments[3] + "|" + arguments[4]  );
 								} else {
-									var token = application + "|" + oDragXY.fromX + "|" + oDragXY.toX + "|" + oDragXY.fromY + "|" + oDragXY.toY + "|" + arguments[2];
+									var token = application + "|" + oDragXY.fromX + "|" + oDragXY.toX + "|" + oDragXY.fromY + "|" + oDragXY.toY + "|" + arguments[2] + "|" + arguments[3];
 									// $window.open("#/transactionList/" + oNavbarVoService.getPartialURL(true, false), token);
 									$window.open("#/transactionList/" + UrlVoService.getPartialURL(true, false), token);
 								}
