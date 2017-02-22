@@ -132,7 +132,7 @@
 		this._oDragManager = new BigScatterChart2.DragManager( this.option(), this._oSCManager, this._$elContainer, {
 			"onSelect": function( oDragAreaPosition, oDragXY ) {
 				if ( self.hasDataByXY( oDragXY.fromX, oDragXY.toX, oDragXY.fromY, oDragXY.toY ) ) {
-					self._oExternal.onSelect( oDragAreaPosition, oDragXY, self._currentAgent );
+					self._oExternal.onSelect( oDragAreaPosition, oDragXY, self._currentAgent, self._oBubbleTypeManager.getVisibleType().join(",") );
 				}
 			}
 		});
@@ -161,7 +161,7 @@
 		this._oDragManager.triggerDrag( oParam );
 	};
 	BigScatterChart2.prototype.selectArea = function( type, min, max ) {
-		this._oExternal.onSelect( type, min, max, this._currentAgent );
+		this._oExternal.onSelect( type, min, max, this._currentAgent, this._oBubbleTypeManager.getVisibleType() );
 	};
 	BigScatterChart2.prototype.selectType = function( type ) {
 		this._oBubbleTypeManager.selectType( type );
@@ -275,7 +275,7 @@
 	BigScatterChart2.prototype.createDataBlock = function( oData ) {
 		return new BigScatterChart2.DataBlock( oData, this.option( "propertyIndex" ), this.option( "typeInfo" ) );
 	};
-	BigScatterChart2.prototype.getDataByXY = function( fromX, toX, fromY, toY, selectedAgent ) {
+	BigScatterChart2.prototype.getDataByXY = function( fromX, toX, fromY, toY, selectedAgent, visibleType ) {
 		var aData = [];
 		var oTypeInfo = this.option( "typeInfo" );
 		var oPropertyIndex = this.option( "propertyIndex" );
@@ -286,7 +286,7 @@
 		toY = parseInt(toY, 10);
 
 		var oRangeY = this._oSCManager.getY();
-		var aVisibleType = this._oBubbleTypeManager.getVisibleType();
+		var aVisibleType = visibleType.split(",")
 
 		for (var i = 0, nLen = this._aBubbles.length; i < nLen; i++) {
 			var oDataBlock = this._aBubbles[i];
@@ -312,10 +312,11 @@
 		}
 		return aData;
 	};
-	BigScatterChart2.prototype.getDataByRange = function( type, fromY, toY, selectedAgent ) {
+	BigScatterChart2.prototype.getDataByRange = function( type, fromY, toY, selectedAgent, visibleType ) {
 		var aData = [];
 		var oTypeInfo = this.option( "typeInfo" );
 		var oPropertyIndex = this.option( "propertyIndex" );
+		var aVisibleType = visibleType.split(",");
 
 		fromY = parseInt(fromY, 10);
 		toY = parseInt(toY, 10);
