@@ -38,11 +38,6 @@ public class Dbcp2DataSourceMonitor implements DataSourceMonitor {
     }
 
     @Override
-    public String getName() {
-        return null;
-    }
-
-    @Override
     public String getUrl() {
         return dataSource.getUrl();
     }

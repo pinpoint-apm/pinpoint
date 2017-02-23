@@ -24,6 +24,7 @@ import java.util.List;
  * @author emeroad
  */
 public interface DatabaseInfo {
+
     List<String> getHost();
 
     String getMultipleHost();
@@ -37,4 +38,7 @@ public interface DatabaseInfo {
     ServiceType getType();
 
     ServiceType getExecuteQueryType();
+
+    boolean isParsingComplete();
+
 }

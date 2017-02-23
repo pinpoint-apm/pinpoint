@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.profiler.context.AtomicIdGenerator;
 import com.navercorp.pinpoint.profiler.context.DefaultTransactionCounter;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.monitor.DatabaseInfoLocator;
 import com.navercorp.pinpoint.profiler.context.monitor.DefaultPluginMonitorContext;
 import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
@@ -36,6 +37,7 @@ import com.navercorp.pinpoint.test.TBaseRecorderAdaptor;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +53,9 @@ public class AgentStatMonitorTest {
 
     private TBaseRecorder<TAgentStatBatch> tBaseRecorder;
     private DataSender dataSender;
+
+    @Mock
+    private DatabaseInfoLocator databaseInfoLocator;
 
     @Before
     public void setUp() throws Exception {
@@ -93,7 +98,7 @@ public class AgentStatMonitorTest {
         AtomicIdGenerator idGenerator = new AtomicIdGenerator();
         TransactionCounter transactionCounter = new DefaultTransactionCounter(idGenerator);
         PluginMonitorContext pluginMonitorContext = new DefaultPluginMonitorContext();
-        return new DefaultAgentStatCollectorFactory(profilerConfig, activeTraceRepository, transactionCounter, pluginMonitorContext);
+        return new DefaultAgentStatCollectorFactory(profilerConfig, activeTraceRepository, transactionCounter, pluginMonitorContext, databaseInfoLocator);
     }
 
 }

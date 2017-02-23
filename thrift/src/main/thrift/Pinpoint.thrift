@@ -113,7 +113,7 @@ struct TAgentStatBatch {
 struct TDataSource {
     1: i32                      id
     2: optional i16             serviceTypeCode
-    3: optional string          name
+    3: optional string          databaseName
     4: optional string          url
     5: optional i32             activeConnectionSize = 0
     6: optional i32             maxConnectionSize

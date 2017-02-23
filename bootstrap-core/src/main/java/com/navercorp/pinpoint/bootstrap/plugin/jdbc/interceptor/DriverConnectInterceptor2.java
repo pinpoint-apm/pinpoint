@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 
 /**
@@ -33,25 +33,20 @@ import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
  * 
  * @author emeroad
  */
-/**
- * @deprecated Since 1.6.1. Use {@link DriverConnectInterceptor2 )}
- */
-@Deprecated
 @TargetMethod(name="connect", paramTypes={ "java.lang.String", "java.util.Properties" })
-public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
-    
-    private final JdbcUrlParser jdbcUrlParser;
+public class DriverConnectInterceptor2 extends SpanEventSimpleAroundInterceptorForPlugin {
+
+    private final ServiceType serviceType;
     private final boolean recordConnection;
 
-
-    public DriverConnectInterceptor(TraceContext context, MethodDescriptor descriptor, JdbcUrlParser jdbcUrlParser) {
-        this(context, descriptor, jdbcUrlParser, true);
+    public DriverConnectInterceptor2(TraceContext context, MethodDescriptor descriptor, ServiceType serviceType) {
+        this(context, descriptor, serviceType, true);
     }
 
-    public DriverConnectInterceptor(TraceContext context, MethodDescriptor descriptor, JdbcUrlParser jdbcUrlParser, boolean recordConnection) {
+    public DriverConnectInterceptor2(TraceContext context, MethodDescriptor descriptor, ServiceType serviceType, boolean recordConnection) {
         super(context, descriptor);
 
-        this.jdbcUrlParser = jdbcUrlParser;
+        this.serviceType = serviceType;
         // option for mysql loadbalance only. Destination is recorded at lower implementations.
         this.recordConnection = recordConnection;
     }
@@ -77,7 +72,7 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorFo
         final boolean success = InterceptorUtils.isSuccess(throwable);
         // Must not check if current transaction is trace target or not. Connection can be made by other thread.
         final String driverUrl = (String) args[0];
-        DatabaseInfo databaseInfo = createDatabaseInfo(driverUrl);
+        DatabaseInfo databaseInfo = traceContext.getJdbcUrlParserContext().parse(serviceType, driverUrl);
         if (success) {
             if (recordConnection) {
                 if (result instanceof DatabaseInfoAccessor) {
@@ -89,7 +84,6 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorFo
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-
         if (recordConnection) {
             DatabaseInfo databaseInfo;
             if (result instanceof DatabaseInfoAccessor) {
@@ -112,20 +106,6 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorFo
         recorder.recordApiCachedString(methodDescriptor, driverUrl, 0);
 
         recorder.recordException(throwable);
-    }
-
-    private DatabaseInfo createDatabaseInfo(String url) {
-        if (url == null) {
-            return UnKnownDatabaseInfo.INSTANCE;
-        }
-        
-        final DatabaseInfo databaseInfo = jdbcUrlParser.parse(url);
-        
-        if (isDebug) {
-            logger.debug("parse DatabaseInfo:{}", databaseInfo);
-        }
-        
-        return databaseInfo;
     }
 
 }

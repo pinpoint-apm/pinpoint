@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.plugin;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConnectionStringParser;
 
 /**
  * @author emeroad
@@ -47,6 +48,12 @@ public class GuardProfilerPluginContext implements ProfilerPluginSetupContext {
     public void addApplicationTypeDetector(ApplicationTypeDetector... detectors) {
         checkOpen();
         this.delegate.addApplicationTypeDetector(detectors);
+    }
+
+    @Override
+    public void addJdbcConnectionStringParser(JdbcConnectionStringParser jdbcConnectionStringParser) {
+        checkOpen();
+        this.delegate.addJdbcConnectionStringParser(jdbcConnectionStringParser);
     }
 
     private void checkOpen() {
