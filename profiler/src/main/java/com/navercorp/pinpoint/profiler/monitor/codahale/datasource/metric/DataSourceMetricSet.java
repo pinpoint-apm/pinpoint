@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.monitor.codahale.datasource.metric;
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricSet;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorWrapper;
+import com.navercorp.pinpoint.profiler.context.monitor.DatabaseInfoCache;
 import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorWrapperLocator;
 import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
 
@@ -32,9 +33,11 @@ import java.util.Map;
 public class DataSourceMetricSet implements MetricSet {
 
     private final PluginMonitorWrapperLocator<DataSourceMonitorWrapper> dataSourceMonitorLocator;
+    private final DatabaseInfoCache databaseInfoCache;
 
-    public DataSourceMetricSet(PluginMonitorWrapperLocator<DataSourceMonitorWrapper> dataSourceMonitorLocator) {
+    public DataSourceMetricSet(PluginMonitorWrapperLocator<DataSourceMonitorWrapper> dataSourceMonitorLocator, DatabaseInfoCache databaseInfoCache) {
         this.dataSourceMonitorLocator = dataSourceMonitorLocator;
+        this.databaseInfoCache = databaseInfoCache;
     }
 
     @Override
@@ -43,7 +46,7 @@ public class DataSourceMetricSet implements MetricSet {
 
         final Map<String, Metric> gauges = new HashMap<String, Metric>();
         for (DataSourceMonitorWrapper dataSourceMonitor : dataSourceMonitorList) {
-            gauges.put(MetricMonitorValues.DATASOURCE + "." + dataSourceMonitor.getId(), new DataSourceGauge(dataSourceMonitor));
+            gauges.put(MetricMonitorValues.DATASOURCE + "." + dataSourceMonitor.getId(), new DataSourceGauge(dataSourceMonitor, databaseInfoCache));
         }
 
         return gauges;

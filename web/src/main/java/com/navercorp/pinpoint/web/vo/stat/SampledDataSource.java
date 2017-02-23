@@ -25,7 +25,7 @@ public class SampledDataSource implements SampledAgentStatDataPoint {
 
     private int id;
     private short serviceTypeCode;
-    private String name;
+    private String databaseName;
     private String jdbcUrl;
     private Point<Long, Integer> activeConnectionSize;
     private Point<Long, Integer> maxConnectionSize;
@@ -46,12 +46,12 @@ public class SampledDataSource implements SampledAgentStatDataPoint {
         this.serviceTypeCode = serviceTypeCode;
     }
 
-    public String getName() {
-        return name;
+    public String getDatabaseName() {
+        return databaseName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setDatabaseName(String databaseName) {
+        this.databaseName = databaseName;
     }
 
     public String getJdbcUrl() {
@@ -87,7 +87,7 @@ public class SampledDataSource implements SampledAgentStatDataPoint {
 
         if (id != that.id) return false;
         if (serviceTypeCode != that.serviceTypeCode) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (databaseName != null ? !databaseName.equals(that.databaseName) : that.databaseName != null) return false;
         if (jdbcUrl != null ? !jdbcUrl.equals(that.jdbcUrl) : that.jdbcUrl != null) return false;
         if (activeConnectionSize != null ? !activeConnectionSize.equals(that.activeConnectionSize) : that.activeConnectionSize != null) return false;
         return maxConnectionSize != null ? maxConnectionSize.equals(that.maxConnectionSize) : that.maxConnectionSize == null;
@@ -98,7 +98,7 @@ public class SampledDataSource implements SampledAgentStatDataPoint {
     public int hashCode() {
         int result = id;
         result = 31 * result + (int) serviceTypeCode;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (databaseName != null ? databaseName.hashCode() : 0);
         result = 31 * result + (jdbcUrl != null ? jdbcUrl.hashCode() : 0);
         result = 31 * result + (activeConnectionSize != null ? activeConnectionSize.hashCode() : 0);
         result = 31 * result + (maxConnectionSize != null ? maxConnectionSize.hashCode() : 0);
@@ -110,7 +110,7 @@ public class SampledDataSource implements SampledAgentStatDataPoint {
         final StringBuilder sb = new StringBuilder("SampledDataSource{");
         sb.append("id=").append(id);
         sb.append(", serviceTypeCode=").append(serviceTypeCode);
-        sb.append(", name='").append(name).append('\'');
+        sb.append(", databaseName='").append(databaseName).append('\'');
         sb.append(", jdbcUrl='").append(jdbcUrl).append('\'');
         sb.append(", activeConnectionSize=").append(activeConnectionSize);
         sb.append(", maxConnectionSize=").append(maxConnectionSize);

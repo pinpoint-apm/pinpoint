@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
@@ -96,4 +97,10 @@ public class MockPluginContextLoadResult implements PluginContextLoadResult {
     public List<ApplicationTypeDetector> getApplicationTypeDetectorList() {
         return Collections.emptyList();
     }
+
+    @Override
+    public List<JdbcUrlParser> getJdbcUrlParserList() {
+        return Collections.emptyList();
+    }
+
 }

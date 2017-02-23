@@ -18,10 +18,12 @@ package com.navercorp.pinpoint.profiler.monitor.codahale.gc;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
 import com.navercorp.pinpoint.profiler.context.AtomicIdGenerator;
 import com.navercorp.pinpoint.profiler.context.DefaultTransactionCounter;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.monitor.DatabaseInfoCache;
 import com.navercorp.pinpoint.profiler.context.monitor.DefaultPluginMonitorContext;
 import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
 import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
@@ -31,6 +33,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
 
 public class GarbageCollectorFactoryTest {
 
@@ -48,7 +52,7 @@ public class GarbageCollectorFactoryTest {
         TransactionCounter transactionCounter = new DefaultTransactionCounter(idGenerator);
         PluginMonitorContext pluginMonitorContext = new DefaultPluginMonitorContext();
 
-        return new DefaultAgentStatCollectorFactory(profilerConfig, activeTraceRepository, transactionCounter, pluginMonitorContext);
+        return new DefaultAgentStatCollectorFactory(profilerConfig, activeTraceRepository, transactionCounter, pluginMonitorContext, new DatabaseInfoCache(Collections.<JdbcUrlParser>emptyList()));
     }
 
 

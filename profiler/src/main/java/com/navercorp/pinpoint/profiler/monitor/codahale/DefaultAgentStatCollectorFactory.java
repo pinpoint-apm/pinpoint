@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorWrapper;
+import com.navercorp.pinpoint.profiler.context.monitor.DatabaseInfoCache;
 import com.navercorp.pinpoint.profiler.context.monitor.DefaultPluginMonitorContext;
 import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
 import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorWrapperLocator;
@@ -71,7 +72,7 @@ public class DefaultAgentStatCollectorFactory implements AgentStatCollectorFacto
     private final DataSourceCollector dataSourceCollector;
 
     @Inject
-    public DefaultAgentStatCollectorFactory(ProfilerConfig profilerConfig, ActiveTraceRepository activeTraceRepository, TransactionCounter transactionCounter, PluginMonitorContext pluginMonitorContext) {
+    public DefaultAgentStatCollectorFactory(ProfilerConfig profilerConfig, ActiveTraceRepository activeTraceRepository, TransactionCounter transactionCounter, PluginMonitorContext pluginMonitorContext, DatabaseInfoCache databaseInfoCache) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
@@ -89,7 +90,7 @@ public class DefaultAgentStatCollectorFactory implements AgentStatCollectorFacto
         this.cpuLoadCollector = createCpuLoadCollector(profilerConfig.getProfilerJvmVendorName());
         this.transactionMetricCollector = createTransactionMetricCollector(transactionCounter);
         this.activeTraceMetricCollector = createActiveTraceCollector(activeTraceRepository, profilerConfig.isTraceAgentActiveThread());
-        this.dataSourceCollector = createDataSourceCollector(pluginMonitorContext);
+        this.dataSourceCollector = createDataSourceCollector(pluginMonitorContext, databaseInfoCache);
     }
 
     private MetricMonitorRegistry createRegistry() {
@@ -175,11 +176,12 @@ public class DefaultAgentStatCollectorFactory implements AgentStatCollectorFacto
         return ActiveTraceMetricCollector.EMPTY_ACTIVE_TRACE_COLLECTOR;
     }
 
-    private DataSourceCollector createDataSourceCollector(PluginMonitorContext pluginMonitorContext) {
+    private DataSourceCollector createDataSourceCollector(PluginMonitorContext pluginMonitorContext, DatabaseInfoCache databaseInfoCache) {
         if (pluginMonitorContext instanceof DefaultPluginMonitorContext) {
             PluginMonitorWrapperLocator<DataSourceMonitorWrapper> dataSourceMonitorLocator = ((DefaultPluginMonitorContext) pluginMonitorContext).getDataSourceMonitorLocator();
             if (dataSourceMonitorLocator != null) {
-                DataSourceMetricSet dataSourceMetricSet = this.monitorRegistry.registerDataSourceMonitor(new MonitorName(MetricMonitorValues.DATASOURCE), dataSourceMonitorLocator);
+                DataSourceMetricSet dataSourceMetricSet = new DataSourceMetricSet(dataSourceMonitorLocator, databaseInfoCache);
+                this.monitorRegistry.registerDataSourceMonitor(new MonitorName(MetricMonitorValues.DATASOURCE), dataSourceMetricSet);
                 return new DefaultDataSourceCollector(dataSourceMetricSet);
             }
         }

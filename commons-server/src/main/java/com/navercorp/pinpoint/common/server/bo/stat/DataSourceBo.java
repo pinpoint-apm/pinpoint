@@ -33,7 +33,7 @@ public class DataSourceBo implements AgentStatDataPoint {
 
     private int id = UNCOLLECTED_INT_VALUE;
     private short serviceTypeCode = UNCOLLECTED_SERVICE_TYPE_VALUE.getCode();
-    private String name = UNCOLLECTED_STRING_VALUE;
+    private String databaseName = UNCOLLECTED_STRING_VALUE;
     private String jdbcUrl = UNCOLLECTED_STRING_VALUE;
     private int activeConnectionSize = UNCOLLECTED_INT_VALUE;
     private int maxConnectionSize = UNCOLLECTED_INT_VALUE;
@@ -89,12 +89,12 @@ public class DataSourceBo implements AgentStatDataPoint {
         this.serviceTypeCode = serviceTypeCode;
     }
 
-    public String getName() {
-        return name;
+    public String getDatabaseName() {
+        return databaseName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setDatabaseName(String databaseName) {
+        this.databaseName = databaseName;
     }
 
     public String getJdbcUrl() {
@@ -135,7 +135,7 @@ public class DataSourceBo implements AgentStatDataPoint {
         if (activeConnectionSize != that.activeConnectionSize) return false;
         if (maxConnectionSize != that.maxConnectionSize) return false;
         if (agentId != null ? !agentId.equals(that.agentId) : that.agentId != null) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (databaseName != null ? !databaseName.equals(that.databaseName) : that.databaseName != null) return false;
         return jdbcUrl != null ? jdbcUrl.equals(that.jdbcUrl) : that.jdbcUrl == null;
 
     }
@@ -147,7 +147,7 @@ public class DataSourceBo implements AgentStatDataPoint {
         result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
         result = 31 * result + id;
         result = 31 * result + (int) serviceTypeCode;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (databaseName != null ? databaseName.hashCode() : 0);
         result = 31 * result + (jdbcUrl != null ? jdbcUrl.hashCode() : 0);
         result = 31 * result + activeConnectionSize;
         result = 31 * result + maxConnectionSize;
@@ -162,7 +162,7 @@ public class DataSourceBo implements AgentStatDataPoint {
         sb.append(", timestamp=").append(timestamp);
         sb.append(", id=").append(id);
         sb.append(", serviceTypeCode=").append(serviceTypeCode);
-        sb.append(", name='").append(name).append('\'');
+        sb.append(", databaseName='").append(databaseName).append('\'');
         sb.append(", jdbcUrl='").append(jdbcUrl).append('\'');
         sb.append(", activeConnectionSize=").append(activeConnectionSize);
         sb.append(", maxConnectionSize=").append(maxConnectionSize);
