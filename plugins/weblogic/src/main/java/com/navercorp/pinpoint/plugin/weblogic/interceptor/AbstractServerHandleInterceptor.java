@@ -224,7 +224,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
                 }
             }
         } catch (UnsupportedEncodingException e) {
-            logger.error("[Websphere] Fail to parse query {}", queryString, e);
+            logger.error("[WEBLogic] Fail to parse query {}", queryString, e);
         }
         return params.toString();
     }
