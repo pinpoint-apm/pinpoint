@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConnectionStringParserContext;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -35,22 +36,24 @@ import com.navercorp.pinpoint.profiler.DefaultDynamicTransformerRegistry;
 import com.navercorp.pinpoint.profiler.DynamicTransformerRegistry;
 import com.navercorp.pinpoint.profiler.JvmInformation;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
+import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
 import com.navercorp.pinpoint.profiler.context.module.BootstrapJarPaths;
 import com.navercorp.pinpoint.profiler.context.module.PluginJars;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
+import com.navercorp.pinpoint.profiler.context.monitor.DatabaseInfoLocator;
 import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
 import com.navercorp.pinpoint.profiler.context.provider.AgentInfoSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AgentInformationProvider;
-import com.navercorp.pinpoint.profiler.context.provider.ApplicationServerTypeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AgentStartTimeProvider;
+import com.navercorp.pinpoint.profiler.context.provider.ApplicationServerTypeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ClassFileTransformerDispatcherProvider;
 import com.navercorp.pinpoint.profiler.context.provider.CommandDispatcherProvider;
 import com.navercorp.pinpoint.profiler.context.provider.DynamicTransformTriggerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.InstrumentEngineProvider;
+import com.navercorp.pinpoint.profiler.context.provider.JdbcUrlParserContextProvider;
 import com.navercorp.pinpoint.profiler.context.provider.JvmInformationProvider;
 import com.navercorp.pinpoint.profiler.context.provider.PinpointClientFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.PinpointClientProvider;
@@ -75,7 +78,6 @@ import com.navercorp.pinpoint.profiler.monitor.DefaultAgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
 import com.navercorp.pinpoint.profiler.monitor.codahale.DefaultAgentStatCollectorFactory;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
-import com.navercorp.pinpoint.profiler.plugin.PluginSetup;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
@@ -145,6 +147,14 @@ public class ApplicationContextModule extends AbstractModule {
         bind(AgentStatMonitor.class).to(DefaultAgentStatMonitor.class).in(Scopes.SINGLETON);
 
         bind(PluginContextLoadResult.class).toProvider(PluginContextLoadResultProvider.class).in(Scopes.SINGLETON);
+//        bind(DatabaseInfoCache.class).toProvider(DatabaseInfoCacheProvider.class).in(Scopes.SINGLETON);
+
+        bind(DefaultJdbcConnectionStringParserContext.class).toProvider(JdbcUrlParserContextProvider.class).in(Scopes.SINGLETON);
+        bind(JdbcConnectionStringParserContext.class).to(DefaultJdbcConnectionStringParserContext.class).in(Scopes.SINGLETON);
+        bind(DatabaseInfoLocator.class).to(DefaultJdbcConnectionStringParserContext.class).in(Scopes.SINGLETON);
+
+
+
         bind(AgentInformation.class).toProvider(AgentInformationProvider.class).in(Scopes.SINGLETON);
 
         bind(JvmInformation.class).toProvider(JvmInformationProvider.class).in(Scopes.SINGLETON);

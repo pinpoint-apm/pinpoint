@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConnectionStringParser;
 import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.BootstrapJarPaths;
 
@@ -120,4 +121,18 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
 
         return registeredDetectors;
     }
+
+    @Override
+    public List<JdbcConnectionStringParser> getJdbcConnectionStringParserList() {
+        List<JdbcConnectionStringParser> result = new ArrayList<JdbcConnectionStringParser>();
+
+        List<SetupResult> profilerPluginContextList = getProfilerPluginContextList();
+        for (SetupResult context : profilerPluginContextList) {
+            List<JdbcConnectionStringParser> jdbcConnectionStringParserList = context.getJdbcConnectionStringParserList();
+            result.addAll(jdbcConnectionStringParserList);
+        }
+
+        return result;
+    }
+
 }

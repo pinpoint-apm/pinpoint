@@ -93,7 +93,7 @@ public class DataSourceCodecV2 implements AgentStatCodec<DataSourceListBo> {
 
         UnsignedIntegerEncodingStrategy.Analyzer.Builder idAnalyzerBuilder = new UnsignedIntegerEncodingStrategy.Analyzer.Builder();
         UnsignedShortEncodingStrategy.Analyzer.Builder serviceTypeAnalyzerBuilder = new UnsignedShortEncodingStrategy.Analyzer.Builder();
-        StringEncodingStrategy.Analyzer.Builder nameAnalyzerBuilder = new StringEncodingStrategy.Analyzer.Builder();
+        StringEncodingStrategy.Analyzer.Builder databaseNameAnalyzerBuilder = new StringEncodingStrategy.Analyzer.Builder();
         StringEncodingStrategy.Analyzer.Builder jdbcUrlAnalyzerBuilder = new StringEncodingStrategy.Analyzer.Builder();
         UnsignedIntegerEncodingStrategy.Analyzer.Builder activeConnectionSizeAnalyzerBuilder = new UnsignedIntegerEncodingStrategy.Analyzer.Builder();
         UnsignedIntegerEncodingStrategy.Analyzer.Builder maxConnectionSizeAnalyzerBuilder = new UnsignedIntegerEncodingStrategy.Analyzer.Builder();
@@ -104,7 +104,7 @@ public class DataSourceCodecV2 implements AgentStatCodec<DataSourceListBo> {
 
             idAnalyzerBuilder.addValue(dataSourceBo.getId());
             serviceTypeAnalyzerBuilder.addValue(dataSourceBo.getServiceTypeCode());
-            nameAnalyzerBuilder.addValue(dataSourceBo.getName());
+            databaseNameAnalyzerBuilder.addValue(dataSourceBo.getDatabaseName());
             jdbcUrlAnalyzerBuilder.addValue(dataSourceBo.getJdbcUrl());
             activeConnectionSizeAnalyzerBuilder.addValue(dataSourceBo.getActiveConnectionSize());
             maxConnectionSizeAnalyzerBuilder.addValue(dataSourceBo.getMaxConnectionSize());
@@ -112,19 +112,19 @@ public class DataSourceCodecV2 implements AgentStatCodec<DataSourceListBo> {
         this.codec.encodeValues(valueBuffer, UnsignedLongEncodingStrategy.REPEAT_COUNT, startTimestamps);
         this.codec.encodeTimestamps(valueBuffer, timestamps);
         this.encodeDataPoints(valueBuffer, idAnalyzerBuilder.build(), serviceTypeAnalyzerBuilder.build(),
-                nameAnalyzerBuilder.build(), jdbcUrlAnalyzerBuilder.build(),
+                databaseNameAnalyzerBuilder.build(), jdbcUrlAnalyzerBuilder.build(),
                 activeConnectionSizeAnalyzerBuilder.build(), maxConnectionSizeAnalyzerBuilder.build());
 
     }
 
     private void encodeDataPoints(Buffer valueBuffer, StrategyAnalyzer<Integer> idAnalyzerBuilder, StrategyAnalyzer<Short> serviceTypeAnalyzerBuilder,
-                                  StrategyAnalyzer<String> nameAnalyzerBuilder, StrategyAnalyzer<String> jdbcUrlAnalyzerBuilder,
+                                  StrategyAnalyzer<String> databaseNameAnalyzerBuilder, StrategyAnalyzer<String> jdbcUrlAnalyzerBuilder,
                                   StrategyAnalyzer<Integer> activeConnectionSizeAnalyzerBuilder, StrategyAnalyzer<Integer> maxConnectionSizeAnalyzerBuilder) {
         // encode header
         AgentStatHeaderEncoder headerEncoder = new BitCountingHeaderEncoder();
         headerEncoder.addCode(idAnalyzerBuilder.getBestStrategy().getCode());
         headerEncoder.addCode(serviceTypeAnalyzerBuilder.getBestStrategy().getCode());
-        headerEncoder.addCode(nameAnalyzerBuilder.getBestStrategy().getCode());
+        headerEncoder.addCode(databaseNameAnalyzerBuilder.getBestStrategy().getCode());
         headerEncoder.addCode(jdbcUrlAnalyzerBuilder.getBestStrategy().getCode());
         headerEncoder.addCode(activeConnectionSizeAnalyzerBuilder.getBestStrategy().getCode());
         headerEncoder.addCode(maxConnectionSizeAnalyzerBuilder.getBestStrategy().getCode());
@@ -135,7 +135,7 @@ public class DataSourceCodecV2 implements AgentStatCodec<DataSourceListBo> {
         // encode values
         this.codec.encodeValues(valueBuffer, idAnalyzerBuilder.getBestStrategy(), idAnalyzerBuilder.getValues());
         this.codec.encodeValues(valueBuffer, serviceTypeAnalyzerBuilder.getBestStrategy(), serviceTypeAnalyzerBuilder.getValues());
-        this.codec.encodeValues(valueBuffer, nameAnalyzerBuilder.getBestStrategy(), nameAnalyzerBuilder.getValues());
+        this.codec.encodeValues(valueBuffer, databaseNameAnalyzerBuilder.getBestStrategy(), databaseNameAnalyzerBuilder.getValues());
         this.codec.encodeValues(valueBuffer, jdbcUrlAnalyzerBuilder.getBestStrategy(), jdbcUrlAnalyzerBuilder.getValues());
         this.codec.encodeValues(valueBuffer, activeConnectionSizeAnalyzerBuilder.getBestStrategy(), activeConnectionSizeAnalyzerBuilder.getValues());
         this.codec.encodeValues(valueBuffer, maxConnectionSizeAnalyzerBuilder.getBestStrategy(), maxConnectionSizeAnalyzerBuilder.getValues());
@@ -170,14 +170,14 @@ public class DataSourceCodecV2 implements AgentStatCodec<DataSourceListBo> {
 
         EncodingStrategy<Integer> idEncodingStrategy = UnsignedIntegerEncodingStrategy.getFromCode(headerDecoder.getCode());
         EncodingStrategy<Short> serviceTypeEncodingStrategy = UnsignedShortEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<String> nameEncodingStrategy = StringEncodingStrategy.getFromCode(headerDecoder.getCode());
+        EncodingStrategy<String> databaseNameEncodingStrategy = StringEncodingStrategy.getFromCode(headerDecoder.getCode());
         EncodingStrategy<String> urlEncodingStrategy = StringEncodingStrategy.getFromCode(headerDecoder.getCode());
         EncodingStrategy<Integer> activeConnectionSizeStrategy = UnsignedIntegerEncodingStrategy.getFromCode(headerDecoder.getCode());
         EncodingStrategy<Integer> maxConnectionSizeStrategy = UnsignedIntegerEncodingStrategy.getFromCode(headerDecoder.getCode());
 
         List<Integer> ids = this.codec.decodeValues(valueBuffer, idEncodingStrategy, numValues);
         List<Short> serviceTypeCodes = this.codec.decodeValues(valueBuffer, serviceTypeEncodingStrategy, numValues);
-        List<String> names = this.codec.decodeValues(valueBuffer, nameEncodingStrategy, numValues);
+        List<String> databaseNames = this.codec.decodeValues(valueBuffer, databaseNameEncodingStrategy, numValues);
         List<String> jdbcUrls = this.codec.decodeValues(valueBuffer, urlEncodingStrategy, numValues);
         List<Integer> activeConnectionSizes = this.codec.decodeValues(valueBuffer, activeConnectionSizeStrategy, numValues);
         List<Integer> maxConnectionSizes = this.codec.decodeValues(valueBuffer, maxConnectionSizeStrategy, numValues);
@@ -197,7 +197,7 @@ public class DataSourceCodecV2 implements AgentStatCodec<DataSourceListBo> {
 
             dataSourceBo.setId(ids.get(i));
             dataSourceBo.setServiceTypeCode(serviceTypeCodes.get(i));
-            dataSourceBo.setName(names.get(i));
+            dataSourceBo.setDatabaseName(databaseNames.get(i));
             dataSourceBo.setJdbcUrl(jdbcUrls.get(i));
             dataSourceBo.setActiveConnectionSize(activeConnectionSizes.get(i));
             dataSourceBo.setMaxConnectionSize(maxConnectionSizes.get(i));

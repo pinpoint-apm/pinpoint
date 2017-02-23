@@ -14,24 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.monitor;
+package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
 
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * @author Taejin Koo
  */
-public interface DataSourceMonitor {
+public interface JdbcConnectionStringParser {
+
+    DatabaseInfo parse(String url);
 
     ServiceType getServiceType();
-
-    String getUrl();
-
-    int getActiveConnectionSize();
-
-    int getMaxConnectionSize();
-
-    boolean isDisabled();
-
 
 }

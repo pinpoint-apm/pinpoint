@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConnectionStringParser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -29,9 +30,10 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
  */
 public class DefaultProfilerPluginSetupContext implements ProfilerPluginSetupContext {
 
-    private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
-
     private final ProfilerConfig profilerConfig;
+
+    private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
+    private final List<JdbcConnectionStringParser> jdbcConnectionStringParserList = new ArrayList<JdbcConnectionStringParser>();
 
     public DefaultProfilerPluginSetupContext(ProfilerConfig profilerConfig) {
         if (profilerConfig == null) {
@@ -61,5 +63,17 @@ public class DefaultProfilerPluginSetupContext implements ProfilerPluginSetupCon
         return serverTypeDetectors;
     }
 
+    @Override
+    public void addJdbcConnectionStringParser(JdbcConnectionStringParser jdbcConnectionStringParser) {
+        if (jdbcConnectionStringParser == null) {
+            return;
+        }
+
+        this.jdbcConnectionStringParserList.add(jdbcConnectionStringParser);
+    }
+
+    public List<JdbcConnectionStringParser> getJdbcConnectionStringParserList() {
+        return jdbcConnectionStringParserList;
+    }
 
 }

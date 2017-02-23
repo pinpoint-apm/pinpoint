@@ -103,7 +103,8 @@ public class MockTraceContextFactory {
 
         this.traceContext = new DefaultTraceContext(profilerConfig, agentInformation,
                 traceFactoryBuilder, pluginMonitorContext, serverMetaDataHolder,
-                apiMetaDataCacheService, stringMetaDataCacheService, sqlMetaDataCacheService
+                apiMetaDataCacheService, stringMetaDataCacheService, sqlMetaDataCacheService,
+                DisabledJdbcUrlParserContext.INSTANCE
         );
     }
 
