@@ -16,26 +16,23 @@
 
 package com.navercorp.pinpoint.web.vo.timeline.inspector;
 
-import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.timeline.Timeline;
-import com.navercorp.pinpoint.web.vo.timeline.TimelineSegment;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author HyunGil Jeong
  */
-public class AgentEventTimeline implements Timeline<AgentEventTimeline.Segment> {
+public class AgentEventTimeline implements Timeline<AgentEventTimelineSegment> {
 
-    private final List<AgentEventTimeline.Segment> timelineSegments;
+    private final List<AgentEventTimelineSegment> timelineSegments;
 
-    AgentEventTimeline(List<AgentEventTimeline.Segment> timelineSegments) {
+    public AgentEventTimeline(List<AgentEventTimelineSegment> timelineSegments) {
         this.timelineSegments = timelineSegments;
     }
 
     @Override
-    public List<AgentEventTimeline.Segment> getTimelineSegments() {
+    public List<AgentEventTimelineSegment> getTimelineSegments() {
         return timelineSegments;
     }
 
@@ -43,9 +40,7 @@ public class AgentEventTimeline implements Timeline<AgentEventTimeline.Segment> 
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         AgentEventTimeline that = (AgentEventTimeline) o;
-
         return timelineSegments != null ? timelineSegments.equals(that.timelineSegments) : that.timelineSegments == null;
     }
 
@@ -62,66 +57,4 @@ public class AgentEventTimeline implements Timeline<AgentEventTimeline.Segment> 
         return sb.toString();
     }
 
-    public static class Segment implements TimelineSegment<List<AgentEvent>> {
-        private long startTimestamp;
-        private long endTimestamp;
-        private List<AgentEvent> agentEvents = new ArrayList<>();
-
-        @Override
-        public long getStartTimestamp() {
-            return startTimestamp;
-        }
-
-        public void setStartTimestamp(long startTimestamp) {
-            this.startTimestamp = startTimestamp;
-        }
-
-        @Override
-        public long getEndTimestamp() {
-            return endTimestamp;
-        }
-
-        public void setEndTimestamp(long endTimestamp) {
-            this.endTimestamp = endTimestamp;
-        }
-
-        @Override
-        public List<AgentEvent> getValue() {
-            return agentEvents;
-        }
-
-        public void setValue(List<AgentEvent> agentEvents) {
-            this.agentEvents = agentEvents;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Segment segment = (Segment) o;
-
-            if (startTimestamp != segment.startTimestamp) return false;
-            if (endTimestamp != segment.endTimestamp) return false;
-            return agentEvents != null ? agentEvents.equals(segment.agentEvents) : segment.agentEvents == null;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = (int) (startTimestamp ^ (startTimestamp >>> 32));
-            result = 31 * result + (int) (endTimestamp ^ (endTimestamp >>> 32));
-            result = 31 * result + (agentEvents != null ? agentEvents.hashCode() : 0);
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder("Segment{");
-            sb.append("startTimestamp=").append(startTimestamp);
-            sb.append(", endTimestamp=").append(endTimestamp);
-            sb.append(", agentEvents=").append(agentEvents);
-            sb.append('}');
-            return sb.toString();
-        }
-    }
 }
