@@ -14,39 +14,60 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context.graph;
 
+import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.grapher.graphviz.GraphvizGrapher;
+import com.google.inject.grapher.graphviz.GraphvizModule;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
-import com.navercorp.pinpoint.profiler.AgentInfoSender;
+import com.navercorp.pinpoint.profiler.context.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.context.DummyInstrumentation;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
-import org.junit.Assert;
-import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URL;
+import java.security.CodeSource;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class DefaultApplicationContextTest {
-    @Test
-    public void test() {
+public class DependencyGraph {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    public static void main(String[] args) throws IOException {
+        DependencyGraph graph = new DependencyGraph();
+        graph.dumpDependencyGraph();
+    }
+
+    public void dumpDependencyGraph() throws IOException {
+
         DefaultApplicationContext applicationContext = newApplicationContext();
         try {
+
             Injector injector = applicationContext.getInjector();
-            AgentInfoSender instance1 = injector.getInstance(AgentInfoSender.class);
-            AgentInfoSender instance2 = injector.getInstance(AgentInfoSender.class);
-            Assert.assertSame(instance1, instance2);
+
+            String path = currentWorkingDir();
+            String fileName = path + "../DependencyGraph.dot";
+            logger.debug("filename:{}", fileName);
+
+            Grapher grapher = new Grapher();
+            grapher.graph(fileName, injector);
+
         } finally {
             applicationContext.close();
         }
-
     }
 
     private DefaultApplicationContext newApplicationContext() {
@@ -59,4 +80,22 @@ public class DefaultApplicationContextTest {
         return new DefaultApplicationContext(agentOption, binder);
     }
 
+    private String currentWorkingDir() {
+        CodeSource codeSource = this.getClass().getProtectionDomain().getCodeSource();
+        URL location = codeSource.getLocation();
+        String dir = location.getPath();
+        return dir;
+    }
+
+    public class Grapher {
+        public void graph(String filename, Injector demoInjector) throws IOException {
+            PrintWriter out = new PrintWriter(new File(filename), "UTF-8");
+
+            Injector injector = Guice.createInjector(new GraphvizModule());
+            GraphvizGrapher grapher = injector.getInstance(GraphvizGrapher.class);
+            grapher.setOut(out);
+            grapher.setRankdir("TB");
+            grapher.graph(demoInjector);
+        }
+    }
 }
