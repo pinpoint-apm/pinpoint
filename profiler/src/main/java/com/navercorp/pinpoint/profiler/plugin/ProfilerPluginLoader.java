@@ -28,9 +28,9 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
-import com.navercorp.pinpoint.profiler.context.ApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.BootstrapJarPaths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,23 +46,44 @@ import com.navercorp.pinpoint.profiler.instrument.JarProfilerPluginClassInjector
 public class ProfilerPluginLoader {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final ApplicationContext applicationContext;
     private final ClassNameFilter profilerPackageFilter = new PinpointProfilerPackageSkipFilter();
 
+    private final ProfilerConfig profilerConfig;
     private final PluginSetup pluginSetup;
+    private final Instrumentation instrumentation;
+    private final InstrumentEngine instrumentEngine;
+    private final List<String> bootstrapJarPaths;
 
-    public ProfilerPluginLoader(ApplicationContext applicationContext, PluginSetup pluginSetup) {
-        if (applicationContext == null) {
-            throw new NullPointerException("applicationContext must not be null");
+
+    public ProfilerPluginLoader(ProfilerConfig profilerConfig, PluginSetup pluginSetup, Instrumentation instrumentation, InstrumentEngine instrumentEngine, @BootstrapJarPaths  List<String> bootstrapJarPaths) {
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig must not be null");
         }
-        this.applicationContext = applicationContext;
+
+        if (pluginSetup == null) {
+            throw new NullPointerException("pluginSetup must not be null");
+        }
+        if (instrumentation == null) {
+            throw new NullPointerException("instrumentation must not be null");
+        }
+        if (instrumentEngine == null) {
+            throw new NullPointerException("instrumentEngine must not be null");
+        }
+        if (bootstrapJarPaths == null) {
+            throw new NullPointerException("bootstrapJarPaths must not be null");
+        }
+
+        this.profilerConfig = profilerConfig;
         this.pluginSetup = pluginSetup;
+        this.instrumentation = instrumentation;
+        this.instrumentEngine = instrumentEngine;
+        this.bootstrapJarPaths = bootstrapJarPaths;
     }
 
-    public List<DefaultProfilerPluginContext> load(URL[] pluginJars) {
-        List<DefaultProfilerPluginContext> pluginContexts = new ArrayList<DefaultProfilerPluginContext>(pluginJars.length);
-        List<String> disabled = applicationContext.getProfilerConfig().getDisabledPlugins();
-        
+    public List<SetupResult> load(URL[] pluginJars) {
+
+        List<SetupResult> pluginContexts = new ArrayList<SetupResult>(pluginJars.length);
+
         for (URL jar : pluginJars) {
 
             final JarFile pluginJarFile = createJarFile(jar);
@@ -70,28 +91,41 @@ public class ProfilerPluginLoader {
 
             final ClassNameFilter pluginFilterChain = createPluginFilterChain(pluginPackageList);
 
-            final List<ProfilerPlugin> plugins = PluginLoader.load(ProfilerPlugin.class, new URL[] { jar });
+            final List<ProfilerPlugin> original = PluginLoader.load(ProfilerPlugin.class, new URL[] { jar });
+
+            List<ProfilerPlugin> plugins = filterDisablePlugin(original);
 
             for (ProfilerPlugin plugin : plugins) {
-                if (disabled.contains(plugin.getClass().getName())) {
-                    logger.info("Skip disabled plugin: {}", plugin.getClass().getName());
-                    continue;
-                }
-                if (logger.isInfoEnabled()) {
+                 if (logger.isInfoEnabled()) {
                     logger.info("{} Plugin {}:{}", plugin.getClass(), PluginConfig.PINPOINT_PLUGIN_PACKAGE, pluginPackageList);
                 }
                 
                 logger.info("Loading plugin:{} pluginPackage:{}", plugin.getClass().getName(), plugin);
 
-                PluginConfig pluginConfig = new PluginConfig(jar, plugin, applicationContext.getInstrumentation(), applicationContext.getClassPool(), applicationContext.getBootstrapJarPaths(), pluginFilterChain);
+                PluginConfig pluginConfig = new PluginConfig(jar, plugin, instrumentation, instrumentEngine, bootstrapJarPaths, pluginFilterChain);
                 final ClassInjector classInjector = new JarProfilerPluginClassInjector(pluginConfig);
-                final DefaultProfilerPluginContext context = pluginSetup.setupPlugin(plugin, classInjector);
-                pluginContexts.add(context);
+                final SetupResult result = pluginSetup.setupPlugin(plugin, classInjector);
+                pluginContexts.add(result);
             }
         }
         
 
         return pluginContexts;
+    }
+
+    private List<ProfilerPlugin> filterDisablePlugin(List<ProfilerPlugin> plugins) {
+
+        List<String> disabled = profilerConfig.getDisabledPlugins();
+
+        List<ProfilerPlugin> result = new ArrayList<ProfilerPlugin>();
+        for (ProfilerPlugin plugin : plugins) {
+            if (disabled.contains(plugin.getClass().getName())) {
+                logger.info("Skip disabled plugin: {}", plugin.getClass().getName());
+                continue;
+            }
+            result.add(plugin);
+        }
+        return result;
     }
 
     private ClassNameFilter createPluginFilterChain(List<String> packageList) {

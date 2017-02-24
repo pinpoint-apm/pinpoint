@@ -1,19 +1,19 @@
 (function() {
 	'use strict';
-	pinpointApp.directive( "dsChartDirective", [
+	pinpointApp.directive( "dsEachChartDirective", [
 		function () {
 			return {
-				template: '<div></div>',
+				template: "<div></div>",
 				replace: true,
-				restrict: 'E',
+				restrict: "E",
 				scope: {
-					namespace: '@' // string value
+					namespace: "@"
 				},
 				link: function postLink(scope, element, attrs) {
 					var sId = "", oChart;
 
 					function setIdAutomatically() {
-						sId = 'multipleValueAxesId-' + scope.namespace;
+						sId = 'multipleValueAxesId-each' + scope.namespace;
 						element.attr('id', sId);
 					}
 					function hasId() {
@@ -66,18 +66,19 @@
 									"lineColor": "rgb(174, 199, 232)",
 									"fillColor": "rgb(174, 199, 232)",
 									"title": "Active(avg)",
-									"valueField": "activeConnection",
+									"valueField": "activeAvg",
 									"fillAlphas": 0.4,
 									"connect": false
 								},
 								{
 									"valueAxis": "v1",
 									"balloonText": "[[title]] : [[value]]",
+
 									"legendValueText": "[[value]]",
 									"lineColor": "rgb(31, 119, 180)",
 									"fillColor": "rgb(31, 119, 180)",
 									"title": "Active(max)",
-									"valueField": "activeMaxConnection",
+									"valueField": "activeMax",
 									"fillAlphas": 0.4,
 									"connect": false
 								},
@@ -86,13 +87,23 @@
 									"balloonText": "[[title]] : [[value]]",
 									"legendValueText": "[[value]]",
 									"lineColor": "#FF6600",
-									// "fillColor": "rgb(174, 199, 232, 0)",
 									"title": "Max",
-									"valueField": "maxConnection",
+									"valueField": "max",
 									"fillAlphas": 0,
 									"connect": false
 								}
 							],
+							"chartCursor": {
+								"categoryBalloonAlpha": 0.7,
+								"fullWidth": true,
+								"cursorAlpha": 0.1,
+								"listeners": [{
+									"event": "changed",
+									"method": function(event) {
+										scope.$emit('dsEachChartDirective.cursorChanged.' + scope.namespace, event);
+									}
+								}]
+							},
 							"categoryField": "time",
 							"categoryAxis": {
 								"axisColor": "#DADADA",
@@ -104,15 +115,6 @@
 							}
 						};
 						oChart = AmCharts.makeChart(sId, options);
-						var oChartCursor = new AmCharts.ChartCursor({
-							"categoryBalloonAlpha": 0.7,
-							"fullWidth": true,
-							"cursorAlpha": 0.1
-						});
-						oChartCursor.addListener('changed', function (event) {
-							scope.$emit('dsChartDirective.cursorChanged.' + scope.namespace, event);
-						});
-						oChart.addChartCursor( oChartCursor );
 					}
 
 					function showCursorAt(category) {
@@ -133,7 +135,7 @@
 							oChart.validateSize();
 						}
 					}
-					scope.$on("dsChartDirective.initAndRenderWithData." + scope.namespace, function (event, data, w, h) {
+					scope.$on("dsEachChartDirective.initAndRenderWithData." + scope.namespace, function (event, data, w, h) {
 						if ( hasId() ) {
 							renderUpdate( data );
 						} else {
@@ -142,10 +144,10 @@
 							render(data);
 						}
 					});
-					scope.$on("dsChartDirective.showCursorAt." + scope.namespace, function (event, category) {
+					scope.$on("dsEachChartDirective.showCursorAt." + scope.namespace, function (event, category) {
 						showCursorAt(category);
 					});
-					scope.$on("dsChartDirective.resize." + scope.namespace, function (event) {
+					scope.$on("dsEachChartDirective.resize." + scope.namespace, function (event) {
 						resize();
 					});
 				}

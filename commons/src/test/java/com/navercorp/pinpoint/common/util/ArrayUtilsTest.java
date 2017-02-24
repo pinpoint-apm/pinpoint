@@ -73,7 +73,7 @@ public class ArrayUtilsTest {
         byte[] bytes = new byte[]{1};
 
         String small = ArrayUtils.abbreviate(bytes, 1);
-        logger.info(small);
+        logger.debug(small);
         Assert.assertEquals("[1]", small);
     }
 

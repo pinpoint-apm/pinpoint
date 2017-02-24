@@ -17,15 +17,20 @@
 package com.navercorp.pinpoint.test;
 
 import com.google.inject.Inject;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
+import com.navercorp.pinpoint.profiler.plugin.ClassFileTransformerLoader;
+import com.navercorp.pinpoint.profiler.plugin.PluginInstrumentContext;
+import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginSetupContext;
 import com.navercorp.pinpoint.profiler.plugin.GuardProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.PluginSetup;
+import com.navercorp.pinpoint.profiler.plugin.SetupResult;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -33,26 +38,36 @@ import com.navercorp.pinpoint.profiler.plugin.PluginSetup;
 public class MockPluginSetup implements PluginSetup {
 
 
+    private final ProfilerConfig profilerConfig;
     private final ApplicationContext applicationContext;
+    private final DynamicTransformTrigger dynamicTransformTrigger;
 
     @Inject
-    public MockPluginSetup(ApplicationContext applicationContext) {
+    public MockPluginSetup(ProfilerConfig profilerConfig, ApplicationContext applicationContext, DynamicTransformTrigger dynamicTransformTrigger) {
+        this.profilerConfig = profilerConfig;
+
         this.applicationContext = applicationContext;
+        this.dynamicTransformTrigger = dynamicTransformTrigger;
     }
 
     @Override
-    public DefaultProfilerPluginContext setupPlugin(ProfilerPlugin plugin, ClassInjector classInjector) {
-        final DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(applicationContext, classInjector);
+    public SetupResult setupPlugin(ProfilerPlugin plugin, ClassInjector classInjector) {
 
-        final GuardProfilerPluginContext guard = new GuardProfilerPluginContext(context);
+        final DefaultProfilerPluginSetupContext pluginSetupContext = new DefaultProfilerPluginSetupContext(profilerConfig);
+        final GuardProfilerPluginContext guardPluginSetupContext = new GuardProfilerPluginContext(pluginSetupContext);
+
+        ClassFileTransformerLoader classFileTransformerLoader = new ClassFileTransformerLoader(dynamicTransformTrigger);
+        InstrumentContext instrumentContext = new PluginInstrumentContext(applicationContext, dynamicTransformTrigger, classInjector, classFileTransformerLoader);
         try {
-            preparePlugin(plugin, context);
-            plugin.setup(guard);
+            preparePlugin(plugin, instrumentContext);
+            plugin.setup(guardPluginSetupContext);
         } finally {
-            guard.close();
+            guardPluginSetupContext.close();
         }
-        return context;
+        SetupResult setup = new SetupResult(pluginSetupContext, classFileTransformerLoader);
+        return setup;
     }
+
 
     /**
      * TODO duplicated code : com/navercorp/pinpoint/profiler/plugin/ProfilerPluginLoader.java

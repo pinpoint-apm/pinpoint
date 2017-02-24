@@ -25,13 +25,15 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
+import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
+import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
@@ -74,7 +76,7 @@ public class DefaultApplicationContext implements ApplicationContext {
     private final ClassFileTransformerDispatcher classFileDispatcher;
 
     private final Instrumentation instrumentation;
-    private final InstrumentClassPool classPool;
+    private final InstrumentEngine instrumentEngine;
     private final DynamicTransformTrigger dynamicTransformTrigger;
 
     private final Injector injector;
@@ -100,11 +102,12 @@ public class DefaultApplicationContext implements ApplicationContext {
         final Module applicationContextModule = newApplicationContextModule(agentOption, interceptorRegistryBinder);
         this.injector = Guice.createInjector(Stage.PRODUCTION, applicationContextModule);
 
-        this.classPool = injector.getInstance(InstrumentClassPool.class);
+        this.instrumentEngine = injector.getInstance(InstrumentEngine.class);
 
         this.classFileDispatcher = injector.getInstance(ClassFileTransformerDispatcher.class);
         this.dynamicTransformTrigger = injector.getInstance(DynamicTransformTrigger.class);
-        ClassFileTransformer classFileTransformer = injector.getInstance(ClassFileTransformer.class);
+//        ClassFileTransformer classFileTransformer = injector.getInstance(ClassFileTransformer.class);
+        ClassFileTransformer classFileTransformer = wrap(classFileDispatcher);
         instrumentation.addTransformer(classFileTransformer, true);
 
         this.spanDataSender = newUdpSpanDataSender();
@@ -129,6 +132,16 @@ public class DefaultApplicationContext implements ApplicationContext {
 
         this.agentInfoSender = injector.getInstance(AgentInfoSender.class);
         this.agentStatMonitor = injector.getInstance(AgentStatMonitor.class);
+    }
+
+    public ClassFileTransformer wrap(ClassFileTransformerDispatcher classFileTransformerDispatcher) {
+
+        final boolean enableBytecodeDump = profilerConfig.readBoolean(ASMBytecodeDumpService.ENABLE_BYTECODE_DUMP, ASMBytecodeDumpService.ENABLE_BYTECODE_DUMP_DEFAULT_VALUE);
+        if (enableBytecodeDump) {
+            logger.info("wrapBytecodeDumpTransformer");
+            return BytecodeDumpTransformer.wrap(classFileTransformerDispatcher, profilerConfig);
+        }
+        return classFileTransformerDispatcher;
     }
 
     protected Module newApplicationContextModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
@@ -164,9 +177,8 @@ public class DefaultApplicationContext implements ApplicationContext {
         return spanDataSender;
     }
 
-    @Override
-    public InstrumentClassPool getClassPool() {
-        return classPool;
+    public InstrumentEngine getInstrumentEngine() {
+        return instrumentEngine;
     }
 
 

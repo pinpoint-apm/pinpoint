@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
@@ -47,6 +47,7 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
  */
 public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, InstrumentContext {
     private final ApplicationContext applicationContext;
+    private final DynamicTransformTrigger dynamicTransformTrigger;
     private final ClassInjector classInjector;
     
     private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
@@ -54,14 +55,18 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     
     private final Pool<String, InterceptorScope> interceptorScopePool = new ConcurrentPool<String, InterceptorScope>(new InterceptorScopeFactory());
 
-    public DefaultProfilerPluginContext(ApplicationContext applicationContext, ClassInjector classInjector) {
+    public DefaultProfilerPluginContext(ApplicationContext applicationContext, DynamicTransformTrigger dynamicTransformTrigger, ClassInjector classInjector) {
         if (applicationContext == null) {
             throw new NullPointerException("applicationContext must not be null");
+        }
+        if (dynamicTransformTrigger == null) {
+            throw new NullPointerException("dynamicTransformTrigger must not be null");
         }
         if (classInjector == null) {
             throw new NullPointerException("classInjector must not be null");
         }
         this.applicationContext = applicationContext;
+        this.dynamicTransformTrigger = dynamicTransformTrigger;
         this.classInjector = classInjector;
     }
 
@@ -103,8 +108,8 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
             throw new NullPointerException("className must not be null");
         }
         try {
-            final InstrumentClassPool classPool = getClassPool();
-            return classPool.getClass(this, classLoader, className, classFileBuffer);
+            final InstrumentEngine instrumentEngine = getInstrumentEngine();
+            return instrumentEngine.getClass(this, classLoader, className, classFileBuffer);
         } catch (NotFoundInstrumentException e) {
             return null;
         }
@@ -115,13 +120,13 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
         if (className == null) {
             throw new NullPointerException("className must not be null");
         }
-        final InstrumentClassPool classPool = getClassPool();
-        return classPool.hasClass(classLoader, className);
+        final InstrumentEngine instrumentEngine = getInstrumentEngine();
+        return instrumentEngine.hasClass(classLoader, className);
     }
 
-    private InstrumentClassPool getClassPool() {
-        InstrumentClassPool classPool = applicationContext.getClassPool();
-        return classPool;
+    private InstrumentEngine getInstrumentEngine() {
+        InstrumentEngine instrumentEngine = applicationContext.getInstrumentEngine();
+        return instrumentEngine;
     }
 
     @Override
@@ -149,8 +154,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
 
         final ClassFileTransformerGuardDelegate classFileTransformerGuardDelegate = new ClassFileTransformerGuardDelegate(this, transformCallback);
 
-        final DynamicTransformTrigger dynamicTransformService = applicationContext.getDynamicTransformTrigger();
-        dynamicTransformService.addClassFileTransformer(classLoader, targetClassName, classFileTransformerGuardDelegate);
+        dynamicTransformTrigger.addClassFileTransformer(classLoader, targetClassName, classFileTransformerGuardDelegate);
     }
 
 
@@ -165,8 +169,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
 
         final ClassFileTransformerGuardDelegate classFileTransformerGuardDelegate = new ClassFileTransformerGuardDelegate(this, transformCallback);
 
-        final DynamicTransformTrigger dynamicTransformService = applicationContext.getDynamicTransformTrigger();
-        dynamicTransformService.retransform(target, classFileTransformerGuardDelegate);
+        dynamicTransformTrigger.retransform(target, classFileTransformerGuardDelegate);
     }
 
 

@@ -66,6 +66,7 @@
         <module>test</module>
         <module>web</module>
         <module>hbase</module>
+        <module>thirdparty</module>
     </modules>
 
     <properties>
@@ -116,6 +117,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-commons</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-google-guava</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -365,11 +371,6 @@
                 <version>1.2.16</version>
             </dependency>
 
-            <dependency>
-                <groupId>commons-dbcp</groupId>
-                <artifactId>commons-dbcp</artifactId>
-                <version>1.4</version>
-            </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-dbcp2</artifactId>
@@ -823,6 +824,9 @@
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
+
+                        <!--google guava-->
+                        <exclude>com/google/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -889,6 +893,9 @@
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
+
+                        <!--google guava-->
+                        <exclude>com/google/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -978,6 +985,9 @@
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
+
+                        <!--google guava-->
+                        <exclude>com/google/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -995,6 +1005,9 @@
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
+
+                        <!--google guava-->
+                        <exclude>com/google/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>

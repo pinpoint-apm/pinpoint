@@ -108,7 +108,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
             // For example, if this transaction invokes rpc call, we can add parameter to tell remote node 'don't sample this transaction'
             final Trace trace = traceContext.disableSampling();
             if (isDebug) {
-                logger.debug("remotecall sampling flag found. skip trace requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
+                logger.debug("remote call sampling flag found. skip trace requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
             }
             return trace;
         }
@@ -124,7 +124,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
                 }
             } else {
                 if (isDebug) {
-                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, request.getRequestURI(), request.getRemoteAddr());
+                    logger.debug("TraceID exist. can sampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", traceId, request.getRequestURI(), request.getRemoteAddr());
                 }
             }
             return trace;
@@ -138,7 +138,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
                 }
             } else {
                 if (isDebug) {
-                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
+                    logger.debug("TraceID not exist. can sampled is false. skip trace. requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
                 }
             }
             return trace;

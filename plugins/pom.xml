@@ -35,7 +35,7 @@
         <module>arcus</module>
         <module>google-httpclient</module>
         <module>jetty</module>
-	    <module>websphere</module>
+        <module>websphere</module>
         <module>spring</module>
         <module>spring-boot</module>
         <module>ibatis</module>
@@ -63,12 +63,12 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-httpclient4-plugin</artifactId>
             <version>${project.version}</version>
-        </dependency>
+        </dependency> 
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-ning-asynchttpclient-plugin</artifactId>
             <version>${project.version}</version>
-        </dependency>
+        </dependency> 
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-gson-plugin</artifactId>

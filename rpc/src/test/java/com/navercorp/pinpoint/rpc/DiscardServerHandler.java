@@ -38,7 +38,7 @@ public class DiscardServerHandler extends SimpleChannelUpstreamHandler {
     @Override
     public void handleUpstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
         if (e instanceof ChannelStateEvent) {
-            logger.info("event:{}", e);
+            logger.debug("event:{}", e);
         }
 
     }
@@ -47,8 +47,8 @@ public class DiscardServerHandler extends SimpleChannelUpstreamHandler {
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
 
         transferredBytes += ((ChannelBuffer) e.getMessage()).readableBytes();
-        logger.info("messageReceived. meg:{} channel:{}", e.getMessage(), e.getChannel());
-        logger.info("transferredBytes. transferredBytes:{}", transferredBytes);
+        logger.debug("messageReceived. meg:{} channel:{}", e.getMessage(), e.getChannel());
+        logger.debug("transferredBytes. transferredBytes:{}", transferredBytes);
 
     }
 

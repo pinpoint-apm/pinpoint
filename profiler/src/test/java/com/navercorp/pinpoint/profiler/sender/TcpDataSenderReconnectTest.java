@@ -60,13 +60,13 @@ public class TcpDataSenderReconnectTest {
 
             @Override
             public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-                logger.info("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
+                logger.debug("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
                 send++;
             }
 
             @Override
             public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-                logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
+                logger.debug("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
             }
 
             @Override
@@ -76,7 +76,7 @@ public class TcpDataSenderReconnectTest {
 
             @Override
             public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
-                logger.info("ping received {} {} ", pingPacket, pinpointServer);
+                logger.debug("ping received {} {} ", pingPacket, pinpointServer);
             }
         });
         serverAcceptor.bind(HOST, PORT);
@@ -97,15 +97,15 @@ public class TcpDataSenderReconnectTest {
         oldAcceptor.close();
         waitClientDisconnected(client);
 
-        logger.info("Server start------------------");
+        logger.debug("Server start------------------");
         PinpointServerAcceptor serverAcceptor = serverAcceptorStart();
         waitClientConnected(serverAcceptor);
 
-        logger.info("sendMessage------------------");
+        logger.debug("sendMessage------------------");
         sender.send(new TApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
 
         Thread.sleep(500);
-        logger.info("sender stop------------------");
+        logger.debug("sender stop------------------");
         sender.stop();
 
         serverAcceptor.close();

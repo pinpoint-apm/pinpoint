@@ -17,13 +17,16 @@
 package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import com.google.inject.Provider;
+import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.DefaultClassFileTransformerDispatcher;
+import com.navercorp.pinpoint.profiler.DynamicTransformerRegistry;
 import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 
-import javax.inject.Provider;
+
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,21 +35,38 @@ public class ClassFileTransformerDispatcherProvider implements Provider<ClassFil
 
     private final ApplicationContext applicationContext;
     private final PluginContextLoadResult pluginContextLoadResult;
+    private final InstrumentEngine instrumentEngine;
+    private final DynamicTransformTrigger dynamicTransformTrigger;
+    private final DynamicTransformerRegistry dynamicTransformerRegistry;
 
     @Inject
-    public ClassFileTransformerDispatcherProvider(ApplicationContext applicationContext, PluginContextLoadResult pluginContextLoadResult) {
+    public ClassFileTransformerDispatcherProvider(ApplicationContext applicationContext, InstrumentEngine instrumentEngine, PluginContextLoadResult pluginContextLoadResult,
+                                                  DynamicTransformTrigger dynamicTransformTrigger, DynamicTransformerRegistry dynamicTransformerRegistry) {
         if (applicationContext == null) {
             throw new NullPointerException("applicationContext must not be null");
+        }
+        if (instrumentEngine == null) {
+            throw new NullPointerException("instrumentEngine must not be null");
         }
         if (pluginContextLoadResult == null) {
             throw new NullPointerException("pluginContextLoadResult must not be null");
         }
+        if (dynamicTransformTrigger == null) {
+            throw new NullPointerException("dynamicTransformTrigger must not be null");
+        }
+        if (dynamicTransformerRegistry == null) {
+            throw new NullPointerException("dynamicTransformerRegistry must not be null");
+        }
+
         this.applicationContext = applicationContext;
+        this.instrumentEngine = instrumentEngine;
         this.pluginContextLoadResult = pluginContextLoadResult;
+        this.dynamicTransformTrigger = dynamicTransformTrigger;
+        this.dynamicTransformerRegistry = dynamicTransformerRegistry;
     }
 
     @Override
     public ClassFileTransformerDispatcher get() {
-        return new DefaultClassFileTransformerDispatcher(applicationContext, pluginContextLoadResult);
+        return new DefaultClassFileTransformerDispatcher(applicationContext, pluginContextLoadResult, instrumentEngine, dynamicTransformTrigger, dynamicTransformerRegistry);
     }
 }

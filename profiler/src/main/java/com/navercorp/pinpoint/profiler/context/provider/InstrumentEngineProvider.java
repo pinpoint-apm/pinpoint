@@ -21,10 +21,10 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 
-import com.navercorp.pinpoint.profiler.instrument.ASMClassPool;
-import com.navercorp.pinpoint.profiler.instrument.JavassistClassPool;
+import com.navercorp.pinpoint.profiler.instrument.ASMEngine;
+import com.navercorp.pinpoint.profiler.instrument.JavassistEngine;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class InstrumentEngineProvider implements Provider<InstrumentClassPool> {
+public class InstrumentEngineProvider implements Provider<InstrumentEngine> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -57,18 +57,18 @@ public class InstrumentEngineProvider implements Provider<InstrumentClassPool> {
         this.interceptorRegistryBinder = interceptorRegistryBinder;
     }
 
-    public InstrumentClassPool get() {
+    public InstrumentEngine get() {
         final String instrumentEngine = profilerConfig.getProfileInstrumentEngine().toUpperCase();
 
         if (DefaultProfilerConfig.INSTRUMENT_ENGINE_ASM.equals(instrumentEngine)) {
             logger.info("ASM InstrumentEngine.");
 
-            return new ASMClassPool(interceptorRegistryBinder, agentOption.getBootstrapJarPaths());
+            return new ASMEngine(interceptorRegistryBinder, agentOption.getBootstrapJarPaths());
 
         } else if (DefaultProfilerConfig.INSTRUMENT_ENGINE_JAVASSIST.equals(instrumentEngine)) {
             logger.info("JAVASSIST InstrumentEngine.");
 
-            return new JavassistClassPool(interceptorRegistryBinder, agentOption.getBootstrapJarPaths());
+            return new JavassistEngine(interceptorRegistryBinder, agentOption.getBootstrapJarPaths());
         } else {
             logger.warn("Unknown InstrumentEngine:{}", instrumentEngine);
 

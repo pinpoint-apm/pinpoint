@@ -16,48 +16,84 @@
 
 package com.navercorp.pinpoint.test;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
+import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
+import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
-import com.navercorp.pinpoint.profiler.plugin.DefaultPluginContextLoadResult;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.plugin.PluginSetup;
+import com.navercorp.pinpoint.profiler.plugin.SetupResult;
 
+import java.lang.instrument.ClassFileTransformer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class MockPluginContextLoadResult implements Provider<PluginContextLoadResult> {
+public class MockPluginContextLoadResult implements PluginContextLoadResult {
+    private final ProfilerConfig profilerConfig;
+    private final ApplicationContext applicationContext;
+    private final DynamicTransformTrigger dynamicTransformTrigger;
 
 
-    private PluginSetup pluginSetup;
+    private List<SetupResult> lazy;
 
-    @Inject
-    public MockPluginContextLoadResult(PluginSetup pluginSetup) {
-
-        this.pluginSetup = pluginSetup;
+    public MockPluginContextLoadResult(ProfilerConfig profilerConfig, ApplicationContext applicationContext, DynamicTransformTrigger dynamicTransformTrigger) {
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig must not be null");
+        }
+        if (applicationContext == null) {
+            throw new NullPointerException("applicationContext must not be null");
+        }
+        if (dynamicTransformTrigger == null) {
+            throw new NullPointerException("dynamicTransformTrigger must not be null");
+        }
+        this.profilerConfig = profilerConfig;
+        this.applicationContext = applicationContext;
+        this.dynamicTransformTrigger = dynamicTransformTrigger;
     }
 
-    @Override
-    public PluginContextLoadResult get() {
-        List<DefaultProfilerPluginContext> pluginContexts = new ArrayList<DefaultProfilerPluginContext>();
-        ClassInjector classInjector = new TestProfilerPluginClassLoader();
+    private List<SetupResult> getProfilerPluginContextList() {
+        if (lazy == null) {
+            lazy = load();
+        }
+        return lazy;
+    }
+
+
+    private List<SetupResult> load() {
 
         List<ProfilerPlugin> plugins = PluginLoader.load(ProfilerPlugin.class, ClassLoader.getSystemClassLoader());
 
+        List<SetupResult> pluginContexts = new ArrayList<SetupResult>();
+        ClassInjector classInjector = new TestProfilerPluginClassLoader();
+        PluginSetup pluginSetup = new MockPluginSetup(profilerConfig, applicationContext, dynamicTransformTrigger);
         for (ProfilerPlugin plugin : plugins) {
-            DefaultProfilerPluginContext context = pluginSetup.setupPlugin(plugin, classInjector);
+            SetupResult context = pluginSetup.setupPlugin(plugin, classInjector);
             pluginContexts.add(context);
         }
-
-
-        return new DefaultPluginContextLoadResult(pluginContexts);
+        return pluginContexts;
     }
 
 
+    @Override
+    public List<ClassFileTransformer> getClassFileTransformer() {
+        List<ClassFileTransformer> classFileTransformerList = new ArrayList<ClassFileTransformer>();
+        for (SetupResult pluginContext : getProfilerPluginContextList()) {
+            List<ClassFileTransformer> classFileTransformer = pluginContext.getClassTransformerList();
+            classFileTransformerList.addAll(classFileTransformer);
+        }
+
+        return classFileTransformerList;
+    }
+
+    @Override
+    public List<ApplicationTypeDetector> getApplicationTypeDetectorList() {
+        return Collections.emptyList();
+    }
 }

@@ -36,7 +36,7 @@ public final class InterceptorRegistry {
         if (LOCK.lock(lock)) {
             REGISTRY = interceptorRegistryAdaptor;
         } else {
-            throw new IllegalStateException("bind failed.");
+            throw new IllegalStateException("bind failed. lock=" + lock + " current=" + LOCK.getLock());
         }
     }
 
@@ -44,7 +44,7 @@ public final class InterceptorRegistry {
         if (LOCK.unlock(lock)) {
             REGISTRY = EmptyRegistryAdaptor.EMPTY;
         } else {
-            throw new IllegalStateException("unbind failed.");
+            throw new IllegalStateException("unbind failed. lock=" + lock + " current=" + LOCK.getLock());
         }
     }
 

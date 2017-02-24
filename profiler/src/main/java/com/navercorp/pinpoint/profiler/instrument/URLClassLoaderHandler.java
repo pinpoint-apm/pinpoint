@@ -15,16 +15,17 @@
 
 package com.navercorp.pinpoint.profiler.instrument;
 
-import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.navercorp.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -35,7 +36,7 @@ public class URLClassLoaderHandler implements ClassInjector {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private static final Method ADD_URL, LOAD_CLASS;;
+    private static final Method ADD_URL, LOAD_CLASS;
 
     static {
         try {
@@ -53,7 +54,7 @@ public class URLClassLoaderHandler implements ClassInjector {
         } catch (Exception e) {
             throw new PinpointException("Cannot access URLClassLoader.loadClass(class, boolean)", e);
         }
-    }    
+    }
 
     private final URL pluginURL;
     private final String pluginURLString;

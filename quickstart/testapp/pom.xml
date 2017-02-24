@@ -79,6 +79,24 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-jaxws</artifactId>
+            <version>1.6.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-codegen</artifactId>
+            <version>1.6.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-kernel</artifactId>
+            <version>1.6.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>javax.servlet.jsp.jstl</groupId>
             <artifactId>jstl-api</artifactId>
             <version>1.2</version>
@@ -198,5 +216,50 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <activation>
+                <property>
+                    <name>maven.pinpoint.identifier</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.axis2</groupId>
+                    <artifactId>axis2-jaxws</artifactId>
+                    <version>1.6.2</version>
+                    <scope>compile</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.axis2</groupId>
+                    <artifactId>axis2-codegen</artifactId>
+                    <version>1.6.2</version>
+                    <scope>compile</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.axis2</groupId>
+                    <artifactId>axis2-transport-local</artifactId>
+                    <version>1.6.2</version>
+                    <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.axis2</groupId>
+                    <artifactId>axis2-kernel</artifactId>
+                    <version>1.6.2</version>
+                    <scope>compile</scope>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>commons-logging</groupId>
+                            <artifactId>commons-logging</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <groupId>javax.servlet</groupId>
+                            <artifactId>servlet-api</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 
 </project>

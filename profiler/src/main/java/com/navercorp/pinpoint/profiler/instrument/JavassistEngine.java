@@ -21,8 +21,8 @@ import java.net.URLClassLoader;
 import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.instrument.*;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
+import com.navercorp.pinpoint.profiler.plugin.PluginInstrumentContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import javassist.*;
 
@@ -38,7 +38,8 @@ import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryB
 /**
  * @author emeroad
  */
-public class JavassistClassPool implements InstrumentClassPool {
+@Deprecated
+public class JavassistEngine implements InstrumentEngine {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isInfo = logger.isInfoEnabled();
@@ -72,7 +73,7 @@ public class JavassistClassPool implements InstrumentClassPool {
         }
     };
 
-    public JavassistClassPool(InterceptorRegistryBinder interceptorRegistryBinder, final List<String> bootStrapJars) {
+    public JavassistEngine(InterceptorRegistryBinder interceptorRegistryBinder, final List<String> bootStrapJars) {
         if (interceptorRegistryBinder == null) {
             throw new NullPointerException("interceptorRegistryBinder must not be null");
         }
@@ -142,8 +143,8 @@ public class JavassistClassPool implements InstrumentClassPool {
 
         // append plugin jar for jboss
         // plugin class not found in jboss classLoader
-        if (instrumentContext instanceof DefaultProfilerPluginContext) {
-            final PluginConfig pluginConfig = ((DefaultProfilerPluginContext) instrumentContext).getPluginConfig();
+        if (instrumentContext instanceof PluginInstrumentContext) {
+            final PluginConfig pluginConfig = ((PluginInstrumentContext) instrumentContext).getPluginConfig();
             if (pluginConfig != null) {
                 String jarPath = pluginConfig.getPluginJar().getPath();
                 contextCassPool.appendClassPath(jarPath);

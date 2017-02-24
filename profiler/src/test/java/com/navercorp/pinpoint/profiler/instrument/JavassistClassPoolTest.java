@@ -42,7 +42,7 @@ public class JavassistClassPoolTest {
     @Test
     public void testGetClass_original() throws Exception {
         InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
-        JavassistClassPool pool = new JavassistClassPool(binder, null);
+        JavassistEngine pool = new JavassistEngine(binder, null);
 
 
         final byte[] originalByteCode = BytecodeUtils.getClassFile(null, mock);
@@ -56,7 +56,7 @@ public class JavassistClassPoolTest {
     @Test
     public void testGetClass_transform() throws Exception {
         InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
-        JavassistClassPool pool = new JavassistClassPool(binder, null);
+        JavassistEngine pool = new JavassistEngine(binder, null);
 
 
         final byte[] transformByteCode = getTransformByteCode();

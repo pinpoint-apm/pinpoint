@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
@@ -31,14 +31,14 @@ import java.util.List;
 /**
  * @author jaehong.kim
  */
-public class ASMClassPool implements InstrumentClassPool {
+public class ASMEngine implements InstrumentEngine {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isInfo = logger.isInfoEnabled();
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final InterceptorRegistryBinder interceptorRegistryBinder;
 
-    public ASMClassPool(final InterceptorRegistryBinder interceptorRegistryBinder, final List<String> bootStrapJars) {
+    public ASMEngine(final InterceptorRegistryBinder interceptorRegistryBinder, final List<String> bootStrapJars) {
         if (interceptorRegistryBinder == null) {
             throw new NullPointerException("interceptorRegistryBinder must not be null");
         }

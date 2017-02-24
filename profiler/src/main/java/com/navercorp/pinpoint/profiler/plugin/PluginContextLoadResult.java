@@ -16,11 +16,17 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
+import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
+
+import java.lang.instrument.ClassFileTransformer;
 import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public interface PluginContextLoadResult {
-    List<DefaultProfilerPluginContext> getProfilerPluginContextList();
+
+    List<ClassFileTransformer> getClassFileTransformer();
+
+    List<ApplicationTypeDetector> getApplicationTypeDetectorList();
 }

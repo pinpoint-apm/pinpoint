@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,15 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.instrument;
+package com.navercorp.pinpoint.plugin.axis2.jaxws;
 
+import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
+import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
-/**
- * @author Jongho Moon
- *
- */
-public interface InstrumentClassPool {
-    InstrumentClass getClass(InstrumentContext instrumentContext, ClassLoader classLoader, String classInternalName, byte[] classFileBuffer) throws NotFoundInstrumentException;
-    boolean hasClass(ClassLoader classLoader, String classBinaryName);
-    void appendToBootstrapClassPath(String jar);
+public class Axis2JaxWsTypeProvider implements TraceMetadataProvider {
+
+    @Override
+    public void setup(TraceMetadataSetupContext context) {
+        context.addServiceType(Axis2JaxWsConstants.AXIS2_JAXWS_METHOD);
+    }
 }
