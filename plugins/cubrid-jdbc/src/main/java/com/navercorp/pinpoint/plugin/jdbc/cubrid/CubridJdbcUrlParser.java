@@ -16,39 +16,48 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.cubrid;
 
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParsingResult;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
-
 /**
  * @author emeroad
  */
-public class CubridJdbcUrlParser extends JdbcUrlParser {
+public class CubridJdbcUrlParser implements JdbcUrlParser {
+
+    private static final String JDBC_URL_PREFIX = "jdbc:cubrid";
+
     public static final String DEFAULT_HOSTNAME = "localhost";
     public static final int DEFAULT_PORT = 30000;
     public static final String DEFAULT_USER = "public";
     public static final String DEFAULT_PASSWORD = "";
 
-    private static final String URL_PATTERN = "jdbc:cubrid(-oracle|-mysql)?:([a-zA-Z_0-9\\.-]*):([0-9]*):([^:]+):([^:]*):([^:]*):(\\?[a-zA-Z_0-9]+=[^&=?]+(&[a-zA-Z_0-9]+=[^&=?]+)*)?";
+    private static final String URL_PATTERN = JDBC_URL_PREFIX + "(-oracle|-mysql)?:([a-zA-Z_0-9\\.-]*):([0-9]*):([^:]+):([^:]*):([^:]*):(\\?[a-zA-Z_0-9]+=[^&=?]+(&[a-zA-Z_0-9]+=[^&=?]+)*)?";
     private static final Pattern PATTERN = Pattern.compile(URL_PATTERN, Pattern.CASE_INSENSITIVE);
 
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
     @Override
-    public DatabaseInfo doParse(String url) {
+    public JdbcUrlParsingResult parse(String url) {
         if (url == null) {
-            return UnKnownDatabaseInfo.createUnknownDataBase(CubridConstants.CUBRID, CubridConstants.CUBRID_EXECUTE_QUERY, null);
+            return new JdbcUrlParsingResult(false, UnKnownDatabaseInfo.createUnknownDataBase(CubridConstants.CUBRID, CubridConstants.CUBRID_EXECUTE_QUERY, null));
         }
 
         final Matcher matcher = PATTERN.matcher(url);
         if (!matcher.find()) {
             logger.info("Cubrid connectionString parse fail. url:{}", url);
-            return UnKnownDatabaseInfo.createUnknownDataBase(CubridConstants.CUBRID, CubridConstants.CUBRID_EXECUTE_QUERY, url);
+            return new JdbcUrlParsingResult(false, UnKnownDatabaseInfo.createUnknownDataBase(CubridConstants.CUBRID, CubridConstants.CUBRID_EXECUTE_QUERY, url));
         }
 
         String host = matcher.group(2);
@@ -95,7 +104,8 @@ public class CubridJdbcUrlParser extends JdbcUrlParser {
 
         // skip alt host
 
-        return new DefaultDatabaseInfo(CubridConstants.CUBRID, CubridConstants.CUBRID_EXECUTE_QUERY, url, normalizedUrl, hostList, db);
+        DatabaseInfo databaseInfo = new DefaultDatabaseInfo(CubridConstants.CUBRID, CubridConstants.CUBRID_EXECUTE_QUERY, url, normalizedUrl, hostList, db);
+        return new JdbcUrlParsingResult(databaseInfo);
     }
 
 
@@ -117,5 +127,19 @@ public class CubridJdbcUrlParser extends JdbcUrlParser {
         return new DatabaseInfo(ServiceType.CUBRID, ServiceType.CUBRID_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
     }
     */
+
+    @Override
+    public ServiceType getServiceType() {
+        return CubridConstants.CUBRID;
+    }
+
+    @Override
+    public boolean isPrefixMatch(String url) {
+        if (url == null) {
+            return false;
+        }
+
+        return url.startsWith(JDBC_URL_PREFIX);
+    }
 
 }

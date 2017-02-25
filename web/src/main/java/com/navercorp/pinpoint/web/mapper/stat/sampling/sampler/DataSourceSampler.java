@@ -47,7 +47,7 @@ public class DataSourceSampler implements AgentStatSampler<DataSourceBo, Sampled
         DataSourceBo defaultDataSourceBo = dataSourceBoList.get(0);
         int id = defaultDataSourceBo.getId();
         short serviceTypeCode = defaultDataSourceBo.getServiceTypeCode();
-        String name = defaultDataSourceBo.getName();
+        String databaseName = null;
         String jdbcUrl = defaultDataSourceBo.getJdbcUrl();
         for (DataSourceBo dataSourceBo : dataSourceBoList) {
             int activeConnectionSize = dataSourceBo.getActiveConnectionSize();
@@ -66,8 +66,8 @@ public class DataSourceSampler implements AgentStatSampler<DataSourceBo, Sampled
                 throw new IllegalArgumentException("serviceTypeCode must be same");
             }
 
-            if (name == null && dataSourceBo.getName() != null) {
-                name = dataSourceBo.getName();
+            if (databaseName == null && dataSourceBo.getDatabaseName() != null) {
+                databaseName = dataSourceBo.getDatabaseName();
             }
 
             if (jdbcUrl == null && dataSourceBo.getJdbcUrl() != null) {
@@ -78,7 +78,7 @@ public class DataSourceSampler implements AgentStatSampler<DataSourceBo, Sampled
         SampledDataSource sampledDataSource = new SampledDataSource();
         sampledDataSource.setId(id);
         sampledDataSource.setServiceTypeCode(serviceTypeCode);
-        sampledDataSource.setName(name);
+        sampledDataSource.setDatabaseName(databaseName);
         sampledDataSource.setJdbcUrl(jdbcUrl);
         sampledDataSource.setActiveConnectionSize(createPoint(timestamp, activeConnectionSizes));
         sampledDataSource.setMaxConnectionSize(createPoint(timestamp, maxConnectionSizes));

@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.interceptor.MockTraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DisabledJdbcUrlParserManager;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import org.junit.Test;
@@ -44,7 +45,7 @@ public class DriverConnectInterceptorTest {
         MockTraceContext mockTraceContext = new MockTraceContext();
         MethodDescriptor mock = mock(MethodDescriptor.class);
         JdbcUrlParser parser = mock(JdbcUrlParser.class);
-        when(parser.parse(anyString())).thenReturn(UnKnownDatabaseInfo.INSTANCE);
+        when(parser.parse(anyString())).thenReturn(DisabledJdbcUrlParserManager.PARSING_RESULT);
 
         String invalidJdbcUrl = "invalidUrl";
 
@@ -67,7 +68,7 @@ public class DriverConnectInterceptorTest {
         MockTraceContext mockTraceContext = new MockTraceContext();
         MethodDescriptor mock = mock(MethodDescriptor.class);
         JdbcUrlParser parser = mock(JdbcUrlParser.class);
-        when(parser.parse(anyString())).thenReturn(UnKnownDatabaseInfo.INSTANCE);
+        when(parser.parse(anyString())).thenReturn(DisabledJdbcUrlParserManager.PARSING_RESULT);
 
         String invalidJdbcUrl = "invalidUrl";
 

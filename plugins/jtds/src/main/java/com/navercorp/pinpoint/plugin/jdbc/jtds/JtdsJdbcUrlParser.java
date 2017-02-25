@@ -16,26 +16,30 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.jtds;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParsingResult;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author emeroad
  */
-public class JtdsJdbcUrlParser extends JdbcUrlParser {
+public class JtdsJdbcUrlParser implements JdbcUrlParser {
+
+    private static final String JDBC_URL_PREFIX = "jdbc:jtds:sqlserver:";
 
     public static final int DEFAULT_PORT = 1433;
 
     @Override
-    public DatabaseInfo doParse(String url) {
+    public JdbcUrlParsingResult parse(String url) {
         if (url == null) {
-            return UnKnownDatabaseInfo.createUnknownDataBase(JtdsConstants.MSSQL, JtdsConstants.MSSQL_EXECUTE_QUERY, null);
+            return new JdbcUrlParsingResult(false, UnKnownDatabaseInfo.createUnknownDataBase(JtdsConstants.MSSQL, JtdsConstants.MSSQL_EXECUTE_QUERY, null));
         }
 
 //        jdbc:jtds:sqlserver://10.xx.xx.xx:1433;DatabaseName=CAFECHAT;sendStringParametersAsUnicode=false;useLOBs=false;loginTimeout=3
@@ -43,7 +47,7 @@ public class JtdsJdbcUrlParser extends JdbcUrlParser {
 //        jdbc:jtds:sqlserver://server/db;user=userName;password=password
         StringMaker maker = new StringMaker(url);
 
-        maker.lower().after("jdbc:jtds:sqlserver:");
+        maker.lower().after(JDBC_URL_PREFIX);
 
         StringMaker before = maker.after("//").before(';');
         final String hostAndPortAndDataBaseString = before.value();
@@ -66,8 +70,22 @@ public class JtdsJdbcUrlParser extends JdbcUrlParser {
 
         String normalizedUrl = maker.clear().before(";").value();
 
-        return new DefaultDatabaseInfo(JtdsConstants.MSSQL, JtdsConstants.MSSQL_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
+        DatabaseInfo databaseInfo = new DefaultDatabaseInfo(JtdsConstants.MSSQL, JtdsConstants.MSSQL_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
+        return new JdbcUrlParsingResult(databaseInfo);
     }
 
+    @Override
+    public ServiceType getServiceType() {
+        return JtdsConstants.MSSQL;
+    }
+
+    @Override
+    public boolean isPrefixMatch(String url) {
+        if (url == null) {
+            return false;
+        }
+
+        return url.toLowerCase().startsWith(JDBC_URL_PREFIX);
+    }
 
 }

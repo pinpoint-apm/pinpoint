@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.profiler.monitor.codahale.datasource.metric;
 
 import com.codahale.metrics.Gauge;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserManager;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParsingResult;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorWrapper;
 import com.navercorp.pinpoint.thrift.dto.TDataSource;
 
@@ -26,9 +28,11 @@ import com.navercorp.pinpoint.thrift.dto.TDataSource;
 public class DataSourceGauge implements Gauge<TDataSource> {
 
     private final DataSourceMonitorWrapper dataSourceMonitorWrapper;
+    private final JdbcUrlParserManager jdbcUrlParserManager;
 
-    protected DataSourceGauge(DataSourceMonitorWrapper dataSourceMonitorWrapper) {
+    protected DataSourceGauge(DataSourceMonitorWrapper dataSourceMonitorWrapper, JdbcUrlParserManager jdbcUrlParserManager) {
         this.dataSourceMonitorWrapper = dataSourceMonitorWrapper;
+        this.jdbcUrlParserManager = jdbcUrlParserManager;
     }
 
     @Override
@@ -37,14 +41,17 @@ public class DataSourceGauge implements Gauge<TDataSource> {
         dataSource.setId(dataSourceMonitorWrapper.getId());
         dataSource.setServiceTypeCode(dataSourceMonitorWrapper.getServiceType().getCode());
 
-        String name = dataSourceMonitorWrapper.getName();
-        if (name != null) {
-            dataSource.setName(name);
-        }
-
         String jdbcUrl = dataSourceMonitorWrapper.getUrl();
         if (jdbcUrl != null) {
             dataSource.setUrl(jdbcUrl);
+        }
+
+        if (jdbcUrl != null) {
+            JdbcUrlParsingResult parsingResult = jdbcUrlParserManager.parseWithResult(jdbcUrl);
+            if (parsingResult.isSuccess()) {
+                // default value is unknown
+                dataSource.setDatabaseName(parsingResult.getDatabaseInfo().getDatabaseId());
+            }
         }
 
         int activeConnectionSize = dataSourceMonitorWrapper.getActiveConnectionSize();

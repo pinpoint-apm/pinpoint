@@ -16,35 +16,43 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.mariadb;
 
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParsingResult;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
-
 /**
  * @author dawidmalina
  */
-public class MariaDBJdbcUrlParser extends JdbcUrlParser {
+public class MariaDBJdbcUrlParser implements JdbcUrlParser {
 
+    private static final String JDBC_URL_PREFIX = "jdbc:mariadb:";
     // jdbc:mariadb:loadbalance://10.22.33.44:3306,10.22.33.55:3306/MariaDB?characterEncoding=UTF-8
-    private static final String JDBC_MARIADB_LOADBALANCE = "jdbc:mariadb:loadbalance:";
+    private static final String JDBC_MARIADB_LOADBALANCE = JDBC_URL_PREFIX + "loadbalance:";
 
     @Override
-    public DatabaseInfo doParse(String url) {
+    public JdbcUrlParsingResult parse(String url) {
+        if (url == null) {
+            return new JdbcUrlParsingResult(false, UnKnownDatabaseInfo.createUnknownDataBase(MariaDBConstants.MARIADB, MariaDBConstants.MARIADB_EXECUTE_QUERY, null));
+        }
+
         if (isLoadbalanceUrl(url)) {
             return parseLoadbalancedUrl(url);
         }
         return parseNormal(url);
     }
 
-    private DatabaseInfo parseLoadbalancedUrl(String url) {
+    private JdbcUrlParsingResult parseLoadbalancedUrl(String url) {
         // jdbc:mariadb://1.2.3.4:5678/test_db
         StringMaker maker = new StringMaker(url);
-        maker.after("jdbc:mariadb:");
+        maker.after(JDBC_URL_PREFIX);
         // 1.2.3.4:5678 In case of replication driver could have multiple values
         // We have to consider mm db too.
         String host = maker.after("//").before('/').value();
@@ -57,18 +65,18 @@ public class MariaDBJdbcUrlParser extends JdbcUrlParser {
         String databaseId = maker.next().afterLast('/').before('?').value();
         String normalizedUrl = maker.clear().before('?').value();
 
-        return new DefaultDatabaseInfo(MariaDBConstants.MARIADB, MariaDBConstants.MARIADB_EXECUTE_QUERY, url,
-                normalizedUrl, hostList, databaseId);
+        DatabaseInfo databaseInfo = new DefaultDatabaseInfo(MariaDBConstants.MARIADB, MariaDBConstants.MARIADB_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
+        return new JdbcUrlParsingResult(databaseInfo);
     }
 
     private boolean isLoadbalanceUrl(String url) {
         return url.regionMatches(true, 0, JDBC_MARIADB_LOADBALANCE, 0, JDBC_MARIADB_LOADBALANCE.length());
     }
 
-    private DatabaseInfo parseNormal(String url) {
+    private JdbcUrlParsingResult parseNormal(String url) {
         // jdbc:mariadb://1.2.3.4:5678/test_db
         StringMaker maker = new StringMaker(url);
-        maker.after("jdbc:mariadb:");
+        maker.after(JDBC_URL_PREFIX);
         // 1.2.3.4:5678 In case of replication driver could have multiple values
         // We have to consider mm db too.
         String host = maker.after("//").before('/').value();
@@ -78,7 +86,22 @@ public class MariaDBJdbcUrlParser extends JdbcUrlParser {
 
         String databaseId = maker.next().afterLast('/').before('?').value();
         String normalizedUrl = maker.clear().before('?').value();
-        return new DefaultDatabaseInfo(MariaDBConstants.MARIADB, MariaDBConstants.MARIADB_EXECUTE_QUERY, url,
-                normalizedUrl, hostList, databaseId);
+        DatabaseInfo databaseInfo = new DefaultDatabaseInfo(MariaDBConstants.MARIADB, MariaDBConstants.MARIADB_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
+        return new JdbcUrlParsingResult(databaseInfo);
     }
+
+    @Override
+    public ServiceType getServiceType() {
+        return MariaDBConstants.MARIADB;
+    }
+
+    @Override
+    public boolean isPrefixMatch(String url) {
+        if (url == null) {
+            return false;
+        }
+
+        return url.startsWith(JDBC_URL_PREFIX);
+    }
+
 }
