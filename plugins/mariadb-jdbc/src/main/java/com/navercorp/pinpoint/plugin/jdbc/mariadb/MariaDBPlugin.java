@@ -14,10 +14,6 @@
  */
 package com.navercorp.pinpoint.plugin.jdbc.mariadb;
 
-import static com.navercorp.pinpoint.common.util.VarArgs.va;
-
-import java.security.ProtectionDomain;
-
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
@@ -29,13 +25,21 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
+
+import java.security.ProtectionDomain;
+
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 /**
  * @author dawidmalina
  */
 public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
+    private final JdbcUrlParser jdbcUrlParser = new MariaDBJdbcUrlParser();
+
     private TransformTemplate transformTemplate;
 
     @Override
@@ -46,6 +50,8 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
             logger.info("MariaDB plugin is not executed because plugin enable value is false.");
             return;
         }
+
+        context.addJdbcUrlParser(jdbcUrlParser);
 
         addConnectionTransformer(config);
         addDriverTransformer();
@@ -122,7 +128,7 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 target.addScopedInterceptor(
                         "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor",
-                        va(new MariaDBJdbcUrlParser(), true), MariaDBConstants.MARIADB_SCOPE, ExecutionPolicy.ALWAYS);
+                        va(jdbcUrlParser, true), MariaDBConstants.MARIADB_SCOPE, ExecutionPolicy.ALWAYS);
 
                 return target.toBytecode();
             }

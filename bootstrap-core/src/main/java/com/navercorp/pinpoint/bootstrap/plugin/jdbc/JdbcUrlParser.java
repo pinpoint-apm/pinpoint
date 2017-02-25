@@ -14,12 +14,12 @@
  */
 package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author Jongho Moon
@@ -59,4 +59,9 @@ public abstract class JdbcUrlParser {
     }
 
     protected abstract DatabaseInfo doParse(String url);
+
+    public boolean hasCache(String cacheKey) {
+        return cache.containsKey(cacheKey);
+    }
+
 }

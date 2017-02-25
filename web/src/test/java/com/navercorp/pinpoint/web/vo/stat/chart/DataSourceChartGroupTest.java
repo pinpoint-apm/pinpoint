@@ -82,7 +82,7 @@ public class DataSourceChartGroupTest {
 
         Assert.assertEquals(-1, dataSourceChartGroup.getId());
         Assert.assertEquals(null, dataSourceChartGroup.getJdbcUrl());
-        Assert.assertEquals(null, dataSourceChartGroup.getPoolName());
+        Assert.assertEquals(null, dataSourceChartGroup.getDatabaseName());
         Assert.assertEquals(null, dataSourceChartGroup.getServiceTypeName());
     }
 

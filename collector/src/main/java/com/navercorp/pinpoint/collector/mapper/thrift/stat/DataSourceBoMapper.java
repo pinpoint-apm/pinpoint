@@ -32,7 +32,7 @@ public class DataSourceBoMapper implements ThriftBoMapper<DataSourceBo, TDataSou
         DataSourceBo dataSourceBo = new DataSourceBo();
         dataSourceBo.setId(dataSource.getId());
         dataSourceBo.setServiceTypeCode(dataSource.getServiceTypeCode());
-        dataSourceBo.setName(dataSource.getName());
+        dataSourceBo.setDatabaseName(dataSource.getDatabaseName());
         dataSourceBo.setJdbcUrl(dataSource.getUrl());
         dataSourceBo.setActiveConnectionSize(dataSource.getActiveConnectionSize());
         dataSourceBo.setMaxConnectionSize(dataSource.getMaxConnectionSize());

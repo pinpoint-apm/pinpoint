@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -29,9 +30,10 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
  */
 public class DefaultProfilerPluginSetupContext implements ProfilerPluginSetupContext {
 
-    private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
-
     private final ProfilerConfig profilerConfig;
+
+    private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
+    private final List<JdbcUrlParser> jdbcUrlParserList = new ArrayList<JdbcUrlParser>();
 
     public DefaultProfilerPluginSetupContext(ProfilerConfig profilerConfig) {
         if (profilerConfig == null) {
@@ -61,5 +63,19 @@ public class DefaultProfilerPluginSetupContext implements ProfilerPluginSetupCon
         return serverTypeDetectors;
     }
 
+    @Override
+    public void addJdbcUrlParser(JdbcUrlParser... jdbcUrlParsers) {
+        if (jdbcUrlParsers == null) {
+            return;
+        }
+
+        for (JdbcUrlParser jdbcUrlParser : jdbcUrlParsers) {
+            this.jdbcUrlParserList.add(jdbcUrlParser);
+        }
+    }
+
+    public List<JdbcUrlParser> getJdbcUrlParserList() {
+        return jdbcUrlParserList;
+    }
 
 }

@@ -16,17 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import java.io.InputStream;
-import java.lang.instrument.ClassFileTransformer;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
@@ -34,6 +29,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
 import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.scope.ConcurrentPool;
 import com.navercorp.pinpoint.profiler.context.scope.InterceptorScopeFactory;
@@ -41,6 +37,11 @@ import com.navercorp.pinpoint.profiler.context.scope.Pool;
 import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.PluginClassInjector;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
+
+import java.io.InputStream;
+import java.lang.instrument.ClassFileTransformer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author jaehong.kim
@@ -52,7 +53,9 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     
     private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
     private final List<ClassFileTransformer> classTransformers = new ArrayList<ClassFileTransformer>();
-    
+
+    private final List<JdbcUrlParser> jdbcUrlParsers = new ArrayList<JdbcUrlParser>();
+
     private final Pool<String, InterceptorScope> interceptorScopePool = new ConcurrentPool<String, InterceptorScope>(new InterceptorScopeFactory());
 
     public DefaultProfilerPluginContext(ApplicationContext applicationContext, DynamicTransformTrigger dynamicTransformTrigger, ClassInjector classInjector) {
@@ -207,4 +210,16 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
 
         return interceptorScopePool.get(name);
     }
+
+    @Override
+    public void addJdbcUrlParser(JdbcUrlParser... jdbcUrlParsers) {
+        if (jdbcUrlParsers == null) {
+            return;
+        }
+
+        for (JdbcUrlParser jdbcUrlParser : jdbcUrlParsers) {
+            this.jdbcUrlParsers.add(jdbcUrlParser);
+        }
+    }
+
 }
