@@ -73,11 +73,11 @@ public class PinpointClientFactory {
     private static final long DEFAULT_ENABLE_WORKER_PACKET_DELAY = 60 * 1000 * 1;
 
     private final AtomicInteger socketId = new AtomicInteger(1);
-    
+
     private volatile boolean released;
     private ClientBootstrap bootstrap;
     private Map<String, Object> properties = Collections.emptyMap();
-    
+
     private long reconnectDelay = 3 * 1000;
     private final Timer timer;
 
@@ -94,7 +94,7 @@ public class PinpointClientFactory {
     private List<StateChangeEventListener> stateChangeEventListeners = new ArrayList<StateChangeEventListener>();
     private ServerStreamChannelMessageListener serverStreamChannelMessageListener = DisabledServerStreamChannelMessageListener.INSTANCE;
 
-    
+
     static {
         LoggerFactorySetup.setupSlf4jLoggerFactory();
     }
@@ -175,7 +175,7 @@ public class PinpointClientFactory {
         }
         this.pingDelay = pingDelay;
     }
-    
+
     public long getEnableWorkerPacketDelay() {
         return enableWorkerPacketDelay;
     }
@@ -223,7 +223,7 @@ public class PinpointClientFactory {
         ChannelFuture connectFuture = bootstrap.connect(connectAddress);
         PinpointClientHandler pinpointClientHandler = getSocketHandler(connectFuture, connectAddress);
 
-        PinpointClient pinpointClient = new PinpointClient(pinpointClientHandler);
+        PinpointClient pinpointClient = new DefaultPinpointClient(pinpointClientHandler);
         traceSocket(pinpointClient);
         return pinpointClient;
     }
@@ -233,7 +233,7 @@ public class PinpointClientFactory {
         ChannelFuture connectFuture = bootstrap.connect(address);
         PinpointClientHandler pinpointClientHandler = getSocketHandler(connectFuture, address);
 
-        PinpointClient pinpointClient = new PinpointClient(pinpointClientHandler);
+        PinpointClient pinpointClient = new DefaultPinpointClient(pinpointClientHandler);
         traceSocket(pinpointClient);
         return pinpointClient;
     }
@@ -252,7 +252,7 @@ public class PinpointClientFactory {
     }
 
     public PinpointClient scheduledConnect(InetSocketAddress connectAddress) {
-        PinpointClient pinpointClient = new PinpointClient(new ReconnectStateClientHandler());
+        PinpointClient pinpointClient = new DefaultPinpointClient(new ReconnectStateClientHandler());
         reconnect(pinpointClient, connectAddress);
         return pinpointClient;
     }
@@ -264,10 +264,10 @@ public class PinpointClientFactory {
 
         PinpointClientHandler pinpointClientHandler = getSocketHandler(channelConnectFuture.getChannel());
         pinpointClientHandler.setConnectSocketAddress(address);
-        
+
         ConnectFuture handlerConnectFuture = pinpointClientHandler.getConnectFuture();
         handlerConnectFuture.awaitUninterruptibly();
-        
+
         if (ConnectFuture.Result.FAIL == handlerConnectFuture.getResult()) {
             throw new PinpointSocketException("connect fail to " + address + ".", channelConnectFuture.getCause());
         }
@@ -430,12 +430,12 @@ public class PinpointClientFactory {
     public MessageListener getMessageListener() {
         return messageListener;
     }
-    
+
     public MessageListener getMessageListener(MessageListener defaultMessageListener) {
         if (messageListener == null) {
             return defaultMessageListener;
         }
-        
+
         return messageListener;
     }
 
@@ -448,15 +448,15 @@ public class PinpointClientFactory {
     public ServerStreamChannelMessageListener getServerStreamChannelMessageListener() {
         return serverStreamChannelMessageListener;
     }
-    
+
     public ServerStreamChannelMessageListener getServerStreamChannelMessageListener(ServerStreamChannelMessageListener defaultStreamMessageListener) {
         if (serverStreamChannelMessageListener == null) {
             return defaultStreamMessageListener;
         }
-        
+
         return serverStreamChannelMessageListener;
     }
-    
+
     public void setServerStreamChannelMessageListener(ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
         AssertUtils.assertNotNull(messageListener, "messageListener must not be null");
 
