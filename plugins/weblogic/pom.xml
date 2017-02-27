@@ -7,7 +7,7 @@
 		<relativePath>../..</relativePath>
 		<version>1.6.1-SNAPSHOT</version>
 	</parent>
-	
+
 	<artifactId>pinpoint-weblogic-plugin</artifactId>
 	<name>pinpoint-weblogic-plugin</name>
 	<packaging>jar</packaging>
@@ -17,5 +17,12 @@
 			<artifactId>pinpoint-bootstrap-core</artifactId>
 			<scope>provided</scope>
 		</dependency>
-	</dependencies>
+		<dependency>
+			<artifactId>weblogic</artifactId>
+			<groupId>com.oracle.weblogic</groupId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/com.oracle.weblogic.servlet.jar</systemPath>
+		</dependency>
+</dependencies>
 </project>
