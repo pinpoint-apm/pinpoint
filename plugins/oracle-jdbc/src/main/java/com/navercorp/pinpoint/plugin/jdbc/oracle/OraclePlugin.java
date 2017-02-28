@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConnectionStringParser;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 
 import java.security.ProtectionDomain;
 
@@ -46,7 +46,7 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private TransformTemplate transformTemplate;
 
-    private final JdbcConnectionStringParser jdbcUrlParser = new OracleJdbcUrlParser();
+    private final JdbcUrlParserV2 jdbcUrlParser = new OracleJdbcUrlParser();
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
@@ -57,7 +57,7 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
             return;
         }
 
-        context.addJdbcConnectionStringParser(jdbcUrlParser);
+        context.addJdbcUrlParser(jdbcUrlParser);
 
         addConnectionTransformer(config);
         addDriverTransformer();
@@ -103,7 +103,7 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor2", va(OracleConstants.ORACLE), OracleConstants.ORACLE_SCOPE, ExecutionPolicy.ALWAYS);
+                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptorV2", va(OracleConstants.ORACLE), OracleConstants.ORACLE_SCOPE, ExecutionPolicy.ALWAYS);
 
                 return target.toBytecode();
             }

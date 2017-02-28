@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConnectionStringParser;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 
 import java.security.ProtectionDomain;
 
@@ -38,7 +38,7 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
 public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private TransformTemplate transformTemplate;
-    private final JdbcConnectionStringParser jdbcUrlParser = new CubridJdbcUrlParser();
+    private final JdbcUrlParserV2 jdbcUrlParser = new CubridJdbcUrlParser();
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
@@ -48,7 +48,7 @@ public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
             logger.info("Cubrid plugin is not executed because plugin enable value is false.");
             return;
         }
-        context.addJdbcConnectionStringParser(jdbcUrlParser);
+        context.addJdbcUrlParser(jdbcUrlParser);
 
         addCUBRIDConnectionTransformer(config);
         addCUBRIDDriverTransformer();
@@ -94,7 +94,7 @@ public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor2", va(CubridConstants.CUBRID), CubridConstants.CUBRID_SCOPE, ExecutionPolicy.ALWAYS);
+                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptorV2", va(CubridConstants.CUBRID), CubridConstants.CUBRID_SCOPE, ExecutionPolicy.ALWAYS);
 
                 return target.toBytecode();
             }

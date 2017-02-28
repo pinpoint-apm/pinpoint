@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.plugin.jdbc.cubrid;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConnectionStringParser;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,7 +27,7 @@ import org.junit.Test;
  */
 public class CubridConnectionStringParserTest {
 
-    private final JdbcConnectionStringParser parser = new CubridJdbcUrlParser();
+    private final JdbcUrlParserV2 parser = new CubridJdbcUrlParser();
     
     @Test
     public void testParse1() {

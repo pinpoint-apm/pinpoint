@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConnectionStringParserContext;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -53,7 +53,7 @@ import com.navercorp.pinpoint.profiler.context.provider.ClassFileTransformerDisp
 import com.navercorp.pinpoint.profiler.context.provider.CommandDispatcherProvider;
 import com.navercorp.pinpoint.profiler.context.provider.DynamicTransformTriggerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.InstrumentEngineProvider;
-import com.navercorp.pinpoint.profiler.context.provider.JdbcUrlParserContextProvider;
+import com.navercorp.pinpoint.profiler.context.provider.JdbcContextProvider;
 import com.navercorp.pinpoint.profiler.context.provider.JvmInformationProvider;
 import com.navercorp.pinpoint.profiler.context.provider.PinpointClientFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.PinpointClientProvider;
@@ -149,9 +149,9 @@ public class ApplicationContextModule extends AbstractModule {
         bind(PluginContextLoadResult.class).toProvider(PluginContextLoadResultProvider.class).in(Scopes.SINGLETON);
 //        bind(DatabaseInfoCache.class).toProvider(DatabaseInfoCacheProvider.class).in(Scopes.SINGLETON);
 
-        bind(DefaultJdbcConnectionStringParserContext.class).toProvider(JdbcUrlParserContextProvider.class).in(Scopes.SINGLETON);
-        bind(JdbcConnectionStringParserContext.class).to(DefaultJdbcConnectionStringParserContext.class).in(Scopes.SINGLETON);
-        bind(DatabaseInfoLocator.class).to(DefaultJdbcConnectionStringParserContext.class).in(Scopes.SINGLETON);
+        bind(DefaultJdbcContext.class).toProvider(JdbcContextProvider.class).in(Scopes.SINGLETON);
+        bind(JdbcContext.class).to(DefaultJdbcContext.class).in(Scopes.SINGLETON);
+        bind(DatabaseInfoLocator.class).to(DefaultJdbcContext.class).in(Scopes.SINGLETON);
 
 
 

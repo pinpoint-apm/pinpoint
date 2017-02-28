@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentMap;
  *
  */
 /**
- * @deprecated Since 1.6.1. Use {@link JdbcConnectionStringParser )}
+ * @deprecated Since 1.6.1. Use {@link JdbcUrlParserV2 )}
  */
 @Deprecated
 public abstract class JdbcUrlParser {

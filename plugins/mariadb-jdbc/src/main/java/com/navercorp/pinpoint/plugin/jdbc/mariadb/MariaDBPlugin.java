@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConnectionStringParser;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 
 import java.security.ProtectionDomain;
 
@@ -38,7 +38,7 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
 public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    private final JdbcConnectionStringParser jdbcUrlParser = new MariaDBJdbcUrlParser();
+    private final JdbcUrlParserV2 jdbcUrlParser = new MariaDBJdbcUrlParser();
 
     private TransformTemplate transformTemplate;
 
@@ -51,7 +51,7 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
             return;
         }
 
-        context.addJdbcConnectionStringParser(jdbcUrlParser);
+        context.addJdbcUrlParser(jdbcUrlParser);
 
         addConnectionTransformer(config);
         addDriverTransformer();
@@ -127,7 +127,7 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
                 target.addScopedInterceptor(
-                        "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor2",
+                        "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptorV2",
                         va(MariaDBConstants.MARIADB, true), MariaDBConstants.MARIADB_SCOPE, ExecutionPolicy.ALWAYS);
 
                 return target.toBytecode();

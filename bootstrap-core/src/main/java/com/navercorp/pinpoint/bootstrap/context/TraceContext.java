@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.context;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConnectionStringParserContext;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 
 /**
@@ -89,6 +89,6 @@ public interface TraceContext {
 
     int getAsyncId();
 
-    JdbcConnectionStringParserContext getJdbcUrlParserContext();
+    JdbcContext getJdbcContext();
 
 }

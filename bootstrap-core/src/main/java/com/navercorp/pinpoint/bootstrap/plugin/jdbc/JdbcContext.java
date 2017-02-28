@@ -22,10 +22,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 /**
  * @author Taejin Koo
  */
-public interface JdbcConnectionStringParser {
+public interface JdbcContext {
 
-    DatabaseInfo parse(String url);
-
-    ServiceType getServiceType();
+    DatabaseInfo parseJdbcUrl(ServiceType serviceType, String jdbcUrl);
 
 }
