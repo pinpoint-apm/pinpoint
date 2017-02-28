@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context;
+package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConnectionStringParserContext;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * @author Taejin Koo
  */
-public final class DisabledJdbcUrlParserContext implements JdbcConnectionStringParserContext {
+public interface JdbcUrlParserV2 {
 
-    public static final DisabledJdbcUrlParserContext INSTANCE = new DisabledJdbcUrlParserContext();
+    DatabaseInfo parse(String url);
 
-    @Override
-    public DatabaseInfo parse(ServiceType serviceType, String jdbcUrl) {
-        return UnKnownDatabaseInfo.createUnknownDataBase(jdbcUrl);
-    }
+    ServiceType getServiceType();
 
 }

@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConnectionStringParser;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * @author emeroad
  */
-public class JtdsJdbcUrlParser implements JdbcConnectionStringParser {
+public class JtdsJdbcUrlParser implements JdbcUrlParserV2 {
 
     public static final int DEFAULT_PORT = 1433;
 

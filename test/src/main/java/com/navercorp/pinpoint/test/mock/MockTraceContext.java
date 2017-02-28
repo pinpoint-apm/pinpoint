@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConnectionStringParserContext;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 
 /**
  * @author emeroad
@@ -162,7 +162,7 @@ public class MockTraceContext implements TraceContext {
     }
 
     @Override
-    public JdbcConnectionStringParserContext getJdbcUrlParserContext() {
+    public JdbcContext getJdbcContext() {
 //        return new
         return null;
     }

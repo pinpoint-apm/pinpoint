@@ -34,16 +34,16 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author emeroad
  */
 @TargetMethod(name="connect", paramTypes={ "java.lang.String", "java.util.Properties" })
-public class DriverConnectInterceptor2 extends SpanEventSimpleAroundInterceptorForPlugin {
+public class DriverConnectInterceptorV2 extends SpanEventSimpleAroundInterceptorForPlugin {
 
     private final ServiceType serviceType;
     private final boolean recordConnection;
 
-    public DriverConnectInterceptor2(TraceContext context, MethodDescriptor descriptor, ServiceType serviceType) {
+    public DriverConnectInterceptorV2(TraceContext context, MethodDescriptor descriptor, ServiceType serviceType) {
         this(context, descriptor, serviceType, true);
     }
 
-    public DriverConnectInterceptor2(TraceContext context, MethodDescriptor descriptor, ServiceType serviceType, boolean recordConnection) {
+    public DriverConnectInterceptorV2(TraceContext context, MethodDescriptor descriptor, ServiceType serviceType, boolean recordConnection) {
         super(context, descriptor);
 
         this.serviceType = serviceType;
@@ -72,7 +72,7 @@ public class DriverConnectInterceptor2 extends SpanEventSimpleAroundInterceptorF
         final boolean success = InterceptorUtils.isSuccess(throwable);
         // Must not check if current transaction is trace target or not. Connection can be made by other thread.
         final String driverUrl = (String) args[0];
-        DatabaseInfo databaseInfo = traceContext.getJdbcUrlParserContext().parse(serviceType, driverUrl);
+        DatabaseInfo databaseInfo = traceContext.getJdbcContext().parseJdbcUrl(serviceType, driverUrl);
         if (success) {
             if (recordConnection) {
                 if (result instanceof DatabaseInfoAccessor) {

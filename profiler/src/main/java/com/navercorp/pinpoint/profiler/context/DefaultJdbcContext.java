@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConnectionStringParser;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConnectionStringParserContext;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.monitor.DatabaseInfoLocator;
@@ -29,15 +29,15 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author Taejin Koo
  */
-public class DefaultJdbcConnectionStringParserContext implements JdbcConnectionStringParserContext, DatabaseInfoLocator {
+public class DefaultJdbcContext implements JdbcContext, DatabaseInfoLocator {
 
-    private final List<JdbcConnectionStringParser> jdbcConnectionStringParserList;
+    private final List<JdbcUrlParserV2> jdbcUrlParserList;
 
     private final ConcurrentHashMap<String, DatabaseInfo> cache = new ConcurrentHashMap<String, DatabaseInfo>();
     private final ConcurrentHashMap<CacheKey, DatabaseInfo> eachServiceTypeCache = new ConcurrentHashMap<CacheKey, DatabaseInfo>();
 
-    public DefaultJdbcConnectionStringParserContext(List<JdbcConnectionStringParser> jdbcConnectionStringParserList) {
-        this.jdbcConnectionStringParserList = jdbcConnectionStringParserList;
+    public DefaultJdbcContext(List<JdbcUrlParserV2> jdbcUrlParserList) {
+        this.jdbcUrlParserList = jdbcUrlParserList;
     }
 
     @Override
@@ -57,7 +57,7 @@ public class DefaultJdbcConnectionStringParserContext implements JdbcConnectionS
     }
 
     @Override
-    public DatabaseInfo parse(ServiceType serviceType, String jdbcUrl) {
+    public DatabaseInfo parseJdbcUrl(ServiceType serviceType, String jdbcUrl) {
         if (jdbcUrl == null) {
             return UnKnownDatabaseInfo.INSTANCE;
         }
@@ -68,7 +68,7 @@ public class DefaultJdbcConnectionStringParserContext implements JdbcConnectionS
             return cacheValue;
         }
 
-        for (JdbcConnectionStringParser parser : jdbcConnectionStringParserList) {
+        for (JdbcUrlParserV2 parser : jdbcUrlParserList) {
             if (serviceType == parser.getServiceType()) {
                 DatabaseInfo databaseInfo = parser.parse(jdbcUrl);
                 return putCacheIfAbsent(cacheKey, databaseInfo);

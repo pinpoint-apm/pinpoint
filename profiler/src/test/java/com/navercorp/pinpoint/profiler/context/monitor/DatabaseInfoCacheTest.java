@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.profiler.context.monitor;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConnectionStringParser;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.context.DefaultJdbcConnectionStringParserContext;
+import com.navercorp.pinpoint.profiler.context.DefaultJdbcContext;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,38 +35,38 @@ public class DatabaseInfoCacheTest {
     private static final String MYSQL_NORMALIZED_URL = "jdbc:mysql://ip_address:3306/database_name";
     private static final String MYSQL_JDBC_URL = MYSQL_NORMALIZED_URL + "?useUnicode=yes&amp;characterEncoding=UTF-8";
 
-    private final JdbcConnectionStringParser jdbcUrlParser = new MockJdbcUrlParser();
+    private final JdbcUrlParserV2 jdbcUrlParser = new MockJdbcUrlParser();
 
     @Test
     public void cacheTest1() throws Exception {
-        DefaultJdbcConnectionStringParserContext jdbcUrlParserContext = new DefaultJdbcConnectionStringParserContext(Arrays.asList(jdbcUrlParser));
+        DefaultJdbcContext jdbcContext = new DefaultJdbcContext(Arrays.asList(jdbcUrlParser));
 
-        DatabaseInfo databaseInfo = jdbcUrlParserContext.getDatabaseInfo(MYSQL_JDBC_URL);
+        DatabaseInfo databaseInfo = jdbcContext.getDatabaseInfo(MYSQL_JDBC_URL);
         Assert.assertNull(databaseInfo);
 
-        DatabaseInfo parsingResult = jdbcUrlParserContext.parse(ServiceType.TEST, MYSQL_JDBC_URL);
+        DatabaseInfo parsingResult = jdbcContext.parseJdbcUrl(ServiceType.TEST, MYSQL_JDBC_URL);
         Assert.assertTrue(parsingResult.isParsingComplete());
 
-        DatabaseInfo cache1 = jdbcUrlParserContext.getDatabaseInfo(MYSQL_JDBC_URL);
-        DatabaseInfo cache2 = jdbcUrlParserContext.getDatabaseInfo(MYSQL_JDBC_URL);
+        DatabaseInfo cache1 = jdbcContext.getDatabaseInfo(MYSQL_JDBC_URL);
+        DatabaseInfo cache2 = jdbcContext.getDatabaseInfo(MYSQL_JDBC_URL);
 
         Assert.assertTrue(parsingResult == cache1 && parsingResult == cache2);
     }
 
     @Test
     public void cacheTest2() throws Exception {
-        DefaultJdbcConnectionStringParserContext jdbcUrlParserContext = new DefaultJdbcConnectionStringParserContext(Arrays.asList(jdbcUrlParser));
+        DefaultJdbcContext jdbcContext = new DefaultJdbcContext(Arrays.asList(jdbcUrlParser));
 
-        DatabaseInfo parsingResult = jdbcUrlParserContext.parse(ServiceType.TEST, MYSQL_JDBC_URL);
+        DatabaseInfo parsingResult = jdbcContext.parseJdbcUrl(ServiceType.TEST, MYSQL_JDBC_URL);
         Assert.assertTrue(parsingResult.isParsingComplete());
 
-        DatabaseInfo cache1 = jdbcUrlParserContext.getDatabaseInfo(ServiceType.TEST, MYSQL_JDBC_URL);
-        DatabaseInfo cache2 = jdbcUrlParserContext.getDatabaseInfo(ServiceType.UNKNOWN_DB, MYSQL_JDBC_URL);
+        DatabaseInfo cache1 = jdbcContext.getDatabaseInfo(ServiceType.TEST, MYSQL_JDBC_URL);
+        DatabaseInfo cache2 = jdbcContext.getDatabaseInfo(ServiceType.UNKNOWN_DB, MYSQL_JDBC_URL);
 
         Assert.assertNotEquals(cache1, cache2);
     }
 
-    private static class MockJdbcUrlParser implements JdbcConnectionStringParser {
+    private static class MockJdbcUrlParser implements JdbcUrlParserV2 {
 
         @Override
         public DatabaseInfo parse(String url) {

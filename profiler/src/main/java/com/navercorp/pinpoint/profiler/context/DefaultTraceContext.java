@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConnectionStringParserContext;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
@@ -57,7 +57,7 @@ public class DefaultTraceContext implements TraceContext {
     private final ServerMetaDataHolder serverMetaDataHolder;
 
     private final PluginMonitorContext pluginMonitorContext;
-    private final JdbcConnectionStringParserContext jdbcUrlParserContext;
+    private final JdbcContext jdbcContext;
 
     private final AsyncIdGenerator asyncIdGenerator = new AsyncIdGenerator();
 
@@ -69,7 +69,7 @@ public class DefaultTraceContext implements TraceContext {
                                ApiMetaDataService apiMetaDataService,
                                StringMetaDataService stringMetaDataService,
                                SqlMetaDataService sqlMetaDataService,
-                               JdbcConnectionStringParserContext jdbcUrlParserContext
+                               JdbcContext jdbcContext
     ) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
@@ -98,7 +98,7 @@ public class DefaultTraceContext implements TraceContext {
 
         this.traceFactory = traceFactoryBuilder.build(this);
         this.pluginMonitorContext = pluginMonitorContext;
-        this.jdbcUrlParserContext = jdbcUrlParserContext;
+        this.jdbcContext = jdbcContext;
 
         this.apiMetaDataService = apiMetaDataService;
         this.stringMetaDataService = stringMetaDataService;
@@ -252,8 +252,8 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     @Override
-    public JdbcConnectionStringParserContext getJdbcUrlParserContext() {
-        return jdbcUrlParserContext;
+    public JdbcContext getJdbcContext() {
+        return jdbcContext;
     }
 
 }

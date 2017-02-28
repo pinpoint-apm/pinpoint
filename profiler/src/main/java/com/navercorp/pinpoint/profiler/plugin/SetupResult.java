@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConnectionStringParser;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.util.List;
@@ -40,8 +40,8 @@ public class SetupResult {
         return this.setupContext.getApplicationTypeDetectors();
     }
 
-    public List<JdbcConnectionStringParser> getJdbcConnectionStringParserList() {
-        return this.setupContext.getJdbcConnectionStringParserList();
+    public List<JdbcUrlParserV2> getJdbcUrlParserList() {
+        return this.setupContext.getJdbcUrlParserList();
     }
 
     public List<ClassFileTransformer> getClassTransformerList() {

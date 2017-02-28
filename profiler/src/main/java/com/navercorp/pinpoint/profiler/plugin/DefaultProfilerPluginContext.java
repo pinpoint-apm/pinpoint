@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConnectionStringParser;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.scope.ConcurrentPool;
 import com.navercorp.pinpoint.profiler.context.scope.InterceptorScopeFactory;
@@ -54,7 +54,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
     private final List<ClassFileTransformer> classTransformers = new ArrayList<ClassFileTransformer>();
 
-    private final List<JdbcConnectionStringParser> jdbcConnectionStringParserList = new ArrayList<JdbcConnectionStringParser>();
+    private final List<JdbcUrlParserV2> jdbcUrlParserList = new ArrayList<JdbcUrlParserV2>();
 
     private final Pool<String, InterceptorScope> interceptorScopePool = new ConcurrentPool<String, InterceptorScope>(new InterceptorScopeFactory());
 
@@ -212,12 +212,12 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     }
 
     @Override
-    public void addJdbcConnectionStringParser(JdbcConnectionStringParser jdbcConnectionStringParser) {
-        if (jdbcConnectionStringParser == null) {
+    public void addJdbcUrlParser(JdbcUrlParserV2 jdbcUrlParser) {
+        if (jdbcUrlParser == null) {
             return;
         }
 
-        this.jdbcConnectionStringParserList.add(jdbcConnectionStringParser);
+        this.jdbcUrlParserList.add(jdbcUrlParser);
     }
 
 }

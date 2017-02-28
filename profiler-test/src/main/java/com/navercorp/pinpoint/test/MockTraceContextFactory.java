@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.profiler.context.AtomicIdGenerator;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceFactoryBuilder;
-import com.navercorp.pinpoint.profiler.context.DisabledJdbcUrlParserContext;
+import com.navercorp.pinpoint.profiler.context.DisabledJdbcContext;
 import com.navercorp.pinpoint.profiler.context.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.TraceFactoryBuilder;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
@@ -112,7 +112,7 @@ public class MockTraceContextFactory {
         this.traceContext = new DefaultTraceContext(profilerConfig, agentInformation,
                 traceFactoryBuilder, pluginMonitorContext, serverMetaDataHolder,
                 apiMetaDataCacheService, stringMetaDataCacheService, sqlMetaDataCacheService,
-                DisabledJdbcUrlParserContext.INSTANCE
+                DisabledJdbcContext.INSTANCE
         );
     }
 

@@ -15,7 +15,7 @@
 package com.navercorp.pinpoint.bootstrap.plugin;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConnectionStringParser;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 
 /**
  *  Provides attributes and objects to interceptors.
@@ -40,6 +40,6 @@ public interface ProfilerPluginSetupContext {
      */
     void addApplicationTypeDetector(ApplicationTypeDetector... detectors);
 
-    void addJdbcConnectionStringParser(JdbcConnectionStringParser jdbcConnectionStringParser);
+    void addJdbcUrlParser(JdbcUrlParserV2 jdbcUrlParserV2);
 
 }
