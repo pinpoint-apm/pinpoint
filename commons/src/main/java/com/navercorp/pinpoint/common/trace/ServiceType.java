@@ -240,11 +240,11 @@ public interface ServiceType {
     ServiceType UNAUTHORIZED = of(1007, "UNAUTHORIZED", RECORD_STATISTICS);
 
     // Added for php agent.
-    @Deprecated
-    ServiceType PHP = ServiceTypeFactory.of(1500, "PHP", RECORD_STATISTICS);
+    //@Deprecated
+    //ServiceType PHP = ServiceTypeFactory.of(1500, "PHP", RECORD_STATISTICS);
     // Added for php agent.
-    @Deprecated
-    ServiceType PHP_METHOD = ServiceTypeFactory.of(1501, "PHP_METHOD");
+    //@Deprecated
+    //ServiceType PHP_METHOD = ServiceTypeFactory.of(1501, "PHP_METHOD");
 
 
     /**
