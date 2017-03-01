@@ -57,6 +57,7 @@
         <module>rxjava</module>
         <module>rabbitmq</module>
         <module>weblogic</module>
+        <module>php</module>
     </modules>
 
     <dependencies>
@@ -283,6 +284,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-weblogic-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-php-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
