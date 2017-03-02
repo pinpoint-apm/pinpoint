@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.AgentEventBo;
 /**
  * @author HyunGil Jeong
  */
+@Deprecated
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DurationalAgentEvent extends AgentEvent {
 

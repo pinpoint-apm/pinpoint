@@ -26,8 +26,6 @@ import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
-import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorWrapper;
-import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorWrapperLocator;
 import com.navercorp.pinpoint.profiler.monitor.CounterMonitor;
 import com.navercorp.pinpoint.profiler.monitor.EventRateMonitor;
 import com.navercorp.pinpoint.profiler.monitor.HistogramMonitor;
@@ -114,9 +112,9 @@ public class MetricMonitorRegistry implements MonitorRegistry {
         return this.delegate.register(monitorName.getName(), new ThreadStatesGaugeSet());
     }
 
-    public DataSourceMetricSet registerDataSourceMonitor(MonitorName monitorName, PluginMonitorWrapperLocator<DataSourceMonitorWrapper> dataSourceMonitorLocator) {
+    public DataSourceMetricSet registerDataSourceMonitor(MonitorName monitorName, DataSourceMetricSet dataSourceMetricSet) {
         validateMonitorName(monitorName);
-        return this.delegate.register(monitorName.getName(), new DataSourceMetricSet(dataSourceMonitorLocator));
+        return this.delegate.register(monitorName.getName(), dataSourceMetricSet);
     }
 
     public MetricRegistry getRegistry() {

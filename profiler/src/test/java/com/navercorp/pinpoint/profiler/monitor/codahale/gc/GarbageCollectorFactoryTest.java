@@ -22,12 +22,14 @@ import com.navercorp.pinpoint.profiler.context.AtomicIdGenerator;
 import com.navercorp.pinpoint.profiler.context.DefaultTransactionCounter;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.monitor.DatabaseInfoLocator;
 import com.navercorp.pinpoint.profiler.context.monitor.DefaultPluginMonitorContext;
 import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
 import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
 import com.navercorp.pinpoint.profiler.monitor.codahale.DefaultAgentStatCollectorFactory;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +38,8 @@ public class GarbageCollectorFactoryTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @Mock
+    private DatabaseInfoLocator databaseInfoLocator;
 
     private AgentStatCollectorFactory newAgentStatCollectorFactory(boolean detailedMetrics) {
         ProfilerConfig profilerConfig = Mockito.mock(DefaultProfilerConfig.class);
@@ -48,7 +52,7 @@ public class GarbageCollectorFactoryTest {
         TransactionCounter transactionCounter = new DefaultTransactionCounter(idGenerator);
         PluginMonitorContext pluginMonitorContext = new DefaultPluginMonitorContext();
 
-        return new DefaultAgentStatCollectorFactory(profilerConfig, activeTraceRepository, transactionCounter, pluginMonitorContext);
+        return new DefaultAgentStatCollectorFactory(profilerConfig, activeTraceRepository, transactionCounter, pluginMonitorContext, databaseInfoLocator);
     }
 
 
@@ -69,7 +73,6 @@ public class GarbageCollectorFactoryTest {
 
     @Test
     public void testDetailedMetrics() {
-
         AgentStatCollectorFactory agentStatCollectorFactory = newAgentStatCollectorFactory(true);
         GarbageCollector collector = agentStatCollectorFactory.getGarbageCollector();
 

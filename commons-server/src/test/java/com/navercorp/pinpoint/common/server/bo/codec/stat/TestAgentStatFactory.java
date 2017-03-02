@@ -296,7 +296,7 @@ public class TestAgentStatFactory {
 
             dataSourceBo.setId(id);
             dataSourceBo.setServiceTypeCode(ServiceType.UNKNOWN.getCode());
-            dataSourceBo.setName("name-" + id);
+            dataSourceBo.setDatabaseName("name-" + id);
             dataSourceBo.setJdbcUrl("jdbcurl-" + id);
             dataSourceBo.setActiveConnectionSize(RANDOM.nextInt(maxConnectionSize));
             dataSourceBo.setMaxConnectionSize(maxConnectionSize);

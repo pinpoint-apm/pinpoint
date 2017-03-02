@@ -33,6 +33,10 @@ import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
  * 
  * @author emeroad
  */
+/**
+ * @deprecated Since 1.6.1. Use {@link DriverConnectInterceptorV2 )}
+ */
+@Deprecated
 @TargetMethod(name="connect", paramTypes={ "java.lang.String", "java.util.Properties" })
 public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
     

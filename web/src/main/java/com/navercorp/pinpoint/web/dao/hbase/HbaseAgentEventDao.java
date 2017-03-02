@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.navercorp.pinpoint.web.mapper.AgentEventResultsExtractor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -64,6 +65,9 @@ public class HbaseAgentEventDao implements AgentEventDao {
     @Qualifier("agentEventMapper")
     private RowMapper<List<AgentEventBo>> agentEventMapper;
 
+    @Autowired
+    private AgentEventResultsExtractor agentEventResultsExtractor;
+
     @Override
     public List<AgentEventBo> getAgentEvents(String agentId, Range range, Set<AgentEventType> excludeEventTypes) {
         if (agentId == null) {
@@ -89,7 +93,7 @@ public class HbaseAgentEventDao implements AgentEventDao {
             }
             scan.setFilter(filterList);
         }
-        List<AgentEventBo> agentEvents = this.hbaseOperations2.find(HBaseTables.AGENT_EVENT, scan, new AgentEventResultsExtractor());
+        List<AgentEventBo> agentEvents = this.hbaseOperations2.find(HBaseTables.AGENT_EVENT, scan, agentEventResultsExtractor);
         logger.debug("agentEvents found. {}", agentEvents);
         return agentEvents;
     }
@@ -121,22 +125,4 @@ public class HbaseAgentEventDao implements AgentEventDao {
         long reverseTimestamp = TimeUtils.reverseTimeMillis(timestamp);
         return RowKeyUtils.concatFixedByteAndLong(agentIdKey, HBaseTables.AGENT_NAME_MAX_LEN, reverseTimestamp);
     }
-
-    private class AgentEventResultsExtractor implements ResultsExtractor<List<AgentEventBo>> {
-
-        @Override
-        public List<AgentEventBo> extractData(ResultScanner results) throws Exception {
-            List<AgentEventBo> agentEvents = new ArrayList<>();
-            int rowNum = 0;
-            for (Result result : results) {
-                List<AgentEventBo> intermediateEvents = agentEventMapper.mapRow(result, rowNum++);
-                if (!intermediateEvents.isEmpty()) {
-                    agentEvents.addAll(intermediateEvents);
-                }
-            }
-            return agentEvents;
-        }
-
-    }
-
 }

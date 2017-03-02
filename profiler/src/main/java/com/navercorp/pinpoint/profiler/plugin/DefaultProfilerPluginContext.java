@@ -16,17 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import java.io.InputStream;
-import java.lang.instrument.ClassFileTransformer;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
@@ -34,6 +29,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.scope.ConcurrentPool;
 import com.navercorp.pinpoint.profiler.context.scope.InterceptorScopeFactory;
@@ -42,26 +38,38 @@ import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.PluginClassInjector;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
+import java.io.InputStream;
+import java.lang.instrument.ClassFileTransformer;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author jaehong.kim
  */
 public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, InstrumentContext {
     private final ApplicationContext applicationContext;
+    private final DynamicTransformTrigger dynamicTransformTrigger;
     private final ClassInjector classInjector;
     
     private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
     private final List<ClassFileTransformer> classTransformers = new ArrayList<ClassFileTransformer>();
-    
+
+    private final List<JdbcUrlParserV2> jdbcUrlParserList = new ArrayList<JdbcUrlParserV2>();
+
     private final Pool<String, InterceptorScope> interceptorScopePool = new ConcurrentPool<String, InterceptorScope>(new InterceptorScopeFactory());
 
-    public DefaultProfilerPluginContext(ApplicationContext applicationContext, ClassInjector classInjector) {
+    public DefaultProfilerPluginContext(ApplicationContext applicationContext, DynamicTransformTrigger dynamicTransformTrigger, ClassInjector classInjector) {
         if (applicationContext == null) {
             throw new NullPointerException("applicationContext must not be null");
+        }
+        if (dynamicTransformTrigger == null) {
+            throw new NullPointerException("dynamicTransformTrigger must not be null");
         }
         if (classInjector == null) {
             throw new NullPointerException("classInjector must not be null");
         }
         this.applicationContext = applicationContext;
+        this.dynamicTransformTrigger = dynamicTransformTrigger;
         this.classInjector = classInjector;
     }
 
@@ -149,8 +157,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
 
         final ClassFileTransformerGuardDelegate classFileTransformerGuardDelegate = new ClassFileTransformerGuardDelegate(this, transformCallback);
 
-        final DynamicTransformTrigger dynamicTransformService = applicationContext.getDynamicTransformTrigger();
-        dynamicTransformService.addClassFileTransformer(classLoader, targetClassName, classFileTransformerGuardDelegate);
+        dynamicTransformTrigger.addClassFileTransformer(classLoader, targetClassName, classFileTransformerGuardDelegate);
     }
 
 
@@ -165,8 +172,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
 
         final ClassFileTransformerGuardDelegate classFileTransformerGuardDelegate = new ClassFileTransformerGuardDelegate(this, transformCallback);
 
-        final DynamicTransformTrigger dynamicTransformService = applicationContext.getDynamicTransformTrigger();
-        dynamicTransformService.retransform(target, classFileTransformerGuardDelegate);
+        dynamicTransformTrigger.retransform(target, classFileTransformerGuardDelegate);
     }
 
 
@@ -204,4 +210,14 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
 
         return interceptorScopePool.get(name);
     }
+
+    @Override
+    public void addJdbcUrlParser(JdbcUrlParserV2 jdbcUrlParser) {
+        if (jdbcUrlParser == null) {
+            return;
+        }
+
+        this.jdbcUrlParserList.add(jdbcUrlParser);
+    }
+
 }

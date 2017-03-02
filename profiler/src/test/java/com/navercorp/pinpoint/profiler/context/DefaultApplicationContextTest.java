@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.google.inject.Injector;
-import com.google.inject.Key;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
@@ -25,16 +24,12 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
-import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.net.URL;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -42,20 +37,26 @@ import static org.junit.Assert.*;
 public class DefaultApplicationContextTest {
     @Test
     public void test() {
+        DefaultApplicationContext applicationContext = newApplicationContext();
+        try {
+            Injector injector = applicationContext.getInjector();
+            AgentInfoSender instance1 = injector.getInstance(AgentInfoSender.class);
+            AgentInfoSender instance2 = injector.getInstance(AgentInfoSender.class);
+            Assert.assertSame(instance1, instance2);
+        } finally {
+            applicationContext.close();
+        }
+
+    }
+
+    private DefaultApplicationContext newApplicationContext() {
         ProfilerConfig profilerConfig = new DefaultProfilerConfig();
         InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
         AgentOption agentOption = new DefaultAgentOption(new DummyInstrumentation(),
                 "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
                 null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
 
-        DefaultApplicationContext applicationContext = new DefaultApplicationContext(agentOption, binder);
-
-        Injector injector = applicationContext.getInjector();
-        AgentInfoSender instance1 = injector.getInstance(AgentInfoSender.class);
-        AgentInfoSender instance2 = injector.getInstance(AgentInfoSender.class);
-        Assert.assertSame(instance1, instance2);
-
-
+        return new DefaultApplicationContext(agentOption, binder);
     }
 
 }

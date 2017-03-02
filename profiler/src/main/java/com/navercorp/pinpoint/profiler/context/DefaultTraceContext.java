@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
@@ -56,6 +57,7 @@ public class DefaultTraceContext implements TraceContext {
     private final ServerMetaDataHolder serverMetaDataHolder;
 
     private final PluginMonitorContext pluginMonitorContext;
+    private final JdbcContext jdbcContext;
 
     private final AsyncIdGenerator asyncIdGenerator = new AsyncIdGenerator();
 
@@ -66,7 +68,8 @@ public class DefaultTraceContext implements TraceContext {
                                ServerMetaDataHolder serverMetaDataHolder,
                                ApiMetaDataService apiMetaDataService,
                                StringMetaDataService stringMetaDataService,
-                               SqlMetaDataService sqlMetaDataService
+                               SqlMetaDataService sqlMetaDataService,
+                               JdbcContext jdbcContext
     ) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
@@ -95,6 +98,7 @@ public class DefaultTraceContext implements TraceContext {
 
         this.traceFactory = traceFactoryBuilder.build(this);
         this.pluginMonitorContext = pluginMonitorContext;
+        this.jdbcContext = jdbcContext;
 
         this.apiMetaDataService = apiMetaDataService;
         this.stringMetaDataService = stringMetaDataService;
@@ -245,6 +249,11 @@ public class DefaultTraceContext implements TraceContext {
 
     public PluginMonitorContext getPluginMonitorContext() {
         return pluginMonitorContext;
+    }
+
+    @Override
+    public JdbcContext getJdbcContext() {
+        return jdbcContext;
     }
 
 }

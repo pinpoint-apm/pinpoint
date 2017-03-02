@@ -17,7 +17,9 @@
 package com.navercorp.pinpoint.profiler.monitor.codahale.datasource.metric;
 
 import com.codahale.metrics.Gauge;
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorWrapper;
+import com.navercorp.pinpoint.profiler.context.monitor.DatabaseInfoLocator;
 import com.navercorp.pinpoint.thrift.dto.TDataSource;
 
 /**
@@ -26,9 +28,11 @@ import com.navercorp.pinpoint.thrift.dto.TDataSource;
 public class DataSourceGauge implements Gauge<TDataSource> {
 
     private final DataSourceMonitorWrapper dataSourceMonitorWrapper;
+    private final DatabaseInfoLocator databaseInfoLocator;
 
-    protected DataSourceGauge(DataSourceMonitorWrapper dataSourceMonitorWrapper) {
+    protected DataSourceGauge(DataSourceMonitorWrapper dataSourceMonitorWrapper, DatabaseInfoLocator databaseInfoLocator) {
         this.dataSourceMonitorWrapper = dataSourceMonitorWrapper;
+        this.databaseInfoLocator = databaseInfoLocator;
     }
 
     @Override
@@ -37,14 +41,14 @@ public class DataSourceGauge implements Gauge<TDataSource> {
         dataSource.setId(dataSourceMonitorWrapper.getId());
         dataSource.setServiceTypeCode(dataSourceMonitorWrapper.getServiceType().getCode());
 
-        String name = dataSourceMonitorWrapper.getName();
-        if (name != null) {
-            dataSource.setName(name);
-        }
-
         String jdbcUrl = dataSourceMonitorWrapper.getUrl();
         if (jdbcUrl != null) {
             dataSource.setUrl(jdbcUrl);
+
+            DatabaseInfo databaseInfo = databaseInfoLocator.getDatabaseInfo(jdbcUrl);
+            if (databaseInfo != null) {
+                dataSource.setDatabaseName(databaseInfo.getDatabaseId());
+            }
         }
 
         int activeConnectionSize = dataSourceMonitorWrapper.getActiveConnectionSize();

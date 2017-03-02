@@ -19,9 +19,10 @@ package com.navercorp.pinpoint.test;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
-import com.navercorp.pinpoint.profiler.plugin.PluginSetup;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -29,22 +30,27 @@ public class MockPluginContextLoadResultProvider implements Provider<PluginConte
 
     private final ProfilerConfig profilerConfig;
     private final ApplicationContext applicationContext;
+    private final DynamicTransformTrigger dynamicTransformTrigger;
 
     @Inject
-    public MockPluginContextLoadResultProvider(ProfilerConfig profilerConfig, ApplicationContext applicationContext) {
+    public MockPluginContextLoadResultProvider(ProfilerConfig profilerConfig, ApplicationContext applicationContext, DynamicTransformTrigger dynamicTransformTrigger) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
         if (applicationContext == null) {
             throw new NullPointerException("applicationContext must not be null");
         }
+        if (dynamicTransformTrigger == null) {
+            throw new NullPointerException("dynamicTransformTrigger must not be null");
+        }
         this.profilerConfig = profilerConfig;
         this.applicationContext = applicationContext;
+        this.dynamicTransformTrigger = dynamicTransformTrigger;
     }
 
     @Override
     public PluginContextLoadResult get() {
-        return new MockPluginContextLoadResult(profilerConfig, applicationContext);
+        return new MockPluginContextLoadResult(profilerConfig, applicationContext, dynamicTransformTrigger);
     }
 
 

@@ -75,7 +75,7 @@ public class DataSourceChartGroupSerializerTest {
 
         Assert.assertTrue(map.containsKey("id"));
         Assert.assertTrue(map.containsKey("jdbcUrl"));
-        Assert.assertTrue(map.containsKey("poolName"));
+        Assert.assertTrue(map.containsKey("databaseName"));
         Assert.assertTrue(map.containsKey("serviceType"));
         Assert.assertTrue(map.containsKey("charts"));
     }

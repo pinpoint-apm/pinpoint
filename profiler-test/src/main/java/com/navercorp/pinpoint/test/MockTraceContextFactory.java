@@ -25,19 +25,17 @@ import com.navercorp.pinpoint.profiler.context.AtomicIdGenerator;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceFactoryBuilder;
+import com.navercorp.pinpoint.profiler.context.DisabledJdbcContext;
 import com.navercorp.pinpoint.profiler.context.IdGenerator;
-import com.navercorp.pinpoint.profiler.context.monitor.DefaultPluginMonitorContext;
 import com.navercorp.pinpoint.profiler.context.TraceFactoryBuilder;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.monitor.DefaultPluginMonitorContext;
 import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
 import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataCacheService;
-import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataCacheService;
-import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataCacheService;
-import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import com.navercorp.pinpoint.profiler.sampler.SamplerFactory;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
@@ -113,7 +111,8 @@ public class MockTraceContextFactory {
 
         this.traceContext = new DefaultTraceContext(profilerConfig, agentInformation,
                 traceFactoryBuilder, pluginMonitorContext, serverMetaDataHolder,
-                apiMetaDataCacheService, stringMetaDataCacheService, sqlMetaDataCacheService
+                apiMetaDataCacheService, stringMetaDataCacheService, sqlMetaDataCacheService,
+                DisabledJdbcContext.INSTANCE
         );
     }
 

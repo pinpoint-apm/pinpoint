@@ -20,9 +20,9 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 import com.google.inject.Inject;
+import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
-import com.navercorp.pinpoint.bootstrap.instrument.RequestHandle;
 import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.transformer.TransformerRegistry;
@@ -62,11 +62,18 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
     private final ClassFileFilter unmodifiableFilter;
 
     @Inject
-    public DefaultClassFileTransformerDispatcher(ApplicationContext applicationContext, PluginContextLoadResult pluginContexts, InstrumentEngine instrumentEngine) {
+    public DefaultClassFileTransformerDispatcher(ApplicationContext applicationContext, PluginContextLoadResult pluginContexts, InstrumentEngine instrumentEngine,
+                                                 DynamicTransformTrigger dynamicTransformTrigger, DynamicTransformerRegistry dynamicTransformerRegistry) {
+        if (instrumentEngine == null) {
+            throw new NullPointerException("instrumentEngine must not be null");
+        }
+        if (dynamicTransformerRegistry == null) {
+            throw new NullPointerException("dynamicTransformerRegistry must not be null");
+        }
 
         ClassInjector classInjector = new LegacyProfilerPluginClassInjector(getClass().getClassLoader());
-        ClassFileTransformerLoader transformerRegistry = new ClassFileTransformerLoader(applicationContext);
-        this.globalContext = new PluginInstrumentContext(applicationContext, classInjector, transformerRegistry);
+        ClassFileTransformerLoader transformerRegistry = new ClassFileTransformerLoader(dynamicTransformTrigger);
+        this.globalContext = new PluginInstrumentContext(applicationContext, dynamicTransformTrigger, classInjector, transformerRegistry);
         this.debugTargetFilter = applicationContext.getProfilerConfig().getProfilableClassFilter();
         this.debugTransformer = new DebugTransformer(instrumentEngine, globalContext);
 
@@ -74,7 +81,7 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
         this.unmodifiableFilter = new UnmodifiableClassFilter();
 
         this.transformerRegistry = createTransformerRegistry(pluginContexts);
-        this.dynamicTransformerRegistry = new DefaultDynamicTransformerRegistry();
+        this.dynamicTransformerRegistry = dynamicTransformerRegistry;
     }
 
     @Override
@@ -135,15 +142,6 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
         }
     }
 
-    @Override
-    public RequestHandle onRetransformRequest(Class<?> target, final ClassFileTransformer transformer) {
-        return this.dynamicTransformerRegistry.onRetransformRequest(target, transformer);
-    }
-
-    @Override
-    public void onTransformRequest(ClassLoader classLoader, String targetClassName, ClassFileTransformer transformer) {
-        this.dynamicTransformerRegistry.onTransformRequest(classLoader, targetClassName, transformer);
-    }
 
     private ClassLoader getContextClassLoader(Thread thread) throws Throwable {
         try {
