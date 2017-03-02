@@ -227,47 +227,35 @@
 				}
 				return newData;
 			};
-			this.parseDataSourceChartDataForAmcharts = function (info, agentStat) {
-				var activeConnectionData = agentStat.charts['ACTIVE_CONNECTION_SIZE'];
-				var maxConnectionData = agentStat.charts['MAX_CONNECTION_SIZE'];
-				if (activeConnectionData || maxConnectionData) {
-					info.isAvailable = true;
-				} else {
-					return;
+			this.parseDataSourceChartDataForAmcharts = function (oInfo, aChartData, prefix) {
+				var returnData = [];
+				if ( aChartData.length === 0 ) {
+					return returnData;
 				}
-				var newData = [], max = -1,
-					pointsActiveConnection = activeConnectionData.points,
-					pointsMaxConnection = maxConnectionData.points;
+				var maxAvg = 0;
+				for( var groupIndex = 0 ; groupIndex < aChartData.length ; groupIndex++ ) {
+					var oGroupData = aChartData[groupIndex];
+					var targetId = oGroupData.id;
+					var aAvgData = oGroupData.charts["ACTIVE_CONNECTION_SIZE"].points;
 
-				if (pointsActiveConnection.length !== pointsMaxConnection.length) {
-					throw new Error('assertion error', 'activeConnection.length != maxConnection.length');
+					if ( aAvgData.length === 0 ) {
+						return returnData;
+					}
+					for( var fieldIndex = 0 ; fieldIndex < aAvgData.length ; fieldIndex++ ) {
+						var oData = aAvgData[fieldIndex];
+						if ( groupIndex === 0 ) {
+							returnData[fieldIndex] = {
+								"time": moment(oData.xVal).format(cfg.dateFormat)
+							};
+						}
+						maxAvg = Math.max( maxAvg, oData["avgYVal"] );
+						returnData[fieldIndex][prefix+targetId]  = oData["avgYVal"].toFixed(1);
+					}
 				}
-
-				for (var i = 0; i < pointsActiveConnection.length; ++i) {
-					if (pointsActiveConnection[i].xVal !== pointsMaxConnection[i].xVal) {
-						throw new Error('assertion error', 'timestamp mismatch between jvmCpuLoad and systemCpuLoad');
-					}
-					var thisData = {
-						time: moment(pointsActiveConnection[i].xVal).format( cfg.dateFormat )
-					};
-					var activeConnection = pointsActiveConnection[i].avgYVal;
-					var activeMaxConnection =pointsActiveConnection[i].maxYVal;
-					var maxConnection = pointsMaxConnection[i].avgYVal;
-					max = Math.max( max, pointsActiveConnection[i].maxYVal, pointsMaxConnection[i].maxYVal );
-					if ( activeConnection >= 0 ) {
-						thisData.activeConnection = activeConnection.toFixed(3);
-					}
-					if ( activeMaxConnection >= 0 ) {
-						thisData.activeMaxConnection = activeMaxConnection;
-					}
-					if ( maxConnection >= 0 ) {
-						thisData.maxConnection = maxConnection;
-					}
-					newData.push(thisData);
-				}
+				info.isAvailable = true;
 				return {
-					"list": newData,
-					"max": max
+					max: parseInt( maxAvg ) + 1,
+					data: returnData
 				};
 			};
 

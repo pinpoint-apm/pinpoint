@@ -197,28 +197,61 @@
 					<h4><span class="glyphicon glyphicon-question-sign activeThreadTooltip" style="cursor:pointer;float:right;"></span> {{activeTraceChart.title}}</h4>
 					<active-trace-chart-directive namespace="forActiveTrace"></active-trace-chart-directive>
 				</div>
-				<div class="col-md-6" ng-if="showDataSourceChart">
+				<div class="col-md-6" ng-if="enableDataSourceChart" id="data-source-chart">
 					<h4>
-						<span class="glyphicon glyphicon-question-sign dataSourceTooltip" style="cursor:pointer;float:right;"></span> {{dataSourceChart.title}}
-						<select style="margin-left:20px;" class="data-source-select" ng-show="dataSourceChart.keys[0].display != -1">
-							<option ng-repeat="k in dataSourceChart.keys" value="{{k.value}}" {{ $index === 0 ? 'selected' : '' }}>{{k.display}}</option>
-						</select>
-						<span class="label label-primary" style="margin-left:20px;" ng-show="dataSourceChart.keys[0].display == -1">NOT FOUND</span>
-						<span ng-click="showDataSourceDetail()" class="glyphicon glyphicon-info-sign" style="float:right;margin-right:20px;cursor:pointer;"></span>
-					</h4>
-					<div style="display:none;font-size:12px;top:-180px;padding:10px 6px;position:absolute;background-color:#FFF;z-index:1000;width:95%;" class="ds-detail">
-						<div class="panel panel-default" style="margin-bottom:0px;">
-							<div class="panel-body" style="padding: 6px 6px;">
-								<div class="row" style="color:#55B951;"><div class="col-md-12">Service Type</div></div>
-								<div class="row"><div class="col-md-12">{{dsChartData[selectedDSIndex].serviceType}}</div></div>
-								<div class="row" style="margin-top:10px;color:#55B951;"><div class="col-md-12">URL</div></div>
-								<div class="row"><div class="col-md-12">{{dsChartData[selectedDSIndex].jdbcUrl}}</div></div>
-								<div class="row" style="margin-top:10px;color:#55B951;"><div class="col-md-12">Pool Name</div></div>
-								<div class="row"><div class="col-md-12">{{dsChartData[selectedDSIndex].poolName  || "-" }}</div></div>
+						<span class="glyphicon glyphicon-question-sign dataSourceTooltip" style="cursor:pointer;float:right;"></span> {{dataSourceChartDescription.title}}
+						<span class="label label-info not-found" ng-show="emptyDataSource()">NOT FOUND</span>
+						<span class="type-selector" ng-show="hasDataSource()" ng-click="toggleSourceSelectLayer()">Select Source <span class="glyphicon glyphicon-chevron-down"></span></span>
+						<div class="type-select-layer" ng-click="changeDataSource($event)">
+							<div>
+								<button class="btn btn-default btn-xs" ng-click="selectAllDataSource()">ALL</button>
+							</div>
+							<div class="wrapper">
+								<ul>
+									<li ng-repeat="key in dataSourceChartKeys">
+										<input type="checkbox" id="checkbox_{{key.display}}" value="{{key.value}}" ng-checked="checkChecked(key.value)"><label for="checkbox_{{key.display}}">{{key.display}}</label>
+									</li>
+								</ul>
 							</div>
 						</div>
-					</div>
+					</h4>
 					<ds-chart-directive namespace="forDataSource"></ds-chart-directive>
+					<br/>
+					<div class="panel panel-success" ng-show="hasDataSource()">
+						<div class="panel-heading">Data Source Info</div>
+						<div class="panel-body">
+							<table class="table table-bordered">
+								<tbody>
+								<tr>
+									<td>Active Avg</td>
+									<td>Active Max</td>
+									<td>Total Max</td>
+								</tr>
+								<tr>
+									<td class="ds-active-avg">-</td>
+									<td class="ds-active-max">-</td>
+									<td class="ds-total-max">-</td>
+								</tr>
+								<tr>
+									<td>ID</td>
+									<td>Type</td>
+									<td>Database Name</td>
+								</tr>
+								<tr>
+									<td class="ds-id">-</td>
+									<td class="ds-type">-</td>
+									<td class="ds-database-name">-</td>
+								</tr>
+								<tr>
+									<td colspan="3">Jdbc URL</td>
+								</tr>
+								<tr>
+									<td colspan="3" class="ds-jdbc-url">-</td>
+								</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

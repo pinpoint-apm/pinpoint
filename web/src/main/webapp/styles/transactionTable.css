@@ -37,7 +37,7 @@
     border-left: 1px solid darkgray;
     padding-left: 5px;
     margin-left: -5px;
-    width: 100%;
+    /*width: 100%;*/
 }
 
 .transaction-table-directive_table th:first-child .th-inner {
@@ -46,7 +46,8 @@
 
 .transaction-table-directive_table th,
 .transaction-table-directive_table td {
-    min-width: 45px
+    min-width: 45px;
+    cursor: pointer;
 }
 
 .transaction-table-directive_table td {
@@ -60,4 +61,31 @@
 .transaction-table-directive_table td {
     border-left: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
+    word-break: break-all;
+    cursor: pointer;
+    vertical-align: middle;
+}
+.transaction-table-directive_table thead th:nth-child(1) {
+    width: 5%;
+}
+.transaction-table-directive_table thead th:nth-child(2) {
+    width: 15%;
+}
+.transaction-table-directive_table thead th:nth-child(3) {
+    width: 25%;
+}
+.transaction-table-directive_table thead th:nth-child(4) {
+    width: 5%;
+}
+.transaction-table-directive_table thead th:nth-child(5) {
+    width: 5%;
+}
+.transaction-table-directive_table thead th:nth-child(6) {
+    width: 10%;
+}
+.transaction-table-directive_table thead th:nth-child(7) {
+    width: 10%;
+}
+.transaction-table-directive_table thead th:nth-child(8) {
+    width: 25%;
 }
