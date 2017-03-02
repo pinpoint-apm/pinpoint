@@ -274,7 +274,7 @@
 							var key = dataSourceIdPrefix + obj.id;
 							scope.dataSourceChartCheckedKeys[key] = index < 30 ? true : false;
 							return {
-								display: index,
+								display: obj.databaseName ? obj.databaseName : obj.id,
 								value: key
 							};
 						});
