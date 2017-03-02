@@ -31,7 +31,6 @@ import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.service.AgentService;
-import com.navercorp.pinpoint.web.vo.AgentActiveThreadDump;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadDumpFactory;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadDumpList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
@@ -101,49 +100,54 @@ public class AgentCommandController {
 
         try {
             PinpointRouteResponse pinpointRouteResponse = agentService.invoke(agentInfo, threadDump);
-            if (pinpointRouteResponse != null && pinpointRouteResponse.getRouteResult() == TRouteResult.OK) {
+            if (isSuccessResponse(pinpointRouteResponse)) {
                 TBase<?, ?> result = pinpointRouteResponse.getResponse();
                 if (result instanceof TCmdActiveThreadDumpRes) {
                     TCmdActiveThreadDumpRes activeThreadDumpResponse = (TCmdActiveThreadDumpRes) result;
-
-                    AgentActiveThreadDumpList activeThreadDumpList = new AgentActiveThreadDumpList(activeThreadDumpResponse.getThreadDumpsSize());
                     List<TActiveThreadDump> activeThreadDumps = activeThreadDumpResponse.getThreadDumps();
-                    if (activeThreadDumps != null) {
-                        AgentActiveThreadDumpFactory factory = new AgentActiveThreadDumpFactory();
-                        for (TActiveThreadDump activeThreadDump : activeThreadDumps) {
-                            try {
-                                AgentActiveThreadDump agentActiveThreadDump = factory.create(activeThreadDump);
-                                activeThreadDumpList.add(agentActiveThreadDump);
-                            } catch (Exception e) {
-                                logger.warn("create AgentActiveThreadDump fail. arguments(TActiveThreadDump:{})", activeThreadDump);
-                            }
-                        }
-                    }
 
-                    Map<String, Object> response =new HashMap<>(3);
-                    response.put("threadDumpData", activeThreadDumpList);
-                    response.put("type", activeThreadDumpResponse.getType());
-                    response.put("subType", activeThreadDumpResponse.getSubType());
-                    response.put("version", activeThreadDumpResponse.getVersion());
+                    AgentActiveThreadDumpFactory factory = new AgentActiveThreadDumpFactory();
+                    AgentActiveThreadDumpList activeThreadDumpList = factory.create1(activeThreadDumps);
 
-                    return createResponse(true, response);
-                } else {
-                    return handleFailedResponse(result);
+                    Map<String, Object> responseData = createResponseData(activeThreadDumpList, activeThreadDumpResponse.getType(), activeThreadDumpResponse.getSubType(), activeThreadDumpResponse.getVersion());
+                    return createResponse(true, responseData);
                 }
-            } else {
-                return createResponse(false, "unknown");
             }
+            return handleFailedResponse(pinpointRouteResponse);
         } catch (TException e) {
             return createResponse(false, e.getMessage());
         }
     }
 
+    private boolean isSuccessResponse(PinpointRouteResponse pinpointRouteResponse) {
+        if (pinpointRouteResponse == null) {
+            return false;
+        }
+
+        TRouteResult routeResult = pinpointRouteResponse.getRouteResult();
+        if (routeResult != TRouteResult.OK) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private Map<String, Object> createResponseData(AgentActiveThreadDumpList activeThreadDumpList, String type, String subType, String version) {
+        Map<String, Object> response = new HashMap<>(4);
+        response.put("threadDumpData", activeThreadDumpList);
+        response.put("type", type);
+        response.put("subType", subType);
+        response.put("version", version);
+
+        return response;
+    }
+
     @RequestMapping(value = "/activeThreadLightDump", method = RequestMethod.GET)
     public ModelAndView getActiveThreadLightDump(@RequestParam(value = "applicationName") String applicationName,
-                                            @RequestParam(value = "agentId") String agentId,
-                                            @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
-                                            @RequestParam(value = "threadName", required = false) String[] threadNameList,
-                                            @RequestParam(value = "localTraceId", required = false) Long[] localTraceIdList) throws TException {
+                                                 @RequestParam(value = "agentId") String agentId,
+                                                 @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
+                                                 @RequestParam(value = "threadName", required = false) String[] threadNameList,
+                                                 @RequestParam(value = "localTraceId", required = false) Long[] localTraceIdList) throws TException {
         if (!webProperties.isEnableActiveThreadDump()) {
             return createResponse(false, "Disable activeThreadDump option. 'config.enable.activeThreadDump=false'");
         }
@@ -166,50 +170,40 @@ public class AgentCommandController {
 
         try {
             PinpointRouteResponse pinpointRouteResponse = agentService.invoke(agentInfo, threadDump);
-            if (pinpointRouteResponse != null && pinpointRouteResponse.getRouteResult() == TRouteResult.OK) {
+            if (isSuccessResponse(pinpointRouteResponse)) {
                 TBase<?, ?> result = pinpointRouteResponse.getResponse();
                 if (result instanceof TCmdActiveThreadLightDumpRes) {
                     TCmdActiveThreadLightDumpRes activeThreadDumpResponse = (TCmdActiveThreadLightDumpRes) result;
-
-                    AgentActiveThreadDumpList activeThreadDumpList = new AgentActiveThreadDumpList(activeThreadDumpResponse.getThreadDumpsSize());
                     List<TActiveThreadLightDump> activeThreadDumps = activeThreadDumpResponse.getThreadDumps();
-                    if (activeThreadDumps != null) {
-                        AgentActiveThreadDumpFactory factory = new AgentActiveThreadDumpFactory();
-                        for (TActiveThreadLightDump activeThreadDump : activeThreadDumps) {
-                            try {
-                                AgentActiveThreadDump agentActiveThreadDump = factory.create(activeThreadDump);
-                                activeThreadDumpList.add(agentActiveThreadDump);
-                            } catch (Exception e) {
-                                logger.warn("create AgentActiveThreadDump fail. arguments(TActiveThreadDump:{})", activeThreadDump);
-                            }
-                        }
-                    }
 
-                    Map<String, Object> response =new HashMap<>(3);
-                    response.put("threadDumpData", activeThreadDumpList);
-                    response.put("type", activeThreadDumpResponse.getType());
-                    response.put("subType", activeThreadDumpResponse.getSubType());
-                    response.put("version", activeThreadDumpResponse.getVersion());
+                    AgentActiveThreadDumpFactory factory = new AgentActiveThreadDumpFactory();
+                    AgentActiveThreadDumpList activeThreadDumpList = factory.create2(activeThreadDumps);
 
-                    return createResponse(true, response);
-                } else {
-                    return handleFailedResponse(result);
+                    Map<String, Object> responseData = createResponseData(activeThreadDumpList, activeThreadDumpResponse.getType(), activeThreadDumpResponse.getSubType(), activeThreadDumpResponse.getVersion());
+                    return createResponse(true, responseData);
                 }
-            } else {
-                return createResponse(false, "unknown");
             }
+            return handleFailedResponse(pinpointRouteResponse);
         } catch (TException e) {
             return createResponse(false, e.getMessage());
         }
     }
 
-    private ModelAndView handleFailedResponse(TBase<?, ?> failedResponse) {
-        if (failedResponse == null) {
-            return createResponse(false, "result null");
-        } else if (failedResponse instanceof TResult) {
-            return createResponse(false, ((TResult) failedResponse).getMessage());
+    private ModelAndView handleFailedResponse(PinpointRouteResponse response) {
+        if (response == null) {
+            return createResponse(false, "response is null");
+        }
+
+        TRouteResult routeResult = response.getRouteResult();
+        if (routeResult != TRouteResult.OK) {
+            return createResponse(false, routeResult.name());
         } else {
-            return createResponse(false, failedResponse.toString());
+            TBase tBase = response.getResponse();
+            if (tBase instanceof TResult) {
+                return createResponse(false, ((TResult) tBase).getMessage());
+            } else {
+                return createResponse(false, "unknown");
+            }
         }
     }
 

@@ -27,6 +27,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.management.ThreadInfo;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -62,17 +63,17 @@ public class AgentActiveThreadDumpListSerializerTest {
     }
 
     private AgentActiveThreadDumpList createThreadDumpList(ThreadInfo[] allThreadInfo) {
-        AgentActiveThreadDumpFactory factory = new AgentActiveThreadDumpFactory();
-
-        AgentActiveThreadDumpList activeThreadDumpList = new AgentActiveThreadDumpList();
+        List<TActiveThreadDump> activeThreadDumpList = new ArrayList<>();
         for (ThreadInfo threadInfo : allThreadInfo) {
             TActiveThreadDump tActiveThreadDump = new TActiveThreadDump();
             tActiveThreadDump.setStartTime(System.currentTimeMillis() - 1000);
             tActiveThreadDump.setThreadDump(ThreadDumpUtils.createTThreadDump(threadInfo));
 
-            activeThreadDumpList.add(factory.create(tActiveThreadDump));
+            activeThreadDumpList.add(tActiveThreadDump);
         }
-        return activeThreadDumpList;
+
+        AgentActiveThreadDumpFactory factory = new AgentActiveThreadDumpFactory();
+        return factory.create1(activeThreadDumpList);
     }
 
 }

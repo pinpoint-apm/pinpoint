@@ -52,13 +52,14 @@ public class DefaultPinpointRouteResponse implements PinpointRouteResponse {
                 routeResult = TRouteResult.NOT_SUPPORTED_RESPONSE;
             } else if (object instanceof  TCommandTransferResponse) {
                 TCommandTransferResponse commandResponse = (TCommandTransferResponse) object;
-                response = deserialize(commandDeserializerFactory, commandResponse.getPayload(), null);
-                if (response == null) {
-                    routeResult = TRouteResult.NOT_SUPPORTED_RESPONSE;
+                TRouteResult routeResult = commandResponse.getRouteResult();
+                if (routeResult == null) {
+                    this.routeResult = TRouteResult.UNKNOWN;
                 } else {
-                    routeResult = commandResponse.getRouteResult();
+                    this.routeResult = routeResult;
                 }
 
+                response = deserialize(commandDeserializerFactory, commandResponse.getPayload(), null);
             } else {
                 routeResult = TRouteResult.UNKNOWN;
                 response = object;
