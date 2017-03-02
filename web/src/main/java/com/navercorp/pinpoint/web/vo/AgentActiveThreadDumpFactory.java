@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TMonitorInfo;
@@ -23,6 +24,8 @@ import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -34,10 +37,29 @@ public class AgentActiveThreadDumpFactory {
     public static final String LINE_SEPARATOR = System.getProperty("line.separator");
     public static final String TAB_SEPARATOR = "    "; // tab to 4 spaces
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     public AgentActiveThreadDumpFactory() {
     }
 
-    public AgentActiveThreadDump create (TActiveThreadDump tActiveThreadDump) {
+    public AgentActiveThreadDumpList create1(List<TActiveThreadDump> tActiveThreadDumpList) {
+        if (CollectionUtils.isEmpty(tActiveThreadDumpList)) {
+            return AgentActiveThreadDumpList.EMPTY_INSTANCE;
+        }
+
+        AgentActiveThreadDumpList result = new AgentActiveThreadDumpList(tActiveThreadDumpList.size());
+        for (TActiveThreadDump activeThreadDump : tActiveThreadDumpList) {
+            try {
+                AgentActiveThreadDump agentActiveThreadDump = create1(activeThreadDump);
+                result.add(agentActiveThreadDump);
+            } catch (Exception e) {
+                logger.warn("create AgentActiveThreadDump fail. arguments(TActiveThreadDump:{})", activeThreadDump);
+            }
+        }
+        return result;
+    }
+
+    private AgentActiveThreadDump create1(TActiveThreadDump tActiveThreadDump) {
         if (tActiveThreadDump == null) {
             throw new NullPointerException("tActiveThreadDump may not be null");
         }
@@ -62,7 +84,24 @@ public class AgentActiveThreadDumpFactory {
         return builder.build();
     }
 
-    public AgentActiveThreadDump create(TActiveThreadLightDump tActiveThreadLightDump) {
+    public AgentActiveThreadDumpList create2(List<TActiveThreadLightDump> tActiveThreadLightDumpList) {
+        if (CollectionUtils.isEmpty(tActiveThreadLightDumpList)) {
+            return AgentActiveThreadDumpList.EMPTY_INSTANCE;
+        }
+
+        AgentActiveThreadDumpList result = new AgentActiveThreadDumpList(tActiveThreadLightDumpList.size());
+        for (TActiveThreadLightDump activeThreadLightDump : tActiveThreadLightDumpList) {
+            try {
+                AgentActiveThreadDump agentActiveThreadDump = create2(activeThreadLightDump);
+                result.add(agentActiveThreadDump);
+            } catch (Exception e) {
+                logger.warn("create AgentActiveThreadDump fail. arguments(TActiveThreadDump:{})", activeThreadLightDump);
+            }
+        }
+        return result;
+    }
+
+    private AgentActiveThreadDump create2(TActiveThreadLightDump tActiveThreadLightDump) {
         if (tActiveThreadLightDump == null) {
             throw new NullPointerException("tActiveThreadLightDump may not be null");
         }

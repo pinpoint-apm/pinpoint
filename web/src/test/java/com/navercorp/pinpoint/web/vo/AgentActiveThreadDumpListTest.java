@@ -115,29 +115,29 @@ public class AgentActiveThreadDumpListTest {
     }
 
     private AgentActiveThreadDumpList createThreadDumpList(Thread[] threads) {
-        AgentActiveThreadDumpFactory factory = new AgentActiveThreadDumpFactory();
-
-        AgentActiveThreadDumpList activeThreadDumpList = new AgentActiveThreadDumpList();
+        List<TActiveThreadDump> activeThreadDumpList = new ArrayList<>();
         for (Thread thread : threads) {
             TActiveThreadDump tActiveThreadDump = new TActiveThreadDump();
             tActiveThreadDump.setStartTime(System.currentTimeMillis() - ThreadLocalRandom.current().nextLong(100000));
             tActiveThreadDump.setThreadDump(ThreadDumpUtils.createTThreadDump(thread));
-            activeThreadDumpList.add(factory.create(tActiveThreadDump));
+            activeThreadDumpList.add(tActiveThreadDump);
         }
-        return activeThreadDumpList;
+
+        AgentActiveThreadDumpFactory factory = new AgentActiveThreadDumpFactory();
+        return factory.create1(activeThreadDumpList);
     }
 
     private AgentActiveThreadDumpList createThreadLightDumpList(Thread[] threads) {
-        AgentActiveThreadDumpFactory factory = new AgentActiveThreadDumpFactory();
-
-        AgentActiveThreadDumpList activeThreadDumpList = new AgentActiveThreadDumpList();
+        List<TActiveThreadLightDump> activeThreadLightDumpList = new ArrayList<>();
         for (Thread thread : threads) {
             TActiveThreadLightDump tActiveThreadDump = new TActiveThreadLightDump();
             tActiveThreadDump.setStartTime(System.currentTimeMillis() - ThreadLocalRandom.current().nextLong(100000));
             tActiveThreadDump.setThreadDump(createTThreadLightDump(thread));
-            activeThreadDumpList.add(factory.create(tActiveThreadDump));
+            activeThreadLightDumpList.add(tActiveThreadDump);
         }
-        return activeThreadDumpList;
+
+        AgentActiveThreadDumpFactory factory = new AgentActiveThreadDumpFactory();
+        return factory.create2(activeThreadLightDumpList);
     }
 
     private TThreadLightDump createTThreadLightDump(Thread thread) {
