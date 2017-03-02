@@ -1,6 +1,6 @@
 (function() {
 	'use strict';
-	pinpointApp.directive( "dsEachChartDirective", [
+	pinpointApp.directive( "dsChartDirective", [
 		function () {
 			return {
 				template: "<div></div>",
@@ -11,9 +11,13 @@
 				},
 				link: function postLink(scope, element, attrs) {
 					var sId = "", oChart;
+					var aColorMap = [
+						"#850901", "#969755", "#421416", "#c8814b", "#aa8735", "#cd7af4", "#f6546a", "#1c1a1f", "#127999", "#b7ebd9",
+						"#f6546a", "#bea87f", "#d1b4b0", "#e0d4ba", "#0795d9", "#43aa83", "#09d05b", "#c26e67", "#ed7575", "#96686a"
+					];
 
 					function setIdAutomatically() {
-						sId = 'multipleValueAxesId-each' + scope.namespace;
+						sId = 'multipleValueAxesId-' + scope.namespace;
 						element.attr('id', sId);
 					}
 					function hasId() {
@@ -23,13 +27,11 @@
 						if (w) element.css('width', w);
 						if (h) element.css('height', h);
 					}
-					function renderUpdate(data) {
-						oChart.valueAxes[0].maximum = data.max;
-						oChart.validateNow();
-						oChart.dataProvider = data.list;
-						oChart.validateData();
-					}
-					function render(chartData) {
+					// function renderUpdate(data) {
+					// 	oChart.dataProvider = data;
+					// 	oChart.validateData();
+					// }
+					function render(oChartData, maxValue, oVisible) {
 						var options = {
 							"type": "serial",
 							"theme": "light",
@@ -38,15 +40,9 @@
 							"marginLeft": 70,
 							"marginRight": 70,
 							"marginBottom": 40,
-							"legend": {
-								"useGraphSettings": true,
-								"autoMargins": true,
-								"align" : "right",
-								"position": "top",
-								"valueWidth": 70
-							},
 							"usePrefixes": true,
-							"dataProvider": chartData.list,
+							"dataProvider": oChartData,
+							"switchable": true,
 							"valueAxes": [
 								{
 									"id": "v1",
@@ -54,53 +50,19 @@
 									"axisAlpha": 1,
 									"position": "left",
 									"title": "Connection",
-									"maximum" : chartData.max,
+									"maximum" : Math.max( maxValue, 10 ),
 									"minimum" : 0
 								}
 							],
-							"graphs": [
-								{
-									"valueAxis": "v1",
-									"balloonText": "[[title]] : [[value]]",
-									"legendValueText": "[[value]]",
-									"lineColor": "rgb(174, 199, 232)",
-									"fillColor": "rgb(174, 199, 232)",
-									"title": "Active(avg)",
-									"valueField": "activeAvg",
-									"fillAlphas": 0.4,
-									"connect": false
-								},
-								{
-									"valueAxis": "v1",
-									"balloonText": "[[title]] : [[value]]",
-
-									"legendValueText": "[[value]]",
-									"lineColor": "rgb(31, 119, 180)",
-									"fillColor": "rgb(31, 119, 180)",
-									"title": "Active(max)",
-									"valueField": "activeMax",
-									"fillAlphas": 0.4,
-									"connect": false
-								},
-								{
-									"valueAxis": "v1",
-									"balloonText": "[[title]] : [[value]]",
-									"legendValueText": "[[value]]",
-									"lineColor": "#FF6600",
-									"title": "Max",
-									"valueField": "max",
-									"fillAlphas": 0,
-									"connect": false
-								}
-							],
+							"graphs": [],
 							"chartCursor": {
-								"categoryBalloonAlpha": 0.7,
-								"fullWidth": true,
-								"cursorAlpha": 0.1,
+								"oneBalloonOnly": true,
 								"listeners": [{
 									"event": "changed",
 									"method": function(event) {
-										scope.$emit('dsEachChartDirective.cursorChanged.' + scope.namespace, event);
+										if ( event.mostCloseGraph && event.index ) {
+											showBalloonData(event.mostCloseGraph.valueField, event.index);
+										}
 									}
 								}]
 							},
@@ -114,14 +76,54 @@
 								}
 							}
 						};
+						var index = 0;
+						for( var p in oChartData[0] ) {
+							if ( p === "time" ) {
+								continue;
+							}
+							var aSplit = p.split("_");
+							options.graphs.push({
+								"valueAxis": "v1",
+								"balloonFunction": function() {
+									return "";
+								},
+								"lineColor": getNextColor(index++),
+								"title": aSplit[1],
+								"valueField": p,
+								"fillAlphas": 0,
+								"connect": false,
+								"hidden": !oVisible[p]
+							});
+
+						}
 						oChart = AmCharts.makeChart(sId, options);
 					}
+					function showBalloonData( valueField, index ) {
+						scope.$emit("dsChartDirective.cursorChanged." + scope.namespace, valueField, index);
+					}
+					function getNextColor( i ) {
+						if ( i < aColorMap.length ) {
+							return aColorMap[i];
+						} else {
+							return "#" + getRandomInt() + getRandomInt() + getRandomInt();
+						}
+					}
 
+					function getRandomInt() {
+						var v = Math.floor(Math.random() * 255).toString(16);
+						if( v.length == 1 ) {
+							return "0" + v;
+						} else {
+							return v;
+						}
+					}
 					function showCursorAt(category) {
 						if (category) {
 							if (angular.isNumber(category)) {
 								if ( oChart.dataProvider[category] && oChart.dataProvider[category].time ) {
-									oChart.chartCursor.showCursorAt(oChart.dataProvider[category].time);
+									try {
+										oChart.chartCursor.showCursorAt(oChart.dataProvider[category].time);
+									} catch(e) {}
 									return;
 								}
 							}
@@ -135,19 +137,39 @@
 							oChart.validateSize();
 						}
 					}
-					scope.$on("dsEachChartDirective.initAndRenderWithData." + scope.namespace, function (event, data, w, h) {
-						if ( hasId() ) {
-							renderUpdate( data );
-						} else {
+					function getGraphId( graphId ) {
+						for( var i = 0 ; i < oChart.graphs.length ; i++ ) {
+							if ( oChart.graphs[i].valueField === graphId ) {
+								return oChart.graphs[i].id;
+							}
+						}
+						return "";
+					}
+					scope.$on("dsChartDirective.initAndRenderWithData." + scope.namespace, function (event, data, oVisible, w, h) {
+						// if ( hasId() ) {
+						// 	renderUpdate( data );
+						// } else {
+							element.empty();
 							setIdAutomatically();
 							setWidthHeight(w, h);
-							render(data);
+							render(data.data, data.max, oVisible);
+						// }
+					});
+					scope.$on("dsChartDirective.toggleGraph." + scope.namespace, function(event, valueField, bVisible) {
+						var graphId = getGraphId( valueField );
+						if ( graphId !== "" ) {
+							oChart[bVisible ? "showGraph" : "hideGraph"](oChart.getGraphById(graphId));
 						}
 					});
-					scope.$on("dsEachChartDirective.showCursorAt." + scope.namespace, function (event, category) {
-						showCursorAt(category);
+					scope.$on("dsChartDirective.toggleGraphAll." + scope.namespace, function() {
+						for( var i = 0 ; i < oChart.graphs.length ; i++ ) {
+							oChart.showGraph( oChart.graphs[i] );
+						}
 					});
-					scope.$on("dsEachChartDirective.resize." + scope.namespace, function (event) {
+					// scope.$on("dsChartDirective.showCursorAt." + scope.namespace, function (event, category) {
+					// 	showCursorAt(category);
+					// });
+					scope.$on("dsChartDirective.resize." + scope.namespace, function (event) {
 						resize();
 					});
 				}

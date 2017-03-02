@@ -8,7 +8,7 @@
 			$rootScope.wrapperStyle = {
 				'padding-top': '0px'
 			};
-			$rootScope.$broadcast( "thread-dump-info-window.open", $routeParams.application, $routeParams.agentId );
+			$rootScope.$broadcast( "thread-dump-info-window.open", $routeParams.application.split("@")[0], $routeParams.agentId );
 		}
 	]);
 })( jQuery );

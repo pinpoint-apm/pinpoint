@@ -130,7 +130,9 @@
 						if (category) {
 							if (angular.isNumber(category)) {
 								if ( oChart.dataProvider[category] && oChart.dataProvider[category].time ) {
-									oChart.chartCursor.showCursorAt(oChart.dataProvider[category].time);
+									try {
+										oChart.chartCursor.showCursorAt(oChart.dataProvider[category].time);
+									}catch(e) {}
 									return;
 								}
 							}

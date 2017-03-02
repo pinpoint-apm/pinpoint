@@ -18,18 +18,12 @@
 					scope.showDetail = false;
 					scope.selectTime = -1;
 					scope.selectedDSIndex = 0;
-					scope.showDataSourceChart = SystemConfigService.get("showInspectorDataSource") === true;
-					var $elDataSourceSelect = element.find("select.data-source-select");
+					scope.enableDataSourceChart = SystemConfigService.get("showInspectorDataSource") === true;
 					var timeSlider = null, bInitTooltip = false;
 					var oAlertService = new AlertsService();
 					var oProgressBarService = new ProgressBarService();
 
-					$elDataSourceSelect.on("change", function($event) {
-						scope.$apply(function() {
-							scope.selectedDSIndex = parseInt($event.target.value);
-						});
-						changeDSChart();
-					});
+
 					function initTime( time ) {
 						$("#target-picker").val( moment( time ).format( "YYYY-MM-DD HH:mm:ss" ) );
 					}
@@ -101,7 +95,8 @@
 						});
 						AgentAjaxService.getDataSourceChartData( oParam, function (result) {
 							if ( checkResponse( result ) ) {
-								showDataSourceChart(result);
+								dataSourceChartData = result;
+								showDataSourceChart();
 							}
 						});
 						function checkResponse( result ) {
@@ -186,7 +181,6 @@
 								}
 							}
 						}
-						return;
 					}
 					function showJvmChart( chartData ) {
 						var heap = {
@@ -231,20 +225,79 @@
 
 						scope.$broadcast( "activeTraceChartDirective.initAndRenderWithData.forActiveTrace", AgentDaoService.parseActiveTraceChartDataForAmcharts(activeTrace, chartData), '100%', '270px');
 					}
-					scope.dsChartData = [];
-					function showDataSourceChart( chartData ) {
-						var dataSource = { id: "dataSource", title: "Data Source", isAvailable: false };
-						dataSource["keys"] = chartData.map(function(v, i) {
+
+					var dataSourceChartData = [];
+					var dataSourceIdPrefix = "source_";
+					scope.dataSourceChartKeys = [];
+					scope.dataSourceChartCheckedKeys = [];
+					scope.checkChecked = function( key ) {
+						return scope.dataSourceChartCheckedKeys[key];
+					};
+					scope.changeDataSource = function( $event ) {
+						var tagName = $event.target.tagName.toUpperCase();
+						if ( tagName === "INPUT" ) {
+							scope.$broadcast( "dsChartDirective.toggleGraph.forDataSource", $event.target.value, $event.target.checked );
+						}
+					};
+					scope.selectAllDataSource = function() {
+						for (var p in scope.dataSourceChartCheckedKeys) {
+							scope.dataSourceChartCheckedKeys[p] = true;
+						}
+						scope.dataSourceChartKeys = scope.dataSourceChartKeys.map(function(v) {
 							return {
-								display: v.id,
-								value: i
+								display: v.display,
+								value: v.value
 							};
 						});
-						scope.dsChartData = chartData;
-						scope.selectedDSIndex = 0;
-						scope.dataSourceChart = dataSource;
+						scope.$broadcast( "dsChartDirective.toggleGraphAll.forDataSource" );
+					};
+					scope.hasDataSource = function() {
+						return dataSourceChartData.length === 0 || dataSourceChartData[0].id === -1 ? false : true;
+					};
+					scope.emptyDataSource = function() {
+						return dataSourceChartData.length === 0 ? false : dataSourceChartData[0].id === -1 ? true : false;
+					};
+					function setDataSourceDetail( activeAvg, activeMax, totalMax, id, type, databaseName, jdbcUrl ) {
+						var bInit = arguments.length === 0 ? true : false;
+						element.find(".ds-active-avg").html( bInit ? "-" : activeAvg );
+						element.find(".ds-active-max").html( bInit ? "-" : activeMax );
+						element.find(".ds-total-max").html( bInit ? "-" : totalMax );
+						element.find(".ds-id").html( bInit ? "-" : id );
+						element.find(".ds-type").html( bInit ? "-" : type );
+						element.find(".ds-database-name").html( bInit ? "-" : databaseName );
+						element.find(".ds-jdbc-url").html( bInit ? "-" : jdbcUrl );
+					}
+					function showDataSourceChart() {
+						scope.dataSourceChartCheckedKeys = {};
+						var description = { id: "dataSource", title: "Data Source", isAvailable: false };
+						scope.dataSourceChartKeys = dataSourceChartData.map(function(obj, index) {
+							var key = dataSourceIdPrefix + obj.id;
+							scope.dataSourceChartCheckedKeys[key] = index < 30 ? true : false;
+							return {
+								display: index,
+								value: key
+							};
+						});
+						scope.dataSourceChartDescription = description;
 
-						scope.$broadcast( "dsChartDirective.initAndRenderWithData.forDataSource", AgentDaoService.parseDataSourceChartDataForAmcharts(dataSource, chartData[scope.selectedDSIndex]), '100%', '270px');
+						scope.$broadcast( "dsChartDirective.initAndRenderWithData.forDataSource", AgentDaoService.parseDataSourceChartDataForAmcharts(description, dataSourceChartData, dataSourceIdPrefix), scope.dataSourceChartCheckedKeys, '100%', '270px');
+					}
+					function showDataSourceDetailInfo( targetId, index ) {
+						var id = parseInt( targetId.split("_")[1] );
+						for( var i = 0 ; i < dataSourceChartData.length ; i++ ) {
+							var oTarget = dataSourceChartData[i];
+							if ( oTarget.id == id ) {
+								setDataSourceDetail(
+									oTarget.charts["ACTIVE_CONNECTION_SIZE"].points[index].avgYVal,
+									oTarget.charts["ACTIVE_CONNECTION_SIZE"].points[index].maxYVal,
+									oTarget.charts["MAX_CONNECTION_SIZE"].points[index].maxYVal,
+									oTarget.id,
+									oTarget.serviceType,
+									oTarget.databaseName,
+									oTarget.jdbcUrl
+								);
+							}
+						}
 					}
 					function getEventList( agentId, aFromTo ) {
 						AgentAjaxService.getEventList({
@@ -275,15 +328,12 @@
 						}
 					}
 					function broadcastToDataSourceChart(e, event) {
-						if (scope.dataSourceChart.isAvailable) {
+						if (scope.dataSourceChartDescription.isAvailable) {
 							scope.$broadcast('dsChartDirective.showCursorAt.forDataSource', event.index);
 						}
 					}
-					function changeDSChart() {
-						scope.$broadcast( "dsChartDirective.initAndRenderWithData.forDataSource", AgentDaoService.parseDataSourceChartDataForAmcharts(scope.dataSourceChart, scope.dsChartData[scope.selectedDSIndex]), '100%', '270px');
-					}
-					scope.showDataSourceDetail = function() {
-						element.find(".ds-detail").toggle();
+					scope.toggleSourceSelectLayer = function() {
+						element.find("#data-source-chart .type-select-layer").toggle();
 					};
 					scope.toggleHelp = function() {
 						$("._wrongApp").popover({
@@ -324,7 +374,6 @@
 						timeSlider.zoomOut();
 						getEventList( scope.agent.agentId, timeSlider.getSliderTimeSeries() );
 					};
-
 					scope.toggleShowDetail = function( $event ) {
 						AnalyticsService.send( AnalyticsService.CONST.INSPECTOR, AnalyticsService.CONST.CLK_SHOW_SERVER_TYPE_DETAIL );
 						scope.showDetail = !scope.showDetail;
@@ -360,9 +409,14 @@
 						if( cfg.ID === invokerId ) return;
 						if ( CommonUtilService.isEmpty( agent.agentId ) ) {
 							scope.hasAgentData = false;
-							scope.dsChartData = [];
 							return;
 						}
+						// init data-source data
+						dataSourceChartData = [];
+						scope.dataSourceChartKeys = [];
+						scope.dataSourceChartCheckedKeys = [];
+						setDataSourceDetail();
+						element.find(".type-select-layer").hide();
 						element.find(".ds-detail").hide();
 						scope.showEventInfo = false;
 						scope.hasAgentData = true;
@@ -436,12 +490,14 @@
 						broadcastToTpsChart(e, event);
 						broadcastToDataSourceChart(e, event);
 					});
-					scope.$on('dsChartDirective.cursorChanged.forDataSource', function (e, event) {
-						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
-						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', event.index);
-						broadcastToCpuLoadChart(e, event);
-						broadcastToTpsChart(e, event);
-						broadcastToActiveTraceChart(e, event);
+					scope.$on('dsChartDirective.cursorChanged.forDataSource', function (e, targetId, index) {
+						var o = { "index": index };
+						showDataSourceDetailInfo( targetId, index );
+						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', index);
+						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', index);
+						broadcastToCpuLoadChart(e, o);
+						broadcastToTpsChart(e, o);
+						broadcastToActiveTraceChart(e, o);
 					});
 				}
 			};

@@ -244,3 +244,72 @@
 .timeSlider .time-series-signboard text {
     fill: #BBB;
 }
+
+#data-source-chart .not-found {
+    margin-left: 10px;
+}
+#data-source-chart .type-selector {
+    float: right;
+    width: 100px;
+    color: #000;
+    border: 1px solid #DDD;
+    cursor: pointer;
+    padding: 4px;
+    text-align: center;
+    margin-top: -4px;
+    margin-right: 10px;
+}
+#data-source-chart .type-select-layer {
+    right: 39px;
+    width:400px;
+    height: 200px;
+    border: 2px solid #444;
+    display: none;
+    z-index: 1000;
+    padding: 10px;
+    position: absolute;
+    margin-top: 7px;
+    background-color: #FFF;
+}
+#data-source-chart .type-select-layer > div {
+    color: #000;
+    padding-left: 6px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #DDD;
+}
+#data-source-chart .type-select-layer > div button {
+    width: 80px;
+}
+#data-source-chart .type-select-layer > div.wrapper {
+    height: 153px;
+    position: relative;
+    overflow-y: auto;
+}
+#data-source-chart .type-select-layer ul {
+    padding-top: 10px;
+    padding-left: 0px;
+}
+#data-source-chart .type-select-layer li {
+    display: inline-block;
+    width: 48px;
+    list-style: none;
+    padding: 4px 5px 4px 3px;
+}
+#data-source-chart .type-select-layer label {
+    margin-left: 6px;
+}
+#data-source-chart .panel-body {
+    padding: 8px 15px;
+}
+#data-source-chart table {
+    margin-bottom: 0px;
+}
+#data-source-chart td {
+    padding: 2px 4px;
+    font-size: 12px;
+    text-align: center;
+
+}
+#data-source-chart tr:nth-child(2n) td {
+    background-color: #FFF;
+}
