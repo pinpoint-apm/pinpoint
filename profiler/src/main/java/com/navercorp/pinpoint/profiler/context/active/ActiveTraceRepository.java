@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.profiler.context.active;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.navercorp.pinpoint.profiler.context.ActiveTrace;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,8 +29,6 @@ import java.util.concurrent.ConcurrentMap;
  * @author Taejin Koo
  */
 public class ActiveTraceRepository implements ActiveTraceLocator {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // memory leak defense threshold
     private static final int DEFAULT_MAX_ACTIVE_TRACE_SIZE = 1024 * 10;
@@ -61,10 +57,6 @@ public class ActiveTraceRepository implements ActiveTraceLocator {
 
     public void put(ActiveTrace activeTrace) {
         this.activeTraceInfoMap.put(activeTrace.getId(), activeTrace);
-    }
-
-    private ActiveTrace get(Long key) {
-        return this.activeTraceInfoMap.get(key);
     }
 
     public ActiveTrace remove(Long key) {

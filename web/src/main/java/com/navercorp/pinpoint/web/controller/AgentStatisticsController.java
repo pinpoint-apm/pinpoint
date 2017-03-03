@@ -95,9 +95,6 @@ public class AgentStatisticsController {
         Collections.sort(agentCountStatisticsList, new Comparator<AgentCountStatistics>() {
             @Override
             public int compare(AgentCountStatistics o1, AgentCountStatistics o2) {
-                o1.getTimestamp();
-                o2.getTimestamp();
-
                 if (o1.getTimestamp() > o2.getTimestamp()) {
                     return -1;
                 } else {

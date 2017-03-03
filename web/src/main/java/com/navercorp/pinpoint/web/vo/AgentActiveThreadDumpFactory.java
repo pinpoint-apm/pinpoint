@@ -198,16 +198,15 @@ public class AgentActiveThreadDumpFactory {
 
         // set Locks
         List<String> lockedSynchronizers = threadDump.getLockedSynchronizers();
-        if (lockedSynchronizers != null) {
-            if (!lockedSynchronizers.isEmpty()) {
-                message.append(LINE_SEPARATOR + TAB_SEPARATOR + "Number of locked synchronizers = ").append(lockedSynchronizers.size());
+        if (!CollectionUtils.isEmpty(lockedSynchronizers)) {
+            message.append(LINE_SEPARATOR + TAB_SEPARATOR + "Number of locked synchronizers = ").append(lockedSynchronizers.size());
+            message.append(LINE_SEPARATOR);
+            for (String lockedSynchronizer : lockedSynchronizers) {
+                message.append(TAB_SEPARATOR + "- ").append(lockedSynchronizer);
                 message.append(LINE_SEPARATOR);
-                for (String lockedSynchronizer : lockedSynchronizers) {
-                    message.append(TAB_SEPARATOR + "- ").append(lockedSynchronizer);
-                    message.append(LINE_SEPARATOR);
-                }
             }
         }
+
         message.append(LINE_SEPARATOR);
         return message.toString();
     }
