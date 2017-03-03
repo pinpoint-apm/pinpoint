@@ -51,7 +51,7 @@ public class PinpointClientFactoryTest {
     public static void setUp() throws IOException {
         bindPort = SocketUtils.findAvailableTcpPort();
 
-        clientFactory = new PinpointClientFactory();
+        clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setPingDelay(100);
     }
     
@@ -186,7 +186,7 @@ public class PinpointClientFactoryTest {
 
         PinpointClientFactory pinpointClientFactory = null;
         try {
-            pinpointClientFactory = new PinpointClientFactory();
+            pinpointClientFactory = new DefaultPinpointClientFactory();
             pinpointClientFactory.setConnectTimeout(timeout);
             int connectTimeout = pinpointClientFactory.getConnectTimeout();
             

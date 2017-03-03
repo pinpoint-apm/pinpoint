@@ -53,7 +53,7 @@ public class ReconnectTest {
     public static void setUp() throws IOException {
         bindPort = SocketUtils.findAvailableTcpPort();
         
-        clientFactory = new PinpointClientFactory();
+        clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setReconnectDelay(200);
         clientFactory.setPingDelay(100);
         clientFactory.setTimeoutMillis(200);
@@ -148,7 +148,7 @@ public class ReconnectTest {
 
     @Test
     public void scheduledConnect() throws IOException, InterruptedException {
-        final PinpointClientFactory clientFactory = new PinpointClientFactory();
+        final PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setReconnectDelay(200);
         PinpointClient client = null;
         PinpointServerAcceptor serverAcceptor = null;

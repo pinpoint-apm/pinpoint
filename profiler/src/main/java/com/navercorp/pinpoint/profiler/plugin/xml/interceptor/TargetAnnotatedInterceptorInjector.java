@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
@@ -47,15 +48,29 @@ import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MethodTransformer;
  */
 
 public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
+    private final TraceContext traceContext;
     private final InstrumentContext pluginContext;
     private final String interceptorClassName;
     private final Object[] providedArguments;
     
     private final String scopeName;
     private final ExecutionPolicy executionPoint;
+    private final ProfilerConfig profilerConfig;
 
 
-    public TargetAnnotatedInterceptorInjector(InstrumentContext pluginContext, String interceptorClassName, Object[] providedArguments, String scopeName, ExecutionPolicy executionPoint) {
+    public TargetAnnotatedInterceptorInjector(ProfilerConfig profilerConfig, TraceContext traceContext, InstrumentContext pluginContext,
+                                              String interceptorClassName, Object[] providedArguments, String scopeName, ExecutionPolicy executionPoint) {
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig must not be null");
+        }
+        if (traceContext == null) {
+            throw new NullPointerException("traceContext must not be null");
+        }
+        if (pluginContext == null) {
+            throw new NullPointerException("pluginContext must not be null");
+        }
+        this.profilerConfig = profilerConfig;
+        this.traceContext = traceContext;
         this.pluginContext = pluginContext;
         this.interceptorClassName = interceptorClassName;
         this.providedArguments = providedArguments;
@@ -136,9 +151,8 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
             throw new PinpointException("type of @TargetFilter is null: " + interceptorClassName);
         }
 
-        final TraceContext traceContext = pluginContext.getTraceContext();
         final InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(traceContext, targetClass);
-        AutoBindingObjectFactory filterFactory = new AutoBindingObjectFactory(pluginContext, classLoader, interceptorArgumentProvider);
+        AutoBindingObjectFactory filterFactory = new AutoBindingObjectFactory(profilerConfig, traceContext, pluginContext, classLoader, interceptorArgumentProvider);
         MethodFilter filter = (MethodFilter)filterFactory.createInstance(ObjectFactory.byConstructor(type, (Object[]) annotation.constructorArguments()));
         MethodRecipe recipe = annotation.singleton() ? new SharedAnnotatedInterceptorInjector(injector) : injector;
         

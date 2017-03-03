@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.test;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
-import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.plugin.PluginSetup;
@@ -38,24 +38,24 @@ import java.util.List;
  */
 public class MockPluginContextLoadResult implements PluginContextLoadResult {
     private final ProfilerConfig profilerConfig;
-    private final ApplicationContext applicationContext;
+    private final InstrumentEngine instrumentEngine;
     private final DynamicTransformTrigger dynamicTransformTrigger;
 
 
     private List<SetupResult> lazy;
 
-    public MockPluginContextLoadResult(ProfilerConfig profilerConfig, ApplicationContext applicationContext, DynamicTransformTrigger dynamicTransformTrigger) {
+    public MockPluginContextLoadResult(ProfilerConfig profilerConfig, InstrumentEngine instrumentEngine, DynamicTransformTrigger dynamicTransformTrigger) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
-        if (applicationContext == null) {
-            throw new NullPointerException("applicationContext must not be null");
+        if (instrumentEngine == null) {
+            throw new NullPointerException("instrumentEngine must not be null");
         }
         if (dynamicTransformTrigger == null) {
             throw new NullPointerException("dynamicTransformTrigger must not be null");
         }
         this.profilerConfig = profilerConfig;
-        this.applicationContext = applicationContext;
+        this.instrumentEngine = instrumentEngine;
         this.dynamicTransformTrigger = dynamicTransformTrigger;
     }
 
@@ -73,7 +73,7 @@ public class MockPluginContextLoadResult implements PluginContextLoadResult {
 
         List<SetupResult> pluginContexts = new ArrayList<SetupResult>();
         ClassInjector classInjector = new TestProfilerPluginClassLoader();
-        PluginSetup pluginSetup = new MockPluginSetup(profilerConfig, applicationContext, dynamicTransformTrigger);
+        PluginSetup pluginSetup = new MockPluginSetup(profilerConfig, instrumentEngine, dynamicTransformTrigger);
         for (ProfilerPlugin plugin : plugins) {
             SetupResult context = pluginSetup.setupPlugin(plugin, classInjector);
             pluginContexts.add(context);

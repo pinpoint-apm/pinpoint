@@ -35,7 +35,6 @@ public class ApiMetaDataCacheService implements ApiMetaDataService {
     private final long agentStartTime;
     private final EnhancedDataSender enhancedDataSender;
 
-    @Inject
     public ApiMetaDataCacheService(@AgentId String agentId, @AgentStartTime long agentStartTime, EnhancedDataSender enhancedDataSender) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");

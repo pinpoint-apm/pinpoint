@@ -26,10 +26,10 @@ import com.navercorp.pinpoint.rpc.client.PinpointClient;
  * @author Woonduk Kang(emeroad)
  */
 public class TcpDataSenderProvider implements Provider<EnhancedDataSender> {
-    private final PinpointClient client;
+    private final Provider<PinpointClient> client;
 
     @Inject
-    public TcpDataSenderProvider(PinpointClient client) {
+    public TcpDataSenderProvider(Provider<PinpointClient> client) {
         if (client == null) {
             throw new NullPointerException("client must not be null");
         }
@@ -39,6 +39,7 @@ public class TcpDataSenderProvider implements Provider<EnhancedDataSender> {
 
     @Override
     public EnhancedDataSender get() {
-        return new TcpDataSender(client);
+        PinpointClient pinpointClient = client.get();
+        return new TcpDataSender(pinpointClient);
     }
 }

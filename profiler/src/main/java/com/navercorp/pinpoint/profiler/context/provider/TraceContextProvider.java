@@ -1,0 +1,92 @@
+/*
+ * Copyright 2017 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.navercorp.pinpoint.profiler.context.provider;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
+import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
+import com.navercorp.pinpoint.profiler.context.TraceFactoryBuilder;
+import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
+
+/**
+ * @author Woonduk Kang(emeroad)
+ */
+public class TraceContextProvider implements Provider<TraceContext> {
+    private ProfilerConfig profilerConfig;
+    private Provider<AgentInformation> agentInformation;
+    private TraceFactoryBuilder traceFactoryBuilder;
+    private PluginMonitorContext pluginMonitorContext;
+    private ServerMetaDataHolder serverMetaDataHolder;
+    private ApiMetaDataService apiMetaDataService;
+    private StringMetaDataService stringMetaDataService;
+    private SqlMetaDataService sqlMetaDataService;
+    private JdbcContext jdbcContext;
+
+        @Inject
+    public TraceContextProvider(ProfilerConfig profilerConfig, final Provider<AgentInformation> agentInformation,
+                                TraceFactoryBuilder traceFactoryBuilder,
+                                PluginMonitorContext pluginMonitorContext,
+                                ServerMetaDataHolder serverMetaDataHolder,
+                                ApiMetaDataService apiMetaDataService,
+                                StringMetaDataService stringMetaDataService,
+                                SqlMetaDataService sqlMetaDataService,
+                                JdbcContext jdbcContext) {
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig must not be null");
+        }
+        if (agentInformation == null) {
+            throw new NullPointerException("agentInformation must not be null");
+        }
+        if (traceFactoryBuilder == null) {
+            throw new NullPointerException("traceFactoryBuilder must not be null");
+        }
+        if (pluginMonitorContext == null) {
+            throw new NullPointerException("pluginMonitorContext must not be null");
+        }
+        if (serverMetaDataHolder == null) {
+            throw new NullPointerException("serverMetaDataHolder must not be null");
+        }
+        if (jdbcContext == null) {
+            throw new NullPointerException("jdbcContext must not be null");
+        }
+        this.profilerConfig = profilerConfig;
+        this.agentInformation = agentInformation;
+        this.traceFactoryBuilder = traceFactoryBuilder;
+        this.pluginMonitorContext = pluginMonitorContext;
+        this.serverMetaDataHolder = serverMetaDataHolder;
+        this.apiMetaDataService = apiMetaDataService;
+        this.stringMetaDataService = stringMetaDataService;
+        this.sqlMetaDataService = sqlMetaDataService;
+        this.jdbcContext = jdbcContext;
+    }
+
+
+    @Override
+    public TraceContext get() {
+        AgentInformation agentInformation = this.agentInformation.get();
+        return new DefaultTraceContext(profilerConfig, agentInformation, traceFactoryBuilder, pluginMonitorContext,
+                serverMetaDataHolder, apiMetaDataService, stringMetaDataService, sqlMetaDataService, jdbcContext);
+    }
+}

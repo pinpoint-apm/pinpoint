@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
-import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.BootstrapJarPaths;
 
 import java.lang.instrument.ClassFileTransformer;
@@ -40,18 +39,14 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
     private final InstrumentEngine instrumentEngine;
     private final List<String> bootstrapJarPaths;
     private final ProfilerConfig profilerConfig;
-    private final ApplicationContext applicationContext;
     private final DynamicTransformTrigger dynamicTransformTrigger;
 
     private List<SetupResult> lazy;
 
-    public DefaultPluginContextLoadResult(ProfilerConfig profilerConfig, ApplicationContext applicationContext, DynamicTransformTrigger dynamicTransformTrigger, Instrumentation instrumentation, InstrumentEngine instrumentEngine,
+    public DefaultPluginContextLoadResult(ProfilerConfig profilerConfig, DynamicTransformTrigger dynamicTransformTrigger, Instrumentation instrumentation, InstrumentEngine instrumentEngine,
                                           @BootstrapJarPaths List<String> bootstrapJarPaths, URL[] pluginJars) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
-        }
-        if (applicationContext == null) {
-            throw new NullPointerException("applicationContext must not be null");
         }
         if (dynamicTransformTrigger == null) {
             throw new NullPointerException("dynamicTransformTrigger must not be null");
@@ -69,7 +64,6 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
             throw new NullPointerException("pluginJars must not be null");
         }
         this.profilerConfig = profilerConfig;
-        this.applicationContext = applicationContext;
         this.dynamicTransformTrigger = dynamicTransformTrigger;
 
         this.pluginJars = pluginJars;
@@ -88,7 +82,7 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
 
 
     private List<SetupResult> load() {
-        PluginSetup pluginSetup = new DefaultPluginSetup(profilerConfig, applicationContext, dynamicTransformTrigger);
+        PluginSetup pluginSetup = new DefaultPluginSetup(profilerConfig, instrumentEngine, dynamicTransformTrigger);
         final ProfilerPluginLoader loader = new ProfilerPluginLoader(profilerConfig, pluginSetup, instrumentation, instrumentEngine, bootstrapJarPaths);
         List<SetupResult> load = loader.load(pluginJars);
         return load;

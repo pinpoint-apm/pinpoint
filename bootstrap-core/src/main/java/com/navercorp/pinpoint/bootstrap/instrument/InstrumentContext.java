@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 
@@ -27,8 +26,6 @@ import java.io.InputStream;
  * @author jaehong.kim
  */
 public interface InstrumentContext {
-
-    TraceContext getTraceContext();
 
     InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classfileBuffer);
 

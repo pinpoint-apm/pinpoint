@@ -15,12 +15,15 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.profiler.instrument.mock.ArgsArrayInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataCacheService;
+import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -45,13 +48,14 @@ public class ASMMethodNodeTest {
 
     private final static InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
 
+    private final ProfilerConfig profilerConfig = mock(ProfilerConfig.class);
     private final InstrumentContext pluginContext = mock(InstrumentContext.class);
     private final TraceContext traceContext = mock(TraceContext.class);
+    private final ApiMetaDataCacheService apiMetaDataCacheService = mock(ApiMetaDataCacheService.class);
 
     @Before
     public void setUp() {
         reset(traceContext);
-        when(pluginContext.getTraceContext()).thenReturn(traceContext);
         when(pluginContext.injectClass(any(ClassLoader.class), any(String.class))).thenAnswer(new Answer<Class<?>>() {
 
             @Override
@@ -72,10 +76,11 @@ public class ASMMethodNodeTest {
 
         ASMClass declaringClass = mock(ASMClass.class);
         when(declaringClass.getName()).thenReturn(targetClassName);
+        final ObjectBinderFactory objectBinderFactory = mock(ObjectBinderFactory.class);
 
         final MethodNode methodNode = ASMClassNodeLoader.get(targetClassName, methodName);
 
-        ASMMethod method = new ASMMethod(pluginContext, interceptorRegistryBinder, declaringClass, methodNode);
+        ASMMethod method = new ASMMethod(objectBinderFactory, pluginContext, apiMetaDataCacheService, interceptorRegistryBinder, declaringClass, methodNode);
         assertEquals(methodName, method.getName());
         assertEquals(1, method.getParameterTypes().length);
         assertEquals("int", method.getParameterTypes()[0]);
@@ -92,6 +97,8 @@ public class ASMMethodNodeTest {
         final String targetClassName = "com.navercorp.pinpoint.profiler.instrument.mock.NormalClass";
         final ASMClass declaringClass = mock(ASMClass.class);
         when(declaringClass.getName()).thenReturn(targetClassName);
+        final ObjectBinderFactory objectBinderFactory = mock(ObjectBinderFactory.class);
+
 
         ASMClassNodeLoader.TestClassLoader classLoader = ASMClassNodeLoader.getClassLoader();
 
@@ -103,7 +110,7 @@ public class ASMMethodNodeTest {
             public void handle(ClassNode classNode) {
                 List<MethodNode> methodNodes = classNode.methods;
                 for(MethodNode methodNode : methodNodes) {
-                    ASMMethod method = new ASMMethod(pluginContext, interceptorRegistryBinder, declaringClass, methodNode);
+                    ASMMethod method = new ASMMethod(objectBinderFactory, pluginContext, apiMetaDataCacheService, interceptorRegistryBinder, declaringClass, methodNode);
                     try {
                         method.addInterceptor(interceptorId);
                     } catch (InstrumentException e) {

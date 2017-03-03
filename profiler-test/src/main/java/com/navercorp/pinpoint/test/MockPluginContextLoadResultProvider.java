@@ -20,7 +20,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
-import com.navercorp.pinpoint.profiler.context.ApplicationContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 
 /**
@@ -29,28 +29,28 @@ import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 public class MockPluginContextLoadResultProvider implements Provider<PluginContextLoadResult> {
 
     private final ProfilerConfig profilerConfig;
-    private final ApplicationContext applicationContext;
+    private final InstrumentEngine instrumentEngine;
     private final DynamicTransformTrigger dynamicTransformTrigger;
 
     @Inject
-    public MockPluginContextLoadResultProvider(ProfilerConfig profilerConfig, ApplicationContext applicationContext, DynamicTransformTrigger dynamicTransformTrigger) {
+    public MockPluginContextLoadResultProvider(ProfilerConfig profilerConfig, InstrumentEngine instrumentEngine, DynamicTransformTrigger dynamicTransformTrigger) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
-        if (applicationContext == null) {
-            throw new NullPointerException("applicationContext must not be null");
+        if (instrumentEngine == null) {
+            throw new NullPointerException("instrumentEngine must not be null");
         }
         if (dynamicTransformTrigger == null) {
             throw new NullPointerException("dynamicTransformTrigger must not be null");
         }
         this.profilerConfig = profilerConfig;
-        this.applicationContext = applicationContext;
+        this.instrumentEngine = instrumentEngine;
         this.dynamicTransformTrigger = dynamicTransformTrigger;
     }
 
     @Override
     public PluginContextLoadResult get() {
-        return new MockPluginContextLoadResult(profilerConfig, applicationContext, dynamicTransformTrigger);
+        return new MockPluginContextLoadResult(profilerConfig, instrumentEngine, dynamicTransformTrigger);
     }
 
 

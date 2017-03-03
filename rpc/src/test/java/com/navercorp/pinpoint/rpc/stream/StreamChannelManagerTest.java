@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.rpc.stream;
 
 import com.navercorp.pinpoint.rpc.*;
+import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.SimpleMessageListener;
@@ -290,12 +291,12 @@ public class StreamChannelManagerTest {
     }
 
     private PinpointClientFactory createSocketFactory() {
-        PinpointClientFactory clientFactory = new PinpointClientFactory();
+        PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
         return clientFactory;
     }
 
     private PinpointClientFactory createSocketFactory(MessageListener messageListener, ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
-        PinpointClientFactory clientFactory = new PinpointClientFactory();
+        PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setMessageListener(messageListener);
         clientFactory.setServerStreamChannelMessageListener(serverStreamChannelMessageListener);
 

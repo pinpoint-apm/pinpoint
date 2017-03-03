@@ -16,9 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.google.inject.Provider;
+import com.google.inject.util.Providers;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import com.navercorp.pinpoint.profiler.util.BytecodeUtils;
 import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
 import javassist.ClassPool;
@@ -28,8 +33,12 @@ import javassist.bytecode.ConstPool;
 import javassist.bytecode.MethodInfo;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.mockito.Mockito.mock;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -41,12 +50,17 @@ public class JavassistClassPoolTest {
 
     @Test
     public void testGetClass_original() throws Exception {
+
+        ObjectBinderFactory objectBinderFactory = mock(ObjectBinderFactory.class);
+        Provider<ApiMetaDataService> apiMetaDataService = Providers.of(mock(ApiMetaDataService.class));
+
         InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
-        JavassistEngine pool = new JavassistEngine(binder, null);
+        JavassistEngine pool = new JavassistEngine(objectBinderFactory, binder, apiMetaDataService, null);
+        InstrumentContext instrumentContext = mock(InstrumentContext.class);
 
 
         final byte[] originalByteCode = BytecodeUtils.getClassFile(null, mock);
-        final InstrumentClass transformClass = pool.getClass(null, null, mock, originalByteCode);
+        final InstrumentClass transformClass = pool.getClass(instrumentContext, null, mock, originalByteCode);
 
         Assert.assertNotNull(transformClass.getDeclaredMethod("test"));
         Assert.assertNull("transform method", transformClass.getDeclaredMethod("transformMethod"));
@@ -55,12 +69,18 @@ public class JavassistClassPoolTest {
 
     @Test
     public void testGetClass_transform() throws Exception {
+
+        ObjectBinderFactory objectBinderFactory = mock(ObjectBinderFactory.class);
+
+        Provider<ApiMetaDataService> apiMetaDataService = Providers.of(mock(ApiMetaDataService.class));
+        InstrumentContext instrumentContext = mock(InstrumentContext.class);
+
         InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
-        JavassistEngine pool = new JavassistEngine(binder, null);
+        JavassistEngine pool = new JavassistEngine(objectBinderFactory, binder, apiMetaDataService, null);
 
 
         final byte[] transformByteCode = getTransformByteCode();
-        final InstrumentClass transformClass = pool.getClass(null, null, mock, transformByteCode);
+        final InstrumentClass transformClass = pool.getClass(instrumentContext, null, mock, transformByteCode);
 
         Assert.assertNotNull(transformClass.getDeclaredMethod("test"));
         Assert.assertNotNull("transform method", transformClass.getDeclaredMethod("transformMethod"));

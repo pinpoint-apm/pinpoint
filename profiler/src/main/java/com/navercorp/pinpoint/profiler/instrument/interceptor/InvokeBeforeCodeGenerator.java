@@ -16,9 +16,9 @@ package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
 import java.lang.reflect.Method;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 
 /**
  * @author Jongho Moon
@@ -28,8 +28,8 @@ public class InvokeBeforeCodeGenerator extends InvokeCodeGenerator {
     private final int interceptorId;
     private final InstrumentClass targetClass;
     
-    public InvokeBeforeCodeGenerator(int interceptorId, InterceptorDefinition interceptorDefinition, InstrumentClass targetClass, InstrumentMethod targetMethod, TraceContext traceContext) {
-        super(interceptorId, interceptorDefinition, targetMethod, traceContext);
+    public InvokeBeforeCodeGenerator(int interceptorId, InterceptorDefinition interceptorDefinition, InstrumentClass targetClass, InstrumentMethod targetMethod, ApiMetaDataService apiMetaDataService) {
+        super(interceptorId, interceptorDefinition, targetMethod, apiMetaDataService);
         
         this.interceptorId = interceptorId;
         this.targetClass = targetClass;

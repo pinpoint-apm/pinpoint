@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.profiler.context.DefaultServerMetaData;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
@@ -535,7 +536,7 @@ public class AgentInfoSenderTest {
     }
 
     private PinpointClientFactory createPinpointClientFactory() {
-        PinpointClientFactory clientFactory = new PinpointClientFactory();
+        PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setTimeoutMillis(1000 * 5);
         clientFactory.setProperties(Collections.<String, Object> emptyMap());
 

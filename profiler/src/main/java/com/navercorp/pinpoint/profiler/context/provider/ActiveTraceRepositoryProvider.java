@@ -20,7 +20,6 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Provider;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 

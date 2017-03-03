@@ -15,6 +15,9 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.google.inject.Provider;
+import com.google.inject.util.Providers;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ClassFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
@@ -23,6 +26,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataCacheService;
+import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -40,7 +45,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 /**
@@ -49,13 +53,15 @@ import static org.mockito.Mockito.when;
 public class ASMClassTest {
     private final static InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
 
+    private final ProfilerConfig profilerConfig = mock(ProfilerConfig.class);
+    private final Provider<TraceContext> traceContextProvider = Providers.of(mock(TraceContext.class));
     private final InstrumentContext pluginContext = mock(InstrumentContext.class);
-    private final TraceContext traceContext = mock(TraceContext.class);
+    private final ObjectBinderFactory objectBinderFactory = new ObjectBinderFactory(profilerConfig, traceContextProvider);
+    private final ApiMetaDataCacheService  apiMetaDataCacheService = mock(ApiMetaDataCacheService.class);
 
     @Before
     public void setUp() {
-        reset(traceContext);
-        when(pluginContext.getTraceContext()).thenReturn(traceContext);
+
         when(pluginContext.injectClass(any(ClassLoader.class), any(String.class))).thenAnswer(new Answer<Class<?>>() {
 
             @Override
@@ -584,6 +590,6 @@ public class ASMClassTest {
     private ASMClass getClass(final String targetClassName) throws Exception {
         ClassNode classNode = ASMClassNodeLoader.get(targetClassName);
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        return new ASMClass(pluginContext, interceptorRegistryBinder, classLoader, classNode);
+        return new ASMClass(objectBinderFactory, pluginContext, interceptorRegistryBinder, apiMetaDataCacheService, classLoader, classNode);
     }
 }

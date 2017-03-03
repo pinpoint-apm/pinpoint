@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.sender;
 import com.navercorp.pinpoint.profiler.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.profiler.TestAwaitUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
@@ -114,7 +115,7 @@ public class TcpDataSenderReconnectTest {
     }
     
     private PinpointClientFactory createPinpointClientFactory() {
-        PinpointClientFactory clientFactory = new PinpointClientFactory();
+        PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setTimeoutMillis(1000 * 5);
         clientFactory.setProperties(Collections.EMPTY_MAP);
 

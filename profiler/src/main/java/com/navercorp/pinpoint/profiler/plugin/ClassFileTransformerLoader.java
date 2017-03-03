@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
@@ -32,14 +33,19 @@ import java.util.List;
  */
 public class ClassFileTransformerLoader {
 
+    private final ProfilerConfig profilerConfig;
     private final DynamicTransformTrigger dynamicTransformTrigger;
 
     private final List<ClassFileTransformer> classTransformers = new ArrayList<ClassFileTransformer>();
 
-    public ClassFileTransformerLoader(DynamicTransformTrigger dynamicTransformTrigger) {
+    public ClassFileTransformerLoader(ProfilerConfig profilerConfig, DynamicTransformTrigger dynamicTransformTrigger) {
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig must not be null");
+        }
         if (dynamicTransformTrigger == null) {
             throw new NullPointerException("dynamicTransformTrigger must not be null");
         }
+        this.profilerConfig = profilerConfig;
         this.dynamicTransformTrigger = dynamicTransformTrigger;
     }
 
@@ -52,7 +58,7 @@ public class ClassFileTransformerLoader {
         }
 
         final Matcher matcher = Matchers.newClassNameMatcher(JavaAssistUtils.javaNameToJvmName(targetClassName));
-        final MatchableClassFileTransformerGuardDelegate guard = new MatchableClassFileTransformerGuardDelegate(instrumentContext, matcher, transformCallback);
+        final MatchableClassFileTransformerGuardDelegate guard = new MatchableClassFileTransformerGuardDelegate(profilerConfig, instrumentContext, matcher, transformCallback);
         classTransformers.add(guard);
     }
 
@@ -64,7 +70,7 @@ public class ClassFileTransformerLoader {
             throw new NullPointerException("transformCallback must not be null");
         }
 
-        final ClassFileTransformerGuardDelegate classFileTransformerGuardDelegate = new ClassFileTransformerGuardDelegate(instrumentContext, transformCallback);
+        final ClassFileTransformerGuardDelegate classFileTransformerGuardDelegate = new ClassFileTransformerGuardDelegate(profilerConfig, instrumentContext, transformCallback);
 
         this.dynamicTransformTrigger.addClassFileTransformer(classLoader, targetClassName, classFileTransformerGuardDelegate);
     }

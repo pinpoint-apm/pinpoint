@@ -19,33 +19,32 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
-import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class PinpointClientProvider implements Provider<PinpointClient> {
+public class ObjectBinderFactoryProvider implements Provider<ObjectBinderFactory> {
+
     private final ProfilerConfig profilerConfig;
-    private final Provider<PinpointClientFactory> clientFactory;
+    private final Provider<TraceContext> traceContext;
 
     @Inject
-    public PinpointClientProvider(ProfilerConfig profilerConfig, Provider<PinpointClientFactory> clientFactory) {
+    public ObjectBinderFactoryProvider(ProfilerConfig profilerConfig, Provider<TraceContext> traceContext) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
-        if (clientFactory == null) {
-            throw new NullPointerException("clientFactory must not be null");
+        if (traceContext == null) {
+            throw new NullPointerException("traceContext must not be null");
         }
         this.profilerConfig = profilerConfig;
-        this.clientFactory = clientFactory;
+        this.traceContext = traceContext;
     }
 
     @Override
-    public PinpointClient get() {
-        PinpointClientFactory pinpointClientFactory = clientFactory.get();
-        PinpointClient pinpointClient = ClientFactoryUtils.createPinpointClient(profilerConfig.getCollectorTcpServerIp(), profilerConfig.getCollectorTcpServerPort(), pinpointClientFactory);
-        return pinpointClient;
+    public ObjectBinderFactory get() {
+        return new ObjectBinderFactory(profilerConfig, traceContext);
     }
+
 }
