@@ -37,10 +37,8 @@ public class MariaDBJdbcUrlParser implements JdbcUrlParserV2 {
 //    jdbc:(mysql|mariadb):[replication:|failover|loadbalance:|aurora:]//<hostDescription>[,<hostDescription>]/[database>]
 //    jdbc:mariadb:loadbalance://10.22.33.44:3306,10.22.33.55:3306/MariaDB?characterEncoding=UTF-8
     private static final String URL_PREFIX = "jdbc:mariadb:";
-    private static final String LOADBALANCE_URL_PREFIX = URL_PREFIX + "loadbalance:";
 
     private static final String MYSQL_URL_PREFIX = "jdbc:mysql:";
-    private static final String LOADBALANCE_MYSQL_URL_PREFIX = MYSQL_URL_PREFIX + "loadbalance:";
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
