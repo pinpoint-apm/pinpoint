@@ -37,7 +37,17 @@
 				</tbody>
 			</table>
 		</div>
-		<div class="panel-body" ng-show="threadList.length === 0">There is no data</div>
+		<div class="panel-body" ng-show="threadList.length === 0">
+			<span>There is no data</span>
+			<div class="when-has-message" style="display:none;">
+				<span style="color:red;"></span>
+				<div style="padding-top:10px;">For the above reasons, this agent does not support threaddump.</div>
+				<ul style="list-style:none;padding-top:10px;">
+					<li>1. check this agent version is 1.6.1+</li>
+					<li>2. check cluster feature is enabled.</li>
+				</ul>
+			</div>
+		</div>
 	</div>
 	<div class="detail-message">
 		<textarea></textarea>
