@@ -60,10 +60,11 @@ public class TestClassLoader extends TransformClassLoader {
 
         this.applicationContext = applicationContext;
 
-        this.classFileTransformerLoader = new ClassFileTransformerLoader(applicationContext.getDynamicTransformTrigger());
+        this.classFileTransformerLoader = new ClassFileTransformerLoader(applicationContext.getProfilerConfig(), applicationContext.getDynamicTransformTrigger());
 
         ClassInjector legacyProfilerPluginClassInjector = new LegacyProfilerPluginClassInjector(getClass().getClassLoader());
-        this.instrumentContext = new PluginInstrumentContext(applicationContext, applicationContext.getDynamicTransformTrigger(), legacyProfilerPluginClassInjector, classFileTransformerLoader);
+        this.instrumentContext = new PluginInstrumentContext(applicationContext.getProfilerConfig(), applicationContext.getInstrumentEngine(),
+                applicationContext.getDynamicTransformTrigger(), legacyProfilerPluginClassInjector, classFileTransformerLoader);
 
         this.delegateClass = new ArrayList<String>();
     }
@@ -106,7 +107,7 @@ public class TestClassLoader extends TransformClassLoader {
             logger.fine("addTransformer targetClassName:{}" + targetClassName + " callback:{}" + transformer);
         }
         final Matcher matcher = Matchers.newClassNameMatcher(targetClassName);
-        final MatchableClassFileTransformerGuardDelegate guard = new MatchableClassFileTransformerGuardDelegate(instrumentContext, matcher, transformer);
+        final MatchableClassFileTransformerGuardDelegate guard = new MatchableClassFileTransformerGuardDelegate(applicationContext.getProfilerConfig(), instrumentContext, matcher, transformer);
 
         this.instrumentTranslator.addTransformer(guard);
     }

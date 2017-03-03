@@ -20,7 +20,10 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
 
+import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.instrument.*;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 import com.navercorp.pinpoint.profiler.plugin.PluginInstrumentContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
@@ -45,6 +48,8 @@ public class JavassistEngine implements InstrumentEngine {
     private final boolean isInfo = logger.isInfoEnabled();
     private final boolean isDebug = logger.isDebugEnabled();
 
+    private final ObjectBinderFactory objectBinderFactory;
+    private final Provider<ApiMetaDataService> apiMetaDataService;
     private final MultipleClassPool childClassPool;
     private final InterceptorRegistryBinder interceptorRegistryBinder;
 
@@ -73,11 +78,21 @@ public class JavassistEngine implements InstrumentEngine {
         }
     };
 
-    public JavassistEngine(InterceptorRegistryBinder interceptorRegistryBinder, final List<String> bootStrapJars) {
+
+
+    public JavassistEngine(ObjectBinderFactory objectBinderFactory, InterceptorRegistryBinder interceptorRegistryBinder, Provider<ApiMetaDataService> apiMetaDataService, final List<String> bootStrapJars) {
+        if (objectBinderFactory == null) {
+            throw new NullPointerException("objectBinderFactory must not be null");
+        }
         if (interceptorRegistryBinder == null) {
             throw new NullPointerException("interceptorRegistryBinder must not be null");
         }
+        if (apiMetaDataService == null) {
+            throw new NullPointerException("apiMetaDataService must not be null");
+        }
 
+        this.objectBinderFactory = objectBinderFactory;
+        this.apiMetaDataService = apiMetaDataService;
         this.childClassPool = new IsolateMultipleClassPool(classPoolEventListener, new IsolateMultipleClassPool.ClassPoolHandler() {
             @Override
             public void handleClassPool(NamedClassPool systemClassPool) {
@@ -110,7 +125,8 @@ public class JavassistEngine implements InstrumentEngine {
             logger.debug("Get javassist class {}", jvmInternalClassName);
         }
         final CtClass cc = getCtClass(instrumentContext, classLoader, jvmInternalClassName, classFileBuffer);
-        return new JavassistClass(instrumentContext, interceptorRegistryBinder, classLoader, cc);
+        final ApiMetaDataService apiMetaDataService = this.apiMetaDataService.get();
+        return new JavassistClass(objectBinderFactory, instrumentContext, interceptorRegistryBinder, apiMetaDataService, classLoader, cc);
     }
 
 

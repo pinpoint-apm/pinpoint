@@ -30,18 +30,20 @@ import java.util.List;
  */
 public class ServerMetaDataHolderProvider implements Provider<ServerMetaDataHolder> {
 
-    private final AgentInfoSender agentInfoSender;
+    private final Provider<AgentInfoSender> agentInfoSender;
 
     @Inject
-    public ServerMetaDataHolderProvider(AgentInfoSender agentInfoSender) {
+    public ServerMetaDataHolderProvider(Provider<AgentInfoSender> agentInfoSender) {
         this.agentInfoSender = agentInfoSender;
     }
 
     @Override
     public ServerMetaDataHolder get() {
+        AgentInfoSender agentInfoSender = this.agentInfoSender.get();
         List<String> vmArgs = RuntimeMXBeanUtils.getVmArgs();
         ServerMetaDataHolder serverMetaDataHolder = new DefaultServerMetaDataHolder(vmArgs);
         serverMetaDataHolder.addListener(agentInfoSender);
         return serverMetaDataHolder;
     }
+
 }

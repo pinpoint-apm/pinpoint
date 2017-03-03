@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.mockito.invocation.InvocationOnMock;
@@ -35,7 +34,6 @@ import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 /**
@@ -44,11 +42,10 @@ import static org.mockito.Mockito.when;
 public class ASMClassNodeLoader {
 
     private final static InstrumentContext pluginContext = mock(InstrumentContext.class);
-    private final static TraceContext traceContext = mock(TraceContext.class);
+
 
     static {
-        reset(traceContext);
-        when(pluginContext.getTraceContext()).thenReturn(traceContext);
+
         when(pluginContext.injectClass(any(ClassLoader.class), any(String.class))).thenAnswer(new Answer<Class<?>>() {
 
             @Override

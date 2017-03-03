@@ -26,6 +26,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.instrument.ASMEngine;
 import com.navercorp.pinpoint.profiler.instrument.JavassistEngine;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,11 +41,13 @@ public class InstrumentEngineProvider implements Provider<InstrumentEngine> {
     private final ProfilerConfig profilerConfig;
     private final AgentOption agentOption;
     private final InterceptorRegistryBinder interceptorRegistryBinder;
+    private final Provider<ApiMetaDataService> apiMetaDataService;
+    private final ObjectBinderFactory objectBinderFactory;
 
     @Inject
-    public InstrumentEngineProvider(ProfilerConfig profilerConfig, AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
+    public InstrumentEngineProvider(ProfilerConfig profilerConfig, ObjectBinderFactory objectBinderFactory, AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder, Provider<ApiMetaDataService> apiMetaDataService) {
+        if (objectBinderFactory == null) {
+            throw new NullPointerException("objectBinderFactory must not be null");
         }
         if (agentOption == null) {
             throw new NullPointerException("agentOption must not be null");
@@ -53,22 +57,23 @@ public class InstrumentEngineProvider implements Provider<InstrumentEngine> {
         }
 
         this.profilerConfig = profilerConfig;
+        this.objectBinderFactory = objectBinderFactory;
         this.agentOption = agentOption;
         this.interceptorRegistryBinder = interceptorRegistryBinder;
+        this.apiMetaDataService = apiMetaDataService;
     }
 
     public InstrumentEngine get() {
         final String instrumentEngine = profilerConfig.getProfileInstrumentEngine().toUpperCase();
-
         if (DefaultProfilerConfig.INSTRUMENT_ENGINE_ASM.equals(instrumentEngine)) {
             logger.info("ASM InstrumentEngine.");
 
-            return new ASMEngine(interceptorRegistryBinder, agentOption.getBootstrapJarPaths());
+            return new ASMEngine(objectBinderFactory, interceptorRegistryBinder, apiMetaDataService, agentOption.getBootstrapJarPaths());
 
         } else if (DefaultProfilerConfig.INSTRUMENT_ENGINE_JAVASSIST.equals(instrumentEngine)) {
             logger.info("JAVASSIST InstrumentEngine.");
 
-            return new JavassistEngine(interceptorRegistryBinder, agentOption.getBootstrapJarPaths());
+            return new JavassistEngine(objectBinderFactory, interceptorRegistryBinder, apiMetaDataService, agentOption.getBootstrapJarPaths());
         } else {
             logger.warn("Unknown InstrumentEngine:{}", instrumentEngine);
 

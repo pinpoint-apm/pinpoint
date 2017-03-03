@@ -69,7 +69,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     
     private final Timer channelTimer;
 
-    private final PinpointClientFactory clientFactory;
+    private final DefaultPinpointClientFactory clientFactory;
     private SocketAddress connectSocketAddress;
     private volatile PinpointClient pinpointClient;
 
@@ -92,11 +92,11 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     private final ClusterOption localClusterOption;
     private ClusterOption remoteClusterOption = ClusterOption.DISABLE_CLUSTER_OPTION;
     
-    public DefaultPinpointClientHandler(PinpointClientFactory clientFactory) {
+    public DefaultPinpointClientHandler(DefaultPinpointClientFactory clientFactory) {
         this(clientFactory, DEFAULT_PING_DELAY, DEFAULT_ENABLE_WORKER_PACKET_DELAY, DEFAULT_TIMEOUTMILLIS);
     }
 
-    public DefaultPinpointClientHandler(PinpointClientFactory clientFactory, long pingDelay, long handshakeRetryInterval, long timeoutMillis) {
+    public DefaultPinpointClientHandler(DefaultPinpointClientFactory clientFactory, long pingDelay, long handshakeRetryInterval, long timeoutMillis) {
         if (clientFactory == null) {
             throw new NullPointerException("pinpointClientFactory must not be null");
         }

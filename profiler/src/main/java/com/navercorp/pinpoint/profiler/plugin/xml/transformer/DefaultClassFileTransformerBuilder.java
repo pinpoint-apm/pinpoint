@@ -1,18 +1,3 @@
-/*
- * Copyright 2014 NAVER Corp.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 package com.navercorp.pinpoint.profiler.plugin.xml.transformer;
 
@@ -21,6 +6,8 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
@@ -32,19 +19,32 @@ import com.navercorp.pinpoint.profiler.plugin.xml.interceptor.TargetAnnotatedInt
 
 public class DefaultClassFileTransformerBuilder implements ClassFileTransformerBuilder, ConditionalClassFileTransformerBuilder, RecipeBuilder<ClassRecipe> {
 
+    private final ProfilerConfig profilerConfig;
+    private final TraceContext traceContext;
+
     private final InstrumentContext pluginContext;
-    
     private final List<ClassRecipe> recipes = new ArrayList<ClassRecipe>();
+
     private final List<RecipeBuilder<ClassRecipe>> recipeBuilders = new ArrayList<RecipeBuilder<ClassRecipe>>();
-    
     private final ClassCondition condition;
     private final String targetClassName;
 
-    public DefaultClassFileTransformerBuilder(InstrumentContext pluginContext, String targetClassName) {
-        this(pluginContext, targetClassName, null);
+    public DefaultClassFileTransformerBuilder(ProfilerConfig profilerConfig, TraceContext traceContext, InstrumentContext pluginContext, String targetClassName) {
+        this(profilerConfig, traceContext, pluginContext, targetClassName, null);
     }
     
-    private DefaultClassFileTransformerBuilder(InstrumentContext pluginContext, String targetClassName, ClassCondition condition) {
+    private DefaultClassFileTransformerBuilder(ProfilerConfig profilerConfig, TraceContext traceContext, InstrumentContext pluginContext, String targetClassName, ClassCondition condition) {
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig must not be null");
+        }
+        if (traceContext == null) {
+            throw new NullPointerException("traceContext must not be null");
+        }
+        if (pluginContext == null) {
+            throw new NullPointerException("pluginContext must not be null");
+        }
+        this.profilerConfig = profilerConfig;
+        this.traceContext = traceContext;
         this.pluginContext = pluginContext;
         this.targetClassName = targetClassName;
         this.condition = condition;
@@ -52,7 +52,7 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
 
     @Override
     public void conditional(ClassCondition condition, ConditionalClassFileTransformerSetup describer) {
-        DefaultClassFileTransformerBuilder conditional = new DefaultClassFileTransformerBuilder(pluginContext, targetClassName, condition);
+        DefaultClassFileTransformerBuilder conditional = new DefaultClassFileTransformerBuilder(profilerConfig, traceContext, pluginContext, targetClassName, condition);
         describer.setup(conditional);
         recipeBuilders.add(conditional);
     }
@@ -164,7 +164,7 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
 
         @Override
         public ClassRecipe buildRecipe() {
-            return new TargetAnnotatedInterceptorInjector(pluginContext, interceptorClassName, constructorArguments, scopeName, executionPoint);
+            return new TargetAnnotatedInterceptorInjector(profilerConfig, traceContext, pluginContext, interceptorClassName, constructorArguments, scopeName, executionPoint);
         }
     }
 

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.cluster.connection;
 import com.navercorp.pinpoint.rpc.LoggingStateChangeEventListener;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.UnsupportOperationMessageListener;
+import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.cluster.Role;
@@ -33,13 +34,13 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ClusterConnector implements ClusterConnectionProvider {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final PinpointClientFactory clientFactory = new PinpointClientFactory();
+    private final PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
     private final List<PinpointSocket> clusterSocketList = new ArrayList<>();
 
     private final String connectString;

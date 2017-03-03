@@ -38,11 +38,6 @@ public class GuardInstrumentContext implements InstrumentContext {
         this.instrumentContext = instrumentContext;
     }
 
-    @Override
-    public TraceContext getTraceContext() {
-        checkOpen();
-        return instrumentContext.getTraceContext();
-    }
 
     @Override
     public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classfileBuffer) {

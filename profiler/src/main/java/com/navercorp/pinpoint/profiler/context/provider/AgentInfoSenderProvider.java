@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
@@ -31,12 +30,12 @@ import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 public class AgentInfoSenderProvider implements Provider<AgentInfoSender> {
 
     private final ProfilerConfig profilerConfig;
-    private final EnhancedDataSender enhancedDataSender;
-    private final AgentInformation agentInformation;
+    private final Provider<EnhancedDataSender> enhancedDataSender;
+    private final Provider<AgentInformation> agentInformation;
     private final JvmInformation jvmInformation;
 
     @Inject
-    public AgentInfoSenderProvider(ProfilerConfig profilerConfig, EnhancedDataSender enhancedDataSender, AgentInformation agentInformation, JvmInformation jvmInformation) {
+    public AgentInfoSenderProvider(ProfilerConfig profilerConfig, Provider<EnhancedDataSender> enhancedDataSender, Provider<AgentInformation> agentInformation, JvmInformation jvmInformation) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
@@ -58,7 +57,9 @@ public class AgentInfoSenderProvider implements Provider<AgentInfoSender> {
 
     @Override
     public AgentInfoSender get() {
-        final AgentInfoSender.Builder builder = new AgentInfoSender.Builder(this.enhancedDataSender, this.agentInformation, jvmInformation);
+        final EnhancedDataSender enhancedDataSender = this.enhancedDataSender.get();
+        final AgentInformation agentInformation = this.agentInformation.get();
+        final AgentInfoSender.Builder builder = new AgentInfoSender.Builder(enhancedDataSender, agentInformation, jvmInformation);
         builder.sendInterval(profilerConfig.getAgentInfoSendRetryInterval());
         return builder.build();
     }

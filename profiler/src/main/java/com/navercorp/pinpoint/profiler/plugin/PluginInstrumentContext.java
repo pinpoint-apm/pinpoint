@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
-import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.scope.ConcurrentPool;
 import com.navercorp.pinpoint.profiler.context.scope.InterceptorScopeFactory;
 import com.navercorp.pinpoint.profiler.context.scope.Pool;
@@ -38,7 +37,8 @@ import java.io.InputStream;
  */
 public class PluginInstrumentContext implements InstrumentContext {
 
-    private final ApplicationContext applicationContext;
+    private final ProfilerConfig profilerConfig;
+    private final InstrumentEngine instrumentEngine;
     private final DynamicTransformTrigger dynamicTransformTrigger;
     private final ClassInjector classInjector;
 
@@ -46,9 +46,12 @@ public class PluginInstrumentContext implements InstrumentContext {
 
     private final ClassFileTransformerLoader transformerRegistry;
 
-    public PluginInstrumentContext(ApplicationContext applicationContext, DynamicTransformTrigger dynamicTransformTrigger, ClassInjector classInjector, ClassFileTransformerLoader transformerRegistry) {
-        if (applicationContext == null) {
-            throw new NullPointerException("applicationContext must not be null");
+    public PluginInstrumentContext(ProfilerConfig profilerConfig, InstrumentEngine instrumentEngine, DynamicTransformTrigger dynamicTransformTrigger, ClassInjector classInjector, ClassFileTransformerLoader transformerRegistry) {
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig must not be null");
+        }
+        if (instrumentEngine == null) {
+            throw new NullPointerException("instrumentEngine must not be null");
         }
         if (dynamicTransformTrigger == null) {
             throw new NullPointerException("dynamicTransformTrigger must not be null");
@@ -59,7 +62,8 @@ public class PluginInstrumentContext implements InstrumentContext {
         if (transformerRegistry == null) {
             throw new NullPointerException("transformerRegistry must not be null");
         }
-        this.applicationContext = applicationContext;
+        this.profilerConfig = profilerConfig;
+        this.instrumentEngine = instrumentEngine;
         this.dynamicTransformTrigger = dynamicTransformTrigger;
         this.classInjector = classInjector;
         this.transformerRegistry = transformerRegistry;
@@ -74,15 +78,6 @@ public class PluginInstrumentContext implements InstrumentContext {
         return null;
     }
 
-    @Override
-    public TraceContext getTraceContext() {
-        final TraceContext context = applicationContext.getTraceContext();
-        if (context == null) {
-            throw new IllegalStateException("TraceContext is not created yet");
-        }
-
-        return context;
-    }
 
 
     @Override
@@ -108,8 +103,7 @@ public class PluginInstrumentContext implements InstrumentContext {
     }
 
     private InstrumentEngine getInstrumentEngine() {
-        InstrumentEngine instrumentEngine = applicationContext.getInstrumentEngine();
-        return instrumentEngine;
+        return this.instrumentEngine;
     }
 
     @Override
@@ -146,7 +140,7 @@ public class PluginInstrumentContext implements InstrumentContext {
             throw new NullPointerException("transformCallback must not be null");
         }
 
-        final ClassFileTransformerGuardDelegate classFileTransformerGuardDelegate = new ClassFileTransformerGuardDelegate(this, transformCallback);
+        final ClassFileTransformerGuardDelegate classFileTransformerGuardDelegate = new ClassFileTransformerGuardDelegate(profilerConfig, this, transformCallback);
 
         this.dynamicTransformTrigger.retransform(target, classFileTransformerGuardDelegate);
     }

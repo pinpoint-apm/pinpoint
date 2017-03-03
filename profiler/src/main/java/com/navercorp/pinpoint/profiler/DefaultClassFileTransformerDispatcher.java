@@ -20,10 +20,10 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 import com.google.inject.Inject;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
-import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.transformer.TransformerRegistry;
 import com.navercorp.pinpoint.profiler.plugin.ClassFileTransformerLoader;
@@ -62,7 +62,7 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
     private final ClassFileFilter unmodifiableFilter;
 
     @Inject
-    public DefaultClassFileTransformerDispatcher(ApplicationContext applicationContext, PluginContextLoadResult pluginContexts, InstrumentEngine instrumentEngine,
+    public DefaultClassFileTransformerDispatcher(ProfilerConfig profilerConfig, PluginContextLoadResult pluginContexts, InstrumentEngine instrumentEngine,
                                                  DynamicTransformTrigger dynamicTransformTrigger, DynamicTransformerRegistry dynamicTransformerRegistry) {
         if (instrumentEngine == null) {
             throw new NullPointerException("instrumentEngine must not be null");
@@ -72,9 +72,9 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
         }
 
         ClassInjector classInjector = new LegacyProfilerPluginClassInjector(getClass().getClassLoader());
-        ClassFileTransformerLoader transformerRegistry = new ClassFileTransformerLoader(dynamicTransformTrigger);
-        this.globalContext = new PluginInstrumentContext(applicationContext, dynamicTransformTrigger, classInjector, transformerRegistry);
-        this.debugTargetFilter = applicationContext.getProfilerConfig().getProfilableClassFilter();
+        ClassFileTransformerLoader transformerRegistry = new ClassFileTransformerLoader(profilerConfig, dynamicTransformTrigger);
+        this.globalContext = new PluginInstrumentContext(profilerConfig, instrumentEngine, dynamicTransformTrigger, classInjector, transformerRegistry);
+        this.debugTargetFilter = profilerConfig.getProfilableClassFilter();
         this.debugTransformer = new DebugTransformer(instrumentEngine, globalContext);
 
         this.pinpointClassFilter = new PinpointClassFilter(agentClassLoader);

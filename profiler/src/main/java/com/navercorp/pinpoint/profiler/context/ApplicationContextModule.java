@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
@@ -48,6 +49,7 @@ import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
 import com.navercorp.pinpoint.profiler.context.provider.AgentInfoSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AgentInformationProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AgentStartTimeProvider;
+import com.navercorp.pinpoint.profiler.context.provider.ApiMetaDataServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ApplicationServerTypeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ClassFileTransformerDispatcherProvider;
 import com.navercorp.pinpoint.profiler.context.provider.CommandDispatcherProvider;
@@ -55,6 +57,7 @@ import com.navercorp.pinpoint.profiler.context.provider.DynamicTransformTriggerP
 import com.navercorp.pinpoint.profiler.context.provider.InstrumentEngineProvider;
 import com.navercorp.pinpoint.profiler.context.provider.JdbcContextProvider;
 import com.navercorp.pinpoint.profiler.context.provider.JvmInformationProvider;
+import com.navercorp.pinpoint.profiler.context.provider.ObjectBinderFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.PinpointClientFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.PinpointClientProvider;
 import com.navercorp.pinpoint.profiler.context.provider.PluginContextLoadResultProvider;
@@ -63,11 +66,11 @@ import com.navercorp.pinpoint.profiler.context.provider.SamplerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataHolderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.StorageFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TcpDataSenderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.TraceContextProvider;
 import com.navercorp.pinpoint.profiler.context.provider.UdpSpanDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.UdpStatDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataCacheService;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataCacheService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
@@ -77,6 +80,7 @@ import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DefaultAgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
 import com.navercorp.pinpoint.profiler.monitor.codahale.DefaultAgentStatCollectorFactory;
+import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
@@ -113,7 +117,6 @@ public class ApplicationContextModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(ApplicationContext.class).toInstance(applicationContext);
         bind(ProfilerConfig.class).toInstance(profilerConfig);
         bind(ServiceTypeRegistryService.class).toInstance(serviceTypeRegistryService);
         bind(AgentOption.class).toInstance(agentOption);
@@ -142,7 +145,7 @@ public class ApplicationContextModule extends AbstractModule {
 
         bind(Sampler.class).toProvider(SamplerProvider.class).in(Scopes.SINGLETON);
         bind(TraceFactoryBuilder.class).to(DefaultTraceFactoryBuilder.class).in(Scopes.SINGLETON);
-        bind(TraceContext.class).to(DefaultTraceContext.class).in(Scopes.SINGLETON);
+        bind(TraceContext.class).toProvider(TraceContextProvider.class).in(Scopes.SINGLETON);
         bind(AgentStatCollectorFactory.class).to(DefaultAgentStatCollectorFactory.class).in(Scopes.SINGLETON);
         bind(AgentStatMonitor.class).to(DefaultAgentStatMonitor.class).in(Scopes.SINGLETON);
 
@@ -160,8 +163,8 @@ public class ApplicationContextModule extends AbstractModule {
         bind(JvmInformation.class).toProvider(JvmInformationProvider.class).in(Scopes.SINGLETON);
         bind(AgentInfoSender.class).toProvider(AgentInfoSenderProvider.class).in(Scopes.SINGLETON);
 
-
         bind(InstrumentEngine.class).toProvider(InstrumentEngineProvider.class).in(Scopes.SINGLETON);
+        bind(ObjectBinderFactory.class).toProvider(ObjectBinderFactoryProvider.class).in(Scopes.SINGLETON);
         bind(ClassFileTransformerDispatcher.class).toProvider(ClassFileTransformerDispatcherProvider.class).in(Scopes.SINGLETON);
         bind(DynamicTransformerRegistry.class).to(DefaultDynamicTransformerRegistry.class).in(Scopes.SINGLETON);
         bind(DynamicTransformTrigger.class).toProvider(DynamicTransformTriggerProvider.class).in(Scopes.SINGLETON);
@@ -186,7 +189,7 @@ public class ApplicationContextModule extends AbstractModule {
     private void bindServiceComponent() {
 
         bind(StringMetaDataService.class).to(StringMetaDataCacheService.class).in(Scopes.SINGLETON);
-        bind(ApiMetaDataService.class).to(ApiMetaDataCacheService.class).in(Scopes.SINGLETON);
+        bind(ApiMetaDataService.class).toProvider(ApiMetaDataServiceProvider.class).in(Scopes.SINGLETON);
         bind(SqlMetaDataService.class).to(SqlMetaDataCacheService.class).in(Scopes.SINGLETON);
     }
 

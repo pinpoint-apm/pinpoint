@@ -46,7 +46,6 @@ public class ASMClassWriterTest {
     @Before
     public void setUp() {
         reset(traceContext);
-        when(pluginContext.getTraceContext()).thenReturn(traceContext);
         when(pluginContext.injectClass(any(ClassLoader.class), any(String.class))).thenAnswer(new Answer<Class<?>>() {
 
             @Override

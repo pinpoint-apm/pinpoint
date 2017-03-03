@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.cluster;
 
 import com.navercorp.pinpoint.common.util.NetUtils;
+import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.SimpleMessageListener;
@@ -199,7 +200,7 @@ public class ClusterTest {
 
             Assert.assertEquals(0, clusterConnectionManager.getClusterList().size());
 
-            clientFactory = new PinpointClientFactory();
+            clientFactory = new DefaultPinpointClientFactory();
             clientFactory.setMessageListener(SimpleMessageListener.INSTANCE);
 
             client = clientFactory.connect(DEFAULT_IP, acceptorPort);

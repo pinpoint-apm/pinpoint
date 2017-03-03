@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.rpc.LoggingStateChangeEventListener;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
@@ -84,7 +85,7 @@ public final class PinpointRPCTestUtils {
     }
     
     public static PinpointClientFactory createClientFactory(Map<String, Object> param, MessageListener messageListener) {
-        PinpointClientFactory clientFactory = new PinpointClientFactory();
+        PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setProperties(param);
         clientFactory.addStateChangeEventListener(LoggingStateChangeEventListener.INSTANCE);
 

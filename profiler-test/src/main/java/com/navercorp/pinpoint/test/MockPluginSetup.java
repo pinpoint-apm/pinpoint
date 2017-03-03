@@ -18,12 +18,13 @@ package com.navercorp.pinpoint.test;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
 import com.navercorp.pinpoint.profiler.plugin.ClassFileTransformerLoader;
 import com.navercorp.pinpoint.profiler.plugin.PluginInstrumentContext;
@@ -39,14 +40,22 @@ public class MockPluginSetup implements PluginSetup {
 
 
     private final ProfilerConfig profilerConfig;
-    private final ApplicationContext applicationContext;
+    private final InstrumentEngine instrumentEngine;
     private final DynamicTransformTrigger dynamicTransformTrigger;
 
     @Inject
-    public MockPluginSetup(ProfilerConfig profilerConfig, ApplicationContext applicationContext, DynamicTransformTrigger dynamicTransformTrigger) {
+    public MockPluginSetup(ProfilerConfig profilerConfig, InstrumentEngine instrumentEngine, DynamicTransformTrigger dynamicTransformTrigger) {
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig must not be null");
+        }
+        if (instrumentEngine == null) {
+            throw new NullPointerException("instrumentEngine must not be null");
+        }
+        if (dynamicTransformTrigger == null) {
+            throw new NullPointerException("dynamicTransformTrigger must not be null");
+        }
         this.profilerConfig = profilerConfig;
-
-        this.applicationContext = applicationContext;
+        this.instrumentEngine = instrumentEngine;
         this.dynamicTransformTrigger = dynamicTransformTrigger;
     }
 
@@ -56,8 +65,8 @@ public class MockPluginSetup implements PluginSetup {
         final DefaultProfilerPluginSetupContext pluginSetupContext = new DefaultProfilerPluginSetupContext(profilerConfig);
         final GuardProfilerPluginContext guardPluginSetupContext = new GuardProfilerPluginContext(pluginSetupContext);
 
-        ClassFileTransformerLoader classFileTransformerLoader = new ClassFileTransformerLoader(dynamicTransformTrigger);
-        InstrumentContext instrumentContext = new PluginInstrumentContext(applicationContext, dynamicTransformTrigger, classInjector, classFileTransformerLoader);
+        ClassFileTransformerLoader classFileTransformerLoader = new ClassFileTransformerLoader(profilerConfig, dynamicTransformTrigger);
+        InstrumentContext instrumentContext = new PluginInstrumentContext(profilerConfig, instrumentEngine, dynamicTransformTrigger, classInjector, classFileTransformerLoader);
         try {
             preparePlugin(plugin, instrumentContext);
             plugin.setup(guardPluginSetupContext);
