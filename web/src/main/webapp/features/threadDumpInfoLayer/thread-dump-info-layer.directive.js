@@ -97,7 +97,7 @@
 								"method": "GET"
 							}).then(function ( oResult ) {
 								var msg = "";
-								if ( false && oResult.data.message.threadDumpData.length > 0 ) {
+								if ( oResult.data.message.threadDumpData.length > 0 ) {
 									msg = oResult.data.message.threadDumpData[0].detailMessage;
 								} else {
 									msg = "There is no message";
@@ -133,11 +133,18 @@
 							"&agentId=" + currentAgentId,
 							"method": "GET"
 						}).then(function ( oResult ) {
-							scope.threadList = oResult.data.message.threadDumpData;
+							if( oResult.data.code && oResult.data.code === -1 ) {
+								$elEmpty.find("> span").hide().end().find(".when-has-message").show().find("span").html( oResult.data.message );
+							} else {
+								scope.threadList = oResult.data.message.threadDumpData;
+								if ( scope.threadList.length === 0 ) {
+									$elEmpty.find(".when-has-message").hide().end().find("> span").show();
+								}
+							}
 							$elTextarea.val("");
 							$elSpin.hide();
 							$el.show();
-							initAjax( oRefListAjax );
+							initAjax(oRefListAjax);
 						}, function () {
 							$elSpin.hide();
 						});
