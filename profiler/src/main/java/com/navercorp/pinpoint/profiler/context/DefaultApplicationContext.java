@@ -145,7 +145,7 @@ public class DefaultApplicationContext implements ApplicationContext {
     }
 
     protected Module newApplicationContextModule(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
-        return new ApplicationContextModule(this, agentOption, profilerConfig, serviceTypeRegistryService, interceptorRegistryBinder);
+        return new ApplicationContextModule(agentOption, profilerConfig, serviceTypeRegistryService, interceptorRegistryBinder);
     }
 
     protected DataSender newUdpStatDataSender() {

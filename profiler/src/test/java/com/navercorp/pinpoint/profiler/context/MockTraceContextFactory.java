@@ -51,8 +51,6 @@ public class MockTraceContextFactory {
     private final Sampler sampler;
     private final ActiveTraceRepository activeTraceRepository;
 
-    private final PluginMonitorContext pluginMonitorContext;
-
     private final ServerMetaDataHolder serverMetaDataHolder;
 
     private final EnhancedDataSender enhancedDataSender;
@@ -86,8 +84,6 @@ public class MockTraceContextFactory {
         this.activeTraceRepository = newActiveTraceRepository();
 
         final TraceFactoryBuilder traceFactoryBuilder = new DefaultTraceFactoryBuilder(storageFactory, sampler, idGenerator, activeTraceRepository);
-        final PluginMonitorContextProvider pluginMonitorContextBuilder = new PluginMonitorContextProvider(TRACE_DATASOURCE);
-        this.pluginMonitorContext = pluginMonitorContextBuilder.get();
 
         this.serverMetaDataHolder = new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs());
 
@@ -102,7 +98,7 @@ public class MockTraceContextFactory {
         this.sqlMetaDataCacheService = new SqlMetaDataCacheService(agentId, agentStartTime, enhancedDataSender, jdbcSqlCacheSize);
 
         this.traceContext = new DefaultTraceContext(profilerConfig, agentInformation,
-                traceFactoryBuilder, pluginMonitorContext, serverMetaDataHolder,
+                traceFactoryBuilder, serverMetaDataHolder,
                 apiMetaDataCacheService, stringMetaDataCacheService, sqlMetaDataCacheService,
                 DisabledJdbcContext.INSTANCE
         );
@@ -142,9 +138,6 @@ public class MockTraceContextFactory {
         return activeTraceRepository;
     }
 
-    public PluginMonitorContext getPluginMonitorContext() {
-        return pluginMonitorContext;
-    }
 
     public ServerMetaDataHolder getServerMetaDataHolder() {
         return serverMetaDataHolder;

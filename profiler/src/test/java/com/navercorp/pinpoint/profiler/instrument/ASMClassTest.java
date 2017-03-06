@@ -23,10 +23,11 @@ import com.navercorp.pinpoint.bootstrap.instrument.ClassFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 
-import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataCacheService;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,9 +56,10 @@ public class ASMClassTest {
 
     private final ProfilerConfig profilerConfig = mock(ProfilerConfig.class);
     private final Provider<TraceContext> traceContextProvider = Providers.of(mock(TraceContext.class));
+    private final DataSourceMonitorRegistry dataSourceMonitorRegistry = mock(DataSourceMonitorRegistry.class);
+    private final Provider<ApiMetaDataService> apiMetaDataService = Providers.of(mock(ApiMetaDataService.class));
     private final InstrumentContext pluginContext = mock(InstrumentContext.class);
-    private final ObjectBinderFactory objectBinderFactory = new ObjectBinderFactory(profilerConfig, traceContextProvider);
-    private final ApiMetaDataCacheService  apiMetaDataCacheService = mock(ApiMetaDataCacheService.class);
+    private final ObjectBinderFactory objectBinderFactory = new ObjectBinderFactory(profilerConfig, traceContextProvider, dataSourceMonitorRegistry, apiMetaDataService);
 
     @Before
     public void setUp() {
@@ -590,6 +592,6 @@ public class ASMClassTest {
     private ASMClass getClass(final String targetClassName) throws Exception {
         ClassNode classNode = ASMClassNodeLoader.get(targetClassName);
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        return new ASMClass(objectBinderFactory, pluginContext, interceptorRegistryBinder, apiMetaDataCacheService, classLoader, classNode);
+        return new ASMClass(objectBinderFactory, pluginContext, interceptorRegistryBinder, apiMetaDataService.get(), classLoader, classNode);
     }
 }

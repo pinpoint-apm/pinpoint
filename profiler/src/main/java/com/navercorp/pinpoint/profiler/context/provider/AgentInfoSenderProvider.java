@@ -30,35 +30,35 @@ import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 public class AgentInfoSenderProvider implements Provider<AgentInfoSender> {
 
     private final ProfilerConfig profilerConfig;
-    private final Provider<EnhancedDataSender> enhancedDataSender;
-    private final Provider<AgentInformation> agentInformation;
+    private final Provider<EnhancedDataSender> enhancedDataSenderProvider;
+    private final Provider<AgentInformation> agentInformationProvider;
     private final JvmInformation jvmInformation;
 
     @Inject
-    public AgentInfoSenderProvider(ProfilerConfig profilerConfig, Provider<EnhancedDataSender> enhancedDataSender, Provider<AgentInformation> agentInformation, JvmInformation jvmInformation) {
+    public AgentInfoSenderProvider(ProfilerConfig profilerConfig, Provider<EnhancedDataSender> enhancedDataSenderProvider, Provider<AgentInformation> agentInformationProvider, JvmInformation jvmInformation) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
-        if (enhancedDataSender == null) {
-            throw new NullPointerException("enhancedDataSender must not be null");
+        if (enhancedDataSenderProvider == null) {
+            throw new NullPointerException("enhancedDataSenderProvider must not be null");
         }
-        if (agentInformation == null) {
-            throw new NullPointerException("agentInformation must not be null");
+        if (agentInformationProvider == null) {
+            throw new NullPointerException("agentInformationProvider must not be null");
         }
         if (jvmInformation == null) {
             throw new NullPointerException("jvmInformation must not be null");
         }
 
         this.profilerConfig = profilerConfig;
-        this.enhancedDataSender = enhancedDataSender;
-        this.agentInformation = agentInformation;
+        this.enhancedDataSenderProvider = enhancedDataSenderProvider;
+        this.agentInformationProvider = agentInformationProvider;
         this.jvmInformation = jvmInformation;
     }
 
     @Override
     public AgentInfoSender get() {
-        final EnhancedDataSender enhancedDataSender = this.enhancedDataSender.get();
-        final AgentInformation agentInformation = this.agentInformation.get();
+        final EnhancedDataSender enhancedDataSender = this.enhancedDataSenderProvider.get();
+        final AgentInformation agentInformation = this.agentInformationProvider.get();
         final AgentInfoSender.Builder builder = new AgentInfoSender.Builder(enhancedDataSender, agentInformation, jvmInformation);
         builder.sendInterval(profilerConfig.getAgentInfoSendRetryInterval());
         return builder.build();

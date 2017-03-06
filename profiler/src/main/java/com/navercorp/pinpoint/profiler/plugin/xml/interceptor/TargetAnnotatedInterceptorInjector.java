@@ -31,7 +31,9 @@ import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.AutoBindingObjectFactory;
 import com.navercorp.pinpoint.profiler.objectfactory.InterceptorArgumentProvider;
 import com.navercorp.pinpoint.profiler.plugin.xml.transformer.ClassCookBook;
@@ -56,9 +58,11 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
     private final String scopeName;
     private final ExecutionPolicy executionPoint;
     private final ProfilerConfig profilerConfig;
+    private DataSourceMonitorRegistry dataSourceMonitorRegistry;
+    private final ApiMetaDataService apiMetaDataService;
 
 
-    public TargetAnnotatedInterceptorInjector(ProfilerConfig profilerConfig, TraceContext traceContext, InstrumentContext pluginContext,
+    public TargetAnnotatedInterceptorInjector(ProfilerConfig profilerConfig, TraceContext traceContext, DataSourceMonitorRegistry dataSourceMonitorRegistry, ApiMetaDataService apiMetaDataService, InstrumentContext pluginContext,
                                               String interceptorClassName, Object[] providedArguments, String scopeName, ExecutionPolicy executionPoint) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
@@ -66,11 +70,19 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
         }
+        if (dataSourceMonitorRegistry == null) {
+            throw new NullPointerException("dataSourceMonitorRegistry must not be null");
+        }
+        if (apiMetaDataService == null) {
+            throw new NullPointerException("apiMetaDataService must not be null");
+        }
         if (pluginContext == null) {
             throw new NullPointerException("pluginContext must not be null");
         }
         this.profilerConfig = profilerConfig;
         this.traceContext = traceContext;
+        this.dataSourceMonitorRegistry = dataSourceMonitorRegistry;
+        this.apiMetaDataService = apiMetaDataService;
         this.pluginContext = pluginContext;
         this.interceptorClassName = interceptorClassName;
         this.providedArguments = providedArguments;
@@ -151,7 +163,7 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
             throw new PinpointException("type of @TargetFilter is null: " + interceptorClassName);
         }
 
-        final InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(traceContext, targetClass);
+        final InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(dataSourceMonitorRegistry, apiMetaDataService, targetClass);
         AutoBindingObjectFactory filterFactory = new AutoBindingObjectFactory(profilerConfig, traceContext, pluginContext, classLoader, interceptorArgumentProvider);
         MethodFilter filter = (MethodFilter)filterFactory.createInstance(ObjectFactory.byConstructor(type, (Object[]) annotation.constructorArguments()));
         MethodRecipe recipe = annotation.singleton() ? new SharedAnnotatedInterceptorInjector(injector) : injector;

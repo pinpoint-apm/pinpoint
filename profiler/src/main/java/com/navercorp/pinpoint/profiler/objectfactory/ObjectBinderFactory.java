@@ -21,39 +21,53 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.profiler.interceptor.factory.AnnotatedInterceptorFactory;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class ObjectBinderFactory {
     private final ProfilerConfig profilerConfig;
-    private final Provider<TraceContext> traceContext;
+    private final Provider<TraceContext> traceContextProvider;
+    private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
+    private final Provider<ApiMetaDataService> apiMetaDataService;
 
-    public ObjectBinderFactory(ProfilerConfig profilerConfig, Provider<TraceContext> traceContext) {
+    public ObjectBinderFactory(ProfilerConfig profilerConfig, Provider<TraceContext> traceContextProvider, DataSourceMonitorRegistry dataSourceMonitorRegistry, Provider<ApiMetaDataService> apiMetaDataService) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
-        if (traceContext == null) {
-            throw new NullPointerException("traceContext must not be null");
+        if (traceContextProvider == null) {
+            throw new NullPointerException("traceContextProvider must not be null");
         }
+        if (dataSourceMonitorRegistry == null) {
+            throw new NullPointerException("dataSourceMonitorRegistry must not be null");
+        }
+        if (apiMetaDataService == null) {
+            throw new NullPointerException("apiMetaDataService must not be null");
+        }
+
         this.profilerConfig = profilerConfig;
-        this.traceContext = traceContext;
+        this.traceContextProvider = traceContextProvider;
+        this.dataSourceMonitorRegistry = dataSourceMonitorRegistry;
+        this.apiMetaDataService = apiMetaDataService;
     }
 
     public AutoBindingObjectFactory newAutoBindingObjectFactory(InstrumentContext pluginContext, ClassLoader classLoader, ArgumentProvider... argumentProviders) {
-        final TraceContext traceContext = this.traceContext.get();
+        final TraceContext traceContext = this.traceContextProvider.get();
         return new AutoBindingObjectFactory(profilerConfig, traceContext, pluginContext, classLoader, argumentProviders);
     }
 
 
     public InterceptorArgumentProvider newInterceptorArgumentProvider(InstrumentClass instrumentClass) {
-        final TraceContext traceContext = this.traceContext.get();
-        return new InterceptorArgumentProvider(traceContext, instrumentClass);
+        ApiMetaDataService apiMetaDataService = this.apiMetaDataService.get();
+        return new InterceptorArgumentProvider(dataSourceMonitorRegistry, apiMetaDataService, instrumentClass);
     }
 
     public AnnotatedInterceptorFactory newAnnotatedInterceptorFactory(InstrumentContext pluginContext, boolean exceptionHandle) {
-        final TraceContext traceContext = this.traceContext.get();
-        return new AnnotatedInterceptorFactory(profilerConfig, traceContext, pluginContext, exceptionHandle);
+        final TraceContext traceContext = this.traceContextProvider.get();
+        ApiMetaDataService apiMetaDataService = this.apiMetaDataService.get();
+        return new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, apiMetaDataService, pluginContext, exceptionHandle);
     }
 }
