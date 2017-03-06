@@ -29,20 +29,26 @@ import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
 public class PluginMonitorContextProvider implements Provider<PluginMonitorContext> {
 
     private final boolean traceAgentDataSource;
+    private final int dataSourceTraceLimitSize;
 
     @Inject
     public PluginMonitorContextProvider(ProfilerConfig profilerConfig) {
-        this(profilerConfig.isTraceAgentDataSource());
+        this(profilerConfig.isTraceAgentDataSource(), profilerConfig.getDataSourceTraceLimitSize());
     }
 
     public PluginMonitorContextProvider(boolean traceAgentDataSource) {
         this.traceAgentDataSource = traceAgentDataSource;
+        this.dataSourceTraceLimitSize = -1;
     }
 
+    public PluginMonitorContextProvider(boolean traceAgentDataSource, int dataSourceTraceLimitSize) {
+        this.traceAgentDataSource = traceAgentDataSource;
+        this.dataSourceTraceLimitSize = dataSourceTraceLimitSize;
+    }
 
     public PluginMonitorContext get() {
         if (traceAgentDataSource) {
-            return new DefaultPluginMonitorContext();
+            return new DefaultPluginMonitorContext(dataSourceTraceLimitSize);
         }
 
         return new DisabledPluginMonitorContext();

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context.monitor;
 
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 
 /**
@@ -23,15 +25,24 @@ import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry
  */
 public class DefaultPluginMonitorContext implements PluginMonitorContext {
 
+    private static final int DEFAULT_LIMIT_SIZE = 20;
+
+    private final PLogger logger = PLoggerFactory.getLogger(getClass());
+
     private final DataSourceMonitorList dataSourceMonitorList;
 
     // it will be changed using ProfilerConfig
     public DefaultPluginMonitorContext() {
-        this(5);
+        this(DEFAULT_LIMIT_SIZE);
     }
 
-    public DefaultPluginMonitorContext(int limitIdNumber) {
-        dataSourceMonitorList = new DataSourceMonitorList(limitIdNumber);
+    public DefaultPluginMonitorContext(int dataSourceTraceLimitSize) {
+        if (dataSourceTraceLimitSize <= 0) {
+            logger.info("dataSourceTraceLimitSize must greater than 0. It will be set default size {}", DEFAULT_LIMIT_SIZE);
+            dataSourceMonitorList = new DataSourceMonitorList(DEFAULT_LIMIT_SIZE);
+        } else {
+            dataSourceMonitorList = new DataSourceMonitorList(dataSourceTraceLimitSize);
+        }
     }
 
     @Override
