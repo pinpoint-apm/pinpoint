@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.profiler.context.TraceFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
-import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataCacheService;
+import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,11 +53,11 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
     private final ProfilerConfig profilerConfig;
     private final AgentInformation agentInformation;
     private final StringMetaDataService stringMetaDataService;
-    private final SqlMetaDataCacheService sqlMetaDataCacheService;
+    private final SqlMetaDataService sqlMetaDataService;
 
     @Inject
     public TraceFactoryProvider(ProfilerConfig profilerConfig, StorageFactory storageFactory, Sampler sampler, AtomicIdGenerator idGenerator, AsyncIdGenerator asyncIdGenerator, ActiveTraceRepository activeTraceRepository,
-                                AgentInformation agentInformation, StringMetaDataService stringMetaDataService, SqlMetaDataCacheService sqlMetaDataCacheService) {
+                                AgentInformation agentInformation, StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService) {
 
         if (storageFactory == null) {
             throw new NullPointerException("storageFactory must not be null");
@@ -80,8 +80,8 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
         if (stringMetaDataService == null) {
             throw new NullPointerException("stringMetaDataService must not be null");
         }
-        if (sqlMetaDataCacheService == null) {
-            throw new NullPointerException("sqlMetaDataCacheService must not be null");
+        if (sqlMetaDataService == null) {
+            throw new NullPointerException("sqlMetaDataService must not be null");
         }
 
         this.profilerConfig = profilerConfig;
@@ -93,14 +93,14 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
 
         this.agentInformation = agentInformation;
         this.stringMetaDataService = stringMetaDataService;
-        this.sqlMetaDataCacheService = sqlMetaDataCacheService;
+        this.sqlMetaDataService = sqlMetaDataService;
     }
 
     @Override
     public TraceFactory get() {
 
         BaseTraceFactory baseTraceFactory = new DefaultBaseTraceFactory(profilerConfig, storageFactory, sampler, idGenerator,
-                asyncIdGenerator, agentInformation, stringMetaDataService, sqlMetaDataCacheService);
+                asyncIdGenerator, agentInformation, stringMetaDataService, sqlMetaDataService);
         if (isDebugEnabled()) {
             baseTraceFactory = LoggingBaseTraceFactory.wrap(baseTraceFactory);
         }

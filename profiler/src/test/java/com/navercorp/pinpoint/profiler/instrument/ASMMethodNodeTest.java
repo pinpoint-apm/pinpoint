@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.profiler.instrument.mock.ArgsArrayInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataCacheService;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +36,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 /**
@@ -47,7 +46,7 @@ public class ASMMethodNodeTest {
     private final static InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
 
     private final InstrumentContext pluginContext = mock(InstrumentContext.class);
-    private final ApiMetaDataCacheService apiMetaDataCacheService = mock(ApiMetaDataCacheService.class);
+    private final ApiMetaDataService apiMetaDataService = mock(ApiMetaDataService.class);
 
     @Before
     public void setUp() {
@@ -75,7 +74,7 @@ public class ASMMethodNodeTest {
 
         final MethodNode methodNode = ASMClassNodeLoader.get(targetClassName, methodName);
 
-        ASMMethod method = new ASMMethod(objectBinderFactory, pluginContext, apiMetaDataCacheService, interceptorRegistryBinder, declaringClass, methodNode);
+        ASMMethod method = new ASMMethod(objectBinderFactory, pluginContext, apiMetaDataService, interceptorRegistryBinder, declaringClass, methodNode);
         assertEquals(methodName, method.getName());
         assertEquals(1, method.getParameterTypes().length);
         assertEquals("int", method.getParameterTypes()[0]);
@@ -105,7 +104,7 @@ public class ASMMethodNodeTest {
             public void handle(ClassNode classNode) {
                 List<MethodNode> methodNodes = classNode.methods;
                 for(MethodNode methodNode : methodNodes) {
-                    ASMMethod method = new ASMMethod(objectBinderFactory, pluginContext, apiMetaDataCacheService, interceptorRegistryBinder, declaringClass, methodNode);
+                    ASMMethod method = new ASMMethod(objectBinderFactory, pluginContext, apiMetaDataService, interceptorRegistryBinder, declaringClass, methodNode);
                     try {
                         method.addInterceptor(interceptorId);
                     } catch (InstrumentException e) {

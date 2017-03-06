@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.storage.AsyncStorage;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
-import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataCacheService;
+import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 
 
@@ -43,15 +43,17 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     private final Sampler sampler;
 
     private final AtomicIdGenerator idGenerator;
-    private final AgentInformation agentInformation;
-    private final StringMetaDataService stringMetaDataService;
-    private final SqlMetaDataCacheService sqlMetaDataCacheService;
     private final AsyncIdGenerator asyncIdGenerator;
+
+    private final AgentInformation agentInformation;
+
+    private final StringMetaDataService stringMetaDataService;
+    private final SqlMetaDataService sqlMetaDataService;
 
     public DefaultBaseTraceFactory(ProfilerConfig profilerConfig, StorageFactory storageFactory, Sampler sampler, AtomicIdGenerator idGenerator, AsyncIdGenerator asyncIdGenerator,
                                    AgentInformation agentInformation,
                                    StringMetaDataService stringMetaDataService,
-                                   SqlMetaDataCacheService sqlMetaDataCacheService) {
+                                   SqlMetaDataService sqlMetaDataService) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
@@ -73,8 +75,8 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         if (stringMetaDataService == null) {
             throw new NullPointerException("stringMetaDataService must not be null");
         }
-        if (sqlMetaDataCacheService == null) {
-            throw new NullPointerException("sqlMetaDataCacheService must not be null");
+        if (sqlMetaDataService == null) {
+            throw new NullPointerException("sqlMetaDataService must not be null");
         }
 
         this.profilerConfig = profilerConfig;
@@ -85,7 +87,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
 
         this.agentInformation = agentInformation;
         this.stringMetaDataService = stringMetaDataService;
-        this.sqlMetaDataCacheService = sqlMetaDataCacheService;
+        this.sqlMetaDataService = sqlMetaDataService;
     }
 
 
@@ -101,7 +103,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
 
 
         final Trace trace = new DefaultTrace(profilerConfig, storage, traceId, localTransactionId, asyncIdGenerator, sampling,
-                agentInformation, stringMetaDataService, sqlMetaDataCacheService);
+                agentInformation, stringMetaDataService, sqlMetaDataService);
         return trace;
     }
 
@@ -122,7 +124,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
             final long localTransactionId = idGenerator.nextTransactionId();
             final TraceId traceId = new DefaultTraceId(agentInformation.getAgentId(), agentInformation.getStartTime(), localTransactionId);
             final Trace trace = new DefaultTrace(profilerConfig, storage, traceId, localTransactionId, asyncIdGenerator, sampling,
-                    agentInformation, stringMetaDataService, sqlMetaDataCacheService);
+                    agentInformation, stringMetaDataService, sqlMetaDataService);
 
             return trace;
         } else {
@@ -141,7 +143,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         final Storage storage = storageFactory.createStorage();
         final Storage asyncStorage = new AsyncStorage(storage);
         final Trace trace = new DefaultTrace(profilerConfig, asyncStorage, parentTraceId, AtomicIdGenerator.UNTRACKED_ID, asyncIdGenerator, sampling,
-                agentInformation, stringMetaDataService, sqlMetaDataCacheService);
+                agentInformation, stringMetaDataService, sqlMetaDataService);
 
         final AsyncTrace asyncTrace = new AsyncTrace(trace, asyncId, traceId.nextAsyncSequence(), startTime);
 
@@ -158,7 +160,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         final Storage storage = storageFactory.createStorage();
         final long localTransactionId = this.idGenerator.nextContinuedTransactionId();
         final DefaultTrace trace = new DefaultTrace(profilerConfig, storage, traceId, localTransactionId, asyncIdGenerator, sampling,
-                agentInformation, stringMetaDataService, sqlMetaDataCacheService);
+                agentInformation, stringMetaDataService, sqlMetaDataService);
 
         final SpanAsyncStateListener asyncStateListener = new SpanAsyncStateListener(trace.getSpan(), storageFactory.createStorage());
         final ListenableAsyncState stateListener = new ListenableAsyncState(asyncStateListener);
@@ -178,7 +180,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
             final long localTransactionId = idGenerator.nextTransactionId();
             final TraceId traceId = new DefaultTraceId(agentInformation.getAgentId(), agentInformation.getStartTime(), localTransactionId);
             final DefaultTrace trace = new DefaultTrace(profilerConfig, storage, traceId, localTransactionId, asyncIdGenerator, sampling,
-                    agentInformation, stringMetaDataService, sqlMetaDataCacheService);
+                    agentInformation, stringMetaDataService, sqlMetaDataService);
 
             final SpanAsyncStateListener asyncStateListener = new SpanAsyncStateListener(trace.getSpan(), storageFactory.createStorage());
             final AsyncState closer = new ListenableAsyncState(asyncStateListener);

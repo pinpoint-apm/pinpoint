@@ -26,9 +26,12 @@ import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.provider.TraceFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
-import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataCacheService;
-import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataCacheService;
-import com.navercorp.pinpoint.profiler.metadata.StringMetaDataCacheService;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.DefaultApiMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.DefaultSqlMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.DefaultStringMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import com.navercorp.pinpoint.profiler.sampler.SamplerFactory;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
@@ -54,9 +57,9 @@ public class MockTraceContextFactory {
 
     private final EnhancedDataSender enhancedDataSender;
 
-    private final ApiMetaDataCacheService apiMetaDataCacheService;
-    private final StringMetaDataCacheService stringMetaDataCacheService;
-    private final SqlMetaDataCacheService sqlMetaDataCacheService;
+    private final ApiMetaDataService apiMetaDataService;
+    private final StringMetaDataService stringMetaDataService;
+    private final SqlMetaDataService sqlMetaDataService;
 
     private final TraceContext traceContext;
 
@@ -72,6 +75,7 @@ public class MockTraceContextFactory {
 
 
     public MockTraceContextFactory(ProfilerConfig profilerConfig) {
+
         this.agentInformation = new TestAgentInformation();
 
         this.storageFactory = new LogStorageFactory();
@@ -89,18 +93,18 @@ public class MockTraceContextFactory {
         final long agentStartTime = agentInformation.getStartTime();
         this.enhancedDataSender = new LoggingDataSender();
 
-        this.apiMetaDataCacheService = new ApiMetaDataCacheService(agentId, agentStartTime, enhancedDataSender);
-        this.stringMetaDataCacheService = new StringMetaDataCacheService(agentId, agentStartTime, enhancedDataSender);
+        this.apiMetaDataService = new DefaultApiMetaDataService(agentId, agentStartTime, enhancedDataSender);
+        this.stringMetaDataService = new DefaultStringMetaDataService(agentId, agentStartTime, enhancedDataSender);
 
         final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
-        this.sqlMetaDataCacheService = new SqlMetaDataCacheService(agentId, agentStartTime, enhancedDataSender, jdbcSqlCacheSize);
+        this.sqlMetaDataService = new DefaultSqlMetaDataService(agentId, agentStartTime, enhancedDataSender, jdbcSqlCacheSize);
 
         final TraceFactoryProvider traceFactoryBuilder = new TraceFactoryProvider(profilerConfig, storageFactory, sampler, idGenerator, asyncIdGenerator, activeTraceRepository,
-                agentInformation, stringMetaDataCacheService, sqlMetaDataCacheService);
+                agentInformation, stringMetaDataService, sqlMetaDataService);
         TraceFactory traceFactory = traceFactoryBuilder.get();
         this.traceContext = new DefaultTraceContext(profilerConfig, agentInformation,
                 traceFactory, asyncIdGenerator, serverMetaDataHolder,
-                apiMetaDataCacheService, stringMetaDataCacheService, sqlMetaDataCacheService,
+                apiMetaDataService, stringMetaDataService, sqlMetaDataService,
                 DisabledJdbcContext.INSTANCE
         );
     }
@@ -148,16 +152,16 @@ public class MockTraceContextFactory {
         return enhancedDataSender;
     }
 
-    public ApiMetaDataCacheService getApiMetaDataCacheService() {
-        return apiMetaDataCacheService;
+    public ApiMetaDataService getApiMetaDataService() {
+        return apiMetaDataService;
     }
 
-    public StringMetaDataCacheService getStringMetaDataCacheService() {
-        return stringMetaDataCacheService;
+    public StringMetaDataService getStringMetaDataService() {
+        return stringMetaDataService;
     }
 
-    public SqlMetaDataCacheService getSqlMetaDataCacheService() {
-        return sqlMetaDataCacheService;
+    public SqlMetaDataService getSqlMetaDataService() {
+        return sqlMetaDataService;
     }
 
     public TraceContext getTraceContext() {
