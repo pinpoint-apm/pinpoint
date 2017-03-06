@@ -51,12 +51,12 @@ public class CubridJdbcUrlParser implements JdbcUrlParserV2 {
     @Override
     public DatabaseInfo parse(String jdbcUrl) {
         if (jdbcUrl == null) {
-            logger.warn("jdbcUrl may not be null");
+            logger.info("jdbcUrl may not be null");
             return UnKnownDatabaseInfo.INSTANCE;
         }
         final Matcher matcher = PREFIX_PATTERN.matcher(jdbcUrl);
         if (!matcher.find()) {
-            logger.warn("jdbcUrl has invalid prefix.(url:{}, prefix-pattern:{})", jdbcUrl, URL_PREFIX_PATTERN);
+            logger.info("jdbcUrl has invalid prefix.(url:{}, prefix-pattern:{})", jdbcUrl, URL_PREFIX_PATTERN);
             return UnKnownDatabaseInfo.INSTANCE;
         }
 
@@ -64,7 +64,7 @@ public class CubridJdbcUrlParser implements JdbcUrlParserV2 {
         try {
             result = parse0(jdbcUrl);
         } catch (Exception e) {
-            logger.warn("CubridJdbcUrl parse error. url: " + jdbcUrl + " Caused: " + e.getMessage(), e);
+            logger.info("CubridJdbcUrl parse error. url: {}, Caused: {}", jdbcUrl, e.getMessage(), e);
             result = UnKnownDatabaseInfo.createUnknownDataBase(CubridConstants.CUBRID, CubridConstants.CUBRID_EXECUTE_QUERY, jdbcUrl);
         }
         return result;
@@ -97,7 +97,7 @@ public class CubridJdbcUrlParser implements JdbcUrlParserV2 {
             try {
                 port = Integer.parseInt(portString);
             } catch (NumberFormatException e) {
-                logger.warn("cubrid portString parsing fail. portString:{}, url:{}", portString, jdbcUrl);
+                logger.info("cubrid portString parsing fail. portString:{}, url:{}", portString, jdbcUrl);
             }
         }
 

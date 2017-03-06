@@ -64,6 +64,8 @@ public interface ProfilerConfig {
 
     boolean isTraceAgentDataSource();
 
+    int getDataSourceTraceLimitSize();
+
     int getSpanDataSenderSocketTimeout();
 
     String getSpanDataSenderSocketType();

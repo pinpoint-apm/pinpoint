@@ -45,13 +45,13 @@ public class MariaDBJdbcUrlParser implements JdbcUrlParserV2 {
     @Override
     public DatabaseInfo parse(String jdbcUrl) {
         if (jdbcUrl == null) {
-            logger.warn("jdbcUrl may not be null");
+            logger.info("jdbcUrl may not be null");
             return UnKnownDatabaseInfo.INSTANCE;
         }
 
         Type type = Type.findType(jdbcUrl);
         if (type == null) {
-            logger.warn("jdbcUrl has invalid prefix.(url:{}, prefix:{}, {})", jdbcUrl, URL_PREFIX, MYSQL_URL_PREFIX);
+            logger.info("jdbcUrl has invalid prefix.(url:{}, prefix:{}, {})", jdbcUrl, URL_PREFIX, MYSQL_URL_PREFIX);
             return UnKnownDatabaseInfo.INSTANCE;
         }
 
@@ -59,7 +59,7 @@ public class MariaDBJdbcUrlParser implements JdbcUrlParserV2 {
         try {
             result = parse0(jdbcUrl, type);
         } catch (Exception e) {
-            logger.warn("MaridDBJdbcUrl parse error. url: " + jdbcUrl + " Caused: " + e.getMessage(), e);
+            logger.info("MaridDBJdbcUrl parse error. url: {}, Caused: {}", jdbcUrl, e.getMessage(), e);
             result = UnKnownDatabaseInfo.createUnknownDataBase(MariaDBConstants.MARIADB, MariaDBConstants.MARIADB_EXECUTE_QUERY, jdbcUrl);
         }
         return result;

@@ -43,11 +43,11 @@ public class PostgreSqlJdbcUrlParser implements JdbcUrlParserV2 {
     @Override
     public DatabaseInfo parse(String jdbcUrl) {
         if (jdbcUrl == null) {
-            logger.warn("jdbcUrl may not be null");
+            logger.info("jdbcUrl may not be null");
             return UnKnownDatabaseInfo.INSTANCE;
         }
         if (!jdbcUrl.startsWith(URL_PREFIX)) {
-            logger.warn("jdbcUrl has invalid prefix.(url:{}, prefix:{})", jdbcUrl, URL_PREFIX);
+            logger.info("jdbcUrl has invalid prefix.(url:{}, prefix:{})", jdbcUrl, URL_PREFIX);
             return UnKnownDatabaseInfo.INSTANCE;
         }
 
@@ -55,7 +55,7 @@ public class PostgreSqlJdbcUrlParser implements JdbcUrlParserV2 {
         try {
             result = parse0(jdbcUrl);
         } catch (Exception e) {
-            logger.warn("PostgreJdbcUrl parse error. url: " + jdbcUrl + " Caused: " + e.getMessage(), e);
+            logger.info("PostgreJdbcUrl parse error. url: {}, Caused: {}", jdbcUrl, e.getMessage(), e);
             result = UnKnownDatabaseInfo.createUnknownDataBase(PostgreSqlConstants.POSTGRESQL, PostgreSqlConstants.POSTGRESQL_EXECUTE_QUERY, jdbcUrl);
         }
         return result;
