@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.junit.Before;
@@ -31,7 +30,6 @@ import java.io.PrintWriter;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 /**
@@ -41,11 +39,9 @@ import static org.mockito.Mockito.when;
 public class ASMClassWriterTest {
 
     private final InstrumentContext pluginContext = mock(InstrumentContext.class);
-    private final TraceContext traceContext = mock(TraceContext.class);
 
     @Before
     public void setUp() {
-        reset(traceContext);
         when(pluginContext.injectClass(any(ClassLoader.class), any(String.class))).thenAnswer(new Answer<Class<?>>() {
 
             @Override

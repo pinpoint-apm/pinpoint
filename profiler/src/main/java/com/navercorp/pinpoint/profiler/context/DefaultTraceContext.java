@@ -56,10 +56,11 @@ public class DefaultTraceContext implements TraceContext {
 
     private final JdbcContext jdbcContext;
 
-    private final AsyncIdGenerator asyncIdGenerator = new AsyncIdGenerator();
+    private final AsyncIdGenerator asyncIdGenerator;
 
     public DefaultTraceContext(ProfilerConfig profilerConfig, final AgentInformation agentInformation,
-                               TraceFactoryBuilder traceFactoryBuilder,
+                               TraceFactory traceFactory,
+                               AsyncIdGenerator asyncIdGenerator,
                                ServerMetaDataHolder serverMetaDataHolder,
                                ApiMetaDataService apiMetaDataService,
                                StringMetaDataService stringMetaDataService,
@@ -72,9 +73,13 @@ public class DefaultTraceContext implements TraceContext {
         if (agentInformation == null) {
             throw new NullPointerException("agentInformation must not be null");
         }
-        if (traceFactoryBuilder == null) {
-            throw new NullPointerException("traceFactoryBuilder must not be null");
+        if (traceFactory == null) {
+            throw new NullPointerException("traceFactory must not be null");
         }
+        if (asyncIdGenerator == null) {
+            throw new NullPointerException("asyncIdGenerator must not be null");
+        }
+
         if (apiMetaDataService == null) {
             throw new NullPointerException("apiMetaDataService must not be null");
         }
@@ -88,7 +93,8 @@ public class DefaultTraceContext implements TraceContext {
         this.agentInformation = agentInformation;
         this.serverMetaDataHolder = serverMetaDataHolder;
 
-        this.traceFactory = traceFactoryBuilder.build(this);
+        this.traceFactory = traceFactory;
+        this.asyncIdGenerator = asyncIdGenerator;
         this.jdbcContext = jdbcContext;
 
         this.apiMetaDataService = apiMetaDataService;

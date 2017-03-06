@@ -19,13 +19,17 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
+import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
 
 import org.junit.*;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * @author emeroad
@@ -46,11 +50,15 @@ public class DefaultTraceTest {
     @Test
     public void testPushPop() {
         ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        TraceContext traceContext = MockTraceContextFactory.newTestTraceContext(profilerConfig);
+        AgentInformation agentInformation = new TestAgentInformation();
+        StringMetaDataService stringMetaDataService = mock(StringMetaDataService.class);
+        SqlMetaDataService sqlMetaDataService = mock(SqlMetaDataService.class);
+        AsyncIdGenerator asyncIdGenerator = mock(AsyncIdGenerator.class);
         SpanStorage storage = new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER);
         long localTransactionId = 1;
         TraceId traceId = new DefaultTraceId("agentId", System.currentTimeMillis(), localTransactionId);
-        Trace trace = new DefaultTrace(traceContext, storage, traceId, localTransactionId, true);
+        Trace trace = new DefaultTrace(profilerConfig, storage, traceId, localTransactionId, asyncIdGenerator, true,
+                agentInformation, stringMetaDataService, sqlMetaDataService);
         trace.traceBlockBegin();
         trace.traceBlockBegin();
         trace.traceBlockEnd();

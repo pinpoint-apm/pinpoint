@@ -21,15 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class AsyncIdGenerator {
+public interface AsyncIdGenerator {
 
-    private final AtomicInteger asyncId = new AtomicInteger();
-
-    public int nextAsyncId() {
-        final int id = asyncId.incrementAndGet();
-        if (id == -1) {
-            return asyncId.incrementAndGet();
-        }
-        else return id;
-    }
+    int nextAsyncId();
 }

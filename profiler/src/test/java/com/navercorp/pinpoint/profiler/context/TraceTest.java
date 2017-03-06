@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
+import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataCacheService;
+import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
 import com.navercorp.pinpoint.rpc.FutureListener;
@@ -33,6 +34,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.mockito.Mockito.mock;
+
 /**
  * @author emeroad
  */
@@ -42,10 +45,16 @@ public class TraceTest {
     @Test
     public void trace() {
         TraceId traceId = new DefaultTraceId("agent", 0, 1);
-        TraceContext traceContext = getDefaultTraceContext();
+        ProfilerConfig profilerConfig = mock(ProfilerConfig.class);
+        AgentInformation agentInformation =  new TestAgentInformation();
+        StringMetaDataService stringMetaDataService = mock(StringMetaDataService.class);
+        SqlMetaDataCacheService sqlMetaDataService = mock(SqlMetaDataCacheService .class);
+        AsyncIdGenerator asyncIdGenerator = mock(AsyncIdGenerator.class);
+
         SpanStorage storage = new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER);
 
-        Trace trace = new DefaultTrace(traceContext, storage, traceId, 0L, true);
+        Trace trace = new DefaultTrace(profilerConfig, storage, traceId, 0L, asyncIdGenerator, true,
+                agentInformation, stringMetaDataService, sqlMetaDataService);
         trace.traceBlockBegin();
 
         // get data form db
@@ -60,21 +69,20 @@ public class TraceTest {
     @Test
     public void popEventTest() {
         TraceId traceId = new DefaultTraceId("agent", 0, 1);
-        TraceContext traceContext = getDefaultTraceContext();
+        ProfilerConfig profilerConfig = mock(ProfilerConfig.class);
+        AgentInformation agentInformation = new TestAgentInformation();
+        StringMetaDataService stringMetaDataService = mock(StringMetaDataService.class);
+        SqlMetaDataCacheService sqlMetaDataService = mock(SqlMetaDataCacheService .class);
+        AsyncIdGenerator asyncIdGenerator = mock(AsyncIdGenerator.class);
 
         TestDataSender dataSender = new TestDataSender();
         SpanStorage storage = new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER);
 
-        Trace trace = new DefaultTrace(traceContext, storage, traceId, 0L, true);
+        Trace trace = new DefaultTrace(profilerConfig, storage, traceId, 0L, asyncIdGenerator, true, agentInformation, stringMetaDataService, sqlMetaDataService);
 
         trace.close();
 
         logger.debug(String.valueOf(dataSender.event));
-    }
-
-    private TraceContext getDefaultTraceContext() {
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        return MockTraceContextFactory.newTestTraceContext(profilerConfig);
     }
 
     public class TestDataSender implements EnhancedDataSender {

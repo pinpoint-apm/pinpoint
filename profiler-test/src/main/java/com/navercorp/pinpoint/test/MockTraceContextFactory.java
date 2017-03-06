@@ -21,13 +21,15 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.context.AsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.AtomicIdGenerator;
+import com.navercorp.pinpoint.profiler.context.DefaultAsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceFactoryBuilder;
+import com.navercorp.pinpoint.profiler.context.provider.TraceFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.DisabledJdbcContext;
 import com.navercorp.pinpoint.profiler.context.IdGenerator;
-import com.navercorp.pinpoint.profiler.context.TraceFactoryBuilder;
+import com.navercorp.pinpoint.profiler.context.TraceFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.monitor.DefaultPluginMonitorContext;
 import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
@@ -93,7 +95,7 @@ public class MockTraceContextFactory {
         this.idGenerator = new AtomicIdGenerator();
         this.activeTraceRepository = newActiveTraceRepository();
 
-        final TraceFactoryBuilder traceFactoryBuilder = new DefaultTraceFactoryBuilder(storageFactory, sampler, idGenerator, activeTraceRepository);
+        final AsyncIdGenerator asyncIdGenerator = new DefaultAsyncIdGenerator();
         this.pluginMonitorContext = new DefaultPluginMonitorContext();
 
         this.serverMetaDataHolder = new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs());
@@ -108,8 +110,11 @@ public class MockTraceContextFactory {
         final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
         this.sqlMetaDataCacheService = new SqlMetaDataCacheService(agentId, agentStartTime, enhancedDataSender, jdbcSqlCacheSize);
 
+        final TraceFactoryProvider traceFactoryBuilder = new TraceFactoryProvider(profilerConfig, storageFactory, sampler, idGenerator, asyncIdGenerator, activeTraceRepository,
+                agentInformation, stringMetaDataCacheService, sqlMetaDataCacheService);
+        TraceFactory traceFactory = traceFactoryBuilder.get();
         this.traceContext = new DefaultTraceContext(profilerConfig, agentInformation,
-                traceFactoryBuilder, serverMetaDataHolder,
+                traceFactory, asyncIdGenerator, serverMetaDataHolder,
                 apiMetaDataCacheService, stringMetaDataCacheService, sqlMetaDataCacheService,
                 DisabledJdbcContext.INSTANCE
         );
