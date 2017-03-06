@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
 import com.navercorp.pinpoint.profiler.context.TraceFactoryBuilder;
-import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
@@ -34,20 +33,18 @@ import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
  * @author Woonduk Kang(emeroad)
  */
 public class TraceContextProvider implements Provider<TraceContext> {
-    private ProfilerConfig profilerConfig;
-    private Provider<AgentInformation> agentInformation;
-    private TraceFactoryBuilder traceFactoryBuilder;
-    private PluginMonitorContext pluginMonitorContext;
-    private ServerMetaDataHolder serverMetaDataHolder;
-    private ApiMetaDataService apiMetaDataService;
-    private StringMetaDataService stringMetaDataService;
-    private SqlMetaDataService sqlMetaDataService;
-    private JdbcContext jdbcContext;
+    private final ProfilerConfig profilerConfig;
+    private final Provider<AgentInformation> agentInformation;
+    private final TraceFactoryBuilder traceFactoryBuilder;
+    private final ServerMetaDataHolder serverMetaDataHolder;
+    private final ApiMetaDataService apiMetaDataService;
+    private final StringMetaDataService stringMetaDataService;
+    private final SqlMetaDataService sqlMetaDataService;
+    private final JdbcContext jdbcContext;
 
         @Inject
     public TraceContextProvider(ProfilerConfig profilerConfig, final Provider<AgentInformation> agentInformation,
                                 TraceFactoryBuilder traceFactoryBuilder,
-                                PluginMonitorContext pluginMonitorContext,
                                 ServerMetaDataHolder serverMetaDataHolder,
                                 ApiMetaDataService apiMetaDataService,
                                 StringMetaDataService stringMetaDataService,
@@ -62,11 +59,17 @@ public class TraceContextProvider implements Provider<TraceContext> {
         if (traceFactoryBuilder == null) {
             throw new NullPointerException("traceFactoryBuilder must not be null");
         }
-        if (pluginMonitorContext == null) {
-            throw new NullPointerException("pluginMonitorContext must not be null");
-        }
         if (serverMetaDataHolder == null) {
             throw new NullPointerException("serverMetaDataHolder must not be null");
+        }
+        if (apiMetaDataService == null) {
+            throw new NullPointerException("apiMetaDataService must not be null");
+        }
+        if (stringMetaDataService == null) {
+            throw new NullPointerException("stringMetaDataService must not be null");
+        }
+        if (sqlMetaDataService == null) {
+            throw new NullPointerException("sqlMetaDataService must not be null");
         }
         if (jdbcContext == null) {
             throw new NullPointerException("jdbcContext must not be null");
@@ -74,7 +77,6 @@ public class TraceContextProvider implements Provider<TraceContext> {
         this.profilerConfig = profilerConfig;
         this.agentInformation = agentInformation;
         this.traceFactoryBuilder = traceFactoryBuilder;
-        this.pluginMonitorContext = pluginMonitorContext;
         this.serverMetaDataHolder = serverMetaDataHolder;
         this.apiMetaDataService = apiMetaDataService;
         this.stringMetaDataService = stringMetaDataService;
@@ -86,7 +88,7 @@ public class TraceContextProvider implements Provider<TraceContext> {
     @Override
     public TraceContext get() {
         AgentInformation agentInformation = this.agentInformation.get();
-        return new DefaultTraceContext(profilerConfig, agentInformation, traceFactoryBuilder, pluginMonitorContext,
+        return new DefaultTraceContext(profilerConfig, agentInformation, traceFactoryBuilder,
                 serverMetaDataHolder, apiMetaDataService, stringMetaDataService, sqlMetaDataService, jdbcContext);
     }
 }

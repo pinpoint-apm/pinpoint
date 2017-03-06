@@ -46,8 +46,7 @@ public class UdpSpanDataSenderProvider implements Provider<DataSender> {
         this.writeQueueSize = profilerConfig.getSpanDataSenderWriteQueueSize();
         this.timeout = profilerConfig.getSpanDataSenderSocketTimeout();
         this.sendBufferSize = profilerConfig.getSpanDataSenderSocketSendBufferSize();
-        String spanDataSenderSocketType = profilerConfig.getSpanDataSenderSocketType();
-        this.senderType = spanDataSenderSocketType;
+        this.senderType = profilerConfig.getSpanDataSenderSocketType();
     }
 
     public UdpSpanDataSenderProvider(String ip, int port, int writeQueueSize, int timeout, int sendBufferSize, String senderType) {

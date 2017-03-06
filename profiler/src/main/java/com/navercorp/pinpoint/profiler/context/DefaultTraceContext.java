@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
@@ -28,7 +27,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
@@ -56,15 +54,12 @@ public class DefaultTraceContext implements TraceContext {
 
     private final ServerMetaDataHolder serverMetaDataHolder;
 
-    private final PluginMonitorContext pluginMonitorContext;
     private final JdbcContext jdbcContext;
 
     private final AsyncIdGenerator asyncIdGenerator = new AsyncIdGenerator();
 
-    @Inject
     public DefaultTraceContext(ProfilerConfig profilerConfig, final AgentInformation agentInformation,
                                TraceFactoryBuilder traceFactoryBuilder,
-                               PluginMonitorContext pluginMonitorContext,
                                ServerMetaDataHolder serverMetaDataHolder,
                                ApiMetaDataService apiMetaDataService,
                                StringMetaDataService stringMetaDataService,
@@ -80,9 +75,6 @@ public class DefaultTraceContext implements TraceContext {
         if (traceFactoryBuilder == null) {
             throw new NullPointerException("traceFactoryBuilder must not be null");
         }
-        if (pluginMonitorContext == null) {
-            throw new NullPointerException("pluginMonitorContext must not be null");
-        }
         if (apiMetaDataService == null) {
             throw new NullPointerException("apiMetaDataService must not be null");
         }
@@ -97,7 +89,6 @@ public class DefaultTraceContext implements TraceContext {
         this.serverMetaDataHolder = serverMetaDataHolder;
 
         this.traceFactory = traceFactoryBuilder.build(this);
-        this.pluginMonitorContext = pluginMonitorContext;
         this.jdbcContext = jdbcContext;
 
         this.apiMetaDataService = apiMetaDataService;
@@ -245,10 +236,6 @@ public class DefaultTraceContext implements TraceContext {
     @Override
     public int getAsyncId() {
         return this.asyncIdGenerator.nextAsyncId();
-    }
-
-    public PluginMonitorContext getPluginMonitorContext() {
-        return pluginMonitorContext;
     }
 
     @Override

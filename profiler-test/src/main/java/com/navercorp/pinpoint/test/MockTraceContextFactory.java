@@ -58,7 +58,6 @@ public class MockTraceContextFactory {
     private final Sampler sampler;
     private final ActiveTraceRepository activeTraceRepository;
 
-
     private final PluginMonitorContext pluginMonitorContext;
 
     private final ServerMetaDataHolder serverMetaDataHolder;
@@ -110,7 +109,7 @@ public class MockTraceContextFactory {
         this.sqlMetaDataCacheService = new SqlMetaDataCacheService(agentId, agentStartTime, enhancedDataSender, jdbcSqlCacheSize);
 
         this.traceContext = new DefaultTraceContext(profilerConfig, agentInformation,
-                traceFactoryBuilder, pluginMonitorContext, serverMetaDataHolder,
+                traceFactoryBuilder, serverMetaDataHolder,
                 apiMetaDataCacheService, stringMetaDataCacheService, sqlMetaDataCacheService,
                 DisabledJdbcContext.INSTANCE
         );

@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
@@ -36,6 +35,7 @@ import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.DefaultDynamicTransformerRegistry;
 import com.navercorp.pinpoint.profiler.DynamicTransformerRegistry;
 import com.navercorp.pinpoint.profiler.JvmInformation;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
@@ -46,6 +46,7 @@ import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.context.monitor.DatabaseInfoLocator;
 import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
+import com.navercorp.pinpoint.profiler.context.provider.ActiveTraceRepositoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AgentInfoSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AgentInformationProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AgentStartTimeProvider;
@@ -98,18 +99,16 @@ import java.util.List;
  */
 public class ApplicationContextModule extends AbstractModule {
     private final ProfilerConfig profilerConfig;
-    private final ApplicationContext applicationContext;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
     private final AgentOption agentOption;
     private final InterceptorRegistryBinder interceptorRegistryBinder;
 
-    public ApplicationContextModule(ApplicationContext applicationContext, AgentOption agentOption, ProfilerConfig profilerConfig,
+    public ApplicationContextModule(AgentOption agentOption, ProfilerConfig profilerConfig,
                                     ServiceTypeRegistryService serviceTypeRegistryService, InterceptorRegistryBinder interceptorRegistryBinder) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
         this.agentOption = agentOption;
-        this.applicationContext = applicationContext;
         this.profilerConfig = profilerConfig;
         this.serviceTypeRegistryService = serviceTypeRegistryService;
         this.interceptorRegistryBinder = interceptorRegistryBinder;
@@ -148,15 +147,13 @@ public class ApplicationContextModule extends AbstractModule {
         bind(TraceContext.class).toProvider(TraceContextProvider.class).in(Scopes.SINGLETON);
         bind(AgentStatCollectorFactory.class).to(DefaultAgentStatCollectorFactory.class).in(Scopes.SINGLETON);
         bind(AgentStatMonitor.class).to(DefaultAgentStatMonitor.class).in(Scopes.SINGLETON);
+        bind(ActiveTraceRepository.class).toProvider(ActiveTraceRepositoryProvider.class).in(Scopes.SINGLETON);
 
         bind(PluginContextLoadResult.class).toProvider(PluginContextLoadResultProvider.class).in(Scopes.SINGLETON);
-//        bind(DatabaseInfoCache.class).toProvider(DatabaseInfoCacheProvider.class).in(Scopes.SINGLETON);
 
         bind(DefaultJdbcContext.class).toProvider(JdbcContextProvider.class).in(Scopes.SINGLETON);
         bind(JdbcContext.class).to(DefaultJdbcContext.class).in(Scopes.SINGLETON);
         bind(DatabaseInfoLocator.class).to(DefaultJdbcContext.class).in(Scopes.SINGLETON);
-
-
 
         bind(AgentInformation.class).toProvider(AgentInformationProvider.class).in(Scopes.SINGLETON);
 

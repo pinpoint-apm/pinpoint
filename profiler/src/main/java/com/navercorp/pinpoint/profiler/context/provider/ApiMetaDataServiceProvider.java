@@ -30,18 +30,21 @@ import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 public class ApiMetaDataServiceProvider implements Provider<ApiMetaDataService> {
     private final String agentId;
     private final long agentStartTime;
-    private final Provider<EnhancedDataSender> enhancedDataSender;
+    private final Provider<EnhancedDataSender> enhancedDataSenderProvider;
 
     @Inject
-    public ApiMetaDataServiceProvider(@AgentId String agentId, @AgentStartTime long agentStartTime, Provider<EnhancedDataSender> enhancedDataSender) {
+    public ApiMetaDataServiceProvider(@AgentId String agentId, @AgentStartTime long agentStartTime, Provider<EnhancedDataSender> enhancedDataSenderProvider) {
+        if (enhancedDataSenderProvider == null) {
+            throw new NullPointerException("enhancedDataSenderProvider must not be null");
+        }
         this.agentId = agentId;
         this.agentStartTime = agentStartTime;
-        this.enhancedDataSender = enhancedDataSender;
+        this.enhancedDataSenderProvider = enhancedDataSenderProvider;
     }
 
     @Override
     public ApiMetaDataService get() {
-        final EnhancedDataSender enhancedDataSender = this.enhancedDataSender.get();
+        final EnhancedDataSender enhancedDataSender = this.enhancedDataSenderProvider.get();
         return new ApiMetaDataCacheService(agentId, agentStartTime, enhancedDataSender);
     }
 }
