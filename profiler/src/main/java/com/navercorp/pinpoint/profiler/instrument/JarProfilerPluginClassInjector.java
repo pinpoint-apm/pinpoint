@@ -15,8 +15,10 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import java.io.InputStream;
+import java.lang.instrument.Instrumentation;
 import java.net.URLClassLoader;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 
 import org.slf4j.Logger;
@@ -36,11 +38,11 @@ public class JarProfilerPluginClassInjector implements PluginClassInjector {
     private final ClassInjector plainClassLoaderHandler;
     private final PluginConfig pluginConfig;
 
-    public JarProfilerPluginClassInjector(PluginConfig pluginConfig) {
+    public JarProfilerPluginClassInjector(PluginConfig pluginConfig, InstrumentEngine instrumentEngine, Instrumentation instrumentation) {
         if (pluginConfig == null) {
             throw new NullPointerException("pluginConfig must not be null");
         }
-        this.bootstrapClassLoaderHandler = new BootstrapClassLoaderHandler(pluginConfig);
+        this.bootstrapClassLoaderHandler = new BootstrapClassLoaderHandler(pluginConfig, instrumentEngine, instrumentation);
         this.urlClassLoaderHandler = new URLClassLoaderHandler(pluginConfig);
         this.plainClassLoaderHandler = new PlainClassLoaderHandler(pluginConfig);
         this.pluginConfig = pluginConfig;

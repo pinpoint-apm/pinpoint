@@ -15,12 +15,14 @@
 
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.lang.instrument.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -36,11 +38,23 @@ public class BootstrapClassLoaderHandler implements ClassInjector {
     private final Object lock = new Object();
     private boolean injectedToRoot = false;
 
-    public BootstrapClassLoaderHandler(PluginConfig pluginConfig) {
+    private final InstrumentEngine instrumentEngine;
+    private final Instrumentation instrumentation;
+
+
+    public BootstrapClassLoaderHandler(PluginConfig pluginConfig, InstrumentEngine instrumentEngine, Instrumentation instrumentation) {
         if (pluginConfig == null) {
             throw new NullPointerException("pluginConfig must not be null");
         }
+        if (instrumentEngine == null) {
+            throw new NullPointerException("instrumentEngine must not be null");
+        }
+        if (instrumentation == null) {
+            throw new NullPointerException("instrumentation must not be null");
+        }
         this.pluginConfig = pluginConfig;
+        this.instrumentEngine = instrumentEngine;
+        this.instrumentation = instrumentation;
     }
 
     @Override
@@ -66,8 +80,8 @@ public class BootstrapClassLoaderHandler implements ClassInjector {
         synchronized (lock) {
             if (this.injectedToRoot == false) {
                 this.injectedToRoot = true;
-                pluginConfig.getInstrumentation().appendToBootstrapClassLoaderSearch(pluginConfig.getPluginJarFile());
-                pluginConfig.getInstrumentEngine().appendToBootstrapClassPath(pluginConfig.getPluginJarFile().getName());
+                instrumentation.appendToBootstrapClassLoaderSearch(pluginConfig.getPluginJarFile());
+                instrumentEngine.appendToBootstrapClassPath(pluginConfig.getPluginJarFile().getName());
             }
         }
     }

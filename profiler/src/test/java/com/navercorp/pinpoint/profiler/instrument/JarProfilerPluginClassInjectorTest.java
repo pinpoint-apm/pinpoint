@@ -59,7 +59,7 @@ public class JarProfilerPluginClassInjectorTest {
 
         final PluginPackageFilter pluginPackageFilter = new PluginPackageFilter(Arrays.asList(LOG4_IMPL));
         List<String> bootstrapJarPaths = Arrays.asList(sampleJar.getPath());
-        PluginConfig pluginConfig = new PluginConfig(sampleJar, profilerPlugin, instrumentation, instrumentEngine, bootstrapJarPaths, pluginPackageFilter);
+        PluginConfig pluginConfig = new PluginConfig(sampleJar, profilerPlugin, bootstrapJarPaths, pluginPackageFilter);
         logger.debug("pluginConfig:{}", pluginConfig);
 
         PlainClassLoaderHandler injector = new PlainClassLoaderHandler(pluginConfig);

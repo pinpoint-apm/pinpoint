@@ -16,14 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.instrument.Instrumentation;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -47,24 +45,16 @@ public class PluginConfig {
 
     private final ProfilerPlugin plugin;
 
-    private final Instrumentation instrumentation;
-    private final InstrumentEngine instrumentEngine;
     private final List<String> bootstrapJarPaths;
 
     private final ClassNameFilter pluginPackageFilter;
 
-    public PluginConfig(URL pluginJar, ProfilerPlugin plugin, Instrumentation instrumentation, InstrumentEngine instrumentEngine, List<String> bootstrapJarPaths, ClassNameFilter pluginPackageFilter) {
+    public PluginConfig(URL pluginJar, ProfilerPlugin plugin, List<String> bootstrapJarPaths, ClassNameFilter pluginPackageFilter) {
         if (pluginJar == null) {
             throw new NullPointerException("pluginJar must not be null");
         }
         if (plugin == null) {
             throw new NullPointerException("plugin must not be null");
-        }
-        if (instrumentation == null) {
-            throw new NullPointerException("instrumentation must not be null");
-        }
-        if (instrumentEngine == null) {
-            throw new NullPointerException("instrumentEngine must not be null");
         }
         if (bootstrapJarPaths == null) {
             throw new NullPointerException("bootstrapJarPaths must not be null");
@@ -73,14 +63,10 @@ public class PluginConfig {
         this.pluginJarFile = createJarFile(pluginJar);
         this.plugin = plugin;
 
-        this.instrumentation = instrumentation;
-        this.instrumentEngine = instrumentEngine;
         this.bootstrapJarPaths = bootstrapJarPaths;
 
         this.pluginPackageFilter = pluginPackageFilter;
     }
-
-
 
 
     public ProfilerPlugin getPlugin() {
@@ -113,14 +99,6 @@ public class PluginConfig {
         }
     }
 
-    public Instrumentation getInstrumentation() {
-        return instrumentation;
-    }
-
-    public InstrumentEngine getInstrumentEngine() {
-        return instrumentEngine;
-    }
-
     public List<String> getBootstrapJarPaths() {
         return bootstrapJarPaths;
     }
@@ -136,8 +114,6 @@ public class PluginConfig {
                 ", pluginJarFile=" + pluginJarFile +
                 ", pluginJarURLExternalForm='" + pluginJarURLExternalForm + '\'' +
                 ", plugin=" + plugin +
-                ", instrumentation=" + instrumentation +
-                ", instrumentEngine=" + instrumentEngine +
                 ", bootstrapJarPaths=" + bootstrapJarPaths +
                 ", pluginPackageFilter=" + pluginPackageFilter +
                 '}';

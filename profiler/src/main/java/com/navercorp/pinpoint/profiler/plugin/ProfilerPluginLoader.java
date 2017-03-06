@@ -102,8 +102,8 @@ public class ProfilerPluginLoader {
                 
                 logger.info("Loading plugin:{} pluginPackage:{}", plugin.getClass().getName(), plugin);
 
-                PluginConfig pluginConfig = new PluginConfig(jar, plugin, instrumentation, instrumentEngine, bootstrapJarPaths, pluginFilterChain);
-                final ClassInjector classInjector = new JarProfilerPluginClassInjector(pluginConfig);
+                PluginConfig pluginConfig = new PluginConfig(jar, plugin, bootstrapJarPaths, pluginFilterChain);
+                final ClassInjector classInjector = new JarProfilerPluginClassInjector(pluginConfig, instrumentEngine, instrumentation);
                 final SetupResult result = pluginSetup.setupPlugin(plugin, classInjector);
                 pluginContexts.add(result);
             }
