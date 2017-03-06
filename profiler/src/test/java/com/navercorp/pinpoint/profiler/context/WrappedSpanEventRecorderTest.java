@@ -16,7 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -32,9 +33,10 @@ public class WrappedSpanEventRecorderTest {
     public void testSetExceptionInfo_RootMarkError() throws Exception {
         Span span = new Span();
         SpanEvent spanEvent = new SpanEvent(span);
-        TraceContext traceContext = Mockito.mock(TraceContext.class);
+        StringMetaDataService stringMetaDataService = Mockito.mock(StringMetaDataService.class);
+        SqlMetaDataService sqlMetaDataService = Mockito.mock(SqlMetaDataService.class);
 
-        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(traceContext);
+        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(stringMetaDataService, sqlMetaDataService);
         recorder.setWrapped(spanEvent);
 
         final String exceptionMessage1 = "exceptionMessage1";
@@ -57,9 +59,10 @@ public class WrappedSpanEventRecorderTest {
     public void testRecordAPIId() throws Exception {
         Span span = new Span();
         SpanEvent spanEvent = new SpanEvent(span);
-        TraceContext traceContext = Mockito.mock(TraceContext.class);
+        StringMetaDataService stringMetaDataService = Mockito.mock(StringMetaDataService.class);
+        SqlMetaDataService sqlMetaDataService = Mockito.mock(SqlMetaDataService.class);
 
-        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(traceContext);
+        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(stringMetaDataService, sqlMetaDataService);
         recorder.setWrapped(spanEvent);
 
 

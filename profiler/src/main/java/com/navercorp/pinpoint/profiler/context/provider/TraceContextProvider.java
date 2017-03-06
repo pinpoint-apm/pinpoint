@@ -23,8 +23,9 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.context.AsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
-import com.navercorp.pinpoint.profiler.context.TraceFactoryBuilder;
+import com.navercorp.pinpoint.profiler.context.TraceFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
@@ -35,16 +36,19 @@ import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 public class TraceContextProvider implements Provider<TraceContext> {
     private final ProfilerConfig profilerConfig;
     private final Provider<AgentInformation> agentInformation;
-    private final TraceFactoryBuilder traceFactoryBuilder;
+    private final TraceFactory traceFactory;
+
     private final ServerMetaDataHolder serverMetaDataHolder;
     private final ApiMetaDataService apiMetaDataService;
     private final StringMetaDataService stringMetaDataService;
     private final SqlMetaDataService sqlMetaDataService;
     private final JdbcContext jdbcContext;
+    private final AsyncIdGenerator asyncIdGenerator;
 
-        @Inject
+    @Inject
     public TraceContextProvider(ProfilerConfig profilerConfig, final Provider<AgentInformation> agentInformation,
-                                TraceFactoryBuilder traceFactoryBuilder,
+                                TraceFactory traceFactory,
+                                AsyncIdGenerator asyncIdGenerator,
                                 ServerMetaDataHolder serverMetaDataHolder,
                                 ApiMetaDataService apiMetaDataService,
                                 StringMetaDataService stringMetaDataService,
@@ -56,8 +60,11 @@ public class TraceContextProvider implements Provider<TraceContext> {
         if (agentInformation == null) {
             throw new NullPointerException("agentInformation must not be null");
         }
-        if (traceFactoryBuilder == null) {
-            throw new NullPointerException("traceFactoryBuilder must not be null");
+        if (traceFactory == null) {
+            throw new NullPointerException("traceFactory must not be null");
+        }
+        if (asyncIdGenerator == null) {
+            throw new NullPointerException("asyncIdGenerator must not be null");
         }
         if (serverMetaDataHolder == null) {
             throw new NullPointerException("serverMetaDataHolder must not be null");
@@ -76,7 +83,8 @@ public class TraceContextProvider implements Provider<TraceContext> {
         }
         this.profilerConfig = profilerConfig;
         this.agentInformation = agentInformation;
-        this.traceFactoryBuilder = traceFactoryBuilder;
+        this.traceFactory = traceFactory;
+        this.asyncIdGenerator = asyncIdGenerator;
         this.serverMetaDataHolder = serverMetaDataHolder;
         this.apiMetaDataService = apiMetaDataService;
         this.stringMetaDataService = stringMetaDataService;
@@ -88,7 +96,7 @@ public class TraceContextProvider implements Provider<TraceContext> {
     @Override
     public TraceContext get() {
         AgentInformation agentInformation = this.agentInformation.get();
-        return new DefaultTraceContext(profilerConfig, agentInformation, traceFactoryBuilder,
+        return new DefaultTraceContext(profilerConfig, agentInformation, traceFactory, asyncIdGenerator,
                 serverMetaDataHolder, apiMetaDataService, stringMetaDataService, sqlMetaDataService, jdbcContext);
     }
 }

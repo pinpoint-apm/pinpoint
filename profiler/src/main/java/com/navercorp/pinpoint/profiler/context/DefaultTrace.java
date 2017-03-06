@@ -19,7 +19,10 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
+import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,20 +46,21 @@ public final class DefaultTrace implements Trace {
     private final TraceId traceId;
     private final CallStack callStack;
 
-    private final TraceContext traceContext;
     private final Storage storage;
 
     private final WrappedSpanEventRecorder spanEventRecorder;
     private final DefaultSpanRecorder spanRecorder;
+    private final AsyncIdGenerator asyncIdGenerator;
 
     private boolean closed = false;
 
     private Thread bindThread;
     private final DefaultTraceScopePool scopePool = new DefaultTraceScopePool();
 
-    public DefaultTrace(TraceContext traceContext, Storage storage, TraceId traceId, long localTransactionId, boolean sampling) {
-        if (traceContext == null) {
-            throw new NullPointerException("traceContext must not be null");
+    public DefaultTrace(ProfilerConfig profilerConfig, Storage storage, TraceId traceId, long localTransactionId, AsyncIdGenerator asyncIdGenerator, boolean sampling,
+                        AgentInformation agentInformation, StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService) {
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig must not be null");
         }
         if (storage == null) {
             throw new NullPointerException("storage must not be null");
@@ -64,18 +68,30 @@ public final class DefaultTrace implements Trace {
         if (traceId == null) {
             throw new NullPointerException("continueTraceId must not be null");
         }
+        if (asyncIdGenerator == null) {
+            throw new NullPointerException("asyncIdGenerator must not be null");
+        }
+        if (agentInformation == null) {
+            throw new NullPointerException("agentInformation must not be null");
+        }
+                if (stringMetaDataService == null) {
+            throw new NullPointerException("stringMetaDataService must not be null");
+        }
+        if (sqlMetaDataService == null) {
+            throw new NullPointerException("sqlMetaDataService must not be null");
+        }
 
-        this.traceContext = traceContext;
         this.storage = storage;
         this.traceId = traceId;
         this.localTransactionId = localTransactionId;
         this.sampling = sampling;
-
-        final Span span = createSpan();
-        this.spanRecorder = new DefaultSpanRecorder(traceContext, span, this.traceId, sampling);
+        final Span span = createSpan(agentInformation);
+        this.spanRecorder = new DefaultSpanRecorder(span, this.traceId, sampling, stringMetaDataService, sqlMetaDataService);
         this.spanRecorder.recordTraceId(this.traceId);
-        this.spanEventRecorder = new WrappedSpanEventRecorder(traceContext);
-        this.callStack = createCallStack(traceContext.getProfilerConfig(), span);
+        this.spanEventRecorder = new WrappedSpanEventRecorder(stringMetaDataService, sqlMetaDataService);
+        this.callStack = createCallStack(profilerConfig, span);
+
+        this.asyncIdGenerator = asyncIdGenerator;
         setCurrentThread();
     }
 
@@ -88,12 +104,12 @@ public final class DefaultTrace implements Trace {
         }
     }
 
-    private Span createSpan() {
+    private Span createSpan(AgentInformation agentInformation) {
         Span span = new Span();
-        span.setAgentId(traceContext.getAgentId());
-        span.setApplicationName(traceContext.getApplicationName());
-        span.setAgentStartTime(traceContext.getAgentStartTime());
-        span.setApplicationServiceType(traceContext.getServerTypeCode());
+        span.setAgentId(agentInformation.getAgentId());
+        span.setApplicationName(agentInformation.getApplicationName());
+        span.setAgentStartTime(agentInformation.getStartTime());
+        span.setApplicationServiceType(agentInformation.getServerType().getCode());
         span.markBeforeTime();
 
         return span;
@@ -282,7 +298,7 @@ public final class DefaultTrace implements Trace {
     @Override
     public AsyncTraceId getAsyncTraceId(boolean closeable) {
         // ignored closeable.
-        return new DefaultAsyncTraceId(traceId, traceContext.getAsyncId(), spanRecorder.getSpan().getStartTime());
+        return new DefaultAsyncTraceId(traceId, asyncIdGenerator.nextAsyncId(), spanRecorder.getSpan().getStartTime());
     }
 
     @Override

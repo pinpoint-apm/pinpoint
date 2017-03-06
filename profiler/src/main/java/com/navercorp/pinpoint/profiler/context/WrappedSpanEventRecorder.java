@@ -15,11 +15,13 @@
  */
 package com.navercorp.pinpoint.profiler.context;
 
+
+import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
@@ -36,8 +38,8 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
 
     private SpanEvent spanEvent;
 
-    public WrappedSpanEventRecorder(final TraceContext traceContext) {
-        super(traceContext);
+    public WrappedSpanEventRecorder(final StringMetaDataService stringMetaDataService, final SqlMetaDataService sqlMetaCacheService) {
+        super(stringMetaDataService, sqlMetaCacheService);
     }
 
     public void setWrapped(final SpanEvent spanEvent) {
@@ -49,7 +51,7 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
         if (sql == null) {
             return null;
         }
-        ParsingResult parsingResult = traceContext.parseSql(sql);
+        ParsingResult parsingResult = sqlMetaDataService.parseSql(sql);
         recordSqlParsingResult(parsingResult);
         return parsingResult;
     }
@@ -64,7 +66,7 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
         if (parsingResult == null) {
             return;
         }
-        final boolean isNewCache = traceContext.cacheSql(parsingResult);
+        final boolean isNewCache = sqlMetaDataService.cacheSql(parsingResult);
         if (isDebug) {
             if (isNewCache) {
                 logger.debug("update sql cache. parsingResult:{}", parsingResult);

@@ -23,8 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
-import com.navercorp.pinpoint.profiler.context.provider.PluginMonitorContextProvider;
+import com.navercorp.pinpoint.profiler.context.provider.TraceFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataCacheService;
@@ -83,8 +82,7 @@ public class MockTraceContextFactory {
         this.idGenerator = new AtomicIdGenerator();
         this.activeTraceRepository = newActiveTraceRepository();
 
-        final TraceFactoryBuilder traceFactoryBuilder = new DefaultTraceFactoryBuilder(storageFactory, sampler, idGenerator, activeTraceRepository);
-
+        final AsyncIdGenerator asyncIdGenerator = new DefaultAsyncIdGenerator();
         this.serverMetaDataHolder = new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs());
 
         final String agentId = agentInformation.getAgentId();
@@ -97,8 +95,11 @@ public class MockTraceContextFactory {
         final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
         this.sqlMetaDataCacheService = new SqlMetaDataCacheService(agentId, agentStartTime, enhancedDataSender, jdbcSqlCacheSize);
 
+        final TraceFactoryProvider traceFactoryBuilder = new TraceFactoryProvider(profilerConfig, storageFactory, sampler, idGenerator, asyncIdGenerator, activeTraceRepository,
+                agentInformation, stringMetaDataCacheService, sqlMetaDataCacheService);
+        TraceFactory traceFactory = traceFactoryBuilder.get();
         this.traceContext = new DefaultTraceContext(profilerConfig, agentInformation,
-                traceFactoryBuilder, serverMetaDataHolder,
+                traceFactory, asyncIdGenerator, serverMetaDataHolder,
                 apiMetaDataCacheService, stringMetaDataCacheService, sqlMetaDataCacheService,
                 DisabledJdbcContext.INSTANCE
         );

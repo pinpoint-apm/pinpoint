@@ -15,11 +15,12 @@
  */
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -37,9 +38,8 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     private final TraceId traceId;
     private final boolean sampling;
     
-    public DefaultSpanRecorder(final TraceContext traceContext, final Span span, final TraceId traceId, final boolean sampling) {
-        super(traceContext);
-
+    public DefaultSpanRecorder(final Span span, final TraceId traceId, final boolean sampling, final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService) {
+        super(stringMetaDataService, sqlMetaDataService);
         this.span = span;
         this.traceId = traceId;
         this.sampling = sampling;

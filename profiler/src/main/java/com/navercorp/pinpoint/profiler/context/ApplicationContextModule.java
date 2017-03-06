@@ -68,6 +68,7 @@ import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataHolderProv
 import com.navercorp.pinpoint.profiler.context.provider.StorageFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TcpDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceContextProvider;
+import com.navercorp.pinpoint.profiler.context.provider.TraceFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.UdpSpanDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.UdpStatDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
@@ -140,10 +141,11 @@ public class ApplicationContextModule extends AbstractModule {
         bind(PluginMonitorContext.class).toProvider(PluginMonitorContextProvider.class).in(Scopes.SINGLETON);
 
         bind(IdGenerator.class).to(AtomicIdGenerator.class);
+        bind(AsyncIdGenerator.class).to(DefaultAsyncIdGenerator.class);
         bind(TransactionCounter.class).to(DefaultTransactionCounter.class).in(Scopes.SINGLETON);
 
         bind(Sampler.class).toProvider(SamplerProvider.class).in(Scopes.SINGLETON);
-        bind(TraceFactoryBuilder.class).to(DefaultTraceFactoryBuilder.class).in(Scopes.SINGLETON);
+        bind(TraceFactory.class).toProvider(TraceFactoryProvider.class).in(Scopes.SINGLETON);
         bind(TraceContext.class).toProvider(TraceContextProvider.class).in(Scopes.SINGLETON);
         bind(AgentStatCollectorFactory.class).to(DefaultAgentStatCollectorFactory.class).in(Scopes.SINGLETON);
         bind(AgentStatMonitor.class).to(DefaultAgentStatMonitor.class).in(Scopes.SINGLETON);

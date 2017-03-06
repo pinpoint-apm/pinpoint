@@ -15,8 +15,6 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.profiler.instrument.mock.ArgsArrayInterceptor;
@@ -48,14 +46,11 @@ public class ASMMethodNodeTest {
 
     private final static InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
 
-    private final ProfilerConfig profilerConfig = mock(ProfilerConfig.class);
     private final InstrumentContext pluginContext = mock(InstrumentContext.class);
-    private final TraceContext traceContext = mock(TraceContext.class);
     private final ApiMetaDataCacheService apiMetaDataCacheService = mock(ApiMetaDataCacheService.class);
 
     @Before
     public void setUp() {
-        reset(traceContext);
         when(pluginContext.injectClass(any(ClassLoader.class), any(String.class))).thenAnswer(new Answer<Class<?>>() {
 
             @Override

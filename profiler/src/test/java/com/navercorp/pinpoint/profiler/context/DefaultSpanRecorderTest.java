@@ -17,8 +17,9 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -32,11 +33,12 @@ public class DefaultSpanRecorderTest {
     public void testRecordApiId() throws Exception {
         Span span = new Span();
 
-        TraceContext traceContext = Mockito.mock(TraceContext.class);
+        StringMetaDataService stringMetaDataService = Mockito.mock(StringMetaDataService.class);
+        SqlMetaDataService sqlMetaDataService = Mockito.mock(SqlMetaDataService.class);
         TraceId traceId = Mockito.mock(TraceId.class);
 
 
-        SpanRecorder recorder = new DefaultSpanRecorder(traceContext, span, traceId, true);
+        SpanRecorder recorder = new DefaultSpanRecorder(span, traceId, true, stringMetaDataService, sqlMetaDataService);
 
         final int API_ID = 1000;
         recorder.recordApiId(API_ID);
