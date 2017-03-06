@@ -37,7 +37,7 @@ import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.profiler.instrument.LegacyProfilerPluginClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.transformer.DebugTransformer;
 import com.navercorp.pinpoint.profiler.instrument.transformer.DefaultTransformerRegistry;
-import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MatchableClassFileTransformer;
+import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 /**
