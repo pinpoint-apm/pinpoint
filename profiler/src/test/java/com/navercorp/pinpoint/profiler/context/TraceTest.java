@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
-import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataCacheService;
+import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
@@ -48,7 +48,7 @@ public class TraceTest {
         ProfilerConfig profilerConfig = mock(ProfilerConfig.class);
         AgentInformation agentInformation =  new TestAgentInformation();
         StringMetaDataService stringMetaDataService = mock(StringMetaDataService.class);
-        SqlMetaDataCacheService sqlMetaDataService = mock(SqlMetaDataCacheService .class);
+        SqlMetaDataService sqlMetaDataService = mock(SqlMetaDataService.class);
         AsyncIdGenerator asyncIdGenerator = mock(AsyncIdGenerator.class);
 
         SpanStorage storage = new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER);
@@ -72,7 +72,7 @@ public class TraceTest {
         ProfilerConfig profilerConfig = mock(ProfilerConfig.class);
         AgentInformation agentInformation = new TestAgentInformation();
         StringMetaDataService stringMetaDataService = mock(StringMetaDataService.class);
-        SqlMetaDataCacheService sqlMetaDataService = mock(SqlMetaDataCacheService .class);
+        SqlMetaDataService sqlMetaDataService = mock(SqlMetaDataService.class);
         AsyncIdGenerator asyncIdGenerator = mock(AsyncIdGenerator.class);
 
         TestDataSender dataSender = new TestDataSender();

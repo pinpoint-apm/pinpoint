@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SqlMetaDataCacheService implements SqlMetaDataService {
+public class DefaultSqlMetaDataService implements SqlMetaDataService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -43,12 +43,12 @@ public class SqlMetaDataCacheService implements SqlMetaDataService {
     private final EnhancedDataSender enhancedDataSender;
 
     @Inject
-    public SqlMetaDataCacheService(ProfilerConfig profilerConfig, @AgentId String agentId,
-                                   @AgentStartTime long agentStartTime, EnhancedDataSender enhancedDataSender) {
+    public DefaultSqlMetaDataService(ProfilerConfig profilerConfig, @AgentId String agentId,
+                                     @AgentStartTime long agentStartTime, EnhancedDataSender enhancedDataSender) {
         this(agentId, agentStartTime, enhancedDataSender, profilerConfig.getJdbcSqlCacheSize());
     }
 
-    public SqlMetaDataCacheService(String agentId, long agentStartTime, EnhancedDataSender enhancedDataSender, int jdbcSqlCacheSize) {
+    public DefaultSqlMetaDataService(String agentId, long agentStartTime, EnhancedDataSender enhancedDataSender, int jdbcSqlCacheSize) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }

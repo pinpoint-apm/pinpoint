@@ -58,7 +58,7 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
     private final String scopeName;
     private final ExecutionPolicy executionPoint;
     private final ProfilerConfig profilerConfig;
-    private DataSourceMonitorRegistry dataSourceMonitorRegistry;
+    private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
     private final ApiMetaDataService apiMetaDataService;
 
 

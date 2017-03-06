@@ -74,9 +74,9 @@ import com.navercorp.pinpoint.profiler.context.provider.UdpStatDataSenderProvide
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
-import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataCacheService;
+import com.navercorp.pinpoint.profiler.metadata.DefaultSqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
-import com.navercorp.pinpoint.profiler.metadata.StringMetaDataCacheService;
+import com.navercorp.pinpoint.profiler.metadata.DefaultStringMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DefaultAgentStatMonitor;
@@ -187,9 +187,9 @@ public class ApplicationContextModule extends AbstractModule {
 
     private void bindServiceComponent() {
 
-        bind(StringMetaDataService.class).to(StringMetaDataCacheService.class).in(Scopes.SINGLETON);
+        bind(StringMetaDataService.class).to(DefaultStringMetaDataService.class).in(Scopes.SINGLETON);
         bind(ApiMetaDataService.class).toProvider(ApiMetaDataServiceProvider.class).in(Scopes.SINGLETON);
-        bind(SqlMetaDataService.class).to(SqlMetaDataCacheService.class).in(Scopes.SINGLETON);
+        bind(SqlMetaDataService.class).to(DefaultSqlMetaDataService.class).in(Scopes.SINGLETON);
     }
 
     private void bindAgentInformation(String agentId, String applicationName) {

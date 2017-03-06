@@ -34,7 +34,6 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.instrument.JavassistEngine;
 import com.navercorp.pinpoint.profiler.interceptor.registry.GlobalInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataCacheService;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import com.navercorp.pinpoint.test.MockApplicationContext;

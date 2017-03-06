@@ -20,7 +20,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
-import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataCacheService;
+import com.navercorp.pinpoint.profiler.metadata.DefaultApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 
@@ -45,6 +45,6 @@ public class ApiMetaDataServiceProvider implements Provider<ApiMetaDataService> 
     @Override
     public ApiMetaDataService get() {
         final EnhancedDataSender enhancedDataSender = this.enhancedDataSenderProvider.get();
-        return new ApiMetaDataCacheService(agentId, agentStartTime, enhancedDataSender);
+        return new DefaultApiMetaDataService(agentId, agentStartTime, enhancedDataSender);
     }
 }

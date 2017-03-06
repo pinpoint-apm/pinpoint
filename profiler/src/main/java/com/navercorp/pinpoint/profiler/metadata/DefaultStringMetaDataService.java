@@ -18,24 +18,24 @@ package com.navercorp.pinpoint.profiler.metadata;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
+import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class ApiMetaDataCacheService implements ApiMetaDataService {
+public class DefaultStringMetaDataService implements StringMetaDataService {
 
-    private final SimpleCache<String> apiCache = new SimpleCache<String>();
+    private final SimpleCache<String> stringCache = new SimpleCache<String>();
 
     private final String agentId;
     private final long agentStartTime;
     private final EnhancedDataSender enhancedDataSender;
 
-    public ApiMetaDataCacheService(@AgentId String agentId, @AgentStartTime long agentStartTime, EnhancedDataSender enhancedDataSender) {
+    @Inject
+    public DefaultStringMetaDataService(@AgentId String agentId, @AgentStartTime long agentStartTime, EnhancedDataSender enhancedDataSender) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -48,25 +48,20 @@ public class ApiMetaDataCacheService implements ApiMetaDataService {
     }
 
     @Override
-    public int cacheApi(final MethodDescriptor methodDescriptor) {
-        final String fullName = methodDescriptor.getFullName();
-        final Result result = this.apiCache.put(fullName);
-
-        methodDescriptor.setApiId(result.getId());
-
-        if (result.isNewValue()) {
-            final TApiMetaData apiMetadata = new TApiMetaData();
-            apiMetadata.setAgentId(agentId);
-            apiMetadata.setAgentStartTime(agentStartTime);
-
-            apiMetadata.setApiId(result.getId());
-            apiMetadata.setApiInfo(methodDescriptor.getApiDescriptor());
-            apiMetadata.setLine(methodDescriptor.getLineNumber());
-            apiMetadata.setType(methodDescriptor.getType());
-
-            this.enhancedDataSender.request(apiMetadata);
+    public int cacheString(final String value) {
+        if (value == null) {
+            return 0;
         }
+        final Result result = this.stringCache.put(value);
+        if (result.isNewValue()) {
+            final TStringMetaData stringMetaData = new TStringMetaData();
+            stringMetaData.setAgentId(agentId);
+            stringMetaData.setAgentStartTime(agentStartTime);
 
+            stringMetaData.setStringId(result.getId());
+            stringMetaData.setStringValue(value);
+            this.enhancedDataSender.request(stringMetaData);
+        }
         return result.getId();
     }
 }
