@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MatchableClassFileTransformer;
 
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;

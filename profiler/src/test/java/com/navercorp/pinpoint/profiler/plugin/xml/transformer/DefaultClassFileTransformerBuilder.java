@@ -13,6 +13,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.plugin.xml.FieldInjector;
 import com.navercorp.pinpoint.profiler.plugin.xml.GetterInjector;
 import com.navercorp.pinpoint.profiler.plugin.xml.OverrideMethodInjector;
