@@ -21,8 +21,6 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.profiler.context.TransactionCounter.SamplingType;
-
 /**
  * @author HyunGil Jeong
  */
@@ -42,7 +40,7 @@ public class DefaultTransactionCounterTest {
         // Given
         final long expectedTransactionCount = 0L;
         // When
-        final long actualCount = this.transactionCounter.getTransactionCount(SamplingType.SAMPLED_NEW);
+        final long actualCount = this.transactionCounter.getSampledNewCount();
         // Then
         assertEquals(expectedTransactionCount, actualCount);
     }
@@ -52,7 +50,7 @@ public class DefaultTransactionCounterTest {
         // Given
         final long expectedTransactionCount = 0L;
         // When
-        final long actualCount = this.transactionCounter.getTransactionCount(SamplingType.SAMPLED_CONTINUATION);
+        final long actualCount = this.transactionCounter.getSampledContinuationCount();
         // Then
         assertEquals(expectedTransactionCount, actualCount);
     }
@@ -62,7 +60,7 @@ public class DefaultTransactionCounterTest {
         // Given
         final long expectedTransactionCount = 0L;
         // When
-        final long actualCount = this.transactionCounter.getTransactionCount(SamplingType.UNSAMPLED_NEW);
+        final long actualCount = this.transactionCounter.getUnSampledNewCount();
         // Then
         assertEquals(expectedTransactionCount, actualCount);
     }
@@ -72,7 +70,7 @@ public class DefaultTransactionCounterTest {
         // Given
         final long expectedTransactionCount = 0L;
         // When
-        final long actualCount = this.transactionCounter.getTransactionCount(SamplingType.UNSAMPLED_CONTINUATION);
+        final long actualCount = this.transactionCounter.getUnSampledContinuationCount();
         // Then
         assertEquals(expectedTransactionCount, actualCount);
     }
@@ -83,7 +81,7 @@ public class DefaultTransactionCounterTest {
         final long expectedTransactionCount = 1L;
         // When
         this.idGenerator.nextTransactionId();
-        final long actualCount = this.transactionCounter.getTransactionCount(SamplingType.SAMPLED_NEW);
+        final long actualCount = this.transactionCounter.getSampledNewCount();
         // Then
         assertEquals(expectedTransactionCount, actualCount);
     }
@@ -94,7 +92,7 @@ public class DefaultTransactionCounterTest {
         final long expectedTransactionCount = 1L;
         // When
         this.idGenerator.nextContinuedTransactionId();
-        final long actualCount = this.transactionCounter.getTransactionCount(SamplingType.SAMPLED_CONTINUATION);
+        final long actualCount = this.transactionCounter.getSampledContinuationCount();
         // Then
         assertEquals(expectedTransactionCount, actualCount);
     }
@@ -105,7 +103,7 @@ public class DefaultTransactionCounterTest {
         final long expectedTransactionCount = 1L;
         // When
         this.idGenerator.nextDisabledId();
-        final long actualCount = this.transactionCounter.getTransactionCount(SamplingType.UNSAMPLED_NEW);
+        final long actualCount = this.transactionCounter.getUnSampledNewCount();
         // Then
         assertEquals(expectedTransactionCount, actualCount);
     }
@@ -116,7 +114,7 @@ public class DefaultTransactionCounterTest {
         final long expectedTransactionCount = 1L;
         // When
         this.idGenerator.nextContinuedDisabledId();
-        final long actualCount = this.transactionCounter.getTransactionCount(SamplingType.UNSAMPLED_CONTINUATION);
+        final long actualCount = this.transactionCounter.getUnSampledContinuationCount();
         // Then
         assertEquals(expectedTransactionCount, actualCount);
     }
@@ -129,7 +127,7 @@ public class DefaultTransactionCounterTest {
         for (int i = 0; i < expectedTransactionCount; ++i) {
             this.idGenerator.nextTransactionId();
         }
-        final long actualCount = this.transactionCounter.getTransactionCount(SamplingType.SAMPLED_NEW);
+        final long actualCount = this.transactionCounter.getSampledNewCount();
         // Then
         assertEquals(expectedTransactionCount, actualCount);
     }
@@ -142,7 +140,7 @@ public class DefaultTransactionCounterTest {
         for (int i = 0; i < expectedTransactionCount; ++i) {
             this.idGenerator.nextContinuedTransactionId();
         }
-        final long actualCount = this.transactionCounter.getTransactionCount(SamplingType.SAMPLED_CONTINUATION);
+        final long actualCount = this.transactionCounter.getSampledContinuationCount();
         // Then
         assertEquals(expectedTransactionCount, actualCount);
     }
@@ -155,7 +153,7 @@ public class DefaultTransactionCounterTest {
         for (int i = 0; i < expectedTransactionCount; ++i) {
             this.idGenerator.nextDisabledId();
         }
-        final long actualCount = this.transactionCounter.getTransactionCount(SamplingType.UNSAMPLED_NEW);
+        final long actualCount = this.transactionCounter.getUnSampledNewCount();
         // Then
         assertEquals(expectedTransactionCount, actualCount);
     }
@@ -168,7 +166,7 @@ public class DefaultTransactionCounterTest {
         for (int i = 0; i < expectedTransactionCount; ++i) {
             this.idGenerator.nextContinuedDisabledId();
         }
-        final long actualCount = this.transactionCounter.getTransactionCount(SamplingType.UNSAMPLED_CONTINUATION);
+        final long actualCount = this.transactionCounter.getUnSampledContinuationCount();
         // Then
         assertEquals(expectedTransactionCount, actualCount);
     }
@@ -194,10 +192,10 @@ public class DefaultTransactionCounterTest {
         for (int i = 0; i < expectedUnsampledContinuationCount; ++i) {
             this.idGenerator.nextContinuedDisabledId();
         }
-        final long actualSampledNewCount = this.transactionCounter.getTransactionCount(SamplingType.SAMPLED_NEW);
-        final long actualSampledContinuationCount = this.transactionCounter.getTransactionCount(SamplingType.SAMPLED_CONTINUATION);
-        final long actualUnsampledNewCount = this.transactionCounter.getTransactionCount(SamplingType.UNSAMPLED_NEW);
-        final long actualUnsampledContinuationCount = this.transactionCounter.getTransactionCount(SamplingType.UNSAMPLED_CONTINUATION);
+        final long actualSampledNewCount = this.transactionCounter.getSampledNewCount();
+        final long actualSampledContinuationCount = this.transactionCounter.getSampledContinuationCount();
+        final long actualUnsampledNewCount = this.transactionCounter.getUnSampledNewCount();
+        final long actualUnsampledContinuationCount = this.transactionCounter.getUnSampledContinuationCount();
         final long actualTotalCount = this.transactionCounter.getTotalTransactionCount();
         // Then
         assertEquals(expectedSampledNewCount, actualSampledNewCount);

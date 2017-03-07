@@ -74,7 +74,7 @@ public final class DefaultTrace implements Trace {
         if (agentInformation == null) {
             throw new NullPointerException("agentInformation must not be null");
         }
-                if (stringMetaDataService == null) {
+        if (stringMetaDataService == null) {
             throw new NullPointerException("stringMetaDataService must not be null");
         }
         if (sqlMetaDataService == null) {
@@ -324,7 +324,7 @@ public final class DefaultTrace implements Trace {
     @Override
     public int getCallStackFrameId() {
         final SpanEvent spanEvent = callStack.peek();
-        if(spanEvent == null) {
+        if (spanEvent == null) {
             return ROOT_STACKID;
         } else {
             return spanEvent.getStackId();
