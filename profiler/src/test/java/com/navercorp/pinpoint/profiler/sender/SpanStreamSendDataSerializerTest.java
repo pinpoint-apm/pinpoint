@@ -16,12 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.JvmUtils;
-import com.navercorp.pinpoint.common.util.SystemPropertyKey;
-import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.DefaultAgentInformation;
+import com.navercorp.pinpoint.profiler.context.DefaultSpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
@@ -47,14 +43,9 @@ import java.util.List;
  */
 public class SpanStreamSendDataSerializerTest {
 
-    private static SpanChunkFactory spanChunkFactory;
+    private final SpanChunkFactory spanChunkFactory
+            = new DefaultSpanChunkFactory("applicationName", "agentId", 0, ServiceType.STAND_ALONE);
 
-    @BeforeClass
-    public static void setUp() {
-        AgentInformation agentInformation = new DefaultAgentInformation("agentId", "applicationName", 0, 0, "machineName", "127.0.0.1", ServiceType.STAND_ALONE,
-                JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION), Version.VERSION);
-        spanChunkFactory = new SpanChunkFactory(agentInformation);
-    }
 
     @Test
     public void spanStreamSendDataSerializerTest1() throws InterruptedException, TException {

@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.storage.BufferedStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorageFactory;
@@ -33,28 +33,31 @@ public class StorageFactoryProvider implements Provider<StorageFactory> {
 
     private final ProfilerConfig profilerConfig;
     private final DataSender spanDataSender;
-    private final AgentInformation agentInformation;
+    private final SpanChunkFactory spanChunkFactory;
 
     @Inject
-    public StorageFactoryProvider(ProfilerConfig profilerConfig, @SpanDataSender DataSender spanDataSender, AgentInformation agentInformation) {
+    public StorageFactoryProvider(ProfilerConfig profilerConfig, @SpanDataSender DataSender spanDataSender, SpanChunkFactory spanChunkFactory) {
+
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
         if (spanDataSender == null) {
             throw new NullPointerException("spanDataSender must not be null");
         }
-        if (agentInformation == null) {
-            throw new NullPointerException("agentInformation must not be null");
+        if (spanChunkFactory == null) {
+            throw new NullPointerException("spanChunkFactory must not be null");
         }
+
         this.profilerConfig = profilerConfig;
         this.spanDataSender = spanDataSender;
-        this.agentInformation = agentInformation;
+        this.spanChunkFactory = spanChunkFactory;
     }
 
     @Override
     public StorageFactory get() {
         if (profilerConfig.isIoBufferingEnable()) {
-            return new BufferedStorageFactory(this.spanDataSender, this.profilerConfig, this.agentInformation);
+            int ioBufferingBufferSize = this.profilerConfig.getIoBufferingBufferSize();
+            return new BufferedStorageFactory(ioBufferingBufferSize, this.spanDataSender, this.spanChunkFactory);
         } else {
             return new SpanStorageFactory(spanDataSender);
         }
@@ -65,7 +68,7 @@ public class StorageFactoryProvider implements Provider<StorageFactory> {
         return "StorageFactoryProvider{" +
                 "profilerConfig=" + profilerConfig +
                 ", spanDataSender=" + spanDataSender +
-                ", agentInformation=" + agentInformation +
+                ", spanChunkFactory=" + spanChunkFactory +
                 '}';
     }
 }
