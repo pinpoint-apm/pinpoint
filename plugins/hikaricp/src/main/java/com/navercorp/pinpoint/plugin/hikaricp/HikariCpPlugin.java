@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.hikaricp;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
@@ -26,8 +27,6 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 import java.security.ProtectionDomain;
 
@@ -36,8 +35,6 @@ import java.security.ProtectionDomain;
  */
 public class HikariCpPlugin implements ProfilerPlugin, TransformTemplateAware {
 
-    public static final ServiceType HIKARICP_SERVICE_TYPE = ServiceTypeFactory.of(6060, "HIKARICP");
-    public static final String HIKARICP_SCOPE = "HIKARICP_SCOPE";
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     private HikariCpConfig config;
@@ -56,6 +53,20 @@ public class HikariCpPlugin implements ProfilerPlugin, TransformTemplateAware {
         if (config.isProfileClose()) {
             addPoolGuardConnectionWrapperTransformer();
         }
+        addHikariPoolTransformer();
+    }
+
+    private void addBasicDataSourceTransformer() {
+        transformTemplate.transform("com.zaxxer.hikari.HikariDataSource", new TransformCallback() {
+
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                target.addInterceptor(HikariCpConstants.INTERCEPTOR_GET_CONNECTION);
+                return target.toBytecode();
+            }
+
+        });
     }
 
     private void addPoolGuardConnectionWrapperTransformer() {
@@ -66,17 +77,12 @@ public class HikariCpPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("com.zaxxer.hikari.proxy.ConnectionProxy", new ConnectionTransformCallback());
     }
 
-    private void addBasicDataSourceTransformer() {
-        transformTemplate.transform("com.zaxxer.hikari.HikariDataSource", new TransformCallback() {
+    private void addHikariPoolTransformer() {
+        // 1.3.7 ~ 2.6.x (without 2.3.x)
+        transformTemplate.transform("com.zaxxer.hikari.pool.HikariPool", new HikariPoolTransformCallback());
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addInterceptor("com.navercorp.pinpoint.plugin.hikaricp.interceptor.DataSourceGetConnectionInterceptor");
-                return target.toBytecode();
-            }
-
-        });
+        // 2.3.x
+        transformTemplate.transform("com.zaxxer.hikari.pool.BaseHikariPool", new HikariPoolTransformCallback());
     }
 
     @Override
@@ -84,14 +90,60 @@ public class HikariCpPlugin implements ProfilerPlugin, TransformTemplateAware {
         this.transformTemplate = transformTemplate;
     }
 
-    static class ConnectionTransformCallback implements TransformCallback {
+    private static class ConnectionTransformCallback implements TransformCallback {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-            target.addInterceptor("com.navercorp.pinpoint.plugin.hikaricp.interceptor.DataSourceCloseInterceptor");
+            target.addInterceptor(HikariCpConstants.INTERCEPTOR_CLOSE_CONNECTION);
             return target.toBytecode();
         }
 
     }
+
+    private static class HikariPoolTransformCallback implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            if (isAvailableDataSourceMonitor(target)) {
+                // ~ 2.4.0
+                InstrumentMethod constructor = target.getConstructor("com.zaxxer.hikari.HikariConfig", "java.lang.String", "java.lang.String");
+                if (constructor != null) {
+                    addDataSourceMonitorInterceptor(target, constructor);
+                    return target.toBytecode();
+                }
+
+                // 2.4.1 ~
+                constructor = target.getConstructor("com.zaxxer.hikari.HikariConfig");
+                if (constructor != null) {
+                    addDataSourceMonitorInterceptor(target, constructor);
+                    return target.toBytecode();
+                }
+            }
+            return target.toBytecode();
+        }
+
+        private boolean isAvailableDataSourceMonitor(InstrumentClass target) {
+            InstrumentMethod getActiveConnectionsMethod = target.getDeclaredMethod("getActiveConnections");
+            if (getActiveConnectionsMethod == null || !int.class.getName().equals(getActiveConnectionsMethod.getReturnType())) {
+                return false;
+            }
+
+            InstrumentMethod getTotalConnectionsMethod = target.getDeclaredMethod("getTotalConnections");
+            if (getTotalConnectionsMethod == null || !int.class.getName().equals(getTotalConnectionsMethod.getReturnType())) {
+                return false;
+            }
+
+            return true;
+        }
+
+        private void addDataSourceMonitorInterceptor(InstrumentClass target, InstrumentMethod constructor) throws InstrumentException {
+            target.addField(HikariCpConstants.ACCESSOR_DATASOURCE_MONITOR);
+            constructor.addInterceptor(HikariCpConstants.INTERCEPTOR_CONSTRUCTOR);
+            constructor.addInterceptor(HikariCpConstants.INTERCEPTOR_CLOSE);
+        }
+
+    }
+
 }

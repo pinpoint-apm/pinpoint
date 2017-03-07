@@ -22,20 +22,16 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
 import com.navercorp.pinpoint.plugin.hikaricp.HikariCpConstants;
 
 /**
  * @author Taejin Koo
  */
 @Scope(HikariCpConstants.SCOPE)
-@TargetMethods({
-        @TargetMethod(name="getConnection"),
-        @TargetMethod(name="getConnection", paramTypes={"java.lang.String", "java.lang.String"})
-})
-public class DataSourceGetConnectionInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+@TargetMethod(name="close")
+public class DataSourceCloseConnectionInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
-    public DataSourceGetConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public DataSourceCloseConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
     }
 
@@ -44,16 +40,10 @@ public class DataSourceGetConnectionInterceptor extends SpanEventSimpleAroundInt
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(HikariCpConstants.SERVICE_TYPE);
-        if (args == null) {
-//          getConnection() without any arguments
-            recorder.recordApi(getMethodDescriptor());
-        } else if(args.length == 2) {
-//          skip args[1] because it's a password.
-            recorder.recordApi(getMethodDescriptor(), args[0], 0);
-        }
-        recorder.recordException(throwable);
+    public void doInAfterTrace(SpanEventRecorder trace, Object target, Object[] args, Object result, Throwable throwable) {
+        trace.recordServiceType(HikariCpConstants.SERVICE_TYPE);
+        trace.recordApi(getMethodDescriptor());
+        trace.recordException(throwable);
     }
 
 }
