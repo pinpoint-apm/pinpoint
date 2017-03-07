@@ -20,24 +20,29 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
+import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.plugin.hikaricp.DataSourceMonitorAccessor;
 import com.navercorp.pinpoint.plugin.hikaricp.HikariCpConstants;
 import com.navercorp.pinpoint.plugin.hikaricp.HikariCpDataSourceMonitor;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Taejin Koo
  */
 @Scope(HikariCpConstants.SCOPE)
-@TargetMethod(name="shutdown")
-public class DataSourceCloseInterceptor implements AroundInterceptor {
+public class DataSourceConstructorInterceptor implements AroundInterceptor {
+
+    private final PLogger logger = PLoggerFactory.getLogger(getClass());
 
     private final TraceContext traceContext;
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
     private final MethodDescriptor methodDescriptor;
 
-    public DataSourceCloseInterceptor(TraceContext traceContext, DataSourceMonitorRegistry dataSourceMonitorRegistry, MethodDescriptor methodDescriptor) {
+    public DataSourceConstructorInterceptor(TraceContext traceContext, DataSourceMonitorRegistry dataSourceMonitorRegistry, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
         this.dataSourceMonitorRegistry = dataSourceMonitorRegistry;
         this.methodDescriptor = methodDescriptor;
@@ -45,19 +50,45 @@ public class DataSourceCloseInterceptor implements AroundInterceptor {
 
     @Override
     public void before(Object target, Object[] args) {
-        if ((target instanceof DataSourceMonitorAccessor)) {
-            HikariCpDataSourceMonitor dataSourceMonitor = ((DataSourceMonitorAccessor) target)._$PINPOINT$_getDataSourceMonitor();
-            if (dataSourceMonitor != null) {
-                ((DataSourceMonitorAccessor) target)._$PINPOINT$_setDataSourceMonitor(null);
-                dataSourceMonitor.close();
-                dataSourceMonitorRegistry.unregister(dataSourceMonitor);
-            }
-        }
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        if (!InterceptorUtils.isSuccess(throwable)) {
+            return;
+        }
 
+        if (args.length >= 1) {
+            try {
+                String jdbcUrl = getJdbcUrl(args[0]);
+                HikariCpDataSourceMonitor dataSourceMonitor = new HikariCpDataSourceMonitor(target, jdbcUrl);
+                dataSourceMonitorRegistry.register(dataSourceMonitor);
+
+                if (target instanceof DataSourceMonitorAccessor) {
+                    ((DataSourceMonitorAccessor) target)._$PINPOINT$_setDataSourceMonitor(dataSourceMonitor);
+                }
+            } catch (Exception e) {
+                logger.info("failed while creating HikariCpDataSourceMonitor. message:{}", e.getMessage(), e);
+            }
+        }
+    }
+
+    private String getJdbcUrl(Object object) {
+        try {
+            if (object == null) {
+                return null;
+            }
+
+            Method getJdbcUrl = object.getClass().getMethod("getJdbcUrl");
+            if (getJdbcUrl == null) {
+                return null;
+            }
+
+            return String.valueOf(getJdbcUrl.invoke(object));
+        } catch (Exception e) {
+            logger.info("failed while executing getJdbcUrl(). message:{}", e.getMessage(), e);
+        }
+        return null;
     }
 
 }

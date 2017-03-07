@@ -16,17 +16,12 @@
 
 package com.navercorp.pinpoint.plugin.hikaricp;
 
-import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
-import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
-
 /**
  * @author Taejin Koo
  */
-public class HikariCpMetadataProvider implements TraceMetadataProvider {
+public interface DataSourceMonitorAccessor {
 
-    @Override
-    public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(HikariCpConstants.SERVICE_TYPE);
-    }
+    void _$PINPOINT$_setDataSourceMonitor(HikariCpDataSourceMonitor dataSourceMonitor);
+    HikariCpDataSourceMonitor _$PINPOINT$_getDataSourceMonitor();
 
 }
