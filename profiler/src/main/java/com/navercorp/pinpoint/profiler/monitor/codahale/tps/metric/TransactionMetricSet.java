@@ -24,7 +24,6 @@ import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricSet;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter;
-import com.navercorp.pinpoint.profiler.context.TransactionCounter.SamplingType;
 import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
 
 /**
@@ -35,16 +34,36 @@ public class TransactionMetricSet implements MetricSet {
     private final Gauge<Long> sampledNewGauge;
     private final Gauge<Long> sampledContinuationGauge;
     private final Gauge<Long> unsampledNewGauge;
-    private final Gauge<Long> unsampledContinuationGuage;
+    private final Gauge<Long> unsampledContinuationGauge;
 
-    public TransactionMetricSet(TransactionCounter transactionCounter) {
+    public TransactionMetricSet(final TransactionCounter transactionCounter) {
         if (transactionCounter == null) {
             throw new NullPointerException("transactionCounter must not be null");
         }
-        this.sampledNewGauge = new TransactionGauge(transactionCounter, SamplingType.SAMPLED_NEW);
-        this.sampledContinuationGauge = new TransactionGauge(transactionCounter, SamplingType.SAMPLED_CONTINUATION);
-        this.unsampledNewGauge = new TransactionGauge(transactionCounter, SamplingType.UNSAMPLED_NEW);
-        this.unsampledContinuationGuage = new TransactionGauge(transactionCounter, SamplingType.UNSAMPLED_CONTINUATION);
+        this.sampledNewGauge = TransactionGauge.wrap(new LongGauge() {
+            @Override
+            public long getValue() {
+                return transactionCounter.getSampledNewCount();
+            }
+        });
+        this.sampledContinuationGauge = TransactionGauge.wrap(new LongGauge() {
+            @Override
+            public long getValue() {
+                return transactionCounter.getSampledContinuationCount();
+            }
+        });
+        this.unsampledNewGauge = TransactionGauge.wrap(new LongGauge() {
+            @Override
+            public long getValue() {
+                return transactionCounter.getUnSampledNewCount();
+            }
+        });
+        this.unsampledContinuationGauge = TransactionGauge.wrap(new LongGauge() {
+            @Override
+            public long getValue() {
+                return transactionCounter.getUnSampledContinuationCount();
+            }
+        });
     }
 
     @Override
@@ -53,7 +72,7 @@ public class TransactionMetricSet implements MetricSet {
         gauges.put(MetricMonitorValues.TRANSACTION_SAMPLED_NEW, this.sampledNewGauge);
         gauges.put(MetricMonitorValues.TRANSACTION_SAMPLED_CONTINUATION, this.sampledContinuationGauge);
         gauges.put(MetricMonitorValues.TRANSACTION_UNSAMPLED_NEW, this.unsampledNewGauge);
-        gauges.put(MetricMonitorValues.TRANSACTION_UNSAMPLED_CONTINUATION, this.unsampledContinuationGuage);
+        gauges.put(MetricMonitorValues.TRANSACTION_UNSAMPLED_CONTINUATION, this.unsampledContinuationGauge);
         return Collections.unmodifiableMap(gauges);
     }
 
@@ -62,22 +81,30 @@ public class TransactionMetricSet implements MetricSet {
         return "Default TransactionMetricSet";
     }
 
+    private interface LongGauge {
+        long getValue();
+    }
+
     private static class TransactionGauge implements Gauge<Long> {
         private static final long UNINITIALIZED = -1L;
 
-        private final TransactionCounter transactionCounter;
-        private final SamplingType samplingType;
-
         private long prevTransactionCount = UNINITIALIZED;
+        private final LongGauge longGauge;
 
-        private TransactionGauge(TransactionCounter transactionCounter, SamplingType samplingType) {
-            this.transactionCounter = transactionCounter;
-            this.samplingType = samplingType;
+        static TransactionGauge wrap(LongGauge longGauge) {
+            return new TransactionGauge(longGauge);
+        }
+
+        private TransactionGauge(LongGauge longGauge) {
+            if (longGauge == null) {
+                throw new NullPointerException("longGauge must not be null");
+            }
+            this.longGauge = longGauge;
         }
 
         @Override
         public final Long getValue() {
-            final long transactionCount = this.transactionCounter.getTransactionCount(this.samplingType);
+            final long transactionCount = longGauge.getValue();
             if (transactionCount < 0) {
                 return 0L;
             }
@@ -89,6 +116,7 @@ public class TransactionMetricSet implements MetricSet {
             this.prevTransactionCount = transactionCount;
             return transactionCountDelta;
         }
+
     }
 
 }

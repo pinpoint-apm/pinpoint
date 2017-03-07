@@ -131,7 +131,7 @@ public class MockTraceContextFactory {
         return storageFactory;
     }
 
-    public IdGenerator getIdGenerator() {
+    public AtomicIdGenerator getIdGenerator() {
         return idGenerator;
     }
 

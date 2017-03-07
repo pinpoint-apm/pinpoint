@@ -23,7 +23,6 @@ import org.junit.Test;
 
 import com.codahale.metrics.Gauge;
 import com.navercorp.pinpoint.profiler.context.TestableTransactionCounter;
-import com.navercorp.pinpoint.profiler.context.TransactionCounter.SamplingType;
 import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
 
 /**
@@ -68,10 +67,10 @@ public class TransactionMetricSetTest {
         final long expectedNumberOfTransactions = 0L;
         // When
         initializeGauge();
-        this.transactionCounter.addTransactionCount(SamplingType.SAMPLED_NEW, expectedNumberOfTransactions);
-        this.transactionCounter.addTransactionCount(SamplingType.SAMPLED_CONTINUATION, expectedNumberOfTransactions);
-        this.transactionCounter.addTransactionCount(SamplingType.UNSAMPLED_NEW, expectedNumberOfTransactions);
-        this.transactionCounter.addTransactionCount(SamplingType.UNSAMPLED_CONTINUATION, expectedNumberOfTransactions);
+        this.transactionCounter.addSampledNewCount(expectedNumberOfTransactions);
+        this.transactionCounter.addSampledContinuationCount(expectedNumberOfTransactions);
+        this.transactionCounter.addUnSampledNewCount(expectedNumberOfTransactions);
+        this.transactionCounter.addUnSampledContinuationCount(expectedNumberOfTransactions);
         // Then
         assertEquals(expectedNumberOfTransactions, (long) this.sampledNewGauge.getValue());
         assertEquals(expectedNumberOfTransactions, (long) this.sampledContinuationGauge.getValue());
@@ -85,10 +84,10 @@ public class TransactionMetricSetTest {
         final long expectedNumberOfTransactions = 1L;
         // When
         initializeGauge();
-        this.transactionCounter.addTransactionCount(SamplingType.SAMPLED_NEW, expectedNumberOfTransactions);
-        this.transactionCounter.addTransactionCount(SamplingType.SAMPLED_CONTINUATION, expectedNumberOfTransactions);
-        this.transactionCounter.addTransactionCount(SamplingType.UNSAMPLED_NEW, expectedNumberOfTransactions);
-        this.transactionCounter.addTransactionCount(SamplingType.UNSAMPLED_CONTINUATION, expectedNumberOfTransactions);
+        this.transactionCounter.addSampledNewCount(expectedNumberOfTransactions);
+        this.transactionCounter.addSampledContinuationCount(expectedNumberOfTransactions);
+        this.transactionCounter.addUnSampledNewCount(expectedNumberOfTransactions);
+        this.transactionCounter.addUnSampledContinuationCount(expectedNumberOfTransactions);
         // Then
         assertEquals(expectedNumberOfTransactions, (long) this.sampledNewGauge.getValue());
         assertEquals(expectedNumberOfTransactions, (long) this.sampledContinuationGauge.getValue());
@@ -102,10 +101,10 @@ public class TransactionMetricSetTest {
         final long expectedNumberOfTransactions = 100L;
         // When
         initializeGauge();
-        this.transactionCounter.addTransactionCount(SamplingType.SAMPLED_NEW, expectedNumberOfTransactions);
-        this.transactionCounter.addTransactionCount(SamplingType.SAMPLED_CONTINUATION, expectedNumberOfTransactions);
-        this.transactionCounter.addTransactionCount(SamplingType.UNSAMPLED_NEW, expectedNumberOfTransactions);
-        this.transactionCounter.addTransactionCount(SamplingType.UNSAMPLED_CONTINUATION, expectedNumberOfTransactions);
+        this.transactionCounter.addSampledNewCount(expectedNumberOfTransactions);
+        this.transactionCounter.addSampledContinuationCount(expectedNumberOfTransactions);
+        this.transactionCounter.addUnSampledNewCount(expectedNumberOfTransactions);
+        this.transactionCounter.addUnSampledContinuationCount(expectedNumberOfTransactions);
         // Then
         assertEquals(expectedNumberOfTransactions, (long) this.sampledNewGauge.getValue());
         assertEquals(expectedNumberOfTransactions, (long) this.sampledContinuationGauge.getValue());
@@ -119,10 +118,10 @@ public class TransactionMetricSetTest {
         final long expectedNumberOfTransactions = 0L;
         // When
         initializeGauge();
-        this.transactionCounter.addTransactionCount(SamplingType.SAMPLED_NEW, -1000L);
-        this.transactionCounter.addTransactionCount(SamplingType.SAMPLED_CONTINUATION, -1000L);
-        this.transactionCounter.addTransactionCount(SamplingType.UNSAMPLED_NEW, -1000L);
-        this.transactionCounter.addTransactionCount(SamplingType.UNSAMPLED_CONTINUATION, -1000L);
+        this.transactionCounter.addSampledNewCount(-1000L);
+        this.transactionCounter.addSampledContinuationCount(-1000L);
+        this.transactionCounter.addUnSampledNewCount(-1000L);
+        this.transactionCounter.addUnSampledContinuationCount(-1000L);
         // Then
         assertEquals(expectedNumberOfTransactions, (long) this.sampledNewGauge.getValue());
         assertEquals(expectedNumberOfTransactions, (long) this.sampledContinuationGauge.getValue());
@@ -138,10 +137,10 @@ public class TransactionMetricSetTest {
         // When
         initializeGauge();
         for (int i = 0; i < testCnt; ++i) {
-            this.transactionCounter.addTransactionCount(SamplingType.SAMPLED_NEW, expectedNumberOfTransactionsPerCollection);
-            this.transactionCounter.addTransactionCount(SamplingType.SAMPLED_CONTINUATION, expectedNumberOfTransactionsPerCollection);
-            this.transactionCounter.addTransactionCount(SamplingType.UNSAMPLED_NEW, expectedNumberOfTransactionsPerCollection);
-            this.transactionCounter.addTransactionCount(SamplingType.UNSAMPLED_CONTINUATION, expectedNumberOfTransactionsPerCollection);
+            this.transactionCounter.addSampledNewCount(expectedNumberOfTransactionsPerCollection);
+            this.transactionCounter.addSampledContinuationCount(expectedNumberOfTransactionsPerCollection);
+            this.transactionCounter.addUnSampledNewCount(expectedNumberOfTransactionsPerCollection);
+            this.transactionCounter.addUnSampledContinuationCount(expectedNumberOfTransactionsPerCollection);
             // Then
             assertEquals(expectedNumberOfTransactionsPerCollection, (long) this.sampledNewGauge.getValue());
             assertEquals(expectedNumberOfTransactionsPerCollection, (long) this.sampledContinuationGauge.getValue());

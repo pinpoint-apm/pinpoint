@@ -23,39 +23,45 @@ import com.google.inject.Inject;
  */
 public class DefaultTransactionCounter implements TransactionCounter {
 
-    private final IdGenerator idGenerator;
+    private final AtomicIdGenerator idGenerator;
 
     @Inject
     public DefaultTransactionCounter(IdGenerator idGenerator) {
         if (idGenerator == null) {
             throw new NullPointerException("idGenerator cannot be null");
         }
-        this.idGenerator = idGenerator;
+        if (!(idGenerator instanceof AtomicIdGenerator)) {
+            throw new IllegalArgumentException("unsupported IdGenerator");
+        }
+        this.idGenerator = (AtomicIdGenerator) idGenerator;
     }
     
     @Override
-    public long getTransactionCount(SamplingType samplingType) {
-        // overflow improbable
-        switch (samplingType) {
-        case SAMPLED_NEW:
-            return idGenerator.currentTransactionId() - AtomicIdGenerator.INITIAL_TRANSACTION_ID;
-        case SAMPLED_CONTINUATION:
-            return Math.abs(idGenerator.currentContinuedTransactionId() - AtomicIdGenerator.INITIAL_CONTINUED_TRANSACTION_ID) / AtomicIdGenerator.DECREMENT_CYCLE;
-        case UNSAMPLED_NEW:
-            return Math.abs(idGenerator.currentDisabledId() - AtomicIdGenerator.INITIAL_DISABLED_ID) / AtomicIdGenerator.DECREMENT_CYCLE;
-        case UNSAMPLED_CONTINUATION:
-            return Math.abs(idGenerator.currentContinuedDisabledId() - AtomicIdGenerator.INITIAL_CONTINUED_DISABLED_ID) / AtomicIdGenerator.DECREMENT_CYCLE;
-        default:
-            return 0L;
-        }
+    public long getSampledNewCount() {
+        return idGenerator.currentTransactionId() - AtomicIdGenerator.INITIAL_TRANSACTION_ID;
+    }
+
+    @Override
+    public long getSampledContinuationCount() {
+        return Math.abs(idGenerator.currentContinuedTransactionId() - AtomicIdGenerator.INITIAL_CONTINUED_TRANSACTION_ID) / AtomicIdGenerator.DECREMENT_CYCLE;
+    }
+
+    @Override
+    public long getUnSampledNewCount() {
+        return Math.abs(idGenerator.currentDisabledId() - AtomicIdGenerator.INITIAL_DISABLED_ID) / AtomicIdGenerator.DECREMENT_CYCLE;
+    }
+
+    @Override
+    public long getUnSampledContinuationCount() {
+        return Math.abs(idGenerator.currentContinuedDisabledId() - AtomicIdGenerator.INITIAL_CONTINUED_DISABLED_ID) / AtomicIdGenerator.DECREMENT_CYCLE;
     }
 
     @Override
     public long getTotalTransactionCount() {
-        long count = 0L;
-        for (SamplingType samplingType : SamplingType.values()) {
-            count += getTransactionCount(samplingType);
-        }
+        long count = getSampledNewCount();
+        count += getSampledContinuationCount();
+        count += getUnSampledNewCount();
+        count += getUnSampledContinuationCount();
         return count;
     }
 }
