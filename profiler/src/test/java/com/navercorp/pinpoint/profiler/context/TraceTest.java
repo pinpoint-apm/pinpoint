@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
@@ -45,16 +44,20 @@ public class TraceTest {
     @Test
     public void trace() {
         TraceId traceId = new DefaultTraceId("agent", 0, 1);
-        ProfilerConfig profilerConfig = mock(ProfilerConfig.class);
-        AgentInformation agentInformation =  new TestAgentInformation();
+
+        CallStackFactory callStackFactory = new DefaultCallStackFactory(64);
+        SpanFactory spanFactory = new DefaultSpanFactory("appName", "agentId", 0, ServiceType.STAND_ALONE);
+
         StringMetaDataService stringMetaDataService = mock(StringMetaDataService.class);
         SqlMetaDataService sqlMetaDataService = mock(SqlMetaDataService.class);
+        RecorderFactory recorderFactory = new DefaultRecorderFactory(stringMetaDataService, sqlMetaDataService);
+
         AsyncIdGenerator asyncIdGenerator = mock(AsyncIdGenerator.class);
 
         SpanStorage storage = new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER);
 
-        Trace trace = new DefaultTrace(profilerConfig, storage, traceId, 0L, asyncIdGenerator, true,
-                agentInformation, stringMetaDataService, sqlMetaDataService);
+        Trace trace = new DefaultTrace(callStackFactory, storage, traceId, 0L, asyncIdGenerator, true,
+                spanFactory, recorderFactory);
         trace.traceBlockBegin();
 
         // get data form db
@@ -69,16 +72,20 @@ public class TraceTest {
     @Test
     public void popEventTest() {
         TraceId traceId = new DefaultTraceId("agent", 0, 1);
-        ProfilerConfig profilerConfig = mock(ProfilerConfig.class);
-        AgentInformation agentInformation = new TestAgentInformation();
+
+        CallStackFactory callStackFactory = new DefaultCallStackFactory(64);
+        SpanFactory spanFactory = new DefaultSpanFactory("appName", "agentId", 0, ServiceType.STAND_ALONE);
+
         StringMetaDataService stringMetaDataService = mock(StringMetaDataService.class);
         SqlMetaDataService sqlMetaDataService = mock(SqlMetaDataService.class);
+        RecorderFactory recorderFactory = new DefaultRecorderFactory(stringMetaDataService, sqlMetaDataService);
+
         AsyncIdGenerator asyncIdGenerator = mock(AsyncIdGenerator.class);
 
         TestDataSender dataSender = new TestDataSender();
         SpanStorage storage = new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER);
 
-        Trace trace = new DefaultTrace(profilerConfig, storage, traceId, 0L, asyncIdGenerator, true, agentInformation, stringMetaDataService, sqlMetaDataService);
+        Trace trace = new DefaultTrace(callStackFactory, storage, traceId, 0L, asyncIdGenerator, true, spanFactory, recorderFactory);
 
         trace.close();
 

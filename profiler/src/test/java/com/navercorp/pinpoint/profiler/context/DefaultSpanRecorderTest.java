@@ -35,10 +35,9 @@ public class DefaultSpanRecorderTest {
 
         StringMetaDataService stringMetaDataService = Mockito.mock(StringMetaDataService.class);
         SqlMetaDataService sqlMetaDataService = Mockito.mock(SqlMetaDataService.class);
-        TraceId traceId = Mockito.mock(TraceId.class);
 
 
-        SpanRecorder recorder = new DefaultSpanRecorder(span, traceId, true, stringMetaDataService, sqlMetaDataService);
+        SpanRecorder recorder = new DefaultSpanRecorder(span, true, true, stringMetaDataService, sqlMetaDataService);
 
         final int API_ID = 1000;
         recorder.recordApiId(API_ID);

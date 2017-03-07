@@ -37,7 +37,6 @@ public class StorageFactoryProvider implements Provider<StorageFactory> {
 
     @Inject
     public StorageFactoryProvider(ProfilerConfig profilerConfig, @SpanDataSender DataSender spanDataSender, SpanChunkFactory spanChunkFactory) {
-
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }

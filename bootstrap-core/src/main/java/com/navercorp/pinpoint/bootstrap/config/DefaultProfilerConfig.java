@@ -440,9 +440,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.traceAgentDataSource = readBoolean("profiler.pinpoint.datasource", false);
         this.dataSourceTraceLimitSize = readInt("profiler.pinpoint.datasource.tracelimitsize", 20);
 
-        // CallStck
+        // CallStack
         this.callStackMaxDepth = readInt("profiler.callstack.max.depth", 64);
-        if(this.callStackMaxDepth < 2) {
+        if (this.callStackMaxDepth < 2) {
             this.callStackMaxDepth = 2;
         }
         

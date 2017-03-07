@@ -35,22 +35,18 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     private final boolean isDebug = logger.isDebugEnabled();
     
     private final Span span;
-    private final TraceId traceId;
+    private final boolean isRoot;
     private final boolean sampling;
     
-    public DefaultSpanRecorder(final Span span, final TraceId traceId, final boolean sampling, final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService) {
+    public DefaultSpanRecorder(final Span span, final boolean isRoot, final boolean sampling, final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService) {
         super(stringMetaDataService, sqlMetaDataService);
         this.span = span;
-        this.traceId = traceId;
+        this.isRoot = isRoot;
         this.sampling = sampling;
     }
 
     public Span getSpan() {
         return span;
-    }
-    
-    public void recordTraceId(TraceId traceId) {
-        span.recordTraceId(traceId);
     }
 
     @Override
@@ -131,7 +127,7 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
 
     @Override
     public boolean isRoot() {
-        return traceId.isRoot();
+        return isRoot;
     }
     
     @Override
@@ -144,7 +140,7 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     @Override
     public void recordTime(boolean time) {
         span.setTimeRecording(time);
-        if(time) {
+        if (time) {
             if(!span.isSetStartTime()) {
                 span.markBeforeTime();
             }

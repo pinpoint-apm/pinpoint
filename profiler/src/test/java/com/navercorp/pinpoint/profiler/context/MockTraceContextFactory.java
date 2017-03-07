@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.provider.TraceFactoryProvider;
@@ -89,8 +90,10 @@ public class MockTraceContextFactory {
         final AsyncIdGenerator asyncIdGenerator = new DefaultAsyncIdGenerator();
         this.serverMetaDataHolder = new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs());
 
+        final String applicationName = agentInformation.getAgentId();
         final String agentId = agentInformation.getAgentId();
         final long agentStartTime = agentInformation.getStartTime();
+        final ServiceType agentServiceType = agentInformation.getServerType();
         this.enhancedDataSender = new LoggingDataSender();
 
         this.apiMetaDataService = new DefaultApiMetaDataService(agentId, agentStartTime, enhancedDataSender);
@@ -99,11 +102,18 @@ public class MockTraceContextFactory {
         final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
         this.sqlMetaDataService = new DefaultSqlMetaDataService(agentId, agentStartTime, enhancedDataSender, jdbcSqlCacheSize);
 
-        final TraceFactoryProvider traceFactoryBuilder = new TraceFactoryProvider(profilerConfig, storageFactory, sampler, idGenerator, asyncIdGenerator, activeTraceRepository,
-                agentInformation, stringMetaDataService, sqlMetaDataService);
+        CallStackFactory callStackFactory = new DefaultCallStackFactory(64);
+        TraceIdFactory traceIdFactory = new DefaultTraceIdFactory(agentId, agentStartTime, idGenerator);
+        SpanFactory spanFactory = new DefaultSpanFactory(applicationName, agentId, agentStartTime, agentServiceType);
+
+        RecorderFactory recorderFactory = new DefaultRecorderFactory(stringMetaDataService, sqlMetaDataService);
+
+
+        final TraceFactoryProvider traceFactoryBuilder = new TraceFactoryProvider(callStackFactory, storageFactory, sampler, idGenerator, traceIdFactory, asyncIdGenerator, activeTraceRepository,
+                spanFactory, recorderFactory);
         TraceFactory traceFactory = traceFactoryBuilder.get();
         this.traceContext = new DefaultTraceContext(profilerConfig, agentInformation,
-                traceFactory, asyncIdGenerator, serverMetaDataHolder,
+                traceIdFactory, traceFactory, asyncIdGenerator, serverMetaDataHolder,
                 apiMetaDataService, stringMetaDataService, sqlMetaDataService,
                 DisabledJdbcContext.INSTANCE
         );
