@@ -18,21 +18,21 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
-import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.AsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.AtomicIdGenerator;
 import com.navercorp.pinpoint.profiler.context.BaseTraceFactory;
+import com.navercorp.pinpoint.profiler.context.CallStackFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultBaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.LoggingBaseTraceFactory;
+import com.navercorp.pinpoint.profiler.context.RecorderFactory;
+import com.navercorp.pinpoint.profiler.context.SpanFactory;
 import com.navercorp.pinpoint.profiler.context.ThreadLocalTraceFactory;
 import com.navercorp.pinpoint.profiler.context.TraceFactory;
+import com.navercorp.pinpoint.profiler.context.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
-import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
-import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,19 +46,23 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
     private final StorageFactory storageFactory;
     private final Sampler sampler;
     private final AtomicIdGenerator idGenerator;
+    private final TraceIdFactory traceIdFactory;
     private final AsyncIdGenerator asyncIdGenerator;
 
     private final ActiveTraceRepository activeTraceRepository;
 
-    private final ProfilerConfig profilerConfig;
-    private final AgentInformation agentInformation;
-    private final StringMetaDataService stringMetaDataService;
-    private final SqlMetaDataService sqlMetaDataService;
+    private final CallStackFactory callStackFactory;
+
+    private final SpanFactory spanFactory;
+    private final RecorderFactory recorderFactory;
+
 
     @Inject
-    public TraceFactoryProvider(ProfilerConfig profilerConfig, StorageFactory storageFactory, Sampler sampler, AtomicIdGenerator idGenerator, AsyncIdGenerator asyncIdGenerator, ActiveTraceRepository activeTraceRepository,
-                                AgentInformation agentInformation, StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService) {
-
+    public TraceFactoryProvider(CallStackFactory callStackFactory, StorageFactory storageFactory, Sampler sampler, AtomicIdGenerator idGenerator, TraceIdFactory traceIdFactory, AsyncIdGenerator asyncIdGenerator, ActiveTraceRepository activeTraceRepository,
+                                SpanFactory spanFactory, RecorderFactory recorderFactory) {
+        if (callStackFactory == null) {
+            throw new NullPointerException("callStackFactory must not be null");
+        }
         if (storageFactory == null) {
             throw new NullPointerException("storageFactory must not be null");
         }
@@ -68,39 +72,41 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
         if (idGenerator == null) {
             throw new NullPointerException("idGenerator must not be null");
         }
+        if (traceIdFactory == null) {
+            throw new NullPointerException("traceIdFactory must not be null");
+        }
+
         if (asyncIdGenerator == null) {
             throw new NullPointerException("asyncIdGenerator must not be null");
         }
 //        if (activeTraceRepository == null) {
 //            throw new NullPointerException("activeTraceRepository must not be null");
 //        }
-        if (agentInformation == null) {
-            throw new NullPointerException("agentInformation must not be null");
+        if (spanFactory == null) {
+            throw new NullPointerException("spanFactory must not be null");
         }
-        if (stringMetaDataService == null) {
-            throw new NullPointerException("stringMetaDataService must not be null");
-        }
-        if (sqlMetaDataService == null) {
-            throw new NullPointerException("sqlMetaDataService must not be null");
+        if (recorderFactory == null) {
+            throw new NullPointerException("recorderFactory must not be null");
         }
 
-        this.profilerConfig = profilerConfig;
+        this.callStackFactory = callStackFactory;
         this.storageFactory = storageFactory;
         this.sampler = sampler;
         this.idGenerator = idGenerator;
+        this.traceIdFactory = traceIdFactory;
         this.asyncIdGenerator = asyncIdGenerator;
         this.activeTraceRepository = activeTraceRepository;
 
-        this.agentInformation = agentInformation;
-        this.stringMetaDataService = stringMetaDataService;
-        this.sqlMetaDataService = sqlMetaDataService;
+        this.spanFactory = spanFactory;
+        this.recorderFactory = recorderFactory;
+
     }
 
     @Override
     public TraceFactory get() {
 
-        BaseTraceFactory baseTraceFactory = new DefaultBaseTraceFactory(profilerConfig, storageFactory, sampler, idGenerator,
-                asyncIdGenerator, agentInformation, stringMetaDataService, sqlMetaDataService);
+        BaseTraceFactory baseTraceFactory = new DefaultBaseTraceFactory(callStackFactory, storageFactory, sampler, traceIdFactory, idGenerator,
+                asyncIdGenerator, spanFactory, recorderFactory);
         if (isDebugEnabled()) {
             baseTraceFactory = LoggingBaseTraceFactory.wrap(baseTraceFactory);
         }

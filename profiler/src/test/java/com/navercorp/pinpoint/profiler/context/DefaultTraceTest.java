@@ -16,11 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
@@ -49,16 +47,20 @@ public class DefaultTraceTest {
 
     @Test
     public void testPushPop() {
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        AgentInformation agentInformation = new TestAgentInformation();
+
+        CallStackFactory callStackFactory = new DefaultCallStackFactory(64);
+        SpanFactory spanFactory = new DefaultSpanFactory("appName", "agentId", 0, ServiceType.STAND_ALONE);
+
         StringMetaDataService stringMetaDataService = mock(StringMetaDataService.class);
         SqlMetaDataService sqlMetaDataService = mock(SqlMetaDataService.class);
+        RecorderFactory recorderFactory = new DefaultRecorderFactory(stringMetaDataService, sqlMetaDataService);
+
         AsyncIdGenerator asyncIdGenerator = mock(AsyncIdGenerator.class);
         SpanStorage storage = new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER);
         long localTransactionId = 1;
         TraceId traceId = new DefaultTraceId("agentId", System.currentTimeMillis(), localTransactionId);
-        Trace trace = new DefaultTrace(profilerConfig, storage, traceId, localTransactionId, asyncIdGenerator, true,
-                agentInformation, stringMetaDataService, sqlMetaDataService);
+        Trace trace = new DefaultTrace(callStackFactory, storage, traceId, localTransactionId, asyncIdGenerator, true,
+                spanFactory, recorderFactory);
         trace.traceBlockBegin();
         trace.traceBlockBegin();
         trace.traceBlockEnd();

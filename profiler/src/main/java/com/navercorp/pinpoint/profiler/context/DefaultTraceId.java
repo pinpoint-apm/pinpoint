@@ -38,14 +38,6 @@ public class DefaultTraceId implements TraceId {
         this(agentId, agentStartTime, transactionId, SpanId.NULL, SpanId.newSpanId(), (short) 0);
     }
 
-    public static DefaultTraceId parse(String transactionId, long parentSpanID, long spanID, short flags) {
-        if (transactionId == null) {
-            throw new NullPointerException("transactionId must not be null");
-        }
-        final TransactionId parseId = TransactionIdUtils.parseTransactionId(transactionId);
-        return new DefaultTraceId(parseId.getAgentId(), parseId.getAgentStartTime(), parseId.getTransactionSequence(), parentSpanID, spanID, flags);
-    }
-
     public TraceId getNextTraceId() {
         return new DefaultTraceId(this.agentId, this.agentStartTime, transactionSequence, spanId, SpanId.nextSpanID(spanId, parentSpanId), flags);
     }

@@ -145,9 +145,11 @@ public class ApplicationContextModule extends AbstractModule {
         bind(TransactionCounter.class).to(DefaultTransactionCounter.class).in(Scopes.SINGLETON);
 
         bind(Sampler.class).toProvider(SamplerProvider.class).in(Scopes.SINGLETON);
-        bind(TraceFactory.class).toProvider(TraceFactoryProvider.class).in(Scopes.SINGLETON);
+
         bind(TraceContext.class).toProvider(TraceContextProvider.class).in(Scopes.SINGLETON);
-        bind(SpanChunkFactory.class).to(DefaultSpanChunkFactory.class).in(Scopes.SINGLETON);
+
+        bindTraceComponent();
+
         bind(AgentStatCollectorFactory.class).to(DefaultAgentStatCollectorFactory.class).in(Scopes.SINGLETON);
         bind(AgentStatMonitor.class).to(DefaultAgentStatMonitor.class).in(Scopes.SINGLETON);
         bind(ActiveTraceRepository.class).toProvider(ActiveTraceRepositoryProvider.class).in(Scopes.SINGLETON);
@@ -169,6 +171,18 @@ public class ApplicationContextModule extends AbstractModule {
         bind(DynamicTransformerRegistry.class).to(DefaultDynamicTransformerRegistry.class).in(Scopes.SINGLETON);
         bind(DynamicTransformTrigger.class).toProvider(DynamicTransformTriggerProvider.class).in(Scopes.SINGLETON);
 //        bind(ClassFileTransformer.class).toProvider(ClassFileTransformerWrapProvider.class).in(Scopes.SINGLETON);
+    }
+
+    private void bindTraceComponent() {
+        bind(TraceIdFactory.class).to(DefaultTraceIdFactory.class).in(Scopes.SINGLETON);
+        bind(CallStackFactory.class).to(DefaultCallStackFactory.class).in(Scopes.SINGLETON);
+
+        bind(SpanFactory.class).to(DefaultSpanFactory.class).in(Scopes.SINGLETON);
+        bind(SpanChunkFactory.class).to(DefaultSpanChunkFactory.class).in(Scopes.SINGLETON);
+
+        bind(RecorderFactory.class).to(DefaultRecorderFactory.class).in(Scopes.SINGLETON);
+
+        bind(TraceFactory.class).toProvider(TraceFactoryProvider.class).in(Scopes.SINGLETON);
     }
 
     private void bindDataTransferComponent() {

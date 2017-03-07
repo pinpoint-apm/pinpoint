@@ -16,19 +16,15 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
-import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.storage.AsyncStorage;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
-import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
-import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 
 
 /**
@@ -37,25 +33,23 @@ import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
  */
 public class DefaultBaseTraceFactory implements BaseTraceFactory {
 
-    private final ProfilerConfig profilerConfig;
+    private final CallStackFactory callStackFactory;
 
     private final StorageFactory storageFactory;
     private final Sampler sampler;
 
-    private final AtomicIdGenerator idGenerator;
+    private final IdGenerator idGenerator;
     private final AsyncIdGenerator asyncIdGenerator;
 
-    private final AgentInformation agentInformation;
+    private final TraceIdFactory traceIdFactory;
+    private final SpanFactory spanFactory;
+    private final RecorderFactory recorderFactory;
 
-    private final StringMetaDataService stringMetaDataService;
-    private final SqlMetaDataService sqlMetaDataService;
 
-    public DefaultBaseTraceFactory(ProfilerConfig profilerConfig, StorageFactory storageFactory, Sampler sampler, AtomicIdGenerator idGenerator, AsyncIdGenerator asyncIdGenerator,
-                                   AgentInformation agentInformation,
-                                   StringMetaDataService stringMetaDataService,
-                                   SqlMetaDataService sqlMetaDataService) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
+    public DefaultBaseTraceFactory(CallStackFactory callStackFactory, StorageFactory storageFactory, Sampler sampler, TraceIdFactory traceIdFactory, IdGenerator idGenerator, AsyncIdGenerator asyncIdGenerator,
+                                   SpanFactory spanFactory, RecorderFactory recorderFactory) {
+        if (callStackFactory == null) {
+            throw new NullPointerException("callStackFactory must not be null");
         }
         if (storageFactory == null) {
             throw new NullPointerException("storageFactory must not be null");
@@ -66,28 +60,29 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         if (idGenerator == null) {
             throw new NullPointerException("idGenerator must not be null");
         }
+        if (traceIdFactory == null) {
+            throw new NullPointerException("traceIdFactory must not be null");
+        }
         if (asyncIdGenerator == null) {
             throw new NullPointerException("asyncIdGenerator must not be null");
         }
-        if (agentInformation == null) {
-            throw new NullPointerException("agentInformation must not be null");
+        if (spanFactory == null) {
+            throw new NullPointerException("spanFactory must not be null");
         }
-        if (stringMetaDataService == null) {
-            throw new NullPointerException("stringMetaDataService must not be null");
-        }
-        if (sqlMetaDataService == null) {
-            throw new NullPointerException("sqlMetaDataService must not be null");
+        if (recorderFactory == null) {
+            throw new NullPointerException("recorderFactory must not be null");
         }
 
-        this.profilerConfig = profilerConfig;
+
+        this.callStackFactory = callStackFactory;
         this.storageFactory = storageFactory;
         this.sampler = sampler;
+        this.traceIdFactory = traceIdFactory;
         this.idGenerator = idGenerator;
         this.asyncIdGenerator = asyncIdGenerator;
 
-        this.agentInformation = agentInformation;
-        this.stringMetaDataService = stringMetaDataService;
-        this.sqlMetaDataService = sqlMetaDataService;
+        this.spanFactory = spanFactory;
+        this.recorderFactory = recorderFactory;
     }
 
 
@@ -97,13 +92,10 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         // TODO need to modify how to bind a datasender
         // always set true because the decision of sampling has been  made on previous nodes
         // TODO need to consider as a target to sample in case Trace object has a sampling flag (true) marked on previous node.
-        final boolean sampling = true;
         final Storage storage = storageFactory.createStorage();
         final long localTransactionId = this.idGenerator.nextContinuedTransactionId();
 
-
-        final Trace trace = new DefaultTrace(profilerConfig, storage, traceId, localTransactionId, asyncIdGenerator, sampling,
-                agentInformation, stringMetaDataService, sqlMetaDataService);
+        final Trace trace = new DefaultTrace(callStackFactory, storage, traceId, localTransactionId, asyncIdGenerator, true, spanFactory, recorderFactory);
         return trace;
     }
 
@@ -121,10 +113,10 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         if (sampling) {
             final Storage storage = storageFactory.createStorage();
 
-            final long localTransactionId = idGenerator.nextTransactionId();
-            final TraceId traceId = new DefaultTraceId(agentInformation.getAgentId(), agentInformation.getStartTime(), localTransactionId);
-            final Trace trace = new DefaultTrace(profilerConfig, storage, traceId, localTransactionId, asyncIdGenerator, sampling,
-                    agentInformation, stringMetaDataService, sqlMetaDataService);
+            final TraceId traceId = traceIdFactory.newTraceId();
+            final long localTransactionId = traceId.getTransactionSequence();
+
+            final Trace trace = new DefaultTrace(callStackFactory, storage, traceId, localTransactionId, asyncIdGenerator, true, spanFactory, recorderFactory);
 
             return trace;
         } else {
@@ -139,11 +131,10 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
 
         final TraceId parentTraceId = traceId.getParentTraceId();
-        final boolean sampling = true;
         final Storage storage = storageFactory.createStorage();
         final Storage asyncStorage = new AsyncStorage(storage);
-        final Trace trace = new DefaultTrace(profilerConfig, asyncStorage, parentTraceId, AtomicIdGenerator.UNTRACKED_ID, asyncIdGenerator, sampling,
-                agentInformation, stringMetaDataService, sqlMetaDataService);
+        final Trace trace = new DefaultTrace(callStackFactory, asyncStorage, parentTraceId, AtomicIdGenerator.UNTRACKED_ID, asyncIdGenerator, true,
+                spanFactory, recorderFactory);
 
         final AsyncTrace asyncTrace = new AsyncTrace(trace, asyncId, traceId.nextAsyncSequence(), startTime);
 
@@ -155,12 +146,10 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     @Override
     public Trace continueAsyncTraceObject(final TraceId traceId) {
 
-        final boolean sampling = true;
-
         final Storage storage = storageFactory.createStorage();
         final long localTransactionId = this.idGenerator.nextContinuedTransactionId();
-        final DefaultTrace trace = new DefaultTrace(profilerConfig, storage, traceId, localTransactionId, asyncIdGenerator, sampling,
-                agentInformation, stringMetaDataService, sqlMetaDataService);
+        final DefaultTrace trace = new DefaultTrace(callStackFactory, storage, traceId, localTransactionId, asyncIdGenerator, true,
+                spanFactory, recorderFactory);
 
         final SpanAsyncStateListener asyncStateListener = new SpanAsyncStateListener(trace.getSpan(), storageFactory.createStorage());
         final ListenableAsyncState stateListener = new ListenableAsyncState(asyncStateListener);
@@ -177,10 +166,12 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         final boolean sampling = sampler.isSampling();
         if (sampling) {
             final Storage storage = storageFactory.createStorage();
-            final long localTransactionId = idGenerator.nextTransactionId();
-            final TraceId traceId = new DefaultTraceId(agentInformation.getAgentId(), agentInformation.getStartTime(), localTransactionId);
-            final DefaultTrace trace = new DefaultTrace(profilerConfig, storage, traceId, localTransactionId, asyncIdGenerator, sampling,
-                    agentInformation, stringMetaDataService, sqlMetaDataService);
+
+            final TraceId traceId = traceIdFactory.newTraceId();
+            final long localTransactionId = traceId.getTransactionSequence();
+
+            final DefaultTrace trace = new DefaultTrace(callStackFactory, storage, traceId, localTransactionId, asyncIdGenerator, true,
+                    spanFactory, recorderFactory);
 
             final SpanAsyncStateListener asyncStateListener = new SpanAsyncStateListener(trace.getSpan(), storageFactory.createStorage());
             final AsyncState closer = new ListenableAsyncState(asyncStateListener);

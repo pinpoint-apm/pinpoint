@@ -42,6 +42,7 @@ public class DefaultTraceContext implements TraceContext {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final TraceIdFactory traceIdFactory;
     private final TraceFactory traceFactory;
 
     private final AgentInformation agentInformation;
@@ -59,6 +60,7 @@ public class DefaultTraceContext implements TraceContext {
     private final AsyncIdGenerator asyncIdGenerator;
 
     public DefaultTraceContext(ProfilerConfig profilerConfig, final AgentInformation agentInformation,
+                               TraceIdFactory traceIdFactory,
                                TraceFactory traceFactory,
                                AsyncIdGenerator asyncIdGenerator,
                                ServerMetaDataHolder serverMetaDataHolder,
@@ -72,6 +74,9 @@ public class DefaultTraceContext implements TraceContext {
         }
         if (agentInformation == null) {
             throw new NullPointerException("agentInformation must not be null");
+        }
+        if (traceIdFactory == null) {
+            throw new NullPointerException("traceIdFactory must not be null");
         }
         if (traceFactory == null) {
             throw new NullPointerException("traceFactory must not be null");
@@ -93,6 +98,7 @@ public class DefaultTraceContext implements TraceContext {
         this.agentInformation = agentInformation;
         this.serverMetaDataHolder = serverMetaDataHolder;
 
+        this.traceIdFactory = traceIdFactory;
         this.traceFactory = traceFactory;
         this.asyncIdGenerator = asyncIdGenerator;
         this.jdbcContext = jdbcContext;
@@ -221,7 +227,7 @@ public class DefaultTraceContext implements TraceContext {
             throw new NullPointerException("transactionId must not be null");
         }
         // TODO Should handle exception when parsing failed.
-        return DefaultTraceId.parse(transactionId, parentSpanID, spanId, flags);
+        return traceIdFactory.parse(transactionId, parentSpanID, spanId, flags);
     }
 
     @Override
