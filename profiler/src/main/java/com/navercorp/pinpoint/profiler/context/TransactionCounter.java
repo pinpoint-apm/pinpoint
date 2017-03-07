@@ -21,14 +21,13 @@ package com.navercorp.pinpoint.profiler.context;
  */
 public interface TransactionCounter {
 
-    enum SamplingType {
-        SAMPLED_NEW,
-        SAMPLED_CONTINUATION,
-        UNSAMPLED_NEW,
-        UNSAMPLED_CONTINUATION
-    }
+    long getSampledNewCount();
 
-    long getTransactionCount(SamplingType samplingType);
+    long getSampledContinuationCount();
+
+    long getUnSampledNewCount();
+
+    long getUnSampledContinuationCount();
 
     long getTotalTransactionCount();
 

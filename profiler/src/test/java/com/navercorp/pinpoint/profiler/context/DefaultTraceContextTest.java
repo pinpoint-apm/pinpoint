@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
-import com.navercorp.pinpoint.profiler.context.TransactionCounter.SamplingType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -118,10 +117,10 @@ public class DefaultTraceContextTest {
         
         final long expectedTotalTransactionCount = expectedSampledNewCount + expectedUnsampledNewCount + expectedSampledContinuationCount + expectedUnsampledContinuationCount;
 
-        Assert.assertEquals(expectedSampledNewCount, transactionCounter.getTransactionCount(SamplingType.SAMPLED_NEW));
-        Assert.assertEquals(expectedUnsampledNewCount, transactionCounter.getTransactionCount(SamplingType.UNSAMPLED_NEW));
-        Assert.assertEquals(expectedSampledContinuationCount, transactionCounter.getTransactionCount(SamplingType.SAMPLED_CONTINUATION));
-        Assert.assertEquals(expectedUnsampledContinuationCount, transactionCounter.getTransactionCount(SamplingType.UNSAMPLED_CONTINUATION));
+        Assert.assertEquals(expectedSampledNewCount, transactionCounter.getSampledNewCount());
+        Assert.assertEquals(expectedUnsampledNewCount, transactionCounter.getUnSampledNewCount());
+        Assert.assertEquals(expectedSampledContinuationCount, transactionCounter.getSampledContinuationCount());
+        Assert.assertEquals(expectedUnsampledContinuationCount, transactionCounter.getUnSampledContinuationCount());
         Assert.assertEquals(expectedTotalTransactionCount, transactionCounter.getTotalTransactionCount());
     }
 }

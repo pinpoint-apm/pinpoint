@@ -40,7 +40,6 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter;
-import com.navercorp.pinpoint.profiler.context.TransactionCounter.SamplingType;
 import org.mockito.Mockito;
 
 /**
@@ -97,10 +96,10 @@ public class ActiveTraceRepositoryTest {
         }
 
         // Then
-        assertEquals(expectedSampledNewCount, transactionCounter.getTransactionCount(SamplingType.SAMPLED_NEW));
-        assertEquals(expectedUnsampledNewCount, transactionCounter.getTransactionCount(SamplingType.UNSAMPLED_NEW));
-        assertEquals(expectedSampledContinuationCount, transactionCounter.getTransactionCount(SamplingType.SAMPLED_CONTINUATION));
-        assertEquals(expectedUnsampledContinuationCount, transactionCounter.getTransactionCount(SamplingType.UNSAMPLED_CONTINUATION));
+        assertEquals(expectedSampledNewCount, transactionCounter.getSampledNewCount());
+        assertEquals(expectedUnsampledNewCount, transactionCounter.getUnSampledNewCount());
+        assertEquals(expectedSampledContinuationCount, transactionCounter.getSampledContinuationCount());
+        assertEquals(expectedUnsampledContinuationCount, transactionCounter.getUnSampledContinuationCount());
         assertEquals(expectedTotalTransactionCount, transactionCounter.getTotalTransactionCount());
         
         for (ActiveTraceInfo activeTraceInfo : activeTraceInfos) {
