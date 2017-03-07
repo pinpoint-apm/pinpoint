@@ -147,6 +147,7 @@ public class ApplicationContextModule extends AbstractModule {
         bind(Sampler.class).toProvider(SamplerProvider.class).in(Scopes.SINGLETON);
         bind(TraceFactory.class).toProvider(TraceFactoryProvider.class).in(Scopes.SINGLETON);
         bind(TraceContext.class).toProvider(TraceContextProvider.class).in(Scopes.SINGLETON);
+        bind(SpanChunkFactory.class).to(DefaultSpanChunkFactory.class).in(Scopes.SINGLETON);
         bind(AgentStatCollectorFactory.class).to(DefaultAgentStatCollectorFactory.class).in(Scopes.SINGLETON);
         bind(AgentStatMonitor.class).to(DefaultAgentStatMonitor.class).in(Scopes.SINGLETON);
         bind(ActiveTraceRepository.class).toProvider(ActiveTraceRepositoryProvider.class).in(Scopes.SINGLETON);

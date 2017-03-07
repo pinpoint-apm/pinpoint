@@ -18,14 +18,19 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.bootstrap.util.IdValidateUtils;
+import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
+import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.JvmUtils;
+import com.navercorp.pinpoint.common.util.SystemPropertyKey;
 import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.AgentInformationFactory;
-import com.navercorp.pinpoint.profiler.DefaultAgentInformationFactory;
+import com.navercorp.pinpoint.profiler.DefaultAgentInformation;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
+import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -49,15 +54,31 @@ public class AgentInformationProvider implements Provider<AgentInformation> {
             throw new NullPointerException("serverType must not be null");
         }
 
-        this.agentId = agentId;
-        this.applicationName = applicationName;
+        this.agentId = checkId("agentId", agentId);
+        this.applicationName = checkId("applicationName", applicationName);
         this.agentStartTime = agentStartTime;
         this.serverType = serverType;
 
     }
 
     public AgentInformation get() {
-        AgentInformationFactory agentInformationFactory = new DefaultAgentInformationFactory(agentId, applicationName, agentStartTime, serverType);
-        return agentInformationFactory.createAgentInformation();
+        return createAgentInformation();
+    }
+
+    public AgentInformation createAgentInformation() {
+
+        final String machineName = NetworkUtils.getHostName();
+        final String hostIp = NetworkUtils.getRepresentationHostIp();
+
+        final int pid = RuntimeMXBeanUtils.getPid();
+        final String jvmVersion = JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION);
+        return new DefaultAgentInformation(agentId, applicationName, agentStartTime, pid, machineName, hostIp, serverType, jvmVersion, Version.VERSION);
+    }
+
+    private String checkId(String keyName,String id) {
+        if (!IdValidateUtils.validateId(id)) {
+            throw new IllegalArgumentException("invalid " + keyName + "=" + id);
+        }
+        return id;
     }
 }

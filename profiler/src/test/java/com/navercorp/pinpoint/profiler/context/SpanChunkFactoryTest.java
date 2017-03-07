@@ -35,9 +35,8 @@ import java.util.List;
 public class SpanChunkFactoryTest {
     @Test
     public void create() {
-        AgentInformation agentInformation = new DefaultAgentInformation("agentId", "applicationName", 0,0, "machineName", "127.0.0.1", ServiceType.STAND_ALONE,
-                JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION), Version.VERSION);
-        SpanChunkFactory spanChunkFactory = new SpanChunkFactory(agentInformation);
+
+        SpanChunkFactory spanChunkFactory = new DefaultSpanChunkFactory("applicationName", "agentId", 0, ServiceType.STAND_ALONE);
 
         try {
             spanChunkFactory.create(new ArrayList<SpanEvent>());
