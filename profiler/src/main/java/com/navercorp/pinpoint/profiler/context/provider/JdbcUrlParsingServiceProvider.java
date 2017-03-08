@@ -19,7 +19,8 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
-import com.navercorp.pinpoint.profiler.context.DefaultJdbcContext;
+import com.navercorp.pinpoint.profiler.context.monitor.DefaultJdbcUrlParsingService;
+import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 
 import java.util.List;
@@ -27,12 +28,12 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
-public class JdbcContextProvider implements Provider<DefaultJdbcContext> {
+public class JdbcUrlParsingServiceProvider implements Provider<JdbcUrlParsingService> {
 
     private final Provider<PluginContextLoadResult> pluginContextLoadResultProvider;
 
     @Inject
-    public JdbcContextProvider(Provider<PluginContextLoadResult> pluginContextLoadResultProvider) {
+    public JdbcUrlParsingServiceProvider(Provider<PluginContextLoadResult> pluginContextLoadResultProvider) {
         if (pluginContextLoadResultProvider == null) {
             throw new NullPointerException("pluginContextLoadResult must not be null");
         }
@@ -40,11 +41,11 @@ public class JdbcContextProvider implements Provider<DefaultJdbcContext> {
     }
 
     @Override
-    public DefaultJdbcContext get() {
+    public JdbcUrlParsingService get() {
         PluginContextLoadResult pluginContextLoadResult = this.pluginContextLoadResultProvider.get();
         List<JdbcUrlParserV2> jdbcUrlParserList = pluginContextLoadResult.getJdbcUrlParserList();
 
-        return new DefaultJdbcContext(jdbcUrlParserList);
+        return new DefaultJdbcUrlParsingService(jdbcUrlParserList);
     }
 
 }

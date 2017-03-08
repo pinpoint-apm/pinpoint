@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,18 @@
 
 package com.navercorp.pinpoint.profiler.context.monitor;
 
-import java.util.List;
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+
 
 /**
  * @author Taejin Koo
  */
-public interface PluginMonitorWrapperLocator<T extends PluginMonitorWrapper> {
+public interface JdbcUrlParsingService {
 
-    List<T> getPluginMonitorWrapperList();
+    DatabaseInfo getDatabaseInfo(String jdbcUrl);
 
+    DatabaseInfo getDatabaseInfo(ServiceType serviceType, String jdbcUrl);
+
+    DatabaseInfo parseJdbcUrl(ServiceType serviceType, String jdbcUrl);
 }

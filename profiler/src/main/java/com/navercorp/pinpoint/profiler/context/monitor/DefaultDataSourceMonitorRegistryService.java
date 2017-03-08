@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.context.monitor;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitor;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,10 +27,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * @author Taejin Koo
  */
-public class DataSourceMonitorList implements DataSourceMonitorRegistry, PluginMonitorWrapperLocator<DataSourceMonitorWrapper> {
+public class DefaultDataSourceMonitorRegistryService implements DataSourceMonitorRegistryService {
 
-    private final PLogger logger = PLoggerFactory.getLogger(getClass());
-    private final boolean loggerInfoEnabled = logger.isInfoEnabled();
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final int limitIdNumber;
 
@@ -39,14 +37,14 @@ public class DataSourceMonitorList implements DataSourceMonitorRegistry, PluginM
 
     private final DataSourceMonitorWrapperFactory wrapperFactory = new DataSourceMonitorWrapperFactory();
 
-    public DataSourceMonitorList(int limitIdNumber) {
+    public DefaultDataSourceMonitorRegistryService(int limitIdNumber) {
         this.limitIdNumber = limitIdNumber;
     }
 
     @Override
     public boolean register(DataSourceMonitor dataSourceMonitor) {
         if (wrapperFactory.latestIssuedId() >= limitIdNumber) {
-            if (loggerInfoEnabled) {
+            if (logger.isInfoEnabled()) {
                 logger.info("can't register {}. The maximum value of id number has been exceeded.");
             }
             return false;
@@ -88,6 +86,7 @@ public class DataSourceMonitorList implements DataSourceMonitorRegistry, PluginM
         return pluginMonitorList;
     }
 
+    @Override
     public int getRemainingIdNumber() {
         return limitIdNumber - wrapperFactory.latestIssuedId();
     }

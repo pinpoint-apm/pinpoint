@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,27 +22,25 @@ import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry
 /**
  * @author Taejin Koo
  */
-public class DisabledPluginMonitorContext implements PluginMonitorContext {
+public class DataSourceMonitorRegistryAdaptor implements DataSourceMonitorRegistry {
 
-    public static final DisabledDataSourceMonitorRegistry DISABLED_DATASOURCE_MONITOR_REGISTRY = new DisabledDataSourceMonitorRegistry();
+    private final DataSourceMonitorRegistryService delegate;
+
+    public DataSourceMonitorRegistryAdaptor(DataSourceMonitorRegistryService delegate) {
+        if (delegate == null) {
+            throw new NullPointerException("delegate must not be null");
+        }
+        this.delegate = delegate;
+    }
+
 
     @Override
-    public DataSourceMonitorRegistry getDataSourceMonitorRegistry() {
-        return DISABLED_DATASOURCE_MONITOR_REGISTRY;
+    public boolean register(DataSourceMonitor dataSourceMonitor) {
+        return delegate.register(dataSourceMonitor);
     }
 
-    private static class DisabledDataSourceMonitorRegistry implements DataSourceMonitorRegistry {
-
-        @Override
-        public boolean register(DataSourceMonitor pluginMonitor) {
-            return false;
-        }
-
-        @Override
-        public boolean unregister(DataSourceMonitor pluginMonitor) {
-            return false;
-        }
-
+    @Override
+    public boolean unregister(DataSourceMonitor dataSourceMonitor) {
+        return delegate.unregister(dataSourceMonitor);
     }
-
 }
