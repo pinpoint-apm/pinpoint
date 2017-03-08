@@ -107,7 +107,7 @@
 											$routeParams.application,
 											"5m",
 											CommonUtilService.formatDate( serverTime ),
-											$elThread.attr("data-transactionId")
+											$elThread.attr("data-transactionId") + "-0-0"
 										];
 
 										$window.parent.open( "#/" + aUrlParam.join("/") );
