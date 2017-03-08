@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.context.DefaultJdbcContext;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,7 +29,7 @@ import java.util.Arrays;
 /**
  * @author Taejin Koo
  */
-public class DatabaseInfoCacheTest {
+public class DefaultJdbcUrlParsingServiceTest {
 
     private static final String MYSQL_NORMALIZED_URL = "jdbc:mysql://ip_address:3306/database_name";
     private static final String MYSQL_JDBC_URL = MYSQL_NORMALIZED_URL + "?useUnicode=yes&amp;characterEncoding=UTF-8";
@@ -39,29 +38,29 @@ public class DatabaseInfoCacheTest {
 
     @Test
     public void cacheTest1() throws Exception {
-        DefaultJdbcContext jdbcContext = new DefaultJdbcContext(Arrays.asList(jdbcUrlParser));
+        JdbcUrlParsingService jdbcUrlParsingService = new DefaultJdbcUrlParsingService(Arrays.asList(jdbcUrlParser));
 
-        DatabaseInfo databaseInfo = jdbcContext.getDatabaseInfo(MYSQL_JDBC_URL);
+        DatabaseInfo databaseInfo = jdbcUrlParsingService.getDatabaseInfo(MYSQL_JDBC_URL);
         Assert.assertNull(databaseInfo);
 
-        DatabaseInfo parsingResult = jdbcContext.parseJdbcUrl(ServiceType.TEST, MYSQL_JDBC_URL);
+        DatabaseInfo parsingResult = jdbcUrlParsingService.parseJdbcUrl(ServiceType.TEST, MYSQL_JDBC_URL);
         Assert.assertTrue(parsingResult.isParsingComplete());
 
-        DatabaseInfo cache1 = jdbcContext.getDatabaseInfo(MYSQL_JDBC_URL);
-        DatabaseInfo cache2 = jdbcContext.getDatabaseInfo(MYSQL_JDBC_URL);
+        DatabaseInfo cache1 = jdbcUrlParsingService.getDatabaseInfo(MYSQL_JDBC_URL);
+        DatabaseInfo cache2 = jdbcUrlParsingService.getDatabaseInfo(MYSQL_JDBC_URL);
 
         Assert.assertTrue(parsingResult == cache1 && parsingResult == cache2);
     }
 
     @Test
     public void cacheTest2() throws Exception {
-        DefaultJdbcContext jdbcContext = new DefaultJdbcContext(Arrays.asList(jdbcUrlParser));
+        JdbcUrlParsingService jdbcUrlParsingService = new DefaultJdbcUrlParsingService(Arrays.asList(jdbcUrlParser));
 
-        DatabaseInfo parsingResult = jdbcContext.parseJdbcUrl(ServiceType.TEST, MYSQL_JDBC_URL);
+        DatabaseInfo parsingResult = jdbcUrlParsingService.parseJdbcUrl(ServiceType.TEST, MYSQL_JDBC_URL);
         Assert.assertTrue(parsingResult.isParsingComplete());
 
-        DatabaseInfo cache1 = jdbcContext.getDatabaseInfo(ServiceType.TEST, MYSQL_JDBC_URL);
-        DatabaseInfo cache2 = jdbcContext.getDatabaseInfo(ServiceType.UNKNOWN_DB, MYSQL_JDBC_URL);
+        DatabaseInfo cache1 = jdbcUrlParsingService.getDatabaseInfo(ServiceType.TEST, MYSQL_JDBC_URL);
+        DatabaseInfo cache2 = jdbcUrlParsingService.getDatabaseInfo(ServiceType.UNKNOWN_DB, MYSQL_JDBC_URL);
 
         Assert.assertNotEquals(cache1, cache2);
     }

@@ -16,15 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.monitor.codahale.gc;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.context.AtomicIdGenerator;
 import com.navercorp.pinpoint.profiler.context.DefaultTransactionCounter;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.context.monitor.DatabaseInfoLocator;
-import com.navercorp.pinpoint.profiler.context.monitor.DefaultPluginMonitorContext;
-import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
+import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
+import com.navercorp.pinpoint.profiler.context.monitor.DefaultDataSourceMonitorRegistryService;
+import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
 import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
 import com.navercorp.pinpoint.profiler.monitor.codahale.DefaultAgentStatCollectorFactory;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
@@ -39,10 +38,10 @@ public class GarbageCollectorFactoryTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Mock
-    private DatabaseInfoLocator databaseInfoLocator;
+    private JdbcUrlParsingService jdbcUrlParsingService;
 
     private AgentStatCollectorFactory newAgentStatCollectorFactory(boolean detailedMetrics) {
-        ProfilerConfig profilerConfig = Mockito.mock(DefaultProfilerConfig.class);
+        ProfilerConfig profilerConfig = Mockito.mock(ProfilerConfig.class);
         if (detailedMetrics) {
             Mockito.when(profilerConfig.isProfilerJvmCollectDetailedMetrics()).thenReturn(true);
         }
@@ -50,9 +49,9 @@ public class GarbageCollectorFactoryTest {
         ActiveTraceRepository activeTraceRepository = new ActiveTraceRepository();
         AtomicIdGenerator idGenerator = new AtomicIdGenerator();
         TransactionCounter transactionCounter = new DefaultTransactionCounter(idGenerator);
-        PluginMonitorContext pluginMonitorContext = new DefaultPluginMonitorContext();
+        DataSourceMonitorRegistryService dataSourceMonitorRegistryService = new DefaultDataSourceMonitorRegistryService(20);
 
-        return new DefaultAgentStatCollectorFactory(profilerConfig, activeTraceRepository, transactionCounter, pluginMonitorContext, databaseInfoLocator);
+        return new DefaultAgentStatCollectorFactory(profilerConfig, activeTraceRepository, transactionCounter, dataSourceMonitorRegistryService, jdbcUrlParsingService);
     }
 
 

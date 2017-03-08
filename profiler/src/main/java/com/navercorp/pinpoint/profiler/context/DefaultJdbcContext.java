@@ -16,118 +16,33 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.context.monitor.DatabaseInfoLocator;
+import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
 
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Taejin Koo
  */
-public class DefaultJdbcContext implements JdbcContext, DatabaseInfoLocator {
+public class DefaultJdbcContext implements JdbcContext {
 
-    private final List<JdbcUrlParserV2> jdbcUrlParserList;
+    private final JdbcUrlParsingService jdbcUrlParsingService;
 
-    private final ConcurrentHashMap<String, DatabaseInfo> cache = new ConcurrentHashMap<String, DatabaseInfo>();
-    private final ConcurrentHashMap<CacheKey, DatabaseInfo> eachServiceTypeCache = new ConcurrentHashMap<CacheKey, DatabaseInfo>();
-
-    public DefaultJdbcContext(List<JdbcUrlParserV2> jdbcUrlParserList) {
-        this.jdbcUrlParserList = jdbcUrlParserList;
-    }
-
-    @Override
-    public DatabaseInfo getDatabaseInfo(String jdbcUrl) {
-        DatabaseInfo databaseInfo = cache.get(jdbcUrl);
-        return databaseInfo;
-    }
-
-    @Override
-    public DatabaseInfo getDatabaseInfo(ServiceType serviceType, String jdbcUrl) {
-        CacheKey cacheKey = new CacheKey(serviceType, jdbcUrl);
-        DatabaseInfo databaseInfo = eachServiceTypeCache.get(cacheKey);
-        if (databaseInfo != null && databaseInfo.isParsingComplete()) {
-            return databaseInfo;
+    @Inject
+    public DefaultJdbcContext(JdbcUrlParsingService jdbcUrlParsingService) {
+        if (jdbcUrlParsingService == null) {
+            throw new NullPointerException("jdbcUrlParsingService must not be null");
         }
-        return null;
+        this.jdbcUrlParsingService = jdbcUrlParsingService;
     }
+
 
     @Override
     public DatabaseInfo parseJdbcUrl(ServiceType serviceType, String jdbcUrl) {
-        if (jdbcUrl == null) {
-            return UnKnownDatabaseInfo.INSTANCE;
-        }
-
-        CacheKey cacheKey = new CacheKey(serviceType, jdbcUrl);
-        DatabaseInfo cacheValue = eachServiceTypeCache.get(cacheKey);
-        if (cacheValue != null) {
-            return cacheValue;
-        }
-
-        for (JdbcUrlParserV2 parser : jdbcUrlParserList) {
-            if (serviceType == parser.getServiceType()) {
-                DatabaseInfo databaseInfo = parser.parse(jdbcUrl);
-                return putCacheIfAbsent(cacheKey, databaseInfo);
-            }
-        }
-
-        return putCacheIfAbsent(cacheKey, UnKnownDatabaseInfo.createUnknownDataBase(jdbcUrl));
+        return this.jdbcUrlParsingService.parseJdbcUrl(serviceType, jdbcUrl);
     }
 
-    private DatabaseInfo putCacheIfAbsent(CacheKey cacheKey, DatabaseInfo databaseInfo) {
-        if (databaseInfo.isParsingComplete()) {
-            cache.putIfAbsent(cacheKey.getJdbcUrl(), databaseInfo);
-        }
-
-        DatabaseInfo old = eachServiceTypeCache.putIfAbsent(cacheKey, databaseInfo);
-        if (old != null) {
-            return old;
-        }
-
-        return databaseInfo;
-    }
-
-    private static class CacheKey {
-
-        private final ServiceType serviceType;
-        private final String jdbcUrl;
-
-        public CacheKey(ServiceType serviceType, String jdbcUrl) {
-            this.serviceType = serviceType;
-            this.jdbcUrl = jdbcUrl;
-        }
-
-        public ServiceType getServiceType() {
-            return serviceType;
-        }
-
-        public String getJdbcUrl() {
-            return jdbcUrl;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            CacheKey cacheKey = (CacheKey) o;
-
-            if (serviceType != null ? !serviceType.equals(cacheKey.serviceType) : cacheKey.serviceType != null) return false;
-            return jdbcUrl != null ? jdbcUrl.equals(cacheKey.jdbcUrl) : cacheKey.jdbcUrl == null;
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = serviceType != null ? serviceType.hashCode() : 0;
-            result = 31 * result + (jdbcUrl != null ? jdbcUrl.hashCode() : 0);
-            return result;
-        }
-
-    }
 
 }

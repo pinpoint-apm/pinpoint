@@ -26,14 +26,11 @@ public class DefaultTransactionCounter implements TransactionCounter {
     private final AtomicIdGenerator idGenerator;
 
     @Inject
-    public DefaultTransactionCounter(IdGenerator idGenerator) {
+    public DefaultTransactionCounter(AtomicIdGenerator idGenerator) {
         if (idGenerator == null) {
             throw new NullPointerException("idGenerator cannot be null");
         }
-        if (!(idGenerator instanceof AtomicIdGenerator)) {
-            throw new IllegalArgumentException("unsupported IdGenerator");
-        }
-        this.idGenerator = (AtomicIdGenerator) idGenerator;
+        this.idGenerator = idGenerator;
     }
     
     @Override

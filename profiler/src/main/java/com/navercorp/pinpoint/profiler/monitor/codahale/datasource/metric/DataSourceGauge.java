@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.monitor.codahale.datasource.metric;
 import com.codahale.metrics.Gauge;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorWrapper;
-import com.navercorp.pinpoint.profiler.context.monitor.DatabaseInfoLocator;
+import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
 import com.navercorp.pinpoint.thrift.dto.TDataSource;
 
 /**
@@ -28,11 +28,14 @@ import com.navercorp.pinpoint.thrift.dto.TDataSource;
 public class DataSourceGauge implements Gauge<TDataSource> {
 
     private final DataSourceMonitorWrapper dataSourceMonitorWrapper;
-    private final DatabaseInfoLocator databaseInfoLocator;
+    private final JdbcUrlParsingService jdbcUrlParsingService;
 
-    protected DataSourceGauge(DataSourceMonitorWrapper dataSourceMonitorWrapper, DatabaseInfoLocator databaseInfoLocator) {
+    protected DataSourceGauge(DataSourceMonitorWrapper dataSourceMonitorWrapper, JdbcUrlParsingService jdbcUrlParsingService) {
+        if (jdbcUrlParsingService == null) {
+            throw new NullPointerException("jdbcUrlParsingService must not be null");
+        }
         this.dataSourceMonitorWrapper = dataSourceMonitorWrapper;
-        this.databaseInfoLocator = databaseInfoLocator;
+        this.jdbcUrlParsingService = jdbcUrlParsingService;
     }
 
     @Override
@@ -45,7 +48,7 @@ public class DataSourceGauge implements Gauge<TDataSource> {
         if (jdbcUrl != null) {
             dataSource.setUrl(jdbcUrl);
 
-            DatabaseInfo databaseInfo = databaseInfoLocator.getDatabaseInfo(jdbcUrl);
+            DatabaseInfo databaseInfo = jdbcUrlParsingService.getDatabaseInfo(jdbcUrl);
             if (databaseInfo != null) {
                 dataSource.setDatabaseName(databaseInfo.getDatabaseId());
             }

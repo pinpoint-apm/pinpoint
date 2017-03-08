@@ -19,8 +19,9 @@ package com.navercorp.pinpoint.profiler.monitor.datasource;
 import com.codahale.metrics.Metric;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorList;
-import com.navercorp.pinpoint.profiler.context.monitor.DatabaseInfoLocator;
+import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
+import com.navercorp.pinpoint.profiler.context.monitor.DefaultDataSourceMonitorRegistryService;
+import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
 import com.navercorp.pinpoint.profiler.monitor.codahale.datasource.DefaultDataSourceCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.datasource.metric.DataSourceGauge;
 import com.navercorp.pinpoint.profiler.monitor.codahale.datasource.metric.DataSourceMetricSet;
@@ -31,6 +32,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,19 +49,21 @@ import java.util.Set;
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultDataSourceCollectorTest {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Mock
-    private DatabaseInfoLocator databaseInfoLocator;
+    private JdbcUrlParsingService jdbcUrlParsingService;
 
     @Test
     public void collectTest() throws Exception {
         int createMockObjectSize = 10;
 
-        DataSourceMonitorList dataSourceMonitorList = new DataSourceMonitorList(createMockObjectSize);
-        MockDataSourceMonitor[] mockDataSourceMonitors = createMockDataSourceMonitor(dataSourceMonitorList, dataSourceMonitorList.getRemainingIdNumber());
+        DataSourceMonitorRegistryService dataSourceMonitorRegistryService = new DefaultDataSourceMonitorRegistryService(createMockObjectSize);
+        MockDataSourceMonitor[] mockDataSourceMonitors = createMockDataSourceMonitor(dataSourceMonitorRegistryService, dataSourceMonitorRegistryService.getRemainingIdNumber());
 
-        System.out.println(databaseInfoLocator);
+        logger.debug("JdbcUrlParsingService:{}", jdbcUrlParsingService);
 
-        DataSourceMetricSet metricSet = new DataSourceMetricSet(dataSourceMonitorList, databaseInfoLocator);
+        DataSourceMetricSet metricSet = new DataSourceMetricSet(dataSourceMonitorRegistryService, jdbcUrlParsingService);
         DefaultDataSourceCollector dataSourceCollector = new DefaultDataSourceCollector(metricSet);
         TDataSourceList collect = dataSourceCollector.collect();
         assertIdIsUnique(collect.getDataSourceList());
@@ -68,7 +73,7 @@ public class DefaultDataSourceCollectorTest {
         }
     }
 
-    private MockDataSourceMonitor[] createMockDataSourceMonitor(DataSourceMonitorList dataSourceMonitorRegistry, int remainingCapacity) {
+    private MockDataSourceMonitor[] createMockDataSourceMonitor(DataSourceMonitorRegistryService dataSourceMonitorRegistry, int remainingCapacity) {
         MockDataSourceMonitor[] mockDataSourceMonitors = new MockDataSourceMonitor[remainingCapacity];
         for (int i = 0; i < remainingCapacity; i++) {
             MockDataSourceMonitor mock = new MockDataSourceMonitor(i);

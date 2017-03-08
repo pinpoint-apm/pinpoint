@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.profiler.monitor.codahale.datasource.metric;
 
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricSet;
+import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorWrapper;
-import com.navercorp.pinpoint.profiler.context.monitor.DatabaseInfoLocator;
-import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorWrapperLocator;
+import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
 import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
 
 import java.util.HashMap;
@@ -32,21 +32,21 @@ import java.util.Map;
  */
 public class DataSourceMetricSet implements MetricSet {
 
-    private final PluginMonitorWrapperLocator<DataSourceMonitorWrapper> dataSourceMonitorLocator;
-    private final DatabaseInfoLocator databaseInfoLocator;
+    private final DataSourceMonitorRegistryService dataSourceMonitorRegistryService;
+    private final JdbcUrlParsingService jdbcUrlParsingService;
 
-    public DataSourceMetricSet(PluginMonitorWrapperLocator<DataSourceMonitorWrapper> dataSourceMonitorLocator, DatabaseInfoLocator databaseInfoLocator) {
-        this.dataSourceMonitorLocator = dataSourceMonitorLocator;
-        this.databaseInfoLocator = databaseInfoLocator;
+    public DataSourceMetricSet(DataSourceMonitorRegistryService dataSourceMonitorRegistryService, JdbcUrlParsingService jdbcUrlParsingService) {
+        this.dataSourceMonitorRegistryService = dataSourceMonitorRegistryService;
+        this.jdbcUrlParsingService = jdbcUrlParsingService;
     }
 
     @Override
     public Map<String, Metric> getMetrics() {
-        List<DataSourceMonitorWrapper> dataSourceMonitorList = dataSourceMonitorLocator.getPluginMonitorWrapperList();
+        List<DataSourceMonitorWrapper> dataSourceMonitorList = dataSourceMonitorRegistryService.getPluginMonitorWrapperList();
 
         final Map<String, Metric> gauges = new HashMap<String, Metric>();
         for (DataSourceMonitorWrapper dataSourceMonitor : dataSourceMonitorList) {
-            gauges.put(MetricMonitorValues.DATASOURCE + "." + dataSourceMonitor.getId(), new DataSourceGauge(dataSourceMonitor, databaseInfoLocator));
+            gauges.put(MetricMonitorValues.DATASOURCE + "." + dataSourceMonitor.getId(), new DataSourceGauge(dataSourceMonitor, jdbcUrlParsingService));
         }
 
         return gauges;

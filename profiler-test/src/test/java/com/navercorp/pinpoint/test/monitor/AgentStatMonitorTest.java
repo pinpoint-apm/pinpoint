@@ -23,9 +23,9 @@ import com.navercorp.pinpoint.profiler.context.AtomicIdGenerator;
 import com.navercorp.pinpoint.profiler.context.DefaultTransactionCounter;
 import com.navercorp.pinpoint.profiler.context.TransactionCounter;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.context.monitor.DatabaseInfoLocator;
-import com.navercorp.pinpoint.profiler.context.monitor.DefaultPluginMonitorContext;
-import com.navercorp.pinpoint.profiler.context.monitor.PluginMonitorContext;
+import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
+import com.navercorp.pinpoint.profiler.context.monitor.DefaultDataSourceMonitorRegistryService;
+import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DefaultAgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
@@ -55,7 +55,7 @@ public class AgentStatMonitorTest {
     private DataSender dataSender;
 
     @Mock
-    private DatabaseInfoLocator databaseInfoLocator;
+    private JdbcUrlParsingService jdbcUrlParsingService;
 
     @Before
     public void setUp() throws Exception {
@@ -97,8 +97,8 @@ public class AgentStatMonitorTest {
         ActiveTraceRepository activeTraceRepository = new ActiveTraceRepository();
         AtomicIdGenerator idGenerator = new AtomicIdGenerator();
         TransactionCounter transactionCounter = new DefaultTransactionCounter(idGenerator);
-        PluginMonitorContext pluginMonitorContext = new DefaultPluginMonitorContext();
-        return new DefaultAgentStatCollectorFactory(profilerConfig, activeTraceRepository, transactionCounter, pluginMonitorContext, databaseInfoLocator);
+        DataSourceMonitorRegistryService dataSourceMonitorRegistryService = new DefaultDataSourceMonitorRegistryService(20);
+        return new DefaultAgentStatCollectorFactory(profilerConfig, activeTraceRepository, transactionCounter, dataSourceMonitorRegistryService, jdbcUrlParsingService);
     }
 
 }

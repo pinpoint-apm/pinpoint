@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,20 @@
 
 package com.navercorp.pinpoint.profiler.context.monitor;
 
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitor;
+
+import java.util.List;
 
 /**
  * @author Taejin Koo
  */
-public interface PluginMonitorContext {
+public interface DataSourceMonitorRegistryService {
 
-    DataSourceMonitorRegistry getDataSourceMonitorRegistry();
+    boolean register(DataSourceMonitor dataSourceMonitor);
 
+    boolean unregister(DataSourceMonitor dataSourceMonitor);
+
+    List<DataSourceMonitorWrapper> getPluginMonitorWrapperList();
+
+    int getRemainingIdNumber();
 }
