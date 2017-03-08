@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.hikaricp.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -38,14 +36,10 @@ public class DataSourceConstructorInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
 
-    private final TraceContext traceContext;
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
-    private final MethodDescriptor methodDescriptor;
 
-    public DataSourceConstructorInterceptor(TraceContext traceContext, DataSourceMonitorRegistry dataSourceMonitorRegistry, MethodDescriptor methodDescriptor) {
-        this.traceContext = traceContext;
+    public DataSourceConstructorInterceptor(DataSourceMonitorRegistry dataSourceMonitorRegistry) {
         this.dataSourceMonitorRegistry = dataSourceMonitorRegistry;
-        this.methodDescriptor = methodDescriptor;
     }
 
     @Override
