@@ -510,7 +510,7 @@
 						name: "Used",
 						desc: "Heap currently in use"
 					},{
-						name: "FCG",
+						name: "FGC",
 						desc: "Full garbage collection duration (number of FGCs in parenthesis if it occurred more than once)"
 					}]
 				}]
@@ -528,7 +528,7 @@
 						name: "Used",
 						desc: "Heap currently in use"
 					},{
-						name: "FCG",
+						name: "FGC",
 						desc: "Full garbage collection duration (number of FGCs in parenthesis if it occurred more than once)"
 					}]
 				}]
@@ -600,11 +600,17 @@
 				category: [{
 					title: "[Legend]",
 					items: [{
-						name: "Active",
-						desc: "The number of active connections"
+						name: "Active Avg",
+						desc: "Average number of active connections"
 					},{
-						name: "Max",
+						name: "Active Max",
+						desc: "Maximum number of active connections"
+					},{
+						name: "Total Max",
 						desc: "The maximum number of active connections that can be allocated at the same time"
+					},{
+						name: "Type",
+						desc: "DB Connection Pool Type"
 					}]
 				}]
 			},
