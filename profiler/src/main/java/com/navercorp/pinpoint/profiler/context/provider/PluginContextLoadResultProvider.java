@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.profiler.context.module.PluginJars;
 import com.navercorp.pinpoint.profiler.plugin.DefaultPluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 
-import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.util.List;
 
@@ -36,23 +35,19 @@ import java.util.List;
 public class PluginContextLoadResultProvider implements Provider<PluginContextLoadResult> {
 
     private final ProfilerConfig profilerConfig;
-    private final Instrumentation instrumentation;
     private final InstrumentEngine instrumentEngine;
     private final List<String> bootstrapJarPaths;
     private final URL[] pluginJars;
     private final DynamicTransformTrigger dynamicTransformTrigger;
 
     @Inject
-    public PluginContextLoadResultProvider(ProfilerConfig profilerConfig, DynamicTransformTrigger dynamicTransformTrigger, Instrumentation instrumentation, InstrumentEngine instrumentEngine,
+    public PluginContextLoadResultProvider(ProfilerConfig profilerConfig, DynamicTransformTrigger dynamicTransformTrigger, InstrumentEngine instrumentEngine,
                                            @BootstrapJarPaths List<String> bootstrapJarPaths, @PluginJars URL[] pluginJars) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
         if (dynamicTransformTrigger == null) {
             throw new NullPointerException("dynamicTransformTrigger must not be null");
-        }
-        if (instrumentation == null) {
-            throw new NullPointerException("instrumentation must not be null");
         }
         if (instrumentEngine == null) {
             throw new NullPointerException("instrumentEngine must not be null");
@@ -67,7 +62,6 @@ public class PluginContextLoadResultProvider implements Provider<PluginContextLo
         this.profilerConfig = profilerConfig;
         this.dynamicTransformTrigger = dynamicTransformTrigger;
 
-        this.instrumentation = instrumentation;
         this.instrumentEngine = instrumentEngine;
         this.bootstrapJarPaths = bootstrapJarPaths;
         this.pluginJars = pluginJars;
@@ -75,7 +69,7 @@ public class PluginContextLoadResultProvider implements Provider<PluginContextLo
 
     @Override
     public PluginContextLoadResult get() {
-        return new DefaultPluginContextLoadResult(profilerConfig, dynamicTransformTrigger, instrumentation, instrumentEngine, bootstrapJarPaths, pluginJars);
+        return new DefaultPluginContextLoadResult(profilerConfig, dynamicTransformTrigger, instrumentEngine, bootstrapJarPaths, pluginJars);
 
     }
 }
