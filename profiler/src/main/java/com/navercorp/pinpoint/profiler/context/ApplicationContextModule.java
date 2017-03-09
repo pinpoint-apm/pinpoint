@@ -138,10 +138,10 @@ public class ApplicationContextModule extends AbstractModule {
 
         bindServiceComponent();
 
-        bind(DataSourceMonitorRegistryService.class).toProvider(DataSourceMonitorRegistryServiceProvider.class);
+        bind(DataSourceMonitorRegistryService.class).toProvider(DataSourceMonitorRegistryServiceProvider.class).in(Scopes.SINGLETON);
 
-        bind(IdGenerator.class).to(AtomicIdGenerator.class);
-        bind(AsyncIdGenerator.class).to(DefaultAsyncIdGenerator.class);
+        bind(IdGenerator.class).to(AtomicIdGenerator.class).in(Scopes.SINGLETON);
+        bind(AsyncIdGenerator.class).to(DefaultAsyncIdGenerator.class).in(Scopes.SINGLETON);
         bind(TransactionCounter.class).to(DefaultTransactionCounter.class).in(Scopes.SINGLETON);
 
         bind(Sampler.class).toProvider(SamplerProvider.class).in(Scopes.SINGLETON);
