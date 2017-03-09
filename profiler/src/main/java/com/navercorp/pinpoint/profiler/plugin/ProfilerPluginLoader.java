@@ -50,12 +50,11 @@ public class ProfilerPluginLoader {
 
     private final ProfilerConfig profilerConfig;
     private final PluginSetup pluginSetup;
-    private final Instrumentation instrumentation;
     private final InstrumentEngine instrumentEngine;
     private final List<String> bootstrapJarPaths;
 
 
-    public ProfilerPluginLoader(ProfilerConfig profilerConfig, PluginSetup pluginSetup, Instrumentation instrumentation, InstrumentEngine instrumentEngine, @BootstrapJarPaths  List<String> bootstrapJarPaths) {
+    public ProfilerPluginLoader(ProfilerConfig profilerConfig, PluginSetup pluginSetup, InstrumentEngine instrumentEngine, @BootstrapJarPaths  List<String> bootstrapJarPaths) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
@@ -63,9 +62,7 @@ public class ProfilerPluginLoader {
         if (pluginSetup == null) {
             throw new NullPointerException("pluginSetup must not be null");
         }
-        if (instrumentation == null) {
-            throw new NullPointerException("instrumentation must not be null");
-        }
+
         if (instrumentEngine == null) {
             throw new NullPointerException("instrumentEngine must not be null");
         }
@@ -75,7 +72,6 @@ public class ProfilerPluginLoader {
 
         this.profilerConfig = profilerConfig;
         this.pluginSetup = pluginSetup;
-        this.instrumentation = instrumentation;
         this.instrumentEngine = instrumentEngine;
         this.bootstrapJarPaths = bootstrapJarPaths;
     }
@@ -103,7 +99,7 @@ public class ProfilerPluginLoader {
                 logger.info("Loading plugin:{} pluginPackage:{}", plugin.getClass().getName(), plugin);
 
                 PluginConfig pluginConfig = new PluginConfig(jar, plugin, bootstrapJarPaths, pluginFilterChain);
-                final ClassInjector classInjector = new JarProfilerPluginClassInjector(pluginConfig, instrumentEngine, instrumentation);
+                final ClassInjector classInjector = new JarProfilerPluginClassInjector(pluginConfig, instrumentEngine);
                 final SetupResult result = pluginSetup.setupPlugin(plugin, classInjector);
                 pluginContexts.add(result);
             }

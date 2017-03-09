@@ -29,7 +29,9 @@ import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.instrument.Instrumentation;
 import java.util.List;
+import java.util.jar.JarFile;
 
 /**
  * @author jaehong.kim
@@ -37,14 +39,17 @@ import java.util.List;
 public class ASMEngine implements InstrumentEngine {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isInfo = logger.isInfoEnabled();
-    private final boolean isDebug = logger.isDebugEnabled();
 
+    private final Instrumentation instrumentation;
     private final ObjectBinderFactory objectBinderFactory;
     private final InterceptorRegistryBinder interceptorRegistryBinder;
     private final Provider<ApiMetaDataService> apiMetaDataService;
 
 
-    public ASMEngine(ObjectBinderFactory objectBinderFactory, final InterceptorRegistryBinder interceptorRegistryBinder, Provider<ApiMetaDataService> apiMetaDataService, final List<String> bootStrapJars) {
+    public ASMEngine(Instrumentation instrumentation, ObjectBinderFactory objectBinderFactory, final InterceptorRegistryBinder interceptorRegistryBinder, Provider<ApiMetaDataService> apiMetaDataService, final List<String> bootStrapJars) {
+        if (instrumentation == null) {
+            throw new NullPointerException("instrumentation must not be null");
+        }
         if (objectBinderFactory == null) {
             throw new NullPointerException("objectBinderFactory must not be null");
         }
@@ -55,9 +60,11 @@ public class ASMEngine implements InstrumentEngine {
             throw new NullPointerException("apiMetaDataService must not be null");
         }
 
+        this.instrumentation = instrumentation;
         this.objectBinderFactory = objectBinderFactory;
         this.interceptorRegistryBinder = interceptorRegistryBinder;
         this.apiMetaDataService = apiMetaDataService;
+
     }
 
     @Override
@@ -95,7 +102,13 @@ public class ASMEngine implements InstrumentEngine {
     }
 
     @Override
-    public void appendToBootstrapClassPath(String jar) {
-        // nothing.
+    public void appendToBootstrapClassPath(JarFile jarFile) {
+        if (jarFile == null) {
+            throw new NullPointerException("jarFile must not be null");
+        }
+        if (isInfo) {
+            logger.info("appendToBootstrapClassPath:{}", jarFile);
+        }
+        instrumentation.appendToBootstrapClassLoaderSearch(jarFile);
     }
 }
