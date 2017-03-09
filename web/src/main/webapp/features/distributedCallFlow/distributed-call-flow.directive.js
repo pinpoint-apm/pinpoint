@@ -153,7 +153,7 @@
 	                 */
 	                argumentFormatter = function (row, cell, value, columnDef, dataContext) {
 	                    var html = [];
-	                    html.push('<div class="dcf-popover" data-container=".grid-canvas" data-toggle="popover" data-trigger="manual" data-placement="right" data-content="'+ removeTag( value ) +'">');
+	                    html.push('<div>');
 	                    html.push( getAuthorizeView( dataContext.isAuthorized, value ) );
 	                    html.push('</div>');
 	                    return html.join('');
