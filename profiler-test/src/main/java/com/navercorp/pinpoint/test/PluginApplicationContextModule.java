@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.test;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.util.Providers;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
@@ -26,8 +27,6 @@ import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import com.navercorp.pinpoint.test.provder.NullPinpointClientFactoryProvider;
-import com.navercorp.pinpoint.test.provder.NullPinpointClientProvider;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,8 +63,9 @@ public class PluginApplicationContextModule extends AbstractModule {
         logger.debug("spanFactory:{}", spanDataSender);
         bind(StorageFactory.class).toInstance(storageFactory);
 
-        bind(PinpointClientFactory.class).toProvider(NullPinpointClientFactoryProvider.class);
-        bind(PinpointClient.class).toProvider(NullPinpointClientProvider.class);
+
+        bind(PinpointClientFactory.class).toProvider(Providers.of((PinpointClientFactory)null));
+        bind(PinpointClient.class).toProvider(Providers.of((PinpointClient)null));
 
         EnhancedDataSender enhancedDataSender = newTcpDataSender();
         logger.debug("enhancedDataSender:{}", enhancedDataSender);

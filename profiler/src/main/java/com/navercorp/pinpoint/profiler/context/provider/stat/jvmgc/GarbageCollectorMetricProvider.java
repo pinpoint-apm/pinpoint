@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc;
 
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
+import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.CmsGcGarbageCollectorMetric;
@@ -41,6 +42,10 @@ public class GarbageCollectorMetricProvider implements Provider<GarbageCollector
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final GarbageCollectorMetricSet garbageCollectorMetricSet = new GarbageCollectorMetricSet();
+
+    @Inject
+    public GarbageCollectorMetricProvider() {
+    }
 
     @Override
     public GarbageCollectorMetric get() {

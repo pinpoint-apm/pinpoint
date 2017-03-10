@@ -142,6 +142,9 @@ public class ApplicationContextModule extends AbstractModule {
     @Override
     protected void configure() {
         binder().requireExplicitBindings();
+        binder().requireAtInjectOnConstructors();
+        binder().disableCircularProxies();
+
         bind(ProfilerConfig.class).toInstance(profilerConfig);
         bind(ServiceTypeRegistryService.class).toInstance(serviceTypeRegistryService);
         bind(AgentOption.class).toInstance(agentOption);

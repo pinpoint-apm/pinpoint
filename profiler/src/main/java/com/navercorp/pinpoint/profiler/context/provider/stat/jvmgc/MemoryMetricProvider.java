@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc;
 
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
+import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.CmsGcMemoryMetric;
@@ -41,6 +42,10 @@ public class MemoryMetricProvider implements Provider<MemoryMetric> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final MemoryUsageGaugeSet memoryUsageGaugeSet = new MemoryUsageGaugeSet();
+
+    @Inject
+    public MemoryMetricProvider() {
+    }
 
     @Override
     public MemoryMetric get() {
