@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.profiler.context.TraceFactory;
 import com.navercorp.pinpoint.profiler.context.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.module.Nullable;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,8 +59,8 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
 
 
     @Inject
-    public TraceFactoryProvider(CallStackFactory callStackFactory, StorageFactory storageFactory, Sampler sampler, IdGenerator idGenerator, TraceIdFactory traceIdFactory, AsyncIdGenerator asyncIdGenerator, ActiveTraceRepository activeTraceRepository,
-                                SpanFactory spanFactory, RecorderFactory recorderFactory) {
+    public TraceFactoryProvider(CallStackFactory callStackFactory, StorageFactory storageFactory, Sampler sampler, IdGenerator idGenerator, TraceIdFactory traceIdFactory, AsyncIdGenerator asyncIdGenerator,
+                                @Nullable /*TODO Disallow null*/ ActiveTraceRepository activeTraceRepository, SpanFactory spanFactory, RecorderFactory recorderFactory) {
         if (callStackFactory == null) {
             throw new NullPointerException("callStackFactory must not be null");
         }
