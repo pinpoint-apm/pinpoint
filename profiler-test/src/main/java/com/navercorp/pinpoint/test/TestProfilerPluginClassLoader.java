@@ -15,7 +15,7 @@
 package com.navercorp.pinpoint.test;
 
 import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
 
 import java.io.InputStream;
 

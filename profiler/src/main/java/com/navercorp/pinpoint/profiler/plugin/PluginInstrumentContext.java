@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.profiler.context.scope.ConcurrentPool;
 import com.navercorp.pinpoint.profiler.context.scope.InterceptorScopeFactory;
 import com.navercorp.pinpoint.profiler.context.scope.Pool;
-import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
-import com.navercorp.pinpoint.profiler.instrument.PluginClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.classloading.PluginClassInjector;
 
 import java.io.InputStream;
 

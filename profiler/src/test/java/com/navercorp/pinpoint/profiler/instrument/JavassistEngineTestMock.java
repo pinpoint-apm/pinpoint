@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.instrument;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class JavassistClassPoolTestMock {
+public class JavassistEngineTestMock {
     public void test() {
     }
 }
