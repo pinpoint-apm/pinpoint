@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
-import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.plugin.PluginSetup;
 import com.navercorp.pinpoint.profiler.plugin.SetupResult;

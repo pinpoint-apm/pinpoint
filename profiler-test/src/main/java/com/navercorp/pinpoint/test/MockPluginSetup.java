@@ -18,14 +18,13 @@ package com.navercorp.pinpoint.test;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
 import com.navercorp.pinpoint.profiler.plugin.ClassFileTransformerLoader;
 import com.navercorp.pinpoint.profiler.plugin.PluginInstrumentContext;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginSetupContext;

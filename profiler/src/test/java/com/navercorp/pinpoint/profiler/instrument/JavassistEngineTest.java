@@ -44,11 +44,11 @@ import static org.mockito.Mockito.mock;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class JavassistClassPoolTest {
+public class JavassistEngineTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final String mock = "com.navercorp.pinpoint.profiler.instrument.JavassistClassPoolTestMock";
+    private final String mock = "com.navercorp.pinpoint.profiler.instrument.JavassistEngineTestMock";
 
     @Test
     public void testGetClass_original() throws Exception {
