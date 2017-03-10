@@ -20,6 +20,7 @@ import com.google.inject.Provider;
 import com.google.inject.util.Providers;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
@@ -33,9 +34,10 @@ import javassist.bytecode.ConstPool;
 import javassist.bytecode.MethodInfo;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.instrument.Instrumentation;
 
 import static org.mockito.Mockito.mock;
 
@@ -50,17 +52,12 @@ public class JavassistClassPoolTest {
 
     @Test
     public void testGetClass_original() throws Exception {
+        InstrumentEngine instrumentEngine = newJavassistEngine();
 
-        ObjectBinderFactory objectBinderFactory = mock(ObjectBinderFactory.class);
-        Provider<ApiMetaDataService> apiMetaDataService = Providers.of(mock(ApiMetaDataService.class));
-
-        InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
-        JavassistEngine pool = new JavassistEngine(objectBinderFactory, binder, apiMetaDataService, null);
         InstrumentContext instrumentContext = mock(InstrumentContext.class);
 
-
         final byte[] originalByteCode = BytecodeUtils.getClassFile(null, mock);
-        final InstrumentClass transformClass = pool.getClass(instrumentContext, null, mock, originalByteCode);
+        final InstrumentClass transformClass = instrumentEngine.getClass(instrumentContext, null, mock, originalByteCode);
 
         Assert.assertNotNull(transformClass.getDeclaredMethod("test"));
         Assert.assertNull("transform method", transformClass.getDeclaredMethod("transformMethod"));
@@ -69,21 +66,24 @@ public class JavassistClassPoolTest {
 
     @Test
     public void testGetClass_transform() throws Exception {
+        InstrumentEngine instrumentEngine = newJavassistEngine();
 
-        ObjectBinderFactory objectBinderFactory = mock(ObjectBinderFactory.class);
-
-        Provider<ApiMetaDataService> apiMetaDataService = Providers.of(mock(ApiMetaDataService.class));
         InstrumentContext instrumentContext = mock(InstrumentContext.class);
 
-        InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
-        JavassistEngine pool = new JavassistEngine(objectBinderFactory, binder, apiMetaDataService, null);
-
-
         final byte[] transformByteCode = getTransformByteCode();
-        final InstrumentClass transformClass = pool.getClass(instrumentContext, null, mock, transformByteCode);
+        final InstrumentClass transformClass = instrumentEngine.getClass(instrumentContext, null, mock, transformByteCode);
 
         Assert.assertNotNull(transformClass.getDeclaredMethod("test"));
         Assert.assertNotNull("transform method", transformClass.getDeclaredMethod("transformMethod"));
+    }
+
+    private InstrumentEngine newJavassistEngine() {
+        Instrumentation instrumentation = mock(Instrumentation.class);
+        ObjectBinderFactory objectBinderFactory = mock(ObjectBinderFactory.class);
+        Provider<ApiMetaDataService> apiMetaDataService = Providers.of(mock(ApiMetaDataService.class));
+
+        InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
+        return new JavassistEngine(instrumentation, objectBinderFactory, binder, apiMetaDataService, null);
     }
 
     public byte[] getTransformByteCode()  {

@@ -70,7 +70,7 @@ public class JavassistClass implements InstrumentClass {
 
     private final ObjectBinderFactory objectBinderFactory;
     private final InstrumentContext pluginContext;
-    // private final JavassistEngine instrumentClassPool;
+
     private final InterceptorRegistryBinder interceptorRegistryBinder;
     private final ApiMetaDataService apiMetaDataService;
     private final ClassLoader classLoader;
@@ -144,20 +144,13 @@ public class JavassistClass implements InstrumentClass {
         return null;
     }
 
-    private CtMethod getCtMethod(String methodName, String[] parameterTypes) throws NotFoundInstrumentException {
-        CtMethod method = getCtMethod0(ctClass, methodName, parameterTypes);
-
-        if (method == null) {
-            throw new NotFoundInstrumentException(methodName + Arrays.toString(parameterTypes) + " is not found in " + this.getName());
-        }
-
-        return method;
-    }
-
     @Override
     public InstrumentMethod getDeclaredMethod(String name, String... parameterTypes) {
         CtMethod method = getCtMethod0(ctClass, name, parameterTypes);
-        return method == null ? null : new JavassistMethod(objectBinderFactory, pluginContext, interceptorRegistryBinder, apiMetaDataService, this, method);
+        if (method == null) {
+            return null;
+        }
+        return new JavassistMethod(objectBinderFactory, pluginContext, interceptorRegistryBinder, apiMetaDataService, this, method);
     }
 
     @Override
@@ -182,16 +175,6 @@ public class JavassistClass implements InstrumentClass {
         return candidateList;
     }
 
-    private CtConstructor getCtConstructor(String[] parameterTypes) throws NotFoundInstrumentException {
-        CtConstructor constructor = getCtConstructor0(parameterTypes);
-
-        if (constructor == null) {
-            throw new NotFoundInstrumentException("Constructor" + Arrays.toString(parameterTypes) + " is not found in " + this.getName());
-        }
-
-        return constructor;
-    }
-
     private CtConstructor getCtConstructor0(String[] parameterTypes) {
         final String jvmSignature = JavaAssistUtils.javaTypeToJvmSignature(parameterTypes);
         // constructor return type is void
@@ -209,7 +192,11 @@ public class JavassistClass implements InstrumentClass {
     @Override
     public InstrumentMethod getConstructor(String... parameterTypes) {
         CtConstructor constructor = getCtConstructor0(parameterTypes);
-        return constructor == null ? null : new JavassistMethod(objectBinderFactory, pluginContext, interceptorRegistryBinder, apiMetaDataService, this, constructor);
+        if (constructor == null) {
+            return null;
+        }
+
+        return new JavassistMethod(objectBinderFactory, pluginContext, interceptorRegistryBinder, apiMetaDataService, this, constructor);
     }
 
     @Override

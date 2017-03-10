@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.LibClass;
 import com.navercorp.pinpoint.bootstrap.PinpointURLClassLoader;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
@@ -29,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ReflectionUtils;
 
-import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.security.CodeSource;
@@ -53,8 +51,6 @@ public class JarProfilerPluginClassInjectorTest {
 
         final ClassLoader contextTypeMatchClassLoader = createContextTypeMatchClassLoader(new URL[]{sampleJar});
 
-        InstrumentEngine instrumentEngine = Mockito.mock(InstrumentEngine.class);
-        final Instrumentation instrumentation = Mockito.mock(Instrumentation.class);
         final ProfilerPlugin profilerPlugin = Mockito.mock(ProfilerPlugin.class);
 
         final PluginPackageFilter pluginPackageFilter = new PluginPackageFilter(Arrays.asList(LOG4_IMPL));

@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ClassFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
@@ -47,6 +48,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -74,13 +76,9 @@ public class JavassistClassTest {
 
     @Test
     public void testClassHierarchy() throws InstrumentException {
+        InstrumentEngine engine = newJavassistEngine();
 
-        ObjectBinderFactory objectBinderFactory = mock(ObjectBinderFactory.class);
         InstrumentContext instrumentContext = mock(InstrumentContext.class);
-        Provider<ApiMetaDataService> apiMetaDataService = Providers.of(mock(ApiMetaDataService.class));
-
-        JavassistEngine engine = new JavassistEngine(objectBinderFactory, new GlobalInterceptorRegistryBinder(), apiMetaDataService, null);
-
         String testObjectName = "com.navercorp.pinpoint.test.javasssit.mock.TestObject";
 
         byte[] testObjectByteCode = readByteCode(testObjectName);
@@ -106,15 +104,20 @@ public class JavassistClassTest {
         Assert.assertEquals(hierarchyInterfaces[1], "java.lang.Comparable");
     }
 
+    private InstrumentEngine newJavassistEngine() {
+        Instrumentation instrumentation = mock(Instrumentation.class);
+        ObjectBinderFactory objectBinderFactory = mock(ObjectBinderFactory.class);
+        Provider<ApiMetaDataService> apiMetaDataService = Providers.of(mock(ApiMetaDataService.class));
+
+        return new JavassistEngine(instrumentation, objectBinderFactory, new GlobalInterceptorRegistryBinder(), apiMetaDataService, null);
+    }
+
     @Test
     public void testDeclaredMethod() throws InstrumentException {
 
-        ObjectBinderFactory objectBinderFactory = mock(ObjectBinderFactory.class);
+        InstrumentEngine engine = newJavassistEngine();
+
         InstrumentContext instrumentContext = mock(InstrumentContext.class);
-        Provider<ApiMetaDataService> apiMetaDataService = Providers.of(mock(ApiMetaDataService.class));
-
-        JavassistEngine engine = new JavassistEngine(objectBinderFactory, new GlobalInterceptorRegistryBinder(), apiMetaDataService, null);
-
         String testObjectName = "com.navercorp.pinpoint.test.javasssit.mock.TestObject";
         byte[] testObjectByteCode = readByteCode(testObjectName);
         InstrumentClass testObject = engine.getClass(instrumentContext, null, testObjectName, testObjectByteCode);
@@ -128,12 +131,9 @@ public class JavassistClassTest {
 
     @Test
     public void testDeclaredMethods() throws InstrumentException {
-        ObjectBinderFactory objectBinderFactory = mock(ObjectBinderFactory.class);
+        InstrumentEngine engine = newJavassistEngine();
+
         InstrumentContext instrumentContext = mock(InstrumentContext.class);
-        Provider<ApiMetaDataService> apiMetaDataService = Providers.of(mock(ApiMetaDataService.class));
-
-        JavassistEngine engine = new JavassistEngine(objectBinderFactory, new GlobalInterceptorRegistryBinder(), apiMetaDataService, null);
-
         String testObjectName = "com.navercorp.pinpoint.test.javasssit.mock.TestObject";
         byte[] testObjectByteCode = readByteCode(testObjectName);
         InstrumentClass testObject = engine.getClass(instrumentContext, null, testObjectName, testObjectByteCode);
@@ -298,11 +298,9 @@ public class JavassistClassTest {
     @Test
     public void getNestedClasses() throws Exception {
 
-        ObjectBinderFactory objectBinderFactory = mock(ObjectBinderFactory.class);
-        InstrumentContext instrumentContext = mock(InstrumentContext.class);
-        Provider<ApiMetaDataService> apiMetaDataService = Providers.of(mock(ApiMetaDataService.class));
+        InstrumentEngine engine = newJavassistEngine();
 
-        JavassistEngine engine = new JavassistEngine(objectBinderFactory, new GlobalInterceptorRegistryBinder(), apiMetaDataService, null);
+        InstrumentContext instrumentContext = mock(InstrumentContext.class);
         String testObjectName = "com.navercorp.pinpoint.test.javasssit.mock.TestObjectNestedClass";
 
         byte[] testObjectByteCode = readByteCode(testObjectName);
@@ -327,11 +325,10 @@ public class JavassistClassTest {
 
     @Test
     public void hasEnclodingMethod() throws Exception {
-        ObjectBinderFactory objectBinderFactory = mock(ObjectBinderFactory.class);
-        InstrumentContext instrumentContext = mock(InstrumentContext.class);
-        Provider<ApiMetaDataService> apiMetaDataService = Providers.of(mock(ApiMetaDataService.class));
 
-        JavassistEngine engine = new JavassistEngine(objectBinderFactory, new GlobalInterceptorRegistryBinder(), apiMetaDataService, null);
+        InstrumentEngine engine = newJavassistEngine();
+
+        InstrumentContext instrumentContext = mock(InstrumentContext.class);
         String testObjectName = "com.navercorp.pinpoint.test.javasssit.mock.TestObjectNestedClass";
 
         byte[] testObjectByteCode = readByteCode(testObjectName);
