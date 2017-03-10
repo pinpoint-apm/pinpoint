@@ -51,7 +51,7 @@ public class ActiveTraceRepositoryTest {
 
     private TraceContext traceContext;
     private TransactionCounter transactionCounter;
-    private ActiveTraceLocator activeTraceRepository;
+    private ActiveTraceRepository activeTraceRepository;
 
     @Before
     public void setUp() {

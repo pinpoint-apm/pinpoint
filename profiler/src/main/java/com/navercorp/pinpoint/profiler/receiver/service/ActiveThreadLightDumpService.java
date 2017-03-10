@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.receiver.service;
 
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceInfo;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
 import com.navercorp.pinpoint.profiler.util.ActiveThreadDumpUtils;
 import com.navercorp.pinpoint.profiler.util.ThreadDumpUtils;
@@ -37,10 +37,10 @@ import java.util.List;
  */
 public class ActiveThreadLightDumpService implements ProfilerRequestCommandService {
 
-    private final ActiveTraceLocator activeTraceLocator;
+    private final ActiveTraceRepository activeTraceRepository;
 
-    public ActiveThreadLightDumpService(ActiveTraceLocator activeTraceLocator) {
-        this.activeTraceLocator = activeTraceLocator;
+    public ActiveThreadLightDumpService(ActiveTraceRepository activeTraceRepository) {
+        this.activeTraceRepository = activeTraceRepository;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class ActiveThreadLightDumpService implements ProfilerRequestCommandServi
     }
 
     private List<TActiveThreadLightDump> getActiveThreadDumpList(TCmdActiveThreadLightDump request) {
-        List<ActiveTraceInfo> activeTraceInfoList = activeTraceLocator.collect();
+        List<ActiveTraceInfo> activeTraceInfoList = activeTraceRepository.collect();
 
         int limit = request.getLimit();
         if (limit > 0) {

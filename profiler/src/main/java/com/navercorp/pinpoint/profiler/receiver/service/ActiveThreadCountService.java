@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.receiver.service;
 
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramFactory.ActiveTraceHistogram;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.CommandSerializer;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerStreamCommandService;
@@ -63,15 +63,15 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
 
     private final ActiveTraceHistogramFactory activeTraceHistogramFactory;
 
-    public ActiveThreadCountService(ActiveTraceLocator activeTraceLocator) {
-        this(activeTraceLocator, DEFAULT_FLUSH_DELAY);
+    public ActiveThreadCountService(ActiveTraceRepository activeTraceRepository) {
+        this(activeTraceRepository, DEFAULT_FLUSH_DELAY);
     }
 
-    public ActiveThreadCountService(ActiveTraceLocator activeTraceLocator, long flushDelay) {
-        if (activeTraceLocator == null) {
-            throw new NullPointerException("activeTraceLocator");
+    public ActiveThreadCountService(ActiveTraceRepository activeTraceRepository, long flushDelay) {
+        if (activeTraceRepository == null) {
+            throw new NullPointerException("activeTraceRepository");
         }
-        this.activeTraceHistogramFactory = new ActiveTraceHistogramFactory(activeTraceLocator);
+        this.activeTraceHistogramFactory = new ActiveTraceHistogramFactory(activeTraceRepository);
         this.flushDelay = flushDelay;
     }
 
