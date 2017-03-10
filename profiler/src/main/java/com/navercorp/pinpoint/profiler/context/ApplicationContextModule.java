@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
@@ -71,6 +72,17 @@ import com.navercorp.pinpoint.profiler.context.provider.TraceContextProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.UdpSpanDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.UdpStatDataSenderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.activethread.ActiveTraceMetricCollectorProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.activethread.ActiveTraceMetricProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.cpu.CpuLoadMetricCollectorProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.cpu.CpuLoadMetricProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.datasource.DataSourceMetricCollectorProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.datasource.DataSourceMetricProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.GarbageCollectorMetricProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.JvmGcMetricCollectorProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.MemoryMetricProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.transaction.TransactionMetricCollectorProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.transaction.TransactionMetricProvider;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
@@ -78,17 +90,29 @@ import com.navercorp.pinpoint.profiler.metadata.DefaultSqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.DefaultStringMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
+import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DefaultAgentStatMonitor;
-import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
-import com.navercorp.pinpoint.profiler.monitor.codahale.DefaultAgentStatCollectorFactory;
+import com.navercorp.pinpoint.profiler.monitor.collector.activethread.ActiveTraceMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.cpu.CpuLoadMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.datasource.DataSourceMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.jvmgc.JvmGcMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.transaction.TransactionMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.metric.activethread.ActiveTraceMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetric;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
+import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.memory.MemoryMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetric;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
@@ -117,6 +141,7 @@ public class ApplicationContextModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        binder().requireExplicitBindings();
         bind(ProfilerConfig.class).toInstance(profilerConfig);
         bind(ServiceTypeRegistryService.class).toInstance(serviceTypeRegistryService);
         bind(AgentOption.class).toInstance(agentOption);
@@ -135,7 +160,6 @@ public class ApplicationContextModule extends AbstractModule {
         bind(ServerMetaDataHolder.class).toProvider(ServerMetaDataHolderProvider.class).in(Scopes.SINGLETON);
         bind(StorageFactory.class).toProvider(StorageFactoryProvider.class).in(Scopes.SINGLETON);
 
-
         bindServiceComponent();
 
         bind(DataSourceMonitorRegistryService.class).toProvider(DataSourceMonitorRegistryServiceProvider.class).in(Scopes.SINGLETON);
@@ -150,8 +174,6 @@ public class ApplicationContextModule extends AbstractModule {
 
         bindTraceComponent();
 
-        bind(AgentStatCollectorFactory.class).to(DefaultAgentStatCollectorFactory.class).in(Scopes.SINGLETON);
-        bind(AgentStatMonitor.class).to(DefaultAgentStatMonitor.class).in(Scopes.SINGLETON);
         bind(ActiveTraceRepository.class).toProvider(ActiveTraceRepositoryProvider.class).in(Scopes.SINGLETON);
 
         bind(PluginContextLoadResult.class).toProvider(PluginContextLoadResultProvider.class).in(Scopes.SINGLETON);
@@ -161,15 +183,18 @@ public class ApplicationContextModule extends AbstractModule {
 
         bind(AgentInformation.class).toProvider(AgentInformationProvider.class).in(Scopes.SINGLETON);
 
-        bind(JvmInformation.class).toProvider(JvmInformationProvider.class).in(Scopes.SINGLETON);
-        bind(AgentInfoSender.class).toProvider(AgentInfoSenderProvider.class).in(Scopes.SINGLETON);
-
         bind(InstrumentEngine.class).toProvider(InstrumentEngineProvider.class).in(Scopes.SINGLETON);
         bind(ObjectBinderFactory.class).toProvider(ObjectBinderFactoryProvider.class).in(Scopes.SINGLETON);
         bind(ClassFileTransformerDispatcher.class).toProvider(ClassFileTransformerDispatcherProvider.class).in(Scopes.SINGLETON);
         bind(DynamicTransformerRegistry.class).to(DefaultDynamicTransformerRegistry.class).in(Scopes.SINGLETON);
         bind(DynamicTransformTrigger.class).toProvider(DynamicTransformTriggerProvider.class).in(Scopes.SINGLETON);
 //        bind(ClassFileTransformer.class).toProvider(ClassFileTransformerWrapProvider.class).in(Scopes.SINGLETON);
+
+        bindAgentStatComponent();
+
+        bind(JvmInformation.class).toProvider(JvmInformationProvider.class).in(Scopes.SINGLETON);
+        bind(AgentInfoSender.class).toProvider(AgentInfoSenderProvider.class).in(Scopes.SINGLETON);
+        bind(AgentStatMonitor.class).to(DefaultAgentStatMonitor.class).in(Scopes.SINGLETON);
     }
 
     private void bindTraceComponent() {
@@ -212,5 +237,27 @@ public class ApplicationContextModule extends AbstractModule {
         bind(String.class).annotatedWith(ApplicationName.class).toInstance(applicationName);
         bind(Long.class).annotatedWith(AgentStartTime.class).toProvider(AgentStartTimeProvider.class);
         bind(ServiceType.class).annotatedWith(ApplicationServerType.class).toProvider(ApplicationServerTypeProvider.class);
+    }
+
+    private void bindAgentStatComponent() {
+        bind(MemoryMetric.class).toProvider(MemoryMetricProvider.class).in(Scopes.SINGLETON);
+        bind(GarbageCollectorMetric.class).toProvider(GarbageCollectorMetricProvider.class).in(Scopes.SINGLETON);
+        bind(JvmGcMetricCollector.class).toProvider(JvmGcMetricCollectorProvider.class).in(Scopes.SINGLETON);
+
+        bind(CpuLoadMetric.class).toProvider(CpuLoadMetricProvider.class).in(Scopes.SINGLETON);
+        bind(CpuLoadMetricCollector.class).toProvider(CpuLoadMetricCollectorProvider.class).in(Scopes.SINGLETON);
+
+        bind(TransactionMetric.class).toProvider(TransactionMetricProvider.class).in(Scopes.SINGLETON);
+        bind(TransactionMetricCollector.class).toProvider(TransactionMetricCollectorProvider.class).in(Scopes.SINGLETON);
+
+        bind(ActiveTraceMetric.class).toProvider(ActiveTraceMetricProvider.class).in(Scopes.SINGLETON);
+        bind(ActiveTraceMetricCollector.class).toProvider(ActiveTraceMetricCollectorProvider.class).in(Scopes.SINGLETON);
+
+        bind(DataSourceMetric.class).toProvider(DataSourceMetricProvider.class).in(Scopes.SINGLETON);
+        bind(DataSourceMetricCollector.class).toProvider(DataSourceMetricCollectorProvider.class).in(Scopes.SINGLETON);
+
+        bind(new TypeLiteral<AgentStatMetricCollector<TAgentStat>>() {})
+                .annotatedWith(Names.named("AgentStatCollector"))
+                .to(AgentStatCollector.class).in(Scopes.SINGLETON);
     }
 }

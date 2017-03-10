@@ -23,10 +23,10 @@ import com.google.inject.Inject;
  */
 public class DefaultTransactionCounter implements TransactionCounter {
 
-    private final AtomicIdGenerator idGenerator;
+    private final IdGenerator idGenerator;
 
     @Inject
-    public DefaultTransactionCounter(AtomicIdGenerator idGenerator) {
+    public DefaultTransactionCounter(IdGenerator idGenerator) {
         if (idGenerator == null) {
             throw new NullPointerException("idGenerator cannot be null");
         }

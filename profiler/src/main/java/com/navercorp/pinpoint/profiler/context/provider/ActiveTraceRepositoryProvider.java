@@ -33,7 +33,7 @@ public class ActiveTraceRepositoryProvider implements Provider<ActiveTraceReposi
     private final ProfilerConfig profilerConfig;
 
     @Inject
-    private ActiveTraceRepositoryProvider(ProfilerConfig profilerConfig) {
+    public ActiveTraceRepositoryProvider(ProfilerConfig profilerConfig) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
