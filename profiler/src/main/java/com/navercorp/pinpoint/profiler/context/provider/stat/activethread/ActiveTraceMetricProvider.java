@@ -21,6 +21,7 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.module.Nullable;
 import com.navercorp.pinpoint.profiler.monitor.metric.activethread.ActiveTraceMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.activethread.DefaultActiveTraceMetric;
 
@@ -32,7 +33,7 @@ public class ActiveTraceMetricProvider implements Provider<ActiveTraceMetric> {
     private final ActiveTraceLocator activeTraceLocator;
 
     @Inject
-    public ActiveTraceMetricProvider(ActiveTraceRepository activeTraceLocator) {
+    public ActiveTraceMetricProvider(@Nullable /*TODO Disallow null*/ ActiveTraceRepository activeTraceLocator) {
         this.activeTraceLocator = activeTraceLocator;
     }
 
