@@ -35,8 +35,9 @@ import com.navercorp.pinpoint.exception.PinpointException;
  * @author Jongho Moon
  *
  */
+@Deprecated
 public class LegacyProfilerPluginClassInjector implements ClassInjector {
-    private static final Logger logger = LoggerFactory.getLogger(LegacyProfilerPluginClassInjector.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final Method DEFINE_CLASS;
     
@@ -61,13 +62,14 @@ public class LegacyProfilerPluginClassInjector implements ClassInjector {
     @Override
     @SuppressWarnings("unchecked")
     public <T> Class<? extends T> injectClass(ClassLoader classLoader, String className) {
-        ClassLoader targetClassLoader = classLoader == null ? ClassLoader.getSystemClassLoader() : classLoader;
+
+        classLoader = getClassLoader(classLoader);
 
         try {
-            return (Class<T>)loadFromOtherClassLoader(targetClassLoader, className);
+            return (Class<T>)loadFromOtherClassLoader(classLoader, className);
         } catch (Exception e) {
-            logger.warn("Failed to load plugin class {} with classLoader {}", className, targetClassLoader, e);
-            throw new PinpointException("Failed to load plugin class " + className + " with classLoader " + targetClassLoader, e);
+            logger.warn("Failed to load plugin class {} with classLoader {}", className, classLoader, e);
+            throw new PinpointException("Failed to load plugin class " + className + " with classLoader " + classLoader, e);
         }
     }
     
@@ -127,12 +129,17 @@ public class LegacyProfilerPluginClassInjector implements ClassInjector {
     }
 
     @Override
-    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String classPath) {
-        ClassLoader classLoader = targetClassLoader;
-        if(classLoader == null) {
-            classLoader = ClassLoader.getSystemClassLoader();
-        }
+    public InputStream getResourceAsStream(ClassLoader classLoader, String classPath) {
+
+        classLoader = getClassLoader(classLoader);
 
         return classLoader.getResourceAsStream(classPath);
+    }
+
+    private static ClassLoader getClassLoader(ClassLoader classLoader) {
+        if (classLoader == null) {
+            return ClassLoader.getSystemClassLoader();
+        }
+        return classLoader;
     }
 }

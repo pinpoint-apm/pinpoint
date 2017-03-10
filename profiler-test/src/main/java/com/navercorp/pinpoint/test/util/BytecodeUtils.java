@@ -55,12 +55,10 @@ public final class BytecodeUtils {
     }
 
     public static byte[] getClassFile(ClassLoader classLoader, String className) {
-        if (classLoader == null) {
-            classLoader = ClassLoader.getSystemClassLoader();
-        }
         if (className == null) {
             throw new NullPointerException("className must not be null");
         }
+        classLoader = getClassLoader(classLoader);
 
         final String classInternalName = JavaAssistUtils.javaNameToJvmName(className);
         final InputStream is = classLoader.getResourceAsStream(classInternalName + ".class");
@@ -135,5 +133,12 @@ public final class BytecodeUtils {
                 // skip
             }
         }
+    }
+
+    private static ClassLoader getClassLoader(ClassLoader classLoader) {
+        if (classLoader == null) {
+            return ClassLoader.getSystemClassLoader();
+        }
+        return classLoader;
     }
 }

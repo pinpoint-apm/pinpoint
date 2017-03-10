@@ -104,8 +104,8 @@ public class ASMBytecodeDumpService implements BytecodeDumpService {
         if (dumpVerify) {
             if (classLoader == null) {
                 logger.debug("classLoader is null, classInternalName:{}", classInternalName);
-                classLoader = ClassLoader.getSystemClassLoader();
             }
+            classLoader = getClassLoader(classLoader);
             final String dumpVerify = this.disassembler.dumpVerify(bytes, classLoader);
             logger.info("{} class:{} verify:{}", dumpMessage, classInternalName, dumpVerify);
         }
@@ -114,6 +114,13 @@ public class ASMBytecodeDumpService implements BytecodeDumpService {
             final String dumpASM = this.disassembler.dumpASM(bytes);
             logger.info("{} class:{} asm:{}", dumpMessage, classInternalName, dumpASM);
         }
+    }
+
+    private static ClassLoader getClassLoader(ClassLoader classLoader) {
+        if (classLoader == null) {
+            return ClassLoader.getSystemClassLoader();
+        }
+        return classLoader;
     }
 
     private boolean filterClassName(String classInternalName) {

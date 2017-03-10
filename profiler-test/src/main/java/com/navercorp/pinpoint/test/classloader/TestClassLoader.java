@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.instrument.ASMEngine;
 import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.DebugTransformerClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.JavassistEngine;
 import com.navercorp.pinpoint.profiler.plugin.ClassFileTransformerLoader;
 import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformerGuardDelegate;
@@ -38,7 +39,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.common.util.Asserts;
-import com.navercorp.pinpoint.profiler.instrument.LegacyProfilerPluginClassInjector;
 
 
 /**
@@ -53,7 +53,7 @@ public class TestClassLoader extends TransformClassLoader {
     private Translator instrumentTranslator;
     private final List<String> delegateClass;
     private final ClassFileTransformerLoader classFileTransformerLoader;
-    private InstrumentContext instrumentContext;
+    private final InstrumentContext instrumentContext;
 
     public TestClassLoader(MockApplicationContext applicationContext) {
         Asserts.notNull(applicationContext, "applicationContext");
@@ -62,9 +62,10 @@ public class TestClassLoader extends TransformClassLoader {
 
         this.classFileTransformerLoader = new ClassFileTransformerLoader(applicationContext.getProfilerConfig(), applicationContext.getDynamicTransformTrigger());
 
-        ClassInjector legacyProfilerPluginClassInjector = new LegacyProfilerPluginClassInjector(getClass().getClassLoader());
+//        ClassInjector classInjector = new LegacyProfilerPluginClassInjector(getClass().getClassLoader());
+        ClassInjector classInjector = new DebugTransformerClassInjector();
         this.instrumentContext = new PluginInstrumentContext(applicationContext.getProfilerConfig(), applicationContext.getInstrumentEngine(),
-                applicationContext.getDynamicTransformTrigger(), legacyProfilerPluginClassInjector, classFileTransformerLoader);
+                applicationContext.getDynamicTransformTrigger(), classInjector, classFileTransformerLoader);
 
         this.delegateClass = new ArrayList<String>();
     }

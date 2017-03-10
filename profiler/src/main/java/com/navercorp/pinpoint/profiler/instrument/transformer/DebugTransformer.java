@@ -41,7 +41,12 @@ public class DebugTransformer implements ClassFileTransformer {
     private final InstrumentEngine instrumentEngine;
 
     public DebugTransformer(InstrumentEngine instrumentEngine, InstrumentContext instrumentContext) {
-
+        if (instrumentEngine == null) {
+            throw new NullPointerException("instrumentEngine must not be null");
+        }
+        if (instrumentContext == null) {
+            throw new NullPointerException("instrumentContext must not be null");
+        }
         this.instrumentEngine = instrumentEngine;
         this.instrumentContext = instrumentContext;
     }

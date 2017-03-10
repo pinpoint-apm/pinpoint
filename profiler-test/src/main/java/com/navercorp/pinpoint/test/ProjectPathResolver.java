@@ -126,8 +126,12 @@ public class ProjectPathResolver {
 
     private ClassLoader getDefaultClassLoader(Class<?> clazz) {
         ClassLoader classLoader = clazz.getClassLoader();
+        return getClassLoader(classLoader);
+    }
+
+    private static ClassLoader getClassLoader(ClassLoader classLoader) {
         if (classLoader == null) {
-            classLoader = ClassLoader.getSystemClassLoader();
+            return ClassLoader.getSystemClassLoader();
         }
         return classLoader;
     }
