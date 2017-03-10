@@ -153,7 +153,7 @@
 	                 */
 	                argumentFormatter = function (row, cell, value, columnDef, dataContext) {
 	                    var html = [];
-	                    html.push('<div>');
+	                    html.push('<div class="dcf-popover" data-container=".grid-canvas" data-toggle="popover" data-trigger="manual" data-placement="right" data-content="'+ encodeURIComponent(value) +'">');
 	                    html.push( getAuthorizeView( dataContext.isAuthorized, value ) );
 	                    html.push('</div>');
 	                    return html.join('');
@@ -388,7 +388,12 @@
 	                        if (!clickTimeout) {
 	                            clickTimeout = $timeout(function () {
 	                                if (isSingleClick) {
-	                                    element.find('.dcf-popover').popover('hide');
+	                                    element.find(".dcf-popover").each(function() {
+	                                    	var $this = $(this);
+	                                    	if ( $this.data("popover") ) {
+	                                    		$this.popover("hide");
+											}
+										});
 	                                }
 	                                isSingleClick = true;
 	                                clickTimeout = false;
@@ -398,8 +403,11 @@
 	
 	                    grid.onDblClick.subscribe(function (e, args) {
 	                        isSingleClick = false;
-	//                        console.log('isSingleClick = false');
-	                        $(e.target).popover('toggle');
+	                        $(e.target).popover({
+	                        	content: function() {
+									return decodeURIComponent( this.getAttribute("data-content") );
+								}
+							}).popover('toggle');
 	                    });
 	
 	                    grid.onCellChange.subscribe(function (e, args) {
