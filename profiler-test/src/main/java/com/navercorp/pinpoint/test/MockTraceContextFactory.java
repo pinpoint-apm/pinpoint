@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.test;
 
+import com.google.inject.util.Providers;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -35,11 +36,12 @@ import com.navercorp.pinpoint.profiler.context.DefaultTraceIdFactory;
 import com.navercorp.pinpoint.profiler.context.RecorderFactory;
 import com.navercorp.pinpoint.profiler.context.SpanFactory;
 import com.navercorp.pinpoint.profiler.context.TraceIdFactory;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.provider.TraceFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.DisabledJdbcContext;
 import com.navercorp.pinpoint.profiler.context.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.TraceFactory;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.active.DefaultActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
@@ -124,8 +126,8 @@ public class MockTraceContextFactory {
 
         RecorderFactory recorderFactory = new DefaultRecorderFactory(stringMetaDataService, sqlMetaDataService);
 
-        final TraceFactoryProvider traceFactoryBuilder = new TraceFactoryProvider(callStackFactory, storageFactory, sampler, idGenerator, traceIdFactory, asyncIdGenerator, activeTraceRepository,
-                spanFactory, recorderFactory);
+        final TraceFactoryProvider traceFactoryBuilder = new TraceFactoryProvider(callStackFactory, storageFactory, sampler, idGenerator, traceIdFactory, asyncIdGenerator,
+                Providers.of(activeTraceRepository), spanFactory, recorderFactory);
         TraceFactory traceFactory = traceFactoryBuilder.get();
         this.traceContext = new DefaultTraceContext(profilerConfig, agentInformation,
                 traceIdFactory, traceFactory, asyncIdGenerator, serverMetaDataHolder,
@@ -143,7 +145,7 @@ public class MockTraceContextFactory {
 
     private static ActiveTraceRepository newActiveTraceRepository() {
         if (TRACE_ACTIVE_THREAD) {
-            return new ActiveTraceRepository();
+            return new DefaultActiveTraceRepository();
         }
         return null;
     }

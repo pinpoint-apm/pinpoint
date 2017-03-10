@@ -19,9 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.activethread;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramFactory;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.context.module.Nullable;
 import com.navercorp.pinpoint.profiler.monitor.metric.activethread.ActiveTraceMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.activethread.DefaultActiveTraceMetric;
 
@@ -30,19 +28,22 @@ import com.navercorp.pinpoint.profiler.monitor.metric.activethread.DefaultActive
  */
 public class ActiveTraceMetricProvider implements Provider<ActiveTraceMetric> {
 
-    private final ActiveTraceLocator activeTraceLocator;
+    private final ActiveTraceRepository activeTraceRepository;
 
     @Inject
-    public ActiveTraceMetricProvider(@Nullable /*TODO Disallow null*/ ActiveTraceRepository activeTraceLocator) {
-        this.activeTraceLocator = activeTraceLocator;
+    public ActiveTraceMetricProvider(Provider<ActiveTraceRepository> activeTraceRepositoryProvider) {
+        if (activeTraceRepositoryProvider == null) {
+            throw new NullPointerException("activeTraceRepositoryProvider must not be null");
+        }
+        this.activeTraceRepository = activeTraceRepositoryProvider.get();
     }
 
     @Override
     public ActiveTraceMetric get() {
-        if (activeTraceLocator == null) {
+        if (activeTraceRepository == null) {
             return ActiveTraceMetric.UNSUPPORTED_ACTIVE_TRACE_METRIC;
         } else {
-            ActiveTraceHistogramFactory activeTraceHistogramFactory = new ActiveTraceHistogramFactory(activeTraceLocator);
+            ActiveTraceHistogramFactory activeTraceHistogramFactory = new ActiveTraceHistogramFactory(activeTraceRepository);
             return new DefaultActiveTraceMetric(activeTraceHistogramFactory);
         }
     }

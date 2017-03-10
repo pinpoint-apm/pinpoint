@@ -32,7 +32,6 @@ import com.navercorp.pinpoint.profiler.context.TraceFactory;
 import com.navercorp.pinpoint.profiler.context.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.context.module.Nullable;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +59,7 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
 
     @Inject
     public TraceFactoryProvider(CallStackFactory callStackFactory, StorageFactory storageFactory, Sampler sampler, IdGenerator idGenerator, TraceIdFactory traceIdFactory, AsyncIdGenerator asyncIdGenerator,
-                                @Nullable /*TODO Disallow null*/ ActiveTraceRepository activeTraceRepository, SpanFactory spanFactory, RecorderFactory recorderFactory) {
+                                Provider<ActiveTraceRepository> activeTraceRepositoryProvider, SpanFactory spanFactory, RecorderFactory recorderFactory) {
         if (callStackFactory == null) {
             throw new NullPointerException("callStackFactory must not be null");
         }
@@ -80,9 +79,9 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
         if (asyncIdGenerator == null) {
             throw new NullPointerException("asyncIdGenerator must not be null");
         }
-//        if (activeTraceRepository == null) {
-//            throw new NullPointerException("activeTraceRepository must not be null");
-//        }
+        if (activeTraceRepositoryProvider == null) {
+            throw new NullPointerException("activeTraceRepositoryProvider must not be null");
+        }
         if (spanFactory == null) {
             throw new NullPointerException("spanFactory must not be null");
         }
@@ -96,7 +95,7 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
         this.idGenerator = idGenerator;
         this.traceIdFactory = traceIdFactory;
         this.asyncIdGenerator = asyncIdGenerator;
-        this.activeTraceRepository = activeTraceRepository;
+        this.activeTraceRepository = activeTraceRepositoryProvider.get();
 
         this.spanFactory = spanFactory;
         this.recorderFactory = recorderFactory;

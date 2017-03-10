@@ -89,9 +89,9 @@ public class AgentActiveThreadDumpListTest {
         }
     }
 
-    private List<WaitingJob> createWaitingJobList(int createActiveTraceLocatorSize) {
+    private List<WaitingJob> createWaitingJobList(int createActiveTraceRepositorySize) {
         List<WaitingJob> waitingJobList = new ArrayList<WaitingJob>();
-        for (int i = 0; i < createActiveTraceLocatorSize; i++) {
+        for (int i = 0; i < createActiveTraceRepositorySize; i++) {
             waitingJobList.add(new WaitingJob(100));
         }
         return waitingJobList;
