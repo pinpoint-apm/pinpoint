@@ -25,8 +25,6 @@ import com.navercorp.pinpoint.profiler.util.ExtensionFilter;
 import com.navercorp.pinpoint.profiler.util.FileBinary;
 import com.navercorp.pinpoint.profiler.util.JarReader;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import javassist.CannotCompileException;
-import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,7 +141,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
         return false;
     }
 
-    private Class<?> injectClass0(ClassLoader classLoader, String className) throws NotFoundException, IllegalArgumentException, CannotCompileException, IllegalAccessException, InvocationTargetException {
+    private Class<?> injectClass0(ClassLoader classLoader, String className) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         if (isDebug) {
             logger.debug("Inject class className:{} cl:{}", className, classLoader);
         }
@@ -161,7 +159,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
     }
 
-    private InputStream getInputStream(ClassLoader classLoader, String className) throws NotFoundException, IllegalArgumentException, CannotCompileException, IllegalAccessException, InvocationTargetException {
+    private InputStream getInputStream(ClassLoader classLoader, String className) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         if (isDebug) {
             logger.debug("Get input stream className:{} cl:{}", className, classLoader);
 

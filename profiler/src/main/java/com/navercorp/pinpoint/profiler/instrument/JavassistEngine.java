@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.instrument;
 
+import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
+import java.util.jar.JarFile;
 
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.instrument.*;
@@ -48,6 +50,7 @@ public class JavassistEngine implements InstrumentEngine {
     private final boolean isInfo = logger.isInfoEnabled();
     private final boolean isDebug = logger.isDebugEnabled();
 
+    private final Instrumentation instrumentation;
     private final ObjectBinderFactory objectBinderFactory;
     private final Provider<ApiMetaDataService> apiMetaDataService;
     private final MultipleClassPool childClassPool;
@@ -80,7 +83,10 @@ public class JavassistEngine implements InstrumentEngine {
 
 
 
-    public JavassistEngine(ObjectBinderFactory objectBinderFactory, InterceptorRegistryBinder interceptorRegistryBinder, Provider<ApiMetaDataService> apiMetaDataService, final List<String> bootStrapJars) {
+    public JavassistEngine(Instrumentation instrumentation, ObjectBinderFactory objectBinderFactory, InterceptorRegistryBinder interceptorRegistryBinder, Provider<ApiMetaDataService> apiMetaDataService, final List<String> bootStrapJars) {
+        if (instrumentation == null) {
+            throw new NullPointerException("instrumentation must not be null");
+        }
         if (objectBinderFactory == null) {
             throw new NullPointerException("objectBinderFactory must not be null");
         }
@@ -90,7 +96,7 @@ public class JavassistEngine implements InstrumentEngine {
         if (apiMetaDataService == null) {
             throw new NullPointerException("apiMetaDataService must not be null");
         }
-
+        this.instrumentation = instrumentation;
         this.objectBinderFactory = objectBinderFactory;
         this.apiMetaDataService = apiMetaDataService;
         this.childClassPool = new IsolateMultipleClassPool(classPoolEventListener, new IsolateMultipleClassPool.ClassPoolHandler() {
@@ -199,11 +205,21 @@ public class JavassistEngine implements InstrumentEngine {
     }
 
     @Override
-    public void appendToBootstrapClassPath(String jar) {
-        try {
-            getClassPool(null).appendClassPath(jar);
-        } catch (NotFoundException e) {
-            throw new PinpointException(e);
+    public void appendToBootstrapClassPath(JarFile jarFile) {
+        if (jarFile == null) {
+            throw new NullPointerException("jarFile must not be null");
+        }
+
+        if (isInfo) {
+            logger.info("appendToBootstrapClassPath:{}", jarFile);
+        }
+        synchronized (this) {
+            this.instrumentation.appendToBootstrapClassLoaderSearch(jarFile);
+            try {
+                getClassPool(null).appendClassPath(jarFile.getName());
+            } catch (NotFoundException e) {
+                throw new PinpointException(e);
+            }
         }
     }
 }

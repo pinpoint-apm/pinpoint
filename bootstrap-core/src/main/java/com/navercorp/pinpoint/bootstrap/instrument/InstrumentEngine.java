@@ -15,12 +15,17 @@
 package com.navercorp.pinpoint.bootstrap.instrument;
 
 
+import java.util.jar.JarFile;
+
 /**
  * @author Jongho Moon
  *
  */
 public interface InstrumentEngine {
+
     InstrumentClass getClass(InstrumentContext instrumentContext, ClassLoader classLoader, String classInternalName, byte[] classFileBuffer) throws NotFoundInstrumentException;
+
     boolean hasClass(ClassLoader classLoader, String classBinaryName);
-    void appendToBootstrapClassPath(String jar);
+
+    void appendToBootstrapClassPath(JarFile jarFile);
 }

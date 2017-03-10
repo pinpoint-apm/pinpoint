@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
-import java.lang.instrument.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -39,22 +38,17 @@ public class BootstrapClassLoaderHandler implements ClassInjector {
     private boolean injectedToRoot = false;
 
     private final InstrumentEngine instrumentEngine;
-    private final Instrumentation instrumentation;
 
 
-    public BootstrapClassLoaderHandler(PluginConfig pluginConfig, InstrumentEngine instrumentEngine, Instrumentation instrumentation) {
+    public BootstrapClassLoaderHandler(PluginConfig pluginConfig, InstrumentEngine instrumentEngine) {
         if (pluginConfig == null) {
             throw new NullPointerException("pluginConfig must not be null");
         }
         if (instrumentEngine == null) {
             throw new NullPointerException("instrumentEngine must not be null");
         }
-        if (instrumentation == null) {
-            throw new NullPointerException("instrumentation must not be null");
-        }
         this.pluginConfig = pluginConfig;
         this.instrumentEngine = instrumentEngine;
-        this.instrumentation = instrumentation;
     }
 
     @Override
@@ -80,8 +74,7 @@ public class BootstrapClassLoaderHandler implements ClassInjector {
         synchronized (lock) {
             if (this.injectedToRoot == false) {
                 this.injectedToRoot = true;
-                instrumentation.appendToBootstrapClassLoaderSearch(pluginConfig.getPluginJarFile());
-                instrumentEngine.appendToBootstrapClassPath(pluginConfig.getPluginJarFile().getName());
+                instrumentEngine.appendToBootstrapClassPath(pluginConfig.getPluginJarFile());
             }
         }
     }
