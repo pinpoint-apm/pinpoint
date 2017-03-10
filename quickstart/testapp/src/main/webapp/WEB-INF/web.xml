@@ -63,7 +63,7 @@
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
 
-    <servlet-mapping>
+    <!--<servlet-mapping>
         <servlet-name>default</servlet-name>
         <url-pattern>*.css</url-pattern>
         <url-pattern>*.js</url-pattern>
@@ -72,5 +72,5 @@
         <url-pattern>*.ico</url-pattern>
         <url-pattern>*.swf</url-pattern>
         <url-pattern>*.html</url-pattern>
-    </servlet-mapping>
+    </servlet-mapping>-->
 </web-app>
