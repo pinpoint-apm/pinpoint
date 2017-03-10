@@ -37,11 +37,14 @@ public class TestProfilerPluginClassLoader implements ClassInjector {
 
     @Override
     public InputStream getResourceAsStream(ClassLoader targetClassLoader, String classPath) {
-        ClassLoader classLoader = targetClassLoader;
-        if(classLoader == null) {
-            classLoader = ClassLoader.getSystemClassLoader();
-        }
+        targetClassLoader = getClassLoader(targetClassLoader);
+        return targetClassLoader.getResourceAsStream(classPath);
+    }
 
-        return classLoader.getResourceAsStream(classPath);
+    private static ClassLoader getClassLoader(ClassLoader classLoader) {
+        if (classLoader == null) {
+            return ClassLoader.getSystemClassLoader();
+        }
+        return classLoader;
     }
 }

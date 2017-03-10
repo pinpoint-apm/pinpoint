@@ -34,7 +34,6 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +51,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
     private static final Method DEFINE_CLASS;
     private final JarReader pluginJarReader;
 
-    private static final List<String> BOOTSTRAP_PACKAGE_LIST = Arrays.asList("com.navercorp.pinpoint.bootstrap", "com.navercorp.pinpoint.common", "com.navercorp.pinpoint.exception");
+    private final BootstrapPackage bootstrapPackage = new BootstrapPackage();
 
     // TODO remove static field
     private static final ConcurrentMap<ClassLoader, ClassLoaderAttachment> classLoaderAttachment = new ConcurrentWeakHashMap<ClassLoader, ClassLoaderAttachment>();
@@ -80,7 +79,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
     @SuppressWarnings("unchecked")
     public <T> Class<? extends T> injectClass(ClassLoader classLoader, String className) {
         try {
-            if (isBootstrapPackage(className)) {
+            if (bootstrapPackage.isBootstrapPackage(className)) {
                 ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
                 return loadClass(systemClassLoader, className);
             }
@@ -98,9 +97,9 @@ public class PlainClassLoaderHandler implements ClassInjector {
     public InputStream getResourceAsStream(ClassLoader targetClassLoader, String classPath) {
         try {
             String name = JavaAssistUtils.jvmNameToJavaName(classPath);
-            if (isBootstrapPackage(name)) {
+            if (bootstrapPackage.isBootstrapPackage(name)) {
                 ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-                if(systemClassLoader != null) {
+                if (systemClassLoader != null) {
                     return systemClassLoader.getResourceAsStream(classPath);
                 }
                 return null;
@@ -109,7 +108,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
                 return targetClassLoader.getResourceAsStream(classPath);
             }
             final int fileExtensionPosition = name.lastIndexOf(".class");
-            if(fileExtensionPosition != -1) {
+            if (fileExtensionPosition != -1) {
                 name = name.substring(0, fileExtensionPosition);
             }
 
@@ -132,14 +131,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
         return pluginConfig.getPluginPackageFilter().accept(className);
     }
 
-    private boolean isBootstrapPackage(String className) {
-        for (String bootstrapPackage : BOOTSTRAP_PACKAGE_LIST) {
-            if (className.startsWith(bootstrapPackage)) {
-                return true;
-            }
-        }
-        return false;
-    }
+
 
     private Class<?> injectClass0(ClassLoader classLoader, String className) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         if (isDebug) {
@@ -303,9 +295,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
     }
 
     private Class<?> defineClass(ClassLoader classLoader, SimpleClassMetadata classMetadata) {
-        if (classLoader == null) {
-            classLoader = ClassLoader.getSystemClassLoader();
-        }
+        classLoader = getClassLoader(classLoader);
         if (isDebug) {
             logger.debug("define class:{} cl:{}", classMetadata.getClassName(), classLoader);
         }
@@ -391,7 +381,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
         public InputStream getInputStream(String className) {
             final SimpleClassMetadata classMetadata = this.classCache.get(className);
-            if(classMetadata == null) {
+            if (classMetadata == null) {
                 return null;
             }
 
@@ -412,6 +402,13 @@ public class PlainClassLoaderHandler implements ClassInjector {
             this.loaded = true;
         }
 
+    }
+
+    private static ClassLoader getClassLoader(ClassLoader classLoader) {
+        if (classLoader == null) {
+            return ClassLoader.getSystemClassLoader();
+        }
+        return classLoader;
     }
 
 }
