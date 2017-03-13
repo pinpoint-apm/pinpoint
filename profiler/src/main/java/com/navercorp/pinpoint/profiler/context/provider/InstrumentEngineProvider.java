@@ -21,7 +21,7 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 
 import com.navercorp.pinpoint.profiler.instrument.ASMEngine;
 import com.navercorp.pinpoint.profiler.instrument.JavassistEngine;

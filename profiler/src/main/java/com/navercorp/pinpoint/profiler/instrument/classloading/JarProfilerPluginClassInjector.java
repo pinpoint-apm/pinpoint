@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.instrument.classloading;
 import java.io.InputStream;
 import java.net.URLClassLoader;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 
 import org.slf4j.Logger;

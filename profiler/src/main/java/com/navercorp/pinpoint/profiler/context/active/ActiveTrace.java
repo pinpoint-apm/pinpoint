@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.context.active;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.profiler.context.DefaultSpanRecorder;
+import com.navercorp.pinpoint.profiler.context.recorder.DefaultSpanRecorder;
 import com.navercorp.pinpoint.profiler.context.Span;
 
 /**

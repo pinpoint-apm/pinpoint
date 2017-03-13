@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.profiler.context.id.AtomicIdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.ListenableAsyncState;
 import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
+import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
 import com.navercorp.pinpoint.profiler.context.storage.AsyncStorage;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;

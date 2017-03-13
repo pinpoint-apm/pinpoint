@@ -17,13 +17,11 @@
 
 package com.navercorp.pinpoint.test.classloader;
 
-import com.navercorp.pinpoint.profiler.context.ApplicationContext;
 import com.navercorp.pinpoint.test.MockApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.common.util.ClassUtils;
-import com.navercorp.pinpoint.profiler.DefaultAgent;
 
 /**
  * @author hyungil.jeong
