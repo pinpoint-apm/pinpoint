@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
+import com.navercorp.pinpoint.profiler.context.id.ListenableAsyncState;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
 
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;

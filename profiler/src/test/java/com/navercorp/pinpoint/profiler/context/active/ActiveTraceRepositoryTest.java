@@ -28,7 +28,7 @@ import java.util.concurrent.Executors;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.profiler.context.DefaultTransactionCounter;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionCounter;
 import com.navercorp.pinpoint.profiler.context.MockTraceContextFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,8 +38,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceId;
-import com.navercorp.pinpoint.profiler.context.TransactionCounter;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
 import org.mockito.Mockito;
 
 /**

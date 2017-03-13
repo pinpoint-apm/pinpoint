@@ -37,17 +37,12 @@ public interface ApplicationContext {
 
     InstrumentEngine getInstrumentEngine();
 
-    List<String> getBootstrapJarPaths();
 
     DynamicTransformTrigger getDynamicTransformTrigger();
-
-    Instrumentation getInstrumentation();
 
     ClassFileTransformerDispatcher getClassFileTransformerDispatcher();
 
     AgentInformation getAgentInformation();
-
-
 
 
     void start();

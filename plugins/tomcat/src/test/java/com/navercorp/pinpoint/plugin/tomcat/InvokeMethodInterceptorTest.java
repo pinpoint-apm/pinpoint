@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.test.MockTraceContextFactory;
 import org.junit.Before;
 import org.junit.BeforeClass;
