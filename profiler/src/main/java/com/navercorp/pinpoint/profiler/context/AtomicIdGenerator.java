@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.profiler.util.jdk.LongAdder;
+import com.google.inject.Inject;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -52,6 +52,10 @@ public class AtomicIdGenerator implements IdGenerator {
     private final AtomicLong disabledId = new AtomicLong(INITIAL_DISABLED_ID);
     // id generator for unsampled continued traces
     private final AtomicLong continuedDisabledId = new AtomicLong(INITIAL_CONTINUED_DISABLED_ID);
+
+    @Inject
+    public AtomicIdGenerator() {
+    }
 
     @Override
     public long nextTransactionId() {

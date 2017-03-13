@@ -16,7 +16,6 @@ package com.navercorp.pinpoint.profiler.plugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.instrument.Instrumentation;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -36,8 +35,8 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
-import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
-import com.navercorp.pinpoint.profiler.instrument.JarProfilerPluginClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.classloading.JarProfilerPluginClassInjector;
 
 /**
  * @author Jongho Moon

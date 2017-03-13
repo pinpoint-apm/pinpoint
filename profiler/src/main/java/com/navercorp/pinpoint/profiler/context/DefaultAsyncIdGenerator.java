@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.google.inject.Inject;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -24,6 +26,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DefaultAsyncIdGenerator implements AsyncIdGenerator {
 
     private final AtomicInteger asyncId = new AtomicInteger();
+
+    @Inject
+    public DefaultAsyncIdGenerator() {
+    }
 
     @Override
     public int nextAsyncId() {

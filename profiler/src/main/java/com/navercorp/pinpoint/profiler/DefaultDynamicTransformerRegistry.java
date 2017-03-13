@@ -20,6 +20,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.instrument.RequestHandle;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.slf4j.Logger;
@@ -30,6 +31,10 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final ConcurrentMap<TransformerKey, ClassFileTransformer> transformerMap = new ConcurrentHashMap<TransformerKey, ClassFileTransformer>();
+
+    @Inject
+    public DefaultDynamicTransformerRegistry() {
+    }
 
     @Override
     public RequestHandle onRetransformRequest(Class<?> target, final ClassFileTransformer transformer) {

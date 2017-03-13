@@ -20,10 +20,10 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.profiler.context.AsyncIdGenerator;
-import com.navercorp.pinpoint.profiler.context.AtomicIdGenerator;
 import com.navercorp.pinpoint.profiler.context.BaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.CallStackFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultBaseTraceFactory;
+import com.navercorp.pinpoint.profiler.context.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.LoggingBaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.RecorderFactory;
 import com.navercorp.pinpoint.profiler.context.SpanFactory;
@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.profiler.context.TraceFactory;
 import com.navercorp.pinpoint.profiler.context.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.module.Nullable;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,7 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
 
     private final StorageFactory storageFactory;
     private final Sampler sampler;
-    private final AtomicIdGenerator idGenerator;
+    private final IdGenerator idGenerator;
     private final TraceIdFactory traceIdFactory;
     private final AsyncIdGenerator asyncIdGenerator;
 
@@ -58,8 +59,8 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
 
 
     @Inject
-    public TraceFactoryProvider(CallStackFactory callStackFactory, StorageFactory storageFactory, Sampler sampler, AtomicIdGenerator idGenerator, TraceIdFactory traceIdFactory, AsyncIdGenerator asyncIdGenerator, ActiveTraceRepository activeTraceRepository,
-                                SpanFactory spanFactory, RecorderFactory recorderFactory) {
+    public TraceFactoryProvider(CallStackFactory callStackFactory, StorageFactory storageFactory, Sampler sampler, IdGenerator idGenerator, TraceIdFactory traceIdFactory, AsyncIdGenerator asyncIdGenerator,
+                                @Nullable /*TODO Disallow null*/ ActiveTraceRepository activeTraceRepository, SpanFactory spanFactory, RecorderFactory recorderFactory) {
         if (callStackFactory == null) {
             throw new NullPointerException("callStackFactory must not be null");
         }
