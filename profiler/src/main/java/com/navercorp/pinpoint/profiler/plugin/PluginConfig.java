@@ -43,35 +43,18 @@ public class PluginConfig {
     private final JarFile pluginJarFile;
     private String pluginJarURLExternalForm;
 
-    private final ProfilerPlugin plugin;
-
-    private final List<String> bootstrapJarPaths;
-
     private final ClassNameFilter pluginPackageFilter;
 
-    public PluginConfig(URL pluginJar, ProfilerPlugin plugin, List<String> bootstrapJarPaths, ClassNameFilter pluginPackageFilter) {
+    public PluginConfig(URL pluginJar, ClassNameFilter pluginPackageFilter) {
         if (pluginJar == null) {
             throw new NullPointerException("pluginJar must not be null");
         }
-        if (plugin == null) {
-            throw new NullPointerException("plugin must not be null");
-        }
-        if (bootstrapJarPaths == null) {
-            throw new NullPointerException("bootstrapJarPaths must not be null");
-        }
         this.pluginJar = pluginJar;
         this.pluginJarFile = createJarFile(pluginJar);
-        this.plugin = plugin;
-
-        this.bootstrapJarPaths = bootstrapJarPaths;
 
         this.pluginPackageFilter = pluginPackageFilter;
     }
 
-
-    public ProfilerPlugin getPlugin() {
-        return plugin;
-    }
 
     public URL getPluginJar() {
         return pluginJar;
@@ -99,9 +82,6 @@ public class PluginConfig {
         }
     }
 
-    public List<String> getBootstrapJarPaths() {
-        return bootstrapJarPaths;
-    }
 
     public ClassNameFilter getPluginPackageFilter() {
         return pluginPackageFilter;
@@ -113,8 +93,6 @@ public class PluginConfig {
                 "pluginJar=" + pluginJar +
                 ", pluginJarFile=" + pluginJarFile +
                 ", pluginJarURLExternalForm='" + pluginJarURLExternalForm + '\'' +
-                ", plugin=" + plugin +
-                ", bootstrapJarPaths=" + bootstrapJarPaths +
                 ", pluginPackageFilter=" + pluginPackageFilter +
                 '}';
     }

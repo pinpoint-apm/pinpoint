@@ -36,13 +36,12 @@ public class PluginContextLoadResultProvider implements Provider<PluginContextLo
 
     private final ProfilerConfig profilerConfig;
     private final InstrumentEngine instrumentEngine;
-    private final List<String> bootstrapJarPaths;
     private final URL[] pluginJars;
     private final DynamicTransformTrigger dynamicTransformTrigger;
 
     @Inject
     public PluginContextLoadResultProvider(ProfilerConfig profilerConfig, DynamicTransformTrigger dynamicTransformTrigger, InstrumentEngine instrumentEngine,
-                                           @BootstrapJarPaths List<String> bootstrapJarPaths, @PluginJars URL[] pluginJars) {
+                                           @PluginJars URL[] pluginJars) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
@@ -52,9 +51,6 @@ public class PluginContextLoadResultProvider implements Provider<PluginContextLo
         if (instrumentEngine == null) {
             throw new NullPointerException("instrumentEngine must not be null");
         }
-        if (bootstrapJarPaths == null) {
-            throw new NullPointerException("bootstrapJarPaths must not be null");
-        }
         if (pluginJars == null) {
             throw new NullPointerException("pluginJars must not be null");
         }
@@ -63,13 +59,12 @@ public class PluginContextLoadResultProvider implements Provider<PluginContextLo
         this.dynamicTransformTrigger = dynamicTransformTrigger;
 
         this.instrumentEngine = instrumentEngine;
-        this.bootstrapJarPaths = bootstrapJarPaths;
         this.pluginJars = pluginJars;
     }
 
     @Override
     public PluginContextLoadResult get() {
-        return new DefaultPluginContextLoadResult(profilerConfig, dynamicTransformTrigger, instrumentEngine, bootstrapJarPaths, pluginJars);
+        return new DefaultPluginContextLoadResult(profilerConfig, dynamicTransformTrigger, instrumentEngine, pluginJars);
 
     }
 }

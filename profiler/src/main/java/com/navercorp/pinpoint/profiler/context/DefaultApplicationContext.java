@@ -183,19 +183,10 @@ public class DefaultApplicationContext implements ApplicationContext {
 
 
     @Override
-    public List<String> getBootstrapJarPaths() {
-        return agentOption.getBootstrapJarPaths();
-    }
-
-    @Override
     public DynamicTransformTrigger getDynamicTransformTrigger() {
         return dynamicTransformTrigger;
     }
 
-    @Override
-    public Instrumentation getInstrumentation() {
-        return instrumentation;
-    }
 
     @Override
     public ClassFileTransformerDispatcher getClassFileTransformerDispatcher() {

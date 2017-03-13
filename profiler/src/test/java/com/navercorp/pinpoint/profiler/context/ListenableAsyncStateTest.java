@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.profiler.context.id.ListenableAsyncState;
 import org.junit.Test;
 
 import static org.mockito.Mockito.*;

@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.bootstrap.LibClass;
 import com.navercorp.pinpoint.bootstrap.PinpointURLClassLoader;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
-import com.navercorp.pinpoint.profiler.instrument.classloading.PlainClassLoaderHandler;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 import com.navercorp.pinpoint.profiler.plugin.PluginPackageFilter;
 import org.junit.Assert;
@@ -56,8 +55,7 @@ public class JarProfilerPluginClassInjectorTest {
         final ProfilerPlugin profilerPlugin = Mockito.mock(ProfilerPlugin.class);
 
         final PluginPackageFilter pluginPackageFilter = new PluginPackageFilter(Arrays.asList(LOG4_IMPL));
-        List<String> bootstrapJarPaths = Arrays.asList(sampleJar.getPath());
-        PluginConfig pluginConfig = new PluginConfig(sampleJar, profilerPlugin, bootstrapJarPaths, pluginPackageFilter);
+        PluginConfig pluginConfig = new PluginConfig(sampleJar, pluginPackageFilter);
         logger.debug("pluginConfig:{}", pluginConfig);
 
         PlainClassLoaderHandler injector = new PlainClassLoaderHandler(pluginConfig);
