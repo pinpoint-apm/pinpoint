@@ -117,12 +117,13 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
                 setBaseData(dataSourceListBo, agentId, startTimestamp, timestamp);
 
                 TDataSourceList dataSourceList = tAgentStat.getDataSourceList();
-                for (TDataSource dataSource : dataSourceList.getDataSourceList()) {
-                    DataSourceBo dataSourceBo = dataSourceBoMapper.map(dataSource);
-                    setBaseData(dataSourceBo, agentId, startTimestamp, timestamp);
-                    dataSourceListBo.add(dataSourceBo);
+                if (dataSourceList.getDataSourceListSize() > 0) {
+                    for (TDataSource dataSource : dataSourceList.getDataSourceList()) {
+                        DataSourceBo dataSourceBo = dataSourceBoMapper.map(dataSource);
+                        setBaseData(dataSourceBo, agentId, startTimestamp, timestamp);
+                        dataSourceListBo.add(dataSourceBo);
+                    }
                 }
-
                 dataSourceListBos.add(dataSourceListBo);
             }
         }
