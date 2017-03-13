@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.profiler.instrument;
 
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;

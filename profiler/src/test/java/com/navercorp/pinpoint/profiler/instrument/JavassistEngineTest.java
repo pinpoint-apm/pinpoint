@@ -20,7 +20,6 @@ import com.google.inject.Provider;
 import com.google.inject.util.Providers;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;

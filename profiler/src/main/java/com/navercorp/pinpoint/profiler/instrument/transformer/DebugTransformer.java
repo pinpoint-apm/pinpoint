@@ -20,7 +20,7 @@ import java.security.ProtectionDomain;
 import java.util.Arrays;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

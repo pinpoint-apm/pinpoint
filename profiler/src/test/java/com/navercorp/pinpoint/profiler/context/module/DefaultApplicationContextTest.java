@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context.module;
 
 import com.google.inject.Injector;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
@@ -29,7 +29,10 @@ import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.instrument.Instrumentation;
 import java.net.URL;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -52,8 +55,8 @@ public class DefaultApplicationContextTest {
     private DefaultApplicationContext newApplicationContext() {
         ProfilerConfig profilerConfig = new DefaultProfilerConfig();
         InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
-        AgentOption agentOption = new DefaultAgentOption(new DummyInstrumentation(),
-                "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
+        Instrumentation instrumentation = mock(Instrumentation.class);
+        AgentOption agentOption = new DefaultAgentOption(instrumentation, "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
                 null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
 
         return new DefaultApplicationContext(agentOption, binder);

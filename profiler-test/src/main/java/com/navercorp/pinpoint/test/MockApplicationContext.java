@@ -25,7 +25,7 @@ import java.util.List;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.profiler.context.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;

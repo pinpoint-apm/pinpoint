@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context.module;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
@@ -36,6 +36,17 @@ import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.DefaultDynamicTransformerRegistry;
 import com.navercorp.pinpoint.profiler.DynamicTransformerRegistry;
 import com.navercorp.pinpoint.profiler.JvmInformation;
+import com.navercorp.pinpoint.profiler.context.CallStackFactory;
+import com.navercorp.pinpoint.profiler.context.DefaultCallStackFactory;
+import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
+import com.navercorp.pinpoint.profiler.context.monitor.DefaultJdbcContext;
+import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
+import com.navercorp.pinpoint.profiler.context.recorder.DefaultRecorderFactory;
+import com.navercorp.pinpoint.profiler.context.DefaultSpanChunkFactory;
+import com.navercorp.pinpoint.profiler.context.DefaultSpanFactory;
+import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
+import com.navercorp.pinpoint.profiler.context.SpanFactory;
+import com.navercorp.pinpoint.profiler.context.TraceFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.AtomicIdGenerator;
@@ -45,17 +56,6 @@ import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionCounter;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
-import com.navercorp.pinpoint.profiler.context.module.AgentId;
-import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
-import com.navercorp.pinpoint.profiler.context.module.BootstrapJarPaths;
-import com.navercorp.pinpoint.profiler.context.module.PluginJars;
-import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
-import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
-import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
-import com.navercorp.pinpoint.profiler.context.monitor.DefaultJdbcContext;
-import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
 import com.navercorp.pinpoint.profiler.context.provider.ActiveTraceRepositoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AgentInfoSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AgentInformationProvider;
@@ -92,6 +92,7 @@ import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.JvmGcMetricCo
 import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.MemoryMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.transaction.TransactionMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.transaction.TransactionMetricProvider;
+import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;

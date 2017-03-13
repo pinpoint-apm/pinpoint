@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context.module;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -25,13 +25,11 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
-import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
-import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
 import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
@@ -45,7 +43,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
-import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -148,13 +145,13 @@ public class DefaultApplicationContext implements ApplicationContext {
         return new ApplicationContextModule(agentOption, profilerConfig, serviceTypeRegistryService, interceptorRegistryBinder);
     }
 
-    protected DataSender newUdpStatDataSender() {
+    private DataSender newUdpStatDataSender() {
 
         Key<DataSender> statDataSenderKey = Key.get(DataSender.class, StatDataSender.class);
         return injector.getInstance(statDataSenderKey);
     }
 
-    protected DataSender newUdpSpanDataSender() {
+    private DataSender newUdpSpanDataSender() {
         Key<DataSender> spanDataSenderKey = Key.get(DataSender.class, SpanDataSender.class);
         return injector.getInstance(spanDataSenderKey);
     }

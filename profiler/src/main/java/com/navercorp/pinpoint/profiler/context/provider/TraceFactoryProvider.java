@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.profiler.context.CallStackFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultBaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.LoggingBaseTraceFactory;
-import com.navercorp.pinpoint.profiler.context.RecorderFactory;
+import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
 import com.navercorp.pinpoint.profiler.context.SpanFactory;
 import com.navercorp.pinpoint.profiler.context.ThreadLocalTraceFactory;
 import com.navercorp.pinpoint.profiler.context.TraceFactory;

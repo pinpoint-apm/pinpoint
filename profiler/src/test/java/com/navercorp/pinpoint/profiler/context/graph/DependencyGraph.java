@@ -26,8 +26,7 @@ import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
-import com.navercorp.pinpoint.profiler.context.DefaultApplicationContext;
-import com.navercorp.pinpoint.profiler.context.DummyInstrumentation;
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
 import org.slf4j.Logger;
@@ -36,8 +35,11 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.security.CodeSource;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -73,7 +75,8 @@ public class DependencyGraph {
     private DefaultApplicationContext newApplicationContext() {
         ProfilerConfig profilerConfig = new DefaultProfilerConfig();
         InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
-        AgentOption agentOption = new DefaultAgentOption(new DummyInstrumentation(),
+        Instrumentation instrumentation = mock(Instrumentation.class);
+        AgentOption agentOption = new DefaultAgentOption(instrumentation,
                 "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
                 null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
 

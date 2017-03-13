@@ -27,7 +27,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
