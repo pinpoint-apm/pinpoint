@@ -378,7 +378,7 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
         return SamplingFlagUtils.isSamplingFlag(samplingFlag);
     }
 
-    private class Bypass<T extends HttpServletRequest> implements RemoteAddressResolver<T> {
+    private static class Bypass<T extends HttpServletRequest> implements RemoteAddressResolver<T> {
 
         @Override
         public String resolve(T servletRequest) {

@@ -22,6 +22,7 @@ import com.google.inject.Provider;
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.active.DefaultActiveTraceRepository;
 
 
 
@@ -42,7 +43,7 @@ public class ActiveTraceRepositoryProvider implements Provider<ActiveTraceReposi
 
     public ActiveTraceRepository get() {
         if (profilerConfig.isTraceAgentActiveThread()) {
-            return new ActiveTraceRepository();
+            return new DefaultActiveTraceRepository();
         }
         return null;
     }

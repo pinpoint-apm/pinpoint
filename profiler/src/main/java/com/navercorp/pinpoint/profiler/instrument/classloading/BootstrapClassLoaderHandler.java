@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 import org.slf4j.Logger;

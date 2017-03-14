@@ -22,7 +22,7 @@ import java.security.ProtectionDomain;
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.instrument.transformer.DebugTransformerRegistry;
 import com.navercorp.pinpoint.profiler.instrument.transformer.TransformerRegistry;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;

@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.profiler.sender.planer;
 
-import com.navercorp.pinpoint.profiler.context.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.sender.HeaderTBaseSerializerPoolFactory;

@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class ActiveTraceHistogramFactory {
 
-    private final ActiveTraceLocator activeTraceLocator;
+    private final ActiveTraceRepository activeTraceRepository;
     private final int activeTraceSlotsCount;
     private final HistogramSchema histogramSchema = BaseHistogramSchema.NORMAL_SCHEMA;
 
@@ -46,11 +46,11 @@ public class ActiveTraceHistogramFactory {
         ACTIVE_TRACE_SLOTS_ORDER.add(SlotType.VERY_SLOW);
     }
 
-    public ActiveTraceHistogramFactory(ActiveTraceLocator activeTraceLocator) {
-        if (activeTraceLocator == null) {
-            throw new NullPointerException("activeTraceLocator must not be null");
+    public ActiveTraceHistogramFactory(ActiveTraceRepository activeTraceRepository) {
+        if (activeTraceRepository == null) {
+            throw new NullPointerException("activeTraceRepository must not be null");
         }
-        this.activeTraceLocator = activeTraceLocator;
+        this.activeTraceRepository = activeTraceRepository;
         this.activeTraceSlotsCount = ACTIVE_TRACE_SLOTS_ORDER.size();
     }
 
@@ -62,7 +62,7 @@ public class ActiveTraceHistogramFactory {
 
         long currentTime = System.currentTimeMillis();
 
-        List<ActiveTraceInfo> collectedActiveTraceInfo = activeTraceLocator.collect();
+        List<ActiveTraceInfo> collectedActiveTraceInfo = activeTraceRepository.collect();
         for (ActiveTraceInfo activeTraceInfo : collectedActiveTraceInfo) {
             HistogramSlot slot = histogramSchema.findHistogramSlot((int) (currentTime - activeTraceInfo.getStartTime()), false);
             mappedSlot.get(slot.getSlotType()).incrementAndGet();

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
+
 /**
  * @author HyunGil Jeong
  */

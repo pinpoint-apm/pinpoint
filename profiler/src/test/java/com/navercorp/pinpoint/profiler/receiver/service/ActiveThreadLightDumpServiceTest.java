@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.receiver.service;
 import com.navercorp.pinpoint.bootstrap.util.jdk.ThreadLocalRandom;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceInfo;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDumpRes;
@@ -158,17 +158,17 @@ public class ActiveThreadLightDumpServiceTest {
         }
     }
 
-    private List<WaitingJob> createWaitingJobList(int createActiveTraceLocatorSize) {
+    private List<WaitingJob> createWaitingJobList(int createActiveTraceRepositorySize) {
         List<WaitingJob> waitingJobList = new ArrayList<WaitingJob>();
-        for (int i = 0; i < createActiveTraceLocatorSize; i++) {
+        for (int i = 0; i < createActiveTraceRepositorySize; i++) {
             waitingJobList.add(new WaitingJob(100));
         }
         return waitingJobList;
     }
 
-    private List<ActiveTraceInfo> createMockActiveTraceInfoList(int createActiveTraceLocatorSize, long currentTimeMillis, long diff, List<WaitingJob> waitingJobList) {
-        List<ActiveTraceInfo> activeTraceInfoList = new ArrayList<ActiveTraceInfo>(createActiveTraceLocatorSize);
-        for (int i = 0; i < createActiveTraceLocatorSize; i++) {
+    private List<ActiveTraceInfo> createMockActiveTraceInfoList(int createActiveTraceRepositorySize, long currentTimeMillis, long diff, List<WaitingJob> waitingJobList) {
+        List<ActiveTraceInfo> activeTraceInfoList = new ArrayList<ActiveTraceInfo>(createActiveTraceRepositorySize);
+        for (int i = 0; i < createActiveTraceRepositorySize; i++) {
             ActiveTraceInfo activeTraceInfo = createActiveTraceInfo(currentTimeMillis + (diff * i), waitingJobList.get(i));
             activeTraceInfoList.add(activeTraceInfo);
         }
@@ -218,10 +218,10 @@ public class ActiveThreadLightDumpServiceTest {
     }
 
     private ActiveThreadLightDumpService createService(List<ActiveTraceInfo> activeTraceInfoList) {
-        ActiveTraceLocator activeTraceLocator = mock(ActiveTraceLocator.class);
-        when(activeTraceLocator.collect()).thenReturn(activeTraceInfoList);
+        ActiveTraceRepository activeTraceRepository = mock(ActiveTraceRepository.class);
+        when(activeTraceRepository.collect()).thenReturn(activeTraceInfoList);
 
-        return new ActiveThreadLightDumpService(activeTraceLocator);
+        return new ActiveThreadLightDumpService(activeTraceRepository);
     }
 
     private TCmdActiveThreadLightDump createRequest(int limit, List<String> threadNameList, List<Long> localTraceIdList) {

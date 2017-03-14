@@ -27,6 +27,8 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
+import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;

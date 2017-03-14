@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.profiler.context.id.StatefulAsyncTraceId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

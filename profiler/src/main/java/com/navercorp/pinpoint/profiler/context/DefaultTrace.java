@@ -18,6 +18,10 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
+import com.navercorp.pinpoint.profiler.context.id.DefaultAsyncTraceId;
+import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
+import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

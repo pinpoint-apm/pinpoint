@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
-import com.navercorp.pinpoint.bootstrap.instrument.GuardInstrumentContext;
+import com.navercorp.pinpoint.profiler.instrument.GuardInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.transaction;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.context.TransactionCounter;
+import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.DefaultTransactionMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetric;
 

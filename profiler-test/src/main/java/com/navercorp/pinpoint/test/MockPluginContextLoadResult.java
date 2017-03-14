@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.test;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;

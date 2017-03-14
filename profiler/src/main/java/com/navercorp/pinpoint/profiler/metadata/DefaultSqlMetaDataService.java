@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.profiler.metadata;
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
-import com.navercorp.pinpoint.profiler.context.CachingSqlNormalizer;
-import com.navercorp.pinpoint.profiler.context.DefaultCachingSqlNormalizer;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;

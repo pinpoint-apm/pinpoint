@@ -40,8 +40,8 @@ public class HandleExceptionInterceptor extends SpanAsyncEventSimpleAroundInterc
 
         if (args != null && args.length >= 1 && args[0] instanceof Throwable) {
             final Throwable handleException = (Throwable) args[0];
-            if(throwable != null) {
-                if(handleException != null) {
+            if (throwable != null) {
+                if (handleException != null) {
                     // handle to two throwable(handle and catch).
                     final StringBuilder sb = new StringBuilder(256);
                     sb.append("handle=");
@@ -54,7 +54,7 @@ public class HandleExceptionInterceptor extends SpanAsyncEventSimpleAroundInterc
                     recorder.recordException(throwable);
                 }
             } else {
-                if(handleException != null) {
+                if (handleException != null) {
                     // record handle exception.
                     recorder.recordException(handleException);
                 }

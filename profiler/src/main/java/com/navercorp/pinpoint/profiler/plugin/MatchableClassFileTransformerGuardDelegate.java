@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.GuardInstrumentor;
+import com.navercorp.pinpoint.profiler.instrument.GuardInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;

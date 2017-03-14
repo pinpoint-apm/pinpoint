@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.common.annotations.InterfaceStability;
 
 import java.security.ProtectionDomain;
 import java.util.concurrent.CountDownLatch;
@@ -33,6 +34,7 @@ import java.util.concurrent.CyclicBarrier;
 /**
  * @author jaehong.kim
  */
+@InterfaceStability.Evolving
 public class VertxPlugin implements ProfilerPlugin, TransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 

@@ -20,14 +20,12 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
-import com.navercorp.pinpoint.profiler.context.module.BootstrapJarPaths;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.context.module.PluginJars;
 import com.navercorp.pinpoint.profiler.plugin.DefaultPluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 
 import java.net.URL;
-import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -36,13 +34,12 @@ public class PluginContextLoadResultProvider implements Provider<PluginContextLo
 
     private final ProfilerConfig profilerConfig;
     private final InstrumentEngine instrumentEngine;
-    private final List<String> bootstrapJarPaths;
     private final URL[] pluginJars;
     private final DynamicTransformTrigger dynamicTransformTrigger;
 
     @Inject
     public PluginContextLoadResultProvider(ProfilerConfig profilerConfig, DynamicTransformTrigger dynamicTransformTrigger, InstrumentEngine instrumentEngine,
-                                           @BootstrapJarPaths List<String> bootstrapJarPaths, @PluginJars URL[] pluginJars) {
+                                           @PluginJars URL[] pluginJars) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
@@ -52,9 +49,6 @@ public class PluginContextLoadResultProvider implements Provider<PluginContextLo
         if (instrumentEngine == null) {
             throw new NullPointerException("instrumentEngine must not be null");
         }
-        if (bootstrapJarPaths == null) {
-            throw new NullPointerException("bootstrapJarPaths must not be null");
-        }
         if (pluginJars == null) {
             throw new NullPointerException("pluginJars must not be null");
         }
@@ -63,13 +57,12 @@ public class PluginContextLoadResultProvider implements Provider<PluginContextLo
         this.dynamicTransformTrigger = dynamicTransformTrigger;
 
         this.instrumentEngine = instrumentEngine;
-        this.bootstrapJarPaths = bootstrapJarPaths;
         this.pluginJars = pluginJars;
     }
 
     @Override
     public PluginContextLoadResult get() {
-        return new DefaultPluginContextLoadResult(profilerConfig, dynamicTransformTrigger, instrumentEngine, bootstrapJarPaths, pluginJars);
+        return new DefaultPluginContextLoadResult(profilerConfig, dynamicTransformTrigger, instrumentEngine, pluginJars);
 
     }
 }

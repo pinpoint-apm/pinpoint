@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService
 import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
-import com.navercorp.pinpoint.profiler.context.ApplicationContext;
-import com.navercorp.pinpoint.profiler.context.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import org.junit.Assert;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class MockApplicationContextModuleTest {
     @Test
     public void test() {
         ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
+
         AgentOption agentOption = new DefaultAgentOption(new DummyInstrumentation(),
                 "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
                 null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());

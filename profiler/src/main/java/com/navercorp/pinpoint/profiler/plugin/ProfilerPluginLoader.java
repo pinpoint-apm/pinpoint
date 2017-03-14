@@ -27,9 +27,8 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
-import com.navercorp.pinpoint.profiler.context.module.BootstrapJarPaths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,43 +49,38 @@ public class ProfilerPluginLoader {
     private final ProfilerConfig profilerConfig;
     private final PluginSetup pluginSetup;
     private final InstrumentEngine instrumentEngine;
-    private final List<String> bootstrapJarPaths;
 
 
-    public ProfilerPluginLoader(ProfilerConfig profilerConfig, PluginSetup pluginSetup, InstrumentEngine instrumentEngine, @BootstrapJarPaths  List<String> bootstrapJarPaths) {
+    public ProfilerPluginLoader(ProfilerConfig profilerConfig, PluginSetup pluginSetup, InstrumentEngine instrumentEngine) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
-
         if (pluginSetup == null) {
             throw new NullPointerException("pluginSetup must not be null");
         }
-
         if (instrumentEngine == null) {
             throw new NullPointerException("instrumentEngine must not be null");
         }
-        if (bootstrapJarPaths == null) {
-            throw new NullPointerException("bootstrapJarPaths must not be null");
-        }
+
 
         this.profilerConfig = profilerConfig;
         this.pluginSetup = pluginSetup;
         this.instrumentEngine = instrumentEngine;
-        this.bootstrapJarPaths = bootstrapJarPaths;
+
     }
 
     public List<SetupResult> load(URL[] pluginJars) {
 
         List<SetupResult> pluginContexts = new ArrayList<SetupResult>(pluginJars.length);
 
-        for (URL jar : pluginJars) {
+        for (URL pluginJar : pluginJars) {
 
-            final JarFile pluginJarFile = createJarFile(jar);
+            final JarFile pluginJarFile = createJarFile(pluginJar);
             final List<String> pluginPackageList = getPluginPackage(pluginJarFile);
 
             final ClassNameFilter pluginFilterChain = createPluginFilterChain(pluginPackageList);
 
-            final List<ProfilerPlugin> original = PluginLoader.load(ProfilerPlugin.class, new URL[] { jar });
+            final List<ProfilerPlugin> original = PluginLoader.load(ProfilerPlugin.class, new URL[] { pluginJar });
 
             List<ProfilerPlugin> plugins = filterDisablePlugin(original);
 
@@ -97,7 +91,7 @@ public class ProfilerPluginLoader {
                 
                 logger.info("Loading plugin:{} pluginPackage:{}", plugin.getClass().getName(), plugin);
 
-                PluginConfig pluginConfig = new PluginConfig(jar, plugin, bootstrapJarPaths, pluginFilterChain);
+                PluginConfig pluginConfig = new PluginConfig(pluginJar, pluginFilterChain);
                 final ClassInjector classInjector = new JarProfilerPluginClassInjector(pluginConfig, instrumentEngine);
                 final SetupResult result = pluginSetup.setupPlugin(plugin, classInjector);
                 pluginContexts.add(result);

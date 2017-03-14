@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.monitor.metric.transaction;
 
 import com.codahale.metrics.Gauge;
-import com.navercorp.pinpoint.profiler.context.TransactionCounter;
+import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
 
 /**
  * @author HyunGil Jeong

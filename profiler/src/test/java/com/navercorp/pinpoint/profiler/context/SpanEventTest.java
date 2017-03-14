@@ -22,9 +22,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.profiler.context.DefaultTraceId;
-import com.navercorp.pinpoint.profiler.context.Span;
-import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 
 /**
  * @author emeroad

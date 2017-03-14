@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.navercorp.pinpoint.profiler.context.ActiveTrace;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTrace;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.active.DefaultActiveTraceRepository;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 
@@ -60,7 +61,7 @@ public class ActiveThreadServiceTest {
 
     @Test
     public void serviceTest1() throws InterruptedException {
-        ActiveTraceRepository activeTraceRepository = new ActiveTraceRepository();
+        ActiveTraceRepository activeTraceRepository = new DefaultActiveTraceRepository();
 
         addActiveTrace(activeTraceRepository, FAST_EXECUTION_TIME, FAST_COUNT);
         addActiveTrace(activeTraceRepository, NORMAL_EXECUTION_TIME, NORMAL_COUNT);
