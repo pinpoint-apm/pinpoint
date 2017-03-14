@@ -36,7 +36,7 @@ public class VertxConfig {
         }
 
         // plugin
-        this.enable = config.readBoolean("profiler.vertx.enable", true);
+        this.enable = config.readBoolean("profiler.vertx.enable", false);
         this.enableHttpServer = config.readBoolean("profiler.vertx.http.server.enable", true);
         this.enableHttpClient = config.readBoolean("profiler.vertx.http.client.enable", true);
         this.bootstrapMains = config.readList("profiler.vertx.bootstrap.main");
