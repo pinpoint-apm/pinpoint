@@ -253,86 +253,6 @@
 						return space.substr(0, space.length - str.length);
 					}
 				}
-
-//                 function renderSimple(data, useChartCursor) {
-//                     $timeout(function () {
-//                         var options = {
-//                             "type": "serial",
-//                             "pathToImages": "./components/amcharts/images/",
-//                             "theme": "light",
-//                             "dataProvider": data,
-//                             "valueAxes": [{
-//                                 "stackType": "regular",
-//                                 "axisAlpha": 0,
-//                                 "gridAlpha": 0,
-//                                 "labelsEnabled": false
-//                             }],
-//                             "categoryField": "time",
-//                             "categoryAxis": {
-//                                 "startOnAxis": true,
-//                                 "gridPosition": "start",
-//                                 "labelFunction": function (valueText, serialDataItem, categoryAxis) {
-//                                     return moment(valueText).format("HH:mm");
-//                                 }
-//                             },
-//                             "chartScrollbar": {
-//                                 "graph": "AmGraph-1"
-//                             },
-//                             "graphs": [{
-//                                 "id": "AmGraph-1",
-//                                 "fillAlphas": 0.2,
-//                                 "fillColors": responseTypeColor[0],
-//                                 "lineAlpha": 0.8,
-//                                 "lineColor": "#787779",
-//                                 "type": "step",
-//                                 "valueField": aDynamicKey[0]
-//                             }, {
-//                                 "id": "AmGraph-2",
-//                                 "fillAlphas": 0.3,
-//                                 "fillColors": responseTypeColor[1],
-//                                 "lineAlpha": 0.8,
-//                                 "lineColor": "#787779",
-//                                 "type": "step",
-//                                 "valueField": aDynamicKey[1]
-//                             }, {
-//                                 "id": "AmGraph-3",
-//                                 "fillAlphas": 0.4,
-//                                 "fillColors": responseTypeColor[2],
-//                                 "lineAlpha": 0.8,
-//                                 "lineColor": "#787779",
-//                                 "type": "step",
-//                                 "valueField": aDynamicKey[2]
-//                             }, {
-//                                 "id": "AmGraph-4",
-//                                 "fillAlphas": 0.6,
-//                                 "fillColors": responseTypeColor[3],
-//                                 "lineAlpha": 0.8,
-//                                 "lineColor": "#787779",
-//                                 "type": "step",
-//                                 "valueField": aDynamicKey[3]
-//                             }, {
-//                                 "id": "AmGraph-5",
-//                                 "fillAlphas": 0.6,
-//                                 "fillColors": responseTypeColor[4],
-//                                 "lineAlpha": 0.8,
-//                                 "lineColor": "#787779",
-//                                 "type": "step",
-//                                 "valueField": aDynamicKey[4]
-//                             }]
-//                         };
-//                         if (useChartCursor) {
-//                             options["chartCursor"] = {
-// 								"avoidBalloonOverlapping": false
-// 							};
-//                         }
-//                         oChart = AmCharts.makeChart(id, options);
-//
-//                         oChart.addListener('changed', function (e) {
-// //                            console.log('changed');
-//                             // broadcast
-//                         });
-//                     });
-//                 }
 				function renderEmptyChart() {
 					element.find("canvas").hide();
 					if ( element.find("h4").length === 0 ) {
@@ -341,10 +261,6 @@
 						element.find("h4").show();
 					}
 				}
-                function renderEmpty() {
-                	element.empty().append("<h4 style='padding-top:25%;text-align:center;'>No Data</h4>");
-                }
-
                 function updateData(data) {
 					if ( angular.isUndefined( oChart ) ) {
 						if ( data.length !== 0 ) {
@@ -365,6 +281,7 @@
 							renderEmptyChart();
 						} else {
 							element.find("h4").hide().end().find("canvas").show();
+							oChart.data.labels = data.labels;
 							oChart.data.datasets[0].data = data.keyValues[0].values;
 							oChart.data.datasets[1].data = data.keyValues[1].values;
 							oChart.data.datasets[2].data = data.keyValues[2].values;
@@ -374,41 +291,6 @@
 						}
 					}
 				}
-
-                function parseTimeSeriesHistogramForAmcharts(data) {
-                	if ( angular.isUndefined( data ) ) return [];
-
-                    function getKeyFromNewDataByTime (time) {
-                        for (var key in newData) {
-                            if (moment(time).format("YYYY-MM-DD HH:mm") === newData[key].time) {
-                                return key;
-                            }
-                        }
-                        return -1;
-                    }
-
-                    aDynamicKey = [];
-
-                    var newData = [];
-					for( var i = 0 ; i < data.length ; i++ ) {
-						var oPart = data[i];
-                        aDynamicKey.push( oPart.key );
-						for( var j = 0 ; j < oPart.values.length ; j++ ) {
-							var aInner = oPart.values[j];
-                            var a = getKeyFromNewDataByTime( aInner[0]);
-                            if (a > -1) {
-                                newData[a][ oPart.key ] = aInner[1];
-                            } else {
-                                var b = {
-                                    time: moment( aInner[0]).format('YYYY-MM-DD HH:mm')
-                                };
-                                b[ oPart.key ] = aInner[1];
-                                newData.push(b);
-                            }
-                        }
-                    }
-                    return newData;
-                }
                 function parseTimeSeriesHistogram(data) {
 					if ( angular.isUndefined(data) )  return [];
 
@@ -437,32 +319,17 @@
                 scope.$on("loadChartDirective.initAndRenderWithData." + scope.namespace, function (event, data, w, h, useChartCursor) {
                     setIdAutomatically();
                     setWidthHeight(w, h);
-                    // var parsedData = parseTimeSeriesHistogramForAmcharts(data);
                     var parsedData = parseTimeSeriesHistogram(data);
                     if ( parsedData.length === 0 ) {
-                    	// renderEmpty();
 						renderEmptyChart();
                     } else {
                     	renderChart( parsedData, useChartCursor );
-                    	// render(parsedData, useChartCursor);
                     }
                 });
 
                 scope.$on("loadChartDirective.updateData." + scope.namespace, function (event, data) {
-                    // updateData(parseTimeSeriesHistogramForAmcharts(data));
 					updateChart(parseTimeSeriesHistogram(data));
                 });
-
-                // scope.$on('loadChartDirective.initAndSimpleRenderWithData.' + scope.namespace, function (event, data, w, h, useChartCursor) {
-                //     setIdAutomatically();
-                //     setWidthHeight(w, h);
-                //     var parsedData = parseTimeSeriesHistogramForAmcharts(data);
-                //     if ( parsedData.length === 0 ) {
-                //     	renderEmpty();
-                //     } else {
-                //     	renderSimple(parsedData, useChartCursor);
-                //     }
-                // });
             }
         };
     }]);
