@@ -83,7 +83,7 @@ public class CubridJdbcUrlParser implements JdbcUrlParserV2 {
 //        String pass = matcher.group(6);
 //        String prop = matcher.group(7);
 
-        int port = DEFAULT_PORT;
+//        int port = DEFAULT_PORT;
 
 //        String resolvedUrl;
 
@@ -91,15 +91,15 @@ public class CubridJdbcUrlParser implements JdbcUrlParserV2 {
             host = DEFAULT_HOSTNAME;
         }
 
-        if (portString == null || portString.length() == 0) {
-            port = DEFAULT_PORT;
-        } else {
-            try {
-                port = Integer.parseInt(portString);
-            } catch (NumberFormatException e) {
-                logger.info("cubrid portString parsing fail. portString:{}, url:{}", portString, jdbcUrl);
-            }
-        }
+//        if (portString == null || portString.length() == 0) {
+//            port = DEFAULT_PORT;
+//        } else {
+//            try {
+//                port = Integer.parseInt(portString);
+//            } catch (NumberFormatException e) {
+//                logger.info("cubrid portString parsing fail. portString:{}, url:{}", portString, jdbcUrl);
+//            }
+//        }
 
         if (user == null) {
             user = DEFAULT_USER;

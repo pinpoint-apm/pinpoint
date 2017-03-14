@@ -43,7 +43,7 @@ public class MockApplicationContextModuleTest {
     @Test
     public void test() {
         ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
+
         AgentOption agentOption = new DefaultAgentOption(new DummyInstrumentation(),
                 "mockAgent", "mockApplicationName", profilerConfig, new URL[0],
                 null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
