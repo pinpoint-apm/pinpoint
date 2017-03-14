@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.net.URL;
@@ -32,13 +34,15 @@ import java.util.List;
  */
 public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final URL[] pluginJars;
     private final InstrumentEngine instrumentEngine;
 
     private final ProfilerConfig profilerConfig;
     private final DynamicTransformTrigger dynamicTransformTrigger;
 
-    private List<SetupResult> lazy;
+    private final List<SetupResult> setupResultList;
 
     public DefaultPluginContextLoadResult(ProfilerConfig profilerConfig, DynamicTransformTrigger dynamicTransformTrigger, InstrumentEngine instrumentEngine,
                                           URL[] pluginJars) {
@@ -59,18 +63,14 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
 
         this.pluginJars = pluginJars;
         this.instrumentEngine = instrumentEngine;
+        this.setupResultList = load();
     }
 
 
-    private List<SetupResult> getProfilerPluginContextList() {
-        if (lazy == null) {
-            lazy = load();
-        }
-        return lazy;
-    }
 
 
     private List<SetupResult> load() {
+        logger.info("load plugin");
         PluginSetup pluginSetup = new DefaultPluginSetup(profilerConfig, instrumentEngine, dynamicTransformTrigger);
         final ProfilerPluginLoader loader = new ProfilerPluginLoader(profilerConfig, pluginSetup, instrumentEngine);
         List<SetupResult> load = loader.load(pluginJars);
@@ -80,9 +80,8 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
     @Override
     public List<ClassFileTransformer> getClassFileTransformer() {
         // TODO Need plugin context level grouping
-        List<SetupResult> profilerPluginContextList = getProfilerPluginContextList();
-        List<ClassFileTransformer> transformerList = new ArrayList<ClassFileTransformer>();
-        for (SetupResult pluginContext : profilerPluginContextList) {
+        final List<ClassFileTransformer> transformerList = new ArrayList<ClassFileTransformer>();
+        for (SetupResult pluginContext : setupResultList) {
             List<ClassFileTransformer> classTransformerList = pluginContext.getClassTransformerList();
             transformerList.addAll(classTransformerList);
         }
@@ -94,10 +93,9 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
     @Override
     public List<ApplicationTypeDetector> getApplicationTypeDetectorList() {
 
-        List<ApplicationTypeDetector> registeredDetectors = new ArrayList<ApplicationTypeDetector>();
+        final List<ApplicationTypeDetector> registeredDetectors = new ArrayList<ApplicationTypeDetector>();
 
-        List<SetupResult> profilerPluginContextList = getProfilerPluginContextList();
-        for (SetupResult context : profilerPluginContextList) {
+        for (SetupResult context : setupResultList) {
             List<ApplicationTypeDetector> applicationTypeDetectors = context.getApplicationTypeDetectors();
             registeredDetectors.addAll(applicationTypeDetectors);
         }
@@ -107,10 +105,9 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
 
     @Override
     public List<JdbcUrlParserV2> getJdbcUrlParserList() {
-        List<JdbcUrlParserV2> result = new ArrayList<JdbcUrlParserV2>();
+        final List<JdbcUrlParserV2> result = new ArrayList<JdbcUrlParserV2>();
 
-        List<SetupResult> profilerPluginContextList = getProfilerPluginContextList();
-        for (SetupResult context : profilerPluginContextList) {
+        for (SetupResult context : setupResultList) {
             List<JdbcUrlParserV2> jdbcUrlParserList = context.getJdbcUrlParserList();
             result.addAll(jdbcUrlParserList);
         }
