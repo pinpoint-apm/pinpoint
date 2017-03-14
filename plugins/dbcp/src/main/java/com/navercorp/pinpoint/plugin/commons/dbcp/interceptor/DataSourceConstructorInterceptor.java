@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.commons.dbcp.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructor;
@@ -35,14 +33,10 @@ import org.apache.commons.dbcp.BasicDataSource;
 @TargetConstructor
 public class DataSourceConstructorInterceptor implements AroundInterceptor {
 
-    private final TraceContext traceContext;
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
-    private final MethodDescriptor methodDescriptor;
 
-    public DataSourceConstructorInterceptor(TraceContext traceContext, DataSourceMonitorRegistry dataSourceMonitorRegistry, MethodDescriptor methodDescriptor) {
-        this.traceContext = traceContext;
+    public DataSourceConstructorInterceptor(DataSourceMonitorRegistry dataSourceMonitorRegistry) {
         this.dataSourceMonitorRegistry = dataSourceMonitorRegistry;
-        this.methodDescriptor = methodDescriptor;
     }
 
     @Override
