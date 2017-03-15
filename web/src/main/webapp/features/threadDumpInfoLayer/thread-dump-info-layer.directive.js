@@ -201,9 +201,16 @@
 						});
 						$(window).on("resize", function() {
 							var oNewBase = getBaseSizeInfo();
-							$elListWrapper.css({
-								"height": oNewBase.docHeight - oNewBase.titleHeight - oNewBase.navHeight - layerHeightHalf - oNewBase.tableHeadHeight - oNewBase.margin
-							});
+							var height = oNewBase.docHeight - oNewBase.titleHeight - oNewBase.navHeight - layerHeightHalf - oNewBase.tableHeadHeight - oNewBase.margin;
+							if ( scope.threadList.length === 0 ) {
+								$elEmpty.css({
+									"height": height + 96
+								});
+							} else {
+								$elListWrapper.css({
+									"height": height
+								});
+							}
 						});
 					}
 					function getBaseSizeInfo() {
