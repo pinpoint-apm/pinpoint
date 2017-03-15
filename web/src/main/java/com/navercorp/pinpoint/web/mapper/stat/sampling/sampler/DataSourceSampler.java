@@ -93,7 +93,7 @@ public class DataSourceSampler implements AgentStatSampler<DataSourceBo, Sampled
                     timestamp,
                     INTEGER_DOWN_SAMPLER.sampleMin(values),
                     INTEGER_DOWN_SAMPLER.sampleMax(values),
-                    INTEGER_DOWN_SAMPLER.sampleAvg(values),
+                    INTEGER_DOWN_SAMPLER.sampleAvg(values, 3),
                     INTEGER_DOWN_SAMPLER.sampleSum(values));
         }
     }
