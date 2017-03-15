@@ -83,45 +83,40 @@
 					scope.loadDetailMessage = function( $event ) {
 						var $elThread = $($( $event.target ).parents("tr")[0]);
 						$elThread.parent().find(".selected").removeClass("selected").end().end().addClass("selected");
-						if ( $elThread.attr("data-detail-message") ) {
-							$elTextarea.val($elThread.attr("data-detail-message"));
-						} else {
-							$elSpin.show();
-							initAjax( oRefDetailAjax, true );
-							oRefDetailAjax.obj = $http( {
-								"url": cfg.ACTIVE_THREAD_DUMP_URL +
-									"?applicationName=" + currentApplicationName +
-									"&agentId=" + currentAgentId +
-									"&threadName=" + $elThread.find("td:nth-child(3)").html() +
-									"&localTraceId=" + $elThread.attr("data-traceId"),
-								"method": "GET"
-							}).then(function ( oResult ) {
-								var msg = "";
-								if ( oResult.data.message.threadDumpData.length > 0 ) {
-									msg = oResult.data.message.threadDumpData[0].detailMessage;
-								} else {
-									msg = "There is no message";
-									CommonAjaxService.getServerTime( function( serverTime ) {
-										var aUrlParam = [
-											"transactionList",
-											$routeParams.application,
-											"5m",
-											CommonUtilService.formatDate( serverTime ),
-											$elThread.attr("data-transactionId") + "-0-0"
-										];
+						$elSpin.show();
+						initAjax( oRefDetailAjax, true );
+						oRefDetailAjax.obj = $http( {
+							"url": cfg.ACTIVE_THREAD_DUMP_URL +
+								"?applicationName=" + currentApplicationName +
+								"&agentId=" + currentAgentId +
+								"&threadName=" + $elThread.find("td:nth-child(3)").html() +
+								"&localTraceId=" + $elThread.attr("data-traceId"),
+							"method": "GET"
+						}).then(function ( oResult ) {
+							var msg = "";
+							if ( oResult.data.message.threadDumpData.length > 0 ) {
+								msg = oResult.data.message.threadDumpData[0].detailMessage;
+							} else {
+								msg = "There is no message";
+								CommonAjaxService.getServerTime( function( serverTime ) {
+									var aUrlParam = [
+										"transactionList",
+										$routeParams.application,
+										"5m",
+										CommonUtilService.formatDate( serverTime ),
+										$elThread.attr("data-transactionId") + "-0-0"
+									];
 
-										$window.parent.open( "#/" + aUrlParam.join("/") );
-									});
-								}
-								$elThread.attr("data-detail-message", msg );
-								$elTextarea.val( msg );
-								initAjax( oRefDetailAjax );
-								$elSpin.hide();
-							}, function () {
-								$elSpin.hide();
-							});
-							oRefDetailAjax.ing = true;
-						}
+									$window.parent.open( "#/" + aUrlParam.join("/") );
+								});
+							}
+							$elTextarea.val( msg );
+							initAjax( oRefDetailAjax );
+							$elSpin.hide();
+						}, function () {
+							$elSpin.hide();
+						});
+						oRefDetailAjax.ing = true;
 					};
 					scope.formatDate = function( startTime ) {
 						return CommonUtilService.formatDate(startTime, "MM/DD HH:mm:ss SSS");
