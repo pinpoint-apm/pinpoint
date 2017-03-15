@@ -263,7 +263,7 @@
 				}
 			}
 	        function setAgentName( index, name ) {
-	        	aAgentChartElementList[index].find("div").html(name);
+	        	aAgentChartElementList[index].find("div").html('<span>' + name + '</span><span class="glyphicon glyphicon-new-window"></span>');
 	        }
 	        function getSumOfRequestType( datum ) {
 	        	var aRequestSum = [0, 0, 0, 0];
@@ -416,7 +416,7 @@
 					if ($target.hasClass("agent-chart-list")) {
 						return;
 					}
-					var agentId = $target.hasClass("agent-chart") ? $target.find("> div").html() : $target.parent(".agent-chart").find("> div").html();
+					var agentId = $target.parents(".agent-chart").find("div > span:first-child").html();
 					var openType = LocalStorageManagerService.getThreadDumpLayerOpenType();
 					if (openType === null || openType === "window") {
 						$window.open(
