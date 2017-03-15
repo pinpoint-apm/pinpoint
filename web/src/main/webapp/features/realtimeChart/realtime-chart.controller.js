@@ -62,6 +62,7 @@
 			var $elSumChartWrapper, $elTitle, $elSumChartCount, $elAgentChartListWrapper, $elWarningMessage, $elPin;
 	    	var preUrlParam = "";
 			var currentApplicationName = "";
+			var currentServiceType = "";
 	    	var aAgentChartElementList = [];
 			var aChildScopeList = [];
 	    	var oNamespaceToIndexMap = {};
@@ -365,12 +366,13 @@
 	        	bShowRealtimeChart = prevShowRealtimeChart;
 	        	setPinColor();
 	        });
-	        $scope.$on( "realtimeChartController.initialize", function (event, was, applicationName, urlParam ) {
+	        $scope.$on( "realtimeChartController.initialize", function (event, was, applicationName, serviceType, urlParam ) {
 	        	hideSub();
 	        	if ( bIsPinned === true && preUrlParam === urlParam ) return;
 	        	if ( UrlVoService.isRealtime() === false ) return;
 	        	bIsWas = angular.isUndefined( was ) ? false : was;
 	        	applicationName = angular.isUndefined( applicationName ) ? "" : applicationName;
+	        	serviceType = angular.isUndefined( serviceType ) ? "" : serviceType;
 
 	        	preUrlParam = urlParam;
 
@@ -390,7 +392,9 @@
 	        	$scope.bInitialized = true;
 
 				// resetStatus();
-				$elTitle.html( currentApplicationName = applicationName );
+				currentApplicationName = applicationName;
+				currentServiceType = serviceType;
+				$elTitle.html( currentApplicationName );
 	        	showPopup();
         		showWaitingConnectionPopup();
         		
@@ -417,7 +421,7 @@
 					if (openType === null || openType === "window") {
 						$window.open(
 							getOpenUrl() +
-							"/threadDump/" + preUrlParam.split("/")[0] + "/" + agentId,
+							"/threadDump/" + currentApplicationName + "@" + currentServiceType + "/" + agentId,
 							"Thread Dump Info",
 							"width=1280px,height=800px,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=no,status=no"
 						);
@@ -439,7 +443,9 @@
 	        	stopReceive();
 	        	stopChart();
 				$elWarningMessage.hide();
-				$elTitle.html( currentApplicationName = "" );
+				currentApplicationName = "";
+				currentServiceType = "";
+				$elTitle.html( currentApplicationName );
 				$elSumChartCount.html("0");
 	        }
 	        $($window).on("resize", function() {
