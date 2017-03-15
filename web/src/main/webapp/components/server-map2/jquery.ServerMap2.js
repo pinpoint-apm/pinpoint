@@ -1291,7 +1291,7 @@
                 htData = node.data,
                 fOnNodeClicked = this.option('fOnNodeClicked');
             if (angular.isFunction(fOnNodeClicked)) {
-				if ( e.clickCount && e.clickCount > 0 ) {
+				if ( e && e.clickCount && e.clickCount > 0 ) {
 					this.analyticsService.send(this.analyticsService.CONST.MAIN, this.analyticsService.CONST.CLK_NODE);
 				}
                 fOnNodeClicked.call(this, e, htData, unknownKey, query);
