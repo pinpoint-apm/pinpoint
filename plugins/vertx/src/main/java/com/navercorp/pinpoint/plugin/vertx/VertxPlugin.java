@@ -34,7 +34,7 @@ import java.util.concurrent.CyclicBarrier;
 /**
  * @author jaehong.kim
  */
-@InterfaceStability.Evolving
+@InterfaceStability.Unstable
 public class VertxPlugin implements ProfilerPlugin, TransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
