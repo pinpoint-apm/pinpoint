@@ -59,11 +59,11 @@ public class BufferedStorageTest {
         bufferedStorage.store(spanEvent);
         bufferedStorage.store(spanEvent);
 
-        Assert.assertEquals(0, countingDataSender.getSenderCounter(), 2);
-        Assert.assertEquals(0, countingDataSender.getTotalCount(), 2);
+        Assert.assertEquals(2, countingDataSender.getSenderCounter());
+        Assert.assertEquals(2, countingDataSender.getTotalCount());
 
-        Assert.assertEquals(0, countingDataSender.getSpanChunkCounter(), 2);
-        Assert.assertEquals(0, countingDataSender.getSpanCounter(), 0);
+        Assert.assertEquals(2, countingDataSender.getSpanChunkCounter());
+        Assert.assertEquals(0, countingDataSender.getSpanCounter());
     }
 
 
@@ -76,11 +76,11 @@ public class BufferedStorageTest {
         bufferedStorage.store(span);
         bufferedStorage.store(span);
 
-        Assert.assertEquals(0, countingDataSender.getSenderCounter(), 3);
-        Assert.assertEquals(0, countingDataSender.getTotalCount(), 3);
+        Assert.assertEquals(3, countingDataSender.getSenderCounter());
+        Assert.assertEquals(3, countingDataSender.getTotalCount());
 
-        Assert.assertEquals(0, countingDataSender.getSpanCounter(), 3);
-        Assert.assertEquals(0, countingDataSender.getSpanChunkCounter(), 0);
+        Assert.assertEquals(3, countingDataSender.getSpanCounter());
+        Assert.assertEquals(0, countingDataSender.getSpanChunkCounter());
     }
 
     @Test
@@ -93,10 +93,27 @@ public class BufferedStorageTest {
         bufferedStorage.store(spanEvent);
         bufferedStorage.store(span);
 
-        Assert.assertEquals(0, countingDataSender.getSenderCounter(), 1);
-        Assert.assertEquals(0, countingDataSender.getTotalCount(), 1);
+        Assert.assertEquals(1, countingDataSender.getSenderCounter());
+        Assert.assertEquals(1, countingDataSender.getTotalCount());
 
-        Assert.assertEquals(0, countingDataSender.getSpanCounter(), 1);
-        Assert.assertEquals(0, countingDataSender.getSpanChunkCounter(), 0);
+        Assert.assertEquals(1, countingDataSender.getSpanCounter());
+        Assert.assertEquals(0, countingDataSender.getSpanChunkCounter());
+    }
+
+    @Test
+    public void testStore_manual_flush() throws Exception {
+        BufferedStorage bufferedStorage = new BufferedStorage(countingDataSender, spanChunkFactory, 10);
+
+        Span span = new Span();
+        SpanEvent spanEvent = new SpanEvent(span);
+        bufferedStorage.store(spanEvent);
+        bufferedStorage.store(spanEvent);
+        bufferedStorage.flush();
+
+        Assert.assertEquals(1, countingDataSender.getSenderCounter());
+        Assert.assertEquals(1, countingDataSender.getTotalCount());
+
+        Assert.assertEquals(0, countingDataSender.getSpanCounter());
+        Assert.assertEquals(1, countingDataSender.getSpanChunkCounter());
     }
 }
