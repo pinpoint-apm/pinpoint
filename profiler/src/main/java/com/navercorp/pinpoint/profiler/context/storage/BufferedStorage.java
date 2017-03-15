@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.storage;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.profiler.context.*;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 
@@ -55,20 +56,16 @@ public class BufferedStorage implements Storage {
         this.dataSender = dataSender;
         this.spanChunkFactory = spanChunkFactory;
         this.bufferSize = bufferSize;
-        this.storage = new ArrayList<SpanEvent>(bufferSize);
+        this.storage = allocateBuffer();
     }
 
     @Override
     public void store(SpanEvent spanEvent) {
-        List<SpanEvent> flushData = null;
+        final List<SpanEvent> storage = getBuffer();
         storage.add(spanEvent);
-        if (storage.size() >= bufferSize) {
-            // data copy
-            flushData = storage;
-            storage = new ArrayList<SpanEvent>(bufferSize);
-        }
 
-        if (flushData != null) {
+        if (overflow(storage)) {
+            final List<SpanEvent> flushData = clearBuffer();
             final SpanChunk spanChunk = spanChunkFactory.create(flushData);
             if (isDebug) {
                 logger.debug("[BufferedStorage] Flush span-chunk {}", spanChunk);
@@ -77,14 +74,35 @@ public class BufferedStorage implements Storage {
         }
     }
 
+    private boolean overflow(List<SpanEvent> storage) {
+        return storage.size() >= bufferSize;
+    }
+
+
+    private List<SpanEvent> allocateBuffer() {
+        return new ArrayList<SpanEvent>(this.bufferSize);
+    }
+
+    private List<SpanEvent> getBuffer() {
+        List<SpanEvent> copy = this.storage;
+        if (copy == null) {
+            copy = allocateBuffer();
+            this.storage = copy;
+        }
+        return copy;
+    }
+
+    private List<SpanEvent> clearBuffer() {
+        final List<SpanEvent> copy = this.storage;
+        this.storage = null;
+        return copy;
+    }
+
     @Override
     public void store(Span span) {
-        List<SpanEvent> spanEventList;
-        spanEventList = storage;
-        this.storage = new ArrayList<SpanEvent>(bufferSize);
-
-        if (spanEventList != null && !spanEventList.isEmpty()) {
-            span.setSpanEventList((List) spanEventList);
+        final List<SpanEvent> storage = clearBuffer();
+        if (CollectionUtils.isNotEmpty(storage)) {
+            span.setSpanEventList((List) storage);
         }
         dataSender.send(span);
 
@@ -94,12 +112,9 @@ public class BufferedStorage implements Storage {
     }
 
     public void flush() {
-        List<SpanEvent> spanEventList;
-        spanEventList = storage;
-        this.storage = new ArrayList<SpanEvent>(bufferSize);
-
-        if (spanEventList != null && !spanEventList.isEmpty()) {
-            final SpanChunk spanChunk = spanChunkFactory.create(spanEventList);
+        final List<SpanEvent> storage = clearBuffer();
+        if (CollectionUtils.isNotEmpty(storage)) {
+            final SpanChunk spanChunk = spanChunkFactory.create(storage);
             dataSender.send(spanChunk);
             if (isDebug) {
                 logger.debug("flush span chunk {}", spanChunk);
