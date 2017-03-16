@@ -97,18 +97,18 @@
 							if ( oResult.data.message.threadDumpData.length > 0 ) {
 								msg = oResult.data.message.threadDumpData[0].detailMessage;
 							} else {
-								msg = "There is no message";
-								CommonAjaxService.getServerTime( function( serverTime ) {
-									var aUrlParam = [
-										"transactionList",
-										$routeParams.application,
-										"5m",
-										CommonUtilService.formatDate( serverTime ),
-										$elThread.attr("data-transactionId") + "-0-0"
-									];
-
-									$window.parent.open( "#/" + aUrlParam.join("/") );
-								});
+								msg = "There is no message( may be completed )";
+								// CommonAjaxService.getServerTime( function( serverTime ) {
+								// 	var aUrlParam = [
+								// 		"transactionList",
+								// 		$routeParams.application,
+								// 		"5m",
+								// 		CommonUtilService.formatDate( serverTime ),
+								// 		$elThread.attr("data-transactionId") + "-0-0"
+								// 	];
+								//
+								// 	$window.parent.open( "#/" + aUrlParam.join("/") );
+								// });
 							}
 							$elTextarea.val( msg );
 							initAjax( oRefDetailAjax );
