@@ -22,8 +22,8 @@ import org.apache.thrift.TFieldIdEnum;
 /**
  * @author HyunGil Jeong
  */
-public interface AgentStatMetricCollector<T extends TBase<T, ? extends TFieldIdEnum>> {
-    
+public interface AgentStatMetricCollector<T extends TBase<?, ? extends TFieldIdEnum>> {
+
     T collect();
 
 }
