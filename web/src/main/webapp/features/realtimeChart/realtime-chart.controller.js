@@ -421,7 +421,7 @@
 					if (openType === null || openType === "window") {
 						$window.open(
 							getOpenUrl() +
-							"/threadDump/" + currentApplicationName + "@" + currentServiceType + "/" + agentId,
+							"/threadDump/" + currentApplicationName + "@" + currentServiceType + "/" + agentId + "?" + Date.now().valueOf() ,
 							"Thread Dump Info",
 							"width=1280px,height=800px,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=no,status=no"
 						);
