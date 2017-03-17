@@ -33,9 +33,9 @@
 					var currentAgentId = "";
 					var currentApplicationName = "";
 
-					$el.draggable({
-						handle: ".panel-heading"
-					});
+					// $el.draggable({
+					// 	handle: ".panel-heading"
+					// });
 					scope.threadList = [];
 					scope.sortType = "-execTime";
 
@@ -171,7 +171,7 @@
 						});
 					}
 					function setForWindow() {
-						$el.draggable("destroy");
+						// $el.draggable("destroy");
 						$el.find(".panel-heading").css("cursor", "default").find("button").hide();
 						resetSize();
 					}
