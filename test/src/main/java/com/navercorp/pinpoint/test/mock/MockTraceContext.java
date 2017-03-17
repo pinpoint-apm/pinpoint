@@ -112,7 +112,7 @@ public class MockTraceContext implements TraceContext {
     }
 
     @Override
-    public TraceId createTraceId(String transactionId, long parentSpanID, long spanID, short flags) {
+    public TraceId createTraceId(String transactionId, long parentSpanId, long spanId, short flags) {
         return null;
     }
 

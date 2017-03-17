@@ -224,12 +224,12 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     @Override
-    public TraceId createTraceId(final String transactionId, final long parentSpanID, final long spanId, final short flags) {
+    public TraceId createTraceId(final String transactionId, final long parentSpanId, final long spanId, final short flags) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
         // TODO Should handle exception when parsing failed.
-        return traceIdFactory.parse(transactionId, parentSpanID, spanId, flags);
+        return traceIdFactory.parse(transactionId, parentSpanId, spanId, flags);
     }
 
     @Override
