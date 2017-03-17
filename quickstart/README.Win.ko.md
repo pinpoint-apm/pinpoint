@@ -5,7 +5,7 @@ Pinpoint는 공식적으로는 Linux와 OS X를 지원한다. 하지만 Pinpoint
 
 `git clone https://github.com/naver/pinpoint.git`로 Pinpoint를 다운로드 하거나 zip 파일로 프로젝트를 [다운로드](https://github.com/naver/pinpoint/archive/master.zip)하고 압축을 해제한다.
 
-`cd pinpoint`를 하고 `mvn install -Dmaven.test.skip=true`를 실행하여 maven으로 Pinpoint를 설치한다.
+`mvnw.cmd install -Dmaven.test.skip=true`를 실행하여 Pinpoint를 설치한다.
 
 ### 설치 및 HBase 시작하기
 **[Apache 다운로드 사이트](http://apache.mirror.cdnetworks.com/hbase/)에서 HBase 1.0.x 버전을 다운로드 받는다.

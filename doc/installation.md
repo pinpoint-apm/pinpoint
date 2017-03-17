@@ -12,12 +12,12 @@ To try out a simple quickstart project, please refer to the [quick-start guide](
 1. HBase ([details](#hbase))
 	1. Set up HBase cluster - [Apache HBase](http://hbase.apache.org)
 	2. Create HBase Schemas - feed `/scripts/hbase-create.hbase` to hbase shell.
-2. Build Pinpoint (Only required if you're building from source)
+2. Build Pinpoint (Optional) - You do not need to build from source to use Pinpoint (binaries [here](https://github.com/naver/pinpoint/releases)).
 	1. Clone Pinpoint - `git clone $PINPOINT_GIT_REPOSITORY`
 	2. Set JAVA_6_HOME environment variable to JDK 6 home directory (1.6.0_45 recommended).
 	3. Set JAVA_7_HOME environment variable to JDK 7 home directory (1.7.0_80 recommended).
 	4. Set JAVA_8_HOME environment variable to JDK 8 home directory.
-	5. Run `mvn install -Dmaven.test.skip=true` in Pinpoint home directory.
+	5. Run `./mvnw clean install -Dmaven.test.skip=true` (or `./mvnw.cmd` for Windows)
 3. Pinpoint Collector ([details](#pinpoint-collector))
 	1. Deploy *pinpoint-collector-$VERSION.war* to a web container.
 	2. Configure *pinpoint-collector.properties*, *hbase.properties*.
@@ -67,8 +67,8 @@ There are two options:
 	In order to do so, the following **requirements** must be met:
 
 	* JDK 6 installed
-	* JDK 7+ installed
-	* Maven 3.2.x+ installed
+	* JDK 7 installed
+	* JDK 8 installed
 	* JAVA_6_HOME environment variable set to JDK 6 home directory (1.6.0_45 recommended).
 	* JAVA_7_HOME environment variable set to JDK 7 home directory (1.7.0_80 recommended).
 	* JAVA_8_HOME environment variable set to JDK 8 home directory.
@@ -85,12 +85,12 @@ There are two options:
 	1.6.x | 6-8 | 7+ | 7+
 	1.7.x | 6-8 | 8+ | 8+
 
-	Once the above requirements are met, simply run the command below :
+	Once the above requirements are met, simply run the command below (you may need to add permission for **mvnw** so that it can be executed) :
 
-	`mvn install -Dmaven.test.skip=true`
+	`./mvnw install -Dmaven.test.skip=true`
 	
 	The default agent built this way will have log level set to DEBUG by default. If you're building an agent for release and need a higher log level, you can set maven profile to *release* when building :  
-	`mvn install -Prelease -Dmaven.test.skip=true`
+	`./mvnw install -Prelease -Dmaven.test.skip=true`
 	
 	The guide will refer to the full path of the pinpoint home directory as `$PINPOINT_PATH`.
 
