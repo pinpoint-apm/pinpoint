@@ -3,7 +3,7 @@
 ## Starting
 Download Pinpoint with `git clone https://github.com/naver/pinpoint.git` or [download](https://github.com/naver/pinpoint/archive/master.zip) the project as a zip file and unzip.
 
-Install Pinpoint with maven by `cd pinpoint` and running `mvn install -Dmaven.test.skip=true`
+Install Pinpoint by running `mvnw.cmd install -Dmaven.test.skip=true`
 
 ### Install & Start HBase
 Download `HBase-1.0.x-bin.tar.gz` from [Apache download site](http://apache.mirror.cdnetworks.com/hbase/)) and unzip it to `quickstart\hbase` directory.
