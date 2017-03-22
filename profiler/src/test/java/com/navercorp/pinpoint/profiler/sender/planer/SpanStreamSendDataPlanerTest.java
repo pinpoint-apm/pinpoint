@@ -1,13 +1,7 @@
 package com.navercorp.pinpoint.profiler.sender.planer;
 
-import com.navercorp.pinpoint.common.Version;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.JvmUtils;
-import com.navercorp.pinpoint.common.util.SystemPropertyKey;
-import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.Span;
-import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.sender.HeaderTBaseSerializerPoolFactory;
 import com.navercorp.pinpoint.profiler.sender.PartitionedByteBufferLocator;
@@ -33,19 +27,14 @@ import java.util.List;
 
 public class SpanStreamSendDataPlanerTest {
 
-    private static SpanChunkFactory spanChunkFactory;
-
     private static ObjectPool<HeaderTBaseSerializer> objectPool;
 
     @BeforeClass
     public static void setUp() {
-        AgentInformation agentInformation = new AgentInformation("agentId", "applicationName", 0, 0, "machineName", "127.0.0.1", ServiceType.STAND_ALONE,
-                JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION), Version.VERSION);
 
         HeaderTBaseSerializerPoolFactory serializerFactory = new HeaderTBaseSerializerPoolFactory(true, 1000, true);
         objectPool = new ObjectPool<HeaderTBaseSerializer>(serializerFactory, 16);
 
-        spanChunkFactory = new SpanChunkFactory(agentInformation);
     }
 
     @Test

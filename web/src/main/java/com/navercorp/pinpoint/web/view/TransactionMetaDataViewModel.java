@@ -94,5 +94,10 @@ public class TransactionMetaDataViewModel {
         public String getRemoteAddr() {
             return span.getRemoteAddr();
         }
+
+        @JsonProperty("spanId")
+        public String getSpanId() {
+            return Long.toString(span.getSpanId());
+        }
     }
 }

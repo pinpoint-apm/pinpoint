@@ -72,7 +72,7 @@ public abstract class DeltaEncodingStrategy<T extends Number> implements Encodin
             if (numValues < 1) {
                 return Collections.emptyList();
             }
-            List<T> values = new ArrayList<>(numValues);
+            List<T> values = new ArrayList<T>(numValues);
             T initialValue = this.bufferHandler.readV(buffer);
             values.add(initialValue);
             T previousValue = initialValue;

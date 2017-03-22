@@ -9,11 +9,11 @@
 	 * @class
 	 */
 
-	pinpointApp.service( "AnalyticsService", [ "globalConfig", function ( globalConfig) {
+	pinpointApp.service( "AnalyticsService", [ "SystemConfigurationService", function ( SystemConfigService ) {
 
 		this.send = function( category, name, label, count, options ) {
 			if ( typeof ga !== "undefined" ) {
-				if (globalConfig.sendUsage !== true) return;
+				if (SystemConfigService.get("sendUsage") !== true) return;
 				if (arguments.length == 1) {
 					ga("send", "pageview", arguments[0]);
 				} else {
@@ -69,6 +69,7 @@
 		this.CONST.CLK_CHANGE_AGENT_INSPECTOR = "ClickChangeAgentInspector";
 		this.CONST.CLK_CHANGE_AGENT_MAIN = "ClickChangeAgentMain";
 		this.CONST.CLK_START_REALTIME = "ClickStartRealtime";
+		this.CONST.CLK_OPEN_THREAD_DUMP_LAYER = "ClickOpenThreadDumpLayer";
 
 		this.CONST.CLK_CONFIGURATION = "ClickConfiguration";
 		this.CONST.CLK_GENERAL = "ClickConfigurationGeneral";

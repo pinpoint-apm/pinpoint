@@ -197,7 +197,61 @@
 					<h4><span class="glyphicon glyphicon-question-sign activeThreadTooltip" style="cursor:pointer;float:right;"></span> {{activeTraceChart.title}}</h4>
 					<active-trace-chart-directive namespace="forActiveTrace"></active-trace-chart-directive>
 				</div>
-				<div class="col-md-6">
+				<div class="col-md-6" ng-if="enableDataSourceChart" id="data-source-chart">
+					<h4>
+						<span class="glyphicon glyphicon-question-sign dataSourceTooltip" style="cursor:pointer;float:right;"></span> {{dataSourceChartDescription.title}}
+						<span class="label label-info not-found" ng-show="emptyDataSource()">NOT FOUND</span>
+						<span class="type-selector" ng-show="hasDataSource()" ng-click="toggleSourceSelectLayer()">Select Source <span class="glyphicon glyphicon-chevron-down"></span></span>
+						<div class="type-select-layer" ng-click="changeDataSource($event)">
+							<div>
+								<button class="btn btn-default btn-xs" ng-click="selectAllDataSource()">ALL</button>
+							</div>
+							<div class="wrapper">
+								<ul>
+									<li ng-repeat="key in dataSourceChartKeys">
+										<input type="checkbox" id="checkbox_{{key.value}}" value="{{key.value}}" ng-checked="checkChecked(key.value)"><label for="checkbox_{{key.value}}">{{key.display}}</label>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</h4>
+					<ds-chart-directive namespace="forDataSource"></ds-chart-directive>
+					<br/>
+					<div class="panel panel-success" ng-show="hasDataSource()">
+						<div class="panel-heading">Data Source Info</div>
+						<div class="panel-body">
+							<table class="table table-bordered">
+								<tbody>
+								<tr>
+									<td>Active Avg</td>
+									<td>Active Max</td>
+									<td>Total Max</td>
+								</tr>
+								<tr>
+									<td class="ds-active-avg">-</td>
+									<td class="ds-active-max">-</td>
+									<td class="ds-total-max">-</td>
+								</tr>
+								<tr>
+									<td>ID</td>
+									<td>Type</td>
+									<td>Database Name</td>
+								</tr>
+								<tr>
+									<td class="ds-id">-</td>
+									<td class="ds-type">-</td>
+									<td class="ds-database-name">-</td>
+								</tr>
+								<tr>
+									<td colspan="3">Jdbc URL</td>
+								</tr>
+								<tr>
+									<td colspan="3" class="ds-jdbc-url">-</td>
+								</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

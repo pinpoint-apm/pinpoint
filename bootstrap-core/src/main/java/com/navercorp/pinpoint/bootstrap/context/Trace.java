@@ -18,9 +18,11 @@ package com.navercorp.pinpoint.bootstrap.context;
 
 
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
 public interface Trace extends StackOperation {
     // ----------------------------------------------
@@ -38,6 +40,12 @@ public interface Trace extends StackOperation {
 
     AsyncTraceId getAsyncTraceId();
 
+    /**
+     * internal experimental api
+     */
+    @InterfaceAudience.LimitedPrivate("vert.x")
+    AsyncTraceId getAsyncTraceId(boolean closeable);
+
     boolean canSampled();
 
     boolean isRoot();
@@ -49,7 +57,13 @@ public interface Trace extends StackOperation {
     SpanEventRecorder currentSpanEventRecorder();
     
     void close();
-    
+
+    /**
+     * internal experimental api
+     */
+    @InterfaceAudience.LimitedPrivate("vert.x")
+    void flush();
+
     TraceScope getScope(String name);
 
     TraceScope addScope(String name);

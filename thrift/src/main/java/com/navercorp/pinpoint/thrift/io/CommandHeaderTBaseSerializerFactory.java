@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.thrift.io;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 
+import java.util.Arrays;
+
 /**
  * @author koo.taejin
  */
@@ -28,12 +30,12 @@ public final class CommandHeaderTBaseSerializerFactory implements SerializerFact
 
     private final SerializerFactory<HeaderTBaseSerializer> factory;
 
-    public CommandHeaderTBaseSerializerFactory(String version) {
-        this(version, DEFAULT_SERIALIZER_MAX_SIZE);
+    public CommandHeaderTBaseSerializerFactory() {
+        this(DEFAULT_SERIALIZER_MAX_SIZE);
     }
 
-    public CommandHeaderTBaseSerializerFactory(String version, int outputStreamSize) {
-        TBaseLocator commandTbaseLocator = new TCommandRegistry(TCommandTypeVersion.getVersion(version));
+    public CommandHeaderTBaseSerializerFactory(int outputStreamSize) {
+        TBaseLocator commandTbaseLocator = new TCommandRegistry(Arrays.asList(TCommandType.values()));
 
         TProtocolFactory protocolFactory = new TCompactProtocol.Factory();
         HeaderTBaseSerializerFactory serializerFactory = new HeaderTBaseSerializerFactory(true, outputStreamSize, protocolFactory, commandTbaseLocator);

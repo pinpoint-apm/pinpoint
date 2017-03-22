@@ -20,7 +20,7 @@ package com.navercorp.pinpoint.profiler.instrument.classreading;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
-import com.navercorp.pinpoint.test.util.BytecodeUtils;
+import com.navercorp.pinpoint.profiler.util.BytecodeUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

@@ -25,15 +25,19 @@ public class ProfilerLibClass implements LibClass {
             "com.navercorp.pinpoint.profiler",
             "com.navercorp.pinpoint.thrift",
             "com.navercorp.pinpoint.rpc",
-            /**
+            /*
              * @deprecated javassist
-            */
+             */
             "javassist",
             "org.objectweb.asm",
             "org.slf4j",
             "org.apache.thrift",
             "org.jboss.netty",
             "com.google.common",
+            // google guice
+            "com.google.inject",
+            "org.aopalliance",
+
             "org.apache.commons.lang",
             "org.apache.log4j",
             "com.codahale.metrics",

@@ -1,0 +1,10 @@
+{
+  "name": "amcharts3-responsive",
+  "version": "1.0.3",
+  "license": "SEE LICENSE IN LICENSE",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amcharts/responsive.git"
+  }
+}

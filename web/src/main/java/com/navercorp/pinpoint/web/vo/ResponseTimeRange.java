@@ -89,6 +89,10 @@ public final class ResponseTimeRange {
 
     @Override
     public String toString() {
-        return "ResponseTimeRange [from=" + from + ", to=" + to + "]";
+        final StringBuilder sb = new StringBuilder("ResponseTimeRange{");
+        sb.append("from=").append(from);
+        sb.append(", to=").append(to);
+        sb.append('}');
+        return sb.toString();
     }
 }

@@ -1,9 +1,9 @@
 package com.navercorp.pinpoint.web.filter;
 
-import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.web.util.ServiceTypeRegistryMockFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -17,7 +17,17 @@ import java.util.Collections;
  */
 public class LinkFilterTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService();
+    private final ServiceTypeRegistryService serviceTypeRegistryService = mockServiceTypeRegistryService();
+
+    private ServiceTypeRegistryService mockServiceTypeRegistryService() {
+
+        final short tomcatTypeCode = 1010;
+        final String tomcatTypeName = "TOMCAT";
+        ServiceTypeRegistryMockFactory mockFactory = new ServiceTypeRegistryMockFactory();
+        mockFactory.addServiceTypeMock(tomcatTypeCode, tomcatTypeName);
+
+        return mockFactory.createMockServiceTypeRegistryService();
+    }
 
 
     @Test

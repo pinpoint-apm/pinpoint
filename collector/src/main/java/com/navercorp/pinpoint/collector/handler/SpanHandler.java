@@ -176,7 +176,7 @@ public class SpanHandler implements SimpleHandler {
             final int elapsed = spanEvent.getEndElapsed();
             final boolean hasException = spanEvent.hasException();
 
-            /**
+            /*
              * save information to draw a server map based on statistics
              */
             // save the information of caller (the spanevent that called span)

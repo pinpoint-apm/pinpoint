@@ -17,18 +17,27 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.recorder.DefaultRecorderFactory;
+import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
+import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
-import com.navercorp.pinpoint.test.TestAgentInformation;
 
 import org.apache.thrift.TBase;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * @author emeroad
@@ -38,10 +47,21 @@ public class TraceTest {
 
     @Test
     public void trace() {
-        DefaultTraceId traceId = new DefaultTraceId("agent", 0, 1);
-        DefaultTraceContext defaultTraceContext = getDefaultTraceContext();
-        DefaultTrace trace = new DefaultTrace(defaultTraceContext, traceId, 0L, true);
-        trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
+        TraceId traceId = new DefaultTraceId("agent", 0, 1);
+
+        CallStackFactory callStackFactory = new DefaultCallStackFactory(64);
+        SpanFactory spanFactory = new DefaultSpanFactory("appName", "agentId", 0, ServiceType.STAND_ALONE);
+
+        StringMetaDataService stringMetaDataService = mock(StringMetaDataService.class);
+        SqlMetaDataService sqlMetaDataService = mock(SqlMetaDataService.class);
+        RecorderFactory recorderFactory = new DefaultRecorderFactory(stringMetaDataService, sqlMetaDataService);
+
+        AsyncIdGenerator asyncIdGenerator = mock(AsyncIdGenerator.class);
+
+        SpanStorage storage = new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER);
+
+        Trace trace = new DefaultTrace(callStackFactory, storage, traceId, 0L, asyncIdGenerator, true,
+                spanFactory, recorderFactory);
         trace.traceBlockBegin();
 
         // get data form db
@@ -55,19 +75,25 @@ public class TraceTest {
 
     @Test
     public void popEventTest() {
-        DefaultTraceId traceId = new DefaultTraceId("agent", 0, 1);
-        DefaultTraceContext defaultTraceContext = getDefaultTraceContext();
-        DefaultTrace trace = new DefaultTrace(defaultTraceContext, traceId, 0L, true);
+        TraceId traceId = new DefaultTraceId("agent", 0, 1);
+
+        CallStackFactory callStackFactory = new DefaultCallStackFactory(64);
+        SpanFactory spanFactory = new DefaultSpanFactory("appName", "agentId", 0, ServiceType.STAND_ALONE);
+
+        StringMetaDataService stringMetaDataService = mock(StringMetaDataService.class);
+        SqlMetaDataService sqlMetaDataService = mock(SqlMetaDataService.class);
+        RecorderFactory recorderFactory = new DefaultRecorderFactory(stringMetaDataService, sqlMetaDataService);
+
+        AsyncIdGenerator asyncIdGenerator = mock(AsyncIdGenerator.class);
+
         TestDataSender dataSender = new TestDataSender();
-        trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
+        SpanStorage storage = new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER);
+
+        Trace trace = new DefaultTrace(callStackFactory, storage, traceId, 0L, asyncIdGenerator, true, spanFactory, recorderFactory);
+
         trace.close();
 
-        logger.info(String.valueOf(dataSender.event));
-    }
-
-    private DefaultTraceContext getDefaultTraceContext() {
-        DefaultTraceContext defaultTraceContext = new DefaultTraceContext(new TestAgentInformation());
-        return defaultTraceContext;
+        logger.debug(String.valueOf(dataSender.event));
     }
 
     public class TestDataSender implements EnhancedDataSender {

@@ -19,12 +19,14 @@ package com.navercorp.pinpoint.web.dao.hbase.stat.compatibility;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.web.dao.stat.ActiveTraceDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.dao.stat.CpuLoadDao;
+import com.navercorp.pinpoint.web.dao.stat.DataSourceDao;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDao;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDetailedDao;
 import com.navercorp.pinpoint.web.dao.stat.TransactionDao;
@@ -92,6 +94,12 @@ public abstract class HbaseAgentStatDualReadDao<T extends AgentStatDataPoint> im
 
     public static class ActiveTraceDualReadDao extends HbaseAgentStatDualReadDao<ActiveTraceBo> implements ActiveTraceDao {
         public ActiveTraceDualReadDao(AgentStatDao<ActiveTraceBo> master, AgentStatDao<ActiveTraceBo> slave) {
+            super(master, slave);
+        }
+    }
+
+    public static class DataSourceDualReadDao extends HbaseAgentStatDualReadDao<DataSourceListBo> implements DataSourceDao {
+        public DataSourceDualReadDao(AgentStatDao<DataSourceListBo> master, AgentStatDao<DataSourceListBo> slave) {
             super(master, slave);
         }
     }

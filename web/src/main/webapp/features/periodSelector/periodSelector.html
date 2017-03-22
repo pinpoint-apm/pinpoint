@@ -5,7 +5,7 @@
 			<button type="button" class="btn btn-default" ng-click="changeToRealtime()" ng-show="useRealtime" ng-disabled="disableButton" ng-class="getRealtimeBtnClass()" style="padding-top:3px;padding-bottom:3px;line-height:1.1;font-size:10px">REAL<br/>TIME</button>
 			<button type="button" class="btn btn-default" ng-repeat="period in aReadablePeriodTime" ng-class="getPeriodClass( period )" ng-click="changePeriodTimeOfLast( period )" ng-disabled="disableButton">{{getPeriodLabel(period)}}</button>
 		</div>
-		<div class="btn-group btn-group-sm input-group input-group-sm" style="margin-top:0px;padding-left:6px;width:146px;" ng-show="showUpdate()">
+		<div class="btn-group btn-group-sm input-group input-group-sm" style="float:left;margin-top:0px;padding-left:6px;width:146px;" ng-show="showUpdate()">
 			<span class="input-group-addon">
 				<label style="margin:0;">
 					<input type="checkbox" ng-model="autoUpdate" ng-click="changeUpdateSetting()"> Update
@@ -21,7 +21,7 @@
 			</ul>
 		</div>
 	</div>
-	<div ng-show="isRangePeriod()" class="datetimepicker input-group input-group-sm date" style="width:400px">
+	<div ng-show="isRangePeriod()" class="datetimepicker input-group input-group-sm date" style="width:420px">
 		<span class="input-group-btn">
 			<button class="btn btn-success" ng-click="changeToLast('last')">
 				<span class="glyphicon glyphicon-calendar"></span>

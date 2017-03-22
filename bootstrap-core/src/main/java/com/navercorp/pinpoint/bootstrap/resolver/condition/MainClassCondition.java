@@ -21,6 +21,7 @@ import java.util.jar.JarFile;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.SystemProperty;
 import com.navercorp.pinpoint.common.util.SystemPropertyKey;
@@ -47,6 +48,12 @@ public class MainClassCondition implements Condition<String>, ConditionValue<Str
             throw new IllegalArgumentException("properties should not be null");
         }
         this.applicationMainClassName = getMainClassName(property);
+        if (this.applicationMainClassName == NOT_FOUND) {
+            logger.info("Main class could not be deduced, please set 'profiler.applicationservertype' in pinpoint.config.");
+            logger.info("If you're running on 1.6.0_24 or prior version of Java, consider upgrading to 1.6.0_25+.");
+            logger.info("If you're running Tomcat or Tomcat on Spring Boot, please set 'profiler.tomcat.conditional.transform' to false");
+            logger.info("If you're running Jboss, please set 'profiler.tomcat.conditional.transform' to false");
+        }
     }
 
     /**
@@ -87,7 +94,8 @@ public class MainClassCondition implements Condition<String>, ConditionValue<Str
     private String getMainClassName(SimpleProperty property) {
         String javaCommand = property.getProperty(SystemPropertyKey.SUN_JAVA_COMMAND.getKey(), "").split(" ")[0];
         if (javaCommand.isEmpty()) {
-            logger.warn("Error retrieving main class from [{}]", property.getClass().getName());
+            String jreVersion = property.getProperty(SystemPropertyKey.JAVA_RUNTIME_VERSION.getKey());
+            logger.warn("Error retrieving main class using '{}', jre : {}", SystemPropertyKey.SUN_JAVA_COMMAND.getKey(), jreVersion);
             return NOT_FOUND;
         } else {
             JarFile executableArchive = null;
@@ -100,7 +108,7 @@ public class MainClassCondition implements Condition<String>, ConditionValue<Str
                 return javaCommand;
             } catch (Exception e) {
                 // fail-safe, application shouldn't not start because of this
-                logger.warn("Error retrieving main class from java command : [{}]", javaCommand, e);
+                logger.warn("Error retrieving main class", e);
                 return NOT_FOUND;
             } finally {
                 if (executableArchive != null) {

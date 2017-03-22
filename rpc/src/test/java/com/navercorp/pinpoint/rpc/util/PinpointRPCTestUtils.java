@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.rpc.LoggingStateChangeEventListener;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
@@ -84,7 +85,7 @@ public final class PinpointRPCTestUtils {
     }
     
     public static PinpointClientFactory createClientFactory(Map<String, Object> param, MessageListener messageListener) {
-        PinpointClientFactory clientFactory = new PinpointClientFactory();
+        PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setProperties(param);
         clientFactory.addStateChangeEventListener(LoggingStateChangeEventListener.INSTANCE);
 
@@ -164,13 +165,13 @@ public final class PinpointRPCTestUtils {
 
         @Override
         public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-            logger.info("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
+            logger.debug("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
             sendPacketRepository.add(sendPacket);
         }
 
         @Override
         public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-            logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
+            logger.debug("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
 
             requestPacketRepository.add(requestPacket);
             pinpointSocket.response(requestPacket, requestPacket.getPayload());
@@ -178,7 +179,7 @@ public final class PinpointRPCTestUtils {
 
         @Override
         public HandshakeResponseCode handleHandshake(Map properties) {
-            logger.info("handle Handshake {}", properties);
+            logger.debug("handle Handshake {}", properties);
             return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
         }
 

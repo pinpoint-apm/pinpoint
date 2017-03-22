@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.cluster;
 
 import com.navercorp.pinpoint.common.util.NetUtils;
+import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.SimpleMessageListener;
@@ -79,7 +80,7 @@ public class ClusterTest {
         ts = createZookeeperServer(zookeeperPort);
 
         CLUSTER_NODE_PATH = "/pinpoint-cluster/web/" + acceptorAddress;
-        LOGGER.info("CLUSTER_NODE_PATH:{}", CLUSTER_NODE_PATH);
+        LOGGER.debug("CLUSTER_NODE_PATH:{}", CLUSTER_NODE_PATH);
 
         WebConfig config = mock(WebConfig.class);
 
@@ -199,7 +200,7 @@ public class ClusterTest {
 
             Assert.assertEquals(0, clusterConnectionManager.getClusterList().size());
 
-            clientFactory = new PinpointClientFactory();
+            clientFactory = new DefaultPinpointClientFactory();
             clientFactory.setMessageListener(SimpleMessageListener.INSTANCE);
 
             client = clientFactory.connect(DEFAULT_IP, acceptorPort);
@@ -247,7 +248,7 @@ public class ClusterTest {
     }
 
     private void getNodeAndCompareContents(ZooKeeper zookeeper) throws KeeperException, InterruptedException {
-        LOGGER.info("getNodeAndCompareContents() {}", CLUSTER_NODE_PATH);
+        LOGGER.debug("getNodeAndCompareContents() {}", CLUSTER_NODE_PATH);
 
         byte[] contents = zookeeper.getData(CLUSTER_NODE_PATH, null, null);
 
@@ -264,7 +265,7 @@ public class ClusterTest {
 
     private boolean getNodeAndCompareContents0(ZooKeeper zookeeper) {
         try {
-            LOGGER.info("getNodeAndCompareContents() {}", CLUSTER_NODE_PATH);
+            LOGGER.debug("getNodeAndCompareContents() {}", CLUSTER_NODE_PATH);
 
             byte[] contents = zookeeper.getData(CLUSTER_NODE_PATH, null, null);
             if (contents == null) {

@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 public class TransactionEncoder extends AgentStatEncoder<TransactionBo> {
 
     @Autowired
-    public TransactionEncoder(@Qualifier("transactionCodecV1") AgentStatCodec<TransactionBo> transactionCodec) {
+    public TransactionEncoder(@Qualifier("transactionCodecV2") AgentStatCodec<TransactionBo> transactionCodec) {
         super(transactionCodec);
     }
 }

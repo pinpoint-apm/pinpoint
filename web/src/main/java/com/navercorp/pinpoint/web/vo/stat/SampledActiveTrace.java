@@ -16,47 +16,47 @@
 
 package com.navercorp.pinpoint.web.vo.stat;
 
-import com.navercorp.pinpoint.web.vo.chart.TitledPoint;
+import com.navercorp.pinpoint.web.vo.chart.Point;
 
 /**
  * @author HyunGil Jeong
  */
 public class SampledActiveTrace implements SampledAgentStatDataPoint {
 
-    private TitledPoint<Long, Integer> fastCounts;
-    private TitledPoint<Long, Integer> normalCounts;
-    private TitledPoint<Long, Integer> slowCounts;
-    private TitledPoint<Long, Integer> verySlowCounts;
+    private Point<Long, Integer> fastCounts;
+    private Point<Long, Integer> normalCounts;
+    private Point<Long, Integer> slowCounts;
+    private Point<Long, Integer> verySlowCounts;
 
-    public TitledPoint<Long, Integer> getFastCounts() {
+    public Point<Long, Integer> getFastCounts() {
         return fastCounts;
     }
 
-    public void setFastCounts(TitledPoint<Long, Integer> fastCounts) {
+    public void setFastCounts(Point<Long, Integer> fastCounts) {
         this.fastCounts = fastCounts;
     }
 
-    public TitledPoint<Long, Integer> getNormalCounts() {
+    public Point<Long, Integer> getNormalCounts() {
         return normalCounts;
     }
 
-    public void setNormalCounts(TitledPoint<Long, Integer> normalCounts) {
+    public void setNormalCounts(Point<Long, Integer> normalCounts) {
         this.normalCounts = normalCounts;
     }
 
-    public TitledPoint<Long, Integer> getSlowCounts() {
+    public Point<Long, Integer> getSlowCounts() {
         return slowCounts;
     }
 
-    public void setSlowCounts(TitledPoint<Long, Integer> slowCounts) {
+    public void setSlowCounts(Point<Long, Integer> slowCounts) {
         this.slowCounts = slowCounts;
     }
 
-    public TitledPoint<Long, Integer> getVerySlowCounts() {
+    public Point<Long, Integer> getVerySlowCounts() {
         return verySlowCounts;
     }
 
-    public void setVerySlowCounts(TitledPoint<Long, Integer> verySlowCounts) {
+    public void setVerySlowCounts(Point<Long, Integer> verySlowCounts) {
         this.verySlowCounts = verySlowCounts;
     }
 
@@ -84,11 +84,12 @@ public class SampledActiveTrace implements SampledAgentStatDataPoint {
 
     @Override
     public String toString() {
-        return "SampledActiveTrace{" +
-                "fastCounts=" + fastCounts +
-                ", normalCounts=" + normalCounts +
-                ", slowCounts=" + slowCounts +
-                ", verySlowCounts=" + verySlowCounts +
-                '}';
+        final StringBuilder sb = new StringBuilder("SampledActiveTrace{");
+        sb.append("fastCounts=").append(fastCounts);
+        sb.append(", normalCounts=").append(normalCounts);
+        sb.append(", slowCounts=").append(slowCounts);
+        sb.append(", verySlowCounts=").append(verySlowCounts);
+        sb.append('}');
+        return sb.toString();
     }
 }

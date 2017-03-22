@@ -43,7 +43,7 @@ public class AgentStatDataPointCodec {
     }
 
     public List<Long> decodeTimestamps(long initialTimestamp, Buffer buffer, int numValues) {
-        List<Long> timestamps = new ArrayList<>(numValues);
+        List<Long> timestamps = new ArrayList<Long>(numValues);
         timestamps.add(initialTimestamp);
         long prevTimestamp = initialTimestamp;
         long prevDelta = 0;
@@ -58,11 +58,11 @@ public class AgentStatDataPointCodec {
         return timestamps;
     }
 
-    public <T extends Number> void encodeValues(Buffer buffer, EncodingStrategy<T> encodingStrategy, List<T> values) {
+    public <T> void encodeValues(Buffer buffer, EncodingStrategy<T> encodingStrategy, List<T> values) {
         encodingStrategy.encodeValues(buffer, values);
     }
 
-    public <T extends Number> List<T> decodeValues(Buffer buffer, EncodingStrategy<T> encodingStrategy, int numValues) {
+    public <T> List<T> decodeValues(Buffer buffer, EncodingStrategy<T> encodingStrategy, int numValues) {
         return encodingStrategy.decodeValues(buffer, numValues);
     }
 }

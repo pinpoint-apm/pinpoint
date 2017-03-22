@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.packet.*;
@@ -58,7 +59,7 @@ public class TcpDataSenderTest {
 
             @Override
             public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-                logger.info("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
+                logger.debug("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
                 if (sendLatch != null) {
                     sendLatch.countDown();
                 }
@@ -66,7 +67,7 @@ public class TcpDataSenderTest {
 
             @Override
             public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-                logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
+                logger.debug("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
             }
 
             @Override
@@ -76,7 +77,7 @@ public class TcpDataSenderTest {
 
             @Override
             public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
-                logger.info("ping received {} {} ", pingPacket, pinpointServer);
+                logger.debug("ping received {} {} ", pingPacket, pinpointServer);
             }
         });
         serverAcceptor.bind(HOST, PORT);
@@ -119,7 +120,7 @@ public class TcpDataSenderTest {
     }
     
     private PinpointClientFactory createPinpointClientFactory() {
-        PinpointClientFactory clientFactory = new PinpointClientFactory();
+        PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setTimeoutMillis(1000 * 5);
         clientFactory.setProperties(Collections.EMPTY_MAP);
 

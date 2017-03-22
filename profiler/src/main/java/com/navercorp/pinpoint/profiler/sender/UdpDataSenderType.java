@@ -23,6 +23,6 @@ package com.navercorp.pinpoint.profiler.sender;
 public enum UdpDataSenderType {
 
     OIO,
-    NIO;
+    NIO
 
 }

@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
+import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 
 import java.util.Set;
 
@@ -48,4 +50,6 @@ public interface AgentInfoService {
     AgentInfo getAgentInfo(String agentId, long timestamp);
 
     AgentStatus getAgentStatus(String agentId, long timestamp);
+
+    InspectorTimeline getAgentStatusTimeline(String agentId, Range range, int... excludeAgentEventTypeCodes);
 }

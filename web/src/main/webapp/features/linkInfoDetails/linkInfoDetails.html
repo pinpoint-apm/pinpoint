@@ -3,7 +3,7 @@
     <div class="unknown-group" ng-show="link.toNode.serviceType.indexOf( '_GROUP' ) != -1">
 
         <div class="search-n-order">
-			<div style="display:inline-block;width:265px;">
+			<div style="display:inline-block;width:250px;">
                 <div class="input-group form-group input-group-sm has-feedback" style="margin-bottom:0;">
                     <span class=" input-group-addon">
                         <span class="glyphicon glyphicon-search" style="top:0;"></span>
@@ -19,9 +19,12 @@
                 </div>
             </div>
         </div>
+		<div class="link-paging" style="padding-bottom:4px">
+			<button type="button" style="margin-right:1px" class="btn btn-default btn-sm {{page == currentPage ? 'btn-info' : ''}}" ng-repeat="page in pagingCount" ng-click="movePaging(page)">{{page}}</button>
+		</div>
 
         <div class="unknown-list">
-            <div class="panel panel-default" ng-repeat="(index, link) in unknownLinkGroup | orderBy:linkOrderBy:linkOrderByDesc" ng-show="showUnknownLinkBy(linkSearch, link)" style="height:252px;">
+            <div class="panel panel-default" ng-repeat="(index, link) in unknownLinkGroup | orderBy:linkOrderBy:linkOrderByDesc | startFrom:(currentPage - 1) * pagingSize | limitTo:pagingSize" ng-show="showUnknownLinkBy(linkSearch, link)" style="height:252px;">
                 <div class="panel-heading">
                     <span class="glyphicon glyphicon-arrow-right"></span>
                     {{link.targetInfo.applicationName}}<span class="badge pull-right" ng-class="{'alert-danger':link.hasAlert}" title="Total Call Count" data-toggle="tooltip" data-placement="left">{{link.totalCount | number}}</span>
@@ -35,8 +38,6 @@
                         <h6 style="position:absolute;top:5px;left:10px;margin:0;">Load</h6>
                         <load-chart-directive namespace="forLink_{{link.targetInfo.applicationName | applicationNameToClassName}}"></load-chart-directive>
                     </div>
-
-
 
                     <a class="btn btn-default btn-xs" href title="Show Load" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;color:#8a6d3b"
                        ng-click="showLinkResponseSummaryForUnknown=!showLinkResponseSummaryForUnknown;renderLinkLoad(link.targetInfo.applicationName, link.key)" ng-show="showLinkResponseSummaryForUnknown">

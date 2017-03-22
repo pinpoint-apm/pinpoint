@@ -1,20 +1,17 @@
 /*
+ * Copyright 2017 NAVER Corp.
  *
- *  * Copyright 2014 NAVER Corp.
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *     http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.navercorp.pinpoint.profiler.util;
@@ -27,6 +24,7 @@ import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
 import java.lang.management.LockInfo;
 import java.lang.management.MonitorInfo;
 import java.lang.management.ThreadInfo;
+import java.util.Collections;
 
 /**
  * @Author Taejin Koo
@@ -35,6 +33,15 @@ public class ThreadDumpUtils {
 
     public static TThreadDump createTThreadDump(Thread thread) {
         ThreadInfo threadInfo = ThreadMXBeanUtils.findThread(thread);
+        if (threadInfo == null) {
+            return null;
+        }
+
+        return createTThreadDump(threadInfo);
+    }
+
+    public static TThreadDump createTThreadDump(Thread thread, int stackTraceMaxDepth) {
+        ThreadInfo threadInfo = ThreadMXBeanUtils.findThread(thread, stackTraceMaxDepth);
         if (threadInfo == null) {
             return null;
         }
@@ -51,6 +58,20 @@ public class ThreadDumpUtils {
         setLockInfo(threadDump, threadInfo);
 
         return threadDump;
+    }
+
+    public static TThreadState toTThreadState(Thread.State threadState) {
+        if (threadState == null) {
+            throw new NullPointerException("threadState may not be null");
+        }
+
+        String threadStateName = threadState.name();
+        for (TThreadState state : TThreadState.values()) {
+            if (state.name().equalsIgnoreCase(threadStateName)) {
+                return state;
+            }
+        }
+        return TThreadState.UNKNOWN;
     }
 
     private static void setThreadInfo(TThreadDump threadDump, ThreadInfo threadInfo) {
@@ -70,20 +91,34 @@ public class ThreadDumpUtils {
 
     private static void setStackTrace(TThreadDump threadDump, ThreadInfo threadInfo) {
         StackTraceElement[] stackTraceElements = threadInfo.getStackTrace();
-        for (StackTraceElement element : stackTraceElements) {
-            threadDump.addToStackTrace(element.toString());
+        if (stackTraceElements != null) {
+            for (StackTraceElement element : stackTraceElements) {
+                if (element == null) {
+                    continue;
+                }
+                threadDump.addToStackTrace(element.toString());
+            }
+        } else {
+            threadDump.setStackTrace(Collections.<String>emptyList());
         }
     }
 
     private static void setMonitorInfo(TThreadDump threadDump, ThreadInfo threadInfo) {
         MonitorInfo[] monitorInfos = threadInfo.getLockedMonitors();
-        for (MonitorInfo each : monitorInfos) {
-            TMonitorInfo tMonitorInfo = new TMonitorInfo();
+        if (monitorInfos != null) {
+            for (MonitorInfo each : monitorInfos) {
+                if (each == null) {
+                    continue;
+                }
+                TMonitorInfo tMonitorInfo = new TMonitorInfo();
 
-            tMonitorInfo.setStackDepth(each.getLockedStackDepth());
-            tMonitorInfo.setStackFrame(each.getLockedStackFrame().toString());
+                tMonitorInfo.setStackDepth(each.getLockedStackDepth());
+                tMonitorInfo.setStackFrame(each.getLockedStackFrame().toString());
 
-            threadDump.addToLockedMonitors(tMonitorInfo);
+                threadDump.addToLockedMonitors(tMonitorInfo);
+            }
+        } else {
+            threadDump.setLockedMonitors(Collections.<TMonitorInfo>emptyList());
         }
     }
 
@@ -93,21 +128,21 @@ public class ThreadDumpUtils {
         threadDump.setLockOwnerName(threadInfo.getLockOwnerName());
 
         LockInfo[] lockInfos = threadInfo.getLockedSynchronizers();
-        for (LockInfo lockInfo : lockInfos) {
-            threadDump.addToLockedSynchronizers(lockInfo.toString());
+
+        if (lockInfos != null) {
+            for (LockInfo lockInfo : lockInfos) {
+                if (lockInfo == null) {
+                    continue;
+                }
+                threadDump.addToLockedSynchronizers(lockInfo.toString());
+            }
+        } else {
+            threadDump.setLockedSynchronizers(Collections.<String>emptyList());
         }
     }
 
     private static TThreadState getThreadState(ThreadInfo info) {
-        String stateName = info.getThreadState().name();
-
-        for (TThreadState state : TThreadState.values()) {
-            if (state.name().equalsIgnoreCase(stateName)) {
-                return state;
-            }
-        }
-
-        return null;
+        return toTThreadState(info.getThreadState());
     }
 
 }

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
 import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -128,5 +129,28 @@ public class AgentInfoController {
             @RequestParam(value = "exclude", defaultValue = "") int[] excludeEventTypeCodes) {
         Range range = new Range(from, to);
         return this.agentEventService.getAgentEvents(agentId, range, excludeEventTypeCodes);
+    }
+
+    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
+    @RequestMapping(value = "/getAgentStatusTimeline", method = RequestMethod.GET)
+    @ResponseBody
+    public InspectorTimeline getAgentStatusTimeline(
+            @RequestParam("agentId") String agentId,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to) {
+        Range range = new Range(from, to);
+        return agentInfoService.getAgentStatusTimeline(agentId, range, null);
+    }
+
+    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
+    @RequestMapping(value = "/getAgentStatusTimeline", method = RequestMethod.GET, params = {"exclude"})
+    @ResponseBody
+    public InspectorTimeline getAgentStatusTimeline(
+            @RequestParam("agentId") String agentId,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestParam(value = "exclude", defaultValue = "") int[] excludeEventTypeCodes) {
+        Range range = new Range(from, to);
+        return agentInfoService.getAgentStatusTimeline(agentId, range, excludeEventTypeCodes);
     }
 }

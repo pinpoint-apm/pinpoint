@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.interceptor.MockTraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
@@ -41,8 +41,8 @@ public class DriverConnectInterceptorTest {
 
     @Test
     public void driverConnect() throws SQLException {
-        MockTraceContext mockTraceContext = new MockTraceContext();
-        MethodDescriptor mock = mock(MethodDescriptor.class);
+        TraceContext traceContext = mock(TraceContext.class);
+        MethodDescriptor methodDescriptor = mock(MethodDescriptor.class);
         JdbcUrlParser parser = mock(JdbcUrlParser.class);
         when(parser.parse(anyString())).thenReturn(UnKnownDatabaseInfo.INSTANCE);
 
@@ -53,7 +53,7 @@ public class DriverConnectInterceptorTest {
         DatabaseInfoAccessor getAccessor = mock(DatabaseInfoAccessor.class);
         SpanEventRecorder spanEventRecorder = mock(SpanEventRecorder.class);
 
-        DriverConnectInterceptor driverConnectInterceptor = new DriverConnectInterceptor(mockTraceContext, mock, parser);
+        DriverConnectInterceptor driverConnectInterceptor = new DriverConnectInterceptor(traceContext, methodDescriptor, parser);
 
         driverConnectInterceptor.prepareAfterTrace(driver, va(invalidJdbcUrl), setAccessor, null);
         driverConnectInterceptor.doInAfterTrace(spanEventRecorder, driver, va(invalidJdbcUrl), getAccessor, null);
@@ -64,8 +64,8 @@ public class DriverConnectInterceptorTest {
 
     @Test
     public void driverConnect_return_Null_NPEtest() throws SQLException {
-        MockTraceContext mockTraceContext = new MockTraceContext();
-        MethodDescriptor mock = mock(MethodDescriptor.class);
+        TraceContext traceContext = mock(TraceContext.class);
+        MethodDescriptor methodDescriptor = mock(MethodDescriptor.class);
         JdbcUrlParser parser = mock(JdbcUrlParser.class);
         when(parser.parse(anyString())).thenReturn(UnKnownDatabaseInfo.INSTANCE);
 
@@ -74,7 +74,7 @@ public class DriverConnectInterceptorTest {
         final Driver driver = mock(Driver.class);
         SpanEventRecorder spanEventRecorder = mock(SpanEventRecorder.class);
 
-        DriverConnectInterceptor driverConnectInterceptor = new DriverConnectInterceptor(mockTraceContext, mock, parser);
+        DriverConnectInterceptor driverConnectInterceptor = new DriverConnectInterceptor(traceContext, methodDescriptor, parser);
 
         driverConnectInterceptor.prepareAfterTrace(driver, va(invalidJdbcUrl), null, null);
         driverConnectInterceptor.doInAfterTrace(spanEventRecorder, driver, va(invalidJdbcUrl), null, null);

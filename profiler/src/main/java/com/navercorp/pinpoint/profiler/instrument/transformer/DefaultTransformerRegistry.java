@@ -62,11 +62,11 @@ public class DefaultTransformerRegistry implements TransformerRegistry {
     }
 
     private void addModifier0(ClassFileTransformer transformer, String className) {
-        final String jvmClassName = JavaAssistUtils.javaNameToJvmName(className);
-        ClassFileTransformer old = registry.put(jvmClassName, transformer);
+        final String classInternalName = JavaAssistUtils.javaNameToJvmName(className);
+        ClassFileTransformer old = registry.put(classInternalName, transformer);
         
         if (old != null) {
-            throw new IllegalStateException("Transformer already exist. className:" + jvmClassName + " new:" + transformer.getClass() + " old:" + old.getClass());
+            throw new IllegalStateException("Transformer already exist. className:" + classInternalName + " new:" + transformer.getClass() + " old:" + old.getClass());
         }
     }
 }

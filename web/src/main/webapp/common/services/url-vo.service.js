@@ -1,13 +1,13 @@
 (function() {
 	'use strict';
 
-	 pinpointApp.service( "UrlVoService", [ "$location", "$routeParams", "PreferenceService", "CommonUtilService", function( $location, $routeParams, PreferenceService, CommonUtilService ) {
+	 pinpointApp.service( "UrlVoService", [ "$location", "$routeParams", "PreferenceService", "UserConfigurationService", "CommonUtilService", function( $location, $routeParams, PreferenceService, UserConfigService, CommonUtilService ) {
 		 var application = "";			// applicationName@serviceType 		- common
 		 var periodType = "";			// last or range or realtime		- common
 		 var filter = "";				// #/filteredMap
 		 var hint = "";					// #/filteredMap
 		 var agentId = "";				// #/Inspector
-		 var minutePeriod = 60 * 5;		// 기본 5분
+		 var minutePeriod = 5;			// 기본 5분
 		 var millisecondPeriod = -1;	// queryPeriod ( url에서 readablePeriod 시간을 밀리초로 환산한 값 )
 		 var queryStartTime = -1;		// ??
 		 var readablePeriod = "";		// ??
@@ -16,8 +16,8 @@
 		 var transactionInfo = "";		// #/transactionList
 		 var agentList = "";			// #/scatterFullScreenMode
 
-		 var callee = PreferenceService.getCallee();
-		 var caller = PreferenceService.getCaller();
+		 var callee = UserConfigService.getCallee();
+		 var caller = UserConfigService.getCaller();
 		 var oPeriodType = PreferenceService.getPeriodType();
 		 var aPeriodTime = PreferenceService.getPeriodTime();
 
@@ -140,6 +140,10 @@
 		 };
 		 this.setPeriodType = function( p ) {
 			 periodType = p;
+			 if ( periodType === oPeriodType.REALTIME ) {
+				 minutePeriod = parseInt( PreferenceService.getRealtimeScatterXRangeStr() );
+				 millisecondPeriod = minutePeriod * 60 * 1000;
+			 }
 			 return this;
 		 };
 		 this.setTransactionInfo = function( t ) {

@@ -33,14 +33,14 @@ public class DeltaEncodingStrategyTest extends EncodingStrategyTestBase {
     public void unsigned_shorts_should_be_encoded_and_decoded_correctly() {
         int numTestValues = NUM_TEST_VALUES;
         List<Short> expectedValues = createRandomShorts(numTestValues, true);
-        DeltaEncodingStrategy.Unsigned<Short> strategy = new DeltaEncodingStrategy.Unsigned<>(TypedBufferHandler.SHORT_BUFFER_HANDLER, ArithmeticOperation.SHORT_OPERATIONS);
+        DeltaEncodingStrategy.Unsigned<Short> strategy = new DeltaEncodingStrategy.Unsigned<Short>(TypedBufferHandler.SHORT_BUFFER_HANDLER, ArithmeticOperation.SHORT_OPERATIONS);
         testStrategy(expectedValues, strategy);
     }
 
     @Test
     public void empty_unsigned_shorts_should_be_encoded_and_decoded_correctly() {
         List<Short> expectedValues = Collections.emptyList();
-        DeltaEncodingStrategy.Unsigned<Short> strategy = new DeltaEncodingStrategy.Unsigned<>(TypedBufferHandler.SHORT_BUFFER_HANDLER, ArithmeticOperation.SHORT_OPERATIONS);
+        DeltaEncodingStrategy.Unsigned<Short> strategy = new DeltaEncodingStrategy.Unsigned<Short>(TypedBufferHandler.SHORT_BUFFER_HANDLER, ArithmeticOperation.SHORT_OPERATIONS);
         testStrategy(expectedValues, strategy);
     }
 
@@ -48,14 +48,14 @@ public class DeltaEncodingStrategyTest extends EncodingStrategyTestBase {
     public void unsigned_ints_should_be_encoded_and_decoded_correctly() {
         int numTestValues = NUM_TEST_VALUES;
         List<Integer> expectedValues = createRandomIntegers(numTestValues, true);
-        DeltaEncodingStrategy.Unsigned<Integer> strategy = new DeltaEncodingStrategy.Unsigned<>(TypedBufferHandler.INTEGER_BUFFER_HANDLER, ArithmeticOperation.INTEGER_OPERATIONS);
+        DeltaEncodingStrategy.Unsigned<Integer> strategy = new DeltaEncodingStrategy.Unsigned<Integer>(TypedBufferHandler.INTEGER_BUFFER_HANDLER, ArithmeticOperation.INTEGER_OPERATIONS);
         testStrategy(expectedValues, strategy);
     }
 
     @Test
     public void empty_unsigned_ints_should_be_encoded_and_decoded_correctly() {
         List<Integer> expectedValues = Collections.emptyList();
-        DeltaEncodingStrategy.Unsigned<Integer> strategy = new DeltaEncodingStrategy.Unsigned<>(TypedBufferHandler.INTEGER_BUFFER_HANDLER, ArithmeticOperation.INTEGER_OPERATIONS);
+        DeltaEncodingStrategy.Unsigned<Integer> strategy = new DeltaEncodingStrategy.Unsigned<Integer>(TypedBufferHandler.INTEGER_BUFFER_HANDLER, ArithmeticOperation.INTEGER_OPERATIONS);
         testStrategy(expectedValues, strategy);
     }
 
@@ -63,14 +63,14 @@ public class DeltaEncodingStrategyTest extends EncodingStrategyTestBase {
     public void unsigned_longs_should_be_encoded_and_decoded_correctly() {
         int numTestValues = NUM_TEST_VALUES;
         List<Long> expectedValues = createRandomLongs(numTestValues, true);
-        DeltaEncodingStrategy.Unsigned<Long> strategy = new DeltaEncodingStrategy.Unsigned<>(TypedBufferHandler.LONG_BUFFER_HANDLER, ArithmeticOperation.LONG_OPERATIONS);
+        DeltaEncodingStrategy.Unsigned<Long> strategy = new DeltaEncodingStrategy.Unsigned<Long>(TypedBufferHandler.LONG_BUFFER_HANDLER, ArithmeticOperation.LONG_OPERATIONS);
         testStrategy(expectedValues, strategy);
     }
 
     @Test
     public void empty_unsigned_longs_should_be_encoded_and_decoded_correctly() {
         List<Long> expectedValues = Collections.emptyList();
-        DeltaEncodingStrategy.Unsigned<Long> strategy = new DeltaEncodingStrategy.Unsigned<>(TypedBufferHandler.LONG_BUFFER_HANDLER, ArithmeticOperation.LONG_OPERATIONS);
+        DeltaEncodingStrategy.Unsigned<Long> strategy = new DeltaEncodingStrategy.Unsigned<Long>(TypedBufferHandler.LONG_BUFFER_HANDLER, ArithmeticOperation.LONG_OPERATIONS);
         testStrategy(expectedValues, strategy);
     }
 }

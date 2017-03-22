@@ -48,7 +48,7 @@
                             "marginTop": 10,
                             "marginLeft": 70,
                             "marginRight": 70,
-                            "marginBottom": 30,
+                            "marginBottom": 40,
                             "legend": {
                                 "useGraphSettings": true,
                                 "autoMargins": true,
@@ -77,7 +77,7 @@
                                     "title": "S.C",
                                     "valueField": "sampledContinuationTps",
                                     "fillAlphas": 0.4,
-                                    "connect": true
+                                    "connect": false
                                 },{
                                     "balloonText": "Sampled New : [[value]]",
                                     "legendValueText": "[[value]]",
@@ -86,7 +86,7 @@
                                     "title": "S.N",
                                     "valueField": "sampledNewTps",
                                     "fillAlphas": 0.4,
-                                    "connect": true
+                                    "connect": false
                                 },{
                                     "balloonText": "Unsampled Continuation : [[value]]",
                                     "legendValueText": "[[value]]",
@@ -95,7 +95,7 @@
                                     "title": "U.C",
                                     "valueField": "unsampledContinuationTps",
                                     "fillAlphas": 0.4,
-                                    "connect": true
+                                    "connect": false
                                 },{
                                     "balloonText": "Unsampled New : [[value]]",
                                     "legendValueText": "[[value]]",
@@ -104,7 +104,7 @@
                                     "title": "U.N",
                                     "valueField": "unsampledNewTps",
                                     "fillAlphas": 0.4,
-                                    "connect": true
+                                    "connect": false
                                 },{
                                     "balloonText": "Total : [[value]]",
                                     "legendValueText": "[[value]]",
@@ -113,7 +113,7 @@
 									"title": "Total",
                                     "valueField": "totalTps",
                                     "fillAlphas": 0.4,
-                                    "connect": true
+                                    "connect": false
                                 }
                             ],
                             "categoryField": "time",
@@ -121,8 +121,8 @@
                                 "axisColor": "#DADADA",
                                 "startOnAxis": true,
                                 "gridPosition": "start",
-                                "labelFunction": function (valueText, serialDataItem, categoryAxis) {
-                                    return moment(valueText).format("HH:mm:ss");
+                                "labelFunction": function (valueText) {
+									return valueText.replace(/\s/, "<br>").replace(/-/g, ".").substring(2);
                                 }
                             }
                         };
@@ -138,16 +138,19 @@
 						oChart.addChartCursor( oChartCursor );
                     }
 
-                    function showCursorAt(category) {
-                        if (category) {
-                            if (angular.isNumber(category)) {
-                                category = oChart.dataProvider[category].time;
-                            }
-                            oChart.chartCursor.showCursorAt(category);
-                        } else {
-                            oChart.chartCursor.hideCursor();
-                        }
-                    }
+					function showCursorAt(category) {
+						if (category) {
+							if (angular.isNumber(category)) {
+								if ( oChart.dataProvider[category] && oChart.dataProvider[category].time ) {
+									try {
+										oChart.chartCursor.showCursorAt(oChart.dataProvider[category].time);
+									} catch(e) {}
+									return;
+								}
+							}
+						}
+						oChart.chartCursor.hideCursor();
+					}
 
                     function resize() {
                         if (oChart) {

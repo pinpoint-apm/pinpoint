@@ -118,7 +118,7 @@ public class ThriftUtils {
     /**
      * Returns the hostname information retrieved from the given {@link SocketAddress}.
      * 
-     * @param inetSocketAddress the <tt>InetSocketAddress</tt> instance to retrieve the host information from
+     * @param socketAddress the <tt>SocketAddress</tt> instance to retrieve the host information from
      * @return the host retrieved from the given <tt>socketAddress</tt>,
      *      or {@literal ThriftConstants.UNKNOWN_ADDRESS} if it cannot be retrieved
      */
@@ -137,7 +137,7 @@ public class ThriftUtils {
     /**
      * Returns the hostname and port information retrieved from the given {@link SocketAddress}.
      * 
-     * @param inetSocketAddress the <tt>InetSocketAddress</tt> instance to retrieve the host/port information from
+     * @param socketAddress the <tt>SocketAddress</tt> instance to retrieve the host/port information from
      * @return the host/port retrieved from the given <tt>socketAddress</tt>,
      *      or {@literal ThriftConstants.UNKNOWN_ADDRESS} if it cannot be retrieved
      */

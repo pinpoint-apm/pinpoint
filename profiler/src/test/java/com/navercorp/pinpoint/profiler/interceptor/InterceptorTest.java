@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.profiler.interceptor;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Map;
 
+import com.navercorp.pinpoint.profiler.util.LoaderUtils;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -31,13 +31,14 @@ import javassist.NotFoundException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.DefaultInterceptorRegistryAdaptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry;
-import com.navercorp.pinpoint.test.util.LoaderUtils;
+
 
 /**
  * @author emeroad
@@ -59,27 +60,9 @@ public class InterceptorTest {
         INTERCEPTOR_REGISTRY_ADAPTOR = null;
     }
 
-    //    @Test
-    public void methodName() throws NoSuchMethodException {
-        Method[] toString = Map.class.getDeclaredMethods();
-        for (Method m : toString) {
-            logger.info("methodObject:{}", m);
-            logger.info("methodObject:{}", m.toGenericString());
-        }
-    }
-
-    //    @Test
-    public void ctClassName() throws NotFoundException {
-        ClassPool pool = new ClassPool(true);
-
-        CtClass ctClass = pool.get("java.lang.String");
-        logger.info("ctClass:{}", ctClass);
-        logger.info("ctClass:{}", ctClass.getName());
-        logger.info("ctClass:{}", ctClass.getSimpleName());
-    }
 
     //    @Deprecated
-//    @Test
+    @Test
     public void interceptor() throws NotFoundException, CannotCompileException, IllegalAccessException, InstantiationException, IOException, ClassNotFoundException, NoSuchMethodException {
         AroundInterceptor aroundInterceptor = new AroundInterceptor() {
 
@@ -114,7 +97,7 @@ public class InterceptorTest {
 
 //        hello.insertBefore("{ System.out.println(\"BEFORE\"); }");
         hello.insertBefore("{" +
-                "interceptor = (" + interceptorClassName + ") " + InterceptorRegistry.class.getName() + ".getSimpleInterceptor(" + interceptorId + ");" +
+                "interceptor = (" + interceptorClassName + ") " + InterceptorRegistry.class.getName() + ".getInterceptor(" + interceptorId + ");" +
                 "interceptor.before(this, $args);" +
         "}");
 //        hello.addCatch("{" +
@@ -177,46 +160,6 @@ public class InterceptorTest {
         }
 
 //       o.hello();
-    }
-
-    private String generatedAroundInterceptor(String className, String methodName) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{");
-        sb.append("  ctx = new InterceptorContext();");
-        sb.append("  ctx.setParameter($args);");
-        sb.append("  ctx.setTarget(this);");
-        sb.append(" ");
-//        sb.append("  ctx.setMethodName(\"" + methodName + "\");");
-//        sb.append("  System.out.println(\"args check : \" + $args );");
-//        sb.append("  System.out.println(\"0 check : \" + $0 );");
-//        sb.append("  System.out.println(\"1 check : \" + $1 );");
-//        sb.append("  System.out.println(\"sig check : \" + $sig );");
-//        sb.append("  System.out.println(\"class check : \" + $class );");
-//        sb.append("  System.out.println(\" r check : \" + $r);");
-
-        sb.append("}");
-        sb.append("{");
-        sb.append("  interceptor = (AroundInterceptor) " + InterceptorRegistry.class.getName() + ".getStaticInterceptor(\"a\");");
-        sb.append("  interceptor.before(ctx);");
-        sb.append("  result = null;");
-//        println(sb, "BEFORE systemout \"ttt\"");
-        sb.append("}");
-        sb.append("try {");
-        sb.append("  $_ = $proceed($$);");
-        sb.append("  result = $_;");
-        sb.append("}");
-//        sb.append("catch(Throwable th) {");
-//        sb.append("  System.out.println(\"test11\" + th);");
-//        sb.append("  ctx.setErrCode(th);");
-//        sb.append("  System.out.println(\"catch\");");
-//        sb.append("}");
-        sb.append("finally {");
-//        sb.append("  System.out.println(\"finally\");");
-        sb.append("  ctx.setReturnValue(result);");
-        sb.append("  interceptor.after(ctx);");
-        sb.append("}");
-//        System.out.println(sb);
-        return sb.toString();
     }
 
     public void println(StringBuilder sb, String out) {

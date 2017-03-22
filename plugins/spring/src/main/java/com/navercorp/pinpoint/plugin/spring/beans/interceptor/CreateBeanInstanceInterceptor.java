@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
 
 /**
  * @author Jongho Moon <jongho.moon@navercorp.com>
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInterceptor implements AroundInterceptor1 {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());

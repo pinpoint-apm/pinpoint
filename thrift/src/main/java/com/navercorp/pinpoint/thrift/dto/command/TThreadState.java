@@ -7,17 +7,14 @@
 package com.navercorp.pinpoint.thrift.dto.command;
 
 
-import java.util.Map;
-import java.util.HashMap;
-import org.apache.thrift.TEnum;
-
 public enum TThreadState implements org.apache.thrift.TEnum {
   NEW(0),
   RUNNABLE(1),
   BLOCKED(2),
   WAITING(3),
   TIMED_WAITING(4),
-  TERMINATED(5);
+  TERMINATED(5),
+  UNKNOWN(6);
 
   private final int value;
 
@@ -50,6 +47,8 @@ public enum TThreadState implements org.apache.thrift.TEnum {
         return TIMED_WAITING;
       case 5:
         return TERMINATED;
+      case 6:
+        return UNKNOWN;
       default:
         return null;
     }

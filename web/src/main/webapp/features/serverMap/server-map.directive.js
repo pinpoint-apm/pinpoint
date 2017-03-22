@@ -353,7 +353,7 @@
 	                        htLastNode = node;
 	                        scope.$emit("serverMapDirective.nodeClicked", e, htLastQuery, node, htLastMergedMapData, searchQuery);
 							if ( scope.oNavbarVoService && scope.oNavbarVoService.isRealtime() ) {
-								$rootScope.$broadcast("realtimeChartController.initialize", node.isWas, node.applicationName, scope.oNavbarVoService.getApplication() + "/" + scope.oNavbarVoService.getReadablePeriod() + "/" + scope.oNavbarVoService.getQueryEndDateTime() + "/" + scope.oNavbarVoService.getCallerRange());
+								$rootScope.$broadcast("realtimeChartController.initialize", node.isWas, node.applicationName, node.serviceType, scope.oNavbarVoService.getApplication() + "/" + scope.oNavbarVoService.getReadablePeriod() + "/" + scope.oNavbarVoService.getQueryEndDateTime() + "/" + scope.oNavbarVoService.getCallerRange());
 							}
 	                        reset();
 	                    };
@@ -750,6 +750,7 @@
 	                    }
 	                    bUseLinkContextMenu = bUseBackgroundContextMenu = true;
 	                    bUseNodeContextMenu = false;
+						ServerMapDaoService.abort();
 	                    showServerMap(navbarVoService.getApplicationName(), navbarVoService.getServiceTypeName(), navbarVoService.getQueryEndTime(), navbarVoService.getQueryPeriod(), navbarVoService.getFilter(), navbarVoService.getHint(), scope.linkRouting, scope.linkCurve);
 	                });
 	

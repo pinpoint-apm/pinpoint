@@ -15,20 +15,27 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.google.inject.Provider;
+import com.google.inject.util.Providers;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ClassFilters;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.objectweb.asm.tree.ClassNode;
 
+import java.io.InputStream;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -39,7 +46,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 /**
@@ -48,13 +54,16 @@ import static org.mockito.Mockito.when;
 public class ASMClassTest {
     private final static InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
 
-    private final DefaultProfilerPluginContext pluginContext = mock(DefaultProfilerPluginContext.class);
-    private final TraceContext traceContext = mock(TraceContext.class);
+    private final ProfilerConfig profilerConfig = mock(ProfilerConfig.class);
+    private final Provider<TraceContext> traceContextProvider = Providers.of(mock(TraceContext.class));
+    private final DataSourceMonitorRegistryService dataSourceMonitorRegistryService = mock(DataSourceMonitorRegistryService.class);
+    private final Provider<ApiMetaDataService> apiMetaDataService = Providers.of(mock(ApiMetaDataService.class));
+    private final InstrumentContext pluginContext = mock(InstrumentContext.class);
+    private final ObjectBinderFactory objectBinderFactory = new ObjectBinderFactory(profilerConfig, traceContextProvider, dataSourceMonitorRegistryService, apiMetaDataService);
 
     @Before
     public void setUp() {
-        reset(traceContext);
-        when(pluginContext.getTraceContext()).thenReturn(traceContext);
+
         when(pluginContext.injectClass(any(ClassLoader.class), any(String.class))).thenAnswer(new Answer<Class<?>>() {
 
             @Override
@@ -65,6 +74,19 @@ public class ASMClassTest {
                 return loader.loadClass(name);
             }
 
+        });
+        when(pluginContext.getResourceAsStream(any(ClassLoader.class), any(String.class))).thenAnswer(new Answer<InputStream>() {
+
+            @Override
+            public InputStream answer(InvocationOnMock invocation) throws Throwable {
+                ClassLoader loader = (ClassLoader) invocation.getArguments()[0];
+                String name = (String) invocation.getArguments()[1];
+                if(loader == null) {
+                    loader = ClassLoader.getSystemClassLoader();
+                }
+
+                return loader.getResourceAsStream(name);
+            }
         });
     }
 
@@ -570,6 +592,6 @@ public class ASMClassTest {
     private ASMClass getClass(final String targetClassName) throws Exception {
         ClassNode classNode = ASMClassNodeLoader.get(targetClassName);
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        return new ASMClass(pluginContext, interceptorRegistryBinder, classLoader, classNode);
+        return new ASMClass(objectBinderFactory, pluginContext, interceptorRegistryBinder, apiMetaDataService.get(), classLoader, classNode);
     }
 }

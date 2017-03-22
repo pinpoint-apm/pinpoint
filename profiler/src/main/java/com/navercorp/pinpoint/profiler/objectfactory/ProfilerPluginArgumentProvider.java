@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.profiler.objectfactory;
 
 import java.lang.annotation.Annotation;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
@@ -31,20 +32,34 @@ import com.navercorp.pinpoint.profiler.util.TypeUtils;
  *
  */
 public class ProfilerPluginArgumentProvider implements ArgumentProvider {
+    private final ProfilerConfig profilerConfig;
+    private final TraceContext traceContext;
     private final InstrumentContext pluginContext;
 
-    public ProfilerPluginArgumentProvider(InstrumentContext pluginContext) {
+    public ProfilerPluginArgumentProvider(ProfilerConfig profilerConfig, TraceContext traceContext, InstrumentContext pluginContext) {
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig must not be null");
+        }
+        if (traceContext == null) {
+            throw new NullPointerException("traceContext must not be null");
+        }
+        if (pluginContext == null) {
+            throw new NullPointerException("pluginContext must not be null");
+        }
+        this.profilerConfig = profilerConfig;
+        this.traceContext = traceContext;
         this.pluginContext = pluginContext;
+
     }
 
     @Override
     public Option get(int index, Class<?> type, Annotation[] annotations) {
         if (type == Trace.class) {
-            return Option.withValue(pluginContext.getTraceContext().currentTraceObject());
+            return Option.withValue(traceContext.currentTraceObject());
         } else if (type == TraceContext.class) {
-            return Option.withValue(pluginContext.getTraceContext());
+            return Option.withValue(traceContext);
         } else if (type == Instrumentor.class) {
-            final InstrumentorDelegate delegate = new InstrumentorDelegate(pluginContext);
+            final InstrumentorDelegate delegate = new InstrumentorDelegate(profilerConfig, pluginContext);
             return Option.withValue(delegate);
         } else if (type == InterceptorScope.class) {
             Name annotation = TypeUtils.findAnnotation(annotations, Name.class);

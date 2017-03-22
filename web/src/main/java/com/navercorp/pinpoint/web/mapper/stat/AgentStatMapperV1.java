@@ -16,14 +16,6 @@
 
 package com.navercorp.pinpoint.web.mapper.stat;
 
-import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.NavigableMap;
-
 import com.navercorp.pinpoint.common.server.bo.ActiveTraceHistogramBo;
 import com.navercorp.pinpoint.common.server.bo.AgentStatCpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.AgentStatMemoryGcBo;
@@ -31,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.common.util.BytesUtils;
@@ -38,7 +31,6 @@ import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
-
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.thrift.TDeserializer;
@@ -48,6 +40,14 @@ import org.apache.thrift.protocol.TProtocolFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
+
+import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
 /**
  * @author HyunGil Jeong
@@ -289,4 +289,26 @@ public abstract class AgentStatMapperV1<T extends AgentStatDataPoint> implements
             return Arrays.asList(activeTraceBo);
         }
     }
+
+    // datasource not support v1
+    @Component("dataSourceMapper")
+    public static class DataSourceMapper extends AgentStatMapperV1<DataSourceListBo> {
+
+        @Override
+        protected List<DataSourceListBo> readAgentStatThriftDto(String agentId, long timestamp, byte[] tAgentStatByteArray) throws TException {
+            return Collections.emptyList();
+        }
+
+        @Override
+        protected List<DataSourceListBo> readSerializedBos(String agentId, long timestamp, Map<byte[], byte[]> qualifierMap) {
+            return Collections.emptyList();
+        }
+
+        @Override
+        protected List<DataSourceListBo> mapQualifiers(String agentId, long timestamp, Map<byte[], byte[]> qualifierMap) {
+            return Collections.emptyList();
+        }
+
+    }
+
 }

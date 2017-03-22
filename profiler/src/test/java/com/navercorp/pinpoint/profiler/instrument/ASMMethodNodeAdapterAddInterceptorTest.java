@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.profiler.instrument.mock.BasicInterceptor;
 import com.navercorp.pinpoint.profiler.instrument.mock.ExceptionInterceptor;
 import com.navercorp.pinpoint.profiler.instrument.mock.StaticInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-import com.navercorp.pinpoint.test.TestInterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;

@@ -21,7 +21,6 @@ package com.navercorp.pinpoint.profiler.interceptor;
  */
 public class JavaAssistTestObject {
     public String hello(String hello) {
-        System.out.println(hello);
         return hello;
     }
 }

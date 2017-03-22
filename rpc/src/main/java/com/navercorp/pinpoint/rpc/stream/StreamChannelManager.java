@@ -196,7 +196,7 @@ public class StreamChannelManager {
         code = registerStreamChannel(streamChannelContext);
 
         if (code == StreamCode.OK) {
-            code = streamChannelMessageListener.handleStreamCreate(streamChannelContext, (StreamCreatePacket) packet);
+            code = streamChannelMessageListener.handleStreamCreate(streamChannelContext, packet);
 
             if (code == StreamCode.OK) {
                 streamChannel.changeStateConnected();
@@ -256,7 +256,7 @@ public class StreamChannelManager {
     }
 
     private void handleStreamClose(ClientStreamChannelContext context, StreamClosePacket packet) {
-        context.getClientStreamChannelMessageListener().handleStreamClose(context, (StreamClosePacket) packet);
+        context.getClientStreamChannelMessageListener().handleStreamClose(context, packet);
         clearStreamChannelResource(context.getStreamId());
     }
 

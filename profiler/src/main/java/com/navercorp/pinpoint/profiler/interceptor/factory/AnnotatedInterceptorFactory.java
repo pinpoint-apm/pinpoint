@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.interceptor.factory;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
@@ -60,6 +62,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedInterceptor5;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedStaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.AutoBindingObjectFactory;
 import com.navercorp.pinpoint.profiler.objectfactory.InterceptorArgumentProvider;
 
@@ -68,14 +72,33 @@ import com.navercorp.pinpoint.profiler.objectfactory.InterceptorArgumentProvider
  * @author jaehong.kim
  */
 public class AnnotatedInterceptorFactory implements InterceptorFactory {
+    private final ProfilerConfig profilerConfig;
+    private final TraceContext traceContext;
+    private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
+    private final ApiMetaDataService apiMetaDataService;
     private final InstrumentContext pluginContext;
     private final boolean exceptionHandle;
 
-    public AnnotatedInterceptorFactory(InstrumentContext pluginContext) {
-        this(pluginContext, false);
-    }
-
-    public AnnotatedInterceptorFactory(InstrumentContext pluginContext, boolean exceptionHandle) {
+    public AnnotatedInterceptorFactory(ProfilerConfig profilerConfig, TraceContext traceContext, DataSourceMonitorRegistry dataSourceMonitorRegistry, ApiMetaDataService apiMetaDataService, InstrumentContext pluginContext, boolean exceptionHandle) {
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig must not be null");
+        }
+        if (traceContext == null) {
+            throw new NullPointerException("traceContext must not be null");
+        }
+        if (dataSourceMonitorRegistry == null) {
+            throw new NullPointerException("dataSourceMonitorRegistry must not be null");
+        }
+        if (apiMetaDataService == null) {
+            throw new NullPointerException("apiMetaDataService must not be null");
+        }
+        if (pluginContext == null) {
+            throw new NullPointerException("pluginContext must not be null");
+        }
+        this.profilerConfig = profilerConfig;
+        this.traceContext = traceContext;
+        this.dataSourceMonitorRegistry = dataSourceMonitorRegistry;
+        this.apiMetaDataService = apiMetaDataService;
         this.pluginContext = pluginContext;
         this.exceptionHandle = exceptionHandle;
     }
@@ -94,9 +117,9 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
             }
         }
 
-        AutoBindingObjectFactory factory = new AutoBindingObjectFactory(pluginContext, classLoader);
+        AutoBindingObjectFactory factory = new AutoBindingObjectFactory(profilerConfig, traceContext, pluginContext, classLoader);
         ObjectFactory objectFactory = ObjectFactory.byConstructor(interceptorClassName, providedArguments);
-        InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(pluginContext.getTraceContext(), scope, target, targetMethod);
+        InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(dataSourceMonitorRegistry, apiMetaDataService, scope, target, targetMethod);
 
         Interceptor interceptor = (Interceptor) factory.createInstance(objectFactory, interceptorArgumentProvider);
 

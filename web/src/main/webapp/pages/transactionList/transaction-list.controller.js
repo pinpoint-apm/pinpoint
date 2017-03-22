@@ -9,8 +9,9 @@
 	 */
 	pinpointApp.constant("TransactionListConfig", {
 	    applicationUrl: "/transactionmetadata.pinpoint",
+		MIN_TRANSACTION_LIST_HEIGHT: 75,
 	    MAX_FETCH_BLOCK_SIZE: 100,
-		TRANSACTION_LIST_RESIZER: "transactionList.resizer"
+		TRANSACTION_LIST_HANDLE_POSITION: "transactionList.resizer"
 	});
 	
 	pinpointApp.controller("TransactionListCtrl", ["TransactionListConfig", "$scope", "$location", "locationService", "$routeParams", "$rootScope", "$timeout", "$window", "$http", "webStorage", "TimeSliderVoService", "TransactionDaoService", "AnalyticsService", "helpContentService",
@@ -63,10 +64,11 @@
 				}
 
 	            $timeout(function () {
-					var resizerY = webStorage.get( cfg.TRANSACTION_LIST_RESIZER ) === null ? (window.innerHeight - 40) / 2 : parseInt( webStorage.get( cfg.TRANSACTION_LIST_RESIZER ) );
+					var resizerY = webStorage.get( cfg.TRANSACTION_LIST_HANDLE_POSITION ) === null ? (window.innerHeight - 40) / 2 : parseInt( webStorage.get( cfg.TRANSACTION_LIST_HANDLE_POSITION ) );
+					resizerY = Math.max( cfg.MIN_TRANSACTION_LIST_HEIGHT, resizerY );
 	                if( $("#main-container").length !== 0 ) {
 						$("#main-container").layout({
-							north__minSize: 20,
+							north__minSize: 30,
 							north__size: resizerY,
 							//                north__spacing_closed: 20,
 							//                north__togglerLength_closed: 100,
@@ -74,7 +76,7 @@
 							center__maskContents: true, // IMPORTANT - enable iframe masking
 							onresize: function () {
 								if (arguments[0] === "north") {
-									webStorage.add(cfg.TRANSACTION_LIST_RESIZER, arguments[2].innerHeight);
+									webStorage.add(cfg.TRANSACTION_LIST_HANDLE_POSITION, arguments[2].innerHeight);
 								}
 							}
 						});
@@ -123,13 +125,14 @@
 	         */
 			getTransactionInfoFromWindow = function (windowName) {
 	            var t = windowName.split('|');
-				if (t.length === 5 ) {
+				if (t.length === 6 ) {
 					return {
 						applicationName: t[0],
 						type: t[1],
 						min: t[2],
 						max: t[3],
-						agent: t[4]
+						agent: t[4],
+						include: t[5]
 					};
 				} else {
 					return {
@@ -138,7 +141,8 @@
 						nXTo: t[2],
 						nYFrom: t[3],
 						nYTo: t[4],
-						agent: t[5]
+						agent: t[5],
+						include: t[6]
 					};
 				}
 	        };
@@ -169,9 +173,9 @@
 	        getDataByTransactionInfo = function (t) {
 	            var oScatter = $window.opener.htoScatter[t.applicationName];
 				if ( t.type ) {
-					return oScatter.getDataByRange( t.type, t.min, t.max, t.agent );
+					return oScatter.getDataByRange( t.type, t.min, t.max, t.agent, t.include );
 				} else {
-					return oScatter.getDataByXY( t.nXFrom, t.nXTo, t.nYFrom, t.nYTo, t.agent );
+					return oScatter.getDataByXY( t.nXFrom, t.nXTo, t.nYFrom, t.nYTo, t.agent, t.include );
 				}
 
 	        };
@@ -212,7 +216,7 @@
 	         */
 	        fetchNext = function () {
 	            getTransactionList(getQuery(), function (data) {
-	                if (data.metadata.length === 0) {
+	                if (data.metadata.length === 0 ) {
 	                    $scope.$emit('timeSliderDirective.disableMore');
 	                    $scope.$emit('timeSliderDirective.changeMoreToDone');
 	                    return false;
@@ -243,34 +247,47 @@
 	        /**
 	         * fetch start
 	         */
+	        var fetchStartLoadTryCount = 0;
+	        var fetchStartLoadTryMaxCount = 3;
 	        fetchStart = function ( bHasTransactionInfo ) {
 				var query = getQuery();
 	            getTransactionList(query, function (data) {
-	                if (data.metadata.length === 0) {
-	                    $scope.$emit('timeSliderDirective.disableMore');
-	                    $scope.$emit('timeSliderDirective.changeMoreToDone');
-	                    return false;
-	                } else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE || oTimeSliderVoService.getTotal() === data.metadata.length) {
-	                    $scope.$emit('timeSliderDirective.disableMore');
-	                    $scope.$emit('timeSliderDirective.changeMoreToDone');
-	                    oTimeSliderVoService.setInnerFrom(htTransactionInfo.nXFrom);
-	                } else {
-	                    $scope.$emit('timeSliderDirective.enableMore');
-	                    oTimeSliderVoService.setInnerFrom(_.last(data.metadata).collectorAcceptTime);
-	                }
-	                emitTransactionListToTable(data);
-	
-	                oTimeSliderVoService.setFrom(htTransactionInfo.nXFrom);
-	                oTimeSliderVoService.setTo(htTransactionInfo.nXTo);
-	                oTimeSliderVoService.setInnerTo(htTransactionInfo.nXTo);
-	                oTimeSliderVoService.setCount(data.metadata.length);
-	
-	                $scope.$emit('timeSliderDirective.initialize', oTimeSliderVoService);
-	                $scope.sidebarLoading = false;
+					if (data.metadata.length === 0) {
+						$scope.$emit('timeSliderDirective.disableMore');
+						$scope.$emit('timeSliderDirective.changeMoreToDone');
+						if ( fetchStartLoadTryCount < fetchStartLoadTryMaxCount ) {
+							fetchStartLoadTryCount++;
+							$timeout(function() {
+								fetchStart(bHasTransactionInfo);
+							}, 3000);
+						} else {
+							$window.alert("There is no data.");
+							$window.close();
+						}
+						return false;
+					} else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE || oTimeSliderVoService.getTotal() === data.metadata.length) {
+						$scope.$emit('timeSliderDirective.disableMore');
+						$scope.$emit('timeSliderDirective.changeMoreToDone');
+						oTimeSliderVoService.setInnerFrom(htTransactionInfo.nXFrom);
+					} else {
+						$scope.$emit('timeSliderDirective.enableMore');
+						oTimeSliderVoService.setInnerFrom(_.last(data.metadata).collectorAcceptTime);
+					}
+					emitTransactionListToTable(data);
 
-					if ( bHasTransactionInfo ) {
+					oTimeSliderVoService.setFrom(htTransactionInfo.nXFrom);
+					oTimeSliderVoService.setTo(htTransactionInfo.nXTo);
+					oTimeSliderVoService.setInnerTo(htTransactionInfo.nXTo);
+					oTimeSliderVoService.setCount(data.metadata.length);
+
+					$scope.$emit('timeSliderDirective.initialize', oTimeSliderVoService);
+					$scope.sidebarLoading = false;
+
+					if (bHasTransactionInfo) {
 						changeTransactionDetail({
-							traceId : aParamTransactionInfo[0],
+							agentId: data.metadata[0].agentId,
+							spanId: data.metadata[0].spanId,
+							traceId: aParamTransactionInfo[0],
 							collectorAcceptTime: aParamTransactionInfo[1],
 							elapsed: aParamTransactionInfo[2]
 						});
@@ -302,13 +319,13 @@
 	        changeTransactionDetail = function (transaction) {
 				var transactionDetailUrl = 'index.html?vs=' + Date.now() + '#/transactionDetail';
 				if (transaction.traceId && transaction.collectorAcceptTime) {
-					transactionDetailUrl += '/' + $window.encodeURIComponent(transaction.traceId) + '/' + transaction.collectorAcceptTime;
+					transactionDetailUrl += '/' + $window.encodeURIComponent(transaction.traceId) + '/' + transaction.collectorAcceptTime + '/' + transaction.agentId + '/' + transaction.spanId;
 				}
 				if ( beforeTransactionDetailUrl == transactionDetailUrl ) {
 					$scope.$emit( "transactionTableDirective.completedDetailPageLoad" );
 				} else {
 					beforeTransactionDetailUrl = transactionDetailUrl;
-					$location.path( "/transactionList/" + $routeParams.application + "/" + $routeParams.readablePeriod + "/" + $routeParams.queryEndDateTime + "/" + transaction.traceId + "-" + transaction.collectorAcceptTime + "-" + transaction.elapsed , false );
+					$location.path( "/transactionList/" + $routeParams.application + "/" + $routeParams.readablePeriod + "/" + $routeParams.queryEndDateTime + "/" + transaction.traceId + "-" + transaction.collectorAcceptTime + "-" + transaction.elapsed, false );
 					$timeout(function () {
 						$scope.transactionDetailUrl = transactionDetailUrl;
 					});

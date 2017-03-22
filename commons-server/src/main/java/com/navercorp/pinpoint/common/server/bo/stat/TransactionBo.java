@@ -24,6 +24,7 @@ public class TransactionBo implements AgentStatDataPoint {
     public static final long UNCOLLECTED_VALUE = -1;
 
     private String agentId;
+    private long startTimestamp;
     private long timestamp;
     private long collectInterval = UNCOLLECTED_VALUE;
     private long sampledNewCount = UNCOLLECTED_VALUE;
@@ -39,6 +40,16 @@ public class TransactionBo implements AgentStatDataPoint {
     @Override
     public void setAgentId(String agentId) {
         this.agentId = agentId;
+    }
+
+    @Override
+    public long getStartTimestamp() {
+        return startTimestamp;
+    }
+
+    @Override
+    public void setStartTimestamp(long startTimestamp) {
+        this.startTimestamp = startTimestamp;
     }
 
     @Override
@@ -103,6 +114,7 @@ public class TransactionBo implements AgentStatDataPoint {
 
         TransactionBo that = (TransactionBo) o;
 
+        if (startTimestamp != that.startTimestamp) return false;
         if (timestamp != that.timestamp) return false;
         if (collectInterval != that.collectInterval) return false;
         if (sampledNewCount != that.sampledNewCount) return false;
@@ -110,11 +122,13 @@ public class TransactionBo implements AgentStatDataPoint {
         if (unsampledNewCount != that.unsampledNewCount) return false;
         if (unsampledContinuationCount != that.unsampledContinuationCount) return false;
         return agentId != null ? agentId.equals(that.agentId) : that.agentId == null;
+
     }
 
     @Override
     public int hashCode() {
         int result = agentId != null ? agentId.hashCode() : 0;
+        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
         result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
         result = 31 * result + (int) (collectInterval ^ (collectInterval >>> 32));
         result = 31 * result + (int) (sampledNewCount ^ (sampledNewCount >>> 32));
@@ -128,6 +142,7 @@ public class TransactionBo implements AgentStatDataPoint {
     public String toString() {
         return "TransactionBo{" +
                 "agentId='" + agentId + '\'' +
+                ", startTimestamp=" + startTimestamp +
                 ", timestamp=" + timestamp +
                 ", collectInterval=" + collectInterval +
                 ", sampledNewCount=" + sampledNewCount +

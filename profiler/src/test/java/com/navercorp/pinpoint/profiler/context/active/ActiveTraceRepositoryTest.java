@@ -26,6 +26,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionCounter;
+import com.navercorp.pinpoint.profiler.context.MockTraceContextFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,17 +38,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
-import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceId;
-import com.navercorp.pinpoint.profiler.context.TransactionCounter;
-import com.navercorp.pinpoint.profiler.context.TransactionCounter.SamplingType;
-import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
-import com.navercorp.pinpoint.profiler.metadata.LRUCache;
-import com.navercorp.pinpoint.profiler.sampler.SamplingRateSampler;
-import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
-import com.navercorp.pinpoint.test.TestAgentInformation;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
+import org.mockito.Mockito;
 
 /**
  * @author HyunGil Jeong
@@ -53,23 +49,25 @@ public class ActiveTraceRepositoryTest {
 
     private static final int SAMPLING_RATE = 3;
 
-    private DefaultTraceContext traceContext;
+    private TraceContext traceContext;
     private TransactionCounter transactionCounter;
-    private ActiveTraceLocator activeTraceRepository;
+    private ActiveTraceRepository activeTraceRepository;
 
     @Before
     public void setUp() {
-        final LogStorageFactory logStorageFactory = new LogStorageFactory();
-        final Sampler sampler = new SamplingRateSampler(SAMPLING_RATE);
-        this.traceContext = new DefaultTraceContext(
-                LRUCache.DEFAULT_CACHE_SIZE,
-                new TestAgentInformation(),
-                logStorageFactory,
-                sampler,
-                new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs()),
-                true);
-        this.transactionCounter = this.traceContext.getTransactionCounter();
-        this.activeTraceRepository = this.traceContext.getActiveTraceLocator();
+
+
+        final ProfilerConfig profilerConfig = Mockito.mock(ProfilerConfig.class);
+        Mockito.when(profilerConfig.isTraceAgentActiveThread()).thenReturn(true);
+
+        Mockito.when(profilerConfig.isSamplingEnable()).thenReturn(true);
+        Mockito.when(profilerConfig.getSamplingRate()).thenReturn(SAMPLING_RATE);
+
+        MockTraceContextFactory mockTraceContextFactory = MockTraceContextFactory.newTestTraceContextFactory(profilerConfig);
+
+        this.traceContext = mockTraceContextFactory.getTraceContext();
+        this.transactionCounter = new DefaultTransactionCounter(mockTraceContextFactory.getIdGenerator());
+        this.activeTraceRepository = mockTraceContextFactory.getActiveTraceRepository();
     }
 
     @Test
@@ -98,15 +96,15 @@ public class ActiveTraceRepositoryTest {
         }
 
         // Then
-        assertEquals(expectedSampledNewCount, transactionCounter.getTransactionCount(SamplingType.SAMPLED_NEW));
-        assertEquals(expectedUnsampledNewCount, transactionCounter.getTransactionCount(SamplingType.UNSAMPLED_NEW));
-        assertEquals(expectedSampledContinuationCount, transactionCounter.getTransactionCount(SamplingType.SAMPLED_CONTINUATION));
-        assertEquals(expectedUnsampledContinuationCount, transactionCounter.getTransactionCount(SamplingType.UNSAMPLED_CONTINUATION));
+        assertEquals(expectedSampledNewCount, transactionCounter.getSampledNewCount());
+        assertEquals(expectedUnsampledNewCount, transactionCounter.getUnSampledNewCount());
+        assertEquals(expectedSampledContinuationCount, transactionCounter.getSampledContinuationCount());
+        assertEquals(expectedUnsampledContinuationCount, transactionCounter.getUnSampledContinuationCount());
         assertEquals(expectedTotalTransactionCount, transactionCounter.getTotalTransactionCount());
         
         for (ActiveTraceInfo activeTraceInfo : activeTraceInfos) {
-            TraceThreadTuple executedTrace = executedTraceMap.get(activeTraceInfo.getId());
-            assertEquals(executedTrace.id, activeTraceInfo.getId());
+            TraceThreadTuple executedTrace = executedTraceMap.get(activeTraceInfo.getLocalTraceId());
+            assertEquals(executedTrace.id, activeTraceInfo.getLocalTraceId());
             assertEquals(executedTrace.startTime, activeTraceInfo.getStartTime());
             assertEquals(executedTrace.thread, activeTraceInfo.getThread());
         }

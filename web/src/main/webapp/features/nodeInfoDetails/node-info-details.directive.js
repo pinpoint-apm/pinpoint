@@ -11,8 +11,8 @@
 	    maxTimeToShowLoadAsDefaultForUnknown: 60 * 60 * 12 // 12h
 	});
 	
-	pinpointApp.directive("nodeInfoDetailsDirective", [ "nodeInfoDetailsDirectiveConfig", "$rootScope", "$filter", "$timeout", "isVisibleService", "globalConfig", "$window", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService",
-        function (cfg, $rootScope, $filter, $timeout, isVisibleService, globalConfig, $window, analyticsService, preferenceService, tooltipService, commonAjaxService ) {
+	pinpointApp.directive("nodeInfoDetailsDirective", [ "nodeInfoDetailsDirectiveConfig", "$rootScope", "$filter", "$timeout", "isVisibleService", "SystemConfigurationService", "$window", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService",
+        function (cfg, $rootScope, $filter, $timeout, isVisibleService, SystemConfigService, $window, analyticsService, preferenceService, tooltipService, commonAjaxService ) {
             return {
                 restrict: "EA",
                 replace: true,
@@ -33,17 +33,17 @@
                     bShown = false;
                     scope.htLastUnknownNode = false;
 
-                    angular.element($window).bind("resize",function(e) {
-                        if (bShown && /_GROUP$/.test( htLastNode.category ) ) {
-                            renderAllChartWhichIsVisible(htLastNode);
-                        }
-                    });
-
-                    element
-                        .find(".unknown-list")
-                        .bind("scroll", function (e) {
-                            renderAllChartWhichIsVisible(htLastNode);
-                        });
+                    // angular.element($window).bind("resize",function(e) {
+                    //     if (bShown && /_GROUP$/.test( htLastNode.category ) ) {
+                    //         renderAllChartWhichIsVisible(htLastNode);
+                    //     }
+                    // });
+					//
+                    // element
+                    //     .find(".unknown-list")
+                    //     .bind("scroll", function (e) {
+                    //         renderAllChartWhichIsVisible(htLastNode);
+                    //     });
 
                     /**
                      * reset
@@ -271,7 +271,7 @@
 						return scope.isAuthorized === false;
 					};
 					scope.getAuthGuideUrl = function() {
-						return globalConfig.securityGuideUrl;
+						return SystemConfigService.get("securityGuideUrl");
 					};
 
                     /**

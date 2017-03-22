@@ -1,20 +1,33 @@
 (function() {
 	'use strict';
 
-	/**
-	 * (en)Agent의 Chart 정보를 로드하고 chart library에 사용할 수 있도록 데이터를 가공함.
-	 * @ko Agent의 Chart 정보를 로드하고 chart library에 사용할 수 있도록 데이터를 가공함.
-	 * @group Service
-	 * @name AgentDaoService
-	 * @class
-	 */
 	pinpointApp.constant( "agentDaoServiceConfig", {
+		agentStatUrl: "/getAgentStat.pinpoint",
 		dateFormat: "YYYY-MM-DD HH:mm:ss"
 	});
 
 	pinpointApp.service( "AgentDaoService", [ "agentDaoServiceConfig",
 		function AgentDaoService( cfg ) {
 
+			this.getAgentStat = function (query, cb) {
+				jQuery.ajax({
+					type: 'GET',
+					url: cfg.agentStatUrl,
+					cache: false,
+					dataType: 'json',
+					data: query,
+					success: function (result) {
+						if (angular.isFunction(cb)) {
+							cb(null, result);
+						}
+					},
+					error: function (xhr, status, error) {
+						if (angular.isFunction(cb)) {
+							cb(error, {});
+						}
+					}
+				});
+			};
 			/**
 			 * calculate a sampling rate based on the given period
 			 * @param period in minutes
@@ -41,42 +54,23 @@
 					throw new Error('assertion error', 'time.length != count.length');
 				}
 
-				var currTime, currCount, prevTime, prevCount; // for gc
-
+				// gc time may be spread across consecutive timeslots even for a single gc event
+				var cumulativeGcTime = 0;
 				for (var i = 0; i < pointsCount.length; ++i) {
 					var thisData = {
 						time: moment(pointsTime[i].xVal).format( cfg.dateFormat )
 					};
 					for (var k in info.line) {
 						if (info.line[k].isFgc) {
-							var gcCount = 0;
-							var gcTime = 0;
-							currTime = pointsTime[i].maxYVal;
-							currCount = pointsCount[i].maxYVal;
-							if (!prevTime || !prevCount) {
-								prevTime = currTime;
-								prevCount = currCount;
-							} else {
-								var countDelta = currCount - prevCount;
-								var timeDelta = currTime - prevTime;
-								var fgcOccurred = (Math.abs(countDelta) > 0) && (Math.abs(timeDelta) > 0);
-								var jvmRestarted = countDelta < 0 && timeDelta < 0;
-
-								if (fgcOccurred) {
-									if (jvmRestarted) {
-										gcCount = currCount;
-										gcTime = currTime;
-									} else {
-										gcCount = currCount - prevCount;
-										gcTime = currTime - prevTime;
-									}
-									prevCount = currCount;
-									prevTime = currTime;
-								}
+							var gcCount = pointsCount[i].sumYVal;
+							var gcTime = pointsTime[i].sumYVal;
+							if (gcTime > 0) {
+								cumulativeGcTime += gcTime;
 							}
-							if (gcCount > 0 && gcTime > 0) {
+							if (gcCount > 0) {
 								thisData[info.line[k].key+"Count"] = gcCount;
-								thisData[info.line[k].key+"Time"] = gcTime;
+								thisData[info.line[k].key+"Time"] = cumulativeGcTime;
+								cumulativeGcTime = 0;
 							}
 						} else {
 							var value = agentStat.charts[info.line[k].id].points[i].maxYVal;
@@ -233,6 +227,38 @@
 				}
 				return newData;
 			};
+			this.parseDataSourceChartDataForAmcharts = function (oInfo, aChartData, prefix) {
+				var returnData = [];
+				if ( aChartData.length === 0 ) {
+					return returnData;
+				}
+				var maxAvg = 0;
+				for( var groupIndex = 0 ; groupIndex < aChartData.length ; groupIndex++ ) {
+					var oGroupData = aChartData[groupIndex];
+					var targetId = oGroupData.id;
+					var aAvgData = oGroupData.charts["ACTIVE_CONNECTION_SIZE"].points;
+
+					if ( aAvgData.length === 0 ) {
+						return returnData;
+					}
+					for( var fieldIndex = 0 ; fieldIndex < aAvgData.length ; fieldIndex++ ) {
+						var oData = aAvgData[fieldIndex];
+						if ( groupIndex === 0 ) {
+							returnData[fieldIndex] = {
+								"time": moment(oData.xVal).format(cfg.dateFormat)
+							};
+						}
+						maxAvg = Math.max( maxAvg, oData["avgYVal"] );
+						returnData[fieldIndex][prefix+targetId]  = oData["avgYVal"].toFixed(1);
+					}
+				}
+				info.isAvailable = true;
+				return {
+					max: parseInt( maxAvg ) + 1,
+					data: returnData
+				};
+			};
+
 			function getFloatValue( val ) {
 				return angular.isNumber( val ) ? val.toFixed(2) : 0.00;
 			}

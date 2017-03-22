@@ -300,10 +300,10 @@ public class AutomaticBufferTest {
         buffer.putShort((short)28704);
 
         Buffer read = new FixedBuffer(buffer.getBuffer());
-        logger.info("{}", (char)read.readByte());
-        logger.info("{}", (char)read.readByte());
-        logger.info("{}", (char)read.readByte());
-        logger.info("{}", (char)read.readByte());
+        logger.debug("{}", (char)read.readByte());
+        logger.debug("{}", (char)read.readByte());
+        logger.debug("{}", (char)read.readByte());
+        logger.debug("{}", (char)read.readByte());
 
     }
 

@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  */
 public class LogStorageFactory implements StorageFactory {
 
-    private final static Storage DEFAULT_STORAGE = new LogStorage();
+    public final static Storage DEFAULT_STORAGE = new LogStorage();
 
     @Override
     public Storage createStorage() {

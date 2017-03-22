@@ -131,6 +131,7 @@ public class AgentEventServiceImpl implements AgentEventService {
         return agentEvent;
     }
 
+    @Deprecated
     private DurationalAgentEvent createDurationalAgentEvent(AgentEventBo agentEventBo, boolean includeEventMessage) {
         DurationalAgentEvent durationalAgentEvent = new DurationalAgentEvent(agentEventBo);
         if (includeEventMessage) {

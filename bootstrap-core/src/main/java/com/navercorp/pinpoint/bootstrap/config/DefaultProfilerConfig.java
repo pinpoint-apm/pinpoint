@@ -115,8 +115,15 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private String statDataSenderSocketType = "OIO";
 
     private boolean tcpDataSenderCommandAcceptEnable = false;
+    private boolean tcpDataSenderCommandActiveThreadEnable = false;
+    private boolean tcpDataSenderCommandActiveThreadCountEnable = false;
+    private boolean tcpDataSenderCommandActiveThreadDumpEnable = false;
+    private boolean tcpDataSenderCommandActiveThreadLightDumpEnable = false;
 
     private boolean traceAgentActiveThread = true;
+
+    private boolean traceAgentDataSource = false;
+    private int dataSourceTraceLimitSize = 20;
 
     private int callStackMaxDepth = 512;
 
@@ -230,8 +237,38 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
+    public boolean isTcpDataSenderCommandActiveThreadEnable() {
+        return tcpDataSenderCommandActiveThreadEnable;
+    }
+
+    @Override
+    public boolean isTcpDataSenderCommandActiveThreadCountEnable() {
+        return tcpDataSenderCommandActiveThreadCountEnable;
+    }
+
+    @Override
+    public boolean isTcpDataSenderCommandActiveThreadDumpEnable() {
+        return tcpDataSenderCommandActiveThreadDumpEnable;
+    }
+
+    @Override
+    public boolean isTcpDataSenderCommandActiveThreadLightDumpEnable() {
+        return tcpDataSenderCommandActiveThreadLightDumpEnable;
+    }
+
+    @Override
     public boolean isTraceAgentActiveThread() {
         return traceAgentActiveThread;
+    }
+
+    @Override
+    public boolean isTraceAgentDataSource() {
+        return traceAgentDataSource;
+    }
+
+    @Override
+    public int getDataSourceTraceLimitSize() {
+        return dataSourceTraceLimitSize;
     }
 
     @Override
@@ -308,10 +345,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public boolean isProfilerJvmCollectDetailedMetrics() {
         return profilerJvmCollectDetailedMetrics;
-    }
-
-    public void setProfilerJvmCollectDetailedMetrics(boolean profilerJvmCollectDetailedMetrics) {
-        this.profilerJvmCollectDetailedMetrics = profilerJvmCollectDetailedMetrics;
     }
 
     @Override
@@ -397,12 +430,19 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.statDataSenderSocketType = readString("profiler.statdatasender.socket.type", "OIO");
 
         this.tcpDataSenderCommandAcceptEnable = readBoolean("profiler.tcpdatasender.command.accept.enable", false);
+        this.tcpDataSenderCommandActiveThreadEnable = readBoolean("profiler.tcpdatasender.command.activethread.enable", false);
+        this.tcpDataSenderCommandActiveThreadCountEnable = readBoolean("profiler.tcpdatasender.command.activethread.count.enable", false);
+        this.tcpDataSenderCommandActiveThreadDumpEnable = readBoolean("profiler.tcpdatasender.command.activethread.threaddump.enable", false);
+        this.tcpDataSenderCommandActiveThreadLightDumpEnable = readBoolean("profiler.tcpdatasender.command.activethread.threadlightdump.enable", false);
 
         this.traceAgentActiveThread = readBoolean("profiler.pinpoint.activethread", true);
 
-        // CallStck
+        this.traceAgentDataSource = readBoolean("profiler.pinpoint.datasource", false);
+        this.dataSourceTraceLimitSize = readInt("profiler.pinpoint.datasource.tracelimitsize", 20);
+
+        // CallStack
         this.callStackMaxDepth = readInt("profiler.callstack.max.depth", 64);
-        if(this.callStackMaxDepth < 2) {
+        if (this.callStackMaxDepth < 2) {
             this.callStackMaxDepth = 2;
         }
         
@@ -594,8 +634,20 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append(statDataSenderSocketType);
         builder.append(", tcpDataSenderCommandAcceptEnable=");
         builder.append(tcpDataSenderCommandAcceptEnable);
+        builder.append(", tcpDataSenderCommandActiveThreadEnable=");
+        builder.append(tcpDataSenderCommandActiveThreadEnable);
+        builder.append(", tcpDataSenderCommandActiveThreadCountEnable=");
+        builder.append(tcpDataSenderCommandActiveThreadCountEnable);
+        builder.append(", tcpDataSenderCommandActiveThreadDumpEnable=");
+        builder.append(tcpDataSenderCommandActiveThreadDumpEnable);
+        builder.append(", tcpDataSenderCommandActiveThreadLightDumpEnable=");
+        builder.append(tcpDataSenderCommandActiveThreadLightDumpEnable);
         builder.append(", traceAgentActiveThread=");
         builder.append(traceAgentActiveThread);
+        builder.append(", traceAgentDataSource=");
+        builder.append(traceAgentDataSource);
+        builder.append(", dataSourceTraceLimitSize=");
+        builder.append(dataSourceTraceLimitSize);
         builder.append(", callStackMaxDepth=");
         builder.append(callStackMaxDepth);
         builder.append(", jdbcSqlCacheSize=");

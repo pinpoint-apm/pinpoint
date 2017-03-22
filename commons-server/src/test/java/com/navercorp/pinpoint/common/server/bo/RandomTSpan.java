@@ -72,7 +72,7 @@ public class RandomTSpan {
 
     public List<TAnnotation> randomTAnnotationList() {
         int annotationSize = RandomUtils.nextInt(0, 3);
-        List<TAnnotation> result = new ArrayList<>();
+        List<TAnnotation> result = new ArrayList<TAnnotation>();
         for (int i = 0; i < annotationSize; i++) {
             result.add(randomTAnnotation(i));
         }

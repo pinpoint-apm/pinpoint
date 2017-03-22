@@ -34,30 +34,30 @@ import java.util.List;
  */
 public class ASMMethodNodeAdapter {
 
-    private final String declaringClassName;
+    private final String declaringClassInternalName;
     private final MethodNode methodNode;
     private final ASMMethodVariables methodVariables;
 
-    public ASMMethodNodeAdapter(final String declaringClassName, final MethodNode methodNode) {
-        if (declaringClassName == null || methodNode == null) {
-            throw new IllegalArgumentException("declaring class internal name and method annotation must not be null. class=" + declaringClassName + ", methodNode=" + methodNode);
+    public ASMMethodNodeAdapter(final String declaringClassInternalName, final MethodNode methodNode) {
+        if (declaringClassInternalName == null || methodNode == null) {
+            throw new IllegalArgumentException("declaring class internal name and method annotation must not be null. class=" + declaringClassInternalName + ", methodNode=" + methodNode);
         }
 
         if (methodNode.instructions == null || methodNode.desc == null) {
-            throw new IllegalArgumentException("method annotation's instructions or desc must not be null. class=" + declaringClassName + ", method=" + methodNode.name + methodNode.desc);
+            throw new IllegalArgumentException("method annotation's instructions or desc must not be null. class=" + declaringClassInternalName + ", method=" + methodNode.name + methodNode.desc);
         }
 
-        this.declaringClassName = declaringClassName;
+        this.declaringClassInternalName = declaringClassInternalName;
         this.methodNode = methodNode;
-        this.methodVariables = new ASMMethodVariables(declaringClassName, methodNode);
+        this.methodVariables = new ASMMethodVariables(declaringClassInternalName, methodNode);
     }
 
     public MethodNode getMethodNode() {
         return this.methodNode;
     }
 
-    public String getDeclaringClassName() {
-        return this.declaringClassName;
+    public String getDeclaringClassInternalName() {
+        return this.declaringClassInternalName;
     }
 
     // find interceptor local variable.
@@ -68,11 +68,11 @@ public class ASMMethodNodeAdapter {
     public String getName() {
         if (isConstructor()) {
             // simple class name.
-            int index = this.declaringClassName.lastIndexOf('/');
+            int index = this.declaringClassInternalName.lastIndexOf('/');
             if (index < 0) {
-                return this.declaringClassName;
+                return this.declaringClassInternalName;
             } else {
-                return this.declaringClassName.substring(index + 1);
+                return this.declaringClassInternalName.substring(index + 1);
             }
         }
 
@@ -136,7 +136,7 @@ public class ASMMethodNodeAdapter {
     }
 
     public String getLongName() {
-        return this.declaringClassName + "/" + getName() + getDesc();
+        return this.declaringClassInternalName + "/" + getName() + getDesc();
     }
 
     public boolean isStatic() {
@@ -178,8 +178,8 @@ public class ASMMethodNodeAdapter {
         return false;
     }
 
-    public void addDelegator(final String superClassName) {
-        if (superClassName == null) {
+    public void addDelegator(final String superClassInternalName) {
+        if (superClassInternalName == null) {
             throw new IllegalArgumentException("super class internal name must not be null.");
         }
 
@@ -189,7 +189,7 @@ public class ASMMethodNodeAdapter {
             // load parameters
             this.methodVariables.loadArgs(instructions);
             // invoke static
-            instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, superClassName, this.methodNode.name, this.methodNode.desc, false));
+            instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, superClassInternalName, this.methodNode.name, this.methodNode.desc, false));
         } else {
             this.methodVariables.initLocalVariables(instructions);
             // load this
@@ -197,7 +197,7 @@ public class ASMMethodNodeAdapter {
             // load parameters
             this.methodVariables.loadArgs(instructions);
             // invoke special
-            instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, superClassName, this.methodNode.name, this.methodNode.desc, false));
+            instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, superClassInternalName, this.methodNode.name, this.methodNode.desc, false));
         }
         // return
         this.methodVariables.returnValue(instructions);
@@ -209,7 +209,7 @@ public class ASMMethodNodeAdapter {
         }
 
         final ASMMethodInsnNodeRemapper remapper = new ASMMethodInsnNodeRemapper();
-        remapper.addFilter(this.declaringClassName, this.methodNode.name, this.methodNode.desc);
+        remapper.addFilter(this.declaringClassInternalName, this.methodNode.name, this.methodNode.desc);
         remapper.setName(name);
         // change recursive call.
         remapMethodInsnNode(remapper);

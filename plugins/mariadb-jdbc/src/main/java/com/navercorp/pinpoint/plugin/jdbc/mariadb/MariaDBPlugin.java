@@ -14,10 +14,6 @@
  */
 package com.navercorp.pinpoint.plugin.jdbc.mariadb;
 
-import static com.navercorp.pinpoint.common.util.VarArgs.va;
-
-import java.security.ProtectionDomain;
-
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
@@ -30,12 +26,20 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+
+import java.security.ProtectionDomain;
+
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 /**
  * @author dawidmalina
  */
 public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
+    private final JdbcUrlParserV2 jdbcUrlParser = new MariaDBJdbcUrlParser();
+
     private TransformTemplate transformTemplate;
 
     @Override
@@ -46,6 +50,8 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
             logger.info("MariaDB plugin is not executed because plugin enable value is false.");
             return;
         }
+
+        context.addJdbcUrlParser(jdbcUrlParser);
 
         addConnectionTransformer(config);
         addDriverTransformer();
@@ -121,8 +127,8 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
                 target.addScopedInterceptor(
-                        "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor",
-                        va(new MariaDBJdbcUrlParser(), true), MariaDBConstants.MARIADB_SCOPE, ExecutionPolicy.ALWAYS);
+                        "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptorV2",
+                        va(MariaDBConstants.MARIADB, true), MariaDBConstants.MARIADB_SCOPE, ExecutionPolicy.ALWAYS);
 
                 return target.toBytecode();
             }
@@ -185,6 +191,8 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
         };
 
         transformTemplate.transform("org.mariadb.jdbc.AbstractMariaDbPrepareStatement", transformer);
+        // Class renamed in 1.5.6 - https://github.com/MariaDB/mariadb-connector-j/commit/16c8313960cf4fbc6b2b83136504d1ba9e662919
+        transformTemplate.transform("org.mariadb.jdbc.AbstractPrepareStatement", transformer);
 
     }
 

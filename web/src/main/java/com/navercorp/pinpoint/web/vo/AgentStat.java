@@ -204,21 +204,30 @@ public class AgentStat {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("AgentStat [");
-        sb.append("agentId=" + agentId + ", timestamp=" + timestamp + ", collectInterval=" + collectInterval);
-        sb.append(", gcType=" + gcType + ", gcOldCount=" + gcOldCount + ", gcOldTime=" + gcOldTime);
-        sb.append(", heapUsed=" + heapUsed + ", heapMax=" + heapMax + ", nonHeapUsed=" + nonHeapUsed);
-        sb.append(", nonHeapMax=" + nonHeapMax + ", jvmCpuUsage=" + jvmCpuUsage + ", systemCpuUsage=" + systemCpuUsage);
-        sb.append(", sampledNewCount=" + sampledNewCount + ", sampledContinuationCount=" + sampledContinuationCount);
-        sb.append(", unsampledNewCount=" + unsampledNewCount + ", unsampledContinuationCount=" + unsampledContinuationCount);
+        final StringBuilder sb = new StringBuilder("AgentStat{");
+        sb.append("agentId='").append(agentId).append('\'');
+        sb.append(", timestamp=").append(timestamp);
+        sb.append(", collectInterval=").append(collectInterval);
+        sb.append(", gcType='").append(gcType).append('\'');
+        sb.append(", gcOldCount=").append(gcOldCount);
+        sb.append(", gcOldTime=").append(gcOldTime);
+        sb.append(", heapUsed=").append(heapUsed);
+        sb.append(", heapMax=").append(heapMax);
+        sb.append(", nonHeapUsed=").append(nonHeapUsed);
+        sb.append(", nonHeapMax=").append(nonHeapMax);
+        sb.append(", jvmCpuUsage=").append(jvmCpuUsage);
+        sb.append(", systemCpuUsage=").append(systemCpuUsage);
+        sb.append(", sampledNewCount=").append(sampledNewCount);
+        sb.append(", sampledContinuationCount=").append(sampledContinuationCount);
+        sb.append(", unsampledNewCount=").append(unsampledNewCount);
+        sb.append(", unsampledContinuationCount=").append(unsampledContinuationCount);
         if (histogramSchema != null) {
             sb.append(", histogramSchemaTypeCode=" + histogramSchema.getTypeCode());
         }
         if (activeTraceCounts != null) {
             sb.append(", activeTraceCounts=" + activeTraceCounts);
         }
-        sb.append("]");
+        sb.append('}');
         return sb.toString();
     }
-
 }

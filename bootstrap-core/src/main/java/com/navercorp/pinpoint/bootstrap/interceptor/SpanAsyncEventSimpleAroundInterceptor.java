@@ -1,6 +1,23 @@
+/*
+ * Copyright 2015 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncState;
+import com.navercorp.pinpoint.bootstrap.context.AsyncStateSupport;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -15,7 +32,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInterceptor {
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
-    protected static final String SCOPE_NAME = "##ASYNC_TRACE_SCOPE";
+    protected static final String ASYNC_TRACE_SCOPE = "##ASYNC_TRACE_SCOPE";
 
     protected final MethodDescriptor methodDescriptor;
     protected final TraceContext traceContext;
@@ -34,7 +51,6 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
 
         traceContext.cacheApi(asyncMethodDescriptor);
     }
-
 
     @Override
     public void before(Object target, Object[] args) {
@@ -85,7 +101,8 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (getAsyncTraceId(target) == null) {
+        final AsyncTraceId asyncTraceId = getAsyncTraceId(target);
+        if (asyncTraceId == null) {
             logger.debug("Not found asynchronous invocation metadata");
             return;
         }
@@ -97,7 +114,9 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
 
         // leave scope.
         if (!leaveAsyncTraceScope(trace)) {
-            logger.warn("Failed to leave scope of async trace {}.", trace);
+            if (logger.isWarnEnabled()) {
+                logger.warn("Failed to leave scope of async trace {}.", trace);
+            }
             // delete unstable trace.
             deleteAsyncTrace(trace);
             return;
@@ -115,6 +134,7 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
             if (isAsyncTraceDestination(trace)) {
                 deleteAsyncTrace(trace);
             }
+            finishAsyncState(asyncTraceId);
         }
     }
 
@@ -127,7 +147,9 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
     private Trace createAsyncTrace(AsyncTraceId asyncTraceId) {
         final Trace trace = traceContext.continueAsyncTraceObject(asyncTraceId, asyncTraceId.getAsyncId(), asyncTraceId.getSpanStartTime());
         if (trace == null) {
-            logger.warn("Failed to continue async trace. 'result is null'");
+            if (logger.isWarnEnabled()) {
+                logger.warn("Failed to continue async trace. 'result is null'");
+            }
             return null;
         }
         if (isDebug) {
@@ -135,9 +157,11 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
         }
 
         // add async scope.
-        TraceScope oldScope = trace.addScope(SCOPE_NAME);
+        TraceScope oldScope = trace.addScope(ASYNC_TRACE_SCOPE);
         if (oldScope != null) {
-            logger.warn("Duplicated async trace scope={}.", oldScope.getName());
+            if (logger.isWarnEnabled()) {
+                logger.warn("Duplicated async trace scope={}.", oldScope.getName());
+            }
             // delete corrupted trace.
             deleteAsyncTrace(trace);
             return null;
@@ -160,14 +184,14 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
     }
 
     private void entryAsyncTraceScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
+        final TraceScope scope = trace.getScope(ASYNC_TRACE_SCOPE);
         if (scope != null) {
             scope.tryEnter();
         }
     }
 
     private boolean leaveAsyncTraceScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
+        final TraceScope scope = trace.getScope(ASYNC_TRACE_SCOPE);
         if (scope != null) {
             if (scope.canLeave()) {
                 scope.leave();
@@ -183,8 +207,19 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
             return false;
         }
 
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
+        final TraceScope scope = trace.getScope(ASYNC_TRACE_SCOPE);
         return scope != null && !scope.isActive();
+    }
+
+    private void finishAsyncState(final AsyncTraceId asyncTraceId) {
+        if (asyncTraceId instanceof AsyncStateSupport) {
+            final AsyncStateSupport asyncStateSupport = (AsyncStateSupport) asyncTraceId;
+            AsyncState asyncState = asyncStateSupport.getAsyncState();
+            asyncState.finish();
+            if (isDebug) {
+                logger.debug("finished asyncState. asyncTraceId={}", asyncTraceId);
+            }
+        }
     }
 
     public class AsyncMethodDescriptor implements MethodDescriptor {

@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.dao.hbase.stat.v1;
 import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 

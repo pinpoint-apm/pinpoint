@@ -37,14 +37,5 @@ public class DummyAgent implements Agent {
     public void stop() {
     }
 
-    @Override
-    public TraceContext getTraceContext() {
-        return null;
-    }
-
-    @Override
-     public ProfilerConfig getProfilerConfig() {
-        return null;
-    }
 
 }

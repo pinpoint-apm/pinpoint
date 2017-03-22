@@ -79,10 +79,10 @@
 			},
 			depth : {
 				mainStyle: "",
-				title: '<img src="images/inbound.png" width="22px" height="22px" style="margin-top:-4px;"> Inbound 와 <img src="images/outbound.png" width="22px" height="22px" style="margin-top:-4px"> Outbound',
+				title: '<img src="images/inbound.png" width="22px" height="22px" style="margin-top:-4px;"> Inbound and <img src="images/outbound.png" width="22px" height="22px" style="margin-top:-4px"> Outbound',
 				desc: "Search-depth of server map.",
 				category : [{
-					title: "[범례]",
+					title: "[Legend]",
 					items: [{
 						name: "Inbound",
 						desc: "Number of depth to render for requests coming in to the selected node."
@@ -510,7 +510,7 @@
 						name: "Used",
 						desc: "Heap currently in use"
 					},{
-						name: "FCG",
+						name: "FGC",
 						desc: "Full garbage collection duration (number of FGCs in parenthesis if it occurred more than once)"
 					}]
 				}]
@@ -528,7 +528,7 @@
 						name: "Used",
 						desc: "Heap currently in use"
 					},{
-						name: "FCG",
+						name: "FGC",
 						desc: "Full garbage collection duration (number of FGCs in parenthesis if it occurred more than once)"
 					}]
 				}]
@@ -590,6 +590,27 @@
 					},{
 						name: "Very Slow (slow)",
 						desc: "Number of threads that have been active for longer than 5s"
+					}]
+				}]
+			},
+			dataSource: {
+				mainStyle: "",
+				title: "Data Source",
+				desc: "Show the status of agent's data source.",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "Active Avg",
+						desc: "Average number of active connections"
+					},{
+						name: "Active Max",
+						desc: "Maximum number of active connections"
+					},{
+						name: "Total Max",
+						desc: "The maximum number of active connections that can be allocated at the same time"
+					},{
+						name: "Type",
+						desc: "DB Connection Pool Type"
 					}]
 				}]
 			},

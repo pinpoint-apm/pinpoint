@@ -88,6 +88,18 @@ public enum TCommandType {
         public TBase newObject() {
             return new TCmdActiveThreadDumpRes();
         }
+    },
+    ACTIVE_THREAD_LIGHT_DUMP((short) 750, TCmdActiveThreadLightDump.class) {
+        @Override
+        public TBase newObject() {
+            return new TCmdActiveThreadLightDump();
+        }
+    },
+    ACTIVE_THREAD_LIGHT_DUMP_RESPONSE((short) 751, TCmdActiveThreadLightDumpRes.class) {
+        @Override
+        public TBase newObject() {
+            return new TCmdActiveThreadLightDumpRes();
+        }
     };
 
     private final short code;

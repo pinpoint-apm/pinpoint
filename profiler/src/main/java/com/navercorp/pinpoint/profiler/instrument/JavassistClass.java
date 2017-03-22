@@ -21,9 +21,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtBehavior;
@@ -67,20 +68,34 @@ public class JavassistClass implements InstrumentClass {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
+    private final ObjectBinderFactory objectBinderFactory;
     private final InstrumentContext pluginContext;
-    // private final JavassistClassPool instrumentClassPool;
-    private final InterceptorRegistryBinder interceptorRegistryBinder;
-    private final ClassLoader classLoader;
-    private final CtClass ctClass;
 
+    private final InterceptorRegistryBinder interceptorRegistryBinder;
+    private final ApiMetaDataService apiMetaDataService;
+    private final ClassLoader classLoader;
+
+    private final CtClass ctClass;
     private static final String FIELD_PREFIX = "_$PINPOINT$_";
     private static final String SETTER_PREFIX = "_$PINPOINT$_set";
     private static final String GETTER_PREFIX = "_$PINPOINT$_get";
 
-    public JavassistClass(InstrumentContext pluginContext, InterceptorRegistryBinder interceptorRegistryBinder, ClassLoader classLoader, CtClass ctClass) {
+
+    public JavassistClass(ObjectBinderFactory objectBinderFactory, InstrumentContext pluginContext, InterceptorRegistryBinder interceptorRegistryBinder, ApiMetaDataService apiMetaDataService, ClassLoader classLoader, CtClass ctClass) {
+        if (objectBinderFactory == null) {
+            throw new NullPointerException("objectBinderFactory must not be null");
+        }
+        if (pluginContext == null) {
+            throw new NullPointerException("pluginContext must not be null");
+        }
+        if (apiMetaDataService == null) {
+            throw new NullPointerException("apiMetaDataService must not be null");
+        }
+        this.objectBinderFactory = objectBinderFactory;
         this.pluginContext = pluginContext;
         this.ctClass = ctClass;
         this.interceptorRegistryBinder = interceptorRegistryBinder;
+        this.apiMetaDataService = apiMetaDataService;
         this.classLoader = classLoader;
     }
 
@@ -129,20 +144,13 @@ public class JavassistClass implements InstrumentClass {
         return null;
     }
 
-    private CtMethod getCtMethod(String methodName, String[] parameterTypes) throws NotFoundInstrumentException {
-        CtMethod method = getCtMethod0(ctClass, methodName, parameterTypes);
-
-        if (method == null) {
-            throw new NotFoundInstrumentException(methodName + Arrays.toString(parameterTypes) + " is not found in " + this.getName());
-        }
-
-        return method;
-    }
-
     @Override
     public InstrumentMethod getDeclaredMethod(String name, String... parameterTypes) {
         CtMethod method = getCtMethod0(ctClass, name, parameterTypes);
-        return method == null ? null : new JavassistMethod(pluginContext, interceptorRegistryBinder, this, method);
+        if (method == null) {
+            return null;
+        }
+        return new JavassistMethod(objectBinderFactory, pluginContext, interceptorRegistryBinder, apiMetaDataService, this, method);
     }
 
     @Override
@@ -158,23 +166,13 @@ public class JavassistClass implements InstrumentClass {
         final CtMethod[] declaredMethod = ctClass.getDeclaredMethods();
         final List<InstrumentMethod> candidateList = new ArrayList<InstrumentMethod>(declaredMethod.length);
         for (CtMethod ctMethod : declaredMethod) {
-            final InstrumentMethod method = new JavassistMethod(pluginContext, interceptorRegistryBinder, this, ctMethod);
+            final InstrumentMethod method = new JavassistMethod(objectBinderFactory, pluginContext, interceptorRegistryBinder, apiMetaDataService, this, ctMethod);
             if (methodFilter.accept(method)) {
                 candidateList.add(method);
             }
         }
 
         return candidateList;
-    }
-
-    private CtConstructor getCtConstructor(String[] parameterTypes) throws NotFoundInstrumentException {
-        CtConstructor constructor = getCtConstructor0(parameterTypes);
-
-        if (constructor == null) {
-            throw new NotFoundInstrumentException("Constructor" + Arrays.toString(parameterTypes) + " is not found in " + this.getName());
-        }
-
-        return constructor;
     }
 
     private CtConstructor getCtConstructor0(String[] parameterTypes) {
@@ -194,7 +192,11 @@ public class JavassistClass implements InstrumentClass {
     @Override
     public InstrumentMethod getConstructor(String... parameterTypes) {
         CtConstructor constructor = getCtConstructor0(parameterTypes);
-        return constructor == null ? null : new JavassistMethod(pluginContext, interceptorRegistryBinder, this, constructor);
+        if (constructor == null) {
+            return null;
+        }
+
+        return new JavassistMethod(objectBinderFactory, pluginContext, interceptorRegistryBinder, apiMetaDataService, this, constructor);
     }
 
     @Override
@@ -314,7 +316,7 @@ public class JavassistClass implements InstrumentClass {
             CtMethod delegatorMethod = CtNewMethod.delegator(superMethod, ctClass);
             ctClass.addMethod(delegatorMethod);
 
-            return new JavassistMethod(pluginContext, interceptorRegistryBinder, this, delegatorMethod);
+            return new JavassistMethod(objectBinderFactory, pluginContext, interceptorRegistryBinder, apiMetaDataService, this, delegatorMethod);
         } catch (NotFoundException ex) {
             throw new InstrumentException(getName() + "don't have super class(" + getSuperClass() + "). Cause:" + ex.getMessage(), ex);
         } catch (CannotCompileException ex) {
@@ -610,9 +612,8 @@ public class JavassistClass implements InstrumentClass {
         String filterTypeName = annotation.type();
         Asserts.notNull(filterTypeName, "type of @TargetFilter");
 
-        final TraceContext traceContext = pluginContext.getTraceContext();
-        final InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(traceContext, this);
-        AutoBindingObjectFactory filterFactory = new AutoBindingObjectFactory(pluginContext, classLoader, interceptorArgumentProvider);
+        InterceptorArgumentProvider interceptorArgumentProvider = this.objectBinderFactory.newInterceptorArgumentProvider(this);
+        AutoBindingObjectFactory filterFactory = this.objectBinderFactory.newAutoBindingObjectFactory(pluginContext, classLoader, interceptorArgumentProvider);
         final ObjectFactory objectFactory = ObjectFactory.byConstructor(filterTypeName, (Object[]) annotation.constructorArguments());
         MethodFilter filter = (MethodFilter) filterFactory.createInstance(objectFactory);
 
@@ -724,7 +725,7 @@ public class JavassistClass implements InstrumentClass {
         }
 
         for (CtClass nested : nestedClasses) {
-            final InstrumentClass clazz = new JavassistClass(pluginContext, interceptorRegistryBinder, classLoader, nested);
+            final InstrumentClass clazz = new JavassistClass(objectBinderFactory, pluginContext, interceptorRegistryBinder, apiMetaDataService, classLoader, nested);
             if (filter.accept(clazz)) {
                 list.add(clazz);
             }

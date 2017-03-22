@@ -45,7 +45,7 @@
                             "marginTop": 10,
                             "marginLeft": 70,
                             "marginRight": 70,
-                            "marginBottom": 30,
+                            "marginBottom": 40,
                             "legend": {
                                 "useGraphSettings": true,
                                 "autoMargins": false,
@@ -120,8 +120,8 @@
                                 "axisColor": "#DADADA",
                                 "startOnAxis": true,
                                 "gridPosition": "start",
-                                "labelFunction": function (valueText, serialDataItem, categoryAxis) {
-                                	return valueText.substring( valueText.indexOf( " " ) + 1 );
+                                "labelFunction": function (valueText) {
+									return valueText.replace(/\s/, "<br>").replace(/-/g, ".").substring(2);
                                 }
                             }
                         };
@@ -137,16 +137,19 @@
 						oChart.addChartCursor( oChartCursor );
                     }
 
-                    function showCursorAt(category) {
-                        if (category) {
-                            if (angular.isNumber(category)) {
-                                category = oChart.dataProvider[category].time;
-                            }
-                            oChart.chartCursor.showCursorAt(category);
-                        } else {
-                            oChart.chartCursor.hideCursor();
-                        }
-                    }
+					function showCursorAt(category) {
+						if (category) {
+							if (angular.isNumber(category)) {
+								if ( oChart.dataProvider[category] && oChart.dataProvider[category].time ) {
+									try {
+										oChart.chartCursor.showCursorAt(oChart.dataProvider[category].time);
+									} catch(e) {}
+									return;
+								}
+							}
+						}
+						oChart.chartCursor.hideCursor();
+					}
 
                     function resize() {
                         if (oChart) {

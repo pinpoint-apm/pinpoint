@@ -16,23 +16,19 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
-import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceId;
-import com.navercorp.pinpoint.profiler.context.TransactionCounter.SamplingType;
-import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
-import com.navercorp.pinpoint.profiler.metadata.LRUCache;
-import com.navercorp.pinpoint.profiler.sampler.SamplingRateSampler;
-import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
-import com.navercorp.pinpoint.test.TestAgentInformation;
-
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionCounter;
+import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,10 +44,10 @@ public class DefaultTraceContextTest {
         String agent= "test";
         long agentStartTime = System.currentTimeMillis();
         long agentTransactionCount = 10;
-        TraceId traceID = new DefaultTraceId(agent, agentStartTime, agentTransactionCount);
+        TraceId traceId = new DefaultTraceId(agent, agentStartTime, agentTransactionCount);
 
-        String id = traceID.getTransactionId();
-        logger.info("id={}", id);
+        String id = traceId.getTransactionId();
+        logger.debug("id={}", id);
 
         TransactionId transactionid = TransactionIdUtils.parseTransactionId(id);
 
@@ -62,7 +58,8 @@ public class DefaultTraceContextTest {
 
     @Test
     public void disableTrace() {
-        DefaultTraceContext traceContext = new DefaultTraceContext(new TestAgentInformation());
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
+        TraceContext traceContext = MockTraceContextFactory.newTestTraceContext(profilerConfig);
         Trace trace = traceContext.disableSampling();
         Assert.assertNotNull(trace);
         Assert.assertFalse(trace.canSampled());
@@ -72,31 +69,33 @@ public class DefaultTraceContextTest {
 
     @Test
     public void threadLocalBindTest() {
-        final AgentInformation agentInformation = new TestAgentInformation();
-        DefaultTraceContext traceContext1 = new DefaultTraceContext(agentInformation);
-        Assert.assertNotNull(traceContext1.newTraceObject());
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
 
-        DefaultTraceContext traceContext2 = new DefaultTraceContext(agentInformation);
+        TraceContext traceContext = MockTraceContextFactory.newTestTraceContext(profilerConfig);
+        Assert.assertNotNull(traceContext.newTraceObject());
+
+        TraceContext traceContext2 = MockTraceContextFactory.newTestTraceContext(profilerConfig);
         Trace notExist = traceContext2.currentRawTraceObject();
         Assert.assertNull(notExist);
 
-        Assert.assertNotNull(traceContext1.currentRawTraceObject());
-        traceContext1.removeTraceObject();
-        Assert.assertNull(traceContext1.currentRawTraceObject());
+        Assert.assertNotNull(traceContext.currentRawTraceObject());
+        traceContext.removeTraceObject();
+        Assert.assertNull(traceContext.currentRawTraceObject());
     }
     
     @Test
     public void transactionCountTest() {
         final int samplingRate = 5;
-        final Sampler sampler = new SamplingRateSampler(samplingRate);
-        final DefaultTraceContext traceContext = new DefaultTraceContext(
-                LRUCache.DEFAULT_CACHE_SIZE,
-                new TestAgentInformation(),
-                new LogStorageFactory(),
-                sampler,
-                new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs()),
-                true);
-        final TransactionCounter transactionCounter = traceContext.getTransactionCounter();
+
+        final ProfilerConfig profilerConfig = Mockito.mock(ProfilerConfig.class);
+        Mockito.when(profilerConfig.isTraceAgentActiveThread()).thenReturn(true);
+        Mockito.when((profilerConfig.getSamplingRate())).thenReturn(samplingRate);
+        Mockito.when((profilerConfig.isSamplingEnable())).thenReturn(true);
+
+        MockTraceContextFactory mockTraceContextFactory = MockTraceContextFactory.newTestTraceContextFactory(profilerConfig);
+        final TraceContext traceContext = mockTraceContextFactory.getTraceContext();
+        final TransactionCounter transactionCounter = new DefaultTransactionCounter(mockTraceContextFactory.getIdGenerator());
+
 
         final long newTransactionCount = 22L;
         @SuppressWarnings("unused")
@@ -120,11 +119,11 @@ public class DefaultTraceContextTest {
         }
         
         final long expectedTotalTransactionCount = expectedSampledNewCount + expectedUnsampledNewCount + expectedSampledContinuationCount + expectedUnsampledContinuationCount;
-        
-        Assert.assertEquals(expectedSampledNewCount, transactionCounter.getTransactionCount(SamplingType.SAMPLED_NEW));
-        Assert.assertEquals(expectedUnsampledNewCount, transactionCounter.getTransactionCount(SamplingType.UNSAMPLED_NEW));
-        Assert.assertEquals(expectedSampledContinuationCount, transactionCounter.getTransactionCount(SamplingType.SAMPLED_CONTINUATION));
-        Assert.assertEquals(expectedUnsampledContinuationCount, transactionCounter.getTransactionCount(SamplingType.UNSAMPLED_CONTINUATION));
+
+        Assert.assertEquals(expectedSampledNewCount, transactionCounter.getSampledNewCount());
+        Assert.assertEquals(expectedUnsampledNewCount, transactionCounter.getUnSampledNewCount());
+        Assert.assertEquals(expectedSampledContinuationCount, transactionCounter.getSampledContinuationCount());
+        Assert.assertEquals(expectedUnsampledContinuationCount, transactionCounter.getUnSampledContinuationCount());
         Assert.assertEquals(expectedTotalTransactionCount, transactionCounter.getTotalTransactionCount());
     }
 }

@@ -9,10 +9,10 @@ package com.navercorp.pinpoint.bootstrap.util.jdk;
 
 import java.util.Random;
 
-/**
+/*
  * Copied directly from the JSR-166 project.
  */
-/**
+/*
  * A random number generator isolated to the current thread.  Like the
  * global {@link java.util.Random} generator used by the {@link
  * java.lang.Math} class, a {@code ThreadLocalRandom} is initialized

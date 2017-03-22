@@ -9,7 +9,7 @@ import org.eclipse.jetty.server.Request;
 import java.lang.reflect.Method;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 @TargetMethod(name = "handle", paramTypes = { "org.eclipse.jetty.server.AbstractHttpConnection" })
 public class Jetty8ServerHandleInterceptor extends AbstractServerHandleInterceptor {

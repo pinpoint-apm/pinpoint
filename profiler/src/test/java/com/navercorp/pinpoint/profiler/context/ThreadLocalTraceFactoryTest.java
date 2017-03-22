@@ -16,40 +16,48 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import java.util.Collections;
-
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.common.Version;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.JvmUtils;
-import com.navercorp.pinpoint.common.util.SystemPropertyKey;
-import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
-import com.navercorp.pinpoint.profiler.context.ThreadLocalTraceFactory;
-import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
-import com.navercorp.pinpoint.profiler.sampler.TrueSampler;
 
+
+import com.navercorp.pinpoint.exception.PinpointException;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class ThreadLocalTraceFactoryTest {
 
-    private ThreadLocalTraceFactory getTraceFactory() {
-        IdGenerator idGenerator = new IdGenerator();
-        LogStorageFactory logStorageFactory = new LogStorageFactory();
-        TrueSampler trueSampler = new TrueSampler();
-        ServerMetaDataHolder serverMetaDataHolder = new DefaultServerMetaDataHolder(Collections.<String>emptyList());
-        AgentInformation agentInformation = new AgentInformation("agentId", "applicationName", System.currentTimeMillis(), 10, "test", "127.0.0.1", ServiceType.STAND_ALONE,
-                JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION), Version.VERSION);
-        DefaultTraceContext traceContext = new DefaultTraceContext(100, agentInformation, logStorageFactory, trueSampler, serverMetaDataHolder, false);
-        return new ThreadLocalTraceFactory(traceContext, logStorageFactory, trueSampler, idGenerator);
+    private final ThreadLocalTraceFactory sampledTraceFactory = newTraceFactory(true);
+
+    private final ThreadLocalTraceFactory unsampledTraceFactory = newTraceFactory(false);
+
+    private ThreadLocalTraceFactory newTraceFactory(boolean sampled) {
+
+        Trace trace = mock(Trace.class);
+        when(trace.canSampled()).thenReturn(sampled);
+
+        Trace disable = mock(Trace.class);
+        when(disable.canSampled()).thenReturn(false);
+
+        BaseTraceFactory baseTraceFactory = mock(BaseTraceFactory.class);
+        when(baseTraceFactory.newTraceObject()).thenReturn(trace);
+        when(baseTraceFactory.disableSampling()).thenReturn(disable);
+
+        ThreadLocalTraceFactory traceFactory = new ThreadLocalTraceFactory(baseTraceFactory);
+        return traceFactory;
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        sampledTraceFactory.removeTraceObject();
+        unsampledTraceFactory.removeTraceObject();
     }
 
     @Test
     public void nullTraceObject() {
-        ThreadLocalTraceFactory traceFactory = getTraceFactory();
+        TraceFactory traceFactory = sampledTraceFactory;
 
         Trace currentTraceObject = traceFactory.currentTraceObject();
         Assert.assertNull(currentTraceObject);
@@ -57,43 +65,125 @@ public class ThreadLocalTraceFactoryTest {
         Trace rawTraceObject = traceFactory.currentRawTraceObject();
         Assert.assertNull(rawTraceObject);
 
+        Trace rpcTraceObject = traceFactory.currentRpcTraceObject();
+        Assert.assertNull(rpcTraceObject);
+
+        traceFactory.newTraceObject();
+        Assert.assertNotNull(traceFactory.currentRawTraceObject());
     }
+
+
 
     @Test
     public void testCurrentTraceObject() throws Exception {
-        ThreadLocalTraceFactory traceFactory = getTraceFactory();
+        TraceFactory traceFactory = sampledTraceFactory;
 
-        Trace trace = traceFactory.currentTraceObject();
+        Trace newTrace = traceFactory.newTraceObject();
+        Trace currentTrace = traceFactory.currentTraceObject();
 
+        Assert.assertNotNull(currentTrace);
+        Assert.assertSame(newTrace, currentTrace);
+    }
+
+    @Test
+    public void testCurrentTraceObject_unsampled() throws Exception {
+        TraceFactory traceFactory = unsampledTraceFactory;
+
+        Trace newTrace = traceFactory.newTraceObject();
+        Trace currentTrace = traceFactory.currentTraceObject();
+
+        Assert.assertNull(currentTrace);
+        Assert.assertNotEquals(newTrace, currentTrace);
     }
 
     @Test
     public void testCurrentRpcTraceObject() throws Exception {
+        TraceFactory traceFactory = sampledTraceFactory;
 
+        Trace trace = traceFactory.newTraceObject();
+        Trace rpcTraceObject = traceFactory.currentRpcTraceObject();
+
+        Assert.assertNotNull(rpcTraceObject);
+        Assert.assertSame(trace, rpcTraceObject);
+    }
+
+    @Test
+    public void testCurrentRpcTraceObject_unsampled() throws Exception {
+        TraceFactory traceFactory = unsampledTraceFactory;
+
+        Trace trace = traceFactory.newTraceObject();
+        Trace rpcTraceObject = traceFactory.currentRpcTraceObject();
+
+        Assert.assertNotNull(rpcTraceObject);
+        Assert.assertSame(trace, rpcTraceObject);
     }
 
     @Test
     public void testCurrentRawTraceObject() throws Exception {
+        TraceFactory traceFactory = sampledTraceFactory;
 
+        Trace trace = traceFactory.newTraceObject();
+        Trace rawTrace = traceFactory.currentRawTraceObject();
+
+        Assert.assertNotNull(rawTrace);
+        Assert.assertSame(trace, rawTrace);
+    }
+
+    @Test
+    public void testCurrentRawTraceObject_unsampled() throws Exception {
+        TraceFactory traceFactory = unsampledTraceFactory;
+
+        Trace trace = traceFactory.newTraceObject();
+        Trace rawTrace = traceFactory.currentRawTraceObject();
+
+        Assert.assertNotNull(rawTrace);
+        Assert.assertSame(trace, rawTrace);
     }
 
     @Test
     public void testDisableSampling() throws Exception {
 
+        TraceFactory traceFactory = sampledTraceFactory;
+
+        Trace trace = traceFactory.disableSampling();
+        Trace rawTrace = traceFactory.currentRawTraceObject();
+
+        Assert.assertNotNull(rawTrace);
+        Assert.assertSame(trace, rawTrace);
     }
 
     @Test
     public void testContinueTraceObject() throws Exception {
-
     }
 
     @Test
     public void testNewTraceObject() throws Exception {
+        TraceFactory traceFactory = sampledTraceFactory;
+
+        traceFactory.newTraceObject();
+        Trace rawTraceObject = traceFactory.currentRawTraceObject();
+        Assert.assertNotNull(rawTraceObject);
+
+    }
+
+
+    @Test(expected = PinpointException.class)
+    public void duplicatedTraceStart() {
+        TraceFactory traceFactory = sampledTraceFactory;
+
+        traceFactory.newTraceObject();
+        traceFactory.newTraceObject();
 
     }
 
     @Test
     public void testDetachTraceObject() throws Exception {
+        ThreadLocalTraceFactory traceFactory = this.sampledTraceFactory;
 
+        traceFactory.newTraceObject();
+        traceFactory.removeTraceObject();
+
+        Trace rawTraceObject = traceFactory.currentRawTraceObject();
+        Assert.assertNull(rawTraceObject);
     }
 }

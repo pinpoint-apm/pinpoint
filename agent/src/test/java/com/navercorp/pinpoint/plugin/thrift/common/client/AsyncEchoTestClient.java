@@ -39,7 +39,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
 import com.navercorp.pinpoint.plugin.thrift.dto.EchoService;
-import com.navercorp.pinpoint.plugin.thrift.dto.EchoService.AsyncClient.echo_call;
 
 /**
  * @author HyunGil Jeong
@@ -54,16 +53,14 @@ public class AsyncEchoTestClient implements EchoTestClient {
     private AsyncEchoTestClient(TestEnvironment environment) throws IOException {
         this.environment = environment;
         this.transport = new TNonblockingSocket(this.environment.getServerIp(), this.environment.getPort());
-        this.asyncClient = new EchoService.AsyncClient(this.environment.getProtocolFactory(), this.asyncClientManager,
-                this.transport);
+        this.asyncClient = new EchoService.AsyncClient(this.environment.getProtocolFactory(), this.asyncClientManager, this.transport);
     }
 
     @Override
     public String echo(String message) throws TException {
         final CountDownLatch latch = new CountDownLatch(1);
         final AsyncEchoResultHolder resultHolder = new AsyncEchoResultHolder();
-        final AsyncMethodCallback<EchoService.AsyncClient.echo_call> callback = new EchoMethodCallback(latch,
-                resultHolder);
+        final AsyncMethodCallback<EchoService.AsyncClient.echo_call> callback = new EchoMethodCallback(latch, resultHolder);
         this.asyncClient.echo(message, callback);
         boolean isInterrupted = false;
         while (true) {
@@ -149,7 +146,7 @@ public class AsyncEchoTestClient implements EchoTestClient {
         }
 
         @Override
-        public void onComplete(echo_call response) {
+        public void onComplete(EchoService.AsyncClient.echo_call response) {
             try {
                 String result = response.getResult();
                 this.resultHolder.setResult(result);
@@ -158,7 +155,6 @@ public class AsyncEchoTestClient implements EchoTestClient {
             } finally {
                 this.completeLatch.countDown();
             }
-
         }
 
         @Override

@@ -7,8 +7,8 @@
 	 * @name distributedCallFlowDirective
 	 * @class
 	 */	
-	pinpointApp.directive( "distributedCallFlowDirective", [ "$timeout", "CommonAjaxService", "CommonUtilService", "globalConfig",
-	    function ( $timeout, CommonAjaxService, CommonUtilService, globalConfig ) {
+	pinpointApp.directive( "distributedCallFlowDirective", [ "$timeout", "CommonAjaxService", "CommonUtilService", "SystemConfigurationService",
+	    function ( $timeout, CommonAjaxService, CommonUtilService, SystemConfigService ) {
 	        return {
 	            restrict: "E",
 	            replace: true,
@@ -18,11 +18,11 @@
 	            },
 	            link: function postLink(scope, element, attrs) {
 	                // initialize variables
-	            	var grid, dataView, lastAgent;
+	            	var grid, dataView, lastAgent, startRow;
 	
 	                // initialize variables of methods
 	                var initialize, treeFormatter, treeFilter, parseData, execTimeFormatter,
-	                    getColorByString, progressBarFormatter, argumentFormatter, linkFormatter, hasChildNode, searchRowByTime, selectRow;
+	                    getColorByString, progressBarFormatter, argumentFormatter, linkFormatter, hasChildNode, searchRowByTime, searchRowByWord, selectRow;
 	
 	                // bootstrap
 	                window.callStacks = []; // Due to Slick.Data.DataView, must use window property to resolve scope-related problems.
@@ -34,7 +34,7 @@
 						if ( bIsAuthorized ) {
 							return removeTag( text );
 						} else {
-							return "<i style='color:#AAA;'>" + removeTag( text ) + "</i> <a href='" + globalConfig.securityGuideUrl + "' target='_blank' style='color:#AAA;'><span class='glyphicon glyphicon-share'></span></a>";
+							return "<i style='color:#AAA;'>" + removeTag( text ) + "</i> <a href='" + SystemConfigService.get("securityGuideUrl") + "' target='_blank' style='color:#AAA;'><span class='glyphicon glyphicon-share'></span></a>";
 						}
 					};
 	                /**
@@ -153,7 +153,7 @@
 	                 */
 	                argumentFormatter = function (row, cell, value, columnDef, dataContext) {
 	                    var html = [];
-	                    html.push('<div class="dcf-popover" data-container=".grid-canvas" data-toggle="popover" data-trigger="manual" data-placement="right" data-content="'+ removeTag( value ) +'">');
+	                    html.push('<div class="dcf-popover" data-container=".grid-canvas" data-toggle="popover" data-trigger="manual" data-placement="right" data-content="'+ encodeURIComponent(value) +'">');
 	                    html.push( getAuthorizeView( dataContext.isAuthorized, value ) );
 	                    html.push('</div>');
 	                    return html.join('');
@@ -235,6 +235,9 @@
 	                        barRatio = 100 / (callStacks[0][index.end] - callStacks[0][index.begin]);
 	                    angular.forEach(callStacks, function (val, key) {
 	                    	var bAuthorized = typeof val[index['isAuthorized']] === "undefined" ? true : val[index['isAuthorized']];
+							if ( val[index['isFocused']] ) {
+	                    		startRow = key;
+							}
 	                        result.push({
 	                            id: 'id_' + key,
 								isAuthorized: bAuthorized,
@@ -324,7 +327,7 @@
 		                    {id: "agent", name: "Agent", field: "agent", width: 130},
 		                    {id: "application-name", name: "Application", field: "applicationName", width: 150}
 	                    ];
-	                    
+
 	                    grid = new Slick.Grid(element.get(0), dataView, columns, options);
 	                    grid.setSelectionModel(new Slick.RowSelectionModel());
 	
@@ -385,7 +388,12 @@
 	                        if (!clickTimeout) {
 	                            clickTimeout = $timeout(function () {
 	                                if (isSingleClick) {
-	                                    element.find('.dcf-popover').popover('hide');
+	                                    element.find(".dcf-popover").each(function() {
+	                                    	var $this = $(this);
+	                                    	if ( $this.data("popover") ) {
+	                                    		$this.popover("hide");
+											}
+										});
 	                                }
 	                                isSingleClick = true;
 	                                clickTimeout = false;
@@ -395,8 +403,11 @@
 	
 	                    grid.onDblClick.subscribe(function (e, args) {
 	                        isSingleClick = false;
-	//                        console.log('isSingleClick = false');
-	                        $(e.target).popover('toggle');
+	                        $(e.target).popover({
+	                        	content: function() {
+									return decodeURIComponent( this.getAttribute("data-content") );
+								}
+							}).popover('toggle');
 	                    });
 	
 	                    grid.onCellChange.subscribe(function (e, args) {
@@ -459,7 +470,9 @@
 	                        grid.render();
 	                    });
 	                    
-	                    
+	                    $timeout(function() {
+							grid.scrollRowToTop( startRow );
+						});
 	                };
 	                $("#customLogPopup").on("click", "button", function() {
 	                	var range = document.createRange();
@@ -499,15 +512,29 @@
 	                	if ( row == -1 ) {
 	                		if ( index > 0 ) {
 	                			selectRow( searchRowByTime(time, 0) );
-	                			scope.$emit("transactionDetail.calltreeSearchCallResult", "Loop" );
+	                			scope.$emit("transactionDetail.searchActionResult", "Loop" );
 	                		} else {
-	                			scope.$emit("transactionDetail.calltreeSearchCallResult", "No call took longer than {time}ms." );
+	                			scope.$emit("transactionDetail.searchActionResult", "No call took longer than " + time + "ms." );
 	                		}
 	                	} else {
 	                		selectRow(row);
-	                		scope.$emit("transactionDetail.calltreeSearchCallResult", "" );
+	                		scope.$emit("transactionDetail.searchActionResult", "" );
 	                	}
 	            	});
+					scope.$on("distributedCallFlowDirective.searchArgument." + scope.namespace, function( event, word, index ) {
+						var row = searchRowByWord(word, index);
+						if ( row == -1 ) {
+							if ( index > 0 ) {
+								selectRow( searchRowByWord(word, 0) );
+								scope.$emit("transactionDetail.searchActionResult", "Loop" );
+							} else {
+								scope.$emit("transactionDetail.searchActionResult", "There is no result.." );
+							}
+						} else {
+							selectRow(row);
+							scope.$emit("transactionDetail.searchActionResult", "" );
+						}
+					});
 	                searchRowByTime = function( time, index ) {
 	                	var count = 0;
 	                	var row = -1;
@@ -523,6 +550,21 @@
 	                	}
 	                	return row;
 	                };
+					searchRowByWord = function( word, index ) {
+						var count = 0;
+						var row = -1;
+						for( var i = 0 ; i < window.callStacks.length ; i++ ) {
+							if ( window.callStacks[i].argument.indexOf( word ) !== -1 ) {
+								if ( count == index ) {
+									row = i;
+									break;
+								} else {
+									count++;
+								}
+							}
+						}
+						return row;
+					};
 	                selectRow = function(row) {
 	                	grid.setSelectedRows( [row] );
 	                	grid.setActiveCell( row, 0 );

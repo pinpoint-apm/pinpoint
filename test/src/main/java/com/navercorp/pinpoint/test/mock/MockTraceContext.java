@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 
 /**
  * @author emeroad
@@ -131,6 +132,16 @@ public class MockTraceContext implements TraceContext {
     }
 
     @Override
+    public Trace newAsyncTraceObject() {
+        return null;
+    }
+
+    @Override
+    public Trace continueAsyncTraceObject(TraceId traceId) {
+        return null;
+    }
+
+    @Override
     public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
         return null;
     }
@@ -149,4 +160,11 @@ public class MockTraceContext implements TraceContext {
     public Trace removeTraceObject() {
         return null;
     }
+
+    @Override
+    public JdbcContext getJdbcContext() {
+//        return new
+        return null;
+    }
+
 }

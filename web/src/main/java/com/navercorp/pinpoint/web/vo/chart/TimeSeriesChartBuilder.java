@@ -44,6 +44,9 @@ public class TimeSeriesChartBuilder<Y extends Number> {
     public Chart<Long, Y> build(List<Point<Long, Y>> sampledPoints) {
         for (Point<Long, Y> sampledPoint : sampledPoints) {
             int timeslotIndex = this.timeWindow.getWindowIndex(sampledPoint.getxVal());
+            if (timeslotIndex < 0 || timeslotIndex >= timeWindow.getWindowRangeCount()) {
+                continue;
+            }
             this.points.set(timeslotIndex, sampledPoint);
         }
         return new Chart<>(this.points);

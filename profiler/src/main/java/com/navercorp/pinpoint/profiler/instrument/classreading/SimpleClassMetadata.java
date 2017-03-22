@@ -36,4 +36,7 @@ public interface SimpleClassMetadata {
 
     byte[] getClassBinary();
 
+    void setDefinedClass(Class<?> definedClass);
+
+    Class<?> getDefinedClass();
 }

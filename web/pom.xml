@@ -16,6 +16,8 @@
         <jdk.home>${env.JAVA_7_HOME}</jdk.home>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <sniffer.artifactid>java17</sniffer.artifactid>
+        <fastxml.jackson.version>2.8.5</fastxml.jackson.version>
+        <grunt.build.command>build_release_without_lint</grunt.build.command>
     </properties>
 
     <dependencies>
@@ -42,6 +44,7 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-bootstrap</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
@@ -454,7 +457,7 @@
                             <goal>grunt</goal>
                         </goals>
                         <configuration>
-                            <arguments>build_release</arguments>
+                            <arguments>${grunt.build.command}</arguments>
                         </configuration>
                     </execution>
                 </executions>

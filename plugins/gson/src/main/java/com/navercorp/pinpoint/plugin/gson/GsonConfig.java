@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.gson;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class GsonConfig {
 

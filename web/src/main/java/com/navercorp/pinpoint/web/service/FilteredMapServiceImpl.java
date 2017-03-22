@@ -297,7 +297,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         final LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
 
         final ResponseHistogramBuilder mapHistogramSummary = new ResponseHistogramBuilder(range);
-        /**
+        /*
          * Convert to statistical data
          */
         for (List<SpanBo> transaction : filterList) {
@@ -380,7 +380,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
 
     private void addNodeFromSpanEvent(SpanBo span, TimeWindow window, LinkDataDuplexMap linkDataDuplexMap, Map<Long, SpanBo> transactionSpanMap) {
-        /**
+        /*
          * add span event statistics
          */
         final List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();

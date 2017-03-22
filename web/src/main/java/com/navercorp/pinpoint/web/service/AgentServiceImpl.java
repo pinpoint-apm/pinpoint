@@ -1,20 +1,17 @@
 /*
+ * Copyright 2017 NAVER Corp.
  *
- *  * Copyright 2014 NAVER Corp.
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *     http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.navercorp.pinpoint.web.service;
@@ -41,17 +38,20 @@ import com.navercorp.pinpoint.web.cluster.DefaultPinpointRouteResponse;
 import com.navercorp.pinpoint.web.cluster.FailedPinpointRouteResponse;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCount;
+import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountFactory;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -62,8 +62,6 @@ import java.util.concurrent.TimeUnit;
 public class AgentServiceImpl implements AgentService {
 
     private static final long DEFAULT_FUTURE_TIMEOUT = 3000;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private long timeDiffMs;
 
@@ -283,24 +281,31 @@ public class AgentServiceImpl implements AgentService {
     @Override
     public AgentActiveThreadCountList getActiveThreadCount(List<AgentInfo> agentInfoList, byte[] payload)
             throws TException {
-        AgentActiveThreadCountList agentActiveThreadStatusList = new AgentActiveThreadCountList(agentInfoList.size());
+        AgentActiveThreadCountList activeThreadCountList = new AgentActiveThreadCountList(agentInfoList.size());
 
         Map<AgentInfo, PinpointRouteResponse> responseList = invoke(agentInfoList, payload);
         for (Map.Entry<AgentInfo, PinpointRouteResponse> entry : responseList.entrySet()) {
             AgentInfo agentInfo = entry.getKey();
             PinpointRouteResponse response = entry.getValue();
 
-            AgentActiveThreadCount agentActiveThreadStatus = new AgentActiveThreadCount(agentInfo.getAgentId());
-            TRouteResult routeResult = response.getRouteResult();
-            if (routeResult == TRouteResult.OK) {
-                agentActiveThreadStatus.setResult(response.getResponse(TCmdActiveThreadCountRes.class, null));
-            } else {
-                agentActiveThreadStatus.setFail(routeResult.name());
-            }
-            agentActiveThreadStatusList.add(agentActiveThreadStatus);
+            AgentActiveThreadCount activeThreadCount = createActiveThreadCount(agentInfo.getAgentId(), response);
+            activeThreadCountList.add(activeThreadCount);
         }
 
-        return agentActiveThreadStatusList;
+        return activeThreadCountList;
+    }
+
+    private AgentActiveThreadCount createActiveThreadCount(String agentId, PinpointRouteResponse response) {
+        TRouteResult routeResult = response.getRouteResult();
+        if (routeResult == TRouteResult.OK) {
+            AgentActiveThreadCountFactory factory = new AgentActiveThreadCountFactory();
+            factory.setAgentId(agentId);
+            return factory.create(response.getResponse(TCmdActiveThreadCountRes.class, null));
+        } else {
+            AgentActiveThreadCountFactory factory = new AgentActiveThreadCountFactory();
+            factory.setAgentId(agentId);
+            return factory.createFail(routeResult.name());
+        }
     }
 
     private TCommandTransfer createCommandTransferObject(AgentInfo agentInfo, byte[] payload) {
@@ -318,7 +323,7 @@ public class AgentServiceImpl implements AgentService {
             return new FailedPinpointRouteResponse(TRouteResult.NOT_FOUND, null);
         }
 
-        boolean completed = future.await(DEFAULT_FUTURE_TIMEOUT);
+        boolean completed = future.await(timeout);
         if (completed) {
             DefaultPinpointRouteResponse response = new DefaultPinpointRouteResponse(future.getResult().getMessage());
             response.parse(commandDeserializerFactory);

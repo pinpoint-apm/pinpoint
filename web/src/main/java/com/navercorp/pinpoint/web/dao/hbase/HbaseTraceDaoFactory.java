@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
-import java.io.IOException;
-
 /**
  * TraceDao Factory for compatibility
  * @author Woonduk Kang(emeroad)

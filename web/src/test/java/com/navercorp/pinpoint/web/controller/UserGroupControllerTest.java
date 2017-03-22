@@ -225,8 +225,7 @@ public class UserGroupControllerTest {
                             .andExpect(jsonPath("$[0]", hasKey("userGroupId")))
                             .andExpect(jsonPath("$[0]", hasKey("memberId")))
                             .andReturn();
-            System.out.println(andReturn.getResponse().getContentAsString());
-            
+
             
             this.mockMvc.perform(delete("/userGroup/member.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"userGroupId\" : \"" + TEST_USER_GROUP_ID + "\", \"memberId\" : \"" + TEST_USER_GROUP_MEMBER_ID + "\"}"))
                             .andExpect(status().isOk())

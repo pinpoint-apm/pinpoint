@@ -63,7 +63,6 @@ public class StaticInterceptor implements StaticAroundInterceptor {
         this.beforeMethodName = methodName;
         this.beforeParameterDescription = parameterDescription;
         this.beforeArgs = args;
-        System.out.println(getClass().getName() + " BEFORE " + target + " " + className + " " + methodName + " " + parameterDescription + " " + toArgs(args));
     }
 
     @Override
@@ -77,7 +76,6 @@ public class StaticInterceptor implements StaticAroundInterceptor {
         this.result = result;
         this.throwable = throwable;
 
-        System.out.println(getClass().getName() + " AFTER " + target + " " + className + " " + methodName + " " + parameterDescription + " " + toArgs(args) + " " + result + " " + throwable);
     }
 
     private String toArgs(Object[] args) {

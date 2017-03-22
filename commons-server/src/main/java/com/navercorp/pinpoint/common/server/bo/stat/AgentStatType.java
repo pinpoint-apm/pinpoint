@@ -25,7 +25,8 @@ public enum AgentStatType {
     JVM_GC_DETAILED(2, "JVM GC Detailed"),
     CPU_LOAD(3, "Cpu Usage"),
     TRANSACTION((byte) 4, "Transaction"),
-    ACTIVE_TRACE((byte) 5, "Active Trace");
+    ACTIVE_TRACE((byte) 5, "Active Trace"),
+    DATASOURCE((byte) 6, "DataSource");
 
     public static final int TYPE_CODE_BYTE_LENGTH = 1;
 

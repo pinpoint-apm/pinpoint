@@ -118,11 +118,11 @@
 								return webStorage.get( key + scope.namespace );
 							},
 							onSelect: function( oDragAreaPosition, oDragXY ) {
-								if ( arguments.length === 4 ) {
+								if ( arguments.length === 5 ) {
 									// $window.open("#/transactionList/" + oNavbarVoService.getPartialURL(true, false), application + "|" + arguments[0] + "|" + arguments[1] + "|" + arguments[2] + "|" + arguments[3] );
-									$window.open("#/transactionList/" + UrlVoService.getPartialURL(true, false), application + "|" + arguments[0] + "|" + arguments[1] + "|" + arguments[2] + "|" + arguments[3] );
+									$window.open("#/transactionList/" + UrlVoService.getPartialURL(true, false), application + "|" + arguments[0] + "|" + arguments[1] + "|" + arguments[2] + "|" + arguments[3] + "|" + arguments[4]  );
 								} else {
-									var token = application + "|" + oDragXY.fromX + "|" + oDragXY.toX + "|" + oDragXY.fromY + "|" + oDragXY.toY + "|" + arguments[2];
+									var token = application + "|" + oDragXY.fromX + "|" + oDragXY.toX + "|" + oDragXY.fromY + "|" + oDragXY.toY + "|" + arguments[2] + "|" + arguments[3];
 									// $window.open("#/transactionList/" + oNavbarVoService.getPartialURL(true, false), token);
 									$window.open("#/transactionList/" + UrlVoService.getPartialURL(true, false), token);
 								}
@@ -179,7 +179,8 @@
 						if (angular.isDefined(htScatterSet[application])) {
 							htScatterSet[application].scatter.addBubbleAndMoveAndDraw( htScatterSet[application].scatter.createDataBlock( data ) );
 						} else {
-							makeNewScatter(application, w, h, data).hide();
+							makeNewScatter(application, w, h, data);
+							htScatterSet[application].target.hide();
 						}
 					}
 					function makeNewScatter( application, w, h, data ) {
@@ -190,7 +191,6 @@
 							scatter : oScatter
 						};
 						element.append( target );
-						return target;
 					}
 
 					function showScatterBy(application) {
@@ -215,16 +215,16 @@
 					}
 					function getAgentList( scatterData ) {
 						var oDupCheck = {};
-												var aAgentList = [], server;
-												if ( typeof scatterData !== "undefined" ) {
-													$.each( scatterData.scatter.metadata, function( key, oInfo ) {
-														if ( typeof oDupCheck[ oInfo[0] ] === "undefined" ) {
-															oDupCheck[ oInfo[0] ] = true;
-															aAgentList.push( oInfo[0] );
-														}
-													});
-													return aAgentList;
-												}
+						var aAgentList = [], server;
+						if ( typeof scatterData !== "undefined" ) {
+							$.each( scatterData.scatter.metadata, function( key, oInfo ) {
+								if ( typeof oDupCheck[ oInfo[0] ] === "undefined" ) {
+									oDupCheck[ oInfo[0] ] = true;
+									aAgentList.push( oInfo[0] );
+								}
+							});
+							return aAgentList;
+						}
 						if ( htLastNode.agentList ) {
 							return htLastNode.agentList;
 						}

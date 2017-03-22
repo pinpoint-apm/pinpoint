@@ -50,11 +50,11 @@ public class SpanBo implements Event, BasicSpan {
     private String endPoint;
     private int apiId;
 
-    private List<AnnotationBo> annotationBoList = new ArrayList<>();
+    private List<AnnotationBo> annotationBoList = new ArrayList<AnnotationBo>();
     private short flag; // optional
     private int errCode;
 
-    private List<SpanEventBo> spanEventBoList = new ArrayList<>();
+    private List<SpanEventBo> spanEventBoList = new ArrayList<SpanEventBo>();
 
     private long collectorAcceptTime;
 
