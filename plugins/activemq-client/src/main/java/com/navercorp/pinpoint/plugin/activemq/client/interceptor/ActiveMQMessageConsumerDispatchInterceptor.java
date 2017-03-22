@@ -17,12 +17,7 @@
 package com.navercorp.pinpoint.plugin.activemq.client.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.Filter;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.SpanId;
-import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -35,6 +30,7 @@ import com.navercorp.pinpoint.plugin.activemq.client.descriptor.ActiveMQConsumer
 import com.navercorp.pinpoint.plugin.activemq.client.field.getter.ActiveMQSessionGetter;
 import com.navercorp.pinpoint.plugin.activemq.client.field.getter.SocketGetter;
 import com.navercorp.pinpoint.plugin.activemq.client.field.getter.TransportGetter;
+import com.navercorp.pinpoint.plugin.activemq.client.field.getter.URIGetter;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQMessageConsumer;
 import org.apache.activemq.ActiveMQSession;
@@ -44,9 +40,11 @@ import org.apache.activemq.command.Message;
 import org.apache.activemq.command.MessageDispatch;
 import org.apache.activemq.transport.Transport;
 import org.apache.activemq.transport.TransportFilter;
+import org.apache.activemq.transport.failover.FailoverTransport;
 
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.URI;
 
 /**
  * @author HyunGil Jeong
@@ -107,15 +105,22 @@ public class ActiveMQMessageConsumerDispatchInterceptor extends SpanSimpleAround
         ActiveMQSession session = ((ActiveMQSessionGetter) target)._$PINPOINT$_getActiveMQSession();
         ActiveMQConnection connection = session.getConnection();
         Transport transport = getRootTransport(((TransportGetter) connection)._$PINPOINT$_getTransport());
-        Socket socket = ((SocketGetter) transport)._$PINPOINT$_getSocket();
 
-        SocketAddress localSocketAddress = socket.getLocalSocketAddress();
-        String endPoint = ActiveMQClientUtils.getEndPoint(localSocketAddress);
+        String endPoint = null;
+        String remoteAddress = transport.getRemoteAddress();
+        if (transport instanceof SocketGetter) {
+            Socket socket = ((SocketGetter) transport)._$PINPOINT$_getSocket();
+            SocketAddress localSocketAddress = socket.getLocalSocketAddress();
+            endPoint = ActiveMQClientUtils.getEndPoint(localSocketAddress);
+        } else if (transport instanceof URIGetter) {
+            URI uri = ((URIGetter) transport)._$PINPOINT$_getUri();
+            endPoint = uri.getHost() + ":" + uri.getPort();
+        }
+
+
         // Endpoint should be the local socket address of the consumer.
         recorder.recordEndPoint(endPoint);
 
-        SocketAddress remoteSocketAddress = socket.getRemoteSocketAddress();
-        String remoteAddress = ActiveMQClientUtils.getEndPoint(remoteSocketAddress);
         // Remote address is the socket address of where the consumer is connected to.
         recorder.recordRemoteAddress(remoteAddress);
 
@@ -195,6 +200,9 @@ public class ActiveMQMessageConsumerDispatchInterceptor extends SpanSimpleAround
         Transport possiblyWrappedTransport = transport;
         while (possiblyWrappedTransport instanceof TransportFilter) {
             possiblyWrappedTransport = ((TransportFilter) possiblyWrappedTransport).getNext();
+            if (possiblyWrappedTransport instanceof FailoverTransport) {
+                possiblyWrappedTransport = ((FailoverTransport) possiblyWrappedTransport).getConnectedTransport();
+            }
         }
         return possiblyWrappedTransport;
     }
