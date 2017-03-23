@@ -1,3 +1,19 @@
+/*
+ * Copyright 2017 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import com.navercorp.pinpoint.collector.TestAwaitTaskUtils;
@@ -17,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -36,7 +53,7 @@ public class ZookeeperJobWorkerTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(10, 1000);
+    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(50, 3000);
 
     @Test
     public void test1() throws Exception {
@@ -49,7 +66,7 @@ public class ZookeeperJobWorkerTest {
         zookeeperWorker.start();
 
         try {
-            int random = ThreadLocalRandom.current().nextInt(1, 10);
+            int random = ThreadLocalRandom.current().nextInt(10, 20);
             for (int i = 0; i < random; i++) {
                 PinpointServer mockServer = createMockPinpointServer("app" + i, "agent" + i, System.currentTimeMillis());
                 zookeeperWorker.addPinpointServer(mockServer);
@@ -188,6 +205,8 @@ public class ZookeeperJobWorkerTest {
 
     class MockZookeeperClient implements ZookeeperClient {
 
+        private final AtomicInteger intAdder = new AtomicInteger(0);
+
         private final byte[] EMPTY_BYTE = new byte[]{};
         private final Map<String, byte[]> contents = new HashMap<>();
         private volatile boolean connected = false;
@@ -226,6 +245,11 @@ public class ZookeeperJobWorkerTest {
 
         @Override
         public synchronized void setData(String path, byte[] data) throws PinpointZookeeperException, InterruptedException {
+            // for check retry
+            if (intAdder.incrementAndGet() % 2 == 1) {
+                throw new PinpointZookeeperException("exception");
+            }
+
             if (!contents.containsKey(path)) {
                 throw new PinpointZookeeperException("can't find path.");
             }

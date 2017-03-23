@@ -25,11 +25,16 @@ public class ZookeeperJob {
 
     private final Type type;
     private final String key;
+
     public ZookeeperJob(Type type) {
         this(type, StringUtils.EMPTY);
     }
 
     public ZookeeperJob(Type type, String key) {
+        if (type == null) {
+            throw new NullPointerException("type may not be null");
+        }
+
         this.type = type;
         this.key = key;
     }
@@ -46,6 +51,15 @@ public class ZookeeperJob {
         ADD,
         REMOVE,
         CLEAR
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("ZookeeperJob{");
+        sb.append("type=").append(type);
+        sb.append(", key='").append(key).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 
 }
