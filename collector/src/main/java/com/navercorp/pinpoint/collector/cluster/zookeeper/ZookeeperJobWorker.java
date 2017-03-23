@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,21 +18,25 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import com.navercorp.pinpoint.collector.cluster.zookeeper.job.ZookeeperJob;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
+import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ThreadFactory;
 
 /**
@@ -56,7 +60,7 @@ public class ZookeeperJobWorker implements Runnable {
     private final String collectorUniqPath;
     private final ZookeeperClient zookeeperClient;
     private final PinpointServerRepository pinpointServerRepository = new PinpointServerRepository();
-    private final BlockingQueue<ZookeeperJob> jobQueue = new LinkedBlockingQueue<>();
+    private final ConcurrentLinkedDeque<ZookeeperJob> zookeeperJobDeque = new ConcurrentLinkedDeque<>();
     private Thread workerThread;
 
     public ZookeeperJobWorker(ZookeeperClient zookeeperClient, String serverIdentifier) {
@@ -131,6 +135,10 @@ public class ZookeeperJobWorker implements Runnable {
     }
 
     public void addPinpointServer(PinpointServer pinpointServer) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("addPinpointServer server:{}, properties:{}", pinpointServer, pinpointServer.getChannelProperties());
+        }
+
         String key = getKey(pinpointServer);
         synchronized (lock) {
             boolean keyCreated = pinpointServerRepository.addAndIsKeyCreated(key, pinpointServer);
@@ -151,6 +159,10 @@ public class ZookeeperJobWorker implements Runnable {
     }
 
     public void removePinpointServer(PinpointServer pinpointServer) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("removePinpointServer server:{}, properties:{}", pinpointServer, pinpointServer.getChannelProperties());
+        }
+
         String key = getKey(pinpointServer);
         synchronized (lock) {
             boolean keyRemoved = pinpointServerRepository.removeAndGetIsKeyRemoved(key, pinpointServer);
@@ -163,21 +175,17 @@ public class ZookeeperJobWorker implements Runnable {
     public void clear() {
         synchronized (lock) {
             pinpointServerRepository.clear();
-            jobQueue.clear();
+            zookeeperJobDeque.clear();
             putZookeeperJob(new ZookeeperJob(ZookeeperJob.Type.CLEAR));
         }
     }
 
     private boolean putZookeeperJob(ZookeeperJob zookeeperJob) {
         synchronized (lock) {
-            try {
-                jobQueue.put(zookeeperJob);
-                lock.notifyAll();
-                return true;
-            } catch (InterruptedException ignore) {
-            }
+            boolean added = zookeeperJobDeque.add(zookeeperJob);
+            lock.notifyAll();
+            return added;
         }
-        return false;
     }
 
     @Override
@@ -192,24 +200,54 @@ public class ZookeeperJobWorker implements Runnable {
         while (workerState.isStarted()) {
             boolean eventExists = awaitJob(60000, 200);
             if (eventExists) {
-                ZookeeperJob headJob = jobQueue.peek();
-
-                if (latestHeadJob != null && latestHeadJob == headJob) {
-                    // for defence spinLock.
-                    await(1000);
+                List<ZookeeperJob> zookeeperJobList = getLatestZookeeperJobList();
+                if (CollectionUtils.isEmpty(zookeeperJobList)) {
+                    continue;
                 }
 
-                if (headJob != null) {
-                    latestHeadJob = headJob;
-                    boolean completed = handle(headJob);
-                    if (completed) {
-                        jobQueue.remove(headJob);
+
+                ZookeeperJob headJob = ListUtils.getFirst(zookeeperJobList);
+                if (latestHeadJob != null && latestHeadJob == headJob) {
+                    // for defence spinLock (zookeeper problem, etc..)
+                    await(500);
+                }
+
+                latestHeadJob = headJob;
+                boolean completed = handle(zookeeperJobList);
+                if (!completed) {
+                    // rollback
+                    for (int i = zookeeperJobList.size() - 1; i >= 0; i--) {
+                        zookeeperJobDeque.addFirst(zookeeperJobList.get(i));
                     }
                 }
             }
         }
 
         logger.info("run() completed.");
+    }
+
+    private List<ZookeeperJob> getLatestZookeeperJobList() {
+        ZookeeperJob defaultJob = zookeeperJobDeque.poll();
+        if (defaultJob == null) {
+            return Collections.emptyList();
+        }
+
+        List<ZookeeperJob> result = new ArrayList<>();
+        result.add(defaultJob);
+
+        while (true) {
+            ZookeeperJob zookeeperJob = zookeeperJobDeque.poll();
+            if (zookeeperJob == null) {
+                break;
+            }
+            if (zookeeperJob.getType() != defaultJob.getType()) {
+                zookeeperJobDeque.addFirst(zookeeperJob);
+                break;
+            }
+            result.add(zookeeperJob);
+        }
+
+        return result;
     }
 
     /**
@@ -232,7 +270,7 @@ public class ZookeeperJobWorker implements Runnable {
 
             long startTimeMillis = System.currentTimeMillis();
 
-            while (jobQueue.isEmpty() && !isOverWaitTime(waitTime, startTimeMillis) && workerState.isStarted()) {
+            while (zookeeperJobDeque.isEmpty() && !isOverWaitTime(waitTime, startTimeMillis) && workerState.isStarted()) {
                 try {
                     lock.wait(waitUnitTime);
                 } catch (InterruptedException ignore) {
@@ -260,113 +298,166 @@ public class ZookeeperJobWorker implements Runnable {
         return waitTimeMillis < (System.currentTimeMillis() - startTimeMillis);
     }
 
-    private boolean handle(ZookeeperJob job) {
-        ZookeeperJob.Type type = job.getType();
+    private boolean handle(List<ZookeeperJob> zookeeperJobList) {
+        if (CollectionUtils.isEmpty(zookeeperJobList)) {
+            logger.warn("zookeeperJobList may not be empty");
+            return false;
+        }
 
+        ZookeeperJob defaultJob = ListUtils.getFirst(zookeeperJobList);
+        ZookeeperJob.Type type = defaultJob.getType();
         switch (type) {
             case ADD:
-                return handleUpdate(job);
+                return handleUpdate(zookeeperJobList);
             case REMOVE:
-                return handleDelete(job);
+                return handleDelete(zookeeperJobList);
             case CLEAR:
-                return handleClear(job);
+                return handleClear(zookeeperJobList);
         }
 
         return false;
     }
 
-    private boolean handleUpdate(ZookeeperJob job) {
-        String addContents = job.getKey();
+    private boolean handleUpdate(List<ZookeeperJob> zookeeperJobList) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("handleUpdate zookeeperJobList:{}", zookeeperJobList);
+        }
+
+        List<String> addContentCandidateList = new ArrayList<>(zookeeperJobList.size());
+        for (ZookeeperJob zookeeperJob : zookeeperJobList) {
+            addContentCandidateList.add(zookeeperJob.getKey());
+        }
+
         try {
             if (zookeeperClient.exists(collectorUniqPath)) {
                 byte[] contents = zookeeperClient.getData(collectorUniqPath);
 
-                String data = addIfAbsentContents(new String(contents, charset), addContents);
+                String data = addIfAbsentContents(new String(contents, charset), addContentCandidateList);
                 zookeeperClient.setData(collectorUniqPath, data.getBytes(charset));
             } else {
                 zookeeperClient.createPath(collectorUniqPath);
 
                 // should return error even if NODE exists if the data is important
-                zookeeperClient.createNode(collectorUniqPath, addContents.getBytes(charset));
+                String data = addIfAbsentContents("", addContentCandidateList);
+                zookeeperClient.createNode(collectorUniqPath, data.getBytes(charset));
             }
             return true;
         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+            logger.warn("handleUpdate failed. caused:{}, jobSize:{}", e.getMessage(), zookeeperJobList.size(), e);
         }
         return false;
     }
 
-    private boolean handleDelete(ZookeeperJob job) {
-        String removeContents = job.getKey();
+    private boolean handleDelete(List<ZookeeperJob> zookeeperJobList) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("handleDelete zookeeperJobList:{}", zookeeperJobList);
+        }
+
+        List<String> removeContentCandidateList = new ArrayList<>(zookeeperJobList.size());
+        for (ZookeeperJob zookeeperJob : zookeeperJobList) {
+            removeContentCandidateList.add(zookeeperJob.getKey());
+        }
+
         try {
             if (zookeeperClient.exists(collectorUniqPath)) {
                 byte[] contents = zookeeperClient.getData(collectorUniqPath);
-
-                String data = removeIfExistContents(new String(contents, charset), removeContents);
-
+                String data = removeIfExistContents(new String(contents, charset), removeContentCandidateList);
                 zookeeperClient.setData(collectorUniqPath, data.getBytes(charset));
             }
             return true;
         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+            logger.warn("handleDelete failed. caused:{}, jobSize:{}", e.getMessage(), zookeeperJobList.size(), e);
         }
         return false;
     }
 
-    private boolean handleClear(ZookeeperJob job) {
-        String initContents = job.getKey();
+    private boolean handleClear(List<ZookeeperJob> zookeeperJobList) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("handleClear zookeeperJobList:{}", zookeeperJobList);
+        }
+
         try {
             if (zookeeperClient.exists(collectorUniqPath)) {
-                zookeeperClient.setData(collectorUniqPath, initContents.getBytes(charset));
+                zookeeperClient.setData(collectorUniqPath, "".getBytes(charset));
             } else {
                 zookeeperClient.createPath(collectorUniqPath);
 
                 // should return error even if NODE exists if the data is important
-                zookeeperClient.createNode(collectorUniqPath, initContents.getBytes(charset));
+                zookeeperClient.createNode(collectorUniqPath, "".getBytes(charset));
             }
             return true;
         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+            logger.warn("handleClear failed. caused:{}, jobSize:{}", e.getMessage(), zookeeperJobList.size(), e);
         }
         return false;
     }
 
-    private String addIfAbsentContents(String contents, String addContents) {
-        String[] allContents = contents.split(PROFILER_SEPARATOR);
+    private String addIfAbsentContents(String originalContent, List<String> addContentCandidateList) {
+        String[] splittedOriginalContent = originalContent.split(PROFILER_SEPARATOR);
 
-        for (String eachContent : allContents) {
-            if (StringUtils.equals(eachContent.trim(), addContents.trim())) {
-                return contents;
+        List<String> addContentList = new ArrayList<>(addContentCandidateList.size());
+        for (String addContentCandidate : addContentCandidateList) {
+            if (StringUtils.isEmpty(addContentCandidate)) {
+                continue;
+            }
+
+            boolean exist = isExist(splittedOriginalContent, addContentCandidate);
+            if (!exist) {
+                addContentList.add(addContentCandidate);
             }
         }
 
-        return contents + PROFILER_SEPARATOR + addContents;
+        if (addContentList.isEmpty()) {
+            return originalContent;
+        }
+
+        StringBuilder newContent = new StringBuilder(originalContent);
+        for (String addContent : addContentList) {
+            newContent.append(PROFILER_SEPARATOR);
+            newContent.append(addContent);
+        }
+        return newContent.toString();
     }
 
-    private String removeIfExistContents(String contents, String removeContents) {
-        StringBuilder newContents = new StringBuilder(contents.length());
+    private boolean isExist(String[] contents, String value) {
+        if (contents == null) {
+            return false;
+        }
 
-        String[] allContents = contents.split(PROFILER_SEPARATOR);
+        return isExist(Arrays.asList(contents), value);
+    }
 
-        Iterator<String> stringIterator = Arrays.asList(allContents).iterator();
+    private boolean isExist(List<String> contentList, String value) {
+        for (String eachContent : contentList) {
+            if (StringUtils.equals(eachContent.trim(), value.trim())) {
+                return true;
+            }
+        }
 
-        while (stringIterator.hasNext()) {
-            String eachContent = stringIterator.next();
+        return false;
+    }
 
+    private String removeIfExistContents(String originalContent, List<String> removeContentCandidateList) {
+        StringBuilder newContent = new StringBuilder(originalContent.length());
+
+        String[] splittedOriginalContent = originalContent.split(PROFILER_SEPARATOR);
+        Iterator<String> originalContentIterator = Arrays.asList(splittedOriginalContent).iterator();
+        while (originalContentIterator.hasNext()) {
+            String eachContent = originalContentIterator.next();
             if (StringUtils.isBlank(eachContent)) {
                 continue;
             }
 
-            if (!StringUtils.equals(eachContent.trim(), removeContents.trim())) {
-                newContents.append(eachContent);
+            if (!isExist(removeContentCandidateList, eachContent)) {
+                newContent.append(eachContent);
 
-                if (stringIterator.hasNext()) {
-                    newContents.append(PROFILER_SEPARATOR);
+                if (originalContentIterator.hasNext()) {
+                    newContent.append(PROFILER_SEPARATOR);
                 }
             }
         }
 
-        return newContents.toString();
+        return newContent.toString();
     }
 
     private String getKey(PinpointServer pinpointServer) {
