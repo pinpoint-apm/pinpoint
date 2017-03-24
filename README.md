@@ -8,15 +8,10 @@
 * Install agents without changing a single line of code
 * Minimal impact on performance (approximately 3% increase in resource usage)
 
-## Latest Release (2016/12/08)
-We're happy to announce the release of Pinpoint v1.6.0.
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.6.0)
-We're now focusing on developing v1.6.1.
-
-Special shout out to dawidmalina, jiaqifeng, suraj-raturi, barneykim, fanyeren, abhijith0505, guindous, 999fg, mvlbarcelos and many others for your contribution and feedback.
-Without your help, we would not have been able to reach our current level of product maturity. We are extremely grateful for all your help and will continue to try our very best to provide you with the best possible experience using Pinpoint.
-We look forward to working with you as we enter the next chapter in development.
-Thank you.
+## Latest Release (2017/03/23)
+In preparation for our next release, we have added a release candidate - [**v1.6.1-RC1**](https://github.com/naver/pinpoint/releases/tag/1.6.1-RC1).<br/>
+We have added a lot of new features and would very much like to hear your thoughts on how we can flesh it out before finalizing our code for v1.6.1.<br/>
+Please do try it out and feel free to let us know what you think.
 
 The current stable version is [**v1.6.0**](https://github.com/naver/pinpoint/releases/tag/1.6.0).
 
