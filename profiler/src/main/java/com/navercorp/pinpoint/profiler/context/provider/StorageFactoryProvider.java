@@ -20,6 +20,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
+import com.navercorp.pinpoint.profiler.context.SpanPostProcessor;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.storage.BufferedStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorageFactory;
@@ -33,10 +34,11 @@ public class StorageFactoryProvider implements Provider<StorageFactory> {
 
     private final ProfilerConfig profilerConfig;
     private final DataSender spanDataSender;
+    private final SpanPostProcessor spanPostProcessor;
     private final SpanChunkFactory spanChunkFactory;
 
     @Inject
-    public StorageFactoryProvider(ProfilerConfig profilerConfig, @SpanDataSender DataSender spanDataSender, SpanChunkFactory spanChunkFactory) {
+    public StorageFactoryProvider(ProfilerConfig profilerConfig, @SpanDataSender DataSender spanDataSender, SpanPostProcessor spanPostProcessor, SpanChunkFactory spanChunkFactory) {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
@@ -49,6 +51,7 @@ public class StorageFactoryProvider implements Provider<StorageFactory> {
 
         this.profilerConfig = profilerConfig;
         this.spanDataSender = spanDataSender;
+        this.spanPostProcessor = spanPostProcessor;
         this.spanChunkFactory = spanChunkFactory;
     }
 
@@ -56,7 +59,7 @@ public class StorageFactoryProvider implements Provider<StorageFactory> {
     public StorageFactory get() {
         if (profilerConfig.isIoBufferingEnable()) {
             int ioBufferingBufferSize = this.profilerConfig.getIoBufferingBufferSize();
-            return new BufferedStorageFactory(ioBufferingBufferSize, this.spanDataSender, this.spanChunkFactory);
+            return new BufferedStorageFactory(ioBufferingBufferSize, this.spanDataSender, this.spanPostProcessor, this.spanChunkFactory);
         } else {
             return new SpanStorageFactory(spanDataSender);
         }

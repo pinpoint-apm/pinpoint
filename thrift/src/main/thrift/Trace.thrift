@@ -1,5 +1,8 @@
 namespace java com.navercorp.pinpoint.thrift.dto
-
+// 1.6.x- : version = 0;
+// 1.7.x+ : version = 1;
+const i8 TRACE_V1 = 0;
+const i8 TRACE_V2 = 1;
 
 struct TIntStringValue {
      1: i32 intValue;
@@ -39,7 +42,11 @@ struct TSpanEvent {
     7: optional i64 spanId
     8: i16 sequence
 
-    9: i32 startElapsed
+    // 1.6.x- : delta of the span startTime
+    // 1.7.0+: delta of startTime of previous SpanEvent
+    //         If SpanEvent is the first SpanEvent, startElapsed is span startTime
+    9: i32 startElapsed = 0;
+
     10: optional i32 endElapsed = 0
 
     11: optional string rpc
@@ -102,6 +109,8 @@ struct TSpan {
   
     30: optional i16 applicationServiceType;
     31: optional i8 loggingTransactionInfo;
+
+    32: optional i8 version = TRACE_V2;
 }
 
 struct TSpanChunk {
@@ -109,6 +118,7 @@ struct TSpanChunk {
     2: string applicationName
     3: i64 agentStartTime
 
+    // @deprecate (1.7.0)
     4: i16 serviceType ( deprecated )
 
     // identical to agentId if null
@@ -124,6 +134,11 @@ struct TSpanChunk {
     10: list<TSpanEvent> spanEventList
   
     11: optional i16 applicationServiceType
+
+    // @since 1.7.0 time for data compression
+    12: optional i64 keyTime;
+
+    13: optional i8 version = TRACE_V2;
 }
 
 

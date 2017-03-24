@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.profiler.context.compress.SpanEventCompressor;
+import com.navercorp.pinpoint.profiler.context.compress.SpanEventCompressorV1;
 import org.junit.Assert;
 
 import org.junit.Test;
@@ -24,12 +26,14 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 
+import java.util.Arrays;
+
 /**
  * @author emeroad
  */
 public class SpanEventTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    private final SpanEventCompressor<Long> compressorV1 = new SpanEventCompressorV1();
     @Test
     public void testMarkStartTime() throws Exception {
         final DefaultTraceId traceId = new DefaultTraceId("agentTime", 0, 0);
@@ -46,6 +50,8 @@ public class SpanEventTest {
         Thread.sleep(10);
         spanEvent.markAfterTime();
         logger.debug("spanEvent:{}", spanEvent);
+
+        compressorV1.compress(Arrays.asList(spanEvent), span.getStartTime());
 
         Assert.assertEquals("startTime", span.getStartTime() + spanEvent.getStartElapsed(), spanEvent.getStartTime());
         Assert.assertEquals("endTime", span.getStartTime() + spanEvent.getStartElapsed() + spanEvent.getEndElapsed(), spanEvent.getAfterTime());

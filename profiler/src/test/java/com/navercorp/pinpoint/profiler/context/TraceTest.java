@@ -49,7 +49,7 @@ public class TraceTest {
     public void trace() {
         TraceId traceId = new DefaultTraceId("agent", 0, 1);
 
-        CallStackFactory callStackFactory = new DefaultCallStackFactory(64);
+        CallStackFactory callStackFactory = new CallStackFactoryV1(64);
         SpanFactory spanFactory = new DefaultSpanFactory("appName", "agentId", 0, ServiceType.STAND_ALONE);
 
         StringMetaDataService stringMetaDataService = mock(StringMetaDataService.class);
@@ -77,7 +77,7 @@ public class TraceTest {
     public void popEventTest() {
         TraceId traceId = new DefaultTraceId("agent", 0, 1);
 
-        CallStackFactory callStackFactory = new DefaultCallStackFactory(64);
+        CallStackFactory callStackFactory = new CallStackFactoryV1(64);
         SpanFactory spanFactory = new DefaultSpanFactory("appName", "agentId", 0, ServiceType.STAND_ALONE);
 
         StringMetaDataService stringMetaDataService = mock(StringMetaDataService.class);

@@ -34,6 +34,8 @@ public class SpanEvent extends TSpanEvent implements FrameAttachment {
     private int stackId;
     private boolean timeRecording = true;
     private Object frameObject;
+    private long startTime;
+    private long afterTime;
 
     public SpanEvent(Span span) {
         if (span == null) {
@@ -69,27 +71,20 @@ public class SpanEvent extends TSpanEvent implements FrameAttachment {
 
 
     public void markStartTime() {
-//        spanEvent.setStartElapsed((int) (startTime - parentSpanStartTime));
-        final int startElapsed = (int)(System.currentTimeMillis() - span.getStartTime());
-        
-        // If startElapsed is 0, logic without mark is useless. Don't do that.
-        // The first SpanEvent of a Span could result in 0. Not likely afterwards.
-        this.setStartElapsed(startElapsed);
+        this.startTime = System.currentTimeMillis();
     }
 
     public long getStartTime() {
-        return span.getStartTime() + getStartElapsed();
+        return startTime;
     }
 
     public void markAfterTime() {
-        final int endElapsed = (int)(System.currentTimeMillis() - getStartTime());
-        if (endElapsed != 0) {
-            this.setEndElapsed(endElapsed);
-        }
+        this.afterTime = System.currentTimeMillis();
+
     }
 
     public long getAfterTime() {
-        return span.getStartTime() + getStartElapsed() + getEndElapsed();
+        return afterTime;
     }
 
     public int getStackId() {

@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.profiler.sender.planer;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.context.DefaultSpanChunkFactory;
+import com.navercorp.pinpoint.profiler.context.SpanChunkFactoryV1;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
@@ -41,7 +41,7 @@ public class SpanChunkStreamSendDataPlanerTest {
         HeaderTBaseSerializerPoolFactory serializerFactory = new HeaderTBaseSerializerPoolFactory(true, 1000, true);
         objectPool = new ObjectPool<HeaderTBaseSerializer>(serializerFactory, 16);
 
-        spanChunkFactory = new DefaultSpanChunkFactory("applicationName", "agentId", 0, ServiceType.STAND_ALONE);
+        spanChunkFactory = new SpanChunkFactoryV1("applicationName", "agentId", 0, ServiceType.STAND_ALONE);
     }
 
     @Test

@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.context.DefaultSpanChunkFactory;
+import com.navercorp.pinpoint.profiler.context.SpanChunkFactoryV1;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
@@ -43,7 +43,7 @@ import java.util.List;
 public class SpanStreamSendDataSerializerTest {
 
     private final SpanChunkFactory spanChunkFactory
-            = new DefaultSpanChunkFactory("applicationName", "agentId", 0, ServiceType.STAND_ALONE);
+            = new SpanChunkFactoryV1("applicationName", "agentId", 0, ServiceType.STAND_ALONE);
 
 
     @Test

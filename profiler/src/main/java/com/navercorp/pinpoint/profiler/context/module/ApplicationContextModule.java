@@ -25,6 +25,11 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
+import com.navercorp.pinpoint.profiler.context.SpanPostProcessor;
+import com.navercorp.pinpoint.profiler.context.provider.CallStackFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.SpanChunkFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.SpanPostProcessorProvider;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
@@ -36,8 +41,10 @@ import com.navercorp.pinpoint.profiler.DefaultDynamicTransformerRegistry;
 import com.navercorp.pinpoint.profiler.DynamicTransformerRegistry;
 import com.navercorp.pinpoint.profiler.JvmInformation;
 import com.navercorp.pinpoint.profiler.context.CallStackFactory;
-import com.navercorp.pinpoint.profiler.context.DefaultCallStackFactory;
-import com.navercorp.pinpoint.profiler.context.DefaultSpanChunkFactory;
+import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
+import com.navercorp.pinpoint.profiler.context.monitor.DefaultJdbcContext;
+import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
+import com.navercorp.pinpoint.profiler.context.recorder.DefaultRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultSpanFactory;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanFactory;
@@ -216,10 +223,11 @@ public class ApplicationContextModule extends AbstractModule {
 
     private void bindTraceComponent() {
         bind(TraceIdFactory.class).to(DefaultTraceIdFactory.class).in(Scopes.SINGLETON);
-        bind(CallStackFactory.class).to(DefaultCallStackFactory.class).in(Scopes.SINGLETON);
+        bind(CallStackFactory.class).toProvider(CallStackFactoryProvider.class).in(Scopes.SINGLETON);
 
         bind(SpanFactory.class).to(DefaultSpanFactory.class).in(Scopes.SINGLETON);
-        bind(SpanChunkFactory.class).to(DefaultSpanChunkFactory.class).in(Scopes.SINGLETON);
+        bind(SpanPostProcessor.class).toProvider(SpanPostProcessorProvider.class).in(Scopes.SINGLETON);
+        bind(SpanChunkFactory.class).toProvider(SpanChunkFactoryProvider.class).in(Scopes.SINGLETON);
 
         bind(RecorderFactory.class).to(DefaultRecorderFactory.class).in(Scopes.SINGLETON);
 
