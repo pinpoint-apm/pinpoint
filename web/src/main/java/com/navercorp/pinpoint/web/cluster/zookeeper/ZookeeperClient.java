@@ -53,6 +53,7 @@ import java.util.concurrent.TimeUnit;
 public class ZookeeperClient {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    public static final long DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED = 30000;
 
     private final CommonStateContext stateContext;
 
@@ -60,21 +61,21 @@ public class ZookeeperClient {
 
     private final String hostPort;
     private final int sessionTimeout;
-    private final ZookeeperClusterDataManager zookeeperDataManager;
+    private final ZookeeperEventWatcher zookeeperEventWatcher;
     private final long reconnectDelayWhenSessionExpired;
 
     // ZK client is thread-safe
     private volatile ZooKeeper zookeeper;
 
     // hmm this structure should contain all necessary information
-    public ZookeeperClient(String hostPort, int sessionTimeout, ZookeeperClusterDataManager manager) {
-        this(hostPort, sessionTimeout, manager, ZookeeperClusterDataManager.DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED);
+    public ZookeeperClient(String hostPort, int sessionTimeout, ZookeeperEventWatcher manager) {
+        this(hostPort, sessionTimeout, manager, DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED);
     }
     
-    public ZookeeperClient(String hostPort, int sessionTimeout, ZookeeperClusterDataManager zookeeperDataManager, long reconnectDelayWhenSessionExpired) {
+    public ZookeeperClient(String hostPort, int sessionTimeout, ZookeeperEventWatcher zookeeperEventWatcher, long reconnectDelayWhenSessionExpired) {
         this.hostPort = hostPort;
         this.sessionTimeout = sessionTimeout;
-        this.zookeeperDataManager = zookeeperDataManager;
+        this.zookeeperEventWatcher = zookeeperEventWatcher;
         this.reconnectDelayWhenSessionExpired = reconnectDelayWhenSessionExpired;
         
 
@@ -85,7 +86,7 @@ public class ZookeeperClient {
 
     public void connect() throws IOException {
         if (stateContext.changeStateInitializing()) {
-            this.zookeeper = new ZooKeeper(hostPort, sessionTimeout, zookeeperDataManager); // server
+            this.zookeeper = new ZooKeeper(hostPort, sessionTimeout, zookeeperEventWatcher); // server
             stateContext.changeStateStarted();
         } else {
             logger.warn("connect() failed. error : Illegal State. State may be {}.", stateContext.getCurrentState());
@@ -134,7 +135,7 @@ public class ZookeeperClient {
 
     private ZooKeeper createNewZookeeper() {
         try {
-            return new ZooKeeper(hostPort, sessionTimeout, zookeeperDataManager);
+            return new ZooKeeper(hostPort, sessionTimeout, zookeeperEventWatcher);
         } catch (IOException ignore) {
             // ignore
         }
@@ -258,7 +259,7 @@ public class ZookeeperClient {
     }
 
     private void checkState() throws PinpointZookeeperException {
-        if (!zookeeperDataManager.isConnected() || !stateContext.isStarted()) {
+        if (!zookeeperEventWatcher.isConnected() || !stateContext.isStarted()) {
             throw new ConnectionException("Instance must be connected.");
         }
     }
