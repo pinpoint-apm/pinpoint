@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * @Author Taejin Koo
  */
-public class CollectorClusterConnectionManager {
+public class CollectorClusterConnectionManager implements  ClusterConnectionManager {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -53,6 +53,7 @@ public class CollectorClusterConnectionManager {
         this.clusterAcceptor = acceptor;
     }
 
+    @Override
     public void start() {
         logger.info("{} initialization started.", ClassUtils.simpleClassName(this));
 
@@ -67,6 +68,7 @@ public class CollectorClusterConnectionManager {
         logger.info("{} initialization completed.", ClassUtils.simpleClassName(this));
     }
 
+    @Override
     public void stop() {
         logger.info("{} destroying started.", ClassUtils.simpleClassName(this));
 
@@ -87,6 +89,7 @@ public class CollectorClusterConnectionManager {
         logger.info("{} destroying completed.", ClassUtils.simpleClassName(this));
     }
 
+    @Override
     public void connectPointIfAbsent(InetSocketAddress address) {
         logger.info("localhost -> {} connect started.", address);
 
@@ -100,6 +103,7 @@ public class CollectorClusterConnectionManager {
         logger.info("localhost -> {} connect completed.", address);
     }
 
+    @Override
     public void disconnectPoint(SocketAddress address) {
         logger.info("localhost -> {} disconnect started.", address);
 
@@ -112,6 +116,7 @@ public class CollectorClusterConnectionManager {
         }
     }
 
+    @Override
     public List<SocketAddress> getConnectedAddressList() {
         return socketRepository.getAddressList();
     }

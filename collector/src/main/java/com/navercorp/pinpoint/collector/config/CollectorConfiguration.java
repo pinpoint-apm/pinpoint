@@ -312,7 +312,7 @@ public class CollectorConfiguration implements InitializingBean {
         readPropertyValues(this.properties);
     }
 
-    private void readPropertyValues(Properties properties) {
+    protected  void readPropertyValues(Properties properties) {
         logger.info("pinpoint-collector.properties read.");
         this.tcpListenIp = readString(properties, "collector.tcpListenIp", DEFAULT_LISTEN_IP);
         this.tcpListenPort = readInt(properties, "collector.tcpListenPort", 9994);
@@ -360,7 +360,7 @@ public class CollectorConfiguration implements InitializingBean {
         this.clusterListenPort = readInt(properties, "cluster.listen.port", -1);
     }
 
-    private String readString(Properties properties, String propertyName, String defaultValue) {
+    protected  String readString(Properties properties, String propertyName, String defaultValue) {
         final String result = properties.getProperty(propertyName, defaultValue);
         if (logger.isInfoEnabled()) {
             logger.info("{}={}", propertyName, result);
@@ -368,7 +368,7 @@ public class CollectorConfiguration implements InitializingBean {
         return result ;
     }
 
-    private int readInt(Properties properties, String propertyName, int defaultValue) {
+    protected  int readInt(Properties properties, String propertyName, int defaultValue) {
         final String value = properties.getProperty(propertyName);
         final int result = NumberUtils.toInt(value, defaultValue);
         if (logger.isInfoEnabled()) {
@@ -377,7 +377,7 @@ public class CollectorConfiguration implements InitializingBean {
         return result;
     }
 
-    private long readLong(Properties properties, String propertyName, long defaultValue) {
+    protected  long readLong(Properties properties, String propertyName, long defaultValue) {
         final String value = properties.getProperty(propertyName);
         final long result = NumberUtils.toLong(value, defaultValue);
         if (logger.isInfoEnabled()) {
@@ -386,7 +386,7 @@ public class CollectorConfiguration implements InitializingBean {
         return result;
     }
 
-    private boolean readBoolean(Properties properties, String propertyName) {
+    protected boolean readBoolean(Properties properties, String propertyName) {
         final String value = properties.getProperty(propertyName);
         
         // if a default value will be needed afterwards, may match string value instead of Utils.
