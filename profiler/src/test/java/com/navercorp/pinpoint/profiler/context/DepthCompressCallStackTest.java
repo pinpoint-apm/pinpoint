@@ -16,21 +16,41 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import org.junit.Before;
+
+
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface CallStack {
-    int getIndex();
+public class DepthCompressCallStackTest extends CallStackTest {
 
-    int push(SpanEvent spanEvent);
+    private Span span;
+    private SpanEvent spanEvent;
 
-    SpanEvent pop();
+    @Before
+    public void before() {
+        span = new Span();
+        spanEvent = new SpanEvent(span);
+    }
 
-    SpanEvent peek();
+    @Override
+    public CallStack newCallStack() {
+        return new DepthCompressCallStack(span);
+    }
 
-    boolean empty();
+    @Override
+    public CallStack newCallStack(int depth) {
+        return new DepthCompressCallStack(span, depth);
+    }
 
-    SpanEvent[] copyStackFrame();
+    @Override
+    public Span getSpan() {
+        return span;
+    }
 
-    int getMaxDepth();
+    @Override
+    public SpanEvent getSpanEvent() {
+        return spanEvent;
+    }
+
 }

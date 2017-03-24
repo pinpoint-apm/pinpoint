@@ -52,7 +52,7 @@ public class DefaultTraceTest {
     @Test
     public void testPushPop() {
 
-        CallStackFactory callStackFactory = new DefaultCallStackFactory(64);
+        CallStackFactory callStackFactory = new CallStackFactoryV1(64);
         SpanFactory spanFactory = new DefaultSpanFactory("appName", "agentId", 0, ServiceType.STAND_ALONE);
 
         StringMetaDataService stringMetaDataService = mock(StringMetaDataService.class);

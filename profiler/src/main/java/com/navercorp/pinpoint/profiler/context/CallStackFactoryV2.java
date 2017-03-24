@@ -19,18 +19,16 @@ package com.navercorp.pinpoint.profiler.context;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface CallStack {
-    int getIndex();
+public class CallStackFactoryV2 implements CallStackFactory {
 
-    int push(SpanEvent spanEvent);
+    private final int maxDepth;
 
-    SpanEvent pop();
+    public CallStackFactoryV2(int maxDepth) {
+        this.maxDepth = maxDepth;
+    }
 
-    SpanEvent peek();
-
-    boolean empty();
-
-    SpanEvent[] copyStackFrame();
-
-    int getMaxDepth();
+    @Override
+    public CallStack newCallStack(Span span) {
+        return new DefaultCallStack(span, maxDepth);
+    }
 }

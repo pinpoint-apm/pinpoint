@@ -40,20 +40,26 @@ public class BufferedStorage implements Storage {
 
     private List<SpanEvent> storage;
     private final DataSender dataSender;
+
+    private final SpanPostProcessor spanPostProcessor;
     private final SpanChunkFactory spanChunkFactory;
 
-    public BufferedStorage(DataSender dataSender, SpanChunkFactory spanChunkFactory) {
-        this(dataSender, spanChunkFactory, DEFAULT_BUFFER_SIZE);
+    public BufferedStorage(DataSender dataSender, SpanPostProcessor spanPostProcessor, SpanChunkFactory spanChunkFactory) {
+        this(dataSender, spanPostProcessor, spanChunkFactory, DEFAULT_BUFFER_SIZE);
     }
 
-    public BufferedStorage(DataSender dataSender, SpanChunkFactory spanChunkFactory, int bufferSize) {
+    public BufferedStorage(DataSender dataSender, SpanPostProcessor spanPostProcessor, SpanChunkFactory spanChunkFactory, int bufferSize) {
         if (dataSender == null) {
             throw new NullPointerException("dataSender must not be null");
+        }
+        if (spanPostProcessor == null) {
+            throw new NullPointerException("spanPostProcessor must not be null");
         }
         if (spanChunkFactory == null) {
             throw new NullPointerException("spanChunkFactory must not be null");
         }
         this.dataSender = dataSender;
+        this.spanPostProcessor = spanPostProcessor;
         this.spanChunkFactory = spanChunkFactory;
         this.bufferSize = bufferSize;
         this.storage = allocateBuffer();
@@ -102,7 +108,7 @@ public class BufferedStorage implements Storage {
     public void store(Span span) {
         final List<SpanEvent> storage = clearBuffer();
         if (CollectionUtils.isNotEmpty(storage)) {
-            span.setSpanEventList((List) storage);
+            span = spanPostProcessor.postProcess(span, storage);
         }
         dataSender.send(span);
 

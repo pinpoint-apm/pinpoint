@@ -14,29 +14,25 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context.compress;
 
-import com.google.inject.Inject;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.context.SpanEvent;
+
+import java.util.Comparator;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class DefaultCallStackFactory implements CallStackFactory {
+public class SpanEventSequenceComparator implements Comparator<SpanEvent> {
 
-    private final int maxDepth;
-
-    @Inject
-    public DefaultCallStackFactory(ProfilerConfig profilerConfig) {
-        this(profilerConfig.getCallStackMaxDepth());
-    }
-
-    public DefaultCallStackFactory(int maxDepth) {
-        this.maxDepth = maxDepth;
-    }
+    public static final Comparator<SpanEvent> INSTANCE = new SpanEventSequenceComparator();
 
     @Override
-    public CallStack newCallStack(Span span) {
-        return new CallStack(span, maxDepth);
+    public int compare(SpanEvent o1, SpanEvent o2) {
+        return compareShort(o1.getSequence(), o2.getSequence());
+    }
+
+    private static int compareShort(short x, short y) {
+        return x - y;
     }
 }

@@ -16,21 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import java.util.List;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface CallStack {
-    int getIndex();
-
-    int push(SpanEvent spanEvent);
-
-    SpanEvent pop();
-
-    SpanEvent peek();
-
-    boolean empty();
-
-    SpanEvent[] copyStackFrame();
-
-    int getMaxDepth();
+public interface SpanPostProcessor {
+    Span postProcess(Span span, List<SpanEvent> spanEventList);
 }

@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.collector.TestAwaitUtils;
 import com.navercorp.pinpoint.collector.receiver.AbstractDispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.DataReceiver;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.context.DefaultSpanChunkFactory;
+import com.navercorp.pinpoint.profiler.context.SpanChunkFactoryV1;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
@@ -152,7 +152,7 @@ public class SpanStreamUDPSenderTest {
 
     private SpanChunk createSpanChunk(int spanEventSize) throws InterruptedException {
 
-        SpanChunkFactory spanChunkFactory = new DefaultSpanChunkFactory("applicationName", "agentId", 0, ServiceType.STAND_ALONE);
+        SpanChunkFactory spanChunkFactory = new SpanChunkFactoryV1("applicationName", "agentId", 0, ServiceType.STAND_ALONE);
 
         List<SpanEvent> originalSpanEventList = createSpanEventList(spanEventSize);
         SpanChunk spanChunk = spanChunkFactory.create(originalSpanEventList);

@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context.compress;
+
+import com.navercorp.pinpoint.profiler.context.SpanEvent;
+
+import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface CallStack {
-    int getIndex();
-
-    int push(SpanEvent spanEvent);
-
-    SpanEvent pop();
-
-    SpanEvent peek();
-
-    boolean empty();
-
-    SpanEvent[] copyStackFrame();
-
-    int getMaxDepth();
+public interface SpanEventCompressor<T> {
+    void compress(List<SpanEvent> spanEventList, T context);
 }
