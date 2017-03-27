@@ -29,7 +29,7 @@
 			ACTIVE_THREAD_COUNT: "activeThreadCount"
 		},
 		template: {
-			agentChart: '<div class="agent-chart"><div></div></div>',
+			agentChart: '<div class="agent-chart"><div></div><span class="glyphicon glyphicon-new-window"></span></div>',
 			chartDirective: Handlebars.compile( '<realtime-chart-directive timeout-max-count="{{timeoutMaxCount}}" chart-color="{{chartColor}}" xcount="{{xAxisCount}}" show-extra-info="{{showExtraInfo}}" request-label="requestLabelNames" namespace="{{namespace}}" width="{{width}}" height="{{height}}"></realtime-chart-directive>' )
 		},
 		css : {
