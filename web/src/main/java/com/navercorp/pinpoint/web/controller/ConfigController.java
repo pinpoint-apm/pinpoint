@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.controller;
 
+import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.service.UserService;
 import com.navercorp.pinpoint.web.vo.User;
@@ -48,13 +49,14 @@ public class ConfigController {
     @ResponseBody
     public Map<String, Object> getProperties(@RequestHeader(value=SSO_USER, required=false) String userId) {
         Map<String, Object> result = new HashMap<>();
-        
+
         result.put("sendUsage", webProperties.getSendUsage());
         result.put("editUserInfo", webProperties.getEditUserInfo());
         result.put("showActiveThread", webProperties.isShowActiveThread());
         result.put("showActiveThreadDump", webProperties.isShowActiveThreadDump());
         result.put("showInspectorDataSource", webProperties.isShowInspectorDataSource());
         result.put("openSource", webProperties.isOpenSource());
+        result.put("version", Version.VERSION);
 
         if (!StringUtils.isEmpty(userId)) {
             User user = userService.selectUserByUserId(userId);
