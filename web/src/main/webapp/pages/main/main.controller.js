@@ -7,9 +7,11 @@
 	 * @name MainCtrl
 	 * @class
 	 */
-	pinpointApp.controller( "MainCtrl", [ "filterConfig", "$scope", "$timeout", "$routeParams", "locationService", "UrlVoService", "NavbarVoService", "$window", "SidebarTitleVoService", "filteredMapUtilService", "$rootElement", "AnalyticsService", "PreferenceService",
-	    function (cfg, $scope, $timeout, $routeParams, locationService, UrlVoService, NavbarVoService, $window, SidebarTitleVoService, filteredMapUtilService, $rootElement, analyticsService, preferenceService) {
+	pinpointApp.controller( "MainCtrl", [ "filterConfig", "$scope", "$timeout", "$routeParams", "locationService", "UrlVoService", "NavbarVoService", "$window", "SidebarTitleVoService", "filteredMapUtilService", "$rootElement", "SystemConfigurationService", "AnalyticsService", "PreferenceService",
+	    function (cfg, $scope, $timeout, $routeParams, locationService, UrlVoService, NavbarVoService, $window, SidebarTitleVoService, filteredMapUtilService, $rootElement, SystemConfigService, analyticsService, preferenceService) {
 			analyticsService.send(analyticsService.CONST.MAIN_PAGE);
+			analyticsService.sendMain(analyticsService.CONST.VERSION, SystemConfigService.get("version"));
+
 	        // define private variables
 	        var oNavbarVoService, bNodeSelected, bNoData;
 	

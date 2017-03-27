@@ -32,6 +32,7 @@
 		this.CONST.MIXEDVIEW = "MixedView";
 		this.CONST.INSPECTOR = "Inspector";
 
+		this.CONST.VERSION = "Version";
 		this.CONST.CLK_APPLICATION = "ClickApplication";
 		this.CONST.CLK_TIME = "ClickTime";
 		this.CONST.CLK_SEARCH_NODE = "ClickSearchNode";
