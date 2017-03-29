@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.vo.stat.chart;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.view.DataSourceChartGroupSerializer;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
@@ -71,23 +72,13 @@ public class DataSourceChartGroup implements AgentStatChartGroup {
             this.databaseName = UNCOLLECTED_STRING_VALUE;
             this.jdbcUrl = UNCOLLECTED_STRING_VALUE;
         } else {
-            SampledDataSource defaultDataSource = sampledDataSourceList.get(0);
+            SampledDataSource latestSampledDataSource = ListUtils.getLast(sampledDataSourceList);
 
-            this.id = defaultDataSource.getId();
-            this.serviceTypeName = serviceTypeRegistryService.findServiceType(defaultDataSource.getServiceTypeCode()).getName();
-            this.databaseName = extractDatabaseName(sampledDataSourceList);
-            this.jdbcUrl = defaultDataSource.getJdbcUrl();
+            this.id = latestSampledDataSource.getId();
+            this.serviceTypeName = serviceTypeRegistryService.findServiceType(latestSampledDataSource.getServiceTypeCode()).getName();
+            this.databaseName = latestSampledDataSource.getDatabaseName();
+            this.jdbcUrl = latestSampledDataSource.getJdbcUrl();
         }
-    }
-
-    private String extractDatabaseName(List<SampledDataSource> sampledDataSourceList) {
-        for (SampledDataSource sampledDataSource : sampledDataSourceList) {
-            if (sampledDataSource != null && sampledDataSource.getDatabaseName() != null) {
-                return sampledDataSource.getDatabaseName();
-            }
-        }
-
-        return null;
     }
 
     @Override
