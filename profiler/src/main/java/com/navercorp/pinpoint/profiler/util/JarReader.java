@@ -49,6 +49,15 @@ public class JarReader {
         this.jarFile = jarFile;
     }
 
+    public InputStream getInputStream(String name) throws IOException {
+        final JarEntry jarEntry = this.jarFile.getJarEntry(name);
+        if (jarEntry != null) {
+            return this.jarFile.getInputStream(jarEntry);
+        }
+
+        return null;
+    }
+
     public List<FileBinary> read(JarEntryFilter jarEntryFilter) throws IOException{
         if (jarEntryFilter == null) {
             throw new NullPointerException("jarEntryFilter must not be null");
@@ -125,6 +134,4 @@ public class JarReader {
             }
         }
     }
-
-
 }

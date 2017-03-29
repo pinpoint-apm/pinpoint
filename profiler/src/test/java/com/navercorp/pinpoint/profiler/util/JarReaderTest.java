@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
 import java.util.jar.JarFile;
@@ -47,5 +48,14 @@ public class JarReaderTest {
         for (FileBinary fileBinary : fileBinaries) {
             Assert.assertThat(fileBinary.getFileName(), Matchers.endsWith(".class"));
         }
+    }
+
+    @Test
+    public void getInputStream() throws Exception {
+        URL location = Logger.class.getProtectionDomain().getCodeSource().getLocation();
+        JarFile jarFile = new JarFile(location.getPath());
+        JarReader jarReader = new JarReader(jarFile);
+        Assert.assertNotNull(jarReader.getInputStream("org/slf4j/Logger.class"));
+        Assert.assertNull(jarReader.getInputStream("org/slf4j/NotFound.class"));
     }
 }

@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -153,15 +152,23 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
     }
 
-    private InputStream getInputStream(ClassLoader classLoader, String className) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    private InputStream getInputStream(ClassLoader classLoader, String classPath) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         if (isDebug) {
-            logger.debug("Get input stream className:{} cl:{}", className, classLoader);
+            logger.debug("Get input stream className:{} cl:{}", classPath, classLoader);
 
         }
         final String pluginJarPath = pluginConfig.getPluginJarURLExternalForm();
         final ClassLoaderAttachment attachment = getClassLoaderAttachment(classLoader, pluginJarPath);
-        final InputStream inputStream = attachment.getInputStream(className);
-        return inputStream;
+        try {
+            return pluginJarReader.getInputStream(classPath);
+        } catch(Exception ex) {
+            if (isDebug) {
+                logger.debug("Failed to read plugin jar: {}", pluginConfig.getPluginJarURLExternalForm(), ex);
+            }
+        }
+
+        // not found.
+        return null;
     }
 
     private ClassLoaderAttachment getClassLoaderAttachment(ClassLoader classLoader, final String pluginJarPath) {
@@ -291,9 +298,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
         }
 
         final Class<?> clazz = defineClass(classLoader, currentClass);
-        currentClass.setDefinedClass(clazz);
-        attachment.putClass(currentClass.getClassName(), currentClass);
-
+        attachment.putClass(currentClass.getClassName(), clazz);
     }
 
     private Class<?> defineClass(ClassLoader classLoader, SimpleClassMetadata classMetadata) {
@@ -343,7 +348,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
         private final ConcurrentMap<String, PluginLock> pluginLock = new ConcurrentHashMap<String, PluginLock>();
 
-        private final ConcurrentMap<String, SimpleClassMetadata> classCache = new ConcurrentHashMap<String, SimpleClassMetadata>();
+        private final ConcurrentMap<String, Class<?>> classCache = new ConcurrentHashMap<String, Class<?>>();
 
         public PluginLock getPluginLock(String jarFile) {
             final PluginLock exist = this.pluginLock.get(jarFile);
@@ -359,8 +364,8 @@ public class PlainClassLoaderHandler implements ClassInjector {
             return newPluginLock;
         }
 
-        public void putClass(String className, SimpleClassMetadata classMetadata) {
-            final SimpleClassMetadata duplicatedClass = this.classCache.putIfAbsent(className, classMetadata);
+        public void putClass(String className, Class<?> clazz) {
+            final Class<?> duplicatedClass = this.classCache.putIfAbsent(className, clazz);
             if (duplicatedClass != null) {
                 if (logger.isWarnEnabled()) {
                     logger.warn("duplicated pluginClass {}", className);
@@ -369,27 +374,12 @@ public class PlainClassLoaderHandler implements ClassInjector {
         }
 
         public Class<?> getClass(String className) {
-            final SimpleClassMetadata classMetadata = this.classCache.get(className);
-            if(classMetadata == null) {
-                return null;
-            }
-
-            return classMetadata.getDefinedClass();
+            return this.classCache.get(className);
         }
 
         public boolean containsClass(String className) {
             return this.classCache.containsKey(className);
         }
-
-        public InputStream getInputStream(String className) {
-            final SimpleClassMetadata classMetadata = this.classCache.get(className);
-            if (classMetadata == null) {
-                return null;
-            }
-
-            return new ByteArrayInputStream(classMetadata.getClassBinary());
-        }
-
     }
 
     private static class PluginLock {

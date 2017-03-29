@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,27 +12,25 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 package com.navercorp.pinpoint.profiler.instrument.classreading;
 
 import java.util.List;
 
 /**
- * @author Woonduk Kang(emeroad)
+ * @author jaehong.kim
  */
-public interface SimpleClassMetadata {
+public interface InternalClassMetadata {
 
-    int getVersion();
+    // internal name of the class.
+    String getClassInternalName();
 
-    int getAccessFlag();
+    // internal name of the super class.
+    String getSuperClassInternalName();
 
-    String getClassName();
+    // internal names of the class's interfaces.
+    List<String> getInterfaceInternalNames();
 
-    String getSuperClassName();
-
-    List<String> getInterfaceNames();
-
-    byte[] getClassBinary();
+    // internal names of the class's annotations.
+    List<String> getAnnotationInternalNames();
 }
