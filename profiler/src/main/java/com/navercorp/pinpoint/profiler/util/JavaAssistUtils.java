@@ -183,11 +183,12 @@ public final class JavaAssistUtils {
      * @param jvmNameArray
      * @return
      */
-    public static List<String> jvmNameToJavaName(String[] jvmNameArray) {
+    public static List<String> jvmNameToJavaName(List<String> jvmNameArray) {
         if (jvmNameArray == null) {
             return Collections.emptyList();
         }
-        List<String> list = new ArrayList<String>(jvmNameArray.length);
+
+        List<String> list = new ArrayList<String>(jvmNameArray.size());
         for (String jvmName : jvmNameArray) {
             list.add(jvmNameToJavaName(jvmName));
         }
