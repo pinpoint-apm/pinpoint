@@ -30,7 +30,6 @@ public class DataSourceMonitorWrapper implements PluginMonitorWrapper, DataSourc
     private final WeakReference<DataSourceMonitor> monitorReference;
 
     private volatile ServiceType serviceType;
-    private volatile String url;
 
     public DataSourceMonitorWrapper(int id, DataSourceMonitor dataSourceMonitor) {
         if (dataSourceMonitor == null) {
@@ -69,17 +68,9 @@ public class DataSourceMonitorWrapper implements PluginMonitorWrapper, DataSourc
 
     @Override
     public String getUrl() {
-        if (this.url != null) {
-            return this.url;
-        }
-
         DataSourceMonitor dataSourceMonitor = getInstance();
         if (dataSourceMonitor != null) {
-            String url = dataSourceMonitor.getUrl();
-            if (url != null) {
-                this.url = url;
-            }
-            return url;
+            return dataSourceMonitor.getUrl();
         }
         return null;
     }
