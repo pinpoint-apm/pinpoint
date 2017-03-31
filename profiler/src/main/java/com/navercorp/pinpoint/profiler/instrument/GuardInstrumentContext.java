@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 
@@ -77,9 +78,9 @@ public class GuardInstrumentContext implements InstrumentContext {
     }
 
     @Override
-    public void addClassFileTransformer(String targetClassName, TransformCallback transformCallback) {
+    public void addClassFileTransformer(Matcher matcher, TransformCallback transformCallback) {
         checkOpen();
-        instrumentContext.addClassFileTransformer(targetClassName, transformCallback);
+        instrumentContext.addClassFileTransformer(matcher, transformCallback);
     }
 
     @Override

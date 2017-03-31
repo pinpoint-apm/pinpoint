@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.classloading.DebugTransformerClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.classloading.LegacyProfilerPluginClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
 import com.navercorp.pinpoint.profiler.plugin.ClassFileTransformerLoader;
 import com.navercorp.pinpoint.profiler.plugin.PluginInstrumentContext;
 import org.slf4j.Logger;
@@ -84,7 +85,12 @@ public class DebugTransformerRegistry implements TransformerRegistry {
     }
 
     @Override
-    public ClassFileTransformer findTransformer(String classInternalName) {
+    public ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, byte[] classFileBuffer) {
+        return findTransformer(classLoader, classInternalName, classFileBuffer, null);
+    }
+
+    @Override
+    public ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, byte[] classFileBuffer, InternalClassMetadata classMetadata) {
         if (classInternalName == null) {
             throw new NullPointerException("classInternalName must not be null");
         }

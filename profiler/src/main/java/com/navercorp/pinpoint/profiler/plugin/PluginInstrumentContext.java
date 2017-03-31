@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
@@ -107,15 +108,15 @@ public class PluginInstrumentContext implements InstrumentContext {
     }
 
     @Override
-    public void addClassFileTransformer(final String targetClassName, final TransformCallback transformCallback) {
-        if (targetClassName == null) {
-            throw new NullPointerException("targetClassName must not be null");
+    public void addClassFileTransformer(final Matcher matcher, final TransformCallback transformCallback) {
+        if (matcher == null) {
+            throw new NullPointerException("matcher must not be null");
         }
         if (transformCallback == null) {
             throw new NullPointerException("transformCallback must not be null");
         }
 
-        transformerRegistry.addClassFileTransformer(this, targetClassName, transformCallback);
+        transformerRegistry.addClassFileTransformer(this, matcher, transformCallback);
     }
 
     @Override
