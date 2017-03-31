@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 
 /**
