@@ -17,7 +17,9 @@
 package com.navercorp.pinpoint.profiler.context.module;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.google.inject.Scopes;
+import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
@@ -155,7 +157,7 @@ public class ApplicationContextModule extends AbstractModule {
         binder().requireAtInjectOnConstructors();
         binder().disableCircularProxies();
 
-        bind(ProfilerConfig.class).toInstance(profilerConfig);
+//        bind(ProfilerConfig.class).toInstance(profilerConfig);
         bind(ServiceTypeRegistryService.class).toInstance(serviceTypeRegistryService);
         bind(AgentOption.class).toInstance(agentOption);
         bind(Instrumentation.class).toInstance(agentOption.getInstrumentation());
@@ -248,8 +250,8 @@ public class ApplicationContextModule extends AbstractModule {
 
         bind(String.class).annotatedWith(AgentId.class).toInstance(agentId);
         bind(String.class).annotatedWith(ApplicationName.class).toInstance(applicationName);
-        bind(Long.class).annotatedWith(AgentStartTime.class).toProvider(AgentStartTimeProvider.class);
-        bind(ServiceType.class).annotatedWith(ApplicationServerType.class).toProvider(ApplicationServerTypeProvider.class);
+        bind(Long.class).annotatedWith(AgentStartTime.class).toProvider(AgentStartTimeProvider.class).in(Scopes.SINGLETON);
+        bind(ServiceType.class).annotatedWith(ApplicationServerType.class).toProvider(ApplicationServerTypeProvider.class).in(Scopes.SINGLETON);
     }
 
     private void bindAgentStatComponent() {
@@ -272,5 +274,11 @@ public class ApplicationContextModule extends AbstractModule {
         bind(new TypeLiteral<AgentStatMetricCollector<TAgentStat>>() {})
                 .annotatedWith(Names.named("AgentStatCollector"))
                 .to(AgentStatCollector.class).in(Scopes.SINGLETON);
+    }
+
+    @Provides
+    @Singleton
+    public ProfilerConfig profilerConfig() {
+        return profilerConfig;
     }
 }
