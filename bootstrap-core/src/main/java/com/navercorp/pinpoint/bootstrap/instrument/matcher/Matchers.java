@@ -16,13 +16,19 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
+import com.navercorp.pinpoint.common.annotations.InterfaceStability;
+import com.navercorp.pinpoint.common.util.Asserts;
+
 import java.util.Arrays;
 import java.util.List;
 
 /**
  * Matcher Utils
+ *
  * @author emeroad
  */
+@InterfaceStability.Unstable
 public final class Matchers {
 
     private Matchers() {
@@ -39,11 +45,43 @@ public final class Matchers {
         return new DefaultMultiClassNameMatcher(classNameList);
     }
 
-    public static Matcher newMultiClassNameMatcher(String... classNameList) {
-        if (classNameList == null) {
-            throw new NullPointerException("classNameList must not be null");
-        }
-        return new DefaultMultiClassNameMatcher(Arrays.asList(classNameList));
+    public static Matcher newPackageBasedMatcher(String basePackageName) {
+        Asserts.notNull(basePackageName, "basePackageName");
+        return new DefaultPackageBasedMatcher(basePackageName);
     }
 
+    public static Matcher newPackageBasedMatcher(String basePackageName, MatcherOperand additional) {
+        Asserts.notNull(basePackageName, "basePackageName");
+        return new DefaultPackageBasedMatcher(basePackageName, additional);
+    }
+
+    public static Matcher newPackageBasedMatcher(List<String> basePackageNames) {
+        Asserts.notEmpty(basePackageNames, "basePackageNames");
+        return new DefaultMultiPackageBasedMatcher(basePackageNames);
+    }
+
+    public static Matcher newPackageBasedMatcher(List<String> basePackageNames, MatcherOperand additional) {
+        Asserts.notEmpty(basePackageNames, "basePackageNames");
+        return new DefaultMultiPackageBasedMatcher(basePackageNames, additional);
+    }
+
+    public static Matcher newClassBasedMatcher(String baseClassName) {
+        Asserts.notNull(baseClassName, "baseClassName");
+        return new DefaultClassBasedMatcher(baseClassName);
+    }
+
+    public static Matcher newClassBasedMatcher(String baseClassName, MatcherOperand additional) {
+        Asserts.notNull(baseClassName, "baseClassName");
+        return new DefaultClassBasedMatcher(baseClassName, additional);
+    }
+
+    public static Matcher newMultiClassBasedMatcher(List<String> baseClassNames) {
+        Asserts.notEmpty(baseClassNames, "baseClassNames");
+        return new DefaultMultiClassBasedMatcher(baseClassNames);
+    }
+
+    public static Matcher newMultiClassBasedMatcher(List<String> baseClassNames, MatcherOperand additional) {
+        Asserts.notEmpty(baseClassNames, "baseClassNames");
+        return new DefaultMultiClassBasedMatcher(baseClassNames, additional);
+    }
 }

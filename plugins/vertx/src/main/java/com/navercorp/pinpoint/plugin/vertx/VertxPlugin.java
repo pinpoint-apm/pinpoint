@@ -16,11 +16,17 @@
 package com.navercorp.pinpoint.plugin.vertx;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.*;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInternalNameMatcherOperand;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -28,17 +34,17 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
 
 import java.security.ProtectionDomain;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author jaehong.kim
  */
 @InterfaceStability.Unstable
-public class VertxPlugin implements ProfilerPlugin, TransformTemplateAware {
+public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    private TransformTemplate transformTemplate;
+    private MatchableTransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
@@ -50,21 +56,14 @@ public class VertxPlugin implements ProfilerPlugin, TransformTemplateAware {
         final VertxDetector vertxDetector = new VertxDetector(config.getBootstrapMains());
         context.addApplicationTypeDetector(vertxDetector);
 
-        boolean hasHandlers = false;
-        for (String className : config.getHandlerClassNames()) {
-            final String classNameTrim = className.trim();
-            if (classNameTrim.isEmpty()) {
-                continue;
-            }
-
+        List<String> basePackageNames = filterBasePackageNames(config.getHandlerBasePackageNames());
+        if (!basePackageNames.isEmpty()) {
+            // add async field & interceptor
+            addHandlerInterceptor(basePackageNames);
             if (logger.isInfoEnabled()) {
-                logger.info("Adding Vertx Handler {}.", classNameTrim);
+                logger.info("Adding Vertx Handler base-packages {}.", config.getHandlerBasePackageNames());
             }
-            addHandlerInterceptor(classNameTrim);
-            hasHandlers = true;
-        }
 
-        if (hasHandlers) {
             // runOnContext, executeBlocking
             addVertxImpl();
         }
@@ -89,14 +88,28 @@ public class VertxPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private void addHandlerInterceptor(final String className) {
-        transformTemplate.transform(className, new TransformCallback() {
+    List<String> filterBasePackageNames(List<String> basePackageNames) {
+        List<String> list = new ArrayList<String>();
+        for (String basePackageName : basePackageNames) {
+            final String name = basePackageName.trim();
+            if (!name.isEmpty()) {
+                list.add(name);
+            }
+        }
+        return list;
+    }
 
+    private void addHandlerInterceptor(final List<String> basePackageNames) {
+        final Matcher matcher = Matchers.newPackageBasedMatcher(basePackageNames, new InterfaceInternalNameMatcherOperand("io.vertx.core.Handler", true));
+        transformTemplate.transform(matcher, new TransformCallback() {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(AsyncTraceIdAccessor.class.getName());
+                if (!target.isInterceptable()) {
+                    return null;
+                }
 
+                target.addField(AsyncTraceIdAccessor.class.getName());
                 final InstrumentMethod handleMethod = target.getDeclaredMethod("handle", "java.lang.Object");
                 if (handleMethod != null) {
                     handleMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HandlerInterceptor");
@@ -109,7 +122,6 @@ public class VertxPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private void addVertxImpl() {
         transformTemplate.transform("io.vertx.core.impl.VertxImpl", new TransformCallback() {
-
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
@@ -333,7 +345,7 @@ public class VertxPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     @Override
-    public void setTransformTemplate(TransformTemplate transformTemplate) {
+    public void setTransformTemplate(MatchableTransformTemplate transformTemplate) {
         this.transformTemplate = transformTemplate;
     }
 }

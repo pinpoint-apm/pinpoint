@@ -49,15 +49,14 @@ public class ClassFileTransformerLoader {
         this.dynamicTransformTrigger = dynamicTransformTrigger;
     }
 
-    public void addClassFileTransformer(InstrumentContext instrumentContext, final String targetClassName, final TransformCallback transformCallback) {
-        if (targetClassName == null) {
-            throw new NullPointerException("targetClassName must not be null");
+    public void addClassFileTransformer(InstrumentContext instrumentContext, final Matcher matcher, final TransformCallback transformCallback) {
+        if (matcher == null) {
+            throw new NullPointerException("matcher must not be null");
         }
         if (transformCallback == null) {
             throw new NullPointerException("transformCallback must not be null");
         }
 
-        final Matcher matcher = Matchers.newClassNameMatcher(JavaAssistUtils.javaNameToJvmName(targetClassName));
         final MatchableClassFileTransformerGuardDelegate guard = new MatchableClassFileTransformerGuardDelegate(profilerConfig, instrumentContext, matcher, transformCallback);
         classTransformers.add(guard);
     }

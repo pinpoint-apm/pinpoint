@@ -26,8 +26,12 @@ public class DefaultInternalClassMetadata implements InternalClassMetadata {
     private final String superClassInternalName;
     private final List<String> interfaceInternalNames;
     private final List<String> annotationInternalNames;
+    private final boolean isInterface;
+    private final boolean isAnnotation;
+    private final boolean isSynthetic;
+    private final boolean isInnerClass;
 
-    public DefaultInternalClassMetadata(final String classInternalName, final String superClassInternalName, final List<String> interfaceInternalNames, final List<String> annotationInternalNames) {
+    public DefaultInternalClassMetadata(final String classInternalName, final String superClassInternalName, final List<String> interfaceInternalNames, final List<String> annotationInternalNames, final boolean isInterface, final boolean isAnnotation, final boolean isSynthetic, final boolean isInnerClass) {
         this.classInternalName = classInternalName;
         this.superClassInternalName = superClassInternalName;
 
@@ -42,6 +46,11 @@ public class DefaultInternalClassMetadata implements InternalClassMetadata {
         } else {
             this.annotationInternalNames = Collections.unmodifiableList(annotationInternalNames);
         }
+
+        this.isInterface = isInterface;
+        this.isAnnotation = isAnnotation;
+        this.isSynthetic = isSynthetic;
+        this.isInnerClass = isInnerClass;
     }
 
     @Override
@@ -62,5 +71,38 @@ public class DefaultInternalClassMetadata implements InternalClassMetadata {
     @Override
     public List<String> getAnnotationInternalNames() {
         return this.annotationInternalNames;
+    }
+
+    @Override
+    public boolean isInterface() {
+        return this.isInterface;
+    }
+
+    @Override
+    public boolean isAnnotation() {
+        return this.isAnnotation;
+    }
+
+    public boolean isSynthetic() {
+        return isSynthetic;
+    }
+
+    public boolean isInnerClass() {
+        return isInnerClass;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("{");
+        sb.append("classInternalName='").append(classInternalName).append('\'');
+        sb.append(", superClassInternalName='").append(superClassInternalName).append('\'');
+        sb.append(", interfaceInternalNames=").append(interfaceInternalNames);
+        sb.append(", annotationInternalNames=").append(annotationInternalNames);
+        sb.append(", isInterface=").append(isInterface);
+        sb.append(", isAnnotation=").append(isAnnotation);
+        sb.append(", isSynthetic=").append(isSynthetic);
+        sb.append(", isInnerClass=").append(isInnerClass);
+        sb.append('}');
+        return sb.toString();
     }
 }

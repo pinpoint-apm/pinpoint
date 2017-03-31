@@ -16,6 +16,10 @@
 
 package com.navercorp.pinpoint.common.util;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 /**
  * @author hyungil.jeong
  */
@@ -56,5 +60,23 @@ public final class ClassUtils {
             return "";
         }
         return fqcn.substring(0, lastPackageSeparatorIndex);
+    }
+
+    // convert "." based name to "/" based internal name.
+    public static String toInternalName(final String className) {
+        Asserts.notNull(className, "className");
+        return className.replace('.', '/');
+    }
+
+    // convert "." based name to "/" based internal name.
+    public static List<String> toInternalName(final List<String> classNames) {
+        Asserts.notNull(classNames, "classNames");
+        final List<String> internalNames = new ArrayList<String>(classNames.size());
+        for (String name : classNames) {
+            final String internalName = toInternalName(name);
+            internalNames.add(internalName);
+        }
+
+        return internalNames;
     }
 }

@@ -15,32 +15,27 @@
  */
 package com.navercorp.pinpoint.profiler.instrument.classreading;
 
-import org.objectweb.asm.ClassReader;
-
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author jaehong.kim
  */
 public class InternalClassMetadataReader {
-
     private final InternalClassMetadata classMetadata;
 
     public static InternalClassMetadata readInternalClassMetadata(final byte[] classBinary) {
-        final InternalClassMetadataReader internalClassMetadataReader = new InternalClassMetadataReader(new ClassReaderWrapper(classBinary));
+        final InternalClassMetadataReader internalClassMetadataReader = new InternalClassMetadataReader(new ClassReaderWrapper(classBinary, true));
         return internalClassMetadataReader.getInternalClassMetadata();
     }
 
     public static InternalClassMetadata readInternalClassMetadata(final ClassLoader classLoader, final String classInternalName) throws IOException {
-        final InternalClassMetadataReader internalClassMetadataReader = new InternalClassMetadataReader(new ClassReaderWrapper(classLoader, classInternalName));
+        final InternalClassMetadataReader internalClassMetadataReader = new InternalClassMetadataReader(new ClassReaderWrapper(classLoader, classInternalName, true));
         return internalClassMetadataReader.getInternalClassMetadata();
 
     }
 
     InternalClassMetadataReader(final ClassReaderWrapper classReader) {
-        this.classMetadata = new DefaultInternalClassMetadata(classReader.getClassInternalName(), classReader.getSuperClassInternalName(), classReader.getInterfaceInternalNames(), classReader.getAnnotationInternalNames());
+        this.classMetadata = new DefaultInternalClassMetadata(classReader.getClassInternalName(), classReader.getSuperClassInternalName(), classReader.getInterfaceInternalNames(), classReader.getAnnotationInternalNames(), classReader.isInterface(), classReader.isAnnotation(), classReader.isSynthetic(), classReader.isInnerClass());
     }
 
     public InternalClassMetadata getInternalClassMetadata() {

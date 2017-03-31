@@ -20,13 +20,12 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
+import com.navercorp.pinpoint.profiler.MatchableClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.DefaultClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.DynamicTransformerRegistry;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
-
-
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -66,6 +65,9 @@ public class ClassFileTransformerDispatcherProvider implements Provider<ClassFil
 
     @Override
     public ClassFileTransformerDispatcher get() {
+        if(this.profilerConfig.isInstrumentMatcherEnable()) {
+            return new MatchableClassFileTransformerDispatcher(profilerConfig, pluginContextLoadResult, instrumentEngine, dynamicTransformTrigger, dynamicTransformerRegistry);
+        }
         return new DefaultClassFileTransformerDispatcher(profilerConfig, pluginContextLoadResult, instrumentEngine, dynamicTransformTrigger, dynamicTransformerRegistry);
     }
 }
