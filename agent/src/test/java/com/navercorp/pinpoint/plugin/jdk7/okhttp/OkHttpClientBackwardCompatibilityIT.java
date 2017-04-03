@@ -18,9 +18,12 @@ package com.navercorp.pinpoint.plugin.jdk7.okhttp;
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.plugin.WebServer;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.squareup.okhttp.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -30,13 +33,30 @@ import java.lang.reflect.Method;
  * @author jaehong.kim
  */
 @RunWith(PinpointPluginTestSuite.class)
-@Dependency({"com.squareup.okhttp:okhttp:[2.0.0],[2.1.0],[2.2.0],[2.3.0]"})
+@Dependency({"com.squareup.okhttp:okhttp:[2.0.0],[2.1.0],[2.2.0],[2.3.0]", "org.nanohttpd:nanohttpd:2.3.1"})
 public class OkHttpClientBackwardCompatibilityIT {
 
+    private static WebServer webServer;
+
+
+    @BeforeClass
+    public static void BeforeClass() throws Exception {
+        webServer = WebServer.newTestWebServer();
+    }
+
+
+    @AfterClass
+    public static void AfterClass() throws Exception {
+        final WebServer copy = webServer;
+        if (copy != null) {
+            copy.stop();
+            webServer = null;
+        }
+    }
 
     @Test
     public void execute() throws Exception {
-        Request request = new Request.Builder().url("http://google.com").build();
+        Request request = new Request.Builder().url(webServer.getCallHttpUrl()).build();
         OkHttpClient client = new OkHttpClient();
         Response response = client.newCall(request).execute();
 
