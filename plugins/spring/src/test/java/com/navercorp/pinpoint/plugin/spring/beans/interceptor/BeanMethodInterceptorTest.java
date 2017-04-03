@@ -22,7 +22,8 @@ import com.navercorp.pinpoint.test.mock.MockTraceContext;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.only;
+
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -48,6 +49,6 @@ public class BeanMethodInterceptorTest {
         final Exception throwable = new Exception();
         beanMethodInterceptor.after(thisObject, 10, null, null, throwable);
 
-        Mockito.verify(recorder, times(1)).recordException(true, throwable);
+        Mockito.verify(recorder, only()).recordException(true, throwable);
     }
 }
