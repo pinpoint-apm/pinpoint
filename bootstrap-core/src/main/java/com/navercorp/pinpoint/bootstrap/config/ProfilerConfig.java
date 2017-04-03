@@ -127,4 +127,6 @@ public interface ProfilerConfig {
 
     Map<String, String> readPattern(String propertyNamePatternRegex);
 
+	boolean isAllTcpEnable();
+
 }

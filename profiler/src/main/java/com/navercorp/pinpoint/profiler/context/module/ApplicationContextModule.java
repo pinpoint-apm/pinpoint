@@ -229,12 +229,19 @@ public class ApplicationContextModule extends AbstractModule {
         bind(EnhancedDataSender.class).toProvider(TcpDataSenderProvider.class).in(Scopes.SINGLETON);
         bind(PinpointClient.class).toProvider(PinpointClientProvider.class).in(Scopes.SINGLETON);
 
-        bind(CommandDispatcher.class).toProvider(CommandDispatcherProvider.class).in(Scopes.SINGLETON);
-
-        bind(DataSender.class).annotatedWith(SpanDataSender.class)
-                .toProvider(UdpSpanDataSenderProvider.class).in(Scopes.SINGLETON);
-        bind(DataSender.class).annotatedWith(StatDataSender.class)
-                .toProvider(UdpStatDataSenderProvider.class).in(Scopes.SINGLETON);
+		bind(CommandDispatcher.class).toProvider(CommandDispatcherProvider.class).in(Scopes.SINGLETON);
+		if (this.profilerConfig.isAllTcpEnable()) {
+			bind(DataSender.class).annotatedWith(SpanDataSender.class).toProvider(TcpDataSenderProvider.class)
+					.in(Scopes.SINGLETON);
+			bind(DataSender.class).annotatedWith(StatDataSender.class).toProvider(TcpDataSenderProvider.class)
+					.in(Scopes.SINGLETON);
+		} else {
+			bind(DataSender.class).annotatedWith(SpanDataSender.class).toProvider(UdpSpanDataSenderProvider.class)
+					.in(Scopes.SINGLETON);
+			bind(DataSender.class).annotatedWith(StatDataSender.class).toProvider(UdpStatDataSenderProvider.class)
+					.in(Scopes.SINGLETON);
+		}
+        
     }
 
     private void bindServiceComponent() {
