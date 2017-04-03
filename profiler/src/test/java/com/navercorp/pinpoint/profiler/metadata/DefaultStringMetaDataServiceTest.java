@@ -16,18 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.metadata;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.profiler.context.DefaultMethodDescriptor;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import org.apache.thrift.TBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -44,11 +39,11 @@ public class DefaultStringMetaDataServiceTest {
         int first = stringMetaDataService.cacheString(str);
 
         Assert.assertNotEquals("not exist", first, 0);
-        verify(dataSender, times(1)).request(any(TBase.class));
+        verify(dataSender, only()).request(any(TBase.class));
 
         int second = stringMetaDataService.cacheString(str);
         Assert.assertEquals("check cache", first, second);
-        verify(dataSender, times(1)).request(any(TBase.class));
+        verify(dataSender, only()).request(any(TBase.class));
     }
 
 }

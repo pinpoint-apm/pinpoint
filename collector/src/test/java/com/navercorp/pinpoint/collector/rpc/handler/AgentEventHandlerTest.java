@@ -89,7 +89,7 @@ public class AgentEventHandlerTest {
         ArgumentCaptor<AgentEventBo> argCaptor = ArgumentCaptor.forClass(AgentEventBo.class);
         // when
         this.agentEventHandler.handleEvent(this.pinpointServer, TEST_EVENT_TIMESTAMP, expectedEventType);
-        verify(this.agentEventDao, times(1)).insert(argCaptor.capture());
+        verify(this.agentEventDao, only()).insert(argCaptor.capture());
         // then
         AgentEventBo actualAgentEventBo = argCaptor.getValue();
         assertEquals(TEST_AGENT_ID, actualAgentEventBo.getAgentId());
@@ -111,7 +111,7 @@ public class AgentEventHandlerTest {
         // when
         this.agentEventHandler.handleEvent(this.pinpointServer, TEST_EVENT_TIMESTAMP, expectedEventType,
                 expectedMessageBody);
-        verify(this.agentEventDao, times(1)).insert(argCaptor.capture());
+        verify(this.agentEventDao, only()).insert(argCaptor.capture());
         // then
         AgentEventBo actualAgentEventBo = argCaptor.getValue();
         assertEquals(TEST_AGENT_ID, actualAgentEventBo.getAgentId());

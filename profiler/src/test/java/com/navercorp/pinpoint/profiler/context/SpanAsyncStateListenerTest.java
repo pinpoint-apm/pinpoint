@@ -20,9 +20,7 @@ import com.navercorp.pinpoint.profiler.context.id.ListenableAsyncState;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
 import org.junit.Test;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -38,13 +36,13 @@ public class SpanAsyncStateListenerTest {
         ListenableAsyncState.AsyncStateListener listener = new SpanAsyncStateListener(span, storage);
         listener.finish();
 
-        verify(span, times(1)).isTimeRecording();
-        verify(storage, times(1)).store(span);
+        verify(span, only()).isTimeRecording();
+        verify(storage, only()).store(span);
 
         //
         listener.finish();
-        verify(span, times(1)).isTimeRecording();
-        verify(storage, times(1)).store(span);
+        verify(span, only()).isTimeRecording();
+        verify(storage, only()).store(span);
     }
 
     @Test
@@ -55,8 +53,8 @@ public class SpanAsyncStateListenerTest {
         ListenableAsyncState.AsyncStateListener listener = new SpanAsyncStateListener(span, storage);
         listener.finish();
         listener.finish();
-        verify(span, times(1)).isTimeRecording();
-        verify(storage, times(1)).store(span);
+        verify(span, only()).isTimeRecording();
+        verify(storage, only()).store(span);
     }
 
 
