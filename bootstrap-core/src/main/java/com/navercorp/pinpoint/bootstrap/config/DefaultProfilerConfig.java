@@ -87,6 +87,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         }
     }
 
+    private boolean allTcpEnable = false;
+
     private boolean profileEnable = false;
 
     private String profileInstrumentEngine = INSTRUMENT_ENGINE_ASM;
@@ -166,6 +168,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         readPropertyValues();
     }
 
+    @Override
+    public boolean isAllTcpEnable() { 
+    	return allTcpEnable; }
+    
     @Override
     public int getInterceptorRegistrySize() {
         return interceptorRegistrySize;
@@ -402,7 +408,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     void readPropertyValues() {
         // TODO : use Properties' default value instead of using a temp variable.
         final ValueResolver placeHolderResolver = new PlaceHolderResolver();
-
+        this.allTcpEnable = readBoolean("profiler.all.tcp.enable", true);
         this.profileEnable = readBoolean("profiler.enable", true);
         this.profileInstrumentEngine = readString("profiler.instrument.engine", INSTRUMENT_ENGINE_ASM);
 
@@ -594,6 +600,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         StringBuilder builder = new StringBuilder(1024);
         builder.append("DefaultProfilerConfig{properties=");
         builder.append(properties);
+        builder.append(", allTcpEnable=");
+        builder.append(allTcpEnable);
         builder.append(", interceptorRegistrySize=");
         builder.append(interceptorRegistrySize);
         builder.append(", propertyPlaceholderHelper=");

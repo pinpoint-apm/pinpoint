@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.receiver;
 import com.navercorp.pinpoint.collector.handler.AgentInfoHandler;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
+import com.navercorp.pinpoint.collector.handler.Handler;
 import com.navercorp.pinpoint.thrift.dto.*;
 
 import org.apache.thrift.TBase;
@@ -48,7 +49,17 @@ public class TcpDispatchHandler extends AbstractDispatchHandler {
     @Qualifier("stringMetaDataHandler")
     private RequestResponseHandler stringMetaDataHandler;
 
-
+    @Autowired()
+    @Qualifier("spanHandler")
+    private SimpleHandler spanDataHandler;
+    
+    @Autowired()
+    @Qualifier("spanChunkHandler")
+    private SimpleHandler spanChunkHandler;
+    
+    @Autowired()
+    @Qualifier("agentStatHandlerFactory")
+    private Handler agentStatHandler;
 
     public TcpDispatchHandler() {
         this.logger = LoggerFactory.getLogger(this.getClass());
@@ -71,14 +82,30 @@ public class TcpDispatchHandler extends AbstractDispatchHandler {
         }
         return null;
     }
-
+    
+    @Override
+    Handler getHandler(TBase<?, ?> tBase) {
+    // To change below code to switch table make it a little bit faster.
+    // FIXME (2014.08) Legacy - TAgentStats should not be sent over the wire.
+		if (tBase instanceof TAgentStat || tBase instanceof TAgentStatBatch) {
+			return agentStatHandler;
+		}
+		return null;
+	}
+    
     @Override
     SimpleHandler getSimpleHandler(TBase<?, ?> tBase) {
 
-        if (tBase instanceof TAgentInfo) {
-            return agentInfoHandler;
-        }
+		if (tBase instanceof TAgentInfo) {
+			return agentInfoHandler;
+		}
+		if (tBase instanceof TSpan) {
+			return spanDataHandler;
+		}
 
+		if (tBase instanceof TSpanChunk) {
+			return spanChunkHandler;
+		}
         return null;
     }
 }
