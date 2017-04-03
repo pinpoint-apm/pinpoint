@@ -91,7 +91,7 @@ public class InvokeMethodInterceptorTest {
         interceptor.before("target", new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
 
-        verify(traceContext, only()).newTraceObject();
+        verify(traceContext, times(1)).newTraceObject();
 
         interceptor.before("target", new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
@@ -151,7 +151,7 @@ public class InvokeMethodInterceptorTest {
         interceptor.before("target", new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
 
-        verify(traceContext, only()).continueTraceObject(any(TraceId.class));
+        verify(traceContext, times(1)).continueTraceObject(any(TraceId.class));
 
         interceptor.before("target", new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);

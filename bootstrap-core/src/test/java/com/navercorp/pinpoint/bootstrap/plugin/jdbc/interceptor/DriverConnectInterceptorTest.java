@@ -55,8 +55,8 @@ public class DriverConnectInterceptorTest {
         driverConnectInterceptor.prepareAfterTrace(driver, va(invalidJdbcUrl), setAccessor, null);
         driverConnectInterceptor.doInAfterTrace(spanEventRecorder, driver, va(invalidJdbcUrl), getAccessor, null);
 
-        verify(setAccessor, only())._$PINPOINT$_setDatabaseInfo(UnKnownDatabaseInfo.INSTANCE);
-        verify(getAccessor, only())._$PINPOINT$_getDatabaseInfo();
+        verify(setAccessor, times(1))._$PINPOINT$_setDatabaseInfo(UnKnownDatabaseInfo.INSTANCE);
+        verify(getAccessor, times(1))._$PINPOINT$_getDatabaseInfo();
     }
 
     @Test

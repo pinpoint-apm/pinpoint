@@ -25,6 +25,7 @@ import org.junit.Test;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -43,10 +44,10 @@ public class DefaultSqlMetaDataServiceTest {
         boolean newValue = sqlMetaDataService.cacheSql(parsingResult);
 
         Assert.assertTrue(newValue);
-        verify(dataSender, only()).request(any(TBase.class));
+        verify(dataSender, times(1)).request(any(TBase.class));
 
         boolean notNewValue = sqlMetaDataService.cacheSql(parsingResult);
         Assert.assertFalse(notNewValue);
-        verify(dataSender, only()).request(any(TBase.class));
+        verify(dataSender, times(1)).request(any(TBase.class));
     }
 }

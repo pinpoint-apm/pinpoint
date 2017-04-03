@@ -34,7 +34,7 @@ public class ListenableAsyncStateTest {
         listenableAsyncState.await();
         listenableAsyncState.finish();
 
-        verify(mock, only()).finish();
+        verify(mock, times(1)).finish();
     }
 
 
