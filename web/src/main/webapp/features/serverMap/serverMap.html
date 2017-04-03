@@ -154,8 +154,8 @@
 
     <ul ng-style="backgroundContextMenuStyle" class="backgroundContextMenu dropdown-menu" role="menu"
         aria-labelledby="dropdownMenu" style="z-index:10">
-        <li class="dropdown-submenu">
-            <a tabindex="-1" href>Node Setting</a>
+        <li class="dropdown-submenu" ng-hide="mergeTypeList.length === 0">
+            <a tabindex="-1">Node Setting</a>
             <ul class="dropdown-menu">
                 <li ng-repeat="mergeType in mergeTypeList">
 					<a href ng-click="toggleMergeGroup(mergeType)">
@@ -165,7 +165,7 @@
             </ul>
         </li>
         <li class="dropdown-submenu">
-            <a tabindex="-1" href>Link Setting</a>
+            <a tabindex="-1">Link Setting</a>
             <ul class="dropdown-menu">
                 <li>
 					<a href class="labelTextType" ng-click="toggleLinkLableTextType('totalRequestCount')">
@@ -176,7 +176,7 @@
         </li>
         <li class="divider"></li>
         <li class="dropdown-submenu">
-            <a tabindex="-1" href>Link Routing</a>
+            <a tabindex="-1">Link Routing</a>
             <ul class="dropdown-menu">
                 <li>
 					<a href ng-click="toggleLinkRouting('Normal')">
@@ -196,7 +196,7 @@
             </ul>
         </li>
         <li class="dropdown-submenu">
-            <a tabindex="-1" href>Link Curve</a>
+            <a tabindex="-1">Link Curve</a>
             <ul class="dropdown-menu">
                 <li>
 					<a href ng-click="toggleLinkCurve('None')">
@@ -211,7 +211,7 @@
                 <li>
 					<a href ng-click="toggleLinkCurve('JumpGap')">
 						<span class="glyphicon" style="width:14px" ng-class="{'glyphicon-ok': linkCurve == 'JumpGap'}"></span>JumpGap
-					</a>LocalStorageManagerService.getRealtimeLayerHeight()
+					</a>
 				</li>
                 <li>
 					<a href ng-click="toggleLinkCurve('Bezier')">
