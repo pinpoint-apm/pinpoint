@@ -76,7 +76,7 @@ public class DelegateEnumerationTest {
         DelegateEnumeration<String> delegateEnumeration = new DelegateEnumeration<String>(enumeration);
 
         Assert.assertNull(delegateEnumeration.nextElement());
-        verify(enumeration, only()).nextElement();
+        verify(enumeration, times(1)).nextElement();
 
         Assert.assertNull(delegateEnumeration.nextElement());
         verify(enumeration, times(2)).nextElement();
