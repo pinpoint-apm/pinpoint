@@ -79,7 +79,7 @@ public interface TraceContext {
 
     boolean cacheSql(ParsingResult parsingResult);
 
-    TraceId createTraceId(String transactionId, long parentSpanID, long spanID, short flags);
+    TraceId createTraceId(String transactionId, long parentSpanId, long spanId, short flags);
 
     Trace disableSampling();
 
@@ -87,6 +87,11 @@ public interface TraceContext {
 
     ServerMetaDataHolder getServerMetaDataHolder();
 
+    /**
+     * internal api
+     * @deprecated Since 1.7.0
+     */
+    @Deprecated
     int getAsyncId();
 
     JdbcContext getJdbcContext();
