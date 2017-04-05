@@ -15,11 +15,11 @@
  */
 package com.navercorp.pinpoint.collector.service;
 
-import org.apache.thrift.TBase;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 
 /**
  * @author minwoo.jung
  */
 public interface AgentStatService {
-    public void save(TBase<?, ?> tbase);
+    public void save(AgentStatBo agentStatBo);
 }

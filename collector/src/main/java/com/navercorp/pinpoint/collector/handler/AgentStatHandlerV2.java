@@ -84,11 +84,6 @@ public class AgentStatHandlerV2 implements Handler {
         } else {
             throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + TAgentStat.class.getName() + " or " + TAgentStatBatch.class.getName());
         }
-
-        if (agentStatService != null) {
-            agentStatService.save(tbase);
-        }
-
     }
 
     private void handleAgentStat(TAgentStat tAgentStat) {
@@ -104,6 +99,9 @@ public class AgentStatHandlerV2 implements Handler {
             logger.debug("Received TAgentStatBatch={}", tAgentStatBatch);
         }
         AgentStatBo agentStatBo = this.agentStatBatchMapper.map(tAgentStatBatch);
+        if (agentStatService != null) {
+            agentStatService.save(agentStatBo);
+        }
         this.insertAgentStatBatch(agentStatBo);
     }
 
