@@ -20,13 +20,12 @@ import org.junit.Assert;
 
 import org.junit.Test;
 
-import com.navercorp.pinpoint.collector.util.ConcurrentCounterMap;
-
 import java.util.Map;
 
 /**
  * @author emeroad
  */
+@Deprecated
 public class ConcurrentCounterMapTest {
     @Test
     public void testIncrement() throws Exception {

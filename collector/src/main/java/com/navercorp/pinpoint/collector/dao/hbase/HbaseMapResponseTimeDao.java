@@ -16,10 +16,11 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase;
 
+import com.google.common.util.concurrent.AtomicLongMap;
 import com.navercorp.pinpoint.collector.dao.MapResponseTimeDao;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.*;
+import com.navercorp.pinpoint.collector.util.AtomicLongMapUtils;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
-import com.navercorp.pinpoint.collector.util.ConcurrentCounterMap;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
@@ -69,7 +70,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
     private final boolean useBulk;
 
-    private final ConcurrentCounterMap<RowInfo> counter = new ConcurrentCounterMap<>();
+    private final AtomicLongMap<RowInfo> counter = AtomicLongMap.create();
 
     public HbaseMapResponseTimeDao() {
         this(true);
@@ -101,7 +102,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         final ColumnName selfColumnName = new ResponseColumnName(agentId, slotNumber);
         if (useBulk) {
             RowInfo rowInfo = new DefaultRowInfo(selfRowKey, selfColumnName);
-            this.counter.increment(rowInfo, 1L);
+            this.counter.incrementAndGet(rowInfo);
         } else {
             final byte[] rowKey = getDistributedKey(selfRowKey.getRowKey());
             // column name is the name of caller app.
@@ -128,14 +129,17 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         }
 
         // update statistics by rowkey and column for now. need to update it by rowkey later.
-        Map<RowInfo,ConcurrentCounterMap.LongAdder> remove = this.counter.remove();
-        List<Increment> merge = rowKeyMerge.createBulkIncrement(remove, rowKeyDistributorByHashPrefix);
-        if (!merge.isEmpty()) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
-            }
-            hbaseTemplate.increment(MAP_STATISTICS_SELF_VER2, merge);
+        final Map<RowInfo, Long> remove = AtomicLongMapUtils.remove(this.counter);
+
+        final List<Increment> merge = rowKeyMerge.createBulkIncrement(remove, rowKeyDistributorByHashPrefix);
+        if (merge.isEmpty()) {
+            return;
         }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
+        }
+        hbaseTemplate.increment(MAP_STATISTICS_SELF_VER2, merge);
     }
 
     private byte[] getDistributedKey(byte[] rowKey) {
