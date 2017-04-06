@@ -57,20 +57,25 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
 
     private final PinpointClient client;
     private final Timer timer;
-    
+
     private final AtomicBoolean fireState = new AtomicBoolean(false);
 
     private final WriteFailFutureListener writeFailFutureListener;
 
 
-    private final HeaderTBaseSerializer serializer = HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer();
+    private final HeaderTBaseSerializer serializer;
 
     private final RetryQueue retryQueue = new RetryQueue();
 
     private AsyncQueueingExecutor<Object> executor;
 
     public TcpDataSender(PinpointClient client) {
+        this(client, HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer());
+    }
+
+    public TcpDataSender(PinpointClient client, HeaderTBaseSerializer serializer) {
         this.client = client;
+        this.serializer = serializer;
         this.timer = createTimer();
         writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", "host", -1);
         this.executor = createAsyncQueueingExecutor(1024 * 5, "Pinpoint-TcpDataExecutor");
