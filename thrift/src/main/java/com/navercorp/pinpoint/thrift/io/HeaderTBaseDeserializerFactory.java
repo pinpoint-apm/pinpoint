@@ -37,6 +37,10 @@ public final class HeaderTBaseDeserializerFactory implements DeserializerFactory
         this(DEFAULT_PROTOCOL_FACTORY, DEFAULT_TBASE_LOCATOR);
     }
 
+    public HeaderTBaseDeserializerFactory(TBaseLocator locator) {
+        this(DEFAULT_PROTOCOL_FACTORY, locator);
+    }
+
     public TBaseLocator getLocator() {
         return locator;
     }
