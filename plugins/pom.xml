@@ -51,6 +51,7 @@
         <module>jboss</module>
         <module>vertx</module>
         <module>resin</module>
+        <module>jsp</module>
     </modules>
 
     <dependencies>
@@ -247,6 +248,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-resin-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-jsp-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
