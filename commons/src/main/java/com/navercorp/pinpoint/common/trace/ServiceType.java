@@ -92,6 +92,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <h3>Library (5000 ~ 7499)</h3>
  * <table>
  * <tr><td>5000</td><td>INTERNAL_METHOD</td></tr>
+ * <tr><td>5005</td><td>JSP</td></tr>
  * <tr><td>5010</td><td>GSON</td></tr>
  * <tr><td>5011</td><td>JACKSON</td></tr>
  * <tr><td>5012</td><td>JSON-LIB</td></tr>
