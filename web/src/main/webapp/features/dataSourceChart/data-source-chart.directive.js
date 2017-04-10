@@ -56,12 +56,15 @@
 							],
 							"graphs": [],
 							"chartCursor": {
+								"cursorColor": "#C10000",
 								"oneBalloonOnly": true,
 								"listeners": [{
 									"event": "changed",
 									"method": function(event) {
 										if ( event.mostCloseGraph && event.index ) {
 											showBalloonData(event.mostCloseGraph.valueField, event.index);
+										} else {
+											showBalloonData("");
 										}
 									}
 								}]
@@ -166,9 +169,9 @@
 							oChart.showGraph( oChart.graphs[i] );
 						}
 					});
-					// scope.$on("dsChartDirective.showCursorAt." + scope.namespace, function (event, category) {
-					// 	showCursorAt(category);
-					// });
+					scope.$on("dsChartDirective.showCursorAt." + scope.namespace, function (event, category) {
+						showCursorAt(category);
+					});
 					scope.$on("dsChartDirective.resize." + scope.namespace, function (event) {
 						resize();
 					});
