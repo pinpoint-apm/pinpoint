@@ -252,7 +252,7 @@
 						returnData[fieldIndex][prefix+targetId]  = oData["avgYVal"].toFixed(1);
 					}
 				}
-				info.isAvailable = true;
+				oInfo.isAvailable = true;
 				return {
 					max: parseInt( maxAvg ) + 1,
 					data: returnData

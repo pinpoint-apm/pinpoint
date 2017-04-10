@@ -46,7 +46,7 @@ public class ListenableAsyncStateTest {
         listenableAsyncState.setup();
         listenableAsyncState.finish();
 
-        verify(mock, times(0)).finish();
+        verify(mock, never()).finish();
     }
 
 
@@ -58,7 +58,7 @@ public class ListenableAsyncStateTest {
         listenableAsyncState.await();
         listenableAsyncState.finish();
 
-        verify(mock, times(0)).finish();
+        verify(mock, never()).finish();
     }
 
 }

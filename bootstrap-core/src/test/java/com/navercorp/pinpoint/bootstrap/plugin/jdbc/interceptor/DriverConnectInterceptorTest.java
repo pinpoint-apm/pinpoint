@@ -29,10 +29,7 @@ import java.sql.SQLException;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Woonduk Kang(emeroad)

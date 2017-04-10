@@ -13,6 +13,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
 
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 /**
@@ -56,9 +57,9 @@ public class BytecodeDumpServiceTest {
 
         disableBytecodeDumpService.dumpBytecode("disableTestDump", classInternalName, classFile, classLoader);
 
-        Mockito.verify(this.disassembler, times(0)).dumpBytecode(classFile);
-        Mockito.verify(this.disassembler, times(0)).dumpVerify(classFile, classLoader);
-        Mockito.verify(this.disassembler, times(0)).dumpASM(classFile);
+        Mockito.verify(this.disassembler, never()).dumpBytecode(classFile);
+        Mockito.verify(this.disassembler, never()).dumpVerify(classFile, classLoader);
+        Mockito.verify(this.disassembler, never()).dumpASM(classFile);
     }
 
 
@@ -70,9 +71,9 @@ public class BytecodeDumpServiceTest {
 
         bytecodeDumpService.dumpBytecode("testDump", "invalidName", classFile, classLoader);
 
-        Mockito.verify(this.disassembler, times(0)).dumpBytecode(classFile);
-        Mockito.verify(this.disassembler, times(0)).dumpVerify(classFile, classLoader);
-        Mockito.verify(this.disassembler, times(0)).dumpASM(classFile);
+        Mockito.verify(this.disassembler, never()).dumpBytecode(classFile);
+        Mockito.verify(this.disassembler, never()).dumpVerify(classFile, classLoader);
+        Mockito.verify(this.disassembler, never()).dumpASM(classFile);
 
     }
 
