@@ -125,6 +125,7 @@
 	                scope.$on("sidebarTitleDirective.initialize." + scope.namespace, function (event, oSidebarTitleVoService, node, navbarVoService) {
 	                    initialize( oSidebarTitleVoService, node, navbarVoService );
 						initializeAgentList( node );
+						$rootScope.$broadcast("serverListDirective.setData", bIsNode, htLastNode, oNavbarVoService);
 	                });
 	
 	                /**
