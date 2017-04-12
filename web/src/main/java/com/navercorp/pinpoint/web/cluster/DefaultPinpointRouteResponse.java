@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.thrift.TBase;
 
 /**
@@ -41,7 +42,7 @@ public class DefaultPinpointRouteResponse implements PinpointRouteResponse {
 
     public void parse(DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory) {
         if (!isParsed) {
-            if (payload == null || payload.length == 0) {
+            if (ArrayUtils.isEmpty(payload)) {
                 routeResult = TRouteResult.EMPTY_RESPONSE;
                 return;
             }

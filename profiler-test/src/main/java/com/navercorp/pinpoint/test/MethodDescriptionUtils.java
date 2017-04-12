@@ -17,6 +17,8 @@
 
 package com.navercorp.pinpoint.test;
 
+import com.navercorp.pinpoint.common.util.ArrayUtils;
+
 import java.lang.reflect.Constructor;
 
 /**
@@ -83,7 +85,7 @@ final class MethodDescriptionUtils {
     }
 
     private static void appendParameter(StringBuilder buffer, String[] parameterType) {
-        if (parameterType == null || parameterType.length == 0) {
+        if (ArrayUtils.isEmpty(parameterType)) {
             buffer.append(EMPTY_ARRAY);
         } else {
             buffer.append('(');

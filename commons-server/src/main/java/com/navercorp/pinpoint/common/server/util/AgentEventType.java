@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
 
 /**
@@ -47,7 +48,7 @@ public enum AgentEventType {
         this.code = code;
         this.desc = desc;
         this.messageType = messageType;
-        if (category == null || category.length == 0) {
+        if (ArrayUtils.isEmpty(category)) {
             this.category = Collections.emptySet();
         } else {
             this.category = new HashSet<AgentEventTypeCategory>(Arrays.asList(category));

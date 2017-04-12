@@ -23,6 +23,7 @@ import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import javassist.CannotCompileException;
@@ -720,7 +721,7 @@ public class JavassistClass implements InstrumentClass {
             return list;
         }
 
-        if (nestedClasses == null || nestedClasses.length == 0) {
+        if (ArrayUtils.isEmpty(nestedClasses)) {
             return list;
         }
 
