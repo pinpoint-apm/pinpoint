@@ -101,7 +101,7 @@ public final class JavaAssistUtils {
     }
 
     public static String javaTypeToJvmSignature(String[] javaTypeArray) {
-        if (javaTypeArray == null || javaTypeArray.length == 0) {
+        if (com.navercorp.pinpoint.common.util.ArrayUtils.isEmpty(javaTypeArray)) {
             return "()";
         }
         final StringBuilder buffer = new StringBuilder();

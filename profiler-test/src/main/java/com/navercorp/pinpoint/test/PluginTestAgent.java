@@ -31,6 +31,7 @@ import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
@@ -212,7 +213,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
 
     public void verifyDiscreteTraceBlock(ExpectedTrace[] expectations, Integer asyncId) {
-        if (expectations == null || expectations.length == 0) {
+        if (ArrayUtils.isEmpty(expectations)) {
             throw new IllegalArgumentException("No expectations");
         }
 
@@ -247,7 +248,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     @Override
     public void verifyTrace(ExpectedTrace... expectations) {
-        if (expectations == null || expectations.length == 0) {
+        if (ArrayUtils.isEmpty(expectations)) {
             throw new IllegalArgumentException("No expectations");
         }
 

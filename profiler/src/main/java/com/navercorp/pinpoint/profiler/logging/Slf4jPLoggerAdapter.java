@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.logging;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import org.slf4j.Marker;
 
 import java.math.BigDecimal;
@@ -178,11 +179,7 @@ public class Slf4jPLoggerAdapter implements PLogger {
     }
 
     private static void appendParameterList(StringBuilder sb, Object[] args) {
-        if (args == null) {
-            sb.append("()");
-            return;
-        }
-        if (args.length == 0) {
+        if (ArrayUtils.isEmpty(args)) {
             sb.append("()");
             return;
         }

@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ClassFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -145,7 +146,7 @@ public class JavassistClassTest {
                 continue;
             }
             String[] parameterTypes = methodInfo.getParameterTypes();
-            if (parameterTypes == null || parameterTypes.length == 0) {
+            if (ArrayUtils.isEmpty(parameterTypes)) {
                 findMethodCount++;
             }
         }
