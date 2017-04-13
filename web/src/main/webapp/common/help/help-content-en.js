@@ -219,7 +219,7 @@
 					}]
 				},{
 					title: "[Usage]",
-					image: "<img src='/images/help/scatter_01.png' width='200px' height='125px'>",
+					image: "<img src='images/help/scatter_01.png' width='200px' height='125px'>",
 					items: [{
 						name: "<span class='glyphicon glyphicon-plus'></span>",
 						desc: "Drag on the scatter chart to show detailed information on selected transactions."
@@ -637,7 +637,7 @@
 						desc: "The overall duration of the method call from method entry until method exit"
 					},{
 						name: "Exec(%)",
-						desc: "<img src='/images/help/callTree_01.png'/>"
+						desc: "<img src='images/help/callTree_01.png'/>"
 					},{
 						name: "",
 						desc: "<span style='background-color:#FFFFFF;color:#5bc0de'>Light blue</span> The execution time of the method call as a percentage of the total execution time of the transaction"

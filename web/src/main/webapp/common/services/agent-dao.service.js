@@ -2,7 +2,7 @@
 	'use strict';
 
 	pinpointApp.constant( "agentDaoServiceConfig", {
-		agentStatUrl: "/getAgentStat.pinpoint",
+		agentStatUrl: "getAgentStat.pinpoint",
 		dateFormat: "YYYY-MM-DD HH:mm:ss"
 	});
 

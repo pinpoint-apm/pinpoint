@@ -51,7 +51,7 @@
                 <tr ng-repeat="transaction in transactionList | orderBy:transactionOrderBy:transactionReverse"
                     ng-class="{true: 'success', false: {'danger': transaction.exception}}[transaction == currentTransaction]">
                     <td style="text-align:right;">
-						<a href ng-href="/transactionInfo.pinpoint?traceId={{transaction.traceId}}&focusTimestamp={{transaction.collectorAcceptTime}}" target="_blank"></a>
+						<a href ng-href="transactionInfo.pinpoint?traceId={{transaction.traceId}}&focusTimestamp={{transaction.collectorAcceptTime}}" target="_blank"></a>
 						{{transaction.index | number}}
                     </td>
                     <td ng-click="traceByApplication(transaction)" sorttable_customkey="{{transaction.startTime}}">{{formatDate( transaction.startTime )}}</td>

@@ -63,7 +63,7 @@
     <li class="active"><a href="#CallStacks" data-toggle="tab">Call Tree</a></li>
     <li><a href="#ServerMap" data-toggle="tab">Server Map</a></li>
     <li><a href="#Timeline" data-toggle="tab">Timeline</a></li>
-    <li><a href ng-click="openTransactionView();">Mixed View</a></li>
+    <li><a href ng-click="openTransactionView($event);">Mixed View</a></li>
     <li ng-show="logLinkEnable">
    		<a href="#Log" ng-click="viewLog(logPageUrl)" style="{{loggingTransactionInfo ? '' : 'color:#BBBABA'}}">{{logButtonName}}</a>
     </li>

@@ -8,7 +8,7 @@
 	 * @class
 	 */
 	pinpointApp.constant( "RealtimeWebsocketServiceConfig", {
-		wsUrl: "/agent/activeThread.pinpointws",
+		wsUrl: "agent/activeThread.pinpointws",
 		wsTimeout: 10000, //ms
 		retryTimeout: 3000,
 		maxRetryCount: 1
@@ -54,7 +54,7 @@
 	    	stopTimeoutChecker();
 	    };
 		function connectWebSocket() {
-			webSocket = new WebSocket("ws://" + location.host + cfg.wsUrl);
+			webSocket = new WebSocket("ws://" + location.host + location.pathname + cfg.wsUrl);
 			webSocket.onopen = function(event) {
 				bIsOpenConnection = true;
 				connectTime = lastReceiveTime = Date.now();

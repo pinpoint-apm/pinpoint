@@ -221,7 +221,7 @@
 					}]
 				},{
 					title: "[기능]",
-					image: "<img src='/images/help/scatter_01.png' width='200px' height='125px'>",
+					image: "<img src='images/help/scatter_01.png' width='200px' height='125px'>",
 					items: [{
 						name: "<span class='glyphicon glyphicon-plus'></span>",
 						desc: "마우스로 영역을 드래그하여 드래그 된 영역에 속한 트랜잭션의 상세정보를 조회할 수 있습니다."
@@ -657,7 +657,7 @@
 						desc: "메소드 시작부터 종료까지의 시간"
 					},{
 						name: "Exec(%)",
-						desc: "<img src='/images/help/callTree_01.png'/>"
+						desc: "<img src='images/help/callTree_01.png'/>"
 					},{
 						name: "",
 						desc: "<span style='background-color:#FFFFFF;color:#5bc0de'>옅은 파란색</span><br/>트랜잭션 전체 실행 시간 대 exec 시간의 비율"

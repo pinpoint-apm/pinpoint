@@ -13,7 +13,7 @@
 	        "sOverviewId": 'servermapOverview',
 	        "sBigFont": "11pt Lato,NanumGothic,ng,dotum,AppleGothic,sans-serif",
 	        "sSmallFont": "11pt Lato,NanumGothic,ng,dotum,AppleGothic,sans-serif",
-	        "sImageDir": '/images/servermap/',
+	        "sImageDir": 'images/servermap/',
 	        "htLinkType": {
 	            "sRouting": "Normal", // Normal, Orthogonal, AvoidNodes
 	            "sCurve": "JumpGap" // Bezier, JumpOver, JumpGap
@@ -358,7 +358,8 @@
 	                        reset();
 	                    };
 	                    options.fOnNodeDoubleClicked = function(e, node, htData ) {
-	                    	e.diagram.zoomToRect( node.actualBounds, 1.2);
+							e.diagram.centerRect( node.actualBounds );
+							e.diagram.scale *= 2;
 	                    };
 	                    options.fOnNodeContextClicked = function (e, node) {
 							if ( scope.oNavbarVoService.isRealtime() ) {
@@ -456,7 +457,7 @@
 	                    } else {
 	                        oServerMap.option(options);
 	                    }
-	                    oServerMap.load(htLastMergedMapData);
+	                    oServerMap.load(htLastMergedMapData, scope.mergeStatus);
 	                    oProgressBarService.stopLoading();
 
 						if ( scope.oNavbarVoService && scope.oNavbarVoService.isRealtime() ) {

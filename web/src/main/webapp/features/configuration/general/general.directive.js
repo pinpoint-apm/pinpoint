@@ -30,7 +30,7 @@
 					}
 					function renderElement( appName, appType, code ) {
 						$elFavoriteList.append(
-							'<li data-name="' + appName + '" data-type="' + appType + '" data-code="' + code + '"><img src="/images/icons/' + appType + '.png" height="25px"/>' + appName + '<button class="btn btn-danger btn-xs" style="float:right"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></li>'
+							'<li data-name="' + appName + '" data-type="' + appType + '" data-code="' + code + '"><img src="images/icons/' + appType + '.png" height="25px"/>' + appName + '<button class="btn btn-danger btn-xs" style="float:right"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></li>'
 						);
 					}
 					function init() {

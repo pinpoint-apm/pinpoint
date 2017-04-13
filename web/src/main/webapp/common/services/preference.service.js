@@ -29,7 +29,7 @@
 				time: 60,
 				label: "1 minute"
 			}],
-			iconPath: "/images/icons/"
+			iconPath: "images/icons/"
 		}
 	});
 	
