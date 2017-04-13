@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.collector.handler;
 import com.navercorp.pinpoint.collector.dao.AgentStatDaoV2;
 import com.navercorp.pinpoint.collector.mapper.thrift.stat.AgentStatBatchMapper;
 import com.navercorp.pinpoint.collector.mapper.thrift.stat.AgentStatMapper;
+import com.navercorp.pinpoint.collector.service.AgentStatService;
+import com.navercorp.pinpoint.collector.service.HBaseAgentStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
@@ -37,8 +39,10 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.fail;
@@ -74,10 +78,17 @@ public class AgentStatHandlerV2Test {
     private AgentStatDaoV2<DataSourceListBo> dataSourceDao;
 
     @InjectMocks
+    private HBaseAgentStatService hBaseAgentStatService = new HBaseAgentStatService();
+
+    @Spy
+    private List<AgentStatService> agentStatServiceList = new ArrayList<>();
+
+    @InjectMocks
     private AgentStatHandlerV2 agentStatHandler = new AgentStatHandlerV2();
 
     @Before
     public void setUp() throws Exception {
+        agentStatServiceList.add(hBaseAgentStatService);
         MockitoAnnotations.initMocks(this);
     }
 
