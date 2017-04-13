@@ -36,6 +36,8 @@
     ts.Events.prototype._makeElement = function( oEvent, index ) {
         var opt = this.opt;
         var time = oEvent.startTimestamp + ( oEvent.endTimestamp - oEvent.startTimestamp ) / 2;
+		var oTextInfo = this._getEventTextInfo( oEvent.value.totalCount );
+
         var elEventGroup = this.group.g().attr({
             "data-id": index,
             "data-time": time,
@@ -43,13 +45,16 @@
         }).add(
             this.timeSlider.snap.line( 0, opt.y, 0, opt.y + opt.barLength ),
             this.timeSlider.snap.circle( 0, opt.y + opt.circleRadius + opt.gapBarNCircle + opt.barLength, opt.circleRadius ).attr({
-				// "stroke": "#000",//TimeSlider.StatusColor[oEvent.value],
-				// "stroke-width": "2",
-				"fill": "#000",
+				"fill": "#bdb76b",
                 "class": "event",
                 "filter": this._filterShadow,
                 "data-time": time
-            })
+            }),
+			this.timeSlider.snap.text( oTextInfo.x, oTextInfo.y, oTextInfo.text ).attr({
+				"fill": "#FFF",
+				"class": "event",
+				"font-size": "11px"
+			})
         );
         this._aEventGroupElement.push(elEventGroup);
         return elEventGroup;
@@ -66,6 +71,13 @@
             self._fireEvent( "clickEvent", event, x, y );
         });
     };
+	ts.Events.prototype._getEventTextInfo = function( totalCount ) {
+		return {
+			x: totalCount < 10 ? -(this.opt.circleRadius/3) : -(this.opt.circleRadius/4) * 3,
+			y: this.opt.y + this.opt.circleRadius + (this.opt.circleRadius/2) + this.opt.gapBarNCircle + this.opt.barLength,
+			text: totalCount >= 100 ? "99" : totalCount
+		};
+	};
     ts.Events.prototype._fireEvent = function( eventType, event, x, y ) {
         this.timeSlider.fireEvent(eventType, [x, y, this._oTimelineData.getEventDataByIndex( parseInt(event.srcElement.parentNode.getAttribute("data-id")) )] );
     };
@@ -97,6 +109,12 @@
 		var oEvent = this._oTimelineData.getEventDataByIndex(index);
 		var time = oEvent.startTimestamp + ( oEvent.endTimestamp - oEvent.startTimestamp ) / 2;
 		var x = this.timeSlider.oPositionManager.getPositionFromTime( time );
+		var oTextInfo = this._getEventTextInfo( oEvent.value.totalCount );
+		elEventGroup[2].attr({
+			x: oTextInfo.x,
+			y: oTextInfo.y,
+			text: oTextInfo.text
+		});
 		this.show(elEventGroup);
 		elEventGroup.animate({
 			"transform": "translate(" + x + ",0)"

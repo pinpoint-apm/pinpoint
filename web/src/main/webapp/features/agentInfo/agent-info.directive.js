@@ -369,6 +369,7 @@
 					};
 					scope.zoomInTimeSlider = function() {
 						timeSlider.zoomIn();
+						getTimelineList( scope.agent.agentId, timeSlider.getSliderTimeSeries() );
 					};
 					scope.zoomOutTimeSlider = function() {
 						timeSlider.zoomOut();
