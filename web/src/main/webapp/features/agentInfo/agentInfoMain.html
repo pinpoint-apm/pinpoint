@@ -36,22 +36,20 @@
 		</div>
 		<div class="panel panel-info" ng-show="showEventInfo">
 			<div class="panel-heading">
-				<h3 class="panel-title">{{eventInfo.eventTypeDesc}} - Event <span class="glyphicon glyphicon-remove" style="float:right;cursor:pointer" aria-hidden="true" ng-click="hideEventInfo()"></span></h3>
+				<h3 class="panel-title">Event <span class="glyphicon glyphicon-remove" style="float:right;cursor:pointer" aria-hidden="true" ng-click="hideEventInfo()"></span></h3>
 			</div>
 			<div class="panel-body">
-				<table class="table table-condensed" style="font-size:12px;">
+				<table class="table table-condensed" style="font-size:12px;margin-bottom:0px;">
+					<thead>
+						<th>Time</th>
+						<th>Description</th>
+						<th>Message</th>
+					</thead>
 					<tbody>
-						<tr>
-							<td class="col-md-2 text-left"><strong>Event Time</strong></td>
-							<td class="col-md-10 text-left">{{formatDate(eventInfo.eventTimestamp)}}</td>
-						</tr>
-						<tr>
-							<td class="text-left"><strong>Description</strong></td>
-							<td class="text-left">{{eventInfo.eventTypeDesc}}</td>
-						</tr>
-						<tr ng-show="eventInfo.hasEventMessage">
-							<td class="text-left"><strong>Message</strong></td>
-							<td class="text-left">{{eventInfo.eventMessage}}</td>
+						<tr ng-repeat="event in eventInfo">
+							<td>{{formatDate(event.eventTimestamp)}}</td>
+							<td>{{event.eventTypeDesc}}</td>
+							<td>{{event.eventMessage}}</td>
 						</tr>
 					</tbody>
 				</table>
