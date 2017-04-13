@@ -8,7 +8,7 @@
 	 * @class
 	 */
 	pinpointApp.constant("TransactionListConfig", {
-	    applicationUrl: "/transactionmetadata.pinpoint",
+	    applicationUrl: "transactionmetadata.pinpoint",
 		MIN_TRANSACTION_LIST_HEIGHT: 75,
 	    MAX_FETCH_BLOCK_SIZE: 100,
 		TRANSACTION_LIST_HANDLE_POSITION: "transactionList.resizer"

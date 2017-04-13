@@ -354,7 +354,7 @@
 								if ( item.isAuthorized ) {
 									if ( angular.isDefined( itemNext ) && itemNext.method === "SQL-BindValue" ) {
 										data += "&bind=" + encodeURIComponent( itemNext.argument );
-										CommonAjaxService.getSQLBind( "/sqlBind.pinpoint", data, function( result ) {
+										CommonAjaxService.getSQLBind( "sqlBind.pinpoint", data, function( result ) {
 											$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html(
 													'<h4>Binded SQL <button class="btn btn-default btn-xs sql">Copy</button></h4>' +
 													'<div style="position:absolute;left:10000px">' + result + '</div>' +

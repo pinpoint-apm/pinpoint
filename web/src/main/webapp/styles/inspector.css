@@ -192,7 +192,7 @@
 }
 .timeSlider .x-axis line {
     stroke: #FFF;
-    stroke-width: .5;
+    stroke-width: 0.5;
     stroke-linecap: square;
 }
 .timeSlider .left-handler rect, .timeSlider .right-handler rect {

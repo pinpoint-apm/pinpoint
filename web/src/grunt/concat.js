@@ -85,7 +85,7 @@ module.exports = function( grunt, options ) {
 				'/time-slider.js',
 				'/time-slider.background.js',
 				'/time-slider.configuration.js',
-				'/time-slider.event-data.js',
+				'/time-slider.timeline-data.js',
 				'/time-slider.events.js',
 				'/time-slider.handler.js',
 				'/time-slider.loading-indicator.js',
@@ -248,7 +248,8 @@ module.exports = function( grunt, options ) {
 				'/angular-slider/angular-slider.min.css',
 				'/tooltipster/css/tooltipster.css',
 				'/google-code-prettify/prettify.css',
-				'/google-code-prettify/sunburst.css'
+				'/google-code-prettify/sunburst.css',
+				'/xeicon.min.css'
 			], options.RESOURCE_PATH.COMPONENT ),
 			dest: options.RESOURCE_PATH.DEST_CSS + '/vendor.css'
 		},
@@ -271,8 +272,7 @@ module.exports = function( grunt, options ) {
 				'/loading.css',
 				'/jquery.BigScatterChart.css',
 				'/timer.css',
-				'/configuration.css',
-				'/xeicon.min.css'
+				'/configuration.css'
 			], options.RESOURCE_PATH.STYLE ),
 			dest: options.RESOURCE_PATH.DEST_CSS + '/pinpoint.css'
 		}

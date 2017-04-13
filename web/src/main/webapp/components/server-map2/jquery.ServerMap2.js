@@ -30,73 +30,6 @@
                 "sSmallFont": "10pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
                 "sImageDir": './images/',
                 "sBoldKey": null,
-                "htIcons": {
-                    'ACTIVEMQ_CLIENT': 'ACTIVEMQ_CLIENT.png',
-                    'APACHE': 'APACHE.png',
-                    'APACHE_GROUP': 'APACHE.png',
-                    'ARCUS': 'ARCUS.png',
-                    'ARCUS_GROUP': 'ARCUS.png',
-                    'BACKEND': 'BACKEND.png',
-                    'BACKEND_GROUP': 'BACKEND.png',
-                    'BLOC': 'BLOC.png',
-                    'BLOC_GROUP': 'BLOC.png',
-                    'CASSANDRA': 'CASSANDRA.png',
-                    'CASSANDRA_GROUP': 'CASSANDRA.png',
-                    'CUBRID': 'CUBRID.png',
-                    'CUBRID_GROUP': 'CUBRID.png',
-                    'JAVA': 'JAVA.png',
-                    'JAVA_GROUP': 'JAVA.png',
-                    'MEMCACHED': 'MEMCACHED.png',
-                    'MEMCACHED_GROUP': 'MEMCACHED.png',
-                    'MONGODB': 'MONGODB.png',
-                    'MONGODB_GROUP': 'MONGODB.png',
-                    'MSSQLSERVER': 'MSSQLSERVER.png',
-                    'MSSQLSERVER_GROUP': 'MSSQLSERVER.png',
-                    'MYSQL': 'MYSQL.png',
-                    'MYSQL_GROUP': 'MYSQL.png',
-                    'MARIADB': 'MARIADB.png',
-                    'MARIADB_GROUP': 'MARIADB.png',
-                    'POSTGRESQL': 'POSTGRESQL.png',
-                    'POSTGRESQL_GROUP': 'POSTGRESQL.png',
-                    'NBASE': 'NBASE.png',
-                    'NBASE_GROUP': 'NBASE.png',
-                    'NGINX': 'NGINX.png',
-                    'NGINX_GROUP': 'NGINX.png',
-                    'ORACLE': 'ORACLE.png',
-                    'ORACLE_GROUP': 'ORACLE.png',
-                    'QUEUE': 'QUEUE.png',
-                    'QUEUE_GROUP': 'QUEUE.png',
-                    'STAND_ALONE': 'STAND_ALONE.png',
-                    'STAND_ALONE_GROUP': 'STAND_ALONE.png',
-                    'SPRING_BOOT': 'SPRING_BOOT.png',
-                    'TOMCAT': 'TOMCAT.png',
-                    'TOMCAT_GROUP': 'TOMCAT.png',
-                    'DUBBO_CONSUMER': 'DUBBO.png',
-                    'DUBBO_CONSUMER_GROUP': 'DUBBO.png',
-                    'DUBBO_PROVIDER': 'DUBBO.png',
-                    'DUBBO_PROVIDER_GROUP': 'DUBBO.png',
-                    'JETTY': 'JETTY.png',
-                    'JETTY_GROUP': 'JETTY.png',
-                    'RESIN': 'RESIN.png',
-                    'RESIN_GROUP': 'RESIN_GROUP.png',
-                    'UNDEFINED': 'UNDEFINED.png',
-                    'UNDEFINED_GROUP': 'UNDEFINED.png',
-                    'UNKNOWN': 'UNKNOWN.png',
-                    'UNKNOWN_GROUP': 'UNKNOWN_GROUP.png',
-                    'REDIS': 'REDIS.png',
-                    'REDIS_GROUP': 'REDIS.png',
-                    'NBASE_ARC': 'NBASE_ARC.png',
-                    'NBASE_ARC_GROUP': 'NBASE_ARC.png',
-                    'NBASE_T': 'NBASE_T.png',
-                    'NBASE_T_GROUP': 'NBASE_T.png',
-                    'USER': 'USER.png',
-                    'USER_GROUP': 'USER.png',
-                    'UNAUTHORIZED': 'UNAUTHORIZED.png',
-                    'JBOSS': 'JBOSS.png',
-                    'JBOSS_GROUP': 'JBOSS.png',
-                    'VERTX': 'VERTX.png',
-                    'VERTX_GROUP': 'VERTX.png'
-                },
                 "htNodeTheme": {
                     "default": {
                         "backgroundColor": "#ffffff",
@@ -177,7 +110,7 @@
 
             this.option(htOption);
             this._initVariables();
-            this._initNodeTemplates();
+            this._initNodeTemplates("default");
             this._initLinkTemplates();
             this._initDiagramEnvironment();
             this._initOverview( $location );
@@ -209,10 +142,9 @@
          *
          * @method ServerMap#_initNodeTemplates
          */
-        _initNodeTemplates: function () {
+        _initNodeTemplates: function (initType, groupType) {
             var self = this,
-                sImageDir = this.option('sImageDir'),
-                htIcons = this.option('htIcons');
+                sImageDir = this.option("sImageDir");
 
             var infoTableTemplate = self.$(
                 go.Panel,
@@ -226,9 +158,9 @@
                         margin: new go.Margin(0, 2),
                         column: 1,
                         stroke: "#848484",
-                        font: self.option('sSmallFont')
+                        font: self.option("sSmallFont")
                     },
-                    new go.Binding('text', 'k')
+                    new go.Binding("text", "k")
                 ),
                 self.$(
                     go.TextBlock,
@@ -236,9 +168,9 @@
                         margin: new go.Margin(0, 2),
                         column: 2,
                         stroke: "#848484",
-                        font: self.option('sSmallFont')
+                        font: self.option("sSmallFont")
                     },
-                    new go.Binding('text', 'v')
+                    new go.Binding("text", "v")
                 )
             );
             var calcuResponseSummaryCircleSize = function( sum, value ) {
@@ -255,7 +187,7 @@
             calcuResponseSummaryCircleSize.maxSize = 360;
             calcuResponseSummaryCircleSize.minPercentage = 5;
 
-            var getNodeTemplate = function (sImageName) {
+            var getNodeTemplate = function () {
                 return self.$(
                     go.Node,
                     new go.Binding("category", "serviceType"),
@@ -288,23 +220,23 @@
                             portId: ""
                         },
                         new go.Binding("strokeWidth", "key", function (key) {
-                            var type = 'default';
-                            if (self.option('sBoldKey') && self.option('sBoldKey') === key) {
-                                type = 'bold';
+                            var type = "default";
+                            if (self.option("sBoldKey") && self.option("sBoldKey") === key) {
+                                type = "bold";
                             }
-                            return self.option('htNodeTheme')[type].borderWidth;
+                            return self.option("htNodeTheme")[type].borderWidth;
                         }),
                         new go.Binding("stroke", "key", function (key) {
                             var type = 'default';
-                            if (self.option('sBoldKey') && self.option('sBoldKey') === key) {
+                            if (self.option("sBoldKey") && self.option("sBoldKey") === key) {
                                 type = 'bold';
                             }
-                            return self.option('htNodeTheme')[type].borderColor;
+                            return self.option("htNodeTheme")[type].borderColor;
                         }),
                         new go.Binding("fill", "key", function (key) {
-                            var type = 'default';
-                            if (self.option('sBoldKey') && self.option('sBoldKey') === key) {
-                                type = 'bold';
+                            var type = "default";
+                            if (self.option("sBoldKey") && self.option("sBoldKey") === key) {
+                                type = "bold";
                             }
                             return self.option('htNodeTheme')[type].backgroundColor;
                         }),
@@ -387,11 +319,13 @@
                             self.$(
                                 go.Picture,
                                 {
-                                    source: sImageDir + sImageName,
                                     margin: new go.Margin(18, 0, 5, 0),
                                     desiredSize: new go.Size(80, 40),
                                     imageStretch: go.GraphObject.Uniform
-                                }
+                                },
+								new go.Binding("source", "serviceType", function(serviceType) {
+									return sImageDir + serviceType + ".png";
+								})
                             ),
                             self.$(
                                 go.TextBlock,
@@ -401,11 +335,7 @@
                                     alignmentFocus: go.Spot.BottomCenter,
                                     name: "NODE_TEXT",
                                     margin: 6,
-//                                    margin: new go.Margin(6,16, -10, 16),
-//                                    margin: new go.Margin(16,6, -6, 6),
-                                    font: self.option('sBigFont'),
-//                                    wrap: go.TextBlock.WrapFit,
-//                                    width: 130,
+                                    font: self.option("sBigFont"),
                                     editable: false
                                 }
                             ),
@@ -435,7 +365,7 @@
                             self.$(
                                 go.Picture,
                                 {
-                                    source: sImageDir + 'ERROR.png',
+                                    source: sImageDir + "ERROR.png",
                                     desiredSize: new go.Size(20, 20),
 //                                    visible: false,
                                     imageStretch: go.GraphObject.Uniform,
@@ -448,7 +378,7 @@
                             self.$(
                                 go.Picture,
                                 {
-                                    source: sImageDir + 'FILTER.png',
+                                    source: sImageDir + "FILTER.png",
                                     desiredSize: new go.Size(17, 17),
                                     visible: false,
                                     imageStretch: go.GraphObject.Uniform
@@ -489,7 +419,7 @@
                                         stroke: "#FFFFFF",
                                         textAlign: "center",
                                         height: 16,
-                                        font: self.option('sSmallFont'),
+                                        font: self.option("sSmallFont"),
                                         editable: false
                                     }
                                 )
@@ -504,7 +434,7 @@
                 go.Panel.TableRow,
                 self.$(
                     go.Picture, {
-                        source: sImageDir + 'ERROR.png',
+                        source: sImageDir + "ERROR.png",
                         margin: new go.Margin(1, 2),
                         desiredSize: new go.Size(10, 10),
                         visible: false,
@@ -526,7 +456,7 @@
                     	name: "NODE_APPLICATION_NAME",
                         margin: new go.Margin(1, 2),
                         column: 2,
-                        font: self.option('sSmallFont'),
+                        font: self.option("sSmallFont"),
                         alignment: go.Spot.Left,
                         click : function(e, obj ) {
                         	e.bubbles = false;
@@ -540,16 +470,16 @@
                         }
 
                     },
-                    new go.Binding('text', 'applicationName')
+                    new go.Binding("text", "applicationName")
                 ),
                 self.$(
                     go.TextBlock, {
                         margin: new go.Margin(1, 2),
                         column: 3,
                         alignment: go.Spot.Right,
-                        font: self.option('sSmallFont')
+                        font: self.option("sSmallFont")
                     },
-                    new go.Binding('text', 'totalCount', function (val) {
+                    new go.Binding("text", "totalCount", function (val) {
                         return Number(val, 10).toLocaleString();
                     })
                 )
@@ -563,7 +493,7 @@
                         margin: new go.Margin(2, 2),
                         font: "bold 16px avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif"
                     },
-                    new go.Binding('text', 'applicationName')
+                    new go.Binding("text", "applicationName")
                 ),
                 self.$(
                 	go.Panel,
@@ -593,7 +523,7 @@
                 )
             );
 
-            var getUnknownGroupTemplate = function (sImageName) {
+            var getUnknownGroupTemplate = function () {
                 return self.$(
                     go.Node,
                     go.Panel.Auto, {
@@ -617,9 +547,9 @@
                             minSize: new go.Size(100, 100),
                             name: "NODE_SHAPE",
                             portId: "",
-                            strokeWidth: self.option('htNodeTheme')["default"].borderWidth,
-                            stroke: self.option('htNodeTheme')["default"].borderColor,
-                            fill: self.option('htNodeTheme')["default"].backgroundColor
+                            strokeWidth: self.option("htNodeTheme")["default"].borderWidth,
+                            stroke: self.option("htNodeTheme")["default"].borderColor,
+                            fill: self.option("htNodeTheme")["default"].backgroundColor
                         },
                         new go.Binding("key", "key")
                     ),
@@ -658,11 +588,13 @@
                             },
                             self.$(
                                 go.Picture, {
-                                    source: sImageDir + sImageName,
                                     margin: new go.Margin(0, 0, 5, 0),
                                     desiredSize: new go.Size(100, 40),
                                     imageStretch: go.GraphObject.Uniform
-                                }
+                                },
+								new go.Binding("source", "serviceType", function(serviceType) {
+									return sImageDir + serviceType + ".png";
+								})
                             ),
                             self.$(
                                 go.Panel,
@@ -723,7 +655,7 @@
                                     stroke: "#FFFFFF",
                                     textAlign: "center",
                                     height: 16,
-                                    font: self.option('sSmallFont'),
+                                    font: self.option("sSmallFont"),
                                     editable: false
                                 }
                             )
@@ -732,14 +664,13 @@
                 );
             };
 
-            _.each(htIcons, function (sVal, sKey) {
-            	if ( sKey.indexOf( "_GROUP" ) != -1 ) {
-                    this._oDiagram.nodeTemplateMap.add(sKey, getUnknownGroupTemplate(sVal));
-                } else {
-                    this._oDiagram.nodeTemplateMap.add(sKey, getNodeTemplate(sVal));
-                }
-            }, this);
-
+            if ( initType === "default" ) {
+				this._oDiagram.nodeTemplate = getNodeTemplate();
+			} else {
+				_.each(groupType, function (sVal, sKey) {
+					this._oDiagram.nodeTemplateMap.add(sKey + "_GROUP", getUnknownGroupTemplate());
+				}, this);
+			}
         },
 
         /**
@@ -749,7 +680,7 @@
          */
         _initLinkTemplates: function () {
             var self = this,
-                htLinkType = this.option('htLinkType'),
+                htLinkType = this.option("htLinkType"),
                 option = {
                     selectionAdorned: false,
                     // selectionAdornmentTemplate: this._oDefaultAdornmentForLink,
@@ -775,7 +706,7 @@
                     // curve: go.Link.Bezier
                 },
                 htLinkTheme = this.option("htLinkTheme"),
-                sImageDir = this.option('sImageDir'),
+                sImageDir = this.option("sImageDir"),
                 htDefault = htLinkTheme["default"],
                 bad = htLinkTheme.bad;
 
@@ -834,7 +765,7 @@
                             self.$(
                                 go.Picture,
                                 {
-                                    source: sImageDir + 'FILTER.png',
+                                    source: sImageDir + "FILTER.png",
                                     width: 14,
                                     height: 14,
                                     margin: 1,
@@ -951,14 +882,14 @@
 
         	if ( /^\/main/.test( $location.path() ) ) {
 	            this._oOverview = this.$( go.Overview,
-	            		this.option('sOverviewId'),
+	            		this.option("sOverviewId"),
 	            		{ observed: this._oDiagram }
 	            );
 	            this._oOverview.box.elt(0).figure = "RoundedRectangle";
 	            this._oOverview.box.elt(0).stroke = "#53069B";
 	            this._oOverview.box.elt(0).strokeWidth = 4;
 	        } else {
-	        	$( "#" + this.option('sOverviewId') ).hide();
+	        	$( "#" + this.option("sOverviewId") ).hide();
 	        }
         },
 
@@ -968,8 +899,11 @@
          * @method ServerMap#load
          * @param {object}
          */
-        load: function (obj) {
-            this.nodeClickEventOnce = false;
+        load: function (obj, mergeStatus) {
+        	if ( typeof mergeStatus !== "undefined" ) {
+				this._initNodeTemplates("group", mergeStatus);
+			}
+        	this.nodeClickEventOnce = false;
             this._sLastModelData = obj;
             this._oDiagram.model = go.Model.fromJson(obj);
             this._oDiagram.undoManager.isEnabled = true;
@@ -1013,13 +947,13 @@
             }
 
             this._resetHighlights();
-            selection.highlight = 'self';
+            selection.highlight = "self";
             if (selection instanceof go.Node) {
-                this._linksTo(selection, 'from');
-                this._linksFrom(selection, 'to');
+                this._linksTo(selection, "from");
+                this._linksFrom(selection, "to");
             } else if (selection instanceof go.Link) {
-                this._nodesTo(selection, 'from');
-                this._nodesFrom(selection, 'to');
+                this._nodesTo(selection, "from");
+                this._nodesFrom(selection, "to");
             }
 
             // iterators containing all nodes and links in the diagram
@@ -1108,13 +1042,13 @@
             }
 			var i = 0;
             if (theme) {
-            	shapeNode.stroke = this.option('htHighlightNode').borderColor;
+            	shapeNode.stroke = this.option("htHighlightNode").borderColor;
             	shapeNode.strokeWidth = 2;
             	shapeNode.part.isShadowed = true;
 
             	var reg = new RegExp( this._query, "i" );
-            	var highlightFont = this.option('htHighlightNode').fontColor;
-            	var defaultFont = this.option('htNodeTheme')["default"].fontColor;
+            	var highlightFont = this.option("htHighlightNode").fontColor;
+            	var defaultFont = this.option("htNodeTheme")["default"].fontColor;
                 if ( this._query !== "" ) {
 	                if ( angular.isDefined( textNode.rowCount ) ) {
 	                	for( i = 0 ; i < textNode.rowCount ; i++ ) {
@@ -1136,17 +1070,17 @@
 	                }
                 }
             } else {
-                var type = (shapeNode.key === this.option('sBoldKey')) ? 'bold' : 'default';
-                shapeNode.stroke = this.option('htNodeTheme')[type].borderColor;
+                var type = (shapeNode.key === this.option("sBoldKey")) ? "bold" : "default";
+                shapeNode.stroke = this.option("htNodeTheme")[type].borderColor;
                 shapeNode.strokeWidth = 1;
                 shapeNode.part.isShadowed = false;
 
                 if ( angular.isDefined( textNode.rowCount ) ) {
                 	for( i = 0 ; i < textNode.rowCount ; i++ ) {
-                		textNode.elt(i).elt(2).stroke = this.option('htNodeTheme')[type].fontColor;
+                		textNode.elt(i).elt(2).stroke = this.option("htNodeTheme")[type].fontColor;
                 	}
                 } else {
-                	textNode.stroke = this.option('htNodeTheme')[type].fontColor;
+                	textNode.stroke = this.option("htNodeTheme")[type].fontColor;
                 }
             }
         },
@@ -1164,11 +1098,11 @@
             }
             var color;
             if (theme) {
-                color = this.option('htHighlightLink').borderColor;
-                shape.strokeWidth = this.option('htHighlightLink').strokeWidth;
+                color = this.option("htHighlightLink").borderColor;
+                shape.strokeWidth = this.option("htHighlightLink").strokeWidth;
             } else {
-                color = this.option('htLinkTheme')["default"].borderColor;
-                shape.strokeWidth = this.option('htLinkTheme')["default"].strokeWidth;
+                color = this.option("htLinkTheme")["default"].borderColor;
+                shape.strokeWidth = this.option("htLinkTheme")["default"].strokeWidth;
             }
             if (toFill) {
                 shape.fill = color;
@@ -1178,9 +1112,9 @@
         },
         _highlightLinkText: function( nodeText, highlight ) {
         	if ( highlight ) {
-        		nodeText.font = this.option('htHighlightLink').fontFamily;
+        		nodeText.font = this.option("htHighlightLink").fontFamily;
         	} else {
-        		nodeText.font = this.option('htLinkTheme')["default"].fontFamily;
+        		nodeText.font = this.option("htLinkTheme")["default"].fontFamily;
         	}
         },
 
@@ -1272,7 +1206,7 @@
          */
         _onNodeSubGroupClicked: function(e, obj, unknownKey, fromName) {
             var node = obj.part,
-            fOnNodeSubGroupClicked = this.option('fOnNodeSubGroupClicked');
+            fOnNodeSubGroupClicked = this.option("fOnNodeSubGroupClicked");
 	        if (angular.isFunction(fOnNodeSubGroupClicked)) {
 	        	this.analyticsService.send(this.analyticsService.CONST.MAIN, this.analyticsService.CONST.CLK_NODE);
 	        	fOnNodeSubGroupClicked.call(this, e, node, unknownKey, fromName);
@@ -1289,7 +1223,7 @@
         _onNodeClicked: function (e, obj, unknownKey, query) {
             var node = obj.part,
                 htData = node.data,
-                fOnNodeClicked = this.option('fOnNodeClicked');
+                fOnNodeClicked = this.option("fOnNodeClicked");
             if (angular.isFunction(fOnNodeClicked)) {
 				if ( e && e.clickCount && e.clickCount > 0 ) {
 					this.analyticsService.send(this.analyticsService.CONST.MAIN, this.analyticsService.CONST.CLK_NODE);
@@ -1307,7 +1241,7 @@
         _onNodeDoubleClicked: function(e, obj) {
             var node = obj.part,
             htData = node.data,
-            fOnNodeDoubleClicked = this.option('fOnNodeDoubleClicked');
+            fOnNodeDoubleClicked = this.option("fOnNodeDoubleClicked");
 	        if (angular.isFunction(fOnNodeDoubleClicked)) {
 	            fOnNodeDoubleClicked.call(this, e, node, htData);
 	        }
@@ -1323,7 +1257,7 @@
         _onNodeContextClicked: function (e, obj) {
             var node = obj.part,
                 htData = node.data,
-                fOnNodeContextClicked = this.option('fOnNodeContextClicked');
+                fOnNodeContextClicked = this.option("fOnNodeContextClicked");
             if (angular.isFunction(fOnNodeContextClicked)) {
                 fOnNodeContextClicked.call(this, e, htData);
             }
@@ -1339,7 +1273,7 @@
         _onLinkClicked: function (e, obj) {
             var link = obj.part,
                 htData = link.data,
-                fOnLinkClicked = this.option('fOnLinkClicked');
+                fOnLinkClicked = this.option("fOnLinkClicked");
             if (angular.isFunction(fOnLinkClicked)) {
             	this.analyticsService.send(this.analyticsService.CONST.MAIN, this.analyticsService.CONST.CLK_LINK);
                 htData.fromNode = obj.fromNode.part.data;
@@ -1358,7 +1292,7 @@
         _onLinkContextClicked: function (e, obj) {
             var link = obj.part,
                 htData = link.data,
-                fOnLinkContextClicked = this.option('fOnLinkContextClicked');
+                fOnLinkContextClicked = this.option("fOnLinkContextClicked");
             if (angular.isFunction(fOnLinkContextClicked)) {
                 htData.fromNode = obj.fromNode.part.data;
                 htData.toNode = obj.toNode.part.data;
@@ -1375,8 +1309,8 @@
         },
         zoomToFit: function () {
             this._oDiagram.zoomToFit();
-            this._oDiagram.contentAlignment = go.Spot.Center;
-            this._oDiagram.contentAlignment = go.Spot.None;
+            // this._oDiagram.contentAlignment = go.Spot.Center;
+            // this._oDiagram.contentAlignment = go.Spot.None;
         },
         clearQuery: function() {
         	this._query = "";

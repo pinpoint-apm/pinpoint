@@ -8,11 +8,11 @@
 	 * @class
 	 */
 	pinpointApp.constant('serverMapDaoServiceConfig', {
-	    serverMapDataUrl: '/getServerMapData.pinpoint',
-	    filteredServerMapDataUrl: '/getFilteredServerMapDataMadeOfDotGroup.pinpoint',
-	    filtermapUrl: '/filtermap.pinpoint',
-	    lastTransactionListUrl: '/lastTransactionList.pinpoint',
-	    transactionListUrl: '/transactionList.pinpoint',
+	    serverMapDataUrl: 'getServerMapData.pinpoint',
+	    filteredServerMapDataUrl: 'getFilteredServerMapDataMadeOfDotGroup.pinpoint',
+	    filtermapUrl: 'filtermap.pinpoint',
+	    lastTransactionListUrl: 'lastTransactionList.pinpoint',
+	    transactionListUrl: 'transactionList.pinpoint',
 	    FILTER_DELIMETER: "^",
 	    FILTER_ENTRY_DELIMETER: "|",
 	    FILTER_FETCH_LIMIT: 5000
