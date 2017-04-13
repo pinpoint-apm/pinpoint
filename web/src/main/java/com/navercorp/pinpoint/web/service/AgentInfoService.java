@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -50,6 +51,8 @@ public interface AgentInfoService {
     AgentInfo getAgentInfo(String agentId, long timestamp);
 
     AgentStatus getAgentStatus(String agentId, long timestamp);
+
+    void populateAgentStatuses(Collection<AgentInfo> agentInfos, long timestamp);
 
     InspectorTimeline getAgentStatusTimeline(String agentId, Range range, int... excludeAgentEventTypeCodes);
 }
