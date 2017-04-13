@@ -1,20 +1,16 @@
 (function(w, $) {
-    var consts = {
-        ID_POSTFIX: "+event-circle",
-        ID_SPLITER: "+"
-    };
     var ts = w.TimeSlider;
     ts.Events = function( timeSlider, svgGroup, options ) {
         this.timeSlider = timeSlider;
         this.group = svgGroup;
-        this._oEventData = timeSlider.oEventData;
+        this._oTimelineData = timeSlider.oTimelineData;
 
         this._init(options);
         this._addEventElements();
         this._addEvents();
     };
     ts.Events.prototype._init = function( options ) {
-        this._oEventGroupElementHash = {};
+        this._aEventGroupElement = [];
         this.opt = {
             "y": 4,
             "barLength": 4,
@@ -27,40 +23,35 @@
         this._filterShadow = this.timeSlider.snap.filter( Snap.filter.shadow(1, 1, 1, "#000", 0.3));
     };
     ts.Events.prototype._addEventElements = function() {
-        var len = this._oEventData.count();
+        var len = this._oTimelineData.eventCount();
         for ( var i = 0 ; i < len ; i++ ) {
-            this._addEventElement( this._oEventData.getDataByIndex(i), true );
+            this._addEventElement( this._oTimelineData.getEventDataByIndex(i), i );
         }
     };
-    ts.Events.prototype._addEventElement = function( oEvent, bAppend ) {
-        var el = this._makeElement( oEvent );
-        this.group[bAppend ? "append": "prepend"]( el );
-        if ( this.timeSlider.oPositionManager.isInSliderTimeSeries( oEvent.eventTimestamp ) === false ) {
-            this.hide( el );
-        }
+    ts.Events.prototype._addEventElement = function( oEvent, index ) {
+        var el = this._makeElement( oEvent, index );
+        this.group.append( el );
         return el;
     };
-    ts.Events.prototype._makeID = function( oEvent ) {
-        return this._oEventData.makeID( oEvent ) + consts.ID_POSTFIX;
-    };
-    ts.Events.prototype._makeElement = function( oEvent ) {
+    ts.Events.prototype._makeElement = function( oEvent, index ) {
         var opt = this.opt;
-        var time = oEvent.eventTimestamp;
-        var groupID = this._makeID( oEvent );
+        var time = oEvent.startTimestamp + ( oEvent.endTimestamp - oEvent.startTimestamp ) / 2;
         var elEventGroup = this.group.g().attr({
-            "data-id": groupID,
+            "data-id": index,
             "data-time": time,
             "transform": "translate(" + this.timeSlider.oPositionManager.getPositionFromTime( time ) + ",0)"
         }).add(
             this.timeSlider.snap.line( 0, opt.y, 0, opt.y + opt.barLength ),
             this.timeSlider.snap.circle( 0, opt.y + opt.circleRadius + opt.gapBarNCircle + opt.barLength, opt.circleRadius ).attr({
-                "fill": TimeSlider.EventColor[oEvent.eventTypeCode],
+				// "stroke": "#000",//TimeSlider.StatusColor[oEvent.value],
+				// "stroke-width": "2",
+				"fill": "#000",
                 "class": "event",
                 "filter": this._filterShadow,
                 "data-time": time
             })
         );
-        this._oEventGroupElementHash[groupID] = elEventGroup;
+        this._aEventGroupElement.push(elEventGroup);
         return elEventGroup;
     };
     ts.Events.prototype._addEvents = function() {
@@ -76,74 +67,50 @@
         });
     };
     ts.Events.prototype._fireEvent = function( eventType, event, x, y ) {
-        this.timeSlider.fireEvent(eventType, [x, y, this._oEventData.getDataByKey( event.srcElement.parentNode.getAttribute("data-id").split(consts.ID_SPLITER)[0] )] );
+        this.timeSlider.fireEvent(eventType, [x, y, this._oTimelineData.getEventDataByIndex( parseInt(event.srcElement.parentNode.getAttribute("data-id")) )] );
     };
     ts.Events.prototype.reset = function() {
-        var self = this;
-        for ( var p in this._oEventGroupElementHash ) {
-            var elGroupEvent = this._oEventGroupElementHash[p];
-            var time = this._oEventData.getDataByKey(p.split(consts.ID_SPLITER)[0]).eventTimestamp;
+        var oldLen = this._aEventGroupElement.length;
+        var newLen = this._oTimelineData.eventCount();
 
-            if ( self.timeSlider.oPositionManager.isInSliderTimeSeries( time ) ) {
-                self.show( elGroupEvent );
-                (function( el, x ) {
-                    el.animate({
-                        "transform": "translate(" + x + ",0)"
-                    }, self.opt.duration);
-                })(elGroupEvent, this.timeSlider.oPositionManager.getPositionFromTime( time ));
-            } else {
-                (function( el, x ) {
-                    el.animate({
-                        "transform": "translate(" + x + ",0)"
-                    }, self.opt.duration, function() {
-                        self.hide( el );
-                    });
-                })(elGroupEvent, self.timeSlider.oPositionManager.isBeforeSliderStartTime( time ) ? 0 : self.timeSlider.oPositionManager.getSliderEndPosition() );
-            }
-        }
+        if ( oldLen === newLen ) {
+			for( var i = 0 ; i < newLen ; i++ ) {
+				this.reposition(this._aEventGroupElement[i], i);
+			}
+		} else if ( oldLen > newLen ) {
+			for( var i = newLen ; i < oldLen ; i++ ) {
+				this.hide( this._aEventGroupElement[i] );
+			}
+			for( var i = 0 ; i < newLen ; i++ ) {
+				this.reposition(this._aEventGroupElement[i], i);
+			}
+		} else { // oldLen < newLen
+			for( var i = 0 ; i < oldLen ; i++ ) {
+				this.reposition(this._aEventGroupElement[i], i);
+			}
+			for( var i = oldLen ; i < newLen ; i++ ) {
+				this._addEventElement( this._oTimelineData.getEventDataByIndex(i), i );
+			}
+		}
     };
+	ts.Events.prototype.reposition = function( elEventGroup, index ) {
+		var oEvent = this._oTimelineData.getEventDataByIndex(index);
+		var time = oEvent.startTimestamp + ( oEvent.endTimestamp - oEvent.startTimestamp ) / 2;
+		var x = this.timeSlider.oPositionManager.getPositionFromTime( time );
+		this.show(elEventGroup);
+		elEventGroup.animate({
+			"transform": "translate(" + x + ",0)"
+		}, this.opt.duration);
+	};
     ts.Events.prototype.changeData = function() {
-        var aGroupElements = this.group.selectAll("g");
-        if ( aGroupElements.length === 0 ) {
-            this._addEventElements();
-            return;
-        }
-        var i, j, oEvent, skip = 0, lenData = this._oEventData.count(), lenElements = aGroupElements.length;
-        var lastElement = aGroupElements[lenElements - 1];
-
-        for( i = 0 ; i < lenElements ; i++ ) {
-            var el = aGroupElements[i];
-            var timestamp = parseInt( el.attr("data-time") );
-
-            for( j = skip ; j < lenData ; j++ ) {
-                oEvent = this._oEventData.getDataByIndex(j);
-                if ( oEvent.eventTimestamp < timestamp ) {
-                    el.before( this._makeElement( oEvent ) );
-                    skip = j;
-                } else if ( oEvent.eventTimestamp === timestamp ) {
-                    skip = j + 1;
-                    lastElement = el;
-                    break;
-                } else {
-                    skip = j;
-                    lastElement = el;
-                    break;
-                }
-            }
-        }
-        for( skip ; skip < lenData ; skip++ ) {
-            oEvent = this._oEventData.getDataByIndex(skip);
-            var newEl = this._makeElement( oEvent );
-            lastElement.after( newEl );
-            lastElement = newEl;
-        }
+    	this.emptyData();
         this.reset();
     };
     ts.Events.prototype.emptyData = function() {
-        for ( var p in this._oEventGroupElementHash ) {
-            this._oEventGroupElementHash[p].remove();
-        }
-        this._oEventGroupElementHash = {};
+    	var self = this;
+		this._aEventGroupElement.forEach(function(el) {
+			self.hide(el);
+		});
     };
     ts.Events.prototype.show = function( el ) {
         el.attr("display", "block");

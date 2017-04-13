@@ -1,7 +1,6 @@
 (function( $ ) {
 	pinpointApp.constant( "agentInfoDirectiveConfig", {
-		ID: "AGENT_INFO_DRTV_",
-		agentStatUrl: "/getAgentStat.pinpoint"
+		ID: "AGENT_INFO_DRTV_"
 	});
 
 	pinpointApp.directive( "agentInfoDirective", [ "agentInfoDirectiveConfig", "$timeout", "SystemConfigurationService", "CommonUtilService", "UrlVoService", "AlertsService", "ProgressBarService", "AgentDaoService", "AgentAjaxService", "TooltipService", "AnalyticsService", "helpContentService",
@@ -38,7 +37,7 @@
 								"timeSeries": aFromTo ? aFromTo : calcuSliderTimeSeries( aSelectionFromTo ),
 								"handleTimeSeries": aSelectionFromTo,
 								"selectTime": aSelectionFromTo[1],
-								"eventData": []
+								"timelineData": {}
 							}).addEvent("clickEvent", function( aEvent ) {// [x, y, obj]
 								loadEventInfo(aEvent[2]);
 							}).addEvent("selectTime", function( time ) {
@@ -55,7 +54,8 @@
 						return (to - from) / 1000 / 60;
 					}
 					function setTimeSliderBaseColor() {
-						timeSlider.setDefaultStateLineColor( TimeSlider.EventColor[ scope.agent.status.state.code == 100 ? TimeSlider.GREEN : TimeSlider.RED] );
+						// console.log('setTimeSliderBaseColor :', scope.agent );
+						// timeSlider.setDefaultStateLineColor( TimeSlider.StatusColor[ scope.agent.status.state.code == 100 ? "RUNNING" : "SHUTDOWN"] );
 					}
 
 					function loadChartData( agentId, aFromTo, period, callback ) {
@@ -133,10 +133,10 @@
 						});
 					}
 					function loadEventInfo( oEvent ) {
-						AgentAjaxService.getEvent({
+						AgentAjaxService.getEventList({
 							"agentId": scope.agent.agentId,
-							"eventTimestamp": oEvent.eventTimestamp,
-							"eventTypeCode": oEvent.eventTypeCode
+							"from": oEvent.startTimestamp,
+							"to": oEvent.endTimestamp
 						}, function( result ) {
 							if ( result.errorCode || result.status ) {
 								oAlertService.showError('There is some error.');
@@ -299,8 +299,8 @@
 							}
 						}
 					}
-					function getEventList( agentId, aFromTo ) {
-						AgentAjaxService.getEventList({
+					function getTimelineList( agentId, aFromTo ) {
+						AgentAjaxService.getAgentTimeline({
 							"agentId": agentId,
 							"from": aFromTo[0],
 							"to": aFromTo[1]
@@ -308,7 +308,7 @@
 							if ( result.errorCode || result.status ) {
 								oAlertService.showError('There is some error.');
 							} else {
-								timeSlider.addEventData(result);
+								timeSlider.addData(result);
 							}
 						});
 					}
@@ -357,22 +357,22 @@
 					};
 					scope.movePrev = function() {
 						timeSlider.movePrev();
-						getEventList( scope.agent.agentId, timeSlider.getSliderTimeSeries() );
+						getTimelineList( scope.agent.agentId, timeSlider.getSliderTimeSeries() );
 					};
 					scope.moveNext = function() {
 						timeSlider.moveNext();
-						getEventList( scope.agent.agentId, timeSlider.getSliderTimeSeries() );
+						getTimelineList( scope.agent.agentId, timeSlider.getSliderTimeSeries() );
 					};
 					scope.moveHead = function() {
 						timeSlider.moveHead();
-						getEventList( scope.agent.agentId, timeSlider.getSliderTimeSeries() );
+						getTimelineList( scope.agent.agentId, timeSlider.getSliderTimeSeries() );
 					};
 					scope.zoomInTimeSlider = function() {
 						timeSlider.zoomIn();
 					};
 					scope.zoomOutTimeSlider = function() {
 						timeSlider.zoomOut();
-						getEventList( scope.agent.agentId, timeSlider.getSliderTimeSeries() );
+						getTimelineList( scope.agent.agentId, timeSlider.getSliderTimeSeries() );
 					};
 					scope.toggleShowDetail = function( $event ) {
 						AnalyticsService.send( AnalyticsService.CONST.INSPECTOR, AnalyticsService.CONST.CLK_SHOW_SERVER_TYPE_DETAIL );
@@ -452,7 +452,7 @@
 						initTime( scope.selectTime );
 						initTimeSlider( aSelectionFromTo, aFromTo );
 						setTimeSliderBaseColor();
-						getEventList( scope.agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
+						getTimelineList( scope.agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
 					}
 
 					scope.$on('jvmMemoryChartDirective.cursorChanged.forHeap', function (e, event) {
