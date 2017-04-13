@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterData;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterScanResult;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
@@ -86,6 +87,9 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     
     @Autowired(required=false)
     private ServerMapDataFilter serverMapDataFilter;
+
+    @Autowired
+    private ApplicationMapBuilderFactory applicationMapBuilderFactory;
 
     private static final Object V = new Object();
 
@@ -351,8 +355,8 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                 addNodeFromSpanEvent(span, window, linkDataDuplexMap, transactionSpanMap);
             }
         }
-        
-        ApplicationMapBuilder applicationMapBuilder = new ApplicationMapBuilder(range);
+
+        ApplicationMapBuilder applicationMapBuilder = applicationMapBuilderFactory.createApplicationMapBuilder(range);
         mapHistogramSummary.build();
         ApplicationMap map = applicationMapBuilder.build(linkDataDuplexMap, agentInfoService, mapHistogramSummary);
 

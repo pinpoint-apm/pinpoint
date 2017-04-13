@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.service;
+package com.navercorp.pinpoint.web.service.map;
 
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.SearchOption;
 
 /**
- * @author emeroad
+ * @author HyunGil Jeong
  */
-interface LinkSelector {
-    LinkDataDuplexMap select(Application sourceApplication, Range range, SearchOption searchOption);
+public interface LinkDataMapCreator {
+
+    LinkDataMap createCallerLinkDataMap(Application application, Range range);
+
+    LinkDataMap createCalleeLinkDataMap(Application application, Range range);
 }

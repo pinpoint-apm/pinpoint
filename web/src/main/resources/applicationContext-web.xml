@@ -27,6 +27,7 @@
                                          com.navercorp.pinpoint.web.filter,
                                          com.navercorp.pinpoint.web.config,
                                          com.navercorp.pinpoint.web.view,
+                                         com.navercorp.pinpoint.web.applicationmap,
                                          com.navercorp.pinpoint.common.server.bo,
                                          com.navercorp.pinpoint.common.server.util" />
 

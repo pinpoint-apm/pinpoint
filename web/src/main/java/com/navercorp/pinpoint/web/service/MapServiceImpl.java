@@ -18,13 +18,13 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
-import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
-import com.navercorp.pinpoint.web.dao.MapStatisticsCalleeDao;
-import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
+import com.navercorp.pinpoint.web.service.map.LinkSelector;
+import com.navercorp.pinpoint.web.service.map.LinkSelectorFactory;
 import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -49,25 +49,22 @@ public class MapServiceImpl implements MapService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
+    private LinkSelectorFactory linkSelectorFactory;
+
+    @Autowired
     private AgentInfoService agentInfoService;
 
     @Autowired
     private MapResponseDao mapResponseDao;
 
     @Autowired
-    private MapStatisticsCalleeDao mapStatisticsCalleeDao;
-
-    @Autowired
-    private MapStatisticsCallerDao mapStatisticsCallerDao;
-
-    @Autowired
-    private HostApplicationMapDao hostApplicationMapDao;
-
-    @Autowired
     private ApplicationFactory applicationFactory;
     
     @Autowired(required=false)
     private ServerMapDataFilter serverMapDataFilter;
+
+    @Autowired
+    private ApplicationMapBuilderFactory applicationMapBuilderFactory;
 
     /**
      * Used in the main UI - draws the server map by querying the timeslot by time.
@@ -85,12 +82,12 @@ public class MapServiceImpl implements MapService {
         StopWatch watch = new StopWatch("ApplicationMap");
         watch.start("ApplicationMap Hbase Io Fetch(Caller,Callee) Time");
 
-        LinkSelector linkSelector = new BFSLinkSelector(this.mapStatisticsCallerDao, this.mapStatisticsCalleeDao, hostApplicationMapDao, serverMapDataFilter);
+        LinkSelector linkSelector = linkSelectorFactory.create();
         LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(sourceApplication, range, searchOption);
         watch.stop();
 
         watch.start("ApplicationMap MapBuilding(Response) Time");
-        ApplicationMapBuilder builder = new ApplicationMapBuilder(range);
+        ApplicationMapBuilder builder = applicationMapBuilderFactory.createApplicationMapBuilder(range);
         ApplicationMap map = builder.build(linkDataDuplexMap, agentInfoService, this.mapResponseDao);
         if (map.getNodes().isEmpty()) {
             map = builder.build(sourceApplication, agentInfoService);

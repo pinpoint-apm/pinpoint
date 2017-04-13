@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.service;
+package com.navercorp.pinpoint.web.service.map;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.*;
 import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
-import com.navercorp.pinpoint.web.dao.MapStatisticsCalleeDao;
-import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
-import com.navercorp.pinpoint.web.service.map.AcceptApplication;
-import com.navercorp.pinpoint.web.service.map.AcceptApplicationLocalCache;
-import com.navercorp.pinpoint.web.service.map.RpcApplication;
+import com.navercorp.pinpoint.web.service.LinkDataMapService;
+import com.navercorp.pinpoint.web.service.SearchDepth;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -40,8 +37,10 @@ import java.util.*;
 /**
  * Breadth-first link search
  * not thread safe
+ *
  * @author emeroad
  * @author minwoo.jung
+ * @author HyunGil Jeong
  */
 public class BFSLinkSelector implements LinkSelector {
 
@@ -49,9 +48,7 @@ public class BFSLinkSelector implements LinkSelector {
 
     private final LinkVisitChecker linkVisitChecker = new LinkVisitChecker();
 
-    private final MapStatisticsCalleeDao mapStatisticsCalleeDao;
-
-    private final MapStatisticsCallerDao mapStatisticsCallerDao;
+    private final LinkDataMapService linkDataMapService;
 
     private final HostApplicationMapDao hostApplicationMapDao;
 
@@ -63,18 +60,14 @@ public class BFSLinkSelector implements LinkSelector {
     
     private ServerMapDataFilter serverMapDataFilter;
 
-    public BFSLinkSelector(MapStatisticsCallerDao mapStatisticsCallerDao, MapStatisticsCalleeDao mapStatisticsCalleeDao, HostApplicationMapDao hostApplicationMapDao, ServerMapDataFilter serverMapDataFilter) {
-        if (mapStatisticsCalleeDao == null) {
-            throw new NullPointerException("mapStatisticsCalleeDao must not be null");
-        }
-        if (mapStatisticsCallerDao == null) {
-            throw new NullPointerException("mapStatisticsCallerDao must not be null");
+    BFSLinkSelector(LinkDataMapService linkDataMapService, HostApplicationMapDao hostApplicationMapDao, ServerMapDataFilter serverMapDataFilter) {
+        if (linkDataMapService == null) {
+            throw new NullPointerException("linkDataMapService must not be null");
         }
         if (hostApplicationMapDao == null) {
             throw new NullPointerException("hostApplicationMapDao must not be null");
         }
-        this.mapStatisticsCalleeDao = mapStatisticsCalleeDao;
-        this.mapStatisticsCallerDao = mapStatisticsCallerDao;
+        this.linkDataMapService = linkDataMapService;
         this.hostApplicationMapDao = hostApplicationMapDao;
         this.serverMapDataFilter = serverMapDataFilter;
     }
@@ -93,7 +86,7 @@ public class BFSLinkSelector implements LinkSelector {
         for (Application targetApplication : targetApplicationList) {
             final boolean searchCallerNode = checkNextCaller(targetApplication, callerDepth);
             if (searchCallerNode) {
-                final LinkDataMap caller = mapStatisticsCallerDao.selectCaller(targetApplication, range);
+                final LinkDataMap caller = linkDataMapService.selectCallerLinkDataMap(targetApplication, range);
                 if (logger.isDebugEnabled()) {
                     logger.debug("Found Caller. count={}, caller={}, depth={}", caller.size(), targetApplication, callerDepth.getDepth());
                 }
@@ -115,7 +108,7 @@ public class BFSLinkSelector implements LinkSelector {
 
             final boolean searchCalleeNode = checkNextCallee(targetApplication, calleeDepth);
             if (searchCalleeNode) {
-                final LinkDataMap callee = mapStatisticsCalleeDao.selectCallee(targetApplication, range);
+                final LinkDataMap callee = linkDataMapService.selectCalleeLinkDataMap(targetApplication, range);
                 if (logger.isInfoEnabled()) {
                     logger.debug("Found Callee. count={}, callee={}, depth={}", callee.size(), targetApplication, calleeDepth.getDepth());
                 }
@@ -254,7 +247,7 @@ public class BFSLinkSelector implements LinkSelector {
         return acceptApplication;
     }
 
-    private void fillEmulationLink(LinkDataDuplexMap linkDataDuplexMap, Range range) {
+    private void fillEmulationLink(LinkDataDuplexMap linkDataDuplexMap) {
         // TODO need to be reimplemented - virtual node creation logic needs an overhaul.
         // Currently, only the reversed relationship node is displayed. We need to create a virtual node and convert the rpc data appropriately.
         logger.debug("this.emulationLinkMarker:{}", this.emulationLinkMarker);
@@ -268,18 +261,10 @@ public class BFSLinkSelector implements LinkSelector {
             LinkKey findLinkKey = new LinkKey(emulationLinkData.getFromApplication(), emulationLinkData.getToApplication());
             LinkData targetLinkData = linkDataDuplexMap.getTargetLinkData(findLinkKey);
             if (targetLinkData == null) {
-                // This is a case where the emulation target node has been only "partially" visited, (ie. does not have a target link data)
-                // Most likely due to the limit imposed by inbound search depth.
-                // Must go fetch the target link data here.
-                final Application targetApplication = emulationLinkData.getToApplication();
-                final LinkDataMap callee = mapStatisticsCalleeDao.selectCallee(targetApplication, range);
-                targetLinkData = callee.getLinkData(findLinkKey);
-                if (targetLinkData == null) {
-                    // There has been a case where targetLinkData was null, but exact event could not be captured for analysis.
-                    // Logging the case for further analysis should it happen again in the future.
-                    logger.error("targetLinkData not found findLinkKey:{}", findLinkKey);
-                    continue;
-                }
+                // There has been a case where targetLinkData was null, but exact event could not be captured for analysis.
+                // Logging the case for further analysis should it happen again in the future.
+                logger.error("targetLinkData not found findLinkKey:{}", findLinkKey);
+                continue;
             }
 
             // create reversed link data - convert data accepted by the target to target's call data
@@ -360,7 +345,7 @@ public class BFSLinkSelector implements LinkSelector {
             logger.debug("Link emulation size:{}", emulationLinkMarker.size());
             // special case
             checkUnsearchEmulationCalleeNode(linkDataDuplexMap, range);
-            fillEmulationLink(linkDataDuplexMap, range);
+            fillEmulationLink(linkDataDuplexMap);
         }
 
         return linkDataDuplexMap;
@@ -369,7 +354,7 @@ public class BFSLinkSelector implements LinkSelector {
 
     private void checkUnsearchEmulationCalleeNode(LinkDataDuplexMap searchResult, Range range) {
 
-        List<Application> unvisitedList = getUnvisitedEmulationNode();
+        List<Application> unvisitedList = getUnvisitedEmulationNode(searchResult.getTargetLinkDataMap());
         if (unvisitedList.isEmpty()) {
             logger.debug("unvisited callee node not found");
             return;
@@ -379,7 +364,7 @@ public class BFSLinkSelector implements LinkSelector {
 
         final LinkDataMap calleeLinkData = new LinkDataMap();
         for (Application application : unvisitedList) {
-            LinkDataMap callee = mapStatisticsCalleeDao.selectCallee(application, range);
+            LinkDataMap callee = linkDataMapService.selectCalleeLinkDataMap(application, range);
             logger.debug("calleeNode:{}", callee);
             calleeLinkData.addLinkDataMap(callee);
         }
@@ -414,13 +399,20 @@ public class BFSLinkSelector implements LinkSelector {
         return false;
     }
 
-    private List<Application> getUnvisitedEmulationNode() {
+    private List<Application> getUnvisitedEmulationNode(LinkDataMap targetLinkDataMap) {
         Set<Application> unvisitedList = new HashSet<>();
         for (LinkData linkData : this.emulationLinkMarker) {
             Application toApplication = linkData.getToApplication();
             boolean isVisited = this.linkVisitChecker.isVisitedCaller(toApplication);
             if (!isVisited) {
                 unvisitedList.add(toApplication);
+            } else {
+                // We must include cases where the emulation target node has been visited but does not have target link
+                // data, most likely due to the limit imposed by inbound search depth.
+                LinkData targetLinkData = targetLinkDataMap.getLinkData(new LinkKey(linkData.getFromApplication(), toApplication));
+                if (targetLinkData == null) {
+                    unvisitedList.add(toApplication);
+                }
             }
         }
         return new ArrayList<>(unvisitedList);

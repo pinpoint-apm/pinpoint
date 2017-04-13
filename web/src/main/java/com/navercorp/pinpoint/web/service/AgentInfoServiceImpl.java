@@ -44,6 +44,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -246,6 +247,11 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             throw new IllegalArgumentException("timestamp must not be less than 0");
         }
         return this.agentLifeCycleDao.getAgentStatus(agentId, timestamp);
+    }
+
+    @Override
+    public void populateAgentStatuses(Collection<AgentInfo> agentInfos, long timestamp) {
+        this.agentLifeCycleDao.populateAgentStatuses(agentInfos, timestamp);
     }
 
     @Override

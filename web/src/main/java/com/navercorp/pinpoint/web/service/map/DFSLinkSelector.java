@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.service;
+package com.navercorp.pinpoint.web.service.map;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
@@ -22,9 +22,8 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.*;
 import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.dao.MapStatisticsCalleeDao;
 import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
-import com.navercorp.pinpoint.web.service.map.AcceptApplication;
-import com.navercorp.pinpoint.web.service.map.AcceptApplicationLocalCache;
-import com.navercorp.pinpoint.web.service.map.RpcApplication;
+import com.navercorp.pinpoint.web.service.LinkDataMapService;
+import com.navercorp.pinpoint.web.service.SearchDepth;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -38,6 +37,7 @@ import java.util.*;
 
 /**
  * @author emeroad
+ * @author HyunGil Jeong
  */
 @Deprecated
 public class DFSLinkSelector implements LinkSelector {
@@ -46,9 +46,7 @@ public class DFSLinkSelector implements LinkSelector {
 
     private final LinkVisitChecker linkVisitChecker = new LinkVisitChecker();
 
-    private final MapStatisticsCalleeDao mapStatisticsCalleeDao;
-
-    private final MapStatisticsCallerDao mapStatisticsCallerDao;
+    private final LinkDataMapService linkDataMapService;
 
     private final HostApplicationMapDao hostApplicationMapDao;
 
@@ -56,19 +54,44 @@ public class DFSLinkSelector implements LinkSelector {
 
     private final Set<LinkData> emulationLinkMarker = new HashSet<>();
 
-    public DFSLinkSelector(MapStatisticsCalleeDao mapStatisticsCalleeDao, MapStatisticsCallerDao mapStatisticsCallerDao, HostApplicationMapDao hostApplicationMapDao) {
-        if (mapStatisticsCalleeDao == null) {
-            throw new NullPointerException("mapStatisticsCalleeDao must not be null");
-        }
-        if (mapStatisticsCallerDao == null) {
-            throw new NullPointerException("mapStatisticsCallerDao must not be null");
+    public DFSLinkSelector(LinkDataMapService linkDataMapService, HostApplicationMapDao hostApplicationMapDao) {
+        if (linkDataMapService == null) {
+            throw new NullPointerException("linkDataMapService must not be null");
         }
         if (hostApplicationMapDao == null) {
             throw new NullPointerException("hostApplicationMapDao must not be null");
         }
-        this.mapStatisticsCalleeDao = mapStatisticsCalleeDao;
-        this.mapStatisticsCallerDao = mapStatisticsCallerDao;
+        this.linkDataMapService = linkDataMapService;
         this.hostApplicationMapDao = hostApplicationMapDao;
+    }
+
+    @Override
+    public LinkDataDuplexMap select(Application sourceApplication, Range range, SearchOption searchOption) {
+        if (searchOption == null) {
+            throw new NullPointerException("searchOption must not be null");
+        }
+
+        final SearchDepth callerLevel = new SearchDepth(searchOption.getCallerSearchDepth());
+        LinkDataDuplexMap caller = selectCaller(sourceApplication, range, callerLevel);
+        logger.debug("Result of finding caller {}", caller);
+
+        final SearchDepth calleeLevel = new SearchDepth(searchOption.getCalleeSearchDepth());
+        LinkDataDuplexMap callee = selectCallee(sourceApplication, range, calleeLevel);
+        logger.debug("Result of finding callee {}", callee);
+
+        LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
+        linkDataDuplexMap.addLinkDataDuplexMap(caller);
+        linkDataDuplexMap.addLinkDataDuplexMap(callee);
+
+        if (!emulationLinkMarker.isEmpty()) {
+            logger.debug("Link emulation size:{}", emulationLinkMarker.size());
+            // special case
+            checkUnsearchEmulationCalleeNode(linkDataDuplexMap, range);
+            fillEmulationLink(linkDataDuplexMap);
+        }
+
+
+        return linkDataDuplexMap;
     }
 
     /**
@@ -84,19 +107,12 @@ public class DFSLinkSelector implements LinkSelector {
             return new LinkDataDuplexMap();
         }
 
-        LinkDataMap caller = mapStatisticsCallerDao.selectCaller(callerApplication, range);
+        LinkDataMap caller = linkDataMapService.selectCallerLinkDataMap(callerApplication, range);
         if (logger.isDebugEnabled()) {
             logger.debug("Found Caller. count={}, caller={}", caller.size(), callerApplication);
         }
 
-        final LinkDataMap replaceRpcCaller = new LinkDataMap();
-        for (LinkData callerLink : caller.getLinkDataList()) {
-            final List<LinkData> checkedLink = checkRpcCallAccepted(callerLink, range);
-            for (LinkData linkData : checkedLink) {
-                replaceRpcCaller.addLinkData(linkData);
-            }
-        }
-
+        final LinkDataMap replaceRpcCaller = replaceRpcCaller(caller, range);
 
         final LinkDataDuplexMap resultCaller = new LinkDataDuplexMap();
         for (LinkData link : replaceRpcCaller.getLinkDataList()) {
@@ -143,7 +159,7 @@ public class DFSLinkSelector implements LinkSelector {
             return new LinkDataDuplexMap();
         }
 
-        final LinkDataMap callee = mapStatisticsCalleeDao.selectCallee(calleeApplication, range);
+        final LinkDataMap callee = linkDataMapService.selectCalleeLinkDataMap(calleeApplication, range);
         logger.debug("Found Callee. count={}, callee={}", callee.size(), calleeApplication);
 
         final LinkDataDuplexMap calleeSet = new LinkDataDuplexMap();
@@ -285,12 +301,8 @@ public class DFSLinkSelector implements LinkSelector {
                 linkCallDataMap.addCallData(agentHistogram.getTarget(), agentHistogram.getTargetServiceType(),
                         beforeLinkCallData.getTarget(), beforeLinkCallData.getTargetServiceType(), timeHistogramList);
             }
-
         }
-
-
     }
-
 
     private List<LinkData> findEmulationLinkData(LinkDataDuplexMap linkDataDuplexMap) {
         // LinkDataDuplexMap already has a copy of the data - modifying emulationLinkMarker's data has no effect.
@@ -314,25 +326,78 @@ public class DFSLinkSelector implements LinkSelector {
         return new LinkKey(fromApplication, toApplication);
     }
 
-    @Override
-    public LinkDataDuplexMap select(Application sourceApplication, Range range, SearchOption searchOption) {
-        if (searchOption == null) {
-            throw new NullPointerException("searchOption must not be null");
+    private void checkUnsearchEmulationCalleeNode(LinkDataDuplexMap searchResult, Range range) {
+        List<Application> unvisitedList = getUnvisitedEmulationNode(searchResult.getTargetLinkDataMap());
+        if (unvisitedList.isEmpty()) {
+            logger.debug("unvisited callee node not found");
+            return;
         }
 
-        final SearchDepth callerLevel = new SearchDepth(searchOption.getCallerSearchDepth());
-        LinkDataDuplexMap caller = selectCaller(sourceApplication, range, callerLevel);
-        logger.debug("Result of finding caller {}", caller);
+        logger.info("unvisited callee node {}", unvisitedList);
 
-        final SearchDepth calleeLevel = new SearchDepth(searchOption.getCalleeSearchDepth());
-        LinkDataDuplexMap callee = selectCallee(sourceApplication, range, calleeLevel);
-        logger.debug("Result of finding callee {}", callee);
+        final LinkDataMap calleeLinkData = new LinkDataMap();
+        for (Application application : unvisitedList) {
+            LinkDataMap callee = linkDataMapService.selectCalleeLinkDataMap(application, range);
+            logger.debug("calleeNode:{}", callee);
+            calleeLinkData.addLinkDataMap(callee);
+        }
 
-        LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
-        linkDataDuplexMap.addLinkDataDuplexMap(caller);
-        linkDataDuplexMap.addLinkDataDuplexMap(callee);
-        fillEmulationLink(linkDataDuplexMap);
+        LinkDataMap unvisitedNodeFilter = new LinkDataMap();
+        for (LinkData linkData : calleeLinkData.getLinkDataList()) {
+            Application fromApplication = linkData.getFromApplication();
+            if (!fromApplication.getServiceType().isWas()) {
+                continue;
+            }
+            Application emulatedApplication = linkData.getToApplication();
+            boolean unvisitedNode = isUnVisitedNode(unvisitedList, emulatedApplication, fromApplication);
+            if (unvisitedNode) {
+                logger.debug("EmulationCalleeNode:{}", linkData);
+                unvisitedNodeFilter.addLinkData(linkData);
+            }
+        }
+        logger.debug("UnVisitedNode:{}", unvisitedNodeFilter);
 
-        return linkDataDuplexMap;
+        for (LinkData linkData : unvisitedNodeFilter.getLinkDataList()) {
+            searchResult.addTargetLinkData(linkData);
+        }
+    }
+
+    private boolean isUnVisitedNode(List<Application> unvisitedList, Application toApplication, Application fromApplication) {
+        for (Application unvisitedApplication : unvisitedList) {
+            if (toApplication.equals(unvisitedApplication) && linkVisitChecker.isVisitedCaller(fromApplication)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private List<Application> getUnvisitedEmulationNode(LinkDataMap targetLinkDataMap) {
+        Set<Application> unvisitedList = new HashSet<>();
+        for (LinkData linkData : this.emulationLinkMarker) {
+            Application toApplication = linkData.getToApplication();
+            boolean isVisited = this.linkVisitChecker.isVisitedCaller(toApplication);
+            if (!isVisited) {
+                unvisitedList.add(toApplication);
+            } else {
+                // We must include cases where the emulation target node has been visited but does not have target link
+                // data, most likely due to the limit imposed by inbound search depth.
+                LinkData targetLinkData = targetLinkDataMap.getLinkData(new LinkKey(linkData.getFromApplication(), toApplication));
+                if (targetLinkData == null) {
+                    unvisitedList.add(toApplication);
+                }
+            }
+        }
+        return new ArrayList<>(unvisitedList);
+    }
+
+    private LinkDataMap replaceRpcCaller(LinkDataMap caller, Range range) {
+        final LinkDataMap replaceRpcCaller = new LinkDataMap();
+        for (LinkData callerLink : caller.getLinkDataList()) {
+            final List<LinkData> checkedLink = checkRpcCallAccepted(callerLink, range);
+            for (LinkData linkData : checkedLink) {
+                replaceRpcCaller.addLinkData(linkData);
+            }
+        }
+        return replaceRpcCaller;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.service;
+package com.navercorp.pinpoint.web.service.map;
 
+import com.google.common.collect.Sets;
 import com.navercorp.pinpoint.web.vo.Application;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
  * @author emeroad
+ * @author HyunGil Jeong
  */
 public class LinkVisitChecker {
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final Set<Application> calleeFound = new HashSet<>();
-    private final Set<Application> callerFound = new HashSet<>();
+    private final Set<Application> calleeFound = Sets.newConcurrentHashSet();
+    private final Set<Application> callerFound = Sets.newConcurrentHashSet();
 
     public boolean visitCaller(Application caller) {
         return visit(callerFound, caller, "Caller");
@@ -45,7 +46,7 @@ public class LinkVisitChecker {
         return visit(calleeFound, callee, "Callee");
     }
 
-    private boolean visit(Set<Application> visitedSet, Application application,  String type) {
+    private boolean visit(Set<Application> visitedSet, Application application, String type) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
@@ -59,6 +60,4 @@ public class LinkVisitChecker {
         }
         return alreadyVisited;
     }
-
-
 }
