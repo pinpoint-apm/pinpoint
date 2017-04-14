@@ -37,11 +37,13 @@ Pinpoint uses HBase as its storage backend for the Collector and the Web.
 
 To set up your own cluster, take a look at the [HBase website](http://hbase.apache.org) for instructions. The HBase compatibility table is given below:
 
-Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.1.x
----------------- | ------------ | ------------ | ----------- | -----------
-1.0.x | yes | no | no | no 
-1.1.x | no | not tested | yes | not tested
-1.5.x | no | not tested | yes | not tested
+Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.1.x | HBase 1.2.x
+---------------- | ------------ | ------------ | ----------- | ----------- | -----------
+1.0.x | yes | no | no | no | no
+1.1.x | no | not tested | yes | not tested | not tested
+1.5.x | no | not tested | yes | not tested | not tested
+1.6.x | no | not tested | not tested | not tested | yes
+1.7.x | no | not tested | not tested | not tested | yes
 
 Once you have HBase up and running, make sure the Collector and the Web are configured properly and are able to connect to HBase.
 
@@ -77,9 +79,11 @@ There are two options:
 
 	Pinpoint Version | Agent | Collector | Web
 	---------------- | ----- | --------- | ---
-	1.0.x | 6+ | 6+ | 6+
-	1.1.x | 6+ | 7+ | 7+
-	1.5.x | 6+ | 7+ | 7+
+	1.0.x | 6-8 | 6+ | 6+
+	1.1.x | 6-8 | 7+ | 7+
+	1.5.x | 6-8 | 7+ | 7+
+	1.6.x | 6-8 | 7+ | 7+
+	1.7.x | 6-8 | 8+ | 8+
 
 	Once the above requirements are met, simply run the command below :
 

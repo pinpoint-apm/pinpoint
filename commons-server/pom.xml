@@ -13,9 +13,9 @@
 
     <properties>
         <!-- jdk.version 1.6 : for profiler-test compatibility -->
-        <!-- jdk.home 1.7 : for hbase compatibility -->
+        <!-- jdk.home 1.8 : for hbase compatibility -->
         <jdk.version>1.6</jdk.version>
-        <jdk.home>${env.JAVA_7_HOME}</jdk.home>
+        <jdk.home>${env.JAVA_8_HOME}</jdk.home>
         <test.jdk.home>${jdk.home}</test.jdk.home>
         <sniffer.artifactid>java16</sniffer.artifactid>
     </properties>
