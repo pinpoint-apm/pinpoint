@@ -27,8 +27,8 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -159,7 +159,7 @@ public class ProfilerPluginLoader {
         if (pluginPackage == null) {
             return PluginConfig.DEFAULT_PINPOINT_PLUGIN_PACKAGE_NAME;
         }
-        return StringUtils.splitAndTrim(pluginPackage, ",");
+        return StringUtils.tokenizeToStringList(pluginPackage, ",");
     }
 
 

@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.web.applicationmap.Node;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author jaehong.kim
@@ -113,7 +114,7 @@ public class TransactionInfoViewModel {
 
     @JsonProperty("logPageUrl")
     public String getLogPageUrl() {
-        if (logPageUrl != null && logPageUrl.length() > 0) {
+        if (StringUtils.isNotEmpty(logPageUrl)) {
             StringBuilder sb = new StringBuilder();
             sb.append("transactionId=").append(getTransactionId());
             sb.append("&time=").append(recordSet.getStartTime());

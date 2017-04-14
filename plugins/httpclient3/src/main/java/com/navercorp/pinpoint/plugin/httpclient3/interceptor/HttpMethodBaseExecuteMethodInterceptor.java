@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.HttpConstants;
 import org.apache.commons.httpclient.HttpMethod;
@@ -49,7 +50,6 @@ import com.navercorp.pinpoint.bootstrap.util.FixedByteArrayOutputStream;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContext;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContextFactory;

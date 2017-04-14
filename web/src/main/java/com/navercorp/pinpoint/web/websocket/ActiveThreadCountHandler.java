@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.websocket;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
-import com.navercorp.pinpoint.rpc.util.StringUtils;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.util.SimpleOrderedThreadPool;
@@ -28,6 +27,7 @@ import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConv
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageType;
 import com.navercorp.pinpoint.web.websocket.message.PongMessage;
 import com.navercorp.pinpoint.web.websocket.message.RequestMessage;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -208,7 +208,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
             String applicationName = MapUtils.getString(requestMessage.getParams(), APPLICATION_NAME_KEY);
             if (applicationName != null) {
                 synchronized (lock) {
-                    if (StringUtils.isEquals(applicationName, (String) webSocketSession.getAttributes().get(APPLICATION_NAME_KEY))) {
+                    if (StringUtils.equals(applicationName, (String) webSocketSession.getAttributes().get(APPLICATION_NAME_KEY))) {
                         return;
                     }
 

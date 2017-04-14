@@ -26,9 +26,9 @@ import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.resin.AsyncAccessor;
 import com.navercorp.pinpoint.plugin.resin.HttpServletRequestGetter;
 import com.navercorp.pinpoint.plugin.resin.ResinConfig;
@@ -137,7 +137,7 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
                 final HttpServletRequest request = (HttpServletRequest) args[0];
                 if (!excludeProfileMethodFilter.filter(request.getMethod())) {
                     final String parameters = getRequestParameter(request, 64, 512);
-                    if (parameters != null && parameters.length() > 0) {
+                    if (StringUtils.isNotEmpty(parameters)) {
                         recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
                     }
                 }

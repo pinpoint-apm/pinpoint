@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.test;
 
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
+
 import java.lang.reflect.Constructor;
 
 /**
@@ -110,7 +112,7 @@ final class MethodDescriptionUtils {
     }
 
     private static String safeTrim(String parameterType) {
-        if (parameterType == null ||  parameterType.isEmpty()) {
+        if (StringUtils.isEmpty(parameterType)) {
             return parameterType;
         }
         return parameterType.trim();

@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
 import com.navercorp.pinpoint.plugin.jboss.MethodInvocationHandlerMethodDescriptor;
 import com.navercorp.pinpoint.plugin.jboss.util.JbossUtility;
@@ -147,7 +146,7 @@ public class MethodInvocationHandlerInterceptor implements AroundInterceptor {
 
         recorder.recordRpcName(rpcName);
 
-        final String serverHostName = StringUtils.defaultString(System.getProperty("jboss.host.name"), "");
+        final String serverHostName = System.getProperty("jboss.host.name", "");
         recorder.recordEndPoint(serverHostName);
 
         recorder.recordRemoteAddress(remoteAddress);
