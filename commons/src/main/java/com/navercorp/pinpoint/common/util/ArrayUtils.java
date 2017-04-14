@@ -27,11 +27,11 @@ public final class ArrayUtils {
     private ArrayUtils() {
     }
 
-    public static String abbreviate(byte[] bytes) {
+    public static String abbreviate(final byte[] bytes) {
         return abbreviate(bytes, DEFAULT_ABBREVIATE_MAX_WIDTH);
     }
 
-    public static String abbreviate(byte[] bytes, int maxWidth) {
+    public static String abbreviate(final byte[] bytes, final int maxWidth) {
         if (bytes == null) {
             return "null";
         }
@@ -83,7 +83,7 @@ public final class ArrayUtils {
      * @since 2.1
      */
     public static <T> boolean isEmpty(final T[] array) {
-        return getLength(array) == 0;
+        return array == null || array.length == 0;
     }
 
     /**
@@ -94,7 +94,7 @@ public final class ArrayUtils {
      * @since 2.1
      */
     public static boolean isEmpty(final long[] array) {
-        return getLength(array) == 0;
+        return array == null || array.length == 0;
     }
 
     /**
@@ -105,7 +105,7 @@ public final class ArrayUtils {
      * @since 2.1
      */
     public static boolean isEmpty(final int[] array) {
-        return getLength(array) == 0;
+        return array == null || array.length == 0;
     }
 
     /**
@@ -116,7 +116,7 @@ public final class ArrayUtils {
      * @since 2.1
      */
     public static boolean isEmpty(final short[] array) {
-        return getLength(array) == 0;
+        return array == null || array.length == 0;
     }
 
     /**
@@ -127,7 +127,7 @@ public final class ArrayUtils {
      * @since 2.1
      */
     public static boolean isEmpty(final char[] array) {
-        return getLength(array) == 0;
+        return array == null || array.length == 0;
     }
 
     /**
@@ -138,7 +138,7 @@ public final class ArrayUtils {
      * @since 2.1
      */
     public static boolean isEmpty(final byte[] array) {
-        return getLength(array) == 0;
+        return array == null || array.length == 0;
     }
 
     /**
@@ -149,7 +149,7 @@ public final class ArrayUtils {
      * @since 2.1
      */
     public static boolean isEmpty(final double[] array) {
-        return getLength(array) == 0;
+        return array == null || array.length == 0;
     }
 
     /**
@@ -160,7 +160,7 @@ public final class ArrayUtils {
      * @since 2.1
      */
     public static boolean isEmpty(final float[] array) {
-        return getLength(array) == 0;
+        return array == null || array.length == 0;
     }
 
     /**
@@ -171,7 +171,7 @@ public final class ArrayUtils {
      * @since 2.1
      */
     public static boolean isEmpty(final boolean[] array) {
-        return getLength(array) == 0;
+        return array == null || array.length == 0;
     }
 
 
@@ -185,7 +185,7 @@ public final class ArrayUtils {
      * @since 2.5
      */
     public static <T> boolean isNotEmpty(final T[] array) {
-        return !isEmpty(array);
+        return array != null && array.length != 0;
     }
 
     /**
@@ -196,7 +196,7 @@ public final class ArrayUtils {
      * @since 2.5
      */
     public static boolean isNotEmpty(final long[] array) {
-        return !isEmpty(array);
+        return array != null && array.length != 0;
     }
 
     /**
@@ -207,7 +207,7 @@ public final class ArrayUtils {
      * @since 2.5
      */
     public static boolean isNotEmpty(final int[] array) {
-        return !isEmpty(array);
+        return array != null && array.length != 0;
     }
 
     /**
@@ -218,7 +218,7 @@ public final class ArrayUtils {
      * @since 2.5
      */
     public static boolean isNotEmpty(final short[] array) {
-        return !isEmpty(array);
+        return array != null && array.length != 0;
     }
 
     /**
@@ -229,7 +229,7 @@ public final class ArrayUtils {
      * @since 2.5
      */
     public static boolean isNotEmpty(final char[] array) {
-        return !isEmpty(array);
+        return array != null && array.length != 0;
     }
 
     /**
@@ -240,7 +240,7 @@ public final class ArrayUtils {
      * @since 2.5
      */
     public static boolean isNotEmpty(final byte[] array) {
-        return !isEmpty(array);
+        return array != null && array.length != 0;
     }
 
     /**
@@ -251,7 +251,7 @@ public final class ArrayUtils {
      * @since 2.5
      */
     public static boolean isNotEmpty(final double[] array) {
-        return !isEmpty(array);
+        return array != null && array.length != 0;
     }
 
     /**
@@ -262,7 +262,7 @@ public final class ArrayUtils {
      * @since 2.5
      */
     public static boolean isNotEmpty(final float[] array) {
-        return !isEmpty(array);
+        return array != null && array.length != 0;
     }
 
     /**
@@ -273,7 +273,7 @@ public final class ArrayUtils {
      * @since 2.5
      */
     public static boolean isNotEmpty(final boolean[] array) {
-        return !isEmpty(array);
+        return array != null && array.length != 0;
     }
 
     //---------------------------------------------------------------------------
