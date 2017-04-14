@@ -17,17 +17,28 @@
 package com.navercorp.pinpoint.rpc.util;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
+ * @deprecated Since 1.7.0 Use {@link com.navercorp.pinpoint.common.util.StringUtils}
  */
+@Deprecated
 public final class StringUtils {
 
     private StringUtils() {
     }
 
+    /**
+     * @deprecated Since 1.7.0 Use {@link com.navercorp.pinpoint.common.util.StringUtils#isEmpty(String)}
+     */
+    @Deprecated
     public static boolean isEmpty(String string) {
-        return string == null || string.isEmpty();
+        return com.navercorp.pinpoint.common.util.StringUtils.isEmpty(string);
     }
 
+
+    /**
+     * @deprecated Since 1.7.0 Use org.apache.commons.lang3.StringUtils.equals(CharSequence, CharSequence)
+     */
+    @Deprecated
     public static boolean isEquals(String string1, String string2) {
         if (string1 == null) {
             return string2 == null;
