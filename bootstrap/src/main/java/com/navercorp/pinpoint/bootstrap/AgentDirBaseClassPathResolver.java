@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.bootstrap;
 
 
 
-import com.navercorp.pinpoint.common.util.ArrayUtils;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
@@ -228,7 +226,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
     private String findFromBootDir(final String name, final Pattern pattern) {
         String bootDirPath = agentDirPath + File.separator + "boot";
         File[] files = listFiles(name, pattern, bootDirPath);
-        if (ArrayUtils.isEmpty(files)) {
+        if (isEmpty(files)) {
             logger.info(name + " not found.");
             return null;
         } else if (files.length == 1) {
@@ -238,6 +236,10 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
             logger.info("too many " + name + " found. " + Arrays.toString(files));
             return null;
         }
+    }
+
+    private boolean isEmpty(File[] files) {
+        return files == null || files.length == 0;
     }
 
     private File[] listFiles(final String name, final Pattern pattern, String bootDirPath) {
