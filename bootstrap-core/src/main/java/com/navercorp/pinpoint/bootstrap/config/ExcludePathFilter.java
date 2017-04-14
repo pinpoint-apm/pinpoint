@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.bootstrap.config;
 import com.navercorp.pinpoint.bootstrap.util.AntPathMatcher;
 import com.navercorp.pinpoint.bootstrap.util.EqualsPathMatcher;
 import com.navercorp.pinpoint.bootstrap.util.PathMatcher;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +52,7 @@ public class ExcludePathFilter implements Filter<String> {
             this.excludePathMatchers = Collections.emptyList();
             return;
         }
-        final List<String> excludePathFormats = StringUtils.splitAndTrim(excludePathFormatString, formatSeparator);
+        final List<String> excludePathFormats = StringUtils.tokenizeToStringList(excludePathFormatString, formatSeparator);
         final List<PathMatcher> excludePathMatchers = new ArrayList<PathMatcher>(excludePathFormats.size());
         for (String excludePathFormat : excludePathFormats) {
             final PathMatcher pathMatcher = createPathMatcher(excludePathFormat, pathSeparator);

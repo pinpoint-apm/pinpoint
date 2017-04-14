@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +57,7 @@ public class ASMBytecodeDumpService implements BytecodeDumpService {
         if (classNameList.isEmpty()) {
             return Collections.emptySet();
         } else {
-            final List<String> classList = StringUtils.splitAndTrim(classNameList, ",");
+            final List<String> classList = StringUtils.tokenizeToStringList(classNameList, ",");
             final List<String> classInternalNameList = toInternalNames(classList);
             return new HashSet<String>(classInternalNameList);
         }

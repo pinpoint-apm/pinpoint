@@ -16,7 +16,11 @@
 package com.navercorp.pinpoint.plugin.okhttp.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.AttachmentFactory;
@@ -27,9 +31,13 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.plugin.okhttp.*;
+import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.plugin.okhttp.ConnectionGetter;
+import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
+import com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig;
+import com.navercorp.pinpoint.plugin.okhttp.UserRequestGetter;
+import com.navercorp.pinpoint.plugin.okhttp.UserResponseGetter;
 import com.squareup.okhttp.Request;
 
 import java.net.URL;
@@ -192,7 +200,7 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
     }
 
     private void recordCookie(Request request, Trace trace) {
-        for(String cookie : request.headers("Cookie")) {
+        for (String cookie : request.headers("Cookie")) {
             if(cookieSampler.isSampling()) {
                 final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
                 recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.abbreviate(cookie, 1024));

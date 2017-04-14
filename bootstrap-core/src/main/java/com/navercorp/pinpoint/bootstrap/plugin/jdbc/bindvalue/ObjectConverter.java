@@ -22,8 +22,8 @@ import java.math.BigInteger;
 import java.sql.Time;
 import java.sql.Timestamp;
 
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
  * @author emeroad

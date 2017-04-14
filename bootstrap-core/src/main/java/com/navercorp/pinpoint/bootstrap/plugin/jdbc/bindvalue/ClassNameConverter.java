@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue;
 
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
  * @author emeroad

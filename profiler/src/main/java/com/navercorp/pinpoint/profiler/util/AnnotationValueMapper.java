@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.util;
 
 
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.thrift.dto.*;
 
 import org.apache.thrift.TBase;

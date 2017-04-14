@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.bootstrap.resolver.condition;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.util.SystemProperty;
 
 /**
@@ -48,7 +49,7 @@ public class PropertyCondition implements Condition<String>, ConditionValue<Simp
      */
     @Override
     public boolean check(String requiredKey) {
-        if (requiredKey == null || requiredKey.isEmpty()) {
+        if (StringUtils.isEmpty(requiredKey)) {
             return false;
         }
         if (this.property.getProperty(requiredKey) != null) {

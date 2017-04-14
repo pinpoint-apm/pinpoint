@@ -24,9 +24,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.cluster.Role;
-import com.navercorp.pinpoint.rpc.util.*;
+import com.navercorp.pinpoint.rpc.util.AssertUtils;
+import com.navercorp.pinpoint.rpc.util.ClassUtils;
+import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
+import com.navercorp.pinpoint.rpc.util.MapUtils;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
@@ -219,7 +223,7 @@ public class PinpointClientHandshaker {
     private List<Role> getRoles(List roleNames) {
         List<Role> roles = new ArrayList<Role>();
         for (Object roleName : roleNames) {
-            if (roleName instanceof String && !StringUtils.isEmpty((String) roleName)) {
+            if (roleName instanceof String && StringUtils.isNotEmpty((String) roleName)) {
                 roles.add(Role.getValue((String) roleName));
             }
         }
