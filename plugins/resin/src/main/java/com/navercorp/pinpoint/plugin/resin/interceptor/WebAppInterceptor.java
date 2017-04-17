@@ -14,6 +14,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
  * 
@@ -63,7 +64,7 @@ public class WebAppInterceptor implements AroundInterceptor {
 
     private String extractContextKey(ServletContext webapp) {
         String context = webapp.getContextPath();
-        return (context == null || context.length() == 0) ? "/ROOT" : context;
+        return StringUtils.isEmpty(context) ? "/ROOT" : context;
     }
 
     private List<String> extractLibJarNamesFromURLs(URL[] urls) {

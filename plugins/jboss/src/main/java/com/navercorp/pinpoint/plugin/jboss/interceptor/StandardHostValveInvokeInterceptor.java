@@ -101,7 +101,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         this.excludeUrlFilter = jbossConfig.getJbossExcludeUrlFilter();
 
         final String proxyIpHeader = jbossConfig.getJbossRealIpHeader();
-        if ((proxyIpHeader == null) || proxyIpHeader.isEmpty()) {
+        if (StringUtils.isEmpty(proxyIpHeader)) {
             this.remoteAddressResolver = new Bypass<HttpServletRequest>();
         } else {
             final String jbossRealIpEmptyValue = jbossConfig.getJbossRealIpEmptyValue();
@@ -214,7 +214,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         public String resolve(final T httpServletRequest) {
             final String realIp = httpServletRequest.getHeader(this.realIpHeaderName);
 
-            if ((realIp == null) || realIp.isEmpty()) {
+            if (StringUtils.isEmpty(realIp)) {
                 return httpServletRequest.getRemoteAddr();
             }
 

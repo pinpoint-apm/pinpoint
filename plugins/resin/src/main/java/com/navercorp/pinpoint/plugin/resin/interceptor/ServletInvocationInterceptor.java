@@ -75,7 +75,7 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
         ResinConfig resinConfig = new ResinConfig(traceContext.getProfilerConfig());
         this.excludeUrlFilter = resinConfig.getResinExcludeUrlFilter();
         final String proxyIpHeader = resinConfig.getResinRealIpHeader();
-        if (proxyIpHeader == null || proxyIpHeader.isEmpty()) {
+        if (StringUtils.isEmpty(proxyIpHeader)) {
             this.remoteAddressResolver = new Bypass<HttpServletRequest>();
         } else {
             final String tomcatRealIpEmptyValue = resinConfig.getResinRealIpEmptyValue();
@@ -413,7 +413,7 @@ public class ServletInvocationInterceptor implements AroundInterceptor {
         public String resolve(T httpServletRequest) {
             final String realIp = httpServletRequest.getHeader(this.realIpHeaderName);
 
-            if (realIp == null || realIp.isEmpty()) {
+            if (StringUtils.isEmpty(realIp)) {
                 return httpServletRequest.getRemoteAddr();
             }
 

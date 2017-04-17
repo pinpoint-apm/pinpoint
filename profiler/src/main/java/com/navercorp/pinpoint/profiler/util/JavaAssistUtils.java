@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import javassist.CtBehavior;
 import javassist.CtClass;
 import javassist.Modifier;
@@ -313,7 +314,7 @@ public final class JavaAssistUtils {
     }
 
     private static int getArraySize(String description) {
-        if (description == null || description.isEmpty()) {
+        if (StringUtils.isEmpty(description)) {
             return 0;
         }
         int arraySize = 0;

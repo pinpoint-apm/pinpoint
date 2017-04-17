@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotWritableException;
@@ -60,7 +61,7 @@ public class MappingJsonpJackson2HttpMessageConverter extends MappingJackson2Htt
         try {
             String callbackParam = getRequestParam(DEFAULT_CALLBACK_PARAMETER);
 
-            if (callbackParam == null || "".equals(callbackParam)) {
+            if (StringUtils.isEmpty(callbackParam)) {
                 callbackParam = DEFAULT_CALLBACK_PARAMETER;
             }
 

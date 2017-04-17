@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.FrameAttachment;
 import com.navercorp.pinpoint.bootstrap.context.SpanId;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
@@ -84,7 +85,7 @@ public class Span extends TSpan implements FrameAttachment {
 
     public void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
         final TIntStringValue exceptionInfo = new TIntStringValue(exceptionClassId);
-        if (exceptionMessage != null && !exceptionMessage.isEmpty()) {
+        if (StringUtils.isNotEmpty(exceptionMessage)) {
             exceptionInfo.setStringValue(exceptionMessage);
         }
         super.setExceptionInfo(exceptionInfo);

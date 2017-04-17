@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.resolver.condition;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
  * @author HyunGil Jeong
@@ -43,7 +44,7 @@ public class ClassResourceCondition implements Condition<String> {
      */
     @Override
     public boolean check(String requiredClass) {
-        if (requiredClass == null || requiredClass.isEmpty()) {
+        if (StringUtils.isEmpty(requiredClass)) {
             return false;
         }
         String classNameAsResource = getClassNameAsResource(requiredClass);

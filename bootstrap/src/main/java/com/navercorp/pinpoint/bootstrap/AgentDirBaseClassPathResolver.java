@@ -225,7 +225,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
 
     private String findFromBootDir(final String name, final Pattern pattern) {
         String bootDirPath = agentDirPath + File.separator + "boot";
-        File[] files = listFiles(name, pattern, bootDirPath);
+        final File[] files = listFiles(name, pattern, bootDirPath);
         if (isEmpty(files)) {
             logger.info(name + " not found.");
             return null;
@@ -383,7 +383,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
             }
         });
 
-        if (jars == null || jars.length == 0) {
+        if (isEmpty(jars)) {
             return new URL[0];
         }
         

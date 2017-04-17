@@ -337,7 +337,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
                         String entityValue;
                         String charSet = entityEnclosingMethod.getRequestCharSet();
 
-                        if (charSet == null || charSet.isEmpty()) {
+                        if (StringUtils.isEmpty(charSet)) {
                             charSet = HttpConstants.DEFAULT_CONTENT_CHARSET;
                         }
                         
@@ -382,7 +382,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         }
 
         final String value = cookie.getValue();
-        if (value != null && !value.isEmpty()) {
+        if (StringUtils.isNotEmpty(value)) {
             if (cookieSampler.isSampling()) {
                 final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
                 recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.abbreviate(value, MAX_READ_SIZE));

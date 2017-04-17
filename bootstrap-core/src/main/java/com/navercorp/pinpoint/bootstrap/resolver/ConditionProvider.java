@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.bootstrap.resolver;
 import com.navercorp.pinpoint.bootstrap.resolver.condition.ClassResourceCondition;
 import com.navercorp.pinpoint.bootstrap.resolver.condition.MainClassCondition;
 import com.navercorp.pinpoint.bootstrap.resolver.condition.PropertyCondition;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.List;
 
@@ -101,7 +102,7 @@ public class ConditionProvider {
      * @return the system property value, or an empty string if the key is null or empty 
      */
     public String getSystemPropertyValue(String systemPropertyKey) {
-        if (systemPropertyKey == null || systemPropertyKey.isEmpty()) {
+        if (StringUtils.isEmpty(systemPropertyKey)) {
             return "";
         }
         return this.systemPropertyCondition.getValue().getProperty(systemPropertyKey);
