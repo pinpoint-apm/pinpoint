@@ -38,6 +38,7 @@ import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientPlugin;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientPluginConfig;
@@ -295,7 +296,8 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
      */
     protected void recordMultipartData(final com.ning.http.client.Request httpRequest, final SpanEventRecorder recorder) {
         List<Part> parts = httpRequest.getParts();
-        if (parts != null && parts.isEmpty()) {
+        // bug fix : parts != null && ****!parts.isEmpty()
+        if (CollectionUtils.isNotEmpty(parts)) {
             StringBuilder sb = new StringBuilder(config.getEntityDumpSize() * 2);
             Iterator<Part> iterator = parts.iterator();
             while (iterator.hasNext()) {

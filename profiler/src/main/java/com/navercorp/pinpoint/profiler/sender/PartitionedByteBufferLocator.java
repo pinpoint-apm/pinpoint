@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.rpc.util.ListUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public class PartitionedByteBufferLocator {
         if (buffer == null) {
             throw new NullPointerException("buffer may not be null.");
         }
-        if (partitionIndexList == null || partitionIndexList.isEmpty()) {
+        if (CollectionUtils.isEmpty(partitionIndexList)) {
             throw new NullPointerException("buffer may not be null or zero.");
         }
 

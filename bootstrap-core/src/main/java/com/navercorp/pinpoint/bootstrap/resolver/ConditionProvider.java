@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.bootstrap.resolver;
 import com.navercorp.pinpoint.bootstrap.resolver.condition.ClassResourceCondition;
 import com.navercorp.pinpoint.bootstrap.resolver.condition.MainClassCondition;
 import com.navercorp.pinpoint.bootstrap.resolver.condition.PropertyCondition;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.List;
@@ -85,7 +86,7 @@ public class ConditionProvider {
      * @see MainClassCondition#check(String)
      */
     public boolean checkMainClass(List<String> candidates) {
-        if (candidates == null || candidates.isEmpty()) {
+        if (CollectionUtils.isEmpty(candidates)) {
             return false;
         }
         for (String candidate : candidates) {

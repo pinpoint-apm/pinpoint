@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.web.calltree.span;
 
 import static org.junit.Assert.assertEquals;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.Test;
 
 import org.slf4j.Logger;
@@ -472,15 +473,15 @@ public class CallTreeIteratorTest {
         while (iterator.hasNext()) {
             CallTreeNode node = iterator.next();
             SpanAlign align = node.getValue();
-            if (check && depths != null && !depths.isEmpty()) {
+            if (check && CollectionUtils.isNotEmpty(depths)) {
                 final int depth = depths.poll();
                 assertEquals("depth " + index, depth, align.getDepth());
             }
-            if (check && gaps != null && !gaps.isEmpty()) {
+            if (check && CollectionUtils.isNotEmpty(gaps)) {
                 final int gap = gaps.poll();
                 assertEquals("gap " + index, gap, align.getGap());
             }
-            if (check && execs != null && !execs.isEmpty()) {
+            if (check && CollectionUtils.isNotEmpty(execs)) {
                 final int exec = execs.poll();
                 assertEquals("exec " + index, exec, align.getExecutionMilliseconds());
             }

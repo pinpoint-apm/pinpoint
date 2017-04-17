@@ -22,6 +22,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +72,7 @@ public class AutoFlusher {
     }
 
     public void initialize() {
-        if (cachedStatisticsDaoList == null || cachedStatisticsDaoList.isEmpty()) {
+        if (CollectionUtils.isEmpty(cachedStatisticsDaoList)) {
             return;
         }
 

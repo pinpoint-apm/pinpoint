@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.HbaseSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +62,7 @@ public class AgentStatHbaseOperationFactory {
     }
 
     public <T extends AgentStatDataPoint> List<Put> createPuts(String agentId, AgentStatType agentStatType, List<T> agentStatDataPoints, HbaseSerializer<List<T>, Put> agentStatSerializer) {
-        if (agentStatDataPoints == null || agentStatDataPoints.isEmpty()) {
+        if (CollectionUtils.isEmpty(agentStatDataPoints)) {
             return Collections.emptyList();
         }
         Map<Long, List<T>> timeslots = slotAgentStatDataPoints(agentStatDataPoints);
