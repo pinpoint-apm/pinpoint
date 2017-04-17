@@ -26,17 +26,6 @@ public class OffsetAutomaticBuffer extends AutomaticBuffer {
     protected int startOffset;
     protected int endOffset;
 
-    /**
-     * Unsafe API
-     * unsafe array access of HBase Cell
-     * @deprecated Since 1.6.0. Use {@link OffsetAutomaticBuffer(byte[], int, int)}
-     */
-    @Deprecated
-    public OffsetAutomaticBuffer(final byte[] buffer, final int startOffset) {
-        this(buffer, startOffset, buffer.length);
-    }
-
-
     public OffsetAutomaticBuffer(final byte[] buffer) {
         this(buffer, 0, buffer.length);
     }

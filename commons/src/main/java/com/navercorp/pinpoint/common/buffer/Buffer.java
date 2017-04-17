@@ -51,27 +51,12 @@ public interface Buffer {
 
     void putByte(byte v);
 
-    /**
-     * @deprecated Since 1.6.0. Use {@link Buffer#putByte(byte)}
-     */
-    @Deprecated
-    void put(byte v);
 
     void putBoolean(boolean v);
 
-    /**
-     * @deprecated Since 1.6.0. Use {@link Buffer#putBoolean(boolean)}
-     */
-    @Deprecated
-    void put(boolean v);
 
     void putInt(int v);
 
-    /**
-     * @deprecated Since 1.6.0. Use {@link Buffer#putInt(int)}
-     */
-    @Deprecated
-    void put(int v);
 
     /**
      * put value using the variable-length encoding especially for constants
@@ -85,11 +70,6 @@ public interface Buffer {
      */
     void putVInt(int v);
 
-    /**
-     * @deprecated Since 1.6.0. Use {@link Buffer#putVInt(int)}
-     */
-    @Deprecated
-    void putVar(int v);
 
     /**
      * put value using variable-length encoding
@@ -100,27 +80,13 @@ public interface Buffer {
      */
     void putSVInt(int v);
 
-    /**
-     * @deprecated Since 1.6.0. Use {@link Buffer#putSVInt(int)}
-     */
-    @Deprecated
-    void putSVar(int v);
 
     void putShort(short v);
 
-    /**
-     * @deprecated Since 1.6.0. Use {@link Buffer#putShort(short)}
-     */
-    @Deprecated
-    void put(short v);
 
     void putLong(long v);
 
-    /**
-     * @deprecated Since 1.6.0. Use {@link Buffer#putLong(long)}
-     */
-    @Deprecated
-    void put(long v);
+
 
     /**
      * put value using the variable-length encoding especially for constants
@@ -131,11 +97,7 @@ public interface Buffer {
      */
     void putVLong(long v);
 
-    /**
-     * @deprecated Since 1.6.0. Use {@link Buffer#putVLong(long)}
-     */
-    @Deprecated
-    void putVar(long v);
+
 
     /**
      * put value using variable-length encoding
@@ -144,19 +106,9 @@ public interface Buffer {
      */
     void putSVLong(long v);
 
-    /**
-     * @deprecated Since 1.6.0. Use {@link Buffer#putSVLong(long)}
-     */
-    @Deprecated
-    void putSVar(long v);
 
     void putDouble(double v);
 
-    /**
-     * @deprecated Since 1.6.0. Use {@link Buffer#putDouble(double)}
-     */
-    @Deprecated
-    void put(double v);
 
     /**
      * put value using the variable-length encoding especially for constants
@@ -167,11 +119,6 @@ public interface Buffer {
      */
     void putVDouble(double v);
 
-    /**
-     * @deprecated Since 1.6.0. Use {@link Buffer#putVDouble(double)}
-     */
-    @Deprecated
-    void putVar(double v);
 
     /**
      * put value using variable-length encoding
@@ -180,19 +127,7 @@ public interface Buffer {
      */
     void putSVDouble(double v);
 
-    /**
-     * @deprecated Since 1.6.0. Use {@link Buffer#putSVDouble(double)}
-     */
-    @Deprecated
-    void putSVar(double v);
-
     void putBytes(byte[] v);
-
-    /**
-     * @deprecated Since 1.6.0. Use {@link Buffer#putBytes(byte[])}
-     */
-    @Deprecated
-    void put(byte[] v);
 
     byte getByte(int index);
 
@@ -206,21 +141,7 @@ public interface Buffer {
 
     int readVInt();
 
-    /**
-     * @deprecated Since 1.6.0. Use {@link Buffer#readVInt()}
-     */
-    @Deprecated
-    int readVarInt();
-
-
     int readSVInt();
-
-    /**
-     * @deprecated Since 1.6.0. Use {@link Buffer#readSVInt()}
-     */
-    @Deprecated
-    int readSVarInt();
-
 
     short readShort();
 
@@ -228,37 +149,13 @@ public interface Buffer {
 
     long readVLong();
 
-    /**
-     * @deprecated Since 1.6.0. Use {@link Buffer#readVLong()}
-     */
-    @Deprecated
-    long readVarLong();
-
     long readSVLong();
-
-    /**
-     * @deprecated Since 1.6.0. Use {@link Buffer#readSVLong()}
-     */
-    @Deprecated
-    long readSVarLong();
 
     double readDouble();
 
     double readVDouble();
 
-    /**
-     * @deprecated Since 1.6.0. Use {@link Buffer#readVDouble()}
-     */
-    @Deprecated
-    double readVarDouble();
-
     double readSVDouble();
-
-    /**
-     * @deprecated Since 1.6.0. Use {@link Buffer#readSVDouble()}
-     */
-    @Deprecated
-    double readSVarDouble();
 
     byte[] readPadBytes(int totalLength);
 
@@ -289,12 +186,6 @@ public interface Buffer {
     void setOffset(int offset);
 
     int getOffset();
-
-    /**
-     * @deprecated Since 1.6.0. Use {@link Buffer#remaining()}
-     */
-    @Deprecated
-    int limit();
 
     int remaining();
 
