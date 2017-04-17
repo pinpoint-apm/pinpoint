@@ -144,11 +144,6 @@ public class FixedBuffer implements Buffer {
         this.buffer[offset++] = v;
     }
 
-    @Deprecated
-    @Override
-    public void put(final byte v) {
-        putByte(v);
-    }
 
     @Override
     public void putBoolean(final boolean v) {
@@ -159,22 +154,12 @@ public class FixedBuffer implements Buffer {
         }
     }
 
-    @Deprecated
-    @Override
-    public void put(final boolean v) {
-        putBoolean(v);
-    }
 
     @Override
     public void putInt(final int v) {
         this.offset = BytesUtils.writeInt(v, buffer, offset);
     }
 
-    @Deprecated
-    @Override
-    public void put(final int v) {
-        putInt(v);
-    }
 
     @Override
     public void putVInt(int v) {
@@ -185,22 +170,12 @@ public class FixedBuffer implements Buffer {
         }
     }
 
-    @Deprecated
-    @Override
-    public void putVar(int v) {
-        putVInt(v);
-    }
 
     @Override
     public void putSVInt(int v) {
         this.offset = BytesUtils.writeSVar32(v, buffer, offset);
     }
 
-    @Deprecated
-    @Override
-    public void putSVar(int v) {
-        putSVInt(v);
-    }
 
     private void putVar32(int v) {
         this.offset = BytesUtils.writeVar32(v, buffer, offset);
@@ -211,43 +186,22 @@ public class FixedBuffer implements Buffer {
         this.offset = BytesUtils.writeShort(v, buffer, offset);
     }
 
-    @Deprecated
-    @Override
-    public void put(final short v) {
-        putShort(v);
-    }
 
     @Override
     public void putLong(final long v) {
         this.offset = BytesUtils.writeLong(v, buffer, offset);
     }
 
-    @Deprecated
-    @Override
-    public void put(final long v) {
-        putLong(v);
-    }
 
     @Override
     public void putVLong(long v) {
         putVar64(v);
     }
 
-    @Deprecated
-    @Override
-    public void putVar(long v) {
-        putVLong(v);
-    }
 
     @Override
     public void putSVLong(long v) {
         putVar64(BytesUtils.longToZigZag(v));
-    }
-
-    @Deprecated
-    @Override
-    public void putSVar(long v) {
-        putSVLong(v);
     }
 
     private void putVar64(long v) {
@@ -259,21 +213,10 @@ public class FixedBuffer implements Buffer {
         putLong(Double.doubleToRawLongBits(v));
     }
 
-    @Deprecated
-    @Override
-    public void put(double v) {
-        putDouble(v);
-    }
 
     @Override
     public void putVDouble(double v) {
         putVLong(Double.doubleToRawLongBits(v));
-    }
-
-    @Deprecated
-    @Override
-    public void putVar(double v) {
-        putVDouble(v);
     }
 
     @Override
@@ -282,12 +225,6 @@ public class FixedBuffer implements Buffer {
     }
 
 
-    @Deprecated
-    @Override
-    public void putSVar(double v) {
-        putSVDouble(v);
-    }
-
     @Override
     public void putBytes(final byte[] v) {
         if (v == null) {
@@ -295,12 +232,6 @@ public class FixedBuffer implements Buffer {
         }
         System.arraycopy(v, 0, buffer, offset, v.length);
         this.offset = offset + v.length;
-    }
-
-    @Deprecated
-    @Override
-    public void put(final byte[] v) {
-        putBytes(v);
     }
 
 
@@ -378,11 +309,6 @@ public class FixedBuffer implements Buffer {
         return (int) readVar64SlowPath();
     }
 
-    @Deprecated
-    @Override
-    public int readVarInt() {
-        return readVInt();
-    }
 
     /** Variant of readRawVarint64 for when uncomfortably close to the limit. */
     /* Visible for testing */
@@ -491,20 +417,10 @@ public class FixedBuffer implements Buffer {
         return readVar64SlowPath();
     }
 
-    @Deprecated
-    @Override
-    public long readVarLong() {
-        return readVLong();
-    }
 
     @Override
     public long readSVLong() {
         return BytesUtils.zigzagToLong(readVLong());
-    }
-
-    @Override
-    public long readSVarLong() {
-        return readSVLong();
     }
 
     @Override
@@ -517,21 +433,9 @@ public class FixedBuffer implements Buffer {
         return Double.longBitsToDouble(this.readVLong());
     }
 
-    @Deprecated
-    @Override
-    public double readVarDouble() {
-        return readVDouble();
-    }
-
     @Override
     public double readSVDouble() {
         return Double.longBitsToDouble(this.readSVLong());
-    }
-
-    @Deprecated
-    @Override
-    public double readSVarDouble() {
-        return readSVDouble();
     }
 
     @Override
@@ -690,15 +594,6 @@ public class FixedBuffer implements Buffer {
     @Override
     public int getOffset() {
         return offset;
-    }
-
-    /**
-     * @deprecated Since 1.6.0. Use {@link Buffer#remaining()}
-     */
-    @Deprecated
-    @Override
-    public int limit() {
-        return remaining();
     }
 
     @Override
