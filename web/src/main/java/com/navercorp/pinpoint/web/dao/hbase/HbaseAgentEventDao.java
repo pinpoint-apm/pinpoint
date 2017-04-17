@@ -22,8 +22,6 @@ import java.util.Set;
 
 import com.navercorp.pinpoint.web.mapper.AgentEventResultsExtractor;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.BinaryComparator;
 import org.apache.hadoop.hbase.filter.CompareFilter;
@@ -114,7 +112,7 @@ public class HbaseAgentEventDao implements AgentEventDao {
         byte[] qualifier = Bytes.toBytes(eventType.getCode());
         List<AgentEventBo> events = this.hbaseOperations2.get(HBaseTables.AGENT_EVENT, rowKey,
                 HBaseTables.AGENT_EVENT_CF_EVENTS, qualifier, this.agentEventMapper);
-        if (events == null || events.isEmpty()) {
+        if (CollectionUtils.isEmpty(events)) {
             return null;
         }
         return events.get(0);

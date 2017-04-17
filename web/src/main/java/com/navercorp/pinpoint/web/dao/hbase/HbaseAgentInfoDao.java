@@ -65,7 +65,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
     @Override
     public List<AgentInfo> getInitialAgentInfos(List<String> agentIds) {
-        if (agentIds == null || agentIds.isEmpty()) {
+        if (CollectionUtils.isEmpty(agentIds)) {
             return Collections.emptyList();
         }
         List<Scan> scans = new ArrayList<>(agentIds.size());
