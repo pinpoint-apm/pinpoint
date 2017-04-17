@@ -40,7 +40,7 @@ public class UdpDispatchHandler extends AbstractDispatchHandler {
     }
 
     @Override
-    Handler getHandler(TBase<?, ?> tBase) {
+    protected Handler getHandler(TBase<?, ?> tBase) {
 
         // To change below code to switch table make it a little bit faster.
         // FIXME (2014.08) Legacy - TAgentStats should not be sent over the wire.
