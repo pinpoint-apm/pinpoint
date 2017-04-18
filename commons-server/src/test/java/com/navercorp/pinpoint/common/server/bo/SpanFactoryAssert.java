@@ -128,7 +128,6 @@ public class SpanFactoryAssert {
 
         Assert.assertEquals(tSpanChunk.getSpanId(), spanChunkBo.getSpanId());
 
-        Assert.assertEquals(tSpanChunk.getServiceType(), spanChunkBo.getServiceType());
         Assert.assertEquals(tSpanChunk.getEndPoint(), spanChunkBo.getEndPoint());
         Assert.assertEquals(tSpanChunk.getApplicationServiceType(), spanChunkBo.getApplicationServiceType());
 
