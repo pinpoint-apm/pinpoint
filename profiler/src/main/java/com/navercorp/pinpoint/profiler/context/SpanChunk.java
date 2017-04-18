@@ -32,4 +32,19 @@ public class SpanChunk extends TSpanChunk {
         }
         setSpanEventList((List) spanEventList);
     }
+
+    @Override
+    public void setServiceType(short serviceType) {
+        super.setServiceType(serviceType);
+    }
+
+    @Override
+    public void setServiceTypeIsSet(boolean value) {
+        super.setServiceTypeIsSet(value);
+    }
+
+    @Override
+    public short getServiceType() {
+        return super.getServiceType();
+    }
 }

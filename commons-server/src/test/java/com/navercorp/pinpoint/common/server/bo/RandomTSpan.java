@@ -141,7 +141,6 @@ public class RandomTSpan {
         tSpanChunk.setTransactionId(TransactionIdUtils.formatByteBuffer("agent", System.currentTimeMillis(), RandomUtils.nextLong(0, Long.MAX_VALUE)));
         tSpanChunk.setSpanId(random.nextLong());
 
-        tSpanChunk.setServiceType(randomServerServiceType());
         tSpanChunk.setEndPoint(RandomStringUtils.random(20));
 
 //        tSpanChunk.setSpanEventList()

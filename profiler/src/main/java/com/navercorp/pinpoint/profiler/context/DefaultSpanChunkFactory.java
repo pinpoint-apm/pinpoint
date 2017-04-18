@@ -78,8 +78,6 @@ public class DefaultSpanChunkFactory implements SpanChunkFactory {
         spanChunk.setAgentStartTime(agentStartTime);
         spanChunk.setApplicationServiceType(applicationServiceType.getCode());
 
-        spanChunk.setServiceType(parentSpan.getServiceType());
-
 
         final byte[] transactionId = parentSpan.getTransactionId();
         spanChunk.setTransactionId(transactionId);

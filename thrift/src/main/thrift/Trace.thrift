@@ -109,7 +109,7 @@ struct TSpanChunk {
     2: string applicationName
     3: i64 agentStartTime
 
-    4: i16 serviceType
+    4: i16 serviceType ( deprecated )
 
     // identical to agentId if null
     //5: optional string traceAgentId
