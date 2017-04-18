@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.active;
+package com.navercorp.pinpoint.profiler.monitor.collector.response;
 
-import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeHistogramValue;
-
-import java.util.List;
+import com.navercorp.pinpoint.thrift.dto.TResponseTime;
 
 /**
  * @author Taejin Koo
  */
-public interface ActiveTraceRepository {
+public class UnsupportedResponseTimeMetricCollector implements ResponseTimeMetricCollector {
+    @Override
+    public TResponseTime collect() {
+        return null;
+    }
 
-    void put(ActiveTrace activeTrace);
-
-    ActiveTrace remove(Long key);
-
-    List<ActiveTraceInfo> collect();
-
-    ResponseTimeHistogramValue getLatestCompletedActiveTraceResponseTimeHistogram();
+    @Override
+    public String toString() {
+        return "UnsupportedResponseTimeMetricCollector";
+    }
 
 }

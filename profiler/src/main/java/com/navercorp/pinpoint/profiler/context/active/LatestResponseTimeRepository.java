@@ -18,19 +18,11 @@ package com.navercorp.pinpoint.profiler.context.active;
 
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeHistogramValue;
 
-import java.util.List;
-
 /**
  * @author Taejin Koo
  */
-public interface ActiveTraceRepository {
+public interface LatestResponseTimeRepository {
 
-    void put(ActiveTrace activeTrace);
-
-    ActiveTrace remove(Long key);
-
-    List<ActiveTraceInfo> collect();
-
-    ResponseTimeHistogramValue getLatestCompletedActiveTraceResponseTimeHistogram();
+    ResponseTimeHistogramValue getLatestResponseTimeHistogram();
 
 }
