@@ -60,7 +60,7 @@ public class AsyncEchoTestClient implements EchoTestClient {
     public String echo(String message) throws TException {
         final CountDownLatch latch = new CountDownLatch(1);
         final AsyncEchoResultHolder resultHolder = new AsyncEchoResultHolder();
-        final AsyncMethodCallback<EchoService.AsyncClient.echo_call> callback = new EchoMethodCallback(latch, resultHolder);
+        final AsyncMethodCallback<String> callback = new EchoMethodCallback(latch, resultHolder);
         this.asyncClient.echo(message, callback);
         boolean isInterrupted = false;
         while (true) {
@@ -135,7 +135,7 @@ public class AsyncEchoTestClient implements EchoTestClient {
         }
     }
 
-    private static class EchoMethodCallback implements AsyncMethodCallback<EchoService.AsyncClient.echo_call> {
+    private static class EchoMethodCallback implements AsyncMethodCallback<String> {
 
         private final CountDownLatch completeLatch;
         private final AsyncEchoResultHolder resultHolder;
@@ -146,15 +146,9 @@ public class AsyncEchoTestClient implements EchoTestClient {
         }
 
         @Override
-        public void onComplete(EchoService.AsyncClient.echo_call response) {
-            try {
-                String result = response.getResult();
-                this.resultHolder.setResult(result);
-            } catch (TException e) {
-                this.resultHolder.setResult(e.toString());
-            } finally {
-                this.completeLatch.countDown();
-            }
+        public void onComplete(String response) {
+            this.resultHolder.setResult(response);
+            this.completeLatch.countDown();
         }
 
         @Override
