@@ -59,7 +59,9 @@
 
 							$timeout(function() {
 								var instanceName = $element.find( "._node input[type=radio][checked]" ).val();
-								showChart( instanceName, scope.node.agentHistogram[instanceName], scope.node.agentTimeSeriesHistogram[instanceName] );
+								try {
+									showChart(instanceName, scope.node.agentHistogram[instanceName], scope.node.agentTimeSeriesHistogram[instanceName]);
+								}catch(e) {}
 							});
 						} else {
 							scope.linkList = scope.node.sourceHistogram;
