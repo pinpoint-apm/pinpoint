@@ -24,7 +24,7 @@
 			TIMEOUT: 211
 		},
 		consts: {
-			maxDealyCount: 5,
+			maxDelayCount: 5,
 			verticalGridCount: 5
 		},
 		message: {
@@ -392,7 +392,7 @@
             	        d3transition = d3transition.each(function() {
             	        	delayCount++;
             	            if ( passingQueue.length === 0 ) {
-            	            	if ( delayCount > cfg.consts.maxDealyCount && oOuterOption.showExtraInfo === false ) {
+            	            	if ( delayCount > cfg.consts.maxDelayCount && oOuterOption.showExtraInfo === false ) {
             	            		setErrorMessage( false, [cfg.message.NO_RESPONSE]);
             	            	}
             	            	return;
