@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.profiler.monitor.collector.activethread.ActiveTrac
 import com.navercorp.pinpoint.profiler.monitor.collector.cpu.CpuLoadMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.datasource.DataSourceMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.jvmgc.JvmGcMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.response.ResponseTimeMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.transaction.TransactionMetricCollector;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 
@@ -38,6 +39,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
     private final TransactionMetricCollector transactionMetricCollector;
     private final ActiveTraceMetricCollector activeTraceMetricCollector;
     private final DataSourceMetricCollector dataSourceMetricCollector;
+    private final ResponseTimeMetricCollector responseTimeMetricCollector;
 
     @Inject
     public AgentStatCollector(
@@ -47,7 +49,8 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
             CpuLoadMetricCollector cpuLoadMetricCollector,
             TransactionMetricCollector transactionMetricCollector,
             ActiveTraceMetricCollector activeTraceMetricCollector,
-            DataSourceMetricCollector dataSourceMetricCollector) {
+            DataSourceMetricCollector dataSourceMetricCollector,
+            ResponseTimeMetricCollector responseTimeMetricCollector) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -66,6 +69,9 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
         if (dataSourceMetricCollector == null) {
             throw new NullPointerException("dataSourceMetricCollector must not be null");
         }
+        if (responseTimeMetricCollector == null) {
+            throw new NullPointerException("responseTimeMetricCollector may not be null");
+        }
         this.agentId = agentId;
         this.agentStartTimestamp = agentStartTimestamp;
         this.jvmGcMetricCollector = jvmGcMetricCollector;
@@ -73,6 +79,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
         this.transactionMetricCollector = transactionMetricCollector;
         this.activeTraceMetricCollector = activeTraceMetricCollector;
         this.dataSourceMetricCollector = dataSourceMetricCollector;
+        this.responseTimeMetricCollector = responseTimeMetricCollector;
     }
 
     @Override
@@ -85,6 +92,10 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
         agentStat.setTransaction(transactionMetricCollector.collect());
         agentStat.setActiveTrace(activeTraceMetricCollector.collect());
         agentStat.setDataSourceList(dataSourceMetricCollector.collect());
+
+        // will remove comment,
+        // agentStat.setResponseTime(responseTimeMetricCollector.collect());
+
         return agentStat;
     }
 
@@ -98,7 +109,9 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
         sb.append(", transactionMetricCollector=").append(transactionMetricCollector);
         sb.append(", activeTraceMetricCollector=").append(activeTraceMetricCollector);
         sb.append(", dataSourceMetricCollector=").append(dataSourceMetricCollector);
+        sb.append(", responseTimeMetricCollector=").append(responseTimeMetricCollector);
         sb.append('}');
         return sb.toString();
     }
+
 }

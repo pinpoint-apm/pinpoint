@@ -91,6 +91,10 @@ struct TActiveTrace {
     1: optional TActiveTraceHistogram   histogram
 }
 
+struct TResponseTime {
+    1: optional i64         totalResponseTime = 0
+}
+
 struct TAgentStat {
     1: optional string      agentId
     2: optional i64         startTimestamp
@@ -101,6 +105,7 @@ struct TAgentStat {
     30: optional TTransaction   transaction
     40: optional TActiveTrace   activeTrace
     50: optional TDataSourceList dataSourceList
+    60: optional TResponseTime responseTime
     200: optional string    metadata
 }
 
