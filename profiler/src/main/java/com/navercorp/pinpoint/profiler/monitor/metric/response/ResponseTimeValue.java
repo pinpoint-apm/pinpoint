@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.active;
-
-import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
-
-import java.util.List;
+package com.navercorp.pinpoint.profiler.monitor.metric.response;
 
 /**
  * @author Taejin Koo
  */
-public interface ActiveTraceRepository {
+public interface ResponseTimeValue {
 
-    void put(ActiveTrace activeTrace);
+    long getAvg();
 
-    ActiveTrace remove(Long key);
+    long getTotal();
 
-    List<ActiveTraceInfo> collect();
-
-    ResponseTimeValue getLatestCompletedActiveTraceResponseTimeValue();
+    long getTransactionCount();
 
 }
