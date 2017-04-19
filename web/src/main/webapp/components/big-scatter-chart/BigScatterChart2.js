@@ -286,7 +286,7 @@
 		toY = parseInt(toY, 10);
 
 		var oRangeY = this._oSCManager.getY();
-		var aVisibleType = visibleType.split(",")
+		var aVisibleType = visibleType.split(",");
 
 		for (var i = 0, nLen = this._aBubbles.length; i < nLen; i++) {
 			var oDataBlock = this._aBubbles[i];
