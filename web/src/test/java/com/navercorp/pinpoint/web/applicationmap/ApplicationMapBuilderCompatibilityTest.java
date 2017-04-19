@@ -135,16 +135,21 @@ public class ApplicationMapBuilderCompatibilityTest {
 
         ApplicationMapBuilder applicationMapBuilderV1 = ApplicationMapBuilderTestHelper.createApplicationMapBuilderV1(range);
         ApplicationMapBuilder applicationMapBuilderV2 = ApplicationMapBuilderTestHelper.createApplicationMapBuilderV2(range);
+        ApplicationMapBuilder applicationMapBuilderV2_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilderV2_parallelAppenders(range);
         ApplicationMap applicationMapV1 = applicationMapBuilderV1.build(application, agentInfoService);
         ApplicationMap applicationMapV2 = applicationMapBuilderV2.build(application, agentInfoService);
+        ApplicationMap applicationMapV2_parallelAppenders = applicationMapBuilderV2_parallelAppenders.build(application, agentInfoService);
 
         Assert.assertEquals(1, applicationMapV1.getNodes().size());
         Assert.assertEquals(1, applicationMapV2.getNodes().size());
+        Assert.assertEquals(1, applicationMapV2_parallelAppenders.getNodes().size());
         Assert.assertEquals(0, applicationMapV1.getLinks().size());
         Assert.assertEquals(0, applicationMapV2.getLinks().size());
+        Assert.assertEquals(0, applicationMapV2_parallelAppenders.getLinks().size());
 
         ApplicationMapVerifier verifier = new ApplicationMapVerifier(applicationMapV1);
         verifier.verify(applicationMapV2);
+        verifier.verify(applicationMapV2_parallelAppenders);
     }
 
     @Test
@@ -154,16 +159,21 @@ public class ApplicationMapBuilderCompatibilityTest {
 
         ApplicationMapBuilder applicationMapBuilderV1 = ApplicationMapBuilderTestHelper.createApplicationMapBuilderV1(range);
         ApplicationMapBuilder applicationMapBuilderV2 = ApplicationMapBuilderTestHelper.createApplicationMapBuilderV2(range);
+        ApplicationMapBuilder applicationMapBuilderV2_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilderV2_parallelAppenders(range);
         ApplicationMap applicationMapV1 = applicationMapBuilderV1.build(linkDataDuplexMap, agentInfoService, mapResponseDao);
         ApplicationMap applicationMapV2 = applicationMapBuilderV2.build(linkDataDuplexMap, agentInfoService, mapResponseDao);
+        ApplicationMap applicationMapV2_parallelAppenders = applicationMapBuilderV2_parallelAppenders.build(linkDataDuplexMap, agentInfoService, mapResponseDao);
 
         Assert.assertTrue(applicationMapV1.getNodes().isEmpty());
         Assert.assertTrue(applicationMapV2.getNodes().isEmpty());
+        Assert.assertTrue(applicationMapV2_parallelAppenders.getNodes().isEmpty());
         Assert.assertTrue(applicationMapV1.getLinks().isEmpty());
         Assert.assertTrue(applicationMapV2.getLinks().isEmpty());
+        Assert.assertTrue(applicationMapV2_parallelAppenders.getLinks().isEmpty());
 
         ApplicationMapVerifier verifier = new ApplicationMapVerifier(applicationMapV1);
         verifier.verify(applicationMapV2);
+        verifier.verify(applicationMapV2_parallelAppenders);
     }
 
     /**
@@ -241,25 +251,34 @@ public class ApplicationMapBuilderCompatibilityTest {
         LinkDataDuplexMap linkDataDuplexMap = ApplicationMapBuilderTestHelper.createLinkDataDuplexMap(calleeDepth, callerDepth);
         ApplicationMapBuilder applicationMapBuilderV1 = ApplicationMapBuilderTestHelper.createApplicationMapBuilderV1(range);
         ApplicationMapBuilder applicationMapBuilderV2 = ApplicationMapBuilderTestHelper.createApplicationMapBuilderV2(range);
+        ApplicationMapBuilder applicationMapBuilderV2_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilderV2_parallelAppenders(range);
 
         // test builder using MapResponseDao
         ApplicationMap applicationMapV1_MapResponseDao = applicationMapBuilderV1.build(linkDataDuplexMap, agentInfoService, mapResponseDao);
         ApplicationMap applicationMapV2_MapResponseDao = applicationMapBuilderV2.build(linkDataDuplexMap, agentInfoService, mapResponseDao);
+        ApplicationMap applicationMapV2_MapResponseDao_parallelAppenders = applicationMapBuilderV2_parallelAppenders.build(linkDataDuplexMap, agentInfoService, mapResponseDao);
         Assert.assertEquals(expectedNumNodes, applicationMapV1_MapResponseDao.getNodes().size());
         Assert.assertEquals(expectedNumNodes, applicationMapV2_MapResponseDao.getNodes().size());
+        Assert.assertEquals(expectedNumNodes, applicationMapV2_MapResponseDao_parallelAppenders.getNodes().size());
         Assert.assertEquals(expectedNumLinks, applicationMapV1_MapResponseDao.getLinks().size());
         Assert.assertEquals(expectedNumLinks, applicationMapV2_MapResponseDao.getLinks().size());
+        Assert.assertEquals(expectedNumLinks, applicationMapV2_MapResponseDao_parallelAppenders.getLinks().size());
         ApplicationMapVerifier verifier_MapResponseDao = new ApplicationMapVerifier(applicationMapV1_MapResponseDao);
         verifier_MapResponseDao.verify(applicationMapV2_MapResponseDao);
+        verifier_MapResponseDao.verify(applicationMapV2_MapResponseDao_parallelAppenders);
 
         // test builder using ResponseHistogramBuilder
         ApplicationMap applicationMapV1_ResponseHistogramBuilder = applicationMapBuilderV1.build(linkDataDuplexMap, agentInfoService, responseHistogramBuilder);
         ApplicationMap applicationMapV2_ResponseHistogramBuilder = applicationMapBuilderV2.build(linkDataDuplexMap, agentInfoService, responseHistogramBuilder);
+        ApplicationMap applicationMapV2_ResponseHistogramBuilder_parallelAppenders = applicationMapBuilderV2_parallelAppenders.build(linkDataDuplexMap, agentInfoService, responseHistogramBuilder);
         Assert.assertEquals(expectedNumNodes, applicationMapV1_ResponseHistogramBuilder.getNodes().size());
         Assert.assertEquals(expectedNumNodes, applicationMapV2_ResponseHistogramBuilder.getNodes().size());
+        Assert.assertEquals(expectedNumNodes, applicationMapV2_ResponseHistogramBuilder_parallelAppenders.getNodes().size());
         Assert.assertEquals(expectedNumLinks, applicationMapV1_ResponseHistogramBuilder.getLinks().size());
         Assert.assertEquals(expectedNumLinks, applicationMapV2_ResponseHistogramBuilder.getLinks().size());
+        Assert.assertEquals(expectedNumLinks, applicationMapV2_ResponseHistogramBuilder_parallelAppenders.getLinks().size());
         ApplicationMapVerifier verifier_ResponseHistogramBuilder = new ApplicationMapVerifier(applicationMapV1_ResponseHistogramBuilder);
         verifier_ResponseHistogramBuilder.verify(applicationMapV2_ResponseHistogramBuilder);
+        verifier_ResponseHistogramBuilder.verify(applicationMapV2_ResponseHistogramBuilder_parallelAppenders);
     }
 }
