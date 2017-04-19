@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.histogram;
 
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -28,7 +29,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author HyunGil Jeong
@@ -39,10 +44,18 @@ public class NodeHistogramAppenderFactory {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final String mode;
+    private final ExecutorService executorService;
 
     @Autowired
-    public NodeHistogramAppenderFactory(@Value("#{pinpointWebProps['web.servermap.appender.mode'] ?: 'serial'}") String mode) {
+    public NodeHistogramAppenderFactory(
+            @Value("#{pinpointWebProps['web.servermap.appender.mode'] ?: 'serial'}") String mode,
+            @Value("#{pinpointWebProps['web.servermap.appender.parallel.maxthreads'] ?: 16}") int maxThreads) {
         this.mode = mode;
+        if (this.mode.equals("parallel")) {
+            executorService = Executors.newFixedThreadPool(maxThreads, new PinpointThreadFactory("Pinpoint-node-histogram-appender", true));
+        } else {
+            executorService = null;
+        }
     }
 
     public NodeHistogramAppender createAppender(MapResponseDao mapResponseDao) {
@@ -82,6 +95,21 @@ public class NodeHistogramAppenderFactory {
 
     private NodeHistogramAppender from(NodeHistogramDataSource nodeHistogramDataSource) {
         logger.debug("NodeHistogramAppender mode : {}", mode);
+        if (mode.equals("parallel")) {
+            return new ParallelNodeHistogramAppender(nodeHistogramDataSource, executorService);
+        }
         return new SerialNodeHistogramAppender(nodeHistogramDataSource);
+    }
+
+    @PreDestroy
+    public void preDestroy() {
+        if (executorService != null) {
+            executorService.shutdown();
+            try {
+                executorService.awaitTermination(5000, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 }

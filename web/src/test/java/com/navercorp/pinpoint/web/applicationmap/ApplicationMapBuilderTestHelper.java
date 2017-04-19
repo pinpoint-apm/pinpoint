@@ -46,9 +46,16 @@ public class ApplicationMapBuilderTestHelper {
     }
 
     public static ApplicationMapBuilder createApplicationMapBuilderV2(Range range) {
-        NodeHistogramAppenderFactory nodeHistogramAppenderFactory = new NodeHistogramAppenderFactory("serial");
-        ServerInfoAppenderFactory serverInfoAppenderFactory = new ServerInfoAppenderFactory("serial");
+        NodeHistogramAppenderFactory nodeHistogramAppenderFactory = new NodeHistogramAppenderFactory("serial", 16);
+        ServerInfoAppenderFactory serverInfoAppenderFactory = new ServerInfoAppenderFactory("serial", 16);
         return new ApplicationMapBuilderV2(range, nodeHistogramAppenderFactory, serverInfoAppenderFactory);
+    }
+
+    public static ApplicationMapBuilder createApplicationMapBuilderV2_parallelAppenders(Range range) {
+        NodeHistogramAppenderFactory nodeHistogramAppenderFactory = new NodeHistogramAppenderFactory("parallel", 16);
+        ServerInfoAppenderFactory serverInfoAppenderFactory = new ServerInfoAppenderFactory("parallel", 16);
+        return new ApplicationMapBuilderV2(range, nodeHistogramAppenderFactory, serverInfoAppenderFactory);
+
     }
 
     public static int getExpectedNumNodes(int calleeDepth, int callerDepth) {

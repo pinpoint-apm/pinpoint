@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.appender.server;
 import com.navercorp.pinpoint.web.applicationmap.Node;
 import com.navercorp.pinpoint.web.applicationmap.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.slf4j.Logger;
@@ -28,6 +29,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
+import javax.annotation.PreDestroy;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author HyunGil Jeong
@@ -38,10 +43,18 @@ public class ServerInfoAppenderFactory {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final String mode;
+    private final ExecutorService executorService;
 
     @Autowired
-    public ServerInfoAppenderFactory(@Value("#{pinpointWebProps['web.servermap.appender.mode'] ?: 'serial'}") String mode) {
+    public ServerInfoAppenderFactory(
+            @Value("#{pinpointWebProps['web.servermap.appender.mode'] ?: 'serial'}") String mode,
+            @Value("#{pinpointWebProps['web.servermap.appender.parallel.maxthreads'] ?: 16}") int maxThreads) {
         this.mode = mode;
+        if (this.mode.equals("parallel")) {
+            executorService = Executors.newFixedThreadPool(maxThreads, new PinpointThreadFactory("Pinpoint-node-histogram-appender", true));
+        } else {
+            executorService = null;
+        }
     }
 
     public ServerInfoAppender createAppender(Set<AgentInfo> agentInfos) {
@@ -64,6 +77,21 @@ public class ServerInfoAppenderFactory {
 
     private ServerInfoAppender from(ServerInstanceListDataSource serverInstanceListDataSource) {
         logger.debug("ServerInfoAppender mode : {}", mode);
+        if (mode.equals("parallel")) {
+            return new ParallelServerInfoAppender(serverInstanceListDataSource, executorService);
+        }
         return new SerialServerInfoAppender(serverInstanceListDataSource);
+    }
+
+    @PreDestroy
+    public void preDestroy() {
+        if (executorService != null) {
+            executorService.shutdown();
+            try {
+                executorService.awaitTermination(5000, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 }
