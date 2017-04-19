@@ -55,6 +55,7 @@ public class ConfigController {
         result.put("showActiveThread", webProperties.isShowActiveThread());
         result.put("showActiveThreadDump", webProperties.isShowActiveThreadDump());
         result.put("showInspectorDataSource", webProperties.isShowInspectorDataSource());
+        result.put("enableServerMapRealTime", webProperties.isEnableServerMapRealTime());
         result.put("openSource", webProperties.isOpenSource());
         result.put("version", Version.VERSION);
 
