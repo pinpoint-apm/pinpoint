@@ -20,8 +20,8 @@
          * @method ServerMap#$init
          * @param {object}
          */
-        $init: function (htOption, $location, analyticsService) {
-        	this.analyticsService = analyticsService;
+        $init: function (htOption, bShowOverview, cb) {
+        	this.cbAnalytics = cb;
         	this._query = "";
             this.option({
                 "sContainerId": '',
@@ -113,7 +113,7 @@
             this._initNodeTemplates("default");
             this._initLinkTemplates();
             this._initDiagramEnvironment();
-            this._initOverview( $location );
+            this._initOverview( bShowOverview );
         },
 
         /**
@@ -560,7 +560,7 @@
                     	margin: 2,
                     	visible : false,
                     	click: function(e, o) {
-                    		self.analyticsService.send(self.analyticsService.CONST.MAIN, self.analyticsService.CONST.TG_NODE_VIEW);
+							self.cbAnalytics( "TG_NODE_VIEW" );
                     		e.bubbles = false;
                     		var isCollapse = o.part.data.isCollapse;
                     		self._oDiagram.model.setDataProperty( o.part.data, "isCollapse", !isCollapse );
@@ -873,14 +873,9 @@
                 }
             });
         },
-        /**
-         * initialize Overview
-         *
-         * @method ServerMap#_initOverview
-         */
-        _initOverview: function ( $location ) {
+        _initOverview: function ( bShowOverview ) {
 
-        	if ( /^\/main/.test( $location.path() ) ) {
+        	if ( bShowOverview ) {
 	            this._oOverview = this.$( go.Overview,
 	            		this.option("sOverviewId"),
 	            		{ observed: this._oDiagram }
@@ -1208,7 +1203,7 @@
             var node = obj.part,
             fOnNodeSubGroupClicked = this.option("fOnNodeSubGroupClicked");
 	        if (angular.isFunction(fOnNodeSubGroupClicked)) {
-	        	this.analyticsService.send(this.analyticsService.CONST.MAIN, this.analyticsService.CONST.CLK_NODE);
+				this.cbAnalytics( "CLK_NODE" );
 	        	fOnNodeSubGroupClicked.call(this, e, node, unknownKey, fromName);
 	        }
         },
@@ -1226,7 +1221,7 @@
                 fOnNodeClicked = this.option("fOnNodeClicked");
             if (angular.isFunction(fOnNodeClicked)) {
 				if ( e && e.clickCount && e.clickCount > 0 ) {
-					this.analyticsService.send(this.analyticsService.CONST.MAIN, this.analyticsService.CONST.CLK_NODE);
+					this.cbAnalytics( "CLK_NODE" );
 				}
                 fOnNodeClicked.call(this, e, htData, unknownKey, query);
             }
@@ -1275,7 +1270,7 @@
                 htData = link.data,
                 fOnLinkClicked = this.option("fOnLinkClicked");
             if (angular.isFunction(fOnLinkClicked)) {
-            	this.analyticsService.send(this.analyticsService.CONST.MAIN, this.analyticsService.CONST.CLK_LINK);
+				this.cbAnalytics( "CLK_LINK" );
                 htData.fromNode = obj.fromNode.part.data;
                 htData.toNode = obj.toNode.part.data;
                 fOnLinkClicked.call(this, e, htData);
