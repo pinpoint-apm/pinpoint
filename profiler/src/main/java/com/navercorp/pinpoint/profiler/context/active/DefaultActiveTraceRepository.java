@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.context.active;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.navercorp.pinpoint.profiler.monitor.metric.response.ReuseResponseTimeHistogram;
+import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeHistogramValue;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +35,8 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
     private static final int DEFAULT_MAX_ACTIVE_TRACE_SIZE = 1024 * 10;
     // oom safe cache
     private final ConcurrentMap<Long, ActiveTrace> activeTraceInfoMap;
+
+    private final ReuseResponseTimeHistogram reuseResponseTimeHistogram = new ReuseResponseTimeHistogram();
 
     public DefaultActiveTraceRepository() {
         this(DEFAULT_MAX_ACTIVE_TRACE_SIZE);
@@ -61,7 +65,12 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
 
     @Override
     public ActiveTrace remove(Long key) {
-        return this.activeTraceInfoMap.remove(key);
+        ActiveTrace activeTrace = this.activeTraceInfoMap.remove(key);
+        if (activeTrace != null) {
+            long responseTime = System.currentTimeMillis() - activeTrace.getStartTime();
+            reuseResponseTimeHistogram.add(responseTime);
+        }
+        return activeTrace;
     }
 
     // @ThreadSafe
@@ -84,6 +93,11 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
             }
         }
         return collectData;
+    }
+
+    @Override
+    public ResponseTimeHistogramValue getLatestCompletedActiveTraceResponseTimeHistogram() {
+        return reuseResponseTimeHistogram.resetAndGetValue();
     }
 
 }
