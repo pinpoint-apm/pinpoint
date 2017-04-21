@@ -19,12 +19,11 @@ package com.navercorp.pinpoint.profiler.monitor.metric.rpc;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.TraceFactory;
-import com.navercorp.pinpoint.profiler.context.TraceFactoryWrapper;
 
 /**
  * @author emeroad
  */
-public class MetricTraceFactory implements TraceFactory, TraceFactoryWrapper {
+public class MetricTraceFactory implements TraceFactory {
     private final TraceFactory delegate;
     private final MetricRegistry metricRegistry;
 
@@ -41,15 +40,6 @@ public class MetricTraceFactory implements TraceFactory, TraceFactoryWrapper {
 
     public static TraceFactory wrap(TraceFactory traceFactory, ServiceType serviceType) {
         return new MetricTraceFactory(traceFactory, serviceType);
-    }
-
-    @Override
-    public TraceFactory unwrap() {
-        final TraceFactory copy = this.delegate;
-        if (copy instanceof TraceFactoryWrapper) {
-            return ((TraceFactoryWrapper) copy).unwrap();
-        }
-        return copy;
     }
 
     @Override

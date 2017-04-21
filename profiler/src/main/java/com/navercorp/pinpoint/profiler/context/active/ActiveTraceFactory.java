@@ -20,14 +20,13 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.profiler.context.TraceFactory;
-import com.navercorp.pinpoint.profiler.context.TraceFactoryWrapper;
 
 /**
  * @author Taejin Koo
  * @author emeroad
  * @author HyunGil Jeong
  */
-public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
+public class ActiveTraceFactory implements TraceFactory {
 
     private final TraceFactory delegate;
     private final ActiveTraceRepository activeTraceRepository;
@@ -46,15 +45,6 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
 
     public static TraceFactory wrap(TraceFactory traceFactory, ActiveTraceRepository activeTraceRepository) {
         return new ActiveTraceFactory(traceFactory, activeTraceRepository);
-    }
-
-    @Override
-    public TraceFactory unwrap() {
-        final TraceFactory copy = this.delegate;
-        if (copy instanceof TraceFactoryWrapper) {
-            return ((TraceFactoryWrapper) copy).unwrap();
-        }
-        return copy;
     }
 
     @Override
