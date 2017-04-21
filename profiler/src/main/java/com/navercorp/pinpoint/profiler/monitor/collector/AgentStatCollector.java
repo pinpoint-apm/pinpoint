@@ -92,9 +92,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
         agentStat.setTransaction(transactionMetricCollector.collect());
         agentStat.setActiveTrace(activeTraceMetricCollector.collect());
         agentStat.setDataSourceList(dataSourceMetricCollector.collect());
-
-        // will remove comment,
-        // agentStat.setResponseTime(responseTimeMetricCollector.collect());
+        agentStat.setResponseTime(responseTimeMetricCollector.collect());
 
         return agentStat;
     }

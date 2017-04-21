@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.web.dao.stat.ActiveTraceDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
@@ -29,6 +30,7 @@ import com.navercorp.pinpoint.web.dao.stat.CpuLoadDao;
 import com.navercorp.pinpoint.web.dao.stat.DataSourceDao;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDao;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDetailedDao;
+import com.navercorp.pinpoint.web.dao.stat.ResponseTimeDao;
 import com.navercorp.pinpoint.web.dao.stat.TransactionDao;
 import com.navercorp.pinpoint.web.vo.Range;
 import org.apache.commons.collections.CollectionUtils;
@@ -100,6 +102,12 @@ public abstract class HbaseAgentStatDualReadDao<T extends AgentStatDataPoint> im
 
     public static class DataSourceDualReadDao extends HbaseAgentStatDualReadDao<DataSourceListBo> implements DataSourceDao {
         public DataSourceDualReadDao(AgentStatDao<DataSourceListBo> master, AgentStatDao<DataSourceListBo> slave) {
+            super(master, slave);
+        }
+    }
+
+    public static class ResponseTimeDualReadDao extends HbaseAgentStatDualReadDao<ResponseTimeBo> implements ResponseTimeDao {
+        public ResponseTimeDualReadDao(AgentStatDao<ResponseTimeBo> master, AgentStatDao<ResponseTimeBo> slave) {
             super(master, slave);
         }
     }

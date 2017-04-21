@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.SlotType;
@@ -258,6 +259,27 @@ public class TestAgentStatFactory {
             activeTraceBos.add(activeTraceBo);
         }
         return activeTraceBos;
+    }
+
+    public static List<ResponseTimeBo> createResponseTimeBos(String agentId, long startTimestamp, long initialTimestamp) {
+        final int numValues = RANDOM.nextInt(MAX_NUM_TEST_VALUES) + 1;
+        return createResponseTimeBos(agentId, startTimestamp, initialTimestamp, numValues);
+    }
+
+    public static List<ResponseTimeBo> createResponseTimeBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
+        List<ResponseTimeBo> responseTimeBos = new ArrayList<ResponseTimeBo>(numValues);
+        List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
+        List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
+        List<Long> avgs = TestAgentStatDataPointFactory.LONG.createRandomValues(0L, 1000L, numValues);
+        for (int i = 0; i < numValues; ++i) {
+            ResponseTimeBo responseTimeBo = new ResponseTimeBo();
+            responseTimeBo.setAgentId(agentId);
+            responseTimeBo.setStartTimestamp(startTimestamps.get(i));
+            responseTimeBo.setTimestamp(timestamps.get(i));
+            responseTimeBo.setAvg(avgs.get(i));
+            responseTimeBos.add(responseTimeBo);
+        }
+        return responseTimeBos;
     }
 
     private static final int MIN_VALUE_OF_MAX_CONNECTION_SIZE = 20;
