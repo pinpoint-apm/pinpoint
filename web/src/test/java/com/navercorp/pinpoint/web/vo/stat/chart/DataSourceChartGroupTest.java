@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -46,7 +46,6 @@ import static org.mockito.Mockito.when;
  */
 public class DataSourceChartGroupTest {
 
-    private static final Random RANDOM = new Random(System.currentTimeMillis());
     private static final int MIN_VALUE_OF_MAX_CONNECTION_SIZE = 20;
     private static final int CREATE_TEST_OBJECT_MAX_SIZE = 10;
 
@@ -89,7 +88,7 @@ public class DataSourceChartGroupTest {
     private List<SampledDataSource> createSampledDataSourceList(TimeWindow timeWindow) {
         List<SampledDataSource> sampledDataSourceList = new ArrayList<>();
 
-        int maxConnectionSize = RANDOM.nextInt(MIN_VALUE_OF_MAX_CONNECTION_SIZE) + MIN_VALUE_OF_MAX_CONNECTION_SIZE;
+        int maxConnectionSize = ThreadLocalRandom.current().nextInt(MIN_VALUE_OF_MAX_CONNECTION_SIZE) + MIN_VALUE_OF_MAX_CONNECTION_SIZE;
 
         long from = timeWindow.getWindowRange().getFrom();
         long to = timeWindow.getWindowRange().getTo();
@@ -102,7 +101,7 @@ public class DataSourceChartGroupTest {
     }
 
     private SampledDataSource createSampledDataSource(long timestamp, int maxConnectionSize) {
-        int testObjectSize = RANDOM.nextInt(CREATE_TEST_OBJECT_MAX_SIZE) + 1;
+        int testObjectSize = ThreadLocalRandom.current().nextInt(CREATE_TEST_OBJECT_MAX_SIZE) + 1;
         List<DataSourceBo> dataSourceBoList = DataSourceTestUtils.createDataSourceBoList(1, testObjectSize, maxConnectionSize);
         return sampler.sampleDataPoints(0, timestamp, dataSourceBoList, null);
     }

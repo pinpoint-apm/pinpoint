@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TDataSource;
@@ -57,6 +58,9 @@ public class AgentStatMapper implements ThriftBoMapper<AgentStatBo, TAgentStat> 
 
     @Autowired
     private DataSourceBoMapper dataSourceBoMapper;
+
+    @Autowired
+    private ResponseTimeBoMapper responseTimeBoMapper;
 
     @Override
     public AgentStatBo map(TAgentStat tAgentStat) {
@@ -101,7 +105,6 @@ public class AgentStatMapper implements ThriftBoMapper<AgentStatBo, TAgentStat> 
             setBaseData(activeTraceBo, agentId, startTimestamp, timestamp);
             agentStatBo.setActiveTraceBos(Arrays.asList(activeTraceBo));
         }
-
         // datasource
         if (tAgentStat.isSetDataSourceList()) {
             DataSourceListBo dataSourceListBo = new DataSourceListBo();
@@ -114,6 +117,12 @@ public class AgentStatMapper implements ThriftBoMapper<AgentStatBo, TAgentStat> 
                 dataSourceListBo.add(dataSourceBo);
             }
             agentStatBo.setDataSourceListBos(Arrays.asList(dataSourceListBo));
+        }
+        // response time
+        if (tAgentStat.isSetResponseTime()) {
+            ResponseTimeBo responseTimeBo = this.responseTimeBoMapper.map(tAgentStat.getResponseTime());
+            setBaseData(responseTimeBo, agentId, startTimestamp, timestamp);
+            agentStatBo.setResponseTimeBos(Arrays.asList(responseTimeBo));
         }
 
         return agentStatBo;

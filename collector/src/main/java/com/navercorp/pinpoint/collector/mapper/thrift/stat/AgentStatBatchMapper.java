@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
@@ -60,6 +61,9 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
     @Autowired
     private DataSourceBoMapper dataSourceBoMapper;
 
+    @Autowired
+    private ResponseTimeBoMapper responseTimeBoMapper;
+
     @Override
     public AgentStatBo map(TAgentStatBatch tAgentStatBatch) {
         if (!tAgentStatBatch.isSetAgentStats()) {
@@ -69,12 +73,16 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
         final String agentId = tAgentStatBatch.getAgentId();
         final long startTimestamp = tAgentStatBatch.getStartTimestamp();
         agentStatBo.setAgentId(agentId);
-        List<JvmGcBo> jvmGcBos = new ArrayList<>(tAgentStatBatch.getAgentStatsSize());
-        List<JvmGcDetailedBo> jvmGcDetailedBos = new ArrayList<>(tAgentStatBatch.getAgentStatsSize());
-        List<CpuLoadBo> cpuLoadBos = new ArrayList<>(tAgentStatBatch.getAgentStatsSize());
-        List<TransactionBo> transactionBos = new ArrayList<>(tAgentStatBatch.getAgentStatsSize());
-        List<ActiveTraceBo> activeTraceBos = new ArrayList<>(tAgentStatBatch.getAgentStatsSize());
-        List<DataSourceListBo> dataSourceListBos = new ArrayList<DataSourceListBo>(tAgentStatBatch.getAgentStatsSize());
+
+        int agentStatsSize = tAgentStatBatch.getAgentStatsSize();
+
+        List<JvmGcBo> jvmGcBos = new ArrayList<>(agentStatsSize);
+        List<JvmGcDetailedBo> jvmGcDetailedBos = new ArrayList<>(agentStatsSize);
+        List<CpuLoadBo> cpuLoadBos = new ArrayList<>(agentStatsSize);
+        List<TransactionBo> transactionBos = new ArrayList<>(agentStatsSize);
+        List<ActiveTraceBo> activeTraceBos = new ArrayList<>(agentStatsSize);
+        List<DataSourceListBo> dataSourceListBos = new ArrayList<DataSourceListBo>(agentStatsSize);
+        List<ResponseTimeBo> responseTimeBos = new ArrayList<>(agentStatsSize);
         for (TAgentStat tAgentStat : tAgentStatBatch.getAgentStats()) {
             final long timestamp = tAgentStat.getTimestamp();
             // jvmGc
@@ -126,13 +134,22 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
                 }
                 dataSourceListBos.add(dataSourceListBo);
             }
+
+            // response time
+            if (tAgentStat.isSetResponseTime()) {
+                ResponseTimeBo responseTimeBo = this.responseTimeBoMapper.map(tAgentStat.getResponseTime());
+                setBaseData(responseTimeBo, agentId, startTimestamp, timestamp);
+                responseTimeBos.add(responseTimeBo);
+            }
         }
+
         agentStatBo.setJvmGcBos(jvmGcBos);
         agentStatBo.setJvmGcDetailedBos(jvmGcDetailedBos);
         agentStatBo.setCpuLoadBos(cpuLoadBos);
         agentStatBo.setTransactionBos(transactionBos);
         agentStatBo.setActiveTraceBos(activeTraceBos);
         agentStatBo.setDataSourceListBos(dataSourceListBos);
+        agentStatBo.setResponseTimeBos(responseTimeBos);
         return agentStatBo;
     }
 
