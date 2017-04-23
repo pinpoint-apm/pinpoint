@@ -84,16 +84,6 @@ public class TcpDispatchHandler extends AbstractDispatchHandler {
     }
     
     @Override
-    Handler getHandler(TBase<?, ?> tBase) {
-    // To change below code to switch table make it a little bit faster.
-    // FIXME (2014.08) Legacy - TAgentStats should not be sent over the wire.
-		if (tBase instanceof TAgentStat || tBase instanceof TAgentStatBatch) {
-			return agentStatHandler;
-		}
-		return null;
-	}
-    
-    @Override
     SimpleHandler getSimpleHandler(TBase<?, ?> tBase) {
 
 		if (tBase instanceof TAgentInfo) {

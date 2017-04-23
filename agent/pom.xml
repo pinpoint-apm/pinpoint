@@ -330,6 +330,7 @@
                     </descriptors>
                     <outputDirectory>${project.build.directory}</outputDirectory>
                     <appendAssemblyId>false</appendAssemblyId>
+			<tarLongFileMode>posix</tarLongFileMode>
                 </configuration>
                 <executions>
                     <execution>
