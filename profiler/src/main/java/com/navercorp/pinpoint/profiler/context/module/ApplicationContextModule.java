@@ -22,6 +22,7 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.TransportType;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
@@ -230,14 +231,17 @@ public class ApplicationContextModule extends AbstractModule {
         bind(PinpointClient.class).toProvider(PinpointClientProvider.class).in(Scopes.SINGLETON);
 
 		bind(CommandDispatcher.class).toProvider(CommandDispatcherProvider.class).in(Scopes.SINGLETON);
-		if (this.profilerConfig.isAllTcpEnable()) {
+		if (this.profilerConfig.getSpanTransportType().equals(TransportType.TCP.type())) {
 			bind(DataSender.class).annotatedWith(SpanDataSender.class).toProvider(TcpDataSenderProvider.class)
-					.in(Scopes.SINGLETON);
-			bind(DataSender.class).annotatedWith(StatDataSender.class).toProvider(TcpDataSenderProvider.class)
 					.in(Scopes.SINGLETON);
 		} else {
 			bind(DataSender.class).annotatedWith(SpanDataSender.class).toProvider(UdpSpanDataSenderProvider.class)
 					.in(Scopes.SINGLETON);
+		}
+		if (this.profilerConfig.getStatTransportType().equals(TransportType.TCP.type())) {
+			bind(DataSender.class).annotatedWith(StatDataSender.class).toProvider(TcpDataSenderProvider.class)
+					.in(Scopes.SINGLETON);
+		} else {
 			bind(DataSender.class).annotatedWith(StatDataSender.class).toProvider(UdpStatDataSenderProvider.class)
 					.in(Scopes.SINGLETON);
 		}

@@ -46,6 +46,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Deprecated
     public static final String INSTRUMENT_ENGINE_JAVASSIST = "JAVASSIST";
     public static final String INSTRUMENT_ENGINE_ASM = "ASM";
+    public static final String TCP_TRANSPORT = "TCP";
+    
+    private static final String DEFAULT_TRANSPORT = "UDP";
+    
 
     public interface ValueResolver {
         String resolve(String value, Properties properties);
@@ -87,7 +91,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         }
     }
 
-    private boolean allTcpEnable = false;
+    private String spanTransportType = DEFAULT_TRANSPORT;
+    
+    private String statTransportType = DEFAULT_TRANSPORT;
 
     private boolean profileEnable = false;
 
@@ -168,10 +174,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         readPropertyValues();
     }
 
-    @Override
-    public boolean isAllTcpEnable() { 
-    	return allTcpEnable; }
-    
     @Override
     public int getInterceptorRegistrySize() {
         return interceptorRegistrySize;
@@ -408,7 +410,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     void readPropertyValues() {
         // TODO : use Properties' default value instead of using a temp variable.
         final ValueResolver placeHolderResolver = new PlaceHolderResolver();
-        this.allTcpEnable = readBoolean("profiler.all.tcp.enable", true);
+        this.spanTransportType = readString("profiler.collector.span.transport.type", DEFAULT_TRANSPORT);
+        this.statTransportType = readString("profiler.collector.stat.transport.type", DEFAULT_TRANSPORT);
         this.profileEnable = readBoolean("profiler.enable", true);
         this.profileInstrumentEngine = readString("profiler.instrument.engine", INSTRUMENT_ENGINE_ASM);
 
@@ -600,8 +603,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         StringBuilder builder = new StringBuilder(1024);
         builder.append("DefaultProfilerConfig{properties=");
         builder.append(properties);
-        builder.append(", allTcpEnable=");
-        builder.append(allTcpEnable);
+        builder.append(", statTransportType=");
+        builder.append(statTransportType);
+        builder.append(", spanTransportType=");
+        builder.append(spanTransportType);
         builder.append(", interceptorRegistrySize=");
         builder.append(interceptorRegistrySize);
         builder.append(", propertyPlaceholderHelper=");
@@ -689,5 +694,17 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append("}");
         return builder.toString();
     }
+
+	@Override
+	public String getSpanTransportType() {
+		
+		return spanTransportType;
+	}
+
+	@Override
+	public String getStatTransportType() {
+		
+		return statTransportType;
+	}
 
 }
