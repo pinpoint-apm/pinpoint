@@ -235,6 +235,7 @@ public class ApplicationContextModule extends AbstractModule {
         bind(PinpointClient.class).toProvider(PinpointClientProvider.class).in(Scopes.SINGLETON);
 
 		bind(CommandDispatcher.class).toProvider(CommandDispatcherProvider.class).in(Scopes.SINGLETON);
+<<<<<<< HEAD
 		if (this.profilerConfig.getSpanTransportType().equals(TransportType.TCP.type())) {
 			bind(DataSender.class).annotatedWith(SpanDataSender.class).toProvider(TcpDataSenderProvider.class)
 					.in(Scopes.SINGLETON);
@@ -246,6 +247,16 @@ public class ApplicationContextModule extends AbstractModule {
 			bind(DataSender.class).annotatedWith(StatDataSender.class).toProvider(TcpDataSenderProvider.class)
 					.in(Scopes.SINGLETON);
 		} else {
+=======
+		if (this.profilerConfig.isAllTcpEnable()) {
+			bind(DataSender.class).annotatedWith(SpanDataSender.class).toProvider(TcpDataSenderProvider.class)
+					.in(Scopes.SINGLETON);
+			bind(DataSender.class).annotatedWith(StatDataSender.class).toProvider(TcpDataSenderProvider.class)
+					.in(Scopes.SINGLETON);
+		} else {
+			bind(DataSender.class).annotatedWith(SpanDataSender.class).toProvider(UdpSpanDataSenderProvider.class)
+					.in(Scopes.SINGLETON);
+>>>>>>> 66f5988d80b9459cb3469b75cfd1d35042abac43
 			bind(DataSender.class).annotatedWith(StatDataSender.class).toProvider(UdpStatDataSenderProvider.class)
 					.in(Scopes.SINGLETON);
 		}
