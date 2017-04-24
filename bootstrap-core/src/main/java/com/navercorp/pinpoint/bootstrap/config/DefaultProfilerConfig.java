@@ -91,7 +91,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         }
     }
 
-
     private String spanTransportType = DEFAULT_TRANSPORT;
     
     private String statTransportType = DEFAULT_TRANSPORT;
@@ -176,7 +175,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         readPropertyValues();
     }
 
-    
     @Override
     public int getInterceptorRegistrySize() {
         return interceptorRegistrySize;
@@ -414,8 +412,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         // TODO : use Properties' default value instead of using a temp variable.
         final ValueResolver placeHolderResolver = new PlaceHolderResolver();
 
+
         this.spanTransportType = readString("profiler.collector.span.transport.type", DEFAULT_TRANSPORT);
         this.statTransportType = readString("profiler.collector.stat.transport.type", DEFAULT_TRANSPORT);
+
 
         this.profileEnable = readBoolean("profiler.enable", true);
         this.profileInstrumentEngine = readString("profiler.instrument.engine", INSTRUMENT_ENGINE_ASM);
