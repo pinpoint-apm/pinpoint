@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
@@ -34,6 +35,7 @@ import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
 import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
+import com.navercorp.pinpoint.thrift.dto.TResponseTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -42,7 +44,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.fail;
@@ -77,6 +78,9 @@ public class AgentStatHandlerV2Test {
     @Mock
     private AgentStatDaoV2<DataSourceListBo> dataSourceDao;
 
+    @Mock
+    private AgentStatDaoV2<ResponseTimeBo> responseTimeDao;
+
     @InjectMocks
     private HBaseAgentStatService hBaseAgentStatService = new HBaseAgentStatService();
 
@@ -109,6 +113,7 @@ public class AgentStatHandlerV2Test {
         verify(transactionDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getTransactionBos());
         verify(activeTraceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getActiveTraceBos());
         verify(dataSourceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDataSourceListBos());
+        verify(responseTimeDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getResponseTimeBos());
     }
 
     @Test
@@ -129,6 +134,7 @@ public class AgentStatHandlerV2Test {
         verify(transactionDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getTransactionBos());
         verify(activeTraceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getActiveTraceBos());
         verify(dataSourceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDataSourceListBos());
+        verify(responseTimeDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getResponseTimeBos());
     }
 
     @Test
@@ -148,6 +154,7 @@ public class AgentStatHandlerV2Test {
         verifyZeroInteractions(transactionDao);
         verifyZeroInteractions(activeTraceDao);
         verifyZeroInteractions(dataSourceDao);
+        verifyZeroInteractions(responseTimeDao);
     }
 
     @Test
@@ -168,6 +175,7 @@ public class AgentStatHandlerV2Test {
         verifyZeroInteractions(transactionDao);
         verifyZeroInteractions(activeTraceDao);
         verifyZeroInteractions(dataSourceDao);
+        verifyZeroInteractions(responseTimeDao);
     }
 
     @Test(expected=IllegalArgumentException.class)
@@ -199,6 +207,7 @@ public class AgentStatHandlerV2Test {
         agentStat.setGc(new TJvmGc());
         agentStat.setCpuLoad(new TCpuLoad());
         agentStat.setDataSourceList(new TDataSourceList());
+        agentStat.setResponseTime(new TResponseTime());
         return agentStat;
     }
 

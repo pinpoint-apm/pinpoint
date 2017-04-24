@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context;
+package com.navercorp.pinpoint.web.dao.stat;
+
+import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 
 /**
- * @author emeroad
+ * @author Taejin Koo
  */
-public interface TraceFactoryWrapper {
-
-    TraceFactory unwrap();
-
+public interface ResponseTimeDao extends AgentStatDao<ResponseTimeBo> {
 }

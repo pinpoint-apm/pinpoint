@@ -16,8 +16,14 @@
 package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.dao.AgentStatDaoV2;
-import com.navercorp.pinpoint.collector.handler.AgentStatHandlerV2;
-import com.navercorp.pinpoint.common.server.bo.stat.*;
+import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
+import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +54,11 @@ public class HBaseAgentStatService implements AgentStatService {
 
     @Autowired
     private AgentStatDaoV2<DataSourceListBo> dataSourceListDao;
-    @Override
 
+    @Autowired
+    private AgentStatDaoV2<ResponseTimeBo> responseTimeDao;
+
+    @Override
     public void save(AgentStatBo agentStatBo) {
         final String agentId = agentStatBo.getAgentId();
         try {
@@ -59,6 +68,7 @@ public class HBaseAgentStatService implements AgentStatService {
             this.transactionDao.insert(agentId, agentStatBo.getTransactionBos());
             this.activeTraceDao.insert(agentId, agentStatBo.getActiveTraceBos());
             this.dataSourceListDao.insert(agentId, agentStatBo.getDataSourceListBos());
+            this.responseTimeDao.insert(agentId, agentStatBo.getResponseTimeBos());
         } catch (Exception e) {
             logger.warn("Error inserting AgentStatBo. Caused:{}", e.getMessage(), e);
         }

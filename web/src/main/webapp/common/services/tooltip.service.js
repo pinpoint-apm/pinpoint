@@ -9,6 +9,10 @@
 	 * @class
 	 */
 	pinpointApp.constant('TooltipServiceConfig', {
+		"serverMap": {
+			"position": "bottom-right",
+			"trigger": "click"
+		},
 		"scatter": {
 			"position": "bottom",
 			"trigger": "click"
@@ -83,6 +87,8 @@
 
 		function getTooltipStr( type ) {
 			switch( type ) {
+				case "serverMap":
+					return function() { return helpContentTemplate(helpContentService.servermap["default"]); };
 				case "scatter":
 					return function() { return helpContentTemplate(helpContentService.scatter["default"]); };
 				case "navbar":

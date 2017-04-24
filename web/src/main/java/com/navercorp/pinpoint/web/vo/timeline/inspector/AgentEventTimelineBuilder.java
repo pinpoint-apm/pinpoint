@@ -32,7 +32,7 @@ import java.util.TreeMap;
  */
 public class AgentEventTimelineBuilder {
 
-    private static final int DEFAULT_NUM_TIMESLOTS = 100;
+    private static final int DEFAULT_NUM_TIMESLOTS = 50;
 
     private final long timelineStartTimestamp;
     private final long timelineEndTimestamp;

@@ -17,9 +17,9 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classreading;
 
-
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -36,18 +36,27 @@ public class DefaultSimpleClassMetadata implements SimpleClassMetadata {
 
     private final String superClassName;
 
-    private final List<String> interfaceNameList;
+    private final List<String> interfaceNames;
 
     private final byte[] classBinary;
 
-    private Class<?> definedClass;
-
-    public DefaultSimpleClassMetadata(int version, int accessFlag, String className, String superClassName, String[] interfaceNameList, byte[] classBinary) {
+    public DefaultSimpleClassMetadata(final int version, final int accessFlag, final String classInternalName, final String superClassInternalName, final List<String> interfaceInternalNames, final byte[] classBinary) {
         this.version = version;
         this.accessFlag = accessFlag;
-        this.className = JavaAssistUtils.jvmNameToJavaName(className);
-        this.superClassName = JavaAssistUtils.jvmNameToJavaName(superClassName);
-        this.interfaceNameList = JavaAssistUtils.jvmNameToJavaName(interfaceNameList);
+        this.className = JavaAssistUtils.jvmNameToJavaName(classInternalName);
+
+        if (superClassInternalName == null) {
+            this.superClassName = null;
+        } else {
+            this.superClassName = JavaAssistUtils.jvmNameToJavaName(superClassInternalName);
+        }
+
+        if (interfaceInternalNames == null) {
+            this.interfaceNames = Collections.EMPTY_LIST;
+        } else {
+            this.interfaceNames = Collections.unmodifiableList(JavaAssistUtils.jvmNameToJavaName(interfaceInternalNames));
+        }
+
         this.classBinary = classBinary;
     }
 
@@ -72,20 +81,11 @@ public class DefaultSimpleClassMetadata implements SimpleClassMetadata {
 
     @Override
     public List<String> getInterfaceNames() {
-        return interfaceNameList;
+        return interfaceNames;
     }
 
     @Override
     public byte[] getClassBinary() {
         return classBinary;
-    }
-
-    public void setDefinedClass(final Class<?> definedClass) {
-        this.definedClass = definedClass;
-    }
-
-    @Override
-    public Class<?> getDefinedClass() {
-        return this.definedClass;
     }
 }

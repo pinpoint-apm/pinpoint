@@ -50,7 +50,16 @@ public class SpanEvent extends TSpanEvent implements FrameAttachment {
         this.addToAnnotations(annotation);
     }
 
-    public void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
+    public void setExceptionInfo(boolean markError, int exceptionClassId, String exceptionMessage) {
+        setExceptionInfo(exceptionClassId, exceptionMessage);
+        if (markError) {
+            if (!span.isSetErrCode()) {
+                span.setErrCode(1);
+            }
+        }
+    }
+
+    void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
         final TIntStringValue exceptionInfo = new TIntStringValue(exceptionClassId);
         if (StringUtils.isNotEmpty(exceptionMessage)) {
             exceptionInfo.setStringValue(exceptionMessage);

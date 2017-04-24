@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.web.dao.hbase.stat.compatibility.HbaseAgentStatDualReadDao;
 import com.navercorp.pinpoint.web.dao.stat.ActiveTraceDao;
@@ -32,6 +33,7 @@ import com.navercorp.pinpoint.web.dao.stat.CpuLoadDao;
 import com.navercorp.pinpoint.web.dao.stat.DataSourceDao;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDao;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDetailedDao;
+import com.navercorp.pinpoint.web.dao.stat.ResponseTimeDao;
 import com.navercorp.pinpoint.web.dao.stat.TransactionDao;
 import org.apache.hadoop.hbase.TableName;
 import org.slf4j.Logger;
@@ -295,6 +297,40 @@ abstract class AgentStatDaoFactory<T extends AgentStatDataPoint, D extends Agent
         @Override
         DataSourceDao getCompatibilityDao(DataSourceDao v1, DataSourceDao v2) {
             return new HbaseAgentStatDualReadDao.DataSourceDualReadDao(v2, v1);
+        }
+    }
+
+    @Repository("responseTimeDaoFactory")
+    public static class ResponseTimeDaoFactory extends AgentStatDaoFactory<ResponseTimeBo, ResponseTimeDao> implements FactoryBean<ResponseTimeDao> {
+
+        @Autowired
+        public void setV1(@Qualifier("responseTimeDaoV1") ResponseTimeDao v1) {
+            this.v1 = v1;
+        }
+
+        @Autowired
+        public void setV2(@Qualifier("responseTimeDaoV2") ResponseTimeDao v2) {
+            this.v2 = v2;
+        }
+
+        @Override
+        public ResponseTimeDao getObject() throws Exception {
+            return super.getDao();
+        }
+
+        @Override
+        public Class<?> getObjectType() {
+            return ResponseTimeDao.class;
+        }
+
+        @Override
+        public boolean isSingleton() {
+            return true;
+        }
+
+        @Override
+        ResponseTimeDao getCompatibilityDao(ResponseTimeDao v1, ResponseTimeDao v2) {
+            return new HbaseAgentStatDualReadDao.ResponseTimeDualReadDao(v2, v1);
         }
     }
 

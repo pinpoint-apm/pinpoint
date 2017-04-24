@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.bootstrap.config.TransportType;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
-import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
@@ -39,10 +38,6 @@ import com.navercorp.pinpoint.profiler.DynamicTransformerRegistry;
 import com.navercorp.pinpoint.profiler.JvmInformation;
 import com.navercorp.pinpoint.profiler.context.CallStackFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultCallStackFactory;
-import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
-import com.navercorp.pinpoint.profiler.context.monitor.DefaultJdbcContext;
-import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
-import com.navercorp.pinpoint.profiler.context.recorder.DefaultRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultSpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultSpanFactory;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
@@ -57,6 +52,9 @@ import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionCounter;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
+import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
+import com.navercorp.pinpoint.profiler.context.monitor.DefaultJdbcContext;
+import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
 import com.navercorp.pinpoint.profiler.context.provider.ActiveTraceRepositoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AgentInfoSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AgentInformationProvider;
@@ -91,32 +89,38 @@ import com.navercorp.pinpoint.profiler.context.provider.stat.datasource.DataSour
 import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.GarbageCollectorMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.JvmGcMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.MemoryMetricProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.response.ResponseTimeMetricCollectorProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.response.ResponseTimeMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.transaction.TransactionMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.transaction.TransactionMetricProvider;
+import com.navercorp.pinpoint.profiler.context.recorder.DefaultRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.DefaultSqlMetaDataService;
-import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.DefaultStringMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
-import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatCollector;
-import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DefaultAgentStatMonitor;
+import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.activethread.ActiveTraceMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.cpu.CpuLoadMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.datasource.DataSourceMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.jvmgc.JvmGcMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.response.ResponseTimeMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.transaction.TransactionMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.activethread.ActiveTraceMetric;
-import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetric;
-import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.MemoryMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetric;
+import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
@@ -231,6 +235,7 @@ public class ApplicationContextModule extends AbstractModule {
         bind(PinpointClient.class).toProvider(PinpointClientProvider.class).in(Scopes.SINGLETON);
 
 		bind(CommandDispatcher.class).toProvider(CommandDispatcherProvider.class).in(Scopes.SINGLETON);
+
 		if (this.profilerConfig.getSpanTransportType().equals(TransportType.TCP.type())) {
 			bind(DataSender.class).annotatedWith(SpanDataSender.class).toProvider(TcpDataSenderProvider.class)
 					.in(Scopes.SINGLETON);
@@ -242,8 +247,10 @@ public class ApplicationContextModule extends AbstractModule {
 			bind(DataSender.class).annotatedWith(StatDataSender.class).toProvider(TcpDataSenderProvider.class)
 					.in(Scopes.SINGLETON);
 		} else {
-			bind(DataSender.class).annotatedWith(StatDataSender.class).toProvider(UdpStatDataSenderProvider.class)
+
+			bind(DataSender.class).annotatedWith(SpanDataSender.class).toProvider(UdpSpanDataSenderProvider.class)
 					.in(Scopes.SINGLETON);
+
 		}
         
     }
@@ -276,6 +283,9 @@ public class ApplicationContextModule extends AbstractModule {
 
         bind(ActiveTraceMetric.class).toProvider(ActiveTraceMetricProvider.class).in(Scopes.SINGLETON);
         bind(ActiveTraceMetricCollector.class).toProvider(ActiveTraceMetricCollectorProvider.class).in(Scopes.SINGLETON);
+
+        bind(ResponseTimeMetric.class).toProvider(ResponseTimeMetricProvider.class).in(Scopes.SINGLETON);
+        bind(ResponseTimeMetricCollector.class).toProvider(ResponseTimeMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         bind(DataSourceMetric.class).toProvider(DataSourceMetricProvider.class).in(Scopes.SINGLETON);
         bind(DataSourceMetricCollector.class).toProvider(DataSourceMetricCollectorProvider.class).in(Scopes.SINGLETON);

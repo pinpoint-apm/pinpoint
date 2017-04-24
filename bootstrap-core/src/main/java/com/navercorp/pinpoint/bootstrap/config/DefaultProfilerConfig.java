@@ -95,6 +95,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     
     private String statTransportType = DEFAULT_TRANSPORT;
 
+
     private boolean profileEnable = false;
 
     private String profileInstrumentEngine = INSTRUMENT_ENGINE_ASM;
@@ -174,6 +175,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         readPropertyValues();
     }
 
+<<<<<<< HEAD
+=======
+    
+>>>>>>> master
     @Override
     public int getInterceptorRegistrySize() {
         return interceptorRegistrySize;
@@ -410,8 +415,15 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     void readPropertyValues() {
         // TODO : use Properties' default value instead of using a temp variable.
         final ValueResolver placeHolderResolver = new PlaceHolderResolver();
+<<<<<<< HEAD
         this.spanTransportType = readString("profiler.collector.span.transport.type", DEFAULT_TRANSPORT);
         this.statTransportType = readString("profiler.collector.stat.transport.type", DEFAULT_TRANSPORT);
+=======
+
+        this.spanTransportType = readString("profiler.collector.span.transport.type", DEFAULT_TRANSPORT);
+        this.statTransportType = readString("profiler.collector.stat.transport.type", DEFAULT_TRANSPORT);
+
+>>>>>>> master
         this.profileEnable = readBoolean("profiler.enable", true);
         this.profileInstrumentEngine = readString("profiler.instrument.engine", INSTRUMENT_ENGINE_ASM);
 
@@ -603,10 +615,18 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         StringBuilder builder = new StringBuilder(1024);
         builder.append("DefaultProfilerConfig{properties=");
         builder.append(properties);
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
         builder.append(", statTransportType=");
         builder.append(statTransportType);
         builder.append(", spanTransportType=");
         builder.append(spanTransportType);
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
         builder.append(", interceptorRegistrySize=");
         builder.append(interceptorRegistrySize);
         builder.append(", propertyPlaceholderHelper=");
@@ -695,6 +715,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return builder.toString();
     }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
 	@Override
 	public String getSpanTransportType() {
 		

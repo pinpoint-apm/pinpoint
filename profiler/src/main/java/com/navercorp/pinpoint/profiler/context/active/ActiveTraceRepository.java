@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context.active;
 
+import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
+
 import java.util.List;
 
 /**
@@ -28,5 +30,7 @@ public interface ActiveTraceRepository {
     ActiveTrace remove(Long key);
 
     List<ActiveTraceInfo> collect();
+
+    ResponseTimeValue getLatestCompletedActiveTraceResponseTimeValue();
 
 }

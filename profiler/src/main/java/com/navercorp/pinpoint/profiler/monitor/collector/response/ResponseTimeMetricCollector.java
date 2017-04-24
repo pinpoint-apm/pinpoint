@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.monitor.collector.response;
 
-import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
+import com.navercorp.pinpoint.thrift.dto.TResponseTime;
 
 /**
- * @author emeroad
+ * @author Taejin Koo
  */
-public interface TraceWrapper {
-    Trace unwrap();
-
-    void wrap(Trace trace);
+public interface ResponseTimeMetricCollector extends AgentStatMetricCollector<TResponseTime> {
 }

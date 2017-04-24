@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.web.dao.stat.SampledCpuLoadDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledDataSourceDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledJvmGcDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledJvmGcDetailedDao;
+import com.navercorp.pinpoint.web.dao.stat.SampledResponseTimeDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledTransactionDao;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledActiveTrace;
@@ -30,6 +31,7 @@ import com.navercorp.pinpoint.web.vo.stat.SampledCpuLoad;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSourceList;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGc;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGcDetailed;
+import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
 import com.navercorp.pinpoint.web.vo.stat.SampledTransaction;
 import org.apache.commons.collections.CollectionUtils;
 
@@ -90,6 +92,12 @@ public abstract class HbaseSampledAgentStatDualReadDao<S extends SampledAgentSta
 
     public static class SampledDataSourceDualReadDao extends HbaseSampledAgentStatDualReadDao<SampledDataSourceList> implements SampledDataSourceDao {
         public SampledDataSourceDualReadDao(SampledAgentStatDao<SampledDataSourceList> master, SampledAgentStatDao<SampledDataSourceList> slave) {
+            super(master, slave);
+        }
+    }
+
+    public static class SampledResponseTimeDualReadDao extends HbaseSampledAgentStatDualReadDao<SampledResponseTime> implements SampledResponseTimeDao {
+        public SampledResponseTimeDualReadDao(SampledAgentStatDao<SampledResponseTime> master, SampledAgentStatDao<SampledResponseTime> slave) {
             super(master, slave);
         }
     }

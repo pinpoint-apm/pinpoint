@@ -75,7 +75,7 @@
 		return {
 			x: totalCount < 10 ? -(this.opt.circleRadius/3) : -(this.opt.circleRadius/4) * 3,
 			y: this.opt.y + this.opt.circleRadius + (this.opt.circleRadius/2) + this.opt.gapBarNCircle + this.opt.barLength,
-			text: totalCount >= 100 ? "99" : totalCount
+			text: totalCount >= 100 ? "..." : totalCount
 		};
 	};
     ts.Events.prototype._fireEvent = function( eventType, event, x, y ) {

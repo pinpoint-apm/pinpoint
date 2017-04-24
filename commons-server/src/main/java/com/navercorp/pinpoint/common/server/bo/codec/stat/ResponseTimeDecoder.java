@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,23 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context;
+package com.navercorp.pinpoint.common.server.bo.codec.stat;
 
-import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
- * @author emeroad
+ * @author Taejin Koo
  */
-public interface TraceWrap extends Trace, TraceWrapper  {
+@Component
+public class ResponseTimeDecoder extends AgentStatDecoder<ResponseTimeBo> {
+
+    @Autowired
+    public ResponseTimeDecoder(List<AgentStatCodec<ResponseTimeBo>> responseTimeCodecs) {
+        super(responseTimeCodecs);
+    }
+
 }
