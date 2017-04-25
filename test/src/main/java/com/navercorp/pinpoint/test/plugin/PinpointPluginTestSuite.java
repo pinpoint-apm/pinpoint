@@ -15,6 +15,8 @@
 package com.navercorp.pinpoint.test.plugin;
 
 import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.CHILD_CLASS_PATH_PREFIX;
+
+import com.navercorp.pinpoint.common.Charsets;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
@@ -50,7 +52,7 @@ import java.util.Scanner;
  * @author Taejin Koo
  */
 public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
-    private static final String DEFAULT_ENCODING = "UTF-8";
+    private static final String DEFAULT_ENCODING = Charsets.UTF_8_NAME;
 
     private final boolean testOnSystemClassLoader;
     private final boolean testOnChildClassLoader;

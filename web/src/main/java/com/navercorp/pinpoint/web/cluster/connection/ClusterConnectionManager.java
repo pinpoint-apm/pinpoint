@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +33,6 @@ import java.util.List;
  */
 public class ClusterConnectionManager {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final Charset charset = Charset.forName("UTF-8");
 
     private final WebConfig config;
 

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.filter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,7 +88,7 @@ public class DefaultFilterBuilder implements FilterBuilder {
             return null;
         }
         try {
-            return URLDecoder.decode(value, "UTF-8");
+            return URLDecoder.decode(value, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException("UTF8 decodeFail. value:" + value);
         }

@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
+import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContextFactory;
@@ -317,7 +318,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
                 final HttpEntity entity = entityRequest.getEntity();
                 if (entity != null && entity.isRepeatable() && entity.getContentLength() > 0) {
                     if (entitySampler.isSampling()) {
-                        final String entityString = entityUtilsToString(entity, "UTF8", 1024);
+                        final String entityString = entityUtilsToString(entity, Charsets.UTF_8_NAME, 1024);
                         final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
                         recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, entityString);
                     }

@@ -27,6 +27,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.springframework.util.AntPathMatcher;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -35,7 +36,7 @@ import java.util.List;
 // TODO development class
 public class RpcURLPatternFilter implements URLPatternFilter {
 
-    private static final Charset UTF8 = Charset.forName("UTF-8");
+    private static final Charset UTF8 = StandardCharsets.UTF_8;
     private final String urlPattern;
     private final AntPathMatcher matcher = new AntPathMatcher();
     private final ServiceTypeRegistryService serviceTypeRegistryService;
