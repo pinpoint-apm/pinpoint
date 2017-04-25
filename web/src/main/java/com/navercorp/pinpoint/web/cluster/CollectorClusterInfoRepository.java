@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.cluster;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +29,7 @@ import java.util.Map;
  */
 public class CollectorClusterInfoRepository {
 
-    private static final Charset charset = Charset.forName("UTF-8");
+    private static final Charset charset = StandardCharsets.UTF_8;
 
     private static final String PROFILER_SEPARATOR = "\r\n";
 

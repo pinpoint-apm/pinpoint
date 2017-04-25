@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
@@ -92,7 +93,7 @@ public class DependencyGraph {
 
     public class Grapher {
         public void graph(String filename, Injector demoInjector) throws IOException {
-            PrintWriter out = new PrintWriter(new File(filename), "UTF-8");
+            PrintWriter out = new PrintWriter(new File(filename), Charsets.UTF_8.name());
 
             Injector injector = Guice.createInjector(new GraphvizModule());
             GraphvizGrapher grapher = injector.getInstance(GraphvizGrapher.class);

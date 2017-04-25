@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.buffer;
 
 import com.google.common.primitives.Ints;
+import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -34,7 +35,7 @@ import java.util.Random;
  * @author emeroad
  */
 public class FixedBufferTest {
-    public static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
+    public static final Charset UTF8_CHARSET = Charsets.UTF_8;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private Random random = new Random();
@@ -141,9 +142,9 @@ public class FixedBufferTest {
 
         Assert.assertEquals("check data", test, trimString);
 
-        String padString = new String(result, TOTAL_LENGTH - TEST_SIZE, PAD_SIZE, "UTF-8");
+        String padString = new String(result, TOTAL_LENGTH - TEST_SIZE, PAD_SIZE, UTF8_CHARSET.name());
         byte[] padBytes = new byte[TOTAL_LENGTH - TEST_SIZE];
-        Assert.assertEquals("check pad", padString, new String(padBytes, Charset.forName("UTF-8")));
+        Assert.assertEquals("check pad", padString, new String(padBytes, UTF8_CHARSET));
 
     }
 

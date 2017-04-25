@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
 
@@ -52,7 +53,7 @@ public class ClusterTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusterTest.class);
 
-    private static final Charset UTF_8_CHARSET = Charset.forName("UTF-8");
+    private static final Charset UTF_8_CHARSET = StandardCharsets.UTF_8;
 
     // some tests may fail when executed in local environment
     // when failures happen, you have to copy pinpoint-web.properties of resource-test to resource-local. Tests will succeed.
