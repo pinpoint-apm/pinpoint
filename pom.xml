@@ -80,9 +80,9 @@
         <httpcomponents.version>4.3</httpcomponents.version>
         <jedis.version>2.4.2</jedis.version>
         <cloverLicenseLocation>${basedir}/clover.license</cloverLicenseLocation>
-        <spring.version>4.1.9.RELEASE</spring.version>
-        <spring.batch.version>2.2.7.RELEASE</spring.batch.version>
-        <spring.security.version>4.0.4.RELEASE</spring.security.version>
+        <spring.version>4.3.8.RELEASE</spring.version>
+        <spring.batch.version>3.0.7.RELEASE</spring.batch.version>
+        <spring.security.version>4.2.2.RELEASE</spring.security.version>
         <docker.maven.plugin.version>0.4.3</docker.maven.plugin.version>
         <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
         <sniffer.artifactid>java16</sniffer.artifactid>
@@ -101,7 +101,7 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -538,7 +538,7 @@
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
-                <version>1.8.3</version>
+                <version>1.9.3</version>
             </dependency>
 
             <dependency>
@@ -569,13 +569,13 @@
             <dependency>
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm-debug-all</artifactId>
-                <version>5.1</version>
+                <version>5.2</version>
             </dependency>
 
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjweaver</artifactId>
-                <version>1.8.9</version>
+                <version>1.8.10</version>
             </dependency>
 
 
@@ -621,8 +621,8 @@
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
-                <artifactId>mockito-all</artifactId>
-                <version>1.10.19</version>
+                <artifactId>mockito-core</artifactId>
+                <version>2.7.22</version>
             </dependency>
             <dependency>
                 <groupId>org.dbunit</groupId>
@@ -679,7 +679,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>19.0</version>
+                <version>20.0</version>
             </dependency>
             <dependency>
                 <groupId>com.google.inject</groupId>

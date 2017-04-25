@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.objectweb.asm.tree.ClassNode;
@@ -28,6 +29,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -42,7 +44,7 @@ public class ASMClassWriterTest {
 
     @Before
     public void setUp() {
-        when(pluginContext.injectClass(any(ClassLoader.class), any(String.class))).thenAnswer(new Answer<Class<?>>() {
+        when(pluginContext.injectClass(ArgumentMatchers.<ClassLoader>isNull(), anyString())).thenAnswer(new Answer<Class<?>>() {
 
             @Override
             public Class<?> answer(InvocationOnMock invocation) throws Throwable {
@@ -53,7 +55,7 @@ public class ASMClassWriterTest {
             }
 
         });
-        when(pluginContext.getResourceAsStream(any(ClassLoader.class), any(String.class))).thenAnswer(new Answer<InputStream>() {
+        when(pluginContext.getResourceAsStream(ArgumentMatchers.<ClassLoader>isNull(), anyString())).thenAnswer(new Answer<InputStream>() {
 
             @Override
             public InputStream answer(InvocationOnMock invocation) throws Throwable {

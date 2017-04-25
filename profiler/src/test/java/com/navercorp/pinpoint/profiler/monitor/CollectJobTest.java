@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollecto
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
+import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -52,7 +53,7 @@ public class CollectJobTest {
         CollectJob job = new CollectJob(dataSender, "agent", 0, agentStatMetricCollector, 1);
         job.run();
 
-        Mockito.verify(dataSender).send(any(TAgentStat.class));
+        Mockito.verify(dataSender).send(any(TAgentStatBatch.class));
 
     }
 

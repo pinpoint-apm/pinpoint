@@ -47,8 +47,11 @@ public class ASMClassNodeAdapter {
     }
 
     public static ASMClassNodeAdapter get(final InstrumentContext pluginContext, final ClassLoader classLoader, final String classInternalName, final boolean skipCode) {
-        if (pluginContext == null || classInternalName == null) {
-            throw new IllegalArgumentException("plugin context or class name must not be null.");
+        if (pluginContext == null) {
+            throw new NullPointerException("pluginContext must not be null");
+        }
+        if (classInternalName == null) {
+            throw new NullPointerException("classInternalName must not be null");
         }
 
         InputStream in = null;
