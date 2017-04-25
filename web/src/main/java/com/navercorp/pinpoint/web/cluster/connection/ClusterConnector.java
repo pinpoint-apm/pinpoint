@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.cluster.connection;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.rpc.LoggingStateChangeEventListener;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.UnsupportOperationMessageListener;
@@ -56,7 +57,7 @@ public class ClusterConnector implements ClusterConnectionProvider {
         clientFactory.setTimeoutMillis(1000 * 5);
         clientFactory.setMessageListener(UnsupportOperationMessageListener.getInstance());
         clientFactory.addStateChangeEventListener(LoggingStateChangeEventListener.INSTANCE);
-        clientFactory.setProperties(Collections.EMPTY_MAP);
+        clientFactory.setProperties(Collections.emptyMap());
 
         ClusterOption clusterOption = new ClusterOption(true, WebUtils.getServerIdentifier(), Role.CALLER);
         clientFactory.setClusterOption(clusterOption);
@@ -85,7 +86,7 @@ public class ClusterConnector implements ClusterConnectionProvider {
     private List<InetSocketAddress> parseConnectString(String connectString) {
         List<InetSocketAddress> serverAddressList = new ArrayList<>();
 
-        String[] hostsList = connectString.split(",");
+        List<String> hostsList = StringUtils.tokenizeToStringList(connectString, ",");
         for (String host : hostsList) {
             int portIndex = host.lastIndexOf(":");
             if (portIndex >= 0 && portIndex < host.length() - 1) {
