@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHandler {
 
@@ -143,9 +143,9 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
 
 
         String clusterData = new String(contents, charset);
-        String[] allClusterData = clusterData.split(PROFILER_SEPARATOR);
+        List<String> allClusterData = com.navercorp.pinpoint.common.util.StringUtils.tokenizeToStringList(clusterData, PROFILER_SEPARATOR);
 
-        List<String> result = new ArrayList<>(allClusterData.length);
+        List<String> result = new ArrayList<>(allClusterData.size());
         for (String eachClusterData : allClusterData) {
             if (!StringUtils.isBlank(eachClusterData)) {
                 result.add(eachClusterData);

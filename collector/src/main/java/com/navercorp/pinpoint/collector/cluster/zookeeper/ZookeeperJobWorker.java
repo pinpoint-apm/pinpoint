@@ -41,7 +41,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ThreadFactory;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ZookeeperJobWorker implements Runnable {
 
@@ -394,7 +394,7 @@ public class ZookeeperJobWorker implements Runnable {
     }
 
     private String addIfAbsentContents(String originalContent, List<String> addContentCandidateList) {
-        String[] splittedOriginalContent = originalContent.split(PROFILER_SEPARATOR);
+        List<String> splittedOriginalContent = com.navercorp.pinpoint.common.util.StringUtils.tokenizeToStringList(originalContent, PROFILER_SEPARATOR);
 
         List<String> addContentList = new ArrayList<>(addContentCandidateList.size());
         for (String addContentCandidate : addContentCandidateList) {
@@ -441,8 +441,8 @@ public class ZookeeperJobWorker implements Runnable {
     private String removeIfExistContents(String originalContent, List<String> removeContentCandidateList) {
         StringBuilder newContent = new StringBuilder(originalContent.length());
 
-        String[] splittedOriginalContent = originalContent.split(PROFILER_SEPARATOR);
-        Iterator<String> originalContentIterator = Arrays.asList(splittedOriginalContent).iterator();
+        List<String> splittedOriginalContent = com.navercorp.pinpoint.common.util.StringUtils.tokenizeToStringList(originalContent, PROFILER_SEPARATOR);
+        Iterator<String> originalContentIterator = splittedOriginalContent.iterator();
         while (originalContentIterator.hasNext()) {
             String eachContent = originalContentIterator.next();
             if (StringUtils.isBlank(eachContent)) {
