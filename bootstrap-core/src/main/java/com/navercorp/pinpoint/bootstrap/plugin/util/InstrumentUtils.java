@@ -29,11 +29,7 @@ import java.util.Arrays;
  */
 public final class InstrumentUtils {
 
-    public static void addInterceptor(InstrumentClass clazz, String methodName, String[] parameterTypes, String interceptorClassName, String scopeName) throws InstrumentException {
-        addInterceptor(clazz, methodName, parameterTypes, interceptorClassName, scopeName, null);
-    }
-
-    public static void addInterceptor(InstrumentClass clazz, String methodName, String[] parameterTypes, String interceptorClassName, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException {
+    public static void addScopeInterceptor(InstrumentClass clazz, String methodName, String[] parameterTypes, String interceptorClassName, String scopeName) throws InstrumentException {
         if (clazz == null) {
             throw new NullPointerException("clazz must not be null");
         }
@@ -47,18 +43,47 @@ public final class InstrumentUtils {
             throw new NullPointerException("scopeName must not be null");
         }
 
-        final InstrumentMethod method = clazz.getDeclaredMethod(methodName, parameterTypes);
-        if (method == null) {
-            throw new NotFoundInstrumentException("Cannot find method " + methodName + " with parameter types: " + Arrays.toString(parameterTypes));
+        final InstrumentMethod method = findMethod(clazz, methodName, parameterTypes);
+        method.addScopedInterceptor(interceptorClassName, scopeName);
+    }
+
+
+    @Deprecated
+    public static void addInterceptor(InstrumentClass clazz, String methodName, String[] parameterTypes, String interceptorClassName, String scopeName) throws InstrumentException {
+        addScopeInterceptor(clazz, methodName, parameterTypes, interceptorClassName, scopeName);
+    }
+
+    public static void addInterceptor(InstrumentClass clazz, String methodName, String[] parameterTypes, String interceptorClassName, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException {
+        addScopedInterceptor(clazz, methodName, parameterTypes, interceptorClassName, scopeName, executionPolicy);
+    }
+
+    public static void addScopedInterceptor(InstrumentClass clazz, String methodName, String[] parameterTypes, String interceptorClassName, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException {
+        if (clazz == null) {
+            throw new NullPointerException("clazz must not be null");
         }
+        if (methodName == null) {
+            throw new NullPointerException("methodName must not be null");
+        }
+        if (interceptorClassName == null) {
+            throw new NullPointerException("interceptorClassName must not be null");
+        }
+        if (scopeName == null) {
+            throw new NullPointerException("scopeName must not be null");
+        }
+
+        final InstrumentMethod method = findMethod(clazz, methodName, parameterTypes);
         method.addScopedInterceptor(interceptorClassName, scopeName, executionPolicy);
     }
 
-    public static  void addInterceptor(InstrumentClass clazz, String methodName, String[] parameterTypes, String interceptorClassName, Object[] interceptorParams, String scopeName) throws InstrumentException {
+    public static void addInterceptor(InstrumentClass clazz, String methodName, String[] parameterTypes, String interceptorClassName, Object[] interceptorParams, String scopeName) throws InstrumentException {
         addInterceptor(clazz, methodName, parameterTypes, interceptorClassName, interceptorParams, scopeName, null);
     }
 
     public static void addInterceptor(InstrumentClass clazz, String methodName, String[] parameterTypes, String interceptorClassName, Object[] interceptorParams, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException {
+        addScopedInterceptor(clazz, methodName, parameterTypes, interceptorClassName, interceptorParams, scopeName, executionPolicy);
+    }
+
+    public static void addScopedInterceptor(InstrumentClass clazz, String methodName, String[] parameterTypes, String interceptorClassName, Object[] interceptorParams, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException {
         if (clazz == null) {
             throw new NullPointerException("clazz must not be null");
         }
@@ -72,10 +97,16 @@ public final class InstrumentUtils {
             throw new NullPointerException("scopeName must not be null");
         }
 
+        final InstrumentMethod method = findMethod(clazz, methodName, parameterTypes);
+        method.addScopedInterceptor(interceptorClassName, interceptorParams, scopeName, executionPolicy);
+    }
+
+    private static InstrumentMethod findMethod(InstrumentClass clazz, String methodName, String[] parameterTypes) throws NotFoundInstrumentException {
         final InstrumentMethod method = clazz.getDeclaredMethod(methodName, parameterTypes);
         if (method == null) {
             throw new NotFoundInstrumentException("Cannot find method " + methodName + " with parameter types: " + Arrays.toString(parameterTypes));
         }
-        method.addScopedInterceptor(interceptorClassName, interceptorParams, scopeName, executionPolicy);
+        return method;
     }
+
 }
