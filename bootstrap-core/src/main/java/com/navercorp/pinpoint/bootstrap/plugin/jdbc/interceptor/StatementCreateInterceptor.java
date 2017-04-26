@@ -22,8 +22,6 @@ import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
@@ -33,11 +31,13 @@ import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 /**
  * @author emeroad
  */
-@TargetMethods({
-        @TargetMethod(name="createStatement"),
-        @TargetMethod(name="createStatement", paramTypes={"int", "int"}),
-        @TargetMethod(name="createStatement", paramTypes={"int", "int", "int"})
-})
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//@TargetMethods({
+//        @TargetMethod(name="createStatement"),
+//        @TargetMethod(name="createStatement", paramTypes={"int", "int"}),
+//        @TargetMethod(name="createStatement", paramTypes={"int", "int", "int"})
+//})
 public class StatementCreateInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

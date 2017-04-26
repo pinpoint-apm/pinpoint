@@ -19,14 +19,12 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.plugin.arcus.ArcusConstants;
 
 /**
  * @author emeroad
  * @author jaehong.kim
  */
-@Scope(ArcusConstants.ARCUS_FUTURE_SCOPE)
 public class FutureInternalMethodInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
 
     public FutureInternalMethodInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext) {

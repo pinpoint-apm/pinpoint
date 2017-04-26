@@ -19,7 +19,6 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.resin.ResinConstants;
 
@@ -28,7 +27,6 @@ import com.navercorp.pinpoint.plugin.resin.ResinConstants;
  * @author jaehong.kim
  *
  */
-@Scope(ResinConstants.RESIN_SERVLET_ASYNC_SCOPE)
 public class AsyncContextImplDispatchMethodInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
 
     public AsyncContextImplDispatchMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {

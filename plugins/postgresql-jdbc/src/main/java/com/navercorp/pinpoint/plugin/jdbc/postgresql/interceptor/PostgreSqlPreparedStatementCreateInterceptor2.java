@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.plugin.jdbc.postgresql.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
@@ -28,12 +26,14 @@ import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 /**
  * @author Brad Hong
  */
-@TargetMethods({
-        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int" }), 
-        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int[]" }),
-        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "java.lang.String[]" }),
-        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int", "int" })
-})
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//@TargetMethods({
+//        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int" }),
+//        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int[]" }),
+//        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "java.lang.String[]" }),
+//        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int", "int" })
+//})
 public class PostgreSqlPreparedStatementCreateInterceptor2 extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public PostgreSqlPreparedStatementCreateInterceptor2(TraceContext context, MethodDescriptor descriptor) {

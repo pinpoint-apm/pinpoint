@@ -44,8 +44,6 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
@@ -61,7 +59,6 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author minwoo.jung
  * @author jaehong.kim
  */
-@Scope(value = HttpClient4Constants.HTTP_CLIENT4_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
 public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterceptor {
     private static final int HTTP_REQUEST_INDEX = 1;
 

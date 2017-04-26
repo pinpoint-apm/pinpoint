@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
@@ -37,7 +36,6 @@ import com.navercorp.pinpoint.plugin.cassandra.CassandraConstants;
 /**
  * @author dawidmalina
  */
-@TargetMethod(name = "connect", paramTypes = { "java.lang.String" })
 public class CassandraDriverConnectInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     private final boolean recordConnection;

@@ -20,15 +20,11 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import com.navercorp.pinpoint.plugin.hikaricp.HikariCpConstants;
 
 /**
  * @author Taejin Koo
  */
-@Scope(HikariCpConstants.SCOPE)
-@TargetMethod(name="close")
 public class DataSourceCloseConnectionInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public DataSourceCloseConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {

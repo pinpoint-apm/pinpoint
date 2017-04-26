@@ -19,18 +19,13 @@ package com.navercorp.pinpoint.plugin.commons.dbcp.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
-import com.navercorp.pinpoint.plugin.commons.dbcp.CommonsDbcpConstants;
 import com.navercorp.pinpoint.plugin.commons.dbcp.DataSourceMonitorAccessor;
 import com.navercorp.pinpoint.plugin.commons.dbcp.DbcpDataSourceMonitor;
 
 /**
  * @author Taejin Koo
  */
-@Scope(CommonsDbcpConstants.SCOPE)
-@TargetMethod(name="close")
 public class DataSourceCloseInterceptor implements AroundInterceptor {
 
     private final TraceContext traceContext;

@@ -21,10 +21,12 @@ import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 
 import java.security.ProtectionDomain;
 
@@ -112,11 +114,11 @@ public class ActiveMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
 
                 final InstrumentMethod enqueue = target.getDeclaredMethod("enqueue", "org.apache.activemq.command.MessageDispatch");
                 if (enqueue != null) {
-                    enqueue.addInterceptor(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_DISPATCH_CHANNEL_ENQUEUE_INTERCEPTOR_FQCN);
+                    enqueue.addScopedInterceptor(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_DISPATCH_CHANNEL_ENQUEUE_INTERCEPTOR_FQCN, ActiveMQClientConstants.ACTIVEMQ_CLIENT_SCOPE, ExecutionPolicy.INTERNAL);
                 }
                 final InstrumentMethod dequeue = target.getDeclaredMethod("dequeue", "long");
                 if (dequeue != null) {
-                    dequeue.addInterceptor(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_DISPATCH_CHANNEL_DEQUEUE_INTERCEPTOR_FQCN);
+                    dequeue.addScopedInterceptor(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_DISPATCH_CHANNEL_DEQUEUE_INTERCEPTOR_FQCN, ActiveMQClientConstants.ACTIVEMQ_CLIENT_SCOPE, ExecutionPolicy.INTERNAL);
                 }
 
                 return target.toBytecode();
@@ -143,7 +145,7 @@ public class ActiveMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
 
                 for (InstrumentMethod method : target.getDeclaredMethods(methodFilter)) {
                     try {
-                        method.addInterceptor(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_PRODUCER_SEND_INTERCEPTOR_FQCN, va(excludeDestinationFilter));
+                        method.addScopedInterceptor(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_PRODUCER_SEND_INTERCEPTOR_FQCN, va(excludeDestinationFilter), ActiveMQClientConstants.ACTIVEMQ_CLIENT_SCOPE);
                     } catch (Exception e) {
                         if (logger.isWarnEnabled()) {
                             logger.warn("Unsupported method " + method, e);
@@ -167,10 +169,15 @@ public class ActiveMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
 
                 final InstrumentMethod dispatchMethod = target.getDeclaredMethod("dispatch", "org.apache.activemq.command.MessageDispatch");
                 if (dispatchMethod != null) {
-                    dispatchMethod.addInterceptor(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_CONSUMER_DISPATCH_INTERCEPTOR_FQCN, va(excludeDestinationFilter));
+                    dispatchMethod.addScopedInterceptor(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_CONSUMER_DISPATCH_INTERCEPTOR_FQCN, va(excludeDestinationFilter), ActiveMQClientConstants.ACTIVEMQ_CLIENT_SCOPE);
                 }
 
-                target.addInterceptor(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_CONSUMER_RECEIVE_INTERCEPTOR_FQCN);
+                InstrumentMethod receive = InstrumentUtils.findMethod(target, "receive");
+                receive.addScopedInterceptor(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_CONSUMER_RECEIVE_INTERCEPTOR_FQCN, ActiveMQClientConstants.ACTIVEMQ_CLIENT_SCOPE);
+                InstrumentMethod receiveWithParam = InstrumentUtils.findMethod(target, "receive", "long");
+                receiveWithParam.addScopedInterceptor(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_CONSUMER_RECEIVE_INTERCEPTOR_FQCN, ActiveMQClientConstants.ACTIVEMQ_CLIENT_SCOPE);
+                InstrumentMethod receiveNoWait = InstrumentUtils.findMethod(target, "receiveNoWait");
+                receiveNoWait.addScopedInterceptor(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_CONSUMER_RECEIVE_INTERCEPTOR_FQCN, ActiveMQClientConstants.ACTIVEMQ_CLIENT_SCOPE);
 
                 return target.toBytecode();
             }

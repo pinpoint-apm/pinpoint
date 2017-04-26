@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
@@ -63,7 +64,7 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("execute", "enqueue", "cancel"))) {
-                    method.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.CallMethodInterceptor");
+                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.CallMethodInterceptor", OkHttpConstants.CALL_SCOPE);
                 }
 
                 return target.toBytecode();
@@ -127,7 +128,7 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                     logger.debug("[OkHttp] Add HttpEngine.sendRequest interceptor.");
                     final ObjectFactory objectFactory = ObjectFactory.byConstructor("com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig", instrumentor.getProfilerConfig());
-                    sendRequestMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.HttpEngineSendRequestMethodInterceptor", va(objectFactory));
+                    sendRequestMethod.addScopedInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.HttpEngineSendRequestMethodInterceptor", va(objectFactory), OkHttpConstants.SEND_REQUEST_SCOPE);
                 }
 
                 InstrumentMethod connectMethod = target.getDeclaredMethod("connect");
@@ -160,11 +161,11 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
                     if(instrumentor.exist(loader, "com.squareup.okhttp.HttpUrl")) {
                         // over 2.4.0
                         target.addGetter(OkHttpConstants.HTTP_URL_GETTER, OkHttpConstants.FIELD_HTTP_URL);
-                        buildMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.RequestBuilderBuildMethodInterceptor");
+                        buildMethod.addScopedInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.RequestBuilderBuildMethodInterceptor", OkHttpConstants.SEND_REQUEST_SCOPE, ExecutionPolicy.INTERNAL);
                     } else {
                         // 2.0 ~ 2.3
                         target.addGetter(OkHttpConstants.URL_GETTER, OkHttpConstants.FIELD_HTTP_URL);
-                        buildMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.RequestBuilderBuildMethodBackwardCompatibilityInterceptor");
+                        buildMethod.addScopedInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.RequestBuilderBuildMethodBackwardCompatibilityInterceptor", OkHttpConstants.SEND_REQUEST_SCOPE, ExecutionPolicy.INTERNAL);
                     }
                 }
 

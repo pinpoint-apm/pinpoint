@@ -16,15 +16,10 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.client;
 
-import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.THRIFT_CLIENT_SCOPE;
-
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -44,7 +39,6 @@ import com.navercorp.pinpoint.plugin.thrift.ThriftHeader;
  * 
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.client.TServiceClientSendBaseInterceptor TServiceClientSendBaseInterceptor
  */
-@Scope(value = THRIFT_CLIENT_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
 public class TProtocolWriteFieldStopInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -52,7 +46,7 @@ public class TProtocolWriteFieldStopInterceptor implements AroundInterceptor {
 
     private final InterceptorScope scope;
 
-    public TProtocolWriteFieldStopInterceptor(@Name(THRIFT_CLIENT_SCOPE) InterceptorScope scope) {
+    public TProtocolWriteFieldStopInterceptor(InterceptorScope scope) {
         this.scope = scope;
     }
 

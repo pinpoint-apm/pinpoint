@@ -20,19 +20,15 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContext;
-import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 
 /**
  * @author jaehong.kim
  */
-@Scope(value=HttpClient3Constants.HTTP_CLIENT3_METHOD_BASE_SCOPE, executionPolicy=ExecutionPolicy.ALWAYS)
 public class HttpMethodBaseRequestAndResponseMethodInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
