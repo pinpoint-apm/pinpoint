@@ -20,9 +20,6 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
 import com.navercorp.pinpoint.plugin.activemq.client.ActiveMQClientConstants;
 import org.apache.activemq.command.ActiveMQTextMessage;
 
@@ -31,12 +28,6 @@ import javax.jms.JMSException;
 /**
  * @author HyunGil Jeong
  */
-@Scope(value = ActiveMQClientConstants.ACTIVEMQ_CLIENT_SCOPE)
-@TargetMethods({
-        @TargetMethod(name = "receive"),
-        @TargetMethod(name = "receive", paramTypes = "long"),
-        @TargetMethod(name = "receiveNoWait")
-})
 public class ActiveMQMessageConsumerReceiveInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public ActiveMQMessageConsumerReceiveInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
