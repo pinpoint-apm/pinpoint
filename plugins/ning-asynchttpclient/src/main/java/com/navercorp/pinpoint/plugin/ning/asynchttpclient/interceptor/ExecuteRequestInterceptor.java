@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
@@ -55,7 +54,6 @@ import com.ning.http.client.cookie.Cookie;
  * @author netspider
  * 
  */
-@TargetMethod(name="executeRequest", paramTypes= { "com.ning.http.client.Request", "com.ning.http.client.AsyncHandler" })
 public class ExecuteRequestInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(ExecuteRequestInterceptor.class);

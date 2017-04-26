@@ -16,7 +16,9 @@ package com.navercorp.pinpoint.plugin.jdbc.oracle;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
@@ -26,8 +28,11 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 
 import java.security.ProtectionDomain;
+import java.util.List;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
@@ -35,6 +40,9 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  * @author Jongho Moon
  */
 public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
+
+    private static final String ORACLE_SCOPE = OracleConstants.ORACLE_SCOPE;
+
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     private static final String CLASS_STATEMENT_WRAPPER = "oracle.jdbc.driver.OracleStatementWrapper";
@@ -75,20 +83,54 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", OracleConstants.ORACLE_SCOPE);
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor", OracleConstants.ORACLE_SCOPE);
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementCreateInterceptor", OracleConstants.ORACLE_SCOPE);
+                // close
+                InstrumentUtils.findMethod(target, "close")
+                        .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", ORACLE_SCOPE);
+
+                // createStatement
+                final String statementCreate = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor";
+                InstrumentUtils.findMethod(target, "createStatement")
+                        .addScopedInterceptor(statementCreate, ORACLE_SCOPE);
+                InstrumentUtils.findMethod(target, "createStatement", "int", "int")
+                        .addScopedInterceptor(statementCreate, ORACLE_SCOPE);
+                InstrumentUtils.findMethod(target, "createStatement", "int", "int", "int")
+                        .addScopedInterceptor(statementCreate, ORACLE_SCOPE);
+
+                // preparedStatement
+                final String preparedStatementCreate = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementCreateInterceptor";
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String")
+                        .addScopedInterceptor(preparedStatementCreate, ORACLE_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int")
+                        .addScopedInterceptor(preparedStatementCreate, ORACLE_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int[]")
+                        .addScopedInterceptor(preparedStatementCreate, ORACLE_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "java.lang.String[]")
+                        .addScopedInterceptor(preparedStatementCreate, ORACLE_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int", "int")
+                        .addScopedInterceptor(preparedStatementCreate, ORACLE_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int", "int", "int")
+                        .addScopedInterceptor(preparedStatementCreate, ORACLE_SCOPE);
+                // preparecall
+                InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String")
+                        .addScopedInterceptor(preparedStatementCreate, ORACLE_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String", "int", "int")
+                        .addScopedInterceptor(preparedStatementCreate, ORACLE_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String", "int", "int", "int")
+                        .addScopedInterceptor(preparedStatementCreate, ORACLE_SCOPE);
 
                 if (config.isProfileSetAutoCommit()) {
-                    target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor", OracleConstants.ORACLE_SCOPE);
+                    InstrumentUtils.findMethod(target, "setAutoCommit",  "boolean")
+                            .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor", ORACLE_SCOPE);
                 }
 
                 if (config.isProfileCommit()) {
-                    target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionCommitInterceptor", OracleConstants.ORACLE_SCOPE);
+                    InstrumentUtils.findMethod(target, "commit")
+                            .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionCommitInterceptor", ORACLE_SCOPE);
                 }
 
                 if (config.isProfileRollback()) {
-                    target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollbackInterceptor", OracleConstants.ORACLE_SCOPE);
+                    InstrumentUtils.findMethod(target, "rollback")
+                            .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollbackInterceptor", ORACLE_SCOPE);
                 }
 
                 return target.toBytecode();
@@ -103,7 +145,8 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptorV2", va(OracleConstants.ORACLE), OracleConstants.ORACLE_SCOPE, ExecutionPolicy.ALWAYS);
+                InstrumentUtils.findMethod(target, "connect",  "java.lang.String", "java.util.Properties")
+                        .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptorV2", va(OracleConstants.ORACLE), ORACLE_SCOPE, ExecutionPolicy.ALWAYS);
 
                 return target.toBytecode();
             }
@@ -129,10 +172,20 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 int maxBindValueSize = config.getMaxSqlBindValueSize();
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor", va(maxBindValueSize), OracleConstants.ORACLE_SCOPE);
+                final String preparedStatementInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor";
+                InstrumentUtils.findMethod(target, "execute")
+                        .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), ORACLE_SCOPE);
+                InstrumentUtils.findMethod(target, "executeQuery")
+                        .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), ORACLE_SCOPE);
+                InstrumentUtils.findMethod(target, "executeUpdate")
+                        .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), ORACLE_SCOPE);
 
                 if (config.isTraceSqlBindValue()) {
-                    target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", OracleConstants.ORACLE_SCOPE);
+                    MethodFilter filter = new PreparedStatementBindingMethodFilter();
+                    List<InstrumentMethod> declaredMethods = target.getDeclaredMethods(filter);
+                    for (InstrumentMethod method : declaredMethods) {
+                        method.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", ORACLE_SCOPE);
+                    }
                 }
 
                 return target.toBytecode();
@@ -159,7 +212,13 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor");
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementRegisterOutParameterInterceptor", OracleConstants.ORACLE_SCOPE);
+                final String callableStatementInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementRegisterOutParameterInterceptor";
+                InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int")
+                        .addScopedInterceptor(callableStatementInterceptor, ORACLE_SCOPE);
+                InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int", "int")
+                        .addScopedInterceptor(callableStatementInterceptor, ORACLE_SCOPE);
+                InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int", "java.lang.String")
+                        .addScopedInterceptor(callableStatementInterceptor, ORACLE_SCOPE);
 
                 return target.toBytecode();
             }
@@ -184,8 +243,19 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor", OracleConstants.ORACLE_SCOPE);
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor", OracleConstants.ORACLE_SCOPE);
+                final String executeQueryInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor";
+                InstrumentUtils.findMethod(target, "executeQuery", "java.lang.String")
+                        .addScopedInterceptor(executeQueryInterceptor, ORACLE_SCOPE);
+
+                final String executeUpdateInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor";
+                InstrumentUtils.findMethod(target, "executeUpdate", "java.lang.String")
+                        .addScopedInterceptor(executeUpdateInterceptor, ORACLE_SCOPE);
+                InstrumentUtils.findMethod(target, "executeUpdate",  "java.lang.String", "int")
+                        .addScopedInterceptor(executeUpdateInterceptor, ORACLE_SCOPE);
+                InstrumentUtils.findMethod(target, "execute",  "java.lang.String")
+                        .addScopedInterceptor(executeUpdateInterceptor, ORACLE_SCOPE);
+                InstrumentUtils.findMethod(target, "execute",  "java.lang.String", "int")
+                        .addScopedInterceptor(executeUpdateInterceptor, ORACLE_SCOPE);
 
                 return target.toBytecode();
             }

@@ -195,7 +195,7 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
                 // Tomcat 7
                 InstrumentMethod initInternalEditor = target.getDeclaredMethod("initInternal");
                 if (initInternalEditor != null) {
-                    initInternalEditor.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.ConnectorInitializeInterceptor");
+                    initInternalEditor.addScopedInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.ConnectorInitializeInterceptor", TomcatConstants.TOMCAT_SERVLET_ASYNC_SCOPE);
                 }
 
                 return target.toBytecode();

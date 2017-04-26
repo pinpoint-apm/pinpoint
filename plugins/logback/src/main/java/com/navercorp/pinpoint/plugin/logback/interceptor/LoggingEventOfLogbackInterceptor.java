@@ -16,21 +16,14 @@
 package com.navercorp.pinpoint.plugin.logback.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor0;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
 import org.slf4j.MDC;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructors;
 
 /**
  * @author minwoo.jung
  */
-@TargetConstructors({
-        @TargetConstructor({}),
-        @TargetConstructor({"java.lang.String", "ch.qos.logback.classic.Logger", "ch.qos.logback.classic.Level", "java.lang.String", "java.lang.Throwable", "java.lang.Object[]"})
-})
 public class LoggingEventOfLogbackInterceptor implements AroundInterceptor0 {
     private static final String TRANSACTION_ID = "PtxId";
     private static final String SPAN_ID = "PspanId";
@@ -55,7 +48,9 @@ public class LoggingEventOfLogbackInterceptor implements AroundInterceptor0 {
         }
     }
 
-    @IgnoreMethod
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//    @IgnoreMethod
     @Override
     public void after(Object target, Object result, Throwable throwable) {
 

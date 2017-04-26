@@ -20,19 +20,11 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
 import com.navercorp.pinpoint.plugin.hikaricp.HikariCpConstants;
 
 /**
  * @author Taejin Koo
  */
-@Scope(HikariCpConstants.SCOPE)
-@TargetMethods({
-        @TargetMethod(name="getConnection"),
-        @TargetMethod(name="getConnection", paramTypes={"java.lang.String", "java.lang.String"})
-})
 public class DataSourceGetConnectionInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public DataSourceGetConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {

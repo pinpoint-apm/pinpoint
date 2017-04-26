@@ -20,6 +20,7 @@ import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
@@ -29,6 +30,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 
 /**
  * @author dawidmalina
@@ -106,14 +108,30 @@ public class CassandraPlugin implements ProfilerPlugin, TransformTemplateAware {
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor");
 
-                target.addScopedInterceptor(
+                InstrumentMethod close = InstrumentUtils.findMethod(target, "close");
+                close.addScopedInterceptor(
                         "com.navercorp.pinpoint.plugin.cassandra.interceptor.CassandraConnectionCloseInterceptor",
                         CassandraConstants.CASSANDRA_SCOPE);
-                target.addScopedInterceptor(
+
+                InstrumentMethod prepare1 = InstrumentUtils.findMethod(target, "prepare", "java.lang.String");
+                prepare1.addScopedInterceptor(
+                        "com.navercorp.pinpoint.plugin.cassandra.interceptor.CassandraPreparedStatementCreateInterceptor",
+                        CassandraConstants.CASSANDRA_SCOPE);
+                InstrumentMethod prepare2 = InstrumentUtils.findMethod(target, "prepare", "com.datastax.driver.core.RegularStatement");
+                prepare2.addScopedInterceptor(
                         "com.navercorp.pinpoint.plugin.cassandra.interceptor.CassandraPreparedStatementCreateInterceptor",
                         CassandraConstants.CASSANDRA_SCOPE);
 
-                target.addScopedInterceptor(
+                InstrumentMethod execute1 = InstrumentUtils.findMethod(target, "execute", "java.lang.String");
+                execute1.addScopedInterceptor(
+                        "com.navercorp.pinpoint.plugin.cassandra.interceptor.CassandraStatementExecuteQueryInterceptor",
+                        va(config.getMaxSqlBindValueSize()), CassandraConstants.CASSANDRA_SCOPE);
+                InstrumentMethod execute2 = InstrumentUtils.findMethod(target, "execute", "java.lang.String", "java.lang.Object[]");
+                execute2.addScopedInterceptor(
+                        "com.navercorp.pinpoint.plugin.cassandra.interceptor.CassandraStatementExecuteQueryInterceptor",
+                        va(config.getMaxSqlBindValueSize()), CassandraConstants.CASSANDRA_SCOPE);
+                InstrumentMethod execute3 = InstrumentUtils.findMethod(target, "execute", "com.datastax.driver.core.Statement");
+                execute3.addScopedInterceptor(
                         "com.navercorp.pinpoint.plugin.cassandra.interceptor.CassandraStatementExecuteQueryInterceptor",
                         va(config.getMaxSqlBindValueSize()), CassandraConstants.CASSANDRA_SCOPE);
 
@@ -141,11 +159,13 @@ public class CassandraPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                target.addScopedInterceptor(
+                InstrumentMethod connect = InstrumentUtils.findMethod(target, "connect", "java.lang.String");
+                connect.addScopedInterceptor(
                         "com.navercorp.pinpoint.plugin.cassandra.interceptor.CassandraDriverConnectInterceptor",
                         va(true), CassandraConstants.CASSANDRA_SCOPE, ExecutionPolicy.ALWAYS);
 
-                target.addScopedInterceptor(
+                InstrumentMethod close = InstrumentUtils.findMethod(target, "close");
+                close.addScopedInterceptor(
                         "com.navercorp.pinpoint.plugin.cassandra.interceptor.CassandraConnectionCloseInterceptor",
                         CassandraConstants.CASSANDRA_SCOPE);
 

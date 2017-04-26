@@ -19,12 +19,14 @@ import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 
 /**
  * 
@@ -48,9 +50,16 @@ public class JdkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
                 if (target.hasField("connecting", "boolean")) {
                     target.addGetter("com.navercorp.pinpoint.plugin.jdk.http.ConnectingGetter", "connecting");
                 }
-                
-                target.addInterceptor("com.navercorp.pinpoint.plugin.jdk.http.interceptor.HttpURLConnectionInterceptor");
-                
+
+                final InstrumentMethod connectMethod = InstrumentUtils.findMethod(target, "connect");
+                connectMethod.addScopedInterceptor("com.navercorp.pinpoint.plugin.jdk.http.interceptor.HttpURLConnectionInterceptor", "HttpURLConnection");
+
+                final InstrumentMethod getInputStreamMethod = InstrumentUtils.findMethod(target, "getInputStream");
+                getInputStreamMethod.addScopedInterceptor("com.navercorp.pinpoint.plugin.jdk.http.interceptor.HttpURLConnectionInterceptor", "HttpURLConnection");
+
+                final InstrumentMethod getOutputStreamMethod = InstrumentUtils.findMethod(target, "getOutputStream");
+                getOutputStreamMethod.addScopedInterceptor("com.navercorp.pinpoint.plugin.jdk.http.interceptor.HttpURLConnectionInterceptor", "HttpURLConnection");
+
                 return target.toBytecode();
             }
         });
