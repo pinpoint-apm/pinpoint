@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanSimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -51,7 +50,6 @@ import java.net.SocketAddress;
 /**
  * @author HyunGil Jeong
  */
-@Scope(value = ActiveMQClientConstants.ACTIVEMQ_CLIENT_SCOPE)
 public class ActiveMQMessageConsumerDispatchInterceptor extends SpanSimpleAroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
