@@ -19,6 +19,7 @@ import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
@@ -27,6 +28,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 
 /**
  * This modifier support slf4j 1.4.1 version and logback 0.9.8 version, or greater.
@@ -87,9 +89,11 @@ public class LogbackPlugin implements ProfilerPlugin, TransformTemplateAware {
                                 + "\nconstructor prototype : LoggingEvent(String fqcn, Logger logger, Level level, String message, Throwable throwable, Object[] argArray);");
                     return null;
                 }
-                
-                target.addInterceptor("com.navercorp.pinpoint.plugin.logback.interceptor.LoggingEventOfLogbackInterceptor");
-                
+
+                final String interceptorClassName = "com.navercorp.pinpoint.plugin.log4j.interceptor.LoggingEventOfLog4jInterceptor";
+                InstrumentUtils.addInterceptorToConstructor(target, new String[0], interceptorClassName);
+                InstrumentUtils.addInterceptorToConstructor(target, new String[]{"java.lang.String", "ch.qos.logback.classic.Logger", "ch.qos.logback.classic.Level", "java.lang.String", "java.lang.Throwable", "java.lang.Object[]"}, interceptorClassName);
+
                 return target.toBytecode();
             }
         });

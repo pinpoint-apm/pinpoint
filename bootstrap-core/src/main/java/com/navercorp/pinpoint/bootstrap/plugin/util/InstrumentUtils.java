@@ -109,4 +109,19 @@ public final class InstrumentUtils {
         return method;
     }
 
+    public static void addInterceptorToConstructor(InstrumentClass clazz, String[] parameterTypes, String interceptorClassName) throws InstrumentException {
+        if (clazz == null) {
+            throw new NullPointerException("clazz must not be null");
+        }
+        if (interceptorClassName == null) {
+            throw new NullPointerException("interceptorClassName must not be null");
+        }
+
+        InstrumentMethod constructor = clazz.getConstructor(parameterTypes);
+        if (constructor == null) {
+            throw new NotFoundInstrumentException("Cannot find constructor with parameter types: " + Arrays.toString(parameterTypes));
+        }
+
+        constructor.addInterceptor(interceptorClassName);
+    }
 }
