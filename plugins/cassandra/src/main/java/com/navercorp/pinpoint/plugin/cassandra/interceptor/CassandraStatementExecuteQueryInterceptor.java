@@ -28,8 +28,6 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
@@ -41,11 +39,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue.BindValueUtils;
 /**
  * @author dawidmalina
  */
-@TargetMethods({
-    @TargetMethod(name = "execute", paramTypes = { "java.lang.String" }),
-    @TargetMethod(name = "execute", paramTypes = { "java.lang.String", "java.lang.Object[]" }),
-    @TargetMethod(name = "execute", paramTypes = { "com.datastax.driver.core.Statement" })
-})
 public class CassandraStatementExecuteQueryInterceptor implements AroundInterceptor {
 
     private static final int DEFAULT_BIND_VALUE_LENGTH = 1024;
