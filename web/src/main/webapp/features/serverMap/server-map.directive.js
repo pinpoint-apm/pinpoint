@@ -278,7 +278,7 @@
 	                    };
 	                    options.fOnNodeClicked = function (e, node, unknownKey, searchQuery) {
 	                        var originalNode;
-	                        if (angular.isDefined(node.unknownNodeGroup) && !unknownKey) {
+	                        if (angular.isDefined(node.unknownNodeGroup) && !unknownKey) { // 그룹 노드에서 특정 row 를 선택 한 경우의 옵션
 	                            node.unknownNodeGroup = ServerMapDaoService.getUnknownNodeDataByUnknownNodeGroup(htLastMapData.applicationMapData, node.unknownNodeGroup);
 	                        } else {
 	                            originalNode = ServerMapDaoService.getNodeDataByKey(htLastMapData.applicationMapData, unknownKey || node.key);
@@ -289,7 +289,7 @@
 	                        sLastSelection = "node";
 	                        htLastNode = node;
 	                        if ( typeof retry === "undefined" ) {
-								scope.$emit("serverMapDirective.nodeClicked", e, htLastQuery, node, htLastMergedMapData, searchQuery);
+								scope.$emit("serverMapDirective.nodeClicked", htLastQuery, node, htLastMergedMapData, searchQuery);
 								if (scope.oNavbarVoService && scope.oNavbarVoService.isRealtime()) {
 									$rootScope.$broadcast("realtimeChartController.initialize", node.isWas, node.applicationName, node.serviceType, scope.oNavbarVoService.getApplication() + "/" + scope.oNavbarVoService.getReadablePeriod() + "/" + scope.oNavbarVoService.getQueryEndDateTime() + "/" + scope.oNavbarVoService.getCallerRange());
 								}
@@ -335,7 +335,7 @@
 	                        sLastSelection = "link";
 	                        htLastLink = link;
 	                        reset();
-	                        scope.$emit("serverMapDirective.linkClicked", e, htLastQuery, link, htLastMergedMapData);
+	                        scope.$emit("serverMapDirective.linkClicked", htLastQuery, link, htLastMergedMapData);
 	                    };
 	                    options.fOnLinkContextClicked = function (e, link) {
 	                        var originalLink = ServerMapDaoService.getLinkDataByKey(htLastMapData.applicationMapData, link.key);

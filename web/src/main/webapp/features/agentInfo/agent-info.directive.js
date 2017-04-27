@@ -93,6 +93,11 @@
 								showActiveTraceChart(result);
 							}
 						});
+						AgentAjaxService.getResponseTimeChartData( oParam, function (result) {
+							if ( checkResponse( result ) ) {
+								showResponseTimeChart(result);
+							}
+						});
 						AgentAjaxService.getDataSourceChartData( oParam, function (result) {
 							if ( checkResponse( result ) ) {
 								dataSourceChartData = result;
@@ -102,7 +107,7 @@
 						function checkResponse( result ) {
 							responseCount++;
 							oProgressBarService.setLoading(20 + (responseCount * 16) );
-							if ( responseCount >= 5 ) {
+							if ( responseCount >= 6 ) {
 								oProgressBarService.stopLoading();
 								if ( hasError ) {
 									oAlertService.showError('There is some error.');
@@ -168,6 +173,7 @@
 							TooltipService.init( "cpuUsage" );
 							TooltipService.init( "tps" );
 							TooltipService.init( "activeThread" );
+							TooltipService.init( "responseTime" );
 							TooltipService.init( "dataSource" );
 							bInitTooltip = true;
 						}
@@ -224,6 +230,12 @@
 						scope.activeTraceChart = activeTrace;
 
 						scope.$broadcast( "activeTraceChartDirective.initAndRenderWithData.forActiveTrace", AgentDaoService.parseActiveTraceChartDataForAmcharts(activeTrace, chartData), '100%', '270px');
+					}
+					function showResponseTimeChart( chartData ) {
+						var responseTime = { id: "responseTime", title: "Response Time", isAvailable: false};
+						scope.responseTimeChart = responseTime;
+
+						scope.$broadcast( "responseTimeChartDirective.initAndRenderWithData.forResponseTime", AgentDaoService.parseResponseTimeChartDataForAmcharts(responseTime, chartData), '100%', '270px');
 					}
 
 					var dataSourceChartData = [];
@@ -314,22 +326,27 @@
 					}
 					function broadcastToCpuLoadChart(e, event) {
 						if (scope.cpuLoadChart.isAvailable) {
-							scope.$broadcast('cpuLoadChartDirective.showCursorAt.forCpuLoad', event.index);
+							scope.$broadcast("cpuLoadChartDirective.showCursorAt.forCpuLoad", event.index);
 						}
 					}
 					function broadcastToTpsChart(e, event) {
 						if (scope.tpsChart.isAvailable) {
-							scope.$broadcast('tpsChartDirective.showCursorAt.forTps', event.index);
+							scope.$broadcast("tpsChartDirective.showCursorAt.forTps", event.index);
 						}
 					}
 					function broadcastToActiveTraceChart(e, event) {
 						if (scope.activeTraceChart.isAvailable) {
-							scope.$broadcast('activeTraceChartDirective.showCursorAt.forActiveTrace', event.index);
+							scope.$broadcast("activeTraceChartDirective.showCursorAt.forActiveTrace", event.index);
+						}
+					}
+					function broadcastToResponseTimeChart(e, event) {
+						if (scope.responseTimeChart.isAvailable) {
+							scope.$broadcast("responseTimeChartDirective.showCursorAt.forResponseTime", event.index);
 						}
 					}
 					function broadcastToDataSourceChart(e, event) {
 						if (scope.dataSourceChartDescription.isAvailable) {
-							scope.$broadcast('dsChartDirective.showCursorAt.forDataSource', event.index);
+							scope.$broadcast("dsChartDirective.showCursorAt.forDataSource", event.index);
 						}
 					}
 					scope.toggleSourceSelectLayer = function() {
@@ -456,46 +473,59 @@
 						getTimelineList( scope.agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
 					}
 
-					scope.$on('jvmMemoryChartDirective.cursorChanged.forHeap', function (e, event) {
+					scope.$on("jvmMemoryChartDirective.cursorChanged.forHeap", function (e, event) {
 						scope.$broadcast('jvmMemoryChart.showCursorAt.forNonHeap', event.index);
 						broadcastToCpuLoadChart(e, event);
 						broadcastToTpsChart(e, event);
 						broadcastToActiveTraceChart(e, event);
+						broadcastToResponseTimeChart(e, event);
 						broadcastToDataSourceChart(e, event);
 					});
-					scope.$on('jvmMemoryChartDirective.cursorChanged.forNonHeap', function (e, event) {
-						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
+					scope.$on("jvmMemoryChartDirective.cursorChanged.forNonHeap", function (e, event) {
+						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forHeap", event.index);
+						broadcastToCpuLoadChart(e, event);
+						broadcastToTpsChart(e, event);
+						broadcastToActiveTraceChart(e, event);
+						broadcastToResponseTimeChart(e, event);
+						broadcastToDataSourceChart(e, event);
+					});
+					scope.$on("cpuLoadChartDirective.cursorChanged.forCpuLoad", function (e, event) {
+						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forHeap", event.index);
+						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forNonHeap", event.index);
+						broadcastToTpsChart(e, event);
+						broadcastToActiveTraceChart(e, event);
+						broadcastToResponseTimeChart(e, event);
+						broadcastToDataSourceChart(e, event);
+					});
+					scope.$on("tpsChartDirective.cursorChanged.forTps", function (e, event) {
+						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forHeap", event.index);
+						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forNonHeap", event.index);
+						broadcastToCpuLoadChart(e, event);
+						broadcastToActiveTraceChart(e, event);
+						broadcastToResponseTimeChart(e, event);
+						broadcastToDataSourceChart(e, event);
+					});
+					scope.$on("activeTraceChartDirective.cursorChanged.forActiveTrace", function (e, event) {
+						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forHeap", event.index);
+						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forNonHeap", event.index);
+						broadcastToCpuLoadChart(e, event);
+						broadcastToTpsChart(e, event);
+						broadcastToResponseTimeChart(e, event);
+						broadcastToDataSourceChart(e, event);
+					});
+					scope.$on("responseTimeChartDirective.cursorChanged.forResponseTime", function (e, event) {
+						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forHeap", event.index);
+						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forNonHeap", event.index);
 						broadcastToCpuLoadChart(e, event);
 						broadcastToTpsChart(e, event);
 						broadcastToActiveTraceChart(e, event);
 						broadcastToDataSourceChart(e, event);
 					});
-					scope.$on('cpuLoadChartDirective.cursorChanged.forCpuLoad', function (e, event) {
-						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
-						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', event.index);
-						broadcastToTpsChart(e, event);
-						broadcastToActiveTraceChart(e, event);
-						broadcastToDataSourceChart(e, event);
-					});
-					scope.$on('tpsChartDirective.cursorChanged.forTps', function (e, event) {
-						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
-						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', event.index);
-						broadcastToCpuLoadChart(e, event);
-						broadcastToActiveTraceChart(e, event);
-						broadcastToDataSourceChart(e, event);
-					});
-					scope.$on('activeTraceChartDirective.cursorChanged.forActiveTrace', function (e, event) {
-						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', event.index);
-						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', event.index);
-						broadcastToCpuLoadChart(e, event);
-						broadcastToTpsChart(e, event);
-						broadcastToDataSourceChart(e, event);
-					});
-					scope.$on('dsChartDirective.cursorChanged.forDataSource', function (e, targetId, index) {
+					scope.$on("dsChartDirective.cursorChanged.forDataSource", function (e, targetId, index) {
 						var o = { "index": index };
 						showDataSourceDetailInfo( targetId, index );
-						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap', index);
-						scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap', index);
+						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forHeap", index);
+						scope.$broadcast("jvmMemoryChartDirective.showCursorAt.forNonHeap", index);
 						broadcastToCpuLoadChart(e, o);
 						broadcastToTpsChart(e, o);
 						broadcastToActiveTraceChart(e, o);

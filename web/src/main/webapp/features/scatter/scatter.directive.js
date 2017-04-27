@@ -146,7 +146,7 @@
 								}, function( oChartXRange, nextFrom, nextTo ) {
 									// oNavbarVoService.setQueryEndDateTime( nextFrom );
 									UrlVoService.setQueryEndDateTime( nextFrom );
-									$rootScope.$broadcast( "responseTimeChartDirective.loadRealtime", applicationName, oScatterChart.getCurrentAgent(), oChartXRange.min, oChartXRange.max );
+									$rootScope.$broadcast( "responseTimeSummaryChartDirective.loadRealtime", applicationName, oScatterChart.getCurrentAgent(), oChartXRange.min, oChartXRange.max );
 								}));
 							} else {
 								oScatterChart.addBubbleAndMoveAndDraw( oScatterChart.createDataBlock( scatterData ) );
@@ -267,7 +267,7 @@
 						htLastNode = node;
 						showScatterBy(node.key);
 					});
-					scope.$on("responseTimeChartDirective.showErrorTransactionList." + scope.namespace, function( event, category ) {
+					scope.$on("responseTimeSummaryChartDirective.showErrorTransactionList." + scope.namespace, function( event, category ) {
 						$window.htoScatter[htLastNode.key].selectType( "Failed" ).fireDragEvent({
 							animate: function() {},
 							css : function( name ) {

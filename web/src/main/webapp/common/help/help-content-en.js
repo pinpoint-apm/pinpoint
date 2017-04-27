@@ -614,6 +614,18 @@
 					}]
 				}]
 			},
+			responseTime: {
+				mainStyle: "",
+				title: "Response time",
+				desc: "Shows the status of agent's response time.",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "Avg",
+						desc: "Average Response Time (unit : milliseconds)"
+					}]
+				}]
+			},
 			wrongApp: [
 				"<div style='font-size:12px'>The agent is currently registered under {{application2}} due to the following:<br>",
 				"1. The agent has moved from {{application1}} to {{application2}}<br>",

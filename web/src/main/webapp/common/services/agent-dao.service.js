@@ -227,6 +227,24 @@
 				}
 				return newData;
 			};
+			this.parseResponseTimeChartDataForAmcharts = function(responseTime, aChartData) {
+				var aAVG = aChartData.charts[ "AVG" ].points;
+				var newData = [];
+				if ( aAVG ) {
+					responseTime.isAvailable = true;
+				} else {
+					return newData;
+				}
+
+				for ( var i = 0 ; i < aAVG.length ; i++ ) {
+					newData.push({
+						"avg" : getFloatValue( aAVG[i].avgYVal ),
+						"time": moment(aAVG[i].xVal).format(cfg.dateFormat),
+						"title": "AVG"
+					});
+				}
+				return newData;
+			};
 			this.parseDataSourceChartDataForAmcharts = function (oInfo, aChartData, prefix) {
 				var returnData = [];
 				if ( aChartData.length === 0 ) {
