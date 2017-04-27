@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 import com.navercorp.pinpoint.plugin.arcus.filter.ArcusMethodFilter;
 import com.navercorp.pinpoint.plugin.arcus.filter.FrontCacheMemcachedMethodFilter;
 
@@ -86,11 +87,12 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
                 if (target.hasMethod("addOp", "java.lang.String", "net.spy.memcached.ops.Operation")) {
                     boolean traceKey = config.isArcusKeyTrace();
 
-                    target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.SetCacheManagerInterceptor");
+                    final InstrumentMethod setCacheManagerMethod = InstrumentUtils.findMethod(target, "setCacheManager", "net.spy.memcached.CacheManager");
+                    setCacheManagerMethod.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.SetCacheManagerInterceptor");
 
                     for (InstrumentMethod m : target.getDeclaredMethods(new ArcusMethodFilter())) {
                         try {
-                            m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", va(traceKey));
+                            m.addScopedInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", va(traceKey), ArcusConstants.ARCUS_SCOPE);
                         } catch (Exception e) {
                             if (logger.isWarnEnabled()) {
                                 logger.warn("Unsupported method " + className + "." + m.getName(), e);
@@ -113,7 +115,10 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField("com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor");
-                target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.CacheManagerConstructInterceptor");
+
+                final InstrumentMethod constructorMethod = InstrumentUtils.findConstructor(target, "java.lang.String", "java.lang.String", "net.spy.memcached.ConnectionFactoryBuilder", "java.util.concurrent.CountDownLatch", "int", "int");
+                constructorMethod.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.CacheManagerConstructInterceptor");
+
                 return target.toBytecode();
             }
 
@@ -142,13 +147,15 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 target.addField("com.navercorp.pinpoint.plugin.arcus.CacheNameAccessor");
                 target.addField("com.navercorp.pinpoint.plugin.arcus.CacheKeyAccessor");
-                target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureConstructInterceptor");
 
-                InstrumentMethod get0 = target.getDeclaredMethod("get", new String[]{"long", "java.util.concurrent.TimeUnit"});
-                get0.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureGetInterceptor");
+                final InstrumentMethod constructorMethod = InstrumentUtils.findConstructor(target, "net.sf.ehcache.Element");
+                constructorMethod.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureConstructInterceptor");
 
-                InstrumentMethod get1 = target.getDeclaredMethod("get", new String[0]);
-                get1.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureGetInterceptor");
+                final InstrumentMethod get0 = InstrumentUtils.findMethod(target, "get", new String[]{"long", "java.util.concurrent.TimeUnit"});
+                get0.addScopedInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureGetInterceptor", ArcusConstants.ARCUS_SCOPE);
+
+                final InstrumentMethod get1 = InstrumentUtils.findMethod(target, "get", new String[0]);
+                get1.addScopedInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureGetInterceptor", ArcusConstants.ARCUS_SCOPE);
 
                 return target.toBytecode();
             }
@@ -166,7 +173,7 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 for (InstrumentMethod m : target.getDeclaredMethods(new FrontCacheMemcachedMethodFilter())) {
                     try {
-                        m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", va(traceKey));
+                        m.addScopedInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", va(traceKey), ArcusConstants.ARCUS_SCOPE);
                     } catch (Exception e) {
                         if (logger.isWarnEnabled()) {
                             logger.warn("Unsupported method " + className + "." + m.getName(), e);
@@ -189,14 +196,15 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 if (target.hasDeclaredMethod("addOp", new String[]{"java.lang.String", "net.spy.memcached.ops.Operation"})) {
                     target.addField("com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor");
-                    target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.AddOpInterceptor");
+                    final InstrumentMethod addOpMethod = InstrumentUtils.findMethod(target, "addOp", "java.lang.String", "net.spy.memcached.ops.Operation");
+                    addOpMethod.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.AddOpInterceptor");
                 }
 
                 boolean traceKey = config.isMemcachedKeyTrace();
 
                 for (InstrumentMethod m : target.getDeclaredMethods(new FrontCacheMemcachedMethodFilter())) {
                     try {
-                        m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", va(traceKey));
+                        m.addScopedInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", va(traceKey), ArcusConstants.ARCUS_SCOPE);
                     } catch (Exception e) {
                         if (logger.isWarnEnabled()) {
                             logger.warn("Unsupported method " + className + "." + m.getName(), e);
@@ -227,7 +235,7 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             // cancel, get, set
             for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("cancel", "get", "set", "signalComplete"))) {
-                m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureGetInterceptor");
+                m.addScopedInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureGetInterceptor", ArcusConstants.ARCUS_FUTURE_SCOPE);
             }
 
             return target.toBytecode();
@@ -244,7 +252,7 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
             
             // cancel, get, set
             for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("cancel", "get"))) {
-                m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureInternalMethodInterceptor");
+                m.addScopedInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureInternalMethodInterceptor", ArcusConstants.ARCUS_FUTURE_SCOPE);
             }
 
             return target.toBytecode();

@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor;
  * @author netspider
  * @author emeroad
  */
-@TargetMethod(name="addOp", paramTypes={"java.lang.String", "net.spy.memcached.ops.Operation"})
 public class AddOpInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

@@ -44,12 +44,6 @@ import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpPluginConfig;
  * @author netspider
  * @author emeroad
  */
-@Scope("HttpURLConnection")
-@TargetMethods({
-        @TargetMethod(name="connect"),
-        @TargetMethod(name="getInputStream"),
-        @TargetMethod(name="getOutputStream")
-})
 public class HttpURLConnectionInterceptor implements AroundInterceptor {
     private static final Object TRACE_BLOCK_BEGIN_MARKER = new Object();
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

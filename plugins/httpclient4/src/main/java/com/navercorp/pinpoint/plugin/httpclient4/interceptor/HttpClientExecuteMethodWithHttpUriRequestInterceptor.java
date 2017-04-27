@@ -41,7 +41,6 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author minwoo.jung
  * @author jaehong.kim
  */
-@Scope(HttpClient4Constants.HTTP_CLIENT4_SCOPE)
 public class HttpClientExecuteMethodWithHttpUriRequestInterceptor extends AbstractHttpClientExecuteMethodInterceptor {
 
     private static final int HTTP_URI_REQUEST_INDEX = 0;

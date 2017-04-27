@@ -36,7 +36,6 @@ import org.apache.http.*;
  * @author minwoo.jung
  * @author jaehong.kim
  */
-@Scope(value = HttpClient4Constants.HTTP_CLIENT4_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
 public class HttpClientExecuteMethodInternalInterceptor implements AroundInterceptor {
 
     private boolean isHasCallbackParam;

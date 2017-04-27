@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
 /**
  * @author jaehong.kim
  */
-@Scope(OkHttpConstants.CALL_SCOPE)
 public class CallMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public CallMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
