@@ -27,12 +27,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructor
 /**
  * @author minwoo.jung
  */
-
-@TargetConstructors({
-        @TargetConstructor({"java.lang.String", "org.apache.log4j.Category", "org.apache.log4j.Priority", "java.lang.Object", "java.lang.Throwable"}),
-        @TargetConstructor({"java.lang.String", "org.apache.log4j.Category", "long", "org.apache.log4j.Priority", "java.lang.Object", "java.lang.Throwable"}),
-        @TargetConstructor({"java.lang.String", "org.apache.log4j.Category", "long", "org.apache.log4j.Level", "java.lang.Object", "java.lang.String", "org.apache.log4j.spi.ThrowableInformation", "java.lang.String", "org.apache.log4j.spi.LocationInfo", "java.util.Map"})
-})
 public class LoggingEventOfLog4jInterceptor implements AroundInterceptor0 {
     private static final String TRANSACTION_ID = "PtxId";
     private static final String SPAN_ID = "PspanId";

@@ -27,10 +27,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructor
 /**
  * @author minwoo.jung
  */
-@TargetConstructors({
-        @TargetConstructor({}),
-        @TargetConstructor({"java.lang.String", "ch.qos.logback.classic.Logger", "ch.qos.logback.classic.Level", "java.lang.String", "java.lang.Throwable", "java.lang.Object[]"})
-})
 public class LoggingEventOfLogbackInterceptor implements AroundInterceptor0 {
     private static final String TRANSACTION_ID = "PtxId";
     private static final String SPAN_ID = "PspanId";
