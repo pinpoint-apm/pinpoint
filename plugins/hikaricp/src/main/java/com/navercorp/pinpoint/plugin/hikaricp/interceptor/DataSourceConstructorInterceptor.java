@@ -17,13 +17,11 @@
 package com.navercorp.pinpoint.plugin.hikaricp.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.plugin.hikaricp.DataSourceMonitorAccessor;
-import com.navercorp.pinpoint.plugin.hikaricp.HikariCpConstants;
 import com.navercorp.pinpoint.plugin.hikaricp.HikariCpDataSourceMonitor;
 
 import java.lang.reflect.Method;
@@ -31,7 +29,6 @@ import java.lang.reflect.Method;
 /**
  * @author Taejin Koo
  */
-@Scope(HikariCpConstants.SCOPE)
 public class DataSourceConstructorInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
