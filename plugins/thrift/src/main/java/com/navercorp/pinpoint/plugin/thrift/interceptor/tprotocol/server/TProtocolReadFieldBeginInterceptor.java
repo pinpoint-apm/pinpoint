@@ -17,14 +17,9 @@
 package com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server;
 
 import static com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContext.NONE;
-import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.THRIFT_SERVER_SCOPE;
-
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import org.apache.thrift.protocol.TField;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -58,7 +53,6 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.ServerMarkerFlagField
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor
  */
-@Scope(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
 public class TProtocolReadFieldBeginInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -66,7 +60,7 @@ public class TProtocolReadFieldBeginInterceptor implements AroundInterceptor {
 
     private final InterceptorScope scope;
 
-    public TProtocolReadFieldBeginInterceptor(@Name(THRIFT_SERVER_SCOPE) InterceptorScope scope) {
+    public TProtocolReadFieldBeginInterceptor(InterceptorScope scope) {
         this.scope = scope;
     }
 
