@@ -17,11 +17,8 @@
 package com.navercorp.pinpoint.plugin.commons.dbcp2.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructor;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
-import com.navercorp.pinpoint.plugin.commons.dbcp2.CommonsDbcp2Constants;
 import com.navercorp.pinpoint.plugin.commons.dbcp2.DataSourceMonitorAccessor;
 import com.navercorp.pinpoint.plugin.commons.dbcp2.Dbcp2DataSourceMonitor;
 import org.apache.commons.dbcp2.BasicDataSource;
@@ -29,8 +26,6 @@ import org.apache.commons.dbcp2.BasicDataSource;
 /**
  * @author Taejin Koo
  */
-@Scope(CommonsDbcp2Constants.SCOPE)
-@TargetConstructor
 public class DataSourceConstructorInterceptor implements AroundInterceptor {
 
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;

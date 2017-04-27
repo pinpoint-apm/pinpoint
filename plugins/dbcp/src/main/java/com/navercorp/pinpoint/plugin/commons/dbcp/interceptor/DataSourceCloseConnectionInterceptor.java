@@ -20,16 +20,12 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import com.navercorp.pinpoint.plugin.commons.dbcp.CommonsDbcpConstants;
 
 /**
  * Maybe we should trace get of Datasource.
  * @author emeroad
  */
-@Scope(CommonsDbcpConstants.SCOPE)
-@TargetMethod(name="close")
 public class DataSourceCloseConnectionInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public DataSourceCloseConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
