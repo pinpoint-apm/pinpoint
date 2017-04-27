@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.client.async;
 
-import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.THRIFT_CLIENT_SCOPE;
-
 import java.net.SocketAddress;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
@@ -28,9 +26,6 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -44,7 +39,6 @@ import org.apache.thrift.async.TAsyncMethodCall;
 /**
  * @author HyunGil Jeong
  */
-@Scope(value = THRIFT_CLIENT_SCOPE, executionPolicy = ExecutionPolicy.BOUNDARY)
 public class TAsyncClientManagerCallInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -54,7 +48,7 @@ public class TAsyncClientManagerCallInterceptor implements AroundInterceptor {
     private final MethodDescriptor descriptor;
     private final InterceptorScope scope;
 
-    public TAsyncClientManagerCallInterceptor(TraceContext traceContext, MethodDescriptor descriptor, @Name(THRIFT_CLIENT_SCOPE) InterceptorScope scope) {
+    public TAsyncClientManagerCallInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
         this.scope = scope;
