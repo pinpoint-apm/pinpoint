@@ -214,6 +214,20 @@
 						scope.ruleList = oRuleList;
 					}, showAlert );
 				};
+				scope.onCaptureUpdateClick = function($event) {
+					if ( $event.target.tagName.toUpperCase() === "SPAN" ) {
+						var $target = $($event.target);
+						if ( $target.hasClass( "update-confirm") ) {
+							scope.onApplyUpdateAlarm();
+						} else if ( $target.hasClass( "update-cancel") ) {
+							scope.onCancelUpdateAlarm();
+						} else if ( $target.hasClass( "add-confirm") ) {
+							scope.onApplyAddAlarm();
+						} else if ( $target.hasClass( "add-cancel" ) ) {
+							scope.onCancelAddAlarm();
+						}
+					}
+				};
 				scope.$on("applicationGroup.sub.load", function( event, appId, invokeCount ) {
 					currentApplicationId = appId;
 					cancelPreviousWork();
@@ -245,7 +259,7 @@
         };
     }]);
 	var CONSTS = {
-		SELECT_USERGROUP_OR_RULE: "Select user group or rule.",
+		SELECT_USER_GROUP_OR_RULE: "Select user group or rule.",
 		EXIST_A_SAME: "Exist a same rule set in the list",
 		DIV_NORMAL: "div._normal",
 		DIV_REMOVE: "div._remove",
@@ -278,7 +292,7 @@
 				$.each( aEditNodes, function( index, $el ) {
 					$el.addClass("blink-blink");
 				});
-				cbFail({ errorMessage: CONSTS.SELECT_USERGROUP_OR_RULE });
+				cbFail({ errorMessage: CONSTS.SELECT_USER_GROUP_OR_RULE });
 				return;
 			}
 			if ( cbHasAlarm( oNewRule.userGroupId, oNewRule.checkerName ) ) {
