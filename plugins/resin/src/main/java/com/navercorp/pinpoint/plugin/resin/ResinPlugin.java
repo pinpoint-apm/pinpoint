@@ -168,7 +168,7 @@ public class ResinPlugin implements ProfilerPlugin, TransformTemplateAware {
                 InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
                 target.addField(AsyncTraceIdAccessor.class.getName());
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("dispatch"))) {
-                    method.addInterceptor("com.navercorp.pinpoint.plugin.resin.interceptor.AsyncContextImplDispatchMethodInterceptor");
+                    method.addScopedInterceptor("com.navercorp.pinpoint.plugin.resin.interceptor.AsyncContextImplDispatchMethodInterceptor", ResinConstants.RESIN_SERVLET_ASYNC_SCOPE);
                 }
 
                 return target.toBytecode();
