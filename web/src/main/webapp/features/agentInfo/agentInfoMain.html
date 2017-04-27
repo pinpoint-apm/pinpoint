@@ -195,6 +195,13 @@
 					<h4><span class="glyphicon glyphicon-question-sign activeThreadTooltip" style="cursor:pointer;float:right;"></span> {{activeTraceChart.title}}</h4>
 					<active-trace-chart-directive namespace="forActiveTrace"></active-trace-chart-directive>
 				</div>
+				<div class="col-md-6">
+					<h4><span class="glyphicon glyphicon-question-sign responseTimeTooltip" style="cursor:pointer;float:right;"></span> {{responseTimeChart.title}}</h4>
+					<response-time-chart-directive namespace="forResponseTime"></response-time-chart-directive>
+				</div>
+			</div>
+			<hr>
+			<div class="row">
 				<div class="col-md-6" ng-if="enableDataSourceChart" id="data-source-chart">
 					<h4>
 						<span class="glyphicon glyphicon-question-sign dataSourceTooltip" style="cursor:pointer;float:right;"></span> {{dataSourceChartDescription.title}}
@@ -251,6 +258,7 @@
 						</div>
 					</div>
 				</div>
+				<div class="col-md-6"></div>
 			</div>
 		</div>
 	</div>

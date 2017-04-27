@@ -145,38 +145,38 @@
 	        	loadData();
 	        });
 
-	        $scope.$on('serverMapDirective.nodeClicked', function (event, e, query, node, data) {
+	        $scope.$on('serverMapDirective.nodeClicked', function (event, query, node, data) {
 	            bNodeSelected = true;
 	            var oSidebarTitleVoService = new SidebarTitleVoService();
 	            oSidebarTitleVoService.setImageType(node.serviceType);
-	
-	            if (node.isWas === true) {
-	                $scope.hasScatter = true;
-	                oSidebarTitleVoService.setTitle(node.applicationName);
-	                $scope.$broadcast('scatterDirective.showByNode.forFilteredMap', node);
-	            } else if (node.unknownNodeGroup) {
-	            	oSidebarTitleVoService.setTitle( node.serviceType.replace( "_", " " ) );
-	                $scope.hasScatter = false;
-	            } else {
-	                oSidebarTitleVoService.setTitle(node.applicationName);
-	                $scope.hasScatter = false;
-	            }
+
+				$scope.hasScatter = false;
+				if (node.unknownNodeGroup) {
+					oSidebarTitleVoService.setTitle( node.serviceType );
+				} else {
+					if (node.isWas === true) {
+						$scope.hasScatter = true;
+						$scope.$broadcast('scatterDirective.showByNode.forFilteredMap', node);
+					}
+					oSidebarTitleVoService.setTitle(node.applicationName);
+				}
+
 	            $scope.hasFilter = false;
 	            $scope.$broadcast('sidebarTitleDirective.initialize.forFilteredMap', oSidebarTitleVoService, node, oNavbarVoService);
-	            $scope.$broadcast('nodeInfoDetailsDirective.initialize', e, query, node, data, oNavbarVoService, reloadOnlyForNode);
-	            $scope.$broadcast('linkInfoDetailsDirective.hide', e, query, node, data, oNavbarVoService);
+	            $scope.$broadcast('nodeInfoDetailsDirective.initialize', node, data, oNavbarVoService, reloadOnlyForNode);
+	            $scope.$broadcast('linkInfoDetailsDirective.hide', query, node, data, oNavbarVoService);
 	            reloadOnlyForNode = false;
 
 				checkNextLoading();
 	        });
 	
-	        $scope.$on('serverMapDirective.linkClicked', function (event, e, query, link, data) {
+	        $scope.$on('serverMapDirective.linkClicked', function (event, query, link, data) {
 	            bNodeSelected = false;
 	            var oSidebarTitleVoService = new SidebarTitleVoService();
 	            if (link.unknownLinkGroup) {
 	                oSidebarTitleVoService
 	                    .setImageType(link.sourceInfo.serviceType)
-	                    .setTitle('Unknown Group from ' + link.sourceInfo.applicationName);
+	                    .setTitle(link.toNode.serviceType.replace("_", " ") + ' from ' + link.sourceInfo.applicationName);
 	            } else {
 	                oSidebarTitleVoService
 	                    .setImageType(link.sourceInfo.serviceType)
@@ -200,7 +200,7 @@
 	            }
 	            $scope.$broadcast('sidebarTitleDirective.initialize.forFilteredMap', oSidebarTitleVoService, link);
 	            $scope.$broadcast('nodeInfoDetailsDirective.hide');
-	            $scope.$broadcast('linkInfoDetailsDirective.initialize', e, query, link, data, oNavbarVoService, reloadOnlyForLink);
+	            $scope.$broadcast('linkInfoDetailsDirective.initialize', link, data, oNavbarVoService);
 	            reloadOnlyForLink = false;
 	        });
 	

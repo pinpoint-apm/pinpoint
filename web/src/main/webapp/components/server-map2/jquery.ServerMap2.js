@@ -444,84 +444,30 @@
                     new go.Binding("visible", "hasAlert")
                 ),
                 self.$(
-                	go.TextBlock, {
-                		name:"NODE_INDEX",
-                		visible: false,
-                		text : "0"
-                	},
-                	new go.Binding("text", "idx")
-                ),
-                self.$(
                     go.TextBlock, {
+						font: self.option("sSmallFont"),
                     	name: "NODE_APPLICATION_NAME",
                         margin: new go.Margin(1, 2),
                         column: 2,
-                        font: self.option("sSmallFont"),
-                        alignment: go.Spot.Left,
-                        click : function(e, obj ) {
-                        	e.bubbles = false;
-                        	if ( obj.part.data.isCollapse ) {
-                        		self._onNodeClicked(e, obj, obj.part.data.unknownNodeGroup[e.targetObject.row].key);
-                        	} else {
-                        		var groupData = obj.part.data.subGroup[parseInt( e.targetObject.panel.findObject("NODE_INDEX").text )];
-                        		self._onNodeSubGroupClicked(e, obj, groupData["groups"][e.targetObject.row].key, groupData.applicationName);
-                        	}
-                        	return false;
-                        }
-
+                        alignment: go.Spot.Left
                     },
+					new go.Binding("stroke", "tableHeader", function( tableHeader ) {
+						return tableHeader === true ? "#1BABF4" : "#000";
+					}),
                     new go.Binding("text", "applicationName")
                 ),
                 self.$(
                     go.TextBlock, {
+						font: self.option("sSmallFont"),
                         margin: new go.Margin(1, 2),
                         column: 3,
-                        alignment: go.Spot.Right,
-                        font: self.option("sSmallFont")
+                        alignment: go.Spot.Right
                     },
                     new go.Binding("text", "totalCount", function (val) {
-                        return Number(val, 10).toLocaleString();
+                        return val === "" ? "" : Number(val, 10).toLocaleString();
                     })
                 )
-            );
-            var subGroupTemplate = self.$(
-                go.Panel,
-                go.Panel.Vertical,
-                self.$(
-                    go.TextBlock, {
-                    	name: "NODE_SUB_APPLICATION_NAME",
-                        margin: new go.Margin(2, 2),
-                        font: "bold 16px avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif"
-                    },
-                    new go.Binding("text", "applicationName")
-                ),
-                self.$(
-                	go.Panel,
-                	go.Panel.Table, {
-                        padding: 4,
-                        minSize: new go.Size(100, 10),
-                        defaultStretch: go.GraphObject.Horizontal,
-                        itemTemplate: unknownTableTemplate,
-                        name: "NODE_SUB_TABLE"
-                    },
-                    new go.Binding( "itemArray", "groups" )
-                ),
-                self.$(
-                    go.Shape, {
-                        figure: "RoundedRectangle",
-                        margin: new go.Margin(6, 2, 6, 2),
-                        height: 1,
-                        width: 200,
-                        strokeWidth: 1,
-                        stroke: "#F5A623",
-                        fill: "#F5A623",
-                        visible: true
-                    },
-                    new go.Binding("visible", "isLast", function(v) {
-                    	return !v;
-                    })
-                )
-            );
+			);
 
             var getUnknownGroupTemplate = function () {
                 return self.$(
@@ -553,29 +499,6 @@
                         },
                         new go.Binding("key", "key")
                     ),
-                    self.$( "Button", {
-                    	alignment: go.Spot.TopLeft,
-                    	width: 20,
-                    	height: 20,
-                    	margin: 2,
-                    	visible : false,
-                    	click: function(e, o) {
-							self.cbAnalytics( "TG_NODE_VIEW" );
-                    		e.bubbles = false;
-                    		var isCollapse = o.part.data.isCollapse;
-                    		self._oDiagram.model.setDataProperty( o.part.data, "isCollapse", !isCollapse );
-                    		o.part.findObject("GROUP_BUTTON").text = isCollapse ? " - " : " + ";
-                    	}},
-                    	new go.Binding( "visible", "isMultiGroup" ),
-                    	self.$(
-                    		go.TextBlock, {
-	                    		name: "GROUP_BUTTON",
-	                    		text: " + ",
-	                    		textAlign: "center",
-	                    		font: "bold 14px serif"
-                    		}
-                    	)
-                    ),
                     self.$(
                         go.Panel,
                         go.Panel.Spot,
@@ -606,23 +529,8 @@
                                     name: "NODE_TEXT",
                                     visible: true
                                 },
-                                new go.Binding("itemArray", "unknownNodeGroup"),
+                                new go.Binding("itemArray", "listTopX"),
                                 new go.Binding("visible", "isCollapse")
-                            ),
-                            self.$(
-                                go.Panel,
-                                go.Panel.Vertical, {
-                                    padding: 2,
-                                    minSize: new go.Size(100, 10),
-                                    defaultStretch: go.GraphObject.Horizontal,
-                                    itemTemplate: subGroupTemplate,
-                                    name: "NODE_SUB_TEXT",
-                                    visible: true
-                                },
-                                new go.Binding("itemArray", "subGroup"),
-                                new go.Binding("visible", "isCollapse", function(v) {
-                                	return !v;
-                                })
                             )
                         )
                     ),
@@ -1072,7 +980,9 @@
 
                 if ( angular.isDefined( textNode.rowCount ) ) {
                 	for( i = 0 ; i < textNode.rowCount ; i++ ) {
-                		textNode.elt(i).elt(2).stroke = this.option("htNodeTheme")[type].fontColor;
+                		try {
+							textNode.elt(i).elt(2).stroke = this.option("htNodeTheme")[type].fontColor;
+						}catch(e) {}
                 	}
                 } else {
                 	textNode.stroke = this.option("htNodeTheme")[type].fontColor;
@@ -1304,8 +1214,6 @@
         },
         zoomToFit: function () {
             this._oDiagram.zoomToFit();
-            // this._oDiagram.contentAlignment = go.Spot.Center;
-            // this._oDiagram.contentAlignment = go.Spot.None;
         },
         clearQuery: function() {
         	this._query = "";
@@ -1313,7 +1221,6 @@
         searchNode: function( query, nodeServiceType ) {
         	this._query = query;
         	var allNodes = this._oDiagram.nodes,
-        		selectedNode = null,
         		selectedIndex = 0,
         		similarNodeList = [],
         		returnNodeDataList = [],

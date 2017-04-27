@@ -36,10 +36,10 @@
 						scope.selectedAgent = instanceName;
 						scope.$broadcast('changedCurrentAgent.forServerList', instanceName );
 						if ( bInitialized ) {
-							scope.$broadcast('responseTimeChartDirective.updateData.forServerList', histogram);
+							scope.$broadcast('responseTimeSummaryChartDirective.updateData.forServerList', histogram);
 							scope.$broadcast('loadChartDirective.updateData.forServerList', timeSeriesHistogram);
 						} else {
-							scope.$broadcast('responseTimeChartDirective.initAndRenderWithData.forServerList', histogram, '100%', '150px', false, true);
+							scope.$broadcast('responseTimeSummaryChartDirective.initAndRenderWithData.forServerList', histogram, '100%', '150px', false, true);
 							scope.$broadcast('loadChartDirective.initAndRenderWithData.forServerList', timeSeriesHistogram, '100%', '220px', false, true);
 							bInitialized = true;
 						}

@@ -20,6 +20,7 @@
 		"tpsChart"			: "getAgentStat/transaction/chart.pinpoint",
 		"activeTraceChart"	: "getAgentStat/activeTrace/chart.pinpoint",
 		"dataSourceChart"	: "getAgentStat/dataSource/chartList.pinpoint",
+		"responseTimeChart" : "getAgentStat/responseTime/chart.pinpoint",
 		"agentStateForChart": "getAgentStat.pinpoint"
 	});
 
@@ -41,6 +42,9 @@
 		};
 		this.getActiveTraceChartData = function( data, callback ) {
 			retrieve($config.activeTraceChart, data, callback);
+		};
+		this.getResponseTimeChartData = function( data, callback ) {
+			retrieve($config.responseTimeChart, data, callback);
 		};
 		this.getDataSourceChartData = function( data, callback ) {
 			retrieve($config.dataSourceChart, data, callback);

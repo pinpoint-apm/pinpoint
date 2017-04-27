@@ -49,6 +49,10 @@
 			"position": "top",
 			"trigger": "click"
 		},
+		"responseTime": {
+			"position": "top",
+			"trigger": "click"
+		},
 		"responseSummaryChart": {
 			"position": "top",
 			"trigger": "click"
@@ -107,6 +111,8 @@
 					return function() { return helpContentTemplate(helpContentService.inspector.activeThread); };
 				case "dataSource":
 					return function() { return helpContentTemplate(helpContentService.inspector.dataSource); };
+				case "responseTime":
+					return function() { return helpContentTemplate(helpContentService.inspector.responseTime); };
 				case "responseSummaryChart":
 					return function() { return helpContentTemplate(helpContentService.nodeInfoDetails.responseSummary); };
 				case "loadChart":
