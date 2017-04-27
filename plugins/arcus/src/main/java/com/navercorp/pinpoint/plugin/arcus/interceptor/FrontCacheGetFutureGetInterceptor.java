@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.plugin.arcus.CacheNameAccessor;
 /**
  * @author harebox
  */
-@Scope(ArcusConstants.ARCUS_SCOPE)
 public class FrontCacheGetFutureGetInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

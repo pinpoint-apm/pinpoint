@@ -54,7 +54,6 @@ import com.ning.http.client.cookie.Cookie;
  * @author netspider
  * 
  */
-@TargetMethod(name="executeRequest", paramTypes= { "com.ning.http.client.Request", "com.ning.http.client.AsyncHandler" })
 public class ExecuteRequestInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(ExecuteRequestInterceptor.class);

@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.plugin.arcus.CacheNameAccessor;
 /**
  * @author harebox
  */
-@TargetConstructor("net.sf.ehcache.Element")
 public class FrontCacheGetFutureConstructInterceptor implements AroundInterceptor {
 
     // TODO This should be extracted from FrontCacheMemcachedClient.

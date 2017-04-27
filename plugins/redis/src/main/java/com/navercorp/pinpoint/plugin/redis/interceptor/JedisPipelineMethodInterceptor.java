@@ -35,7 +35,6 @@ import com.navercorp.pinpoint.plugin.redis.RedisConstants;
  * @author jaehong.kim
  *
  */
-@Scope(value = RedisConstants.REDIS_SCOPE)
 public class JedisPipelineMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     private InterceptorScope interceptorScope;

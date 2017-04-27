@@ -37,7 +37,6 @@ import java.net.URL;
 /**
  * @author jaehong.kim
  */
-@Scope(OkHttpConstants.SEND_REQUEST_SCOPE)
 public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();

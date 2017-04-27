@@ -33,7 +33,6 @@ import com.navercorp.pinpoint.plugin.google.httpclient.HttpClientConstants;
  * @author jaehong.kim
  *
  */
-@Scope(value = HttpClientConstants.EXECUTE_ASYNC_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
 public class HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();

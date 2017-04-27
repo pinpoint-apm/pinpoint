@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.plugin.arcus.ArcusConstants;
  * @author emeroad
  * @author jaehong.kim
  */
-@Scope(ArcusConstants.ARCUS_FUTURE_SCOPE)
 public class FutureInternalMethodInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
 
     public FutureInternalMethodInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext) {
