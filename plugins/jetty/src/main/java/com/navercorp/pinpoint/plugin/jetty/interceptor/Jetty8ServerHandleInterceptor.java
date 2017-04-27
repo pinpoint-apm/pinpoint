@@ -11,7 +11,6 @@ import java.lang.reflect.Method;
 /**
  * @author Taejin Koo
  */
-@TargetMethod(name = "handle", paramTypes = { "org.eclipse.jetty.server.AbstractHttpConnection" })
 public class Jetty8ServerHandleInterceptor extends AbstractServerHandleInterceptor {
 
     private volatile Method getRequestMethod;
