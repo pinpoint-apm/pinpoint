@@ -18,7 +18,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.ops.Operation;
 
