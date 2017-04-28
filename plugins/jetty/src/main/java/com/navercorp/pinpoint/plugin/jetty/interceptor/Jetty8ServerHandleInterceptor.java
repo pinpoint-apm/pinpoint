@@ -3,7 +3,6 @@ package com.navercorp.pinpoint.plugin.jetty.interceptor;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import org.eclipse.jetty.server.Request;
 
 import java.lang.reflect.Method;
