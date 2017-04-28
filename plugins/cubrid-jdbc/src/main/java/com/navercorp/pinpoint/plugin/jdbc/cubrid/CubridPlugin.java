@@ -102,6 +102,13 @@ public class CubridPlugin implements ProfilerPlugin, TransformTemplateAware {
                         .addScopedInterceptor(preparedStatementCreate, CUBRID_SCOPE);
                 InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int", "int", "int")
                         .addScopedInterceptor(preparedStatementCreate, CUBRID_SCOPE);
+                // preparecall
+                InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String")
+                        .addScopedInterceptor(preparedStatementCreate, CUBRID_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String", "int", "int")
+                        .addScopedInterceptor(preparedStatementCreate, CUBRID_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String", "int", "int", "int")
+                        .addScopedInterceptor(preparedStatementCreate, CUBRID_SCOPE);
 
                 if (config.isProfileSetAutoCommit()) {
                     InstrumentUtils.findMethod(target, "setAutoCommit",  "boolean")
