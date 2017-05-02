@@ -7,7 +7,7 @@ env: JAVA_6_HOME=/usr/lib/jvm/java-6-openjdk-amd64 JAVA_7_HOME=/usr/lib/jvm/java
 
 install:
  - set -o pipefail
- - mvn -T 1C -Dmaven.artifact.threads=10 install -DskipTests=true -Dmaven.javadoc.skip=true -B -V | grep -Fv '[copy'
+ - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V | grep -Fv '[copy'
 
 script: mvn clover2:setup test -Ptest clover2:aggregate clover2:clover -e | grep -Fv 'DEBUG' | grep -Fv '[copy'
 
