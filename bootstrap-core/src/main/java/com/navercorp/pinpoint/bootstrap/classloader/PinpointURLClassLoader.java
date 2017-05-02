@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap;
+package com.navercorp.pinpoint.bootstrap.classloader;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -36,12 +36,14 @@ public class PinpointURLClassLoader extends URLClassLoader {
 
     public PinpointURLClassLoader(URL[] urls, ClassLoader parent, LibClass libClass) {
         super(urls, parent);
+
         if (parent == null) {
             throw new NullPointerException("parent must not be null");
         }
         if (libClass == null) {
             throw new NullPointerException("libClass must not be null");
         }
+
         this.parent = parent;
         this.libClass = libClass;
     }
