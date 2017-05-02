@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.plugin.jdbc.postgresql;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
@@ -27,8 +28,10 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 
 import java.security.ProtectionDomain;
+import java.util.List;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
@@ -37,6 +40,9 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  *
  */
 public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware {
+
+    private static final String POSTGRESQL_SCOPE = PostgreSqlConstants.POSTGRESQL_SCOPE;
+
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     private final JdbcUrlParserV2 jdbcUrlParser = new PostgreSqlJdbcUrlParser();
@@ -58,7 +64,7 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
         addDriverTransformer();
         addPreparedStatementTransformer(config);
     }
-    
+
     private void addConnectionTransformer(final PostgreSqlConfig config) {
         transformTemplate.transform("org.postgresql.jdbc4.Jdbc4Connection", new TransformCallback() {
 
@@ -72,8 +78,11 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                target.addInterceptor("com.navercorp.pinpoint.plugin.jdbc.postgresql.interceptor.PostgreSQLConnectionCreateInterceptor");
-                target.addScopedInterceptor("com.navercorp.pinpoint.plugin.jdbc.postgresql.interceptor.PostgreSqlPreparedStatementCreateInterceptor3", PostgreSqlConstants.POSTGRESQL_SCOPE);
+                InstrumentUtils.findConstructor(target, "org.postgresql.util.HostSpec[]", "java.lang.String", "java.lang.String", "java.util.Properties", "java.lang.String")
+                        .addInterceptor("com.navercorp.pinpoint.plugin.jdbc.postgresql.interceptor.PostgreSQLConnectionCreateInterceptor");
+
+                InstrumentUtils.findMethod(target,"prepareStatement", "java.lang.String", "int", "int", "int")
+                        .addScopedInterceptor("com.navercorp.pinpoint.plugin.jdbc.postgresql.interceptor.PostgreSqlPreparedStatementCreateInterceptor3", POSTGRESQL_SCOPE);
 
                 return target.toBytecode();
             }
@@ -90,7 +99,14 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor", PostgreSqlConstants.POSTGRESQL_SCOPE);
+                // createStatement
+                final String statementCreate = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor";
+                InstrumentUtils.findMethod(target, "createStatement")
+                        .addScopedInterceptor(statementCreate, POSTGRESQL_SCOPE);
+                InstrumentUtils.findMethod(target, "createStatement", "int", "int")
+                        .addScopedInterceptor(statementCreate, POSTGRESQL_SCOPE);
+                InstrumentUtils.findMethod(target, "createStatement", "int", "int", "int")
+                        .addScopedInterceptor(statementCreate, POSTGRESQL_SCOPE);
 
                 return target.toBytecode();
             }
@@ -107,19 +123,26 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", PostgreSqlConstants.POSTGRESQL_SCOPE);
-                target.addScopedInterceptor("com.navercorp.pinpoint.plugin.jdbc.postgresql.interceptor.PostgreSqlPreparedStatementCreateInterceptor1", PostgreSqlConstants.POSTGRESQL_SCOPE);
+                // close
+                InstrumentUtils.findMethod(target, "close")
+                        .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", POSTGRESQL_SCOPE);
+
+                InstrumentUtils.findMethod(target, "prepareStatement", "java.lang.String")
+                        .addScopedInterceptor("com.navercorp.pinpoint.plugin.jdbc.postgresql.interceptor.PostgreSqlPreparedStatementCreateInterceptor1", POSTGRESQL_SCOPE);
 
                 if (config.isProfileSetAutoCommit()) {
-                    target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor", PostgreSqlConstants.POSTGRESQL_SCOPE);
+                    InstrumentUtils.findMethod(target, "setAutoCommit",  "boolean")
+                            .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor", POSTGRESQL_SCOPE);
                 }
 
                 if (config.isProfileCommit()) {
-                    target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionCommitInterceptor", PostgreSqlConstants.POSTGRESQL_SCOPE);
+                    InstrumentUtils.findMethod(target, "commit")
+                            .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionCommitInterceptor", POSTGRESQL_SCOPE);
                 }
 
                 if (config.isProfileRollback()) {
-                    target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollbackInterceptor", PostgreSqlConstants.POSTGRESQL_SCOPE);
+                    InstrumentUtils.findMethod(target, "rollback")
+                            .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollbackInterceptor", POSTGRESQL_SCOPE);
                 }
 
                 return target.toBytecode();
@@ -138,13 +161,22 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.plugin.jdbc.postgresql.interceptor.PostgreSqlPreparedStatementCreateInterceptor2", PostgreSqlConstants.POSTGRESQL_SCOPE);
+                // preparedStatement
+                final String preparedStatementCreate = "com.navercorp.pinpoint.plugin.jdbc.postgresql.interceptor.PostgreSqlPreparedStatementCreateInterceptor2";
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int")
+                        .addScopedInterceptor(preparedStatementCreate, POSTGRESQL_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int[]")
+                        .addScopedInterceptor(preparedStatementCreate, POSTGRESQL_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "java.lang.String[]")
+                        .addScopedInterceptor(preparedStatementCreate, POSTGRESQL_SCOPE);
+                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int", "int")
+                        .addScopedInterceptor(preparedStatementCreate, POSTGRESQL_SCOPE);
 
                 return target.toBytecode();
             }
         });
     }
-    
+
     private void addDriverTransformer() {
         transformTemplate.transform("org.postgresql.Driver", new TransformCallback() {
 
@@ -152,13 +184,15 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptorV2", va(PostgreSqlConstants.POSTGRESQL, false), PostgreSqlConstants.POSTGRESQL_SCOPE, ExecutionPolicy.ALWAYS);
+                InstrumentUtils.findMethod(target, "connect",  "java.lang.String", "java.util.Properties")
+                        .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptorV2",
+                                va(PostgreSqlConstants.POSTGRESQL, false), POSTGRESQL_SCOPE, ExecutionPolicy.ALWAYS);
 
                 return target.toBytecode();
             }
         });
     }
-    
+
     private void addPreparedStatementTransformer(final PostgreSqlConfig config) {
         transformTemplate.transform("org.postgresql.jdbc2.AbstractJdbc2Statement", new TransformCallback() {
 
@@ -172,26 +206,46 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
 
                 int maxBindValueSize = config.getMaxSqlBindValueSize();
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor", va(maxBindValueSize), PostgreSqlConstants.POSTGRESQL_SCOPE);
+                final String preparedStatementInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor";
+                InstrumentUtils.findMethod(target, "execute")
+                        .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), POSTGRESQL_SCOPE);
+                InstrumentUtils.findMethod(target, "executeQuery")
+                        .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), POSTGRESQL_SCOPE);
+                InstrumentUtils.findMethod(target, "executeUpdate")
+                        .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), POSTGRESQL_SCOPE);
 
                 return target.toBytecode();
             }
         });
         transformTemplate.transform("org.postgresql.jdbc3.AbstractJdbc3Statement", new TransformCallback() {
-            
+
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                
+
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor");
 
                 final PreparedStatementBindingMethodFilter excludes = PreparedStatementBindingMethodFilter.excludes("setRowId", "setNClob", "setSQLXML");
-                target.addScopedInterceptor(excludes, "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", PostgreSqlConstants.POSTGRESQL_SCOPE, ExecutionPolicy.BOUNDARY);
+                final List<InstrumentMethod> declaredMethods = target.getDeclaredMethods(excludes);
+                for (InstrumentMethod method : declaredMethods) {
+                    method.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", POSTGRESQL_SCOPE, ExecutionPolicy.BOUNDARY);
+                }
 
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor", PostgreSqlConstants.POSTGRESQL_SCOPE);
-                target.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor", PostgreSqlConstants.POSTGRESQL_SCOPE);
+                final String executeQueryInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor";
+                InstrumentUtils.findMethod(target, "executeQuery", "java.lang.String")
+                        .addScopedInterceptor(executeQueryInterceptor, POSTGRESQL_SCOPE);
+
+                final String executeUpdateInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor";
+                InstrumentUtils.findMethod(target, "executeUpdate", "java.lang.String")
+                        .addScopedInterceptor(executeUpdateInterceptor, POSTGRESQL_SCOPE);
+                InstrumentUtils.findMethod(target, "executeUpdate",  "java.lang.String", "int")
+                        .addScopedInterceptor(executeUpdateInterceptor, POSTGRESQL_SCOPE);
+                InstrumentUtils.findMethod(target, "execute",  "java.lang.String")
+                        .addScopedInterceptor(executeUpdateInterceptor, POSTGRESQL_SCOPE);
+                InstrumentUtils.findMethod(target, "execute",  "java.lang.String", "int")
+                        .addScopedInterceptor(executeUpdateInterceptor, POSTGRESQL_SCOPE);
 
                 return target.toBytecode();
             }
