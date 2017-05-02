@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
+
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -48,15 +50,15 @@ public class AgentClassLoader {
         this.executeTemplate = new ContextClassLoaderExecuteTemplate<Object>(classLoader);
     }
 
-    private PinpointURLClassLoader createClassLoader(final URL[] urls, final ClassLoader bootStrapClassLoader) {
+    private URLClassLoader createClassLoader(final URL[] urls, final ClassLoader bootStrapClassLoader) {
         if (SECURITY_MANAGER != null) {
-            return AccessController.doPrivileged(new PrivilegedAction<PinpointURLClassLoader>() {
-                public PinpointURLClassLoader run() {
-                    return new PinpointURLClassLoader(urls, bootStrapClassLoader);
+            return AccessController.doPrivileged(new PrivilegedAction<URLClassLoader>() {
+                public URLClassLoader run() {
+                    return PinpointClassLoaderFactory.createClassLoader(urls, bootStrapClassLoader);
                 }
             });
         } else {
-            return new PinpointURLClassLoader(urls, bootStrapClassLoader);
+            return PinpointClassLoaderFactory.createClassLoader(urls, bootStrapClassLoader);
         }
     }
 
