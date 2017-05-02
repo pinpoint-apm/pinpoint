@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap;
+package com.navercorp.pinpoint.bootstrap.classloader;
+
+import java.net.URL;
+import java.net.URLClassLoader;
 
 /**
- * @author emeroad
+ * @author Taejin Koo
  */
-public interface LibClass {
+interface InnerPinpointClassLoaderFactory {
 
-    boolean ON_LOAD_CLASS = true;
-    boolean DELEGATE_PARENT = false;
+    URLClassLoader createURLClassLoader(URL[] urls, ClassLoader parent);
 
-    boolean onLoadClass(String clazzName);
+    URLClassLoader createURLClassLoader(URL[] urls, ClassLoader parent, LibClass libClass);
+
 }
