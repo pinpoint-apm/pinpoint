@@ -112,8 +112,8 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         checkReturn(interceptorId, interceptorClass);
 
         // exception
-        checkMethodException(interceptorId, interceptorClass);
-        checkConstructorException(interceptorId, interceptorClass);
+        // checkMethodException(interceptorId, interceptorClass);
+        // checkConstructorException(interceptorId, interceptorClass);
 
         // extend
         checkExtends(interceptorId, interceptorClass);
