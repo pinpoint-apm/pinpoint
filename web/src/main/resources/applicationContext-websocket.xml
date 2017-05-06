@@ -33,8 +33,8 @@
         <constructor-arg ref="agentService" />
     </bean>
 
-
-    <bean id="handlerRegister" class="com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandlerManager">
+    <!-- bean id handlerRegister modified by henry.yu @20160309-->
+    <bean id="handlerRepository" class="com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandlerManager">
         <constructor-arg>
             <list>
                 <ref bean="activeThreadHandler" />
