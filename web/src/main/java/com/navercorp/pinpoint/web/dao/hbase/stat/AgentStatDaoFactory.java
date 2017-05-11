@@ -66,14 +66,7 @@ abstract class AgentStatDaoFactory<T extends AgentStatDataPoint, D extends Agent
         final TableName v1TableName = HBaseTables.AGENT_STAT;
         final TableName v2TableName = HBaseTables.AGENT_STAT_VER2;
 
-        if (mode.equalsIgnoreCase("v1")) {
-            if (this.adminTemplate.tableExists(v1TableName)) {
-                return v1;
-            } else {
-                logger.error("AgentStatDao configured for v1, but {} table does not exist", v1TableName);
-                throw new IllegalStateException(v1TableName + " table does not exist");
-            }
-        } else if (mode.equalsIgnoreCase("v2")) {
+        if (mode.equalsIgnoreCase("v2")) {
             if (this.adminTemplate.tableExists(v2TableName)) {
                 return v2;
             } else {

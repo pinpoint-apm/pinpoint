@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.thrift.dto.*;
 import org.apache.thrift.TBase;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * @author emeroad
@@ -31,9 +30,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 public class UdpDispatchHandler extends AbstractDispatchHandler {
 
     @Autowired
-    @Qualifier("agentStatHandlerFactory")
     private Handler agentStatHandler;
-
 
     public UdpDispatchHandler() {
         this.logger = LoggerFactory.getLogger(this.getClass());

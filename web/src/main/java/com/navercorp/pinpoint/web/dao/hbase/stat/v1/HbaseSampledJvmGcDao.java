@@ -32,6 +32,7 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
+@Deprecated
 @Repository("sampledJvmGcDaoV1")
 public class HbaseSampledJvmGcDao implements SampledJvmGcDao {
 

@@ -28,6 +28,7 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
+@Deprecated
 @Repository("cpuLoadDaoV1")
 public class HbaseCpuLoadDao implements CpuLoadDao {
 

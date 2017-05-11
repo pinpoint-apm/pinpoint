@@ -67,31 +67,6 @@ public class AgentStatDaoFactoryTest {
     }
 
     @Test
-    public void v1Mode_v1TableExists() throws Exception {
-        // Given
-        final AgentStatDao<AgentStatDataPoint> expectedDao = v1;
-        final String mode = "v1";
-        ReflectionTestUtils.setField(agentStatDaoFactory, "mode", mode);
-        when(adminTemplate.tableExists(HBaseTables.AGENT_STAT)).thenReturn(true);
-        // When
-        AgentStatDao<AgentStatDataPoint> actualDao = agentStatDaoFactory.getDao();
-        // Then
-        Assert.assertEquals(expectedDao, actualDao);
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void v1Mode_v1TableDoesNotExist() throws Exception {
-        // Given
-        final String mode = "v1";
-        ReflectionTestUtils.setField(agentStatDaoFactory, "mode", mode);
-        when(adminTemplate.tableExists(HBaseTables.AGENT_STAT)).thenReturn(false);
-        // When
-        agentStatDaoFactory.getDao();
-        // Then
-        Assert.fail("Should have thrown IllegalStateException.");
-    }
-
-    @Test
     public void v2Mode_v2TableExists() throws Exception {
         // Given
         final AgentStatDao<AgentStatDataPoint> expectedDao = v2;

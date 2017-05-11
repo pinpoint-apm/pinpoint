@@ -43,15 +43,7 @@ public class HbaseTraceDaoFactory implements FactoryBean<TraceDao> {
         final TableName v1TableName = HBaseTables.TRACES;
         final TableName v2TableName = HBaseTables.TRACE_V2;
 
-        if (mode.equalsIgnoreCase("v1")) {
-            if (this.adminTemplate.tableExists(v1TableName)) {
-                return v1;
-            } else {
-                logger.error("TraceDao configured for v1, but {} table does not exist", v1TableName);
-                throw new IllegalStateException(v1TableName + " table does not exist");
-            }
-        }
-        else if (mode.equalsIgnoreCase("v2")) {
+        if (mode.equalsIgnoreCase("v2")) {
             if (this.adminTemplate.tableExists(v2TableName)) {
                 return v2;
             } else {

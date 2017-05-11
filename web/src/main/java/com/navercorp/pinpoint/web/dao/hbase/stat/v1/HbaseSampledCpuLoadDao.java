@@ -32,6 +32,7 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
+@Deprecated
 @Repository("sampledCpuLoadDaoV1")
 public class HbaseSampledCpuLoadDao implements SampledCpuLoadDao {
 

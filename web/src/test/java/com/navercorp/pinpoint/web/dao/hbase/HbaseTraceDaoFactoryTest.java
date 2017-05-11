@@ -48,31 +48,6 @@ public class HbaseTraceDaoFactoryTest {
     private final HbaseTraceDaoFactory traceDaoFactory = new HbaseTraceDaoFactory();
 
     @Test
-    public void v1Mode_v1TableExists() throws Exception {
-        // Given
-        final TraceDao expectedDao = v1;
-        final String mode = "v1";
-        ReflectionTestUtils.setField(traceDaoFactory, "mode", mode);
-        when(adminTemplate.tableExists(HBaseTables.TRACES)).thenReturn(true);
-        // When
-        TraceDao actualDao = traceDaoFactory.getObject();
-        // Then
-        Assert.assertEquals(expectedDao, actualDao);
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void v1Mode_v1TableDoesNotExist() throws Exception {
-        // Given
-        final String mode = "v1";
-        ReflectionTestUtils.setField(traceDaoFactory, "mode", mode);
-        when(adminTemplate.tableExists(HBaseTables.TRACES)).thenReturn(false);
-        // When
-        traceDaoFactory.getObject();
-        // Then
-        Assert.fail("Should have thrown IllegalStateException.");
-    }
-
-    @Test
     public void v2Mode_v2TableExists() throws Exception {
         // Given
         final TraceDao expectedDao = v2;

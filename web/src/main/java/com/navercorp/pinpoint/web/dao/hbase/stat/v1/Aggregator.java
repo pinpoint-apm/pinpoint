@@ -34,6 +34,7 @@ import org.springframework.stereotype.Component;
  * @author Jongho Moon
  * @author HyunGil Jeong
  */
+@Deprecated
 public interface Aggregator<T extends AgentStatDataPoint> {
 
     long AGGR_SAMPLE_INTERVAL = TimeUnit.MINUTES.toMillis(10);
@@ -124,6 +125,7 @@ public interface Aggregator<T extends AgentStatDataPoint> {
         protected abstract T merge(T s1, T s2, long interval);
     }
 
+    @Deprecated
     @Component
     class JvmGcAggregator extends AbstractAggregator<JvmGcBo> {
 
@@ -159,6 +161,7 @@ public interface Aggregator<T extends AgentStatDataPoint> {
         }
     }
 
+    @Deprecated
     @Component
     class JvmGcDetailedAggregator extends AbstractAggregator<JvmGcDetailedBo> {
 
@@ -196,6 +199,7 @@ public interface Aggregator<T extends AgentStatDataPoint> {
         }
     }
 
+    @Deprecated
     @Component
     class CpuLoadAggregator extends AbstractAggregator<CpuLoadBo> {
 
@@ -221,6 +225,7 @@ public interface Aggregator<T extends AgentStatDataPoint> {
         }
     }
 
+    @Deprecated
     @Component
     class TransactionAggregator extends AbstractAggregator<TransactionBo> {
 
@@ -251,6 +256,7 @@ public interface Aggregator<T extends AgentStatDataPoint> {
         }
     }
 
+    @Deprecated
     @Component
     class ActiveTraceAggregator extends AbstractAggregator<ActiveTraceBo> {
 

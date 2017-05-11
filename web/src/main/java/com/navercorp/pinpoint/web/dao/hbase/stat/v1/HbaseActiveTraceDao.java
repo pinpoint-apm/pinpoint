@@ -28,6 +28,7 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
+@Deprecated
 @Repository("activeTraceDaoV1")
 public class HbaseActiveTraceDao implements ActiveTraceDao {
 
