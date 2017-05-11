@@ -38,7 +38,12 @@ public class DubboProviderInterceptor extends SpanSimpleAroundInterceptor {
 
         // If there's no trasanction id, a new trasaction begins here.
         if (transactionId == null) {
-            return traceContext.newTraceObject();
+            Trace trace = traceContext.currentTraceObject();
+            if (trace == null) {
+                return traceContext.newTraceObject();
+            } else {
+                return trace;
+            }
         }
 
         // otherwise, continue tracing with given data.
