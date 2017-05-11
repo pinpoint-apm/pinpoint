@@ -39,11 +39,13 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue.BindValueUtils;
 /**
  * @author emeroad
  */
-@TargetMethods({
-        @TargetMethod(name="execute"),
-        @TargetMethod(name="executeQuery"),
-        @TargetMethod(name="executeUpdate")
-})
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//@TargetMethods({
+//        @TargetMethod(name="execute"),
+//        @TargetMethod(name="executeQuery"),
+//        @TargetMethod(name="executeUpdate")
+//})
 public class PreparedStatementExecuteQueryInterceptor implements AroundInterceptor {
 
     private static final int DEFAULT_BIND_VALUE_LENGTH = 1024;

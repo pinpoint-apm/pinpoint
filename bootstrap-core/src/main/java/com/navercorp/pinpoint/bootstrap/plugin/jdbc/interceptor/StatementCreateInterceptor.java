@@ -33,11 +33,13 @@ import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 /**
  * @author emeroad
  */
-@TargetMethods({
-        @TargetMethod(name="createStatement"),
-        @TargetMethod(name="createStatement", paramTypes={"int", "int"}),
-        @TargetMethod(name="createStatement", paramTypes={"int", "int", "int"})
-})
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//@TargetMethods({
+//        @TargetMethod(name="createStatement"),
+//        @TargetMethod(name="createStatement", paramTypes={"int", "int"}),
+//        @TargetMethod(name="createStatement", paramTypes={"int", "int", "int"})
+//})
 public class StatementCreateInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

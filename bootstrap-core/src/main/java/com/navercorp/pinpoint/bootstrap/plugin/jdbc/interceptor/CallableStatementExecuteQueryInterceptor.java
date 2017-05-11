@@ -24,11 +24,13 @@ import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
 /**
  * @author HyunGil Jeong
  */
-@TargetMethods({
-        @TargetMethod(name = "execute"),
-        @TargetMethod(name = "executeQuery"),
-        @TargetMethod(name = "executeUpdate")
-})
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//@TargetMethods({
+//        @TargetMethod(name = "execute"),
+//        @TargetMethod(name = "executeQuery"),
+//        @TargetMethod(name = "executeUpdate")
+//})
 public class CallableStatementExecuteQueryInterceptor extends PreparedStatementExecuteQueryInterceptor {
 
     public CallableStatementExecuteQueryInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {

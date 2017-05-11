@@ -28,7 +28,9 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 /**
  * @author emeroad
  */
-@TargetMethod(name="setAutoCommit", paramTypes="boolean")
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//@TargetMethod(name="setAutoCommit", paramTypes="boolean")
 public class TransactionSetAutoCommitInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public TransactionSetAutoCommitInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {

@@ -29,7 +29,9 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
  * @author netspider
  * @author emeroad
  */
-@TargetMethod(name="executeQuery", paramTypes={ "java.lang.String" })
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//@TargetMethod(name="executeQuery", paramTypes={ "java.lang.String" })
 public class StatementExecuteQueryInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
     public StatementExecuteQueryInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
