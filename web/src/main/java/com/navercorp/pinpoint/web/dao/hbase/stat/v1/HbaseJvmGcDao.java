@@ -28,6 +28,7 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
+@Deprecated
 @Repository("jvmGcDaoV1")
 public class HbaseJvmGcDao implements JvmGcDao {
 

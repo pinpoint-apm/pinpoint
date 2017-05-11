@@ -27,6 +27,7 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
+@Deprecated
 @Repository("sampledDataSourceDaoV1")
 public class HbaseSampledDataSourceDao implements SampledDataSourceDao {
 

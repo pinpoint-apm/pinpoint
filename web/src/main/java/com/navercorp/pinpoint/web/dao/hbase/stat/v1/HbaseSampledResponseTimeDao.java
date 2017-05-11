@@ -27,6 +27,7 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
+@Deprecated
 @Repository("sampledResponseTimeDaoV1")
 public class HbaseSampledResponseTimeDao implements SampledResponseTimeDao {
 

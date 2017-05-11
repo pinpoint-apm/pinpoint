@@ -27,6 +27,7 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
+@Deprecated
 @Repository("responseTimeDaoV1")
 public class HbaseResponseTimeDao implements ResponseTimeDao {
 

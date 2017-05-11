@@ -52,6 +52,7 @@ import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 /**
  * @author HyunGil Jeong
  */
+@Deprecated
 public abstract class AgentStatMapperV1<T extends AgentStatDataPoint> implements AgentStatMapper<T> {
 
     private static final TProtocolFactory FACTORY = new TCompactProtocol.Factory();
@@ -96,6 +97,7 @@ public abstract class AgentStatMapperV1<T extends AgentStatDataPoint> implements
 
     protected abstract List<T> mapQualifiers(String agentId, long timestamp, Map<byte[], byte[]> qualifierMap);
 
+    @Deprecated
     @Component("jvmGcMapper")
     public static class JvmGcMapper extends AgentStatMapperV1<JvmGcBo> {
 
@@ -182,6 +184,7 @@ public abstract class AgentStatMapperV1<T extends AgentStatDataPoint> implements
         }
     }
 
+    @Deprecated
     @Component("cpuLoadMapper")
     public static class CpuLoadMapper extends AgentStatMapperV1<CpuLoadBo> {
 
@@ -222,6 +225,7 @@ public abstract class AgentStatMapperV1<T extends AgentStatDataPoint> implements
         }
     }
 
+    @Deprecated
     @Component("transactionMapper")
     public static class TransactionMapper extends AgentStatMapperV1<TransactionBo> {
 
@@ -261,6 +265,7 @@ public abstract class AgentStatMapperV1<T extends AgentStatDataPoint> implements
         }
     }
 
+    @Deprecated
     @Component("activeTraceMapper")
     public static class ActiveTraceMapper extends AgentStatMapperV1<ActiveTraceBo> {
 
@@ -291,6 +296,7 @@ public abstract class AgentStatMapperV1<T extends AgentStatDataPoint> implements
     }
 
     // datasource not support v1
+    @Deprecated
     @Component("dataSourceMapper")
     public static class DataSourceMapper extends AgentStatMapperV1<DataSourceListBo> {
 

@@ -32,6 +32,7 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
+@Deprecated
 @Repository("sampledTransactionDaoV1")
 public class HbaseSampledTransactionDao implements SampledTransactionDao {
 
