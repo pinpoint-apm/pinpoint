@@ -38,7 +38,9 @@ public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInt
         super(instrumentor, transformer, filter);
     }
 
-    @IgnoreMethod
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//    @IgnoreMethod
     @Override
     public void before(Object target, Object arg0) {
     }
