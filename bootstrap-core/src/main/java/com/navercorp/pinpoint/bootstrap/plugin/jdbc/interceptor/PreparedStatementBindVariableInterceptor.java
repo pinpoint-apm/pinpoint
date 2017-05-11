@@ -33,7 +33,9 @@ import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
  * @author emeroad
  * @author jaehong.kim
  */
-@TargetFilter(type = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter", singleton = true)
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//@TargetFilter(type = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter", singleton = true)
 public class PreparedStatementBindVariableInterceptor implements StaticAroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

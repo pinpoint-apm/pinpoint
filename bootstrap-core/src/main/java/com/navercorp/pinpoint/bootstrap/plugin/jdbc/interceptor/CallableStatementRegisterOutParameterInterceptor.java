@@ -29,11 +29,13 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 /**
  * @author HyunGil Jeong
  */
-@TargetMethods({
-        @TargetMethod(name = "registerOutParameter", paramTypes = {"int", "int"}),
-        @TargetMethod(name = "registerOutParameter", paramTypes = {"int", "int", "int"}),
-        @TargetMethod(name = "registerOutParameter", paramTypes = {"int", "int", "java.lang.String"})
-})
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//@TargetMethods({
+//        @TargetMethod(name = "registerOutParameter", paramTypes = {"int", "int"}),
+//        @TargetMethod(name = "registerOutParameter", paramTypes = {"int", "int", "int"}),
+//        @TargetMethod(name = "registerOutParameter", paramTypes = {"int", "int", "java.lang.String"})
+//})
 public class CallableStatementRegisterOutParameterInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public CallableStatementRegisterOutParameterInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {

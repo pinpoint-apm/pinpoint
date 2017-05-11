@@ -37,7 +37,9 @@ import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
  * @deprecated Since 1.6.1. Use {@link DriverConnectInterceptorV2 )}
  */
 @Deprecated
-@TargetMethod(name="connect", paramTypes={ "java.lang.String", "java.util.Properties" })
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//@TargetMethod(name="connect", paramTypes={ "java.lang.String", "java.util.Properties" })
 public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
     
     private final JdbcUrlParser jdbcUrlParser;

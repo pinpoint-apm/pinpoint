@@ -33,7 +33,9 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * 
  * @author emeroad
  */
-@TargetMethod(name="connect", paramTypes={ "java.lang.String", "java.util.Properties" })
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//@TargetMethod(name="connect", paramTypes={ "java.lang.String", "java.util.Properties" })
 public class DriverConnectInterceptorV2 extends SpanEventSimpleAroundInterceptorForPlugin {
 
     private final ServiceType serviceType;

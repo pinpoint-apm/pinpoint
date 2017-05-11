@@ -32,17 +32,19 @@ import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 /**
  * @author emeroad
  */
-@TargetMethods({
-        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String" }),
-        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int" }), 
-        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int[]" }),
-        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "java.lang.String[]" }),
-        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int", "int" }),
-        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int", "int", "int" }),
-        @TargetMethod(name="prepareCall", paramTypes={ "java.lang.String" }),
-        @TargetMethod(name="prepareCall", paramTypes={ "java.lang.String", "int", "int" }),
-        @TargetMethod(name="prepareCall", paramTypes={ "java.lang.String", "int", "int", "int" })
-})
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//@TargetMethods({
+//        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String" }),
+//        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int" }),
+//        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int[]" }),
+//        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "java.lang.String[]" }),
+//        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int", "int" }),
+//        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int", "int", "int" }),
+//        @TargetMethod(name="prepareCall", paramTypes={ "java.lang.String" }),
+//        @TargetMethod(name="prepareCall", paramTypes={ "java.lang.String", "int", "int" }),
+//        @TargetMethod(name="prepareCall", paramTypes={ "java.lang.String", "int", "int", "int" })
+//})
 public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public PreparedStatementCreateInterceptor(TraceContext context, MethodDescriptor descriptor) {

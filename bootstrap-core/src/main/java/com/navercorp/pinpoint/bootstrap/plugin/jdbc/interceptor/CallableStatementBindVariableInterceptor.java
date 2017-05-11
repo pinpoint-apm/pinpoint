@@ -22,7 +22,9 @@ import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetFilter;
 /**
  * @author HyunGil Jeong
  */
-@TargetFilter(type = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter", singleton = true)
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//@TargetFilter(type = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter", singleton = true)
 public class CallableStatementBindVariableInterceptor extends PreparedStatementBindVariableInterceptor {
 
     public CallableStatementBindVariableInterceptor(TraceContext traceContext) {
