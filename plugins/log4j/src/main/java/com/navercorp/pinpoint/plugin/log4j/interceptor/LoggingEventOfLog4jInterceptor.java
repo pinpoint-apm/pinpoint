@@ -49,7 +49,9 @@ public class LoggingEventOfLog4jInterceptor implements AroundInterceptor0 {
         }
     }
 
-    @IgnoreMethod
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//    @IgnoreMethod
     @Override
     public void after(Object target, Object result, Throwable throwable) {
 

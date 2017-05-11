@@ -43,7 +43,9 @@ public class SetCacheManagerInterceptor implements AroundInterceptor {
         }
     }
 
-    @IgnoreMethod
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//    @IgnoreMethod
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
 
