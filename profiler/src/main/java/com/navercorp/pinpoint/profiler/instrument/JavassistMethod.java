@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.instrument;
 import java.lang.reflect.Method;
 
 import com.navercorp.pinpoint.bootstrap.instrument.*;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.*;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
@@ -69,6 +68,9 @@ public class JavassistMethod implements InstrumentMethod {
     private final MethodDescriptor descriptor;
     // TODO fix inject InterceptorDefinitionFactory
     private static final InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
+
+    // TODO fix inject ScopeFactory
+    private static final ScopeFactory scopeFactory = new ScopeFactory();
 
 
     public JavassistMethod(ObjectBinderFactory objectBinderFactory, InstrumentContext pluginContext, InterceptorRegistryBinder interceptorRegistryBinder, ApiMetaDataService apiMetaDataService, InstrumentClass declaringClass, CtBehavior behavior) {
@@ -226,46 +228,6 @@ public class JavassistMethod implements InstrumentMethod {
         }
     }
 
-    private ScopeInfo resolveScopeInfo(String interceptorClassName, InterceptorScope scope, ExecutionPolicy policy) {
-        final Class<? extends Interceptor> interceptorType = pluginContext.injectClass(declaringClass.getClassLoader(), interceptorClassName);
-
-        if (scope == null) {
-            Scope interceptorScope = interceptorType.getAnnotation(Scope.class);
-
-            if (interceptorScope != null) {
-                String scopeName = interceptorScope.value();
-                scope = pluginContext.getInterceptorScope(scopeName);
-                policy = interceptorScope.executionPolicy();
-            }
-        }
-
-        if (scope == null) {
-            policy = null;
-        } else if (policy == null) {
-            policy = ExecutionPolicy.BOUNDARY;
-        }
-
-        return new ScopeInfo(scope, policy);
-    }
-
-    private static class ScopeInfo {
-        private final InterceptorScope scope;
-        private final ExecutionPolicy policy;
-
-        public ScopeInfo(InterceptorScope scope, ExecutionPolicy policy) {
-            this.scope = scope;
-            this.policy = policy;
-        }
-
-        public InterceptorScope getScope() {
-            return scope;
-        }
-
-        public ExecutionPolicy getPolicy() {
-            return policy;
-        }
-    }
-
     // for internal api
     int addInterceptorInternal(String interceptorClassName, Object[] constructorArgs, InterceptorScope scope, ExecutionPolicy executionPolicy) throws InstrumentException {
         if (interceptorClassName == null) {
@@ -276,8 +238,9 @@ public class JavassistMethod implements InstrumentMethod {
 
     private int addInterceptor0(String interceptorClassName, Object[] constructorArgs, InterceptorScope scope, ExecutionPolicy executionPolicy) throws InstrumentException {
         try {
-            ScopeInfo scopeInfo = resolveScopeInfo(interceptorClassName, scope, executionPolicy);
-            Interceptor interceptor = createInterceptor(interceptorClassName, scopeInfo, constructorArgs);
+            final ClassLoader classLoader = declaringClass.getClassLoader();
+            final ScopeInfo scopeInfo = scopeFactory.newScopeInfo(classLoader, pluginContext, interceptorClassName, scope, executionPolicy);
+            Interceptor interceptor = createInterceptor(classLoader, interceptorClassName, scopeInfo, constructorArgs);
             int interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(interceptor);
 
             addInterceptor0(interceptor, interceptorId);
@@ -289,11 +252,10 @@ public class JavassistMethod implements InstrumentMethod {
         }
     }
 
-    private Interceptor createInterceptor(String interceptorClassName, ScopeInfo scopeInfo, Object[] constructorArgs) {
-        ClassLoader classLoader = declaringClass.getClassLoader();
+    private Interceptor createInterceptor(ClassLoader classLoader, String interceptorClassName, ScopeInfo scopeInfo, Object[] constructorArgs) {
 
         AnnotatedInterceptorFactory factory = objectBinderFactory.newAnnotatedInterceptorFactory(pluginContext, false);
-        Interceptor interceptor = factory.getInterceptor(classLoader, interceptorClassName, constructorArgs, scopeInfo.getScope(), scopeInfo.getPolicy(), declaringClass, this);
+        Interceptor interceptor = factory.getInterceptor(classLoader, interceptorClassName, constructorArgs, scopeInfo, declaringClass, this);
 
         return interceptor;
     }
