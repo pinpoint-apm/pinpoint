@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetFilter;
 
 /**
  * @author HyunGil Jeong
