@@ -775,9 +775,7 @@
 				"nodeCount": 0,
 				"alertCount": 0,
 				"totalCount": 0,
-				"isCollapse": true,
 				"serviceType": type,
-				"isMultiGroup": false,
 	            "instanceCount": 0,
 				"unknownNodeGroup": [],
 				"listTopX": []
@@ -791,9 +789,7 @@
 				"nodeCount": 0,
 				"alertCount": 0,
 				"totalCount": 0,
-				"isCollapse": true,
 				"serviceType": type,
-	            "isMultiGroup": true,
 				"instanceCount": 0,
 				"unknownNodeGroup": [],
 				"listTopX": []
