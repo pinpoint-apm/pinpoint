@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
 
 /**
  * @author HyunGil Jeong
