@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.plugin.logback.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor0;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
 import org.slf4j.MDC;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
