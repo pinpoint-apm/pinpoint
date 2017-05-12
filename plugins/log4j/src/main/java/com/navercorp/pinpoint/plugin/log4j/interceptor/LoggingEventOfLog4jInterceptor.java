@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.plugin.log4j.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor0;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
 import org.apache.log4j.MDC;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
