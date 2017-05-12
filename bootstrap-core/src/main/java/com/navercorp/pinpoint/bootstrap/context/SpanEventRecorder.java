@@ -50,4 +50,6 @@ public interface SpanEventRecorder extends FrameAttachment {
     void recordNextAsyncId(int asyncId);
     
     void recordAsyncSequence(short sequence);
+    
+    void recordError(boolean markError, String errorMessage);
 }
