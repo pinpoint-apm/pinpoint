@@ -23,8 +23,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * @author HyunGil Jeong
