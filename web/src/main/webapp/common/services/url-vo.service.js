@@ -166,9 +166,9 @@
 		 this.setReadablePeriod = function( periodStr ) {
 			 if ( periodStr === oPeriodType.REALTIME ) {
 				 periodType = oPeriodType.REALTIME;
-				 readablePeriod = "1m";
-				 minutePeriod = 1;
-				 millisecondPeriod = 1 * 60 * 1000;
+				 readablePeriod = "5m";
+				 minutePeriod = 5;
+				 millisecondPeriod = 5 * 60 * 1000;
 			 } else {
 				 var regex = /^(\d)+(s|m|h|d|w|M|y)$/;
 				 var match = regex.exec(periodStr);
