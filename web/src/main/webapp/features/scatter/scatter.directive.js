@@ -151,7 +151,9 @@
 							} else {
 								oScatterChart.addBubbleAndMoveAndDraw( oScatterChart.createDataBlock( scatterData ) );
 							}
-							$window.htoScatter[application] = oScatterChart;
+							if ( attrs["namespace"] === "forMain" ) {
+								$window.htoScatter[application] = oScatterChart;
+							}
 						}, 100);
 
 						return oScatterChart;
