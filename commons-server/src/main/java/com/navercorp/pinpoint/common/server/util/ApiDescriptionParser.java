@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.common.server.util;
 
 import com.navercorp.pinpoint.common.util.ApiDescription;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.DefaultApiDescription;
-import com.navercorp.pinpoint.common.util.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
 import java.util.regex.Pattern;
