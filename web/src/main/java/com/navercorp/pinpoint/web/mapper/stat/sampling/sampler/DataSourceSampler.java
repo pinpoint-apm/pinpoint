@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.chart.UncollectedPoint;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
@@ -37,26 +38,28 @@ public class DataSourceSampler implements AgentStatSampler<DataSourceBo, Sampled
 
     @Override
     public SampledDataSource sampleDataPoints(int timeWindowIndex, long timestamp, List<DataSourceBo> dataSourceBoList, DataSourceBo previousDataSourceBo) {
-        if (dataSourceBoList == null || dataSourceBoList.size() == 0) {
+        if (CollectionUtils.isEmpty(dataSourceBoList)) {
             return null;
         }
 
-        List<Integer> activeConnectionSizes = new ArrayList<>(dataSourceBoList.size());
-        List<Integer> maxConnectionSizes = new ArrayList<>(dataSourceBoList.size());
+        final List<Integer> activeConnectionSizes = new ArrayList<>(dataSourceBoList.size());
+        final List<Integer> maxConnectionSizes = new ArrayList<>(dataSourceBoList.size());
 
-        DataSourceBo defaultDataSourceBo = dataSourceBoList.get(0);
-        int id = defaultDataSourceBo.getId();
-        short serviceTypeCode = defaultDataSourceBo.getServiceTypeCode();
+        final DataSourceBo defaultDataSourceBo = dataSourceBoList.get(0);
+        final int id = defaultDataSourceBo.getId();
+        final short serviceTypeCode = defaultDataSourceBo.getServiceTypeCode();
         String databaseName = defaultDataSourceBo.getDatabaseName();
         String jdbcUrl = defaultDataSourceBo.getJdbcUrl();
         for (DataSourceBo dataSourceBo : dataSourceBoList) {
-            int activeConnectionSize = dataSourceBo.getActiveConnectionSize();
+
+            final int activeConnectionSize = dataSourceBo.getActiveConnectionSize();
             if (activeConnectionSize >= 0) {
-                activeConnectionSizes.add(dataSourceBo.getActiveConnectionSize());
+                activeConnectionSizes.add(activeConnectionSize);
             }
-            int maxConnectionSize = dataSourceBo.getMaxConnectionSize();
+
+            final int maxConnectionSize = dataSourceBo.getMaxConnectionSize();
             if (maxConnectionSize >= 0) {
-                maxConnectionSizes.add(dataSourceBo.getMaxConnectionSize());
+                maxConnectionSizes.add(maxConnectionSize);
             }
 
             if (dataSourceBo.getId() != id) {

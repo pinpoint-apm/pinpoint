@@ -50,7 +50,7 @@ public class HbaseJvmGcDao implements AgentStatDaoV2<JvmGcBo> {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
-        if (jvmGcBos == null || jvmGcBos.isEmpty()) {
+        if (CollectionUtils.isEmpty(jvmGcBos)) {
             return;
         }
         List<Put> jvmGcBoPuts = this.agentStatHbaseOperationFactory.createPuts(agentId, AgentStatType.JVM_GC, jvmGcBos, this.jvmGcSerializer);

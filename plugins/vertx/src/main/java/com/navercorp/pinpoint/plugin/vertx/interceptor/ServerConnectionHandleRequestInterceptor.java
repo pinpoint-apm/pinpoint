@@ -479,7 +479,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
         @Override
         public String resolve(T httpServletRequest) {
             final String realIp = httpServletRequest.getHeader(this.realIpHeaderName);
-            if (realIp == null || realIp.isEmpty()) {
+            if (StringUtils.isEmpty(realIp)) {
                 if (httpServletRequest.remoteAddress() != null) {
                     return httpServletRequest.remoteAddress().toString();
                 }

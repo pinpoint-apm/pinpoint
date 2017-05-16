@@ -50,7 +50,7 @@ public class HbaseCpuLoadDao implements AgentStatDaoV2<CpuLoadBo> {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
-        if (cpuLoadBos == null || cpuLoadBos.isEmpty()) {
+        if (CollectionUtils.isEmpty(cpuLoadBos)) {
             return;
         }
         List<Put> cpuLoadPuts = this.agentStatHbaseOperationFactory.createPuts(agentId, AgentStatType.CPU_LOAD, cpuLoadBos, this.cpuLoadSerializer);

@@ -50,7 +50,7 @@ public class HbaseResponseTimeDao implements AgentStatDaoV2<ResponseTimeBo> {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
-        if (responseTimeBos == null || responseTimeBos.isEmpty()) {
+        if (CollectionUtils.isEmpty(responseTimeBos)) {
             return;
         }
         List<Put> responseTimePuts = this.agentStatHbaseOperationFactory.createPuts(agentId, AgentStatType.RESPONSE_TIME, responseTimeBos, this.responseTimeSerializer);
