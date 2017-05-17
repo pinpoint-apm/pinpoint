@@ -442,7 +442,7 @@
 	                function openFilterWizard() {
 	                    reset();
 	                    var oSidebarTitleVoService = new SidebarTitleVoService();
-	
+
 	                    // if (htLastLink.fromNode.serviceType === "USER") {
 	                    //     oSidebarTitleVoService.setImageType("USER").setTitle("USER");
 	                    // } else {
@@ -656,7 +656,9 @@
 	                    zoomToFit();
 	                });
 	                scope.$on("serverMapDirective.openFilterWizard", function (event, link) {
-	                    htLastLink = link;
+	                	if ( link ) {
+							htLastLink = link;
+						}
 	                    openFilterWizard();
 	                });
 	                scope.searchNodeByEnter = function( $event ) {
