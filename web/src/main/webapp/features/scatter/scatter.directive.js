@@ -151,7 +151,7 @@
 							} else {
 								oScatterChart.addBubbleAndMoveAndDraw( oScatterChart.createDataBlock( scatterData ) );
 							}
-							if ( attrs["namespace"] === "forMain" ) {
+							if ( attrs["namespace"] === "forMain" || attrs["namespace"] === "forFilteredMap" ) {
 								$window.htoScatter[application] = oScatterChart;
 							}
 						}, 100);
