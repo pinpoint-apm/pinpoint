@@ -21,8 +21,6 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 
@@ -32,12 +30,14 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
  * @author netspider
  * @author emeroad
  */
-@TargetMethods({
-        @TargetMethod(name="executeUpdate", paramTypes={ "java.lang.String" }),
-        @TargetMethod(name="executeUpdate", paramTypes={ "java.lang.String", "int" }),
-        @TargetMethod(name="execute", paramTypes={ "java.lang.String" }),
-        @TargetMethod(name="execute", paramTypes={ "java.lang.String", "int" })
-})
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//@TargetMethods({
+//        @TargetMethod(name="executeUpdate", paramTypes={ "java.lang.String" }),
+//        @TargetMethod(name="executeUpdate", paramTypes={ "java.lang.String", "int" }),
+//        @TargetMethod(name="execute", paramTypes={ "java.lang.String" }),
+//        @TargetMethod(name="execute", paramTypes={ "java.lang.String", "int" })
+//})
 public class StatementExecuteUpdateInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
     
     public StatementExecuteUpdateInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {

@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.plugin.log4j.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor0;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
 import org.apache.log4j.MDC;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -49,7 +48,9 @@ public class LoggingEventOfLog4jInterceptor implements AroundInterceptor0 {
         }
     }
 
-    @IgnoreMethod
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//    @IgnoreMethod
     @Override
     public void after(Object target, Object result, Throwable throwable) {
 
