@@ -9,7 +9,6 @@ import com.ibm.websphere.servlet.request.IRequest;
 /**
  * @Author Sachin Mittal
  */
-@TargetMethod(name = "handleRequest", paramTypes = { "com.ibm.websphere.servlet.request.IRequest" })
 public class ServerHandleInterceptor extends AbstractServerHandleInterceptor {
 
     public ServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter) {
