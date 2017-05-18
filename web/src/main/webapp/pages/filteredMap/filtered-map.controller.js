@@ -163,6 +163,7 @@
 
 	            $scope.hasFilter = false;
 	            $scope.$broadcast('sidebarTitleDirective.initialize.forFilteredMap', oSidebarTitleVoService, node, oNavbarVoService);
+				$scope.$broadcast('groupedApplicationListDirective.initialize', node, data, oNavbarVoService);
 	            $scope.$broadcast('nodeInfoDetailsDirective.initialize', node, data, oNavbarVoService, reloadOnlyForNode);
 	            $scope.$broadcast('linkInfoDetailsDirective.hide', query, node, data, oNavbarVoService);
 	            reloadOnlyForNode = false;
@@ -199,6 +200,7 @@
 	                $scope.hasFilter = false;
 	            }
 	            $scope.$broadcast('sidebarTitleDirective.initialize.forFilteredMap', oSidebarTitleVoService, link);
+				$scope.$broadcast('groupedApplicationListDirective.initialize', link, data, oNavbarVoService);
 	            $scope.$broadcast('nodeInfoDetailsDirective.hide');
 	            $scope.$broadcast('linkInfoDetailsDirective.initialize', link, data, oNavbarVoService);
 	            reloadOnlyForLink = false;
