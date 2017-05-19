@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.web.cluster;
 
-import com.navercorp.pinpoint.common.util.StringUtils;
+import org.springframework.util.StringUtils;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -45,12 +46,16 @@ public class CollectorClusterInfoRepository {
 
     public void put(String id, byte[] bytes) {
 
-        final String strData = new String(bytes, charset);
-        final List<String> profilerInfoList = StringUtils.tokenizeToStringList(strData, PROFILER_SEPARATOR);
-        final Set<String> profilerInfoSet = new HashSet<>(profilerInfoList);
+        final Set<String> profilerInfoSet = newProfilerInfo(bytes);
         synchronized (lock) {
             repository.put(id, profilerInfoSet);
         }
+    }
+
+    private Set<String> newProfilerInfo(byte[] bytes) {
+        final String strData = new String(bytes, charset);
+        final List<String> profilerInfoList = Arrays.asList(StringUtils.tokenizeToStringArray(strData, PROFILER_SEPARATOR));
+        return new HashSet<>(profilerInfoList);
     }
 
     public void remove(String id) {
@@ -84,7 +89,7 @@ public class CollectorClusterInfoRepository {
     }
 
     private String bindingKey(String applicationName, String agentId, long startTimeStamp) {
-        StringBuilder key = new StringBuilder();
+        StringBuilder key = new StringBuilder(64);
 
         key.append(applicationName);
         key.append(':');

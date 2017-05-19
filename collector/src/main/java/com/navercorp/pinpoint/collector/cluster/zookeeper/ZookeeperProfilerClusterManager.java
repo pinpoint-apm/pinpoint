@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,7 +40,7 @@ import java.util.Map;
  */
 public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHandler {
 
-    private static final Charset charset = Charset.forName("UTF-8");
+    private static final Charset charset = StandardCharsets.UTF_8;
 
     private static final String PROFILER_SEPARATOR = "\r\n";
 
@@ -142,12 +143,12 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
         }
 
 
-        String clusterData = new String(contents, charset);
-        List<String> allClusterData = com.navercorp.pinpoint.common.util.StringUtils.tokenizeToStringList(clusterData, PROFILER_SEPARATOR);
+        final String clusterData = new String(contents, charset);
+        final String[] allClusterData = org.springframework.util.StringUtils.tokenizeToStringArray(clusterData, PROFILER_SEPARATOR);
 
-        List<String> result = new ArrayList<>(allClusterData.size());
+        List<String> result = new ArrayList<>(allClusterData.length);
         for (String eachClusterData : allClusterData) {
-            if (!StringUtils.isBlank(eachClusterData)) {
+            if (StringUtils.isNotBlank(eachClusterData)) {
                 result.add(eachClusterData);
             }
         }

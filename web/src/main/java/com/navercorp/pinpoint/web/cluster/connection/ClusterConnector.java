@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.cluster.connection;
 
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.rpc.LoggingStateChangeEventListener;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.UnsupportOperationMessageListener;
@@ -28,6 +27,7 @@ import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
 import com.navercorp.pinpoint.web.util.WebUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -86,20 +86,29 @@ public class ClusterConnector implements ClusterConnectionProvider {
     private List<InetSocketAddress> parseConnectString(String connectString) {
         List<InetSocketAddress> serverAddressList = new ArrayList<>();
 
-        List<String> hostsList = StringUtils.tokenizeToStringList(connectString, ",");
+        final String[] hostsList = StringUtils.tokenizeToStringArray(connectString, ",");
         for (String host : hostsList) {
-            int portIndex = host.lastIndexOf(":");
-            if (portIndex >= 0 && portIndex < host.length() - 1) {
-                String ip = host.substring(0, portIndex);
-                int port = Integer.parseInt(host.substring(portIndex + 1));
 
-                serverAddressList.add(new InetSocketAddress(ip, port));
+            final InetSocketAddress inetSocketAddress = parseInetSocketAddress(host);
+            if (inetSocketAddress != null) {
+                serverAddressList.add(inetSocketAddress);
             } else {
                 logger.warn("Invalid address format({}, expected: 'ip:port')", host);
             }
         }
 
         return serverAddressList;
+    }
+
+    // for test
+    static InetSocketAddress parseInetSocketAddress(String host) {
+        final int portIndex = host.lastIndexOf(':');
+        if (portIndex >= 0 && portIndex < host.length() - 1) {
+            final String ip = host.substring(0, portIndex);
+            final int port = Integer.parseInt(host.substring(portIndex + 1));
+            return new InetSocketAddress(ip, port);
+        }
+        return null;
     }
 
     @Override
