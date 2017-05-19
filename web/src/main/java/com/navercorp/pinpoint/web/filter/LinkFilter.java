@@ -122,7 +122,8 @@ public class LinkFilter implements Filter {
         this.filterType = getFilterType();
         logger.info("filterType:{}", filterType);
 
-        this.rpcHintList = this.filterHint.getRpcHintList(fromApplicationName);
+        this.rpcHintList = this.filterHint.getRpcHintList(toApplicationName);
+
         // TODO fix : fromSpan base rpccall filter
         this.acceptURLFilter = createAcceptUrlFilter(filterDescriptor);
         this.rpcUrlFilter = createRpcUrlFilter(filterDescriptor);
@@ -359,9 +360,11 @@ public class LinkFilter implements Filter {
             return false;
         }
 
-        if (!rpcHintList.isEmpty()) {
+        // Check for url pattern should now be done on the caller side (from spans) as to spans are missing at this point
+        if (!rpcUrlFilter.accept(fromSpanList)) {
             return false;
         }
+
         // if agent filter is FromAgentFilter or AcceptAgentFilter(agent filter is not selected), url filtering is available.
         return fromBaseFilter(fromSpanList);
     }
@@ -395,6 +398,10 @@ public class LinkFilter implements Filter {
         // exceptional case
         // 1. remote call fail
         // 2. span packet lost.
+        if (rpcHintList.isEmpty()) {
+            // fast skip. There is nothing more we can do if rpcHintList is empty.
+            return false;
+        }
         for (SpanBo fromSpan : fromSpanList) {
             final List<SpanEventBo> eventBoList = fromSpan.getSpanEventBoList();
             if (eventBoList == null) {
@@ -402,13 +409,16 @@ public class LinkFilter implements Filter {
             }
             for (SpanEventBo event : eventBoList) {
                 final ServiceType eventServiceType = serviceTypeRegistryService.findServiceType(event.getServiceType());
-                if (!eventServiceType.isRpcClient() || !eventServiceType.isQueue()) {
+                if (!eventServiceType.isRpcClient() && !eventServiceType.isQueue()) {
                     continue;
                 }
                 if (!eventServiceType.isRecordStatistics()) {
                     continue;
                 }
                 // check rpc call fail
+                // There are also cases where multiple applications receiving the same request from the caller node
+                // but not all of them have agents installed. RpcHint is used for such cases as acceptUrlFilter will
+                // reject these transactions.
                 for (RpcHint rpcHint : rpcHintList) {
                     for (RpcType rpcType : rpcHint.getRpcTypeList()) {
                         if (rpcType.isMatched(event.getDestinationId(), eventServiceType.getCode())) {
