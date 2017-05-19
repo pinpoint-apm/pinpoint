@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.util;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
+import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,15 +39,42 @@ public class ServiceTypeRegistryMockFactory {
 
     private final Map<Short, ServiceType> serviceTypeMap = new HashMap<>();
 
-    public void addServiceTypeMock(short typeCode, String typeName) {
+    public void addServiceTypeMock(short typeCode, String typeName, ServiceTypeProperty... serviceTypeProperties) {
         // setup serviceType
         ServiceType mockServiceType = mock(ServiceType.class);
         when(mockServiceType.getCode()).thenReturn(typeCode);
         when(mockServiceType.getName()).thenReturn(typeName);
 
+        if (ServiceType.USER.getName().equals(typeName)) {
+            when(mockServiceType.isUser()).thenReturn(true);
+        }
+        if (ServiceType.UNKNOWN.getName().equals(typeName)) {
+            when(mockServiceType.isUnknown()).thenReturn(true);
+        }
         if (ServiceTypeCategory.SERVER.contains(typeCode)) {
-            logger.debug("mark isWas() {}/{}", mockServiceType.getName(), mockServiceType.getCode());
             when(mockServiceType.isWas()).thenReturn(true);
+        }
+        if (ServiceTypeCategory.RPC.contains(typeCode)) {
+            when(mockServiceType.isRpcClient()).thenReturn(true);
+        }
+
+        for (ServiceTypeProperty serviceTypeProperty : serviceTypeProperties) {
+            switch (serviceTypeProperty) {
+                case TERMINAL:
+                    when(mockServiceType.isTerminal()).thenReturn(true);
+                    break;
+                case QUEUE:
+                    when(mockServiceType.isQueue()).thenReturn(true);
+                    break;
+                case RECORD_STATISTICS:
+                    when(mockServiceType.isRecordStatistics()).thenReturn(true);
+                    break;
+                case INCLUDE_DESTINATION_ID:
+                    when(mockServiceType.isIncludeDestinationId()).thenReturn(true);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown serviceTypeProperty : " + serviceTypeProperty);
+            }
         }
 
         this.serviceTypeMap.put(typeCode, mockServiceType);
