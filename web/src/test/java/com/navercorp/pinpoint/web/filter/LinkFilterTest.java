@@ -314,6 +314,67 @@ public class LinkFilterTest {
     }
 
     @Test
+    public void wasToWasFilter_noMatch_missingReceivingSpan() {
+        final ServiceType tomcat = serviceTypeRegistryService.findServiceTypeByName(TOMCAT_TYPE_NAME);
+
+        final String rpcHost = "some.domain.name";
+        final String rpcUrl = "http://" + rpcHost + "/some/test/path";
+
+        FilterDescriptor descriptor = new FilterDescriptor();
+        descriptor.setFromApplicationName("APP_A");
+        descriptor.setFromServiceType(tomcat.getName());
+        descriptor.setToApplicationName("APP_B");
+        descriptor.setToServiceType(tomcat.getName());
+
+        FilterHint emptyHint = new FilterHint(Collections.emptyList());
+        FilterHint unmatchingHint = new FilterHint(Collections.singletonList(
+                new RpcHint("APP_B", Collections.singletonList(
+                        new RpcType("different.domain.name", RPC_TYPE_CODE)))));
+        FilterHint matchingHint = new FilterHint(Collections.singletonList(
+                new RpcHint("APP_B", Collections.singletonList(
+                        new RpcType(rpcHost, RPC_TYPE_CODE)))));
+
+        LinkFilter emptyHintLinkFilter = new LinkFilter(descriptor, emptyHint, serviceTypeRegistryService, annotationKeyRegistryService);
+        LinkFilter unmatchingHintLinkFilter = new LinkFilter(descriptor, unmatchingHint, serviceTypeRegistryService, annotationKeyRegistryService);
+        LinkFilter matchingHintLinkFilter = new LinkFilter(descriptor, matchingHint, serviceTypeRegistryService, annotationKeyRegistryService);
+        logger.debug("emptyHintLinkFilter : {}", emptyHintLinkFilter.toString());
+        logger.debug("unmatchingHintLinkFilter : {}", unmatchingHintLinkFilter.toString());
+        logger.debug("matchingHintLinkFilter : {}", matchingHintLinkFilter.toString());
+
+        SpanBo fromSpan = new SpanBo();
+        fromSpan.setSpanId(1);
+        fromSpan.setParentSpanId(-1);
+        fromSpan.setApplicationId("APP_A");
+        fromSpan.setApplicationServiceType(tomcat.getCode());
+        AnnotationBo rpcAnnotation = new AnnotationBo();
+        rpcAnnotation.setKey(RPC_ANNOTATION_CODE);
+        rpcAnnotation.setValue(rpcUrl);
+        SpanEventBo rpcSpanEvent = new SpanEventBo();
+        rpcSpanEvent.setServiceType(RPC_TYPE_CODE);
+        rpcSpanEvent.setDestinationId(rpcHost);
+        rpcSpanEvent.setAnnotationBoList(Collections.singletonList(rpcAnnotation));
+        fromSpan.addSpanEvent(rpcSpanEvent);
+        // Reject - filter hint empty
+        Assert.assertFalse(emptyHintLinkFilter.include(Collections.singletonList(fromSpan)));
+        // Reject - filter hint does not match
+        Assert.assertFalse(unmatchingHintLinkFilter.include(Collections.singletonList(fromSpan)));
+        // Accept - filter hint matches
+        Assert.assertTrue(matchingHintLinkFilter.include(Collections.singletonList(fromSpan)));
+
+        // Check rpc url as well
+        final String unmatchingUrlPattern = "/other/test/**";
+        final String matchingUrlPattern = "/some/test/**";
+        // Reject - url pattern does not match
+        descriptor.setUrl(unmatchingUrlPattern);
+        LinkFilter matchingHintLinkFilterWithUnmatchingUrlPattern = new LinkFilter(descriptor, matchingHint, serviceTypeRegistryService, annotationKeyRegistryService);
+        Assert.assertFalse(matchingHintLinkFilterWithUnmatchingUrlPattern.include(Collections.singletonList(fromSpan)));
+        // Accept - url pattern matches
+        descriptor.setUrl(encodeUrl(matchingUrlPattern));
+        LinkFilter matchingHintLinkFilterWithMatchingUrlPattern = new LinkFilter(descriptor, matchingHint, serviceTypeRegistryService, annotationKeyRegistryService);
+        Assert.assertTrue(matchingHintLinkFilterWithMatchingUrlPattern.include(Collections.singletonList(fromSpan)));
+    }
+
+    @Test
     public void wasToBackendFilter() {
         final ServiceType tomcat = serviceTypeRegistryService.findServiceTypeByName(TOMCAT_TYPE_NAME);
         final ServiceType backend = serviceTypeRegistryService.findServiceTypeByName(BACKEND_TYPE_NAME);
