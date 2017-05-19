@@ -34,7 +34,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -394,9 +393,9 @@ public class ZookeeperJobWorker implements Runnable {
     }
 
     private String addIfAbsentContents(String originalContent, List<String> addContentCandidateList) {
-        List<String> splittedOriginalContent = com.navercorp.pinpoint.common.util.StringUtils.tokenizeToStringList(originalContent, PROFILER_SEPARATOR);
+        final String[] splittedOriginalContent = tokenize(originalContent);
 
-        List<String> addContentList = new ArrayList<>(addContentCandidateList.size());
+        final List<String> addContentList = new ArrayList<>(addContentCandidateList.size());
         for (String addContentCandidate : addContentCandidateList) {
             if (StringUtils.isEmpty(addContentCandidate)) {
                 continue;
@@ -412,7 +411,11 @@ public class ZookeeperJobWorker implements Runnable {
             return originalContent;
         }
 
-        StringBuilder newContent = new StringBuilder(originalContent);
+        return join(originalContent, addContentList);
+    }
+
+    private String join(String originalContent, List<String> addContentList) {
+        final StringBuilder newContent = new StringBuilder(originalContent);
         for (String addContent : addContentList) {
             newContent.append(PROFILER_SEPARATOR);
             newContent.append(addContent);
@@ -439,26 +442,25 @@ public class ZookeeperJobWorker implements Runnable {
     }
 
     private String removeIfExistContents(String originalContent, List<String> removeContentCandidateList) {
-        StringBuilder newContent = new StringBuilder(originalContent.length());
 
-        List<String> splittedOriginalContent = com.navercorp.pinpoint.common.util.StringUtils.tokenizeToStringList(originalContent, PROFILER_SEPARATOR);
-        Iterator<String> originalContentIterator = splittedOriginalContent.iterator();
-        while (originalContentIterator.hasNext()) {
-            String eachContent = originalContentIterator.next();
+        final String[] splittedOriginalContent = tokenize(originalContent);
+
+        final List<String> newContent = new ArrayList<>(splittedOriginalContent.length);
+        for (String eachContent : splittedOriginalContent) {
             if (StringUtils.isBlank(eachContent)) {
                 continue;
             }
 
             if (!isExist(removeContentCandidateList, eachContent)) {
-                newContent.append(eachContent);
-
-                if (originalContentIterator.hasNext()) {
-                    newContent.append(PROFILER_SEPARATOR);
-                }
+                newContent.add(eachContent);
             }
         }
 
-        return newContent.toString();
+        return StringUtils.join(newContent, PROFILER_SEPARATOR);
+    }
+
+    private String[] tokenize(String str) {
+        return org.springframework.util.StringUtils.tokenizeToStringArray(str, PROFILER_SEPARATOR);
     }
 
     private String getKey(PinpointServer pinpointServer) {
