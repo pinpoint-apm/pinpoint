@@ -56,7 +56,11 @@ public class DefaultJdbcUrlParsingService implements JdbcUrlParsingService {
 
     @Override
     public DatabaseInfo parseJdbcUrl(ServiceType serviceType, String jdbcUrl) {
-        if (serviceType == null || jdbcUrl == null) {
+        if (serviceType == null) {
+            return UnKnownDatabaseInfo.INSTANCE;
+        }
+
+        if (jdbcUrl == null) {
             return UnKnownDatabaseInfo.INSTANCE;
         }
 
