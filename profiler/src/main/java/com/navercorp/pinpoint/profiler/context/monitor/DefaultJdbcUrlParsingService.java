@@ -56,7 +56,7 @@ public class DefaultJdbcUrlParsingService implements JdbcUrlParsingService {
 
     @Override
     public DatabaseInfo parseJdbcUrl(ServiceType serviceType, String jdbcUrl) {
-        if (jdbcUrl == null) {
+        if (serviceType == null || jdbcUrl == null) {
             return UnKnownDatabaseInfo.INSTANCE;
         }
 
@@ -67,7 +67,7 @@ public class DefaultJdbcUrlParsingService implements JdbcUrlParsingService {
         }
 
         for (JdbcUrlParserV2 parser : jdbcUrlParserList) {
-            if (serviceType == parser.getServiceType()) {
+            if (parser.getServiceType() != null && serviceType.getCode() == parser.getServiceType().getCode()) {
                 DatabaseInfo databaseInfo = parser.parse(jdbcUrl);
                 return putCacheIfAbsent(cacheKey, databaseInfo);
             }
