@@ -126,4 +126,8 @@ public final class ThreadMXBeanUtils {
         return findThreadName(threadInfos, threadName);
     }
 
+    public static long[] findDeadlockedThreads() {
+        return THREAD_MX_BEAN.findDeadlockedThreads();
+    }
+
 }

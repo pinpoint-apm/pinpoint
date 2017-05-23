@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
 import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
+import com.navercorp.pinpoint.profiler.monitor.DeadlockMonitor;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
@@ -53,6 +54,7 @@ public class DefaultApplicationContext implements ApplicationContext {
 
     private final ProfilerConfig profilerConfig;
 
+    private final DeadlockMonitor deadlockMonitor;
     private final AgentInfoSender agentInfoSender;
     private final AgentStatMonitor agentStatMonitor;
 
@@ -127,6 +129,7 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.agentInformation = injector.getInstance(AgentInformation.class);
         logger.info("agentInformation:{}", agentInformation);
 
+        this.deadlockMonitor = injector.getInstance(DeadlockMonitor.class);
         this.agentInfoSender = injector.getInstance(AgentInfoSender.class);
         this.agentStatMonitor = injector.getInstance(AgentStatMonitor.class);
     }
@@ -199,6 +202,7 @@ public class DefaultApplicationContext implements ApplicationContext {
 
     @Override
     public void start() {
+        this.deadlockMonitor.start();
         this.agentInfoSender.start();
         this.agentStatMonitor.start();
     }
@@ -207,6 +211,7 @@ public class DefaultApplicationContext implements ApplicationContext {
     public void close() {
         this.agentInfoSender.stop();
         this.agentStatMonitor.stop();
+        this.deadlockMonitor.stop();
 
         // Need to process stop
         this.spanDataSender.stop();
