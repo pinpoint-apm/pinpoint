@@ -125,6 +125,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private boolean traceAgentDataSource = false;
     private int dataSourceTraceLimitSize = 20;
 
+    private boolean deadlockMonitorEnable = true;
+    private long deadlockMonitorInterval = 60000L;
+
     private int callStackMaxDepth = 512;
 
     private int jdbcSqlCacheSize = 1024;
@@ -269,6 +272,16 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public int getDataSourceTraceLimitSize() {
         return dataSourceTraceLimitSize;
+    }
+
+    @Override
+    public boolean isDeadlockMonitorEnable() {
+        return deadlockMonitorEnable;
+    }
+
+    @Override
+    public long getDeadlockMonitorInterval() {
+        return deadlockMonitorInterval;
     }
 
     @Override
@@ -439,6 +452,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         this.traceAgentDataSource = readBoolean("profiler.pinpoint.datasource", false);
         this.dataSourceTraceLimitSize = readInt("profiler.pinpoint.datasource.tracelimitsize", 20);
+
+        this.deadlockMonitorEnable = readBoolean("profiler.monitor.deadlock.enable", true);
+        this.deadlockMonitorInterval = readLong("profiler.monitor.deadlock.interval", 60000L);
 
         // CallStack
         this.callStackMaxDepth = readInt("profiler.callstack.max.depth", 64);
@@ -648,6 +664,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append(traceAgentDataSource);
         builder.append(", dataSourceTraceLimitSize=");
         builder.append(dataSourceTraceLimitSize);
+        builder.append(", deadlockMonitorEnable=");
+        builder.append(deadlockMonitorEnable);
+        builder.append(", deadlockMonitorInterval=");
+        builder.append(deadlockMonitorInterval);
         builder.append(", callStackMaxDepth=");
         builder.append(callStackMaxDepth);
         builder.append(", jdbcSqlCacheSize=");
