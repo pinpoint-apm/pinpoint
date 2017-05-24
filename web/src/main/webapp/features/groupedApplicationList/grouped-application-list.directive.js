@@ -35,10 +35,12 @@
 						}
 					};
 					scope.onSelectNodeApplication = function( node ) {
+						AnalyticsService.send(AnalyticsService.CONST.CLK_NODE_IN_GROUPED_VIEW);
 						scope.selectedNode = node;
 						$rootScope.$broadcast("nodeInfoDetailsDirective.initialize", node, savedScatterData, savedNavbarVoService, null, "");
 					};
 					scope.onSelectLinkApplication = function( link ) {
+						AnalyticsService.send(AnalyticsService.CONST.CLK_LINK_IN_GROUPED_VIEW);
 						scope.selectedLink = link;
 						$rootScope.$broadcast("linkInfoDetailsDirective.initialize", link, savedScatterData, savedNavbarVoService);
 					};
@@ -72,6 +74,7 @@
 						scope.selectedLink = null;
 						scope.searchKeyword = {};
 						if ( thing["unknownNodeGroup"] && thing["unknownNodeGroup"].length > 0 ) {
+							AnalyticsService.send(AnalyticsService.CONST.CLK_SHOW_GROUPED_NODE_VIEW);
 							savedNavbarVoService = navbarVoService;
 							savedScatterData = scatterData;
 							scope.node = thing;
@@ -80,6 +83,7 @@
 							scope.isGroupedNode = true;
 							scope.isGroupedLink = false;
 						} else if ( thing["unknownLinkGroup"] && thing["unknownLinkGroup"].length > 0 ) {
+							AnalyticsService.send(AnalyticsService.CONST.CLK_SHOW_GROUPED_LINK_VIEW);
 							savedNavbarVoService = navbarVoService;
 							savedScatterData = scatterData;
 							scope.totalCount = thing["totalCount"];
