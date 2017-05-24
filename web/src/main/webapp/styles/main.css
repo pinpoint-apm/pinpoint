@@ -422,6 +422,11 @@ canvas {outline:none}
 }
 .grouped-application-list span.count {
     float: right;
+    width: 100px;
+    overflow: hidden;
+    text-align: right;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 .grouped-application-list ul.outer {
     padding-left: 0px;
@@ -447,6 +452,15 @@ canvas {outline:none}
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+.grouped-application-list ul.with-icon > li > p.name {
+    width: 220px;
+    margin: 0px 0px -4px 0px;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
 .grouped-application-list ul.inner > li > p.name {
     width: 300px;
     margin: 0px;

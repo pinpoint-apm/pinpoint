@@ -1,8 +1,11 @@
 <div class="panel panel-default grouped-application-list" ng-show="isGroupedNode || isGroupedLink">
 	<div class="panel-heading">
 		<span class="badge">{{groupedApplicationList.length}}</span> applications<span class="badge count">{{totalCount | number:0}}</span>
-		<div class="input-group form-group">
+		<div ng-if="isGroupedNode" class="input-group form-group">
 			<input type="text" ng-model="searchKeyword.applicationName" class="form-control"><span class="input-group-addon"><span class="glyphicon glyphicon-search" style="top:0;"></span></span>
+		</div>
+		<div ng-if="isGroupedLink" class="input-group form-group">
+			<input type="text" ng-model="searchKeyword.toNode.applicationName" class="form-control"><span class="input-group-addon"><span class="glyphicon glyphicon-search" style="top:0;"></span></span>
 		</div>
 	</div>
 	<div class="panel-body">
@@ -16,8 +19,8 @@
 				</ul>
 			</li>
 		</ul>
-		<ul ng-if="isGroupedLink" class="outer">
-			<li ng-repeat="app in groupedApplicationList">
+		<ul ng-if="isGroupedLink" class="outer with-icon">
+			<li ng-repeat="app in groupedApplicationList | filter:searchKeyword">
 				<button class="btn btn-default btn-xs" ng-click="openFilteredMapWindow(app)">
 					<span class="glyphicon glyphicon-filter"></span>
 				</button>
