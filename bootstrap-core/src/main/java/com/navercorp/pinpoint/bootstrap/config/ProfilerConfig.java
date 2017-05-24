@@ -66,6 +66,10 @@ public interface ProfilerConfig {
 
     int getDataSourceTraceLimitSize();
 
+    boolean isDeadlockMonitorEnable();
+
+    long getDeadlockMonitorInterval();
+
     int getSpanDataSenderSocketTimeout();
 
     String getSpanDataSenderSocketType();
