@@ -39,7 +39,7 @@
         <property name="configLocation" value="classpath:/mybatis-config.xml"/>
 
         <!-- typeAliases -->
-        <property name="typeAliasesPackage" value="com.navercorp.pinpoint.web.vo,com.navercorp.pinpoint.web.alarm.vo" />
+        <property name="typeAliasesPackage" value="com.navercorp.pinpoint.web.alarm.vo" />
 
         <!-- setting the location of mapper -->
         <property name="mapperLocations" value="classpath*:mapper/*Mapper.xml"/>
