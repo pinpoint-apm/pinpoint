@@ -408,23 +408,29 @@ public class LinkFilter implements Filter {
                 continue;
             }
             for (SpanEventBo event : eventBoList) {
-                final ServiceType eventServiceType = serviceTypeRegistryService.findServiceType(event.getServiceType());
-                if (!eventServiceType.isRpcClient() && !eventServiceType.isQueue()) {
-                    continue;
+                if (filterByRpcHints(rpcHintList, event)) {
+                    return true;
                 }
-                if (!eventServiceType.isRecordStatistics()) {
-                    continue;
-                }
-                // check rpc call fail
-                // There are also cases where multiple applications receiving the same request from the caller node
-                // but not all of them have agents installed. RpcHint is used for such cases as acceptUrlFilter will
-                // reject these transactions.
-                for (RpcHint rpcHint : rpcHintList) {
-                    for (RpcType rpcType : rpcHint.getRpcTypeList()) {
-                        if (rpcType.isMatched(event.getDestinationId(), eventServiceType.getCode())) {
-                            if (checkResponseCondition(event.getEndElapsed(), event.hasException())) {
-                                return true;
-                            }
+            }
+        }
+        return false;
+    }
+
+    private boolean filterByRpcHints(List<RpcHint> rpcHintList, SpanEventBo event) {
+        final ServiceType eventServiceType = serviceTypeRegistryService.findServiceType(event.getServiceType());
+        if (!eventServiceType.isRecordStatistics()) {
+            return false;
+        }
+        if (eventServiceType.isRpcClient() || eventServiceType.isQueue()) {
+            // check rpc call fail
+            // There are also cases where multiple applications receiving the same request from the caller node
+            // but not all of them have agents installed. RpcHint is used for such cases as acceptUrlFilter will
+            // reject these transactions.
+            for (RpcHint rpcHint : rpcHintList) {
+                for (RpcType rpcType : rpcHint.getRpcTypeList()) {
+                    if (rpcType.isMatched(event.getDestinationId(), eventServiceType.getCode())) {
+                        if (checkResponseCondition(event.getEndElapsed(), event.hasException())) {
+                            return true;
                         }
                     }
                 }
