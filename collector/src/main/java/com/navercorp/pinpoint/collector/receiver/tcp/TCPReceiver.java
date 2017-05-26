@@ -79,7 +79,7 @@ public class TCPReceiver {
 
     private final Logger logger = LoggerFactory.getLogger(TCPReceiver.class);
 
-    private final ThreadFactory tcpWorkerThreadFactory = new PinpointThreadFactory("Pinpoint-TCP-Worker");
+    private final ThreadFactory tcpWorkerThreadFactory = new PinpointThreadFactory("Pinpoint-TCP-Worker", true);
     private final DispatchHandler dispatchHandler;
     private final PinpointServerAcceptor serverAcceptor;
 
