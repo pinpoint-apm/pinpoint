@@ -27,6 +27,7 @@ public class DeadlockMonitorThread {
     public DeadlockMonitorThread(DeadlockThreadRegistry deadlockThreadRegistry, long intervalMillis) {
         this.deadlockMonitorTask = new DeadlockMonitorTask(deadlockThreadRegistry, intervalMillis);
         this.deadlockMonitorThread = new Thread(deadlockMonitorTask, "Pinpoint-deadlock-monitor");
+        this.deadlockMonitorThread.setDaemon(true);
 
         // for preload
         deadlockMonitorTask.doTask();
