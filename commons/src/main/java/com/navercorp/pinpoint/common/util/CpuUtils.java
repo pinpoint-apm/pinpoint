@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.rpc.util;
+package com.navercorp.pinpoint.common.util;
 
 /**
  * @author emeroad
