@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 import com.navercorp.pinpoint.collector.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.collector.TestAwaitUtils;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.PinpointZookeeperException;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import org.junit.Assert;
@@ -167,10 +168,11 @@ public class ZookeeperJobWorkerTest {
     }
 
     private List<String> getServerData(ZookeeperClient zookeeperClient) throws PinpointZookeeperException, InterruptedException {
-        return decodeServerData(zookeeperClient.getData(PATH));
+        final String clusterString = BytesUtils.toString(zookeeperClient.getData(PATH));
+        return decodeServerData(clusterString);
     }
 
-    private List<String> decodeServerData(byte[] serverData) throws PinpointZookeeperException, InterruptedException {
+    private List<String> decodeServerData(String serverData) throws PinpointZookeeperException, InterruptedException {
         if (serverData == null) {
             return Collections.emptyList();
         }
