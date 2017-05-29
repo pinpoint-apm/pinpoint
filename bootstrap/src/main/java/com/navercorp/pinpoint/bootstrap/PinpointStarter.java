@@ -173,7 +173,7 @@ class PinpointStarter {
                 pinpointAgent.stop();
             }
         };
-        PinpointThreadFactory pinpointThreadFactory = new PinpointThreadFactory("Pinpoint-shutdown-hook", true);
+        PinpointThreadFactory pinpointThreadFactory = new PinpointThreadFactory("Pinpoint-shutdown-hook", false);
         Thread thread = pinpointThreadFactory.newThread(stop);
         Runtime.getRuntime().addShutdownHook(thread);
     }
