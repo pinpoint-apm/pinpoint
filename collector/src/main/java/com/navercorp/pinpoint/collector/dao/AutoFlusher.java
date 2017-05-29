@@ -16,18 +16,17 @@
 
 package com.navercorp.pinpoint.collector.dao;
 
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 
@@ -76,7 +75,7 @@ public class AutoFlusher {
             return;
         }
 
-        ThreadFactory threadFactory = PinpointThreadFactory.createThreadFactory(this.getClass().getSimpleName());
+        ThreadFactory threadFactory = PinpointThreadFactory.createThreadFactory(this.getClass().getSimpleName(), true);
         executor = Executors.newScheduledThreadPool(cachedStatisticsDaoList.size(), threadFactory);
         for (CachedStatisticsDao dao : cachedStatisticsDaoList) {
             executor.scheduleAtFixedRate(new Worker(dao), 0L, flushPeriod, TimeUnit.MILLISECONDS);
