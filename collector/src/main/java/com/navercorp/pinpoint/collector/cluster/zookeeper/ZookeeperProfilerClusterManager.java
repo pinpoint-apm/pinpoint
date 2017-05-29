@@ -28,9 +28,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -39,8 +38,6 @@ import java.util.Map;
  * @author Taejin Koo
  */
 public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHandler {
-
-    private static final Charset charset = StandardCharsets.UTF_8;
 
     private static final String PROFILER_SEPARATOR = "\r\n";
 
@@ -137,18 +134,16 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
     }
 
     public List<String> getClusterData() {
-        byte[] contents = worker.getClusterData();
-        if (contents == null) {
+        final String clusterData = worker.getClusterData();
+        if (clusterData == null) {
             return Collections.emptyList();
         }
 
+        List<String> allClusterData = tokenize(clusterData);
 
-        final String clusterData = new String(contents, charset);
-        final String[] allClusterData = org.springframework.util.StringUtils.tokenizeToStringArray(clusterData, PROFILER_SEPARATOR);
-
-        List<String> result = new ArrayList<>(allClusterData.length);
+        List<String> result = new ArrayList<>(allClusterData.size());
         for (String eachClusterData : allClusterData) {
-            if (StringUtils.isNotBlank(eachClusterData)) {
+            if (!StringUtils.isBlank(eachClusterData)) {
                 result.add(eachClusterData);
             }
         }
@@ -181,6 +176,11 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
         }
 
         return false;
+    }
+
+    private List<String> tokenize(String str) {
+        final String[] tokenArray = org.springframework.util.StringUtils.tokenizeToStringArray(str, PROFILER_SEPARATOR);
+        return Arrays.asList(tokenArray);
     }
 
 }

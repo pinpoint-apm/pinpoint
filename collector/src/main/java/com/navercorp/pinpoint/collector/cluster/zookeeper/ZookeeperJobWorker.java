@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
+import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.job.ZookeeperJob;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
@@ -29,8 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,8 +44,6 @@ import java.util.concurrent.ThreadFactory;
  */
 public class ZookeeperJobWorker implements Runnable {
 
-    private static final Charset charset = StandardCharsets.UTF_8;
-
     private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
     private static final String PINPOINT_COLLECTOR_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/collector";
 
@@ -53,6 +51,8 @@ public class ZookeeperJobWorker implements Runnable {
     private static final String PROFILER_SEPARATOR = "\r\n";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private static final byte[] EMPTY_DATA_BYTES = BytesUtils.toBytes("");
 
     private final Object lock = new Object();
 
@@ -148,15 +148,26 @@ public class ZookeeperJobWorker implements Runnable {
         }
     }
 
-    public byte[] getClusterData() {
+    public String getClusterData() {
         try {
-            return zookeeperClient.getData(collectorUniqPath);
+            return getClusterData0();
         } catch (Exception e) {
             logger.warn(e.getMessage(), e);
         }
 
         return null;
     }
+
+    private String getClusterData0() throws PinpointZookeeperException, InterruptedException {
+        final byte[] clusterBytes = zookeeperClient.getData(collectorUniqPath);
+        return BytesUtils.toString(clusterBytes);
+    }
+
+    private void setClusterData0(String clusterString) throws PinpointZookeeperException, InterruptedException {
+        final byte[] clusterBytes = BytesUtils.toBytes(clusterString);
+        zookeeperClient.setData(collectorUniqPath, clusterBytes);
+    }
+
 
     public void removePinpointServer(PinpointServer pinpointServer) {
         if (logger.isDebugEnabled()) {
@@ -323,23 +334,21 @@ public class ZookeeperJobWorker implements Runnable {
             logger.debug("handleUpdate zookeeperJobList:{}", zookeeperJobList);
         }
 
-        List<String> addContentCandidateList = new ArrayList<>(zookeeperJobList.size());
-        for (ZookeeperJob zookeeperJob : zookeeperJobList) {
-            addContentCandidateList.add(zookeeperJob.getKey());
-        }
+        final List<String> addContentCandidateList = getZookeeperKeyList(zookeeperJobList);
 
         try {
             if (zookeeperClient.exists(collectorUniqPath)) {
-                byte[] contents = zookeeperClient.getData(collectorUniqPath);
+                final String currentClusterData = getClusterData0();
 
-                String data = addIfAbsentContents(new String(contents, charset), addContentCandidateList);
-                zookeeperClient.setData(collectorUniqPath, data.getBytes(charset));
+                final String updateCluster = addIfAbsentContents(currentClusterData, addContentCandidateList);
+                setClusterData0(updateCluster);
             } else {
                 zookeeperClient.createPath(collectorUniqPath);
 
                 // should return error even if NODE exists if the data is important
-                String data = addIfAbsentContents("", addContentCandidateList);
-                zookeeperClient.createNode(collectorUniqPath, data.getBytes(charset));
+                final String newClusterData = addIfAbsentContents("", addContentCandidateList);
+                final byte[] newClusterDataBytes = BytesUtils.toBytes(newClusterData);
+                zookeeperClient.createNode(collectorUniqPath, newClusterDataBytes);
             }
             return true;
         } catch (Exception e) {
@@ -353,22 +362,32 @@ public class ZookeeperJobWorker implements Runnable {
             logger.debug("handleDelete zookeeperJobList:{}", zookeeperJobList);
         }
 
-        List<String> removeContentCandidateList = new ArrayList<>(zookeeperJobList.size());
-        for (ZookeeperJob zookeeperJob : zookeeperJobList) {
-            removeContentCandidateList.add(zookeeperJob.getKey());
-        }
+        final List<String> removeContentCandidateList = getZookeeperKeyList(zookeeperJobList);
 
         try {
             if (zookeeperClient.exists(collectorUniqPath)) {
-                byte[] contents = zookeeperClient.getData(collectorUniqPath);
-                String data = removeIfExistContents(new String(contents, charset), removeContentCandidateList);
-                zookeeperClient.setData(collectorUniqPath, data.getBytes(charset));
+                final String currentClusterData = getClusterData0();
+
+                final String remainCluster = removeIfExistContents(currentClusterData, removeContentCandidateList);
+                setClusterData0(remainCluster);
             }
             return true;
         } catch (Exception e) {
             logger.warn("handleDelete failed. caused:{}, jobSize:{}", e.getMessage(), zookeeperJobList.size(), e);
         }
         return false;
+    }
+
+    private List<String> getZookeeperKeyList(List<ZookeeperJob> zookeeperJobList) {
+        if (zookeeperJobList == null) {
+            return Collections.emptyList();
+        }
+
+        final List<String> keyList = new ArrayList<>(zookeeperJobList.size());
+        for (ZookeeperJob zookeeperJob : zookeeperJobList) {
+            keyList.add(zookeeperJob.getKey());
+        }
+        return keyList;
     }
 
     private boolean handleClear(List<ZookeeperJob> zookeeperJobList) {
@@ -378,12 +397,12 @@ public class ZookeeperJobWorker implements Runnable {
 
         try {
             if (zookeeperClient.exists(collectorUniqPath)) {
-                zookeeperClient.setData(collectorUniqPath, "".getBytes(charset));
+                zookeeperClient.setData(collectorUniqPath, EMPTY_DATA_BYTES);
             } else {
                 zookeeperClient.createPath(collectorUniqPath);
 
                 // should return error even if NODE exists if the data is important
-                zookeeperClient.createNode(collectorUniqPath, "".getBytes(charset));
+                zookeeperClient.createNode(collectorUniqPath, EMPTY_DATA_BYTES);
             }
             return true;
         } catch (Exception e) {
@@ -392,26 +411,16 @@ public class ZookeeperJobWorker implements Runnable {
         return false;
     }
 
-    private String addIfAbsentContents(String originalContent, List<String> addContentCandidateList) {
-        final String[] splittedOriginalContent = tokenize(originalContent);
+    private String addIfAbsentContents(String clusterDataString, List<String> addContentCandidateList) {
+        final List<String> clusterDataList = tokenize(clusterDataString);
 
-        final List<String> addContentList = new ArrayList<>(addContentCandidateList.size());
-        for (String addContentCandidate : addContentCandidateList) {
-            if (StringUtils.isEmpty(addContentCandidate)) {
-                continue;
-            }
-
-            boolean exist = isExist(splittedOriginalContent, addContentCandidate);
-            if (!exist) {
-                addContentList.add(addContentCandidate);
-            }
-        }
+        final List<String> addContentList = getChangeList(clusterDataList, addContentCandidateList);
 
         if (addContentList.isEmpty()) {
-            return originalContent;
+            return clusterDataString;
         }
 
-        return join(originalContent, addContentList);
+        return join(clusterDataString, addContentList);
     }
 
     private String join(String originalContent, List<String> addContentList) {
@@ -421,14 +430,6 @@ public class ZookeeperJobWorker implements Runnable {
             newContent.append(addContent);
         }
         return newContent.toString();
-    }
-
-    private boolean isExist(String[] contents, String value) {
-        if (contents == null) {
-            return false;
-        }
-
-        return isExist(Arrays.asList(contents), value);
     }
 
     private boolean isExist(List<String> contentList, String value) {
@@ -441,26 +442,29 @@ public class ZookeeperJobWorker implements Runnable {
         return false;
     }
 
-    private String removeIfExistContents(String originalContent, List<String> removeContentCandidateList) {
+    private String removeIfExistContents(String clusterDataString, List<String> removeClusterDataList) {
 
-        final String[] splittedOriginalContent = tokenize(originalContent);
+        final List<String> clusterDataList = tokenize(clusterDataString);
 
-        final List<String> newContent = new ArrayList<>(splittedOriginalContent.length);
-        for (String eachContent : splittedOriginalContent) {
-            if (StringUtils.isBlank(eachContent)) {
-                continue;
-            }
+        final List<String> remainCluster = getChangeList(removeClusterDataList, clusterDataList);
 
-            if (!isExist(removeContentCandidateList, eachContent)) {
-                newContent.add(eachContent);
-            }
-        }
-
-        return StringUtils.join(newContent, PROFILER_SEPARATOR);
+        return StringUtils.join(remainCluster, PROFILER_SEPARATOR);
     }
 
-    private String[] tokenize(String str) {
-        return org.springframework.util.StringUtils.tokenizeToStringArray(str, PROFILER_SEPARATOR);
+    private List<String> getChangeList(List<String> originalList, List<String> changeList) {
+        final List<String> result = new ArrayList<>(changeList.size());
+        for (String eachContent : changeList) {
+            final boolean exist = isExist(originalList, eachContent);
+            if (!exist) {
+                result.add(eachContent);
+            }
+        }
+        return result;
+    }
+
+    private List<String> tokenize(String str) {
+        final String[] tokenArray = org.springframework.util.StringUtils.tokenizeToStringArray(str, PROFILER_SEPARATOR);
+        return Arrays.asList(tokenArray);
     }
 
     private String getKey(PinpointServer pinpointServer) {
