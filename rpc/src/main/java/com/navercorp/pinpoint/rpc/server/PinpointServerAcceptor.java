@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.util.AssertUtils;
-import com.navercorp.pinpoint.rpc.util.CpuUtils;
+import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.rpc.util.LoggerFactorySetup;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import org.jboss.netty.bootstrap.ServerBootstrap;
