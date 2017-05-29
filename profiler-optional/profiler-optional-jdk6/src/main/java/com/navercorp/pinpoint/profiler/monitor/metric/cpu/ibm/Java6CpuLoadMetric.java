@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.monitor.metric.cpu.ibm;
 
 import com.codahale.metrics.Gauge;
 import com.ibm.lang.management.OperatingSystemMXBean;
+import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
 
 import java.lang.management.ManagementFactory;
@@ -27,6 +28,8 @@ import java.lang.management.RuntimeMXBean;
  * @author HyunGil Jeong
  */
 public class Java6CpuLoadMetric implements CpuLoadMetric {
+
+    private static final int CPU_COUNT = CpuUtils.cpuCount();
 
     private static final int UNSUPPORTED = -1;
     private static final int UNINITIALIZED = -1;
@@ -79,8 +82,7 @@ public class Java6CpuLoadMetric implements CpuLoadMetric {
 
                 final long totalCpuTimeNS = cpuTimeNS - lastCpuTimeNS;
                 final long diffUpTimeMS = upTimeMS - lastUpTimeMS;
-                final int numProcessors = Runtime.getRuntime().availableProcessors();
-                final long totalUpTimeNS = (diffUpTimeMS * 1000000) * numProcessors;
+                final long totalUpTimeNS = (diffUpTimeMS * 1000000) * CPU_COUNT;
 
                 final double cpuLoad = totalUpTimeNS > 0 ?
                         Math.min(100F, totalCpuTimeNS / (float)totalUpTimeNS) : UNSUPPORTED;

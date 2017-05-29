@@ -85,6 +85,9 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
     private void preLoadClass(String agentId, long agentStartTimestamp, AgentStatMetricCollector<TAgentStat> agentStatCollector) {
         logger.debug("pre-load class start");
         CollectJob collectJob = new CollectJob(EmptyDataSender.INSTANCE, agentId, agentStartTimestamp, agentStatCollector, 1);
+
+        // It is called twice to initialize some fields.
+        collectJob.run();
         collectJob.run();
         logger.debug("pre-load class end");
     }
