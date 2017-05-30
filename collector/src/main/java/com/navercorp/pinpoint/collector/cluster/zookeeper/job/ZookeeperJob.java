@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper.job;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ZookeeperJob {
 
