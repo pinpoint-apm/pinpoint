@@ -28,9 +28,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -38,8 +35,6 @@ import java.util.Map;
  * @author Taejin Koo
  */
 public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHandler {
-
-    private static final String PROFILER_SEPARATOR = "\r\n";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -134,21 +129,7 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
     }
 
     public List<String> getClusterData() {
-        final String clusterData = worker.getClusterData();
-        if (clusterData == null) {
-            return Collections.emptyList();
-        }
-
-        List<String> allClusterData = tokenize(clusterData);
-
-        List<String> result = new ArrayList<>(allClusterData.size());
-        for (String eachClusterData : allClusterData) {
-            if (!StringUtils.isBlank(eachClusterData)) {
-                result.add(eachClusterData);
-            }
-        }
-
-        return result;
+        return worker.getClusterList();
     }
 
     public void initZookeeperClusterData() {
@@ -176,11 +157,6 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
         }
 
         return false;
-    }
-
-    private List<String> tokenize(String str) {
-        final String[] tokenArray = org.springframework.util.StringUtils.tokenizeToStringArray(str, PROFILER_SEPARATOR);
-        return Arrays.asList(tokenArray);
     }
 
 }

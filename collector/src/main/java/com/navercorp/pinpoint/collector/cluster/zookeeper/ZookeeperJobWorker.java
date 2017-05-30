@@ -148,22 +148,23 @@ public class ZookeeperJobWorker implements Runnable {
         }
     }
 
-    public String getClusterData() {
+    public List<String> getClusterList() {
         try {
-            return getClusterData0();
+            final String clusterData = getClusterData();
+            return tokenize(clusterData);
         } catch (Exception e) {
             logger.warn(e.getMessage(), e);
         }
 
-        return null;
+        return Collections.emptyList();
     }
 
-    private String getClusterData0() throws PinpointZookeeperException, InterruptedException {
+    private String getClusterData() throws PinpointZookeeperException, InterruptedException {
         final byte[] clusterBytes = zookeeperClient.getData(collectorUniqPath);
         return BytesUtils.toString(clusterBytes);
     }
 
-    private void setClusterData0(String clusterString) throws PinpointZookeeperException, InterruptedException {
+    private void setClusterData(String clusterString) throws PinpointZookeeperException, InterruptedException {
         final byte[] clusterBytes = BytesUtils.toBytes(clusterString);
         zookeeperClient.setData(collectorUniqPath, clusterBytes);
     }
@@ -338,10 +339,10 @@ public class ZookeeperJobWorker implements Runnable {
 
         try {
             if (zookeeperClient.exists(collectorUniqPath)) {
-                final String currentClusterData = getClusterData0();
+                final String currentClusterData = getClusterData();
 
                 final String updateCluster = addIfAbsentContents(currentClusterData, addContentCandidateList);
-                setClusterData0(updateCluster);
+                setClusterData(updateCluster);
             } else {
                 zookeeperClient.createPath(collectorUniqPath);
 
@@ -366,10 +367,10 @@ public class ZookeeperJobWorker implements Runnable {
 
         try {
             if (zookeeperClient.exists(collectorUniqPath)) {
-                final String currentClusterData = getClusterData0();
+                final String currentClusterData = getClusterData();
 
                 final String remainCluster = removeIfExistContents(currentClusterData, removeContentCandidateList);
-                setClusterData0(remainCluster);
+                setClusterData(remainCluster);
             }
             return true;
         } catch (Exception e) {
