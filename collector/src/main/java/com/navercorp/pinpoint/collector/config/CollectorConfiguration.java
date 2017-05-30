@@ -86,6 +86,34 @@ public class CollectorConfiguration implements InitializingBean {
     private String clusterListenIp;
     private int clusterListenPort;
 
+    private boolean flinkClusterEnable;
+    private String flinkClusterZookeeperAddress;
+    private int flinkClusterSessionTimeout;
+
+    public void setFlinkClusterEnable(boolean flinkClusterEnable) {
+        this.flinkClusterEnable = flinkClusterEnable;
+    }
+
+    public void setFlinkClusterZookeeperAddress(String flinkClusterZookeeperAddress) {
+        this.flinkClusterZookeeperAddress = flinkClusterZookeeperAddress;
+    }
+
+    public void setFlinkClusterSessionTimeout(int flinkClusterSessionTimeout) {
+        this.flinkClusterSessionTimeout = flinkClusterSessionTimeout;
+    }
+
+    public boolean isFlinkClusterEnable() {
+        return flinkClusterEnable;
+    }
+
+    public String getFlinkClusterZookeeperAddress() {
+        return flinkClusterZookeeperAddress;
+    }
+
+    public int getFlinkClusterSessionTimeout() {
+        return flinkClusterSessionTimeout;
+    }
+
     public String getTcpListenIp() {
         return tcpListenIp;
     }
@@ -339,6 +367,10 @@ public class CollectorConfiguration implements InitializingBean {
         
         this.agentEventWorkerThreadSize = readInt(properties, "collector.agentEventWorker.threadSize", 32);
         this.agentEventWorkerQueueSize = readInt(properties, "collector.agentEventWorker.queueSize", 1024 * 5);
+
+        this.flinkClusterEnable = readBoolean(properties, "flink.cluster.enable");
+        this.flinkClusterZookeeperAddress = readString(properties, "flink.cluster.zookeeper.address", "");
+        this.flinkClusterSessionTimeout = readInt(properties, "flink.cluster.zookeeper.sessiontimeout", -1);
         
         String[] l4Ips = StringUtils.split(readString(properties, "collector.l4.ip", null), ",");
         if (l4Ips == null) {
