@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
@@ -54,8 +55,8 @@ public class DefaultSpanFactory implements SpanFactory {
     }
 
     @Override
-    public Span newSpan() {
-        final Span span = new Span();
+    public Span newSpan(TraceRoot traceRoot) {
+        final Span span = new Span(traceRoot);
         span.setAgentId(agentId);
         span.setApplicationName(applicationName);
         span.setAgentStartTime(agentStartTime);

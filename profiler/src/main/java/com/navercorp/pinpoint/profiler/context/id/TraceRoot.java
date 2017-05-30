@@ -14,23 +14,41 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context.id;
 
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
+
+import java.nio.ByteBuffer;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class CallStackFactoryV2 implements CallStackFactory {
+public interface TraceRoot {
 
-    private final int maxDepth;
+    TraceId getTraceId();
 
-    public CallStackFactoryV2(int maxDepth) {
-        this.maxDepth = maxDepth;
-    }
+    long getLocalTransactionId();
 
-    @Override
-    public CallStack newCallStack(TraceRoot traceRoot) {
-        return new DefaultCallStack(traceRoot, maxDepth);
-    }
+    long getTraceStartTime();
+
+    /**
+     * for {@code Span.setTransactionId(ByteBuffer);}
+     * @return
+     */
+    ByteBuffer getCompactTransactionId();
+
+    ByteBuffer getBinaryTransactionId();
+
+    void maskErrorCode(int errorCode);
+
+    int getErrorCode();
+
+    void setLoggingInfo(byte loggingInfo);
+
+    byte getLoggingInfo();
+
+    void setEndPoint(String endPoint);
+
+    String getEndPoint();
+
 }

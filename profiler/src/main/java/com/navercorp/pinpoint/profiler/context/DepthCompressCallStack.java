@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -23,12 +25,12 @@ public class DepthCompressCallStack extends DefaultCallStack {
 
     private int latestStackIndex = 0;
 
-    public DepthCompressCallStack(Span span) {
-        this(span, -1);
+    public DepthCompressCallStack(TraceRoot traceRoot) {
+        this(traceRoot, -1);
     }
     
-    public DepthCompressCallStack(Span span, int maxDepth) {
-        super(span, maxDepth);
+    public DepthCompressCallStack(TraceRoot traceRoot, int maxDepth) {
+        super(traceRoot, maxDepth);
     }
 
     @Override

@@ -229,7 +229,7 @@ public class DefaultTraceContext implements TraceContext {
             throw new NullPointerException("transactionId must not be null");
         }
         // TODO Should handle exception when parsing failed.
-        return traceIdFactory.parse(transactionId, parentSpanId, spanId, flags);
+        return traceIdFactory.continueTraceId(transactionId, parentSpanId, spanId, flags);
     }
 
     @Override

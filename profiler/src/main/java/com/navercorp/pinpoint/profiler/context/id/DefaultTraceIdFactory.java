@@ -52,7 +52,7 @@ public class DefaultTraceIdFactory implements TraceIdFactory {
         return traceId;
     }
 
-    public TraceId parse(String transactionId, long parentSpanId, long spanId, short flags) {
+    public TraceId continueTraceId(String transactionId, long parentSpanId, long spanId, short flags) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }

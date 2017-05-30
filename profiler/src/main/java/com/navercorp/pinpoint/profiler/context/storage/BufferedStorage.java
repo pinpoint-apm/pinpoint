@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.storage;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.profiler.context.*;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 
 import org.slf4j.Logger;
@@ -38,17 +39,15 @@ public class BufferedStorage implements Storage {
 
     private final int bufferSize;
 
+    private final TraceRoot traceRoot;
     private List<SpanEvent> storage;
     private final DataSender dataSender;
 
     private final SpanPostProcessor spanPostProcessor;
     private final SpanChunkFactory spanChunkFactory;
 
-    public BufferedStorage(DataSender dataSender, SpanPostProcessor spanPostProcessor, SpanChunkFactory spanChunkFactory) {
-        this(dataSender, spanPostProcessor, spanChunkFactory, DEFAULT_BUFFER_SIZE);
-    }
 
-    public BufferedStorage(DataSender dataSender, SpanPostProcessor spanPostProcessor, SpanChunkFactory spanChunkFactory, int bufferSize) {
+    public BufferedStorage(TraceRoot traceRoot, DataSender dataSender, SpanPostProcessor spanPostProcessor, SpanChunkFactory spanChunkFactory, int bufferSize) {
         if (dataSender == null) {
             throw new NullPointerException("dataSender must not be null");
         }
@@ -58,6 +57,7 @@ public class BufferedStorage implements Storage {
         if (spanChunkFactory == null) {
             throw new NullPointerException("spanChunkFactory must not be null");
         }
+        this.traceRoot = traceRoot;
         this.dataSender = dataSender;
         this.spanPostProcessor = spanPostProcessor;
         this.spanChunkFactory = spanChunkFactory;
@@ -72,7 +72,7 @@ public class BufferedStorage implements Storage {
 
         if (overflow(storage)) {
             final List<SpanEvent> flushData = clearBuffer();
-            final SpanChunk spanChunk = spanChunkFactory.create(flushData);
+            final SpanChunk spanChunk = spanChunkFactory.create(traceRoot, flushData);
             if (isDebug) {
                 logger.debug("[BufferedStorage] Flush span-chunk {}", spanChunk);
             }
@@ -120,7 +120,7 @@ public class BufferedStorage implements Storage {
     public void flush() {
         final List<SpanEvent> storage = clearBuffer();
         if (CollectionUtils.isNotEmpty(storage)) {
-            final SpanChunk spanChunk = spanChunkFactory.create(storage);
+            final SpanChunk spanChunk = spanChunkFactory.create(traceRoot, storage);
             dataSender.send(spanChunk);
             if (isDebug) {
                 logger.debug("flush span chunk {}", spanChunk);

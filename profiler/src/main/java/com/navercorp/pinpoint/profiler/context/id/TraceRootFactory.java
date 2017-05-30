@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context.id;
 
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class CallStackFactoryV2 implements CallStackFactory {
+public interface TraceRootFactory {
 
-    private final int maxDepth;
+    TraceRoot newTraceRoot();
 
-    public CallStackFactoryV2(int maxDepth) {
-        this.maxDepth = maxDepth;
-    }
+    TraceRoot newAsyncTraceRoot(TraceId traceId, long traceStartTime);
 
-    @Override
-    public CallStack newCallStack(TraceRoot traceRoot) {
-        return new DefaultCallStack(traceRoot, maxDepth);
-    }
+    TraceRoot continueTraceRoot(TraceId traceId);
 }

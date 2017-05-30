@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.apache.thrift.TBase;
 
 import com.navercorp.pinpoint.profiler.context.Span;
@@ -158,10 +160,11 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener, Itera
     }
 
     private void handleSpanEvent(SpanEvent event) {
-        Span span = event.getSpan();
+        TraceRoot span = event.getTraceRoot();
         int asyncId = event.isSetAsyncId() ? event.getAsyncId() : ASYNC_ID_NOT_SET;
+        TraceId traceId = span.getTraceId();
         int asyncSequence = event.isSetAsyncSequence() ? event.getAsyncSequence() : ASYNC_SEQUENCE_NOT_SET;
-        insertItem(new Item(event, span.getStartTime() + event.getStartElapsed(), span.getSpanId(), event.getSequence(), asyncId, asyncSequence));
+        insertItem(new Item(event, span.getTraceStartTime() + event.getStartElapsed(), traceId.getSpanId(), event.getSequence(), asyncId, asyncSequence));
     }
 
     public synchronized TBase<?, ?> pop() {

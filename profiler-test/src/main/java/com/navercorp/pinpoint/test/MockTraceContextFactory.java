@@ -29,6 +29,8 @@ import com.navercorp.pinpoint.profiler.context.id.AtomicIdGenerator;
 import com.navercorp.pinpoint.profiler.context.CallStackFactory;
 import com.navercorp.pinpoint.profiler.context.id.DefaultAsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.CallStackFactoryV1;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRootFactory;
+import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.context.DefaultSpanFactory;
@@ -125,8 +127,9 @@ public class MockTraceContextFactory {
         SpanFactory spanFactory = new DefaultSpanFactory(applicationName, agentId, agentStartTime, agentServiceType);
 
         RecorderFactory recorderFactory = new DefaultRecorderFactory(stringMetaDataService, sqlMetaDataService);
+        TraceRootFactory traceRootFactory = newInternalTraceIdFactory(traceIdFactory, idGenerator);
 
-        final TraceFactoryProvider traceFactoryBuilder = new TraceFactoryProvider(callStackFactory, storageFactory, sampler, idGenerator, traceIdFactory, asyncIdGenerator,
+        final TraceFactoryProvider traceFactoryBuilder = new TraceFactoryProvider(traceRootFactory, callStackFactory, storageFactory, sampler, idGenerator, traceIdFactory, asyncIdGenerator,
                 Providers.of(activeTraceRepository), spanFactory, recorderFactory);
         TraceFactory traceFactory = traceFactoryBuilder.get();
         this.traceContext = new DefaultTraceContext(profilerConfig, agentInformation,
@@ -140,6 +143,11 @@ public class MockTraceContextFactory {
         boolean samplingEnable = profilerConfig.isSamplingEnable();
         int samplingRate = profilerConfig.getSamplingRate();
         return samplerFactory.createSampler(samplingEnable, samplingRate);
+    }
+
+    private TraceRootFactory newInternalTraceIdFactory(TraceIdFactory traceIdFactory, IdGenerator idGenerator) {
+        TraceRootFactory traceRootFactory = new DefaultTraceRootFactory("agentId", traceIdFactory, idGenerator);
+        return traceRootFactory;
     }
 
 

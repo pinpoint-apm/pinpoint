@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.test;
 
 import com.navercorp.pinpoint.profiler.context.compress.SpanEventCompressor;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
@@ -43,7 +44,7 @@ public class SimpleSpanStorageFactory implements StorageFactory {
     }
 
     @Override
-    public Storage createStorage() {
+    public Storage createStorage(TraceRoot traceRoot) {
         if (spanEventCompressor == null) {
             return new SimpleSpanStorage(this.dataSender);
         } else {

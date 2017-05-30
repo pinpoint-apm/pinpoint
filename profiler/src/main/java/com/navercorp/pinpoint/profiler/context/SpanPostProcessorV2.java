@@ -35,6 +35,7 @@ public class SpanPostProcessorV2 implements SpanPostProcessor {
     public Span postProcess(Span span, List<SpanEvent> spanEventList) {
 
         span.setVersion(V2.getVersion());
+        span.finish();
 
         long spanStartTime = span.getStartTime();
 

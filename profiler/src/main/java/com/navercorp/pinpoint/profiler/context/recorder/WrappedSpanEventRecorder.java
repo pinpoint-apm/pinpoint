@@ -125,11 +125,6 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     }
 
     @Override
-    void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
-        this.setExceptionInfo(true, exceptionClassId, exceptionMessage);
-    }
-
-    @Override
     void setExceptionInfo(boolean markError, int exceptionClassId, String exceptionMessage) {
         this.spanEvent.setExceptionInfo(markError, exceptionClassId, exceptionMessage);
     }

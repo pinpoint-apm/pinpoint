@@ -16,13 +16,15 @@
 
 package com.navercorp.pinpoint.profiler.context.recorder;
 
-import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
+
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.*;
 
 
 /**
@@ -33,10 +35,10 @@ public class WrappedSpanEventRecorderTest {
 
     @Test
     public void testSetExceptionInfo_RootMarkError() throws Exception {
-        Span span = new Span();
-        SpanEvent spanEvent = new SpanEvent(span);
-        StringMetaDataService stringMetaDataService = Mockito.mock(StringMetaDataService.class);
-        SqlMetaDataService sqlMetaDataService = Mockito.mock(SqlMetaDataService.class);
+        TraceRoot traceRoot = mock(TraceRoot.class);
+        SpanEvent spanEvent = new SpanEvent(traceRoot);
+        StringMetaDataService stringMetaDataService = mock(StringMetaDataService.class);
+        SqlMetaDataService sqlMetaDataService = mock(SqlMetaDataService.class);
 
         WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(stringMetaDataService, sqlMetaDataService);
         recorder.setWrapped(spanEvent);
@@ -46,7 +48,7 @@ public class WrappedSpanEventRecorderTest {
         recorder.recordException(false, exception1);
 
         Assert.assertEquals("Exception recoding", exceptionMessage1, spanEvent.getExceptionInfo().getStringValue());
-        Assert.assertFalse("markRootError=false", span.isSetErrCode());
+        verify(traceRoot, never()).maskErrorCode(anyInt());
 
 
         final String exceptionMessage2 = "exceptionMessage2";
@@ -54,15 +56,15 @@ public class WrappedSpanEventRecorderTest {
         recorder.recordException(true, exception2);
 
         Assert.assertEquals("Exception recoding", exceptionMessage2, spanEvent.getExceptionInfo().getStringValue());
-        Assert.assertTrue("markRootError=true", span.isSetErrCode());
+        verify(traceRoot, only()).maskErrorCode(1);
     }
 
     @Test
     public void testRecordAPIId() throws Exception {
-        Span span = new Span();
-        SpanEvent spanEvent = new SpanEvent(span);
-        StringMetaDataService stringMetaDataService = Mockito.mock(StringMetaDataService.class);
-        SqlMetaDataService sqlMetaDataService = Mockito.mock(SqlMetaDataService.class);
+        TraceRoot traceRoot = mock(TraceRoot.class);
+        SpanEvent spanEvent = new SpanEvent(traceRoot);
+        StringMetaDataService stringMetaDataService = mock(StringMetaDataService.class);
+        SqlMetaDataService sqlMetaDataService = mock(SqlMetaDataService.class);
 
         WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(stringMetaDataService, sqlMetaDataService);
         recorder.setWrapped(spanEvent);

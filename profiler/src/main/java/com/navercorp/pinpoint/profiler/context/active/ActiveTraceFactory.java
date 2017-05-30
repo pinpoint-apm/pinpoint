@@ -71,8 +71,8 @@ public class ActiveTraceFactory implements TraceFactory {
     }
 
     @Override
-    public Trace continueTraceObject(TraceId traceID) {
-        final Trace trace = this.delegate.continueTraceObject(traceID);
+    public Trace continueTraceObject(TraceId traceId) {
+        final Trace trace = this.delegate.continueTraceObject(traceId);
         // Sampled continuation
         attachTrace(trace);
         return trace;
@@ -90,8 +90,8 @@ public class ActiveTraceFactory implements TraceFactory {
     }
 
     @Override
-    public Trace continueAsyncTraceObject(TraceId traceID) {
-        final Trace trace = this.delegate.continueAsyncTraceObject(traceID);
+    public Trace continueAsyncTraceObject(TraceId traceId) {
+        final Trace trace = this.delegate.continueAsyncTraceObject(traceId);
         // Sampled continuation
         attachTrace(trace);
         return trace;

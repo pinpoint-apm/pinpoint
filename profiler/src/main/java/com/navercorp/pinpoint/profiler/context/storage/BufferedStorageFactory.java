@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.storage;
 
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanPostProcessor;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 
 /**
@@ -46,8 +47,8 @@ public class BufferedStorageFactory implements StorageFactory {
 
 
     @Override
-    public Storage createStorage() {
-        BufferedStorage bufferedStorage = new BufferedStorage(this.dataSender, spanPostProcessor, spanChunkFactory, this.ioBufferingBufferSize);
+    public Storage createStorage(TraceRoot traceRoot) {
+        BufferedStorage bufferedStorage = new BufferedStorage(traceRoot, this.dataSender, spanPostProcessor, spanChunkFactory, this.ioBufferingBufferSize);
         return bufferedStorage;
     }
 

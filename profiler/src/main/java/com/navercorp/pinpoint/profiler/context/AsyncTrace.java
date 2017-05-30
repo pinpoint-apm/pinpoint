@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.profiler.context.id.StatefulAsyncTraceId;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +28,7 @@ public class AsyncTrace implements Trace {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
+    private final TraceRoot traceRoot;
     private final Trace trace;
     private final boolean entryPoint;
 
@@ -34,16 +36,30 @@ public class AsyncTrace implements Trace {
     private short asyncSequence;
     private AsyncState asyncState;
 
-    public AsyncTrace(final Trace trace, final AsyncState asyncState) {
+    public AsyncTrace(final TraceRoot traceRoot, final Trace trace, final AsyncState asyncState) {
+        if (traceRoot == null) {
+            throw new NullPointerException("traceRoot must not be null");
+        }
+        if (trace == null) {
+            throw new NullPointerException("trace must not be null");
+        }
         if (asyncState == null) {
             throw new IllegalArgumentException("asyncState must not be null.");
         }
+        this.traceRoot = traceRoot;
         this.trace = trace;
         this.asyncState = asyncState;
         this.entryPoint = true;
     }
 
-    public AsyncTrace(final Trace trace, final int asyncId, final short asyncSequence, final long startTime) {
+    public AsyncTrace(final TraceRoot traceRoot, final Trace trace, final int asyncId, final short asyncSequence) {
+        if (traceRoot == null) {
+            throw new NullPointerException("traceRoot must not be null");
+        }
+        if (trace == null) {
+            throw new NullPointerException("trace must not be null");
+        }
+        this.traceRoot = traceRoot;
         this.trace = trace;
         this.asyncId = asyncId;
         this.asyncSequence = asyncSequence;
@@ -51,7 +67,6 @@ public class AsyncTrace implements Trace {
         this.asyncState = null;
         this.entryPoint = false;
 
-        this.trace.getSpanRecorder().recordStartTime(startTime);
         traceBlockBegin(BEGIN_STACKID);
     }
 
@@ -160,7 +175,7 @@ public class AsyncTrace implements Trace {
         final AsyncState asyncState = this.asyncState;
         if (closeable && this.entryPoint && asyncState != null) {
             asyncState.setup();
-            return new StatefulAsyncTraceId(asyncTraceId, asyncState);
+            return new StatefulAsyncTraceId(traceRoot, asyncTraceId, asyncState);
         }
 
         return asyncTraceId;

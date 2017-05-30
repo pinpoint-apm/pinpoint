@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
@@ -32,11 +33,14 @@ import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
 import org.junit.*;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author emeroad
  */
 public class DefaultTraceTest {
+
+    private final String agentId = "agentId";
 
     @BeforeClass
     public static void before() throws Exception {
@@ -52,19 +56,24 @@ public class DefaultTraceTest {
     @Test
     public void testPushPop() {
 
+        TraceRoot traceRoot = mock(TraceRoot.class);
         CallStackFactory callStackFactory = new CallStackFactoryV1(64);
-        SpanFactory spanFactory = new DefaultSpanFactory("appName", "agentId", 0, ServiceType.STAND_ALONE);
+        CallStack callStack = callStackFactory.newCallStack(traceRoot);
+
+        SpanFactory spanFactory = new DefaultSpanFactory("appName", agentId, 0, ServiceType.STAND_ALONE);
+
 
         StringMetaDataService stringMetaDataService = mock(StringMetaDataService.class);
         SqlMetaDataService sqlMetaDataService = mock(SqlMetaDataService.class);
         RecorderFactory recorderFactory = new DefaultRecorderFactory(stringMetaDataService, sqlMetaDataService);
 
         AsyncIdGenerator asyncIdGenerator = mock(AsyncIdGenerator.class);
-        SpanStorage storage = new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER);
-        long localTransactionId = 1;
-        TraceId traceId = new DefaultTraceId("agentId", System.currentTimeMillis(), localTransactionId);
-        Trace trace = new DefaultTrace(callStackFactory, storage, traceId, localTransactionId, asyncIdGenerator, true,
-                spanFactory, recorderFactory);
+        SpanStorage storage = new SpanStorage(traceRoot, LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER);
+        TraceId traceId = new DefaultTraceId(agentId, System.currentTimeMillis(), 0);
+        when(traceRoot.getTraceId()).thenReturn(traceId);
+        final Span span = spanFactory.newSpan(traceRoot);
+
+        Trace trace = new DefaultTrace(span, callStack, storage, asyncIdGenerator, true, recorderFactory);
         trace.traceBlockBegin();
         trace.traceBlockBegin();
         trace.traceBlockEnd();
