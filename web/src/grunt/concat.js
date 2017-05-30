@@ -219,6 +219,7 @@ module.exports = function( grunt, options ) {
 				'/features/configuration/help/help.directive.js',
 				'/features/threadDumpInfoLayer/thread-dump-info-layer.directive.js',
 				'/features/realtimeChart/realtime-chart.controller.js',
+				'/features/statisticChart/statistic-chart.directive.js',
 				'/pages/main/main.controller.js',
 				'/pages/inspector/inspector.controller.js',
 				'/pages/transactionList/transaction-list.controller.js',
@@ -226,7 +227,8 @@ module.exports = function( grunt, options ) {
 				'/pages/filteredMap/filtered-map.controller.js',
 				'/pages/transactionView/transaction-view.controller.js',
 				'/pages/scatterFullScreenMode/scatter-full-screen-mode.controller.js',
-				'/pages/threadDump/thread-dump.controller.js'
+				'/pages/threadDump/thread-dump.controller.js',
+				'/pages/statistic/statistic.controller.js'
 
 			], options.RESOURCE_PATH.ROOT ),
 			dest: options.RESOURCE_PATH.DEST_JS + '/pinpoint.js'
