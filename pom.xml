@@ -66,6 +66,7 @@
         <module>test</module>
         <module>web</module>
         <module>hbase</module>
+        <module>flink</module>
     </modules>
 
     <properties>
@@ -213,6 +214,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-test</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-flink</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

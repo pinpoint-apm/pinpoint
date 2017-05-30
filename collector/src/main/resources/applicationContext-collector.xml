@@ -302,4 +302,21 @@
     <bean id="sequenceSpanEventFilter" class="com.navercorp.pinpoint.common.server.bo.filter.SequenceSpanEventFilter">
         <constructor-arg index="0" value="${collector.spanEvent.sequence.limit:10000}"/>
     </bean>
+
+    <bean id ="sendAgentStatService" class="com.navercorp.pinpoint.collector.service.SendAgentStatService">
+        <constructor-arg index="0" ref="collectorConfiguration"/>
+    </bean>
+
+    <bean id="tcpDataSenderRepository" class="com.navercorp.pinpoint.collector.cluster.flink.TcpDataSenderRepository">
+        <constructor-arg index="0" ref="sendAgentStatService"/>
+    </bean>
+
+    <bean id="flinkClusterConnectionManager" class="com.navercorp.pinpoint.collector.cluster.flink.FlinkClusterConnectionManager">
+        <constructor-arg index="0" ref="tcpDataSenderRepository"/>
+    </bean>
+
+    <bean id="flinkClusterService" class="com.navercorp.pinpoint.collector.cluster.flink.FlinkClusterService">
+        <constructor-arg index="0" ref="collectorConfiguration"/>
+        <constructor-arg index="1" ref="flinkClusterConnectionManager"/>
+    </bean>
 </beans>
