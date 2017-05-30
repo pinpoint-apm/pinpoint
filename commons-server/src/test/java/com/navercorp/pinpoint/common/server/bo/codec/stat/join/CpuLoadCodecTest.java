@@ -65,7 +65,7 @@ public class CpuLoadCodecTest {
     }
 
     private List<JoinStatBo> createJoinCpuLoadBoList(long currentTime) {
-        final String id = "test_server";
+        final String id = "test_app";
         final List<JoinStatBo> joinCpuLoadBoList = new ArrayList();
         JoinCpuLoadBo joinCpuLoadBo2 = new JoinCpuLoadBo(id, 40, 87, "agent2_1", 40, "agent2_2", 70, 97, "agent2_3", 40, "agent2_4", currentTime + 5000);
         JoinCpuLoadBo joinCpuLoadBo4 = new JoinCpuLoadBo(id, 20, 67, "agent4_1", 17, "agent4_2", 40, 99, "agent4_3", 18, "agent4_4", currentTime + 15000);
