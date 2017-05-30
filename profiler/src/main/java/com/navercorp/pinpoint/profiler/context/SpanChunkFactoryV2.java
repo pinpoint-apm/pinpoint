@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
@@ -25,6 +27,7 @@ import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
 import com.navercorp.pinpoint.profiler.context.compress.SpanEventCompressor;
 import com.navercorp.pinpoint.profiler.context.compress.SpanEventCompressorV2;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
@@ -41,8 +44,7 @@ public class SpanChunkFactoryV2 implements SpanChunkFactory {
 
     private final SpanEventCompressor<Long> spanEventCompressor = new SpanEventCompressorV2();
 
-    public SpanChunkFactoryV2(@ApplicationName String applicationName, @AgentId String agentId, @AgentStartTime long agentStartTime,
-                              @ApplicationServerType ServiceType applicationServiceType) {
+    public SpanChunkFactoryV2(String applicationName, String agentId, long agentStartTime, ServiceType applicationServiceType) {
 
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
@@ -61,7 +63,7 @@ public class SpanChunkFactoryV2 implements SpanChunkFactory {
     }
 
     @Override
-    public SpanChunk create(final List<SpanEvent> spanEventList) {
+    public SpanChunk create(TraceRoot traceRoot, final List<SpanEvent> spanEventList) {
         if (CollectionUtils.isEmpty(spanEventList)) {
             throw new IllegalArgumentException("spanEventList is empty.");
         }
@@ -70,8 +72,6 @@ public class SpanChunkFactoryV2 implements SpanChunkFactory {
         if (first == null) {
             throw new IllegalStateException("first SpanEvent is null");
         }
-
-        final Span parentSpan = first.getSpan();
 
 
         final SpanChunk spanChunk = new SpanChunk(spanEventList);
@@ -88,15 +88,12 @@ public class SpanChunkFactoryV2 implements SpanChunkFactory {
         // TODO change data compression timing to another thread  eg: DataSender thread
         spanEventCompressor.compress(spanEventList, keyTime);
 
-        final byte[] transactionId = parentSpan.getTransactionId();
+        final ByteBuffer transactionId = traceRoot.getCompactTransactionId();
         spanChunk.setTransactionId(transactionId);
 
-
-        spanChunk.setSpanId(parentSpan.getSpanId());
-
-        spanChunk.setEndPoint(parentSpan.getEndPoint());
-
-
+        final TraceId traceId = traceRoot.getTraceId();
+        spanChunk.setSpanId(traceId.getSpanId());
+        spanChunk.setEndPoint(traceRoot.getEndPoint());
 
         return spanChunk;
     }

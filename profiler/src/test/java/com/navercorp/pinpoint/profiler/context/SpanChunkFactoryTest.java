@@ -16,8 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,24 +36,29 @@ public class SpanChunkFactoryTest {
     public void create() {
 
         SpanChunkFactory spanChunkFactory = new SpanChunkFactoryV1("applicationName", "agentId", 0, ServiceType.STAND_ALONE);
-
+        TraceRoot internalTraceId = newInternalTraceId();
         try {
-            spanChunkFactory.create(new ArrayList<SpanEvent>());
+            spanChunkFactory.create(internalTraceId, new ArrayList<SpanEvent>());
             Assert.fail();
         } catch (Exception ignored) {
         }
         // one spanEvent
         List<SpanEvent> spanEvents = new ArrayList<SpanEvent>();
-        spanEvents.add(new SpanEvent(new Span()));
-        spanChunkFactory.create(spanEvents);
+        spanEvents.add(new SpanEvent(internalTraceId));
+        spanChunkFactory.create(internalTraceId, spanEvents);
 
         // two spanEvent
-        spanEvents.add(new SpanEvent(new Span()));
-        spanChunkFactory.create(spanEvents);
+        spanEvents.add(new SpanEvent(internalTraceId));
+        spanChunkFactory.create(internalTraceId, spanEvents);
 
         // three
-        spanEvents.add(new SpanEvent(new Span()));
-        spanChunkFactory.create(spanEvents);
+        spanEvents.add(new SpanEvent(internalTraceId));
+        spanChunkFactory.create(internalTraceId, spanEvents);
 
+    }
+
+    private TraceRoot newInternalTraceId() {
+        TraceId traceId = new DefaultTraceId("agentId", 0, 100);
+        return new DefaultTraceRoot(traceId, "agentId", System.currentTimeMillis(), 0);
     }
 }

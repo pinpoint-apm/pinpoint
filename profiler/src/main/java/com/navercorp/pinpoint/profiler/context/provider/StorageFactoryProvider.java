@@ -25,7 +25,11 @@ import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.storage.BufferedStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
+import com.navercorp.pinpoint.profiler.context.storage.TraceLogDelegateStorage;
+import com.navercorp.pinpoint.profiler.context.storage.TraceLogDelegateStorageFactory;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -57,6 +61,14 @@ public class StorageFactoryProvider implements Provider<StorageFactory> {
 
     @Override
     public StorageFactory get() {
+        StorageFactory storageFactory = newStorageFactory();
+        if (isTraceLogEnabled()) {
+            storageFactory = new TraceLogDelegateStorageFactory(storageFactory);
+        }
+        return storageFactory;
+    }
+
+    private StorageFactory newStorageFactory() {
         if (profilerConfig.isIoBufferingEnable()) {
             int ioBufferingBufferSize = this.profilerConfig.getIoBufferingBufferSize();
             return new BufferedStorageFactory(ioBufferingBufferSize, this.spanDataSender, this.spanPostProcessor, this.spanChunkFactory);
@@ -72,5 +84,10 @@ public class StorageFactoryProvider implements Provider<StorageFactory> {
                 ", spanDataSender=" + spanDataSender +
                 ", spanChunkFactory=" + spanChunkFactory +
                 '}';
+    }
+
+    public boolean isTraceLogEnabled() {
+        final Logger logger = LoggerFactory.getLogger(TraceLogDelegateStorage.class.getName());
+        return logger.isTraceEnabled();
     }
 }

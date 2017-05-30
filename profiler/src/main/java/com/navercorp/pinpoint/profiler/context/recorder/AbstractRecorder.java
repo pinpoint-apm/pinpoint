@@ -58,8 +58,6 @@ public abstract class AbstractRecorder {
         setExceptionInfo(markError, exceptionId, drop);
     }
 
-    abstract void setExceptionInfo(int exceptionClassId, String exceptionMessage);
-
     abstract void setExceptionInfo(boolean markError, int exceptionClassId, String exceptionMessage);
     
     public void recordApi(MethodDescriptor methodDescriptor) {

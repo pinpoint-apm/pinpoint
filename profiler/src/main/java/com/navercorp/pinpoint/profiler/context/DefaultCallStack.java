@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 import java.util.Arrays;
 
@@ -31,18 +32,18 @@ public class DefaultCallStack implements CallStack {
 
     protected SpanEvent[] stack = new SpanEvent[STACK_SIZE];
 
-    protected final Span span;
+    protected final TraceRoot traceRoot;
     protected final int maxDepth;
     protected int index = DEFAULT_INDEX;
     protected int overflowIndex = 0;
     protected short sequence;
 
-    public DefaultCallStack(Span span) {
-        this(span, -1);
+    public DefaultCallStack(TraceRoot traceRoot) {
+        this(traceRoot, -1);
     }
 
-    public DefaultCallStack(Span span, int maxDepth) {
-        this.span = span;
+    public DefaultCallStack(TraceRoot traceRoot, int maxDepth) {
+        this.traceRoot = traceRoot;
         this.maxDepth = maxDepth;
     }
 
@@ -101,7 +102,7 @@ public class DefaultCallStack implements CallStack {
     }
 
     private SpanEvent newDummySpanEvent() {
-        return new SpanEvent(span);
+        return new SpanEvent(traceRoot);
     }
 
     @Override

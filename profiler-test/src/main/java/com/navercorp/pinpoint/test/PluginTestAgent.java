@@ -32,6 +32,7 @@ import com.google.inject.util.Modules;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
@@ -774,20 +775,12 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     @Override
     public void verifyIsLoggingTransactionInfo(LoggingInfo loggingInfo) {
-        Object actual = popSpan();
-        Span span = null;
+        final Object actual = popSpan();
 
-        if (actual instanceof Span) {
-            span = (Span) actual;
-        } else if (actual instanceof SpanEvent) {
-            span = ((SpanEvent) actual).getSpan();
-        } else {
-            throw new IllegalArgumentException("Unexpected type: " + getActual(actual));
-        }
+        final TraceRoot traceRoot = getTraceRoot(actual);
 
-        if (span.getLoggingTransactionInfo() != loggingInfo.getCode()) {
-
-            LoggingInfo loggingTransactionInfo = LoggingInfo.searchByCode(span.getLoggingTransactionInfo());
+        if (traceRoot.getLoggingInfo() != loggingInfo.getCode()) {
+            LoggingInfo loggingTransactionInfo = LoggingInfo.searchByCode(traceRoot.getLoggingInfo());
 
             if (loggingTransactionInfo != null) {
                 throw new AssertionError("Expected a Span isLoggingTransactionInfo value with [" + loggingInfo.getName() + "] but was [" + loggingTransactionInfo.getName() + "]. expected: " + loggingInfo.getName() + ", was: " + loggingTransactionInfo.getName());
@@ -797,7 +790,16 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
         }
 
+    }
 
+    private TraceRoot getTraceRoot(Object actual) {
+        if (actual instanceof Span) {
+            return ((Span) actual).getTraceRoot();
+        } else if (actual instanceof SpanEvent) {
+            return ((SpanEvent) actual).getTraceRoot();
+        } else {
+            throw new IllegalArgumentException("Unexpected type: " + getActual(actual));
+        }
     }
 
     private String getActual(Object actual) {

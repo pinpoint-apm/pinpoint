@@ -26,15 +26,15 @@ import java.util.List;
  */
 public class SpanPostProcessorV1 implements SpanPostProcessor {
 
-//    private final byte version = TraceDataFormatConstants.V1;
+//    private static final TraceDataFormatVersion V1 = TraceDataFormatVersion.V1;
     private final SpanEventCompressor<Long> spanEventCompressor = new SpanEventCompressorV1();
 
     @Override
     public Span postProcess(Span span, List<SpanEvent> spanEventList) {
 //        skip default version
-//        span.setVersion(version);
-
-        long spanStartTime = span.getStartTime();
+//        span.setVersion(V1.getVersion());
+        span.finish();
+        final long spanStartTime = span.getStartTime();
         spanEventCompressor.compress(spanEventList, spanStartTime);
 
         span.setSpanEventList((List) spanEventList);

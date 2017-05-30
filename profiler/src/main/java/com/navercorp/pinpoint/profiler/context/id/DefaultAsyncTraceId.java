@@ -29,21 +29,22 @@ public class DefaultAsyncTraceId implements AsyncTraceId {
     private static final AtomicIntegerFieldUpdater<DefaultAsyncTraceId> ASYNC_SEQUENCE_UPDATER
             = AtomicIntegerFieldUpdater.newUpdater(DefaultAsyncTraceId.class, "asyncSequence");
 
-    private final TraceId traceId;
+    private final TraceRoot traceRoot;
     private final int asyncId;
-    private final long startTime;
 
     @SuppressWarnings("unused")
     private volatile int asyncSequence = 0;
 
-    public DefaultAsyncTraceId(final TraceId traceId, final int asyncId, final long startTime) {
-        if (traceId == null) {
-            throw new IllegalArgumentException("traceId must not be null.");
+    public DefaultAsyncTraceId(final TraceRoot traceRoot, final int asyncId) {
+        if (traceRoot == null) {
+            throw new IllegalArgumentException("traceRoot must not be null.");
         }
-
-        this.traceId = traceId;
+        this.traceRoot = traceRoot;
         this.asyncId = asyncId;
-        this.startTime = startTime;
+    }
+
+    private TraceId getTraceId0() {
+        return traceRoot.getTraceId();
     }
 
     public int getAsyncId() {
@@ -56,67 +57,70 @@ public class DefaultAsyncTraceId implements AsyncTraceId {
 
     @Override
     public TraceId getNextTraceId() {
-        return traceId.getNextTraceId();
+        return getTraceId0().getNextTraceId();
     }
+
 
     @Override
     public long getSpanId() {
-        return traceId.getSpanId();
+        return getTraceId0().getSpanId();
     }
 
     @Override
     public String getTransactionId() {
-        return traceId.getTransactionId();
+        return getTraceId0().getTransactionId();
     }
 
     @Override
     public String getAgentId() {
-        return traceId.getAgentId();
+        return getTraceId0().getAgentId();
     }
 
     @Override
     public long getAgentStartTime() {
-        return traceId.getAgentStartTime();
+        return getTraceId0().getAgentStartTime();
     }
 
     @Override
     public long getTransactionSequence() {
-        return traceId.getTransactionSequence();
+        return getTraceId0().getTransactionSequence();
     }
 
     @Override
     public long getParentSpanId() {
-        return traceId.getParentSpanId();
+        return getTraceId0().getParentSpanId();
     }
 
     @Override
     public short getFlags() {
-        return traceId.getFlags();
+        return getTraceId0().getFlags();
     }
 
     @Override
     public boolean isRoot() {
-        return traceId.isRoot();
+        return getTraceId0().isRoot();
     }
 
     @Override
     public long getSpanStartTime() {
-        return startTime;
+        return traceRoot.getTraceStartTime();
+    }
+
+    public TraceRoot getTraceRoot() {
+        return traceRoot;
     }
 
     @Override
     public TraceId getParentTraceId() {
-        return traceId;
+        return getTraceId0();
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("{");
-        sb.append("traceId=").append(traceId);
-        sb.append(", asyncId=").append(asyncId);
-        sb.append(", startTime=").append(startTime);
-        sb.append(", asyncSequence=").append(asyncSequence);
-        sb.append('}');
-        return sb.toString();
+        return "DefaultAsyncTraceId{" +
+                "traceRoot=" + traceRoot +
+                ", asyncId=" + asyncId +
+                ", asyncSequence=" + asyncSequence +
+                '}';
     }
 }

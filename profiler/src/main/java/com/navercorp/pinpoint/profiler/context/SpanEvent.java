@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.FrameAttachment;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
@@ -30,22 +31,23 @@ import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
  */
 public class SpanEvent extends TSpanEvent implements FrameAttachment {
 
-    private final Span span;
+    private final TraceRoot traceRoot;
     private int stackId;
     private boolean timeRecording = true;
     private Object frameObject;
     private long startTime;
     private long afterTime;
 
-    public SpanEvent(Span span) {
-        if (span == null) {
-            throw new NullPointerException("span must not be null");
+    public SpanEvent(TraceRoot traceRoot) {
+        if (traceRoot == null) {
+            throw new NullPointerException("traceRoot must not be null");
         }
-        this.span = span;
+        this.traceRoot = traceRoot;
     }
 
-    public Span getSpan() {
-        return span;
+
+    public TraceRoot getTraceRoot() {
+        return traceRoot;
     }
 
     public void addAnnotation(Annotation annotation) {
@@ -55,9 +57,7 @@ public class SpanEvent extends TSpanEvent implements FrameAttachment {
     public void setExceptionInfo(boolean markError, int exceptionClassId, String exceptionMessage) {
         setExceptionInfo(exceptionClassId, exceptionMessage);
         if (markError) {
-            if (!span.isSetErrCode()) {
-                span.setErrCode(1);
-            }
+            traceRoot.maskErrorCode(1);
         }
     }
 

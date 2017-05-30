@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.context;
 
 import static org.junit.Assert.*;
 
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import org.slf4j.Logger;
@@ -38,12 +38,12 @@ public abstract class CallStackTest {
     abstract CallStack newCallStack(int depth);
 
 
-    abstract Span getSpan();
+    abstract TraceRoot getLocalTraceId();
     abstract SpanEvent getSpanEvent();
 
 
-    private SpanEvent createSpanEventStackFrame(Span span) {
-        SpanEvent spanEvent = new SpanEvent(span);
+    private SpanEvent createSpanEventStackFrame(TraceRoot traceRoot) {
+        SpanEvent spanEvent = new SpanEvent(traceRoot);
         return spanEvent;
     }
 
@@ -52,7 +52,7 @@ public abstract class CallStackTest {
         CallStack callStack = newCallStack();
         int initialIndex = callStack.getIndex();
         assertEquals("initial index", initialIndex, 0);
-        SpanEvent spanEvent = createSpanEventStackFrame(getSpan());
+        SpanEvent spanEvent = createSpanEventStackFrame(getLocalTraceId());
         int index = callStack.push(spanEvent);
         assertEquals("initial index", index, 1);
         callStack.pop();

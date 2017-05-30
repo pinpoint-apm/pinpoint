@@ -36,9 +36,11 @@ public class DefaultAsyncTraceIdTest {
     public void nextAsyncSequence() throws Exception {
 
         long agentStartTime = System.currentTimeMillis();
+        String testAgentId = "testAgentId";
+        TraceId traceId = new DefaultTraceId(testAgentId, agentStartTime, 0);
+        TraceRoot traceRoot = new DefaultTraceRoot(traceId, testAgentId, agentStartTime + 10, 2);
 
-        TraceId traceId = new DefaultTraceId("testAgentId", agentStartTime, 0);
-        AsyncTraceId asyncTraceId = new DefaultAsyncTraceId(traceId, 0, agentStartTime + 10);
+        AsyncTraceId asyncTraceId = new DefaultAsyncTraceId(traceRoot, 0);
 
         Assert.assertEquals(asyncTraceId.nextAsyncSequence(), 1);
         Assert.assertEquals(asyncTraceId.nextAsyncSequence(), 2);

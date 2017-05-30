@@ -26,88 +26,101 @@ import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
  */
 @InterfaceAudience.LimitedPrivate("vert.x")
 public class StatefulAsyncTraceId implements AsyncTraceId, AsyncStateSupport {
-    private final AsyncTraceId traceId;
+    private final TraceRoot traceRoot;
+    private final AsyncTraceId asyncTraceId;
     private final AsyncState asyncState;
 
-    public StatefulAsyncTraceId(final AsyncTraceId traceId, final AsyncState asyncState) {
-        if (traceId == null ) {
-            throw new IllegalArgumentException("traceId must not be null");
+    public StatefulAsyncTraceId(final TraceRoot traceRoot, final AsyncTraceId asyncTraceId, final AsyncState asyncState) {
+        if (traceRoot == null) {
+            throw new NullPointerException("traceRoot must not be null");
+        }
+        if (asyncTraceId == null ) {
+            throw new IllegalArgumentException("asyncTraceId must not be null");
         }
         if (asyncState == null) {
             throw new NullPointerException("asyncState must not be null");
         }
-        this.traceId = traceId;
+        this.traceRoot = traceRoot;
+        this.asyncTraceId = asyncTraceId;
         this.asyncState = asyncState;
     }
 
     @Override
     public int getAsyncId() {
-        return this.traceId.getAsyncId();
+        return asyncTraceId.getAsyncId();
     }
 
     @Override
     public short nextAsyncSequence() {
-        return this.traceId.nextAsyncSequence();
+        return asyncTraceId.nextAsyncSequence();
     }
 
     @Override
     public TraceId getNextTraceId() {
-        return traceId.getNextTraceId();
+        return getTraceId0().getNextTraceId();
     }
 
     @Override
     public long getSpanId() {
-        return traceId.getSpanId();
+        return getTraceId0().getSpanId();
     }
 
     @Override
     public String getTransactionId() {
-        return traceId.getTransactionId();
+        return getTraceId0().getTransactionId();
     }
 
     @Override
     public String getAgentId() {
-        return traceId.getAgentId();
+        return getTraceId0().getAgentId();
     }
 
     @Override
     public long getAgentStartTime() {
-        return traceId.getAgentStartTime();
+        return getTraceId0().getAgentStartTime();
     }
 
     @Override
     public long getTransactionSequence() {
-        return traceId.getTransactionSequence();
+        return getTraceId0().getTransactionSequence();
     }
 
     @Override
     public long getParentSpanId() {
-        return traceId.getParentSpanId();
+        return getTraceId0().getParentSpanId();
     }
 
     @Override
     public short getFlags() {
-        return traceId.getFlags();
+        return getTraceId0().getFlags();
     }
 
     @Override
     public boolean isRoot() {
-        return traceId.isRoot();
+        return getTraceId0().isRoot();
     }
 
     @Override
     public long getSpanStartTime() {
-        return this.traceId.getSpanStartTime();
+        return this.traceRoot.getTraceStartTime();
     }
 
     @Override
     public TraceId getParentTraceId() {
-        return this.traceId.getParentTraceId();
+        return getTraceId0();
     }
 
     @Override
     public AsyncState getAsyncState() {
         return asyncState;
+    }
+
+    public TraceRoot getTraceRoot() {
+        return traceRoot;
+    }
+
+    private TraceId getTraceId0() {
+        return this.traceRoot.getTraceId();
     }
 
 }

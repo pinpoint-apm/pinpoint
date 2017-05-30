@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.profiler.context.CallStackFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultBaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.LoggingBaseTraceFactory;
+import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
 import com.navercorp.pinpoint.profiler.context.SpanFactory;
 import com.navercorp.pinpoint.profiler.context.ThreadLocalTraceFactory;
@@ -43,6 +44,7 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final TraceRootFactory traceRootFactory;
     private final StorageFactory storageFactory;
     private final Sampler sampler;
     private final IdGenerator idGenerator;
@@ -58,8 +60,11 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
 
 
     @Inject
-    public TraceFactoryProvider(CallStackFactory callStackFactory, StorageFactory storageFactory, Sampler sampler, IdGenerator idGenerator, TraceIdFactory traceIdFactory, AsyncIdGenerator asyncIdGenerator,
+    public TraceFactoryProvider(TraceRootFactory traceRootFactory, CallStackFactory callStackFactory, StorageFactory storageFactory, Sampler sampler, IdGenerator idGenerator, TraceIdFactory traceIdFactory, AsyncIdGenerator asyncIdGenerator,
                                 Provider<ActiveTraceRepository> activeTraceRepositoryProvider, SpanFactory spanFactory, RecorderFactory recorderFactory) {
+        if (traceRootFactory == null) {
+            throw new NullPointerException("traceRootFactory must not be null");
+        }
         if (callStackFactory == null) {
             throw new NullPointerException("callStackFactory must not be null");
         }
@@ -88,7 +93,7 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
         if (recorderFactory == null) {
             throw new NullPointerException("recorderFactory must not be null");
         }
-
+        this.traceRootFactory = traceRootFactory;
         this.callStackFactory = callStackFactory;
         this.storageFactory = storageFactory;
         this.sampler = sampler;
@@ -105,7 +110,7 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
     @Override
     public TraceFactory get() {
 
-        BaseTraceFactory baseTraceFactory = new DefaultBaseTraceFactory(callStackFactory, storageFactory, sampler, traceIdFactory, idGenerator,
+        BaseTraceFactory baseTraceFactory = new DefaultBaseTraceFactory(traceRootFactory, callStackFactory, storageFactory, sampler, traceIdFactory, idGenerator,
                 asyncIdGenerator, spanFactory, recorderFactory);
         if (isDebugEnabled()) {
             baseTraceFactory = LoggingBaseTraceFactory.wrap(baseTraceFactory);

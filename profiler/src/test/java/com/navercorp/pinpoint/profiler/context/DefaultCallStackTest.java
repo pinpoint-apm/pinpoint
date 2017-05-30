@@ -16,7 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.junit.Before;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * @author emeroad
@@ -24,28 +27,28 @@ import org.junit.Before;
  */
 public class DefaultCallStackTest extends CallStackTest {
 
-    private Span span;
     private SpanEvent spanEvent;
+    private TraceRoot internalTraceId;
 
     @Before
     public void before() {
-        span = new Span();
-        spanEvent = new SpanEvent(span);
+        this.internalTraceId = mock(TraceRoot.class);
+        this.spanEvent = new SpanEvent(internalTraceId);
     }
 
     @Override
     public CallStack newCallStack() {
-        return new DefaultCallStack(span);
+        return new DefaultCallStack(internalTraceId);
     }
 
     @Override
     public CallStack newCallStack(int depth) {
-        return new DefaultCallStack(span, depth);
+        return new DefaultCallStack(internalTraceId, depth);
     }
 
     @Override
-    public Span getSpan() {
-        return span;
+    TraceRoot getLocalTraceId() {
+        return internalTraceId;
     }
 
     @Override

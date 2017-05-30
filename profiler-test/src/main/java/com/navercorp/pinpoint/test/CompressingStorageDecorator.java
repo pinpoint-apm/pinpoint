@@ -47,7 +47,7 @@ public class CompressingStorageDecorator implements Storage {
         if (spanEvent == null) {
             throw new NullPointerException("spanEvent must not be null");
         }
-        long keyTime = spanEvent.getSpan().getStartTime();
+        long keyTime = spanEvent.getTraceRoot().getTraceStartTime();
         spanEventCompressor.compress(Collections.singletonList(spanEvent), keyTime);
         delegate.store(spanEvent);
     }

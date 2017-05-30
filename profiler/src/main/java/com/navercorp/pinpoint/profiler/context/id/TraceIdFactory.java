@@ -25,6 +25,6 @@ public interface TraceIdFactory {
 
     TraceId newTraceId();
 
-    TraceId parse(String transactionId, long parentSpanId, long spanId, short flags);
+    TraceId continueTraceId(String transactionId, long parentSpanId, long spanId, short flags);
 
 }
