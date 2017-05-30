@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public interface ZookeeperClient {
 
