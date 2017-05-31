@@ -72,7 +72,7 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
             logger.info("JoinAgentStatBo insert data : " + joinStatBo);
             insertJoinAgentStatBo((JoinAgentStatBo)joinStatBo);
         } else if (joinStatBo instanceof JoinApplicationStatBo) {
-            logger.info("JoinApplicationStatBo insert data : " + joinStatBo);
+//            logger.info("JoinApplicationStatBo insert data : " + joinStatBo);
             insertJoinApplicationStatBo((JoinApplicationStatBo)joinStatBo);
         }
 
@@ -83,7 +83,7 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
         if (joinApplicationStatBo.getStatType() == StatType.APP_CPU_LOAD_AGGRE) {
 //            logger.info("insert application aggre : " + new Date(joinApplicationStatBo.getTimestamp()) + " ("+ joinApplicationStatBo.getApplicationId() + " )");
         } else {
-            logger.info("insert application raw data : " + new Date(joinApplicationStatBo.getTimestamp()) + " ("+ joinApplicationStatBo.getId() + " )");
+            logger.info("[insert] " + new Date(joinApplicationStatBo.getTimestamp()) + " : ("+ joinApplicationStatBo + " )");
 
             List<Put> cpuLoadPuts = applicationStatHbaseOperationFactory.createPuts(joinApplicationStatBo.getId(), joinCpuLoadBoList, StatType.APP_CPU_LOAD, cpuLoadSerializer);
             if (!cpuLoadPuts.isEmpty()) {

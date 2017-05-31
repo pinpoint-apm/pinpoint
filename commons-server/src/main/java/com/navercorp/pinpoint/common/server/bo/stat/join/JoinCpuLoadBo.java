@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.common.server.bo.stat.join;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -243,7 +244,7 @@ public class JoinCpuLoadBo implements JoinStatBo {
             ", systemCpuLoad=" + systemCpuLoad +
             ", maxSystemCpuLoad=" + maxSystemCpuLoad +
             ", minSystemCpuLoad=" + minSystemCpuLoad +
-            ", timestamp=" + timestamp +
+            ", timestamp=" + new Date(timestamp) +
             '}';
     }
 

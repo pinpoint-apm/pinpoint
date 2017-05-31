@@ -25,6 +25,11 @@
         </layout>
     </appender>
 
+    <logger name="org.apache" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </logger>
+
     <root>
         <level value="DEBUG"/>
         <appender-ref ref="console"/>
