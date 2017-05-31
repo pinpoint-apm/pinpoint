@@ -114,6 +114,7 @@
 					scope.changeAgent = function() {
 						analyticsService.send( analyticsService.CONST.INSPECTOR, analyticsService.CONST.CLK_CHANGE_AGENT_MAIN );
 						$rootScope.$broadcast("changedCurrentAgent.forMain", scope.currentAgent );
+						$rootScope.$broadcast("changedCurrentAgent.forFilteredMap", scope.currentAgent );
 					};
 					scope.showServerList = function() {
 						analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_SHOW_SERVER_LIST);
