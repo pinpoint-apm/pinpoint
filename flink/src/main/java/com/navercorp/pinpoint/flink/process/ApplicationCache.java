@@ -61,7 +61,7 @@ public class ApplicationCache {
         if (agentInfo != null) {
             applicationId = agentInfo.getApplicationName();
         } else {
-            logger.warn("can't found application id : {}", application);
+            logger.warn("can't found application id : {}", agentId);
         }
 
         return applicationId;

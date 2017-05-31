@@ -55,6 +55,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class StatStreamingVer2Job implements Serializable {
@@ -84,7 +85,7 @@ public class StatStreamingVer2Job implements Serializable {
             @Override
             public boolean filter(Tuple3<String, JoinStatBo, Long> value) throws Exception {
                 if (value.f1 instanceof JoinApplicationStatBo) {
-                    logger.info("1-1 FilterFunction : " + value.f1.toString());
+                    logger.info("1-1 " + "(" + new Date(value.f1.getTimestamp()) + ")" + value.f1.toString());
                     return true;
                 }
 
@@ -99,7 +100,7 @@ public class StatStreamingVer2Job implements Serializable {
                 public void apply(Tuple tuple, TimeWindow window, Iterable<Tuple3<String, JoinStatBo, Long>> values, Collector<Tuple3<String, JoinStatBo, Long>> out) throws Exception {
                     try {
                         JoinApplicationStatBo joinApplicationStatBo = join(values);
-                        logger.info("1-1 application stat aggre window function : " + joinApplicationStatBo);
+                        logger.info("[join] " + new Date(joinApplicationStatBo.getTimestamp()) + " : " +joinApplicationStatBo);
                         out.collect(new Tuple3<>(joinApplicationStatBo.getId(), joinApplicationStatBo, joinApplicationStatBo.getTimestamp()));
                     } catch (Exception e) {
                         logger.error("window function error", e);

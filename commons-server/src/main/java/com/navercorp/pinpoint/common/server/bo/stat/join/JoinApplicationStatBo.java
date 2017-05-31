@@ -15,10 +15,7 @@
  */
 package com.navercorp.pinpoint.common.server.bo.stat.join;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author minwoo.jung
@@ -130,5 +127,15 @@ public class JoinApplicationStatBo implements JoinStatBo {
         newJoinApplicationStatBo.setStatType(StatType.APP_CPU_LOAD_AGGRE);
 
         return newJoinApplicationStatBo;
+    }
+
+    @Override
+    public String toString() {
+        return "JoinApplicationStatBo{" +
+            "applicationId='" + applicationId + '\'' +
+            ", joinCpuLoadBoList=" + joinCpuLoadBoList +
+            ", timestamp=" + new Date(timestamp) +
+            ", statType=" + statType +
+            '}';
     }
 }
