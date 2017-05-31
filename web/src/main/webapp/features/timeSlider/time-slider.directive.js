@@ -139,7 +139,7 @@
 	
 	            scope.$on('timeSliderDirective.initialize', function (event, timeSliderVoService) {
 	                initSlider(timeSliderVoService);
-	                checkDisableMore();
+	                // checkDisableMore();
 	            });
 	
 	            scope.$on('timeSliderDirective.setInnerFromTo', function (event, timeSliderVoService) {

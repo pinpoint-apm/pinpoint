@@ -63,7 +63,9 @@
 	        function broadcastScatterScanResultToScatter(applicationScatterData) {
 	            if (angular.isDefined(applicationScatterData)) {
 	                angular.forEach(applicationScatterData, function (val, key) {
-	                    $scope.$broadcast('scatterDirective.initializeWithData.forFilteredMap', key, val);
+	                	var copyVal = angular.copy(val);
+						$scope.$broadcast('scatterDirective.initializeWithData.forFilteredMap', key, val);
+						$scope.$broadcast('scatterDirective.initializeWithData.forServerList', key, copyVal);
 	                });
 	            }
 	        }

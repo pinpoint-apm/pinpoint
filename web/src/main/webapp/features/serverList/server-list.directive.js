@@ -55,7 +55,11 @@
 							}
 							scope.serverList = node.serverList;
 							scope.bIsNode = true;
-							scope.$broadcast('scatterDirective.initializeWithNode.forServerList', node);
+							if  ( scope.namespace === "forMain" ) {
+								scope.$broadcast('scatterDirective.initializeWithNode.forServerList', node);
+							} else {
+								scope.$broadcast('scatterDirective.showByNode.forServerList', node);
+							}
 
 							$timeout(function() {
 								var instanceName = $element.find( "._node input[type=radio][checked]" ).val();
