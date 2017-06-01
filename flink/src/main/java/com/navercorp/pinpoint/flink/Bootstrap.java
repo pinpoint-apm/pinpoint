@@ -49,7 +49,7 @@ public class Bootstrap {
     private final TcpDispatchHandler tcpDispatchHandler;
     private final TcpSourceFunction tcpSourceFunction;
     private Bootstrap() {
-        String[] SPRING_CONFIG_XML = new String[]{"applicationContext-collector.xml", "applicationContext-cache.xml"};
+        String[] SPRING_CONFIG_XML = new String[]{"applicationContext-flink.xml", "applicationContext-cache.xml"};
         applicationContext = new ClassPathXmlApplicationContext(SPRING_CONFIG_XML);
 
         tbaseFlatMapper = applicationContext.getBean("tbaseFlatMapper", TbaseFlatMapper.class);
