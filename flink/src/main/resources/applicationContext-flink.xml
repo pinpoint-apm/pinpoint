@@ -39,17 +39,17 @@
         <property name="locations">
             <list>
                 <value>classpath:hbase.properties</value>
-                <value>classpath:pinpoint-collector.properties</value>
+                <value>classpath:pinpoint-flink.properties</value>
             </list>
         </property>
 
     </bean>
 
-    <util:properties id="pinpoint_collector_properties" location="classpath:pinpoint-collector.properties" />
+    <util:properties id="pinpoint_flink_properties" location="classpath:pinpoint-flink.properties" />
 
     <!-- 컴포넌트 스캔으로 변경 필요함-->
     <bean id="flinkConfiguration" class="com.navercorp.pinpoint.flink.config.FlinkConfiguration">
-        <property name="properties" ref="pinpoint_collector_properties"/>
+        <property name="properties" ref="pinpoint_flink_properties"/>
     </bean>
 
     <bean id="tbaseFlatMapper" class="com.navercorp.pinpoint.flink.process.TbaseFlatMapper">

@@ -67,7 +67,7 @@ public class FlinkConfiguration extends CollectorConfiguration {
 
     @Override
     protected void readPropertyValues(Properties properties) {
-        logger.info("pinpoint-collector.properties read.");
+        logger.info("pinpoint-flink.properties read.");
         super.readPropertyValues(properties);
 
         this.flinkClusterEnable = readBoolean(properties, "flink.cluster.enable");
