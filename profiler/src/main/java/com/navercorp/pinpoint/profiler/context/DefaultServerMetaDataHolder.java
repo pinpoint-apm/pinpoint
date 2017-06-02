@@ -16,6 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,10 +28,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 
 /**
  * @author hyungil.jeong
@@ -73,7 +73,7 @@ public class DefaultServerMetaDataHolder implements ServerMetaDataHolder {
     }
 
     @Override
-    public void notifyListeners() {
+    public synchronized void notifyListeners() {
         final ServerMetaData serverMetaData = createServerMetaData();
         for (ServerMetaDataListener listener : this.listeners) {
             listener.publishServerMetaData(serverMetaData);
