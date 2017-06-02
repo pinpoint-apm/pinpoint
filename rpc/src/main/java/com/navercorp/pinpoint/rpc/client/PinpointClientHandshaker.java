@@ -24,10 +24,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.cluster.Role;
-import com.navercorp.pinpoint.rpc.util.AssertUtils;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
@@ -70,9 +70,9 @@ public class PinpointClientHandshaker {
     private String simpleName;
     
     public PinpointClientHandshaker(Timer handshakerTimer, int retryInterval, int maxHandshakeCount) {
-        AssertUtils.assertNotNull(handshakerTimer, "handshakerTimer may not be null.");
-        AssertUtils.assertTrue(retryInterval > 0, "retryInterval must greater than zero.");
-        AssertUtils.assertTrue(maxHandshakeCount > 0, "maxHandshakeCount must greater than zero.");
+        Assert.requireNonNull(handshakerTimer, "handshakerTimer must not be null.");
+        Assert.isTrue(retryInterval > 0, "retryInterval must greater than zero.");
+        Assert.isTrue(maxHandshakeCount > 0, "maxHandshakeCount must greater than zero.");
         
         this.state = new AtomicInteger(STATE_INIT);
         this.handshakerTimer = handshakerTimer;
@@ -86,7 +86,7 @@ public class PinpointClientHandshaker {
         logger.info("{} handshakeStart() started. channel:{}", simpleClassNameAndHashCodeString(), channel);
         
         if (channel == null) {
-            logger.warn("{} handshakeStart() failed. caused:channel may not be null.", simpleClassNameAndHashCodeString());
+            logger.warn("{} handshakeStart() failed. caused:channel must not be null.", simpleClassNameAndHashCodeString());
             return;
         }
         
@@ -108,7 +108,7 @@ public class PinpointClientHandshaker {
         }
 
         if (handshakeJob == null) {
-            logger.warn("{} handshakeStart() failed. caused:handshakeJob may not be null.", simpleClassNameAndHashCodeString());
+            logger.warn("{} handshakeStart() failed. caused:handshakeJob must not be null.", simpleClassNameAndHashCodeString());
             handshakeAbort();
             return;
         }

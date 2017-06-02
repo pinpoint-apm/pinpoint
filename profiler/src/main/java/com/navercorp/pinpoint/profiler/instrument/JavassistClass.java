@@ -48,7 +48,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
-import com.navercorp.pinpoint.common.util.Asserts;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.instrument.AccessorAnalyzer.AccessorDetails;
 import com.navercorp.pinpoint.profiler.instrument.GetterAnalyzer.GetterDetails;
@@ -468,71 +468,71 @@ public class JavassistClass implements InstrumentClass {
 
     @Override
     public int addInterceptor(String interceptorClassName) throws InstrumentException {
-        Asserts.notNull(interceptorClassName, "interceptorClassName");
+        Assert.requireNonNull(interceptorClassName, "interceptorClassName must not be null");
         return addInterceptor0(interceptorClassName, null, null, null);
     }
     @Override
     public int addInterceptor(String interceptorClassName, Object[] constructorArgs) throws InstrumentException {
-        Asserts.notNull(interceptorClassName, "interceptorClassName");
-        Asserts.notNull(constructorArgs, "constructorArgs");
+        Assert.requireNonNull(interceptorClassName, "interceptorClassName must not be null");
+        Assert.requireNonNull(constructorArgs, "constructorArgs must not be null");
         return addInterceptor0(interceptorClassName, constructorArgs, null, null);
     }
 
     @Override
     public int addScopedInterceptor(String interceptorClassName, String scopeName) throws InstrumentException {
-        Asserts.notNull(interceptorClassName, "interceptorClassName");
-        Asserts.notNull(scopeName, "scopeName");
+        Assert.requireNonNull(interceptorClassName, "interceptorClassName must not be null");
+        Assert.requireNonNull(scopeName, "scopeName must not be null");
         final InterceptorScope interceptorScope = pluginContext.getInterceptorScope(scopeName);
         return addInterceptor0(interceptorClassName, null, interceptorScope, ExecutionPolicy.BOUNDARY);
     }
 
     @Override
     public int addScopedInterceptor(String interceptorClassName, InterceptorScope scope) throws InstrumentException {
-        Asserts.notNull(interceptorClassName, "interceptorClassName");
-        Asserts.notNull(scope, "scope");
+        Assert.requireNonNull(interceptorClassName, "interceptorClassName must not be null");
+        Assert.requireNonNull(scope, "scope must not be null");
         return addInterceptor0(interceptorClassName, null, scope, ExecutionPolicy.BOUNDARY);
     }
 
     @Override
     public int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, String scopeName) throws InstrumentException {
-        Asserts.notNull(interceptorClassName, "interceptorClassName");
-        Asserts.notNull(constructorArgs, "constructorArgs");
-        Asserts.notNull(scopeName, "scopeName");
+        Assert.requireNonNull(interceptorClassName, "interceptorClassName must not be null");
+        Assert.requireNonNull(constructorArgs, "constructorArgs must not be null");
+        Assert.requireNonNull(scopeName, "scopeName must not be null");
         final InterceptorScope interceptorScope = pluginContext.getInterceptorScope(scopeName);
         return addInterceptor0(interceptorClassName, constructorArgs, interceptorScope, ExecutionPolicy.BOUNDARY);
     }
 
     @Override
     public int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorScope scope) throws InstrumentException {
-        Asserts.notNull(interceptorClassName, "interceptorClassName");
-        Asserts.notNull(constructorArgs, "constructorArgs");
-        Asserts.notNull(scope, "scope");
+        Assert.requireNonNull(interceptorClassName, "interceptorClassName must not be null");
+        Assert.requireNonNull(constructorArgs, "constructorArgs must not be null");
+        Assert.requireNonNull(scope, "scope must not be null");
         return addInterceptor0(interceptorClassName, constructorArgs, scope, ExecutionPolicy.BOUNDARY);
     }
 
     @Override
     public int addScopedInterceptor(String interceptorClassName, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException {
-        Asserts.notNull(interceptorClassName, "interceptorClassName");
-        Asserts.notNull(scopeName, "scopeName");
-        Asserts.notNull(executionPolicy, "executionPolicy");
+        Assert.requireNonNull(interceptorClassName, "interceptorClassName must not be null");
+        Assert.requireNonNull(scopeName, "scopeName must not be null");
+        Assert.requireNonNull(executionPolicy, "executionPolicy must not be null");
         final InterceptorScope interceptorScope = pluginContext.getInterceptorScope(scopeName);
         return addInterceptor0(interceptorClassName, null, interceptorScope, executionPolicy);
     }
 
     @Override
     public int addScopedInterceptor(String interceptorClassName, InterceptorScope scope, ExecutionPolicy executionPolicy) throws InstrumentException {
-        Asserts.notNull(interceptorClassName, "interceptorClassName");
-        Asserts.notNull(scope, "scope");
-        Asserts.notNull(executionPolicy, "executionPolicy");
+        Assert.requireNonNull(interceptorClassName, "interceptorClassName must not be null");
+        Assert.requireNonNull(scope, "scope must not be null");
+        Assert.requireNonNull(executionPolicy, "executionPolicy must not be null");
         return addInterceptor0(interceptorClassName, null, scope, executionPolicy);
     }
 
     @Override
     public int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException {
-        Asserts.notNull(interceptorClassName, "interceptorClassName");
-        Asserts.notNull(constructorArgs, "constructorArgs");
-        Asserts.notNull(scopeName, "scopeName");
-        Asserts.notNull(executionPolicy, "executionPolicy");
+        Assert.requireNonNull(interceptorClassName, "interceptorClassName must not be null");
+        Assert.requireNonNull(constructorArgs, "constructorArgs must not be null");
+        Assert.requireNonNull(scopeName, "scopeName must not be null");
+        Assert.requireNonNull(executionPolicy, "executionPolicy must not be null");
         final InterceptorScope interceptorScope = pluginContext.getInterceptorScope(scopeName);
         return addInterceptor0(interceptorClassName, constructorArgs, interceptorScope, executionPolicy);
     }
@@ -540,10 +540,10 @@ public class JavassistClass implements InstrumentClass {
 
     @Override
     public int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorScope scope, ExecutionPolicy executionPolicy) throws InstrumentException {
-        Asserts.notNull(interceptorClassName, "interceptorClassName");
-        Asserts.notNull(constructorArgs, "constructorArgs");
-        Asserts.notNull(scope, "scope");
-        Asserts.notNull(executionPolicy, "executionPolicy");
+        Assert.requireNonNull(interceptorClassName, "interceptorClassName must not be null");
+        Assert.requireNonNull(constructorArgs, "constructorArgs must not be null");
+        Assert.requireNonNull(scope, "scope must not be null");
+        Assert.requireNonNull(executionPolicy, "executionPolicy must not be null");
         return addInterceptor0(interceptorClassName, constructorArgs, scope, executionPolicy);
     }
 
@@ -611,7 +611,7 @@ public class JavassistClass implements InstrumentClass {
 
     private int addInterceptor0(TargetFilter annotation, String interceptorClassName, InterceptorScope scope, ExecutionPolicy executionPolicy, Object[] constructorArgs) throws InstrumentException {
         String filterTypeName = annotation.type();
-        Asserts.notNull(filterTypeName, "type of @TargetFilter");
+        Assert.requireNonNull(filterTypeName, "type of @TargetFilter must not be null");
 
         InterceptorArgumentProvider interceptorArgumentProvider = this.objectBinderFactory.newInterceptorArgumentProvider(this);
         AutoBindingObjectFactory filterFactory = this.objectBinderFactory.newAutoBindingObjectFactory(pluginContext, classLoader, interceptorArgumentProvider);
@@ -639,56 +639,56 @@ public class JavassistClass implements InstrumentClass {
 
     @Override
     public int addInterceptor(MethodFilter filter, String interceptorClassName) throws InstrumentException {
-        Asserts.notNull(filter, "filter");
-        Asserts.notNull(interceptorClassName, "interceptorClassName");
+        Assert.requireNonNull(filter, "filter must not be null");
+        Assert.requireNonNull(interceptorClassName, "interceptorClassName must not be null");
         return addScopedInterceptor0(filter, interceptorClassName, null, null, null);
     }
 
     @Override
     public int addInterceptor(MethodFilter filter, String interceptorClassName, Object[] constructorArgs) throws InstrumentException {
-        Asserts.notNull(filter, "filter");
-        Asserts.notNull(interceptorClassName, "interceptorClassName");
-        Asserts.notNull(constructorArgs, "constructorArgs");
+        Assert.requireNonNull(filter, "filter must not be null");
+        Assert.requireNonNull(interceptorClassName, "interceptorClassName must not be null");
+        Assert.requireNonNull(constructorArgs, "constructorArgs must not be null");
         return addScopedInterceptor0(filter, interceptorClassName, constructorArgs, null, null);
     }
 
     @Override
     public int addScopedInterceptor(MethodFilter filter, String interceptorClassName, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException {
-        Asserts.notNull(filter, "filter");
-        Asserts.notNull(interceptorClassName, "interceptorClassName");
-        Asserts.notNull(scopeName, "scopeName");
-        Asserts.notNull(executionPolicy, "executionPolicy");
+        Assert.requireNonNull(filter, "filter must not be null");
+        Assert.requireNonNull(interceptorClassName, "interceptorClassName must not be null");
+        Assert.requireNonNull(scopeName, "scopeName must not be null");
+        Assert.requireNonNull(executionPolicy, "executionPolicy must not be null");
         final InterceptorScope interceptorScope = pluginContext.getInterceptorScope(scopeName);
         return addScopedInterceptor0(filter, interceptorClassName, null, interceptorScope, executionPolicy);
     }
 
     @Override
     public int addScopedInterceptor(MethodFilter filter, String interceptorClassName, InterceptorScope scope, ExecutionPolicy executionPolicy) throws InstrumentException {
-        Asserts.notNull(filter, "filter");
-        Asserts.notNull(interceptorClassName, "interceptorClassName");
-        Asserts.notNull(scope, "scope");
-        Asserts.notNull(executionPolicy, "executionPolicy");
+        Assert.requireNonNull(filter, "filter must not be null");
+        Assert.requireNonNull(interceptorClassName, "interceptorClassName must not be null");
+        Assert.requireNonNull(scope, "scope must not be null");
+        Assert.requireNonNull(executionPolicy, "executionPolicy must not be null");
         return addScopedInterceptor0(filter, interceptorClassName, null, scope, executionPolicy);
     }
 
     @Override
     public int addScopedInterceptor(MethodFilter filter, String interceptorClassName, Object[] constructorArgs, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException {
-        Asserts.notNull(filter, "filter");
-        Asserts.notNull(interceptorClassName, "interceptorClassName");
-        Asserts.notNull(constructorArgs, "constructorArgs");
-        Asserts.notNull(scopeName, "scopeName");
-        Asserts.notNull(executionPolicy, "executionPolicy");
+        Assert.requireNonNull(filter, "filter must not be null");
+        Assert.requireNonNull(interceptorClassName, "interceptorClassName must not be null");
+        Assert.requireNonNull(constructorArgs, "constructorArgs must not be null");
+        Assert.requireNonNull(scopeName, "scopeName must not be null");
+        Assert.requireNonNull(executionPolicy, "executionPolicy must not be null");
         final InterceptorScope interceptorScope = pluginContext.getInterceptorScope(scopeName);
         return addScopedInterceptor0(filter, interceptorClassName, null, interceptorScope, executionPolicy);
     }
 
     @Override
     public int addScopedInterceptor(MethodFilter filter, String interceptorClassName, Object[] constructorArgs, InterceptorScope scope, ExecutionPolicy executionPolicy) throws InstrumentException {
-        Asserts.notNull(filter, "filter");
-        Asserts.notNull(interceptorClassName, "interceptorClassName");
-        Asserts.notNull(constructorArgs, "constructorArgs");
-        Asserts.notNull(scope, "scope");
-        Asserts.notNull(executionPolicy, "executionPolicy");
+        Assert.requireNonNull(filter, "filter must not be null");
+        Assert.requireNonNull(interceptorClassName, "interceptorClassName must not be null");
+        Assert.requireNonNull(constructorArgs, "constructorArgs must not be null");
+        Assert.requireNonNull(scope, "scope must not be null");
+        Assert.requireNonNull(executionPolicy, "executionPolicy must not be null");
         return addScopedInterceptor0(filter, interceptorClassName, constructorArgs, scope, executionPolicy);
     }
 

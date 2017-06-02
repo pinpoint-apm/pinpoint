@@ -69,10 +69,10 @@ public class AgentEventHandler {
     public void handleEvent(PinpointServer pinpointServer, long eventTimestamp, AgentEventType eventType,
             Object eventMessage) {
         if (pinpointServer == null) {
-            throw new NullPointerException("pinpointServer may not be null");
+            throw new NullPointerException("pinpointServer must not be null");
         }
         if (eventType == null) {
-            throw new NullPointerException("eventType may not be null");
+            throw new NullPointerException("eventType must not be null");
         }
 
         Map<Object, Object> channelProperties = pinpointServer.getChannelProperties();
@@ -87,7 +87,7 @@ public class AgentEventHandler {
 
     public void handleResponseEvent(ResponseEvent responseEvent, long eventTimestamp) {
         if (responseEvent == null) {
-            throw new NullPointerException("responseEvent may not be null");
+            throw new NullPointerException("responseEvent must not be null");
         }
         TCommandTransferResponse response = responseEvent.getRouteResult();
         if (response.getRouteResult() != TRouteResult.OK) {

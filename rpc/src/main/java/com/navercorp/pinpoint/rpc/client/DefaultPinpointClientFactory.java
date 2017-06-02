@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
@@ -24,7 +25,6 @@ import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.cluster.Role;
 import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.util.AssertUtils;
 import com.navercorp.pinpoint.rpc.util.LoggerFactorySetup;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import org.jboss.netty.bootstrap.ClientBootstrap;
@@ -406,7 +406,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     }
 
     public void setProperties(Map<String, Object> agentProperties) {
-        AssertUtils.assertNotNull(properties, "agentProperties must not be null");
+        Assert.requireNonNull(properties, "agentProperties must not be null");
 
         this.properties = Collections.unmodifiableMap(agentProperties);
     }
@@ -436,7 +436,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     }
 
     public void setMessageListener(MessageListener messageListener) {
-        AssertUtils.assertNotNull(messageListener, "messageListener must not be null");
+        Assert.requireNonNull(messageListener, "messageListener must not be null");
 
         this.messageListener = messageListener;
     }
@@ -454,7 +454,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     }
 
     public void setServerStreamChannelMessageListener(ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
-        AssertUtils.assertNotNull(messageListener, "messageListener must not be null");
+        Assert.requireNonNull(messageListener, "messageListener must not be null");
 
         this.serverStreamChannelMessageListener = serverStreamChannelMessageListener;
     }

@@ -39,10 +39,10 @@ public class PartitionedByteBufferLocator {
 
     private PartitionedByteBufferLocator(byte[] buffer, List<Index> partitionIndexList) {
         if (buffer == null) {
-            throw new NullPointerException("buffer may not be null.");
+            throw new NullPointerException("buffer must not be null.");
         }
         if (CollectionUtils.isEmpty(partitionIndexList)) {
-            throw new NullPointerException("buffer may not be null or zero.");
+            throw new NullPointerException("buffer must not be null or zero.");
         }
 
         Index firstPartitionIndex = ListUtils.getFirst(partitionIndexList);

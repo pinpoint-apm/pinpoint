@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.instrument.classreading;
 
-import com.navercorp.pinpoint.common.util.Asserts;
+import com.navercorp.pinpoint.common.util.Assert;
 import org.objectweb.asm.ClassReader;
 
 import java.io.IOException;
@@ -32,13 +32,13 @@ public class ClassReaderWrapper {
 
     // bytecodes of the class.
     public ClassReaderWrapper(final byte[] classBinary) {
-        Asserts.notNull(classBinary, "classBinary");
+        Assert.requireNonNull(classBinary, "classBinary must not be null");
         this.classReader = new ClassReader(classBinary);
     }
 
     // classloader and class internal name.
     public ClassReaderWrapper(final ClassLoader classLoader, final String classInternalName) throws IOException {
-        Asserts.notNull(classInternalName, "classInternalName");
+        Assert.requireNonNull(classInternalName, "classInternalName must not be null");
         ClassLoader cl = classLoader;
         if (cl == null) {
             cl = ClassLoader.getSystemClassLoader();

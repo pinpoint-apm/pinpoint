@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.util;
 
+import com.navercorp.pinpoint.common.util.Assert;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -36,8 +38,8 @@ public class IDGenerator {
     }
 
     public IDGenerator(int startIndex, int gap) {
-        AssertUtils.assertTrue(startIndex >= 0, "Startindex must be grater than or equal to 0.");
-        AssertUtils.assertTrue(gap > 0, "Gap must be grater than 0.");
+        Assert.isTrue(startIndex >= 0, "StartIndex must be grater than or equal to 0.");
+        Assert.isTrue(gap > 0, "Gap must be grater than 0.");
 
         this.gap = gap;
 

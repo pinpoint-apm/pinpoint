@@ -70,7 +70,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
             throw new NullPointerException("dataSourceMetricCollector must not be null");
         }
         if (responseTimeMetricCollector == null) {
-            throw new NullPointerException("responseTimeMetricCollector may not be null");
+            throw new NullPointerException("responseTimeMetricCollector must not be null");
         }
         this.agentId = agentId;
         this.agentStartTimestamp = agentStartTimestamp;
