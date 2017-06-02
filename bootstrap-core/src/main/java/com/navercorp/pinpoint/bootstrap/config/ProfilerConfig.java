@@ -131,4 +131,10 @@ public interface ProfilerConfig {
 
     Map<String, String> readPattern(String propertyNamePatternRegex);
 
+
+	String getSpanTransportType();
+	
+	String getStatTransportType();
+
+
 }
