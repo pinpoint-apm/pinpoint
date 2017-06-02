@@ -7,7 +7,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import com.ibm.websphere.servlet.request.IRequest;
 
 /**
- * @Author Sachin Mittal
+ * @author Sachin Mittal
  */
 public class ServerHandleInterceptor extends AbstractServerHandleInterceptor {
 

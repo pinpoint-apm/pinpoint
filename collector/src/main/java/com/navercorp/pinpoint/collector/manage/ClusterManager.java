@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ClusterManager extends AbstractCollectorManager implements ClusterManagerMBean {
 

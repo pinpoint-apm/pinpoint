@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collection;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public interface ApplicationMap {
 

@@ -25,7 +25,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.thrift.TBase;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class DefaultPinpointRouteResponse implements PinpointRouteResponse {
 

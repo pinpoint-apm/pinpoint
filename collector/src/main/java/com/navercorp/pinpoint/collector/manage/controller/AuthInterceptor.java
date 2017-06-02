@@ -57,9 +57,9 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
         return true;
     }
     
-    private void throwAuthException(String messsage) throws ModelAndViewDefiningException {
-        logger.warn(messsage);
-        throw new ModelAndViewDefiningException(ControllerUtils.createJsonView(false, messsage));
+    private void throwAuthException(String message) throws ModelAndViewDefiningException {
+        logger.warn(message);
+        throw new ModelAndViewDefiningException(ControllerUtils.createJsonView(false, message));
     }
 
 }

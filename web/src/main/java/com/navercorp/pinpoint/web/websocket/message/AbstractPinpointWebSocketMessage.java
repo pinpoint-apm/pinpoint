@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.websocket.message;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public abstract class AbstractPinpointWebSocketMessage implements PinpointWebSocketMessage {
 

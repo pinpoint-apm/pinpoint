@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.vo;
 import java.util.List;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class AgentActiveThreadCount {
 

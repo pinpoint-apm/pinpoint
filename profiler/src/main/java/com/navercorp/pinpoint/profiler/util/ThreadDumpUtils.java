@@ -27,7 +27,7 @@ import java.lang.management.ThreadInfo;
 import java.util.Collections;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ThreadDumpUtils {
 

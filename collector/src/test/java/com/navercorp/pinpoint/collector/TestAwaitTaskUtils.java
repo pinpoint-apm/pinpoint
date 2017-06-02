@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.collector;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public interface TestAwaitTaskUtils {
 

@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ScatterDataSerializer extends JsonSerializer<ScatterData> {
 

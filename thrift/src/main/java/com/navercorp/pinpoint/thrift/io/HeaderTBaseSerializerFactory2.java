@@ -21,7 +21,7 @@ import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class HeaderTBaseSerializerFactory2 implements SerializerFactory<HeaderTBaseSerializer2> {
 

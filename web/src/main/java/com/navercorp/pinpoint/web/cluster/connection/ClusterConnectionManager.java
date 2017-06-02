@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ClusterConnectionManager {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

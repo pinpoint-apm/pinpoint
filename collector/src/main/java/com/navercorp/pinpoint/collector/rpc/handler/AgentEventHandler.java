@@ -45,8 +45,7 @@ import java.util.concurrent.Executor;
  */
 public class AgentEventHandler {
 
-    private static final Set<AgentEventType> RESPONSE_EVENT_TYPES = AgentEventType
-            .getTypesByCatgory(AgentEventTypeCategory.USER_REQUEST);
+    private static final Set<AgentEventType> RESPONSE_EVENT_TYPES = AgentEventType.getTypesByCategory(AgentEventTypeCategory.USER_REQUEST);
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

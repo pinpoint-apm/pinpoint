@@ -33,7 +33,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ActiveThreadDumpService implements ProfilerRequestCommandService {
 

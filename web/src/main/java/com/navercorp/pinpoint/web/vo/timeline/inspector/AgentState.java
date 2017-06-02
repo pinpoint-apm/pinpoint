@@ -31,7 +31,7 @@ public enum AgentState {
     SHUTDOWN,
     UNKNOWN;
 
-    private static final Set<AgentEventType> VALID_EVENT_TYPES = AgentEventType.getTypesByCatgory(AgentEventTypeCategory.AGENT_LIFECYCLE);
+    private static final Set<AgentEventType> VALID_EVENT_TYPES = AgentEventType.getTypesByCategory(AgentEventTypeCategory.AGENT_LIFECYCLE);
 
     public static AgentState fromAgentLifeCycleState(AgentLifeCycleState state) {
         switch (state) {

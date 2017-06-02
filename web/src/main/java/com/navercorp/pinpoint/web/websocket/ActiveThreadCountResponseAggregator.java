@@ -40,7 +40,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ActiveThreadCountResponseAggregator implements PinpointWebSocketResponseAggregator {
 

@@ -20,7 +20,7 @@ import java.util.EnumMap;
 import java.util.Map;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public final class ByteBufferFactoryLocator {
 

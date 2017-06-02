@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import org.apache.thrift.TBase;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public interface PinpointRouteResponse {
 

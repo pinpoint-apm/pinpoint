@@ -18,7 +18,7 @@
 package com.navercorp.pinpoint.collector.cluster.connection;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public interface CollectorClusterConnectionProvider {
 

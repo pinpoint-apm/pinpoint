@@ -39,7 +39,7 @@ import java.net.SocketAddress;
 import java.util.Map;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class CollectorClusterAcceptor implements CollectorClusterConnectionProvider {
 

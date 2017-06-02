@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
 import java.net.SocketAddress;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public interface PinpointSocket {
 

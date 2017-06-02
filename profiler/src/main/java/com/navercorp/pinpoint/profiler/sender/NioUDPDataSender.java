@@ -36,7 +36,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class NioUDPDataSender extends AbstractDataSender implements DataSender {
 

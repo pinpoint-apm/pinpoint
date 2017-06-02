@@ -18,7 +18,7 @@
 package com.navercorp.pinpoint.common.hbase;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class HBaseAccessException extends RuntimeException {
 

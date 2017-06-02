@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public final class ClientFactoryUtils {
 
