@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.service.map;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
@@ -29,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -42,9 +45,11 @@ public class DefaultLinkDataMapCreator implements LinkDataMapCreator {
 
     private final HostApplicationMapDao hostApplicationMapDao;
 
-    private final AcceptApplicationLocalCache acceptApplicationLocalCache = new AcceptApplicationLocalCache();
-
     private final VirtualLinkHandler virtualLinkHandler;
+
+    private final Map<AcceptApplicationCacheKey, Set<AcceptApplication>> acceptApplicationCache = Maps.newConcurrentMap();
+
+    private final AcceptApplicationLocalCache rpcAcceptApplicationCache = new AcceptApplicationLocalCache();
 
     DefaultLinkDataMapCreator(LinkDataMapService linkDataMapService, HostApplicationMapDao hostApplicationMapDao, VirtualLinkHandler virtualLinkHandler) {
         if (linkDataMapService == null) {
@@ -86,7 +91,7 @@ public class DefaultLinkDataMapCreator implements LinkDataMapCreator {
         }
 
         // rpc client's destination could have an agent installed in which case the link data must be replaced to point
-        // to the desctination application.
+        // to the destination application.
         logger.debug("Finding accept applications for {}, {}", toApplication, range);
         final Set<AcceptApplication> acceptApplicationList = findAcceptApplications(linkData.getFromApplication(), toApplication.getName(), range);
         logger.debug("Found accept applications: {}", acceptApplicationList);
@@ -119,16 +124,74 @@ public class DefaultLinkDataMapCreator implements LinkDataMapCreator {
         logger.debug("findAcceptApplication {} {}", fromApplication, host);
 
         final RpcApplication rpcApplication = new RpcApplication(host, fromApplication);
-        final Set<AcceptApplication> hit = this.acceptApplicationLocalCache.get(rpcApplication);
+        final Set<AcceptApplication> hit = this.rpcAcceptApplicationCache.get(rpcApplication);
         if (CollectionUtils.isNotEmpty(hit)) {
-            logger.debug("acceptApplicationLocalCache hit {}", rpcApplication);
+            logger.debug("rpcAcceptApplicationCache hit {}", rpcApplication);
             return hit;
         }
-        final Set<AcceptApplication> acceptApplicationSet = hostApplicationMapDao.findAcceptApplicationName(fromApplication, range);
-        this.acceptApplicationLocalCache.put(rpcApplication, acceptApplicationSet);
+        final Set<AcceptApplication> acceptApplicationSet = getAcceptApplications(fromApplication, range);
+        this.rpcAcceptApplicationCache.put(rpcApplication, acceptApplicationSet);
 
-        Set<AcceptApplication> acceptApplication = this.acceptApplicationLocalCache.get(rpcApplication);
+        Set<AcceptApplication> acceptApplication = this.rpcAcceptApplicationCache.get(rpcApplication);
         logger.debug("findAcceptApplication {}->{} result:{}", fromApplication, host, acceptApplication);
         return acceptApplication;
+    }
+
+    private Set<AcceptApplication> getAcceptApplications(Application fromApplication, Range range) {
+        AcceptApplicationCacheKey cacheKey = new AcceptApplicationCacheKey(fromApplication, range);
+        Set<AcceptApplication> cachedAcceptApplications = acceptApplicationCache.get(cacheKey);
+        if (cachedAcceptApplications == null) {
+            logger.debug("acceptApplicationCache hit {}", fromApplication);
+            Set<AcceptApplication> queriedAcceptApplications = hostApplicationMapDao.findAcceptApplicationName(fromApplication, range);
+            Set<AcceptApplication> acceptApplications = Sets.newConcurrentHashSet();
+            if (CollectionUtils.isNotEmpty(queriedAcceptApplications)) {
+                acceptApplications.addAll(queriedAcceptApplications);
+            }
+            cachedAcceptApplications = acceptApplicationCache.putIfAbsent(cacheKey, acceptApplications);
+            if (cachedAcceptApplications == null) {
+                cachedAcceptApplications = acceptApplications;
+            }
+        } else {
+            logger.debug("acceptApplicationCache hit {}", fromApplication);
+        }
+        return cachedAcceptApplications;
+    }
+
+    private static class AcceptApplicationCacheKey {
+        private final Application application;
+        private final Range range;
+
+        private AcceptApplicationCacheKey(Application application, Range range) {
+            this.application = application;
+            this.range = range;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            AcceptApplicationCacheKey cacheKey = (AcceptApplicationCacheKey) o;
+
+            if (application != null ? !application.equals(cacheKey.application) : cacheKey.application != null)
+                return false;
+            return range != null ? range.equals(cacheKey.range) : cacheKey.range == null;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = application != null ? application.hashCode() : 0;
+            result = 31 * result + (range != null ? range.hashCode() : 0);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("CacheKey{");
+            sb.append("application=").append(application);
+            sb.append(", range=").append(range);
+            sb.append('}');
+            return sb.toString();
+        }
     }
 }
