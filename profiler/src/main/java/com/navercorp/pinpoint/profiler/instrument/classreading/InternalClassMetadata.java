@@ -33,4 +33,12 @@ public interface InternalClassMetadata {
 
     // internal names of the class's annotations.
     List<String> getAnnotationInternalNames();
+
+    boolean isInterface();
+
+    boolean isAnnotation();
+
+    boolean isSynthetic();
+
+    boolean isInnerClass();
 }

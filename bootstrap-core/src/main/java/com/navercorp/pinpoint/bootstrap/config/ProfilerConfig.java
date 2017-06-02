@@ -117,6 +117,12 @@ public interface ProfilerConfig {
 
     String getProfileInstrumentEngine();
 
+    boolean isSupportLambdaExpressions();
+
+    boolean isInstrumentMatcherEnable();
+
+    InstrumentMatcherCacheConfig getInstrumentMatcherCacheConfig();
+
     String readString(String propertyName, String defaultValue);
 
     int readInt(String propertyName, int defaultValue);

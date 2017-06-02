@@ -90,6 +90,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private boolean profileEnable = false;
 
     private String profileInstrumentEngine = INSTRUMENT_ENGINE_ASM;
+    private boolean instrumentMatcherEnable = true;
+    private InstrumentMatcherCacheConfig instrumentMatcherCacheConfig = new InstrumentMatcherCacheConfig();
 
     private int interceptorRegistrySize = 1024*8;
 
@@ -156,6 +158,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private List<String> disabledPlugins = Collections.emptyList();
 
     private boolean propagateInterceptorException = false;
+    private boolean supportLambdaExpressions = true;
 
     public DefaultProfilerConfig() {
         this.properties = new Properties();
@@ -389,7 +392,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public void setApplicationServerType(String applicationServerType) {
         this.applicationServerType = applicationServerType;
     }
-    
 
     @Override
     public int getCallStackMaxDepth() {
@@ -410,6 +412,20 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return profileInstrumentEngine;
     }
 
+    @Override
+    public boolean isSupportLambdaExpressions() {
+        return supportLambdaExpressions;
+    }
+
+    @Override
+    public boolean isInstrumentMatcherEnable() {
+        return instrumentMatcherEnable;
+    }
+
+    @Override
+    public InstrumentMatcherCacheConfig getInstrumentMatcherCacheConfig() {
+        return instrumentMatcherCacheConfig;
+    }
 
     // for test
     void readPropertyValues() {
@@ -418,6 +434,14 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         this.profileEnable = readBoolean("profiler.enable", true);
         this.profileInstrumentEngine = readString("profiler.instrument.engine", INSTRUMENT_ENGINE_ASM);
+        this.instrumentMatcherEnable = readBoolean("profiler.instrument.matcher.enable", true);
+
+        this.instrumentMatcherCacheConfig.setInterfaceCacheSize(readInt("profiler.instrument.matcher.interface.cache.size", 4));
+        this.instrumentMatcherCacheConfig.setInterfaceCacheEntrySize(readInt("profiler.instrument.matcher.interface.cache.entry.size", 16));
+        this.instrumentMatcherCacheConfig.setAnnotationCacheSize(readInt("profiler.instrument.matcher.annotation.cache.size", 4));
+        this.instrumentMatcherCacheConfig.setAnnotationCacheEntrySize(readInt("profiler.instrument.matcher.annotation.cache.entry.size", 4));
+        this.instrumentMatcherCacheConfig.setSuperCacheSize(readInt("profiler.instrument.matcher.super.cache.size", 4));
+        this.instrumentMatcherCacheConfig.setSuperCacheEntrySize(readInt("profiler.instrument.matcher.super.cache.entry.size", 4));
 
         this.interceptorRegistrySize = readInt("profiler.interceptorregistry.size", 1024*8);
 
@@ -501,8 +525,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         }
         
         this.propagateInterceptorException = readBoolean("profiler.interceptor.exception.propagate", false);
-
-
+        this.supportLambdaExpressions = readBoolean("profiler.lambda.expressions.support", true);
 
         logger.info("configuration loaded successfully.");
     }
@@ -607,99 +630,61 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder(1024);
-        builder.append("DefaultProfilerConfig{properties=");
-        builder.append(properties);
-        builder.append(", interceptorRegistrySize=");
-        builder.append(interceptorRegistrySize);
-        builder.append(", propertyPlaceholderHelper=");
-        builder.append(propertyPlaceholderHelper);
-        builder.append(", profileEnable=");
-        builder.append(profileEnable);
-        builder.append(", collectorSpanServerIp=");
-        builder.append(collectorSpanServerIp);
-        builder.append(", collectorSpanServerPort=");
-        builder.append(collectorSpanServerPort);
-        builder.append(", collectorStatServerIp=");
-        builder.append(collectorStatServerIp);
-        builder.append(", collectorStatServerPort=");
-        builder.append(collectorStatServerPort);
-        builder.append(", collectorTcpServerIp=");
-        builder.append(collectorTcpServerIp);
-        builder.append(", collectorTcpServerPort=");
-        builder.append(collectorTcpServerPort);
-        builder.append(", spanDataSenderWriteQueueSize=");
-        builder.append(spanDataSenderWriteQueueSize);
-        builder.append(", spanDataSenderSocketSendBufferSize=");
-        builder.append(spanDataSenderSocketSendBufferSize);
-        builder.append(", spanDataSenderSocketTimeout=");
-        builder.append(spanDataSenderSocketTimeout);
-        builder.append(", spanDataSenderChunkSize=");
-        builder.append(spanDataSenderChunkSize);
-        builder.append(", spanDataSenderSocketType=");
-        builder.append(spanDataSenderSocketType);
-        builder.append(", statDataSenderWriteQueueSize=");
-        builder.append(statDataSenderWriteQueueSize);
-        builder.append(", statDataSenderSocketSendBufferSize=");
-        builder.append(statDataSenderSocketSendBufferSize);
-        builder.append(", statDataSenderSocketTimeout=");
-        builder.append(statDataSenderSocketTimeout);
-        builder.append(", statDataSenderChunkSize=");
-        builder.append(statDataSenderChunkSize);
-        builder.append(", statDataSenderSocketType=");
-        builder.append(statDataSenderSocketType);
-        builder.append(", tcpDataSenderCommandAcceptEnable=");
-        builder.append(tcpDataSenderCommandAcceptEnable);
-        builder.append(", tcpDataSenderCommandActiveThreadEnable=");
-        builder.append(tcpDataSenderCommandActiveThreadEnable);
-        builder.append(", tcpDataSenderCommandActiveThreadCountEnable=");
-        builder.append(tcpDataSenderCommandActiveThreadCountEnable);
-        builder.append(", tcpDataSenderCommandActiveThreadDumpEnable=");
-        builder.append(tcpDataSenderCommandActiveThreadDumpEnable);
-        builder.append(", tcpDataSenderCommandActiveThreadLightDumpEnable=");
-        builder.append(tcpDataSenderCommandActiveThreadLightDumpEnable);
-        builder.append(", traceAgentActiveThread=");
-        builder.append(traceAgentActiveThread);
-        builder.append(", traceAgentDataSource=");
-        builder.append(traceAgentDataSource);
-        builder.append(", dataSourceTraceLimitSize=");
-        builder.append(dataSourceTraceLimitSize);
-        builder.append(", deadlockMonitorEnable=");
-        builder.append(deadlockMonitorEnable);
-        builder.append(", deadlockMonitorInterval=");
-        builder.append(deadlockMonitorInterval);
-        builder.append(", callStackMaxDepth=");
-        builder.append(callStackMaxDepth);
-        builder.append(", jdbcSqlCacheSize=");
-        builder.append(jdbcSqlCacheSize);
-        builder.append(", traceSqlBindValue=");
-        builder.append(traceSqlBindValue);
-        builder.append(", maxSqlBindValueSize=");
-        builder.append(maxSqlBindValueSize);
-        builder.append(", samplingEnable=");
-        builder.append(samplingEnable);
-        builder.append(", samplingRate=");
-        builder.append(samplingRate);
-        builder.append(", ioBufferingEnable=");
-        builder.append(ioBufferingEnable);
-        builder.append(", ioBufferingBufferSize=");
-        builder.append(ioBufferingBufferSize);
-        builder.append(", profileJvmCollectInterval=");
-        builder.append(profileJvmCollectInterval);
-        builder.append(", profilableClassFilter=");
-        builder.append(profilableClassFilter);
-        builder.append(", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL=");
-        builder.append(DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
-        builder.append(", agentInfoSendRetryInterval=");
-        builder.append(agentInfoSendRetryInterval);
-        builder.append(", applicationServerType=");
-        builder.append(applicationServerType);
-        builder.append(", applicationTypeDetectOrder=");
-        builder.append(applicationTypeDetectOrder);
-        builder.append(", disabledPlugins=");
-        builder.append(disabledPlugins);
-        builder.append("}");
-        return builder.toString();
+        final StringBuilder sb = new StringBuilder(1024);
+        sb.append("{");
+        sb.append("properties=").append(properties);
+        sb.append(", propertyPlaceholderHelper=").append(propertyPlaceholderHelper);
+        sb.append(", profileEnable=").append(profileEnable);
+        sb.append(", profileInstrumentEngine='").append(profileInstrumentEngine).append('\'');
+        sb.append(", instrumentMatcherEnable=").append(instrumentMatcherEnable);
+        sb.append(", instrumentMatcherCacheConfig=").append(instrumentMatcherCacheConfig);
+        sb.append(", interceptorRegistrySize=").append(interceptorRegistrySize);
+        sb.append(", collectorSpanServerIp='").append(collectorSpanServerIp).append('\'');
+        sb.append(", collectorSpanServerPort=").append(collectorSpanServerPort);
+        sb.append(", collectorStatServerIp='").append(collectorStatServerIp).append('\'');
+        sb.append(", collectorStatServerPort=").append(collectorStatServerPort);
+        sb.append(", collectorTcpServerIp='").append(collectorTcpServerIp).append('\'');
+        sb.append(", collectorTcpServerPort=").append(collectorTcpServerPort);
+        sb.append(", spanDataSenderWriteQueueSize=").append(spanDataSenderWriteQueueSize);
+        sb.append(", spanDataSenderSocketSendBufferSize=").append(spanDataSenderSocketSendBufferSize);
+        sb.append(", spanDataSenderSocketTimeout=").append(spanDataSenderSocketTimeout);
+        sb.append(", spanDataSenderChunkSize=").append(spanDataSenderChunkSize);
+        sb.append(", spanDataSenderSocketType='").append(spanDataSenderSocketType).append('\'');
+        sb.append(", statDataSenderWriteQueueSize=").append(statDataSenderWriteQueueSize);
+        sb.append(", statDataSenderSocketSendBufferSize=").append(statDataSenderSocketSendBufferSize);
+        sb.append(", statDataSenderSocketTimeout=").append(statDataSenderSocketTimeout);
+        sb.append(", statDataSenderChunkSize=").append(statDataSenderChunkSize);
+        sb.append(", statDataSenderSocketType='").append(statDataSenderSocketType).append('\'');
+        sb.append(", tcpDataSenderCommandAcceptEnable=").append(tcpDataSenderCommandAcceptEnable);
+        sb.append(", tcpDataSenderCommandActiveThreadEnable=").append(tcpDataSenderCommandActiveThreadEnable);
+        sb.append(", tcpDataSenderCommandActiveThreadCountEnable=").append(tcpDataSenderCommandActiveThreadCountEnable);
+        sb.append(", tcpDataSenderCommandActiveThreadDumpEnable=").append(tcpDataSenderCommandActiveThreadDumpEnable);
+        sb.append(", tcpDataSenderCommandActiveThreadLightDumpEnable=").append(tcpDataSenderCommandActiveThreadLightDumpEnable);
+        sb.append(", traceAgentActiveThread=").append(traceAgentActiveThread);
+        sb.append(", traceAgentDataSource=").append(traceAgentDataSource);
+        sb.append(", dataSourceTraceLimitSize=").append(dataSourceTraceLimitSize);
+        sb.append(", deadlockMonitorEnable=").append(deadlockMonitorEnable);
+        sb.append(", deadlockMonitorInterval=").append(deadlockMonitorInterval);
+        sb.append(", callStackMaxDepth=").append(callStackMaxDepth);
+        sb.append(", jdbcSqlCacheSize=").append(jdbcSqlCacheSize);
+        sb.append(", traceSqlBindValue=").append(traceSqlBindValue);
+        sb.append(", maxSqlBindValueSize=").append(maxSqlBindValueSize);
+        sb.append(", samplingEnable=").append(samplingEnable);
+        sb.append(", samplingRate=").append(samplingRate);
+        sb.append(", ioBufferingEnable=").append(ioBufferingEnable);
+        sb.append(", ioBufferingBufferSize=").append(ioBufferingBufferSize);
+        sb.append(", profileJvmCollectInterval=").append(profileJvmCollectInterval);
+        sb.append(", profileJvmVendorName='").append(profileJvmVendorName).append('\'');
+        sb.append(", profilerJvmCollectDetailedMetrics=").append(profilerJvmCollectDetailedMetrics);
+        sb.append(", profilableClassFilter=").append(profilableClassFilter);
+        sb.append(", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL=").append(DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
+        sb.append(", agentInfoSendRetryInterval=").append(agentInfoSendRetryInterval);
+        sb.append(", applicationServerType='").append(applicationServerType).append('\'');
+        sb.append(", applicationTypeDetectOrder=").append(applicationTypeDetectOrder);
+        sb.append(", disabledPlugins=").append(disabledPlugins);
+        sb.append(", propagateInterceptorException=").append(propagateInterceptorException);
+        sb.append(", supportLambdaExpressions=").append(supportLambdaExpressions);
+        sb.append('}');
+        return sb.toString();
     }
-
 }

@@ -14,6 +14,8 @@
  */
 package com.navercorp.pinpoint.common.util;
 
+import java.util.Collection;
+
 /**
  * @author Jongho Moon
  *
@@ -24,6 +26,20 @@ public class Asserts {
     public static void notNull(Object value, String name) {
         if (value == null) {
             throw new NullPointerException(name + " can not be null");
+        }
+    }
+
+    public static void notEmpty(String value, String name) {
+        notNull(value, name);
+        if (value.isEmpty()) {
+            throw new NullPointerException(name + " can not be empty");
+        }
+    }
+
+    public static void notEmpty(Collection<?> value, String name) {
+        notNull(value, name);
+        if (value.isEmpty()) {
+            throw new NullPointerException(name + " can not be empty");
         }
     }
 }

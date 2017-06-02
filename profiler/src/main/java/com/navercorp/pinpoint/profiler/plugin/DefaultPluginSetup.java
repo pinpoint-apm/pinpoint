@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.profiler.instrument.GuardInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
@@ -86,6 +88,12 @@ public class DefaultPluginSetup implements PluginSetup {
             }
             final TransformTemplate transformTemplate = new TransformTemplate(guardInstrumentContext);
             ((TransformTemplateAware) plugin).setTransformTemplate(transformTemplate);
+        } else if(plugin instanceof MatchableTransformTemplateAware) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("{}.setTransformTemplate", plugin.getClass().getName());
+            }
+            final MatchableTransformTemplate transformTemplate = new MatchableTransformTemplate(guardInstrumentContext);
+            ((MatchableTransformTemplateAware) plugin).setTransformTemplate(transformTemplate);
         }
         return guardInstrumentContext;
     }
