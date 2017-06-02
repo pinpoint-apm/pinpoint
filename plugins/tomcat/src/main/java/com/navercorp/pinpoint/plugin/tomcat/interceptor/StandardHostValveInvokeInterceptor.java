@@ -21,8 +21,10 @@ import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
-
-
+import java.util.List;
+import java.util.Arrays;
+ 
+import org.apache.catalina.connector.Response;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -56,7 +58,8 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     private final Filter<String> excludeUrlFilter;
     private final Filter<String> excludeProfileMethodFilter;
     private final RemoteAddressResolver<HttpServletRequest> remoteAddressResolver;
-
+    private String successCodes;
+    private boolean enablefailurecodes;
     private MethodDescriptor methodDescriptor;
     private TraceContext traceContext;
 
@@ -76,7 +79,8 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         }
         this.isTraceRequestParam = tomcatConfig.isTomcatTraceRequestParam();
         this.excludeProfileMethodFilter = tomcatConfig.getTomcatExcludeProfileMethodFilter();
-
+        this.successCodes = tomcatConfig.getSuccessCodes();
+        this.enablefailurecodes =  tomcatConfig.isTomcatEnablefailureCodes();
         traceContext.cacheApi(SERVLET_ASYNCHRONOUS_API_TAG);
         traceContext.cacheApi(SERVLET_SYNCHRONOUS_API_TAG);
     }
@@ -325,6 +329,15 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
 
             recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);
+
+			List<String> successports = Arrays.asList(successCodes.split(","));
+
+			Response response = (Response) args[1];
+			if (!successports.contains(Integer.toString(response.getStatus())) && this.enablefailurecodes) {
+				String errorMessage = "HTTP Response status code is " + response.getStatus() + " - "
+						+ getReasonMessage(response.getStatus());
+				recorder.recordError(true, errorMessage);
+			}
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("AFTER. Caused:{}", th.getMessage(), th);
@@ -403,4 +416,176 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             setTraceMetadata(request, null);
         }
     }
+    
+	private String getReasonMessage(int status) {
+		String reason;
+		switch (status) {
+		case 200:
+			reason = "OK";
+			break;
+		case 201:
+			reason = "Created";
+			break;
+		case 202:
+			reason = "Accepted";
+			break;
+		case 203:
+			reason = "Non-Authoritative Information";
+			break;
+		case 204:
+			reason = "No Content";
+			break;
+		case 205:
+			reason = "Reset Content";
+			break;
+		case 206:
+			reason = "Partial Content";
+			break;
+		case 207:
+			reason = "Multi-Status";
+			break;
+		case 208:
+			reason = "Already Reported";
+			break;
+		case 226:
+			reason = "IM Used";
+			break;
+		case 300:
+			reason = "Multiple Choices";
+			break;
+		case 303:
+			reason = "See Other";
+			break;
+		case 301:
+			reason = "Moved Permanently";
+			break;
+		case 302:
+			reason = "Found";
+			break;
+		case 305:
+			reason = "Use Proxy";
+			break;
+		case 307:
+			reason = "Temporary Redirect";
+			break;
+		case 308:
+			reason = "Permanent Redirect";
+			break;
+		case 400:
+			reason = "Bad Request";
+			break;
+		case 401:
+			reason = "Unauthorized";
+			break;
+		case 402:
+			reason = "Payment Required";
+			break;
+		case 403:
+			reason = "Forbidden";
+			break;
+		case 404:
+			reason = "Not Found";
+			break;
+		case 405:
+			reason = "Method Not Allowed";
+			break;
+		case 406:
+			reason = "Not Acceptable";
+			break;
+		case 407:
+			reason = "Proxy Authentication Required";
+			break;
+		case 408:
+			reason = "Request Timeout";
+			break;
+		case 409:
+			reason = "Conflict";
+			break;
+		case 410:
+			reason = "Gone";
+			break;
+		case 411:
+			reason = "Length Required";
+			break;
+		case 412:
+			reason = "Preconditioned Failed";
+			break;
+		case 413:
+			reason = "Request Entity Too Large";
+			break;
+		case 414:
+			reason = "Request-URI Too Long";
+			break;
+		case 415:
+			reason = "Unsupported Media Type";
+			break;
+		case 416:
+			reason = "Request Range Not Satifiable";
+			break;
+		case 417:
+			reason = "Expectation Failed";
+			break;
+		case 422:
+			reason = "Unprocessable Entity";
+			break;
+		case 423:
+			reason = "Locked";
+			break;
+		case 424:
+			reason = "Failed Dependency";
+			break;
+		case 425:
+			reason = "Reserved for WebDAV";
+			break;
+		case 426:
+			reason = "Upgrade Required";
+			break;
+		case 428:
+			reason = "Precondition Required";
+			break;
+		case 429:
+			reason = "Too Many Requests";
+			break;
+		case 431:
+			reason = "Request Header Fields Too Large";
+			break;
+		case 451:
+			reason = "Unavailable For Legal Reasons";
+			break;
+		case 500:
+			reason = "Internal Server Error";
+			break;
+		case 501:
+			reason = "Not Implemented";
+			break;
+		case 502:
+			reason = "Bad Gateway";
+			break;
+		case 503:
+			reason = "Service Unavailable";
+			break;
+		case 504:
+			reason = "Gateway Timeout";
+			break;
+		case 505:
+			reason = "HTTP Version Not Supported";
+			break;
+		case 506:
+			reason = "Variant Also Negotiates";
+			break;
+		case 507:
+			reason = "Insufficient Storage";
+			break;
+		case 510:
+			reason = "Not Extended";
+			break;
+		case 511:
+			reason = "Network Authentication Required";
+			break;
+		default:
+			reason = "Unknown";
+			break;
+		}
+		return reason;
+	}
 }

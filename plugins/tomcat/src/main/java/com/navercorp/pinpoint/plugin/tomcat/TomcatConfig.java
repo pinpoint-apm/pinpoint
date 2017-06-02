@@ -34,6 +34,8 @@ public class TomcatConfig {
     private final List<String> tomcatBootstrapMains;
     private final boolean tomcatConditionalTransformEnable;
     private final boolean tomcatHidePinpointHeader;
+    private final String successCodes;
+    private final boolean enablefailurecodes;
 
     private final boolean tomcatTraceRequestParam;
     private final Filter<String> tomcatExcludeUrlFilter;
@@ -54,7 +56,8 @@ public class TomcatConfig {
         this.tomcatBootstrapMains = config.readList("profiler.tomcat.bootstrap.main");
         this.tomcatConditionalTransformEnable = config.readBoolean("profiler.tomcat.conditional.transform", true);
         this.tomcatHidePinpointHeader = config.readBoolean("profiler.tomcat.hidepinpointheader", true);
-
+        this.successCodes = config.readString("profiler.tomcat.successcodes", "200,201,202,203,204,205,206,207,208,226");
+        this.enablefailurecodes =  config.readBoolean("profiler.tomcat.enablefailurecodes", true);
         // runtime
         this.tomcatTraceRequestParam = config.readBoolean("profiler.tomcat.tracerequestparam", true);
         final String tomcatExcludeURL = config.readString("profiler.tomcat.excludeurl", "");
@@ -92,6 +95,14 @@ public class TomcatConfig {
         return tomcatHidePinpointHeader;
     }
 
+	public boolean isTomcatEnablefailureCodes() {
+		return enablefailurecodes;
+	}
+
+	public String getSuccessCodes() {
+		return successCodes;
+	}
+    	
     public boolean isTomcatTraceRequestParam() {
         return tomcatTraceRequestParam;
     }

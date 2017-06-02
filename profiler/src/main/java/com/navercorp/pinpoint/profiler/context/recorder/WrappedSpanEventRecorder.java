@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.profiler.context.recorder;
 
-
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
@@ -38,157 +37,168 @@ import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
  *
  */
 public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEventRecorder {
-    private final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
-    private final boolean isDebug = logger.isDebugEnabled();
+	private final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
+	private final boolean isDebug = logger.isDebugEnabled();
 
-    private SpanEvent spanEvent;
+	private SpanEvent spanEvent;
 
-    public WrappedSpanEventRecorder(final StringMetaDataService stringMetaDataService, final SqlMetaDataService sqlMetaCacheService) {
-        super(stringMetaDataService, sqlMetaCacheService);
-    }
+	public WrappedSpanEventRecorder(final StringMetaDataService stringMetaDataService,
+			final SqlMetaDataService sqlMetaCacheService) {
+		super(stringMetaDataService, sqlMetaCacheService);
+	}
 
-    public void setWrapped(final SpanEvent spanEvent) {
-        this.spanEvent = spanEvent;
-    }
+	public void setWrapped(final SpanEvent spanEvent) {
+		this.spanEvent = spanEvent;
+	}
 
-    @Override
-    public ParsingResult recordSqlInfo(String sql) {
-        if (sql == null) {
-            return null;
-        }
-        ParsingResult parsingResult = sqlMetaDataService.parseSql(sql);
-        recordSqlParsingResult(parsingResult);
-        return parsingResult;
-    }
+	@Override
+	public ParsingResult recordSqlInfo(String sql) {
+		if (sql == null) {
+			return null;
+		}
+		ParsingResult parsingResult = sqlMetaDataService.parseSql(sql);
+		recordSqlParsingResult(parsingResult);
+		return parsingResult;
+	}
 
-    @Override
-    public void recordSqlParsingResult(ParsingResult parsingResult) {
-        recordSqlParsingResult(parsingResult, null);
-    }
+	@Override
+	public void recordSqlParsingResult(ParsingResult parsingResult) {
+		recordSqlParsingResult(parsingResult, null);
+	}
 
-    @Override
-    public void recordSqlParsingResult(ParsingResult parsingResult, String bindValue) {
-        if (parsingResult == null) {
-            return;
-        }
-        final boolean isNewCache = sqlMetaDataService.cacheSql(parsingResult);
-        if (isDebug) {
-            if (isNewCache) {
-                logger.debug("update sql cache. parsingResult:{}", parsingResult);
-            } else {
-                logger.debug("cache hit. parsingResult:{}", parsingResult);
-            }
-        }
+	@Override
+	public void recordSqlParsingResult(ParsingResult parsingResult, String bindValue) {
+		if (parsingResult == null) {
+			return;
+		}
+		final boolean isNewCache = sqlMetaDataService.cacheSql(parsingResult);
+		if (isDebug) {
+			if (isNewCache) {
+				logger.debug("update sql cache. parsingResult:{}", parsingResult);
+			} else {
+				logger.debug("cache hit. parsingResult:{}", parsingResult);
+			}
+		}
 
-        final TIntStringStringValue tSqlValue = new TIntStringStringValue(parsingResult.getId());
-        final String output = parsingResult.getOutput();
-        if (StringUtils.isNotEmpty(output)) {
-            tSqlValue.setStringValue1(output);
-        }
-        if (StringUtils.isNotEmpty(bindValue)) {
-            tSqlValue.setStringValue2(bindValue);
-        }
-        recordSqlParam(tSqlValue);
-    }
+		final TIntStringStringValue tSqlValue = new TIntStringStringValue(parsingResult.getId());
+		final String output = parsingResult.getOutput();
+		if (StringUtils.isNotEmpty(output)) {
+			tSqlValue.setStringValue1(output);
+		}
+		if (StringUtils.isNotEmpty(bindValue)) {
+			tSqlValue.setStringValue2(bindValue);
+		}
+		recordSqlParam(tSqlValue);
+	}
 
+	private void recordSqlParam(TIntStringStringValue tIntStringStringValue) {
+		spanEvent.addAnnotation(new Annotation(AnnotationKey.SQL_ID.getCode(), tIntStringStringValue));
+	}
 
-    private void recordSqlParam(TIntStringStringValue tIntStringStringValue) {
-        spanEvent.addAnnotation(new Annotation(AnnotationKey.SQL_ID.getCode(), tIntStringStringValue));
-    }
+	@Override
+	public void recordDestinationId(String destinationId) {
+		spanEvent.setDestinationId(destinationId);
+	}
 
-    @Override
-    public void recordDestinationId(String destinationId) {
-        spanEvent.setDestinationId(destinationId);
-    }
+	@Override
+	public void recordNextSpanId(long nextSpanId) {
+		if (nextSpanId == -1) {
+			return;
+		}
+		spanEvent.setNextSpanId(nextSpanId);
+	}
 
-    @Override
-    public void recordNextSpanId(long nextSpanId) {
-        if (nextSpanId == -1) {
-            return;
-        }
-        spanEvent.setNextSpanId(nextSpanId);
-    }
+	@Override
+	public void recordAsyncId(int asyncId) {
+		spanEvent.setAsyncId(asyncId);
+	}
 
-    @Override
-    public void recordAsyncId(int asyncId) {
-        spanEvent.setAsyncId(asyncId);
-    }
+	@Override
+	public void recordNextAsyncId(int nextAsyncId) {
+		spanEvent.setNextAsyncId(nextAsyncId);
+	}
 
-    @Override
-    public void recordNextAsyncId(int nextAsyncId) {
-        spanEvent.setNextAsyncId(nextAsyncId);
-    }
+	@Override
+	public void recordAsyncSequence(short asyncSequence) {
+		spanEvent.setAsyncSequence(asyncSequence);
+	}
 
-    @Override
-    public void recordAsyncSequence(short asyncSequence) {
-        spanEvent.setAsyncSequence(asyncSequence);
-    }
+	@Override
+	void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
+		this.setExceptionInfo(true, exceptionClassId, exceptionMessage);
+	}
 
-    @Override
-    void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
-        this.setExceptionInfo(true, exceptionClassId, exceptionMessage);
-    }
+	@Override
+	void setExceptionInfo(boolean markError, int exceptionClassId, String exceptionMessage) {
+		this.spanEvent.setExceptionInfo(markError, exceptionClassId, exceptionMessage);
+	}
 
-    @Override
-    void setExceptionInfo(boolean markError, int exceptionClassId, String exceptionMessage) {
-        this.spanEvent.setExceptionInfo(markError, exceptionClassId, exceptionMessage);
-    }
+	@Override
+	public void recordApiId(final int apiId) {
+		setApiId0(apiId);
+	}
 
-    @Override
-    public void recordApiId(final int apiId) {
-        setApiId0(apiId);
-    }
+	void setApiId0(final int apiId) {
+		spanEvent.setApiId(apiId);
+	}
 
-    void setApiId0(final int apiId) {
-        spanEvent.setApiId(apiId);
-    }
+	void addAnnotation(Annotation annotation) {
+		spanEvent.addAnnotation(annotation);
+	}
 
-    void addAnnotation(Annotation annotation) {
-        spanEvent.addAnnotation(annotation);
-    }
+	@Override
+	public void recordServiceType(ServiceType serviceType) {
+		spanEvent.setServiceType(serviceType.getCode());
+	}
 
-    @Override
-    public void recordServiceType(ServiceType serviceType) {
-        spanEvent.setServiceType(serviceType.getCode());
-    }
+	@Override
+	public void recordRpcName(String rpc) {
+		spanEvent.setRpc(rpc);
+	}
 
-    @Override
-    public void recordRpcName(String rpc) {
-        spanEvent.setRpc(rpc);
-    }
+	@Override
+	public void recordEndPoint(String endPoint) {
+		spanEvent.setEndPoint(endPoint);
+	}
 
-    @Override
-    public void recordEndPoint(String endPoint) {
-        spanEvent.setEndPoint(endPoint);
-    }
+	@Override
+	public void recordTime(boolean time) {
+		spanEvent.setTimeRecording(time);
+		if (time) {
+			if (!spanEvent.isSetStartElapsed()) {
+				spanEvent.markStartTime();
+			}
+		} else {
+			spanEvent.setEndElapsed(0);
+			spanEvent.setEndElapsedIsSet(false);
+			spanEvent.setStartElapsed(0);
+			spanEvent.setStartElapsedIsSet(false);
+		}
+	}
 
-    @Override
-    public void recordTime(boolean time) {
-        spanEvent.setTimeRecording(time);
-        if (time) {
-            if(!spanEvent.isSetStartElapsed()) {
-                spanEvent.markStartTime();
-            }
-        } else {
-            spanEvent.setEndElapsed(0);
-            spanEvent.setEndElapsedIsSet(false);
-            spanEvent.setStartElapsed(0);
-            spanEvent.setStartElapsedIsSet(false);
-        }
-    }
+	@Override
+	public Object detachFrameObject() {
+		return spanEvent.detachFrameObject();
+	}
 
-    @Override
-    public Object detachFrameObject() {
-        return spanEvent.detachFrameObject();
-    }
+	@Override
+	public Object getFrameObject() {
+		return spanEvent.getFrameObject();
+	}
 
-    @Override
-    public Object getFrameObject() {
-        return spanEvent.getFrameObject();
-    }
+	@Override
+	public Object attachFrameObject(Object frameObject) {
+		return spanEvent.attachFrameObject(frameObject);
+	}
 
-    @Override
-    public Object attachFrameObject(Object frameObject) {
-        return spanEvent.attachFrameObject(frameObject);
-    }
+	@Override
+	public void recordError(boolean markError, String errorMessage) {
+		if (markError) {
+			spanEvent.setExceptionInfo(404, errorMessage);
+			final Span span = spanEvent.getSpan();
+			if (!span.isSetErrCode()) {
+				span.setErrCode(1);
+			}
+		}
+	}
 }
