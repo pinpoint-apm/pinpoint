@@ -62,7 +62,7 @@ public class ThreadDumpUtils {
 
     public static TThreadState toTThreadState(Thread.State threadState) {
         if (threadState == null) {
-            throw new NullPointerException("threadState may not be null");
+            throw new NullPointerException("threadState must not be null");
         }
 
         String threadStateName = threadState.name();

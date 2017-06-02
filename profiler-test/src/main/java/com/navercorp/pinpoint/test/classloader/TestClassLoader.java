@@ -38,7 +38,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.common.util.Asserts;
+import com.navercorp.pinpoint.common.util.Assert;
 
 
 /**
@@ -56,7 +56,7 @@ public class TestClassLoader extends TransformClassLoader {
     private final InstrumentContext instrumentContext;
 
     public TestClassLoader(MockApplicationContext applicationContext) {
-        Asserts.notNull(applicationContext, "applicationContext");
+        Assert.requireNonNull(applicationContext, "applicationContext must not be null");
 
         this.applicationContext = applicationContext;
 

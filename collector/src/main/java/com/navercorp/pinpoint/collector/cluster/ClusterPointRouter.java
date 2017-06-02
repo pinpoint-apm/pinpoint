@@ -67,13 +67,13 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
     public ClusterPointRouter(ClusterPointRepository<TargetClusterPoint> targetClusterPointRepository,
             DefaultRouteHandler defaultRouteHandler, StreamRouteHandler streamRouteHandler) {
         if (targetClusterPointRepository == null) {
-            throw new NullPointerException("targetClusterPointRepository may not be null");
+            throw new NullPointerException("targetClusterPointRepository must not be null");
         }
         if (defaultRouteHandler == null) {
-            throw new NullPointerException("defaultRouteHandler may not be null");
+            throw new NullPointerException("defaultRouteHandler must not be null");
         }
         if (streamRouteHandler == null) {
-            throw new NullPointerException("streamRouteHandler may not be null");
+            throw new NullPointerException("streamRouteHandler must not be null");
         }
         this.targetClusterPointRepository = targetClusterPointRepository;
         this.routeHandler = defaultRouteHandler;

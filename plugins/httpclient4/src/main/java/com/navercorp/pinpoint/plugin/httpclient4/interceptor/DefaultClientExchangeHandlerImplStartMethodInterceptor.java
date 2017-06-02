@@ -327,7 +327,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
     @SuppressWarnings("deprecation")
     public static String entityUtilsToString(final HttpEntity entity, final String defaultCharset, int maxLength) throws Exception {
         if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
+            throw new IllegalArgumentException("HTTP entity must not be null");
         }
         if (entity.getContentLength() > Integer.MAX_VALUE) {
             return "HTTP entity is too large to be buffered in memory length:" + entity.getContentLength();
@@ -375,7 +375,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
      */
     public static String getContentCharSet(final HttpEntity entity) throws ParseException {
         if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
+            throw new IllegalArgumentException("HTTP entity must not be null");
         }
         String charset = null;
         if (entity.getContentType() != null) {

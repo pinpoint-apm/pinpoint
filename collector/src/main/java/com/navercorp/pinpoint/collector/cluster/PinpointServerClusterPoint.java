@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.collector.cluster;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.rpc.util.AssertUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
 import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
@@ -46,12 +46,12 @@ public class PinpointServerClusterPoint implements TargetClusterPoint {
     private final List<TCommandType> supportCommandList;
 
     public PinpointServerClusterPoint(PinpointServer pinpointServer) {
-        AssertUtils.assertNotNull(pinpointServer, "pinpointServer may not be null.");
+        Assert.requireNonNull(pinpointServer, "pinpointServer must not be null.");
         this.pinpointServer = pinpointServer;
 
         Map<Object, Object> properties = pinpointServer.getChannelProperties();
         this.version = MapUtils.getString(properties, HandshakePropertyType.VERSION.getName());
-        AssertUtils.assertTrue(!StringUtils.isBlank(version), "Version may not be null or empty.");
+        Assert.isTrue(!StringUtils.isBlank(version), "Version must not be null or empty.");
 
         this.supportCommandList = new ArrayList<>();
         Object supportCommandCodeList = properties.get(HandshakePropertyType.SUPPORT_COMMAND_LIST.getName());
@@ -67,13 +67,13 @@ public class PinpointServerClusterPoint implements TargetClusterPoint {
         }
 
         this.applicationName = MapUtils.getString(properties, HandshakePropertyType.APPLICATION_NAME.getName());
-        AssertUtils.assertTrue(!StringUtils.isBlank(applicationName), "ApplicationName may not be null or empty.");
+        Assert.isTrue(!StringUtils.isBlank(applicationName), "ApplicationName must not be null or empty.");
 
         this.agentId = MapUtils.getString(properties, HandshakePropertyType.AGENT_ID.getName());
-        AssertUtils.assertTrue(!StringUtils.isBlank(agentId), "AgentId may not be null or empty.");
+        Assert.isTrue(!StringUtils.isBlank(agentId), "AgentId must not be null or empty.");
 
         this.startTimeStamp = MapUtils.getLong(properties, HandshakePropertyType.START_TIMESTAMP.getName());
-        AssertUtils.assertTrue(startTimeStamp > 0, "StartTimeStamp is must greater than zero.");
+        Assert.isTrue(startTimeStamp > 0, "StartTimeStamp is must greater than zero.");
     }
 
     @Override

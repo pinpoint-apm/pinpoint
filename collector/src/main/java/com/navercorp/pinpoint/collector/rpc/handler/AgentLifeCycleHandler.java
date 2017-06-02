@@ -51,10 +51,10 @@ public class AgentLifeCycleHandler {
     public void handleLifeCycleEvent(PinpointServer pinpointServer, long eventTimestamp,
             AgentLifeCycleState agentLifeCycleState, int eventCounter) {
         if (pinpointServer == null) {
-            throw new NullPointerException("pinpointServer may not be null");
+            throw new NullPointerException("pinpointServer must not be null");
         }
         if (agentLifeCycleState == null) {
-            throw new NullPointerException("agentLifeCycleState may not be null");
+            throw new NullPointerException("agentLifeCycleState must not be null");
         }
         if (eventCounter < 0) {
             throw new IllegalArgumentException("eventCounter may not be negative");
@@ -95,7 +95,7 @@ public class AgentLifeCycleHandler {
 
         private AgentLifeCycleHandlerDispatch(AgentLifeCycleBo agentLifeCycleBo) {
             if (agentLifeCycleBo == null) {
-                throw new NullPointerException("agentLifeCycleBo may not be null");
+                throw new NullPointerException("agentLifeCycleBo must not be null");
             }
             this.agentLifeCycleBo = agentLifeCycleBo;
         }

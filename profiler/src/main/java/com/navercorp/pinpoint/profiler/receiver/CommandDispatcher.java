@@ -46,7 +46,7 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
     @Inject
     public CommandDispatcher(ProfilerCommandServiceLocator commandServiceLocator) {
         if (commandServiceLocator == null) {
-            throw new NullPointerException("commandServiceLocator may not be null");
+            throw new NullPointerException("commandServiceLocator must not be null");
         }
 
         this.commandServiceLocator = commandServiceLocator;

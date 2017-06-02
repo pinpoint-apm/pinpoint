@@ -32,7 +32,7 @@ public class ZookeeperJob {
 
     public ZookeeperJob(Type type, String key) {
         if (type == null) {
-            throw new NullPointerException("type may not be null");
+            throw new NullPointerException("type must not be null");
         }
 
         this.type = type;
