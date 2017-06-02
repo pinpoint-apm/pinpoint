@@ -28,7 +28,7 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 @Configuration
 @EnableWebSocket

@@ -56,7 +56,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author HyunGil Jeong
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 @Service
 public class AgentServiceImpl implements AgentService {

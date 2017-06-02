@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 @JsonSerialize(using = ApplicationTimeHistogramViewModelSerializer.class)
 public class ApplicationTimeHistogramViewModel {

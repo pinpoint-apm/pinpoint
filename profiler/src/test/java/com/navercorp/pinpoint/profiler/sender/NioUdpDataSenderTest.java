@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class NioUdpDataSenderTest {
 

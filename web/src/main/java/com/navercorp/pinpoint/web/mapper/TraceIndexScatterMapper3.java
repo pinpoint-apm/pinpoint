@@ -28,7 +28,7 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class TraceIndexScatterMapper3 implements RowMapper<ScatterData> {
 

@@ -28,7 +28,7 @@ import java.io.OutputStream;
  *
  * Caution. not thread safe
  *
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class HeaderTBaseSerializer2 {
 

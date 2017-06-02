@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.rpc.PinpointSocket;
 import java.util.List;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public interface ClusterConnectionProvider {
 

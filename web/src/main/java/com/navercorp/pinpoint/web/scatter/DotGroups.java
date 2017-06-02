@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class DotGroups {
 

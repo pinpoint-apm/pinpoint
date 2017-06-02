@@ -26,7 +26,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 @JsonSerialize(using = AgentActiveThreadCountListSerializer.class)
 public class AgentActiveThreadCountList {

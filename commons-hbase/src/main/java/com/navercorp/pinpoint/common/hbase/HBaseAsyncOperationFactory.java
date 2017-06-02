@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class HBaseAsyncOperationFactory {
 

@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.websocket.message;
 import java.util.Map;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class SendMessage extends AbstractPinpointWebSocketMessage {
 

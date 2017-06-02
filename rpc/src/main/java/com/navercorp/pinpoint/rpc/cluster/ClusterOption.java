@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.rpc.cluster;
 import java.util.*;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ClusterOption {
 

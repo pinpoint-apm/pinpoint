@@ -29,7 +29,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ScatterDataTest {
 

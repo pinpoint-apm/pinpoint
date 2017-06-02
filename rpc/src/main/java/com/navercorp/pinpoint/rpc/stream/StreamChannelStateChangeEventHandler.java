@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.rpc.stream;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public interface StreamChannelStateChangeEventHandler <S extends StreamChannel> {
 

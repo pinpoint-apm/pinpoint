@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.rpc.buffer;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public enum ByteBufferType {
 

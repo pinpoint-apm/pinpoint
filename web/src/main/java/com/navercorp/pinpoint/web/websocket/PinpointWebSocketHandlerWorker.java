@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.websocket;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public interface PinpointWebSocketHandlerWorker {
 

@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import java.util.*;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public enum ActiveThreadCountErrorType {
 

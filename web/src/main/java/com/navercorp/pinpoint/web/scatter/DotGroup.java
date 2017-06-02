@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class DotGroup {
 

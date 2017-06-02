@@ -27,7 +27,7 @@ import java.nio.ByteBuffer;
 /**
  * Not Thread Safe.
  *
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ByteBufferOutputStream extends OutputStream implements ResettableOutputStream {
 

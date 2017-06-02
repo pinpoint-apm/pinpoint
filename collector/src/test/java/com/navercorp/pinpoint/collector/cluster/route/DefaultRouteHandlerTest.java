@@ -29,7 +29,7 @@ import org.junit.Test;
 import java.net.InetSocketAddress;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class DefaultRouteHandlerTest {
 

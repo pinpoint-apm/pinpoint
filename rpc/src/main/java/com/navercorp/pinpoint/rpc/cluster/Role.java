@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.rpc.cluster;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public enum Role {
 

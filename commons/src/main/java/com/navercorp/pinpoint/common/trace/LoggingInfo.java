@@ -2,9 +2,6 @@ package com.navercorp.pinpoint.common.trace;
 
 import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public enum LoggingInfo {
 
     NOT_LOGGED((byte)0, "NOT_LOGGED", "message is not logged"),

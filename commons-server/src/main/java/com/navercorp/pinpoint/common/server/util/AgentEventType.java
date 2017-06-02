@@ -88,9 +88,18 @@ public enum AgentEventType {
         }
         return null;
     }
-    
+
+    /**
+     * typo API
+     * @deprecated Since 1.7.0. Use {@link #getTypesByCategory}
+     */
+    @Deprecated
     public static Set<AgentEventType> getTypesByCatgory(AgentEventTypeCategory category) {
-        Set<AgentEventType> eventTypes = new HashSet<AgentEventType>();
+        return getTypesByCategory(category);
+    }
+
+    public static Set<AgentEventType> getTypesByCategory(AgentEventTypeCategory category) {
+        final Set<AgentEventType> eventTypes = new HashSet<AgentEventType>();
         for (AgentEventType eventType : AgentEventType.values()) {
             if (eventType.category.contains(category)) {
                 eventTypes.add(eventType);
