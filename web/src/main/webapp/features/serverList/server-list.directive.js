@@ -50,17 +50,16 @@
 						scope.oNavbarVoService = oNavbarVoService;
 						scope.hasScatter = false;
 						if ( bIsNodeServer ) {
+							scope.bIsNode = true;
+							scope.serverList = node.serverList;
 							if ( node.isWas ) {
 								scope.hasScatter = true;
+								if  ( scope.namespace === "forMain" ) {
+									scope.$broadcast('scatterDirective.initializeWithNode.forServerList', node);
+								} else {
+									scope.$broadcast('scatterDirective.showByNode.forServerList', node);
+								}
 							}
-							scope.serverList = node.serverList;
-							scope.bIsNode = true;
-							if  ( scope.namespace === "forMain" ) {
-								scope.$broadcast('scatterDirective.initializeWithNode.forServerList', node);
-							} else {
-								scope.$broadcast('scatterDirective.showByNode.forServerList', node);
-							}
-
 							$timeout(function() {
 								var instanceName = $element.find( "._node input[type=radio][checked]" ).val();
 								try {
