@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
  */
 public interface TraceIdFactory {
 
-    TraceId newTraceId();
+    TraceId newTraceId(long localTransactionId);
 
     TraceId continueTraceId(String transactionId, long parentSpanId, long spanId, short flags);
 

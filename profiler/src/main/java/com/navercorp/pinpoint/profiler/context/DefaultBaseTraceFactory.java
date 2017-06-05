@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.DefaultAsyncTraceId;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
@@ -29,7 +30,6 @@ import com.navercorp.pinpoint.profiler.context.id.StatefulAsyncTraceId;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.id.ListenableAsyncState;
-import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
 import com.navercorp.pinpoint.profiler.context.storage.AsyncStorage;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
@@ -56,45 +56,18 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     private final TraceRootFactory traceRootFactory;
 
 
-    public DefaultBaseTraceFactory(TraceRootFactory traceRootFactory, CallStackFactory callStackFactory, StorageFactory storageFactory, Sampler sampler, TraceIdFactory traceIdFactory, IdGenerator idGenerator, AsyncIdGenerator asyncIdGenerator,
+    public DefaultBaseTraceFactory(TraceRootFactory traceRootFactory, CallStackFactory callStackFactory, StorageFactory storageFactory, Sampler sampler, IdGenerator idGenerator, AsyncIdGenerator asyncIdGenerator,
                                    SpanFactory spanFactory, RecorderFactory recorderFactory) {
-        if (traceRootFactory == null) {
-            throw new NullPointerException("traceRootFactory must not be null");
-        }
-        if (callStackFactory == null) {
-            throw new NullPointerException("callStackFactory must not be null");
-        }
-        if (storageFactory == null) {
-            throw new NullPointerException("storageFactory must not be null");
-        }
-        if (sampler == null) {
-            throw new NullPointerException("sampler must not be null");
-        }
-        if (idGenerator == null) {
-            throw new NullPointerException("idGenerator must not be null");
-        }
-        if (traceIdFactory == null) {
-            throw new NullPointerException("traceIdFactory must not be null");
-        }
-        if (asyncIdGenerator == null) {
-            throw new NullPointerException("asyncIdGenerator must not be null");
-        }
-        if (spanFactory == null) {
-            throw new NullPointerException("spanFactory must not be null");
-        }
-        if (recorderFactory == null) {
-            throw new NullPointerException("recorderFactory must not be null");
-        }
 
-        this.traceRootFactory = traceRootFactory;
-        this.callStackFactory = callStackFactory;
-        this.storageFactory = storageFactory;
-        this.sampler = sampler;
-        this.idGenerator = idGenerator;
-        this.asyncIdGenerator = asyncIdGenerator;
+        this.traceRootFactory = Assert.requireNonNull(traceRootFactory, "traceRootFactory must not be null");
+        this.callStackFactory = Assert.requireNonNull(callStackFactory, "callStackFactory must not be null");
+        this.storageFactory = Assert.requireNonNull(storageFactory, "storageFactory must not be null");
+        this.sampler = Assert.requireNonNull(sampler, "sampler must not be null");
+        this.idGenerator = Assert.requireNonNull(idGenerator, "idGenerator must not be null");
+        this.asyncIdGenerator = Assert.requireNonNull(asyncIdGenerator, "asyncIdGenerator must not be null");
 
-        this.spanFactory = spanFactory;
-        this.recorderFactory = recorderFactory;
+        this.spanFactory = Assert.requireNonNull(spanFactory, "spanFactory must not be null");
+        this.recorderFactory = Assert.requireNonNull(recorderFactory, "recorderFactory must not be null");
     }
 
 

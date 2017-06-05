@@ -47,8 +47,8 @@ public class DefaultTraceRootFactory implements TraceRootFactory {
 
     @Override
     public TraceRoot newTraceRoot() {
-        final TraceId traceId = traceIdFactory.newTraceId();
-        final long localTransactionId = traceId.getTransactionSequence();
+        final long localTransactionId = idGenerator.nextTransactionId();
+        final TraceId traceId = traceIdFactory.newTraceId(localTransactionId);
         final long startTime = traceStartTime();
         return new DefaultTraceRoot(traceId, this.agentId, startTime, localTransactionId);
     }

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.BaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.CallStackFactory;
@@ -30,7 +31,6 @@ import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
 import com.navercorp.pinpoint.profiler.context.SpanFactory;
 import com.navercorp.pinpoint.profiler.context.ThreadLocalTraceFactory;
 import com.navercorp.pinpoint.profiler.context.TraceFactory;
-import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
@@ -48,7 +48,6 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
     private final StorageFactory storageFactory;
     private final Sampler sampler;
     private final IdGenerator idGenerator;
-    private final TraceIdFactory traceIdFactory;
     private final AsyncIdGenerator asyncIdGenerator;
 
     private final ActiveTraceRepository activeTraceRepository;
@@ -60,57 +59,28 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
 
 
     @Inject
-    public TraceFactoryProvider(TraceRootFactory traceRootFactory, CallStackFactory callStackFactory, StorageFactory storageFactory, Sampler sampler, IdGenerator idGenerator, TraceIdFactory traceIdFactory, AsyncIdGenerator asyncIdGenerator,
+    public TraceFactoryProvider(TraceRootFactory traceRootFactory, CallStackFactory callStackFactory, StorageFactory storageFactory, Sampler sampler, IdGenerator idGenerator, AsyncIdGenerator asyncIdGenerator,
                                 Provider<ActiveTraceRepository> activeTraceRepositoryProvider, SpanFactory spanFactory, RecorderFactory recorderFactory) {
-        if (traceRootFactory == null) {
-            throw new NullPointerException("traceRootFactory must not be null");
-        }
-        if (callStackFactory == null) {
-            throw new NullPointerException("callStackFactory must not be null");
-        }
-        if (storageFactory == null) {
-            throw new NullPointerException("storageFactory must not be null");
-        }
-        if (sampler == null) {
-            throw new NullPointerException("sampler must not be null");
-        }
-        if (idGenerator == null) {
-            throw new NullPointerException("idGenerator must not be null");
-        }
-        if (traceIdFactory == null) {
-            throw new NullPointerException("traceIdFactory must not be null");
-        }
+        this.traceRootFactory = Assert.requireNonNull(traceRootFactory, "traceRootFactory must not be null");
+        this.callStackFactory = Assert.requireNonNull(callStackFactory, "callStackFactory must not be null");
+        this.storageFactory = Assert.requireNonNull(storageFactory, "storageFactory must not be null");
+        this.sampler = Assert.requireNonNull(sampler, "sampler must not be null");
+        this.idGenerator = Assert.requireNonNull(idGenerator, "idGenerator must not be null");
+        this.asyncIdGenerator = Assert.requireNonNull(asyncIdGenerator, "asyncIdGenerator must not be null");
 
-        if (asyncIdGenerator == null) {
-            throw new NullPointerException("asyncIdGenerator must not be null");
-        }
-        if (activeTraceRepositoryProvider == null) {
-            throw new NullPointerException("activeTraceRepositoryProvider must not be null");
-        }
-        if (spanFactory == null) {
-            throw new NullPointerException("spanFactory must not be null");
-        }
-        if (recorderFactory == null) {
-            throw new NullPointerException("recorderFactory must not be null");
-        }
-        this.traceRootFactory = traceRootFactory;
-        this.callStackFactory = callStackFactory;
-        this.storageFactory = storageFactory;
-        this.sampler = sampler;
-        this.idGenerator = idGenerator;
-        this.traceIdFactory = traceIdFactory;
-        this.asyncIdGenerator = asyncIdGenerator;
+
+        Assert.requireNonNull(activeTraceRepositoryProvider, "activeTraceRepositoryProvider must not be null");
         this.activeTraceRepository = activeTraceRepositoryProvider.get();
 
-        this.spanFactory = spanFactory;
-        this.recorderFactory = recorderFactory;
+        this.spanFactory = Assert.requireNonNull(spanFactory, "spanFactory must not be null");
+        this.recorderFactory = Assert.requireNonNull(recorderFactory, "recorderFactory must not be null");
 
     }
 
     @Override
     public TraceFactory get() {
 
-        BaseTraceFactory baseTraceFactory = new DefaultBaseTraceFactory(traceRootFactory, callStackFactory, storageFactory, sampler, traceIdFactory, idGenerator,
+        BaseTraceFactory baseTraceFactory = new DefaultBaseTraceFactory(traceRootFactory, callStackFactory, storageFactory, sampler, idGenerator,
                 asyncIdGenerator, spanFactory, recorderFactory);
         if (isDebugEnabled()) {
             baseTraceFactory = LoggingBaseTraceFactory.wrap(baseTraceFactory);
