@@ -94,7 +94,7 @@ public class DubboConsumerInterceptor implements AroundInterceptor1 {
             return null;
         }
 
-        return traceContext.currentTraceObject();
+        return traceContext.currentRawTraceObject();
     }
 
 }
