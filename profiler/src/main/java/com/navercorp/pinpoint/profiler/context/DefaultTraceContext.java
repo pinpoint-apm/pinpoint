@@ -119,10 +119,6 @@ public class DefaultTraceContext implements TraceContext {
         return traceFactory.currentTraceObject();
     }
 
-    public Trace currentRpcTraceObject() {
-        return traceFactory.currentTraceObject();
-    }
-
     /**
      * Return trace without sampling check.
      *
