@@ -48,11 +48,6 @@ public class MetricTraceFactory implements TraceFactory {
     }
 
     @Override
-    public Trace currentRpcTraceObject() {
-        return delegate.currentRpcTraceObject();
-    }
-
-    @Override
     public Trace currentRawTraceObject() {
         return delegate.currentRawTraceObject();
     }

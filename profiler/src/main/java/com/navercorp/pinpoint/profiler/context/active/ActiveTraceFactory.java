@@ -53,11 +53,6 @@ public class ActiveTraceFactory implements TraceFactory {
     }
 
     @Override
-    public Trace currentRpcTraceObject() {
-        return this.delegate.currentRpcTraceObject();
-    }
-
-    @Override
     public Trace currentRawTraceObject() {
         return this.delegate.currentRawTraceObject();
     }

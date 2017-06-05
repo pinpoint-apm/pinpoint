@@ -65,9 +65,6 @@ public class ThreadLocalTraceFactoryTest {
         Trace rawTraceObject = traceFactory.currentRawTraceObject();
         Assert.assertNull(rawTraceObject);
 
-        Trace rpcTraceObject = traceFactory.currentRpcTraceObject();
-        Assert.assertNull(rpcTraceObject);
-
         traceFactory.newTraceObject();
         Assert.assertNotNull(traceFactory.currentRawTraceObject());
     }
@@ -96,27 +93,7 @@ public class ThreadLocalTraceFactoryTest {
         Assert.assertNotEquals(newTrace, currentTrace);
     }
 
-    @Test
-    public void testCurrentRpcTraceObject() throws Exception {
-        TraceFactory traceFactory = sampledTraceFactory;
 
-        Trace trace = traceFactory.newTraceObject();
-        Trace rpcTraceObject = traceFactory.currentRpcTraceObject();
-
-        Assert.assertNotNull(rpcTraceObject);
-        Assert.assertSame(trace, rpcTraceObject);
-    }
-
-    @Test
-    public void testCurrentRpcTraceObject_unsampled() throws Exception {
-        TraceFactory traceFactory = unsampledTraceFactory;
-
-        Trace trace = traceFactory.newTraceObject();
-        Trace rpcTraceObject = traceFactory.currentRpcTraceObject();
-
-        Assert.assertNotNull(rpcTraceObject);
-        Assert.assertSame(trace, rpcTraceObject);
-    }
 
     @Test
     public void testCurrentRawTraceObject() throws Exception {

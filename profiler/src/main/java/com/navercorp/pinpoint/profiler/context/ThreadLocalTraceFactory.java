@@ -63,20 +63,6 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         return null;
     }
 
-    /**
-     * Return Trace object without validating
-     *
-     * @return
-     */
-    @Override
-    public Trace currentRpcTraceObject() {
-        final Trace trace = threadLocalBinder.get();
-        if (trace == null) {
-            return null;
-        }
-        return trace;
-    }
-
     @Override
     public Trace currentRawTraceObject() {
         return threadLocalBinder.get();
