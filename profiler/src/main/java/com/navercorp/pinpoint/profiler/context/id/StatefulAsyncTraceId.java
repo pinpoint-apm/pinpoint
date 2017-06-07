@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
  * @author jaehong.kim
  */
 @InterfaceAudience.LimitedPrivate("vert.x")
-public class StatefulAsyncTraceId implements AsyncTraceId, AsyncStateSupport {
+public class StatefulAsyncTraceId implements AsyncTraceId, AsyncStateSupport, TraceRootSupport {
     private final TraceRoot traceRoot;
     private final AsyncTraceId asyncTraceId;
     private final AsyncState asyncState;
@@ -115,6 +115,7 @@ public class StatefulAsyncTraceId implements AsyncTraceId, AsyncStateSupport {
         return asyncState;
     }
 
+    @Override
     public TraceRoot getTraceRoot() {
         return traceRoot;
     }

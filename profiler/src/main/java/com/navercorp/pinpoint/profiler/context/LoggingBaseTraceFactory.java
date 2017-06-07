@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +57,7 @@ public class LoggingBaseTraceFactory implements BaseTraceFactory {
     @Override
     public Trace continueTraceObject(TraceId traceId) {
         if (logger.isDebugEnabled()) {
-            logger.debug("continueTraceObject(traceId = [{}])", traceId);
+            logger.debug("continueTraceObject(traceId:{})", traceId);
         }
 
         return baseTraceFactory.continueTraceObject(traceId);
@@ -66,7 +66,7 @@ public class LoggingBaseTraceFactory implements BaseTraceFactory {
     @Override
     public Trace continueTraceObject(Trace trace) {
         if (logger.isDebugEnabled()) {
-            logger.debug("continueTraceObject(trace = [{}])", trace);
+            logger.debug("continueTraceObject(trace:{})", trace);
         }
 
         return baseTraceFactory.continueTraceObject(trace);
@@ -76,7 +76,7 @@ public class LoggingBaseTraceFactory implements BaseTraceFactory {
     @InterfaceAudience.LimitedPrivate("vert.x")
     public Trace continueAsyncTraceObject(TraceId traceId) {
         if (logger.isDebugEnabled()) {
-            logger.debug("continueAsyncTraceObject(traceId = [{}])", traceId);
+            logger.debug("continueAsyncTraceObject(traceId:{})", traceId);
         }
 
 
@@ -84,12 +84,12 @@ public class LoggingBaseTraceFactory implements BaseTraceFactory {
     }
 
     @Override
-    public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
+    public Trace continueAsyncTraceObject(TraceRoot traceRoot, int asyncId, short asyncSequence) {
         if (logger.isDebugEnabled()) {
-            logger.debug("continueAsyncTraceObject(traceId = [{}], asyncId = [{}], startTime = [{}])", traceId, asyncId, startTime);
+            logger.debug("continueAsyncTraceObject(traceRoot:{}, asyncId:{}, asyncSequence:{})", traceRoot, asyncId, asyncSequence);
         }
 
-        return baseTraceFactory.continueAsyncTraceObject(traceId, asyncId, startTime);
+        return baseTraceFactory.continueAsyncTraceObject(traceRoot, asyncId, asyncSequence);
     }
 
     @Override

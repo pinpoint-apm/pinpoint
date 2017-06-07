@@ -17,16 +17,13 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
-import com.navercorp.pinpoint.profiler.context.id.DefaultAsyncTraceId;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
-import com.navercorp.pinpoint.profiler.context.id.StatefulAsyncTraceId;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.id.ListenableAsyncState;
@@ -114,12 +111,10 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     }
 
 
-
     // internal async trace.
     @Override
-    public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
+    public Trace continueAsyncTraceObject(TraceRoot traceRoot, int asyncId, short asyncSequence) {
 
-        final TraceRoot traceRoot = getTraceRoot(traceId, startTime);
         final Span span = spanFactory.newSpan(traceRoot);
 
         final Storage storage = storageFactory.createStorage(traceRoot);
@@ -129,37 +124,9 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         // TODO AtomicIdGenerator.UNTRACKED_ID
         final Trace trace = new DefaultTrace(span, callStack, asyncStorage, asyncIdGenerator, true, recorderFactory);
 
-        final AsyncTrace asyncTrace = new AsyncTrace(traceRoot, trace, asyncId, traceId.nextAsyncSequence());
+        final Trace asyncTrace = new AsyncTrace(traceRoot, trace, asyncId, asyncSequence);
 
         return asyncTrace;
-    }
-
-    private TraceRoot getTraceRoot(AsyncTraceId traceId, long startTime) {
-        if (traceId instanceof DefaultAsyncTraceId) {
-            final TraceRoot traceRoot = ((DefaultAsyncTraceId) traceId).getTraceRoot();
-            assertTraceStartTime(traceRoot, startTime);
-            // reuse TraceRoot
-            return traceRoot ;
-        }
-
-        if (traceId instanceof StatefulAsyncTraceId){
-            final TraceRoot traceRoot = ((StatefulAsyncTraceId) traceId).getTraceRoot();
-            assertTraceStartTime(traceRoot, startTime);
-            // reuse TraceRoot
-            return traceRoot ;
-        }
-
-        throw new UnsupportedOperationException("unsupported AsyncTraceId:" + traceId);
-        // recrated
-//        final TraceId parentTraceId = traceId.getParentTraceId();
-//        return traceRootFactory.newAsyncTraceRoot(parentTraceId, startTime);
-    }
-
-    private void assertTraceStartTime(TraceRoot traceRoot, long startTime) {
-        if (traceRoot.getTraceStartTime() != startTime) {
-            throw new IllegalStateException("traceStartTime not equals traceRoot:" + traceRoot.getTraceStartTime()
-                    + " startTime:" + startTime);
-        }
     }
 
     // entry point async trace.

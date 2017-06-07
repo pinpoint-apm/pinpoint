@@ -16,14 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.context.id;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface TraceRootFactory {
-
-    TraceRoot newTraceRoot();
-
-    TraceRoot continueTraceRoot(TraceId traceId);
+public interface TraceRootSupport {
+    TraceRoot getTraceRoot();
 }

@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 /**
  * @author emeroad
@@ -36,7 +36,7 @@ public interface BaseTraceFactory {
     @InterfaceAudience.LimitedPrivate("vert.x")
     Trace continueAsyncTraceObject(TraceId traceId);
 
-    Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime);
+    Trace continueAsyncTraceObject(TraceRoot traceRoot, int asyncId, short asyncSequence);
 
     Trace newTraceObject();
 

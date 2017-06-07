@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 /**
  * @author jaehong.kim
  */
-public class DefaultAsyncTraceId implements AsyncTraceId {
+public class DefaultAsyncTraceId implements AsyncTraceId, TraceRootSupport {
 
     private static final AtomicIntegerFieldUpdater<DefaultAsyncTraceId> ASYNC_SEQUENCE_UPDATER
             = AtomicIntegerFieldUpdater.newUpdater(DefaultAsyncTraceId.class, "asyncSequence");
@@ -106,6 +106,7 @@ public class DefaultAsyncTraceId implements AsyncTraceId {
         return traceRoot.getTraceStartTime();
     }
 
+    @Override
     public TraceRoot getTraceRoot() {
         return traceRoot;
     }
