@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.exception.PinpointException;
 
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,10 +147,10 @@ public class ThreadLocalTraceFactory implements TraceFactory {
 
     // internal async trace.
     @Override
-    public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
+    public Trace continueAsyncTraceObject(TraceRoot traceRoot, int asyncId, short asyncSequence) {
         checkBeforeTraceObject();
 
-        final Trace trace = this.baseTraceFactory.continueAsyncTraceObject(traceId, asyncId, startTime);
+        final Trace trace = this.baseTraceFactory.continueAsyncTraceObject(traceRoot, asyncId, asyncSequence);
 
         bind(trace);
         return trace;

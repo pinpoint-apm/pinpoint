@@ -57,14 +57,6 @@ public class DefaultTraceRootFactory implements TraceRootFactory {
         return System.currentTimeMillis();
     }
 
-    @Override
-    public TraceRoot newAsyncTraceRoot(TraceId traceId, long traceStartTime) {
-        if (traceId == null) {
-            throw new NullPointerException("traceId must not be null");
-        }
-
-        return new DefaultTraceRoot(traceId, this.agentId, traceStartTime, AtomicIdGenerator.UNTRACKED_ID);
-    }
 
     @Override
     public TraceRoot continueTraceRoot(TraceId traceId) {
