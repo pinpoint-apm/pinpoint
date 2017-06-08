@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
+import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppender;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppender;
@@ -25,12 +26,16 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.ResponseHistogramBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author emeroad
@@ -64,13 +69,25 @@ public class ApplicationMapBuilderV2 implements ApplicationMapBuilder {
     @Override
     public ApplicationMap build(Application application, AgentInfoService agentInfoService) {
         NodeList nodeList = new NodeList();
-        Node node = new Node(application);
-        nodeList.addNode(node);
         LinkList emptyLinkList = new LinkList();
-        LinkDataDuplexMap emptyLinkDataDuplexMap = new LinkDataDuplexMap();
-        NodeHistogramAppender emptyNodeHistogramAppender = nodeHistogramAppenderFactory.createEmptyAppender();
-        ServerInfoAppender serverInfoAppender = serverInfoAppenderFactory.createAppender(agentInfoService);
-        return build(nodeList, emptyLinkList, emptyLinkDataDuplexMap, emptyNodeHistogramAppender, serverInfoAppender);
+
+        Node node = new Node(application);
+        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationName(application.getName(), range.getTo());
+        Set<AgentInfo> runningAgents = new HashSet<>();
+        for (AgentInfo agentInfo : agentInfos) {
+            if (isAgentRunning(agentInfo)) {
+                runningAgents.add(agentInfo);
+            }
+        }
+        if (runningAgents.isEmpty()) {
+            return new DefaultApplicationMap(range, nodeList, emptyLinkList);
+        } else {
+            nodeList.addNode(node);
+            LinkDataDuplexMap emptyLinkDataDuplexMap = new LinkDataDuplexMap();
+            NodeHistogramAppender emptyNodeHistogramAppender = nodeHistogramAppenderFactory.createEmptyAppender();
+            ServerInfoAppender serverInfoAppender = serverInfoAppenderFactory.createAppender(runningAgents);
+            return build(nodeList, emptyLinkList, emptyLinkDataDuplexMap, emptyNodeHistogramAppender, serverInfoAppender);
+        }
     }
 
     @Override
@@ -257,6 +274,14 @@ public class ApplicationMapBuilderV2 implements ApplicationMapBuilder {
                     logger.debug("createTargetLink:{}", link);
                 }
             }
+        }
+    }
+
+    private boolean isAgentRunning(AgentInfo agentInfo) {
+        if (agentInfo.getStatus() != null) {
+            return agentInfo.getStatus().getState() == AgentLifeCycleState.RUNNING;
+        } else {
+            return false;
         }
     }
 }
