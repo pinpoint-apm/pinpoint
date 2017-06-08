@@ -18,8 +18,11 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.ThreadLocalReferenceFactory;
+import com.navercorp.pinpoint.profiler.context.ThreadLocalTraceFactory;
 import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.BaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.CallStackFactory;
@@ -29,7 +32,6 @@ import com.navercorp.pinpoint.profiler.context.LoggingBaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
 import com.navercorp.pinpoint.profiler.context.SpanFactory;
-import com.navercorp.pinpoint.profiler.context.ThreadLocalTraceFactory;
 import com.navercorp.pinpoint.profiler.context.TraceFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
@@ -44,6 +46,7 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final ProfilerConfig profilerConfig;
     private final TraceRootFactory traceRootFactory;
     private final StorageFactory storageFactory;
     private final Sampler sampler;
@@ -59,8 +62,9 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
 
 
     @Inject
-    public TraceFactoryProvider(TraceRootFactory traceRootFactory, CallStackFactory callStackFactory, StorageFactory storageFactory, Sampler sampler, IdGenerator idGenerator, AsyncIdGenerator asyncIdGenerator,
+    public TraceFactoryProvider(ProfilerConfig profilerConfig, TraceRootFactory traceRootFactory, CallStackFactory callStackFactory, StorageFactory storageFactory, Sampler sampler, IdGenerator idGenerator, AsyncIdGenerator asyncIdGenerator,
                                 Provider<ActiveTraceRepository> activeTraceRepositoryProvider, SpanFactory spanFactory, RecorderFactory recorderFactory) {
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
         this.traceRootFactory = Assert.requireNonNull(traceRootFactory, "traceRootFactory must not be null");
         this.callStackFactory = Assert.requireNonNull(callStackFactory, "callStackFactory must not be null");
         this.storageFactory = Assert.requireNonNull(storageFactory, "storageFactory must not be null");
@@ -86,13 +90,24 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
             baseTraceFactory = LoggingBaseTraceFactory.wrap(baseTraceFactory);
         }
 
-        TraceFactory traceFactory = new ThreadLocalTraceFactory(baseTraceFactory);
+        TraceFactory traceFactory = newTraceFactory(baseTraceFactory);
         if (this.activeTraceRepository != null) {
             this.logger.debug("enable ActiveTrace");
             traceFactory = ActiveTraceFactory.wrap(traceFactory, this.activeTraceRepository);
         }
 
         return traceFactory;
+    }
+
+    private TraceFactory newTraceFactory(BaseTraceFactory baseTraceFactory) {
+        final String threadLocalFactoryVersion = profilerConfig.readString("profiler.threadlocalfactory.version", "V2");
+        logger.info("ThreadLocalFactory version:{}", threadLocalFactoryVersion);
+        if ("V1".equalsIgnoreCase(threadLocalFactoryVersion)) {
+            // V1
+            return new ThreadLocalTraceFactory(baseTraceFactory);
+        }
+        // V2
+        return new ThreadLocalReferenceFactory(baseTraceFactory);
     }
 
     private boolean isDebugEnabled() {
