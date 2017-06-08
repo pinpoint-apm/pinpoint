@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,11 +18,10 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ThreadLocalTraceFactoryTest extends ThreadLocalFactoryAbstractTest {
+public class ThreadLocalReferenceFactoryTest extends ThreadLocalFactoryAbstractTest {
 
     @Override
     public TraceFactory newTraceFactory(boolean sampled) {
@@ -37,8 +36,10 @@ public class ThreadLocalTraceFactoryTest extends ThreadLocalFactoryAbstractTest 
         when(baseTraceFactory.newTraceObject()).thenReturn(trace);
         when(baseTraceFactory.disableSampling()).thenReturn(disable);
 
-        TraceFactory traceFactory = new ThreadLocalTraceFactory(baseTraceFactory);
+        TraceFactory traceFactory = new ThreadLocalReferenceFactory(baseTraceFactory);
         return traceFactory;
     }
+
+
 
 }

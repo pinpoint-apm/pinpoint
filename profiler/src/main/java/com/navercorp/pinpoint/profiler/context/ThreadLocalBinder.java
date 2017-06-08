@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.util.NamedThreadLocal;
 
 /**
@@ -23,7 +24,18 @@ import com.navercorp.pinpoint.profiler.util.NamedThreadLocal;
  */
 public class ThreadLocalBinder<T> implements Binder<T> {
 
-    private final ThreadLocal<T> threadLocal = new NamedThreadLocal<T>("ThreadLocalBinder");
+    private final ThreadLocalInitializer<T> threadLocalInitializer;
+
+    private final ThreadLocal<T> threadLocal = new NamedThreadLocal<T>("ThreadLocalBinder") {
+        @Override
+        protected T initialValue() {
+            return threadLocalInitializer.initialValue();
+        }
+    };
+
+    public ThreadLocalBinder(ThreadLocalInitializer<T> threadLocalInitializer) {
+        this.threadLocalInitializer = Assert.requireNonNull(threadLocalInitializer, "threadLocalInitializer must not be null");
+    }
 
     @Override
     public T get() {
@@ -41,4 +53,9 @@ public class ThreadLocalBinder<T> implements Binder<T> {
         threadLocal.remove();
         return value;
     }
+
+    public interface ThreadLocalInitializer<T> {
+        T initialValue();
+    }
+
 }

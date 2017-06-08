@@ -124,7 +124,7 @@ public class MockTraceContextFactory {
         RecorderFactory recorderFactory = new DefaultRecorderFactory(stringMetaDataService, sqlMetaDataService);
         TraceRootFactory traceRootFactory = newInternalTraceIdFactory(traceIdFactory, idGenerator);
 
-        final TraceFactoryProvider traceFactoryBuilder = new TraceFactoryProvider(traceRootFactory, callStackFactory, storageFactory, sampler, idGenerator, asyncIdGenerator,
+        final TraceFactoryProvider traceFactoryBuilder = new TraceFactoryProvider(profilerConfig, traceRootFactory, callStackFactory, storageFactory, sampler, idGenerator, asyncIdGenerator,
                 Providers.of(activeTraceRepository), spanFactory, recorderFactory);
         TraceFactory traceFactory = traceFactoryBuilder.get();
         this.traceContext = new DefaultTraceContext(profilerConfig, agentInformation,
