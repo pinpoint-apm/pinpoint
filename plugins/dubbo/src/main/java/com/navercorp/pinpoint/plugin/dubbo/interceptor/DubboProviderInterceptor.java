@@ -37,13 +37,10 @@ public class DubboProviderInterceptor extends SpanSimpleAroundInterceptor {
         String transactionId = invocation.getAttachment(DubboConstants.META_TRANSACTION_ID);
 
         // If there's no trasanction id, a new trasaction begins here.
+        // FIXME There seems to be cases where the invoke method is called after a span is already created.
+        // We'll have to check if a trace object already exists and create a span event instead of a span in that case.
         if (transactionId == null) {
-            Trace trace = traceContext.currentTraceObject();
-            if (trace == null) {
-                return traceContext.newTraceObject();
-            } else {
-                return trace;
-            }
+            return traceContext.newTraceObject();
         }
 
         // otherwise, continue tracing with given data.
