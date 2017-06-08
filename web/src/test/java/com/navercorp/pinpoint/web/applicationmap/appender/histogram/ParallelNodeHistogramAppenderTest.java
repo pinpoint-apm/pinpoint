@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.applicationmap.appender.server;
+package com.navercorp.pinpoint.web.applicationmap.appender.histogram;
 
 /**
  * @author HyunGil Jeong
  */
-public class SerialServerInfoAppenderTest extends ServerInfoAppenderTestBase {
+public class ParallelNodeHistogramAppenderTest extends NodeHistogramAppenderTestBase {
 
     @Override
-    protected ServerInfoAppenderFactory createServerInfoAppenderFactory() {
-        return new ServerInfoAppenderFactory("serial", 1);
+    protected NodeHistogramAppenderFactory createNodeHistogramAppenderFactory() {
+        return new NodeHistogramAppenderFactory("parallel", 16);
     }
 }

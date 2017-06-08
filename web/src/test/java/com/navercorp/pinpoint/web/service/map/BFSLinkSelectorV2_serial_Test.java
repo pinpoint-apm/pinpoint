@@ -16,13 +16,17 @@
 
 package com.navercorp.pinpoint.web.service.map;
 
+import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
+import com.navercorp.pinpoint.web.service.LinkDataMapService;
+
 /**
  * @author HyunGil Jeong
  */
-@Deprecated
-public class DFSLinkSelectorTest extends LinkSelectorTestBase {
+public class BFSLinkSelectorV2_serial_Test extends LinkSelectorTestBase {
+
     @Override
-    protected String getSelectorMode() {
-        return "dfs";
+    protected LinkSelectorFactory createLinkSelectorFactory(LinkDataMapService linkDataMapService, HostApplicationMapDao hostApplicationMapDao) {
+        ApplicationsMapCreatorFactory applicationsMapCreatorFactory = new ApplicationsMapCreatorFactory("serial", 16, hostApplicationMapDao, linkDataMapService);
+        return new LinkSelectorFactory("v2", linkDataMapService, hostApplicationMapDao, applicationsMapCreatorFactory);
     }
 }

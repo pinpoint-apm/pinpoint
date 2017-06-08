@@ -16,14 +16,12 @@
 
 package com.navercorp.pinpoint.web.service.map;
 
-import com.google.common.collect.Sets;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
-import com.navercorp.pinpoint.web.dao.MapStatisticsCalleeDao;
 import com.navercorp.pinpoint.web.service.LinkDataMapService;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
@@ -40,36 +38,27 @@ import java.util.Set;
 /**
  * @author HyunGil Jeong
  */
-public class VirtualLinkHandler {
+public class VirtualLinkProcessor {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final LinkDataMapService linkDataMapService;
 
-    private final Set<LinkData> virtualLinkDataMarker = Sets.newConcurrentHashSet();
+    private final VirtualLinkMarker virtualLinkMarker;
 
-    public VirtualLinkHandler(LinkDataMapService linkDataMapService) {
+    public VirtualLinkProcessor(LinkDataMapService linkDataMapService, VirtualLinkMarker virtualLinkMarker) {
         if (linkDataMapService == null) {
             throw new NullPointerException("linkDataMapService must not be null");
         }
-        this.linkDataMapService = linkDataMapService;
-    }
-
-    public List<LinkData> createVirtualLinkData(LinkData linkData, Application toApplication, Set<AcceptApplication> acceptApplicationList) {
-        logger.warn("one to N replaced. node:{}->host:{} accept:{}", linkData.getFromApplication(), toApplication.getName(), acceptApplicationList);
-        List<LinkData> virtualLinkDataList = new ArrayList<>();
-        for (AcceptApplication acceptApplication : acceptApplicationList) {
-            // linkCallData needs to be modified - remove callHistogram on purpose
-            LinkData virtualLinkData = new LinkData(linkData.getFromApplication(), acceptApplication.getApplication());
-            virtualLinkData.setLinkCallDataMap(linkData.getLinkCallDataMap());
-            virtualLinkDataList.add(virtualLinkData);
-            markVirtualLinkData(virtualLinkData);
+        if (virtualLinkMarker == null) {
+            throw new NullPointerException("virtualLinkMarker must not be null");
         }
-        return virtualLinkDataList;
+        this.linkDataMapService = linkDataMapService;
+        this.virtualLinkMarker = virtualLinkMarker;
     }
 
     public LinkDataDuplexMap processVirtualLinks(LinkDataDuplexMap linkDataDuplexMap, LinkVisitChecker linkVisitChecker, Range range) {
-        Set<LinkData> virtualLinkDataSet = new HashSet<>(virtualLinkDataMarker);
+        Set<LinkData> virtualLinkDataSet = virtualLinkMarker.getVirtualLinkData();
         if (virtualLinkDataSet.isEmpty()) {
             return linkDataDuplexMap;
         }
@@ -88,13 +77,6 @@ public class VirtualLinkHandler {
 
         fillEmulationLink(linkDataDuplexMap, virtualLinkDataSet);
         return linkDataDuplexMap;
-    }
-
-    private void markVirtualLinkData(LinkData virtualLinkData) {
-        final boolean add = virtualLinkDataMarker.add(virtualLinkData);
-        if (!add) {
-            logger.warn("virtualLinkData add error - {}", virtualLinkData);
-        }
     }
 
     private List<Application> getUnpopulatedEmulatedNodes(LinkDataMap targetLinkDataMap, Set<LinkData> virtualLinkDataSet) {

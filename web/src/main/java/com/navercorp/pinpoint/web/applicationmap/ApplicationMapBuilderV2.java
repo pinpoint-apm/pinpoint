@@ -110,6 +110,7 @@ public class ApplicationMapBuilderV2 implements ApplicationMapBuilder {
     }
 
     private ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, NodeHistogramAppender nodeHistogramAppender, ServerInfoAppender serverInfoAppender) {
+        logger.info("Building application map");
         NodeList nodeList = buildNode(linkDataDuplexMap);
         LinkList linkList = buildLink(nodeList, linkDataDuplexMap);
         return build(nodeList, linkList, linkDataDuplexMap, nodeHistogramAppender, serverInfoAppender);

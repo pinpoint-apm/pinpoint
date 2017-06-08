@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.applicationmap.appender.server;
+package com.navercorp.pinpoint.web.service.map;
+
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
+import com.navercorp.pinpoint.web.vo.Application;
+
+import java.util.List;
 
 /**
  * @author HyunGil Jeong
  */
-public class SerialServerInfoAppenderTest extends ServerInfoAppenderTestBase {
+public interface ApplicationsMapCreator {
 
-    @Override
-    protected ServerInfoAppenderFactory createServerInfoAppenderFactory() {
-        return new ServerInfoAppenderFactory("serial", 1);
-    }
+    LinkDataDuplexMap createLinkDataDuplexMap(List<Application> applications, LinkSelectContext linkSelectContext);
 }

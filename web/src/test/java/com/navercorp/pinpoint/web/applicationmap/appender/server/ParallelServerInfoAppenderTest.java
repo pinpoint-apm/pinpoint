@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.service.map;
+package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
 /**
  * @author HyunGil Jeong
  */
-public class BFSLinkSelectorV2Test extends LinkSelectorTestBase {
+public class ParallelServerInfoAppenderTest extends ServerInfoAppenderTestBase {
+
     @Override
-    protected String getSelectorMode() {
-        return "serialv2";
+    protected ServerInfoAppenderFactory createServerInfoAppenderFactory() {
+        return new ServerInfoAppenderFactory("parallel", 16);
     }
 }

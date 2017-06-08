@@ -16,16 +16,14 @@
 
 package com.navercorp.pinpoint.web.service.map;
 
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
 
 /**
  * @author HyunGil Jeong
  */
-public interface LinkDataMapCreator {
+public interface ApplicationMapCreator {
 
-    LinkDataMap createCallerLinkDataMap(Application application, Range range);
+    LinkDataDuplexMap createMap(Application application, LinkSelectContext linkSelectContext);
 
-    LinkDataMap createCalleeLinkDataMap(Application application, Range range);
 }
