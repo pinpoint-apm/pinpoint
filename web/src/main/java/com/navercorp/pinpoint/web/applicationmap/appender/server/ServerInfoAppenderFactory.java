@@ -16,12 +16,18 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
+import com.navercorp.pinpoint.web.applicationmap.Node;
+import com.navercorp.pinpoint.web.applicationmap.ServerBuilder;
+import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.util.Set;
 
 /**
  * @author HyunGil Jeong
@@ -36,6 +42,19 @@ public class ServerInfoAppenderFactory {
     @Autowired
     public ServerInfoAppenderFactory(@Value("#{pinpointWebProps['web.servermap.appender.mode'] ?: 'serial'}") String mode) {
         this.mode = mode;
+    }
+
+    public ServerInfoAppender createAppender(Set<AgentInfo> agentInfos) {
+        ServerInstanceListDataSource serverInstanceListDataSource = new ServerInstanceListDataSource() {
+            @Override
+            public ServerInstanceList createServerInstanceList(Node node, long timestamp) {
+                ServerBuilder serverBuilder = new ServerBuilder();
+                serverBuilder.addAgentInfo(agentInfos);
+                ServerInstanceList serverInstanceList = serverBuilder.build();
+                return serverInstanceList;
+            }
+        };
+        return from(serverInstanceListDataSource);
     }
 
     public ServerInfoAppender createAppender(AgentInfoService agentInfoService) {

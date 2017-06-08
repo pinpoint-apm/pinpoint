@@ -28,7 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -74,7 +73,7 @@ public class NodeHistogramAppenderFactory {
         NodeHistogramDataSource nodeHistogramDataSource = new NodeHistogramDataSource() {
             @Override
             public NodeHistogram createNodeHistogram(Application application, Range range) {
-                final NodeHistogram nodeHistogram = new NodeHistogram(application, range, Collections.emptyList());
+                final NodeHistogram nodeHistogram = new NodeHistogram(application, range);
                 return nodeHistogram;
             }
         };
