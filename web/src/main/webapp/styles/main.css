@@ -462,7 +462,7 @@ canvas {outline:none}
 }
 
 .grouped-application-list ul.inner > li > p.name {
-    width: 300px;
+    width: 260px;
     margin: 0px;
     display: inline-block;
     overflow: hidden;
