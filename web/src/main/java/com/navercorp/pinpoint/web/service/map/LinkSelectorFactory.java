@@ -39,14 +39,17 @@ public class LinkSelectorFactory {
 
     private final HostApplicationMapDao hostApplicationMapDao;
 
+    private final ApplicationsMapCreatorFactory applicationsMapCreatorFactory;
+
     private final ServerMapDataFilter serverMapDataFilter;
 
     @Autowired(required = false)
     public LinkSelectorFactory(
             @Value("#{pinpointWebProps['web.servermap.selector.mode'] ?: 'v1'}") String mode,
             LinkDataMapService linkDataMapService,
-            HostApplicationMapDao hostApplicationMapDao) {
-        this(mode, linkDataMapService, hostApplicationMapDao, null);
+            HostApplicationMapDao hostApplicationMapDao,
+            ApplicationsMapCreatorFactory appliationsMapCreatorFactory) {
+        this(mode, linkDataMapService, hostApplicationMapDao, appliationsMapCreatorFactory, null);
     }
 
     @Autowired(required = false)
@@ -54,21 +57,23 @@ public class LinkSelectorFactory {
             @Value("#{pinpointWebProps['web.servermap.selector.mode'] ?: 'v1'}") String mode,
             LinkDataMapService linkDataMapService,
             HostApplicationMapDao hostApplicationMapDao,
+            ApplicationsMapCreatorFactory appliationsMapCreatorFactory,
             ServerMapDataFilter serverMapDataFilter) {
+        logger.info("LinkSelector mode : {}", mode);
         this.mode = mode;
         this.linkDataMapService = linkDataMapService;
         this.hostApplicationMapDao = hostApplicationMapDao;
+        this.applicationsMapCreatorFactory = appliationsMapCreatorFactory;
         this.serverMapDataFilter = serverMapDataFilter;
     }
 
     public LinkSelector create() {
-        logger.info("LinkSelector mode : {}", mode);
         if (mode.equalsIgnoreCase("v2")) {
-            VirtualLinkHandler virtualLinkHandler = new VirtualLinkHandler(linkDataMapService);
-            LinkDataMapCreator linkDataMapCreator = new DefaultLinkDataMapCreator(linkDataMapService, hostApplicationMapDao, virtualLinkHandler);
-            return new BFSLinkSelectorV2(linkDataMapCreator, virtualLinkHandler, serverMapDataFilter);
-        } else {
-            return new BFSLinkSelector(linkDataMapService, hostApplicationMapDao, serverMapDataFilter);
+            VirtualLinkMarker virtualLinkMarker = new VirtualLinkMarker();
+            VirtualLinkProcessor virtualLinkProcessor = new VirtualLinkProcessor(linkDataMapService, virtualLinkMarker);
+            ApplicationsMapCreator applicationsMapCreator = applicationsMapCreatorFactory.create(virtualLinkMarker);
+            return new BFSLinkSelectorV2(applicationsMapCreator, virtualLinkProcessor, serverMapDataFilter);
         }
+        return new BFSLinkSelector(linkDataMapService, hostApplicationMapDao, serverMapDataFilter);
     }
 }

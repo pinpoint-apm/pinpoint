@@ -20,13 +20,13 @@ import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.service.LinkDataMapService;
 
 /**
- * @author emeroad
+ * @author HyunGil Jeong
  */
-public class BFSLinkSelectorTest extends LinkSelectorTestBase {
+public class BFSLinkSelectorV2_parallel_Test extends LinkSelectorTestBase {
 
     @Override
     protected LinkSelectorFactory createLinkSelectorFactory(LinkDataMapService linkDataMapService, HostApplicationMapDao hostApplicationMapDao) {
-        return new LinkSelectorFactory("v1", linkDataMapService, hostApplicationMapDao, null);
+        ApplicationsMapCreatorFactory applicationsMapCreatorFactory = new ApplicationsMapCreatorFactory("parallel", 16, hostApplicationMapDao, linkDataMapService);
+        return new LinkSelectorFactory("v2", linkDataMapService, hostApplicationMapDao, applicationsMapCreatorFactory);
     }
 }
-

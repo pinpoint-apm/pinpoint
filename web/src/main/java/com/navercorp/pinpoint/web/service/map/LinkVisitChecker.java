@@ -54,8 +54,6 @@ public class LinkVisitChecker {
         if (logger.isDebugEnabled()) {
             if (alreadyVisited) {
                 logger.debug("LinkData exists. Skip finding {}. {} ", type, application);
-            } else {
-                logger.debug("Finding {}. {}={}", type, type, application);
             }
         }
         return alreadyVisited;

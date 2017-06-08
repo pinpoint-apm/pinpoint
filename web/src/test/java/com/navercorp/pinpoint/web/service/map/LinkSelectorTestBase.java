@@ -38,6 +38,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import static org.mockito.Matchers.any;
@@ -50,6 +51,8 @@ import static org.mockito.Mockito.when;
  * @author HyunGil Jeong
  */
 public abstract class LinkSelectorTestBase {
+
+    private static final Random RANDOM = new Random();
 
     private LinkDataMapService linkDataMapService;
     private HostApplicationMapDao hostApplicationMapDao;
@@ -67,13 +70,13 @@ public abstract class LinkSelectorTestBase {
     private SearchOption oneDepth = new SearchOption(1, 1);
     private SearchOption twoDepth = new SearchOption(2, 2);
 
-    protected abstract String getSelectorMode();
+    protected abstract LinkSelectorFactory createLinkSelectorFactory(LinkDataMapService linkDataMapService, HostApplicationMapDao hostApplicationMapDao);
 
     @Before
     public void setUp() throws Exception {
         this.linkDataMapService = mock(LinkDataMapService.class);
         this.hostApplicationMapDao = mock(HostApplicationMapDao.class);
-        this.linkSelectorFactory = new LinkSelectorFactory(getSelectorMode(), linkDataMapService, hostApplicationMapDao);
+        this.linkSelectorFactory = createLinkSelectorFactory(this.linkDataMapService, this.hostApplicationMapDao);
     }
 
     private LinkDataMap newEmptyLinkDataMap() {
@@ -112,6 +115,34 @@ public abstract class LinkSelectorTestBase {
 
         Assert.assertEquals(linkData.getSourceLinkDataList().size(), 1);
         Assert.assertEquals(linkData.getSourceLinkDataMap().getTotalCount(), callCount_A_B);
+
+        Assert.assertEquals(linkData.getTargetLinkDataList().size(), 0);
+    }
+
+    @Test
+    public void testCaller_multiple() throws Exception {
+        // APP_A -> TARGET_1, TARGET_2, ...
+        int numTargets = RANDOM.nextInt(100);
+        int callCount_A_APP = 4;
+        LinkDataMap linkDataMap = new LinkDataMap();
+        for (int i = 0; i < numTargets; ++i) {
+            String targetAppName = "TARGET_" + (i + 1);
+            String targetAppAgentId = "target" + (i + 1);
+            Application targetApp = new Application(targetAppName, ServiceType.STAND_ALONE);
+            linkDataMap.addLinkData(APP_A, "agentA", targetApp, targetAppAgentId, 1000, ServiceType.STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_A_APP);
+        }
+        when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(linkDataMap);
+        when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
+        when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<>());
+
+        LinkSelector linkSelector = linkSelectorFactory.create();
+        LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, oneDepth);
+
+        Assert.assertEquals(linkData.size(), numTargets);
+        Assert.assertEquals(linkData.getTotalCount(), numTargets * callCount_A_APP);
+
+        Assert.assertEquals(linkData.getSourceLinkDataList().size(), numTargets);
+        Assert.assertEquals(linkData.getSourceLinkDataMap().getTotalCount(), numTargets * callCount_A_APP);
 
         Assert.assertEquals(linkData.getTargetLinkDataList().size(), 0);
     }

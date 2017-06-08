@@ -50,8 +50,9 @@ public class NodeHistogramAppenderFactory {
     public NodeHistogramAppenderFactory(
             @Value("#{pinpointWebProps['web.servermap.appender.mode'] ?: 'serial'}") String mode,
             @Value("#{pinpointWebProps['web.servermap.appender.parallel.maxthreads'] ?: 16}") int maxThreads) {
+        logger.info("NodeHistogramAppender mode : {}", mode);
         this.mode = mode;
-        if (this.mode.equals("parallel")) {
+        if (this.mode.equalsIgnoreCase("parallel")) {
             executorService = Executors.newFixedThreadPool(maxThreads, new PinpointThreadFactory("Pinpoint-node-histogram-appender", true));
         } else {
             executorService = null;
@@ -93,9 +94,8 @@ public class NodeHistogramAppenderFactory {
         return from(nodeHistogramDataSource);
     }
 
-    private NodeHistogramAppender from(NodeHistogramDataSource nodeHistogramDataSource) {
-        logger.debug("NodeHistogramAppender mode : {}", mode);
-        if (mode.equals("parallel")) {
+    public NodeHistogramAppender from(NodeHistogramDataSource nodeHistogramDataSource) {
+        if (mode.equalsIgnoreCase("parallel")) {
             return new ParallelNodeHistogramAppender(nodeHistogramDataSource, executorService);
         }
         return new SerialNodeHistogramAppender(nodeHistogramDataSource);
@@ -106,7 +106,7 @@ public class NodeHistogramAppenderFactory {
         if (executorService != null) {
             executorService.shutdown();
             try {
-                executorService.awaitTermination(5000, TimeUnit.MILLISECONDS);
+                executorService.awaitTermination(10, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }

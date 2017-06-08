@@ -22,12 +22,11 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
-import com.navercorp.pinpoint.web.service.LinkDataMapService;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,53 +34,41 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Replaces link data pointing to domains into applications if the target has an agent installed.
+ *
  * @author HyunGil Jeong
  */
-public class DefaultLinkDataMapCreator implements LinkDataMapCreator {
+public class RpcCallReplacer {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final LinkDataMapService linkDataMapService;
-
     private final HostApplicationMapDao hostApplicationMapDao;
 
-    private final VirtualLinkHandler virtualLinkHandler;
+    private final VirtualLinkMarker virtualLinkMarker;
 
     private final Map<AcceptApplicationCacheKey, Set<AcceptApplication>> acceptApplicationCache = Maps.newConcurrentMap();
 
     private final AcceptApplicationLocalCache rpcAcceptApplicationCache = new AcceptApplicationLocalCache();
 
-    DefaultLinkDataMapCreator(LinkDataMapService linkDataMapService, HostApplicationMapDao hostApplicationMapDao, VirtualLinkHandler virtualLinkHandler) {
-        if (linkDataMapService == null) {
-            throw new NullPointerException("linkDataMapService must not be null");
-        }
+    public RpcCallReplacer(HostApplicationMapDao hostApplicationMapDao, VirtualLinkMarker virtualLinkMarker) {
         if (hostApplicationMapDao == null) {
             throw new NullPointerException("hostApplicationMapDao must not be null");
         }
-        if (virtualLinkHandler == null) {
-            throw new NullPointerException("virtualLinkHandler must not be null");
+        if (virtualLinkMarker == null) {
+            throw new NullPointerException("virtualLinkMarker must not be null");
         }
-        this.linkDataMapService = linkDataMapService;
         this.hostApplicationMapDao = hostApplicationMapDao;
-        this.virtualLinkHandler = virtualLinkHandler;
+        this.virtualLinkMarker = virtualLinkMarker;
     }
 
-    @Override
-    public LinkDataMap createCallerLinkDataMap(Application application, Range range) {
-        LinkDataMap caller = linkDataMapService.selectCallerLinkDataMap(application, range);
-        final LinkDataMap replacedDataMap = new LinkDataMap();
-        for (LinkData callerLinkData : caller.getLinkDataList()) {
-            final List<LinkData> replacedLinkDatas = replaceLinkData(callerLinkData, range);
-            for (LinkData replacedLinkData : replacedLinkDatas) {
-                replacedDataMap.addLinkData(replacedLinkData);
-            }
+    public LinkDataMap replaceRpcCalls(LinkDataMap linkDataMap, Range range) {
+        final LinkDataMap replacedLinkDataMap = new LinkDataMap();
+        for (LinkData linkData : linkDataMap.getLinkDataList()) {
+            final List<LinkData> replacedLinkDatas = replaceLinkData(linkData, range);
+            for (LinkData replacedLinkData : replacedLinkDatas)
+                replacedLinkDataMap.addLinkData(replacedLinkData);
         }
-        return replacedDataMap;
-    }
-
-    @Override
-    public LinkDataMap createCalleeLinkDataMap(Application application, Range range) {
-        return linkDataMapService.selectCalleeLinkDataMap(application, range);
+        return replacedLinkDataMap;
     }
 
     private List<LinkData> replaceLinkData(LinkData linkData, Range range) {
@@ -95,7 +82,7 @@ public class DefaultLinkDataMapCreator implements LinkDataMapCreator {
         logger.debug("Finding accept applications for {}, {}", toApplication, range);
         final Set<AcceptApplication> acceptApplicationList = findAcceptApplications(linkData.getFromApplication(), toApplication.getName(), range);
         logger.debug("Found accept applications: {}", acceptApplicationList);
-        if (CollectionUtils.isNotEmpty(acceptApplicationList)) {
+        if (!CollectionUtils.isEmpty(acceptApplicationList)) {
             if (acceptApplicationList.size() == 1) {
                 logger.debug("Application info replaced. {} => {}", linkData, acceptApplicationList);
 
@@ -105,7 +92,7 @@ public class DefaultLinkDataMapCreator implements LinkDataMapCreator {
                 return Collections.singletonList(acceptedLinkData);
             } else {
                 // special case - there are more than 2 nodes grouped by a single url
-                return virtualLinkHandler.createVirtualLinkData(linkData, toApplication, acceptApplicationList);
+                return virtualLinkMarker.createVirtualLinkData(linkData, toApplication, acceptApplicationList);
             }
         } else {
             // for queues, accept application may not exist if no consumers have an agent installed
@@ -125,7 +112,7 @@ public class DefaultLinkDataMapCreator implements LinkDataMapCreator {
 
         final RpcApplication rpcApplication = new RpcApplication(host, fromApplication);
         final Set<AcceptApplication> hit = this.rpcAcceptApplicationCache.get(rpcApplication);
-        if (CollectionUtils.isNotEmpty(hit)) {
+        if (!CollectionUtils.isEmpty(hit)) {
             logger.debug("rpcAcceptApplicationCache hit {}", rpcApplication);
             return hit;
         }
@@ -144,7 +131,7 @@ public class DefaultLinkDataMapCreator implements LinkDataMapCreator {
             logger.debug("acceptApplicationCache hit {}", fromApplication);
             Set<AcceptApplication> queriedAcceptApplications = hostApplicationMapDao.findAcceptApplicationName(fromApplication, range);
             Set<AcceptApplication> acceptApplications = Sets.newConcurrentHashSet();
-            if (CollectionUtils.isNotEmpty(queriedAcceptApplications)) {
+            if (!CollectionUtils.isEmpty(queriedAcceptApplications)) {
                 acceptApplications.addAll(queriedAcceptApplications);
             }
             cachedAcceptApplications = acceptApplicationCache.putIfAbsent(cacheKey, acceptApplications);
