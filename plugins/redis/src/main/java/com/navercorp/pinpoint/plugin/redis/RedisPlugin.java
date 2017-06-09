@@ -116,7 +116,7 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
                         method.addScopedInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisMethodInterceptor", va(config.isIo()), RedisConstants.REDIS_SCOPE);
                     } catch (Exception e) {
                         if (logger.isWarnEnabled()) {
-                            logger.warn("Unsupported method " + method, e);
+                            logger.warn("Unsupported method {}", method, e);
                         }
                     }
                 }
@@ -208,7 +208,7 @@ public class RedisPlugin implements ProfilerPlugin, TransformTemplateAware {
                         method.addScopedInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisPipelineMethodInterceptor", va(config.isIo()), RedisConstants.REDIS_SCOPE);
                     } catch (Exception e) {
                         if (logger.isWarnEnabled()) {
-                            logger.warn("Unsupported method " + method, e);
+                            logger.warn("Unsupported method {}", method, e);
                         }
                     }
                 }
