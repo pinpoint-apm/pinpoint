@@ -70,19 +70,11 @@ public class JedisConstructorInterceptor implements AroundInterceptor {
         } else if (args[0] instanceof URI) {
             final URI uri = (URI) args[0];
 
-            final StringBuilder sb = new StringBuilder();
-            sb.append(uri.getHost());
-            sb.append(':');
-            sb.append(uri.getPort());
-            return sb.toString();
+            return EndPointUtils.hostAndPort(uri.getHost(), uri.getPort());
         } else if (args[0] instanceof JedisShardInfo) {
             final JedisShardInfo info = (JedisShardInfo) args[0];
 
-            final StringBuilder sb = new StringBuilder();
-            sb.append(info.getHost());
-            sb.append(':');
-            sb.append(info.getPort());
-            return sb.toString();
+            return EndPointUtils.hostAndPort(info.getHost(), info.getPort());
         }
         return "";
     }

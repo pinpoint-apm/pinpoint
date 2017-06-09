@@ -22,17 +22,28 @@ package com.navercorp.pinpoint.plugin.redis;
 public class EndPointUtils {
 
     public static String getEndPoint(Object[] args) {
-        final StringBuilder sb = new StringBuilder();
-        // first argument is host
-        sb.append(args[0]);
+        if (args[0] instanceof String) {
+            final String host = (String) args[0];
+            final int port = getPort(args);
+            return hostAndPort(host, port);
+        }
+        return "";
+    }
 
+    private static int getPort(Object[] args) {
         // second argument is port
         if (args.length >= 2 && args[1] instanceof Integer) {
-            sb.append(':').append(args[1]);
-        } else {
-            // set default port
-            sb.append(':').append(6379);
+            return (Integer) args[1];
         }
+        // default port
+        return 6379;
+    }
+
+    public static String hostAndPort(String host, int port) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append(host);
+        sb.append(':');
+        sb.append(port);
         return sb.toString();
     }
 
