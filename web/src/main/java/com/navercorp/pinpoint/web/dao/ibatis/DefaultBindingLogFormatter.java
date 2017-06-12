@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.dao.ibatis;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -38,7 +39,7 @@ public class DefaultBindingLogFormatter implements BindLogFormatter {
     }
 
     public String format(String query, List<String> parameters) {
-        if (isEmpty(query)) {
+        if (StringUtils.isEmpty(query)) {
             return query;
         }
         if (removeWhitespace) {
@@ -80,9 +81,6 @@ public class DefaultBindingLogFormatter implements BindLogFormatter {
         }
     }
 
-    public static boolean isEmpty(String str) {
-        return str == null || str.length() == 0;
-    }
 
 
     /**
