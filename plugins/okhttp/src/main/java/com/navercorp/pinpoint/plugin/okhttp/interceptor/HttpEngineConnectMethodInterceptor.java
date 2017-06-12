@@ -22,7 +22,9 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.okhttp.ConnectionGetter;
+import com.navercorp.pinpoint.plugin.okhttp.EndPointUtils;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
+import com.squareup.okhttp.Address;
 import com.squareup.okhttp.Connection;
 
 /**
@@ -40,17 +42,21 @@ public class HttpEngineConnectMethodInterceptor extends SpanEventSimpleAroundInt
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        if(target instanceof ConnectionGetter) {
-            Connection connection = ((ConnectionGetter)target)._$PINPOINT$_getConnection();
-            if(connection != null) {
-                final StringBuilder sb = new StringBuilder();
-                sb.append(connection.getRoute().getAddress().getUriHost()).append(":");
-                sb.append(connection.getRoute().getAddress().getUriPort());
-                recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, sb.toString());
+        if (target instanceof ConnectionGetter) {
+            final Connection connection = ((ConnectionGetter)target)._$PINPOINT$_getConnection();
+            if (connection != null) {
+                final String hostAndPort = getHostAndPort(connection);
+                recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, hostAndPort);
             }
         }
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(OkHttpConstants.OK_HTTP_CLIENT_INTERNAL);
         recorder.recordException(throwable);
+    }
+
+    private String getHostAndPort(Connection connection) {
+        final Address address = connection.getRoute().getAddress();
+
+        return EndPointUtils.hostAndPort(address.getUriHost(), address.getUriPort());
     }
 }
