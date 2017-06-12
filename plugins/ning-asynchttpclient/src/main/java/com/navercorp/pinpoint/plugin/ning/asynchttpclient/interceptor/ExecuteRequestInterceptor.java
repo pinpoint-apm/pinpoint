@@ -39,6 +39,7 @@ import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.plugin.ning.asynchttpclient.EndPointUtils;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientPlugin;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientPluginConfig;
 import com.ning.http.client.FluentCaseInsensitiveStringsMap;
@@ -176,11 +177,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
         if (port < 0) {
             return host;
         }
-        final StringBuilder sb = new StringBuilder(host.length() + 8);
-        sb.append(host);
-        sb.append(':');
-        sb.append(port);
-        return sb.toString();
+        return EndPointUtils.hostAndPort(host, port);
     }
 
     private void recordHttpRequest(SpanEventRecorder recorder, com.ning.http.client.Request httpRequest, Throwable throwable) {
@@ -237,7 +234,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
                 Cookie cookie = iterator.next();
                 sb.append(cookie.getName()).append("=").append(cookie.getValue());
                 if (iterator.hasNext()) {
-                    sb.append(",");
+                    sb.append(',');
                 }
             }
             recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.abbreviate(sb.toString(), config.getCookieDumpSize()));
@@ -313,7 +310,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
                 } else if (part instanceof com.ning.http.client.StringPart) {
                     com.ning.http.client.StringPart p = (com.ning.http.client.StringPart) part;
                     sb.append(part.getName());
-                    sb.append("=");
+                    sb.append('=');
                     sb.append(p.getValue());
                 } else if (part instanceof com.ning.http.multipart.FilePart) {
                     com.ning.http.multipart.FilePart p = (com.ning.http.multipart.FilePart) part;
@@ -367,10 +364,10 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
 
         for (Map.Entry<String, List<String>> entry : params.entrySet()) {
             if (result.length() > 0) {
-                result.append(",");
+                result.append(',');
             }
             result.append(entry.getKey());
-            result.append("=");
+            result.append('=');
 
             boolean needsComma = false;
 
