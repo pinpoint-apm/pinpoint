@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.plugin.httpclient3.EndPointUtils;
 import com.navercorp.pinpoint.plugin.httpclient3.HostNameGetter;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 import com.navercorp.pinpoint.plugin.httpclient3.PortNumberGetter;
@@ -42,17 +43,23 @@ public class HttpConnectionOpenMethodInterceptor extends SpanEventSimpleAroundIn
         recorder.recordServiceType(HttpClient3Constants.HTTP_CLIENT_3_INTERNAL);
 
         if (target instanceof HostNameGetter && target instanceof PortNumberGetter && target instanceof ProxyHostNameGetter && target instanceof ProxyPortNumberGetter) {
-            final StringBuilder sb = new StringBuilder();
-            if (((ProxyHostNameGetter)target)._$PINPOINT$_getProxyHostName() != null) {
-                sb.append(((ProxyHostNameGetter)target)._$PINPOINT$_getProxyHostName());
-                sb.append(":").append(((ProxyPortNumberGetter)target)._$PINPOINT$_getProxyPortNumber());
-            } else {
-                sb.append(((HostNameGetter)target)._$PINPOINT$_getHostName());
-                sb.append(":").append(((PortNumberGetter)target)._$PINPOINT$_getPortNumber());
-            }
-            recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, sb.toString());
+            final String hostAndPort = getHostAndPort(target);
+            recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, hostAndPort);
         }
     }
+
+    private String getHostAndPort(Object target) {
+        if (((ProxyHostNameGetter)target)._$PINPOINT$_getProxyHostName() != null) {
+            final String host = ((ProxyHostNameGetter) target)._$PINPOINT$_getProxyHostName();
+            final int port = ((ProxyPortNumberGetter) target)._$PINPOINT$_getProxyPortNumber();
+            return EndPointUtils.hostAndPort(host, port);
+        } else {
+            final String host = ((HostNameGetter) target)._$PINPOINT$_getHostName();
+            final int port = ((PortNumberGetter) target)._$PINPOINT$_getPortNumber();
+            return EndPointUtils.hostAndPort(host, port);
+        }
+    }
+
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {

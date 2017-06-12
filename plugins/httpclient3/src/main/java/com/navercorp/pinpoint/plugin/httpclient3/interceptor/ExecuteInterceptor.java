@@ -34,10 +34,16 @@ public class ExecuteInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
-    private MethodDescriptor descriptor;
+    private final TraceContext traceContext;
+    private final MethodDescriptor descriptor;
 
     public ExecuteInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+        if (traceContext == null) {
+            throw new NullPointerException("traceContext must not be null");
+        }
+        if (methodDescriptor == null) {
+            throw new NullPointerException("methodDescriptor must not be null");
+        }
         this.traceContext = traceContext;
         this.descriptor = methodDescriptor;
     }
