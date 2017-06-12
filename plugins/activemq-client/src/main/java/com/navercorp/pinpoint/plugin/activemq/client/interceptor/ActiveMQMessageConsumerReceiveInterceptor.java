@@ -66,18 +66,28 @@ public class ActiveMQMessageConsumerReceiveInterceptor extends SpanEventSimpleAr
             recorder.recordException(throwable);
         } else {
             if (result != null) {
-                StringBuilder sb = new StringBuilder(result.getClass().getSimpleName());
-                try {
-                    // should we record other message types as well?
-                    if (result instanceof ActiveMQTextMessage) {
-                        // could trigger decoding (would it affect the client? if so, we might need to copy first)
-                        sb.append("{").append(((ActiveMQTextMessage) result).getText()).append("}");
-                    }
-                } catch (JMSException e) {
-                    // ignore
-                }
-                recorder.recordAttribute(ActiveMQClientConstants.ACTIVEMQ_MESSAGE, sb.toString());
+                final String message = getMessage(result);
+                recorder.recordAttribute(ActiveMQClientConstants.ACTIVEMQ_MESSAGE, message);
             }
         }
+    }
+
+    private String getMessage(Object result) {
+        final String simpleClassName = result.getClass().getSimpleName();
+        try {
+            // should we record other message types as well?
+            if (result instanceof ActiveMQTextMessage) {
+
+                // could trigger decoding (would it affect the client? if so, we might need to copy first)
+                String text = ((ActiveMQTextMessage) result).getText();
+
+                StringBuilder sb = new StringBuilder(simpleClassName);
+                sb.append('{').append(text).append('}');
+                return sb.toString();
+            }
+        } catch (JMSException e) {
+            // ignore
+        }
+        return simpleClassName;
     }
 }
