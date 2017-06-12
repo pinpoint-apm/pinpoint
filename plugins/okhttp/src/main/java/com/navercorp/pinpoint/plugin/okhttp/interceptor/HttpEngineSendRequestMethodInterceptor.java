@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.okhttp.ConnectionGetter;
+import com.navercorp.pinpoint.plugin.okhttp.EndPointUtils;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig;
 import com.navercorp.pinpoint.plugin.okhttp.UserRequestGetter;
@@ -48,9 +49,9 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
-    private MethodDescriptor methodDescriptor;
-    private InterceptorScope interceptorScope;
+    private final TraceContext traceContext;
+    private final MethodDescriptor methodDescriptor;
+    private final InterceptorScope interceptorScope;
 
     private final boolean param;
     private final boolean cookie;
@@ -65,7 +66,7 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
         this.param = config.isParam();
         this.cookie = config.isCookie();
         this.cookieDumpType = config.getCookieDumpType();
-        if(cookie) {
+        if (cookie) {
             cookieSampler = SimpleSamplerFactory.createSampler(cookie, config.getCookieSamplingRate());
         } else {
             this.cookieSampler = null;
@@ -87,7 +88,7 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
             return;
         }
 
-        if(!trace.canSampled()) {
+        if (!trace.canSampled()) {
             return;
         }
 
@@ -163,13 +164,21 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
             }
 
             // clear attachment.
-            InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-            if(invocation != null && invocation.getAttachment() != null) {
+            final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
+            final Object attachment = getAttachment(invocation);
+            if (attachment != null) {
                 invocation.removeAttachment();
             }
         } finally {
             trace.traceBlockEnd();
         }
+    }
+
+    private Object getAttachment(InterceptorScopeInvocation invocation) {
+        if (invocation == null) {
+            return null;
+        }
+        return invocation.getAttachment();
     }
 
     private String getDestinationId(URL httpUrl) {
@@ -179,11 +188,8 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
         if (httpUrl.getPort() <= 0 || httpUrl.getPort() == httpUrl.getDefaultPort()) {
             return httpUrl.getHost();
         }
-        final StringBuilder sb = new StringBuilder();
-        sb.append(httpUrl.getHost());
-        sb.append(':');
-        sb.append(httpUrl.getPort());
-        return sb.toString();
+
+        return EndPointUtils.hostAndPort(httpUrl.getHost(), httpUrl.getPort());
     }
 
     private void recordRequest(Trace trace, Request request, Throwable throwable) {
@@ -199,7 +205,7 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
 
     private void recordCookie(Request request, Trace trace) {
         for (String cookie : request.headers("Cookie")) {
-            if(cookieSampler.isSampling()) {
+            if (cookieSampler.isSampling()) {
                 final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
                 recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.abbreviate(cookie, 1024));
             }

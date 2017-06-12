@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvoca
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.navercorp.pinpoint.plugin.okhttp.EndPointUtils;
 import com.navercorp.pinpoint.plugin.okhttp.UrlGetter;
 import com.squareup.okhttp.Request;
 
@@ -34,9 +35,9 @@ public class RequestBuilderBuildMethodBackwardCompatibilityInterceptor implement
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
-    private MethodDescriptor methodDescriptor;
-    private InterceptorScope interceptorScope;
+    private final TraceContext traceContext;
+    private final MethodDescriptor methodDescriptor;
+    private final InterceptorScope interceptorScope;
 
     public RequestBuilderBuildMethodBackwardCompatibilityInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
@@ -69,12 +70,13 @@ public class RequestBuilderBuildMethodBackwardCompatibilityInterceptor implement
             }
 
             final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-            if (invocation == null || invocation.getAttachment() == null || !(invocation.getAttachment() instanceof TraceId)) {
+            final Object attachment = getAttachment(invocation);
+            if (!(attachment instanceof TraceId)) {
                 logger.debug("Invalid interceptor scope invocation. {}", invocation);
                 return;
             }
 
-            final TraceId nextId = (TraceId) invocation.getAttachment();
+            final TraceId nextId = (TraceId) attachment;
             builder.header(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
             builder.header(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
 
@@ -97,6 +99,13 @@ public class RequestBuilderBuildMethodBackwardCompatibilityInterceptor implement
         }
     }
 
+    private Object getAttachment(InterceptorScopeInvocation invocation) {
+        if (invocation == null) {
+            return null;
+        }
+        return invocation.getAttachment();
+    }
+
     private String getDestinationId(URL httpUrl) {
         if (httpUrl == null || httpUrl.getHost() == null) {
             return "UnknownHttpClient";
@@ -104,11 +113,7 @@ public class RequestBuilderBuildMethodBackwardCompatibilityInterceptor implement
         if (httpUrl.getPort() <= 0 || httpUrl.getPort() == httpUrl.getDefaultPort()) {
             return httpUrl.getHost();
         }
-        final StringBuilder sb = new StringBuilder();
-        sb.append(httpUrl.getHost());
-        sb.append(':');
-        sb.append(httpUrl.getPort());
-        return sb.toString();
+        return EndPointUtils.hostAndPort(httpUrl.getHost(), httpUrl.getPort());
     }
 
     @Override

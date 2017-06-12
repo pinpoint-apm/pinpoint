@@ -33,9 +33,9 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
-    private MethodDescriptor methodDescriptor;
-    private InterceptorScope interceptorScope;
+    private final TraceContext traceContext;
+    private final MethodDescriptor methodDescriptor;
+    private final InterceptorScope interceptorScope;
 
     public RequestBuilderBuildMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
@@ -55,7 +55,7 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
         }
 
         try {
-            if(!(target instanceof Request.Builder)) {
+            if (!(target instanceof Request.Builder)) {
                 return;
             }
             final Request.Builder builder = ((Request.Builder) target);
@@ -68,12 +68,13 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
             }
 
             final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-            if (invocation == null || invocation.getAttachment() == null || !(invocation.getAttachment() instanceof TraceId)) {
+            final Object attachment = getAttachment(invocation);
+            if (!(attachment instanceof TraceId)) {
                 logger.debug("Invalid interceptor scope invocation. {}", invocation);
                 return;
             }
 
-            final TraceId nextId = (TraceId) invocation.getAttachment();
+            final TraceId nextId = (TraceId) attachment;
             builder.header(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
             builder.header(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
 
@@ -96,6 +97,13 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
         }
     }
 
+    private Object getAttachment(InterceptorScopeInvocation invocation) {
+        if (invocation == null) {
+            return null;
+        }
+        return invocation.getAttachment();
+    }
+
     private String getDestinationId(HttpUrl httpUrl) {
         if (httpUrl == null || httpUrl.host() == null) {
             return "UnknownHttpClient";
@@ -103,11 +111,7 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
         if (httpUrl.port() <= 0 || httpUrl.port() == HttpUrl.defaultPort(httpUrl.scheme())) {
             return httpUrl.host();
         }
-        final StringBuilder sb = new StringBuilder();
-        sb.append(httpUrl.host());
-        sb.append(':');
-        sb.append(httpUrl.port());
-        return sb.toString();
+        return EndPointUtils.hostAndPort(httpUrl.host(), httpUrl.port());
     }
 
     @Override

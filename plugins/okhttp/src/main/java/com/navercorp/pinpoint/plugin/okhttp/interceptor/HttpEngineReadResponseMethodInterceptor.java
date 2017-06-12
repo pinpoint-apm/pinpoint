@@ -33,8 +33,8 @@ public class HttpEngineReadResponseMethodInterceptor implements AroundIntercepto
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
-    private MethodDescriptor methodDescriptor;
+    private final TraceContext traceContext;
+    private final MethodDescriptor methodDescriptor;
     private final boolean statusCode;
 
     public HttpEngineReadResponseMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, boolean statusCode) {

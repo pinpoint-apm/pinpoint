@@ -35,8 +35,8 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
-    private MethodDescriptor methodDescriptor;
+    private final TraceContext traceContext;
+    private final MethodDescriptor methodDescriptor;
 
     public DispatcherEnqueueMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
@@ -54,11 +54,11 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
             return;
         }
 
-        if(!validate(args)) {
+        if (!validate(args)) {
             return;
         }
 
-        SpanEventRecorder recorder = trace.traceBlockBegin();
+        final SpanEventRecorder recorder = trace.traceBlockBegin();
         try {
             // set asynchronous trace
             final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
@@ -95,7 +95,7 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
             return;
         }
 
-        if(!validate(args)) {
+        if (!validate(args)) {
             return;
         }
 
