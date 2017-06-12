@@ -309,6 +309,7 @@
 								oNavbarVoService.setReadablePeriod( PreferenceService.getRealtimeScatterXRangeStr() );
 								oNavbarVoService.setQueryEndDateTime( CommonUtilService.formatDate( currentServerTime ) );
 								oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
+								UrlVoService.setReadablePeriod(cfg.periodType.REALTIME);
 								UrlVoService.setQueryEndDateTime( CommonUtilService.formatDate( currentServerTime ) );
 								UrlVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 								emitAsChanged();
