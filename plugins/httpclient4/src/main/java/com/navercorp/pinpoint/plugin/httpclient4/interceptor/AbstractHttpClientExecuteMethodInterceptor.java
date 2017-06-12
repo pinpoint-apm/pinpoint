@@ -41,9 +41,9 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Arou
     protected final boolean isDebug;
 
     private boolean isHasCallbackParam;
-    protected TraceContext traceContext;
-    protected MethodDescriptor descriptor;
-    protected InterceptorScope interceptorScope;
+    protected final TraceContext traceContext;
+    protected final MethodDescriptor descriptor;
+    protected final InterceptorScope interceptorScope;
 
     public AbstractHttpClientExecuteMethodInterceptor(Class<? extends AbstractHttpClientExecuteMethodInterceptor> childClazz, boolean isHasCallbackParam, TraceContext context, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.logger = PLoggerFactory.getLogger(childClazz);

@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.plugin.httpclient4.CommandContextFormatter;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContextFactory;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4PluginConfig;
@@ -169,8 +170,9 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
 
     private NameIntValuePair<String> getHost() {
         final InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
-        if (transaction != null && transaction.getAttachment() != null && transaction.getAttachment() instanceof  HttpCallContext) {
-            HttpCallContext callContext = (HttpCallContext) transaction.getAttachment();
+        final Object attachment = getAttachment(transaction);
+        if (attachment instanceof  HttpCallContext) {
+            HttpCallContext callContext = (HttpCallContext) attachment;
             return new NameIntValuePair<String>(callContext.getHost(), callContext.getPort());
         }
 
@@ -217,20 +219,13 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
             recorder.recordException(throwable);
 
             final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-            if (invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof  HttpCallContext) {
-                final HttpCallContext callContext = (HttpCallContext) invocation.getAttachment();
+            final Object attachment = getAttachment(invocation);
+            if (attachment instanceof HttpCallContext) {
+                final HttpCallContext callContext = (HttpCallContext) attachment;
                 logger.debug("Check call context {}", callContext);
                 if (io) {
-                    final StringBuilder sb = new StringBuilder();
-                    sb.append("write=").append(callContext.getWriteElapsedTime());
-                    if (callContext.isWriteFail()) {
-                        sb.append("(fail)");
-                    }
-                    sb.append(", read=").append(callContext.getReadElapsedTime());
-                    if (callContext.isReadFail()) {
-                        sb.append("(fail)");
-                    }
-                    recorder.recordAttribute(AnnotationKey.HTTP_IO, sb.toString());
+                    final String commandContextString = CommandContextFormatter.format(callContext);
+                    recorder.recordAttribute(AnnotationKey.HTTP_IO, commandContextString);
                 }
                 // clear
                 invocation.removeAttachment();
@@ -239,6 +234,13 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         } finally {
             trace.traceBlockEnd();
         }
+    }
+
+    private Object getAttachment(InterceptorScopeInvocation invocation) {
+        if (invocation == null) {
+            return null;
+        }
+        return invocation.getAttachment();
     }
 
     private Integer getStatusCode(Object result) {
