@@ -317,7 +317,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                 final HttpServletRequest request = (HttpServletRequest) args[0];
                 if (!excludeProfileMethodFilter.filter(request.getMethod())) {
                     final String parameters = getRequestParameter(request, 64, 512);
-                    if (StringUtils.isNotEmpty(parameters)) {
+                    if (StringUtils.hasLength(parameters)) {
                         recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
                     }
                 }

@@ -82,7 +82,7 @@ public class Span extends TSpan implements FrameAttachment {
 
     public void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
         final TIntStringValue exceptionInfo = new TIntStringValue(exceptionClassId);
-        if (StringUtils.isNotEmpty(exceptionMessage)) {
+        if (StringUtils.hasLength(exceptionMessage)) {
             exceptionInfo.setStringValue(exceptionMessage);
         }
         super.setExceptionInfo(exceptionInfo);

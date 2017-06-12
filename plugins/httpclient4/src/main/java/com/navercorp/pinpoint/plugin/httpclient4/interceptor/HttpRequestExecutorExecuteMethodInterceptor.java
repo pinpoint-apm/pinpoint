@@ -297,7 +297,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         org.apache.http.Header[] cookies = httpMessage.getHeaders("Cookie");
         for (org.apache.http.Header header : cookies) {
             final String value = header.getValue();
-            if (StringUtils.isNotEmpty(value)) {
+            if (StringUtils.hasLength(value)) {
                 if (cookieSampler.isSampling()) {
                     final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
                     recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.abbreviate(value, 1024));
