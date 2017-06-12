@@ -140,11 +140,11 @@ public class MapController {
     }
 
     private void assertSearchOption(SearchOption searchOption) {
-        int callerSearchDepth = searchOption.getCalleeSearchDepth();
+        int callerSearchDepth = searchOption.getCallerSearchDepth();
         assertSearchDepth(callerSearchDepth, "invalid caller depth:" + callerSearchDepth);
 
         int calleeSearchDepth = searchOption.getCalleeSearchDepth();
-        assertSearchDepth(searchOption.getCallerSearchDepth(), "invalid callee depth:" + calleeSearchDepth);
+        assertSearchDepth(calleeSearchDepth, "invalid callee depth:" + calleeSearchDepth);
     }
 
     private void assertSearchDepth(int depth, String message) {
