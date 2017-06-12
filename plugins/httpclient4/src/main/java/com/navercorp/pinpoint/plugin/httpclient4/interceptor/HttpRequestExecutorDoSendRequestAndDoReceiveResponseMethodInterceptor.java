@@ -57,9 +57,10 @@ public class HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodIntercept
         }
 
         final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-        if(invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof HttpCallContext) {
-            HttpCallContext callContext = (HttpCallContext) invocation.getAttachment();
-            if(methodDescriptor.getMethodName().equals("doSendRequest")) {
+        final Object attachment = getAttachment(invocation);
+        if (attachment instanceof HttpCallContext) {
+            HttpCallContext callContext = (HttpCallContext) attachment;
+            if (methodDescriptor.getMethodName().equals("doSendRequest")) {
                 callContext.setWriteBeginTime(System.currentTimeMillis());
             } else {
                 callContext.setReadBeginTime(System.currentTimeMillis());
@@ -82,18 +83,28 @@ public class HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodIntercept
         }
 
         final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-        if(invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof HttpCallContext) {
-            HttpCallContext callContext = (HttpCallContext) invocation.getAttachment();
-            if(methodDescriptor.getMethodName().equals("doSendRequest")) {
+        final Object attachment = getAttachment(invocation);
+        if (attachment instanceof HttpCallContext) {
+            HttpCallContext callContext = (HttpCallContext) attachment;
+            if (methodDescriptor.getMethodName().equals("doSendRequest")) {
                 callContext.setWriteEndTime(System.currentTimeMillis());
                 callContext.setWriteFail(throwable != null);
             } else {
                 callContext.setReadEndTime(System.currentTimeMillis());
                 callContext.setReadFail(throwable != null);
             }
-            if(isDebug) {
+            if (isDebug) {
                 logger.debug("Set call context {}", callContext);
             }
         }
     }
+
+    private Object getAttachment(InterceptorScopeInvocation invocation) {
+        if (invocation == null) {
+            return null;
+        }
+        return invocation.getAttachment();
+    }
+
+
 }

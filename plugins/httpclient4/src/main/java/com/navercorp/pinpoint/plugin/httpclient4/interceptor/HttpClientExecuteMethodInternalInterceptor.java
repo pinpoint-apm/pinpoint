@@ -67,14 +67,15 @@ public class HttpClientExecuteMethodInternalInterceptor implements AroundInterce
         }
 
         if (result != null && result instanceof HttpResponse) {
-            HttpResponse response = (HttpResponse) result;
+            final HttpResponse response = (HttpResponse) result;
             if (response.getStatusLine() != null) {
                 HttpCallContext context = new HttpCallContext();
                 final StatusLine statusLine = response.getStatusLine();
                 if (statusLine != null) {
                     context.setStatusCode(statusLine.getStatusCode());
-                    InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
-                    if(transaction != null && transaction.getAttachment() == null) {
+                    final InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
+                    final Object attachment = getAttachment(transaction);
+                    if (attachment == null) {
                         transaction.setAttachment(context);
                     }
                 }
@@ -97,11 +98,19 @@ public class HttpClientExecuteMethodInternalInterceptor implements AroundInterce
 //            return false;
 //        }
 
-        InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
-        if (transaction != null && transaction.getAttachment() != null && transaction.getAttachment() instanceof HttpCallContext) {
+        final InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
+        final Object attachment = getAttachment(transaction);
+        if (attachment instanceof HttpCallContext) {
             return false;
         }
 
         return true;
+    }
+
+    private Object getAttachment(InterceptorScopeInvocation invocation) {
+        if (invocation == null) {
+            return null;
+        }
+        return invocation.getAttachment();
     }
 }

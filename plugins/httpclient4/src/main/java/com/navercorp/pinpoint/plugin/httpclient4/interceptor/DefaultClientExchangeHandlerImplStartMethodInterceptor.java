@@ -66,16 +66,16 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
-    private MethodDescriptor methodDescriptor;
+    private final TraceContext traceContext;
+    private final MethodDescriptor methodDescriptor;
 
-    private boolean param;
-    protected boolean cookie;
-    protected DumpType cookieDumpType;
+    private final boolean param;
+    protected final boolean cookie;
+    protected final DumpType cookieDumpType;
     protected SimpleSampler cookieSampler;
 
-    protected boolean entity;
-    protected DumpType entityDumpType;
+    protected final boolean entity;
+    protected final DumpType entityDumpType;
     protected SimpleSampler entitySampler;
 
     protected boolean statusCode;
