@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.context.recorder;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
-import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
@@ -82,10 +81,10 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
 
         final TIntStringStringValue tSqlValue = new TIntStringStringValue(parsingResult.getId());
         final String output = parsingResult.getOutput();
-        if (StringUtils.isNotEmpty(output)) {
+        if (StringUtils.hasLength(output)) {
             tSqlValue.setStringValue1(output);
         }
-        if (StringUtils.isNotEmpty(bindValue)) {
+        if (StringUtils.hasLength(bindValue)) {
             tSqlValue.setStringValue2(bindValue);
         }
         recordSqlParam(tSqlValue);

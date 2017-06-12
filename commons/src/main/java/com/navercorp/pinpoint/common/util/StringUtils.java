@@ -40,7 +40,7 @@ public class StringUtils {
         return string == null || string.isEmpty();
     }
 
-    public static boolean isNotEmpty(final String string) {
+    public static boolean hasLength(final String string) {
         return string != null && string.length() > 0;
     }
 

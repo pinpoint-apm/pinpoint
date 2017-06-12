@@ -29,7 +29,7 @@ public class ResinDetector implements ApplicationTypeDetector {
 
     @Override
     public boolean detect(ConditionProvider provider) {
-        if (StringUtils.isNotEmpty(bootstrapMains)) {
+        if (StringUtils.hasLength(bootstrapMains)) {
             return provider.checkMainClass(bootstrapMains) && provider.checkForClass(REQUIRED_CLASS);
         }
         return provider.checkForClass(REQUIRED_CLASS);

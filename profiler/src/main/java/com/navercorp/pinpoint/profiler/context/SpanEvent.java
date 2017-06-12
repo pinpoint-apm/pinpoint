@@ -63,7 +63,7 @@ public class SpanEvent extends TSpanEvent implements FrameAttachment {
 
     void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
         final TIntStringValue exceptionInfo = new TIntStringValue(exceptionClassId);
-        if (StringUtils.isNotEmpty(exceptionMessage)) {
+        if (StringUtils.hasLength(exceptionMessage)) {
             exceptionInfo.setStringValue(exceptionMessage);
         }
         super.setExceptionInfo(exceptionInfo);

@@ -154,7 +154,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             final Request request = getRequest(args);
             final String parameters = getRequestParameter(request, 64, 512);
-            if (StringUtils.isNotEmpty(parameters)) {
+            if (StringUtils.hasLength(parameters)) {
                 recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
             }
 

@@ -63,7 +63,7 @@ public class SpringBeansConfig {
         final Map<Integer, SpringBeansTarget> result = new HashMap<Integer, SpringBeansTarget>();
         final String namePatternRegexs = config.readString(SPRING_BEANS_NAME_PATTERN, null);
         // bean name.
-        if (StringUtils.isNotEmpty(namePatternRegexs)) {
+        if (StringUtils.hasLength(namePatternRegexs)) {
             final SpringBeansTarget target = new SpringBeansTarget();
             target.setNamePatterns(namePatternRegexs);
             result.put(-1, target);
@@ -71,7 +71,7 @@ public class SpringBeansConfig {
 
         // class name.
         final String classPatternRegexs = config.readString(SPRING_BEANS_CLASS_PATTERN, null);
-        if (StringUtils.isNotEmpty(classPatternRegexs)) {
+        if (StringUtils.hasLength(classPatternRegexs)) {
             final SpringBeansTarget target = new SpringBeansTarget();
             target.setClassPatterns(classPatternRegexs);
             result.put(-2, target);
@@ -79,7 +79,7 @@ public class SpringBeansConfig {
 
         // annotation.
         final String annotations = config.readString(SPRING_BEANS_ANNOTATION, null);
-        if (StringUtils.isNotEmpty(annotations)) {
+        if (StringUtils.hasLength(annotations)) {
             final SpringBeansTarget target = new SpringBeansTarget();
             target.setAnnotations(annotations);
             result.put(-3, target);
