@@ -80,7 +80,7 @@ public final class ArrayUtils {
      *
      * @param array  the array to test
      * @return {@code true} if the array is empty or {@code null}
-     * @since 2.1
+     * @since 1.7.0
      */
     public static <T> boolean isEmpty(final T[] array) {
         return array == null || array.length == 0;
@@ -91,7 +91,7 @@ public final class ArrayUtils {
      *
      * @param array  the array to test
      * @return {@code true} if the array is empty or {@code null}
-     * @since 2.1
+     * @since 1.7.0
      */
     public static boolean isEmpty(final long[] array) {
         return array == null || array.length == 0;
@@ -102,7 +102,7 @@ public final class ArrayUtils {
      *
      * @param array  the array to test
      * @return {@code true} if the array is empty or {@code null}
-     * @since 2.1
+     * @since 1.7.0
      */
     public static boolean isEmpty(final int[] array) {
         return array == null || array.length == 0;
@@ -113,7 +113,7 @@ public final class ArrayUtils {
      *
      * @param array  the array to test
      * @return {@code true} if the array is empty or {@code null}
-     * @since 2.1
+     * @since 1.7.0
      */
     public static boolean isEmpty(final short[] array) {
         return array == null || array.length == 0;
@@ -124,7 +124,7 @@ public final class ArrayUtils {
      *
      * @param array  the array to test
      * @return {@code true} if the array is empty or {@code null}
-     * @since 2.1
+     * @since 1.7.0
      */
     public static boolean isEmpty(final char[] array) {
         return array == null || array.length == 0;
@@ -135,7 +135,7 @@ public final class ArrayUtils {
      *
      * @param array  the array to test
      * @return {@code true} if the array is empty or {@code null}
-     * @since 2.1
+     * @since 1.7.0
      */
     public static boolean isEmpty(final byte[] array) {
         return array == null || array.length == 0;
@@ -146,7 +146,7 @@ public final class ArrayUtils {
      *
      * @param array  the array to test
      * @return {@code true} if the array is empty or {@code null}
-     * @since 2.1
+     * @since 1.7.0
      */
     public static boolean isEmpty(final double[] array) {
         return array == null || array.length == 0;
@@ -157,7 +157,7 @@ public final class ArrayUtils {
      *
      * @param array  the array to test
      * @return {@code true} if the array is empty or {@code null}
-     * @since 2.1
+     * @since 1.7.0
      */
     public static boolean isEmpty(final float[] array) {
         return array == null || array.length == 0;
@@ -168,7 +168,7 @@ public final class ArrayUtils {
      *
      * @param array  the array to test
      * @return {@code true} if the array is empty or {@code null}
-     * @since 2.1
+     * @since 1.7.0
      */
     public static boolean isEmpty(final boolean[] array) {
         return array == null || array.length == 0;
@@ -182,9 +182,9 @@ public final class ArrayUtils {
      * @param <T> the component type of the array
      * @param array  the array to test
      * @return {@code true} if the array is not empty and not {@code null}
-     * @since 2.5
+     * @since 1.7.0
      */
-    public static <T> boolean isNotEmpty(final T[] array) {
+    public static <T> boolean hasLength(final T[] array) {
         return array != null && array.length != 0;
     }
 
@@ -193,9 +193,9 @@ public final class ArrayUtils {
      *
      * @param array  the array to test
      * @return {@code true} if the array is not empty and not {@code null}
-     * @since 2.5
+     * @since 1.7.0
      */
-    public static boolean isNotEmpty(final long[] array) {
+    public static boolean hasLength(final long[] array) {
         return array != null && array.length != 0;
     }
 
@@ -204,9 +204,9 @@ public final class ArrayUtils {
      *
      * @param array  the array to test
      * @return {@code true} if the array is not empty and not {@code null}
-     * @since 2.5
+     * @since 1.7.0
      */
-    public static boolean isNotEmpty(final int[] array) {
+    public static boolean hasLength(final int[] array) {
         return array != null && array.length != 0;
     }
 
@@ -215,9 +215,9 @@ public final class ArrayUtils {
      *
      * @param array  the array to test
      * @return {@code true} if the array is not empty and not {@code null}
-     * @since 2.5
+     * @since 1.7.0
      */
-    public static boolean isNotEmpty(final short[] array) {
+    public static boolean hasLength(final short[] array) {
         return array != null && array.length != 0;
     }
 
@@ -226,9 +226,9 @@ public final class ArrayUtils {
      *
      * @param array  the array to test
      * @return {@code true} if the array is not empty and not {@code null}
-     * @since 2.5
+     * @since 1.7.0
      */
-    public static boolean isNotEmpty(final char[] array) {
+    public static boolean hasLength(final char[] array) {
         return array != null && array.length != 0;
     }
 
@@ -237,9 +237,9 @@ public final class ArrayUtils {
      *
      * @param array  the array to test
      * @return {@code true} if the array is not empty and not {@code null}
-     * @since 2.5
+     * @since 1.7.0
      */
-    public static boolean isNotEmpty(final byte[] array) {
+    public static boolean hasLength(final byte[] array) {
         return array != null && array.length != 0;
     }
 
@@ -248,9 +248,9 @@ public final class ArrayUtils {
      *
      * @param array  the array to test
      * @return {@code true} if the array is not empty and not {@code null}
-     * @since 2.5
+     * @since 1.7.0
      */
-    public static boolean isNotEmpty(final double[] array) {
+    public static boolean hasLength(final double[] array) {
         return array != null && array.length != 0;
     }
 
@@ -259,9 +259,9 @@ public final class ArrayUtils {
      *
      * @param array  the array to test
      * @return {@code true} if the array is not empty and not {@code null}
-     * @since 2.5
+     * @since 1.7.0
      */
-    public static boolean isNotEmpty(final float[] array) {
+    public static boolean hasLength(final float[] array) {
         return array != null && array.length != 0;
     }
 
@@ -270,9 +270,9 @@ public final class ArrayUtils {
      *
      * @param array  the array to test
      * @return {@code true} if the array is not empty and not {@code null}
-     * @since 2.5
+     * @since 1.7.0
      */
-    public static boolean isNotEmpty(final boolean[] array) {
+    public static boolean hasLength(final boolean[] array) {
         return array != null && array.length != 0;
     }
 
@@ -299,7 +299,7 @@ public final class ArrayUtils {
      * @param array  the array to retrieve the length from, may be null
      * @return The length of the array, or {@code 0} if the array is {@code null}
      * @throws IllegalArgumentException if the object argument is not an array.
-     * @since 2.1
+     * @since 1.7.0
      */
     public static int getLength(final long[] array) {
         if (array == null) {
@@ -326,7 +326,7 @@ public final class ArrayUtils {
      * @param array  the array to retrieve the length from, may be null
      * @return The length of the array, or {@code 0} if the array is {@code null}
      * @throws IllegalArgumentException if the object argument is not an array.
-     * @since 2.1
+     * @since 1.7.0
      */
     public static int getLength(final int[] array) {
         if (array == null) {
@@ -353,7 +353,7 @@ public final class ArrayUtils {
      * @param array  the array to retrieve the length from, may be null
      * @return The length of the array, or {@code 0} if the array is {@code null}
      * @throws IllegalArgumentException if the object argument is not an array.
-     * @since 2.1
+     * @since 1.7.0
      */
     public static int getLength(final short[] array) {
         if (array == null) {
@@ -380,7 +380,7 @@ public final class ArrayUtils {
      * @param array  the array to retrieve the length from, may be null
      * @return The length of the array, or {@code 0} if the array is {@code null}
      * @throws IllegalArgumentException if the object argument is not an array.
-     * @since 2.1
+     * @since 1.7.0
      */
     public static int getLength(final char[] array) {
         if (array == null) {
@@ -407,7 +407,7 @@ public final class ArrayUtils {
      * @param array  the array to retrieve the length from, may be null
      * @return The length of the array, or {@code 0} if the array is {@code null}
      * @throws IllegalArgumentException if the object argument is not an array.
-     * @since 2.1
+     * @since 1.7.0
      */
     public static int getLength(final byte[] array) {
         if (array == null) {
@@ -434,7 +434,7 @@ public final class ArrayUtils {
      * @param array  the array to retrieve the length from, may be null
      * @return The length of the array, or {@code 0} if the array is {@code null}
      * @throws IllegalArgumentException if the object argument is not an array.
-     * @since 2.1
+     * @since 1.7.0
      */
     public static int getLength(final double[] array) {
         if (array == null) {
@@ -461,7 +461,7 @@ public final class ArrayUtils {
      * @param array  the array to retrieve the length from, may be null
      * @return The length of the array, or {@code 0} if the array is {@code null}
      * @throws IllegalArgumentException if the object argument is not an array.
-     * @since 2.1
+     * @since 1.7.0
      */
     public static int getLength(final float[] array) {
         if (array == null) {
@@ -488,7 +488,7 @@ public final class ArrayUtils {
      * @param array  the array to retrieve the length from, may be null
      * @return The length of the array, or {@code 0} if the array is {@code null}
      * @throws IllegalArgumentException if the object argument is not an array.
-     * @since 2.1
+     * @since 1.7.0
      */
     public static int getLength(final boolean[] array) {
         if (array == null) {
@@ -515,7 +515,7 @@ public final class ArrayUtils {
      * @param array  the array to retrieve the length from, may be null
      * @return The length of the array, or {@code 0} if the array is {@code null}
      * @throws IllegalArgumentException if the object argument is not an array.
-     * @since 2.1
+     * @since 1.7.0
      */
     public static <T> int getLength(final T[] array) {
         if (array == null) {
