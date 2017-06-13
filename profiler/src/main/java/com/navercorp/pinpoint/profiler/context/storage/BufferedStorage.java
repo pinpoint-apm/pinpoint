@@ -107,7 +107,7 @@ public class BufferedStorage implements Storage {
     @Override
     public void store(Span span) {
         final List<SpanEvent> storage = clearBuffer();
-        if (CollectionUtils.isNotEmpty(storage)) {
+        if (CollectionUtils.hasLength(storage)) {
             span = spanPostProcessor.postProcess(span, storage);
         }
         dataSender.send(span);
@@ -119,7 +119,7 @@ public class BufferedStorage implements Storage {
 
     public void flush() {
         final List<SpanEvent> storage = clearBuffer();
-        if (CollectionUtils.isNotEmpty(storage)) {
+        if (CollectionUtils.hasLength(storage)) {
             final SpanChunk spanChunk = spanChunkFactory.create(traceRoot, storage);
             dataSender.send(spanChunk);
             if (isDebug) {

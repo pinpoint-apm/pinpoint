@@ -46,7 +46,7 @@ public class AgentActiveThreadDumpListSerializerTest {
 
         List list = mapper.readValue(jsonValue, List.class);
 
-        Assert.assertTrue(CollectionUtils.isNotEmpty(list));
+        Assert.assertTrue(CollectionUtils.hasLength(list));
 
         Map map = (Map) list.get(0);
 

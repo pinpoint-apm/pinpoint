@@ -50,8 +50,8 @@ public class CollectionUtilsTest {
 
     @Test
     public void isNotEmpty() throws Exception {
-        Assert.assertFalse(CollectionUtils.isNotEmpty(Collections.emptyList()));
-        Assert.assertFalse(CollectionUtils.isNotEmpty(null));
+        Assert.assertFalse(CollectionUtils.hasLength(Collections.emptyList()));
+        Assert.assertFalse(CollectionUtils.hasLength(null));
     }
 
 }
