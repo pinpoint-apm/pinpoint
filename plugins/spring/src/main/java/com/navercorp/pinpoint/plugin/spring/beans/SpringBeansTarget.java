@@ -38,19 +38,19 @@ public class SpringBeansTarget {
     private List<String> annotations;
 
     public boolean isValid() {
-        if (CollectionUtils.isNotEmpty(basePackages)) {
+        if (CollectionUtils.hasLength(basePackages)) {
             return true;
         }
 
-        if (CollectionUtils.isNotEmpty(namePatterns)) {
+        if (CollectionUtils.hasLength(namePatterns)) {
             return true;
         }
 
-        if (CollectionUtils.isNotEmpty(classPatterns)) {
+        if (CollectionUtils.hasLength(classPatterns)) {
             return true;
         }
 
-        if (CollectionUtils.isNotEmpty(annotations)) {
+        if (CollectionUtils.hasLength(annotations)) {
             return true;
         }
 

@@ -292,7 +292,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
     protected void recordMultipartData(final com.ning.http.client.Request httpRequest, final SpanEventRecorder recorder) {
         List<Part> parts = httpRequest.getParts();
         // bug fix : parts != null && ****!parts.isEmpty()
-        if (CollectionUtils.isNotEmpty(parts)) {
+        if (CollectionUtils.hasLength(parts)) {
             StringBuilder sb = new StringBuilder(config.getEntityDumpSize() * 2);
             Iterator<Part> iterator = parts.iterator();
             while (iterator.hasNext()) {

@@ -67,7 +67,7 @@ public class HbaseDataSourceListDao implements AgentStatDaoV2<DataSourceListBo> 
         List<Put> activeTracePuts = this.agentStatHbaseOperationFactory.createPuts(agentId, AgentStatType.DATASOURCE, reorderedDataSourceListBos, dataSourceSerializer);
         if (!activeTracePuts.isEmpty()) {
             List<Put> rejectedPuts = this.hbaseTemplate.asyncPut(HBaseTables.AGENT_STAT_VER2, activeTracePuts);
-            if (CollectionUtils.isNotEmpty(rejectedPuts)) {
+            if (CollectionUtils.hasLength(rejectedPuts)) {
                 this.hbaseTemplate.put(HBaseTables.AGENT_STAT_VER2, rejectedPuts);
             }
         }
