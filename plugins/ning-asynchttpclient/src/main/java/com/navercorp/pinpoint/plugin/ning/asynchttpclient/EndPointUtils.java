@@ -16,18 +16,40 @@
 
 package com.navercorp.pinpoint.plugin.ning.asynchttpclient;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class EndPointUtils {
 
+    public static String hostAndPort(final String requestUrl, final String defaultValue) {
+        if (requestUrl == null) {
+            return defaultValue;
+        }
 
-    public static String hostAndPort(String host, int port) {
-        final StringBuilder sb = new StringBuilder();
-        sb.append(host);
-        sb.append(':');
-        sb.append(port);
-        return sb.toString();
+        try {
+            final URL url = new URL(requestUrl);
+            if (url == null) {
+                return defaultValue;
+            }
+            final String host = url.getHost();
+            final int port = url.getPort();
+            if (host == null) {
+                return defaultValue;
+            }
+            if (port < 0) {
+                return host;
+            }
+            final StringBuilder sb = new StringBuilder(host.length() + 8);
+            sb.append(host);
+            sb.append(':');
+            sb.append(port);
+            return sb.toString();
+        } catch (MalformedURLException ignored) {
+        }
+        return defaultValue;
     }
 
 }

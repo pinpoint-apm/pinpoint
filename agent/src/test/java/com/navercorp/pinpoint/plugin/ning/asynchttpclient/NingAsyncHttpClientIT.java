@@ -61,8 +61,7 @@ public class NingAsyncHttpClientIT {
         String destinationId = webServer.getHostAndPort();
         String httpUrl = webServer.getCallHttpUrl();
         verifier.verifyTrace(event("ASYNC_HTTP_CLIENT", AsyncHttpClient.class.getMethod("executeRequest", Request.class, AsyncHandler.class), null, null, destinationId,
-                annotation("http.url", httpUrl),
-                annotation("http.param", "param1=value1")));
+                annotation("http.url", httpUrl)));
         verifier.verifyTraceCount(0);
    }
 }

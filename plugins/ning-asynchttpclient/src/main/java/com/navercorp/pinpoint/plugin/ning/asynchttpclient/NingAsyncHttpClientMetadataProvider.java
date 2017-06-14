@@ -32,5 +32,4 @@ public class NingAsyncHttpClientMetadataProvider implements TraceMetadataProvide
         context.addServiceType(NingAsyncHttpClientPlugin.ASYNC_HTTP_CLIENT, AnnotationKeyMatchers.exact(AnnotationKey.HTTP_URL));
         context.addServiceType(NingAsyncHttpClientPlugin.ASYNC_HTTP_CLIENT_INTERNAL, AnnotationKeyMatchers.exact(AnnotationKey.HTTP_INTERNAL_DISPLAY));
     }
-    
 }
