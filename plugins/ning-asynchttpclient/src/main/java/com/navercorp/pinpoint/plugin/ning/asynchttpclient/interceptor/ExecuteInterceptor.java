@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,6 @@
  */
 package com.navercorp.pinpoint.plugin.ning.asynchttpclient.interceptor;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -35,40 +29,45 @@ import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.EndPointUtils;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientPlugin;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientPluginConfig;
-import com.ning.http.client.FluentCaseInsensitiveStringsMap;
-import com.ning.http.client.Request;
-import com.ning.http.client.cookie.Cookie;
+import io.netty.handler.codec.http.HttpHeaders;
+import org.asynchttpclient.Param;
+import org.asynchttpclient.Request;
+import org.asynchttpclient.cookie.Cookie;
+import org.asynchttpclient.request.body.multipart.ByteArrayPart;
+import org.asynchttpclient.request.body.multipart.FilePart;
+import org.asynchttpclient.request.body.multipart.Part;
+import org.asynchttpclient.request.body.multipart.StringPart;
+
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
 
 /**
- * intercept com.ning.http.client.AsyncHttpClient.executeRequest(Request,
- * AsyncHandler<T>)
- * 
- * @author netspider
  * @author jaehong.kim
  */
-public class ExecuteRequestInterceptor implements AroundInterceptor {
+public class ExecuteInterceptor implements AroundInterceptor {
 
-    private final PLogger logger = PLoggerFactory.getLogger(ExecuteRequestInterceptor.class);
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
     private final NingAsyncHttpClientPluginConfig config;
-    
+
     private final SimpleSampler cookieSampler;
     private final SimpleSampler entitySampler;
     private final SimpleSampler paramSampler;
 
-    // for 1.8.x and 1.9.x
-    public ExecuteRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public ExecuteInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
         this.config = new NingAsyncHttpClientPluginConfig(traceContext.getProfilerConfig());
-        
+
         this.cookieSampler = config.isProfileCookie() ? SimpleSamplerFactory.createSampler(true, config.getCookieSamplingRate()) : null;
         this.entitySampler = config.isProfileEntity() ? SimpleSamplerFactory.createSampler(true, config.getEntitySamplingRate()) : null;
         this.paramSampler = config.isProfileParam() ? SimpleSamplerFactory.createSampler(true, config.getParamSamplingRate()) : null;
@@ -96,7 +95,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
                 logger.debug("set Sampling flag=false");
             }
             if (httpRequest != null) {
-                final FluentCaseInsensitiveStringsMap httpRequestHeaders = httpRequest.getHeaders();
+                final HttpHeaders httpRequestHeaders = httpRequest.getHeaders();
                 httpRequestHeaders.add(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
             }
             return;
@@ -109,24 +108,18 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
         recorder.recordServiceType(NingAsyncHttpClientPlugin.ASYNC_HTTP_CLIENT);
 
         if (httpRequest != null) {
-            final FluentCaseInsensitiveStringsMap httpRequestHeaders = httpRequest.getHeaders();
-            putHeader(httpRequestHeaders, Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
-            putHeader(httpRequestHeaders, Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
-            putHeader(httpRequestHeaders, Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
-            putHeader(httpRequestHeaders, Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
-            putHeader(httpRequestHeaders, Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-            putHeader(httpRequestHeaders, Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
+            final HttpHeaders httpRequestHeaders = httpRequest.getHeaders();
+            httpRequestHeaders.add(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
+            httpRequestHeaders.add(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
+            httpRequestHeaders.add(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
+            httpRequestHeaders.add(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
+            httpRequestHeaders.add(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
+            httpRequestHeaders.add(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
             final String hostString = EndPointUtils.hostAndPort(httpRequest.getUrl(), null);
             if (hostString != null) {
-                putHeader(httpRequestHeaders, Header.HTTP_HOST.toString(), hostString);
+                httpRequestHeaders.add(Header.HTTP_HOST.toString(), hostString);
             }
         }
-    }
-
-    private void putHeader(FluentCaseInsensitiveStringsMap httpRequestHeaders, String key, String value) {
-        final List<String> valueList = new ArrayList<String>();
-        valueList.add(value);
-        httpRequestHeaders.put(key, valueList);
     }
 
     @Override
@@ -151,7 +144,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
             if (httpRequest != null) {
                 // Accessing httpRequest here not BEFORE() because it can cause side effect.
                 recorder.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(httpRequest.getUrl(), config.isProfileParam()));
-                String endpoint = EndPointUtils.hostAndPort(httpRequest.getUrl(), "UnknownHttpClient");
+                final String endpoint = EndPointUtils.hostAndPort(httpRequest.getUrl(), "UnknownHttpClient");
                 recorder.recordDestinationId(endpoint);
                 recordHttpRequest(recorder, httpRequest, throwable);
             }
@@ -200,14 +193,22 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
             }
         }
         if (config.isProfileParam()) {
-            // nothing.
+            switch (config.getParamDumpType()) {
+                case ALWAYS:
+                    recordParam(httpRequest, recorder);
+                    break;
+                case EXCEPTION:
+                    if (isException) {
+                        recordParam(httpRequest, recorder);
+                    }
+                    break;
+            }
         }
     }
 
     protected void recordCookie(Request httpRequest, SpanEventRecorder recorder) {
         if (cookieSampler.isSampling()) {
-            Collection<Cookie> cookies = httpRequest.getCookies();
-
+            List<Cookie> cookies = httpRequest.getCookies();
             if (cookies.isEmpty()) {
                 return;
             }
@@ -216,7 +217,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
             Iterator<Cookie> iterator = cookies.iterator();
             while (iterator.hasNext()) {
                 Cookie cookie = iterator.next();
-                sb.append(cookie.getName()).append("=").append(cookie.getValue());
+                sb.append(cookie.getName()).append('=').append(cookie.getValue());
                 if (iterator.hasNext()) {
                     sb.append(',');
                 }
@@ -228,6 +229,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
     protected void recordEntity(final Request httpRequest, final SpanEventRecorder recorder) {
         if (entitySampler.isSampling()) {
             recordNonMultipartData(httpRequest, recorder);
+            recordMultipartData(httpRequest, recorder);
         }
     }
 
@@ -258,5 +260,75 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
             recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, "STREAM_DATA");
             return;
         }
+    }
+
+    protected void recordMultipartData(final Request httpRequest, final SpanEventRecorder recorder) {
+        List<Part> parts = httpRequest.getBodyParts();
+        // bug fix : parts != null && ****!parts.isEmpty()
+        if (CollectionUtils.isNotEmpty(parts)) {
+            StringBuilder sb = new StringBuilder(config.getEntityDumpSize() * 2);
+            Iterator<Part> iterator = parts.iterator();
+            while (iterator.hasNext()) {
+                Part part = iterator.next();
+                if (part instanceof ByteArrayPart) {
+                    ByteArrayPart p = (ByteArrayPart) part;
+                    sb.append(part.getName());
+                    sb.append("=BYTE_ARRAY_");
+                    sb.append(p.getBytes().length);
+                } else if (part instanceof FilePart) {
+                    FilePart p = (FilePart) part;
+                    sb.append(part.getName());
+                    sb.append("=FILE_");
+                    sb.append(p.getContentType());
+                } else if (part instanceof StringPart) {
+                    StringPart p = (StringPart) part;
+                    sb.append(part.getName());
+                    sb.append("=STRING");
+                }
+
+                if (sb.length() >= config.getEntityDumpSize()) {
+                    break;
+                }
+
+                if (iterator.hasNext()) {
+                    sb.append(',');
+                }
+            }
+            recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.abbreviate(sb.toString(), config.getEntityDumpSize()));
+        }
+    }
+
+    protected void recordParam(final Request httpRequest, final SpanEventRecorder recorder) {
+        if (paramSampler.isSampling()) {
+            List<Param> requestParams = httpRequest.getFormParams();
+            if (requestParams != null && !requestParams.isEmpty()) {
+                String params = paramsToString(requestParams, config.getParamDumpSize());
+                recorder.recordAttribute(AnnotationKey.HTTP_PARAM, StringUtils.abbreviate(params, config.getParamDumpSize()));
+            }
+        }
+    }
+
+    /**
+     * Returns string without double quotations marks, spaces, semi-colons from com.ning.http.client.FluentStringsMap.toString()
+     *
+     * @param params
+     * @param limit
+     * @return
+     */
+    private String paramsToString(List<Param> params, int limit) {
+        StringBuilder result = new StringBuilder(limit * 2);
+
+        for (Param param : params) {
+            if (result.length() > 0) {
+                result.append(',');
+            }
+            result.append(param.getName());
+            result.append('=');
+            result.append(param.getValue());
+            if (result.length() >= limit) {
+                break;
+            }
+        }
+        return result.toString();
     }
 }
