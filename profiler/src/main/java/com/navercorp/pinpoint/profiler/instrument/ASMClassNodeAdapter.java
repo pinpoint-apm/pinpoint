@@ -459,6 +459,11 @@ public class ASMClassNodeAdapter {
         return innerClasses;
     }
 
+    public int getMajorVersion() {
+        final int majorVersion =  this.classNode.version & 0xFFFF;
+        return majorVersion;
+    }
+
     public byte[] toByteArray() {
         final int majorVersion = this.classNode.version & 0xFFFF;
         int flags = ClassWriter.COMPUTE_FRAMES;
