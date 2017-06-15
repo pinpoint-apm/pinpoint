@@ -32,6 +32,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.JvmUtils;
+import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
@@ -98,7 +100,14 @@ public class ASMClass implements InstrumentClass {
 
     @Override
     public boolean isInterceptable() {
-        return !isInterface() && !isAnnotation() && !isModified();
+        if (isAnnotation() || isModified()) {
+            return false;
+        }
+        // interface static method or default method is java 1.8 or later
+        if (isInterface() && (this.classNode.getMajorVersion() < 52 || !JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_8))) {
+            return false;
+        }
+        return true;
     }
 
     @Override

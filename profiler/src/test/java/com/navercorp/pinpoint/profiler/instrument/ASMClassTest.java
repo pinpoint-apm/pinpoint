@@ -589,6 +589,22 @@ public class ASMClassTest {
         assertEquals(1, clazz.getNestedClasses(ClassFilters.chain(ClassFilters.enclosingMethod("annonymousInnerClass"), ClassFilters.interfaze("java.util.concurrent.Callable"))).size());
     }
 
+    @Test
+    public void isInterceptorable() throws Exception {
+        ASMClass clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseInterface");
+        assertFalse(clazz.isInterceptable());
+
+        clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseClass");
+        assertTrue(clazz.isInterceptable());
+
+        clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseEnum");
+        assertTrue(clazz.isInterceptable());
+
+        clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseEnum");
+        assertTrue(clazz.isInterceptable());
+    }
+
+
     private ASMClass getClass(final String targetClassName) throws Exception {
         ClassNode classNode = ASMClassNodeLoader.get(targetClassName);
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
