@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
@@ -280,6 +281,28 @@ public class TestAgentStatFactory {
             responseTimeBos.add(responseTimeBo);
         }
         return responseTimeBos;
+    }
+
+    public static List<DeadlockBo> createDeadlockBos(String agentId, long startTimestamp, long initialTimestamp) {
+        final int numValues = RANDOM.nextInt(MAX_NUM_TEST_VALUES) + 1;
+        return createDeadlockBos(agentId, startTimestamp, initialTimestamp, numValues);
+    }
+
+    public static List<DeadlockBo> createDeadlockBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
+        List<DeadlockBo> deadlockBos = new ArrayList<DeadlockBo>(numValues);
+        List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
+        List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
+        List<Integer> deadlockCounts = TestAgentStatDataPointFactory.INTEGER.createRandomValues(0, 1000, numValues);
+        for (int i = 0; i < numValues; ++i) {
+            DeadlockBo deadlockBo = new DeadlockBo();
+            deadlockBo.setAgentId(agentId);
+            deadlockBo.setStartTimestamp(startTimestamps.get(i));
+            deadlockBo.setTimestamp(timestamps.get(i));
+            deadlockBo.setDeadlockedThreadCount(deadlockCounts.get(i));
+
+            deadlockBos.add(deadlockBo);
+        }
+        return deadlockBos;
     }
 
     private static final int MIN_VALUE_OF_MAX_CONNECTION_SIZE = 20;

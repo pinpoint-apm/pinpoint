@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.monitor.collector.activethread.ActiveTraceMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.cpu.CpuLoadMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.datasource.DataSourceMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.collector.deadlock.DeadlockMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.jvmgc.JvmGcMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.response.ResponseTimeMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.transaction.TransactionMetricCollector;
@@ -40,6 +41,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
     private final ActiveTraceMetricCollector activeTraceMetricCollector;
     private final DataSourceMetricCollector dataSourceMetricCollector;
     private final ResponseTimeMetricCollector responseTimeMetricCollector;
+    private final DeadlockMetricCollector deadlockMetricCollector;
 
     @Inject
     public AgentStatCollector(
@@ -50,7 +52,8 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
             TransactionMetricCollector transactionMetricCollector,
             ActiveTraceMetricCollector activeTraceMetricCollector,
             DataSourceMetricCollector dataSourceMetricCollector,
-            ResponseTimeMetricCollector responseTimeMetricCollector) {
+            ResponseTimeMetricCollector responseTimeMetricCollector,
+            DeadlockMetricCollector deadlockMetricCollector) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -72,6 +75,10 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
         if (responseTimeMetricCollector == null) {
             throw new NullPointerException("responseTimeMetricCollector must not be null");
         }
+        if (deadlockMetricCollector == null) {
+            throw new NullPointerException("deadlockMetricCollector may not be null");
+        }
+
         this.agentId = agentId;
         this.agentStartTimestamp = agentStartTimestamp;
         this.jvmGcMetricCollector = jvmGcMetricCollector;
@@ -80,6 +87,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
         this.activeTraceMetricCollector = activeTraceMetricCollector;
         this.dataSourceMetricCollector = dataSourceMetricCollector;
         this.responseTimeMetricCollector = responseTimeMetricCollector;
+        this.deadlockMetricCollector = deadlockMetricCollector;
     }
 
     @Override
@@ -93,6 +101,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
         agentStat.setActiveTrace(activeTraceMetricCollector.collect());
         agentStat.setDataSourceList(dataSourceMetricCollector.collect());
         agentStat.setResponseTime(responseTimeMetricCollector.collect());
+        agentStat.setDeadlock(deadlockMetricCollector.collect());
 
         return agentStat;
     }
@@ -108,6 +117,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
         sb.append(", activeTraceMetricCollector=").append(activeTraceMetricCollector);
         sb.append(", dataSourceMetricCollector=").append(dataSourceMetricCollector);
         sb.append(", responseTimeMetricCollector=").append(responseTimeMetricCollector);
+        sb.append(", deadlockMetricCollector=").append(deadlockMetricCollector);
         sb.append('}');
         return sb.toString();
     }

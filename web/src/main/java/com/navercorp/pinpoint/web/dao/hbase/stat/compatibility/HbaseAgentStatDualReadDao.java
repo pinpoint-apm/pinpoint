@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
@@ -28,6 +29,7 @@ import com.navercorp.pinpoint.web.dao.stat.ActiveTraceDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.dao.stat.CpuLoadDao;
 import com.navercorp.pinpoint.web.dao.stat.DataSourceDao;
+import com.navercorp.pinpoint.web.dao.stat.DeadlockDao;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDao;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDetailedDao;
 import com.navercorp.pinpoint.web.dao.stat.ResponseTimeDao;
@@ -108,6 +110,12 @@ public abstract class HbaseAgentStatDualReadDao<T extends AgentStatDataPoint> im
 
     public static class ResponseTimeDualReadDao extends HbaseAgentStatDualReadDao<ResponseTimeBo> implements ResponseTimeDao {
         public ResponseTimeDualReadDao(AgentStatDao<ResponseTimeBo> master, AgentStatDao<ResponseTimeBo> slave) {
+            super(master, slave);
+        }
+    }
+
+    public static class DeadlockDualReadDao extends HbaseAgentStatDualReadDao<DeadlockBo> implements DeadlockDao {
+        public DeadlockDualReadDao(AgentStatDao<DeadlockBo> master, AgentStatDao<DeadlockBo> slave) {
             super(master, slave);
         }
     }

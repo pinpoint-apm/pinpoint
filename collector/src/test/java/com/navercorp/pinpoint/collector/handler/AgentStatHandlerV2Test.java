@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
@@ -34,6 +35,7 @@ import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
 import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
+import com.navercorp.pinpoint.thrift.dto.TDeadlock;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
 import com.navercorp.pinpoint.thrift.dto.TResponseTime;
 import org.junit.Before;
@@ -81,6 +83,9 @@ public class AgentStatHandlerV2Test {
     @Mock
     private AgentStatDaoV2<ResponseTimeBo> responseTimeDao;
 
+    @Mock
+    private AgentStatDaoV2<DeadlockBo> deadlockDao;
+
     @InjectMocks
     private HBaseAgentStatService hBaseAgentStatService = new HBaseAgentStatService();
 
@@ -114,6 +119,8 @@ public class AgentStatHandlerV2Test {
         verify(activeTraceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getActiveTraceBos());
         verify(dataSourceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDataSourceListBos());
         verify(responseTimeDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getResponseTimeBos());
+        verify(deadlockDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDeadlockBos());
+
     }
 
     @Test
@@ -135,6 +142,7 @@ public class AgentStatHandlerV2Test {
         verify(activeTraceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getActiveTraceBos());
         verify(dataSourceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDataSourceListBos());
         verify(responseTimeDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getResponseTimeBos());
+        verify(deadlockDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDeadlockBos());
     }
 
     @Test
@@ -208,6 +216,7 @@ public class AgentStatHandlerV2Test {
         agentStat.setCpuLoad(new TCpuLoad());
         agentStat.setDataSourceList(new TDataSourceList());
         agentStat.setResponseTime(new TResponseTime());
+        agentStat.setDeadlock(new TDeadlock());
         return agentStat;
     }
 

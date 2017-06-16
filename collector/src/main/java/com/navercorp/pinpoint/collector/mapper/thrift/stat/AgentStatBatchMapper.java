@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
@@ -64,6 +65,9 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
     @Autowired
     private ResponseTimeBoMapper responseTimeBoMapper;
 
+    @Autowired
+    private DeadlockBoMapper deadlockBoMapper;
+
     @Override
     public AgentStatBo map(TAgentStatBatch tAgentStatBatch) {
         if (!tAgentStatBatch.isSetAgentStats()) {
@@ -83,6 +87,8 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
         List<ActiveTraceBo> activeTraceBos = new ArrayList<>(agentStatsSize);
         List<DataSourceListBo> dataSourceListBos = new ArrayList<DataSourceListBo>(agentStatsSize);
         List<ResponseTimeBo> responseTimeBos = new ArrayList<>(agentStatsSize);
+        List<DeadlockBo> deadlockBos = new ArrayList<>(agentStatsSize);
+
         for (TAgentStat tAgentStat : tAgentStatBatch.getAgentStats()) {
             final long timestamp = tAgentStat.getTimestamp();
             // jvmGc
@@ -141,6 +147,13 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
                 setBaseData(responseTimeBo, agentId, startTimestamp, timestamp);
                 responseTimeBos.add(responseTimeBo);
             }
+
+            // deadlock
+            if (tAgentStat.isSetDeadlock()) {
+                DeadlockBo deadlockBo = this.deadlockBoMapper.map(tAgentStat.getDeadlock());
+                setBaseData(deadlockBo, agentId, startTimestamp, timestamp);
+                deadlockBos.add(deadlockBo);
+            }
         }
 
         agentStatBo.setJvmGcBos(jvmGcBos);
@@ -150,6 +163,7 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
         agentStatBo.setActiveTraceBos(activeTraceBos);
         agentStatBo.setDataSourceListBos(dataSourceListBos);
         agentStatBo.setResponseTimeBos(responseTimeBos);
+        agentStatBo.setDeadlockBos(deadlockBos);
         return agentStatBo;
     }
 

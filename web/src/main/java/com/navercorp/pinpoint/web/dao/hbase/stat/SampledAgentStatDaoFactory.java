@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.dao.hbase.stat.compatibility.HbaseSampledAgent
 import com.navercorp.pinpoint.web.dao.stat.SampledActiveTraceDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledCpuLoadDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledDataSourceDao;
+import com.navercorp.pinpoint.web.dao.stat.SampledDeadlockDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledJvmGcDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledJvmGcDetailedDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledResponseTimeDao;
@@ -31,6 +32,7 @@ import com.navercorp.pinpoint.web.vo.stat.SampledActiveTrace;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
 import com.navercorp.pinpoint.web.vo.stat.SampledCpuLoad;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSourceList;
+import com.navercorp.pinpoint.web.vo.stat.SampledDeadlock;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGc;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGcDetailed;
 import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
@@ -324,6 +326,40 @@ abstract class SampledAgentStatDaoFactory<S extends SampledAgentStatDataPoint, D
         @Override
         SampledResponseTimeDao getCompatibilityDao(SampledResponseTimeDao v1, SampledResponseTimeDao v2) {
             return new HbaseSampledAgentStatDualReadDao.SampledResponseTimeDualReadDao(v2, v1);
+        }
+    }
+
+    @Repository("sampledDeadlockDaoFactory")
+    public static class SampledDeadlockDaoFactory extends SampledAgentStatDaoFactory<SampledDeadlock, SampledDeadlockDao> implements FactoryBean<SampledDeadlockDao> {
+
+        @Autowired
+        public void setV1(@Qualifier("sampledDeadlockDaoV1") SampledDeadlockDao v1) {
+            this.v1 = v1;
+        }
+
+        @Autowired
+        public void setV2(@Qualifier("sampledDeadlockDaoV2") SampledDeadlockDao v2) {
+            this.v2 = v2;
+        }
+
+        @Override
+        public SampledDeadlockDao getObject() throws Exception {
+            return super.getDao();
+        }
+
+        @Override
+        public Class<?> getObjectType() {
+            return SampledDeadlockDao.class;
+        }
+
+        @Override
+        public boolean isSingleton() {
+            return true;
+        }
+
+        @Override
+        SampledDeadlockDao getCompatibilityDao(SampledDeadlockDao v1, SampledDeadlockDao v2) {
+            return new HbaseSampledAgentStatDualReadDao.SampledDeadlockDualReadDao(v2, v1);
         }
     }
 
