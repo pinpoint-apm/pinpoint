@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.okhttp.ConnectionGetter;
@@ -185,12 +186,10 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
         if (httpUrl == null || httpUrl.getHost() == null) {
             return "UnknownHttpClient";
         }
-        if (httpUrl.getPort() <= 0 || httpUrl.getPort() == httpUrl.getDefaultPort()) {
-            return httpUrl.getHost();
-        }
-
-        return EndPointUtils.hostAndPort(httpUrl.getHost(), httpUrl.getPort());
+        final int port = EndPointUtils.getPort(httpUrl.getPort(), httpUrl.getDefaultPort());
+        return HostAndPort.toHostAndPortString(httpUrl.getHost(), port);
     }
+
 
     private void recordRequest(Trace trace, Request request, Throwable throwable) {
         final boolean isException = InterceptorUtils.isThrowable(throwable);

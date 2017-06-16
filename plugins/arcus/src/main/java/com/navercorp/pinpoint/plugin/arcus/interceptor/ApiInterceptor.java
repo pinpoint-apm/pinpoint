@@ -19,6 +19,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.Future;
 
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.ops.Operation;
 
@@ -188,7 +189,7 @@ public class ApiInterceptor implements AroundInterceptor {
                 logger.debug("hostAddress is null");
                 return null;
             }
-            return hostAddress + ":" + inetSocketAddress.getPort();
+            return HostAndPort.toHostAndPortString(hostAddress, inetSocketAddress.getPort());
 
         } else {
             if (logger.isDebugEnabled()) {

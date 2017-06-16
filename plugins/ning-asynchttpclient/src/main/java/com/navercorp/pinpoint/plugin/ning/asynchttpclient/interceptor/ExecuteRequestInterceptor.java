@@ -36,10 +36,10 @@ import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.plugin.ning.asynchttpclient.EndPointUtils;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientPlugin;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientPluginConfig;
 import com.ning.http.client.FluentCaseInsensitiveStringsMap;
@@ -174,10 +174,8 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
         if (host == null) {
             return "UnknownHttpClient";
         }
-        if (port < 0) {
-            return host;
-        }
-        return EndPointUtils.hostAndPort(host, port);
+        port = HostAndPort.getPortOrNoPort(port);
+        return HostAndPort.toHostAndPortString(host, port);
     }
 
     private void recordHttpRequest(SpanEventRecorder recorder, com.ning.http.client.Request httpRequest, Throwable throwable) {

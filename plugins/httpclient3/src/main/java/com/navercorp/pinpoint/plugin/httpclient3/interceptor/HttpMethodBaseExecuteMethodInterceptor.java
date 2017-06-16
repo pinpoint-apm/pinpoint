@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.httpclient3.CommandContextFormatter;
-import com.navercorp.pinpoint.plugin.httpclient3.EndPointUtils;
 import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.HttpConstants;
 import org.apache.commons.httpclient.HttpMethod;
@@ -67,14 +67,6 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private static final int MAX_READ_SIZE = 1024;
-    private static final Map<Integer, Integer> httpMethod_Index;
-
-    static {
-        httpMethod_Index = new HashMap<Integer, Integer>();
-        httpMethod_Index.put(1, 0);
-        httpMethod_Index.put(2, 1);
-        httpMethod_Index.put(3, 1);
-    }
 
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
@@ -417,10 +409,8 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         if (host == null) {
             return "unknown";
         }
-        if (port < 0) {
-            return host;
-        }
-        return EndPointUtils.hostAndPort(host, port);
+        port = HostAndPort.getPortOrNoPort(port);
+        return HostAndPort.toHostAndPortString(host, port);
     }
 
     private HttpConnection getHttpConnection(final Object[] args) {

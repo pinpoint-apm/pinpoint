@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvoca
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.plugin.okhttp.*;
 import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.Request;
@@ -108,11 +109,10 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
         if (httpUrl == null || httpUrl.host() == null) {
             return "UnknownHttpClient";
         }
-        if (httpUrl.port() <= 0 || httpUrl.port() == HttpUrl.defaultPort(httpUrl.scheme())) {
-            return httpUrl.host();
-        }
-        return EndPointUtils.hostAndPort(httpUrl.host(), httpUrl.port());
+        final int port = EndPointUtils.getPort(httpUrl.port(), HttpUrl.defaultPort(httpUrl.scheme()));
+        return HostAndPort.toHostAndPortString(httpUrl.host(), port);
     }
+
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {

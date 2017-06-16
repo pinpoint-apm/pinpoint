@@ -16,17 +16,21 @@
 
 package com.navercorp.pinpoint.plugin.okhttp;
 
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class EndPointUtils {
 
-    public static String hostAndPort(String host, int port) {
-        final StringBuilder sb = new StringBuilder();
-        sb.append(host);
-        sb.append(':');
-        sb.append(port);
-        return sb.toString();
+    public static int getPort(int port, int defaultPort) {
+        if (port <= 0) {
+            return HostAndPort.NO_PORT;
+        }
+        if (port == defaultPort) {
+            return HostAndPort.NO_PORT;
+        }
+        return port;
     }
 
 }

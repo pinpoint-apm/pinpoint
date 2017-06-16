@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvoca
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.plugin.okhttp.EndPointUtils;
 import com.navercorp.pinpoint.plugin.okhttp.UrlGetter;
 import com.squareup.okhttp.Request;
@@ -110,11 +111,10 @@ public class RequestBuilderBuildMethodBackwardCompatibilityInterceptor implement
         if (httpUrl == null || httpUrl.getHost() == null) {
             return "UnknownHttpClient";
         }
-        if (httpUrl.getPort() <= 0 || httpUrl.getPort() == httpUrl.getDefaultPort()) {
-            return httpUrl.getHost();
-        }
-        return EndPointUtils.hostAndPort(httpUrl.getHost(), httpUrl.getPort());
+        final int port = EndPointUtils.getPort(httpUrl.getPort(), httpUrl.getDefaultPort());
+        return HostAndPort.toHostAndPortString(httpUrl.getHost(), port);
     }
+
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
