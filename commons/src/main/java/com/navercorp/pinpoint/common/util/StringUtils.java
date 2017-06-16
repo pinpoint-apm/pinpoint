@@ -44,6 +44,17 @@ public class StringUtils {
         return string != null && string.length() > 0;
     }
 
+    public static <T> int nullSafeLength(final String string) {
+        return nullSafeLength(string, 0);
+    }
+
+    public static <T> int nullSafeLength(final String string, final int nullValue) {
+        if (string == null) {
+            return nullValue;
+        }
+        return string.length();
+    }
+
     public static String toString(final Object object) {
         if (object == null) {
             return NULL_STRING;
