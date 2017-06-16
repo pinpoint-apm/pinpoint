@@ -65,7 +65,7 @@ public class HostAndPort {
         if (noPort == port) {
             return host;
         }
-        final int hostLength = StringUtils.nullSafeLength(host);
+        final int hostLength = StringUtils.getLength(host);
         final StringBuilder builder = new StringBuilder(hostLength + 6);
         builder.append(host);
         builder.append(':');

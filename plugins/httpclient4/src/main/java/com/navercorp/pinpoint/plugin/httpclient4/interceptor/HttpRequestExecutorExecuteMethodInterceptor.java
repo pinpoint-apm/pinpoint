@@ -21,6 +21,7 @@ import java.io.IOException;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.common.Charsets;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.httpclient4.CommandContextFormatter;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
@@ -265,14 +266,8 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         if (host == null) {
             return "UnknownHttpClient";
         }
-        if (port < 0) {
-            return host;
-        }
-        StringBuilder sb = new StringBuilder(host.length() + 8);
-        sb.append(host);
-        sb.append(':');
-        sb.append(port);
-        return sb.toString();
+        port = HostAndPort.getPortOrNoPort(port);
+        return HostAndPort.toHostAndPortString(host, port);
     }
 
     private void recordHttpRequest(Trace trace, HttpRequest httpRequest, Throwable throwable) {
