@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.web.applicationmap.Node;
 import com.navercorp.pinpoint.web.applicationmap.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerInstanceListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -49,8 +50,9 @@ public abstract class ServerInfoAppenderTestBase {
     @Before
     public void setUp() {
         serverInstanceListDataSource = mock(ServerInstanceListDataSource.class);
+        ServerInstanceListFactory serverInstanceListFactory = new DefaultServerInstanceListFactory(serverInstanceListDataSource);
         ServerInfoAppenderFactory serverInfoAppenderFactory = createServerInfoAppenderFactory();
-        serverInfoAppender = serverInfoAppenderFactory.from(serverInstanceListDataSource);
+        serverInfoAppender = serverInfoAppenderFactory.create(serverInstanceListFactory);
     }
 
     @Test

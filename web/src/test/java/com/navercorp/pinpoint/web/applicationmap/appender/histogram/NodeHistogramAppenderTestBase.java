@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.web.applicationmap.Link;
 import com.navercorp.pinpoint.web.applicationmap.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.Node;
 import com.navercorp.pinpoint.web.applicationmap.NodeList;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
@@ -45,7 +46,7 @@ import static org.mockito.Mockito.when;
  */
 public abstract class NodeHistogramAppenderTestBase {
 
-    private NodeHistogramDataSource nodeHistogramDataSource;
+    private WasNodeHistogramDataSource wasNodeHistogramDataSource;
 
     private NodeHistogramAppender nodeHistogramAppender;
 
@@ -53,9 +54,10 @@ public abstract class NodeHistogramAppenderTestBase {
 
     @Before
     public void setUp() {
-        nodeHistogramDataSource = mock(NodeHistogramDataSource.class);
+        wasNodeHistogramDataSource = mock(WasNodeHistogramDataSource.class);
+        NodeHistogramFactory nodeHistogramFactory = new DefaultNodeHistogramFactory(wasNodeHistogramDataSource);
         NodeHistogramAppenderFactory nodeHistogramAppenderFactory = createNodeHistogramAppenderFactory();
-        nodeHistogramAppender = nodeHistogramAppenderFactory.from(nodeHistogramDataSource);
+        nodeHistogramAppender = nodeHistogramAppenderFactory.create(nodeHistogramFactory);
     }
 
     @Test
@@ -68,7 +70,7 @@ public abstract class NodeHistogramAppenderTestBase {
         nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList);
         // Then
         Assert.assertTrue(nodeList.getNodeList().isEmpty());
-        verifyZeroInteractions(nodeHistogramDataSource);
+        verifyZeroInteractions(wasNodeHistogramDataSource);
     }
 
     /**
@@ -84,7 +86,7 @@ public abstract class NodeHistogramAppenderTestBase {
         nodeList.addNode(node);
 
         NodeHistogram nodeHistogram = new NodeHistogram(node.getApplication(), range);
-        when(nodeHistogramDataSource.createNodeHistogram(node.getApplication(), range)).thenReturn(nodeHistogram);
+        when(wasNodeHistogramDataSource.createNodeHistogram(node.getApplication(), range)).thenReturn(nodeHistogram);
         // When
         nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList);
         // Then

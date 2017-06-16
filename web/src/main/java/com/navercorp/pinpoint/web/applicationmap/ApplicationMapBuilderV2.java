@@ -16,26 +16,22 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
-import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.EmptyNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppender;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.EmptyServerInstanceListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppender;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInstanceListFactory;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
-import com.navercorp.pinpoint.web.dao.MapResponseDao;
-import com.navercorp.pinpoint.web.service.AgentInfoService;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.ResponseHistogramBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author emeroad
@@ -50,6 +46,9 @@ public class ApplicationMapBuilderV2 implements ApplicationMapBuilder {
 
     private final NodeHistogramAppenderFactory nodeHistogramAppenderFactory;
     private final ServerInfoAppenderFactory serverInfoAppenderFactory;
+
+    private NodeHistogramFactory nodeHistogramFactory;
+    private ServerInstanceListFactory serverInstanceListFactory;
 
     ApplicationMapBuilderV2(Range range, NodeHistogramAppenderFactory nodeHistogramAppenderFactory, ServerInfoAppenderFactory serverInfoAppenderFactory) {
         if (range == null) {
@@ -67,63 +66,57 @@ public class ApplicationMapBuilderV2 implements ApplicationMapBuilder {
     }
 
     @Override
-    public ApplicationMap build(Application application, AgentInfoService agentInfoService) {
+    public ApplicationMapBuilder includeNodeHistogram(NodeHistogramFactory nodeHistogramFactory) {
+        this.nodeHistogramFactory = nodeHistogramFactory;
+        return this;
+    }
+
+    @Override
+    public ApplicationMapBuilder includeServerInfo(ServerInstanceListFactory serverInstanceListFactory) {
+        this.serverInstanceListFactory = serverInstanceListFactory;
+        return this;
+    }
+
+    @Override
+    public ApplicationMap build(Application application) {
+        logger.info("Building empty application map");
+
         NodeList nodeList = new NodeList();
         LinkList emptyLinkList = new LinkList();
 
         Node node = new Node(application);
-        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationName(application.getName(), range.getTo());
-        Set<AgentInfo> runningAgents = new HashSet<>();
-        for (AgentInfo agentInfo : agentInfos) {
-            if (isAgentRunning(agentInfo)) {
-                runningAgents.add(agentInfo);
+        if (serverInstanceListFactory != null) {
+            ServerInstanceList runningInstances = serverInstanceListFactory.createWasNodeInstanceList(node, range.getTo());
+            if (runningInstances.getInstanceCount() > 0) {
+                node.setServerInstanceList(runningInstances);
+                nodeList.addNode(node);
             }
         }
-        if (runningAgents.isEmpty()) {
-            return new DefaultApplicationMap(range, nodeList, emptyLinkList);
-        } else {
-            nodeList.addNode(node);
-            LinkDataDuplexMap emptyLinkDataDuplexMap = new LinkDataDuplexMap();
-            NodeHistogramAppender emptyNodeHistogramAppender = nodeHistogramAppenderFactory.createEmptyAppender();
-            ServerInfoAppender serverInfoAppender = serverInfoAppenderFactory.createAppender(runningAgents);
-            return build(nodeList, emptyLinkList, emptyLinkDataDuplexMap, emptyNodeHistogramAppender, serverInfoAppender);
-        }
+        return new DefaultApplicationMap(range, nodeList, emptyLinkList);
     }
 
     @Override
-    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService, MapResponseDao mapResponseDao) {
-        NodeHistogramAppender nodeHistogramAppender = nodeHistogramAppenderFactory.createAppender(mapResponseDao);
-        ServerInfoAppender serverInfoAppender = serverInfoAppenderFactory.createAppender(agentInfoService);
-        return build(linkDataDuplexMap, nodeHistogramAppender, serverInfoAppender);
-    }
-
-    @Override
-    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService, ResponseHistogramBuilder responseHistogramBuilder) {
-        NodeHistogramAppender nodeHistogramAppender = nodeHistogramAppenderFactory.createAppender(responseHistogramBuilder);
-        ServerInfoAppender serverInfoAppender = serverInfoAppenderFactory.createAppender(agentInfoService);
-        return build(linkDataDuplexMap, nodeHistogramAppender, serverInfoAppender);
-    }
-
-    @Override
-    public ApplicationMap build(NodeList nodeList, LinkList linkList) {
-        return new DefaultApplicationMap(range, nodeList, linkList);
-    }
-
-    private ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, NodeHistogramAppender nodeHistogramAppender, ServerInfoAppender serverInfoAppender) {
+    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap) {
         logger.info("Building application map");
+
         NodeList nodeList = buildNode(linkDataDuplexMap);
         LinkList linkList = buildLink(nodeList, linkDataDuplexMap);
-        return build(nodeList, linkList, linkDataDuplexMap, nodeHistogramAppender, serverInfoAppender);
-    }
 
-    private ApplicationMap build(NodeList nodeList, LinkList linkList, LinkDataDuplexMap linkDataDuplexMap, NodeHistogramAppender nodeHistogramAppender, ServerInfoAppender serverInfoAppender) {
-        if (nodeHistogramAppender != null) {
-            nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList);
+        NodeHistogramFactory nodeHistogramFactory = this.nodeHistogramFactory;
+        if (nodeHistogramFactory == null) {
+            nodeHistogramFactory = new EmptyNodeHistogramFactory();
         }
-        if (serverInfoAppender != null) {
-            serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap);
+        NodeHistogramAppender nodeHistogramAppender = nodeHistogramAppenderFactory.create(nodeHistogramFactory);
+        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList);
+
+        ServerInstanceListFactory serverInstanceListFactory = this.serverInstanceListFactory;
+        if (serverInstanceListFactory == null) {
+            serverInstanceListFactory = new EmptyServerInstanceListFactory();
         }
-        return build(nodeList, linkList);
+        ServerInfoAppender serverInfoAppender = serverInfoAppenderFactory.create(serverInstanceListFactory);
+        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap);
+
+        return new DefaultApplicationMap(range, nodeList, linkList);
     }
 
     private NodeList buildNode(LinkDataDuplexMap linkDataDuplexMap) {
@@ -138,7 +131,6 @@ public class ApplicationMapBuilderV2 implements ApplicationMapBuilder {
     }
 
     private void createNode(NodeList nodeList, LinkDataMap linkDataMap) {
-
         for (LinkData linkData : linkDataMap.getLinkDataList()) {
             final Application fromApplication = linkData.getFromApplication();
             // FROM is either a CLIENT or a node
@@ -163,14 +155,12 @@ public class ApplicationMapBuilderV2 implements ApplicationMapBuilder {
                 logger.warn("found rpc toNode:{}", linkData);
             }
         }
-
     }
 
     private boolean addNode(NodeList nodeList, Application application) {
         if (nodeList.containsNode(application)) {
             return false;
         }
-
         Node fromNode = new Node(application);
         return nodeList.addNode(fromNode);
     }
@@ -204,7 +194,6 @@ public class ApplicationMapBuilderV2 implements ApplicationMapBuilder {
     }
 
     private void createSourceLink(NodeList nodeList, LinkList linkList, LinkDataMap linkDataMap) {
-
         for (LinkData linkData : linkDataMap.getLinkDataList()) {
             final Application fromApplicationId = linkData.getFromApplication();
             Node fromNode = nodeList.findNode(fromApplicationId);
@@ -246,7 +235,6 @@ public class ApplicationMapBuilderV2 implements ApplicationMapBuilder {
     }
 
     private void createTargetLink(NodeList nodeList, LinkList linkList, LinkDataMap linkDataMap) {
-
         for (LinkData linkData : linkDataMap.getLinkDataList()) {
             final Application fromApplicationId = linkData.getFromApplication();
             Node fromNode = nodeList.findNode(fromApplicationId);
@@ -275,14 +263,6 @@ public class ApplicationMapBuilderV2 implements ApplicationMapBuilder {
                     logger.debug("createTargetLink:{}", link);
                 }
             }
-        }
-    }
-
-    private boolean isAgentRunning(AgentInfo agentInfo) {
-        if (agentInfo.getStatus() != null) {
-            return agentInfo.getStatus().getState() == AgentLifeCycleState.RUNNING;
-        } else {
-            return false;
         }
     }
 }

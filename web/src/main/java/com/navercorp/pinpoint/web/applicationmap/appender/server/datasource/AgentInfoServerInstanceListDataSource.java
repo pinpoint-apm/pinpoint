@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.applicationmap.appender.server;
+package com.navercorp.pinpoint.web.applicationmap.appender.server.datasource;
 
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.applicationmap.Node;
@@ -40,13 +40,13 @@ import java.util.Set;
 /**
  * @author HyunGil Jeong
  */
-public class ServerInstanceListAgentInfoServiceDataSource implements ServerInstanceListDataSource {
+public class AgentInfoServerInstanceListDataSource implements ServerInstanceListDataSource {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final AgentInfoService agentInfoService;
 
-    public ServerInstanceListAgentInfoServiceDataSource(AgentInfoService agentInfoService) {
+    public AgentInfoServerInstanceListDataSource(AgentInfoService agentInfoService) {
         if (agentInfoService == null) {
             throw new NullPointerException("agentInfoService must not be null");
         }

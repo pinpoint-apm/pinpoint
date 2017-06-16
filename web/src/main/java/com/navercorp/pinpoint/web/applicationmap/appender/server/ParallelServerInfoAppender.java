@@ -19,13 +19,8 @@ package com.navercorp.pinpoint.web.applicationmap.appender.server;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.Node;
 import com.navercorp.pinpoint.web.applicationmap.NodeList;
-import com.navercorp.pinpoint.web.applicationmap.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppender;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInstanceListDataSource;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
-import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +31,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Supplier;
 
 /**
  * @author HyunGil Jeong
@@ -44,18 +40,18 @@ public class ParallelServerInfoAppender implements ServerInfoAppender {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ServerInstanceListDataSource serverInstanceListDataSource;
+    private final ServerInstanceListFactory serverInstanceListFactory;
 
     private final ExecutorService executorService;
 
-    public ParallelServerInfoAppender(ServerInstanceListDataSource serverInstanceListDataSource, ExecutorService executorService) {
-        if (serverInstanceListDataSource == null) {
-            throw new NullPointerException("serverInstanceListDataSource must not be null");
+    public ParallelServerInfoAppender(ServerInstanceListFactory serverInstanceListFactory, ExecutorService executorService) {
+        if (serverInstanceListFactory == null) {
+            throw new NullPointerException("serverInstanceListFactory must not be null");
         }
         if (executorService == null) {
             throw new NullPointerException("executorService must not be null");
         }
-        this.serverInstanceListDataSource = serverInstanceListDataSource;
+        this.serverInstanceListFactory = serverInstanceListFactory;
         this.executorService = executorService;
     }
 
@@ -94,24 +90,22 @@ public class ParallelServerInfoAppender implements ServerInfoAppender {
         ServiceType nodeServiceType = node.getServiceType();
         if (nodeServiceType.isWas()) {
             final long to = range.getTo();
-            serverInstanceListFuture = CompletableFuture.supplyAsync(() -> serverInstanceListDataSource.createServerInstanceList(node, to), executorService);
-        } else if (nodeServiceType.isTerminal() || nodeServiceType.isQueue()) {
+            serverInstanceListFuture = CompletableFuture.supplyAsync(new Supplier<ServerInstanceList>() {
+                @Override
+                public ServerInstanceList get() {
+                    return serverInstanceListFactory.createWasNodeInstanceList(node, to);
+                }
+            }, executorService);
+        } else if (nodeServiceType.isTerminal()) {
             // extract information about the terminal node
-            serverInstanceListFuture = CompletableFuture.completedFuture(createTerminalNodeInstanceList(node, linkDataDuplexMap));
+            serverInstanceListFuture = CompletableFuture.completedFuture(serverInstanceListFactory.createTerminalNodeInstanceList(node, linkDataDuplexMap));
+        } else if (nodeServiceType.isQueue()) {
+            serverInstanceListFuture = CompletableFuture.completedFuture(serverInstanceListFactory.createQueueNodeInstanceList(node, linkDataDuplexMap));
+        } else if (nodeServiceType.isUser()) {
+            serverInstanceListFuture = CompletableFuture.completedFuture(serverInstanceListFactory.createUserNodeInstanceList());
         } else {
-            serverInstanceListFuture = CompletableFuture.completedFuture(new ServerInstanceList());
+            serverInstanceListFuture = CompletableFuture.completedFuture(serverInstanceListFactory.createEmptyNodeInstanceList());
         }
         return serverInstanceListFuture.thenAccept(node::setServerInstanceList);
-    }
-
-    private ServerInstanceList createTerminalNodeInstanceList(Node node, LinkDataDuplexMap linkDataDuplexMap) {
-        ServerBuilder builder = new ServerBuilder();
-        for (LinkData linkData : linkDataDuplexMap.getSourceLinkDataList()) {
-            Application toApplication = linkData.getToApplication();
-            if (node.getApplication().equals(toApplication)) {
-                builder.addCallHistogramList(linkData.getTargetList());
-            }
-        }
-        return builder.build();
     }
 }

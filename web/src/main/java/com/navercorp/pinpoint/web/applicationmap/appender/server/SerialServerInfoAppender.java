@@ -19,11 +19,8 @@ package com.navercorp.pinpoint.web.applicationmap.appender.server;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.Node;
 import com.navercorp.pinpoint.web.applicationmap.NodeList;
-import com.navercorp.pinpoint.web.applicationmap.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
-import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 
 /**
@@ -33,13 +30,13 @@ import com.navercorp.pinpoint.web.vo.Range;
  */
 public class SerialServerInfoAppender implements ServerInfoAppender {
 
-    private final ServerInstanceListDataSource serverInstanceListDataSource;
+    private final ServerInstanceListFactory serverInstanceListFactory;
 
-    public SerialServerInfoAppender(ServerInstanceListDataSource serverInstanceListDataSource) {
-        if (serverInstanceListDataSource == null) {
-            throw new NullPointerException("serverInstanceListDataSource must not be null");
+    public SerialServerInfoAppender(ServerInstanceListFactory serverInstanceListFactory) {
+        if (serverInstanceListFactory == null) {
+            throw new NullPointerException("serverInstanceListFactory must not be null");
         }
-        this.serverInstanceListDataSource = serverInstanceListDataSource;
+        this.serverInstanceListFactory = serverInstanceListFactory;
     }
 
     @Override
@@ -52,24 +49,19 @@ public class SerialServerInfoAppender implements ServerInfoAppender {
            if (nodeServiceType.isUnknown()) {
                continue;
            }
+           ServerInstanceList serverInstanceList;
            if (nodeServiceType.isWas()) {
-               ServerInstanceList serverInstanceList = serverInstanceListDataSource.createServerInstanceList(node, range.getTo());
-               node.setServerInstanceList(serverInstanceList);
-           } else if (nodeServiceType.isTerminal() || nodeServiceType.isQueue()) {
-               // extract information about the terminal node
-               ServerBuilder builder = new ServerBuilder();
-               for (LinkData linkData : linkDataDuplexMap.getSourceLinkDataList()) {
-                   Application toApplication = linkData.getToApplication();
-                   if (node.getApplication().equals(toApplication)) {
-                       builder.addCallHistogramList(linkData.getTargetList());
-                   }
-               }
-               ServerInstanceList serverInstanceList = builder.build();
-               node.setServerInstanceList(serverInstanceList);
+               serverInstanceList = serverInstanceListFactory.createWasNodeInstanceList(node, range.getTo());
+           } else if (nodeServiceType.isTerminal()) {
+               serverInstanceList = serverInstanceListFactory.createTerminalNodeInstanceList(node, linkDataDuplexMap);
+           } else if (nodeServiceType.isQueue()) {
+               serverInstanceList = serverInstanceListFactory.createQueueNodeInstanceList(node, linkDataDuplexMap);
+           } else if (nodeServiceType.isUser()) {
+               serverInstanceList = serverInstanceListFactory.createUserNodeInstanceList();
            } else {
-               // add empty information
-               node.setServerInstanceList(new ServerInstanceList());
+               serverInstanceList = serverInstanceListFactory.createEmptyNodeInstanceList();
            }
+           node.setServerInstanceList(serverInstanceList);
        }
     }
 }

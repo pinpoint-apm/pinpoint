@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.applicationmap.appender.histogram;
+package com.navercorp.pinpoint.web.applicationmap.appender.server.datasource;
 
-import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
-import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.applicationmap.Node;
+import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
 
 /**
  * @author emeroad
  * @author minwoo.jung
  * @author HyunGil Jeong
  */
-public interface NodeHistogramDataSource {
+public interface ServerInstanceListDataSource {
 
-    NodeHistogram createNodeHistogram(Application application, Range range);
+    ServerInstanceList createServerInstanceList(Node node, long timestamp);
 }

@@ -19,6 +19,14 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseNodeHistogramDataSource;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerInstanceListFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInstanceListFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerInstanceListDataSource;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerInstanceListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
@@ -87,10 +95,19 @@ public class MapServiceImpl implements MapService {
         watch.stop();
 
         watch.start("ApplicationMap MapBuilding(Response) Time");
+
+        WasNodeHistogramDataSource wasNodeHistogramDataSource = new MapResponseNodeHistogramDataSource(mapResponseDao);
+        NodeHistogramFactory nodeHistogramFactory = new DefaultNodeHistogramFactory(wasNodeHistogramDataSource);
+
+        ServerInstanceListDataSource serverInstanceListDataSource = new AgentInfoServerInstanceListDataSource(agentInfoService);
+        ServerInstanceListFactory serverInstanceListFactory = new DefaultServerInstanceListFactory(serverInstanceListDataSource);
+
         ApplicationMapBuilder builder = applicationMapBuilderFactory.createApplicationMapBuilder(range);
-        ApplicationMap map = builder.build(linkDataDuplexMap, agentInfoService, this.mapResponseDao);
+        builder.includeNodeHistogram(nodeHistogramFactory);
+        builder.includeServerInfo(serverInstanceListFactory);
+        ApplicationMap map = builder.build(linkDataDuplexMap);
         if (map.getNodes().isEmpty()) {
-            map = builder.build(sourceApplication, agentInfoService);
+            map = builder.build(sourceApplication);
         }
         watch.stop();
         if (logger.isInfoEnabled()) {
