@@ -110,7 +110,7 @@ public class MethodInvocationHandlerInterceptor implements AroundInterceptor {
                 final Class<?> declaringClass = methodInvoked.getDeclaringClass();
                 if (declaringClass != null) {
                     methodNameBuilder.append(declaringClass.getCanonicalName());
-                    methodNameBuilder.append(".");
+                    methodNameBuilder.append('.');
                 }
                 methodNameBuilder.append(methodInvoked.getName());
             } catch (final Exception exception) {

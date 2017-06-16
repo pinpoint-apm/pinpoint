@@ -230,7 +230,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
             Iterator<Cookie> iterator = cookies.iterator();
             while (iterator.hasNext()) {
                 Cookie cookie = iterator.next();
-                sb.append(cookie.getName()).append("=").append(cookie.getValue());
+                sb.append(cookie.getName()).append('=').append(cookie.getValue());
                 if (iterator.hasNext()) {
                     sb.append(',');
                 }

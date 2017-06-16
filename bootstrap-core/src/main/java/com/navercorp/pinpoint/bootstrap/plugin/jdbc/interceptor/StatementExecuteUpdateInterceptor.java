@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 
 /**
  * protected int executeUpdate(String sql, boolean isBatch, boolean returnGeneratedKeys)
@@ -57,7 +58,7 @@ public class StatementExecuteUpdateInterceptor extends SpanEventSimpleAroundInte
         recorder.recordDestinationId(databaseInfo.getDatabaseId());
 
         recorder.recordApi(methodDescriptor);
-        if (args != null && args.length > 0) {
+        if (ArrayUtils.hasLength(args)) {
             Object arg = args[0];
             if (arg instanceof String) {
                 recorder.recordSqlInfo((String) arg);

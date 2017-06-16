@@ -36,10 +36,10 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.websphere.WebsphereConstants;
 import com.navercorp.pinpoint.plugin.websphere.WebsphereSyncMethodDescriptor;
 
@@ -166,7 +166,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             final IRequest request = getRequest(args);
             final String parameters = getRequestParameter(request, 64, 512);
-            if (parameters != null && parameters.length() > 0) {
+            if (StringUtils.hasLength(parameters)) {
                 recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
             }
 
@@ -210,11 +210,11 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
                     return params.toString();
                 }
                 String key = attrs.next();
-                params.append(StringUtils.drop(key, eachLimit));
-                params.append("=");
+                params.append(StringUtils.abbreviate(key, eachLimit));
+                params.append('=');
                 String value = query_pairs.get(key);
                 if (value != null) {
-                    params.append(StringUtils.drop(StringUtils.toString(value), eachLimit));
+                    params.append(StringUtils.abbreviate(StringUtils.toString(value), eachLimit));
                 }
             }
         } catch (UnsupportedEncodingException e) {
@@ -228,7 +228,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
 		if (query != null) {
 			String[] pairs = query.split("&");
 			for (String pair : pairs) {
-				int idx = pair.indexOf("=");
+				int idx = pair.indexOf('=');
 				query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
 			}
 		}
