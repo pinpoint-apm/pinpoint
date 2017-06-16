@@ -44,11 +44,11 @@ public class StringUtils {
         return string != null && string.length() > 0;
     }
 
-    public static <T> int nullSafeLength(final String string) {
-        return nullSafeLength(string, 0);
+    public static <T> int getLength(final String string) {
+        return getLength(string, 0);
     }
 
-    public static <T> int nullSafeLength(final String string, final int nullValue) {
+    public static <T> int getLength(final String string, final int nullValue) {
         if (string == null) {
             return nullValue;
         }

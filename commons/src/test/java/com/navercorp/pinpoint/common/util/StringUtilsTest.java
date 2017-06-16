@@ -196,19 +196,19 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testNullSafeLength() {
-        Assert.assertEquals(StringUtils.nullSafeLength(null), 0);
+    public void testGetLength() {
+        Assert.assertEquals(StringUtils.getLength(null), 0);
 
-        Assert.assertEquals(StringUtils.nullSafeLength(""), 0);
-        Assert.assertEquals(StringUtils.nullSafeLength("abc"), 3);
+        Assert.assertEquals(StringUtils.getLength(""), 0);
+        Assert.assertEquals(StringUtils.getLength("abc"), 3);
     }
 
     @Test
-    public void testNullSafeLength_defaultNull() {
-        Assert.assertEquals(StringUtils.nullSafeLength(null, -1), -1);
+    public void testGetLength_defaultNull() {
+        Assert.assertEquals(StringUtils.getLength(null, -1), -1);
 
-        Assert.assertEquals(StringUtils.nullSafeLength("", -1), 0);
-        Assert.assertEquals(StringUtils.nullSafeLength("abc"), 3);
+        Assert.assertEquals(StringUtils.getLength("", -1), 0);
+        Assert.assertEquals(StringUtils.getLength("abc"), 3);
     }
 
 }
