@@ -36,7 +36,7 @@ public class DefaultApplicationMap implements ApplicationMap {
 
 //    private List<ApplicationScatterScanResult> applicationScatterScanResultList;
 
-    DefaultApplicationMap(Range range, NodeList nodeList, LinkList linkList) {
+    public DefaultApplicationMap(Range range, NodeList nodeList, LinkList linkList) {
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }

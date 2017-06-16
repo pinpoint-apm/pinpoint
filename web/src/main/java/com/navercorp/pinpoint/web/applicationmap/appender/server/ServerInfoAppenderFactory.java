@@ -16,19 +16,13 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
-import com.navercorp.pinpoint.web.applicationmap.Node;
-import com.navercorp.pinpoint.web.applicationmap.ServerBuilder;
-import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.web.service.AgentInfoService;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.Set;
 import javax.annotation.PreDestroy;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -58,29 +52,11 @@ public class ServerInfoAppenderFactory {
         }
     }
 
-    public ServerInfoAppender createAppender(Set<AgentInfo> agentInfos) {
-        ServerInstanceListDataSource serverInstanceListDataSource = new ServerInstanceListDataSource() {
-            @Override
-            public ServerInstanceList createServerInstanceList(Node node, long timestamp) {
-                ServerBuilder serverBuilder = new ServerBuilder();
-                serverBuilder.addAgentInfo(agentInfos);
-                ServerInstanceList serverInstanceList = serverBuilder.build();
-                return serverInstanceList;
-            }
-        };
-        return from(serverInstanceListDataSource);
-    }
-
-    public ServerInfoAppender createAppender(AgentInfoService agentInfoService) {
-        ServerInstanceListDataSource serverInstanceListDataSource = new ServerInstanceListAgentInfoServiceDataSource(agentInfoService);
-        return from(serverInstanceListDataSource);
-    }
-
-    public ServerInfoAppender from(ServerInstanceListDataSource serverInstanceListDataSource) {
+    public ServerInfoAppender create(ServerInstanceListFactory serverInstanceListFactory) {
         if (mode.equalsIgnoreCase("parallel")) {
-            return new ParallelServerInfoAppender(serverInstanceListDataSource, executorService);
+            return new ParallelServerInfoAppender(serverInstanceListFactory, executorService);
         }
-        return new SerialServerInfoAppender(serverInstanceListDataSource);
+        return new SerialServerInfoAppender(serverInstanceListFactory);
     }
 
     @PreDestroy

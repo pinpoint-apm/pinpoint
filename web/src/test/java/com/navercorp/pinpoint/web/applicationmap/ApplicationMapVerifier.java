@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap;
 
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
+import com.navercorp.pinpoint.web.vo.LinkKey;
 import org.junit.Assert;
 
 import java.util.ArrayList;
@@ -45,7 +46,8 @@ public class ApplicationMapVerifier {
         Collection<Node> thisNodes = applicationMap.getNodes();
         verifySize(thisNodes, otherNodes);
         for (Node otherNode : otherNodes) {
-            Node thisNode = findNode(thisNodes, otherNode);
+            String nodeNameToFind = otherNode.getNodeName();
+            Node thisNode = findNode(thisNodes, nodeNameToFind);
             if (thisNode == null) {
                 Assert.fail(otherNode + " not in " + thisNodes);
             }
@@ -53,8 +55,7 @@ public class ApplicationMapVerifier {
         }
     }
 
-    private Node findNode(Collection<Node> nodes, Node nodeToFind) {
-        String nodeNameToFind = nodeToFind.getNodeName();
+    private Node findNode(Collection<Node> nodes, String nodeNameToFind) {
         for (Node node : nodes) {
             String nodeName = node.getNodeName();
             if (nodeName.equals(nodeNameToFind)) {
@@ -137,7 +138,35 @@ public class ApplicationMapVerifier {
     }
 
     private void verifyLinks(Collection<Link> otherLinks) {
+        Collection<Link> thisLinks = applicationMap.getLinks();
+        verifySize(thisLinks, otherLinks);
+        for (Link otherLink : otherLinks) {
+            LinkKey linkKeyToFind = otherLink.getLinkKey();
+            Link thisLink = findLink(thisLinks, linkKeyToFind);
+            if (thisLink == null) {
+                Assert.fail(otherLink + " not in " + thisLinks);
+            }
+            verifyLink(thisLink, otherLink);
+        }
+    }
 
+    private Link findLink(Collection<Link> links, LinkKey linkKeyToFind) {
+        for (Link link : links) {
+            LinkKey linkKey = link.getLinkKey();
+            if (linkKey.equals(linkKeyToFind)) {
+                return link;
+            }
+        }
+        return null;
+    }
+
+    private void verifyLink(Link thisLink, Link otherLink) {
+        verifyNode(thisLink.getFrom(), otherLink.getFrom());
+        verifyNode(thisLink.getTo(), otherLink.getTo());
+
+        Histogram thisLinkHistogram = thisLink.getHistogram();
+        Histogram otherLinkHistogram = otherLink.getHistogram();
+        verifyHistogram(thisLinkHistogram, otherLinkHistogram);
     }
 
     private <T> void verifySize(Collection<T> collection1, Collection<T> collection2) {

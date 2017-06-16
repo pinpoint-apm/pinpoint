@@ -17,37 +17,21 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
-import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogramBuilder;
-import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogramBuilder;
-import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.EmptyNodeHistogramFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.EmptyServerInstanceListFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInstanceListFactory;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
-import com.navercorp.pinpoint.web.dao.MapResponseDao;
-import com.navercorp.pinpoint.web.service.AgentInfoService;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
-import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.ResponseHistogramBuilder;
-import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author emeroad
@@ -60,134 +44,68 @@ public class ApplicationMapBuilderV1 implements ApplicationMapBuilder {
 
     private final Range range;
 
+    private NodeHistogramFactory nodeHistogramFactory;
+    private ServerInstanceListFactory serverInstanceListFactory;
+
     ApplicationMapBuilderV1(Range range) {
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
-
         this.range = range;
     }
 
     @Override
-    public ApplicationMap build(Application application, AgentInfoService agentInfoService) {
+    public ApplicationMapBuilder includeNodeHistogram(NodeHistogramFactory nodeHistogramFactory) {
+        this.nodeHistogramFactory = nodeHistogramFactory;
+        return this;
+    }
+
+    @Override
+    public ApplicationMapBuilder includeServerInfo(ServerInstanceListFactory serverInstanceListFactory) {
+        this.serverInstanceListFactory = serverInstanceListFactory;
+        return this;
+    }
+
+    @Override
+    public ApplicationMap build(Application application) {
+        logger.info("Building empty application map");
+
         NodeList nodeList = new NodeList();
         LinkList emptyLinkList = new LinkList();
 
         Node node = new Node(application);
-        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationName(application.getName(), range.getTo());
-        Set<AgentInfo> runningAgents = new HashSet<>();
-        for (AgentInfo agentInfo : agentInfos) {
-            if (isAgentRunning(agentInfo)) {
-                runningAgents.add(agentInfo);
+        if (serverInstanceListFactory != null) {
+            ServerInstanceList runningInstances = serverInstanceListFactory.createWasNodeInstanceList(node, range.getTo());
+            if (runningInstances.getInstanceCount() > 0) {
+                node.setServerInstanceList(runningInstances);
+                nodeList.addNode(node);
             }
         }
-        if (runningAgents.isEmpty()) {
-            return new DefaultApplicationMap(range, nodeList, emptyLinkList);
-        } else {
-            ServerBuilder serverBuilder = new ServerBuilder();
-            serverBuilder.addAgentInfo(runningAgents);
-            ServerInstanceList serverInstanceList = serverBuilder.build();
-            node.setServerInstanceList(serverInstanceList);
-            node.setNodeHistogram(new NodeHistogram(application, range));
-            nodeList.addNode(node);
-            return new DefaultApplicationMap(range, nodeList, emptyLinkList);
-        }
+        return new DefaultApplicationMap(range, nodeList, emptyLinkList);
     }
 
-    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoPopulator agentInfoPopulator,
-                                NodeHistogramDataSource nodeHistogramDataSource) {
+    @Override
+    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap) {
         if (linkDataDuplexMap == null) {
             throw new NullPointerException("linkDataMap must not be null");
         }
-        if (agentInfoPopulator == null) {
-            throw new NullPointerException("agentInfoPopulator must not be null");
-        }
-
         NodeList nodeList = buildNode(linkDataDuplexMap);
         LinkList linkList = buildLink(nodeList, linkDataDuplexMap);
 
-        appendNodeResponseTime(nodeList, linkList, nodeHistogramDataSource);
-        appendAgentInfo(nodeList, linkDataDuplexMap, agentInfoPopulator);
+        NodeHistogramFactory nodeHistogramFactory = this.nodeHistogramFactory;
+        if (nodeHistogramFactory == null) {
+            nodeHistogramFactory = new EmptyNodeHistogramFactory();
+        }
+        appendNodeResponseTime(nodeList, linkList, nodeHistogramFactory);
+
+        ServerInstanceListFactory serverInstanceListFactory = this.serverInstanceListFactory;
+        if (serverInstanceListFactory == null) {
+            serverInstanceListFactory = new EmptyServerInstanceListFactory();
+        }
+        appendAgentInfo(nodeList, linkDataDuplexMap, serverInstanceListFactory);
 
         final ApplicationMap map = new DefaultApplicationMap(range, nodeList, linkList);
         return map;
-    }
-
-    @Override
-    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, final AgentInfoService agentInfoService,
-                                final MapResponseDao mapResponseDao) {
-        AgentInfoPopulator agentInfoPopulator = new AgentInfoPopulator() {
-            @Override
-            public void addAgentInfos(Node node) {
-                ServerInstanceList serverInstanceList = getServerInstanceList(node, agentInfoService);
-                node.setServerInstanceList(serverInstanceList);
-            }
-        };
-        NodeHistogramDataSource responseSource = new NodeHistogramDataSource() {
-            @Override
-            public NodeHistogram createNodeHistogram(Application application) {
-                final List<ResponseTime> responseHistogram = mapResponseDao.selectResponseTime(application, range);
-                final NodeHistogram nodeHistogram = new NodeHistogram(application, range, responseHistogram);
-                return nodeHistogram;
-            }
-        };
-        return this.build(linkDataDuplexMap, agentInfoPopulator, responseSource);
-    }
-
-    @Override
-    public ApplicationMap build(NodeList nodeList, LinkList linkList) {
-        return new DefaultApplicationMap(range, nodeList, linkList);
-    }
-
-    private ServerInstanceList getServerInstanceList(final Node node, final AgentInfoService agentInfoService) {
-        long timestamp = range.getTo();
-        if (timestamp < 0) {
-            return new ServerInstanceList();
-        }
-
-        Set<AgentInfo> agentList = agentInfoService.getAgentsByApplicationNameWithoutStatus(node.getApplication().getName(), timestamp);
-        if (agentList.isEmpty()) {
-            logger.warn("agentInfo not found. applicationName:{}", node.getApplication());
-            // avoid NPE
-            return new ServerInstanceList();
-        }
-
-        logger.debug("add agentInfo. {}, {}", node.getApplication(), agentList);
-        ServerBuilder builder = new ServerBuilder();
-
-        // agentSet exists if the destination is a WAS, and has agent installed
-        agentList = filterAgentInfoByResponseData(agentList, timestamp, node, agentInfoService);
-        builder.addAgentInfo(agentList);
-        ServerInstanceList serverInstanceList = builder.build();
-        return serverInstanceList;
-    }
-
-    @Override
-    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, final AgentInfoService agentInfoService, final ResponseHistogramBuilder mapHistogramSummary) {
-        AgentInfoPopulator agentInfoPopulator = new AgentInfoPopulator() {
-            @Override
-            public void addAgentInfos(Node node) {
-                ServerInstanceList serverInstanceList = getServerInstanceList(node, agentInfoService);
-                node.setServerInstanceList(serverInstanceList);
-            }
-        };
-        NodeHistogramDataSource responseSource = new NodeHistogramDataSource() {
-            @Override
-            public NodeHistogram createNodeHistogram(Application application) {
-                List<ResponseTime> responseHistogram = mapHistogramSummary.getResponseTimeList(application);
-                final NodeHistogram nodeHistogram = new NodeHistogram(application, range, responseHistogram);
-                return nodeHistogram;
-            }
-        };
-        return this.build(linkDataDuplexMap, agentInfoPopulator, responseSource);
-    }
-
-    public interface NodeHistogramDataSource {
-        NodeHistogram createNodeHistogram(Application application);
-    }
-
-    public interface AgentInfoPopulator {
-        void addAgentInfos(Node node);
     }
 
     private NodeList buildNode(LinkDataDuplexMap linkDataDuplexMap) {
@@ -227,14 +145,12 @@ public class ApplicationMapBuilderV1 implements ApplicationMapBuilder {
                 logger.warn("found rpc toNode:{}", linkData);
             }
         }
-
     }
 
     private boolean addNode(NodeList nodeList, Application application) {
         if (nodeList.containsNode(application)) {
             return false;
         }
-
         Node fromNode = new Node(application);
         return nodeList.addNode(fromNode);
     }
@@ -268,7 +184,6 @@ public class ApplicationMapBuilderV1 implements ApplicationMapBuilder {
     }
 
     private void createSourceLink(NodeList nodeList, LinkList linkList, LinkDataMap linkDataMap) {
-
         for (LinkData linkData : linkDataMap.getLinkDataList()) {
             final Application fromApplicationId = linkData.getFromApplication();
             Node fromNode = nodeList.findNode(fromApplicationId);
@@ -342,181 +257,62 @@ public class ApplicationMapBuilderV1 implements ApplicationMapBuilder {
         }
     }
 
-    public void appendNodeResponseTime(NodeList nodeList, LinkList linkList,
-                                       NodeHistogramDataSource nodeHistogramDataSource) {
-        if (nodeHistogramDataSource == null) {
-            throw new NullPointerException("nodeHistogramDataSource must not be null");
-        }
-
+    public void appendNodeResponseTime(NodeList nodeList, LinkList linkList, NodeHistogramFactory nodeHistogramFactory) {
         final Collection<Node> nodes = nodeList.getNodeList();
         for (Node node : nodes) {
             final ServiceType nodeType = node.getServiceType();
             if (nodeType.isWas()) {
                 // for WAS nodes, set their own response time histogram
                 final Application wasNode = node.getApplication();
-                final NodeHistogram nodeHistogram = nodeHistogramDataSource.createNodeHistogram(wasNode);
+                final NodeHistogram nodeHistogram = nodeHistogramFactory.createWasNodeHistogram(wasNode, range);
                 node.setNodeHistogram(nodeHistogram);
 
             } else if (nodeType.isTerminal() || nodeType.isUnknown()) {
-                final NodeHistogram nodeHistogram = createTerminalNodeHistogram(node, linkList);
+                final NodeHistogram nodeHistogram = nodeHistogramFactory.createTerminalNodeHistogram(node.getApplication(), range, linkList);
                 node.setNodeHistogram(nodeHistogram);
             } else if (nodeType.isQueue()) {
                 // Virtual queue node - queues with agent installed will be handled above as a WAS node
-                final NodeHistogram nodeHistogram = createTerminalNodeHistogram(node, linkList);
+                final NodeHistogram nodeHistogram = nodeHistogramFactory.createQueueNodeHistogram(node.getApplication(), range, linkList);
                 node.setNodeHistogram(nodeHistogram);
             } else if (nodeType.isUser()) {
                 // for User nodes, find its source link and create the histogram
                 Application userNode = node.getApplication();
-
-                final NodeHistogram nodeHistogram = new NodeHistogram(userNode, range);
-                final List<Link> fromLink = linkList.findFromLink(userNode);
-                if (fromLink.size() > 1) {
-                    // used first(0) link.
-                    logger.warn("Invalid from UserNode:{}", linkList.getLinkList());
-                } else if (fromLink.isEmpty()) {
-                    logger.warn("from UserNode not found:{}", userNode);
-                    continue;
-                }
-                final Link sourceLink = fromLink.get(0);
-                nodeHistogram.setApplicationHistogram(sourceLink.getHistogram());
-
-                ApplicationTimeHistogram histogramData = sourceLink.getTargetApplicationTimeSeriesHistogramData();
-                nodeHistogram.setApplicationTimeHistogram(histogramData);
-
+                final NodeHistogram nodeHistogram = nodeHistogramFactory.createUserNodeHistogram(userNode, range, linkList);
                 node.setNodeHistogram(nodeHistogram);
             } else {
                 // dummy data
-                NodeHistogram dummy = new NodeHistogram(node.getApplication(), range);
+                NodeHistogram dummy = nodeHistogramFactory.createEmptyNodeHistogram(node.getApplication(), range);
                 node.setNodeHistogram(dummy);
             }
-
         }
-
     }
 
-    private NodeHistogram createTerminalNodeHistogram(Node node, LinkList linkList) {
-        // for Terminal nodes, add all links pointing to iself and create the histogram
-        final Application nodeApplication = node.getApplication();
-        final NodeHistogram nodeHistogram = new NodeHistogram(nodeApplication, range);
-
-        // create applicationHistogram
-        final List<Link> toLinkList = linkList.findToLink(nodeApplication);
-        final Histogram applicationHistogram = new Histogram(node.getServiceType());
-        for (Link link : toLinkList) {
-            applicationHistogram.add(link.getHistogram());
-        }
-        nodeHistogram.setApplicationHistogram(applicationHistogram);
-
-        // create applicationTimeHistogram
-        LinkCallDataMap linkCallDataMap = new LinkCallDataMap();
-        for (Link link : toLinkList) {
-            LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
-            linkCallDataMap.addLinkDataMap(sourceLinkCallDataMap);
-        }
-        ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(nodeApplication, range);
-        ApplicationTimeHistogram applicationTimeHistogram = builder.build(linkCallDataMap.getLinkDataList());
-        nodeHistogram.setApplicationTimeHistogram(applicationTimeHistogram);
-
-        // for Terminal nodes, create AgentLevel histogram
-        if (nodeApplication.getServiceType().isTerminal() || nodeApplication.getServiceType().isQueue()) {
-            final Map<String, Histogram> agentHistogramMap = new HashMap<>();
-
-            for (Link link : toLinkList) {
-                LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
-                AgentHistogramList targetList = sourceLinkCallDataMap.getTargetList();
-                for (AgentHistogram histogram : targetList.getAgentHistogramList()) {
-                    Histogram find = agentHistogramMap.get(histogram.getId());
-                    if (find == null) {
-                        find = new Histogram(histogram.getServiceType());
-                        agentHistogramMap.put(histogram.getId(), find);
-                    }
-                    find.add(histogram.getHistogram());
-                }
-                nodeHistogram.setAgentHistogramMap(agentHistogramMap);
-            }
-        }
-
-        LinkCallDataMap mergeSource = new LinkCallDataMap();
-        for (Link link : toLinkList) {
-            LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
-            mergeSource.addLinkDataMap(sourceLinkCallDataMap);
-        }
-
-        AgentTimeHistogramBuilder agentTimeBuilder = new AgentTimeHistogramBuilder(nodeApplication, range);
-        AgentTimeHistogram agentTimeHistogram = agentTimeBuilder.buildTarget(mergeSource);
-        nodeHistogram.setAgentTimeHistogram(agentTimeHistogram);
-
-        return nodeHistogram;
-    }
-
-    public void appendAgentInfo(NodeList nodeList, LinkDataDuplexMap linkDataDuplexMap, AgentInfoPopulator agentInfoPopulator) {
+    private void appendAgentInfo(NodeList nodeList, LinkDataDuplexMap linkDataDuplexMap, ServerInstanceListFactory serverInstanceListFactory) {
         for (Node node : nodeList.getNodeList()) {
-            appendServerInfo(node, linkDataDuplexMap, agentInfoPopulator);
+            appendServerInfo(node, linkDataDuplexMap, serverInstanceListFactory);
         }
-
     }
 
-    private void appendServerInfo(Node node, LinkDataDuplexMap linkDataDuplexMap, AgentInfoPopulator agentInfoPopulator) {
+    private void appendServerInfo(Node node, LinkDataDuplexMap linkDataDuplexMap, ServerInstanceListFactory serverInstanceListFactory) {
         final ServiceType nodeServiceType = node.getServiceType();
         if (nodeServiceType.isUnknown()) {
             // we do not know the server info for unknown nodes
             return;
         }
-
+        ServerInstanceList serverInstanceList;
         if (nodeServiceType.isWas()) {
-            agentInfoPopulator.addAgentInfos(node);
-        } else if (nodeServiceType.isTerminal() || nodeServiceType.isQueue()) {
-            // extract information about the terminal node
-            ServerBuilder builder = new ServerBuilder();
-            for (LinkData linkData : linkDataDuplexMap.getSourceLinkDataList()) {
-                Application toApplication = linkData.getToApplication();
-                if (node.getApplication().equals(toApplication)) {
-                    builder.addCallHistogramList(linkData.getTargetList());
-                }
-            }
-            ServerInstanceList serverInstanceList = builder.build();
+            long timestamp = range.getTo();
+            serverInstanceList = serverInstanceListFactory.createWasNodeInstanceList(node, timestamp);
             node.setServerInstanceList(serverInstanceList);
+        } else if (nodeServiceType.isTerminal()) {
+            serverInstanceList = serverInstanceListFactory.createTerminalNodeInstanceList(node, linkDataDuplexMap);
+        } else if (nodeServiceType.isQueue()) {
+            serverInstanceList = serverInstanceListFactory.createQueueNodeInstanceList(node, linkDataDuplexMap);
+        } else if (nodeServiceType.isUser()) {
+            serverInstanceList = serverInstanceListFactory.createUserNodeInstanceList();
         } else {
-            // add empty information
-            node.setServerInstanceList(new ServerInstanceList());
+            serverInstanceList = serverInstanceListFactory.createEmptyNodeInstanceList();
         }
-
+        node.setServerInstanceList(serverInstanceList);
     }
-
-    /**
-     * Filters AgentInfo by whether they actually have response data.
-     * For agents that do not have response data, check their status and include those that were alive.
-     */
-    private Set<AgentInfo> filterAgentInfoByResponseData(Set<AgentInfo> agentList, long timestamp, Node node, AgentInfoService agentInfoService) {
-        Set<AgentInfo> filteredAgentInfo = new HashSet<>();
-
-        NodeHistogram nodeHistogram = node.getNodeHistogram();
-        Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
-        for (AgentInfo agentInfo : agentList) {
-            String agentId = agentInfo.getAgentId();
-            if (agentHistogramMap.containsKey(agentId)) {
-                filteredAgentInfo.add(agentInfo);
-            } else {
-                AgentStatus status = agentInfoService.getAgentStatus(agentId, timestamp);
-                agentInfo.setStatus(status);
-                if (isAgentRunning(agentInfo)) {
-                    filteredAgentInfo.add(agentInfo);
-                }
-            }
-        }
-
-
-        return filteredAgentInfo;
-    }
-
-    private boolean isAgentRunning(AgentInfo agentInfo) {
-        if (agentInfo.getStatus() != null) {
-            return agentInfo.getStatus().getState() == AgentLifeCycleState.RUNNING;
-        } else {
-            return false;
-        }
-    }
-
-
-
 }

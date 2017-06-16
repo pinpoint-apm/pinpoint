@@ -16,25 +16,27 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInstanceListFactory;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
-import com.navercorp.pinpoint.web.dao.MapResponseDao;
-import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.ResponseHistogramBuilder;
 
 /**
  * @author HyunGil Jeong
  */
 public interface ApplicationMapBuilder {
 
+    ApplicationMapBuilder includeNodeHistogram(NodeHistogramFactory nodeHistogramFactory);
+
+    ApplicationMapBuilder includeServerInfo(ServerInstanceListFactory serverInstanceListFactory);
+
     /**
      * Returns an application map with a single node containing the application's agents that were running.
      */
-    ApplicationMap build(Application application, AgentInfoService agentInfoService);
+    ApplicationMap build(Application application);
 
-    ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService, MapResponseDao mapResponseDao);
-
-    ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService, ResponseHistogramBuilder responseHistogramBuilder);
-
-    ApplicationMap build(NodeList nodeList, LinkList linkList);
+    /**
+     * Returns an application map with built from a {@LinkDataDuplexMap}.
+     */
+    ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap);
 }

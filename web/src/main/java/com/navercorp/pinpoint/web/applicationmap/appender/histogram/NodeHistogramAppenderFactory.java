@@ -17,12 +17,6 @@
 package com.navercorp.pinpoint.web.applicationmap.appender.histogram;
 
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
-import com.navercorp.pinpoint.web.dao.MapResponseDao;
-import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.ResponseHistogramBuilder;
-import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +24,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -59,46 +52,11 @@ public class NodeHistogramAppenderFactory {
         }
     }
 
-    public NodeHistogramAppender createAppender(MapResponseDao mapResponseDao) {
-        NodeHistogramDataSource nodeHistogramDataSource = new NodeHistogramDataSource() {
-            @Override
-            public NodeHistogram createNodeHistogram(Application application, Range range) {
-                List<ResponseTime> responseTimes = mapResponseDao.selectResponseTime(application, range);
-                final NodeHistogram nodeHistogram = new NodeHistogram(application, range, responseTimes);
-                return nodeHistogram;
-            }
-        };
-        return from(nodeHistogramDataSource);
-    }
-
-    public NodeHistogramAppender createAppender(ResponseHistogramBuilder responseHistogramBuilder) {
-        NodeHistogramDataSource nodeHistogramDataSource = new NodeHistogramDataSource() {
-            @Override
-            public NodeHistogram createNodeHistogram(Application application, Range range) {
-                List<ResponseTime> responseTimes = responseHistogramBuilder.getResponseTimeList(application);
-                final NodeHistogram nodeHistogram = new NodeHistogram(application, range, responseTimes);
-                return nodeHistogram;
-            }
-        };
-        return from(nodeHistogramDataSource);
-    }
-
-    public NodeHistogramAppender createEmptyAppender() {
-        NodeHistogramDataSource nodeHistogramDataSource = new NodeHistogramDataSource() {
-            @Override
-            public NodeHistogram createNodeHistogram(Application application, Range range) {
-                final NodeHistogram nodeHistogram = new NodeHistogram(application, range);
-                return nodeHistogram;
-            }
-        };
-        return from(nodeHistogramDataSource);
-    }
-
-    public NodeHistogramAppender from(NodeHistogramDataSource nodeHistogramDataSource) {
+    public NodeHistogramAppender create(NodeHistogramFactory nodeHistogramFactory) {
         if (mode.equalsIgnoreCase("parallel")) {
-            return new ParallelNodeHistogramAppender(nodeHistogramDataSource, executorService);
+            return new ParallelNodeHistogramAppender(nodeHistogramFactory, executorService);
         }
-        return new SerialNodeHistogramAppender(nodeHistogramDataSource);
+        return new SerialNodeHistogramAppender(nodeHistogramFactory);
     }
 
     @PreDestroy
