@@ -102,7 +102,7 @@ public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     String toClassName(String fullQualifiedMethodName) {
-        final int classEndPosition = fullQualifiedMethodName.lastIndexOf(".");
+        final int classEndPosition = fullQualifiedMethodName.lastIndexOf('.');
         if (classEndPosition <= 0) {
             throw new IllegalArgumentException("invalid full qualified method name(" + fullQualifiedMethodName + "). not found method");
         }
@@ -111,7 +111,7 @@ public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     String toMethodName(String fullQualifiedMethodName) {
-        final int methodBeginPosition = fullQualifiedMethodName.lastIndexOf(".");
+        final int methodBeginPosition = fullQualifiedMethodName.lastIndexOf('.');
         if (methodBeginPosition <= 0 || methodBeginPosition + 1 >= fullQualifiedMethodName.length()) {
             throw new IllegalArgumentException("invalid full qualified method name(" + fullQualifiedMethodName + "). not found method");
         }

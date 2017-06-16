@@ -530,7 +530,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             }
             final String key = attrs.nextElement().toString();
             params.append(StringUtils.abbreviate(key, eachLimit));
-            params.append("=");
+            params.append('=');
             final Object value = request.getParameter(key);
             if (value != null) {
                 params.append(StringUtils.abbreviate(StringUtils.toString(value), eachLimit));
