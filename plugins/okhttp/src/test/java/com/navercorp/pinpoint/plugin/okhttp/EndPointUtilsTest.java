@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.ning.asynchttpclient;
+package com.navercorp.pinpoint.plugin.okhttp;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class EndPointUtils {
-
-
-    public static String hostAndPort(String host, int port) {
-        final StringBuilder sb = new StringBuilder();
-        sb.append(host);
-        sb.append(':');
-        sb.append(port);
-        return sb.toString();
+public class EndPointUtilsTest {
+    @Test
+    public void getPort() throws Exception {
+        Assert.assertEquals(EndPointUtils.getPort(-1, 80), -1);
+        Assert.assertEquals(EndPointUtils.getPort(80, 80), -1);
+        Assert.assertEquals(EndPointUtils.getPort(80, 8080), 80);
     }
 
 }

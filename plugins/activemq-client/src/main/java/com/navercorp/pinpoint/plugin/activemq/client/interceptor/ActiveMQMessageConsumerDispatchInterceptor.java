@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.activemq.client.ActiveMQClientConstants;
 import com.navercorp.pinpoint.plugin.activemq.client.ActiveMQClientHeader;
@@ -104,21 +105,11 @@ public class ActiveMQMessageConsumerDispatchInterceptor extends SpanSimpleAround
         ActiveMQConnection connection = session.getConnection();
         Transport transport = getRootTransport(((TransportGetter) connection)._$PINPOINT$_getTransport());
 
-        String endPoint = null;
-        String remoteAddress = transport.getRemoteAddress();
-        if (transport instanceof SocketGetter) {
-            Socket socket = ((SocketGetter) transport)._$PINPOINT$_getSocket();
-            SocketAddress localSocketAddress = socket.getLocalSocketAddress();
-            endPoint = ActiveMQClientUtils.getEndPoint(localSocketAddress);
-        } else if (transport instanceof URIGetter) {
-            URI uri = ((URIGetter) transport)._$PINPOINT$_getUri();
-            endPoint = uri.getHost() + ":" + uri.getPort();
-        }
-
-
+        final String endPoint = getEndPoint(transport);
         // Endpoint should be the local socket address of the consumer.
         recorder.recordEndPoint(endPoint);
 
+        final String remoteAddress = transport.getRemoteAddress();
         // Remote address is the socket address of where the consumer is connected to.
         recorder.recordRemoteAddress(remoteAddress);
 
@@ -136,6 +127,18 @@ public class ActiveMQMessageConsumerDispatchInterceptor extends SpanSimpleAround
             short parentApplicationType = ActiveMQClientHeader.getParentApplicationType(message, ServiceType.UNDEFINED.getCode());
             recorder.recordParentApplication(parentApplicationName, parentApplicationType);
         }
+    }
+
+    private String getEndPoint(Transport transport) {
+        if (transport instanceof SocketGetter) {
+            Socket socket = ((SocketGetter) transport)._$PINPOINT$_getSocket();
+            SocketAddress localSocketAddress = socket.getLocalSocketAddress();
+            return ActiveMQClientUtils.getEndPoint(localSocketAddress);
+        } else if (transport instanceof URIGetter) {
+            URI uri = ((URIGetter) transport)._$PINPOINT$_getUri();
+            return HostAndPort.toHostAndPortString(uri.getHost(), uri.getPort());
+        }
+        return null;
     }
 
     @Override

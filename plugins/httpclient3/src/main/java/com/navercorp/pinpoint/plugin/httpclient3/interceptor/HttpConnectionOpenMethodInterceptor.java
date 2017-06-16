@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.plugin.httpclient3.EndPointUtils;
 import com.navercorp.pinpoint.plugin.httpclient3.HostNameGetter;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 import com.navercorp.pinpoint.plugin.httpclient3.PortNumberGetter;
@@ -52,11 +52,11 @@ public class HttpConnectionOpenMethodInterceptor extends SpanEventSimpleAroundIn
         if (((ProxyHostNameGetter)target)._$PINPOINT$_getProxyHostName() != null) {
             final String host = ((ProxyHostNameGetter) target)._$PINPOINT$_getProxyHostName();
             final int port = ((ProxyPortNumberGetter) target)._$PINPOINT$_getProxyPortNumber();
-            return EndPointUtils.hostAndPort(host, port);
+            return HostAndPort.toHostAndPortString(host, port);
         } else {
             final String host = ((HostNameGetter) target)._$PINPOINT$_getHostName();
             final int port = ((PortNumberGetter) target)._$PINPOINT$_getPortNumber();
-            return EndPointUtils.hostAndPort(host, port);
+            return HostAndPort.toHostAndPortString(host, port);
         }
     }
 

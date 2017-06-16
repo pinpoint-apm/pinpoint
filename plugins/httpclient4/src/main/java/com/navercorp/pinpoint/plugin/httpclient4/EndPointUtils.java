@@ -16,43 +16,32 @@
 
 package com.navercorp.pinpoint.plugin.httpclient4;
 
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import org.apache.http.HttpHost;
 import org.apache.http.conn.routing.HttpRoute;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class EndPointUtils {
-
+public final class EndPointUtils {
+    private EndPointUtils() {
+    }
 
     public static String getHostAndPort(HttpRoute route) {
         final HttpHost proxyHost = route.getProxyHost();
         if (proxyHost != null) {
             final String hostName = proxyHost.getHostName();
-            final int port = proxyHost.getPort();
-            if (port > 0) {
-                return hostAndPort(hostName, port);
-            }
-            return hostName;
+            final int port = HostAndPort.getPortOrNoPort(proxyHost.getPort());
+            return HostAndPort.toHostAndPortString(hostName, port);
         } else {
             final HttpHost targetHost = route.getTargetHost();
             if (targetHost != null) {
                 final String hostName = targetHost.getHostName();
-                final int port = targetHost.getPort();
-                if (port > 0) {
-                    return hostAndPort(hostName, targetHost.getPort());
-                }
-                return hostName;
+                final int port = HostAndPort.getPortOrNoPort(targetHost.getPort());
+                return HostAndPort.toHostAndPortString(hostName, port);
             }
         }
         return "";
     }
 
-    public static String hostAndPort(String host, int port) {
-        final StringBuilder sb = new StringBuilder();
-        sb.append(host);
-        sb.append(':');
-        sb.append(port);
-        return sb.toString();
-    }
 }

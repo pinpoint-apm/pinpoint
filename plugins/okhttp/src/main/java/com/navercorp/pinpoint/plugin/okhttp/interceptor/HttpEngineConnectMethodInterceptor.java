@@ -20,9 +20,9 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.okhttp.ConnectionGetter;
-import com.navercorp.pinpoint.plugin.okhttp.EndPointUtils;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
 import com.squareup.okhttp.Address;
 import com.squareup.okhttp.Connection;
@@ -57,6 +57,6 @@ public class HttpEngineConnectMethodInterceptor extends SpanEventSimpleAroundInt
     private String getHostAndPort(Connection connection) {
         final Address address = connection.getRoute().getAddress();
 
-        return EndPointUtils.hostAndPort(address.getUriHost(), address.getUriPort());
+        return HostAndPort.toHostAndPortString(address.getUriHost(), address.getUriPort());
     }
 }

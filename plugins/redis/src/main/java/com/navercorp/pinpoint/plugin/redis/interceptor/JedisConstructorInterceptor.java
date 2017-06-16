@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.redis.interceptor;
 
 import java.net.URI;
 
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.plugin.redis.EndPointUtils;
 import redis.clients.jedis.JedisShardInfo;
 
@@ -65,16 +66,17 @@ public class JedisConstructorInterceptor implements AroundInterceptor {
     private String getEndPoint(Object[] args) {
 
         // first arg is host
-        if (args[0] instanceof String) {
+        final Object argZero = args[0];
+        if (argZero instanceof String) {
             return EndPointUtils.getEndPoint(args);
-        } else if (args[0] instanceof URI) {
-            final URI uri = (URI) args[0];
+        } else if (argZero instanceof URI) {
+            final URI uri = (URI) argZero;
 
-            return EndPointUtils.hostAndPort(uri.getHost(), uri.getPort());
-        } else if (args[0] instanceof JedisShardInfo) {
-            final JedisShardInfo info = (JedisShardInfo) args[0];
+            return HostAndPort.toHostAndPortString(uri.getHost(), uri.getPort());
+        } else if (argZero instanceof JedisShardInfo) {
+            final JedisShardInfo info = (JedisShardInfo) argZero;
 
-            return EndPointUtils.hostAndPort(info.getHost(), info.getPort());
+            return HostAndPort.toHostAndPortString(info.getHost(), info.getPort());
         }
         return "";
     }
