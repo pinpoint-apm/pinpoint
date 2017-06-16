@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
@@ -31,6 +32,7 @@ import com.navercorp.pinpoint.web.dao.stat.ActiveTraceDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.dao.stat.CpuLoadDao;
 import com.navercorp.pinpoint.web.dao.stat.DataSourceDao;
+import com.navercorp.pinpoint.web.dao.stat.DeadlockDao;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDao;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDetailedDao;
 import com.navercorp.pinpoint.web.dao.stat.ResponseTimeDao;
@@ -324,6 +326,40 @@ abstract class AgentStatDaoFactory<T extends AgentStatDataPoint, D extends Agent
         @Override
         ResponseTimeDao getCompatibilityDao(ResponseTimeDao v1, ResponseTimeDao v2) {
             return new HbaseAgentStatDualReadDao.ResponseTimeDualReadDao(v2, v1);
+        }
+    }
+
+    @Repository("deadlockDaoFactory")
+    public static class DeadlockDaoFactory extends AgentStatDaoFactory<DeadlockBo, DeadlockDao> implements FactoryBean<DeadlockDao> {
+
+        @Autowired
+        public void setV1(@Qualifier("deadlockDaoV1") DeadlockDao v1) {
+            this.v1 = v1;
+        }
+
+        @Autowired
+        public void setV2(@Qualifier("deadlockDaoV2") DeadlockDao v2) {
+            this.v2 = v2;
+        }
+
+        @Override
+        public DeadlockDao getObject() throws Exception {
+            return super.getDao();
+        }
+
+        @Override
+        public Class<?> getObjectType() {
+            return ResponseTimeDao.class;
+        }
+
+        @Override
+        public boolean isSingleton() {
+            return true;
+        }
+
+        @Override
+        DeadlockDao getCompatibilityDao(DeadlockDao v1, DeadlockDao v2) {
+            return new HbaseAgentStatDualReadDao.DeadlockDualReadDao(v2, v1);
         }
     }
 

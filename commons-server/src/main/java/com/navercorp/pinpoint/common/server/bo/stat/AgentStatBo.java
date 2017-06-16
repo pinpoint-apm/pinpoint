@@ -31,6 +31,7 @@ public class AgentStatBo {
     private List<ActiveTraceBo> activeTraceBos;
     private List<DataSourceListBo> dataSourceListBos;
     private List<ResponseTimeBo> responseTimeBos;
+    private List<DeadlockBo> deadlockBos;
 
     public String getAgentId() {
         return agentId;
@@ -96,6 +97,14 @@ public class AgentStatBo {
         this.responseTimeBos = responseTimeBos;
     }
 
+    public List<DeadlockBo> getDeadlockBos() {
+        return deadlockBos;
+    }
+
+    public void setDeadlockBos(List<DeadlockBo> deadlockBos) {
+        this.deadlockBos = deadlockBos;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("AgentStatBo{");
@@ -107,6 +116,7 @@ public class AgentStatBo {
         sb.append(", activeTraceBos=").append(activeTraceBos);
         sb.append(", dataSourceListBos=").append(dataSourceListBos);
         sb.append(", responseTimeBos=").append(responseTimeBos);
+        sb.append(", deadlockBos=").append(deadlockBos);
         sb.append('}');
         return sb.toString();
     }

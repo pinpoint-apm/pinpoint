@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
@@ -33,6 +34,8 @@ import com.navercorp.pinpoint.web.service.stat.CpuLoadChartService;
 import com.navercorp.pinpoint.web.service.stat.CpuLoadService;
 import com.navercorp.pinpoint.web.service.stat.DataSourceChartService;
 import com.navercorp.pinpoint.web.service.stat.DataSourceService;
+import com.navercorp.pinpoint.web.service.stat.DeadlockChartService;
+import com.navercorp.pinpoint.web.service.stat.DeadlockService;
 import com.navercorp.pinpoint.web.service.stat.JvmGcChartService;
 import com.navercorp.pinpoint.web.service.stat.JvmGcDetailedChartService;
 import com.navercorp.pinpoint.web.service.stat.JvmGcDetailedService;
@@ -207,6 +210,15 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
         @Autowired
         public ResponseTimeController(ResponseTimeService responseTimeService, ResponseTimeChartService responseTimeChartService) {
             super(responseTimeService, responseTimeChartService);
+        }
+    }
+
+    @Controller
+    @RequestMapping("/getAgentStat/deadlock")
+    public static class DeadlockController extends AgentStatController<DeadlockBo> {
+        @Autowired
+        public DeadlockController(DeadlockService deadlockService, DeadlockChartService deadlockChartService) {
+            super(deadlockService, deadlockChartService);
         }
     }
 

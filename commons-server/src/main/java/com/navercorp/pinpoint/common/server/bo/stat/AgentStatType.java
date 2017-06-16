@@ -27,7 +27,8 @@ public enum AgentStatType {
     TRANSACTION((byte) 4, "Transaction"),
     ACTIVE_TRACE((byte) 5, "Active Trace"),
     DATASOURCE((byte) 6, "DataSource"),
-    RESPONSE_TIME((byte) 7, "Response Time");
+    RESPONSE_TIME((byte) 7, "Response Time"),
+    DEADLOCK((byte) 8, "Deadlock");
 
     public static final int TYPE_CODE_BYTE_LENGTH = 1;
 

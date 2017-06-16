@@ -60,6 +60,24 @@ public class ThreadDumpUtils {
         return threadDump;
     }
 
+    public static TThreadDump createTThreadDump(long threadId) {
+        ThreadInfo threadInfo = ThreadMXBeanUtils.findThread(threadId);
+        if (threadInfo == null) {
+            return null;
+        }
+
+        return createTThreadDump(threadInfo);
+    }
+
+    public static TThreadDump createTThreadDump(long threadId, int stackTraceMaxDepth) {
+        ThreadInfo threadInfo = ThreadMXBeanUtils.findThread(threadId, stackTraceMaxDepth);
+        if (threadInfo == null) {
+            return null;
+        }
+
+        return createTThreadDump(threadInfo);
+    }
+
     public static TThreadState toTThreadState(Thread.State threadState) {
         if (threadState == null) {
             throw new NullPointerException("threadState must not be null");

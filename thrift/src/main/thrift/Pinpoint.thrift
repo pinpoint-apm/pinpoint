@@ -1,3 +1,5 @@
+include "Command.thrift"
+
 namespace java com.navercorp.pinpoint.thrift.dto
 
 enum TJvmGcType {
@@ -55,7 +57,6 @@ struct TJvmGc {
     6: i64          jvmGcOldCount
     7: i64          jvmGcOldTime
     8: optional TJvmGcDetailed    jvmGcDetailed
-
 }
 
 struct TJvmGcDetailed {
@@ -95,6 +96,11 @@ struct TResponseTime {
     1: optional i64         avg = 0
 }
 
+struct TDeadlock {
+    1: optional i32                         deadlockedThreadCount;
+    2: optional list<Command.TThreadDump>   deadlockedThreadList;
+}
+
 struct TAgentStat {
     1: optional string      agentId
     2: optional i64         startTimestamp
@@ -106,6 +112,7 @@ struct TAgentStat {
     40: optional TActiveTrace   activeTrace
     50: optional TDataSourceList dataSourceList
     60: optional TResponseTime responseTime
+    70: optional TDeadlock deadlock
     200: optional string    metadata
 }
 
