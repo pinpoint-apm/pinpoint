@@ -29,7 +29,7 @@ public class JoinCpuLoadBoMapper implements ThriftBoMapper<JoinCpuLoadBo, TFAgen
     @Override
     public JoinCpuLoadBo map(TFAgentStat tFAgentStat) {
         if (!tFAgentStat.isSetCpuLoad()) {
-            return null;
+            return JoinCpuLoadBo.EMPTY_JOIN_CPU_LOAD_BO;
         }
 
         JoinCpuLoadBo joinCpuLoadBo = new JoinCpuLoadBo();

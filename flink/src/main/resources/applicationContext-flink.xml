@@ -73,11 +73,26 @@
     <bean id="joinCpuLoadCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.CpuLoadCodec"/>
     <bean id="cpuLoadEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.CpuLoadEncoder"/>
     <bean id="cpuLoadSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.CpuLoadSerializer"/>
+    <bean id="joinMemoryCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.MemoryCodec"/>
+    <bean id="memoryEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.MemoryEncoder"/>
+    <bean id="memorySerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.MemorySerializer"/>
+
 
     <bean id="statisticsDao" class="com.navercorp.pinpoint.flink.dao.hbase.StatisticsDao">
+        <constructor-arg index="0" ref="cpuLoadDao"/>
+        <constructor-arg index="1" ref="memoryDao"/>
+    </bean>
+
+    <bean id="cpuLoadDao" class="com.navercorp.pinpoint.flink.dao.hbase.CpuLoadDao">
         <constructor-arg index="0" ref="hbaseTemplate"/>
         <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
         <constructor-arg index="2" ref="cpuLoadSerializer"/>
+    </bean>
+
+    <bean id="memoryDao" class="com.navercorp.pinpoint.flink.dao.hbase.MemoryDao">
+        <constructor-arg index="0" ref="hbaseTemplate"/>
+        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
+        <constructor-arg index="2" ref="memorySerializer"/>
     </bean>
     <!--
         <bean id="daoAutoFlusher" class="com.navercorp.pinpoint.collector.dao.AutoFlusher" init-method="initialize" destroy-method="shutdown">

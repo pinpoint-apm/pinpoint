@@ -77,6 +77,8 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
         final String agentId = tAgentStatBatch.getAgentId();
         final long startTimestamp = tAgentStatBatch.getStartTimestamp();
         agentStatBo.setAgentId(agentId);
+        agentStatBo.setStartTimestamp(startTimestamp);
+
 
         int agentStatsSize = tAgentStatBatch.getAgentStatsSize();
 

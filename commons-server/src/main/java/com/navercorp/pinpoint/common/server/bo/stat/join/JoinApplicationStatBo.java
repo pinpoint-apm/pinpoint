@@ -21,88 +21,102 @@ import java.util.*;
  * @author minwoo.jung
  */
 public class JoinApplicationStatBo implements JoinStatBo {
+    public static final JoinApplicationStatBo EMPTY_JOIN_APPLICATION_STAT_BO = new JoinApplicationStatBo();
+    private static final List<JoinCpuLoadBo>  EMPTY_JOIN_CPU_LOAD_BO_LIST = new ArrayList<JoinCpuLoadBo>(0);
+    private static final List<JoinMemoryBo> EMPTY_JOIN_MEMORY_BO_LIST = new ArrayList<JoinMemoryBo>();
     private static final long SHIFT_RANGE = 1000 * 5;
-    private String applicationId;
-    private List<JoinCpuLoadBo> joinCpuLoadBoList;
-    private long timestamp;
-    private StatType statType = StatType.APP_CPU_LOAD;
 
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(long timeStamp) {
-        this.timestamp = timeStamp;
-    }
-
-    public String getId() {
-        return applicationId;
-    }
-
-    public void setId(String applicationId) {
-        this.applicationId = applicationId;
-    }
+    private String applicationId = UNKNOWN_ID;
+    private List<JoinCpuLoadBo> joinCpuLoadBoList = EMPTY_JOIN_CPU_LOAD_BO_LIST;
+    private List<JoinMemoryBo> joinMemoryBoList = EMPTY_JOIN_MEMORY_BO_LIST;
+    private long timestamp = Long.MIN_VALUE;
+    private StatType statType = StatType.APP_STST;
 
     public static JoinApplicationStatBo joinApplicationStatBoByTimeSlice(final List<JoinApplicationStatBo> joinApplicaitonStatBoList) {
-        JoinApplicationStatBo newJoinApplicationStatBo = new JoinApplicationStatBo();
-
         if (joinApplicaitonStatBoList.size() == 0) {
-            return newJoinApplicationStatBo;
+            return EMPTY_JOIN_APPLICATION_STAT_BO;
         }
 
-        Map<Long, List<JoinCpuLoadBo>> joinCpuLoadBoMap = new HashMap<Long, List<JoinCpuLoadBo>>();
-        for (JoinApplicationStatBo joinApplicationStatBo : joinApplicaitonStatBoList) {
-            for (JoinCpuLoadBo joinCpuLoadBo : joinApplicationStatBo.getJoinCpuLoadBoList()) {
-                long shiftTimestamp = shiftTimestamp(joinCpuLoadBo.getTimestamp());
-                List<JoinCpuLoadBo> joinCpuLoadBoList = joinCpuLoadBoMap.get(shiftTimestamp);
-                if (joinCpuLoadBoList != null) {
-                    joinCpuLoadBoList.add(joinCpuLoadBo);
-                } else {
-                    ArrayList<JoinCpuLoadBo> newJoinCpuLoadBoList = new ArrayList<JoinCpuLoadBo>();
-                    newJoinCpuLoadBoList.add(joinCpuLoadBo);
-                    joinCpuLoadBoMap.put(shiftTimestamp, newJoinCpuLoadBoList);
-                }
-            }
-        }
-
-        List<JoinCpuLoadBo> newJoinAgentStatBoList = new ArrayList<JoinCpuLoadBo>();
-        long minTimestamp = Long.MAX_VALUE;
-        for (Map.Entry<Long, List<JoinCpuLoadBo>> entry : joinCpuLoadBoMap.entrySet()) {
-            List<JoinCpuLoadBo> joinCpuLoadBoList = entry.getValue();
-            JoinCpuLoadBo joinCpuLoadBo = JoinCpuLoadBo.joinCpuLoadBoList(joinCpuLoadBoList, entry.getKey());
-            joinCpuLoadBo.setTimestamp(entry.getKey());
-            newJoinAgentStatBoList.add(joinCpuLoadBo);
-            if (entry.getKey() < minTimestamp) {
-                minTimestamp = entry.getKey();
-            }
-        }
-
+        JoinApplicationStatBo newJoinApplicationStatBo = new JoinApplicationStatBo();
         newJoinApplicationStatBo.setId(joinApplicaitonStatBoList.get(0).getId());
-        newJoinApplicationStatBo.setTimestamp(minTimestamp);
-        newJoinApplicationStatBo.setJoinCpuLoadBoList(newJoinAgentStatBoList);
-
+        newJoinApplicationStatBo.setJoinCpuLoadBoList(joinCpuLoadBoByTimeSlice(joinApplicaitonStatBoList));
+        newJoinApplicationStatBo.setJoinMemoryBoList(joinMemoryBoByTimeSlice(joinApplicaitonStatBoList));
+        newJoinApplicationStatBo.setTimestamp(extractMinTimestamp(newJoinApplicationStatBo));
         return newJoinApplicationStatBo;
 
     }
 
-    private static long shiftTimestamp(long timestamp) {
-        return timestamp - (timestamp % SHIFT_RANGE);
+    private static long extractMinTimestamp(JoinApplicationStatBo joinApplicationStatBo) {
+        long minTimestamp = Long.MAX_VALUE;
+
+        for (JoinCpuLoadBo joinCpuLoadBo : joinApplicationStatBo.getJoinCpuLoadBoList()) {
+            if (joinCpuLoadBo.getTimestamp() < minTimestamp) {
+                minTimestamp = joinCpuLoadBo.getTimestamp();
+            }
+        }
+
+        for (JoinMemoryBo joinMemoryBo : joinApplicationStatBo.getJoinMemoryBoList()) {
+            if (joinMemoryBo.getTimestamp() < minTimestamp) {
+                minTimestamp = joinMemoryBo.getTimestamp();
+            }
+        }
+
+        return minTimestamp;
     }
 
-    public List<JoinCpuLoadBo> getJoinCpuLoadBoList() {
-        return joinCpuLoadBoList;
+    private static List<JoinMemoryBo> joinMemoryBoByTimeSlice(List<JoinApplicationStatBo> joinApplicaitonStatBoList) {
+        Map<Long, List<JoinMemoryBo>> joinMemoryBoMap = new HashMap<Long, List<JoinMemoryBo>>();
+
+        for (JoinApplicationStatBo joinApplicationStatBo : joinApplicaitonStatBoList) {
+            for (JoinMemoryBo joinMemoryBo : joinApplicationStatBo.getJoinMemoryBoList()) {
+                long shiftTimestamp = shiftTimestamp(joinMemoryBo.getTimestamp());
+                List<JoinMemoryBo> joinMemoryBoList = joinMemoryBoMap.get(shiftTimestamp);
+
+                if (joinMemoryBoList == null) {
+                    joinMemoryBoList = new ArrayList<JoinMemoryBo>();
+                    joinMemoryBoMap.put(shiftTimestamp, joinMemoryBoList);
+                }
+
+                joinMemoryBoList.add(joinMemoryBo);
+            }
+        }
+
+        List<JoinMemoryBo> newJoinMemoryBoList = new ArrayList<JoinMemoryBo>();
+
+        for (Map.Entry<Long, List<JoinMemoryBo>> entry : joinMemoryBoMap.entrySet()) {
+            List<JoinMemoryBo> joinMemoryBoList = entry.getValue();
+            JoinMemoryBo joinMemoryBo = JoinMemoryBo.joinMemoryBoList(joinMemoryBoList, entry.getKey());
+            newJoinMemoryBoList.add(joinMemoryBo);
+        }
+
+        return newJoinMemoryBoList;
     }
 
-    public void setJoinCpuLoadBoList(List<JoinCpuLoadBo> joinCpuLoadBoList) {
-        this.joinCpuLoadBoList = joinCpuLoadBoList;
-    }
+    private static List<JoinCpuLoadBo> joinCpuLoadBoByTimeSlice(List<JoinApplicationStatBo> joinApplicaitonStatBoList) {
+        Map<Long, List<JoinCpuLoadBo>> joinCpuLoadBoMap = new HashMap<Long, List<JoinCpuLoadBo>>();
 
-    public StatType getStatType() {
-        return statType;
-    }
+        for (JoinApplicationStatBo joinApplicationStatBo : joinApplicaitonStatBoList) {
+            for (JoinCpuLoadBo joinCpuLoadBo : joinApplicationStatBo.getJoinCpuLoadBoList()) {
+                long shiftTimestamp = shiftTimestamp(joinCpuLoadBo.getTimestamp());
+                List<JoinCpuLoadBo> joinCpuLoadBoList = joinCpuLoadBoMap.get(shiftTimestamp);
 
-    public void setStatType(StatType statType) {
-        this.statType = statType;
+                if (joinCpuLoadBoList == null) {
+                    joinCpuLoadBoList = new ArrayList<JoinCpuLoadBo>();
+                    joinCpuLoadBoMap.put(shiftTimestamp, joinCpuLoadBoList);
+                }
+
+                joinCpuLoadBoList.add(joinCpuLoadBo);
+            }
+        }
+
+        List<JoinCpuLoadBo> newJoinCpuLoadBoList = new ArrayList<JoinCpuLoadBo>();
+
+        for (Map.Entry<Long, List<JoinCpuLoadBo>> entry : joinCpuLoadBoMap.entrySet()) {
+            List<JoinCpuLoadBo> joinCpuLoadBoList = entry.getValue();
+            JoinCpuLoadBo joinCpuLoadBo = JoinCpuLoadBo.joinCpuLoadBoList(joinCpuLoadBoList, entry.getKey());
+            newJoinCpuLoadBoList.add(joinCpuLoadBo);
+        }
+        return newJoinCpuLoadBoList;
     }
 
     public static JoinApplicationStatBo joinApplicationStatBo(List<JoinApplicationStatBo> joinApplicaitonStatBoList) {
@@ -124,9 +138,53 @@ public class JoinApplicationStatBo implements JoinStatBo {
         newJoinApplicationStatBo.setId(joinApplicaitonStatBoList.get(0).getId());
         newJoinApplicationStatBo.setTimestamp(timestamp);
         newJoinApplicationStatBo.setJoinCpuLoadBoList(newJoinCpuLoadBoList);
-        newJoinApplicationStatBo.setStatType(StatType.APP_CPU_LOAD_AGGRE);
+        newJoinApplicationStatBo.setStatType(StatType.APP_STST);
 
         return newJoinApplicationStatBo;
+    }
+
+    private static long shiftTimestamp(long timestamp) {
+        return timestamp - (timestamp % SHIFT_RANGE);
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timeStamp) {
+        this.timestamp = timeStamp;
+    }
+
+    public String getId() {
+        return applicationId;
+    }
+
+    public void setId(String applicationId) {
+        this.applicationId = applicationId;
+    }
+
+    public List<JoinCpuLoadBo> getJoinCpuLoadBoList() {
+        return joinCpuLoadBoList;
+    }
+
+    public void setJoinCpuLoadBoList(List<JoinCpuLoadBo> joinCpuLoadBoList) {
+        this.joinCpuLoadBoList = joinCpuLoadBoList;
+    }
+
+    public StatType getStatType() {
+        return statType;
+    }
+
+    public void setStatType(StatType statType) {
+        this.statType = statType;
+    }
+
+    public void setJoinMemoryBoList(List<JoinMemoryBo> joinMemoryBoList) {
+        this.joinMemoryBoList = joinMemoryBoList;
+    }
+
+    public List<JoinMemoryBo> getJoinMemoryBoList() {
+        return joinMemoryBoList;
     }
 
     @Override

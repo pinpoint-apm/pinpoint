@@ -62,11 +62,11 @@ public class CpuLoadCodec implements ApplicationStatCodec {
     @Override
     public void encodeValues(Buffer valueBuffer, List<JoinStatBo> joinCpuLoadBoList) {
         if (CollectionUtils.isEmpty(joinCpuLoadBoList)) {
-            throw new IllegalArgumentException("cpuLoadBos must not be empty");
+            throw new IllegalArgumentException("cpuLoadBoList must not be empty");
         }
+
         final int numValues = joinCpuLoadBoList.size();
         valueBuffer.putVInt(numValues);
-
         List<Long> timestamps = new ArrayList<Long>(numValues);
         UnsignedLongEncodingStrategy.Analyzer.Builder jvmCpuLoadAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         UnsignedLongEncodingStrategy.Analyzer.Builder minJvmCpuLoadAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();

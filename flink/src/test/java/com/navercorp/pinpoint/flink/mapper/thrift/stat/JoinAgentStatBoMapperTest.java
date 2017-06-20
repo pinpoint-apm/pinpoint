@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package flink.mapper.thrift.stat;
+package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinAgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
 import com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import com.navercorp.pinpoint.thrift.dto.flink.TFCpuLoad;
+import com.navercorp.pinpoint.thrift.dto.flink.TFJvmGc;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -94,6 +96,60 @@ public class JoinAgentStatBoMapperTest {
         assertEquals(joinCpuLoadBo.getSystemCpuLoad(), 50, 0);
         assertEquals(joinCpuLoadBo.getMinSystemCpuLoad(), 50, 0);
         assertEquals(joinCpuLoadBo.getMaxSystemCpuLoad(), 50, 0);
+    }
+
+    @Test
+    public void map2Test() {
+        final String agentId = "testAgent";
+        final JoinAgentStatBoMapper joinAgentStatBoMapper = new JoinAgentStatBoMapper();
+
+        final TFAgentStatBatch tFAgentStatBatch = new TFAgentStatBatch();
+        tFAgentStatBatch.setStartTimestamp(1491274138454L);
+        tFAgentStatBatch.setAgentId(agentId);
+
+        final TFAgentStat tFAgentStat = new TFAgentStat();
+        tFAgentStat.setAgentId(agentId);
+        tFAgentStat.setTimestamp(1491274148454L);
+
+        final TFJvmGc tFJvmGc = new TFJvmGc();
+        tFJvmGc.setJvmMemoryHeapUsed(1000);
+        tFJvmGc.setJvmMemoryNonHeapUsed(300);
+        tFAgentStat.setGc(tFJvmGc);
+
+        final TFAgentStat tFAgentStat2 = new TFAgentStat();
+        tFAgentStat2.setAgentId(agentId);
+        tFAgentStat2.setTimestamp(1491275148454L);
+
+        final TFJvmGc tFJvmGc2 = new TFJvmGc();
+        tFJvmGc2.setJvmMemoryHeapUsed(2000);
+        tFJvmGc2.setJvmMemoryNonHeapUsed(500);
+        tFAgentStat2.setGc(tFJvmGc2);
+
+
+        final List<TFAgentStat> tFAgentStatList = new ArrayList<>(2);
+        tFAgentStatList.add(tFAgentStat);
+        tFAgentStatList.add(tFAgentStat2);
+        tFAgentStatBatch.setAgentStats(tFAgentStatList);
+
+        JoinAgentStatBo joinAgentStatBo = joinAgentStatBoMapper.map(tFAgentStatBatch);
+        assertEquals(joinAgentStatBo.getId(), agentId);
+        assertEquals(joinAgentStatBo.getAgentStartTimestamp(), 1491274138454L);
+        assertEquals(joinAgentStatBo.getTimestamp(), 1491274148454L);
+
+        List<JoinMemoryBo> joinMemoryBoList = joinAgentStatBo.getJoinMemoryBoList();
+        assertEquals(joinMemoryBoList.size(), 2);
+
+        JoinMemoryBo joinMemoryBo = joinMemoryBoList.get(0);
+        assertEquals(joinMemoryBo.getId(), agentId);
+        assertEquals(joinMemoryBo.getTimestamp(), 1491274148454L);
+        assertEquals(joinMemoryBo.getHeapUsed(), 1000);
+        assertEquals(joinMemoryBo.getNonHeapUsed(), 300);
+
+        JoinMemoryBo joinMemoryBo2 = joinMemoryBoList.get(1);
+        assertEquals(joinMemoryBo2.getId(), agentId);
+        assertEquals(joinMemoryBo2.getTimestamp(), 1491275148454L);
+        assertEquals(joinMemoryBo2.getHeapUsed(), 2000);
+        assertEquals(joinMemoryBo2.getNonHeapUsed(), 500);
     }
 
 }
