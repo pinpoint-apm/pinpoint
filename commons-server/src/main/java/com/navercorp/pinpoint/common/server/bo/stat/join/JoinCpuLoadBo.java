@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.common.server.bo.stat.join;
 
+import java.net.ProtocolException;
 import java.util.Date;
 import java.util.List;
 
@@ -22,15 +23,14 @@ import java.util.List;
  * @author minwoo.jung
  */
 public class JoinCpuLoadBo implements JoinStatBo {
+    public static final JoinCpuLoadBo EMPTY_JOIN_CPU_LOAD_BO = new JoinCpuLoadBo();
     public static final double UNCOLLECTED_VALUE = -1;
-    public static final String UNKNOWN_AGENT = "unknown_agent_id";
-    public static final String UNKNOWN_ID = "unknown_id";
+    private static final byte version = 1;
 
-    private final byte version = 1;
     private String id = UNKNOWN_ID;
-    //TODO : (minwoo) add prefix 'average'?
-    private double jvmCpuLoad = UNCOLLECTED_VALUE;
+    private long timestamp = Long.MIN_VALUE;
 
+    private double jvmCpuLoad = UNCOLLECTED_VALUE;
     private String maxJvmCpuAgentId = UNKNOWN_AGENT;
     private double maxJvmCpuLoad = UNCOLLECTED_VALUE;
     private String minJvmCpuAgentId = UNKNOWN_AGENT;
@@ -41,20 +41,8 @@ public class JoinCpuLoadBo implements JoinStatBo {
     private double maxSystemCpuLoad = UNCOLLECTED_VALUE;
     private String minSysCpuAgentId = UNKNOWN_AGENT;
     private double minSystemCpuLoad = UNCOLLECTED_VALUE;
-    private long timestamp;
 
     public JoinCpuLoadBo() {
-    }
-
-    public JoinCpuLoadBo(String id, double jvmCpuLoad, double maxJvmCpuLoad, double minJvmCpuLoad, double systemCpuLoad, double maxSystemCpuLoad, double minSystemCpuLoad, long timestamp) {
-        this.id = id;
-        this.jvmCpuLoad = jvmCpuLoad;
-        this.maxJvmCpuLoad = maxJvmCpuLoad;
-        this.minJvmCpuLoad = minJvmCpuLoad;
-        this.systemCpuLoad = systemCpuLoad;
-        this.maxSystemCpuLoad = maxSystemCpuLoad;
-        this.minSystemCpuLoad = minSystemCpuLoad;
-        this.timestamp = timestamp;
     }
 
     public JoinCpuLoadBo(String id, double jvmCpuLoad, double maxJvmCpuLoad, String maxJvmCpuAgentId, double minJvmCpuLoad, String minJvmCpuAgentId, double systemCpuLoad, double maxSystemCpuLoad, String maxSysCpuAgentId, double minSystemCpuLoad, String minSysCpuAgentId, long timestamp) {
@@ -70,6 +58,66 @@ public class JoinCpuLoadBo implements JoinStatBo {
         this.maxSystemCpuLoad = maxSystemCpuLoad;
         this.maxSysCpuAgentId = maxSysCpuAgentId;
         this.timestamp = timestamp;
+    }
+
+    public static JoinCpuLoadBo joinCpuLoadBoList(List<JoinCpuLoadBo> joinCpuLoadBoList, Long timestamp) {
+        int boCount = joinCpuLoadBoList.size();
+
+        if (joinCpuLoadBoList.size() == 0) {
+            return EMPTY_JOIN_CPU_LOAD_BO;
+        }
+
+        JoinCpuLoadBo newJoinCpuLoadBo = new JoinCpuLoadBo();
+        JoinCpuLoadBo initCpuLoadBo = joinCpuLoadBoList.get(0);
+        newJoinCpuLoadBo.setId(initCpuLoadBo.getId());
+        newJoinCpuLoadBo.setTimestamp(timestamp);
+
+        double sumJvmCpuLoad = 0D;
+        String maxJvmCpuAgentId = initCpuLoadBo.getMaxJvmCpuAgentId();
+        double maxJvmCpuLoad = initCpuLoadBo.getMaxJvmCpuLoad();
+        String minJvmCpuAgentId = initCpuLoadBo.getMinJvmCpuAgentId();
+        double minJvmCpuLoad = initCpuLoadBo.getMinJvmCpuLoad();
+        double sumSystemCpuLoad = 0D;
+        double systemCpuLoad = initCpuLoadBo.getSystemCpuLoad();
+        String maxSysCpuAgentId = initCpuLoadBo.getMaxSysCpuAgentId();
+        double maxSystemCpuLoad = initCpuLoadBo.getMaxSystemCpuLoad();
+        String minSysCpuAgentId = initCpuLoadBo.getMinSysCpuAgentId();
+        double minSystemCpuLoad = initCpuLoadBo.getMinSystemCpuLoad();
+
+        for (JoinCpuLoadBo joinCpuLoadBo : joinCpuLoadBoList) {
+            sumJvmCpuLoad += joinCpuLoadBo.getJvmCpuLoad();
+            if (joinCpuLoadBo.getMaxJvmCpuLoad() > maxJvmCpuLoad) {
+                maxJvmCpuLoad = joinCpuLoadBo.getMaxJvmCpuLoad();
+                maxJvmCpuAgentId = joinCpuLoadBo.getMaxJvmCpuAgentId();
+            }
+            if (joinCpuLoadBo.getMinJvmCpuLoad() < minJvmCpuLoad) {
+                minJvmCpuLoad = joinCpuLoadBo.getMinJvmCpuLoad();
+                minJvmCpuAgentId = joinCpuLoadBo.getMinJvmCpuAgentId();
+            }
+
+            sumSystemCpuLoad += joinCpuLoadBo.getSystemCpuLoad();
+            if (joinCpuLoadBo.getMaxSystemCpuLoad() > maxSystemCpuLoad) {
+                maxSystemCpuLoad = joinCpuLoadBo.getMaxSystemCpuLoad();
+                maxSysCpuAgentId = joinCpuLoadBo.getMaxSysCpuAgentId();
+            }
+            if (joinCpuLoadBo.getMinSystemCpuLoad() < minSystemCpuLoad) {
+                minSystemCpuLoad = joinCpuLoadBo.getMinSystemCpuLoad();
+                minSysCpuAgentId = joinCpuLoadBo.getMinSysCpuAgentId();
+            }
+        }
+
+        newJoinCpuLoadBo.setJvmCpuLoad(sumJvmCpuLoad / (double) boCount);
+        newJoinCpuLoadBo.setMaxJvmCpuLoad(maxJvmCpuLoad);
+        newJoinCpuLoadBo.setMaxJvmCpuAgentId(maxJvmCpuAgentId);
+        newJoinCpuLoadBo.setMinJvmCpuLoad(minJvmCpuLoad);
+        newJoinCpuLoadBo.setMinJvmCpuAgentId(minJvmCpuAgentId);
+        newJoinCpuLoadBo.setSystemCpuLoad(sumSystemCpuLoad / (double) boCount);
+        newJoinCpuLoadBo.setMinSystemCpuLoad(minSystemCpuLoad);
+        newJoinCpuLoadBo.setMinSysCpuAgentId(minSysCpuAgentId);
+        newJoinCpuLoadBo.setMaxSystemCpuLoad(maxSystemCpuLoad);
+        newJoinCpuLoadBo.setMaxSysCpuAgentId(maxSysCpuAgentId);
+
+        return newJoinCpuLoadBo;
     }
 
     public String getMaxJvmCpuAgentId() {
@@ -128,66 +176,6 @@ public class JoinCpuLoadBo implements JoinStatBo {
         return id;
     }
 
-    public static JoinCpuLoadBo joinCpuLoadBoList(List<JoinCpuLoadBo> joinCpuLoadBoList, Long timestamp) {
-        JoinCpuLoadBo newJoinCpuLoadBo = new JoinCpuLoadBo();
-        int boCount = joinCpuLoadBoList.size();
-
-        if (boCount == 0) {
-            return newJoinCpuLoadBo;
-        }
-        JoinCpuLoadBo initCpuLoadBo = joinCpuLoadBoList.get(0);
-        newJoinCpuLoadBo.setId(initCpuLoadBo.getId());
-        newJoinCpuLoadBo.setTimestamp(timestamp);
-
-        double sumJvmCpuLoad = 0D;
-        double jvmCpuLoad = initCpuLoadBo.getJvmCpuLoad();
-        String maxJvmCpuAgentId = initCpuLoadBo.getMaxJvmCpuAgentId();
-        double maxJvmCpuLoad = initCpuLoadBo.getMaxJvmCpuLoad();
-        String minJvmCpuAgentId = initCpuLoadBo.getMinJvmCpuAgentId();
-        double minJvmCpuLoad = initCpuLoadBo.getMinJvmCpuLoad();
-        double sumSystemCpuLoad = 0D;
-        double systemCpuLoad = initCpuLoadBo.getSystemCpuLoad();
-        String maxSysCpuAgentId = initCpuLoadBo.getMaxSysCpuAgentId();
-        double maxSystemCpuLoad = initCpuLoadBo.getMaxSystemCpuLoad();
-        String minSysCpuAgentId = initCpuLoadBo.getMinSysCpuAgentId();
-        double minSystemCpuLoad = initCpuLoadBo.getMinSystemCpuLoad();
-
-        for (JoinCpuLoadBo joinCpuLoadBo : joinCpuLoadBoList) {
-            sumJvmCpuLoad += joinCpuLoadBo.getJvmCpuLoad();
-            if (joinCpuLoadBo.getMaxJvmCpuLoad() > maxJvmCpuLoad) {
-                maxJvmCpuLoad = joinCpuLoadBo.getMaxJvmCpuLoad();
-                maxJvmCpuAgentId = joinCpuLoadBo.getMaxJvmCpuAgentId();
-            }
-            if (joinCpuLoadBo.getMinJvmCpuLoad() < minJvmCpuLoad) {
-                minJvmCpuLoad = joinCpuLoadBo.getMinJvmCpuLoad();
-                minJvmCpuAgentId = joinCpuLoadBo.getMinJvmCpuAgentId();
-            }
-
-            sumSystemCpuLoad += joinCpuLoadBo.getSystemCpuLoad();
-            if (joinCpuLoadBo.getMaxSystemCpuLoad() > maxSystemCpuLoad) {
-                maxSystemCpuLoad = joinCpuLoadBo.getMaxSystemCpuLoad();
-                maxSysCpuAgentId = joinCpuLoadBo.getMaxSysCpuAgentId();
-            }
-            if (joinCpuLoadBo.getMinSystemCpuLoad() < minSystemCpuLoad) {
-                minSystemCpuLoad = joinCpuLoadBo.getMinSystemCpuLoad();
-                minSysCpuAgentId = joinCpuLoadBo.getMinSysCpuAgentId();
-            }
-        }
-
-        newJoinCpuLoadBo.setJvmCpuLoad(sumJvmCpuLoad / (double) boCount);
-        newJoinCpuLoadBo.setMaxJvmCpuLoad(maxJvmCpuLoad);
-        newJoinCpuLoadBo.setMaxJvmCpuAgentId(maxJvmCpuAgentId);
-        newJoinCpuLoadBo.setMinJvmCpuLoad(minJvmCpuLoad);
-        newJoinCpuLoadBo.setMinJvmCpuAgentId(minJvmCpuAgentId);
-        newJoinCpuLoadBo.setSystemCpuLoad(sumSystemCpuLoad / (double) boCount);
-        newJoinCpuLoadBo.setMinSystemCpuLoad(minSystemCpuLoad);
-        newJoinCpuLoadBo.setMinSysCpuAgentId(minSysCpuAgentId);
-        newJoinCpuLoadBo.setMaxSystemCpuLoad(maxSystemCpuLoad);
-        newJoinCpuLoadBo.setMaxSysCpuAgentId(maxSysCpuAgentId);
-
-        return newJoinCpuLoadBo;
-    }
-
     @Override
     public long getTimestamp() {
         return timestamp;
@@ -233,18 +221,22 @@ public class JoinCpuLoadBo implements JoinStatBo {
         return version;
     }
 
+
     @Override
     public String toString() {
         return "JoinCpuLoadBo{" +
-            "version=" + version +
-            ", id='" + id + '\'' +
+            "id='" + id + '\'' +
             ", jvmCpuLoad=" + jvmCpuLoad +
+            ", maxJvmCpuAgentId='" + maxJvmCpuAgentId + '\'' +
             ", maxJvmCpuLoad=" + maxJvmCpuLoad +
+            ", minJvmCpuAgentId='" + minJvmCpuAgentId + '\'' +
             ", minJvmCpuLoad=" + minJvmCpuLoad +
             ", systemCpuLoad=" + systemCpuLoad +
+            ", maxSysCpuAgentId='" + maxSysCpuAgentId + '\'' +
             ", maxSystemCpuLoad=" + maxSystemCpuLoad +
+            ", minSysCpuAgentId='" + minSysCpuAgentId + '\'' +
             ", minSystemCpuLoad=" + minSystemCpuLoad +
-            ", timestamp=" + new Date(timestamp) +
+            ", timestamp=" + timestamp +"(" + new Date(timestamp)+ ")" +
             '}';
     }
 
@@ -268,6 +260,5 @@ public class JoinCpuLoadBo implements JoinStatBo {
         if (!minJvmCpuAgentId.equals(that.minJvmCpuAgentId)) return false;
         if (!maxSysCpuAgentId.equals(that.maxSysCpuAgentId)) return false;
         return minSysCpuAgentId.equals(that.minSysCpuAgentId);
-
     }
 }

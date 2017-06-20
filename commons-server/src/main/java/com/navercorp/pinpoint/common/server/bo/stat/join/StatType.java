@@ -20,9 +20,18 @@ package com.navercorp.pinpoint.common.server.bo.stat.join;
  */
 public enum StatType {
     UNKNOWN(0, "Unknown"),
-    APP_CPU_LOAD(1, "Application Cpu Usage"),
-    APP_CPU_LOAD_AGGRE(2, "Application Cpu Usage aggregation"),
-    AGENT_CPU_LOAD_AGGRE(10, "Agent Cpu Usage aggregation");
+
+    APP_STST(1, "Application stat"),
+    APP_CPU_LOAD(2, "Application Cpu Usage"),
+    APP_MEMORY_USED(3, "Application Memory Usage"),
+
+    APP_STST_AGGRE(50, "Application stst aggregation"),
+    APP_CPU_LOAD_AGGRE(51, "Application Cpu Usage aggregation"),
+    APP_MEMORY_USED_AGGRE(52, "Application Memory Usage aggregation"),
+
+    AGENT_STST_AGGRE(100, "Agent stst aggregation"),
+    AGENT_CPU_LOAD_AGGRE(101, "Agent Cpu Usage aggregation"),
+    AGENT_MEMORY_USED_AGGRE(102, "Agent Memory Usage aggregation");
 
     public static final int TYPE_CODE_BYTE_LENGTH = 1;
 

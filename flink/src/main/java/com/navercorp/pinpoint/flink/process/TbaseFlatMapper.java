@@ -50,7 +50,7 @@ public class TbaseFlatMapper implements FlatMapFunction<TBase, Tuple3<String, Jo
             try {
                 joinAgentStatBo = joinAgentStatBoMapper.map(tFAgentStatBatch);
 
-                if (joinAgentStatBo == null) {
+                if (joinAgentStatBo == JoinAgentStatBo.EMPTY_JOIN_AGENT_STAT_BO) {
                     return;
                 }
             } catch (Exception e) {
@@ -72,6 +72,7 @@ public class TbaseFlatMapper implements FlatMapFunction<TBase, Tuple3<String, Jo
             joinApplicationStatBo.setId(applicationId);
             joinApplicationStatBo.setTimestamp(joinAgentStatBo.getTimestamp());
             joinApplicationStatBo.setJoinCpuLoadBoList(joinAgentStatBo.getJoinCpuLoadBoList());
+            joinApplicationStatBo.setJoinMemoryBoList(joinAgentStatBo.getJoinMemoryBoList());
             out.collect(new Tuple3<String, JoinStatBo, Long>(applicationId, joinApplicationStatBo, joinApplicationStatBo.getTimestamp()));
         }
     }

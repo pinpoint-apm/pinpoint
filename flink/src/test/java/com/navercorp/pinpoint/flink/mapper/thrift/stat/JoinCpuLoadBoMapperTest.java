@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package flink.mapper.thrift.stat;
+package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
 import com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinCpuLoadBoMapper;
@@ -51,5 +51,16 @@ public class JoinCpuLoadBoMapperTest {
         assertEquals(joinCpuLoadBo.getSystemCpuLoad(), 30, 0);
         assertEquals(joinCpuLoadBo.getMinSystemCpuLoad(), 30, 0);
         assertEquals(joinCpuLoadBo.getMaxSystemCpuLoad(), 30, 0);
+    }
+
+    @Test
+    public void map2Test() {
+        final TFAgentStat tFAgentStat = new TFAgentStat();
+        tFAgentStat.setAgentId("testAgent");
+        tFAgentStat.setTimestamp(1491274138454L);
+
+        final JoinCpuLoadBoMapper mapper = new JoinCpuLoadBoMapper();
+        final JoinCpuLoadBo joinCpuLoadBo = mapper.map(tFAgentStat);
+        assertEquals(joinCpuLoadBo, joinCpuLoadBo.EMPTY_JOIN_CPU_LOAD_BO);
     }
 }

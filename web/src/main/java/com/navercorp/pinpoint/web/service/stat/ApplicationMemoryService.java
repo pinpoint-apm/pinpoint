@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.web.service;
+package com.navercorp.pinpoint.web.service.stat;
 
-import com.navercorp.pinpoint.web.dao.ApplicationCpuLoadDao;
+import com.navercorp.pinpoint.web.dao.ApplicationMemoryDao;
+import com.navercorp.pinpoint.web.service.ApplicationStatChartService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.stat.AggreJoinCpuLoadBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.ApplicationCpuLoadChartGroup;
+import com.navercorp.pinpoint.web.vo.stat.AggreJoinMemoryBo;
+import com.navercorp.pinpoint.web.vo.stat.chart.ApplicationMemoryChartGroup;
 import com.navercorp.pinpoint.web.vo.stat.chart.ApplicationStatChartGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,11 +30,10 @@ import java.util.List;
  * @author minwoo.jung
  */
 @Service
-public class ApplicationStatChartServiceImpl implements ApplicationStatChartService {
+public class ApplicationMemoryService implements ApplicationStatChartService {
 
     @Autowired
-    private ApplicationCpuLoadDao applicationCpuLoadDao;
-
+    private ApplicationMemoryDao applicationMemoryDao;
 
     @Override
     public ApplicationStatChartGroup selectApplicationChart(String applicationId, TimeWindow timeWindow) {
@@ -43,7 +43,7 @@ public class ApplicationStatChartServiceImpl implements ApplicationStatChartServ
         if (timeWindow == null) {
             throw new NullPointerException("timeWindow must not be null");
         }
-        List<AggreJoinCpuLoadBo> aggreJoinCpuLoadBoList = this.applicationCpuLoadDao.getApplicationStatList(applicationId, timeWindow);
-        return new ApplicationCpuLoadChartGroup(timeWindow, aggreJoinCpuLoadBoList);
+        List<AggreJoinMemoryBo> aggreJoinCpuLoadBoList = this.applicationMemoryDao.getApplicationStatList(applicationId, timeWindow);
+        return new ApplicationMemoryChartGroup(timeWindow, aggreJoinCpuLoadBoList);
     }
 }

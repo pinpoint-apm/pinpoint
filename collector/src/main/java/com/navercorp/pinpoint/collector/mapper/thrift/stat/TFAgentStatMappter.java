@@ -17,42 +17,64 @@ package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
+import com.navercorp.pinpoint.thrift.dto.flink.TFJvmGc;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author minwoo.jung
  */
 public class TFAgentStatMappter {
-    public final TFCpuLoadMapper tCpuLoadMapper = new TFCpuLoadMapper();
+    private static final TFCpuLoadMapper tFCpuLoadMapper = new TFCpuLoadMapper();
+    private static final TFJvmGcMapper tFJvmGcMapper = new TFJvmGcMapper();
 
     public List<TFAgentStat> map(AgentStatBo agentStatBo) {
+        final TreeMap<Long, TFAgentStat> tFAgentStatMap = new TreeMap<>();
+        final String agentId = agentStatBo.getAgentId();
+        final long startTimestamp = agentStatBo.getStartTimestamp();
 
-        List<CpuLoadBo> cpuLoadBoList = agentStatBo.getCpuLoadBos();
+        insertTFCpuLoad(tFAgentStatMap, agentStatBo.getCpuLoadBos(), agentId, startTimestamp);
+        insertTFJvmGc(tFAgentStatMap, agentStatBo.getJvmGcBos(), agentId, startTimestamp);
 
-        if (cpuLoadBoList == null || cpuLoadBoList.size() == 0) {
-            return new ArrayList<TFAgentStat>(0);
-        }
-
-        List<TFAgentStat> tFAgentStatList = new ArrayList<>(cpuLoadBoList.size());
-        for(CpuLoadBo cpuLoadBo : cpuLoadBoList) {
-            tFAgentStatList.add(createTagentStat(cpuLoadBo));
-        }
-
-        return tFAgentStatList;
+        return new ArrayList<>(tFAgentStatMap.values());
     }
 
-    private TFAgentStat createTagentStat(CpuLoadBo cpuLoadBo) {
-        TFAgentStat tFAgentStat = new TFAgentStat();
-        tFAgentStat.setCpuLoad(tCpuLoadMapper.map(cpuLoadBo));
+    private void insertTFJvmGc(TreeMap<Long, TFAgentStat> tFAgentStatMap, List<JvmGcBo> jvmGcBoList, String agentId, long startTimestamp) {
+        if (jvmGcBoList == null) {
+            return;
+        }
 
-        // TODO : (minwoo) If another data is added, we check null for agentid, starttime. If agentid, starttime is null, look everywhere in statdata.
-        tFAgentStat.setAgentId(cpuLoadBo.getAgentId());
-        tFAgentStat.setStartTimestamp(cpuLoadBo.getStartTimestamp());
-        tFAgentStat.setTimestamp(cpuLoadBo.getTimestamp());
-        // TODO : (minwoo) need to set connectInterval value to use transaction info
+        for (JvmGcBo jvmGcBo : jvmGcBoList) {
+            TFAgentStat tfAgentStat = getOrCreateTFAgentStat(tFAgentStatMap, jvmGcBo.getTimestamp(), agentId, startTimestamp);
+            tfAgentStat.setGc(tFJvmGcMapper.map(jvmGcBo));
+        }
+    }
+
+    private void insertTFCpuLoad(Map<Long, TFAgentStat> tFAgentStatMap, List<CpuLoadBo> cpuLoadBoList, String agentId, long startTimestamp) {
+        if (cpuLoadBoList == null) {
+            return;
+        }
+
+        for (CpuLoadBo cpuLoadBo : cpuLoadBoList) {
+            TFAgentStat tFAgentStat = getOrCreateTFAgentStat(tFAgentStatMap, cpuLoadBo.getTimestamp(), agentId, startTimestamp);
+            tFAgentStat.setCpuLoad(tFCpuLoadMapper.map(cpuLoadBo));
+        }
+    }
+
+    private TFAgentStat getOrCreateTFAgentStat(Map<Long, TFAgentStat> tFAgentStatMap, long timestamp, String agentId, long startTimestamp) {
+        TFAgentStat tFAgentStat = tFAgentStatMap.get(timestamp);
+
+        if (tFAgentStat == null) {
+            tFAgentStat = new TFAgentStat();
+            tFAgentStat.setAgentId(agentId);
+            tFAgentStat.setStartTimestamp(startTimestamp);
+            tFAgentStat.setTimestamp(timestamp);
+            // TODO : (minwoo) need to set connectInterval value to use transaction info
+            tFAgentStatMap.put(timestamp, tFAgentStat);
+        }
+
         return tFAgentStat;
     }
 }

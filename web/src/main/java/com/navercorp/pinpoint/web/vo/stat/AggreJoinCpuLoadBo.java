@@ -22,13 +22,16 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
  */
 public class AggreJoinCpuLoadBo extends JoinCpuLoadBo implements AggregationStatData {
 
+    public AggreJoinCpuLoadBo() {
+    }
+
     public AggreJoinCpuLoadBo(String id, double jvmCpuLoad, double maxJvmCpuLoad, String maxJvmCpuAgentId, double minJvmCpuLoad, String minJvmCpuAgentId, double systemCpuLoad, double maxSystemCpuLoad, String maxSysCpuAgentId, double minSystemCpuLoad, String minSysCpuAgentId, long timestamp) {
         super(id, jvmCpuLoad, maxJvmCpuLoad, maxJvmCpuAgentId, minJvmCpuLoad, minJvmCpuAgentId, systemCpuLoad, maxSystemCpuLoad, maxSysCpuAgentId, minSystemCpuLoad, minSysCpuAgentId, timestamp);
     }
 
     public static AggreJoinCpuLoadBo createUncollectedObject(long timestamp) {
-        final double uncollectedValue = JoinCpuLoadBo.UNCOLLECTED_VALUE;
-        final String unknownAgent = JoinCpuLoadBo.UNKNOWN_AGENT;
-        return new AggreJoinCpuLoadBo(JoinCpuLoadBo.UNKNOWN_ID, uncollectedValue, uncollectedValue, unknownAgent, uncollectedValue, unknownAgent, uncollectedValue, uncollectedValue, unknownAgent, uncollectedValue, unknownAgent, timestamp);
+        AggreJoinCpuLoadBo aggreJoinCpuLoadBo = new AggreJoinCpuLoadBo();
+        aggreJoinCpuLoadBo.setTimestamp(timestamp);
+        return aggreJoinCpuLoadBo;
     }
 }
