@@ -22,11 +22,16 @@ import java.util.List;
  * @author minwoo.jung
  */
 public class JoinAgentStatBo implements JoinStatBo {
+    public static final JoinAgentStatBo EMPTY_JOIN_AGENT_STAT_BO = new JoinAgentStatBo();
+
     private static final List<JoinCpuLoadBo>  EMPTY_JOIN_CPU_LOAD_BO_LIST = new ArrayList<JoinCpuLoadBo>(0);
-    private String agentId;
-    private long agentStartTimestamp;
-    private long timestamp;
+    private static final List<JoinMemoryBo> EMPTY_JOIN_MEMORY_BO_LIST = new ArrayList<JoinMemoryBo>();
+    private String agentId = UNKNOWN_AGENT;
+    private long agentStartTimestamp = Long.MIN_VALUE;
+    private long timestamp = Long.MIN_VALUE;
     private List<JoinCpuLoadBo> joinCpuLoadBoList = EMPTY_JOIN_CPU_LOAD_BO_LIST;
+    private List<JoinMemoryBo> joinMemoryBoList = EMPTY_JOIN_MEMORY_BO_LIST;
+
     public void setId(String id) {
         this.agentId = id;
     }
@@ -80,5 +85,13 @@ public class JoinAgentStatBo implements JoinStatBo {
 
         return newJoinAgentStatBo;
 
+    }
+
+    public void setJoinMemoryBoList(List<JoinMemoryBo> joinMemoryBoList) {
+        this.joinMemoryBoList = joinMemoryBoList;
+    }
+
+    public List<JoinMemoryBo> getJoinMemoryBoList() {
+        return joinMemoryBoList;
     }
 }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.common.server.bo.stat.join;
+package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
+
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * @author minwoo.jung
  */
-public interface JoinStatBo {
-    public static final String UNKNOWN_AGENT = "unknown_agent_id";
-    public static final String UNKNOWN_ID = "unknown_id";
+@Component("joinMemoryDecoder")
+public class MemoryDecoder extends ApplicationStatDecoder {
 
-    long getTimestamp();
-    String getId();
+    public MemoryDecoder(List<MemoryCodec> memoryCodecs) {
+        super(memoryCodecs);
+    }
 }

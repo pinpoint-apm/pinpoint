@@ -24,11 +24,11 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-public class ApplicationStatDecoder {
+public abstract class ApplicationStatDecoder<T extends ApplicationStatCodec> {
 
-    private final List<ApplicationStatCodec> codecs;
+    private final List<T> codecs;
 
-    public ApplicationStatDecoder(List<ApplicationStatCodec> codecs) {
+    public ApplicationStatDecoder(List<T> codecs) {
         this.codecs = codecs;
     }
 
