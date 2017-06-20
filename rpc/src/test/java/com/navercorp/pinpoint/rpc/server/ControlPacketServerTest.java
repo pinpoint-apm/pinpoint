@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
+import com.navercorp.pinpoint.rpc.util.IOUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -174,7 +175,7 @@ public class ControlPacketServerTest {
         ControlHandshakePacket packet = new ControlHandshakePacket(1, payload);
 
         ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().writerIndex());
-        sendData(outputStream, bb.array());
+        IOUtils.write(outputStream, bb.array());
     }
 
     private void sendSimpleRequestPacket(OutputStream outputStream) throws ProtocolException, IOException {
@@ -182,17 +183,12 @@ public class ControlPacketServerTest {
         packet.setRequestId(10);
 
         ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().writerIndex());
-        sendData(outputStream, bb.array());
-    }
-
-    private void sendData(OutputStream outputStream, byte[] payload) throws IOException {
-        outputStream.write(payload);
-        outputStream.flush();
+        IOUtils.write(outputStream, bb.array());
     }
 
     private ControlHandshakeResponsePacket receiveRegisterConfirmPacket(InputStream inputStream) throws ProtocolException, IOException {
 
-        byte[] payload = readData(inputStream);
+        byte[] payload = IOUtils.read(inputStream, 50, 3000);
         ChannelBuffer cb = ChannelBuffers.wrappedBuffer(payload);
 
         short packetType = cb.readShort();
@@ -202,37 +198,13 @@ public class ControlPacketServerTest {
     }
 
     private ResponsePacket readSimpleResponsePacket(InputStream inputStream) throws ProtocolException, IOException {
-        byte[] payload = readData(inputStream);
+        byte[] payload = IOUtils.read(inputStream, 50, 3000);
         ChannelBuffer cb = ChannelBuffers.wrappedBuffer(payload);
 
         short packetType = cb.readShort();
 
         ResponsePacket packet = ResponsePacket.readBuffer(packetType, cb);
         return packet;
-    }
-
-    private byte[] readData(InputStream inputStream) throws IOException {
-        int availableSize = 0;
-
-        for (int i = 0; i < 3; i++) {
-            availableSize = inputStream.available();
-
-            if (availableSize > 0) {
-                break;
-            }
-
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-
-        byte[] payload = new byte[availableSize];
-        inputStream.read(payload);
-
-        return payload;
     }
 
     class SimpleListener implements ServerMessageListener {
