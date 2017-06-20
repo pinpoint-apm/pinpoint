@@ -2,32 +2,12 @@
 	'use strict';
 
 	pinpointApp.constant( "agentDaoServiceConfig", {
-		agentStatUrl: "getAgentStat.pinpoint",
 		dateFormat: "YYYY-MM-DD HH:mm:ss"
 	});
 
 	pinpointApp.service( "AgentDaoService", [ "agentDaoServiceConfig",
 		function AgentDaoService( cfg ) {
 
-			this.getAgentStat = function (query, cb) {
-				jQuery.ajax({
-					type: 'GET',
-					url: cfg.agentStatUrl,
-					cache: false,
-					dataType: 'json',
-					data: query,
-					success: function (result) {
-						if (angular.isFunction(cb)) {
-							cb(null, result);
-						}
-					},
-					error: function (xhr, status, error) {
-						if (angular.isFunction(cb)) {
-							cb(error, {});
-						}
-					}
-				});
-			};
 			/**
 			 * calculate a sampling rate based on the given period
 			 * @param period in minutes

@@ -12,7 +12,6 @@
 		"agentList"			: "getAgentList.pinpoint",							// agentId, timestamp ( or agentId, from, to )
 		"agentInfo"			: "getAgentInfo.pinpoint", 							// agentId, timestamp
 		"agentEvent"		: "getAgentEvent.pinpoint", 						// agentId, eventTimestamp, eventTypeCode
-		"agentStatus"		: "getAgentStatus.pinpoint", 						// agentId, timestamp
 		"agentEventList"	: "getAgentEvents.pinpoint", 						// agentId, from, to
 		"agentTimeline"		: "getAgentStatusTimeline.pinpoint",
 		"jvmChart"			: "getAgentStat/jvmGc/chart.pinpoint",
@@ -20,16 +19,12 @@
 		"tpsChart"			: "getAgentStat/transaction/chart.pinpoint",
 		"activeTraceChart"	: "getAgentStat/activeTrace/chart.pinpoint",
 		"dataSourceChart"	: "getAgentStat/dataSource/chartList.pinpoint",
-		"responseTimeChart" : "getAgentStat/responseTime/chart.pinpoint",
-		"agentStateForChart": "getAgentStat.pinpoint"
+		"responseTimeChart" : "getAgentStat/responseTime/chart.pinpoint"
 	});
 
 	pinpointApp.service('AgentAjaxService', [ 'AgentAjaxServiceConfig', '$http', function ($config, $http) {
 		this.getAgentList = function(data, callback) {
 			retrieve($config.agentList, data, callback);
-		};
-		this.getAgentStateForChart = function( data, callback ) {
-			retrieve($config.agentStateForChart, data, callback);
 		};
 		this.getJVMChartData = function( data, callback ) {
 			retrieve($config.jvmChart, data, callback);
