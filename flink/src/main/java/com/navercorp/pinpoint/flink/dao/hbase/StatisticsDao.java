@@ -16,24 +16,18 @@
 package com.navercorp.pinpoint.flink.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
-import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.CpuLoadSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.join.*;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.api.common.io.OutputFormat;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.CollectionUtil;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -44,16 +38,14 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
     private final byte[] STAT_METADATA_CF = Bytes.toBytes("S");
 
     private static final long serialVersionUID = 1L;
-    private static HbaseTemplate2 hbaseTemplate2 = null;
-    private static ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory;
-    private static CpuLoadSerializer cpuLoadSerializer;
+    private static CpuLoadDao cpuLoadDao;
+    private static MemoryDao memoryDao;
 
     private TableName APPLICATION_STAT_AGGRE;
 
-    public StatisticsDao(HbaseTemplate2 hbaseTemplate2, ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory, CpuLoadSerializer cpuLoadSerializer) {
-        this.hbaseTemplate2 = hbaseTemplate2;
-        this.applicationStatHbaseOperationFactory = applicationStatHbaseOperationFactory;
-        this.cpuLoadSerializer = cpuLoadSerializer;
+    public StatisticsDao(CpuLoadDao cpuLoadDao, MemoryDao memoryDao) {
+        this.cpuLoadDao = cpuLoadDao;
+        this.memoryDao = memoryDao;
     }
 
     @Override
@@ -80,22 +72,16 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
 
     private void insertJoinApplicationStatBo(JoinApplicationStatBo joinApplicationStatBo) {
         List<JoinStatBo> joinCpuLoadBoList = castJoinStatBoList(joinApplicationStatBo.getJoinCpuLoadBoList());
-        if (joinApplicationStatBo.getStatType() == StatType.APP_CPU_LOAD_AGGRE) {
+        List<JoinStatBo> joinMemoryBoList = castJoinStatBoList(joinApplicationStatBo.getJoinMemoryBoList());
+        if (joinApplicationStatBo.getStatType() == StatType.APP_STST_AGGRE) {
 //            logger.info("insert application aggre : " + new Date(joinApplicationStatBo.getTimestamp()) + " ("+ joinApplicationStatBo.getApplicationId() + " )");
         } else {
-            logger.info("[insert] " + new Date(joinApplicationStatBo.getTimestamp()) + " : ("+ joinApplicationStatBo + " )");
-
-            List<Put> cpuLoadPuts = applicationStatHbaseOperationFactory.createPuts(joinApplicationStatBo.getId(), joinCpuLoadBoList, StatType.APP_CPU_LOAD, cpuLoadSerializer);
-            if (!cpuLoadPuts.isEmpty()) {
-                List<Put> rejectedPuts = hbaseTemplate2.asyncPut(APPLICATION_STAT_AGGRE, cpuLoadPuts);
-                if (CollectionUtils.isNotEmpty(rejectedPuts)) {
-                    hbaseTemplate2.put(APPLICATION_STAT_AGGRE, rejectedPuts);
-                }
-            }
+            cpuLoadDao.insert(joinApplicationStatBo.getId(), joinApplicationStatBo.getTimestamp(), joinCpuLoadBoList, StatType.APP_CPU_LOAD);
+            memoryDao.insert(joinApplicationStatBo.getId(), joinApplicationStatBo.getTimestamp(), joinMemoryBoList, StatType.APP_MEMORY_USED);
         }
     }
 
-    private List<JoinStatBo> castJoinStatBoList(List<JoinCpuLoadBo> joinCpuLoadBoList) {
+    private List<JoinStatBo> castJoinStatBoList(List joinCpuLoadBoList) {
         if (CollectionUtil.isNullOrEmpty(joinCpuLoadBoList)) {
             new ArrayList<JoinStatBo>(null);
         }
@@ -127,12 +113,5 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
 
     @Override
     public void close() throws IOException {
-        if (hbaseTemplate2 != null) {
-            try {
-                hbaseTemplate2.destroy();
-            } catch (Exception e) {
-                throw new IOException(e);
-            }
-        }
     }
 }

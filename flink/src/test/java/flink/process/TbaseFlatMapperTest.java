@@ -22,8 +22,10 @@ import com.navercorp.pinpoint.flink.process.TbaseFlatMapper;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import com.navercorp.pinpoint.thrift.dto.flink.TFCpuLoad;
+import com.navercorp.pinpoint.thrift.dto.flink.TFJvmGc;
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -65,7 +67,7 @@ public class TbaseFlatMapperTest {
         JoinApplicationStatBo joinApplicationStatBo = (JoinApplicationStatBo) data2.f1;
         assertEquals(joinApplicationStatBo.getId(), APPLICATION_ID);
         assertEquals(joinApplicationStatBo.getTimestamp(), 1491274148454L);
-        assertEquals(joinApplicationStatBo.getStatType(), StatType.APP_CPU_LOAD);
+        assertEquals(joinApplicationStatBo.getStatType(), StatType.APP_STST);
         assertJoinCpuLoadBo(joinApplicationStatBo.getJoinCpuLoadBoList());
     }
 
@@ -127,5 +129,84 @@ public class TbaseFlatMapperTest {
         public String findApplicationId(ApplicationKey application) {
             return APPLICATION_ID;
         }
+    }
+
+    @Test
+    public void flatMap2Test() throws Exception {
+        TbaseFlatMapper mapper = new TbaseFlatMapper();
+        mapper.setApplicationCache(new MockApplicationCache());
+        TFAgentStatBatch tfAgentStatBatch = createTFAgentStatBatch2();
+        ArrayList<Tuple3<String, JoinStatBo, Long>> dataList = new ArrayList<>();
+        ListCollector<Tuple3<String, JoinStatBo, Long>> collector = new ListCollector<>(dataList);
+        mapper.flatMap(tfAgentStatBatch, collector);
+
+        assertEquals(dataList.size(), 2);
+
+        Tuple3<String, JoinStatBo, Long> data1 = dataList.get(0);
+        assertEquals(data1.f0, AGENT_ID);
+        assertEquals(data1.f2, 1491274148454L, 0);
+        JoinAgentStatBo joinAgentStatBo = (JoinAgentStatBo) data1.f1;
+        assertEquals(joinAgentStatBo.getId(), AGENT_ID);
+        assertEquals(joinAgentStatBo.getAgentStartTimestamp(), 1491274138454L);
+        assertEquals(joinAgentStatBo.getTimestamp(), 1491274148454L);
+        assertJoinMemoryBo(joinAgentStatBo.getJoinMemoryBoList());
+
+        Tuple3<String, JoinStatBo, Long> data2 = dataList.get(1);
+        assertEquals(data2.f0, APPLICATION_ID);
+        assertEquals(data2.f2, 1491274148454L, 0);
+        JoinApplicationStatBo joinApplicationStatBo = (JoinApplicationStatBo) data2.f1;
+        assertEquals(joinApplicationStatBo.getId(), APPLICATION_ID);
+        assertEquals(joinApplicationStatBo.getTimestamp(), 1491274148454L);
+        assertEquals(joinApplicationStatBo.getStatType(), StatType.APP_STST);
+        assertJoinMemoryBo(joinApplicationStatBo.getJoinMemoryBoList());
+    }
+
+    private void assertJoinMemoryBo(List<JoinMemoryBo> joinMemoryBoList) {
+        assertEquals(2, joinMemoryBoList.size());
+
+        JoinMemoryBo joinMemoryBo = joinMemoryBoList.get(0);
+        assertEquals(joinMemoryBo.getId(), AGENT_ID);
+        assertEquals(joinMemoryBo.getHeapUsed(), 3000);
+        assertEquals(joinMemoryBo.getNonHeapUsed(), 450);
+        assertEquals(joinMemoryBo.getTimestamp(), 1491274148454L);
+
+        JoinMemoryBo joinMemoryBo2 = joinMemoryBoList.get(1);
+        assertEquals(joinMemoryBo2.getId(), AGENT_ID);
+        assertEquals(joinMemoryBo2.getHeapUsed(), 2000);
+        assertEquals(joinMemoryBo2.getNonHeapUsed(), 850);
+        assertEquals(joinMemoryBo2.getTimestamp(), 1491275148454L);
+
+
+    }
+
+    private TFAgentStatBatch createTFAgentStatBatch2() {
+        final TFAgentStatBatch tFAgentStatBatch = new TFAgentStatBatch();
+        tFAgentStatBatch.setStartTimestamp(1491274138454L);
+        tFAgentStatBatch.setAgentId(AGENT_ID);
+
+        final TFAgentStat tFAgentStat = new TFAgentStat();
+        tFAgentStat.setAgentId(AGENT_ID);
+        tFAgentStat.setTimestamp(1491274148454L);
+
+        final TFJvmGc tFJvmGc = new TFJvmGc();
+        tFJvmGc.setJvmMemoryHeapUsed(3000);
+        tFJvmGc.setJvmMemoryNonHeapUsed(450);
+        tFAgentStat.setGc(tFJvmGc);
+
+        final TFAgentStat tFAgentStat2 = new TFAgentStat();
+        tFAgentStat2.setAgentId(AGENT_ID);
+        tFAgentStat2.setTimestamp(1491275148454L);
+
+        final TFJvmGc tFJvmGc2 = new TFJvmGc();
+        tFJvmGc2.setJvmMemoryHeapUsed(2000);
+        tFJvmGc2.setJvmMemoryNonHeapUsed(850);
+        tFAgentStat2.setGc(tFJvmGc2);
+
+        final List<TFAgentStat> tFAgentStatList = new ArrayList<>(2);
+        tFAgentStatList.add(tFAgentStat);
+        tFAgentStatList.add(tFAgentStat2);
+        tFAgentStatBatch.setAgentStats(tFAgentStatList);
+
+        return tFAgentStatBatch;
     }
 }

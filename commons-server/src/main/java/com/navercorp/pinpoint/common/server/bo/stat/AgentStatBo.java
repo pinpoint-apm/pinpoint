@@ -24,6 +24,9 @@ import java.util.List;
 public class AgentStatBo {
 
     private String agentId;
+
+    private long startTimestamp;
+
     private List<JvmGcBo> jvmGcBos;
     private List<JvmGcDetailedBo> jvmGcDetailedBos;
     private List<CpuLoadBo> cpuLoadBos;
@@ -32,6 +35,14 @@ public class AgentStatBo {
     private List<DataSourceListBo> dataSourceListBos;
     private List<ResponseTimeBo> responseTimeBos;
     private List<DeadlockBo> deadlockBos;
+
+    public long getStartTimestamp() {
+        return startTimestamp;
+    }
+
+    public void setStartTimestamp(long startTimestamp) {
+        this.startTimestamp = startTimestamp;
+    }
 
     public String getAgentId() {
         return agentId;

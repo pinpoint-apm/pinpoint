@@ -19,6 +19,8 @@ import org.junit.Test;
 
 import java.util.*;
 
+import static org.junit.Assert.*;
+
 /**
  * @author minwoo.jung
  */
@@ -36,9 +38,7 @@ public class JoinApplicationStatBoTest {
         JoinApplicationStatBo resultJoinApplicationStatBo = JoinApplicationStatBo.joinApplicationStatBoByTimeSlice(joinApplicationStatBoList);
         List<JoinCpuLoadBo> joinCpuLoadBoList = resultJoinApplicationStatBo.getJoinCpuLoadBoList();
         Collections.sort(joinCpuLoadBoList, new ComparatorImpl());
-        for(JoinCpuLoadBo joinCpuLoadBo : joinCpuLoadBoList) {
-            System.out.println(new Date(joinCpuLoadBo.getTimestamp()) + " : " + joinCpuLoadBo);
-        }
+        assertJoinCpuLoadBoList(joinCpuLoadBoList);
     }
 
     private class ComparatorImpl implements Comparator<JoinCpuLoadBo> {
@@ -48,71 +48,226 @@ public class JoinApplicationStatBoTest {
         }
     }
 
+    private void assertJoinCpuLoadBoList(List<JoinCpuLoadBo> joinCpuLoadBoList) {
+        assertEquals(joinCpuLoadBoList.size(), 5);
+        JoinCpuLoadBo joinCpuLoadBo1 = joinCpuLoadBoList.get(0);
+        assertEquals(joinCpuLoadBo1.getId(), "id1");
+        assertEquals(joinCpuLoadBo1.getTimestamp(), 1487149800000L);
+        assertEquals(joinCpuLoadBo1.getJvmCpuLoad(), 48.6, 0);
+        assertEquals(joinCpuLoadBo1.getMinJvmCpuLoad(), 22.0, 0);
+        assertEquals(joinCpuLoadBo1.getMinJvmCpuAgentId(), "id5_2");
+        assertEquals(joinCpuLoadBo1.getMaxJvmCpuLoad(), 91.0, 0);
+        assertEquals(joinCpuLoadBo1.getMaxJvmCpuAgentId(), "id4_1");
+        assertEquals(joinCpuLoadBo1.getSystemCpuLoad(), 78.6, 0);
+        assertEquals(joinCpuLoadBo1.getMinSystemCpuLoad(), 41.0, 0);
+        assertEquals(joinCpuLoadBo1.getMinSysCpuAgentId(), "id5_4");
+        assertEquals(joinCpuLoadBo1.getMaxSystemCpuLoad(), 91.0, 0);
+        assertEquals(joinCpuLoadBo1.getMaxSysCpuAgentId(), "id4_3");
+
+        JoinCpuLoadBo joinCpuLoadBo2 = joinCpuLoadBoList.get(1);
+        assertEquals(joinCpuLoadBo2.getId(), "id1");
+        assertEquals(joinCpuLoadBo2.getTimestamp(), 1487149805000L);
+        assertEquals(joinCpuLoadBo2.getJvmCpuLoad(), 38.6, 0);
+        assertEquals(joinCpuLoadBo2.getMinJvmCpuLoad(), 35.0, 0);
+        assertEquals(joinCpuLoadBo2.getMinJvmCpuAgentId(), "id5_2");
+        assertEquals(joinCpuLoadBo2.getMaxJvmCpuLoad(), 81.0, 0);
+        assertEquals(joinCpuLoadBo2.getMaxJvmCpuAgentId(), "id4_1");
+        assertEquals(joinCpuLoadBo2.getSystemCpuLoad(), 68.6, 0);
+        assertEquals(joinCpuLoadBo2.getMinSystemCpuLoad(), 35.0, 0);
+        assertEquals(joinCpuLoadBo2.getMinSysCpuAgentId(), "id5_4");
+        assertEquals(joinCpuLoadBo2.getMaxSystemCpuLoad(), 81.0, 0);
+        assertEquals(joinCpuLoadBo2.getMaxSysCpuAgentId(), "id4_3");
+
+        JoinCpuLoadBo joinCpuLoadBo3 = joinCpuLoadBoList.get(2);
+        assertEquals(joinCpuLoadBo3.getId(), "id1");
+        assertEquals(joinCpuLoadBo3.getTimestamp(), 1487149810000L);
+        assertEquals(joinCpuLoadBo3.getJvmCpuLoad(), 28.6, 0);
+        assertEquals(joinCpuLoadBo3.getMinJvmCpuLoad(), 22.0, 0);
+        assertEquals(joinCpuLoadBo3.getMinJvmCpuAgentId(), "id5_2");
+        assertEquals(joinCpuLoadBo3.getMaxJvmCpuLoad(), 71.0, 0);
+        assertEquals(joinCpuLoadBo3.getMaxJvmCpuAgentId(), "id4_1");
+        assertEquals(joinCpuLoadBo3.getSystemCpuLoad(), 58.6, 0);
+        assertEquals(joinCpuLoadBo3.getMinSystemCpuLoad(), 22.0, 0);
+        assertEquals(joinCpuLoadBo3.getMinSysCpuAgentId(), "id5_4");
+        assertEquals(joinCpuLoadBo3.getMaxSystemCpuLoad(), 71.0, 0);
+        assertEquals(joinCpuLoadBo3.getMaxSysCpuAgentId(), "id4_3");
+
+        JoinCpuLoadBo joinCpuLoadBo4 = joinCpuLoadBoList.get(3);
+        assertEquals(joinCpuLoadBo4.getId(), "id1");
+        assertEquals(joinCpuLoadBo4.getTimestamp(), 1487149815000L);
+        assertEquals(joinCpuLoadBo4.getJvmCpuLoad(), 18.6, 0);
+        assertEquals(joinCpuLoadBo4.getMinJvmCpuLoad(), 12.0, 0);
+        assertEquals(joinCpuLoadBo4.getMinJvmCpuAgentId(), "id5_2");
+        assertEquals(joinCpuLoadBo4.getMaxJvmCpuLoad(), 61.0, 0);
+        assertEquals(joinCpuLoadBo4.getMaxJvmCpuAgentId(), "id4_1");
+        assertEquals(joinCpuLoadBo4.getSystemCpuLoad(), 38.6, 0);
+        assertEquals(joinCpuLoadBo4.getMinSystemCpuLoad(), 13.0, 0);
+        assertEquals(joinCpuLoadBo4.getMinSysCpuAgentId(), "id5_4");
+        assertEquals(joinCpuLoadBo4.getMaxSystemCpuLoad(), 93.0, 0);
+        assertEquals(joinCpuLoadBo4.getMaxSysCpuAgentId(), "id4_3");
+
+        JoinCpuLoadBo joinCpuLoadBo5 = joinCpuLoadBoList.get(4);
+        assertEquals(joinCpuLoadBo5.getId(), "id1");
+        assertEquals(joinCpuLoadBo5.getTimestamp(), 1487149820000L);
+        assertEquals(joinCpuLoadBo5.getJvmCpuLoad(), 8.6, 0);
+        assertEquals(joinCpuLoadBo5.getMinJvmCpuLoad(), 2.0, 0);
+        assertEquals(joinCpuLoadBo5.getMinJvmCpuAgentId(), "id5_2");
+        assertEquals(joinCpuLoadBo5.getMaxJvmCpuLoad(), 93.0, 0);
+        assertEquals(joinCpuLoadBo5.getMaxJvmCpuAgentId(), "id4_1");
+        assertEquals(joinCpuLoadBo5.getSystemCpuLoad(), 28.6, 0);
+        assertEquals(joinCpuLoadBo5.getMinSystemCpuLoad(), 3.0, 0);
+        assertEquals(joinCpuLoadBo5.getMinSysCpuAgentId(), "id5_4");
+        assertEquals(joinCpuLoadBo5.getMaxSystemCpuLoad(), 63.0, 0);
+        assertEquals(joinCpuLoadBo5.getMaxSysCpuAgentId(), "id4_3");
+    }
+
     private JoinApplicationStatBo createJoinApplicationStatBo(final String id, final long timestamp, final int plus) {
         final JoinApplicationStatBo joinApplicationStatBo = new JoinApplicationStatBo();
         joinApplicationStatBo.setId(id);
         joinApplicationStatBo.setJoinCpuLoadBoList(createJoinCpuLoadBoList(id, timestamp, plus));
         joinApplicationStatBo.setTimestamp(timestamp);
-        joinApplicationStatBo.setStatType(StatType.APP_CPU_LOAD);
+        joinApplicationStatBo.setStatType(StatType.APP_STST);
         return joinApplicationStatBo;
     }
 
     private List<JoinCpuLoadBo> createJoinCpuLoadBoList(final String id, final long currentTime, int plus) {
         final List<JoinCpuLoadBo> joinCpuLoadBoList = new ArrayList<JoinCpuLoadBo>();
-        JoinCpuLoadBo joinCpuLoadBo1 = new JoinCpuLoadBo(id, 50 + plus, 97 + plus, 27 + plus, 80 + plus, 97 + plus, 46 + plus, currentTime);
-        JoinCpuLoadBo joinCpuLoadBo2 = new JoinCpuLoadBo(id, 40 + plus, 87 + plus, 40 + plus, 70 + plus, 97 + plus, 40 + plus, currentTime + 5000);
-        JoinCpuLoadBo joinCpuLoadBo3 = new JoinCpuLoadBo(id, 30 + plus, 77 + plus, 27 + plus, 60 + plus, 77 + plus, 27 + plus, currentTime + 10000);
-        JoinCpuLoadBo joinCpuLoadBo4 = new JoinCpuLoadBo(id, 20 + plus, 67 + plus, 17 + plus, 40 + plus, 99 + plus, 18 + plus, currentTime + 15000);
-        JoinCpuLoadBo joinCpuLoadBo5 = new JoinCpuLoadBo(id, 10 + plus, 99 + plus, 7 + plus, 30 + plus, 59 + plus, 8 + plus, currentTime + 20000);
+        JoinCpuLoadBo joinCpuLoadBo1 = new JoinCpuLoadBo(id, 50 + plus, 87 + plus, id + "_1", 27 + plus, id + "_2", 80 + plus, 87 + plus, id + "_3", 46 + plus, id + "_4", currentTime);
+        JoinCpuLoadBo joinCpuLoadBo2 = new JoinCpuLoadBo(id, 40 + plus, 77 + plus, id + "_1", 40 + plus, id + "_2", 70 + plus, 77 + plus, id + "_3", 40 + plus, id + "_4", currentTime + 5000);
+        JoinCpuLoadBo joinCpuLoadBo3 = new JoinCpuLoadBo(id, 30 + plus, 67 + plus, id + "_1", 27 + plus, id + "_2", 60 + plus, 67 + plus, id + "_3", 27 + plus, id + "_4", currentTime + 10000);
+        JoinCpuLoadBo joinCpuLoadBo4 = new JoinCpuLoadBo(id, 20 + plus, 57 + plus, id + "_1", 17 + plus, id + "_2", 40 + plus, 89 + plus, id + "_3", 18 + plus, id + "_4", currentTime + 15000);
+        JoinCpuLoadBo joinCpuLoadBo5 = new JoinCpuLoadBo(id, 10 + plus, 89 + plus, id + "_1", 7 + plus, id + "_2", 30 + plus, 59 + plus, id + "_3", 8 + plus, id + "_4", currentTime + 20000);
+
         joinCpuLoadBoList.add(joinCpuLoadBo1);
         joinCpuLoadBoList.add(joinCpuLoadBo2);
         joinCpuLoadBoList.add(joinCpuLoadBo3);
         joinCpuLoadBoList.add(joinCpuLoadBo4);
         joinCpuLoadBoList.add(joinCpuLoadBo5);
-        for(JoinCpuLoadBo joinCpuLoadBo : joinCpuLoadBoList) {
-            System.out.println(new Date(joinCpuLoadBo.getTimestamp()) + " : " + joinCpuLoadBo);
-        }
+
         return joinCpuLoadBoList;
+    }
+
+    @Test
+    public void joinApplicationStatBoByTimeSlice2Test() {
+        final long currentTime = 1487149800000L; // 18:10:00 15 2 2017
+        List<JoinApplicationStatBo> joinApplicationStatBoList = new ArrayList<JoinApplicationStatBo>();
+        joinApplicationStatBoList.add(createJoinApplicationStatBo2("id1", currentTime, 10));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo2("id2", currentTime + 1000, -40));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo2("id3", currentTime + 2000, -30));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo2("id4", currentTime + 3000, 40));
+        joinApplicationStatBoList.add(createJoinApplicationStatBo2("id5", currentTime + 4000, -50));
+        JoinApplicationStatBo resultJoinApplicationStatBo = JoinApplicationStatBo.joinApplicationStatBoByTimeSlice(joinApplicationStatBoList);
+        List<JoinMemoryBo> joinMemoryBoList = resultJoinApplicationStatBo.getJoinMemoryBoList();
+        Collections.sort(joinMemoryBoList, new ComparatorImpl2());
+        assertJoinMemoryBoList(joinMemoryBoList);
+    }
+
+    private void assertJoinMemoryBoList(List<JoinMemoryBo> joinMemoryBoList) {
+        assertEquals(5, joinMemoryBoList.size());
+
+        JoinMemoryBo joinMemoryBo1 = joinMemoryBoList.get(0);
+        assertEquals("id1", joinMemoryBo1.getId());
+        assertEquals(1487149800000L, joinMemoryBo1.getTimestamp());
+        assertEquals(2986, joinMemoryBo1.getHeapUsed());
+        assertEquals(1950, joinMemoryBo1.getMinHeapUsed());
+        assertEquals(5040, joinMemoryBo1.getMaxHeapUsed());
+        assertEquals("id5_1", joinMemoryBo1.getMinHeapAgentId());
+        assertEquals("id4_2", joinMemoryBo1.getMaxHeapAgentId());
+        assertEquals(486, joinMemoryBo1.getNonHeapUsed());
+        assertEquals(0, joinMemoryBo1.getMinNonHeapUsed());
+        assertEquals(640, joinMemoryBo1.getMaxNonHeapUsed());
+        assertEquals("id5_3", joinMemoryBo1.getMinNonHeapAgentId());
+        assertEquals("id4_4", joinMemoryBo1.getMaxNonHeapAgentId());
+
+        JoinMemoryBo joinMemoryBo2 = joinMemoryBoList.get(1);
+        assertEquals("id1", joinMemoryBo2.getId());
+        assertEquals(1487149805000L, joinMemoryBo2.getTimestamp());
+        assertEquals(3986, joinMemoryBo2.getHeapUsed());
+        assertEquals(950, joinMemoryBo2.getMinHeapUsed());
+        assertEquals(7040, joinMemoryBo2.getMaxHeapUsed());
+        assertEquals("id5_1", joinMemoryBo2.getMinHeapAgentId());
+        assertEquals("id4_2", joinMemoryBo2.getMaxHeapAgentId());
+        assertEquals(386, joinMemoryBo2.getNonHeapUsed());
+        assertEquals(100, joinMemoryBo2.getMinNonHeapUsed());
+        assertEquals(640, joinMemoryBo2.getMaxNonHeapUsed());
+        assertEquals("id5_3", joinMemoryBo2.getMinNonHeapAgentId());
+        assertEquals("id4_4", joinMemoryBo2.getMaxNonHeapAgentId());
+
+        JoinMemoryBo joinMemoryBo3 = joinMemoryBoList.get(2);
+        assertEquals("id1", joinMemoryBo3.getId());
+        assertEquals(1487149810000L, joinMemoryBo3.getTimestamp());
+        assertEquals(4986, joinMemoryBo3.getHeapUsed());
+        assertEquals(2950, joinMemoryBo3.getMinHeapUsed());
+        assertEquals(8040, joinMemoryBo3.getMaxHeapUsed());
+        assertEquals("id5_1", joinMemoryBo3.getMinHeapAgentId());
+        assertEquals("id4_2", joinMemoryBo3.getMaxHeapAgentId());
+        assertEquals(186, joinMemoryBo3.getNonHeapUsed());
+        assertEquals(50, joinMemoryBo3.getMinNonHeapUsed());
+        assertEquals(240, joinMemoryBo3.getMaxNonHeapUsed());
+        assertEquals("id5_3", joinMemoryBo3.getMinNonHeapAgentId());
+        assertEquals("id4_4", joinMemoryBo3.getMaxNonHeapAgentId());
+
+        JoinMemoryBo joinMemoryBo4 = joinMemoryBoList.get(3);
+        assertEquals("id1", joinMemoryBo4.getId());
+        assertEquals(1487149815000L, joinMemoryBo4.getTimestamp());
+        assertEquals(986, joinMemoryBo4.getHeapUsed());
+        assertEquals(50, joinMemoryBo4.getMinHeapUsed());
+        assertEquals(3040, joinMemoryBo4.getMaxHeapUsed());
+        assertEquals("id5_1", joinMemoryBo4.getMinHeapAgentId());
+        assertEquals("id4_2", joinMemoryBo4.getMaxHeapAgentId());
+        assertEquals(86, joinMemoryBo4.getNonHeapUsed());
+        assertEquals(850, joinMemoryBo4.getMinNonHeapUsed());
+        assertEquals(1040, joinMemoryBo4.getMaxNonHeapUsed());
+        assertEquals("id5_3", joinMemoryBo4.getMinNonHeapAgentId());
+        assertEquals("id4_4", joinMemoryBo4.getMaxNonHeapAgentId());
+
+        JoinMemoryBo joinMemoryBo5 = joinMemoryBoList.get(4);
+        assertEquals("id1", joinMemoryBo5.getId());
+        assertEquals(1487149820000L, joinMemoryBo5.getTimestamp());
+        assertEquals(1986, joinMemoryBo5.getHeapUsed());
+        assertEquals(950, joinMemoryBo5.getMinHeapUsed());
+        assertEquals(6040, joinMemoryBo5.getMaxHeapUsed());
+        assertEquals("id5_1", joinMemoryBo5.getMinHeapAgentId());
+        assertEquals("id4_2", joinMemoryBo5.getMaxHeapAgentId());
+        assertEquals(286, joinMemoryBo5.getNonHeapUsed());
+        assertEquals(50, joinMemoryBo5.getMinNonHeapUsed());
+        assertEquals(2940, joinMemoryBo5.getMaxNonHeapUsed());
+        assertEquals("id5_3", joinMemoryBo5.getMinNonHeapAgentId());
+        assertEquals("id4_4", joinMemoryBo5.getMaxNonHeapAgentId());
+    }
+
+    private class ComparatorImpl2 implements Comparator<JoinMemoryBo> {
+        @Override
+        public int compare(JoinMemoryBo bo1, JoinMemoryBo bo2) {
+            return bo1.getTimestamp() < bo2.getTimestamp() ? -1 : 1;
+        }
+    }
+
+    private JoinApplicationStatBo createJoinApplicationStatBo2(final String id, final long timestamp, final int plus) {
+        final JoinApplicationStatBo joinApplicationStatBo = new JoinApplicationStatBo();
+        joinApplicationStatBo.setId(id);
+        joinApplicationStatBo.setJoinMemoryBoList(createJoinMemoryBoList2(id, timestamp, plus));
+        joinApplicationStatBo.setTimestamp(timestamp);
+        joinApplicationStatBo.setStatType(StatType.APP_STST);
+        return joinApplicationStatBo;
+    }
+
+    private List<JoinMemoryBo> createJoinMemoryBoList2(final String id, final long currentTime, int plus) {
+        final List<JoinMemoryBo> joinMemoryBoList = new ArrayList<JoinMemoryBo>();
+        JoinMemoryBo joinMemoryBo1 = new JoinMemoryBo(id, currentTime, 3000 + plus, 2000 + plus, 5000 + plus, id + "_1", id + "_2", 500 + plus, 50 + plus, 600 + plus, id + "_3", id + "_4");
+        JoinMemoryBo joinMemoryBo2 = new JoinMemoryBo(id, currentTime + 5000, 4000 + plus, 1000 + plus, 7000 + plus, id + "_1", id + "_2", 400 + plus, 150 + plus, 600 + plus, id + "_3", id + "_4");
+        JoinMemoryBo joinMemoryBo3 = new JoinMemoryBo(id, currentTime + 10000, 5000 + plus, 3000 + plus, 8000 + plus, id + "_1", id + "_2", 200 + plus, 100 + plus, 200 + plus, id + "_3", id + "_4");
+        JoinMemoryBo joinMemoryBo4 = new JoinMemoryBo(id, currentTime + 15000, 1000 + plus, 100 + plus, 3000 + plus, id + "_1", id + "_2", 100 + plus, 900 + plus, 1000 + plus, id + "_3", id + "_4");
+        JoinMemoryBo joinMemoryBo5 = new JoinMemoryBo(id, currentTime + + 20000, 2000 + plus, 1000 + plus, 6000 + plus, id + "_1", id + "_2", 300 + plus, 100 + plus, 2900 + plus, id + "_3", id + "_4");
+
+        joinMemoryBoList.add(joinMemoryBo1);
+        joinMemoryBoList.add(joinMemoryBo2);
+        joinMemoryBoList.add(joinMemoryBo3);
+        joinMemoryBoList.add(joinMemoryBo4);
+        joinMemoryBoList.add(joinMemoryBo5);
+
+        return joinMemoryBoList;
     }
 }
 
-//--------------------------------------------------
-//    Wed Feb 15 18:10:00 KST 2017 : JoinCpuLoadBo{version=1, id='id1', jvmCpuLoad=51.0, maxJvmCpuLoad=98.0, minJvmCpuLoad=28.0, systemCpuLoad=81.0, maxSystemCpuLoad=98.0, minSystemCpuLoad=47.0, timestamp=1487149800000}
-//    Wed Feb 15 18:10:01 KST 2017 : JoinCpuLoadBo{version=1, id='id2', jvmCpuLoad=46.0, maxJvmCpuLoad=93.0, minJvmCpuLoad=23.0, systemCpuLoad=76.0, maxSystemCpuLoad=93.0, minSystemCpuLoad=42.0, timestamp=1487149801000}
-//    Wed Feb 15 18:10:02 KST 2017 : JoinCpuLoadBo{version=1, id='id3', jvmCpuLoad=47.0, maxJvmCpuLoad=94.0, minJvmCpuLoad=24.0, systemCpuLoad=77.0, maxSystemCpuLoad=94.0, minSystemCpuLoad=43.0, timestamp=1487149802000}
-//    Wed Feb 15 18:10:03 KST 2017 : JoinCpuLoadBo{version=1, id='id4', jvmCpuLoad=54.0, maxJvmCpuLoad=101.0, minJvmCpuLoad=31.0, systemCpuLoad=84.0, maxSystemCpuLoad=101.0, minSystemCpuLoad=50.0, timestamp=1487149803000}
-//    Wed Feb 15 18:10:04 KST 2017 : JoinCpuLoadBo{version=1, id='id5', jvmCpuLoad=45.0, maxJvmCpuLoad=92.0, minJvmCpuLoad=22.0, systemCpuLoad=75.0, maxSystemCpuLoad=92.0, minSystemCpuLoad=41.0, timestamp=1487149804000}
-//
-//    Wed Feb 15 18:10:00 KST 2017 : JoinCpuLoadBo{version=1, id='id1', jvmCpuLoad=48.6, maxJvmCpuLoad=101.0, minJvmCpuLoad=22.0, systemCpuLoad=78.6, maxSystemCpuLoad=101.0, minSystemCpuLoad=41.0, timestamp=1487149800000}
-//    --------------------------------------------------
-//    Wed Feb 15 18:10:05 KST 2017 : JoinCpuLoadBo{version=1, id='id1', jvmCpuLoad=41.0, maxJvmCpuLoad=88.0, minJvmCpuLoad=41.0, systemCpuLoad=71.0, maxSystemCpuLoad=98.0, minSystemCpuLoad=41.0, timestamp=1487149805000}
-//    Wed Feb 15 18:10:06 KST 2017 : JoinCpuLoadBo{version=1, id='id2', jvmCpuLoad=36.0, maxJvmCpuLoad=83.0, minJvmCpuLoad=36.0, systemCpuLoad=66.0, maxSystemCpuLoad=93.0, minSystemCpuLoad=36.0, timestamp=1487149806000}
-//    Wed Feb 15 18:10:07 KST 2017 : JoinCpuLoadBo{version=1, id='id3', jvmCpuLoad=37.0, maxJvmCpuLoad=84.0, minJvmCpuLoad=37.0, systemCpuLoad=67.0, maxSystemCpuLoad=94.0, minSystemCpuLoad=37.0, timestamp=1487149807000}
-//    Wed Feb 15 18:10:08 KST 2017 : JoinCpuLoadBo{version=1, id='id4', jvmCpuLoad=44.0, maxJvmCpuLoad=91.0, minJvmCpuLoad=44.0, systemCpuLoad=74.0, maxSystemCpuLoad=101.0, minSystemCpuLoad=44.0, timestamp=1487149808000}
-//    Wed Feb 15 18:10:09 KST 2017 : JoinCpuLoadBo{version=1, id='id5', jvmCpuLoad=35.0, maxJvmCpuLoad=82.0, minJvmCpuLoad=35.0, systemCpuLoad=65.0, maxSystemCpuLoad=92.0, minSystemCpuLoad=35.0, timestamp=1487149809000}
-//
-//    Wed Feb 15 18:10:05 KST 2017 : JoinCpuLoadBo{version=1, id='id1', jvmCpuLoad=38.6, maxJvmCpuLoad=91.0, minJvmCpuLoad=35.0, systemCpuLoad=68.6, maxSystemCpuLoad=101.0, minSystemCpuLoad=35.0, timestamp=1487149805000}
-//    --------------------------------------------------
-//    Wed Feb 15 18:10:10 KST 2017 : JoinCpuLoadBo{version=1, id='id1', jvmCpuLoad=31.0, maxJvmCpuLoad=78.0, minJvmCpuLoad=28.0, systemCpuLoad=61.0, maxSystemCpuLoad=78.0, minSystemCpuLoad=28.0, timestamp=1487149810000}
-//    Wed Feb 15 18:10:11 KST 2017 : JoinCpuLoadBo{version=1, id='id2', jvmCpuLoad=26.0, maxJvmCpuLoad=73.0, minJvmCpuLoad=23.0, systemCpuLoad=56.0, maxSystemCpuLoad=73.0, minSystemCpuLoad=23.0, timestamp=1487149811000}
-//    Wed Feb 15 18:10:12 KST 2017 : JoinCpuLoadBo{version=1, id='id3', jvmCpuLoad=27.0, maxJvmCpuLoad=74.0, minJvmCpuLoad=24.0, systemCpuLoad=57.0, maxSystemCpuLoad=74.0, minSystemCpuLoad=24.0, timestamp=1487149812000}
-//    Wed Feb 15 18:10:13 KST 2017 : JoinCpuLoadBo{version=1, id='id4', jvmCpuLoad=34.0, maxJvmCpuLoad=81.0, minJvmCpuLoad=31.0, systemCpuLoad=64.0, maxSystemCpuLoad=81.0, minSystemCpuLoad=31.0, timestamp=1487149813000}
-//    Wed Feb 15 18:10:14 KST 2017 : JoinCpuLoadBo{version=1, id='id5', jvmCpuLoad=25.0, maxJvmCpuLoad=72.0, minJvmCpuLoad=22.0, systemCpuLoad=55.0, maxSystemCpuLoad=72.0, minSystemCpuLoad=22.0, timestamp=1487149814000}
-//
-//    Wed Feb 15 18:10:10 KST 2017 : JoinCpuLoadBo{version=1, id='id1', jvmCpuLoad=28.6, maxJvmCpuLoad=81.0, minJvmCpuLoad=22.0, systemCpuLoad=58.6, maxSystemCpuLoad=81.0, minSystemCpuLoad=22.0, timestamp=1487149810000}
-//    --------------------------------------------------
-//    Wed Feb 15 18:10:15 KST 2017 : JoinCpuLoadBo{version=1, id='id1', jvmCpuLoad=21.0, maxJvmCpuLoad=68.0, minJvmCpuLoad=18.0, systemCpuLoad=41.0, maxSystemCpuLoad=100.0, minSystemCpuLoad=19.0, timestamp=1487149815000}
-//    Wed Feb 15 18:10:16 KST 2017 : JoinCpuLoadBo{version=1, id='id2', jvmCpuLoad=16.0, maxJvmCpuLoad=63.0, minJvmCpuLoad=13.0, systemCpuLoad=36.0, maxSystemCpuLoad=95.0, minSystemCpuLoad=14.0, timestamp=1487149816000}
-//    Wed Feb 15 18:10:17 KST 2017 : JoinCpuLoadBo{version=1, id='id3', jvmCpuLoad=17.0, maxJvmCpuLoad=64.0, minJvmCpuLoad=14.0, systemCpuLoad=37.0, maxSystemCpuLoad=96.0, minSystemCpuLoad=15.0, timestamp=1487149817000}
-//    Wed Feb 15 18:10:18 KST 2017 : JoinCpuLoadBo{version=1, id='id4', jvmCpuLoad=24.0, maxJvmCpuLoad=71.0, minJvmCpuLoad=21.0, systemCpuLoad=44.0, maxSystemCpuLoad=103.0, minSystemCpuLoad=22.0, timestamp=1487149818000}
-//    Wed Feb 15 18:10:19 KST 2017 : JoinCpuLoadBo{version=1, id='id5', jvmCpuLoad=15.0, maxJvmCpuLoad=62.0, minJvmCpuLoad=12.0, systemCpuLoad=35.0, maxSystemCpuLoad=94.0, minSystemCpuLoad=13.0, timestamp=1487149819000}
-//
-//    Wed Feb 15 18:10:15 KST 2017 : JoinCpuLoadBo{version=1, id='id1', jvmCpuLoad=18.6, maxJvmCpuLoad=71.0, minJvmCpuLoad=12.0, systemCpuLoad=38.6, maxSystemCpuLoad=103.0, minSystemCpuLoad=13.0, timestamp=1487149815000}
-//    --------------------------------------------------
-//    Wed Feb 15 18:10:20 KST 2017 : JoinCpuLoadBo{version=1, id='id1', jvmCpuLoad=11.0, maxJvmCpuLoad=100.0, minJvmCpuLoad=8.0, systemCpuLoad=31.0, maxSystemCpuLoad=60.0, minSystemCpuLoad=9.0, timestamp=1487149820000}
-//    Wed Feb 15 18:10:21 KST 2017 : JoinCpuLoadBo{version=1, id='id2', jvmCpuLoad=6.0, maxJvmCpuLoad=95.0, minJvmCpuLoad=3.0, systemCpuLoad=26.0, maxSystemCpuLoad=55.0, minSystemCpuLoad=4.0, timestamp=1487149821000}
-//    Wed Feb 15 18:10:22 KST 2017 : JoinCpuLoadBo{version=1, id='id3', jvmCpuLoad=7.0, maxJvmCpuLoad=96.0, minJvmCpuLoad=4.0, systemCpuLoad=27.0, maxSystemCpuLoad=56.0, minSystemCpuLoad=5.0, timestamp=1487149822000}
-//    Wed Feb 15 18:10:23 KST 2017 : JoinCpuLoadBo{version=1, id='id4', jvmCpuLoad=14.0, maxJvmCpuLoad=103.0, minJvmCpuLoad=11.0, systemCpuLoad=34.0, maxSystemCpuLoad=63.0, minSystemCpuLoad=12.0, timestamp=1487149823000}
-//    Wed Feb 15 18:10:24 KST 2017 : JoinCpuLoadBo{version=1, id='id5', jvmCpuLoad=5.0, maxJvmCpuLoad=94.0, minJvmCpuLoad=2.0, systemCpuLoad=25.0, maxSystemCpuLoad=54.0, minSystemCpuLoad=3.0, timestamp=1487149824000}
-//
-//    Wed Feb 15 18:10:20 KST 2017 : JoinCpuLoadBo{version=1, id='id1', jvmCpuLoad=8.6, maxJvmCpuLoad=103.0, minJvmCpuLoad=2.0, systemCpuLoad=28.6, maxSystemCpuLoad=63.0, minSystemCpuLoad=3.0, timestamp=1487149820000}
+
