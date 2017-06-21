@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -30,7 +29,7 @@ import static org.junit.Assert.*;
 /**
  * @author minwoo.jung
  */
-public class TFAgentStatMappterTest {
+public class TFAgentStatMapperTest {
 
     public static final String TEST_AGENT = "test_agent";
     public static final long startTimestamp = 1496370596375L;
@@ -45,7 +44,7 @@ public class TFAgentStatMappterTest {
         agentStatBo.setAgentId(TEST_AGENT);
         agentStatBo.setCpuLoadBos(createCpuLoadBoList());
 
-        List<TFAgentStat> tFAgentStatList = new TFAgentStatMappter().map(agentStatBo);
+        List<TFAgentStat> tFAgentStatList = new TFAgentStatMapper().map(agentStatBo);
         assertEquals(3, tFAgentStatList.size());
 
         TFAgentStat tFAgentStat1 = tFAgentStatList.get(0);

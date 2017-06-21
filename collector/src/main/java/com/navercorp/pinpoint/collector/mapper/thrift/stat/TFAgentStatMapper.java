@@ -26,7 +26,7 @@ import java.util.*;
 /**
  * @author minwoo.jung
  */
-public class TFAgentStatMappter {
+public class TFAgentStatMapper {
     private static final TFCpuLoadMapper tFCpuLoadMapper = new TFCpuLoadMapper();
     private static final TFJvmGcMapper tFJvmGcMapper = new TFJvmGcMapper();
 
