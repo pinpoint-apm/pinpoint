@@ -191,6 +191,11 @@ CATALINA_OPTS="$CATALINA_OPTS <b>-Dpinpoint.applicationName</b>=$APPLICATION_NAM
 
 Start up Tomcat to start profiling your web application.
 
+Some application servers require additional configuration and/or may have caveats. Please take a look at the links below for further details.
+* [JBoss](https://github.com/naver/pinpoint/tree/master/plugins/jboss#pinpoint-jboss-plugin-configuration)
+* [Jetty](https://github.com/naver/pinpoint/blob/master/plugins/jetty/README.md)
+* [Resin](https://github.com/naver/pinpoint/tree/master/plugins/resin#pinpoint-resin-plugin-configuration)
+
 ### Configuration
 
 There are various configuration options for Pinpoint Agent available in *$AGENT_PATH/pinpoint.config*.
