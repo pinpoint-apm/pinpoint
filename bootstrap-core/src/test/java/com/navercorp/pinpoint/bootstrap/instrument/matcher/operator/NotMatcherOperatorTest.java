@@ -28,21 +28,10 @@ public class NotMatcherOperatorTest {
 
     @Test
     public void base() throws Exception {
-        NotMatcherOperator operator = new NotMatcherOperator();
-        assertEquals(0, operator.getExecutionCost());
-        assertNull(operator.getLeftOperand());
-        assertNull(operator.getRightOperand());
+        NotMatcherOperator operator = new NotMatcherOperator(new InterfaceInternalNameMatcherOperand("java/lang/Serializable", false));
         assertEquals(3, operator.getPrecedence());
         assertTrue(operator.isOperator());
         assertFalse(operator.isIndex());
-
-        try {
-            operator.setLeftOperand(new ClassInternalNameMatcherOperand("java/lang/String"));
-            fail("passed exception.");
-        } catch(Exception e) {
-        }
-
-        operator.setRightOperand(new InterfaceInternalNameMatcherOperand("java/lang/Serializable", false));
         assertEquals(2, operator.getExecutionCost());
     }
 }

@@ -18,13 +18,23 @@ package com.navercorp.pinpoint.bootstrap.instrument.matcher.operator;
 
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.AbstractMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
+import com.navercorp.pinpoint.common.annotations.InterfaceStability;
+import com.navercorp.pinpoint.common.util.Assert;
 
 /**
  * @author jaehong.kim
  */
+@InterfaceStability.Unstable
 public class AndMatcherOperator extends AbstractMatcherOperand implements MatcherOperator {
-    private MatcherOperand leftOperand;
-    private MatcherOperand rightOperand;
+    private final MatcherOperand leftOperand;
+    private final MatcherOperand rightOperand;
+
+    public AndMatcherOperator(final MatcherOperand leftOperand, final MatcherOperand rightOperand) {
+        Assert.requireNonNull(leftOperand, "leftOperand must not be null");
+        this.leftOperand = leftOperand;
+        Assert.requireNonNull(rightOperand, "rightOperand must not be null");
+        this.rightOperand = rightOperand;
+    }
 
     @Override
     public int getPrecedence() {
@@ -34,10 +44,7 @@ public class AndMatcherOperator extends AbstractMatcherOperand implements Matche
     @Override
     public int getExecutionCost() {
         // left operand + right operand.
-        int executionCost = this.leftOperand != null ? this.leftOperand.getExecutionCost() : 0;
-        executionCost += this.rightOperand != null ? this.rightOperand.getExecutionCost() : 0;
-
-        return executionCost;
+        return this.leftOperand.getExecutionCost() + this.rightOperand.getExecutionCost();
     }
 
     @Override
@@ -54,28 +61,15 @@ public class AndMatcherOperator extends AbstractMatcherOperand implements Matche
         return leftOperand;
     }
 
-    public void setLeftOperand(MatcherOperand leftOperand) {
-        this.leftOperand = leftOperand;
-    }
-
     public MatcherOperand getRightOperand() {
         return rightOperand;
     }
 
-    public void setRightOperand(MatcherOperand rightOperand) {
-        this.rightOperand = rightOperand;
-    }
-
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        if (this.leftOperand != null) {
-            sb.append("(").append(this.leftOperand).append(" ");
-        }
-        sb.append("AND");
-        if (this.rightOperand != null) {
-            sb.append(" ").append(this.rightOperand).append(")");
-        }
-
+        final StringBuilder sb = new StringBuilder();
+        sb.append("(").append(this.leftOperand);
+        sb.append(" AND ");
+        sb.append(this.rightOperand).append(")");
         return sb.toString();
     }
 }

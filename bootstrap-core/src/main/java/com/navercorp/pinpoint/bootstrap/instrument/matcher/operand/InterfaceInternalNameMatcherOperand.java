@@ -32,7 +32,7 @@ public class InterfaceInternalNameMatcherOperand extends AbstractMatcherOperand 
         Assert.requireNonNull(interfaceName, "interfaceName must not be null");
         this.interfaceInternalName = ClassUtils.toInternalName(interfaceName);
         this.considerHierarchy = considerHierarchy;
-        this.javaPackage = interfaceName.startsWith("java/");
+        this.javaPackage = this.interfaceInternalName.startsWith("java/");
     }
 
     public String getInterfaceInternalName() {

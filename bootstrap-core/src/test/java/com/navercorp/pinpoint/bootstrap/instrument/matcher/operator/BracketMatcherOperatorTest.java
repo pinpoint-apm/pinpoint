@@ -33,17 +33,5 @@ public class BracketMatcherOperatorTest {
         assertNull(operator.getLeftOperand());
         assertFalse(operator.isIndex());
         assertTrue(operator.isOperator());
-
-        try {
-            operator.setLeftOperand(null);
-            fail("passed exception.");
-        } catch (Exception e) {
-        }
-
-        try {
-            operator.setRightOperand(null);
-            fail("passed exception.");
-        } catch (Exception e) {
-        }
     }
 }
