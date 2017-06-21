@@ -31,24 +31,16 @@ public abstract class AbstractMatcherOperand implements MatcherOperand {
 
     // this and operand
     public MatcherOperand and(MatcherOperand operand) {
-        final AndMatcherOperator operator = new AndMatcherOperator();
-        operator.setLeftOperand(this);
-        operator.setRightOperand(operand);
-        return operator;
+        return new AndMatcherOperator(this, operand);
     }
 
     // this or operand
     public MatcherOperand or(MatcherOperand operand) {
-        final OrMatcherOperator operator = new OrMatcherOperator();
-        operator.setLeftOperand(this);
-        operator.setRightOperand(operand);
-        return operator;
+        return new OrMatcherOperator(this, operand);
     }
 
     // not this
     public MatcherOperand not() {
-        final NotMatcherOperator operator = new NotMatcherOperator();
-        operator.setRightOperand(this);
-        return operator;
+        return new NotMatcherOperator(this);
     }
 }

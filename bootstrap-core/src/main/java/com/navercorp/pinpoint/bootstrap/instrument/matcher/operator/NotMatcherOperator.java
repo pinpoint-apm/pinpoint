@@ -18,12 +18,20 @@ package com.navercorp.pinpoint.bootstrap.instrument.matcher.operator;
 
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.AbstractMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
+import com.navercorp.pinpoint.common.annotations.InterfaceStability;
+import com.navercorp.pinpoint.common.util.Assert;
 
 /**
  * @author jaehong.kim
  */
-public class NotMatcherOperator extends AbstractMatcherOperand implements MatcherOperator  {
-    private MatcherOperand rightOperand;
+@InterfaceStability.Unstable
+public class NotMatcherOperator extends AbstractMatcherOperand implements MatcherOperator {
+    private final MatcherOperand rightOperand;
+
+    public NotMatcherOperator(final MatcherOperand rightOperand) {
+        Assert.requireNonNull(rightOperand, "rightOperand must not be null");
+        this.rightOperand = rightOperand;
+    }
 
     @Override
     public int getPrecedence() {
@@ -46,32 +54,18 @@ public class NotMatcherOperator extends AbstractMatcherOperand implements Matche
     }
 
     @Override
-    public void setLeftOperand(MatcherOperand leftOperand) {
-        throw new UnsupportedOperationException("NotMatcherOperator does not have left operand.");
-    }
-
-    @Override
     public MatcherOperand getRightOperand() {
         return this.rightOperand;
     }
 
     @Override
-    public void setRightOperand(MatcherOperand rightOperand) {
-        this.rightOperand = rightOperand;
-    }
-
-    @Override
     public int getExecutionCost() {
-        return this.rightOperand != null ? this.rightOperand.getExecutionCost() : 0;
+        return this.rightOperand.getExecutionCost();
     }
 
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("NOT");
-        if (this.rightOperand != null) {
-            sb.append(" (").append(this.rightOperand).append(")");
-        }
-
+        final StringBuilder sb = new StringBuilder();
+        sb.append("NOT ").append(this.rightOperand);
         return sb.toString();
     }
 }

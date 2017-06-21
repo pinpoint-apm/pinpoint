@@ -16,10 +16,12 @@
 package com.navercorp.pinpoint.bootstrap.instrument.matcher.operator;
 
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
+import com.navercorp.pinpoint.common.annotations.InterfaceStability;
 
 /**
  * @author jaehong.kim
  */
+@InterfaceStability.Unstable
 public interface MatcherOperator {
     // '(', ')' - 4
     // NOT - 3
@@ -29,9 +31,5 @@ public interface MatcherOperator {
 
     MatcherOperand getLeftOperand();
 
-    void setLeftOperand(MatcherOperand leftOperand);
-
     MatcherOperand getRightOperand();
-
-    void setRightOperand(MatcherOperand rightOperand);
 }

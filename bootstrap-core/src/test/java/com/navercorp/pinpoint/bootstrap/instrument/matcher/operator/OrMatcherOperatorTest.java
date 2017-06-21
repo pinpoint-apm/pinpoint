@@ -28,16 +28,12 @@ public class OrMatcherOperatorTest {
 
     @Test
     public void base() throws Exception {
-        OrMatcherOperator operator = new OrMatcherOperator();
-        assertEquals(0, operator.getExecutionCost());
+        OrMatcherOperator operator = new OrMatcherOperator(new ClassInternalNameMatcherOperand("java/lang/String"), new InterfaceInternalNameMatcherOperand("java/lang/Serializable", false));
         assertEquals(1, operator.getPrecedence());
-        assertNull(operator.getLeftOperand());
-        assertNull(operator.getRightOperand());
+        assertNotNull(operator.getLeftOperand());
+        assertNotNull(operator.getRightOperand());
         assertFalse(operator.isIndex());
         assertTrue(operator.isOperator());
-
-        operator.setLeftOperand(new ClassInternalNameMatcherOperand("java/lang/String"));
-        operator.setRightOperand(new InterfaceInternalNameMatcherOperand("java/lang/Serializable", false));
         assertEquals(3, operator.getExecutionCost());
     }
 }

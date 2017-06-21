@@ -28,16 +28,10 @@ public class AndMatcherOperatorTest {
 
     @Test
     public void base() throws Exception {
-        AndMatcherOperator operator = new AndMatcherOperator();
-        assertNull(operator.getLeftOperand());
-        assertNull(operator.getRightOperand());
-        assertEquals(0, operator.getExecutionCost());
+        AndMatcherOperator operator = new AndMatcherOperator(new ClassInternalNameMatcherOperand("java/lang/String"), new InterfaceInternalNameMatcherOperand("java/lang/Serializable", false));
         assertEquals(2, operator.getPrecedence());
         assertTrue(operator.isOperator());
         assertFalse(operator.isIndex());
-
-        operator.setLeftOperand(new ClassInternalNameMatcherOperand("java/lang/String"));
-        operator.setRightOperand(new InterfaceInternalNameMatcherOperand("java/lang/Serializable", false));
         assertTrue(operator.getLeftOperand() instanceof ClassInternalNameMatcherOperand);
         assertTrue(operator.getRightOperand() instanceof InterfaceInternalNameMatcherOperand);
         assertEquals(3, operator.getExecutionCost());
