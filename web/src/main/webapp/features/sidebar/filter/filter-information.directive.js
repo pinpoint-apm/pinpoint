@@ -32,8 +32,15 @@
 	                    if (oServerMapFilterVoService.getRequestUrlPattern()) {
 	                        scope.urlPattern = $base64.decode(oServerMapFilterVoService.getRequestUrlPattern());
 	                    }
-	                    scope.includeException = oServerMapFilterVoService.getIncludeException() ? 'Failed Only' : 'Success + Failed';
-	
+	                    var ie = oServerMapFilterVoService.getIncludeException();
+	                    if ( ie === null ) {
+							scope.includeException = "Success + Failed";
+						} else if ( ie === true ) {
+							scope.includeException = "Failed Only";
+						} else {
+							scope.includeException = "Success Only";
+						}
+
 	                    if (angular.isNumber(oServerMapFilterVoService.getResponseFrom()) &&
 							oServerMapFilterVoService.getResponseTo()) {
 	                        var responseTime = [];
