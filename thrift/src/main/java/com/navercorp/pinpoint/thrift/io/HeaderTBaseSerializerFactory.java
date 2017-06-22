@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import org.apache.thrift.TBase;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 
@@ -99,6 +100,15 @@ public final class HeaderTBaseSerializerFactory implements SerializerFactory<Hea
         }
 
         return new HeaderTBaseSerializer(baos, protocolFactory, locator);
+    }
+
+    @Override
+    public boolean isSupport(Object target) {
+        if (target instanceof TBase) {
+            return locator.isSupport((Class<? extends TBase>) target.getClass());
+        }
+
+        return false;
     }
 
 }

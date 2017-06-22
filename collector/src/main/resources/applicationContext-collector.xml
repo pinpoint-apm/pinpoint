@@ -100,6 +100,8 @@
     <!-- Serializer Factory Beans -->
     <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory">
     </bean>
+    <bean id="agentEventHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.AgentEventHeaderTBaseSerializerFactory">
+    </bean>
 
     <bean id="commandHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory">
     </bean>
@@ -113,10 +115,15 @@
     </bean>
     
     <bean id="agentEventMessageSerializer" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializer">
-        <constructor-arg ref="commandHeaderTBaseSerializerFactory"/>
+        <constructor-arg>
+            <list value-type="com.navercorp.pinpoint.thrift.io.SerializerFactory">
+                <ref bean="commandHeaderTBaseSerializerFactory"/>
+                <ref bean="agentEventHeaderTBaseSerializerFactory"/>
+            </list>
+        </constructor-arg>
     </bean>
 
-    <bean id="agentEventHandler" class="com.navercorp.pinpoint.collector.rpc.handler.AgentEventHandler"/>
+    <bean id="agentEventService" class="com.navercorp.pinpoint.collector.service.AgentEventService"/>
     <bean id="agentLifeCycleHandler" class="com.navercorp.pinpoint.collector.rpc.handler.AgentLifeCycleHandler"/>
     <bean id="agentLifeCycleChangeEventHandler" class="com.navercorp.pinpoint.collector.rpc.handler.AgentLifeCycleChangeEventHandler"/>
 

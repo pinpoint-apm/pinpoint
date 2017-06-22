@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.bo;
+package com.navercorp.pinpoint.common.server.bo.event;
 
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 

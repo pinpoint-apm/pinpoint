@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.thrift.io;
+package com.navercorp.pinpoint.collector.mapper.thrift.event;
+
+import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
+import org.apache.thrift.TBase;
 
 /**
- * @author emeroad
+ * @author Taejin Koo
  */
-public interface SerializerFactory<E> {
+public interface AgentEventBoMapper<B extends AgentEventBo, T extends TBase<?,?>>  {
 
-    E createSerializer();
-
-    boolean isSupport(Object target);
+    B map(String agentId, long startTimeStamp, long eventTimestamp, T thriftObject);
 
 }

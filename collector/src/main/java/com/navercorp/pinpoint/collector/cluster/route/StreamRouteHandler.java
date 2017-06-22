@@ -40,6 +40,7 @@ import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * @author koo.taejin
@@ -55,6 +56,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
     private final RouteFilterChain<StreamRouteCloseEvent> streamCloseFilterChain;
 
     @Autowired
+    @Qualifier("commandHeaderTBaseSerializerFactory")
     private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
 
     public StreamRouteHandler(ClusterPointLocator<TargetClusterPoint> targetClusterPointLocator,
@@ -208,6 +210,8 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
                     if (consumer != null) {
                         consumer.close();
                     }
+                    break;
+                default:
                     break;
             }
         }

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.timeline.inspector;
 
-import com.navercorp.pinpoint.common.server.bo.AgentEventBo;
+import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.vo.AgentEvent;

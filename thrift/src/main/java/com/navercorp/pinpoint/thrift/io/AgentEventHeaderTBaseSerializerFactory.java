@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.navercorp.pinpoint.thrift.io;
@@ -24,34 +23,30 @@ import org.apache.thrift.protocol.TProtocolFactory;
 /**
  * @author Taejin Koo
  */
-public class HeaderTBaseSerializerFactory2 implements SerializerFactory<HeaderTBaseSerializer2> {
+public class AgentEventHeaderTBaseSerializerFactory implements SerializerFactory<HeaderTBaseSerializer> {
 
-    private static final TProtocolFactory DEFAULT_PROTOCOL_FACTORY = new TCompactProtocol.Factory();
-    private static final TBaseLocator DEFAULT_TBASE_LOCATOR = new DefaultTBaseLocator();
+    public static final int DEFAULT_SERIALIZER_MAX_SIZE = 1024 * 64;
 
-    private final TProtocolFactory protocolFactory;
     private final TBaseLocator tBaseLocator;
+    private final SerializerFactory<HeaderTBaseSerializer> factory;
 
-    public HeaderTBaseSerializerFactory2() {
-        this(DEFAULT_PROTOCOL_FACTORY, DEFAULT_TBASE_LOCATOR);
+    public AgentEventHeaderTBaseSerializerFactory() {
+        this(DEFAULT_SERIALIZER_MAX_SIZE);
     }
 
-    public HeaderTBaseSerializerFactory2(TProtocolFactory protocolFactory) {
-        this(protocolFactory, DEFAULT_TBASE_LOCATOR);
-    }
+    public AgentEventHeaderTBaseSerializerFactory(int outputStreamSize) {
+        TBaseLocator agentEventTBaseLocator = new AgentEventTBaseLocator();
 
-    public HeaderTBaseSerializerFactory2(TBaseLocator tBaseLocator) {
-        this(DEFAULT_PROTOCOL_FACTORY, tBaseLocator);
-    }
+        TProtocolFactory protocolFactory = new TCompactProtocol.Factory();
+        HeaderTBaseSerializerFactory serializerFactory = new HeaderTBaseSerializerFactory(true, outputStreamSize, protocolFactory, agentEventTBaseLocator);
 
-    public HeaderTBaseSerializerFactory2(TProtocolFactory protocolFactory, TBaseLocator tBaseLocator) {
-        this.protocolFactory = protocolFactory;
-        this.tBaseLocator = tBaseLocator;
+        this.tBaseLocator = agentEventTBaseLocator;
+        this.factory = new ThreadLocalHeaderTBaseSerializerFactory<HeaderTBaseSerializer>(serializerFactory);
     }
 
     @Override
-    public HeaderTBaseSerializer2 createSerializer() {
-        return new HeaderTBaseSerializer2(protocolFactory, tBaseLocator);
+    public HeaderTBaseSerializer createSerializer() {
+        return this.factory.createSerializer();
     }
 
     @Override

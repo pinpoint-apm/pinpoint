@@ -15,14 +15,29 @@
  */
 package com.navercorp.pinpoint.thrift.io;
 
+import org.apache.thrift.TBase;
+
 /**
  * @author minwoo.jung
  */
 public class FlinkHeaderTBaseSerializerFactory implements SerializerFactory<HeaderTBaseSerializer> {
-    private final HeaderTBaseSerializerFactory headerTBaseSerializerFactory = new HeaderTBaseSerializerFactory(new FlinkTBaseLocator());
+
+
+    private final TBaseLocator tBaseLocator = new FlinkTBaseLocator();
+    private final HeaderTBaseSerializerFactory headerTBaseSerializerFactory = new HeaderTBaseSerializerFactory(tBaseLocator);
 
     @Override
     public HeaderTBaseSerializer createSerializer() {
         return headerTBaseSerializerFactory.createSerializer();
     }
+
+    @Override
+    public boolean isSupport(Object target) {
+        if (target instanceof TBase) {
+            return tBaseLocator.isSupport((Class<? extends TBase>) target.getClass());
+        }
+
+        return false;
+    }
+
 }
