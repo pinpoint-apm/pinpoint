@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import java.util.Comparator;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.navercorp.pinpoint.common.server.bo.AgentEventBo;
+import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
+
+import java.util.Comparator;
 
 /**
  * @author HyunGil Jeong

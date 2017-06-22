@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterServic
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.monitor.MonitoredExecutorService;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.collector.rpc.handler.AgentEventHandler;
 import com.navercorp.pinpoint.collector.rpc.handler.AgentLifeCycleHandler;
+import com.navercorp.pinpoint.collector.service.AgentEventService;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
@@ -98,8 +98,8 @@ public class TCPReceiver {
     @Resource(name="agentEventWorker")
     private ExecutorService agentEventWorker;
     
-    @Resource(name="agentEventHandler")
-    private AgentEventHandler agentEventHandler;
+    @Resource(name="agentEventService")
+    private AgentEventService agentEventService;
     
     @Resource(name="agentLifeCycleHandler")
     private AgentLifeCycleHandler agentLifeCycleHandler;
@@ -243,7 +243,7 @@ public class TCPReceiver {
             if (!(eventCounter < 0)) {
                 agentLifeCycleHandler.handleLifeCycleEvent(pinpointServer, pingTimestamp, AgentLifeCycleState.RUNNING, eventCounter);
             }
-            agentEventHandler.handleEvent(pinpointServer, pingTimestamp, AgentEventType.AGENT_PING);
+            agentEventService.handleEvent(pinpointServer, pingTimestamp, AgentEventType.AGENT_PING);
         } catch (Exception e) {
             logger.warn("Error handling ping event", e);
         }

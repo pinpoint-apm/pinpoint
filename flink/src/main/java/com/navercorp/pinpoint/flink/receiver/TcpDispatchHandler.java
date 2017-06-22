@@ -20,6 +20,9 @@ import com.navercorp.pinpoint.collector.receiver.AbstractDispatchHandler;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import org.apache.thrift.TBase;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author minwoo.jung
  */
@@ -28,13 +31,14 @@ public class TcpDispatchHandler extends AbstractDispatchHandler {
     private  AgentStatHandler agentStatHandler;
 
     @Override
-    protected Handler getHandler(TBase<?, ?> tBase) {
+    protected List<Handler> getHandler(TBase<?, ?> tBase) {
+        List<Handler> handlerList = new ArrayList<>();
+
         if (tBase instanceof TFAgentStatBatch) {
-            return agentStatHandler;
+            handlerList.add(agentStatHandler);
         }
 
-        return null;
-
+        return handlerList;
     }
 
     public void setAgentStatHandler(AgentStatHandler agentStatHandler) {

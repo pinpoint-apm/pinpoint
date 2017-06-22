@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.thrift.io.TCommandRegistry;
@@ -49,12 +48,12 @@ public class AgentEventMessageSerDesTest {
     private final TProtocolFactory protocolFactory = new TCompactProtocol.Factory();
     private final TCommandRegistry commandTbaseRegistry = new TCommandRegistry(Arrays.asList(TCommandType.THREAD_DUMP_RESPONSE));
 
-    private final SerializerFactory<HeaderTBaseSerializer> serializerFactory = new HeaderTBaseSerializerFactory(true,
+    private final SerializerFactory serializerFactory = new HeaderTBaseSerializerFactory(true,
             HeaderTBaseSerializerFactory.DEFAULT_STREAM_SIZE, true, this.protocolFactory, this.commandTbaseRegistry);
     private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new HeaderTBaseDeserializerFactory(this.protocolFactory,
             this.commandTbaseRegistry);
 
-    private final AgentEventMessageSerializer serializer = new AgentEventMessageSerializer(serializerFactory);
+    private final AgentEventMessageSerializer serializer = new AgentEventMessageSerializer(Arrays.asList(serializerFactory));
     private final AgentEventMessageDeserializer deserializer = new AgentEventMessageDeserializer(deserializerFactory);
 
     @Test

@@ -16,19 +16,22 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
+import com.navercorp.pinpoint.collector.handler.Handler;
+import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
+import com.navercorp.pinpoint.collector.handler.SimpleHandler;
+import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.navercorp.pinpoint.collector.handler.Handler;
-import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
-import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author emeroad
- * @author koo.taejin
+ * @author Taejin Koo
  */
 public abstract class AbstractDispatchHandler implements DispatchHandler {
 
@@ -40,36 +43,39 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
     public AbstractDispatchHandler() {
     }
 
-
     @Override
     public void dispatchSendMessage(TBase<?, ?> tBase) {
 
         // mark accepted time
         acceptedTimeService.accept();
-        
+
         // TODO consider to change dispatch table automatically
-        SimpleHandler simpleHandler = getSimpleHandler(tBase);
-        if (simpleHandler != null) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("simpleHandler name:{}", simpleHandler.getClass().getName());
+        List<SimpleHandler> simpleHandlerList = getSimpleHandler(tBase);
+        if (!CollectionUtils.isEmpty(simpleHandlerList)) {
+            for (SimpleHandler simpleHandler : simpleHandlerList) {
+                if (logger.isTraceEnabled()) {
+                    logger.trace("simpleHandler name:{}", simpleHandler.getClass().getName());
+                }
+                simpleHandler.handleSimple(tBase);
             }
-            simpleHandler.handleSimple(tBase);
-            return;
         }
 
-        Handler handler = getHandler(tBase);
-        if (handler != null) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("handler name:{}", handler.getClass().getName());
+        List<Handler> handlerList = getHandler(tBase);
+        if (!CollectionUtils.isEmpty(handlerList)) {
+            for (Handler handler : handlerList) {
+                if (logger.isTraceEnabled()) {
+                    logger.trace("handler name:{}", handler.getClass().getName());
+                }
+                handler.handle(tBase);
             }
-            handler.handle(tBase);
-            return;
         }
 
-        throw new UnsupportedOperationException("Handler not found. Unknown type of data received. tBase=" + tBase);
+        if (CollectionUtils.isEmpty(simpleHandlerList) && CollectionUtils.isEmpty(handlerList)) {
+            throw new UnsupportedOperationException("Handler not found. Unknown type of data received. tBase=" + tBase);
+        }
     }
-    
-    public TBase dispatchRequestMessage(TBase<?,?> tBase) {
+
+    public TBase dispatchRequestMessage(TBase<?, ?> tBase) {
         // mark accepted time
         acceptedTimeService.accept();
 
@@ -84,17 +90,16 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
         throw new UnsupportedOperationException("Handler not found. Unknown type of data received. tBase=" + tBase);
     }
 
-    protected Handler getHandler(TBase<?, ?> tBase) {
-        return null;
+    protected List<Handler> getHandler(TBase<?, ?> tBase) {
+        return Collections.emptyList();
     }
 
+    List<SimpleHandler> getSimpleHandler(TBase<?, ?> tBase) {
+        return Collections.emptyList();
+    }
 
     RequestResponseHandler getRequestResponseHandler(TBase<?, ?> tBase) {
         return null;
     }
 
-
-    SimpleHandler getSimpleHandler(TBase<?, ?> tBase) {
-        return null;
-    }
 }
