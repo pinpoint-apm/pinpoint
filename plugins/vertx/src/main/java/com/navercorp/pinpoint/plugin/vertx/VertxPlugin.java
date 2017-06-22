@@ -173,6 +173,11 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
                     handleExceptionMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HandleExceptionInterceptor");
                 }
 
+                final InstrumentMethod handleEndMethod = target.getDeclaredMethod("handleEnd");
+                if (handleEndMethod != null) {
+                    handleEndMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpServerRequestImplHandleEndInterceptor");
+                }
+
                 return target.toBytecode();
             }
         });
