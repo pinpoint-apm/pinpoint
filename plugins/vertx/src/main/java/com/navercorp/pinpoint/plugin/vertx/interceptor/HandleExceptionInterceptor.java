@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.plugin.vertx.VertxHandleException;
 /**
  * @author jaehong.kim
  */
-public class HandleExceptionInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
+public class HandleExceptionInterceptor extends SpanAsyncEventEndPointInterceptor {
     public HandleExceptionInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext) {
         super(traceContext, methodDescriptor);
     }

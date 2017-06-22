@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.interceptor;
+
+package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
@@ -24,12 +25,17 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.MethodType;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
-public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInterceptor {
+/**
+ * @author jaehong.kim
+ */
+public abstract class SpanAsyncEventEndPointInterceptor implements AroundInterceptor {
+
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
     protected static final String ASYNC_TRACE_SCOPE = "##ASYNC_TRACE_SCOPE";
@@ -38,7 +44,7 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
     protected final TraceContext traceContext;
     final MethodDescriptor asyncMethodDescriptor = new AsyncMethodDescriptor();
 
-    public SpanAsyncEventSimpleAroundInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    public SpanAsyncEventEndPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
         }
@@ -60,8 +66,13 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
 
         final AsyncTraceId asyncTraceId = getAsyncTraceId(target);
         if (asyncTraceId == null) {
-            logger.debug("Not found asynchronous invocation metadata");
+            if (isDebug) {
+                logger.debug("Not found asynchronous invocation metadata");
+            }
             return;
+        }
+        if (isDebug) {
+            logger.debug("Asynchronous invocation. asyncTraceId={}", asyncTraceId);
         }
 
         Trace trace = traceContext.currentRawTraceObject();
@@ -74,11 +85,17 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
         } else {
             // check sampled.
             if (!trace.canSampled()) {
+                if (isDebug) {
+                    logger.debug("Not a sampling trace. asyncTraceId={}", asyncTraceId);
+                }
                 // sckip.
                 return;
             }
         }
 
+        if (isDebug) {
+            logger.debug("Asynchronous invocation. asyncTraceId={}, trace={}", asyncTraceId, trace);
+        }
         // entry scope.
         entryAsyncTraceScope(trace);
 
@@ -106,10 +123,16 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
             logger.debug("Not found asynchronous invocation metadata");
             return;
         }
+        if (isDebug) {
+            logger.debug("Asynchronous invocation. asyncTraceId={}", asyncTraceId);
+        }
 
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
+        }
+        if (isDebug) {
+            logger.debug("Asynchronous invocation. asyncTraceId={}, trace={}", asyncTraceId, trace);
         }
 
         // leave scope.
@@ -132,8 +155,12 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
         } finally {
             trace.traceBlockEnd();
             if (isAsyncTraceDestination(trace)) {
+                if(isDebug) {
+                    logger.debug("Arrived at async trace destination. asyncTraceId={}", asyncTraceId);
+                }
                 deleteAsyncTrace(trace);
             }
+            finishAsyncState(asyncTraceId);
         }
     }
 
@@ -213,6 +240,17 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
         return scope != null && !scope.isActive();
     }
 
+    private void finishAsyncState(final AsyncTraceId asyncTraceId) {
+        if (asyncTraceId instanceof AsyncStateSupport) {
+            final AsyncStateSupport asyncStateSupport = (AsyncStateSupport) asyncTraceId;
+            AsyncState asyncState = asyncStateSupport.getAsyncState();
+            asyncState.finish();
+            if (isDebug) {
+                logger.debug("finished asyncState. asyncTraceId={}", asyncTraceId);
+            }
+        }
+    }
+
     public class AsyncMethodDescriptor implements MethodDescriptor {
 
         private int apiId = 0;
@@ -264,7 +302,7 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements AroundInt
 
         @Override
         public String getApiDescriptor() {
-            return "Asynchronous Invocation";
+            return "Asynchronous Endpoint Invocation";
         }
 
         @Override
