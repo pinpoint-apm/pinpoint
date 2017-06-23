@@ -355,7 +355,7 @@ public class SpanServiceImpl implements SpanService {
 
     private StringMetaDataBo selectStringMetaData(String agentId, int cacheId, long agentStartTime) {
         final List<StringMetaDataBo> metaDataList = stringMetaDataDao.getStringMetaData(agentId, agentStartTime, cacheId);
-		if (cacheId == 404) {
+		if (cacheId == 5001) {
 			StringMetaDataBo stringMetaDataBo = new StringMetaDataBo(agentId, agentStartTime, cacheId);
 			stringMetaDataBo.setStringValue("HTTP Failed response code");
 			return stringMetaDataBo;
