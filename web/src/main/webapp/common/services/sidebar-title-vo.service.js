@@ -13,7 +13,11 @@
 	            return this;
 	        };
 	        this._parseImageTypeToImageUrl = function (imageType) {
-            	return iconPath + imageType.split("_")[0] + ".png";
+	        	if ( /.*\_GROUP/.test( imageType ) ) {
+					return iconPath + imageType.split("_")[0] + ".png";
+				} else {
+					return iconPath + imageType + ".png";
+				}
 	        };
 	        this.getImage = function () {
 	            return this._sImage;
