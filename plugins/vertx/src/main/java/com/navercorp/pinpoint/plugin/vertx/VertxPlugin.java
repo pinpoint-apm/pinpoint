@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
 
+import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +57,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
         final VertxDetector vertxDetector = new VertxDetector(config.getBootstrapMains());
         context.addApplicationTypeDetector(vertxDetector);
 
-        List<String> basePackageNames = filterBasePackageNames(config.getHandlerBasePackageNames());
+        final List<String> basePackageNames = filterBasePackageNames(config.getHandlerBasePackageNames());
         if (!basePackageNames.isEmpty()) {
             // add async field & interceptor
             addHandlerInterceptor(basePackageNames);
@@ -65,7 +66,10 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
             }
 
             // runOnContext, executeBlocking
-            addVertxImpl();
+            addContextImpl("io.vertx.core.impl.ContextImpl");
+            addContextImpl("io.vertx.core.impl.EventLoopContext");
+            addContextImpl("io.vertx.core.impl.MultiThreadedWorkerContext");
+            addContextImpl("io.vertx.core.impl.EventLoopContext");
         }
 
         if (config.isEnableHttpServer()) {
@@ -89,7 +93,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
     }
 
     List<String> filterBasePackageNames(List<String> basePackageNames) {
-        List<String> list = new ArrayList<String>();
+        final List<String> list = new ArrayList<String>();
         for (String basePackageName : basePackageNames) {
             final String name = basePackageName.trim();
             if (!name.isEmpty()) {
@@ -100,6 +104,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
     }
 
     private void addHandlerInterceptor(final List<String> basePackageNames) {
+        // basepackageNames AND io.vertx.core.Handler
         final Matcher matcher = Matchers.newPackageBasedMatcher(basePackageNames, new InterfaceInternalNameMatcherOperand("io.vertx.core.Handler", true));
         transformTemplate.transform(matcher, new TransformCallback() {
             @Override
@@ -120,27 +125,39 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
         });
     }
 
-    private void addVertxImpl() {
-        transformTemplate.transform("io.vertx.core.impl.VertxImpl", new TransformCallback() {
+    private void addContextImpl(final String className) {
+        transformTemplate.transform(className, new TransformCallback() {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 final InstrumentMethod runOnContextMethod = target.getDeclaredMethod("runOnContext", "io.vertx.core.Handler");
                 if (runOnContextMethod != null) {
-                    runOnContextMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.VertxImplRunOnContextInterceptor");
+                    runOnContextMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.ContextImplRunOnContextInterceptor");
                 }
 
-                final InstrumentMethod executeBlockingMethod = target.getDeclaredMethod("executeBlocking", "io.vertx.core.Handler", "boolean", "io.vertx.core.Handler");
-                if (executeBlockingMethod != null) {
-                    executeBlockingMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.VertxImplExecuteBlockingInterceptor");
+                final InstrumentMethod executeBlockingMethod1 = target.getDeclaredMethod("executeBlocking", "io.vertx.core.impl.Action", "io.vertx.core.Handler");
+                if (executeBlockingMethod1 != null) {
+                    executeBlockingMethod1.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.ContextImplExecuteBlockingInterceptor");
                 }
+
+                final InstrumentMethod executeBlockingMethod2 = target.getDeclaredMethod("executeBlocking", "io.vertx.core.Handler", "boolean", "io.vertx.core.Handler");
+                if (executeBlockingMethod2 != null) {
+                    executeBlockingMethod2.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.ContextImplExecuteBlockingInterceptor");
+                }
+
+                // internal
+                final InstrumentMethod executeBlockingMethod3 = target.getDeclaredMethod("executeBlocking", "io.vertx.core.Handler", "io.vertx.core.impl.TaskQueue", "io.vertx.core.Handler");
+                if (executeBlockingMethod3 != null) {
+                    executeBlockingMethod3.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.ContextImplExecuteBlockingInterceptor");
+                }
+
+                // skip executeFromIO()
 
                 return target.toBytecode();
             }
         });
     }
-
 
     private void addServerConnection() {
         transformTemplate.transform("io.vertx.core.http.impl.ServerConnection", new TransformCallback() {

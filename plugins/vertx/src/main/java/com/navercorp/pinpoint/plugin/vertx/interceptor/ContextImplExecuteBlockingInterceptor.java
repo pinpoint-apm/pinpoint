@@ -29,14 +29,14 @@ import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 /**
  * @author jaehong.kim
  */
-public class VertxImplExecuteBlockingInterceptor implements AroundInterceptor {
+public class ContextImplExecuteBlockingInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private TraceContext traceContext;
     private MethodDescriptor descriptor;
 
-    public VertxImplExecuteBlockingInterceptor(final TraceContext traceContext, final MethodDescriptor methodDescriptor) {
+    public ContextImplExecuteBlockingInterceptor(final TraceContext traceContext, final MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
         this.descriptor = methodDescriptor;
     }
@@ -47,49 +47,73 @@ public class VertxImplExecuteBlockingInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
 
         final SpanEventRecorder recorder = trace.traceBlockBegin();
-        if (validate(args, 0) || validate(args, 2)) {
+        if (!validate(args)) {
+            return;
+        }
+
+        final AsyncTraceIdAccessorHandlers handlers = getAsyncTraceIdAccessorHandlers(args);
+        if (handlers.blockingCodeHandler != null || handlers.resultHandler != null) {
             // make asynchronous trace-id
             final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
             recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
 
-            if (validate(args, 0)) {
-                // args 0 'io.vertx.core.Handler'
-                ((AsyncTraceIdAccessor) args[0])._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+            if (handlers.blockingCodeHandler != null) {
+                // blockingCodeHandler
+                handlers.blockingCodeHandler._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+                if (isDebug) {
+                    logger.debug("Set asyncTraceId metadata for ContextImpl.executeBlocking blockingCodeHandler. asyncTraceId={}", asyncTraceId);
+                }
             }
 
-            if (validate(args, 2)) {
-                // args 2 'io.vertx.core.Handler'
-                ((AsyncTraceIdAccessor) args[2])._$PINPOINT$_setAsyncTraceId(asyncTraceId);
-            }
-            if (isDebug) {
-                logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
+            if (handlers.resultHandler != null) {
+                // resultHandler.
+                handlers.resultHandler._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+                if (isDebug) {
+                    logger.debug("Set asyncTraceId metadata for ContextImpl.executeBlocking resultHandler. asyncTraceId={}", asyncTraceId);
+                }
             }
         }
     }
 
-    private boolean validate(final Object[] args, final int argPosition) {
-        if (args == null || args.length < 3) {
+    private boolean validate(final Object[] args) {
+        if (args == null || args.length < 2) {
             if (isDebug) {
                 logger.debug("Invalid args object. args={}.", args);
             }
             return false;
         }
-
-        if (!(args[argPosition] instanceof AsyncTraceIdAccessor)) {
-            if (isDebug) {
-                logger.debug("Invalid args[{}] object. Need metadata accessor({}).", argPosition, AsyncTraceIdAccessor.class.getName());
-            }
-            return false;
-        }
-
         return true;
     }
+
+    private AsyncTraceIdAccessorHandlers getAsyncTraceIdAccessorHandlers(final Object[] args) {
+        final AsyncTraceIdAccessorHandlers handlers = new AsyncTraceIdAccessorHandlers();
+        if (args.length == 2) {
+            // Action<T> action, Handler<AsyncResult<T>> resultHandler
+            if (args[1] instanceof AsyncTraceIdAccessor) {
+                handlers.resultHandler = (AsyncTraceIdAccessor) args[1];
+                return handlers;
+            }
+        } else if (args.length == 3) {
+            // Handler<Future<T>> blockingCodeHandler, boolean ordered, Handler<AsyncResult<T>> resultHandler
+            // Handler<Future<T>> blockingCodeHandler, TaskQueue queue, Handler<AsyncResult<T>> resultHandler
+            if (args[0] instanceof AsyncTraceIdAccessor) {
+                handlers.blockingCodeHandler = (AsyncTraceIdAccessor) args[0];
+            }
+
+            if (args[2] instanceof AsyncTraceIdAccessor) {
+                handlers.resultHandler = (AsyncTraceIdAccessor) args[2];
+            }
+        }
+
+        return handlers;
+    }
+
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
@@ -110,5 +134,10 @@ public class VertxImplExecuteBlockingInterceptor implements AroundInterceptor {
         } finally {
             trace.traceBlockEnd();
         }
+    }
+
+    private class AsyncTraceIdAccessorHandlers {
+        private AsyncTraceIdAccessor blockingCodeHandler;
+        private AsyncTraceIdAccessor resultHandler;
     }
 }
