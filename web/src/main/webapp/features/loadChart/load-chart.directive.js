@@ -287,6 +287,11 @@
 							oChart.data.datasets[2].data = data.keyValues[2].values;
 							oChart.data.datasets[3].data = data.keyValues[3].values;
 							oChart.data.datasets[4].data = data.keyValues[4].values;
+							oChart.data.datasets[0].label = data.keyValues[0].key;
+							oChart.data.datasets[1].label = data.keyValues[1].key;
+							oChart.data.datasets[2].label = data.keyValues[2].key;
+							oChart.data.datasets[3].label = data.keyValues[3].key;
+							oChart.data.datasets[4].label = data.keyValues[4].key;
 							oChart.update();
 						}
 					}
