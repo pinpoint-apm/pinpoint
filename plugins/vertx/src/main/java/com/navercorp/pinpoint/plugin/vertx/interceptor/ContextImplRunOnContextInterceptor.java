@@ -29,14 +29,14 @@ import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 /**
  * @author jaehong.kim
  */
-public class VertxImplRunOnContextInterceptor implements AroundInterceptor {
+public class ContextImplRunOnContextInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private TraceContext traceContext;
     private MethodDescriptor descriptor;
 
-    public VertxImplRunOnContextInterceptor(final TraceContext traceContext, final MethodDescriptor methodDescriptor) {
+    public ContextImplRunOnContextInterceptor(final TraceContext traceContext, final MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
         this.descriptor = methodDescriptor;
     }
