@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.vo.Application;
 
@@ -36,18 +36,17 @@ public class ApplicationMapWithScatterData implements ApplicationMap {
         this.applicationScatterDataMap = applicationScatterDataMap;
     }
 
-    @JsonProperty("nodeDataArray")
     @Override
     public Collection<Node> getNodes() {
         return applicationMap.getNodes();
     }
 
-    @JsonProperty("linkDataArray")
     @Override
     public Collection<Link> getLinks() {
         return applicationMap.getLinks();
     }
-    
+
+    @JsonValue
     public ApplicationMap getApplicationMap() {
         return applicationMap;
     }
