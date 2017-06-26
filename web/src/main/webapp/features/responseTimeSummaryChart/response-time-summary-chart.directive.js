@@ -137,6 +137,7 @@
 						oChart.validateData();
                     }
                     function updateChart(data) {
+                    	oChart.data.labels = data.keys;
 						oChart.data.datasets[0].data = data.values;
 						oChart.update();
 					}
