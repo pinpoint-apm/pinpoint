@@ -41,7 +41,7 @@ public class ResponseHistogramBuilderNodeHistogramDataSource implements WasNodeH
     @Override
     public NodeHistogram createNodeHistogram(Application application, Range range) {
         List<ResponseTime> responseTimes = responseHistogramBuilder.getResponseTimeList(application);
-        final NodeHistogram nodeHistogram = new NodeHistogram(application, range);
+        final NodeHistogram nodeHistogram = new NodeHistogram(application, range, responseTimes);
         return nodeHistogram;
     }
 }
