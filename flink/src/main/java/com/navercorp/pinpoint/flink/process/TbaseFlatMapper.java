@@ -15,18 +15,23 @@
  */
 package com.navercorp.pinpoint.flink.process;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.*;
+import com.navercorp.pinpoint.flink.function.ApplicationStatBoWindow;
 import com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinAgentStatBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinApplicationStatBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple3;
 
+import org.apache.flink.util.CollectionUtil;
 import org.apache.flink.util.Collector;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author minwoo.jung
@@ -35,6 +40,7 @@ public class TbaseFlatMapper implements FlatMapFunction<TBase, Tuple3<String, Jo
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private static JoinAgentStatBoMapper joinAgentStatBoMapper = new JoinAgentStatBoMapper();
     private static ApplicationCache applicationCache;
+    private static long RANGE_TIME = 1000 * 60;
 
 
     public void setApplicationCache(ApplicationCache applicationCache) {
@@ -68,14 +74,11 @@ public class TbaseFlatMapper implements FlatMapFunction<TBase, Tuple3<String, Jo
                 return;
             }
 
-            JoinApplicationStatBo joinApplicationStatBo = new JoinApplicationStatBo();
-            joinApplicationStatBo.setId(applicationId);
-            joinApplicationStatBo.setTimestamp(joinAgentStatBo.getTimestamp());
-            joinApplicationStatBo.setJoinCpuLoadBoList(joinAgentStatBo.getJoinCpuLoadBoList());
-            joinApplicationStatBo.setJoinMemoryBoList(joinAgentStatBo.getJoinMemoryBoList());
-            out.collect(new Tuple3<String, JoinStatBo, Long>(applicationId, joinApplicationStatBo, joinApplicationStatBo.getTimestamp()));
+            List<JoinApplicationStatBo> joinApplicationStatBoList = JoinApplicationStatBo.createJoinApplicationStatBo(applicationId, joinAgentStatBo, ApplicationStatBoWindow.WINDOW_SIZE);
+
+            for (JoinApplicationStatBo joinApplicationStatBo : joinApplicationStatBoList) {
+                out.collect(new Tuple3<String, JoinStatBo, Long>(applicationId, joinApplicationStatBo, joinApplicationStatBo.getTimestamp()));
+            }
         }
     }
-
-
 }
