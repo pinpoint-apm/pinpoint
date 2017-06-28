@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
-public class DeadlockBo implements AgentStatDataPoint {
+public class DeadlockBo implements AgentWarningStatDataPoint {
 
     public static final int UNCOLLECTED_INT_VALUE = -1;
 

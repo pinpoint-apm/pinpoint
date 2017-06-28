@@ -72,6 +72,8 @@
 
     <bean id="commandHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory">
     </bean>
+    <bean id="agentEventHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.AgentEventHeaderTBaseDeserializerFactory">
+    </bean>
 
     <bean id="clusterConnectionManager" class="com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager">
         <constructor-arg ref="config" />
@@ -86,7 +88,12 @@
     </bean>
 
     <bean id="agentEventMessageDeserializer" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializer">
-        <constructor-arg ref="commandHeaderTBaseDeserializerFactory"/>
+        <constructor-arg>
+            <list value-type="com.navercorp.pinpoint.thrift.io.DeserializerFactory">
+                <ref bean="commandHeaderTBaseDeserializerFactory"/>
+                <ref bean="agentEventHeaderTBaseDeserializerFactory"/>
+            </list>
+        </constructor-arg>
     </bean>
 
     <bean id="slf4jCommonLoggerFactory" class="com.navercorp.pinpoint.common.server.util.Slf4jCommonLoggerFactory">
