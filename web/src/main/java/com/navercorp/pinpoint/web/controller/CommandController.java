@@ -31,6 +31,7 @@ import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -50,6 +51,7 @@ public class CommandController {
     private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
 
     @Autowired
+    @Qualifier("commandHeaderTBaseDeserializerFactory")
     private DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
 
     @Autowired

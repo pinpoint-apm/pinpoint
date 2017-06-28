@@ -16,27 +16,34 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
-import java.io.UnsupportedEncodingException;
-
 import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
+import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
-import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.navercorp.pinpoint.thrift.util.SerializationUtils;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author HyunGil Jeong
  */
 public class AgentEventMessageDeserializer {
-    
-    private final DeserializerFactory<HeaderTBaseDeserializer> tBaseDeserializerFactory;
-    
-    public AgentEventMessageDeserializer(DeserializerFactory<HeaderTBaseDeserializer> tBaseDeserializerFactory) {
-        this.tBaseDeserializerFactory = tBaseDeserializerFactory;
+
+    private final List<DeserializerFactory> deserializerFactoryList;
+
+    public AgentEventMessageDeserializer(DeserializerFactory deserializerFactory) {
+        List<DeserializerFactory> deserializerFactoryList = new ArrayList<DeserializerFactory>(1);
+        deserializerFactoryList.add(deserializerFactory);
+
+        this.deserializerFactoryList = deserializerFactoryList;
     }
-    
+
+    public AgentEventMessageDeserializer(List<DeserializerFactory> deserializerFactoryList) {
+        this.deserializerFactoryList = deserializerFactoryList;
+    }
+
     public Object deserialize(AgentEventType agentEventType, byte[] eventBody) throws UnsupportedEncodingException {
         if (agentEventType == null) {
             throw new NullPointerException("agentEventType must not be null");
@@ -46,10 +53,12 @@ public class AgentEventMessageDeserializer {
             return null;
         }
         if (TBase.class.isAssignableFrom(eventMessageType)) {
-            try {
-                return SerializationUtils.deserialize(eventBody, this.tBaseDeserializerFactory);
-            } catch (TException e) {
-                throw new UnsupportedEncodingException(e.getMessage());
+            for (DeserializerFactory deserializerFactory : deserializerFactoryList) {
+                try {
+                    return SerializationUtils.deserialize(eventBody, deserializerFactory);
+                } catch (TException e) {
+                    // ignore
+                }
             }
         } else if (String.class.isAssignableFrom(eventMessageType)) {
             return BytesUtils.toString(eventBody);

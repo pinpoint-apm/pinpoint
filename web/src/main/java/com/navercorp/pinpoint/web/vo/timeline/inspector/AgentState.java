@@ -28,6 +28,7 @@ import java.util.Set;
  */
 public enum AgentState {
     RUNNING,
+    UNSTABLE_RUNNING,
     SHUTDOWN,
     UNKNOWN;
 
