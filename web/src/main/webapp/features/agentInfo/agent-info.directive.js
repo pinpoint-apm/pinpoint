@@ -3,8 +3,8 @@
 		ID: "AGENT_INFO_DRTV_"
 	});
 
-	pinpointApp.directive( "agentInfoDirective", [ "agentInfoDirectiveConfig", "$timeout", "SystemConfigurationService", "CommonUtilService", "UrlVoService", "AlertsService", "ProgressBarService", "AgentDaoService", "AgentAjaxService", "TooltipService", "AnalyticsService", "helpContentService",
-		function ( cfg, $timeout, SystemConfigService, CommonUtilService, UrlVoService, AlertsService, ProgressBarService, AgentDaoService, AgentAjaxService, TooltipService, AnalyticsService, helpContentService ) {
+	pinpointApp.directive( "agentInfoDirective", [ "agentInfoDirectiveConfig", "$sce", "$timeout", "SystemConfigurationService", "CommonUtilService", "UrlVoService", "AlertsService", "ProgressBarService", "AgentDaoService", "AgentAjaxService", "TooltipService", "AnalyticsService", "helpContentService",
+		function ( cfg, $sce, $timeout, SystemConfigService, CommonUtilService, UrlVoService, AlertsService, ProgressBarService, AgentDaoService, AgentAjaxService, TooltipService, AnalyticsService, helpContentService ) {
 			return {
 				restrict: 'EA',
 				replace: true,
@@ -422,6 +422,13 @@
 					};
 					scope.formatDate = function( time ) {
 						return CommonUtilService.formatDate( time, "YYYY-MM-DD HH:mm:ss Z" );
+					};
+					scope.replaceNewLineToBR = function( msg ) {
+						if ( msg ) {
+							return $sce.trustAsHtml(msg.replace(/\n/g, "<br>"));
+						} else {
+							return '';
+						}
 					};
 					scope.$on( "down.changed.agent", function ( event, invokerId, agent, bInvokedByTop ) {
 						if( cfg.ID === invokerId ) return;
