@@ -78,7 +78,8 @@ public class MapController {
                                     @RequestParam("from") long from,
                                     @RequestParam("to") long to,
                                     @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
-                                    @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange) {
+                                    @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
+                                    @RequestParam(value = "includeHistograms", defaultValue = "true", required = false) boolean includeHistograms) {
         final Range range = new Range(from, to);
         this.dateLimit.limit(range);
 
@@ -87,7 +88,7 @@ public class MapController {
 
         Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
 
-        return selectApplicationMap(application, range, searchOption);
+        return selectApplicationMap(application, range, searchOption, includeHistograms);
     }
 
 
@@ -109,7 +110,8 @@ public class MapController {
                                     @RequestParam("from") long from,
                                     @RequestParam("to") long to,
                                     @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
-                                    @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange) {
+                                    @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
+                                    @RequestParam(value = "includeHistograms", defaultValue = "true", required = false) boolean includeHistograms) {
         final Range range = new Range(from, to);
         this.dateLimit.limit(range);
 
@@ -118,10 +120,10 @@ public class MapController {
 
         Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
 
-        return selectApplicationMap(application, range, searchOption);
+        return selectApplicationMap(application, range, searchOption, includeHistograms);
     }
 
-    private MapWrap selectApplicationMap(Application application, Range range, SearchOption searchOption) {
+    private MapWrap selectApplicationMap(Application application, Range range, SearchOption searchOption, boolean includeHistograms) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
@@ -134,7 +136,7 @@ public class MapController {
 
         logger.info("getServerMap() application:{} range:{} searchOption:{}", application, range, searchOption);
 
-        ApplicationMap map = mapService.selectApplicationMap(application, range, searchOption);
+        ApplicationMap map = mapService.selectApplicationMap(application, range, searchOption, includeHistograms);
         
         return new MapWrap(map);
     }
@@ -171,7 +173,8 @@ public class MapController {
                                         @RequestParam("serviceTypeCode") short serviceTypeCode,
                                         @RequestParam("period") long period,
                                         @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
-                                        @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange) {
+                                        @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
+                                        @RequestParam(value = "includeHistograms", defaultValue = "true", required = false) boolean includeHistograms) {
 
         long to = TimeUtils.getDelayLastTime();
         long from = to - period;
@@ -184,7 +187,7 @@ public class MapController {
 
         Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
 
-        return selectApplicationMap(application, range, searchOption);
+        return selectApplicationMap(application, range, searchOption, includeHistograms);
     }
 
     /**
@@ -202,7 +205,8 @@ public class MapController {
                                         @RequestParam("serviceTypeName") String serviceTypeName,
                                         @RequestParam("period") long period,
                                         @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
-                                        @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange) {
+                                        @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
+                                        @RequestParam(value = "includeHistograms", defaultValue = "true", required = false) boolean includeHistograms) {
 
         long to = TimeUtils.getDelayLastTime();
         long from = to - period;
@@ -214,7 +218,7 @@ public class MapController {
         assertSearchOption(searchOption);
 
         Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
-        return selectApplicationMap(application, range, searchOption);
+        return selectApplicationMap(application, range, searchOption, includeHistograms);
     }
 
     @RequestMapping(value = "/getResponseTimeHistogramData", method = RequestMethod.GET, params = "serviceTypeName")

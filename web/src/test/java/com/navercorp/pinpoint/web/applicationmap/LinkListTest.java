@@ -21,6 +21,11 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+import com.navercorp.pinpoint.web.applicationmap.link.CreateType;
+import com.navercorp.pinpoint.web.applicationmap.link.Link;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkFactory;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -62,7 +67,7 @@ public class LinkListTest {
         LinkList linkList = new LinkList();
         Node from = new Node(new Application("from", TOMCAT));
         Node to = new Node(new Application("to", TOMCAT));
-        Link link = new Link(CreateType.Source, from, to, new Range(0, 0));
+        Link link = LinkFactory.createLink(CreateType.Source, from, to, new Range(0, 0));
         return link;
     }
 
@@ -70,7 +75,7 @@ public class LinkListTest {
         LinkList linkList = new LinkList();
         Node from = new Node(new Application("from", TOMCAT));
         Node to = new Node(new Application("to", BLOC));
-        Link link = new Link(CreateType.Source, from, to, new Range(0, 0));
+        Link link = LinkFactory.createLink(CreateType.Source, from, to, new Range(0, 0));
         return link;
     }
 

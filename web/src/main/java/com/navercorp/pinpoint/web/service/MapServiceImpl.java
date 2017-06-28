@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerIn
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInstanceListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerInstanceListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerInstanceListDataSource;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkFactory.LinkType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
@@ -78,7 +79,7 @@ public class MapServiceImpl implements MapService {
      * Used in the main UI - draws the server map by querying the timeslot by time.
      */
     @Override
-    public ApplicationMap selectApplicationMap(Application sourceApplication, Range range, SearchOption searchOption) {
+    public ApplicationMap selectApplicationMap(Application sourceApplication, Range range, SearchOption searchOption, boolean includeHistograms) {
         if (sourceApplication == null) {
             throw new NullPointerException("sourceApplication must not be null");
         }
@@ -96,15 +97,7 @@ public class MapServiceImpl implements MapService {
 
         watch.start("ApplicationMap MapBuilding(Response) Time");
 
-        WasNodeHistogramDataSource wasNodeHistogramDataSource = new MapResponseNodeHistogramDataSource(mapResponseDao);
-        NodeHistogramFactory nodeHistogramFactory = new DefaultNodeHistogramFactory(wasNodeHistogramDataSource);
-
-        ServerInstanceListDataSource serverInstanceListDataSource = new AgentInfoServerInstanceListDataSource(agentInfoService);
-        ServerInstanceListFactory serverInstanceListFactory = new DefaultServerInstanceListFactory(serverInstanceListDataSource);
-
-        ApplicationMapBuilder builder = applicationMapBuilderFactory.createApplicationMapBuilder(range);
-        builder.includeNodeHistogram(nodeHistogramFactory);
-        builder.includeServerInfo(serverInstanceListFactory);
+        ApplicationMapBuilder builder = createApplicationMapBuilder(range, includeHistograms);
         ApplicationMap map = builder.build(linkDataDuplexMap);
         if (map.getNodes().isEmpty()) {
             map = builder.build(sourceApplication);
@@ -116,8 +109,23 @@ public class MapServiceImpl implements MapService {
         if(serverMapDataFilter != null) {
             map = serverMapDataFilter.dataFiltering(map);
         }
-        
         return map;
+    }
+
+    private ApplicationMapBuilder createApplicationMapBuilder(Range range, boolean includeHistograms) {
+        ApplicationMapBuilder builder = applicationMapBuilderFactory.createApplicationMapBuilder(range);
+        if (includeHistograms) {
+            builder.linkType(LinkType.DETAILED);
+            WasNodeHistogramDataSource wasNodeHistogramDataSource = new MapResponseNodeHistogramDataSource(mapResponseDao);
+            NodeHistogramFactory nodeHistogramFactory = new DefaultNodeHistogramFactory(wasNodeHistogramDataSource);
+            builder.includeNodeHistogram(nodeHistogramFactory);
+        } else {
+            builder.linkType(LinkType.BASIC);
+        }
+        ServerInstanceListDataSource serverInstanceListDataSource = new AgentInfoServerInstanceListDataSource(agentInfoService);
+        ServerInstanceListFactory serverInstanceListFactory = new DefaultServerInstanceListFactory(serverInstanceListDataSource);
+        builder.includeServerInfo(serverInstanceListFactory);
+        return builder;
     }
 
     @Override

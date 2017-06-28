@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
-import com.navercorp.pinpoint.web.applicationmap.Node;
-import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 
 /**

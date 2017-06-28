@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.Node;
-import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.fasterxml.jackson.core.JsonGenerator;
