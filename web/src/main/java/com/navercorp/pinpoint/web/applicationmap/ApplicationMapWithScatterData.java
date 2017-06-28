@@ -17,6 +17,8 @@ package com.navercorp.pinpoint.web.applicationmap;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.navercorp.pinpoint.web.applicationmap.link.Link;
+import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.vo.Application;
 

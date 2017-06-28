@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
-import com.navercorp.pinpoint.web.applicationmap.Node;
-import com.navercorp.pinpoint.web.applicationmap.NodeList;
-import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerInstanceListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;

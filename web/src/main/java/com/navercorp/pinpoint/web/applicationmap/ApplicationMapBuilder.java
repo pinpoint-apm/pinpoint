@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap;
 
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInstanceListFactory;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkFactory.LinkType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
 
@@ -25,6 +26,8 @@ import com.navercorp.pinpoint.web.vo.Application;
  * @author HyunGil Jeong
  */
 public interface ApplicationMapBuilder {
+
+    ApplicationMapBuilder linkType(LinkType linkType);
 
     ApplicationMapBuilder includeNodeHistogram(NodeHistogramFactory nodeHistogramFactory);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,25 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.applicationmap;
+package com.navercorp.pinpoint.web.applicationmap.link;
 
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.histogram.*;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.*;
-import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModelList;
-import com.navercorp.pinpoint.web.view.LinkSerializer;
-import com.navercorp.pinpoint.web.view.ResponseTimeViewModel;
-import com.navercorp.pinpoint.web.vo.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkFactory.LinkType;
+import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogramBuilder;
+import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogramBuilder;
+import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
+import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModelList;
+import com.navercorp.pinpoint.web.view.ResponseTimeViewModel;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.LinkKey;
+import com.navercorp.pinpoint.web.vo.Range;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -35,16 +40,12 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * A class that describes relationship between apps in application map
+ * A class that describes a relationship between apps in application map
  *
  * @author netspider
  * @author emeroad
  */
-@JsonSerialize(using = LinkSerializer.class)
-public class Link {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    public static final String LINK_DELIMITER = "~";
+public class DetailedLink implements Link {
 
     // specifies who created the link.
     // indicates whether it was automatically created by the source, or if it was manually created by the target.
@@ -55,7 +56,6 @@ public class Link {
 
     private final Range range;
 
-
     private final LinkStateResolver linkStateResolver = LinkStateResolver.DEFAULT_LINK_STATE_RESOLVER;
 
     private final LinkCallDataMap sourceLinkCallDataMap = new LinkCallDataMap();
@@ -64,9 +64,7 @@ public class Link {
 
     private Histogram linkHistogram;
 
-
-
-    public Link(CreateType createType, Node fromNode, Node toNode, Range range) {
+    DetailedLink(CreateType createType, Node fromNode, Node toNode, Range range) {
         if (createType == null) {
             throw new NullPointerException("createType must not be null");
         }
@@ -86,9 +84,9 @@ public class Link {
         this.toNode = toNode;
 
         this.range = range;
-
     }
 
+    @Override
     public Application getFilterApplication() {
         // User link: need to look at WAS, not from
         // Since User is a virtual link, we cannot filter by User
@@ -102,44 +100,63 @@ public class Link {
         return fromNode.getApplication();
     }
 
-
+    @Override
     public LinkKey getLinkKey() {
         return new LinkKey(fromNode.getApplication(), toNode.getApplication());
     }
 
+    @Override
+    public LinkType getLinkType() {
+        return LinkType.DETAILED;
+    }
+
+    @Override
     public Node getFrom() {
         return fromNode;
     }
 
+    @Override
     public Node getTo() {
         return toNode;
     }
 
+    @Override
     public Range getRange() {
         return range;
     }
 
+    @Override
     public String getLinkName() {
         return fromNode.getNodeName() + LINK_DELIMITER + toNode.getNodeName();
     }
 
+    @Override
     public LinkCallDataMap getSourceLinkCallDataMap() {
         return sourceLinkCallDataMap;
     }
 
+    @Override
     public LinkCallDataMap getTargetLinkCallDataMap() {
         return targetLinkCallDataMap;
     }
-    
+
+    @Override
     public CreateType getCreateType() {
         return createType;
     }
 
+    @JsonIgnore
+    @Override
+    public AgentHistogramList getSourceList() {
+        return sourceLinkCallDataMap.getSourceList();
+    }
+
+    @Override
     public AgentHistogramList getTargetList() {
         return sourceLinkCallDataMap.getTargetList();
     }
 
-
+    @Override
     public Histogram getHistogram() {
         if (linkHistogram == null) {
             linkHistogram = createHistogram0();
@@ -166,6 +183,15 @@ public class Link {
         }
     }
 
+    @Override
+    public Histogram getTargetHistogram() {
+        // need serviceType of target (callee)
+        // ie. Tomcat -> Arcus: we need Arcus type
+        AgentHistogramList targetList = targetLinkCallDataMap.getTargetList();
+        return targetList.mergeHistogram(toNode.getServiceType());
+    }
+
+    @Override
     public List<ResponseTimeViewModel> getLinkApplicationTimeSeriesHistogram() {
         if (createType == CreateType.Source)  {
             return getSourceApplicationTimeSeriesHistogram();
@@ -174,31 +200,10 @@ public class Link {
         }
     }
 
-    public Histogram getTargetHistogram() {
-        // need serviceType of target (callee)
-        // ie. Tomcat -> Arcus: we need Arcus type
-        AgentHistogramList targetList = targetLinkCallDataMap.getTargetList();
-        return targetList.mergeHistogram(toNode.getServiceType());
-
-    }
-
-    @JsonIgnore
-    public AgentHistogramList getSourceList() {
-        return sourceLinkCallDataMap.getSourceList();
-    }
-
-    public void addSource(LinkCallDataMap sourceLinkCallDataMap) {
-        this.sourceLinkCallDataMap.addLinkDataMap(sourceLinkCallDataMap);
-    }
-
-    public void addTarget(LinkCallDataMap targetLinkCallDataMap) {
-        this.targetLinkCallDataMap.addLinkDataMap(targetLinkCallDataMap);
-    }
-
+    @Override
     public List<ResponseTimeViewModel> getSourceApplicationTimeSeriesHistogram() {
         ApplicationTimeHistogram histogramData = getSourceApplicationTimeSeriesHistogramData();
         return histogramData.createViewModel();
-
     }
 
     private ApplicationTimeHistogram getSourceApplicationTimeSeriesHistogramData() {
@@ -207,14 +212,31 @@ public class Link {
         return builder.build(sourceLinkCallDataMap.getLinkDataList());
     }
 
+    @Override
+    public List<ResponseTimeViewModel> getTargetApplicationTimeSeriesHistogram() {
+        ApplicationTimeHistogram targetApplicationTimeHistogramData = getTargetApplicationTimeSeriesHistogramData();
+        return targetApplicationTimeHistogramData.createViewModel();
+    }
+
+    @Override
     public ApplicationTimeHistogram getTargetApplicationTimeSeriesHistogramData() {
         // we need Target (to)'s time since time in link is RPC-based
         ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(toNode.getApplication(), range);
         return builder.build(targetLinkCallDataMap.getLinkDataList());
     }
 
-    public AgentResponseTimeViewModelList getSourceAgentTimeSeriesHistogram() {
+    @Override
+    public void addSource(LinkCallDataMap sourceLinkCallDataMap) {
+        this.sourceLinkCallDataMap.addLinkDataMap(sourceLinkCallDataMap);
+    }
 
+    @Override
+    public void addTarget(LinkCallDataMap targetLinkCallDataMap) {
+        this.targetLinkCallDataMap.addLinkDataMap(targetLinkCallDataMap);
+    }
+
+    @Override
+    public AgentResponseTimeViewModelList getSourceAgentTimeSeriesHistogram() {
         // we need Target (to)'s time since time in link is RPC-based
         AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(toNode.getApplication(), range);
         AgentTimeHistogram applicationTimeSeriesHistogram = builder.buildSource(sourceLinkCallDataMap);
@@ -222,12 +244,14 @@ public class Link {
         return agentResponseTimeViewModelList;
     }
 
+    @Override
     public AgentTimeHistogram getTargetAgentTimeHistogram() {
         AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(toNode.getApplication(), range);
         AgentTimeHistogram agentTimeHistogram = builder.buildSource(targetLinkCallDataMap);
         return agentTimeHistogram;
     }
 
+    @Override
     public Collection<Application> getSourceLinkTargetAgentList() {
         Set<Application> agentList = new HashSet<>();
         Collection<LinkCallData> linkDataList = sourceLinkCallDataMap.getLinkDataList();
@@ -237,20 +261,17 @@ public class Link {
         return agentList;
     }
 
-    public List<ResponseTimeViewModel> getTargetApplicationTimeSeriesHistogram() {
-        ApplicationTimeHistogram targetApplicationTimeHistogramData = getTargetApplicationTimeSeriesHistogramData();
-        return targetApplicationTimeHistogramData.createViewModel();
-    }
-
-
+    @Override
     public String getLinkState() {
         return linkStateResolver.resolve(this);
     }
 
+    @Override
     public Boolean getLinkAlert() {
         return linkStateResolver.isAlert(this);
     }
 
+    @Override
     public boolean isWasToWasLink() {
         return this.fromNode.getApplication().getServiceType().isWas() && this.toNode.getApplication().getServiceType().isWas();
     }
@@ -260,10 +281,10 @@ public class Link {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Link link = (Link) o;
+        DetailedLink that = (DetailedLink) o;
 
-        if (!fromNode.equals(link.fromNode)) return false;
-        if (!toNode.equals(link.toNode)) return false;
+        if (!fromNode.equals(that.fromNode)) return false;
+        if (!toNode.equals(that.toNode)) return false;
 
         return true;
     }
@@ -277,11 +298,9 @@ public class Link {
 
     @Override
     public String toString() {
-        return "Link{" +
+        return "DefaultLink{" +
                 "from=" + fromNode +
                 " -> to=" + toNode +
                 '}';
     }
-
-
 }

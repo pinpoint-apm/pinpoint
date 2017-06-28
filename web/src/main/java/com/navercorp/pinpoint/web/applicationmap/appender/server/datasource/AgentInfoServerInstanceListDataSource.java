@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.web.applicationmap.appender.server.datasource;
 
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
-import com.navercorp.pinpoint.web.applicationmap.Node;
-import com.navercorp.pinpoint.web.applicationmap.ServerBuilder;
-import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.service.AgentInfoService;

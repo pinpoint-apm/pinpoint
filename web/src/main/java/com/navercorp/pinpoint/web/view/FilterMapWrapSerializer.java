@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterData;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterScanResult;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWrap;
-import com.navercorp.pinpoint.web.applicationmap.Node;
+import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.scatter.ApplicationScatterScanResult;

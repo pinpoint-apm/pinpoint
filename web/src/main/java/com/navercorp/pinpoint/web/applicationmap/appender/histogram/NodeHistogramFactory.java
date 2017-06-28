@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.histogram;
 
-import com.navercorp.pinpoint.web.applicationmap.LinkList;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
