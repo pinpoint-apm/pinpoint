@@ -61,6 +61,7 @@ public class StatStreamingVer2Job implements Serializable {
         // set data source
         final TcpSourceFunction tcpSourceFunction = bootstrap.getTcpSourceFuncation();
         final StreamExecutionEnvironment env = bootstrap.createStreamExecutionEnvironment();
+//        env.setParallelism(1);
         DataStreamSource<TBase> rawData = env.addSource(tcpSourceFunction);
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         bootstrap.setSourceFunctionParallel(rawData);
@@ -73,7 +74,8 @@ public class StatStreamingVer2Job implements Serializable {
         DataStream<Tuple3<String, JoinStatBo, Long>> applicationStatAggregationData = statOperator.filter(new ApplicationStatBoFliter())
             .assignTimestampsAndWatermarks(new Timestamp())
             .keyBy(0)
-            .window(TumblingEventTimeWindows.of(Time.seconds(60)))
+            .window(TumblingEventTimeWindows.of(Time.milliseconds(ApplicationStatBoWindow.WINDOW_SIZE)))
+            .allowedLateness(Time.milliseconds(ApplicationStatBoWindow.ALLOWED_LATENESS))
             .apply(new ApplicationStatBoWindow());
         applicationStatAggregationData.writeUsingOutputFormat(statisticsDao);
 

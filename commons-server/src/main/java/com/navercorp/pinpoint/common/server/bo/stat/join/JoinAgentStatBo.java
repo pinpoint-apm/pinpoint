@@ -23,9 +23,9 @@ import java.util.List;
  */
 public class JoinAgentStatBo implements JoinStatBo {
     public static final JoinAgentStatBo EMPTY_JOIN_AGENT_STAT_BO = new JoinAgentStatBo();
-
     private static final List<JoinCpuLoadBo>  EMPTY_JOIN_CPU_LOAD_BO_LIST = new ArrayList<JoinCpuLoadBo>(0);
     private static final List<JoinMemoryBo> EMPTY_JOIN_MEMORY_BO_LIST = new ArrayList<JoinMemoryBo>();
+
     private String agentId = UNKNOWN_AGENT;
     private long agentStartTimestamp = Long.MIN_VALUE;
     private long timestamp = Long.MIN_VALUE;
