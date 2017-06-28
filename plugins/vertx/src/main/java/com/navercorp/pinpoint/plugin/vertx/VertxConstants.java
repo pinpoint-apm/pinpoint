@@ -31,4 +31,5 @@ public class VertxConstants {
     public static final ServiceType VERTX_HTTP_CLIENT_INTERNAL = ServiceTypeFactory.of(9131, "VERTX_HTTP_CLIENT_INTERNAL", "VERTX_HTTP_CLIENT");
 
     public static final String HTTP_CLIENT_REQUEST_SCOPE = "HttpClientRequestScope";
+    public static final String HTTP_CLIENT_CREATE_REQUEST_SCOPE = "HttpClientCreateRequestScope";
 }

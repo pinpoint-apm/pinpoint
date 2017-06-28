@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 
@@ -36,42 +37,59 @@ public class HttpClientImplGetConnectionForRequest extends SpanEventSimpleAround
             return;
         }
 
-        final int port = (Integer) args[0];
-        final String host = (String) args[1];
-        if (host != null) {
+        final HttpUrlData httpUrlData = getHostAndPort(args);
+        if (httpUrlData.host != null) {
             // connection address(host:port)
-            if (port > 0) {
-                recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, host + ":" + port);
-            } else {
-                recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, host);
-            }
+            recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, HostAndPort.toHostAndPortString(httpUrlData.host, httpUrlData.port));
         }
     }
 
     private boolean validate(final Object[] args) {
-        if (args == null || args.length < 2) {
+        if (args == null || args.length < 3) {
             if (isDebug) {
                 logger.debug("Invalid args object. args={}.", args);
             }
             return false;
         }
-
-        if (!(args[0] instanceof Integer)) {
-            if (isDebug) {
-                logger.debug("Invalid args[0] object. {}.", args[0]);
-            }
-            return false;
-        }
-
-        if (!(args[1] instanceof String)) {
-            if (isDebug) {
-                logger.debug("Invalid args[1] object. {}.", args[1]);
-            }
-            return false;
-        }
-
         return true;
     }
+
+    private HttpUrlData getHostAndPort(final Object[] args) {
+        HttpUrlData httpUrlData = new HttpUrlData();
+        if (args.length == 3) {
+            // 3.3.x
+            // int port, String host, Waiter waiter
+            if (args[0] instanceof Integer) {
+                httpUrlData.port = (Integer) args[0];
+            }
+
+            if (args[1] instanceof String) {
+                httpUrlData.host = (String) args[1];
+            }
+        } else if(args.length == 4) {
+            // 3.4.0, 3.4.1
+            // boolean ssl, int port, String host, Waiter waiter
+            if (args[1] instanceof Integer) {
+                httpUrlData.port = (Integer) args[1];
+            }
+
+            if (args[2] instanceof String) {
+                httpUrlData.host = (String) args[2];
+            }
+        } else if (args.length == 5) {
+            // 3.4.2
+            // String peerHost, boolean ssl, int port, String host, Waiter waiter
+            if (args[2] instanceof Integer) {
+                httpUrlData.port = (Integer) args[2];
+            }
+
+            if (args[3] instanceof String) {
+                httpUrlData.host = (String) args[3];
+            }
+        }
+        return httpUrlData;
+    }
+
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
@@ -79,4 +97,10 @@ public class HttpClientImplGetConnectionForRequest extends SpanEventSimpleAround
         recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT_INTERNAL);
         recorder.recordException(throwable);
     }
+
+    private class HttpUrlData {
+        private String host;
+        private int port = -1;
+    }
+
 }
