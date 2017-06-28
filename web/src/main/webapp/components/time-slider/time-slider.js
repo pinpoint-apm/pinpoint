@@ -254,7 +254,8 @@
     	"BASE": "rgba(187, 187, 187, .3)",
 		"UNKNOWN": "rgba(220, 214, 214, .8)",
     	"RUNNING": "rgba(0, 158, 0, .4 )",
-		"SHUTDOWN": "rgba(209, 82, 96, .7)"
+		"SHUTDOWN": "rgba(209, 82, 96, .7)",
+		"UNSTABLE_RUNNING": "rgba(255, 102, 0, .4)"
 	};
 	TimeSlider.MAX_TIME_RANGE = 604800000;
     w.TimeSlider = TimeSlider;
