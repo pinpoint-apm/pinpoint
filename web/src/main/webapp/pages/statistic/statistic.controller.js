@@ -38,13 +38,34 @@
 							$scope.$broadcast("statisticChartDirective.initAndRenderWithData.jvm", makeChartData({
 								id: "jvmCpuLoad",
 								title: "JVM Cpu Usage",
-								isAvailable: false
+								isAvailable: false,
+								maximum: true
 							}, "Cpu Usage (%)", ["JVM(avg)", "JVM(max)", "JVM(min)"], chartData.data.charts["CPU_LOAD_JVM"]), "100%", "270px");
 							$scope.$broadcast("statisticChartDirective.initAndRenderWithData.system", makeChartData({
 								id: "systemCpuLoad",
 								title: "System Cpu Usage",
-								isAvailable: false
+								isAvailable: false,
+								maximum: true
 							}, "Cpu Usage (%)", ["System(avg)", "System(max)", "System(min)"], chartData.data.charts["CPU_LOAD_SYSTEM"]), "100%", "270px");
+						} else {
+							console.log("error");
+						}
+					}, function(error) {
+					});
+					$http.get( "getApplicationStat/memory/chart.pinpoint" +  getQueryStr(oParam) ).then(function(chartData) {
+						if ( angular.isUndefined(chartData.data.exception) ) {
+							$scope.$broadcast("statisticChartDirective.initAndRenderWithData.heap", makeChartData({
+								id: "memoryHeapLoad",
+								title: "Memory Heap",
+								isAvailable: false,
+								maximum: false
+							}, "Memory(bytes)", ["JVM(avg)", "JVM(max)", "JVM(min)"], chartData.data.charts["MEMORY_HEAP"]), "100%", "270px");
+							$scope.$broadcast("statisticChartDirective.initAndRenderWithData.non-heap", makeChartData({
+								id: "memoryNonHeapLoad",
+								title: "Memory Non Heap",
+								isAvailable: false,
+								maximum: false
+							}, "Memory(bytes)", ["System(avg)", "System(max)", "System(min)"], chartData.data.charts["MEMORY_NON_HEAP"]), "100%", "270px");
 						} else {
 							console.log("error");
 						}
@@ -57,7 +78,8 @@
 					data: [],
 					title: legendTitles,
 					field: ["avg", "max", "min", "maxAgent", "minAgent"],
-					chartTitle: chartTitle
+					chartTitle: chartTitle,
+					maximum: chartProperty.maximum
 				};
 				if (chartData) {
 					chartProperty.isAvailable = true;

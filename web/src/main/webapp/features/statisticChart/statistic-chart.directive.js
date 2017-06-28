@@ -56,7 +56,6 @@
 									"axisAlpha": 1,
 									"position": "left",
 									"title": chartData.chartTitle,
-									"maximum" : 100,
 									"minimum" : 0
 								}
 							],
@@ -110,6 +109,9 @@
 								}
 							}
 						};
+						if ( chartData.maximum ) {
+							options["valueAxes"][0].maximum = 100;
+						}
 						oChart = AmCharts.makeChart(sId, options);
 						var oChartCursor = new AmCharts.ChartCursor({
 							"categoryBalloonAlpha": 0.7,
