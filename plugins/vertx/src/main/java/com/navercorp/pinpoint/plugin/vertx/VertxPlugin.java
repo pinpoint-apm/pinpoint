@@ -53,7 +53,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
         if (!config.isEnable() || (!config.isEnableHttpServer() && !config.isEnableHttpClient())) {
             return;
         }
-        // for vertx.io 3.x
+        // for vertx.io 3.3.x, 3.4.x
         final VertxDetector vertxDetector = new VertxDetector(config.getBootstrapMains());
         context.addApplicationTypeDetector(vertxDetector);
 
@@ -69,7 +69,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
             addContextImpl("io.vertx.core.impl.ContextImpl");
             addContextImpl("io.vertx.core.impl.EventLoopContext");
             addContextImpl("io.vertx.core.impl.MultiThreadedWorkerContext");
-            addContextImpl("io.vertx.core.impl.EventLoopContext");
+            addContextImpl("io.vertx.core.impl.WorkerContext");
         }
 
         if (config.isEnableHttpServer()) {
@@ -261,15 +261,25 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
                     }
                 }
 
+                // 3.3.x
                 final InstrumentMethod doRequestMethod = target.getDeclaredMethod("doRequest", "io.vertx.core.http.HttpMethod", "java.lang.String", "int", "java.lang.String", "io.vertx.core.MultiMap");
                 if (doRequestMethod != null) {
                     doRequestMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplDoRequestInterceptor");
                 }
 
-                // connect
-                final InstrumentMethod getConnectionForRequestMethod = target.getDeclaredMethod("getConnectionForRequest", "int", "java.lang.String", "io.vertx.core.http.impl.Waiter");
-                if (getConnectionForRequestMethod != null) {
-                    getConnectionForRequestMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplGetConnectionForRequest");
+                // 3.4.1, 3.4.2
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("createRequest"))) {
+                    if (method != null) {
+                        // scoped for 3.4.2
+                        method.addScopedInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplDoRequestInterceptor", VertxConstants.HTTP_CLIENT_CREATE_REQUEST_SCOPE);
+                    }
+                }
+
+                // connection for 3.3.x, 3.4.0, 3.4.1, 3.4.2
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("getConnectionForRequest"))) {
+                    if (method != null) {
+                        method.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplGetConnectionForRequest");
+                    }
                 }
 
                 return target.toBytecode();
@@ -286,9 +296,10 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
                 target.addField(AsyncTraceIdAccessor.class.getName());
 
                 // for HttpClientResponseImpl.
-                final InstrumentMethod doHandleResponseMethod = target.getDeclaredMethod("doHandleResponse", "io.vertx.core.http.impl.HttpClientResponseImpl");
-                if (doHandleResponseMethod != null) {
-                    doHandleResponseMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientRequestImplDoHandleResponseInterceptor");
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("doHandleResponse"))) {
+                    if (method != null) {
+                        method.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientRequestImplDoHandleResponseInterceptor");
+                    }
                 }
 
                 // for completionHandler, writeHead(), connect().
