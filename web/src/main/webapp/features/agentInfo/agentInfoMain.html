@@ -40,6 +40,11 @@
 			</div>
 			<div class="panel-body">
 				<table class="table table-condensed" style="font-size:12px;margin-bottom:0px;">
+					<colgroup>
+						<col class="col-md-3">
+						<col class="col-md-3">
+						<col class="col-md-6">
+					</colgroup>
 					<thead>
 						<th>Time</th>
 						<th>Description</th>
@@ -49,7 +54,7 @@
 						<tr ng-repeat="event in eventInfo">
 							<td>{{formatDate(event.eventTimestamp)}}</td>
 							<td>{{event.eventTypeDesc}}</td>
-							<td>{{event.eventMessage}}</td>
+							<td ng-bind-html="replaceNewLineToBR(event.eventMessage)"></td>
 						</tr>
 					</tbody>
 				</table>
