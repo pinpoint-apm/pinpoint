@@ -112,6 +112,10 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
     }
 
     private List<AgentStatusTimelineSegment> createTimelineSegment0(List<AgentWarningStatDataPoint> agentWarningStatDataPointList) {
+        if (CollectionUtils.isEmpty(agentWarningStatDataPointList)) {
+            return Collections.emptyList();
+        }
+
         List<AgentStatusTimelineSegment> timelineSegmentList = new ArrayList<>();
 
         long beforeTimestamp = -1;
