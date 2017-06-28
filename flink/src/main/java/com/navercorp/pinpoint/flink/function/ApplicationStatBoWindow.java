@@ -34,6 +34,8 @@ import java.util.List;
  */
 public class ApplicationStatBoWindow implements WindowFunction<Tuple3<String, JoinStatBo, Long>, Tuple3<String, JoinStatBo, Long>, Tuple, TimeWindow> {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
+    public static final int WINDOW_SIZE = 10000;
+    public static final int ALLOWED_LATENESS = 15000;
 
     @Override
     public void apply(Tuple tuple, TimeWindow window, Iterable<Tuple3<String, JoinStatBo, Long>> values, Collector<Tuple3<String, JoinStatBo, Long>> out) throws Exception {
