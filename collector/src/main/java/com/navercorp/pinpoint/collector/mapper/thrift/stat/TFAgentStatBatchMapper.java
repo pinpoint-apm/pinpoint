@@ -29,11 +29,11 @@ import java.util.List;
  */
 public class TFAgentStatBatchMapper {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    public final TFAgentStatMappter tFAgentStatMappter = new TFAgentStatMappter();
+    public final TFAgentStatMapper tFAgentStatMapper = new TFAgentStatMapper();
 
     public TFAgentStatBatch map(AgentStatBo agentStatBo) {
         try {
-            List<TFAgentStat> tFAgentstatList = tFAgentStatMappter.map(agentStatBo);
+            List<TFAgentStat> tFAgentstatList = tFAgentStatMapper.map(agentStatBo);
             long startTimestamp = getStartTimestamp(agentStatBo);
             TFAgentStatBatch tFAgentStatBatch = new TFAgentStatBatch(agentStatBo.getAgentId(), startTimestamp, tFAgentstatList);
             return tFAgentStatBatch;

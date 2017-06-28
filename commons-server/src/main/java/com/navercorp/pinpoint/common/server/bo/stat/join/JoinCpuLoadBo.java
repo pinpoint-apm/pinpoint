@@ -78,7 +78,6 @@ public class JoinCpuLoadBo implements JoinStatBo {
         String minJvmCpuAgentId = initCpuLoadBo.getMinJvmCpuAgentId();
         double minJvmCpuLoad = initCpuLoadBo.getMinJvmCpuLoad();
         double sumSystemCpuLoad = 0D;
-        double systemCpuLoad = initCpuLoadBo.getSystemCpuLoad();
         String maxSysCpuAgentId = initCpuLoadBo.getMaxSysCpuAgentId();
         double maxSystemCpuLoad = initCpuLoadBo.getMaxSystemCpuLoad();
         String minSysCpuAgentId = initCpuLoadBo.getMinSysCpuAgentId();

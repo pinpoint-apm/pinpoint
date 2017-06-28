@@ -187,12 +187,86 @@ public class JoinApplicationStatBo implements JoinStatBo {
         return joinMemoryBoList;
     }
 
+    public static List<JoinApplicationStatBo> createJoinApplicationStatBo(String applicationId, JoinAgentStatBo joinAgentStatBo, long rangeTime) {
+        List<JoinApplicationStatBo> joinApplicationStatBoList = new ArrayList<JoinApplicationStatBo>();
+        List<JoinAgentStatBo> joinAgentStatBoList = splitJoinAgentStatBo(applicationId, joinAgentStatBo, rangeTime);
+
+        for (JoinAgentStatBo sliceJoinAgentStatBo : joinAgentStatBoList) {
+            JoinApplicationStatBo joinApplicationStatBo = new JoinApplicationStatBo();
+            joinApplicationStatBo.setId(applicationId);
+            joinApplicationStatBo.setTimestamp(sliceJoinAgentStatBo.getTimestamp());
+            joinApplicationStatBo.setJoinCpuLoadBoList(sliceJoinAgentStatBo.getJoinCpuLoadBoList());
+            joinApplicationStatBo.setJoinMemoryBoList(sliceJoinAgentStatBo.getJoinMemoryBoList());
+            joinApplicationStatBoList.add(joinApplicationStatBo);
+        }
+
+        return joinApplicationStatBoList;
+    }
+
+    private static List<JoinAgentStatBo> splitJoinAgentStatBo(String applicationId, JoinAgentStatBo joinAgentStatBo, long rangeTime) {
+        Map<Long, JoinAgentStatBo> joinAgentStatBoMap = new HashMap<Long, JoinAgentStatBo>();
+
+        Map<Long, List<JoinCpuLoadBo>> joinCpuLoadBoMap = new HashMap<Long, List<JoinCpuLoadBo>>();
+        for (JoinCpuLoadBo joinCpuLoadBo : joinAgentStatBo.getJoinCpuLoadBoList()) {
+            long timestamp = joinCpuLoadBo.getTimestamp();
+            long time = timestamp - (timestamp % rangeTime);
+            List<JoinCpuLoadBo> joinCpuLoadBoList = joinCpuLoadBoMap.get(time);
+
+            if((joinCpuLoadBoList == null)) {
+                joinCpuLoadBoList = new ArrayList<JoinCpuLoadBo>();
+                joinCpuLoadBoMap.put(time, joinCpuLoadBoList);
+            }
+
+            joinCpuLoadBoList.add(joinCpuLoadBo);
+        }
+        for (Map.Entry<Long, List<JoinCpuLoadBo>> entry : joinCpuLoadBoMap.entrySet()) {
+            long time = entry.getKey();
+            JoinAgentStatBo sliceJoinAgentStatBo = getORCreateJoinAgentStatBo(applicationId, joinAgentStatBoMap, time);
+            sliceJoinAgentStatBo.setJoinCpuLoadBoList(entry.getValue());
+        }
+
+        Map<Long, List<JoinMemoryBo>> joinMemoryBoMap = new HashMap<Long, List<JoinMemoryBo>>();
+        for (JoinMemoryBo joinMemoryBo : joinAgentStatBo.getJoinMemoryBoList()) {
+            long timeStamp = joinMemoryBo.getTimestamp();
+            long time = timeStamp - (timeStamp % rangeTime);
+            List<JoinMemoryBo> joinMemoryBoList = joinMemoryBoMap.get(time);
+
+            if(joinMemoryBoList == null) {
+                joinMemoryBoList = new ArrayList<JoinMemoryBo>();
+                joinMemoryBoMap.put(time, joinMemoryBoList);
+            }
+
+            joinMemoryBoList.add(joinMemoryBo);
+        }
+        for (Map.Entry<Long, List<JoinMemoryBo>> entry : joinMemoryBoMap.entrySet()) {
+            long time = entry.getKey();
+            JoinAgentStatBo sliceJoinAgentStatBo = getORCreateJoinAgentStatBo(applicationId, joinAgentStatBoMap, time);
+            sliceJoinAgentStatBo.setJoinMemoryBoList(entry.getValue());
+        }
+
+        return new ArrayList<JoinAgentStatBo>(joinAgentStatBoMap.values());
+    }
+
+    private static JoinAgentStatBo getORCreateJoinAgentStatBo(String applicationId, Map<Long, JoinAgentStatBo> joinAgentStatBoMap, long time) {
+        JoinAgentStatBo joinAgentStatBo = joinAgentStatBoMap.get(time);
+
+        if (joinAgentStatBo == null) {
+            joinAgentStatBo = new JoinAgentStatBo();
+            joinAgentStatBo.setId(applicationId);
+            joinAgentStatBo.setTimestamp(time);
+            joinAgentStatBoMap.put(time, joinAgentStatBo);
+        }
+
+        return joinAgentStatBo;
+    }
+
     @Override
     public String toString() {
         return "JoinApplicationStatBo{" +
             "applicationId='" + applicationId + '\'' +
             ", joinCpuLoadBoList=" + joinCpuLoadBoList +
-            ", timestamp=" + new Date(timestamp) +
+            ", joinMemoryBoList=" + joinMemoryBoList +
+            ", timestamp=" + timestamp +
             ", statType=" + statType +
             '}';
     }

@@ -37,7 +37,7 @@ public class TcpSourceFunction implements ParallelSourceFunction<TBase> {
     public void run(SourceContext<TBase> ctx) throws Exception {
         final Bootstrap bootstrap = Bootstrap.getInstance();
         bootstrap.setStatHandlerTcpDispatchHandler(ctx);
-        FlinkServerRegister flinkServerRegister = bootstrap.initFlinkServerRegister();
+        bootstrap.initFlinkServerRegister();
         tcpReceiver = bootstrap.initTcpReceiver();
 
         Thread.sleep(Long.MAX_VALUE);

@@ -236,6 +236,124 @@ public class JoinApplicationStatBoTest {
         assertEquals("id4_4", joinMemoryBo5.getMaxNonHeapAgentId());
     }
 
+    @Test
+    public void joinApplicationStatBoByTimeSlice3Test() {
+        List<JoinApplicationStatBo> joinApplicationStatBoList = new ArrayList<JoinApplicationStatBo>();
+
+        List<JoinCpuLoadBo> joinCpuLoadBoList1 = new ArrayList<JoinCpuLoadBo>();
+        JoinCpuLoadBo joinCpuLoadBo1_1 = new JoinCpuLoadBo("agent1", 44, 70, "agent1", 30, "agent1", 50, 60, "agent1", 33, "agent1", 1498462545000L);
+        JoinCpuLoadBo joinCpuLoadBo1_2 = new JoinCpuLoadBo("agent1", 33, 40, "agent1", 10, "agent1", 20, 78, "agent1", 12, "agent1", 1498462550000L);
+        JoinCpuLoadBo joinCpuLoadBo1_3 = new JoinCpuLoadBo("agent1", 55, 60, "agent1", 7, "agent1", 30, 39, "agent1", 30, "agent1", 1498462555000L);
+        joinCpuLoadBoList1.add(joinCpuLoadBo1_1);
+        joinCpuLoadBoList1.add(joinCpuLoadBo1_2);
+        joinCpuLoadBoList1.add(joinCpuLoadBo1_3);
+        JoinApplicationStatBo joinApplicationStatBo1 = new JoinApplicationStatBo();
+        joinApplicationStatBo1.setId("test_app");
+        joinApplicationStatBo1.setJoinCpuLoadBoList(joinCpuLoadBoList1);
+        joinApplicationStatBo1.setTimestamp(1498462545000L);
+        joinApplicationStatBoList.add(joinApplicationStatBo1);
+
+        List<JoinCpuLoadBo> joinCpuLoadBoList2 = new ArrayList<JoinCpuLoadBo>();
+        JoinCpuLoadBo joinCpuLoadBo2_1 = new JoinCpuLoadBo("agent1", 33, 70, "agent1", 30, "agent1", 50, 60, "agent1", 33, "agent1", 1498462545000L);
+        JoinCpuLoadBo joinCpuLoadBo2_2 = new JoinCpuLoadBo("agent1", 22, 40, "agent1", 10, "agent1", 20, 78, "agent1", 12, "agent1", 1498462550000L);
+        JoinCpuLoadBo joinCpuLoadBo2_3 = new JoinCpuLoadBo("agent1", 11, 60, "agent1", 7, "agent1", 30, 39, "agent1", 30, "agent1", 1498462555000L);
+        JoinCpuLoadBo joinCpuLoadBo2_4 = new JoinCpuLoadBo("agent1", 77, 60, "agent1", 7, "agent1", 30, 39, "agent1", 30, "agent1", 1498462560000L);
+        joinCpuLoadBoList2.add(joinCpuLoadBo2_1);
+        joinCpuLoadBoList2.add(joinCpuLoadBo2_2);
+        joinCpuLoadBoList2.add(joinCpuLoadBo2_3);
+        joinCpuLoadBoList2.add(joinCpuLoadBo2_4);
+        JoinApplicationStatBo joinApplicationStatBo2 = new JoinApplicationStatBo();
+        joinApplicationStatBo2.setId("test_app");
+        joinApplicationStatBo2.setJoinCpuLoadBoList(joinCpuLoadBoList2);
+        joinApplicationStatBo2.setTimestamp(1498462545000L);
+        joinApplicationStatBoList.add(joinApplicationStatBo2);
+
+        List<JoinCpuLoadBo> joinCpuLoadBoList3 = new ArrayList<JoinCpuLoadBo>();
+        JoinCpuLoadBo joinCpuLoadBo3_1 = new JoinCpuLoadBo("agent1", 22, 70, "agent1", 30, "agent1", 50, 60, "agent1", 33, "agent1", 1498462545000L);
+        JoinCpuLoadBo joinCpuLoadBo3_2 = new JoinCpuLoadBo("agent1", 11, 40, "agent1", 10, "agent1", 20, 78, "agent1", 12, "agent1", 1498462550000L);
+        JoinCpuLoadBo joinCpuLoadBo3_3 = new JoinCpuLoadBo("agent1", 88, 60, "agent1", 7, "agent1", 30, 39, "agent1", 30, "agent1", 1498462565000L);
+        joinCpuLoadBoList3.add(joinCpuLoadBo3_1);
+        joinCpuLoadBoList3.add(joinCpuLoadBo3_2);
+        joinCpuLoadBoList3.add(joinCpuLoadBo3_3);
+        JoinApplicationStatBo joinApplicationStatBo3 = new JoinApplicationStatBo();
+        joinApplicationStatBo3.setId("test_app");
+        joinApplicationStatBo3.setJoinCpuLoadBoList(joinCpuLoadBoList3);
+        joinApplicationStatBo3.setTimestamp(1498462545000L);
+        joinApplicationStatBoList.add(joinApplicationStatBo3);
+
+
+        JoinApplicationStatBo joinApplicationStatBo = JoinApplicationStatBo.joinApplicationStatBoByTimeSlice(joinApplicationStatBoList);
+        assertEquals(joinApplicationStatBo.getId(), "test_app");
+        assertEquals(joinApplicationStatBo.getTimestamp(), 1498462545000L);
+        List<JoinCpuLoadBo> joinCpuLoadBoList = joinApplicationStatBo.getJoinCpuLoadBoList();
+        Collections.sort(joinCpuLoadBoList, new ComparatorImpl());
+
+        assertEquals(joinCpuLoadBoList.size(), 5);
+        assertEquals(joinCpuLoadBoList.get(0).getJvmCpuLoad(), 33,0);
+        assertEquals(joinCpuLoadBoList.get(1).getJvmCpuLoad(), 22,0);
+        assertEquals(joinCpuLoadBoList.get(2).getJvmCpuLoad(), 33,0);
+        assertEquals(joinCpuLoadBoList.get(3).getJvmCpuLoad(), 77,0);
+        assertEquals(joinCpuLoadBoList.get(4).getJvmCpuLoad(), 88,0);
+    }
+
+    @Test
+    public void joinApplicationStatBoByTimeSlice4Test() {
+        List<JoinApplicationStatBo> joinApplicationStatBoList = new ArrayList<JoinApplicationStatBo>();
+
+        List<JoinMemoryBo> joinMemoryBoList1 = new ArrayList<JoinMemoryBo>();
+        JoinMemoryBo joinMemoryBo1_1 = new JoinMemoryBo("agent1", 1498462545000L, 3000, 2000, 5000, "agent1", "agent1", 500, 50, 600, "agent1", "agent1");
+        JoinMemoryBo joinMemoryBo1_2 = new JoinMemoryBo("agent2", 1498462550000L, 4000, 1000, 7000, "agent2", "agent2", 400, 150, 600, "agent2", "agent2");
+        JoinMemoryBo joinMemoryBo1_3 = new JoinMemoryBo("agent3", 1498462555000L, 5000, 3000, 8000, "agent3", "agent3", 200, 100, 200, "agent3", "agent3");
+        joinMemoryBoList1.add(joinMemoryBo1_1);
+        joinMemoryBoList1.add(joinMemoryBo1_2);
+        joinMemoryBoList1.add(joinMemoryBo1_3);
+        JoinApplicationStatBo joinApplicationStatBo1 = new JoinApplicationStatBo();
+        joinApplicationStatBo1.setId("test_app");
+        joinApplicationStatBo1.setJoinMemoryBoList(joinMemoryBoList1);
+        joinApplicationStatBo1.setTimestamp(1498462545000L);
+        joinApplicationStatBoList.add(joinApplicationStatBo1);
+
+        List<JoinMemoryBo> joinMemoryBoList2 = new ArrayList<JoinMemoryBo>();
+        JoinMemoryBo joinMemoryBo2_1 = new JoinMemoryBo("agent1", 1498462545000L, 4000, 2000, 5000, "agent1", "agent1", 500, 50, 600, "agent1", "agent1");
+        JoinMemoryBo joinMemoryBo2_2 = new JoinMemoryBo("agent2", 1498462550000L, 1000, 1000, 7000, "agent2", "agent2", 400, 150, 600, "agent2", "agent2");
+        JoinMemoryBo joinMemoryBo2_3 = new JoinMemoryBo("agent3", 1498462555000L, 3000, 3000, 8000, "agent3", "agent3", 200, 100, 200, "agent3", "agent3");
+        JoinMemoryBo joinMemoryBo2_4 = new JoinMemoryBo("agent3", 1498462560000L, 8800, 3000, 8000, "agent3", "agent3", 200, 100, 200, "agent3", "agent3");
+        joinMemoryBoList2.add(joinMemoryBo2_1);
+        joinMemoryBoList2.add(joinMemoryBo2_2);
+        joinMemoryBoList2.add(joinMemoryBo2_3);
+        joinMemoryBoList2.add(joinMemoryBo2_4);
+        JoinApplicationStatBo joinApplicationStatBo2 = new JoinApplicationStatBo();
+        joinApplicationStatBo2.setId("test_app");
+        joinApplicationStatBo2.setJoinMemoryBoList(joinMemoryBoList2);
+        joinApplicationStatBo2.setTimestamp(1498462545000L);
+        joinApplicationStatBoList.add(joinApplicationStatBo2);
+
+        List<JoinMemoryBo> joinMemoryBoList3 = new ArrayList<JoinMemoryBo>();
+        JoinMemoryBo joinMemoryBo3_1 = new JoinMemoryBo("agent1", 1498462545000L, 5000, 2000, 5000, "agent1", "agent1", 500, 50, 600, "agent1", "agent1");
+        JoinMemoryBo joinMemoryBo3_2 = new JoinMemoryBo("agent2", 1498462550000L, 1000, 1000, 7000, "agent2", "agent2", 400, 150, 600, "agent2", "agent2");
+        JoinMemoryBo joinMemoryBo3_3 = new JoinMemoryBo("agent3", 1498462565000L, 7800, 3000, 8000, "agent3", "agent3", 200, 100, 200, "agent3", "agent3");
+        joinMemoryBoList3.add(joinMemoryBo3_1);
+        joinMemoryBoList3.add(joinMemoryBo3_2);
+        joinMemoryBoList3.add(joinMemoryBo3_3);
+        JoinApplicationStatBo joinApplicationStatBo3 = new JoinApplicationStatBo();
+        joinApplicationStatBo3.setId("test_app");
+        joinApplicationStatBo3.setJoinMemoryBoList(joinMemoryBoList3);
+        joinApplicationStatBo3.setTimestamp(1498462545000L);
+        joinApplicationStatBoList.add(joinApplicationStatBo3);
+
+        JoinApplicationStatBo joinApplicationStatBo = JoinApplicationStatBo.joinApplicationStatBoByTimeSlice(joinApplicationStatBoList);
+        assertEquals(joinApplicationStatBo.getId(), "test_app");
+        assertEquals(joinApplicationStatBo.getTimestamp(), 1498462545000L);
+        List<JoinMemoryBo> joinMemoryBoList = joinApplicationStatBo.getJoinMemoryBoList();
+        Collections.sort(joinMemoryBoList, new ComparatorImpl2());
+        assertEquals(joinMemoryBoList.size(), 5);
+        assertEquals(joinMemoryBoList.get(0).getHeapUsed(), 4000);
+        assertEquals(joinMemoryBoList.get(1).getHeapUsed(), 2000);
+        assertEquals(joinMemoryBoList.get(2).getHeapUsed(), 4000);
+        assertEquals(joinMemoryBoList.get(3).getHeapUsed(), 8800);
+        assertEquals(joinMemoryBoList.get(4).getHeapUsed(), 7800);
+    }
+
     private class ComparatorImpl2 implements Comparator<JoinMemoryBo> {
         @Override
         public int compare(JoinMemoryBo bo1, JoinMemoryBo bo2) {
@@ -268,6 +386,143 @@ public class JoinApplicationStatBoTest {
 
         return joinMemoryBoList;
     }
+
+    @Test
+    public void createJoinApplicationStatBoTest() {
+        JoinAgentStatBo joinAgentStatBo = new JoinAgentStatBo();
+        joinAgentStatBo.setTimestamp(1498462565000L);
+
+        List<JoinCpuLoadBo> joinCpuLoadBoList = new ArrayList<JoinCpuLoadBo>();
+        JoinCpuLoadBo joinCpuLoadBo1 = new JoinCpuLoadBo("agent1", 44, 70, "agent1", 30, "agent1", 50, 60, "agent1", 33, "agent1", 1498462565000L);
+        JoinCpuLoadBo joinCpuLoadBo2 = new JoinCpuLoadBo("agent1", 33, 40, "agent1", 10, "agent1", 20, 78, "agent1", 12, "agent1", 1498462570000L);
+        JoinCpuLoadBo joinCpuLoadBo3 = new JoinCpuLoadBo("agent1", 55, 60, "agent1", 7, "agent1", 30, 39, "agent1", 30, "agent1", 1498462575000L);
+        JoinCpuLoadBo joinCpuLoadBo4 = new JoinCpuLoadBo("agent1", 11, 80, "agent1", 8, "agent1", 10, 50, "agent1", 14, "agent1", 1498462580000L);
+        JoinCpuLoadBo joinCpuLoadBo5 = new JoinCpuLoadBo("agent1", 22, 70, "agent1", 12, "agent1", 40, 99, "agent1", 50, "agent1", 1498462585000L);
+        joinCpuLoadBoList.add(joinCpuLoadBo1);
+        joinCpuLoadBoList.add(joinCpuLoadBo2);
+        joinCpuLoadBoList.add(joinCpuLoadBo3);
+        joinCpuLoadBoList.add(joinCpuLoadBo4);
+        joinCpuLoadBoList.add(joinCpuLoadBo5);
+        joinAgentStatBo.setJoinCpuLoadBoList(joinCpuLoadBoList);
+
+        List<JoinMemoryBo> joinMemoryBoList = new ArrayList<JoinMemoryBo>();
+        JoinMemoryBo joinMemoryBo1 = new JoinMemoryBo("agent1", 1498462565000L, 3000, 2000, 5000, "agent1", "agent1", 500, 50, 600, "agent1", "agent1");
+        JoinMemoryBo joinMemoryBo2 = new JoinMemoryBo("agent1", 1498462570000L, 4000, 1000, 7000, "agent1", "agent1", 400, 150, 600, "agent1", "agent1");
+        JoinMemoryBo joinMemoryBo3 = new JoinMemoryBo("agent1", 1498462575000L, 5000, 3000, 8000, "agent1", "agent1", 200, 100, 200, "agent1", "agent1");
+        JoinMemoryBo joinMemoryBo4 = new JoinMemoryBo("agent1", 1498462580000L, 1000, 100, 3000, "agent1", "agent1", 100, 900, 1000, "agent1", "agent1");
+        JoinMemoryBo joinMemoryBo5 = new JoinMemoryBo("agent1", 1498462585000L, 2000, 1000, 6000, "agent1", "agent1", 300, 100, 2900, "agent1", "agent1");
+        joinMemoryBoList.add(joinMemoryBo1);
+        joinMemoryBoList.add(joinMemoryBo2);
+        joinMemoryBoList.add(joinMemoryBo3);
+        joinMemoryBoList.add(joinMemoryBo4);
+        joinMemoryBoList.add(joinMemoryBo5);
+        joinAgentStatBo.setJoinMemoryBoList(joinMemoryBoList);
+
+        List<JoinApplicationStatBo> joinApplicationStatBoList = JoinApplicationStatBo.createJoinApplicationStatBo("test_app", joinAgentStatBo, 60000);
+        assertEquals(joinApplicationStatBoList.size(), 1);
+        JoinApplicationStatBo joinApplicationStatBo = joinApplicationStatBoList.get(0);
+        assertEquals(joinApplicationStatBo.getId(), "test_app");
+        assertEquals(joinApplicationStatBo.getJoinCpuLoadBoList().size(), 5);
+        assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 5);
+    }
+
+    @Test
+    public void createJoinApplicationStatBo2Test() {
+        JoinAgentStatBo joinAgentStatBo = new JoinAgentStatBo();
+        joinAgentStatBo.setTimestamp(1498462545000L);
+
+        List<JoinCpuLoadBo> joinCpuLoadBoList = new ArrayList<JoinCpuLoadBo>();
+        JoinCpuLoadBo joinCpuLoadBo1 = new JoinCpuLoadBo("agent1", 44, 70, "agent1", 30, "agent1", 50, 60, "agent1", 33, "agent1", 1498462545000L);
+        JoinCpuLoadBo joinCpuLoadBo2 = new JoinCpuLoadBo("agent1", 33, 40, "agent1", 10, "agent1", 20, 78, "agent1", 12, "agent1", 1498462550000L);
+        JoinCpuLoadBo joinCpuLoadBo3 = new JoinCpuLoadBo("agent1", 55, 60, "agent1", 7, "agent1", 30, 39, "agent1", 30, "agent1", 1498462555000L);
+        JoinCpuLoadBo joinCpuLoadBo4 = new JoinCpuLoadBo("agent1", 11, 80, "agent1", 8, "agent1", 10, 50, "agent1", 14, "agent1", 1498462560000L);
+        JoinCpuLoadBo joinCpuLoadBo5 = new JoinCpuLoadBo("agent1", 22, 70, "agent1", 12, "agent1", 40, 99, "agent1", 50, "agent1", 1498462565000L);
+        joinCpuLoadBoList.add(joinCpuLoadBo1);
+        joinCpuLoadBoList.add(joinCpuLoadBo2);
+        joinCpuLoadBoList.add(joinCpuLoadBo3);
+        joinCpuLoadBoList.add(joinCpuLoadBo4);
+        joinCpuLoadBoList.add(joinCpuLoadBo5);
+        joinAgentStatBo.setJoinCpuLoadBoList(joinCpuLoadBoList);
+
+        List<JoinMemoryBo> joinMemoryBoList = new ArrayList<JoinMemoryBo>();
+        JoinMemoryBo joinMemoryBo1 = new JoinMemoryBo("agent1", 1498462545000L, 3000, 2000, 5000, "agent1", "agent1", 500, 50, 600, "agent1", "agent1");
+        JoinMemoryBo joinMemoryBo2 = new JoinMemoryBo("agent1", 1498462550000L, 4000, 1000, 7000, "agent1", "agent1", 400, 150, 600, "agent1", "agent1");
+        JoinMemoryBo joinMemoryBo3 = new JoinMemoryBo("agent1", 1498462555000L, 5000, 3000, 8000, "agent1", "agent1", 200, 100, 200, "agent1", "agent1");
+        JoinMemoryBo joinMemoryBo4 = new JoinMemoryBo("agent1", 1498462560000L, 1000, 100, 3000, "agent1", "agent1", 100, 900, 1000, "agent1", "agent1");
+        JoinMemoryBo joinMemoryBo5 = new JoinMemoryBo("agent1", 1498462565000L, 2000, 1000, 6000, "agent1", "agent1", 300, 100, 2900, "agent1", "agent1");
+        joinMemoryBoList.add(joinMemoryBo1);
+        joinMemoryBoList.add(joinMemoryBo2);
+        joinMemoryBoList.add(joinMemoryBo3);
+        joinMemoryBoList.add(joinMemoryBo4);
+        joinMemoryBoList.add(joinMemoryBo5);
+        joinAgentStatBo.setJoinMemoryBoList(joinMemoryBoList);
+
+        List<JoinApplicationStatBo> joinApplicationStatBoList = JoinApplicationStatBo.createJoinApplicationStatBo("test_app", joinAgentStatBo, 60000);
+        assertEquals(joinApplicationStatBoList.size(), 2);
+        for (JoinApplicationStatBo joinApplicationStatBo : joinApplicationStatBoList) {
+            assertEquals(joinApplicationStatBo.getId(), "test_app");
+            if (joinApplicationStatBo.getTimestamp() == 1498462560000L) {
+                assertEquals(joinApplicationStatBo.getJoinCpuLoadBoList().size(), 2);
+                assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 2);
+            } else if (joinApplicationStatBo.getTimestamp() == 1498462500000L) {
+                assertEquals(joinApplicationStatBo.getJoinCpuLoadBoList().size(), 3);
+                assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 3);
+            } else {
+                fail();
+            }
+        }
+    }
+
+    @Test
+    public void createJoinApplicationStatBo3Test() {
+        JoinAgentStatBo joinAgentStatBo = new JoinAgentStatBo();
+        joinAgentStatBo.setTimestamp(1498462545000L);
+
+        List<JoinCpuLoadBo> joinCpuLoadBoList = new ArrayList<JoinCpuLoadBo>();
+        JoinCpuLoadBo joinCpuLoadBo1 = new JoinCpuLoadBo("agent1", 44, 70, "agent1", 30, "agent1", 50, 60, "agent1", 33, "agent1", 1498462545000L);
+        JoinCpuLoadBo joinCpuLoadBo2 = new JoinCpuLoadBo("agent1", 33, 40, "agent1", 10, "agent1", 20, 78, "agent1", 12, "agent1", 1498462550000L);
+        JoinCpuLoadBo joinCpuLoadBo3 = new JoinCpuLoadBo("agent1", 55, 60, "agent1", 7, "agent1", 30, 39, "agent1", 30, "agent1", 1498462555000L);
+        JoinCpuLoadBo joinCpuLoadBo4 = new JoinCpuLoadBo("agent1", 11, 80, "agent1", 8, "agent1", 10, 50, "agent1", 14, "agent1", 1498462560000L);
+        JoinCpuLoadBo joinCpuLoadBo5 = new JoinCpuLoadBo("agent1", 22, 70, "agent1", 12, "agent1", 40, 99, "agent1", 50, "agent1", 1498462565000L);
+        joinCpuLoadBoList.add(joinCpuLoadBo1);
+        joinCpuLoadBoList.add(joinCpuLoadBo2);
+        joinCpuLoadBoList.add(joinCpuLoadBo3);
+        joinCpuLoadBoList.add(joinCpuLoadBo4);
+        joinCpuLoadBoList.add(joinCpuLoadBo5);
+        joinAgentStatBo.setJoinCpuLoadBoList(joinCpuLoadBoList);
+
+        List<JoinMemoryBo> joinMemoryBoList = new ArrayList<JoinMemoryBo>();
+        JoinMemoryBo joinMemoryBo1 = new JoinMemoryBo("agent1", 1498462545000L, 3000, 2000, 5000, "agent1", "agent1", 500, 50, 600, "agent1", "agent1");
+        JoinMemoryBo joinMemoryBo2 = new JoinMemoryBo("agent1", 1498462550000L, 4000, 1000, 7000, "agent1", "agent1", 400, 150, 600, "agent1", "agent1");
+        JoinMemoryBo joinMemoryBo3 = new JoinMemoryBo("agent1", 1498462555000L, 5000, 3000, 8000, "agent1", "agent1", 200, 100, 200, "agent1", "agent1");
+        JoinMemoryBo joinMemoryBo4 = new JoinMemoryBo("agent1", 1498462560000L, 1000, 100, 3000, "agent1", "agent1", 100, 900, 1000, "agent1", "agent1");
+        JoinMemoryBo joinMemoryBo5 = new JoinMemoryBo("agent1", 1498462565000L, 2000, 1000, 6000, "agent1", "agent1", 300, 100, 2900, "agent1", "agent1");
+        joinMemoryBoList.add(joinMemoryBo1);
+        joinMemoryBoList.add(joinMemoryBo2);
+        joinMemoryBoList.add(joinMemoryBo3);
+        joinMemoryBoList.add(joinMemoryBo4);
+        joinMemoryBoList.add(joinMemoryBo5);
+        joinAgentStatBo.setJoinMemoryBoList(joinMemoryBoList);
+
+        List<JoinApplicationStatBo> joinApplicationStatBoList = JoinApplicationStatBo.createJoinApplicationStatBo("test_app", joinAgentStatBo, 10000);
+        assertEquals(joinApplicationStatBoList.size(), 3);
+        for (JoinApplicationStatBo joinApplicationStatBo : joinApplicationStatBoList) {
+            assertEquals(joinApplicationStatBo.getId(), "test_app");
+            if (joinApplicationStatBo.getTimestamp() == 1498462560000L) {
+                assertEquals(joinApplicationStatBo.getJoinCpuLoadBoList().size(), 2);
+                assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 2);
+            } else if (joinApplicationStatBo.getTimestamp() == 1498462540000L) {
+                assertEquals(joinApplicationStatBo.getJoinCpuLoadBoList().size(), 1);
+                assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 1);
+            } else if (joinApplicationStatBo.getTimestamp() == 1498462550000L) {
+                assertEquals(joinApplicationStatBo.getJoinCpuLoadBoList().size(), 2);
+                assertEquals(joinApplicationStatBo.getJoinMemoryBoList().size(), 2);
+            } else {
+                fail();
+            }
+        }
+    }
+
 }
 
 
