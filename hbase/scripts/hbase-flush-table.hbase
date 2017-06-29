@@ -1,4 +1,5 @@
 flush 'AgentInfo'
+flush 'AgentStat'
 flush 'AgentStatV2'
 
 flush 'AgentLifeCycle'
