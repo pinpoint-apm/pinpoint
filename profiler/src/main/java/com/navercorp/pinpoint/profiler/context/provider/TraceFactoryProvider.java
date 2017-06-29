@@ -21,9 +21,9 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.ThreadLocalReferenceFactory;
 import com.navercorp.pinpoint.profiler.context.ThreadLocalTraceFactory;
-import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.BaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.CallStackFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultBaseTraceFactory;
@@ -51,7 +51,7 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
     private final StorageFactory storageFactory;
     private final Sampler sampler;
     private final IdGenerator idGenerator;
-    private final AsyncIdGenerator asyncIdGenerator;
+    private final Provider<AsyncContextFactory> asyncContextFactoryProvider;
 
     private final ActiveTraceRepository activeTraceRepository;
 
@@ -62,7 +62,8 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
 
 
     @Inject
-    public TraceFactoryProvider(ProfilerConfig profilerConfig, TraceRootFactory traceRootFactory, CallStackFactory callStackFactory, StorageFactory storageFactory, Sampler sampler, IdGenerator idGenerator, AsyncIdGenerator asyncIdGenerator,
+    public TraceFactoryProvider(ProfilerConfig profilerConfig, TraceRootFactory traceRootFactory, CallStackFactory callStackFactory, StorageFactory storageFactory,
+                                Sampler sampler, IdGenerator idGenerator, Provider<AsyncContextFactory> asyncContextFactoryProvider,
                                 Provider<ActiveTraceRepository> activeTraceRepositoryProvider, SpanFactory spanFactory, RecorderFactory recorderFactory) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
         this.traceRootFactory = Assert.requireNonNull(traceRootFactory, "traceRootFactory must not be null");
@@ -70,8 +71,12 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
         this.storageFactory = Assert.requireNonNull(storageFactory, "storageFactory must not be null");
         this.sampler = Assert.requireNonNull(sampler, "sampler must not be null");
         this.idGenerator = Assert.requireNonNull(idGenerator, "idGenerator must not be null");
-        this.asyncIdGenerator = Assert.requireNonNull(asyncIdGenerator, "asyncIdGenerator must not be null");
 
+        this.asyncContextFactoryProvider = Assert.requireNonNull(asyncContextFactoryProvider, "asyncContextFactory must not be null");
+        if (asyncContextFactoryProvider instanceof AsyncContextFactoryProvider) {
+            // TODO
+            ((AsyncContextFactoryProvider)asyncContextFactoryProvider).setTraceFactoryProvider(this);
+        }
 
         Assert.requireNonNull(activeTraceRepositoryProvider, "activeTraceRepositoryProvider must not be null");
         this.activeTraceRepository = activeTraceRepositoryProvider.get();
@@ -83,9 +88,9 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
 
     @Override
     public TraceFactory get() {
-
+        final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
         BaseTraceFactory baseTraceFactory = new DefaultBaseTraceFactory(traceRootFactory, callStackFactory, storageFactory, sampler, idGenerator,
-                asyncIdGenerator, spanFactory, recorderFactory);
+                asyncContextFactory, spanFactory, recorderFactory);
         if (isDebugEnabled()) {
             baseTraceFactory = LoggingBaseTraceFactory.wrap(baseTraceFactory);
         }

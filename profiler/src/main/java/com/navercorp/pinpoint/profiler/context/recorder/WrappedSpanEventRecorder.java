@@ -16,10 +16,14 @@
 package com.navercorp.pinpoint.profiler.context.recorder;
 
 
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
+import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.slf4j.Logger;
@@ -40,10 +44,13 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     private final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
 
+    private final AsyncContextFactory asyncContextFactory;
+
     private SpanEvent spanEvent;
 
-    public WrappedSpanEventRecorder(final StringMetaDataService stringMetaDataService, final SqlMetaDataService sqlMetaCacheService) {
+    public WrappedSpanEventRecorder(AsyncContextFactory asyncContextFactory, final StringMetaDataService stringMetaDataService, final SqlMetaDataService sqlMetaCacheService) {
         super(stringMetaDataService, sqlMetaCacheService);
+        this.asyncContextFactory = Assert.requireNonNull(asyncContextFactory, "asyncContextFactory must not be null");
     }
 
     public void setWrapped(final SpanEvent spanEvent) {
@@ -113,6 +120,18 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
         spanEvent.setAsyncId(asyncId);
     }
 
+
+    @Override
+    public AsyncContext newAsyncContext() {
+        final SpanEvent spanEvent = this.spanEvent;
+        final TraceRoot traceRoot = spanEvent.getTraceRoot();
+        final AsyncContext asyncContext = asyncContextFactory.newAsyncContext(traceRoot);
+        // TODO ASyncId check
+        spanEvent.setNextAsyncId(asyncContext.getAsyncId());
+        return asyncContext;
+    }
+
+    @Deprecated
     @Override
     public void recordNextAsyncId(int nextAsyncId) {
         spanEvent.setNextAsyncId(nextAsyncId);

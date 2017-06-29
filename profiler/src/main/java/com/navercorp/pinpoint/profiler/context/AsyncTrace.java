@@ -242,4 +242,16 @@ public class AsyncTrace implements Trace {
     public TraceScope addScope(String name) {
         return trace.addScope(name);
     }
+
+    @Override
+    public String toString() {
+        return "AsyncTrace{" +
+                "traceRoot=" + traceRoot +
+                ", trace=" + trace +
+                ", entryPoint=" + entryPoint +
+                ", asyncId=" + asyncId +
+                ", asyncSequence=" + asyncSequence +
+                ", asyncState=" + asyncState +
+                '}';
+    }
 }

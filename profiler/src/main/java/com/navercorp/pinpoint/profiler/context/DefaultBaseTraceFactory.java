@@ -45,7 +45,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     private final Sampler sampler;
 
     private final IdGenerator idGenerator;
-    private final AsyncIdGenerator asyncIdGenerator;
+    private final AsyncContextFactory asyncContextFactory;
 
     private final SpanFactory spanFactory;
     private final RecorderFactory recorderFactory;
@@ -53,7 +53,8 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     private final TraceRootFactory traceRootFactory;
 
 
-    public DefaultBaseTraceFactory(TraceRootFactory traceRootFactory, CallStackFactory callStackFactory, StorageFactory storageFactory, Sampler sampler, IdGenerator idGenerator, AsyncIdGenerator asyncIdGenerator,
+    public DefaultBaseTraceFactory(TraceRootFactory traceRootFactory, CallStackFactory callStackFactory, StorageFactory storageFactory,
+                                   Sampler sampler, IdGenerator idGenerator, AsyncContextFactory asyncContextFactory,
                                    SpanFactory spanFactory, RecorderFactory recorderFactory) {
 
         this.traceRootFactory = Assert.requireNonNull(traceRootFactory, "traceRootFactory must not be null");
@@ -61,7 +62,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         this.storageFactory = Assert.requireNonNull(storageFactory, "storageFactory must not be null");
         this.sampler = Assert.requireNonNull(sampler, "sampler must not be null");
         this.idGenerator = Assert.requireNonNull(idGenerator, "idGenerator must not be null");
-        this.asyncIdGenerator = Assert.requireNonNull(asyncIdGenerator, "asyncIdGenerator must not be null");
+        this.asyncContextFactory = Assert.requireNonNull(asyncContextFactory, "asyncContextFactory must not be null");
 
         this.spanFactory = Assert.requireNonNull(spanFactory, "spanFactory must not be null");
         this.recorderFactory = Assert.requireNonNull(recorderFactory, "recorderFactory must not be null");
@@ -80,7 +81,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         final Storage storage = storageFactory.createStorage(traceRoot);
         final CallStack callStack = callStackFactory.newCallStack(traceRoot);
 
-        final Trace trace = new DefaultTrace(span, callStack, storage, asyncIdGenerator, true, recorderFactory);
+        final Trace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, true, recorderFactory);
         return trace;
     }
 
@@ -102,7 +103,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
             final Storage storage = storageFactory.createStorage(traceRoot);
             final CallStack callStack = callStackFactory.newCallStack(traceRoot);
 
-            final Trace trace = new DefaultTrace(span, callStack, storage, asyncIdGenerator, true, recorderFactory);
+            final Trace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, true, recorderFactory);
 
             return trace;
         } else {
@@ -122,7 +123,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         final Storage asyncStorage = new AsyncStorage(storage);
         final CallStack callStack = callStackFactory.newCallStack(traceRoot);
         // TODO AtomicIdGenerator.UNTRACKED_ID
-        final Trace trace = new DefaultTrace(span, callStack, asyncStorage, asyncIdGenerator, true, recorderFactory);
+        final Trace trace = new DefaultTrace(span, callStack, asyncStorage, asyncContextFactory, true, recorderFactory);
 
         final Trace asyncTrace = new AsyncTrace(traceRoot, trace, asyncId, asyncSequence);
 
@@ -139,7 +140,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         final Storage storage = storageFactory.createStorage(traceRoot);
         final CallStack callStack = callStackFactory.newCallStack(traceRoot);
 
-        final DefaultTrace trace = new DefaultTrace(span, callStack, storage, asyncIdGenerator, true, recorderFactory);
+        final DefaultTrace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, true, recorderFactory);
 
         final SpanAsyncStateListener asyncStateListener = new SpanAsyncStateListener(span, storageFactory.createStorage(traceRoot));
         final ListenableAsyncState stateListener = new ListenableAsyncState(asyncStateListener);
@@ -162,7 +163,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
             final Storage storage = storageFactory.createStorage(traceRoot);
             final CallStack callStack = callStackFactory.newCallStack(traceRoot);
 
-            final DefaultTrace trace = new DefaultTrace(span, callStack, storage, asyncIdGenerator, true, recorderFactory);
+            final DefaultTrace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, true, recorderFactory);
 
             final SpanAsyncStateListener asyncStateListener = new SpanAsyncStateListener(span, storageFactory.createStorage(traceRoot));
             final AsyncState closer = new ListenableAsyncState(asyncStateListener);

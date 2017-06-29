@@ -35,6 +35,7 @@ import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.DefaultDynamicTransformerRegistry;
 import com.navercorp.pinpoint.profiler.DynamicTransformerRegistry;
 import com.navercorp.pinpoint.profiler.JvmInformation;
+import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.CallStackFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultSpanFactory;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
@@ -61,6 +62,7 @@ import com.navercorp.pinpoint.profiler.context.provider.AgentInformationProvider
 import com.navercorp.pinpoint.profiler.context.provider.AgentStartTimeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ApiMetaDataServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ApplicationServerTypeProvider;
+import com.navercorp.pinpoint.profiler.context.provider.AsyncContextFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.CallStackFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ClassFileTransformerDispatcherProvider;
 import com.navercorp.pinpoint.profiler.context.provider.CommandDispatcherProvider;
@@ -200,6 +202,7 @@ public class ApplicationContextModule extends AbstractModule {
         bind(Sampler.class).toProvider(SamplerProvider.class).in(Scopes.SINGLETON);
 
         bind(TraceContext.class).toProvider(TraceContextProvider.class).in(Scopes.SINGLETON);
+        bind(AsyncContextFactory.class).toProvider(AsyncContextFactoryProvider.class).in(Scopes.SINGLETON);
 
         bind(DeadlockThreadRegistry.class).toProvider(DeadlockThreadRegistryProvider.class).in(Scopes.SINGLETON);
 

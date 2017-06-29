@@ -16,12 +16,15 @@
 
 package com.navercorp.pinpoint.profiler.context.recorder;
 
+import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.*;
@@ -30,17 +33,25 @@ import static org.mockito.Mockito.*;
 /**
  * @author Woonduk Kang(emeroad)
  */
+@RunWith(org.mockito.junit.MockitoJUnitRunner.class)
 public class WrappedSpanEventRecorderTest {
 
+    @Mock
+    private TraceRoot traceRoot;
+
+    @Mock
+    private AsyncContextFactory asyncContextFactory;
+
+    @Mock
+    private StringMetaDataService stringMetaDataService;
+
+    @Mock
+    private SqlMetaDataService sqlMetaDataService;
 
     @Test
     public void testSetExceptionInfo_RootMarkError() throws Exception {
-        TraceRoot traceRoot = mock(TraceRoot.class);
         SpanEvent spanEvent = new SpanEvent(traceRoot);
-        StringMetaDataService stringMetaDataService = mock(StringMetaDataService.class);
-        SqlMetaDataService sqlMetaDataService = mock(SqlMetaDataService.class);
-
-        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(stringMetaDataService, sqlMetaDataService);
+        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService);
         recorder.setWrapped(spanEvent);
 
         final String exceptionMessage1 = "exceptionMessage1";
@@ -61,12 +72,8 @@ public class WrappedSpanEventRecorderTest {
 
     @Test
     public void testRecordAPIId() throws Exception {
-        TraceRoot traceRoot = mock(TraceRoot.class);
         SpanEvent spanEvent = new SpanEvent(traceRoot);
-        StringMetaDataService stringMetaDataService = mock(StringMetaDataService.class);
-        SqlMetaDataService sqlMetaDataService = mock(SqlMetaDataService.class);
-
-        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(stringMetaDataService, sqlMetaDataService);
+        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService);
         recorder.setWrapped(spanEvent);
 
 

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.test;
 
+import com.google.inject.Provider;
 import com.google.inject.util.Providers;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
@@ -31,6 +32,7 @@ import com.navercorp.pinpoint.profiler.context.id.DefaultAsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.CallStackFactoryV1;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
+import com.navercorp.pinpoint.profiler.context.provider.AsyncContextFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.context.DefaultSpanFactory;
@@ -106,7 +108,6 @@ public class MockTraceContextFactory {
         this.idGenerator = new AtomicIdGenerator();
         this.activeTraceRepository = newActiveTraceRepository();
 
-        final AsyncIdGenerator asyncIdGenerator = new DefaultAsyncIdGenerator();
         this.serverMetaDataHolder = new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs());
 
         final String applicationName = agentInformation.getAgentId();
@@ -125,12 +126,18 @@ public class MockTraceContextFactory {
         TraceIdFactory traceIdFactory = new DefaultTraceIdFactory(agentId, agentStartTime);
         SpanFactory spanFactory = new DefaultSpanFactory(applicationName, agentId, agentStartTime, agentServiceType);
 
-        RecorderFactory recorderFactory = new DefaultRecorderFactory(stringMetaDataService, sqlMetaDataService);
+        final AsyncIdGenerator asyncIdGenerator = new DefaultAsyncIdGenerator();
+        final AsyncContextFactoryProvider asyncContextFactoryProvider = new AsyncContextFactoryProvider(asyncIdGenerator, apiMetaDataService);
+
+        RecorderFactory recorderFactory = new DefaultRecorderFactory(asyncContextFactoryProvider, stringMetaDataService, sqlMetaDataService);
         TraceRootFactory traceRootFactory = newInternalTraceIdFactory(traceIdFactory, idGenerator);
 
-        final TraceFactoryProvider traceFactoryBuilder = new TraceFactoryProvider(profilerConfig, traceRootFactory, callStackFactory, storageFactory, sampler, idGenerator, asyncIdGenerator,
+
+        final Provider<TraceFactory> traceFactoryBuilder = new TraceFactoryProvider(profilerConfig, traceRootFactory, callStackFactory, storageFactory,
+                sampler, idGenerator, asyncContextFactoryProvider,
                 Providers.of(activeTraceRepository), spanFactory, recorderFactory);
-        TraceFactory traceFactory = traceFactoryBuilder.get();
+        final TraceFactory traceFactory = traceFactoryBuilder.get();
+
         this.traceContext = new DefaultTraceContext(profilerConfig, agentInformation,
                 traceIdFactory, traceFactory, asyncIdGenerator, serverMetaDataHolder,
                 apiMetaDataService, stringMetaDataService, sqlMetaDataService,

@@ -174,4 +174,12 @@ public class DefaultTraceRoot implements TraceRoot {
     }
 
 
+    @Override
+    public String toString() {
+        return "DefaultTraceRoot{" +
+                "traceId=" + traceId +
+                ", agentId='" + agentId + '\'' +
+                ", traceStartTime=" + traceStartTime +
+                '}';
+    }
 }
