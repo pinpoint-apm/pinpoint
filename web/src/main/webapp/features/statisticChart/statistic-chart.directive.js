@@ -20,6 +20,9 @@
 					function hasId() {
 						return sId === "" ? false : true;
 					}
+					function getUnit(val) {
+						return val ? "%" : "";
+					}
 
 					function setWidthHeight(w, h) {
 						if (w) element.css('width', w);
@@ -32,6 +35,7 @@
 					}
 
 					function render(chartData) {
+						var unit = getUnit(chartData.maximum);
 						var options = {
 							"type": "serial",
 							"theme": "light",
@@ -62,8 +66,8 @@
 							"graphs": [
 								{
 									"valueAxis": "v1",
-									"balloonText": "[[title]] : [[value]]%<br><strong>[[description]]</strong>",
-									"legendValueText": "[[value]]%",
+									"balloonText": "[[title]] : [[value]]" + unit + "<br><strong>[[description]]</strong>",
+									"legendValueText": "[[value]]" + unit,
 									"lineColor": "#66B2FF",
 									"fillColor": "#66B2FF",
 									"lineThickness": 3,
@@ -75,8 +79,8 @@
 								},
 								{
 									"valueAxis": "v1",
-									"balloonText": "[[title]] : [[value]]%",
-									"legendValueText": "[[value]]%",
+									"balloonText": "[[title]] : [[value]]" + unit,
+									"legendValueText": "[[value]]" + unit,
 									"lineColor": "#4C0099",
 									"fillColor": "#4C0099",
 									"lineThickness": 6,
@@ -87,8 +91,8 @@
 								},
 								{
 									"valueAxis": "v1",
-									"balloonText": "[[title]] : [[value]]%<br><strong>[[description]]</strong>",
-									"legendValueText": "[[value]]%",
+									"balloonText": "[[title]] : [[value]]" + unit + "<br><strong>[[description]]</strong>",
+									"legendValueText": "[[value]]" + unit,
 									"lineColor": "#0000CC",
 									"fillColor": "#0000CC",
 									"lineThickness": 3,
