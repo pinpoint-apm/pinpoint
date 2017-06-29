@@ -1,10 +1,10 @@
 package com.navercorp.pinpoint.plugin.hystrix.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.plugin.hystrix.HystrixPluginConstants;
 import com.navercorp.pinpoint.plugin.hystrix.field.EnclosingInstanceFieldGetter;
 
@@ -14,15 +14,16 @@ import com.navercorp.pinpoint.plugin.hystrix.field.EnclosingInstanceFieldGetter;
  * Created by jack on 4/21/16.
  */
 
-public abstract class HystrixObservableCallInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
+public abstract class HystrixObservableCallInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
 
     protected HystrixObservableCallInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncTraceId asyncTraceId, Object target, Object[] arqgs) {
+    protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] arqgs) {
     }
+
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE);
@@ -32,8 +33,8 @@ public abstract class HystrixObservableCallInterceptor extends SpanAsyncEventSim
     }
 
     @Override
-    protected AsyncTraceId getAsyncTraceId(Object target) {
-        return super.getAsyncTraceId(getEnclosingInstance(target));
+    protected AsyncContext getAsyncContext(Object target) {
+        return super.getAsyncContext(getEnclosingInstance(target));
     }
 
     protected abstract String getExecutionType();

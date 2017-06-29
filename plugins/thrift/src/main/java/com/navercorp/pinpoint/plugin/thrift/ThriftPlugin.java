@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.plugin.thrift;
 import java.security.ProtectionDomain;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -151,7 +151,7 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
                                         ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addField(AsyncTraceIdAccessor.class.getName());
+                target.addField(AsyncContextAccessor.class.getName());
                 target.addField(ThriftConstants.FIELD_ACCESSOR_SOCKET_ADDRESS);
                 target.addGetter(ThriftConstants.FIELD_GETTER_T_NON_BLOCKING_TRANSPORT, ThriftConstants.T_ASYNC_METHOD_CALL_FIELD_TRANSPORT);
 

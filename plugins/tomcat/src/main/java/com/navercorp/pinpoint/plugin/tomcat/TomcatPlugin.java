@@ -16,7 +16,7 @@ package com.navercorp.pinpoint.plugin.tomcat;
 
 import java.security.ProtectionDomain;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -234,7 +234,7 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(AsyncTraceIdAccessor.class.getName());
+                target.addField(AsyncContextAccessor.class.getName());
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("dispatch"))) {
                     method.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.AsyncContextImplDispatchMethodInterceptor");
                 }

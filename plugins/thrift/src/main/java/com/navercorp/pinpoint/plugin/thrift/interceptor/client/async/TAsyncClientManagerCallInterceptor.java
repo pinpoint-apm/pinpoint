@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.plugin.thrift.interceptor.client.async;
 
 import java.net.SocketAddress;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -81,12 +81,12 @@ public class TAsyncClientManagerCallInterceptor implements AroundInterceptor {
                 SpanEventRecorder recorder = trace.traceBlockBegin();
                 Object asyncMethodCallObj = args[0];
                 // inject async trace info to AsyncMethodCall object
-                final AsyncTraceId asyncTraceId = injectAsyncTraceId(asyncMethodCallObj, trace);
+                injectAsyncContext(asyncMethodCallObj, recorder);
 
                 // retrieve connection information
                 String remoteAddress = getRemoteAddress(asyncMethodCallObj);
 
-                final TraceId nextId = asyncTraceId.getNextTraceId();
+                final TraceId nextId = trace.getTraceId().getNextTraceId();
 
                 // Inject nextSpanId as the actual sending of data will be handled asynchronously.
                 final long nextSpanId = nextId.getSpanId();
@@ -151,9 +151,9 @@ public class TAsyncClientManagerCallInterceptor implements AroundInterceptor {
             return false;
         }
 
-        if (!(asyncMethodCallObj instanceof AsyncTraceIdAccessor)) {
+        if (!(asyncMethodCallObj instanceof AsyncContextAccessor)) {
             if (isDebug) {
-                logger.debug("Invalid target object. Need field accessor({}).", AsyncTraceIdAccessor.class.getName());
+                logger.debug("Invalid target object. Need field accessor({}).", AsyncContextAccessor.class.getName());
             }
             return false;
         }
@@ -161,15 +161,12 @@ public class TAsyncClientManagerCallInterceptor implements AroundInterceptor {
         return true;
     }
 
-    private AsyncTraceId injectAsyncTraceId(final Object asyncMethodCallObj, final Trace trace) {
-        final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-        SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-        recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
-        ((AsyncTraceIdAccessor) asyncMethodCallObj)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+    private void injectAsyncContext(final Object asyncMethodCallObj, final SpanEventRecorder recorder) {
+        final AsyncContext asyncContext = recorder.newAsyncContext();
+        ((AsyncContextAccessor) asyncMethodCallObj)._$PINPOINT$_setAsyncContext(asyncContext);
         if (isDebug) {
-            logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
+            logger.debug("Set AsyncContext {}", asyncContext);
         }
-        return asyncTraceId;
     }
 
     private String getRemoteAddress(Object asyncMethodCallObj) {

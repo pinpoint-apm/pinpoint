@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
 import java.io.IOException;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.http.HeaderElement;
@@ -32,9 +34,7 @@ import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.nio.protocol.HttpAsyncRequestProducer;
 import org.apache.http.protocol.HTTP;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -149,12 +149,12 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
         try {
             if (isAsynchronousInvocation(target, args)) {
                 // set asynchronous trace
-                final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-                recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
+                final AsyncContext asyncContext = recorder.newAsyncContext();
+
                 // check type isAsynchronousInvocation()
-                ((AsyncTraceIdAccessor)((ResultFutureGetter)target)._$PINPOINT$_getResultFuture())._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+                ((AsyncContextAccessor)((ResultFutureGetter)target)._$PINPOINT$_getResultFuture())._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {
-                    logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
+                    logger.debug("Set AsyncContext {}", asyncContext);
                 }
             }
         } catch (Throwable t) {
@@ -188,8 +188,8 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
             return false;
         }
 
-        if (!(future instanceof AsyncTraceIdAccessor)) {
-            logger.debug("Invalid resultFuture field object. Need metadata accessor({}).", HttpClient4Constants.METADATA_ASYNC_TRACE_ID);
+        if (!(future instanceof AsyncContextAccessor)) {
+            logger.debug("Invalid resultFuture field object. Need metadata accessor({}).", HttpClient4Constants.METADATA_ASYNC_CONTEXT);
             return false;
         }
 

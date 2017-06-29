@@ -19,12 +19,12 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.Future;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.ops.Operation;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -158,12 +158,11 @@ public class ApiInterceptor implements AroundInterceptor {
             try {
                 if (isAsynchronousInvocation(target, args, result, throwable)) {
                     // set asynchronous trace
-                    final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-                    recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
+                    final AsyncContext asyncContext = recorder.newAsyncContext();
                     // type check isAsynchronousInvocation
-                    ((AsyncTraceIdAccessor)result)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+                    ((AsyncContextAccessor)result)._$PINPOINT$_setAsyncContext(asyncContext);
                     if (isDebug) {
-                        logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
+                        logger.debug("Set AsyncContext {}", asyncContext);
                     }
                 }
             } catch (Throwable t) {
@@ -217,8 +216,8 @@ public class ApiInterceptor implements AroundInterceptor {
             return false;
         }
 
-        if (!(result instanceof AsyncTraceIdAccessor)) {
-            logger.debug("Invalid result object. Need accessor({}).", AsyncTraceIdAccessor.class.getName());
+        if (!(result instanceof AsyncContextAccessor)) {
+            logger.debug("Invalid result object. Need accessor({}).", AsyncContextAccessor.class.getName());
             return false;
         }
 
