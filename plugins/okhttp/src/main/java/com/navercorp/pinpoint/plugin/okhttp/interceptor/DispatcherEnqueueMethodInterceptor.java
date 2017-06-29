@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.plugin.okhttp.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -61,14 +61,12 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
         final SpanEventRecorder recorder = trace.traceBlockBegin();
         try {
             // set asynchronous trace
-            final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-            recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
+            final AsyncContext asyncContext = recorder.newAsyncContext();
 
-            // set async id.
             // AsyncTraceIdAccessor typeCheck validate();
-            ((AsyncTraceIdAccessor)args[0])._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+            ((AsyncContextAccessor)args[0])._$PINPOINT$_setAsyncContext(asyncContext);
             if (isDebug) {
-                logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
+                logger.debug("Set AsyncContext {}", asyncContext);
             }
         } catch (Throwable t) {
             logger.warn("Failed to before process. {}", t.getMessage(), t);
@@ -76,8 +74,8 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
     }
 
     private boolean validate(Object[] args) {
-        if (args == null || args.length < 1 || args[0] == null || !(args[0] instanceof AsyncTraceIdAccessor)) {
-            logger.debug("Invalid args[0] object {}. Need field accessor({}).", args, AsyncTraceIdAccessor.class.getName());
+        if (args == null || args.length < 1 || !(args[0] instanceof AsyncContextAccessor)) {
+            logger.debug("Invalid args[0] object {}. Need field accessor({}).", args, AsyncContextAccessor.class.getName());
             return false;
         }
 

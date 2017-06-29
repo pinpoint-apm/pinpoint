@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.plugin.google.httpclient.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.plugin.google.httpclient.HttpClientConstants;
 
 /**
@@ -36,9 +37,9 @@ public class HttpRequestExecuteAsyncMethodInterceptor implements AroundIntercept
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
-    private MethodDescriptor methodDescriptor;
-    private InterceptorScope interceptorScope;
+    private final TraceContext traceContext;
+    private final MethodDescriptor methodDescriptor;
+    private final InterceptorScope interceptorScope;
 
     public HttpRequestExecuteAsyncMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
@@ -60,15 +61,13 @@ public class HttpRequestExecuteAsyncMethodInterceptor implements AroundIntercept
         SpanEventRecorder recorder = trace.traceBlockBegin();
         try {
             // set asynchronous trace
-            final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-            recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
+            final AsyncContext asyncContext = recorder.newAsyncContext();
 
-            // set async id.
-            InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
+            final InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
             if (transaction != null) {
-                transaction.setAttachment(asyncTraceId);
+                transaction.setAttachment(asyncContext);
                 if (isDebug) {
-                    logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
+                    logger.debug("Set AsyncContext {}", asyncContext);
                 }
             }
         } catch (Throwable t) {

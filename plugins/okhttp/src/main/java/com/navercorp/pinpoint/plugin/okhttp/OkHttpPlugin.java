@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.plugin.okhttp;
 
 import java.security.ProtectionDomain;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
@@ -100,7 +100,7 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addField(AsyncTraceIdAccessor.class.getName());
+                target.addField(AsyncContextAccessor.class.getName());
 
                 InstrumentMethod executeMethod = target.getDeclaredMethod("execute");
                 if (executeMethod != null) {

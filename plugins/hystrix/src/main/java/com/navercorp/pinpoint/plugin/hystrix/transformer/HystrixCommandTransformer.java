@@ -35,7 +35,7 @@ public class HystrixCommandTransformer implements TransformCallback {
 
         InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-        target.addField("com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor");
+        target.addField("com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor");
 
         InstrumentMethod queue = target.getDeclaredMethod("queue");
         if (queue != null) {

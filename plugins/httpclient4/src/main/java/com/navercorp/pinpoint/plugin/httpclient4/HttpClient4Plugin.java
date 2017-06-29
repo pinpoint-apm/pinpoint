@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.plugin.httpclient4;
 
 import java.security.ProtectionDomain;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -307,7 +307,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                target.addField(AsyncTraceIdAccessor.class.getName());
+                target.addField(AsyncContextAccessor.class.getName());
                 
                 InstrumentMethod get = target.getDeclaredMethod("get");
                 if (get != null) {

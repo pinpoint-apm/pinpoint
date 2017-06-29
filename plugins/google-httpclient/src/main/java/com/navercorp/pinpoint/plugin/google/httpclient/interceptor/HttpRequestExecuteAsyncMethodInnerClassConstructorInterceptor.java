@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.plugin.google.httpclient.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
@@ -34,7 +34,7 @@ public class HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor imple
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private InterceptorScope interceptorScope;
+    private final InterceptorScope interceptorScope;
 
     public HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope interceptorScope) {
         this.interceptorScope = interceptorScope;
@@ -52,10 +52,10 @@ public class HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor imple
             }
 
             final InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
-            if (transaction != null && transaction.getAttachment() != null) {
-                final AsyncTraceId asyncTraceId = (AsyncTraceId) transaction.getAttachment();
+            final AsyncContext asyncContext = getAsyncContext(transaction);
+            if (asyncContext != null) {
                 // type check validate();
-                ((AsyncTraceIdAccessor)target)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+                ((AsyncContextAccessor)target)._$PINPOINT$_setAsyncContext(asyncContext);
                 // clear.
                 transaction.removeAttachment();
             }
@@ -64,9 +64,25 @@ public class HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor imple
         }
     }
 
+    private AsyncContext getAsyncContext(InterceptorScopeInvocation currentInvocation) {
+        final Object attachment = getAttachment(currentInvocation);
+        if (attachment instanceof AsyncContext) {
+            return (AsyncContext) attachment;
+        }
+        return null;
+    }
+
+
+    private Object getAttachment(InterceptorScopeInvocation invocation) {
+        if (invocation == null) {
+            return null;
+        }
+        return invocation.getAttachment();
+    }
+
     private boolean validate(final Object target, final Object[] args) {
-        if (!(target instanceof AsyncTraceIdAccessor)) {
-            logger.debug("Invalid target object. Need field accessor({}).", AsyncTraceIdAccessor.class.getName());
+        if (!(target instanceof AsyncContextAccessor)) {
+            logger.debug("Invalid target object. Need field accessor({}).", AsyncContextAccessor.class.getName());
             return false;
         }
 
