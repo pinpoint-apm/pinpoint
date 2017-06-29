@@ -36,9 +36,7 @@ import com.navercorp.pinpoint.plugin.arcus.filter.FrontCacheMemcachedMethodFilte
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 /**
- * 
  * @author jaehong.kim
- *
  */
 public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
 
@@ -47,33 +45,36 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        ArcusPluginConfig config = new ArcusPluginConfig(context.getConfig());
+        final ArcusPluginConfig config = new ArcusPluginConfig(context.getConfig());
 
-        boolean arcus = config.isArcus();
-        boolean memcached = config.isMemcached();
+        final boolean arcus = config.isArcus();
+        final boolean arcusAsync = config.isArcusAsync();
+        final boolean memcached = config.isMemcached();
+        final boolean memcachedAsync = config.isMemcachedAsync();
 
         if (arcus) {
             addArcusClientEditor(config);
-            addCollectionFutureEditor();
+            addCollectionFutureEditor(arcusAsync);
             addFrontCacheGetFutureEditor();
             addFrontCacheMemcachedClientEditor(config);
             addCacheManagerEditor();
 
             // add none operation future. over 1.5.4
-            addBTreeStoreGetFutureEditor();
-            addCollectionGetBulkFutureEditor();
-            addSMGetFutureFutureEditor();
+            addBTreeStoreGetFutureEditor(arcusAsync);
+            addCollectionGetBulkFutureEditor(arcusAsync);
+            addSMGetFutureFutureEditor(arcusAsync);
         }
 
         if (arcus || memcached) {
             addMemcachedClientEditor(config);
 
             addBaseOperationImplEditor();
-            addGetFutureEditor();
-            addOperationFutureEditor();
+            final boolean async = arcusAsync || memcachedAsync;
+            addGetFutureEditor(async);
+            addOperationFutureEditor(async);
             // add none operation future.
-            addImmediateFutureEditor();
-            addBulkGetFutureEditor();
+            addImmediateFutureEditor(async);
+            addBulkGetFutureEditor(async);
         }
     }
 
@@ -228,7 +229,7 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
             target.addField(AsyncTraceIdAccessor.class.getName());
 
             // setOperation
-            InstrumentMethod setOperation = target.getDeclaredMethod("setOperation", new String[] { "net.spy.memcached.ops.Operation" });
+            InstrumentMethod setOperation = target.getDeclaredMethod("setOperation", new String[]{"net.spy.memcached.ops.Operation"});
             if (setOperation != null) {
                 setOperation.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureSetOperationInterceptor");
             }
@@ -242,6 +243,23 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     };
 
+    private static final TransformCallback FUTURE_SET_OPERATION_TRANSFORMER = new TransformCallback() {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField("com.navercorp.pinpoint.plugin.arcus.OperationAccessor");
+
+            // setOperation
+            InstrumentMethod setOperation = target.getDeclaredMethod("setOperation", new String[]{"net.spy.memcached.ops.Operation"});
+            if (setOperation != null) {
+                setOperation.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureSetOperationInterceptor");
+            }
+
+            return target.toBytecode();
+        }
+    };
+
     private static final TransformCallback INTERNAL_FUTURE_TRANSFORMER = new TransformCallback() {
 
         @Override
@@ -249,7 +267,7 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             target.addField(AsyncTraceIdAccessor.class.getName());
-            
+
             // cancel, get, set
             for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("cancel", "get"))) {
                 m.addScopedInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureInternalMethodInterceptor", ArcusConstants.ARCUS_FUTURE_SCOPE);
@@ -259,37 +277,59 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     };
 
-    
-    private void addCollectionFutureEditor() {
-        transformTemplate.transform("net.spy.memcached.internal.CollectionFuture", FUTURE_TRANSFORMER);
+
+    private void addCollectionFutureEditor(boolean async) {
+        if (async) {
+            transformTemplate.transform("net.spy.memcached.internal.CollectionFuture", FUTURE_TRANSFORMER);
+        } else {
+            transformTemplate.transform("net.spy.memcached.internal.CollectionFuture", FUTURE_SET_OPERATION_TRANSFORMER);
+        }
     }
 
-    private void addGetFutureEditor() {
-        transformTemplate.transform("net.spy.memcached.internal.GetFuture", FUTURE_TRANSFORMER);
+    private void addGetFutureEditor(boolean async) {
+        if (async) {
+            transformTemplate.transform("net.spy.memcached.internal.GetFuture", FUTURE_TRANSFORMER);
+        } else {
+            transformTemplate.transform("net.spy.memcached.internal.GetFuture", FUTURE_SET_OPERATION_TRANSFORMER);
+        }
     }
 
-    private void addOperationFutureEditor() {
-        transformTemplate.transform("net.spy.memcached.internal.OperationFuture", FUTURE_TRANSFORMER);
+    private void addOperationFutureEditor(boolean async) {
+        if (async) {
+            transformTemplate.transform("net.spy.memcached.internal.OperationFuture", FUTURE_TRANSFORMER);
+        } else {
+            transformTemplate.transform("net.spy.memcached.internal.OperationFuture", FUTURE_SET_OPERATION_TRANSFORMER);
+        }
     }
 
-    private void addImmediateFutureEditor() {
-        transformTemplate.transform("net.spy.memcached.internal.ImmediateFuture", INTERNAL_FUTURE_TRANSFORMER);
+    private void addImmediateFutureEditor(boolean async) {
+        if (async) {
+            transformTemplate.transform("net.spy.memcached.internal.ImmediateFuture", INTERNAL_FUTURE_TRANSFORMER);
+        }
     }
 
-    private void addBulkGetFutureEditor() {
-        transformTemplate.transform("net.spy.memcached.internal.BulkGetFuture", INTERNAL_FUTURE_TRANSFORMER);
+    private void addBulkGetFutureEditor(boolean async) {
+        if (async) {
+            transformTemplate.transform("net.spy.memcached.internal.BulkGetFuture", INTERNAL_FUTURE_TRANSFORMER);
+        }
     }
 
-    private void addBTreeStoreGetFutureEditor() {
-        transformTemplate.transform("net.spy.memcached.internal.BTreeStoreAndGetFuture", INTERNAL_FUTURE_TRANSFORMER);
+    private void addBTreeStoreGetFutureEditor(boolean async) {
+        if (async) {
+            transformTemplate.transform("net.spy.memcached.internal.BTreeStoreAndGetFuture", INTERNAL_FUTURE_TRANSFORMER);
+        }
     }
 
-    private void addCollectionGetBulkFutureEditor() {
-        transformTemplate.transform("net.spy.memcached.internal.CollectionGetBulkFuture", INTERNAL_FUTURE_TRANSFORMER);
+    private void addCollectionGetBulkFutureEditor(boolean async) {
+        if (async) {
+            transformTemplate.transform("net.spy.memcached.internal.CollectionGetBulkFuture", INTERNAL_FUTURE_TRANSFORMER);
+        }
     }
 
-    private void addSMGetFutureFutureEditor() {
-        transformTemplate.transform("net.spy.memcached.internal.SMGetFuture", INTERNAL_FUTURE_TRANSFORMER);
+    private void addSMGetFutureFutureEditor(boolean async) {
+        if (async) {
+            transformTemplate.transform("net.spy.memcached.internal.SMGetFuture", INTERNAL_FUTURE_TRANSFORMER);
+        }
     }
 
     @Override
