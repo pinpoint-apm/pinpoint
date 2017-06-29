@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.AsyncStateSupport;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
@@ -38,7 +39,7 @@ public abstract class SpanAsyncEventEndPointInterceptor implements AroundInterce
 
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
-    protected static final String ASYNC_TRACE_SCOPE = "##ASYNC_TRACE_SCOPE";
+    protected static final String ASYNC_TRACE_SCOPE = AsyncContext.ASYNC_TRACE_SCOPE;
 
     protected final MethodDescriptor methodDescriptor;
     protected final TraceContext traceContext;

@@ -18,8 +18,7 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
-import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
-import com.navercorp.pinpoint.profiler.context.id.DefaultAsyncTraceId;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
@@ -51,43 +50,29 @@ public final class DefaultTrace implements Trace {
     private final SpanRecorder spanRecorder;
     private final WrappedSpanEventRecorder spanEventRecorder;
 
-    private final AsyncIdGenerator asyncIdGenerator;
+    private final AsyncContextFactory asyncContextFactory;
 
     private boolean closed = false;
 
     private Thread bindThread;
     private final DefaultTraceScopePool scopePool = new DefaultTraceScopePool();
 
-    public DefaultTrace(Span span, CallStack callStack, Storage storage, AsyncIdGenerator asyncIdGenerator, boolean sampling, RecorderFactory recorderFactory) {
-        if (span == null) {
-            throw new NullPointerException("span must not be null");
-        }
-        if (callStack == null) {
-            throw new NullPointerException("callStack must not be null");
-        }
-        if (storage == null) {
-            throw new NullPointerException("storage must not be null");
-        }
-        if (asyncIdGenerator == null) {
-            throw new NullPointerException("asyncIdGenerator must not be null");
-        }
-        if (recorderFactory == null) {
-            throw new NullPointerException("recorderFactory must not be null");
-        }
 
-        this.span = span;
-        this.callStack = callStack;
-        this.storage = storage;
-        this.sampling = sampling;
+    public DefaultTrace(Span span, CallStack callStack, Storage storage, AsyncContextFactory asyncContextFactory, boolean sampling, RecorderFactory recorderFactory) {
+
+        this.span = Assert.requireNonNull(span, "span must not be null");
+        this.callStack = Assert.requireNonNull(callStack, "callStack must not be null");
+        this.storage = Assert.requireNonNull(storage, "storage must not be null");
+        this.sampling = Assert.requireNonNull(sampling, "sampling must not be null");
+        this.asyncContextFactory = Assert.requireNonNull(asyncContextFactory, "asyncContextFactory must not be null");
 
         this.traceRoot = span.getTraceRoot();
-
         final TraceId traceId = traceRoot.getTraceId();
-        this.spanRecorder = recorderFactory.newSpanRecorder(span, traceId.isRoot(), sampling);
 
+        Assert.requireNonNull(recorderFactory, "recorderFactory must not be null");
+        this.spanRecorder = recorderFactory.newSpanRecorder(span, traceId.isRoot(), sampling);
         this.spanEventRecorder = recorderFactory.newWrappedSpanEventRecorder();
 
-        this.asyncIdGenerator = asyncIdGenerator;
         setCurrentThread();
     }
 
@@ -257,7 +242,7 @@ public final class DefaultTrace implements Trace {
     @Override
     public AsyncTraceId getAsyncTraceId(boolean closeable) {
         // ignored closeable.
-        return new DefaultAsyncTraceId(traceRoot, asyncIdGenerator.nextAsyncId());
+        return asyncContextFactory.newAsyncTraceId(traceRoot);
     }
 
     @Override
@@ -298,5 +283,13 @@ public final class DefaultTrace implements Trace {
     @Override
     public TraceScope addScope(String name) {
         return scopePool.add(name);
+    }
+
+    @Override
+    public String toString() {
+        return "DefaultTrace{" +
+                "sampling=" + sampling +
+                ", traceRoot=" + traceRoot +
+                '}';
     }
 }

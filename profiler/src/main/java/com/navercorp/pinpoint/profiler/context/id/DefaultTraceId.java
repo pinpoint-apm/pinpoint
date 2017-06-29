@@ -90,7 +90,7 @@ public class DefaultTraceId implements TraceId {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DefaultTraceID{");
+        final StringBuilder sb = new StringBuilder("DefaultTraceId{");
         sb.append("agentId='").append(agentId).append('\'');
         sb.append(", agentStartTime=").append(agentStartTime);
         sb.append(", transactionSequence=").append(transactionSequence);
