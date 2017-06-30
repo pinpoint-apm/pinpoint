@@ -29,7 +29,6 @@ public class LinkSelectorFactory {
 
     private final LinkDataMapService linkDataMapService;
 
-
     private final ApplicationsMapCreatorFactory applicationsMapCreatorFactory;
 
     private final ServerMapDataFilter serverMapDataFilter;
@@ -51,10 +50,14 @@ public class LinkSelectorFactory {
         this.serverMapDataFilter = serverMapDataFilter;
     }
 
-    public LinkSelector create() {
+    public LinkSelector create(LinkSelectorType linkSelectorType) {
         VirtualLinkMarker virtualLinkMarker = new VirtualLinkMarker();
         VirtualLinkProcessor virtualLinkProcessor = new VirtualLinkProcessor(linkDataMapService, virtualLinkMarker);
         ApplicationsMapCreator applicationsMapCreator = applicationsMapCreatorFactory.create(virtualLinkMarker);
-        return new BFSLinkSelector(applicationsMapCreator, virtualLinkProcessor, serverMapDataFilter);
+        if (linkSelectorType == LinkSelectorType.UNIDIRECTIONAL) {
+            return new UnidirectionalLinkSelector(applicationsMapCreator, virtualLinkProcessor, serverMapDataFilter);
+        } else {
+            return new BidirectionalLinkSelector(applicationsMapCreator, virtualLinkProcessor, serverMapDataFilter);
+        }
     }
 }
