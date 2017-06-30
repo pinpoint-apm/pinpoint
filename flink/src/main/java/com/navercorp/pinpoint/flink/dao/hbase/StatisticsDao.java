@@ -81,12 +81,12 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
         }
     }
 
-    private List<JoinStatBo> castJoinStatBoList(List joinCpuLoadBoList) {
-        if (CollectionUtil.isNullOrEmpty(joinCpuLoadBoList)) {
-            new ArrayList<JoinStatBo>(null);
+    private List<JoinStatBo> castJoinStatBoList(List JoinStatBoList) {
+        if (CollectionUtil.isNullOrEmpty(JoinStatBoList)) {
+            return new ArrayList<JoinStatBo>(0);
         }
 
-        return new ArrayList<>(joinCpuLoadBoList);
+        return new ArrayList<>(JoinStatBoList);
     }
 
     private void insertJoinAgentStatBo(JoinAgentStatBo joinAgentStatBo) {
