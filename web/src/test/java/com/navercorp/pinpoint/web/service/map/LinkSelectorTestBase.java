@@ -70,13 +70,14 @@ public abstract class LinkSelectorTestBase {
     private SearchOption oneDepth = new SearchOption(1, 1);
     private SearchOption twoDepth = new SearchOption(2, 2);
 
-    protected abstract LinkSelectorFactory createLinkSelectorFactory(LinkDataMapService linkDataMapService, HostApplicationMapDao hostApplicationMapDao);
+    protected abstract ApplicationsMapCreatorFactory createApplicationsMapCreatorFactory(LinkDataMapService linkDataMapService, HostApplicationMapDao hostApplicationMapDao);
 
     @Before
     public void setUp() throws Exception {
         this.linkDataMapService = mock(LinkDataMapService.class);
         this.hostApplicationMapDao = mock(HostApplicationMapDao.class);
-        this.linkSelectorFactory = createLinkSelectorFactory(this.linkDataMapService, this.hostApplicationMapDao);
+        ApplicationsMapCreatorFactory applicationsMapCreatorFactory = createApplicationsMapCreatorFactory(linkDataMapService, hostApplicationMapDao);
+        this.linkSelectorFactory = new LinkSelectorFactory(linkDataMapService, applicationsMapCreatorFactory);
     }
 
     private LinkDataMap newEmptyLinkDataMap() {
