@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.service.map;
 
 import com.google.common.collect.Sets;
-import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
@@ -54,23 +53,20 @@ public abstract class LinkSelectorTestBase {
 
     private static final Random RANDOM = new Random();
 
-    private LinkDataMapService linkDataMapService;
-    private HostApplicationMapDao hostApplicationMapDao;
-    private LinkSelectorFactory linkSelectorFactory;
+    protected final ServiceType testRpcServiceType = ServiceTypeFactory.of(9000, "TEST_RPC_CLIENT", ServiceTypeProperty.RECORD_STATISTICS);
 
-    private Application APP_A = new Application("APP_A", ServiceType.STAND_ALONE);
-    private Application APP_B = new Application("APP_B", ServiceType.STAND_ALONE);
-    private Application APP_C = new Application("APP_C", ServiceType.STAND_ALONE);
-    private Application APP_D = new Application("APP_D", ServiceType.STAND_ALONE);
+    protected final Range range = new Range(0, 100);
 
-    private final ServiceType testRpcServiceType = ServiceTypeFactory.of(9000, "TEST_RPC_CLIENT", ServiceTypeProperty.RECORD_STATISTICS);
+    protected final SearchOption oneDepth = new SearchOption(1, 1);
+    protected final SearchOption twoDepth = new SearchOption(2, 2);
 
-    private Range range = new Range(0, 100);
-
-    private SearchOption oneDepth = new SearchOption(1, 1);
-    private SearchOption twoDepth = new SearchOption(2, 2);
+    protected LinkDataMapService linkDataMapService;
+    protected HostApplicationMapDao hostApplicationMapDao;
+    protected LinkSelectorFactory linkSelectorFactory;
 
     protected abstract ApplicationsMapCreatorFactory createApplicationsMapCreatorFactory(LinkDataMapService linkDataMapService, HostApplicationMapDao hostApplicationMapDao);
+
+    protected abstract LinkSelectorType getLinkSelectorType();
 
     @Before
     public void setUp() throws Exception {
@@ -80,17 +76,18 @@ public abstract class LinkSelectorTestBase {
         this.linkSelectorFactory = new LinkSelectorFactory(linkDataMapService, applicationsMapCreatorFactory);
     }
 
-    private LinkDataMap newEmptyLinkDataMap() {
+    final LinkDataMap newEmptyLinkDataMap() {
         return new LinkDataMap();
     }
 
     @Test
     public void testEmpty() throws Exception {
+        Application APP_A = new Application("APP_A", ServiceType.TEST_STAND_ALONE);
         when(linkDataMapService.selectCallerLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
         when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
         when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<>());
 
-        LinkSelector linkSelector = linkSelectorFactory.create();
+        LinkSelector linkSelector = linkSelectorFactory.create(getLinkSelectorType());
         LinkDataDuplexMap select = linkSelector.select(APP_A, range, oneDepth);
 
         Assert.assertEquals(select.size(), 0);
@@ -100,15 +97,20 @@ public abstract class LinkSelectorTestBase {
     @Test
     public void testCaller() throws Exception {
         // APP_A -> APP_B
+        final Application APP_A = new Application("APP_A", ServiceType.TEST_STAND_ALONE);
+        final Application APP_B = new Application("APP_B", ServiceType.TEST_STAND_ALONE);
         int callCount_A_B = 10;
         LinkDataMap linkDataMap = new LinkDataMap();
-        linkDataMap.addLinkData(APP_A, "agentA", APP_B, "agentB", 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_A_B);
+        linkDataMap.addLinkData(
+                APP_A, "agentA",
+                APP_B, "agentB",
+                1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_A_B);
 
         when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(linkDataMap);
         when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
         when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<>());
 
-        LinkSelector linkSelector = linkSelectorFactory.create();
+        LinkSelector linkSelector = linkSelectorFactory.create(getLinkSelectorType());
         LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, oneDepth);
 
         Assert.assertEquals(linkData.size(), 1);
@@ -123,20 +125,24 @@ public abstract class LinkSelectorTestBase {
     @Test
     public void testCaller_multiple() throws Exception {
         // APP_A -> TARGET_1, TARGET_2, ...
+        final Application APP_A = new Application("APP_A", ServiceType.TEST_STAND_ALONE);
         int numTargets = RANDOM.nextInt(100);
         int callCount_A_APP = 4;
         LinkDataMap linkDataMap = new LinkDataMap();
         for (int i = 0; i < numTargets; ++i) {
             String targetAppName = "TARGET_" + (i + 1);
             String targetAppAgentId = "target" + (i + 1);
-            Application targetApp = new Application(targetAppName, ServiceType.STAND_ALONE);
-            linkDataMap.addLinkData(APP_A, "agentA", targetApp, targetAppAgentId, 1000, ServiceType.STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_A_APP);
+            Application targetApp = new Application(targetAppName, ServiceType.TEST_STAND_ALONE);
+            linkDataMap.addLinkData(
+                    APP_A, "agentA",
+                    targetApp, targetAppAgentId,
+                    1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_A_APP);
         }
         when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(linkDataMap);
         when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
         when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<>());
 
-        LinkSelector linkSelector = linkSelectorFactory.create();
+        LinkSelector linkSelector = linkSelectorFactory.create(getLinkSelectorType());
         LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, oneDepth);
 
         Assert.assertEquals(linkData.size(), numTargets);
@@ -151,21 +157,30 @@ public abstract class LinkSelectorTestBase {
     @Test
     public void testCaller_3tier() throws Exception {
         // APP_A -> APP_B -> APP_C
+        final Application APP_A = new Application("APP_A", ServiceType.TEST_STAND_ALONE);
+        final Application APP_B = new Application("APP_B", ServiceType.TEST_STAND_ALONE);
+        final Application APP_C = new Application("APP_C", ServiceType.TEST_STAND_ALONE);
         int callCount_A_B = 10;
         LinkDataMap link_A_B = new LinkDataMap();
-        link_A_B.addLinkData(APP_A, "agentA", APP_B, "agentB", 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_A_B);
+        link_A_B.addLinkData(
+                APP_A, "agentA",
+                APP_B, "agentB",
+                1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_A_B);
         when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(link_A_B);
 
         LinkDataMap link_B_C = new LinkDataMap();
         int callCount_B_C = 20;
-        link_B_C.addLinkData(APP_B, "agentB", APP_C, "agentC", 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_B_C);
+        link_B_C.addLinkData(
+                APP_B, "agentB",
+                APP_C, "agentC",
+                1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_B_C);
         when(linkDataMapService.selectCallerLinkDataMap(eq(APP_B), any(Range.class))).thenReturn(link_B_C);
 
         when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
         when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<>());
 
         // depth 1
-        LinkSelector linkSelector = linkSelectorFactory.create();
+        LinkSelector linkSelector = linkSelectorFactory.create(getLinkSelectorType());
         LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, oneDepth);
 
         Assert.assertEquals(linkData.size(), 1);
@@ -178,7 +193,7 @@ public abstract class LinkSelectorTestBase {
         Assert.assertEquals(linkData.getTargetLinkDataList().size(), 0);
 
         // depth 2
-        LinkSelector linkSelector2 = linkSelectorFactory.create();
+        LinkSelector linkSelector2 = linkSelectorFactory.create(getLinkSelectorType());
         LinkDataDuplexMap linkData_depth2 = linkSelector2.select(APP_A, range, twoDepth);
         Assert.assertEquals(linkData_depth2.size(), 2);
         Assert.assertEquals(linkData_depth2.getTotalCount(), callCount_A_B + callCount_B_C);
@@ -194,6 +209,8 @@ public abstract class LinkSelectorTestBase {
     public void testCaller_rpc() throws Exception {
         // APP_A -> APP_B via "www.test.com/test"
         // Given
+        final Application APP_A = new Application("APP_A", ServiceType.TEST_STAND_ALONE);
+        final Application APP_B = new Application("APP_B", ServiceType.TEST_STAND_ALONE);
         final String rpcUri = "www.test.com/test";
         final Application RPC_A_B = new Application(rpcUri, testRpcServiceType);
         final Set<AcceptApplication> acceptApplications = new HashSet<AcceptApplication>() {{
@@ -201,14 +218,17 @@ public abstract class LinkSelectorTestBase {
         }};
         int callCount_A_B = 10;
         LinkDataMap linkDataMap = new LinkDataMap();
-        linkDataMap.addLinkData(APP_A, "agentA", RPC_A_B, rpcUri, 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_A_B);
+        linkDataMap.addLinkData(
+                APP_A, "agentA",
+                RPC_A_B, rpcUri,
+                1000, testRpcServiceType.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_A_B);
 
         when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(linkDataMap);
         when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
         when(hostApplicationMapDao.findAcceptApplicationName(eq(APP_A), any(Range.class))).thenReturn(acceptApplications);
 
         // When
-        LinkSelector linkSelector = linkSelectorFactory.create();
+        LinkSelector linkSelector = linkSelectorFactory.create(getLinkSelectorType());
         LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, oneDepth);
 
         // Then
@@ -233,15 +253,20 @@ public abstract class LinkSelectorTestBase {
     @Test
     public void testCallee() throws Exception {
         // APP_A -> APP_B
+        final Application APP_A = new Application("APP_A", ServiceType.TEST_STAND_ALONE);
+        final Application APP_B = new Application("APP_B", ServiceType.TEST_STAND_ALONE);
         int callCount_A_B = 10;
         LinkDataMap linkDataMap = new LinkDataMap();
-        linkDataMap.addLinkData(APP_A, "agentA", APP_B, "agentB", 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_A_B);
+        linkDataMap.addLinkData(
+                APP_A, "agentA",
+                APP_B, "agentB",
+                1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_A_B);
 
         when(linkDataMapService.selectCallerLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
         when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_B), any(Range.class))).thenReturn(linkDataMap);
         when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<AcceptApplication>());
 
-        LinkSelector linkSelector = linkSelectorFactory.create();
+        LinkSelector linkSelector = linkSelectorFactory.create(getLinkSelectorType());
         LinkDataDuplexMap linkData = linkSelector.select(APP_B, range, oneDepth);
 
         Assert.assertEquals(linkData.size(), 1);
@@ -256,22 +281,31 @@ public abstract class LinkSelectorTestBase {
     @Test
     public void testCallee_3tier() throws Exception {
         // APP_A -> APP_B -> APP_C
+        final Application APP_A = new Application("APP_A", ServiceType.TEST_STAND_ALONE);
+        final Application APP_B = new Application("APP_B", ServiceType.TEST_STAND_ALONE);
+        final Application APP_C = new Application("APP_C", ServiceType.TEST_STAND_ALONE);
         when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
 
         int callCount_A_B = 30;
         LinkDataMap linkDataMap_A_B = new LinkDataMap();
-        linkDataMap_A_B.addLinkData(APP_A, "agentA", APP_B, "agentB", 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_A_B);
+        linkDataMap_A_B.addLinkData(
+                APP_A, "agentA",
+                APP_B, "agentB",
+                1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_A_B);
         when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_B), any(Range.class))).thenReturn(linkDataMap_A_B);
 
         int callCount_B_C = 40;
         LinkDataMap linkDataMap_B_C = new LinkDataMap();
-        linkDataMap_B_C.addLinkData(APP_B, "agentB", APP_C, "agentC", 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_B_C);
+        linkDataMap_B_C.addLinkData(
+                APP_B, "agentB",
+                APP_C, "agentC",
+                1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_B_C);
         when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_C), any(Range.class))).thenReturn(linkDataMap_B_C);
 
         when(linkDataMapService.selectCallerLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
         when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<AcceptApplication>());
 
-        LinkSelector linkSelector = linkSelectorFactory.create();
+        LinkSelector linkSelector = linkSelectorFactory.create(getLinkSelectorType());
         LinkDataDuplexMap linkData = linkSelector.select(APP_C, range, oneDepth);
 
         Assert.assertEquals(linkData.size(), 1);
@@ -283,7 +317,7 @@ public abstract class LinkSelectorTestBase {
         Assert.assertEquals(linkData.getTotalCount(), callCount_B_C);
 
         // depth 2
-        LinkSelector linkSelector2 = linkSelectorFactory.create();
+        LinkSelector linkSelector2 = linkSelectorFactory.create(getLinkSelectorType());
         LinkDataDuplexMap linkData_depth2 = linkSelector2.select(APP_C, range, twoDepth);
         Assert.assertEquals(linkData_depth2.size(), 2);
 
@@ -299,6 +333,9 @@ public abstract class LinkSelectorTestBase {
         // APP_A ---> APP_B via "www.test.com/test"
         //        |-> APP_C via "www.test.com/test"
         // Given
+        final Application APP_A = new Application("APP_A", ServiceType.TEST_STAND_ALONE);
+        final Application APP_B = new Application("APP_B", ServiceType.TEST_STAND_ALONE);
+        final Application APP_C = new Application("APP_C", ServiceType.TEST_STAND_ALONE);
         final String rpcUri = "www.test.com/test";
         final Application RPC_A = new Application(rpcUri, testRpcServiceType);
         final Set<AcceptApplication> acceptApplications = Sets.newHashSet(new AcceptApplication(rpcUri, APP_B), new AcceptApplication(rpcUri, APP_C));
@@ -306,12 +343,21 @@ public abstract class LinkSelectorTestBase {
         int callCount_A_B = 10;
         int callCount_A_C = 20;
         LinkDataMap linkDataMap = new LinkDataMap();
-        linkDataMap.addLinkData(APP_A, "agentA", RPC_A, rpcUri, 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_A_B + callCount_A_C);
+        linkDataMap.addLinkData(
+                APP_A, "agentA",
+                RPC_A, rpcUri,
+                1000, testRpcServiceType.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_A_B + callCount_A_C);
 
         LinkDataMap rpc_A_B_calleeLinkDataMap = new LinkDataMap();
-        rpc_A_B_calleeLinkDataMap.addLinkData(APP_A, "agentA", APP_B, "agentB", 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_A_B);
+        rpc_A_B_calleeLinkDataMap.addLinkData(
+                APP_A, "agentA",
+                APP_B, "agentB",
+                1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_A_B);
         LinkDataMap rpc_A_C_calleeLinkDataMap = new LinkDataMap();
-        rpc_A_C_calleeLinkDataMap.addLinkData(APP_A, "agentA", APP_C, "agentC", 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_A_C);
+        rpc_A_C_calleeLinkDataMap.addLinkData(
+                APP_A, "agentA",
+                APP_C, "agentC",
+                1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_A_C);
 
         when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(linkDataMap);
         when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(newEmptyLinkDataMap());
@@ -322,7 +368,7 @@ public abstract class LinkSelectorTestBase {
         when(hostApplicationMapDao.findAcceptApplicationName(eq(APP_A), any(Range.class))).thenReturn(acceptApplications);
 
         // When
-        LinkSelector linkSelector = linkSelectorFactory.create();
+        LinkSelector linkSelector = linkSelectorFactory.create(getLinkSelectorType());
         LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, oneDepth);
 
         // Then
@@ -349,6 +395,9 @@ public abstract class LinkSelectorTestBase {
         // APP_A ---> APP_B via "api.test.com/test", "b.test.com/test"
         //        |-> APP_C via "api.test.com/test", "c.test.com/test"
         // Given
+        final Application APP_A = new Application("APP_A", ServiceType.TEST_STAND_ALONE);
+        final Application APP_B = new Application("APP_B", ServiceType.TEST_STAND_ALONE);
+        final Application APP_C = new Application("APP_C", ServiceType.TEST_STAND_ALONE);
         final String proxyUri = "api.test.com/test";
         final String bUri = "b.test.com/test";
         final String cUri = "c.test.com/test";
@@ -366,14 +415,29 @@ public abstract class LinkSelectorTestBase {
         int callCount_B = 4;
         int callCount_C = 7;
         LinkDataMap linkDataMap = new LinkDataMap();
-        linkDataMap.addLinkData(APP_A, "agentA", RPC_PROXY, proxyUri, 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_proxy_B + callCount_proxy_C);
-        linkDataMap.addLinkData(APP_A, "agentA", RPC_B, bUri, 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_B);
-        linkDataMap.addLinkData(APP_A, "agentA", RPC_C, cUri, 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_C);
+        linkDataMap.addLinkData(
+                APP_A, "agentA",
+                RPC_PROXY, proxyUri,
+                1000, testRpcServiceType.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_proxy_B + callCount_proxy_C);
+        linkDataMap.addLinkData(
+                APP_A, "agentA",
+                RPC_B, bUri,
+                1000, testRpcServiceType.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_B);
+        linkDataMap.addLinkData(
+                APP_A, "agentA",
+                RPC_C, cUri,
+                1000, testRpcServiceType.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_C);
 
         LinkDataMap calleeLinkDataMap_B = new LinkDataMap();
-        calleeLinkDataMap_B.addLinkData(APP_A, "agentA", APP_B, "agentB", 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_proxy_B + callCount_B);
+        calleeLinkDataMap_B.addLinkData(
+                APP_A, "agentA",
+                APP_B, "agentB",
+                1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_proxy_B + callCount_B);
         LinkDataMap calleeLinkDataMap_C = new LinkDataMap();
-        calleeLinkDataMap_C.addLinkData(APP_A, "agentA", APP_C, "agentC", 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_proxy_C + callCount_C);
+        calleeLinkDataMap_C.addLinkData(
+                APP_A, "agentA",
+                APP_C, "agentC",
+                1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_proxy_C + callCount_C);
 
         when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(linkDataMap);
         when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(newEmptyLinkDataMap());
@@ -384,7 +448,7 @@ public abstract class LinkSelectorTestBase {
         when(hostApplicationMapDao.findAcceptApplicationName(eq(APP_A), any(Range.class))).thenReturn(acceptApplications);
 
         // When
-        LinkSelector linkSelector = linkSelectorFactory.create();
+        LinkSelector linkSelector = linkSelectorFactory.create(getLinkSelectorType());
         LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, oneDepth);
 
         // Then
@@ -403,6 +467,10 @@ public abstract class LinkSelectorTestBase {
         // APP_A ---> APP_B via "gw.test.com/api" ---> APP_D via "api.test.com/test
         //        |-> APP_C via "gw.test.com/api" -|
         // Given
+        final Application APP_A = new Application("APP_A", ServiceType.TEST_STAND_ALONE);
+        final Application APP_B = new Application("APP_B", ServiceType.TEST_STAND_ALONE);
+        final Application APP_C = new Application("APP_C", ServiceType.TEST_STAND_ALONE);
+        final Application APP_D = new Application("APP_D", ServiceType.TEST_STAND_ALONE);
         final String gwUri = "gw.test.com/api";
         final String apiUri = "api.test.com/test";
         final Application RPC_GW = new Application(gwUri, testRpcServiceType);
@@ -413,19 +481,40 @@ public abstract class LinkSelectorTestBase {
         final int callCount_A_B = 4, callCount_A_C = 6;
         final int callCount_B_D = 4, callCount_C_D = 6;
         LinkDataMap callerlinkDataMap_A = new LinkDataMap();
-        callerlinkDataMap_A.addLinkData(APP_A, "agentA", RPC_GW, gwUri, 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_A_B);
+        callerlinkDataMap_A.addLinkData(
+                APP_A, "agentA",
+                RPC_GW, gwUri,
+                1000, testRpcServiceType.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_A_B);
         LinkDataMap callerLinkDataMap_B = new LinkDataMap();
-        callerLinkDataMap_B.addLinkData(APP_B, "agentB", RPC_API, apiUri, 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_B_D);
+        callerLinkDataMap_B.addLinkData(
+                APP_B, "agentB",
+                RPC_API, apiUri,
+                1000, testRpcServiceType.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_B_D);
         LinkDataMap callerLinkDataMap_C = new LinkDataMap();
-        callerLinkDataMap_C.addLinkData(APP_C, "agentC", RPC_API, apiUri, 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_C_D);
+        callerLinkDataMap_C.addLinkData(
+                APP_C, "agentC",
+                RPC_API, apiUri,
+                1000, testRpcServiceType.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_C_D);
 
         LinkDataMap calleeLinkDataMap_B = new LinkDataMap();
-        calleeLinkDataMap_B.addLinkData(APP_A, "agentA", APP_B, "agentB", 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_A_B);
+        calleeLinkDataMap_B.addLinkData(
+                APP_A, "agentA",
+                APP_B, "agentB",
+                1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_A_B);
         LinkDataMap calleeLinkDataMap_C = new LinkDataMap();
-        calleeLinkDataMap_C.addLinkData(APP_A, "agentA", APP_C, "agentC", 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_A_C);
+        calleeLinkDataMap_C.addLinkData(
+                APP_A, "agentA",
+                APP_C, "agentC",
+                1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_A_C);
         LinkDataMap calleeLinkDataMap_D = new LinkDataMap();
-        calleeLinkDataMap_D.addLinkData(APP_B, "agentB", APP_D, "agentD", 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_B_D);
-        calleeLinkDataMap_D.addLinkData(APP_C, "agentC", APP_D, "agentD", 1000, BaseHistogramSchema.NORMAL_SCHEMA.getNormalSlot().getSlotTime(), callCount_C_D);
+        calleeLinkDataMap_D.addLinkData(
+                APP_B, "agentB",
+                APP_D, "agentD",
+                1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_B_D);
+        calleeLinkDataMap_D.addLinkData(
+                APP_C, "agentC",
+                APP_D, "agentD",
+                1000, ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount_C_D);
 
         when(linkDataMapService.selectCallerLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(callerlinkDataMap_A);
         when(linkDataMapService.selectCalleeLinkDataMap(eq(APP_A), any(Range.class))).thenReturn(newEmptyLinkDataMap());
@@ -440,7 +529,7 @@ public abstract class LinkSelectorTestBase {
         when(hostApplicationMapDao.findAcceptApplicationName(eq(APP_C), any(Range.class))).thenReturn(apiAcceptApplications);
 
         // When
-        LinkSelector linkSelector = linkSelectorFactory.create();
+        LinkSelector linkSelector = linkSelectorFactory.create(getLinkSelectorType());
         SearchOption in1_out2_options = new SearchOption(2, 1);
         LinkDataDuplexMap linkData = linkSelector.select(APP_A, range, in1_out2_options);
 

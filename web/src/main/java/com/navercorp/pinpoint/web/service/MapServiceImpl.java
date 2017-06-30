@@ -91,7 +91,7 @@ public class MapServiceImpl implements MapService {
         StopWatch watch = new StopWatch("ApplicationMap");
         watch.start("ApplicationMap Hbase Io Fetch(Caller,Callee) Time");
 
-        LinkSelector linkSelector = linkSelectorFactory.create();
+        LinkSelector linkSelector = linkSelectorFactory.create(searchOption.getLinkSelectorType());
         LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(sourceApplication, range, searchOption);
         watch.stop();
 

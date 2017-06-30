@@ -22,10 +22,10 @@ import com.navercorp.pinpoint.web.service.LinkDataMapService;
 /**
  * @author HyunGil Jeong
  */
-public class BFSLinkSelector_serial_Test extends LinkSelectorTestBase {
+public class BidirectionalLinkSelector_parallel_Test extends BidirectionalLinkSelectorTestBase {
 
     @Override
     protected ApplicationsMapCreatorFactory createApplicationsMapCreatorFactory(LinkDataMapService linkDataMapService, HostApplicationMapDao hostApplicationMapDao) {
-        return new ApplicationsMapCreatorFactory("serial", 16, hostApplicationMapDao, linkDataMapService);
+        return new ApplicationsMapCreatorFactory("parallel", 16, hostApplicationMapDao, linkDataMapService);
     }
 }

@@ -30,14 +30,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Breadth-first link search
- * not thread safe
- *
- * @author emeroad
- * @author minwoo.jung
  * @author HyunGil Jeong
  */
-public class BFSLinkSelector implements LinkSelector {
+public class UnidirectionalLinkSelector implements LinkSelector {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -49,7 +44,7 @@ public class BFSLinkSelector implements LinkSelector {
 
     private final LinkVisitChecker linkVisitChecker = new LinkVisitChecker();
 
-    BFSLinkSelector(
+    UnidirectionalLinkSelector(
             ApplicationsMapCreator applicationsMapCreator,
             VirtualLinkProcessor virtualLinkProcessor,
             ServerMapDataFilter serverMapDataFilter) {
@@ -81,22 +76,32 @@ public class BFSLinkSelector implements LinkSelector {
         } else {
             applications = Collections.singletonList(sourceApplication);
         }
-        LinkSelectContext linkSelectContext = new LinkSelectContext(range, callerDepth, calleeDepth, linkVisitChecker);
+        List<Application> outboundApplications = Collections.unmodifiableList(applications);
+        LinkSelectContext outboundLinkSelectContext = new LinkSelectContext(range, callerDepth, new SearchDepth(0), linkVisitChecker);
+        List<Application> inboundApplications = Collections.unmodifiableList(applications);
+        LinkSelectContext inboundLinkSelectContext = new LinkSelectContext(range, new SearchDepth(0), calleeDepth, linkVisitChecker);
 
-        while (!applications.isEmpty()) {
+        while (!outboundApplications.isEmpty() || !inboundApplications.isEmpty()) {
 
-            logger.info("depth search start. callerDepth:{}, calleeDepth:{}, size:{}, nodes:{}", linkSelectContext.getCallerDepth(), linkSelectContext.getCalleeDepth(), applications.size(), applications);
-            LinkDataDuplexMap levelData = applicationsMapCreator.createLinkDataDuplexMap(applications, linkSelectContext);
-            logger.info("depth search end. callerDepth:{}, calleeDepth:{}", linkSelectContext.getCallerDepth(), linkSelectContext.getCalleeDepth());
+            logger.info("depth search start. callerDepth:{}, calleeDepth:{}, size:{}, nodes:{}", outboundLinkSelectContext.getCallerDepth(), inboundLinkSelectContext.getCalleeDepth(), applications.size(), applications);
+            LinkDataDuplexMap outboundMap = applicationsMapCreator.createLinkDataDuplexMap(outboundApplications, outboundLinkSelectContext);
+            LinkDataDuplexMap inboundMap = applicationsMapCreator.createLinkDataDuplexMap(inboundApplications, inboundLinkSelectContext);
+            logger.info("depth search end. callerDepth:{}, calleeDepth:{}", outboundLinkSelectContext.getCallerDepth(), inboundLinkSelectContext.getCalleeDepth());
 
-            linkDataDuplexMap.addLinkDataDuplexMap(levelData);
+            linkDataDuplexMap.addLinkDataDuplexMap(outboundMap);
+            linkDataDuplexMap.addLinkDataDuplexMap(inboundMap);
 
-            List<Application> nextApplications = linkSelectContext.getNextApplications();
-            applications = nextApplications
+            outboundApplications = outboundLinkSelectContext.getNextApplications()
                     .stream()
                     .filter(this::filter)
                     .collect(Collectors.toList());
-            linkSelectContext = linkSelectContext.advance();
+            inboundApplications = inboundLinkSelectContext.getNextApplications()
+                    .stream()
+                    .filter(this::filter)
+                    .collect(Collectors.toList());
+
+            outboundLinkSelectContext = outboundLinkSelectContext.advance();
+            inboundLinkSelectContext = inboundLinkSelectContext.advance();
         }
         return virtualLinkProcessor.processVirtualLinks(linkDataDuplexMap, linkVisitChecker, range);
     }
@@ -107,5 +112,4 @@ public class BFSLinkSelector implements LinkSelector {
         }
         return true;
     }
-
 }
