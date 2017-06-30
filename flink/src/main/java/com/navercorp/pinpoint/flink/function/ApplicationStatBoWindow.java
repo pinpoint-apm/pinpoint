@@ -35,13 +35,21 @@ import java.util.List;
 public class ApplicationStatBoWindow implements WindowFunction<Tuple3<String, JoinStatBo, Long>, Tuple3<String, JoinStatBo, Long>, Tuple, TimeWindow> {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     public static final int WINDOW_SIZE = 10000;
-    public static final int ALLOWED_LATENESS = 15000;
+    public static final int ALLOWED_LATENESS = 45000;
 
     @Override
     public void apply(Tuple tuple, TimeWindow window, Iterable<Tuple3<String, JoinStatBo, Long>> values, Collector<Tuple3<String, JoinStatBo, Long>> out) throws Exception {
         try {
             JoinApplicationStatBo joinApplicationStatBo = join(values);
-            logger.info("[join] " + new Date(joinApplicationStatBo.getTimestamp()) + " : " +joinApplicationStatBo);
+            if ((new Date().getTime() - joinApplicationStatBo.getTimestamp()) > 35000) {
+                logger.info("[join][delay3]" + new Date(joinApplicationStatBo.getTimestamp()) + " : " +joinApplicationStatBo);
+            } else if ((new Date().getTime() - joinApplicationStatBo.getTimestamp()) > 25000) {
+                logger.info("[join][delay2]" + new Date(joinApplicationStatBo.getTimestamp()) + " : " +joinApplicationStatBo);
+            } else if ((new Date().getTime() - joinApplicationStatBo.getTimestamp()) > 15000) {
+                logger.info("[join][delay1]" + new Date(joinApplicationStatBo.getTimestamp()) + " : " +joinApplicationStatBo);
+            } else {
+                logger.info("[join][non] " + new Date(joinApplicationStatBo.getTimestamp()) + " : " +joinApplicationStatBo);
+            }
 
             if (joinApplicationStatBo == JoinApplicationStatBo.EMPTY_JOIN_APPLICATION_STAT_BO) {
                 return;
