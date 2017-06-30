@@ -89,14 +89,20 @@
 				var pointsData = chartData.points;
 				var length = pointsData.length;
 				for (var i = 0; i < length; ++i) {
-					returnData.data.push({
-						"time": moment(pointsData[i]['xVal']).format("YYYY-MM-DD HH:mm:ss"),
-						"avg": pointsData[i]['yValForAvg'].toFixed(2),
-						"min": pointsData[i]['yValForMin'].toFixed(2),
-						"max": pointsData[i]['yValForMax'].toFixed(2),
-						"minAgent": pointsData[i]['agentIdForMin'],
-						"maxAgent": pointsData[i]['agentIdForMax']
-					});
+					if ( pointsData[i]['yValForAvg'] === -1 || pointsData[i]['yValForMin'] === -1 || pointsData[i]['yValForMax'] === -1 ) {
+						returnData.data.push({
+							"time": moment(pointsData[i]['xVal']).format("YYYY-MM-DD HH:mm:ss")
+						});
+					} else {
+						returnData.data.push({
+							"time": moment(pointsData[i]['xVal']).format("YYYY-MM-DD HH:mm:ss"),
+							"avg": pointsData[i]['yValForAvg'].toFixed(2),
+							"min": pointsData[i]['yValForMin'].toFixed(2),
+							"max": pointsData[i]['yValForMax'].toFixed(2),
+							"minAgent": pointsData[i]['agentIdForMin'],
+							"maxAgent": pointsData[i]['agentIdForMax']
+						});
+					}
 				}
 				return returnData;
 			}
