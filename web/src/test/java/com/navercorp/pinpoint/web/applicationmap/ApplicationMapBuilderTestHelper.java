@@ -41,20 +41,16 @@ public class ApplicationMapBuilderTestHelper {
     private static final ServiceType TERMINAL_TYPE = ServiceTypeFactory.of(2000, "TERMINAL", TERMINAL, INCLUDE_DESTINATION_ID);
     private static final ServiceType RPC_TYPE = ServiceTypeFactory.of(9000, "RPC", RECORD_STATISTICS);
 
-    public static ApplicationMapBuilder createApplicationMapBuilderV1(Range range) {
-        return new ApplicationMapBuilderV1(range);
-    }
-
-    public static ApplicationMapBuilder createApplicationMapBuilderV2(Range range) {
+    public static ApplicationMapBuilder createApplicationMapBuilder(Range range) {
         NodeHistogramAppenderFactory nodeHistogramAppenderFactory = new NodeHistogramAppenderFactory("serial", 16);
         ServerInfoAppenderFactory serverInfoAppenderFactory = new ServerInfoAppenderFactory("serial", 16);
-        return new ApplicationMapBuilderV2(range, nodeHistogramAppenderFactory, serverInfoAppenderFactory);
+        return new ApplicationMapBuilder(range, nodeHistogramAppenderFactory, serverInfoAppenderFactory);
     }
 
-    public static ApplicationMapBuilder createApplicationMapBuilderV2_parallelAppenders(Range range) {
+    public static ApplicationMapBuilder createApplicationMapBuilder_parallelAppenders(Range range) {
         NodeHistogramAppenderFactory nodeHistogramAppenderFactory = new NodeHistogramAppenderFactory("parallel", 16);
         ServerInfoAppenderFactory serverInfoAppenderFactory = new ServerInfoAppenderFactory("parallel", 16);
-        return new ApplicationMapBuilderV2(range, nodeHistogramAppenderFactory, serverInfoAppenderFactory);
+        return new ApplicationMapBuilder(range, nodeHistogramAppenderFactory, serverInfoAppenderFactory);
 
     }
 

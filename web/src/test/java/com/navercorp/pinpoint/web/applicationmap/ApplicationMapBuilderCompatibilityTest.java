@@ -147,29 +147,25 @@ public class ApplicationMapBuilderCompatibilityTest {
 
         ServerInstanceListFactory serverInstanceListFactory = new DefaultServerInstanceListFactory(agentInfoServerInstanceListDataSource);
 
-        ApplicationMapBuilder applicationMapBuilderV1 = ApplicationMapBuilderTestHelper.createApplicationMapBuilderV1(range);
-        ApplicationMapBuilder applicationMapBuilderV2 = ApplicationMapBuilderTestHelper.createApplicationMapBuilderV2(range);
-        ApplicationMapBuilder applicationMapBuilderV2_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilderV2_parallelAppenders(range);
-        ApplicationMap applicationMapV1 = applicationMapBuilderV1
+        ApplicationMapBuilder applicationMapBuilder = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(range);
+        ApplicationMapBuilder applicationMapBuilder_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilder_parallelAppenders(range);
+        ApplicationMap applicationMap = applicationMapBuilder
                 .includeServerInfo(serverInstanceListFactory)
                 .build(application);
-        ApplicationMap applicationMapV2 = applicationMapBuilderV2
-                .includeServerInfo(serverInstanceListFactory)
-                .build(application);
-        ApplicationMap applicationMapV2_parallelAppenders = applicationMapBuilderV2_parallelAppenders
+        ApplicationMap applicationMap_parallelAppenders = applicationMapBuilder_parallelAppenders
                 .includeServerInfo(serverInstanceListFactory)
                 .build(application);
 
-        Assert.assertEquals(1, applicationMapV1.getNodes().size());
-        Assert.assertEquals(1, applicationMapV2.getNodes().size());
-        Assert.assertEquals(1, applicationMapV2_parallelAppenders.getNodes().size());
-        Assert.assertEquals(0, applicationMapV1.getLinks().size());
-        Assert.assertEquals(0, applicationMapV2.getLinks().size());
-        Assert.assertEquals(0, applicationMapV2_parallelAppenders.getLinks().size());
+        Assert.assertEquals(1, applicationMap.getNodes().size());
+        Assert.assertEquals(1, applicationMap.getNodes().size());
+        Assert.assertEquals(1, applicationMap_parallelAppenders.getNodes().size());
+        Assert.assertEquals(0, applicationMap.getLinks().size());
+        Assert.assertEquals(0, applicationMap.getLinks().size());
+        Assert.assertEquals(0, applicationMap_parallelAppenders.getLinks().size());
 
-        ApplicationMapVerifier verifier = new ApplicationMapVerifier(applicationMapV1);
-        verifier.verify(applicationMapV2);
-        verifier.verify(applicationMapV2_parallelAppenders);
+        ApplicationMapVerifier verifier = new ApplicationMapVerifier(applicationMap);
+        verifier.verify(applicationMap);
+        verifier.verify(applicationMap_parallelAppenders);
     }
 
     @Test
@@ -180,32 +176,27 @@ public class ApplicationMapBuilderCompatibilityTest {
         NodeHistogramFactory nodeHistogramFactory = new DefaultNodeHistogramFactory(mapResponseNodeHistogramDataSource);
         ServerInstanceListFactory serverInstanceListFactory = new DefaultServerInstanceListFactory(agentInfoServerInstanceListDataSource);
 
-        ApplicationMapBuilder applicationMapBuilderV1 = ApplicationMapBuilderTestHelper.createApplicationMapBuilderV1(range);
-        ApplicationMapBuilder applicationMapBuilderV2 = ApplicationMapBuilderTestHelper.createApplicationMapBuilderV2(range);
-        ApplicationMapBuilder applicationMapBuilderV2_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilderV2_parallelAppenders(range);
-        ApplicationMap applicationMapV1 = applicationMapBuilderV1
+        ApplicationMapBuilder applicationMapBuilder = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(range);
+        ApplicationMapBuilder applicationMapBuilder_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilder_parallelAppenders(range);
+        ApplicationMap applicationMap = applicationMapBuilder
                 .includeNodeHistogram(nodeHistogramFactory)
                 .includeServerInfo(serverInstanceListFactory)
                 .build(linkDataDuplexMap);
-        ApplicationMap applicationMapV2 = applicationMapBuilderV2
-                .includeNodeHistogram(nodeHistogramFactory)
-                .includeServerInfo(serverInstanceListFactory)
-                .build(linkDataDuplexMap);
-        ApplicationMap applicationMapV2_parallelAppenders = applicationMapBuilderV2_parallelAppenders
+        ApplicationMap applicationMap_parallelAppenders = applicationMapBuilder_parallelAppenders
                 .includeNodeHistogram(nodeHistogramFactory)
                 .includeServerInfo(serverInstanceListFactory)
                 .build(linkDataDuplexMap);
 
-        Assert.assertTrue(applicationMapV1.getNodes().isEmpty());
-        Assert.assertTrue(applicationMapV2.getNodes().isEmpty());
-        Assert.assertTrue(applicationMapV2_parallelAppenders.getNodes().isEmpty());
-        Assert.assertTrue(applicationMapV1.getLinks().isEmpty());
-        Assert.assertTrue(applicationMapV2.getLinks().isEmpty());
-        Assert.assertTrue(applicationMapV2_parallelAppenders.getLinks().isEmpty());
+        Assert.assertTrue(applicationMap.getNodes().isEmpty());
+        Assert.assertTrue(applicationMap.getNodes().isEmpty());
+        Assert.assertTrue(applicationMap_parallelAppenders.getNodes().isEmpty());
+        Assert.assertTrue(applicationMap.getLinks().isEmpty());
+        Assert.assertTrue(applicationMap.getLinks().isEmpty());
+        Assert.assertTrue(applicationMap_parallelAppenders.getLinks().isEmpty());
 
-        ApplicationMapVerifier verifier = new ApplicationMapVerifier(applicationMapV1);
-        verifier.verify(applicationMapV2);
-        verifier.verify(applicationMapV2_parallelAppenders);
+        ApplicationMapVerifier verifier = new ApplicationMapVerifier(applicationMap);
+        verifier.verify(applicationMap);
+        verifier.verify(applicationMap_parallelAppenders);
     }
 
     /**
@@ -285,54 +276,41 @@ public class ApplicationMapBuilderCompatibilityTest {
         ServerInstanceListFactory serverInstanceListFactory = new DefaultServerInstanceListFactory(agentInfoServerInstanceListDataSource);
 
         LinkDataDuplexMap linkDataDuplexMap = ApplicationMapBuilderTestHelper.createLinkDataDuplexMap(calleeDepth, callerDepth);
-        ApplicationMapBuilder applicationMapBuilderV1 = ApplicationMapBuilderTestHelper.createApplicationMapBuilderV1(range);
-        ApplicationMapBuilder applicationMapBuilderV2 = ApplicationMapBuilderTestHelper.createApplicationMapBuilderV2(range);
-        ApplicationMapBuilder applicationMapBuilderV2_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilderV2_parallelAppenders(range);
+        ApplicationMapBuilder applicationMapBuilder = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(range);
+        ApplicationMapBuilder applicationMapBuilder_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilder_parallelAppenders(range);
 
         // test builder using MapResponseDao
-        ApplicationMap applicationMapV1_MapResponseDao = applicationMapBuilderV1
+        ApplicationMap applicationMap_MapResponseDao = applicationMapBuilder
                 .includeNodeHistogram(nodeHistogramFactory_MapResponseDao)
                 .includeServerInfo(serverInstanceListFactory)
                 .build(linkDataDuplexMap);
-        ApplicationMap applicationMapV2_MapResponseDao = applicationMapBuilderV2
+        ApplicationMap applicationMap_MapResponseDao_parallelAppenders = applicationMapBuilder_parallelAppenders
                 .includeNodeHistogram(nodeHistogramFactory_MapResponseDao)
                 .includeServerInfo(serverInstanceListFactory)
                 .build(linkDataDuplexMap);
-        ApplicationMap applicationMapV2_MapResponseDao_parallelAppenders = applicationMapBuilderV2_parallelAppenders
-                .includeNodeHistogram(nodeHistogramFactory_MapResponseDao)
-                .includeServerInfo(serverInstanceListFactory)
-                .build(linkDataDuplexMap);
-        Assert.assertEquals(expectedNumNodes, applicationMapV1_MapResponseDao.getNodes().size());
-        Assert.assertEquals(expectedNumNodes, applicationMapV2_MapResponseDao.getNodes().size());
-        Assert.assertEquals(expectedNumNodes, applicationMapV2_MapResponseDao_parallelAppenders.getNodes().size());
-        Assert.assertEquals(expectedNumLinks, applicationMapV1_MapResponseDao.getLinks().size());
-        Assert.assertEquals(expectedNumLinks, applicationMapV2_MapResponseDao.getLinks().size());
-        Assert.assertEquals(expectedNumLinks, applicationMapV2_MapResponseDao_parallelAppenders.getLinks().size());
-        ApplicationMapVerifier verifier_MapResponseDao = new ApplicationMapVerifier(applicationMapV1_MapResponseDao);
-        verifier_MapResponseDao.verify(applicationMapV2_MapResponseDao);
-        verifier_MapResponseDao.verify(applicationMapV2_MapResponseDao_parallelAppenders);
+        Assert.assertEquals(expectedNumNodes, applicationMap_MapResponseDao.getNodes().size());
+        Assert.assertEquals(expectedNumNodes, applicationMap_MapResponseDao_parallelAppenders.getNodes().size());
+        Assert.assertEquals(expectedNumLinks, applicationMap_MapResponseDao.getLinks().size());
+        Assert.assertEquals(expectedNumLinks, applicationMap_MapResponseDao_parallelAppenders.getLinks().size());
+        ApplicationMapVerifier verifier_MapResponseDao = new ApplicationMapVerifier(applicationMap_MapResponseDao);
+        verifier_MapResponseDao.verify(applicationMap_MapResponseDao);
+        verifier_MapResponseDao.verify(applicationMap_MapResponseDao_parallelAppenders);
 
         // test builder using ResponseHistogramBuilder
-        ApplicationMap applicationMapV1_ResponseHistogramBuilder = applicationMapBuilderV1
+        ApplicationMap applicationMap_ResponseHistogramBuilder = applicationMapBuilder
                 .includeNodeHistogram(nodeHistogramFactory_ResponseHistogramBuilder)
                 .includeServerInfo(serverInstanceListFactory)
                 .build(linkDataDuplexMap);
-        ApplicationMap applicationMapV2_ResponseHistogramBuilder = applicationMapBuilderV2
+        ApplicationMap applicationMap_ResponseHistogramBuilder_parallelAppenders = applicationMapBuilder_parallelAppenders
                 .includeNodeHistogram(nodeHistogramFactory_ResponseHistogramBuilder)
                 .includeServerInfo(serverInstanceListFactory)
                 .build(linkDataDuplexMap);
-        ApplicationMap applicationMapV2_ResponseHistogramBuilder_parallelAppenders = applicationMapBuilderV2_parallelAppenders
-                .includeNodeHistogram(nodeHistogramFactory_ResponseHistogramBuilder)
-                .includeServerInfo(serverInstanceListFactory)
-                .build(linkDataDuplexMap);
-        Assert.assertEquals(expectedNumNodes, applicationMapV1_ResponseHistogramBuilder.getNodes().size());
-        Assert.assertEquals(expectedNumNodes, applicationMapV2_ResponseHistogramBuilder.getNodes().size());
-        Assert.assertEquals(expectedNumNodes, applicationMapV2_ResponseHistogramBuilder_parallelAppenders.getNodes().size());
-        Assert.assertEquals(expectedNumLinks, applicationMapV1_ResponseHistogramBuilder.getLinks().size());
-        Assert.assertEquals(expectedNumLinks, applicationMapV2_ResponseHistogramBuilder.getLinks().size());
-        Assert.assertEquals(expectedNumLinks, applicationMapV2_ResponseHistogramBuilder_parallelAppenders.getLinks().size());
-        ApplicationMapVerifier verifier_ResponseHistogramBuilder = new ApplicationMapVerifier(applicationMapV1_ResponseHistogramBuilder);
-        verifier_ResponseHistogramBuilder.verify(applicationMapV2_ResponseHistogramBuilder);
-        verifier_ResponseHistogramBuilder.verify(applicationMapV2_ResponseHistogramBuilder_parallelAppenders);
+        Assert.assertEquals(expectedNumNodes, applicationMap_ResponseHistogramBuilder.getNodes().size());
+        Assert.assertEquals(expectedNumNodes, applicationMap_ResponseHistogramBuilder_parallelAppenders.getNodes().size());
+        Assert.assertEquals(expectedNumLinks, applicationMap_ResponseHistogramBuilder.getLinks().size());
+        Assert.assertEquals(expectedNumLinks, applicationMap_ResponseHistogramBuilder_parallelAppenders.getLinks().size());
+        ApplicationMapVerifier verifier_ResponseHistogramBuilder = new ApplicationMapVerifier(applicationMap_ResponseHistogramBuilder);
+        verifier_ResponseHistogramBuilder.verify(applicationMap_ResponseHistogramBuilder);
+        verifier_ResponseHistogramBuilder.verify(applicationMap_ResponseHistogramBuilder_parallelAppenders);
     }
 }
