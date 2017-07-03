@@ -19,11 +19,12 @@ package com.navercorp.pinpoint.profiler.context;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.DefaultAsyncTraceId;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+import com.navercorp.pinpoint.profiler.context.method.PredefinedMethodDescriptorRegistry;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,12 +33,21 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
 
     private final Provider<TraceFactory> traceFactoryProvider;
     private final AsyncIdGenerator asyncIdGenerator;
-    private final ApiMetaDataService apiMetaDataService;
+    private final PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry;
+    private final int asyncMethodApiId;
 
-    public DefaultAsyncContextFactory(Provider<TraceFactory> traceFactoryProvider, AsyncIdGenerator asyncIdGenerator, ApiMetaDataService apiMetaDataService) {
+    public DefaultAsyncContextFactory(Provider<TraceFactory> traceFactoryProvider, AsyncIdGenerator asyncIdGenerator, PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry) {
         this.traceFactoryProvider = Assert.requireNonNull(traceFactoryProvider, "traceFactoryProvider must not be null");
         this.asyncIdGenerator = Assert.requireNonNull(asyncIdGenerator, "asyncIdGenerator must not be null");
-        this.apiMetaDataService = Assert.requireNonNull(apiMetaDataService, "apiMetaDataService must not be null");
+
+        this.predefinedMethodDescriptorRegistry = Assert.requireNonNull(predefinedMethodDescriptorRegistry, "predefinedMethodDescriptorRegistry must not be null");
+
+        this.asyncMethodApiId = getAsyncMethodApiId(predefinedMethodDescriptorRegistry);
+    }
+
+    private int getAsyncMethodApiId(PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry) {
+        final MethodDescriptor asyncMethodDescriptor = predefinedMethodDescriptorRegistry.getAsyncMethodDescriptor();
+        return asyncMethodDescriptor.getApiId();
     }
 
     @Override
@@ -46,7 +56,7 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
 
         final TraceFactory traceFactory = traceFactoryProvider.get();
         final int asyncId = asyncIdGenerator.nextAsyncId();
-        return new DefaultAsyncContext(traceFactory, traceRoot, asyncId, apiMetaDataService);
+        return new DefaultAsyncContext(traceFactory, traceRoot, asyncId, this.asyncMethodApiId);
     }
 
     @Override
