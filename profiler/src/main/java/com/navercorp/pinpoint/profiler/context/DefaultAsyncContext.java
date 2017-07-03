@@ -17,15 +17,12 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
-import com.navercorp.pinpoint.common.trace.MethodType;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,15 +46,15 @@ public class DefaultAsyncContext implements AsyncContext {
     @SuppressWarnings("unused")
     private volatile int asyncSequence = 0;
 
-    private static final MethodDescriptor asyncMethodDescriptor = new AsyncMethodDescriptor();
+    private final int asyncMethodApiId;
 
 
-    public DefaultAsyncContext(TraceFactory traceFactory, TraceRoot traceRoot, int asyncId, ApiMetaDataService apiMetaDataService) {
+    public DefaultAsyncContext(TraceFactory traceFactory, TraceRoot traceRoot, int asyncId, int asyncMethodApiId) {
         this.traceFactory = Assert.requireNonNull(traceFactory, "traceFactory must not be null");
         this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
         this.asyncId = asyncId;
 
-        apiMetaDataService.cacheApi(asyncMethodDescriptor);
+        this.asyncMethodApiId = asyncMethodApiId;
     }
 
     @Override
@@ -106,7 +103,7 @@ public class DefaultAsyncContext implements AsyncContext {
         // first block.
         final SpanEventRecorder recorder = asyncTrace.currentSpanEventRecorder();
         recorder.recordServiceType(ServiceType.ASYNC);
-        recorder.recordApi(asyncMethodDescriptor);
+        recorder.recordApiId(asyncMethodApiId);
 
         return asyncTrace;
     }
@@ -151,63 +148,4 @@ public class DefaultAsyncContext implements AsyncContext {
                 '}';
     }
 
-    public static class AsyncMethodDescriptor implements MethodDescriptor {
-
-        private int apiId = 0;
-
-        @Override
-        public String getMethodName() {
-            return "";
-        }
-
-        @Override
-        public String getClassName() {
-            return "";
-        }
-
-        @Override
-        public String[] getParameterTypes() {
-            return null;
-        }
-
-        @Override
-        public String[] getParameterVariableName() {
-            return null;
-        }
-
-        @Override
-        public String getParameterDescriptor() {
-            return "";
-        }
-
-        @Override
-        public int getLineNumber() {
-            return -1;
-        }
-
-        @Override
-        public String getFullName() {
-            return DefaultAsyncContext.AsyncMethodDescriptor.class.getName();
-        }
-
-        @Override
-        public void setApiId(int apiId) {
-            this.apiId = apiId;
-        }
-
-        @Override
-        public int getApiId() {
-            return apiId;
-        }
-
-        @Override
-        public String getApiDescriptor() {
-            return "Asynchronous Invocation";
-        }
-
-        @Override
-        public int getType() {
-            return MethodType.INVOCATION;
-        }
-    }
 }

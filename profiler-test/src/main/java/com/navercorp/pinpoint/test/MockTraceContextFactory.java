@@ -32,6 +32,8 @@ import com.navercorp.pinpoint.profiler.context.id.DefaultAsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.CallStackFactoryV1;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
+import com.navercorp.pinpoint.profiler.context.method.DefaultPredefinedMethodDescriptorRegistry;
+import com.navercorp.pinpoint.profiler.context.method.PredefinedMethodDescriptorRegistry;
 import com.navercorp.pinpoint.profiler.context.provider.AsyncContextFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
@@ -127,7 +129,8 @@ public class MockTraceContextFactory {
         SpanFactory spanFactory = new DefaultSpanFactory(applicationName, agentId, agentStartTime, agentServiceType);
 
         final AsyncIdGenerator asyncIdGenerator = new DefaultAsyncIdGenerator();
-        final AsyncContextFactoryProvider asyncContextFactoryProvider = new AsyncContextFactoryProvider(asyncIdGenerator, apiMetaDataService);
+        final PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry = new DefaultPredefinedMethodDescriptorRegistry(apiMetaDataService);
+        final AsyncContextFactoryProvider asyncContextFactoryProvider = new AsyncContextFactoryProvider(asyncIdGenerator, predefinedMethodDescriptorRegistry);
 
         RecorderFactory recorderFactory = new DefaultRecorderFactory(asyncContextFactoryProvider, stringMetaDataService, sqlMetaDataService);
         TraceRootFactory traceRootFactory = newInternalTraceIdFactory(traceIdFactory, idGenerator);

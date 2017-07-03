@@ -53,6 +53,8 @@ import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
+import com.navercorp.pinpoint.profiler.context.method.DefaultPredefinedMethodDescriptorRegistry;
+import com.navercorp.pinpoint.profiler.context.method.PredefinedMethodDescriptorRegistry;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.DefaultJdbcContext;
 import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
@@ -266,6 +268,7 @@ public class ApplicationContextModule extends AbstractModule {
         bind(StringMetaDataService.class).to(DefaultStringMetaDataService.class).in(Scopes.SINGLETON);
         bind(ApiMetaDataService.class).toProvider(ApiMetaDataServiceProvider.class).in(Scopes.SINGLETON);
         bind(SqlMetaDataService.class).to(DefaultSqlMetaDataService.class).in(Scopes.SINGLETON);
+        bind(PredefinedMethodDescriptorRegistry.class).to(DefaultPredefinedMethodDescriptorRegistry.class).in(Scopes.SINGLETON);
     }
 
     private void bindAgentInformation(String agentId, String applicationName) {

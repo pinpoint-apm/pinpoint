@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultAsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.TraceFactory;
 import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
-import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+import com.navercorp.pinpoint.profiler.context.method.PredefinedMethodDescriptorRegistry;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,12 +32,12 @@ public class AsyncContextFactoryProvider implements Provider<AsyncContextFactory
 
     private Provider<TraceFactory> traceFactoryProvider;
     private final AsyncIdGenerator asyncIdGenerator;
-    private final ApiMetaDataService apiMetaDataService;
+    private final PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry;
 
     @Inject
-    public AsyncContextFactoryProvider(AsyncIdGenerator asyncIdGenerator, ApiMetaDataService apiMetaDataService) {
+    public AsyncContextFactoryProvider(AsyncIdGenerator asyncIdGenerator, PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry) {
         this.asyncIdGenerator = Assert.requireNonNull(asyncIdGenerator, "asyncIdGenerator must not be null");
-        this.apiMetaDataService = Assert.requireNonNull(apiMetaDataService, "apiMetaDataService must not be null");
+        this.predefinedMethodDescriptorRegistry = Assert.requireNonNull(predefinedMethodDescriptorRegistry, "predefinedMethodDescriptorRegistry must not be null");
     }
 
     @Inject
@@ -50,6 +50,6 @@ public class AsyncContextFactoryProvider implements Provider<AsyncContextFactory
     @Override
     public AsyncContextFactory get() {
         Assert.requireNonNull(traceFactoryProvider, "traceFactoryProvider must not be null");
-        return new DefaultAsyncContextFactory(traceFactoryProvider, asyncIdGenerator, apiMetaDataService);
+        return new DefaultAsyncContextFactory(traceFactoryProvider, asyncIdGenerator, predefinedMethodDescriptorRegistry);
     }
 }
