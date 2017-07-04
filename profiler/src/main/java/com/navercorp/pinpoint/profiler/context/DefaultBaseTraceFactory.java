@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
@@ -125,7 +124,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         // TODO AtomicIdGenerator.UNTRACKED_ID
         final Trace trace = new DefaultTrace(span, callStack, asyncStorage, asyncContextFactory, true, recorderFactory);
 
-        final Trace asyncTrace = new AsyncTrace(traceRoot, trace, asyncId, asyncSequence);
+        final Trace asyncTrace = new AsyncTrace(asyncContextFactory, traceRoot, trace, asyncId, asyncSequence);
 
         return asyncTrace;
     }
@@ -144,7 +143,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
 
         final SpanAsyncStateListener asyncStateListener = new SpanAsyncStateListener(span, storageFactory.createStorage(traceRoot));
         final ListenableAsyncState stateListener = new ListenableAsyncState(asyncStateListener);
-        final AsyncTrace asyncTrace = new AsyncTrace(traceRoot, trace, stateListener);
+        final AsyncTrace asyncTrace = new AsyncTrace(asyncContextFactory, traceRoot, trace, stateListener);
 
         return asyncTrace;
     }
@@ -167,7 +166,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
 
             final SpanAsyncStateListener asyncStateListener = new SpanAsyncStateListener(span, storageFactory.createStorage(traceRoot));
             final AsyncState closer = new ListenableAsyncState(asyncStateListener);
-            final AsyncTrace asyncTrace = new AsyncTrace(traceRoot, trace, closer);
+            final AsyncTrace asyncTrace = new AsyncTrace(asyncContextFactory, traceRoot, trace, closer);
 
             return asyncTrace;
         } else {

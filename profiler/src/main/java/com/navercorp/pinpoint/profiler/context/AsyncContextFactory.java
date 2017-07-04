@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
@@ -27,4 +28,6 @@ public interface AsyncContextFactory {
     AsyncContext newAsyncContext(TraceRoot traceRoot);
 
     AsyncTraceId newAsyncTraceId(TraceRoot traceRoot);
+
+    AsyncTraceId newAsyncTraceId(TraceRoot traceRoot, AsyncState asyncState);
 }

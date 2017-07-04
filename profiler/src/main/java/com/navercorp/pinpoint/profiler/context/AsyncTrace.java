@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
-import com.navercorp.pinpoint.profiler.context.id.StatefulAsyncTraceId;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +25,10 @@ import org.slf4j.LoggerFactory;
 public class AsyncTrace implements Trace {
     private static final int BEGIN_STACKID = 1;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
+    private static final Logger logger = LoggerFactory.getLogger(AsyncTrace.class.getName());
+    private static final boolean isDebug = logger.isDebugEnabled();
+
+    private final AsyncContextFactory asyncContextFactory;
 
     private final TraceRoot traceRoot;
     private final Trace trace;
@@ -36,31 +38,18 @@ public class AsyncTrace implements Trace {
     private short asyncSequence;
     private AsyncState asyncState;
 
-    public AsyncTrace(final TraceRoot traceRoot, final Trace trace, final AsyncState asyncState) {
-        if (traceRoot == null) {
-            throw new NullPointerException("traceRoot must not be null");
-        }
-        if (trace == null) {
-            throw new NullPointerException("trace must not be null");
-        }
-        if (asyncState == null) {
-            throw new IllegalArgumentException("asyncState must not be null.");
-        }
-        this.traceRoot = traceRoot;
-        this.trace = trace;
-        this.asyncState = asyncState;
+    public AsyncTrace(final AsyncContextFactory asyncContextFactory, final TraceRoot traceRoot, final Trace trace, final AsyncState asyncState) {
+        this.asyncContextFactory = Assert.requireNonNull(asyncContextFactory, "asyncContextFactory must not be null");
+        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+        this.trace = Assert.requireNonNull(trace, "trace must not be null");
+        this.asyncState = Assert.requireNonNull(asyncState, "asyncState must not be null");
         this.entryPoint = true;
     }
 
-    public AsyncTrace(final TraceRoot traceRoot, final Trace trace, final int asyncId, final short asyncSequence) {
-        if (traceRoot == null) {
-            throw new NullPointerException("traceRoot must not be null");
-        }
-        if (trace == null) {
-            throw new NullPointerException("trace must not be null");
-        }
-        this.traceRoot = traceRoot;
-        this.trace = trace;
+    public AsyncTrace(final AsyncContextFactory asyncContextFactory, final TraceRoot traceRoot, final Trace trace, final int asyncId, final short asyncSequence) {
+        this.asyncContextFactory = Assert.requireNonNull(asyncContextFactory, "asyncContextFactory must not be null");
+        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+        this.trace = Assert.requireNonNull(trace, "trace must not be null");
         this.asyncId = asyncId;
         this.asyncSequence = asyncSequence;
 
@@ -171,14 +160,13 @@ public class AsyncTrace implements Trace {
 
     @Override
     public AsyncTraceId getAsyncTraceId(boolean closeable) {
-        final AsyncTraceId asyncTraceId = this.trace.getAsyncTraceId();
         final AsyncState asyncState = this.asyncState;
         if (closeable && this.entryPoint && asyncState != null) {
             asyncState.setup();
-            return new StatefulAsyncTraceId(traceRoot, asyncTraceId, asyncState);
+            return asyncContextFactory.newAsyncTraceId(traceRoot, asyncState);
         }
 
-        return asyncTraceId;
+        return asyncContextFactory.newAsyncTraceId(traceRoot);
     }
 
     @Override
