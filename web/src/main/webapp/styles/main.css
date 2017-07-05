@@ -445,7 +445,7 @@ canvas {outline:none}
     list-style: none;
 }
 .grouped-application-list ul.outer > li > p.name {
-    width: 260px;
+    width: 244px;
     margin: 0px 0px -4px 0px;
     display: inline-block;
     overflow: hidden;
@@ -462,7 +462,7 @@ canvas {outline:none}
 }
 
 .grouped-application-list ul.inner > li > p.name {
-    width: 260px;
+    width: 250px;
     margin: 0px;
     display: inline-block;
     overflow: hidden;
