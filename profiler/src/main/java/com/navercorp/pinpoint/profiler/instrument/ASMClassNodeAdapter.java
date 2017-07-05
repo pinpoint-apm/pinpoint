@@ -466,7 +466,7 @@ public class ASMClassNodeAdapter {
             flags = ClassWriter.COMPUTE_MAXS;
         }
 
-        final ClassWriter classWriter = new ASMClassWriter(this.pluginContext, this.classNode.name, this.classNode.superName, flags, this.classLoader);
+        final ClassWriter classWriter = new ASMClassWriter(this.pluginContext, flags, this.classLoader);
         this.classNode.accept(classWriter);
         return classWriter.toByteArray();
     }

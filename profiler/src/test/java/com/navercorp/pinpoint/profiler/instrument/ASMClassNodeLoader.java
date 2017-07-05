@@ -131,7 +131,7 @@ public class ASMClassNodeLoader {
 
                     if (this.trace) {
                         logger.debug("## original #############################################################");
-                        ASMClassWriter cw = new ASMClassWriter(pluginContext, classNode.name, classNode.superName, 0, null);
+                        ASMClassWriter cw = new ASMClassWriter(pluginContext, 0, null);
                         TraceClassVisitor tcv = new TraceClassVisitor(cw, new PrintWriter(System.out));
                         classNode.accept(tcv);
                     }
@@ -140,7 +140,7 @@ public class ASMClassNodeLoader {
                         callbackHandler.handle(classNode);
                     }
 
-                     ASMClassWriter cw = new ASMClassWriter(pluginContext, classNode.name, classNode.superName, ClassWriter.COMPUTE_FRAMES, null);
+                     ASMClassWriter cw = new ASMClassWriter(pluginContext, ClassWriter.COMPUTE_FRAMES, null);
                     if (this.trace) {
                         logger.debug("## modified #############################################################");
                         TraceClassVisitor tcv = new TraceClassVisitor(cw, new PrintWriter(System.out));
