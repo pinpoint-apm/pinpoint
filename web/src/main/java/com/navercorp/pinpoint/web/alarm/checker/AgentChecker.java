@@ -16,21 +16,21 @@
 
 package com.navercorp.pinpoint.web.alarm.checker;
 
+import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
+import com.navercorp.pinpoint.web.alarm.vo.Rule;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
-import com.navercorp.pinpoint.web.alarm.vo.Rule;
-
 /**
  * @author minwoo.jung
  */
-public abstract class AgentChecker extends AlarmChecker {
+public abstract class AgentChecker<T> extends AlarmChecker<T> {
     
-    protected Map<String, Long> detectedAgents = new HashMap<>();
+    protected Map<String, T> detectedAgents = new HashMap<>();
 
     protected AgentChecker(Rule rule, String unit, DataCollector dataCollector) {
         super(rule, unit, dataCollector);
@@ -40,9 +40,9 @@ public abstract class AgentChecker extends AlarmChecker {
     public void check() {
         dataCollector.collect();
 
-        Map<String, Long> agents = getAgentValues();
+        Map<String, T> agents = getAgentValues();
         
-        for(Entry<String, Long> agent : agents.entrySet()) {
+        for(Entry<String, T> agent : agents.entrySet()) {
             if (decideResult(agent.getValue())) {
                 detected = true;
                 detectedAgents.put(agent.getKey(), agent.getValue());
@@ -53,14 +53,14 @@ public abstract class AgentChecker extends AlarmChecker {
     }
     
     @Override
-    protected long getDetectedValue() {
+    protected T getDetectedValue() {
         throw new UnsupportedOperationException(this.getClass() + "is not support getDetectedValue function. you should use getAgentValues");
     }
 
     public List<String> getSmsMessage() {
         List<String> messages = new LinkedList<>();
         
-        for (Entry<String, Long> detected : detectedAgents.entrySet()) {
+        for (Entry<String, T> detected : detectedAgents.entrySet()) {
             messages.add(String.format("[PINPOINT Alarm - %s] %s is %s%s (Threshold : %s%s)", detected.getKey(), rule.getCheckerName(), detected.getValue(), unit, rule.getThreshold(), unit));
         }
         
@@ -71,7 +71,7 @@ public abstract class AgentChecker extends AlarmChecker {
     public String getEmailMessage() {
         StringBuilder message = new StringBuilder();
         
-        for (Entry<String, Long> detected : detectedAgents.entrySet()) {
+        for (Entry<String, T> detected : detectedAgents.entrySet()) {
             message.append(String.format(" Value of agent(%s) is %s%s during the past 5 mins.(Threshold : %s%s)", detected.getKey(), detected.getValue(), unit, rule.getThreshold(), unit));
             message.append("<br>");
         }
@@ -79,6 +79,6 @@ public abstract class AgentChecker extends AlarmChecker {
         return message.toString();
     }
     
-    protected abstract Map<String, Long> getAgentValues();
+    protected abstract Map<String, T> getAgentValues();
     
 }

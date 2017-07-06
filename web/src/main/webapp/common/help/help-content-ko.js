@@ -54,6 +54,9 @@
 					},{
 						name: "JVM CPU USAGE RATE",
 						desc: "applicaiton의 CPU 사용률이 임계치를 초과한 경우 알람이 전송된다."
+					},{
+						name: "DATASOURCE CONNECTION USAGE RATE",
+						desc: "applicaiton의 DataSource내의 Connection 사용률이 임계치를 초과한 경우 알람이 전송된다."
 					}]
 				}]
 			}

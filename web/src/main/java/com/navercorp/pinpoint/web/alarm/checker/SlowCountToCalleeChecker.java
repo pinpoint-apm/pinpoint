@@ -23,14 +23,14 @@ import com.navercorp.pinpoint.web.alarm.vo.Rule;
 /**
  * @author minwoo.jung
  */
-public class SlowCountToCalleeChecker extends AlarmChecker {
+public class SlowCountToCalleeChecker extends LongValueAlarmChecker {
     
     public SlowCountToCalleeChecker(MapStatisticsCallerDataCollector dataCollector, Rule rule) {
         super(rule, "", dataCollector);
     }
     
     @Override
-    protected long getDetectedValue() {
+    protected Long getDetectedValue() {
         String calleName = rule.getNotes();
         return ((MapStatisticsCallerDataCollector)dataCollector).getCount(calleName, DataCategory.SLOW_COUNT);
     }

@@ -17,20 +17,21 @@
 package com.navercorp.pinpoint.web.alarm;
 
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
-import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-
 import com.navercorp.pinpoint.web.alarm.collector.AgentStatDataCollector;
 import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
+import com.navercorp.pinpoint.web.alarm.collector.DataSourceDataCollector;
 import com.navercorp.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
 import com.navercorp.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.navercorp.pinpoint.web.dao.hbase.HbaseApplicationIndexDao;
 import com.navercorp.pinpoint.web.dao.hbase.HbaseMapResponseTimeDao;
 import com.navercorp.pinpoint.web.dao.hbase.HbaseMapStatisticsCallerDao;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.vo.Application;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 /**
  * @author minwoo.jung
@@ -54,6 +55,10 @@ public class DataCollectorFactory {
     private AgentStatDao<CpuLoadBo> cpuLoadDao;
 
     @Autowired
+    @Qualifier("dataSourceDaoFactory")
+    private AgentStatDao<DataSourceListBo> dataSourceDao;
+
+    @Autowired
     private HbaseApplicationIndexDao hbaseApplicationIndexDao;
 
     @Autowired
@@ -61,12 +66,14 @@ public class DataCollectorFactory {
 
     public DataCollector createDataCollector(CheckerCategory checker, Application application, long timeSlotEndTime) {
         switch (checker.getDataCollectorCategory()) {
-        case RESPONSE_TIME:
-            return new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, hbaseMapResponseTimeDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
-        case AGENT_STAT:
-            return new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, jvmGcDao, cpuLoadDao, hbaseApplicationIndexDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
-        case CALLER_STAT:
-            return new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, mapStatisticsCallerDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case RESPONSE_TIME:
+                return new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, hbaseMapResponseTimeDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case AGENT_STAT:
+                return new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, jvmGcDao, cpuLoadDao, hbaseApplicationIndexDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case CALLER_STAT:
+                return new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, mapStatisticsCallerDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case DATA_SOURCE_STAT:
+                return new DataSourceDataCollector(DataCollectorCategory.DATA_SOURCE_STAT, application, dataSourceDao, hbaseApplicationIndexDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
         }
 
         throw new IllegalArgumentException("unable to create DataCollector : " + checker.getName());
@@ -76,6 +83,7 @@ public class DataCollectorFactory {
     public enum DataCollectorCategory {
         RESPONSE_TIME,
         AGENT_STAT,
+        DATA_SOURCE_STAT,
         CALLER_STAT
     }
 }

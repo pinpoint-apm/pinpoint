@@ -23,14 +23,15 @@ import com.navercorp.pinpoint.web.alarm.vo.Rule;
  * @author minwoo.jung
  * @author koo.taejin
  */
-public class SlowRateChecker extends AlarmChecker {
+public class SlowRateChecker extends LongValueAlarmChecker {
 
     public SlowRateChecker(ResponseTimeDataCollector dataCollector, Rule rule) {
         super(rule, "%", dataCollector);
     }
 
     @Override
-    protected long getDetectedValue() {
+    protected Long getDetectedValue() {
         return ((ResponseTimeDataCollector)dataCollector).getSlowRate();
     }
+
 }
