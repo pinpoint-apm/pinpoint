@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.recorder;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
@@ -49,6 +50,14 @@ public class DefaultRecorderFactory implements RecorderFactory {
     @Override
     public WrappedSpanEventRecorder newWrappedSpanEventRecorder() {
         final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
-        return new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService);
+        return new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService, null);
+    }
+
+    @Override
+    public WrappedSpanEventRecorder newWrappedSpanEventRecorder(AsyncState asyncState) {
+        Assert.requireNonNull(asyncState, "asyncState must not be null");
+
+        final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
+        return new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService, asyncState);
     }
 }

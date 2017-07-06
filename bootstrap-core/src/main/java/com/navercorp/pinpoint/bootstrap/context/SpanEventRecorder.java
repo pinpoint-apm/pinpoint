@@ -49,6 +49,8 @@ public interface SpanEventRecorder extends FrameAttachment {
 
     AsyncContext newAsyncContext();
 
+    AsyncContext newAsyncContext(boolean stateful);
+
     @Deprecated
     void recordNextAsyncId(int asyncId);
     

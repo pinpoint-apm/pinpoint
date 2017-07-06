@@ -16,14 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.context.provider.AsyncContextFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.recorder.DefaultRecorderFactory;
-import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
+import com.navercorp.pinpoint.profiler.context.recorder.DefaultSpanRecorder;
+import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
@@ -51,8 +51,6 @@ public class DefaultTraceTest {
     @Mock
     private SqlMetaDataService sqlMetaDataService;
     @Mock
-    private AsyncContextFactoryProvider asyncContextFactoryProvider;
-    @Mock
     private AsyncContextFactory asyncContextFactory;
 
     @BeforeClass
@@ -71,19 +69,20 @@ public class DefaultTraceTest {
 
         TraceId traceId = new DefaultTraceId(agentId, System.currentTimeMillis(), 0);
         when(traceRoot.getTraceId()).thenReturn(traceId);
-        when(asyncContextFactoryProvider.get()).thenReturn(asyncContextFactory);
 
         CallStackFactory callStackFactory = new CallStackFactoryV1(64);
         CallStack callStack = callStackFactory.newCallStack(traceRoot);
 
         SpanFactory spanFactory = new DefaultSpanFactory("appName", agentId, 0, ServiceType.STAND_ALONE);
-        RecorderFactory recorderFactory = new DefaultRecorderFactory(asyncContextFactoryProvider, stringMetaDataService, sqlMetaDataService);
 
         SpanStorage storage = new SpanStorage(traceRoot, LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER);
 
         final Span span = spanFactory.newSpan(traceRoot);
+        final boolean root = span.getTraceRoot().getTraceId().isRoot();
+        final SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, stringMetaDataService, sqlMetaDataService);
+        final WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService, null);
 
-        Trace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, true, recorderFactory);
+        Trace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, true, spanRecorder, wrappedSpanEventRecorder);
         trace.traceBlockBegin();
         trace.traceBlockBegin();
         trace.traceBlockEnd();

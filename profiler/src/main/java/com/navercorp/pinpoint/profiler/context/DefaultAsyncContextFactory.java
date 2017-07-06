@@ -62,6 +62,18 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
     }
 
     @Override
+    public AsyncContext newAsyncContext(TraceRoot traceRoot, AsyncState asyncState) {
+        Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+        Assert.requireNonNull(asyncState, "asyncState must not be null");
+
+        final TraceFactory traceFactory = traceFactoryProvider.get();
+        final int asyncId = asyncIdGenerator.nextAsyncId();
+        return new StatefulAsyncContext(traceFactory, traceRoot, asyncId, asyncMethodApiId, asyncState);
+    }
+
+
+    @Deprecated
+    @Override
     public AsyncTraceId newAsyncTraceId(TraceRoot traceRoot) {
         Assert.requireNonNull(traceRoot, "traceRoot must not be null");
 
@@ -69,6 +81,7 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
         return new DefaultAsyncTraceId(traceRoot, asyncId);
     }
 
+    @Deprecated
     @Override
     public AsyncTraceId newAsyncTraceId(TraceRoot traceRoot, AsyncState asyncState) {
         Assert.requireNonNull(traceRoot, "traceRoot must not be null");

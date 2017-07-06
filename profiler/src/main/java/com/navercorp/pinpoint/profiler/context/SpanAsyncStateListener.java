@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 @InterfaceAudience.LimitedPrivate("vert.x")
 public class SpanAsyncStateListener implements ListenableAsyncState.AsyncStateListener {
 
-    private final AtomicIntegerFieldUpdater<SpanAsyncStateListener> CLOSED_UPDATER
+    private static final AtomicIntegerFieldUpdater<SpanAsyncStateListener> CLOSED_UPDATER
             = AtomicIntegerFieldUpdater.newUpdater(SpanAsyncStateListener.class, "closed");
     private static final int OPEN = 0;
     private static final int CLOSED = 1;

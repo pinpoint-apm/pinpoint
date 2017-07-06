@@ -16,22 +16,25 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.context.provider.AsyncContextFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.recorder.DefaultRecorderFactory;
-import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
+import com.navercorp.pinpoint.profiler.context.recorder.DefaultSpanRecorder;
+import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,12 +43,22 @@ import static org.mockito.Mockito.*;
 /**
  * @author emeroad
  */
+@RunWith(MockitoJUnitRunner.class)
 public class TraceTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final String agentId = "agent";
     private final long agentStartTime = System.currentTimeMillis();
     private final long traceStartTime = agentStartTime + 100;
+
+    @Mock
+    private AsyncContextFactory asyncContextFactory = mock(AsyncContextFactory.class);
+    @Mock
+    private StringMetaDataService stringMetaDataService;
+    @Mock
+    private SqlMetaDataService sqlMetaDataService;
+
+
 
     @Test
     public void trace() {
@@ -55,14 +68,16 @@ public class TraceTest {
 
         final CallStack callStack = newCallStack(traceRoot);
         final Span span = newSpan(traceRoot);
-        RecorderFactory recorderFactory = newRecorderFactory();
 
+        boolean root = span.getTraceRoot().getTraceId().isRoot();
+        SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, stringMetaDataService, sqlMetaDataService);
+        WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService, null);
 
         AsyncContextFactory asyncContextFactory = mock(AsyncContextFactory.class);
 
         SpanStorage storage = mock(SpanStorage.class);
 
-        Trace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, true, recorderFactory);
+        Trace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, true, spanRecorder, wrappedSpanEventRecorder);
         trace.traceBlockBegin();
 
         // get data form db
@@ -87,13 +102,16 @@ public class TraceTest {
 
         final Span span = newSpan(traceRoot);
 
-        RecorderFactory recorderFactory = newRecorderFactory();
+        final boolean root = span.getTraceRoot().getTraceId().isRoot();
+        SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, stringMetaDataService, sqlMetaDataService);
+        WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(asyncContextFactory, stringMetaDataService, sqlMetaDataService, null);
+
 
         AsyncContextFactory asyncContextFactory = mock(AsyncContextFactory.class);
 
         SpanStorage storage = mock(SpanStorage.class);
 
-        Trace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, true, recorderFactory);
+        Trace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, true, spanRecorder, wrappedSpanEventRecorder);
 
         trace.close();
 
@@ -109,15 +127,6 @@ public class TraceTest {
         trace.traceBlockEnd();
     }
 
-    private RecorderFactory newRecorderFactory() {
-        AsyncContextFactoryProvider asyncContextFactoryProvider = mock(AsyncContextFactoryProvider.class);
-        AsyncContextFactory asyncContextFactory = mock(AsyncContextFactory.class);
-        when(asyncContextFactoryProvider.get()).thenReturn(asyncContextFactory);
-
-        StringMetaDataService stringMetaDataService = mock(StringMetaDataService.class);
-        SqlMetaDataService sqlMetaDataService = mock(SqlMetaDataService.class);
-        return new DefaultRecorderFactory(asyncContextFactoryProvider, stringMetaDataService, sqlMetaDataService);
-    }
 
     private CallStack newCallStack(TraceRoot traceRoot) {
         final CallStackFactory callStackFactory = new CallStackFactoryV1(64);
