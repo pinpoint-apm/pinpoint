@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -57,11 +57,11 @@ public class ContextImplRunOnContextInterceptor implements AroundInterceptor {
 
         if (validate(args)) {
             // make asynchronous trace-id
-            final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-            recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
-            ((AsyncTraceIdAccessor) args[0])._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+            final AsyncContext asyncContext = recorder.newAsyncContext();
+
+            ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
             if (isDebug) {
-                logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
+                logger.debug("Set asyncContext {}", asyncContext);
             }
         }
     }
@@ -74,9 +74,9 @@ public class ContextImplRunOnContextInterceptor implements AroundInterceptor {
             return false;
         }
 
-        if (!(args[0] instanceof AsyncTraceIdAccessor)) {
+        if (!(args[0] instanceof AsyncContextAccessor)) {
             if (isDebug) {
-                logger.debug("Invalid args[0] object. Need metadata accessor({}).", AsyncTraceIdAccessor.class.getName());
+                logger.debug("Invalid args[0] object. Need metadata accessor({}).", AsyncContextAccessor.class.getName());
             }
             return false;
         }

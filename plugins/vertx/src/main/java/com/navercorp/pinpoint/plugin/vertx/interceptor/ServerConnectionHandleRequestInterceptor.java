@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
@@ -110,12 +110,11 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             recorder.recordServiceType(VertxConstants.VERTX_HTTP_SERVER_INTERNAL);
 
             // make asynchronous trace-id
-            final AsyncTraceId asyncTraceId = trace.getAsyncTraceId(true);
-            recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
-            ((AsyncTraceIdAccessor) request)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
-            ((AsyncTraceIdAccessor) response)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+            final AsyncContext asyncContext = recorder.newAsyncContext(true);
+            ((AsyncContextAccessor) request)._$PINPOINT$_setAsyncContext(asyncContext);
+            ((AsyncContextAccessor) response)._$PINPOINT$_setAsyncContext(asyncContext);
             if (isDebug) {
-                logger.debug("Set closeable-asyncTraceId metadata {}", asyncTraceId);
+                logger.debug("Set closeable-AsyncContext {}", asyncContext);
             }
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
@@ -139,9 +138,9 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             return false;
         }
 
-        if (!(args[0] instanceof AsyncTraceIdAccessor)) {
+        if (!(args[0] instanceof AsyncContextAccessor)) {
             if (isDebug) {
-                logger.debug("Invalid args[0] object. Need metadata accessor({}).", AsyncTraceIdAccessor.class.getName());
+                logger.debug("Invalid args[0] object. Need metadata accessor({}).", AsyncContextAccessor.class.getName());
             }
             return false;
         }
@@ -154,9 +153,9 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             return false;
         }
 
-        if (!(args[1] instanceof AsyncTraceIdAccessor)) {
+        if (!(args[1] instanceof AsyncContextAccessor)) {
             if (isDebug) {
-                logger.debug("Invalid args[1] object. Need metadata accessor({}).", AsyncTraceIdAccessor.class.getName());
+                logger.debug("Invalid args[1] object. Need metadata accessor({}).", AsyncContextAccessor.class.getName());
             }
             return false;
         }

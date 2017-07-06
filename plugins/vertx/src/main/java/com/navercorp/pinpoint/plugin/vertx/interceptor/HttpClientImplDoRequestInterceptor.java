@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -89,11 +89,11 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
 
             if (request != null) {
                 // make asynchronous trace-id
-                final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-                recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
-                ((AsyncTraceIdAccessor) request)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+                final AsyncContext asyncContext = recorder.newAsyncContext();
+
+                ((AsyncContextAccessor) request)._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {
-                    logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
+                    logger.debug("Set asyncContext {}", asyncContext);
                 }
             }
         } finally {
@@ -109,9 +109,9 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
             return false;
         }
 
-        if (!(result instanceof AsyncTraceIdAccessor)) {
+        if (!(result instanceof AsyncContextAccessor)) {
             if (isDebug) {
-                logger.debug("Invalid result object. Need metadata accessor({}).", AsyncTraceIdAccessor.class.getName());
+                logger.debug("Invalid result object. Need metadata accessor({}).", AsyncContextAccessor.class.getName());
             }
             return false;
         }

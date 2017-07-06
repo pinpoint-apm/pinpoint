@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -57,25 +57,24 @@ public class ContextImplExecuteBlockingInterceptor implements AroundInterceptor 
             return;
         }
 
-        final AsyncTraceIdAccessorHandlers handlers = getAsyncTraceIdAccessorHandlers(args);
+        final AsyncContextAccessorHandlers handlers = getAsyncContextAccessorHandlers(args);
         if (handlers.blockingCodeHandler != null || handlers.resultHandler != null) {
             // make asynchronous trace-id
-            final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-            recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
+            final AsyncContext asyncContext = recorder.newAsyncContext();
 
             if (handlers.blockingCodeHandler != null) {
                 // blockingCodeHandler
-                handlers.blockingCodeHandler._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+                handlers.blockingCodeHandler._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {
-                    logger.debug("Set asyncTraceId metadata for ContextImpl.executeBlocking blockingCodeHandler. asyncTraceId={}", asyncTraceId);
+                    logger.debug("Set asyncTraceId metadata for ContextImpl.executeBlocking blockingCodeHandler. asyncContext={}", asyncContext);
                 }
             }
 
             if (handlers.resultHandler != null) {
                 // resultHandler.
-                handlers.resultHandler._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+                handlers.resultHandler._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {
-                    logger.debug("Set asyncTraceId metadata for ContextImpl.executeBlocking resultHandler. asyncTraceId={}", asyncTraceId);
+                    logger.debug("Set asyncTraceId metadata for ContextImpl.executeBlocking resultHandler. asyncContext={}", asyncContext);
                 }
             }
         }
@@ -91,23 +90,23 @@ public class ContextImplExecuteBlockingInterceptor implements AroundInterceptor 
         return true;
     }
 
-    private AsyncTraceIdAccessorHandlers getAsyncTraceIdAccessorHandlers(final Object[] args) {
-        final AsyncTraceIdAccessorHandlers handlers = new AsyncTraceIdAccessorHandlers();
+    private AsyncContextAccessorHandlers getAsyncContextAccessorHandlers(final Object[] args) {
+        final AsyncContextAccessorHandlers handlers = new AsyncContextAccessorHandlers();
         if (args.length == 2) {
             // Action<T> action, Handler<AsyncResult<T>> resultHandler
-            if (args[1] instanceof AsyncTraceIdAccessor) {
-                handlers.resultHandler = (AsyncTraceIdAccessor) args[1];
+            if (args[1] instanceof AsyncContextAccessor) {
+                handlers.resultHandler = (AsyncContextAccessor) args[1];
                 return handlers;
             }
         } else if (args.length == 3) {
             // Handler<Future<T>> blockingCodeHandler, boolean ordered, Handler<AsyncResult<T>> resultHandler
             // Handler<Future<T>> blockingCodeHandler, TaskQueue queue, Handler<AsyncResult<T>> resultHandler
-            if (args[0] instanceof AsyncTraceIdAccessor) {
-                handlers.blockingCodeHandler = (AsyncTraceIdAccessor) args[0];
+            if (args[0] instanceof AsyncContextAccessor) {
+                handlers.blockingCodeHandler = (AsyncContextAccessor) args[0];
             }
 
-            if (args[2] instanceof AsyncTraceIdAccessor) {
-                handlers.resultHandler = (AsyncTraceIdAccessor) args[2];
+            if (args[2] instanceof AsyncContextAccessor) {
+                handlers.resultHandler = (AsyncContextAccessor) args[2];
             }
         }
 
@@ -136,8 +135,8 @@ public class ContextImplExecuteBlockingInterceptor implements AroundInterceptor 
         }
     }
 
-    private class AsyncTraceIdAccessorHandlers {
-        private AsyncTraceIdAccessor blockingCodeHandler;
-        private AsyncTraceIdAccessor resultHandler;
+    private class AsyncContextAccessorHandlers {
+        private AsyncContextAccessor blockingCodeHandler;
+        private AsyncContextAccessor resultHandler;
     }
 }
