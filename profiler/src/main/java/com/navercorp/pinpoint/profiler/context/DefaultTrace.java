@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
 import org.slf4j.Logger;
@@ -41,14 +40,13 @@ public final class DefaultTrace implements Trace {
 
     private final boolean sampling;
 
-    private final TraceRoot traceRoot;
     private final CallStack callStack;
 
     private final Storage storage;
 
     private final Span span;
     private final SpanRecorder spanRecorder;
-    private final WrappedSpanEventRecorder spanEventRecorder;
+    private final WrappedSpanEventRecorder wrappedSpanEventRecorder;
 
     private final AsyncContextFactory asyncContextFactory;
 
@@ -58,7 +56,8 @@ public final class DefaultTrace implements Trace {
     private final DefaultTraceScopePool scopePool = new DefaultTraceScopePool();
 
 
-    public DefaultTrace(Span span, CallStack callStack, Storage storage, AsyncContextFactory asyncContextFactory, boolean sampling, RecorderFactory recorderFactory) {
+    public DefaultTrace(Span span, CallStack callStack, Storage storage, AsyncContextFactory asyncContextFactory, boolean sampling,
+                        SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder) {
 
         this.span = Assert.requireNonNull(span, "span must not be null");
         this.callStack = Assert.requireNonNull(callStack, "callStack must not be null");
@@ -66,20 +65,19 @@ public final class DefaultTrace implements Trace {
         this.sampling = Assert.requireNonNull(sampling, "sampling must not be null");
         this.asyncContextFactory = Assert.requireNonNull(asyncContextFactory, "asyncContextFactory must not be null");
 
-        this.traceRoot = span.getTraceRoot();
-        final TraceId traceId = traceRoot.getTraceId();
-
-        Assert.requireNonNull(recorderFactory, "recorderFactory must not be null");
-        this.spanRecorder = recorderFactory.newSpanRecorder(span, traceId.isRoot(), sampling);
-        this.spanEventRecorder = recorderFactory.newWrappedSpanEventRecorder();
+        this.spanRecorder = Assert.requireNonNull(spanRecorder, "spanRecorder must not be null");
+        this.wrappedSpanEventRecorder = Assert.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder must not be null");
 
         setCurrentThread();
     }
 
-    private SpanEventRecorder wrappedSpanEventRecorder(SpanEvent spanEvent) {
-        final WrappedSpanEventRecorder spanEventRecorder = this.spanEventRecorder;
-        spanEventRecorder.setWrapped(spanEvent);
-        return spanEventRecorder;
+    private TraceRoot getTraceRoot0() {
+        return this.span.getTraceRoot();
+    }
+
+    private SpanEventRecorder wrappedSpanEventRecorder(WrappedSpanEventRecorder wrappedSpanEventRecorder, SpanEvent spanEvent) {
+        wrappedSpanEventRecorder.setWrapped(spanEvent);
+        return wrappedSpanEventRecorder;
     }
 
     @Override
@@ -90,7 +88,7 @@ public final class DefaultTrace implements Trace {
     @Override
     public SpanEventRecorder traceBlockBegin(final int stackId) {
         // Set properties for the case when stackFrame is not used as part of Span.
-        final SpanEvent spanEvent = new SpanEvent(traceRoot);
+        final SpanEvent spanEvent = new SpanEvent(getTraceRoot0());
         spanEvent.markStartTime();
         spanEvent.setStackId(stackId);
 
@@ -103,7 +101,7 @@ public final class DefaultTrace implements Trace {
             callStack.push(spanEvent);
         }
 
-        return wrappedSpanEventRecorder(spanEvent);
+        return wrappedSpanEventRecorder(this.wrappedSpanEventRecorder, spanEvent);
     }
 
     @Override
@@ -181,12 +179,12 @@ public final class DefaultTrace implements Trace {
      */
     @Override
     public TraceId getTraceId() {
-        return this.traceRoot.getTraceId();
+        return getTraceRoot0().getTraceId();
     }
 
     @Override
     public long getId() {
-        return this.traceRoot.getLocalTransactionId();
+        return getTraceRoot0().getLocalTransactionId();
     }
 
     @Override
@@ -242,7 +240,7 @@ public final class DefaultTrace implements Trace {
     @Override
     public AsyncTraceId getAsyncTraceId(boolean closeable) {
         // ignored closeable.
-        return asyncContextFactory.newAsyncTraceId(traceRoot);
+        return asyncContextFactory.newAsyncTraceId(getTraceRoot0());
     }
 
     @Override
@@ -259,10 +257,10 @@ public final class DefaultTrace implements Trace {
                 logger.warn("[DefaultTrace] Corrupted call stack found.", exception);
             }
             // make dummy.
-            spanEvent = new SpanEvent(traceRoot);
+            spanEvent = new SpanEvent(getTraceRoot0());
         }
 
-        return wrappedSpanEventRecorder(spanEvent);
+        return wrappedSpanEventRecorder(this.wrappedSpanEventRecorder, spanEvent);
     }
 
     @Override
@@ -289,7 +287,7 @@ public final class DefaultTrace implements Trace {
     public String toString() {
         return "DefaultTrace{" +
                 "sampling=" + sampling +
-                ", traceRoot=" + traceRoot +
+                ", traceRoot=" + getTraceRoot0() +
                 '}';
     }
 }

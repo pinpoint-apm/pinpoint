@@ -27,7 +27,12 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 public interface AsyncContextFactory {
     AsyncContext newAsyncContext(TraceRoot traceRoot);
 
+    AsyncContext newAsyncContext(TraceRoot traceRoot, AsyncState asyncState);
+
+
+    @Deprecated
     AsyncTraceId newAsyncTraceId(TraceRoot traceRoot);
 
+    @Deprecated
     AsyncTraceId newAsyncTraceId(TraceRoot traceRoot, AsyncState asyncState);
 }

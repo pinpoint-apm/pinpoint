@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.profiler.context.recorder;
 
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
@@ -45,12 +46,16 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final AsyncContextFactory asyncContextFactory;
+    private final AsyncState asyncState;
 
     private SpanEvent spanEvent;
 
-    public WrappedSpanEventRecorder(AsyncContextFactory asyncContextFactory, final StringMetaDataService stringMetaDataService, final SqlMetaDataService sqlMetaCacheService) {
+    public WrappedSpanEventRecorder(AsyncContextFactory asyncContextFactory, final StringMetaDataService stringMetaDataService, final SqlMetaDataService sqlMetaCacheService, AsyncState asyncState) {
         super(stringMetaDataService, sqlMetaCacheService);
         this.asyncContextFactory = Assert.requireNonNull(asyncContextFactory, "asyncContextFactory must not be null");
+
+        // @Nullable
+        this.asyncState = asyncState;
     }
 
     public void setWrapped(final SpanEvent spanEvent) {
@@ -129,6 +134,20 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
         // TODO ASyncId check
         spanEvent.setNextAsyncId(asyncContext.getAsyncId());
         return asyncContext;
+    }
+
+    @Override
+    public AsyncContext newAsyncContext(boolean asyncStateSupport) {
+        final SpanEvent spanEvent = this.spanEvent;
+        final TraceRoot traceRoot = spanEvent.getTraceRoot();
+
+        final AsyncState asyncState = this.asyncState;
+        if (asyncStateSupport && asyncState != null) {
+            asyncState.setup();
+            return asyncContextFactory.newAsyncContext(traceRoot, asyncState);
+        }
+
+        return asyncContextFactory.newAsyncContext(traceRoot);
     }
 
     @Deprecated
