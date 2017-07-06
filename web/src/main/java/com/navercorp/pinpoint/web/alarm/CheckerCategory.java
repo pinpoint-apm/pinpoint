@@ -16,11 +16,9 @@
 
 package com.navercorp.pinpoint.web.alarm;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
+import com.navercorp.pinpoint.web.alarm.checker.DataSourceConnectionUsageRateChecker;
 import com.navercorp.pinpoint.web.alarm.checker.ErrorCountChecker;
 import com.navercorp.pinpoint.web.alarm.checker.ErrorCountToCalleeChecker;
 import com.navercorp.pinpoint.web.alarm.checker.ErrorRateChecker;
@@ -35,9 +33,13 @@ import com.navercorp.pinpoint.web.alarm.checker.SlowRateToCalleeChecker;
 import com.navercorp.pinpoint.web.alarm.checker.TotalCountToCalleeChecker;
 import com.navercorp.pinpoint.web.alarm.collector.AgentStatDataCollector;
 import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
+import com.navercorp.pinpoint.web.alarm.collector.DataSourceDataCollector;
 import com.navercorp.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
 import com.navercorp.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author minwoo.jung
@@ -132,6 +134,13 @@ public enum CheckerCategory {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
             return new JvmCpuUsageRateChecker((AgentStatDataCollector)dataCollector, rule);
+        }
+    },
+
+    DATASOURCE_CONNECTION_USAGE_RATE("DATASOURCE CONNECTION USAGE RATE", DataCollectorCategory.DATA_SOURCE_STAT) {
+        @Override
+        public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
+            return new DataSourceConnectionUsageRateChecker((DataSourceDataCollector) dataCollector, rule);
         }
     };
     

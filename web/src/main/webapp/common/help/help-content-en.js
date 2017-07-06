@@ -54,6 +54,9 @@
 					},{
 						name: "JVM CPU USAGE RATE",
 						desc: "Sends an alarm when the application's CPU usage(%) exceeds the configured threshold."
+					},{
+						name: "DATASOURCE CONNECTION USAGE RATE",
+						desc: "Sends an alarm when the application's DataSource connection usage(%) exceeds the configured threshold."
 					}]
 				}]
 			}

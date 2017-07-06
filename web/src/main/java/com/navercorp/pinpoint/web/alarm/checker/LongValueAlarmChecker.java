@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,16 @@
 
 package com.navercorp.pinpoint.web.alarm.checker;
 
-import com.navercorp.pinpoint.web.alarm.collector.AgentStatDataCollector;
+import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
-import java.util.Map;
-
 /**
- * @author minwoo.jung
+ * @author Taejin Koo
  */
-public class HeapUsageRateChecker extends AgentChecker<Long> {
-    
-    public HeapUsageRateChecker(AgentStatDataCollector dataCollector, Rule rule) {
-        super(rule, "%", dataCollector);
-    }
+public abstract class LongValueAlarmChecker extends AlarmChecker<Long> {
 
-    @Override
-    protected Map<String, Long> getAgentValues() {
-        return ((AgentStatDataCollector)dataCollector).getHeapUsageRate();
+    protected LongValueAlarmChecker(Rule rule, String unit, DataCollector dataCollector) {
+        super(rule, unit, dataCollector);
     }
 
     @Override
