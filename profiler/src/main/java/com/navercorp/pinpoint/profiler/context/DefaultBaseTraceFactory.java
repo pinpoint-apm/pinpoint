@@ -85,7 +85,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         final boolean samplingEnable = true;
         final SpanRecorder spanRecorder = recorderFactory.newSpanRecorder(span, traceId.isRoot(), samplingEnable);
         final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder();
-        final Trace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, samplingEnable, spanRecorder, wrappedSpanEventRecorder);
+        final DefaultTrace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, samplingEnable, spanRecorder, wrappedSpanEventRecorder);
         return trace;
     }
 
@@ -110,7 +110,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
             final TraceId traceId = traceRoot.getTraceId();
             final SpanRecorder spanRecorder = recorderFactory.newSpanRecorder(span, traceId.isRoot(), sampling);
             final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder();
-            final Trace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, sampling, spanRecorder, wrappedSpanEventRecorder);
+            final DefaultTrace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, sampling, spanRecorder, wrappedSpanEventRecorder);
 
             return trace;
         } else {
@@ -158,7 +158,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         final boolean sampling = true;
         final SpanRecorder spanRecorder = recorderFactory.newSpanRecorder(span, traceId.isRoot(), sampling);
         final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder(asyncState);
-        final Trace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, sampling, spanRecorder, wrappedSpanEventRecorder);
+        final DefaultTrace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, sampling, spanRecorder, wrappedSpanEventRecorder);
 
         final AsyncTrace asyncTrace = new AsyncTrace(asyncContextFactory, traceRoot, trace, asyncState);
 
@@ -187,7 +187,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
             final SpanRecorder spanRecorder = recorderFactory.newSpanRecorder(span, traceId.isRoot(), sampling);
             final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder(asyncState);
 
-            final Trace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, sampling, spanRecorder, wrappedSpanEventRecorder);
+            final DefaultTrace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, sampling, spanRecorder, wrappedSpanEventRecorder);
 
             final AsyncTrace asyncTrace = new AsyncTrace(asyncContextFactory, traceRoot, trace, asyncState);
 
