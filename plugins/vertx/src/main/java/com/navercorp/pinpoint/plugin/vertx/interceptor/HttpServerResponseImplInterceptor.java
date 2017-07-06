@@ -16,19 +16,18 @@
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 
 /**
  * @author jaehong.kim
  */
-public class HttpServerResponseImplInterceptor extends SpanAsyncEventEndPointInterceptor {
+public class HttpServerResponseImplInterceptor extends AsyncContextSpanEventEndPointInterceptor {
     public HttpServerResponseImplInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext) {
         super(traceContext, methodDescriptor);
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncTraceId asyncTraceId, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
     }
 
     @Override
