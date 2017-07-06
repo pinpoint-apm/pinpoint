@@ -104,11 +104,6 @@ public class DisableTrace implements Trace {
 
     @Override
     public AsyncTraceId getAsyncTraceId() {
-        return getAsyncTraceId(false);
-    }
-
-    @Override
-    public AsyncTraceId getAsyncTraceId(boolean closeable) {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
@@ -116,9 +111,6 @@ public class DisableTrace implements Trace {
     public void close() {
     }
 
-    @Override
-    public void flush() {
-    }
 
     @Override
     public int getCallStackFrameId() {

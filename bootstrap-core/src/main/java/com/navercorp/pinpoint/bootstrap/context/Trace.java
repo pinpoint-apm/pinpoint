@@ -38,13 +38,8 @@ public interface Trace extends StackOperation {
 
     TraceId getTraceId();
 
+    @Deprecated
     AsyncTraceId getAsyncTraceId();
-
-    /**
-     * internal experimental api
-     */
-    @InterfaceAudience.LimitedPrivate("vert.x")
-    AsyncTraceId getAsyncTraceId(boolean closeable);
 
     boolean canSampled();
 
@@ -57,12 +52,6 @@ public interface Trace extends StackOperation {
     SpanEventRecorder currentSpanEventRecorder();
     
     void close();
-
-    /**
-     * internal experimental api
-     */
-    @InterfaceAudience.LimitedPrivate("vert.x")
-    void flush();
 
     TraceScope getScope(String name);
 

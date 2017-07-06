@@ -33,6 +33,4 @@ public interface AsyncContextFactory {
     @Deprecated
     AsyncTraceId newAsyncTraceId(TraceRoot traceRoot);
 
-    @Deprecated
-    AsyncTraceId newAsyncTraceId(TraceRoot traceRoot, AsyncState asyncState);
 }

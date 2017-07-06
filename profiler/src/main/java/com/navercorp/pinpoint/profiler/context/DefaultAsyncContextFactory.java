@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.DefaultAsyncTraceId;
-import com.navercorp.pinpoint.profiler.context.id.StatefulAsyncTraceId;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.method.PredefinedMethodDescriptorRegistry;
 
@@ -81,13 +80,5 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
         return new DefaultAsyncTraceId(traceRoot, asyncId);
     }
 
-    @Deprecated
-    @Override
-    public AsyncTraceId newAsyncTraceId(TraceRoot traceRoot, AsyncState asyncState) {
-        Assert.requireNonNull(traceRoot, "traceRoot must not be null");
-        Assert.requireNonNull(asyncState, "asyncState must not be null");
 
-        final int asyncId = asyncIdGenerator.nextAsyncId();
-        return new StatefulAsyncTraceId(traceRoot, asyncId, asyncState);
-    }
 }

@@ -167,8 +167,7 @@ public final class DefaultTrace implements Trace {
 
     }
 
-    @Override
-    public void flush() {
+    void flush() {
         this.storage.flush();
     }
 
@@ -234,12 +233,6 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public AsyncTraceId getAsyncTraceId() {
-        return getAsyncTraceId(false);
-    }
-
-    @Override
-    public AsyncTraceId getAsyncTraceId(boolean closeable) {
-        // ignored closeable.
         return asyncContextFactory.newAsyncTraceId(getTraceRoot0());
     }
 
