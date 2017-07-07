@@ -131,8 +131,8 @@ public abstract class AsyncContextSpanEventEndPointInterceptor implements Around
                     logger.debug("Arrived at async trace destination. asyncTraceId={}", asyncContext);
                 }
                 deleteAsyncTrace(trace);
-                finishAsyncState(asyncContext);
             }
+            finishAsyncState(asyncContext);
         }
     }
 
