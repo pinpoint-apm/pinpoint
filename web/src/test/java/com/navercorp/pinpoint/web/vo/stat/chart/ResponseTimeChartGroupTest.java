@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -70,7 +71,7 @@ public class ResponseTimeChartGroupTest {
     }
 
     private SampledResponseTime createSampledResponseTime(long timestamp, int maxConnectionSize) {
-        int listSize = ThreadLocalRandom.current().nextInt(RANDOM_LIST_MAX_SIZE) + 1;
+        int listSize = RandomUtils.nextInt(1, RANDOM_LIST_MAX_SIZE);
 
         List<ResponseTimeBo> responseTimeBoList = new ArrayList<>(listSize);
         for (int i = 0; i < listSize; i++) {

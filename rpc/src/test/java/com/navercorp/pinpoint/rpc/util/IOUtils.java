@@ -23,6 +23,7 @@ import org.junit.Assert;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Socket;
 
 /**
  * @author Taejin Koo
@@ -54,8 +55,26 @@ public final class IOUtils {
     }
 
     public static void write(OutputStream outputStream, byte[] payload) throws IOException {
-        outputStream.write(payload);
-        outputStream.flush();
+        if (outputStream != null) {
+            outputStream.write(payload);
+            outputStream.flush();
+        }
+    }
+
+    public static void close(Socket socket) throws IOException {
+        close(socket, false);
+    }
+
+    public static void close(Socket socket, boolean quietly) throws IOException {
+        if (socket != null) {
+            try {
+                socket.close();
+            } catch (final IOException ioe) {
+                if (!quietly) {
+                    throw ioe;
+                }
+            }
+        }
     }
 
 }

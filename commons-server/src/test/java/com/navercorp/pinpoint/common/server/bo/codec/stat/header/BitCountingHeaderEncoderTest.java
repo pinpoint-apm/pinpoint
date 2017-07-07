@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo.codec.stat.header;
 
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,12 +29,14 @@ import java.util.Random;
  */
 public class BitCountingHeaderEncoderTest {
 
+    private static final int MAX_NUM_TEST_VALUES = 20 + 1; // Random API's upper bound field is exclusive
+
     private static final Random RANDOM = new Random();
 
     @Test
     public void test_with_random_codes() {
         // Given
-        final int numCodes = RANDOM.nextInt(20) + 1;
+        final int numCodes = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
         final List<Integer> givenCodes = new ArrayList<Integer>(numCodes);
         for (int i = 0; i < numCodes; ++i) {
             givenCodes.add(RANDOM.nextInt(5));
@@ -57,7 +60,7 @@ public class BitCountingHeaderEncoderTest {
     @Test
     public void test_zeroes() {
         // Given
-        final int numCodes = RANDOM.nextInt(20) + 1;
+        final int numCodes = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
         // When
         BitCountingHeaderEncoder encoder = new BitCountingHeaderEncoder();
         for (int i = 0; i < numCodes; ++i) {
@@ -74,8 +77,8 @@ public class BitCountingHeaderEncoderTest {
     @Test
     public void test_zeroes_followed_by_random_codes() {
         // Given
-        final int numZeroes = RANDOM.nextInt(20) + 1;
-        final int numRandomCodes = RANDOM.nextInt(20) + 1;
+        final int numZeroes = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        final int numRandomCodes = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
         final int numTotalCodes = numZeroes + numRandomCodes;
         List<Integer> givenCodes = new ArrayList<Integer>(numTotalCodes);
         for (int i = 0; i < numZeroes; ++i) {
@@ -111,7 +114,7 @@ public class BitCountingHeaderEncoderTest {
     public void regression_against_jdk7() {
         final int numRuns = 10000;
         for (int numRun = 0; numRun < numRuns; ++numRun) {
-            final int numCodes = RANDOM.nextInt(20) + 1;
+            final int numCodes = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
             final List<Integer> givenCodes = new ArrayList<Integer>();
             for (int i = 0; i < numCodes; ++i) {
                 givenCodes.add(RANDOM.nextInt(5));

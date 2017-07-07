@@ -48,7 +48,7 @@ public abstract class EncodingStrategyTestBase {
             if (unsigned) {
                 values.add((short) RANDOM.nextInt(Short.MAX_VALUE));
             } else {
-                boolean positive = RANDOM.nextInt(2) % 2 == 0 ? true : false;
+                boolean positive = RANDOM.nextBoolean();
                 values.add((short) (RANDOM.nextInt(Short.MAX_VALUE) * (positive ? 1 : -1)));
             }
         }

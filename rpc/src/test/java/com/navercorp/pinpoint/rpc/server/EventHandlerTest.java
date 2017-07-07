@@ -74,10 +74,7 @@ public class EventHandlerTest {
 
             sendAndReceiveSimplePacket(socket);
         } finally {
-            if (socket != null) {
-                socket.close();
-            }
-
+            IOUtils.close(socket);
             PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
@@ -98,10 +95,7 @@ public class EventHandlerTest {
 
             Assert.assertTrue(eventHandler.getErrorCount() > 0);
         } finally {
-            if (socket != null) {
-                socket.close();
-            }
-
+            IOUtils.close(socket);
             PinpointRPCTestUtils.close(serverAcceptor);
         }
     }

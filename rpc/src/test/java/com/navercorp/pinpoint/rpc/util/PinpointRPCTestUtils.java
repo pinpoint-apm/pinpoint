@@ -36,8 +36,6 @@ import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -121,21 +119,6 @@ public final class PinpointRPCTestUtils {
             }
         }
     }
-    
-    public static void close(Socket socket, Socket... sockets) throws IOException {
-        if (socket != null) {
-            socket.close();
-        }
-        
-        if (sockets != null) {
-            for (Socket eachSocket : sockets) {
-                if (eachSocket != null) {
-                    eachSocket.close();
-                }
-            }
-        }
-    }
-
     
     public static EchoServerListener createEchoServerListener() {
         return new EchoServerListener();

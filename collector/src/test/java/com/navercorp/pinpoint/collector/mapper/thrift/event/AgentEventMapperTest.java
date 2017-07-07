@@ -22,11 +22,11 @@ import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TDeadlock;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -34,6 +34,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Taejin Koo
  */
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class AgentEventMapperTest {
 
     @Mock
@@ -41,11 +42,6 @@ public class AgentEventMapperTest {
 
     @InjectMocks
     private AgentEventMapper agentEventMapper;
-
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-    }
 
     @Test
     public void simpleTest1() {

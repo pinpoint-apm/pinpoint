@@ -78,7 +78,7 @@ public class ControlPacketServerTest {
 
             sendAndReceiveSimplePacket(socket);
         } finally {
-            PinpointRPCTestUtils.close(socket);
+            IOUtils.close(socket);
             PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
@@ -99,7 +99,7 @@ public class ControlPacketServerTest {
 
             sendAndReceiveSimplePacket(socket);
         } finally {
-            PinpointRPCTestUtils.close(socket);
+            IOUtils.close(socket);
             PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
@@ -120,7 +120,7 @@ public class ControlPacketServerTest {
 
             sendAndReceiveSimplePacket(socket);
         } finally {
-            PinpointRPCTestUtils.close(socket);
+            IOUtils.close(socket);
             PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
@@ -146,7 +146,7 @@ public class ControlPacketServerTest {
 
             sendAndReceiveSimplePacket(socket);
         } finally {
-            PinpointRPCTestUtils.close(socket);
+            IOUtils.close(socket);
             PinpointRPCTestUtils.close(serverAcceptor);
         }
     }

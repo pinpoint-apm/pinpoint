@@ -21,11 +21,11 @@ import com.navercorp.pinpoint.web.dao.stat.DeadlockDao;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +37,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Taejin Koo
  */
+@RunWith(MockitoJUnitRunner.class)
 public class AgentWarningStatServiceTest {
 
     private static final long CURRENT_TIME = System.currentTimeMillis();
@@ -48,11 +49,6 @@ public class AgentWarningStatServiceTest {
 
     @InjectMocks
     private AgentWarningStatService agentWarningStatService = new AgentWarningStatServiceImpl();
-
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-    }
 
     @Test
     public void selectTest1() throws Exception {
