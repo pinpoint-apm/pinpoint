@@ -16,14 +16,13 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import java.util.concurrent.TimeUnit;
-
+import com.navercorp.pinpoint.rpc.client.ConnectFuture.Result;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.rpc.client.ConnectFuture.Result;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Taejin Koo
@@ -31,7 +30,7 @@ import com.navercorp.pinpoint.rpc.client.ConnectFuture.Result;
 public class ConnectFutureTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Test
     public void setResultTest() {
         ConnectFuture future = new ConnectFuture();
@@ -48,51 +47,48 @@ public class ConnectFutureTest {
     @Test
     public void awaitTest1() throws InterruptedException {
         ConnectFuture future = new ConnectFuture();
-        long waitTime = 100;
-        
-        Thread thread = new Thread(new SetResultRunnable(future, waitTime));
+
+        Thread thread = new Thread(new SetResultRunnable(future));
         thread.start();
-        
+
         future.await();
-        
+
         Assert.assertEquals(Result.SUCCESS, future.getResult());
     }
-    
+
     @Test
     public void awaitTest2() throws InterruptedException {
         ConnectFuture future = new ConnectFuture();
-        long waitTime = 100;
-        
-        Thread thread = new Thread(new SetResultRunnable(future, waitTime));
+
+        Thread thread = new Thread(new SetResultRunnable(future));
         thread.start();
-        
+
         future.awaitUninterruptibly();
-        
+
         Assert.assertEquals(Result.SUCCESS, future.getResult());
     }
-    
+
     @Test
     public void awaitTest3() throws InterruptedException {
         ConnectFuture future = new ConnectFuture();
-        long waitTime = 100;
-        
-        Thread thread = new Thread(new SetResultRunnable(future, waitTime));
+
+        Thread thread = new Thread(new SetResultRunnable(future));
         thread.start();
-        
-        future.await(waitTime * 2, TimeUnit.MILLISECONDS);
-        
+
+        future.await(TimeUnit.SECONDS.toMillis(1), TimeUnit.MILLISECONDS);
+
         Assert.assertEquals(Result.SUCCESS, future.getResult());
     }
-    
+
     @Test
-    public void awaitTest4() throws InterruptedException {
+    public void notCompletedTest() throws InterruptedException {
         ConnectFuture future = new ConnectFuture();
         long waitTime = 100;
-        
+
         Thread thread = new Thread(new SetResultRunnable(future, waitTime));
         thread.start();
-        
-        boolean isReady = future.await(waitTime/2, TimeUnit.MILLISECONDS);
+
+        boolean isReady = future.await(waitTime / 2, TimeUnit.MILLISECONDS);
         Assert.assertFalse(isReady);
         Assert.assertEquals(null, future.getResult());
 
@@ -102,8 +98,13 @@ public class ConnectFutureTest {
     }
 
     class SetResultRunnable implements Runnable {
+
         private final ConnectFuture future;
         private final long waitTime;
+
+        public SetResultRunnable(ConnectFuture future) {
+            this(future, -1L);
+        }
 
         public SetResultRunnable(ConnectFuture future, long waitTime) {
             this.future = future;
@@ -112,12 +113,15 @@ public class ConnectFutureTest {
 
         @Override
         public void run() {
-            try {
-                Thread.sleep(waitTime);
-                future.setResult(Result.SUCCESS);
-            } catch (InterruptedException e) {
-                logger.warn(e.getMessage(), e);
+            if (waitTime > 0) {
+                try {
+                    Thread.sleep(waitTime);
+                } catch (InterruptedException e) {
+                    logger.warn(e.getMessage(), e);
+                }
             }
+
+            future.setResult(Result.SUCCESS);
         }
 
     }

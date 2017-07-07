@@ -26,16 +26,17 @@ import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
 import com.navercorp.pinpoint.web.vo.stat.chart.DataSourceChartGroup;
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -43,9 +44,9 @@ import static org.mockito.Mockito.when;
 /**
  * @author Taejin Koo
  */
+@RunWith(MockitoJUnitRunner.class)
 public class DataSourceChartGroupSerializerTest {
 
-    private static final Random RANDOM = new Random(System.currentTimeMillis());
     private static final int MIN_VALUE_OF_MAX_CONNECTION_SIZE = 20;
     private static final int CREATE_TEST_OBJECT_MAX_SIZE = 10;
 
@@ -58,7 +59,6 @@ public class DataSourceChartGroupSerializerTest {
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
         when(serviceTypeRegistryService.findServiceType(any(Short.class))).thenReturn(ServiceType.UNKNOWN);
     }
 
@@ -83,7 +83,7 @@ public class DataSourceChartGroupSerializerTest {
     private List<SampledDataSource> createSampledDataSourceList(TimeWindow timeWindow) {
         List<SampledDataSource> sampledDataSourceList = new ArrayList<>();
 
-        int maxConnectionSize = RANDOM.nextInt(MIN_VALUE_OF_MAX_CONNECTION_SIZE) + MIN_VALUE_OF_MAX_CONNECTION_SIZE;
+        int maxConnectionSize = RandomUtils.nextInt(MIN_VALUE_OF_MAX_CONNECTION_SIZE, MIN_VALUE_OF_MAX_CONNECTION_SIZE * 2);
 
         long from = timeWindow.getWindowRange().getFrom();
         long to = timeWindow.getWindowRange().getTo();
@@ -96,7 +96,7 @@ public class DataSourceChartGroupSerializerTest {
     }
 
     private SampledDataSource createSampledDataSource(long timestamp, int maxConnectionSize) {
-        int testObjectSize = RANDOM.nextInt(CREATE_TEST_OBJECT_MAX_SIZE) + 1;
+        int testObjectSize = RandomUtils.nextInt(1, CREATE_TEST_OBJECT_MAX_SIZE);
         List<DataSourceBo> dataSourceBoList = DataSourceTestUtils.createDataSourceBoList(1, testObjectSize, maxConnectionSize);
         return sampler.sampleDataPoints(0, timestamp, dataSourceBoList, null);
     }

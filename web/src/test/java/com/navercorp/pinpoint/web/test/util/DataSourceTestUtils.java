@@ -17,17 +17,15 @@
 package com.navercorp.pinpoint.web.test.util;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
+import org.apache.commons.lang3.RandomUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * @author Taejin Koo
  */
 public class DataSourceTestUtils {
-
-    private static final Random RANDOM = new Random(System.currentTimeMillis());
 
     public static List<DataSourceBo> createDataSourceBoList(int id, int dataSourceSize, int maxConnectionSize) {
         List<DataSourceBo> result = new ArrayList<>(dataSourceSize);
@@ -43,7 +41,7 @@ public class DataSourceTestUtils {
     private static DataSourceBo createDataSourceBo(int id, int maxConnectionSize) {
         DataSourceBo dataSourceBo = new DataSourceBo();
         dataSourceBo.setId(id);
-        dataSourceBo.setActiveConnectionSize(RANDOM.nextInt(maxConnectionSize));
+        dataSourceBo.setActiveConnectionSize(RandomUtils.nextInt(1, maxConnectionSize));
         dataSourceBo.setMaxConnectionSize(maxConnectionSize);
         return dataSourceBo;
     }
