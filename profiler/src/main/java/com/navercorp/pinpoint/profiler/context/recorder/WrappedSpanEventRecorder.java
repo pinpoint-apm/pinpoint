@@ -131,8 +131,7 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
         final SpanEvent spanEvent = this.spanEvent;
         final TraceRoot traceRoot = spanEvent.getTraceRoot();
         final AsyncContext asyncContext = asyncContextFactory.newAsyncContext(traceRoot);
-        // TODO ASyncId check
-        spanEvent.setNextAsyncId(asyncContext.getAsyncId());
+        setNextAsyncId(spanEvent, asyncContext.getAsyncId());
         return asyncContext;
     }
 
@@ -144,10 +143,19 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
         final AsyncState asyncState = this.asyncState;
         if (asyncStateSupport && asyncState != null) {
             asyncState.setup();
-            return asyncContextFactory.newAsyncContext(traceRoot, asyncState);
+            final AsyncContext asyncContext = asyncContextFactory.newAsyncContext(traceRoot, asyncState);
+            setNextAsyncId(spanEvent, asyncContext.getAsyncId());
+            return asyncContext;
         }
 
-        return asyncContextFactory.newAsyncContext(traceRoot);
+        final AsyncContext asyncContext = asyncContextFactory.newAsyncContext(traceRoot);
+        setNextAsyncId(spanEvent, asyncContext.getAsyncId());
+        return asyncContext;
+    }
+
+    private void setNextAsyncId(SpanEvent spanEvent, int asyncId) {
+        // TODO ASyncId check
+        spanEvent.setNextAsyncId(asyncId);
     }
 
     @Deprecated
