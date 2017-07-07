@@ -1,6 +1,6 @@
 ## Vertx HTTP Server/Client.
 
-Supported vertx.io 3.3.x, 3.4.1, 3.4.2
+Currently supports vertx.io 3.3.x, 3.4.1, 3.4.2
 
 ## Configuration
 
@@ -11,7 +11,7 @@ The default value is "io.vertx.core.Starter"
 profiler.vertx.bootstrap.main=io.vertx.core.Starter
 ~~~
 
-Set the base packages to specify the handler for asynchronous invocation.
+Set the base packages to specify the handler for asynchronous invocations.
 ~~~
 # Track Vertx.runOnContext() & Vertx.executeBlocking().
 # Sets the base packages that implements io.vertx.core.Handler.
