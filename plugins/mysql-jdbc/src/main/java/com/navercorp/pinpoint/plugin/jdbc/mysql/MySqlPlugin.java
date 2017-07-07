@@ -37,6 +37,7 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 /**
  * @author Jongho Moon
+ * @author HyunGil Jeong
  */
 public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
 
@@ -82,8 +83,22 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                InstrumentUtils.findConstructor(target, "java.lang.String", "int", "java.util.Properties", "java.lang.String", "java.lang.String")
-                        .addInterceptor("com.navercorp.pinpoint.plugin.jdbc.mysql.interceptor.MySQLConnectionCreateInterceptor");
+                InstrumentMethod constructor = target.getConstructor("java.lang.String", "int", "java.util.Properties", "java.lang.String", "java.lang.String");
+                if (constructor != null) {
+                    constructor.addInterceptor("com.navercorp.pinpoint.plugin.jdbc.mysql.interceptor.MySQLConnectionCreateInterceptor");
+                }
+                // 6.0.2 ~ 6.0.3
+                InstrumentMethod constructor_6_X = target.getConstructor("com.mysql.cj.core.ConnectionString", "java.lang.String", "int", "java.util.Properties");
+                if (constructor_6_X == null) {
+                    // 6.0.4+
+                    constructor_6_X = target.getConstructor("com.mysql.cj.core.conf.url.HostInfo");
+                }
+                if (constructor_6_X != null) {
+                    target.addGetter("com.navercorp.pinpoint.plugin.jdbc.mysql.interceptor.getter.OrigHostToConnectToGetter", "origHostToConnectTo");
+                    target.addGetter("com.navercorp.pinpoint.plugin.jdbc.mysql.interceptor.getter.OrigPortToConnectToGetter", "origPortToConnectTo");
+                    target.addGetter("com.navercorp.pinpoint.plugin.jdbc.mysql.interceptor.getter.DatabaseGetter", "database");
+                    constructor_6_X.addInterceptor("com.navercorp.pinpoint.plugin.jdbc.mysql.interceptor.MySQL_6_X_ConnectionCreateInterceptor");
+                }
 
                 // close
                 InstrumentUtils.findMethod(target, "close")
@@ -142,10 +157,12 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         transformTemplate.transform("com.mysql.jdbc.Connection", transformer);
         transformTemplate.transform("com.mysql.jdbc.ConnectionImpl", transformer);
+        // 6.x+
+        transformTemplate.transform("com.mysql.cj.jdbc.ConnectionImpl", transformer);
     }
 
     private void addDriverTransformer() {
-        transformTemplate.transform("com.mysql.jdbc.NonRegisteringDriver", new TransformCallback() {
+        TransformCallback transformCallback = new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -156,11 +173,14 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 return target.toBytecode();
             }
-        });
+        };
+        transformTemplate.transform("com.mysql.jdbc.NonRegisteringDriver", transformCallback);
+        // 6.x+
+        transformTemplate.transform("com.mysql.cj.jdbc.NonRegisteringDriver", transformCallback);
     }
 
     private void addPreparedStatementTransformer(final MySqlConfig config) {
-        transformTemplate.transform("com.mysql.jdbc.PreparedStatement", new TransformCallback() {
+        TransformCallback transformCallback = new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -190,11 +210,14 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 return target.toBytecode();
             }
-        });
+        };
+        transformTemplate.transform("com.mysql.jdbc.PreparedStatement", transformCallback);
+        // 6.x+
+        transformTemplate.transform("com.mysql.cj.jdbc.PreparedStatement", transformCallback);
     }
 
     private void addCallableStatementTransformer(final MySqlConfig config) {
-        transformTemplate.transform("com.mysql.jdbc.CallableStatement", new TransformCallback() {
+        TransformCallback transformCallback = new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -232,7 +255,10 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 return target.toBytecode();
             }
-        });
+        };
+        transformTemplate.transform("com.mysql.jdbc.CallableStatement", transformCallback);
+        // 6.x+
+        transformTemplate.transform("com.mysql.cj.jdbc.CallableStatement", transformCallback);
     }
 
     private void addJDBC4PreparedStatementTransformer(final MySqlConfig config) {
@@ -308,6 +334,8 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         transformTemplate.transform("com.mysql.jdbc.Statement", transformer);
         transformTemplate.transform("com.mysql.jdbc.StatementImpl", transformer);
+        // 6.x+
+        transformTemplate.transform("com.mysql.cj.jdbc.StatementImpl", transformer);
 
     }
 
