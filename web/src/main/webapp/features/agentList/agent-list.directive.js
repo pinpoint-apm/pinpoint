@@ -76,7 +76,7 @@
 						scope.currentAgent = agent;
 						scope.$emit( "up.changed.agent", cfg.ID, agent, bInvokedByTop );
 					}
-					scope.showStatistic = SystemConfigService.get("applicationStatView");
+					scope.showStatistic = SystemConfigService.get("showApplicationStat");
 					scope.getApplicationName = function() {
 						return UrlVoService.getApplicationName();
 					};

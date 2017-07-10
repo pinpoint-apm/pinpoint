@@ -52,6 +52,9 @@ public class ConfigProperties {
     @Value("#{pinpointWebProps['security.guide.url']}")
     private String securityGuideUrl;
 
+    @Value("#{pinpointWebProps['config.show.applicationStat'] ?: false}")
+    private boolean showApplicationStat;
+
     public String getSecurityGuideUrl() {
         return securityGuideUrl;
     }
@@ -88,6 +91,10 @@ public class ConfigProperties {
         return this.openSource;
     }
 
+    public boolean isShowApplicationStat() {
+        return this.showApplicationStat;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ConfigProperties{");
@@ -103,5 +110,4 @@ public class ConfigProperties {
         sb.append('}');
         return sb.toString();
     }
-
 }
