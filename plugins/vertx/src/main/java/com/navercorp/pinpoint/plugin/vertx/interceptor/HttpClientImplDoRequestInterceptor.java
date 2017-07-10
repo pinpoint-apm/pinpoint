@@ -89,7 +89,7 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
 
             if (request != null) {
                 // make asynchronous trace-id
-                final AsyncContext asyncContext = recorder.newAsyncContext();
+                final AsyncContext asyncContext = recorder.recordNextAsyncContext();
 
                 ((AsyncContextAccessor) request)._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {

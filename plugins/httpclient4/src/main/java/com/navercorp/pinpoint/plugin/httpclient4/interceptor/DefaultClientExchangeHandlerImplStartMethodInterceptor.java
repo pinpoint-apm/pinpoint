@@ -149,7 +149,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
         try {
             if (isAsynchronousInvocation(target, args)) {
                 // set asynchronous trace
-                final AsyncContext asyncContext = recorder.newAsyncContext();
+                final AsyncContext asyncContext = recorder.recordNextAsyncContext();
 
                 // check type isAsynchronousInvocation()
                 ((AsyncContextAccessor)((ResultFutureGetter)target)._$PINPOINT$_getResultFuture())._$PINPOINT$_setAsyncContext(asyncContext);

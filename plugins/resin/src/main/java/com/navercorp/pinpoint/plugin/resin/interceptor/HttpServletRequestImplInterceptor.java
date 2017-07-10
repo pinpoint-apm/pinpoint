@@ -60,7 +60,7 @@ public class HttpServletRequestImplInterceptor implements AroundInterceptor {
                 ((AsyncAccessor) target)._$PINPOINT$_setAsync(Boolean.TRUE);
 
                 // make asynchronous trace-id
-                final AsyncContext asyncContext = recorder.newAsyncContext();
+                final AsyncContext asyncContext = recorder.recordNextAsyncContext();
                 // result is BasicFuture type check validate()
                 ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {

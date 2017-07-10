@@ -38,6 +38,10 @@ public interface Trace extends StackOperation {
 
     TraceId getTraceId();
 
+    /**
+     * @deprecated Since 1.7.0 Use {@link SpanEventRecorder#recordNextAsyncContext()}
+     * This API will be removed in 1.8.0
+     */
     @Deprecated
     AsyncTraceId getAsyncTraceId();
 

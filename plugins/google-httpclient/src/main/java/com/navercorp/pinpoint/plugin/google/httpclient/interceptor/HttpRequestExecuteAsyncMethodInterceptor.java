@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.plugin.google.httpclient.HttpClientConstants;
 
 /**
@@ -61,7 +60,7 @@ public class HttpRequestExecuteAsyncMethodInterceptor implements AroundIntercept
         SpanEventRecorder recorder = trace.traceBlockBegin();
         try {
             // set asynchronous trace
-            final AsyncContext asyncContext = recorder.newAsyncContext();
+            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
 
             final InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
             if (transaction != null) {

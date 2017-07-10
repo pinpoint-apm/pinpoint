@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.context;
 
 /**
+ * @since 1.7.0
  * @author Woonduk Kang(emeroad)
  */
 public interface AsyncContext {
