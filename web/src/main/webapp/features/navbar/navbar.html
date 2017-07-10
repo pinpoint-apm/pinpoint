@@ -38,7 +38,10 @@
                                     <li class="outbound-title"><img src="images/outbound.png" width="20px" height="20px"/> Outbound</li>
                                     <li class="depth" ng-repeat="r in rangeList" ng-class="{selected: r === caller}" ng-click="setCaller(r)">{{r}}</li>
                                 </ul>
-                                <div style="clear: both;padding: 4px 2px 2px 2px">
+								<div class="bidirectional">
+									<img ng-src="images/bidirect_{{bidirectional ? 'on' : 'off'}}.png" width="27px" height="27px" style="margin-right: 6px;"/><label for="bidirectional_search">Bidirectional Search</label> <input id="bidirectional_search" type="checkbox" ng-model="bidirectional"/>
+								</div>
+                                <div style="clear: both;padding: 6px 2px 4px 2px">
                                     <button type="button" class="btn btn-default btn-xs" style="float:left;" ng-click="cancelDepth( true )">Cancel</button><button type="button" class="btn btn-default btn-xs" style="float:right;" ng-click="setDepth()">OK</button>
                                 </div>
                             </div>

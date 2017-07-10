@@ -85,6 +85,13 @@
 				return webStorage.get(app + "+caller") || UserConfigService.getCaller();
 			}
 		};
+		this.getBidirectionalByApp = function(app) {
+			if ( angular.isUndefined( app ) ) {
+				return UserConfigService.getBidirectional();
+			} else {
+				return webStorage.get(app + "+bidirectional") || UserConfigService.getBidirectional();
+			}
+		};
 		this.setDepthByApp = function( app, depth ) {
 			if (angular.isUndefined(app) || app === null || angular.isUndefined(depth) || depth === null) {
 				return;

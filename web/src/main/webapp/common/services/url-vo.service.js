@@ -18,6 +18,7 @@
 
 		 var callee = UserConfigService.getCallee();
 		 var caller = UserConfigService.getCaller();
+		 var bidirectional = UserConfigService.getBidirectional();
 		 var oPeriodType = PreferenceService.getPeriodType();
 		 var aPeriodTime = PreferenceService.getPeriodTime();
 
@@ -32,7 +33,8 @@
 							 .setReadablePeriod( $routeParams.readablePeriod )
 							 .setQueryEndDateTime( $routeParams.queryEndDateTime )
 							 .setCallee( PreferenceService.getCalleeByApp($routeParams.application) )
-							 .setCaller( PreferenceService.getCallerByApp($routeParams.application) );
+							 .setCaller( PreferenceService.getCallerByApp($routeParams.application) )
+					   		 .setBidirectional( PreferenceService.getBidirectionalByApp($routeParams.application) );
 					 }
 					 break;
 				 case "filteredMap":
@@ -91,6 +93,13 @@
 			 caller = c;
 			 return this;
 		 };
+		 this.getBidirectional = function() {
+		 	return bidirectional;
+		 };
+		 this.setBidirectional = function( c ) {
+		 	bidirectional = c;
+		 	return this;
+		 }
 		 // 검색 시간 범위
 		 this.getPeriod = function() {
 			 return minutePeriod;

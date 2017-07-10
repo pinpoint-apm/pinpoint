@@ -42,6 +42,7 @@
 	            }
 				oNavbarVoService.setCalleeRange( preferenceService.getCalleeByApp($routeParams.application) );
 				oNavbarVoService.setCallerRange( preferenceService.getCallerByApp($routeParams.application) );
+				oNavbarVoService.setBidirectional( preferenceService.getBidirectionalByApp($routeParams.application) );
 				UrlVoService.initUrlVo( "main", $routeParams );
 
 				if ( oNavbarVoService.isRealtime() ) {
