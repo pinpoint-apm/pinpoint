@@ -15,7 +15,7 @@
 	pinpointApp.controller("InspectorCtrl", [ "InspectorCtrlConfig", "$scope", "$routeParams", "$timeout", "SystemConfigurationService", "locationService", "CommonUtilService", "UrlVoService", "AnalyticsService",
 	    function ( cfg, $scope, $routeParams, $timeout, SystemConfigService, locationService, CommonUtilService, UrlVoService, AnalyticsService) {
 			$scope.selectedAgent = false;
-			$scope.showStatistic = SystemConfigService.get("applicationStatView");
+			$scope.showStatistic = SystemConfigService.get("showApplicationStat");
 			cfg.ID +=  CommonUtilService.getRandomNum();
 			AnalyticsService.send(AnalyticsService.CONST.INSPECTOR_PAGE);
 
