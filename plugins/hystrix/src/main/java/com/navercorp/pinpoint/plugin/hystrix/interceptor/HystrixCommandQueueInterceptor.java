@@ -39,7 +39,7 @@ public class HystrixCommandQueueInterceptor implements AroundInterceptor {
         recorder.recordAttribute(HystrixPluginConstants.HYSTRIX_COMMAND_ANNOTATION_KEY, target.getClass().getSimpleName());
 
         // To trace async invocations, you have to get async trace id like below.
-        AsyncContext asyncContext = recorder.newAsyncContext();
+        AsyncContext asyncContext = recorder.recordNextAsyncContext();
 
         // Finally, you have to pass the AsyncContext to the thread which handles the async task.
         ((AsyncContextAccessor)target)._$PINPOINT$_setAsyncContext(asyncContext);

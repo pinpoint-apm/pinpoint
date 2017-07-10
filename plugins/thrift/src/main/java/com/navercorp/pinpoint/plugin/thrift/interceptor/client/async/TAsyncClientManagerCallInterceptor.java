@@ -162,7 +162,7 @@ public class TAsyncClientManagerCallInterceptor implements AroundInterceptor {
     }
 
     private void injectAsyncContext(final Object asyncMethodCallObj, final SpanEventRecorder recorder) {
-        final AsyncContext asyncContext = recorder.newAsyncContext();
+        final AsyncContext asyncContext = recorder.recordNextAsyncContext();
         ((AsyncContextAccessor) asyncMethodCallObj)._$PINPOINT$_setAsyncContext(asyncContext);
         if (isDebug) {
             logger.debug("Set AsyncContext {}", asyncContext);

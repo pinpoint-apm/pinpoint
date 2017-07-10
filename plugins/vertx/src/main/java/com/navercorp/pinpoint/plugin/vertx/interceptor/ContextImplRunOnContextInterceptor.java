@@ -57,7 +57,7 @@ public class ContextImplRunOnContextInterceptor implements AroundInterceptor {
 
         if (validate(args)) {
             // make asynchronous trace-id
-            final AsyncContext asyncContext = recorder.newAsyncContext();
+            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
 
             ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
             if (isDebug) {

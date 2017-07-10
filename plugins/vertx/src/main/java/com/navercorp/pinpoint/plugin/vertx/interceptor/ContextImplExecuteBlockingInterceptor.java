@@ -60,7 +60,7 @@ public class ContextImplExecuteBlockingInterceptor implements AroundInterceptor 
         final AsyncContextAccessorHandlers handlers = getAsyncContextAccessorHandlers(args);
         if (handlers.blockingCodeHandler != null || handlers.resultHandler != null) {
             // make asynchronous trace-id
-            final AsyncContext asyncContext = recorder.newAsyncContext();
+            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
 
             if (handlers.blockingCodeHandler != null) {
                 // blockingCodeHandler

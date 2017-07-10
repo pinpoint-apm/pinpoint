@@ -158,7 +158,7 @@ public class ApiInterceptor implements AroundInterceptor {
             try {
                 if (isAsynchronousInvocation(target, args, result, throwable)) {
                     // set asynchronous trace
-                    final AsyncContext asyncContext = recorder.newAsyncContext();
+                    final AsyncContext asyncContext = recorder.recordNextAsyncContext();
                     // type check isAsynchronousInvocation
                     ((AsyncContextAccessor)result)._$PINPOINT$_setAsyncContext(asyncContext);
                     if (isDebug) {

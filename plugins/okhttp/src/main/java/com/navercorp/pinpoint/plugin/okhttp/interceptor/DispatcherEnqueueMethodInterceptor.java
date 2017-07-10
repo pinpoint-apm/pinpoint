@@ -61,7 +61,7 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
         final SpanEventRecorder recorder = trace.traceBlockBegin();
         try {
             // set asynchronous trace
-            final AsyncContext asyncContext = recorder.newAsyncContext();
+            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
 
             // AsyncTraceIdAccessor typeCheck validate();
             ((AsyncContextAccessor)args[0])._$PINPOINT$_setAsyncContext(asyncContext);

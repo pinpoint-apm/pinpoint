@@ -110,7 +110,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             recorder.recordServiceType(VertxConstants.VERTX_HTTP_SERVER_INTERNAL);
 
             // make asynchronous trace-id
-            final AsyncContext asyncContext = recorder.newAsyncContext(true);
+            final AsyncContext asyncContext = recorder.recordNextAsyncContext(true);
             ((AsyncContextAccessor) request)._$PINPOINT$_setAsyncContext(asyncContext);
             ((AsyncContextAccessor) response)._$PINPOINT$_setAsyncContext(asyncContext);
             if (isDebug) {
