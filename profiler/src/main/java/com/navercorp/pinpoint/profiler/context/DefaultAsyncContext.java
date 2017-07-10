@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class DefaultAsyncContext implements AsyncContext {
+public class DefaultAsyncContext implements InternalAsyncContext {
 
     private static final AtomicIntegerFieldUpdater<DefaultAsyncContext> ASYNC_SEQUENCE_UPDATER
             = AtomicIntegerFieldUpdater.newUpdater(DefaultAsyncContext.class, "asyncSequence");
