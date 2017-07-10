@@ -8,6 +8,9 @@
 		var oConfig = {};
 		this.getConfig = function() {
 			return $http.get( cfg.URL ).then(function(result) {
+				if ( result.data.applicationStatView !== true ) {
+					result.data.applicationStatView = false;
+				}
 				return oConfig = result.data;
 			});
 		};

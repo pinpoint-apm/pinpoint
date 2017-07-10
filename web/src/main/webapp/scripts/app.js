@@ -56,15 +56,6 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
 	}).when('/threadDump/:application/:agentId', {
 		templateUrl: 'pages/threadDump/threadDump.html',
 		controller: 'ThreadDumpCtrl'
-	}).when('/statistic', {
-		templateUrl: 'pages/statistic/statistic.html',
-		controller: 'StatisticCtrl'
-	}).when('/statistic/:application', {
-		templateUrl: 'pages/statistic/statistic.html',
-		controller: 'StatisticCtrl'
-	}).when('/statistic/:application/:readablePeriod/:queryEndDateTime', {
-		templateUrl: 'pages/statistic/statistic.html',
-		controller: 'StatisticCtrl'
     }).otherwise({
         redirectTo: '/main'
     });

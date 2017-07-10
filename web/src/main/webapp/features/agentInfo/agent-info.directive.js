@@ -24,14 +24,14 @@
 
 
 					function initTime( time ) {
-						$("#target-picker").val( moment( time ).format( "YYYY-MM-DD HH:mm:ss" ) );
+						scope.targetPicker = moment( time ).format( "YYYY-MM-DD HH:mm:ss" );
 					}
 					function initTimeSlider( aSelectionFromTo, aFromTo ) {
 						if ( timeSlider !== null ) {
 							timeSlider.resetTimeSeriesAndSelectionZone( aSelectionFromTo, aFromTo ? aFromTo : calcuSliderTimeSeries( aSelectionFromTo ) );
 						} else {
-							timeSlider = new TimeSlider( "timeSlider", {
-								"width": $("#timeSlider").get(0).getBoundingClientRect().width,
+							timeSlider = new TimeSlider( "timeSlider-for-agent-info", {
+								"width": $("#timeSlider-for-agent-info").get(0).getBoundingClientRect().width,
 								"height": 90,
 								"handleSrc": "images/handle.png",
 								"timeSeries": aFromTo ? aFromTo : calcuSliderTimeSeries( aSelectionFromTo ),
@@ -43,7 +43,6 @@
 							}).addEvent("selectTime", function( time ) {
 								scope.selectTime = time;
 								loadAgentInfo( time );
-								setTimeSliderBaseColor();
 								initTime( time );
 							}).addEvent("changeSelectionZone", function( aTime ) {
 								loadChartData( scope.agent.agentId, aTime, getPeriod(aTime[0], aTime[1] ), function() {});
@@ -53,11 +52,6 @@
 					function getPeriod( from, to ) {
 						return (to - from) / 1000 / 60;
 					}
-					function setTimeSliderBaseColor() {
-						// console.log('setTimeSliderBaseColor :', scope.agent );
-						// timeSlider.setDefaultStateLineColor( TimeSlider.StatusColor[ scope.agent.status.state.code == 100 ? "RUNNING" : "SHUTDOWN"] );
-					}
-
 					function loadChartData( agentId, aFromTo, period, callback ) {
 						var hasError = false;
 						var responseCount = 0;
@@ -385,10 +379,12 @@
 						getTimelineList( scope.agent.agentId, timeSlider.getSliderTimeSeries() );
 					};
 					scope.zoomInTimeSlider = function() {
+						console.log( "zooomIn ", timeSlider );
 						timeSlider.zoomIn();
 						getTimelineList( scope.agent.agentId, timeSlider.getSliderTimeSeries() );
 					};
 					scope.zoomOutTimeSlider = function() {
+						console.log( "zooomOut ", timeSlider );
 						timeSlider.zoomOut();
 						getTimelineList( scope.agent.agentId, timeSlider.getSliderTimeSeries() );
 					};
@@ -476,7 +472,6 @@
 					function initTimeSliderUI( aSelectionFromTo, aFromTo ) {
 						initTime( scope.selectTime );
 						initTimeSlider( aSelectionFromTo, aFromTo );
-						setTimeSliderBaseColor();
 						getTimelineList( scope.agent.agentId, aFromTo || calcuSliderTimeSeries( aSelectionFromTo ) );
 					}
 

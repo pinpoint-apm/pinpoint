@@ -2,6 +2,9 @@
     margin-left: 12px;
     margin-right: 22px;
 }
+.statistic {
+    background-color: #EAEAEA;
+}
 .sidebar-spy {
     position: absolute;
     top: 0;
@@ -12,7 +15,6 @@
     height: 100%;
     border: 0;
     border-right: 1px solid #ddd;
-    overflow: auto;
     -webkit-border-radius: 0;
     -moz-border-radius: 0;
     border-radius: 0;
@@ -40,6 +42,12 @@
     margin-top: 20px;
     margin-bottom: 40px;
 }
+.statistic .inspector-container .chart-collection {
+    border: 1px solid #FFF;
+}
+.statistic hr {
+    border-top: 1px solid #FFF;
+}
 
 .main-spy {
     margin-left: 238px;
@@ -50,7 +58,48 @@
 .inspector-datepicker {
     width: 190px !important;
 }
-
+.agent-list-directive {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+.agent-list-directive .scroll-wrapper{
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+.agent-list-directive .scroll-inner-wrapper{
+    width: 238px;
+    height: 100%;
+    overflow: auto;
+    position: absolute;
+    border-bottom:74px solid transparent;
+}
+.agent-list-directive .application {
+    color: #428bca;
+    cursor: pointer;
+    padding: 7px 4px 5px 10px;
+    font-size: 13px;
+    font-weight: bold;
+    border-bottom: 1px solid #EDEDED;
+    overflow : hidden;
+    white-space : nowrap;
+    text-overflow : ellipsis;
+}
+.agent-list-directive .application.active {
+    color: #FFF;
+    background-color: #0088CC;
+}
+.agent-list-directive .application.active:hover {
+    color: #FFF;
+    background-color: #0088CC;
+}
+.agent-list-directive .application:hover {
+    background-color: #eeeeee;
+}
+.agent-list-directive .application img {
+    padding-right: 4px;
+}
 .agent-list-directive .searchbox {
     height: 38px;
     border-bottom: 1px solid #EDEDED;
@@ -61,11 +110,11 @@
     margin: 5px 0px 0px 8px;
 }
 .agent-list-directive .searchbox span {
-    top: 11px;
-    right: 6px;
+    float: right;
     cursor:pointer;
-    position: absolute;
     font-size: 14px;
+    padding-top: 9px;
+    padding-right: 6px;
 }
 
 .agent-list-directive .nav li > a:hover,

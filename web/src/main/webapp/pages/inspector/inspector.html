@@ -5,7 +5,8 @@
     <div class="sidebar-spy well">
         <agent-list-directive></agent-list-directive>
     </div>
-    <div class="main-spy">
-        <agent-info-directive></agent-info-directive>
+    <div class="main-spy" ng-class="selectedAgent ? '' : 'statistic'">
+        <agent-info-directive ng-show="showStatistic === false || selectedAgent"></agent-info-directive>
+		<application-statistic-directive ng-hide="showStatistic && selectedAgent"></application-statistic-directive>
     </div>
 </div>
