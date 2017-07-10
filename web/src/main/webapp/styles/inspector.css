@@ -79,12 +79,24 @@
     color: #428bca;
     cursor: pointer;
     padding: 7px 4px 5px 10px;
-    font-size: 13px;
-    font-weight: bold;
+    font-size: 12px;
     border-bottom: 1px solid #EDEDED;
+}
+.agent-list-directive .application > div {
     overflow : hidden;
     white-space : nowrap;
     text-overflow : ellipsis;
+}
+.agent-list-directive .application > div > span {
+    font-size: 13px;
+    border-color: inherit;
+    border-width: 1px;
+    border-style: solid;
+    padding: 0px 4px;
+    margin-right: 4px;
+    border-radius: 6px;
+    font-family: arial;
+    box-shadow: 1px 1px 0px 0px rgba(0,0,0,0.5);
 }
 .agent-list-directive .application.active {
     color: #FFF;

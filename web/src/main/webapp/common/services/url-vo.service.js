@@ -99,7 +99,7 @@
 		 this.setBidirectional = function( c ) {
 		 	bidirectional = c;
 		 	return this;
-		 }
+		 };
 		 // 검색 시간 범위
 		 this.getPeriod = function() {
 			 return minutePeriod;

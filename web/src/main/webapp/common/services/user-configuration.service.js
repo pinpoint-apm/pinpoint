@@ -88,7 +88,7 @@
 		};
 		this.setBidirectional = function( c ) {
 			webStorage.add( cfg.BIDIRECTIONAL_LOCAL_KEY, c );
-		}
+		};
 		this.getTimezone = function() {
 			return webStorage.get( cfg.TIME_ZONE_LOCAL_KEY ) || moment.tz.guess();
 		};
