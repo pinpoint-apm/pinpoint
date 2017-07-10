@@ -14,23 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.context;
+package com.navercorp.pinpoint.profiler.context;
+
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 
 /**
- * @since 1.7.0
  * @author Woonduk Kang(emeroad)
  */
-public interface AsyncContext {
-
-    String ASYNC_TRACE_SCOPE = "##ASYNC_TRACE_SCOPE";
-
-    Trace continueAsyncTraceObject();
-
-    Trace currentAsyncTraceObject();
-
-    void close();
-
-//    void setAttribute(String name, Object o);
-//
-//    Object getAttribute(String name);
+public interface InternalAsyncContext extends AsyncContext {
+    int getAsyncId();
 }

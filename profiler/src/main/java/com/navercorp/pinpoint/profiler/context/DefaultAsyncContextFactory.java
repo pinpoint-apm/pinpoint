@@ -52,7 +52,7 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
     }
 
     @Override
-    public AsyncContext newAsyncContext(TraceRoot traceRoot) {
+    public InternalAsyncContext newAsyncContext(TraceRoot traceRoot) {
         Assert.requireNonNull(traceRoot, "traceRoot must not be null");
 
         final TraceFactory traceFactory = traceFactoryProvider.get();
@@ -61,7 +61,7 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
     }
 
     @Override
-    public AsyncContext newAsyncContext(TraceRoot traceRoot, AsyncState asyncState) {
+    public InternalAsyncContext newAsyncContext(TraceRoot traceRoot, AsyncState asyncState) {
         Assert.requireNonNull(traceRoot, "traceRoot must not be null");
         Assert.requireNonNull(asyncState, "asyncState must not be null");
 

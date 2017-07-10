@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
+import com.navercorp.pinpoint.profiler.context.InternalAsyncContext;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
@@ -130,7 +131,8 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     public AsyncContext recordNextAsyncContext() {
         final SpanEvent spanEvent = this.spanEvent;
         final TraceRoot traceRoot = spanEvent.getTraceRoot();
-        final AsyncContext asyncContext = asyncContextFactory.newAsyncContext(traceRoot);
+
+        final InternalAsyncContext asyncContext = asyncContextFactory.newAsyncContext(traceRoot);
         setNextAsyncId(spanEvent, asyncContext.getAsyncId());
         return asyncContext;
     }
@@ -143,18 +145,18 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
         final AsyncState asyncState = this.asyncState;
         if (asyncStateSupport && asyncState != null) {
             asyncState.setup();
-            final AsyncContext asyncContext = asyncContextFactory.newAsyncContext(traceRoot, asyncState);
+            final InternalAsyncContext asyncContext = asyncContextFactory.newAsyncContext(traceRoot, asyncState);
             setNextAsyncId(spanEvent, asyncContext.getAsyncId());
             return asyncContext;
         }
 
-        final AsyncContext asyncContext = asyncContextFactory.newAsyncContext(traceRoot);
+        final InternalAsyncContext asyncContext = asyncContextFactory.newAsyncContext(traceRoot);
         setNextAsyncId(spanEvent, asyncContext.getAsyncId());
         return asyncContext;
     }
 
     private void setNextAsyncId(SpanEvent spanEvent, int asyncId) {
-        // TODO ASyncId check
+        // TODO ASyncId validate check
         spanEvent.setNextAsyncId(asyncId);
     }
 
