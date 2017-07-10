@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,18 +27,21 @@ import org.junit.runner.RunWith;
 import java.lang.reflect.Method;
 import java.util.Properties;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.args;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.cachedArgs;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
 
 /**
  * @author HyunGil Jeong
  */
 @RunWith(PinpointPluginTestSuite.class)
-@JvmVersion(7)
-@Dependency({ "org.mariadb.jdbc:mariadb-java-client:[1.4.min,1.6.min)", "ch.vorburger.mariaDB4j:mariaDB4j:2.2.2" })
-public class MariaDB_1_4_x_to_1_6_0_IT extends MariaDB_IT_Base {
+@JvmVersion(8) // 2.x+ requires Java 8
+@Dependency({ "org.mariadb.jdbc:mariadb-java-client:[2.0.1,)", "ch.vorburger.mariaDB4j:mariaDB4j:2.2.2" })
+public class MariaDB_2_x_IT extends MariaDB_IT_Base {
 
     // see CallableParameterMetaData#queryMetaInfos
-    private  static final String CALLABLE_QUERY_META_INFOS_QUERY = "select param_list, returns, db, type from mysql.proc where db=DATABASE() and name=?";
+    private  static final String CALLABLE_QUERY_META_INFOS_QUERY = "select param_list, returns, db, type from mysql.proc where name=? and db=DATABASE()";
 
     @Test
     public void testStatement() throws Exception {
@@ -46,7 +49,6 @@ public class MariaDB_1_4_x_to_1_6_0_IT extends MariaDB_IT_Base {
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
-        verifier.verifyTraceCount(2);
 
         // Driver#connect(String, Properties)
         Class<?> driverClass = Class.forName("org.mariadb.jdbc.Driver");
@@ -77,8 +79,8 @@ public class MariaDB_1_4_x_to_1_6_0_IT extends MariaDB_IT_Base {
         Method prepareStatement = mariaDbConnectionClass.getDeclaredMethod("prepareStatement", String.class);
         verifier.verifyTrace(event("MARIADB", prepareStatement, null, URL, DATABASE_NAME, sql(PREPARED_STATEMENT_QUERY, null)));
 
-        // MariaDbServerPreparedStatement#executeQuery
-        Class<?> mariaDbServerPreparedStatementClass = Class.forName("org.mariadb.jdbc.MariaDbServerPreparedStatement");
+        // MariaDbPreparedStatementClient#executeQuery
+        Class<?> mariaDbServerPreparedStatementClass = Class.forName("org.mariadb.jdbc.MariaDbPreparedStatementClient");
         Method executeQuery = mariaDbServerPreparedStatementClass.getDeclaredMethod("executeQuery");
         verifier.verifyTrace(event("MARIADB_EXECUTE_QUERY", executeQuery, null, URL, DATABASE_NAME, sql(PREPARED_STATEMENT_QUERY, null, "3")));
     }
@@ -101,21 +103,23 @@ public class MariaDB_1_4_x_to_1_6_0_IT extends MariaDB_IT_Base {
         Method prepareCall = mariaDbConnectionClass.getDeclaredMethod("prepareCall", String.class);
         verifier.verifyTrace(event("MARIADB", prepareCall, null, URL, DATABASE_NAME, sql(CALLABLE_STATEMENT_QUERY, null)));
 
-        // AbstractCallableProcedureStatement#registerOutParameter
-        Class<?> abstractCallableProcedureStatementClass = Class.forName("org.mariadb.jdbc.AbstractCallableProcedureStatement");
+        // CallableProcedureStatement#registerOutParameter
+        Class<?> abstractCallableProcedureStatementClass = Class.forName("org.mariadb.jdbc.CallableProcedureStatement");
         Method registerOutParameter = abstractCallableProcedureStatementClass.getMethod("registerOutParameter", int.class, int.class);
         verifier.verifyTrace(event("MARIADB", registerOutParameter, null, URL, DATABASE_NAME, args(2, CALLABLE_STATMENT_OUTPUT_PARAM_TYPE)));
 
-        // MariaDbServerPreparedStatement#executeQuery
-        Class<?> mariaDbServerPreparedStatementClass = Class.forName("org.mariadb.jdbc.MariaDbServerPreparedStatement");
-        Method executeQuery = mariaDbServerPreparedStatementClass.getDeclaredMethod("executeQuery");
-        verifier.verifyTrace(event("MARIADB_EXECUTE_QUERY", executeQuery, null, URL, DATABASE_NAME, sql(CALLABLE_STATEMENT_QUERY, null, CALLABLE_STATEMENT_INPUT_PARAM)));
+        // MariaDbPreparedStatementServer#executeQuery
+        Class<?> mariaDbPreparedStatementServerClass = Class.forName("org.mariadb.jdbc.MariaDbPreparedStatementServer");
+        Method executeQueryServer = mariaDbPreparedStatementServerClass.getDeclaredMethod("executeQuery");
+        verifier.verifyTrace(event("MARIADB_EXECUTE_QUERY", executeQueryServer, null, URL, DATABASE_NAME, sql(CALLABLE_STATEMENT_QUERY, null, CALLABLE_STATEMENT_INPUT_PARAM)));
 
         // MariaDbConnection#prepareStatement(String)
         Method prepareStatement = mariaDbConnectionClass.getDeclaredMethod("prepareStatement", String.class);
         verifier.verifyTrace(event("MARIADB", prepareStatement, null, URL, DATABASE_NAME, sql(CALLABLE_QUERY_META_INFOS_QUERY, null)));
 
-        // MariaDbServerPreparedStatement#executeQuery
-        verifier.verifyTrace(event("MARIADB_EXECUTE_QUERY", executeQuery, null, URL, DATABASE_NAME, sql(CALLABLE_QUERY_META_INFOS_QUERY, null, PROCEDURE_NAME)));
+        // MariaDbPreparedStatementClient#executeQuery
+        Class<?> mariaDbPreparedStatementClientClass = Class.forName("org.mariadb.jdbc.MariaDbPreparedStatementClient");
+        Method executeQueryClient = mariaDbPreparedStatementClientClass.getDeclaredMethod("executeQuery");
+        verifier.verifyTrace(event("MARIADB_EXECUTE_QUERY", executeQueryClient, null, URL, DATABASE_NAME, sql(CALLABLE_QUERY_META_INFOS_QUERY, null, PROCEDURE_NAME)));
     }
 }
