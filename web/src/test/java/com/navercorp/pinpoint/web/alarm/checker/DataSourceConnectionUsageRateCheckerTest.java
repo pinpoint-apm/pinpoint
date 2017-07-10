@@ -33,8 +33,9 @@ import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +46,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Taejin Koo
  */
+@RunWith(MockitoJUnitRunner.class)
 public class DataSourceConnectionUsageRateCheckerTest {
 
     private static final String APPLICATION_NAME = "local_service";
@@ -67,8 +69,6 @@ public class DataSourceConnectionUsageRateCheckerTest {
 
     @Before
     public void before() {
-        MockitoAnnotations.initMocks(this);
-
         when(mockApplicationIndexDao.selectAgentIds(APPLICATION_NAME)).thenReturn(Arrays.asList(AGENT_ID));
 
         Range range = Range.createUncheckedRange(START_TIME_MILLIS, CURRENT_TIME_MILLIS);
