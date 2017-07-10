@@ -57,6 +57,9 @@
 					},{
 						name: "DATASOURCE CONNECTION USAGE RATE",
 						desc: "Sends an alarm when the application's DataSource connection usage(%) exceeds the configured threshold."
+					}, {
+						name: "DEADLOCK OCCURRENCE",
+						desc: "Sends an alarm when deadlock condition is detected in application."
 					}]
 				}]
 			}
