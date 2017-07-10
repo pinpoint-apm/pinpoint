@@ -638,10 +638,12 @@
 					scope.getBidirectionalImgSrc = function() {
 						return "images/bidirect_" + (scope.bidirectional ? "on" : "off") + ".png";
 					};
+					scope.checkBidirectional = function() {
+						scope.bidirectional = !scope.bidirectional;
+					};
 					scope.setDepth = function() {
 						bIsClickDepthInnerArea = false;
 						bIsClickDepthInnerBtn = true;
-						console.log( prevBidirectional, scope.bidirectional );
 						$("#navbar_depth .dropdown-menu").trigger("click.bs.dropdown");
 						if ( prevCallee !== scope.callee || prevCaller !== scope.caller || prevBidirectional !== scope.bidirectional ) {
 							AnalyticsService.send(AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_CALLEE_RANGE, scope.callee);
