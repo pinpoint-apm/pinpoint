@@ -116,12 +116,8 @@
 					var timeSlider = null;
 					function initTimeSliderUI() {
 						var aSelectionFromTo = [];
-						if ( timeSlider === null ) {
-							aSelectionFromTo[0] = UrlVoService.getQueryStartTime();
-							aSelectionFromTo[1] = UrlVoService.getQueryEndTime();
-						} else {
-							aSelectionFromTo = timeSlider.getSelectionTimeSeries();
-						}
+						aSelectionFromTo[0] = UrlVoService.getQueryStartTime();
+						aSelectionFromTo[1] = UrlVoService.getQueryEndTime();
 						if ( scope.selectTime === -1 ) {
 							scope.selectTime = UrlVoService.getQueryEndTime();
 						}
