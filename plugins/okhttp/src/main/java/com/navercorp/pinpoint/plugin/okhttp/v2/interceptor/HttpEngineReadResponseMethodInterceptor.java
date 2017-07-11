@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.okhttp.interceptor;
+package com.navercorp.pinpoint.plugin.okhttp.v2.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.plugin.okhttp.ConnectionGetter;
+import com.navercorp.pinpoint.plugin.okhttp.v2.ConnectionGetter;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
-import com.navercorp.pinpoint.plugin.okhttp.UserRequestGetter;
-import com.navercorp.pinpoint.plugin.okhttp.UserResponseGetter;
+import com.navercorp.pinpoint.plugin.okhttp.v2.UserRequestGetter;
+import com.navercorp.pinpoint.plugin.okhttp.v2.UserResponseGetter;
 import com.squareup.okhttp.Response;
 
 /**
@@ -58,23 +58,29 @@ public class HttpEngineReadResponseMethodInterceptor implements AroundIntercepto
             return;
         }
 
-        SpanEventRecorder recorder = trace.traceBlockBegin();
+        final SpanEventRecorder recorder = trace.traceBlockBegin();
         recorder.recordServiceType(OkHttpConstants.OK_HTTP_CLIENT_INTERNAL);
     }
 
     private boolean validate(Object target) {
         if (!(target instanceof UserRequestGetter)) {
-            logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_USER_REQUEST);
+            if (isDebug) {
+                logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_USER_REQUEST);
+            }
             return false;
         }
 
         if (!(target instanceof UserResponseGetter)) {
-            logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_USER_RESPONSE);
+            if (isDebug) {
+                logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_USER_RESPONSE);
+            }
             return false;
         }
 
         if (!(target instanceof ConnectionGetter)) {
-            logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_CONNECTION);
+            if (isDebug) {
+                logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_CONNECTION);
+            }
             return false;
         }
 
@@ -97,13 +103,13 @@ public class HttpEngineReadResponseMethodInterceptor implements AroundIntercepto
         }
 
         try {
-            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);
 
             if (statusCode) {
                 // type check validate();
-                Response response = ((UserResponseGetter) target)._$PINPOINT$_getUserResponse();
+                final Response response = ((UserResponseGetter) target)._$PINPOINT$_getUserResponse();
                 if (response != null) {
                     recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, response.code());
                 }
