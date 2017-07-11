@@ -98,6 +98,18 @@
 					}]
 				}]
 			},
+			bidirectional : {
+				mainStyle: "",
+				title: '<img src="images/bidirect_on.png" width="22px" height="22px" style="margin-top:-4px;"> Bidirectional Search',
+				desc: "서버맵의 탐색 방법을 설정합니다.",
+				category : [{
+					title: "[범례]",
+					items: [{
+						name: "Bidirectional",
+						desc: "모든 노드들에 대해 양방향 탐색을 하여 선택된 노드와 직접적인 연관이 없는 노드들도 탐색됩니다.<br>주의 : 이 옵션을 선택하시면 필요 이상으로 복잡한 서버맵이 조회될 수 있습니다."
+					}]
+				}]
+			},
 			periodSelector: {
 				mainStyle: "",
 				title: "조회 시간 설정",
