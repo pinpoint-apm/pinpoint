@@ -82,25 +82,36 @@
     font-size: 12px;
     border-bottom: 1px solid #EDEDED;
 }
+.agent-list-directive .application > span {
+    float: right;
+    height: 29px;
+    margin-top: -7px;
+    padding-top: 9px;
+    margin-right: -4px;
+    border-radius: 0px;
+}
 .agent-list-directive .application > div {
     overflow : hidden;
     white-space : nowrap;
     text-overflow : ellipsis;
 }
-.agent-list-directive .application > div > span {
-    font-size: 13px;
-    border-color: inherit;
-    border-width: 1px;
-    border-style: solid;
-    padding: 0px 4px;
+.agent-list-directive .application > div > span:first-child {
+    color: #FFF;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 1px 3px;
     margin-right: 4px;
-    border-radius: 6px;
+    border-radius: 50%;
     font-family: arial;
-    box-shadow: 1px 1px 0px 0px rgba(0,0,0,0.5);
+    background-color: #4E4E4E;
 }
 .agent-list-directive .application.active {
     color: #FFF;
     background-color: #0088CC;
+}
+.agent-list-directive .application.active > div > span:first-child {
+    color: #4E4E4E;
+    background-color: #FFF;
 }
 .agent-list-directive .application.active:hover {
     color: #FFF;
