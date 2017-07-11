@@ -379,12 +379,10 @@
 						getTimelineList( scope.agent.agentId, timeSlider.getSliderTimeSeries() );
 					};
 					scope.zoomInTimeSlider = function() {
-						console.log( "zooomIn ", timeSlider );
 						timeSlider.zoomIn();
 						getTimelineList( scope.agent.agentId, timeSlider.getSliderTimeSeries() );
 					};
 					scope.zoomOutTimeSlider = function() {
-						console.log( "zooomOut ", timeSlider );
 						timeSlider.zoomOut();
 						getTimelineList( scope.agent.agentId, timeSlider.getSliderTimeSeries() );
 					};
