@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.okhttp.interceptor;
+package com.navercorp.pinpoint.plugin.okhttp.v2.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
@@ -33,12 +33,12 @@ import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.plugin.okhttp.ConnectionGetter;
+import com.navercorp.pinpoint.plugin.okhttp.v2.ConnectionGetter;
 import com.navercorp.pinpoint.plugin.okhttp.EndPointUtils;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig;
-import com.navercorp.pinpoint.plugin.okhttp.UserRequestGetter;
-import com.navercorp.pinpoint.plugin.okhttp.UserResponseGetter;
+import com.navercorp.pinpoint.plugin.okhttp.v2.UserRequestGetter;
+import com.navercorp.pinpoint.plugin.okhttp.v2.UserResponseGetter;
 import com.squareup.okhttp.Request;
 
 import java.net.URL;
@@ -59,11 +59,12 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
     private final DumpType cookieDumpType;
     private final SimpleSampler cookieSampler;
 
-    public HttpEngineSendRequestMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope, OkHttpPluginConfig config) {
+    public HttpEngineSendRequestMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
         this.interceptorScope = interceptorScope;
 
+        final OkHttpPluginConfig config = new OkHttpPluginConfig(traceContext.getProfilerConfig());
         this.param = config.isParam();
         this.cookie = config.isCookie();
         this.cookieDumpType = config.getCookieDumpType();
@@ -80,7 +81,7 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
             logger.beforeInterceptor(target, args);
         }
 
-        final Trace trace = traceContext.currentRawTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
@@ -89,17 +90,13 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
             return;
         }
 
-        if (!trace.canSampled()) {
-            return;
-        }
-
-        SpanEventRecorder recorder = trace.traceBlockBegin();
+        final SpanEventRecorder recorder = trace.traceBlockBegin();
         try {
             final TraceId nextId = trace.getTraceId().getNextTraceId();
             recorder.recordNextSpanId(nextId.getSpanId());
             recorder.recordServiceType(OkHttpConstants.OK_HTTP_CLIENT);
 
-            InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
+            final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
             if (invocation != null) {
                 invocation.getOrCreateAttachment(new AttachmentFactory() {
                     @Override
@@ -115,17 +112,23 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
 
     private boolean validate(Object target) {
         if (!(target instanceof UserRequestGetter)) {
-            logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_USER_REQUEST);
+            if (isDebug) {
+                logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_USER_REQUEST);
+            }
             return false;
         }
 
         if (!(target instanceof UserResponseGetter)) {
-            logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_USER_RESPONSE);
+            if (isDebug) {
+                logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_USER_RESPONSE);
+            }
             return false;
         }
 
         if (!(target instanceof ConnectionGetter)) {
-            logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_CONNECTION);
+            if (isDebug) {
+                logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_CONNECTION);
+            }
             return false;
         }
 
@@ -148,21 +151,9 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
         }
 
         try {
-            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);
-            // typeCheck validate();
-            Request request = ((UserRequestGetter) target)._$PINPOINT$_getUserRequest();
-            if (request != null) {
-                try {
-                    recorder.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(request.urlString(), param));
-                    final String endpoint = getDestinationId(request.url());
-                    recorder.recordDestinationId(endpoint);
-                } catch(Exception ignored) {
-                    logger.warn("Failed to invoke of request.url(). {}", ignored.getMessage());
-                }
-                recordRequest(trace, request, throwable);
-            }
 
             // clear attachment.
             final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
@@ -170,6 +161,20 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
             if (attachment != null) {
                 invocation.removeAttachment();
             }
+
+            // typeCheck validate();
+            final Request request = ((UserRequestGetter) target)._$PINPOINT$_getUserRequest();
+            if (request != null) {
+                try {
+                    recorder.recordAttribute(AnnotationKey.HTTP_URL, InterceptorUtils.getHttpUrl(request.urlString(), param));
+                    final String endpoint = getDestinationId(request.url());
+                    recorder.recordDestinationId(endpoint);
+                } catch (Exception ignored) {
+                    logger.warn("Failed to invoke of request.url(). {}", ignored.getMessage());
+                }
+                recordRequest(trace, request, throwable);
+            }
+
         } finally {
             trace.traceBlockEnd();
         }

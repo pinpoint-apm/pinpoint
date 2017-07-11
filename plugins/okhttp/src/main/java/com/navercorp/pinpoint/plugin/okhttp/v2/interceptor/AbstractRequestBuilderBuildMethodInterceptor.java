@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,38 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.okhttp.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.*;
+package com.navercorp.pinpoint.plugin.okhttp.v2.interceptor;
+
+import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
-import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
-import com.navercorp.pinpoint.plugin.okhttp.EndPointUtils;
-import com.navercorp.pinpoint.plugin.okhttp.UrlGetter;
 import com.squareup.okhttp.Request;
-
-import java.net.URL;
 
 /**
  * @author jaehong.kim
  */
-public class RequestBuilderBuildMethodBackwardCompatibilityInterceptor implements AroundInterceptor {
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
+public abstract class AbstractRequestBuilderBuildMethodInterceptor implements AroundInterceptor {
 
-    private final TraceContext traceContext;
-    private final MethodDescriptor methodDescriptor;
-    private final InterceptorScope interceptorScope;
+    protected final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    protected final boolean isDebug = logger.isDebugEnabled();
 
-    public RequestBuilderBuildMethodBackwardCompatibilityInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
+    protected final TraceContext traceContext;
+    protected final MethodDescriptor methodDescriptor;
+    protected final InterceptorScope interceptorScope;
+
+    public AbstractRequestBuilderBuildMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
         this.interceptorScope = interceptorScope;
     }
+
+    abstract String toHost(Object target);
 
     @Override
     public void before(Object target, Object[] args) {
@@ -61,38 +64,41 @@ public class RequestBuilderBuildMethodBackwardCompatibilityInterceptor implement
             if (!(target instanceof Request.Builder)) {
                 return;
             }
+
             final Request.Builder builder = ((Request.Builder) target);
             if (!trace.canSampled()) {
+                builder.header(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
                 if (isDebug) {
-                    logger.debug("set Sampling flag=false");
+                    logger.debug("Set HTTP header. sampled=false");
                 }
-                ((Request.Builder) target).header(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
                 return;
             }
 
             final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
             final Object attachment = getAttachment(invocation);
             if (!(attachment instanceof TraceId)) {
-                logger.debug("Invalid interceptor scope invocation. {}", invocation);
+                if (isDebug) {
+                    logger.debug("Invalid interceptor scope invocation. {}", invocation);
+                }
                 return;
             }
 
             final TraceId nextId = (TraceId) attachment;
             builder.header(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
             builder.header(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
-
             builder.header(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
-
             builder.header(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
             builder.header(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
             builder.header(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
+            if (isDebug) {
+                logger.debug("Set HTTP headers. traceId={}, spanId={}, parentSpanId={}", nextId.getTransactionId(), nextId.getSpanId(), nextId.getParentSpanId());
+            }
 
-            if (target instanceof UrlGetter) {
-                final URL url = ((UrlGetter) target)._$PINPOINT$_getUrl();
-                if (url != null) {
-                    final String endpoint = getDestinationId(url);
-                    logger.debug("Set HTTP_HOST {}", endpoint);
-                    builder.header(Header.HTTP_HOST.toString(), endpoint);
+            final String host = toHost(target);
+            if (host != null) {
+                builder.header(Header.HTTP_HOST.toString(), host);
+                if (isDebug) {
+                    logger.debug("Set HTTP header. host={}", host);
                 }
             }
         } catch (Throwable t) {
@@ -106,15 +112,6 @@ public class RequestBuilderBuildMethodBackwardCompatibilityInterceptor implement
         }
         return invocation.getAttachment();
     }
-
-    private String getDestinationId(URL httpUrl) {
-        if (httpUrl == null || httpUrl.getHost() == null) {
-            return "UnknownHttpClient";
-        }
-        final int port = EndPointUtils.getPort(httpUrl.getPort(), httpUrl.getDefaultPort());
-        return HostAndPort.toHostAndPortString(httpUrl.getHost(), port);
-    }
-
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {

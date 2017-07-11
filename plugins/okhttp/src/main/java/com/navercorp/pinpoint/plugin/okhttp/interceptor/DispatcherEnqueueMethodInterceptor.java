@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.navercorp.pinpoint.plugin.okhttp.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
@@ -27,9 +28,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
 
 /**
- * 
  * @author jaehong.kim
- *
  */
 public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -62,9 +61,8 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
         try {
             // set asynchronous trace
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-
             // AsyncTraceIdAccessor typeCheck validate();
-            ((AsyncContextAccessor)args[0])._$PINPOINT$_setAsyncContext(asyncContext);
+            ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
             if (isDebug) {
                 logger.debug("Set AsyncContext {}", asyncContext);
             }
@@ -75,7 +73,9 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
 
     private boolean validate(Object[] args) {
         if (args == null || args.length < 1 || !(args[0] instanceof AsyncContextAccessor)) {
-            logger.debug("Invalid args[0] object {}. Need field accessor({}).", args, AsyncContextAccessor.class.getName());
+            if (isDebug) {
+                logger.debug("Invalid args[0] object {}. Need field accessor({}).", args, AsyncContextAccessor.class.getName());
+            }
             return false;
         }
 
@@ -98,7 +98,7 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
         }
 
         try {
-            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(methodDescriptor);
             recorder.recordServiceType(OkHttpConstants.OK_HTTP_CLIENT_INTERNAL);
             recorder.recordException(throwable);
