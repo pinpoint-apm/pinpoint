@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.util.NamedThreadLocal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +40,7 @@ public class ThreadLocalReferenceFactory implements TraceFactory {
             return new ThreadLocalTraceReference();
         }
     };
+
 
     private final Binder<ThreadLocalReference<Trace>> threadLocalBinder = new ThreadLocalBinder<ThreadLocalReference<Trace>>(THREAD_LOCAL_INITIALIZER);
 
