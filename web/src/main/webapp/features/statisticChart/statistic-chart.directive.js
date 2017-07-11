@@ -70,12 +70,13 @@
 									"legendValueText": "[[value]]" + unit,
 									"lineColor": "#66B2FF",
 									"fillColor": "#66B2FF",
-									"lineThickness": 3,
+									"lineThickness": 1,
 									"title": chartData.title[2],
 									"valueField": chartData.field[2], // min
 									"descriptionField": chartData.field[4],
 									"fillAlphas": 0,
-									"connect": false
+									"connect": false,
+									"dashLength" : 2
 								},
 								{
 									"valueAxis": "v1",
@@ -83,7 +84,7 @@
 									"legendValueText": "[[value]]" + unit,
 									"lineColor": "#4C0099",
 									"fillColor": "#4C0099",
-									"lineThickness": 6,
+									"lineThickness": 1,
 									"title": chartData.title[0],
 									"valueField": chartData.field[0], // avg
 									"fillAlphas": 0,
@@ -95,12 +96,13 @@
 									"legendValueText": "[[value]]" + unit,
 									"lineColor": "#0000CC",
 									"fillColor": "#0000CC",
-									"lineThickness": 3,
+									"lineThickness": 1,
 									"title": chartData.title[1],
 									"valueField": chartData.field[1], // max
 									"descriptionField": chartData.field[3],
 									"fillAlphas": 0,
-									"connect": false
+									"connect": false,
+									"dashLength" : 2
 								}
 							],
 							"categoryField": "time",
