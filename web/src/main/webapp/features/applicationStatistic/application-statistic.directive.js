@@ -195,6 +195,9 @@
 						timeSlider.zoomOut();
 						getTimelineList( timeSlider.getSliderTimeSeries() );
 					};
+					scope.$on("statisticChartDirective.cursorChanged", function (e, event, namespace) {
+						scope.$broadcast("statisticChartDirective.showCursorAt", event["index"], namespace);
+					});
 				}
 			};
 		}

@@ -125,7 +125,7 @@
 							"cursorAlpha": 0.1
 						});
 						oChartCursor.addListener('changed', function (event) {
-							scope.$emit('statisticChartDirective.cursorChanged.' + scope.namespace, event);
+							scope.$emit("statisticChartDirective.cursorChanged", event, scope.namespace);
 						});
 						oChart.addChartCursor( oChartCursor );
 					}
@@ -156,11 +156,11 @@
 							render(data);
 						}
 					});
-
-					// scope.$on('statisticChartDirective.showCursorAt.' + scope.namespace, function (event, category) {
-					// 	showCursorAt(category);
-					// });
-
+					scope.$on('statisticChartDirective.showCursorAt', function (event, category, namespace) {
+						if ( scope.namespace !== namespace ) {
+							showCursorAt(category);
+						}
+					});
 					scope.$on('statisticChartDirective.resize.' + scope.namespace, function (event) {
 						resize();
 					});
