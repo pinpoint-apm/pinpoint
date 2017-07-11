@@ -23,27 +23,38 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
+@RunWith(org.mockito.junit.MockitoJUnitRunner.class)
 public class DefaultSpanRecorderTest {
+
+    @Mock
+    private TraceRoot traceRoot;
+    @Mock
+    private TraceId traceId;
+    @Mock
+    private StringMetaDataService stringMetaDataService;
+    @Mock
+    private SqlMetaDataService sqlMetaDataService;
+
+    @Before
+    public void setUp() throws Exception {
+        Mockito.when(traceRoot.getTraceId()).thenReturn(traceId);
+    }
 
     @Test
     public void testRecordApiId() throws Exception {
-        final TraceRoot traceRoot = mock(TraceRoot.class);
-        TraceId traceId = mock(TraceId.class);
-        Mockito.when(traceRoot.getTraceId()).thenReturn(traceId);
 
         Span span = new Span(traceRoot);
-
-        StringMetaDataService stringMetaDataService = Mockito.mock(StringMetaDataService.class);
-        SqlMetaDataService sqlMetaDataService = Mockito.mock(SqlMetaDataService.class);
-
 
         SpanRecorder recorder = new DefaultSpanRecorder(span, true, true, stringMetaDataService, sqlMetaDataService);
 
@@ -52,4 +63,19 @@ public class DefaultSpanRecorderTest {
 
         Assert.assertEquals("API ID", span.getApiId(), API_ID);
     }
+
+    @Test
+    public void testRecordEndPoint() throws Exception {
+
+        Span span = new Span(traceRoot);
+
+        SpanRecorder recorder = new DefaultSpanRecorder(span, true, true, stringMetaDataService, sqlMetaDataService);
+
+        final String endPoint = "endPoint";
+        recorder.recordEndPoint(endPoint);
+
+        Assert.assertEquals(span.getEndPoint(), endPoint);
+        verify(traceRoot).setEndPoint(endPoint);
+    }
+
 }
