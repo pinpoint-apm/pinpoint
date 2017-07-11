@@ -19,10 +19,24 @@ package com.navercorp.pinpoint.profiler.context;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface ThreadLocalReference<T> {
-    T get();
+public class DefaultReference<V> implements Reference<V> {
+    private V value;
 
-    void set(T t);
+    @Override
+    public V get() {
+        return value;
+    }
 
-    T clear();
+
+    @Override
+    public void set(V value) {
+        this.value = value;
+    }
+
+    @Override
+    public V clear() {
+        final V copy = this.value;
+        this.value = null;
+        return copy;
+    }
 }

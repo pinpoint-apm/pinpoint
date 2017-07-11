@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.util.NamedThreadLocal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,30 +30,18 @@ import org.slf4j.LoggerFactory;
  * @author emeroad
  * @author Taejin Koo
  */
-public class ThreadLocalReferenceFactory implements TraceFactory {
+public class DefaultTraceFactory implements TraceFactory {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static final ThreadLocalBinder.ThreadLocalInitializer<ThreadLocalReference<Trace>> THREAD_LOCAL_INITIALIZER = new ThreadLocalBinder.ThreadLocalInitializer<ThreadLocalReference<Trace>>() {
-        @Override
-        public ThreadLocalReference<Trace> initialValue() {
-            return new ThreadLocalTraceReference();
-        }
-    };
-
-
-    private final Binder<ThreadLocalReference<Trace>> threadLocalBinder = new ThreadLocalBinder<ThreadLocalReference<Trace>>(THREAD_LOCAL_INITIALIZER);
+    private final Binder<Trace> threadLocalBinder;
 
     private final BaseTraceFactory baseTraceFactory;
 
-    public ThreadLocalReferenceFactory(BaseTraceFactory baseTraceFactory) {
-        if (baseTraceFactory == null) {
-            throw new NullPointerException("baseTraceFactory must not be null");
-        }
-        this.baseTraceFactory = baseTraceFactory;
-
+    public DefaultTraceFactory(BaseTraceFactory baseTraceFactory, Binder<Trace> binder) {
+        this.baseTraceFactory = Assert.requireNonNull(baseTraceFactory, "baseTraceFactory must not be null");
+        this.threadLocalBinder = Assert.requireNonNull(binder, "binder must not be null");
     }
-
 
     /**
      * Return Trace object AFTER validating whether it can be sampled or not.
@@ -62,7 +50,7 @@ public class ThreadLocalReferenceFactory implements TraceFactory {
      */
     @Override
     public Trace currentTraceObject() {
-        final ThreadLocalReference<Trace> reference = threadLocalBinder.get();
+        final Reference<Trace> reference = threadLocalBinder.get();
         final Trace trace = reference.get();
         if (trace == null) {
             return null;
@@ -75,13 +63,13 @@ public class ThreadLocalReferenceFactory implements TraceFactory {
 
     @Override
     public Trace currentRawTraceObject() {
-        final ThreadLocalReference<Trace> reference = threadLocalBinder.get();
+        final Reference<Trace> reference = threadLocalBinder.get();
         return reference.get();
     }
 
     @Override
     public Trace disableSampling() {
-        final ThreadLocalReference<Trace> reference = checkAndGet();
+        final Reference<Trace> reference = checkAndGet();
         final Trace trace = this.baseTraceFactory.disableSampling();
 
         bind(reference, trace);
@@ -92,7 +80,7 @@ public class ThreadLocalReferenceFactory implements TraceFactory {
     // continue to trace the request that has been determined to be sampled on previous nodes
     @Override
     public Trace continueTraceObject(final TraceId traceId) {
-        final ThreadLocalReference<Trace> reference = checkAndGet();
+        final Reference<Trace> reference = checkAndGet();
         final Trace trace = this.baseTraceFactory.continueTraceObject(traceId);
 
         bind(reference, trace);
@@ -102,14 +90,14 @@ public class ThreadLocalReferenceFactory implements TraceFactory {
 
     @Override
     public Trace continueTraceObject(Trace trace) {
-        final ThreadLocalReference<Trace> reference = checkAndGet();
+        final Reference<Trace> reference = checkAndGet();
 
         bind(reference, trace);
         return trace;
     }
 
-    private ThreadLocalReference<Trace> checkAndGet() {
-        final ThreadLocalReference<Trace> reference = this.threadLocalBinder.get();
+    private Reference<Trace> checkAndGet() {
+        final Reference<Trace> reference = this.threadLocalBinder.get();
         final Trace old = reference.get();
         if (old != null) {
             final PinpointException exception = new PinpointException("already Trace Object exist.");
@@ -123,21 +111,21 @@ public class ThreadLocalReferenceFactory implements TraceFactory {
 
     @Override
     public Trace newTraceObject() {
-        final ThreadLocalReference<Trace> reference = checkAndGet();
+        final Reference<Trace> reference = checkAndGet();
         final Trace trace = this.baseTraceFactory.newTraceObject();
 
         bind(reference, trace);
         return trace;
     }
 
-    private void bind(ThreadLocalReference<Trace> reference, Trace trace) {
+    private void bind(Reference<Trace> reference, Trace trace) {
         reference.set(trace);
 
     }
 
     @Override
     public Trace removeTraceObject() {
-        final ThreadLocalReference<Trace> reference = this.threadLocalBinder.get();
+        final Reference<Trace> reference = this.threadLocalBinder.get();
         final Trace trace = reference.clear();
         return trace;
     }
@@ -145,7 +133,7 @@ public class ThreadLocalReferenceFactory implements TraceFactory {
     // internal async trace.
     @Override
     public Trace continueAsyncTraceObject(TraceRoot traceRoot, int asyncId, short asyncSequence) {
-        final ThreadLocalReference<Trace> reference = checkAndGet();
+        final Reference<Trace> reference = checkAndGet();
 
         final Trace trace = this.baseTraceFactory.continueAsyncTraceObject(traceRoot, asyncId, asyncSequence);
 
@@ -157,7 +145,7 @@ public class ThreadLocalReferenceFactory implements TraceFactory {
     @InterfaceAudience.LimitedPrivate("vert.x")
     @Override
     public Trace continueAsyncTraceObject(final TraceId traceId) {
-        final ThreadLocalReference<Trace> reference = checkAndGet();
+        final Reference<Trace> reference = checkAndGet();
 
         final Trace trace = this.baseTraceFactory.continueAsyncTraceObject(traceId);
 
@@ -169,7 +157,7 @@ public class ThreadLocalReferenceFactory implements TraceFactory {
     @InterfaceAudience.LimitedPrivate("vert.x")
     @Override
     public Trace newAsyncTraceObject() {
-        final ThreadLocalReference<Trace> reference = checkAndGet();
+        final Reference<Trace> reference = checkAndGet();
 
         final Trace trace = this.baseTraceFactory.newAsyncTraceObject();
 

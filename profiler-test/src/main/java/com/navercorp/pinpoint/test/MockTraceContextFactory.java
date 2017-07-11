@@ -20,10 +20,13 @@ import com.google.inject.Provider;
 import com.google.inject.util.Providers;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.context.Binder;
+import com.navercorp.pinpoint.profiler.context.ThreadLocalBinder;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.AtomicIdGenerator;
@@ -134,9 +137,10 @@ public class MockTraceContextFactory {
 
         RecorderFactory recorderFactory = new DefaultRecorderFactory(asyncContextFactoryProvider, stringMetaDataService, sqlMetaDataService);
         TraceRootFactory traceRootFactory = newInternalTraceIdFactory(traceIdFactory, idGenerator);
+        Binder<Trace> binder = new ThreadLocalBinder<Trace>();
 
 
-        final Provider<TraceFactory> traceFactoryBuilder = new TraceFactoryProvider(traceRootFactory, callStackFactory, storageFactory,
+        final Provider<TraceFactory> traceFactoryBuilder = new TraceFactoryProvider(traceRootFactory, binder, callStackFactory, storageFactory,
                 sampler, idGenerator, asyncContextFactoryProvider,
                 Providers.of(activeTraceRepository), spanFactory, recorderFactory);
         final TraceFactory traceFactory = traceFactoryBuilder.get();
