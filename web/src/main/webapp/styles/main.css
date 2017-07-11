@@ -204,6 +204,7 @@ canvas {outline:none}
 .pinpoint-tooltip dt { 
 	color: yellow;
 	font-size: 16px;
+    margin: 12px 0px 2px 0px
 }
 .pinpoint-tooltip hr {
 	margin-top:10px;

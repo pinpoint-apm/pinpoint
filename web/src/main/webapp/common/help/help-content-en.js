@@ -98,6 +98,18 @@
 					}]
 				}]
 			},
+			bidirectional : {
+				mainStyle: "",
+				title: '<img src="images/bidirect_on.png" width="22px" height="22px" style="margin-top:-4px;"> Bidirectional Search',
+				desc: "Search-method of server map.",
+				category : [{
+					title: "[Legend]",
+					items: [{
+						name: "Bidirectional",
+						desc: " Renders inbound/outbound nodes for each and every node (within limit) even if they are not directly related to the selected node.<br>Note that checking this option may lead to overly complex server maps."
+					}]
+				}]
+			},
 			periodSelector: {
 				mainStyle: "",
 				title: "Period Selector",
