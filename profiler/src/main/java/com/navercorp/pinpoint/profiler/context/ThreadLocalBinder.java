@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import com.google.inject.Inject;
 import com.navercorp.pinpoint.profiler.util.NamedThreadLocal;
 
 /**
@@ -24,38 +24,27 @@ import com.navercorp.pinpoint.profiler.util.NamedThreadLocal;
  */
 public class ThreadLocalBinder<T> implements Binder<T> {
 
-    private final ThreadLocalInitializer<T> threadLocalInitializer;
-
-    private final ThreadLocal<T> threadLocal = new NamedThreadLocal<T>("ThreadLocalBinder") {
+    private final ThreadLocal<Reference<T>> threadLocal = new NamedThreadLocal<Reference<T>>("ThreadLocalBinder") {
         @Override
-        protected T initialValue() {
-            return threadLocalInitializer.initialValue();
+        protected Reference<T> initialValue() {
+            return new DefaultReference<T>();
         }
     };
 
-    public ThreadLocalBinder(ThreadLocalInitializer<T> threadLocalInitializer) {
-        this.threadLocalInitializer = Assert.requireNonNull(threadLocalInitializer, "threadLocalInitializer must not be null");
+    @Inject
+    public ThreadLocalBinder() {
     }
 
     @Override
-    public T get() {
+    public Reference<T> get() {
         return threadLocal.get();
     }
 
-    @Override
-    public void set(T t) {
-        threadLocal.set(t);
-    }
 
     @Override
-    public T remove() {
-        final T value = threadLocal.get();
-        threadLocal.remove();
-        return value;
+    public void remove() {
+        this.threadLocal.remove();
     }
 
-    public interface ThreadLocalInitializer<T> {
-        T initialValue();
-    }
 
 }

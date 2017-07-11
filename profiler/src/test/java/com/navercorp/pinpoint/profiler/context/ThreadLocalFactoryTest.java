@@ -24,18 +24,37 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public abstract class ThreadLocalFactoryAbstractTest {
+public abstract class ThreadLocalFactoryTest {
     protected final TraceFactory sampledTraceFactory = newTraceFactory(true);
 
     protected final TraceFactory unsampledTraceFactory = newTraceFactory(false);
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    abstract TraceFactory newTraceFactory(boolean sampled);
+    public TraceFactory newTraceFactory(boolean sampled) {
+
+        final Trace trace = mock(Trace.class);
+        when(trace.canSampled()).thenReturn(sampled);
+
+        final Trace disable = mock(Trace.class);
+        when(disable.canSampled()).thenReturn(false);
+
+        final BaseTraceFactory baseTraceFactory = mock(BaseTraceFactory.class);
+        when(baseTraceFactory.newTraceObject()).thenReturn(trace);
+        when(baseTraceFactory.disableSampling()).thenReturn(disable);
+
+        Binder<Trace> binder = new ThreadLocalBinder<Trace>();
+
+        TraceFactory traceFactory = new DefaultTraceFactory(baseTraceFactory, binder);
+        return traceFactory;
+    }
 
     @After
     public void tearDown() throws Exception {

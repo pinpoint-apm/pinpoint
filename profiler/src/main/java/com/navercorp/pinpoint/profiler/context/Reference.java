@@ -16,29 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class ThreadLocalTraceReference implements ThreadLocalReference<Trace> {
-    private Trace trace;
+public interface Reference<V> {
+    V get();
 
-    @Override
-    public Trace get() {
-        return trace;
-    }
+    void set(V value);
 
-
-    @Override
-    public void set(Trace trace) {
-        this.trace = trace;
-    }
-
-    @Override
-    public Trace clear() {
-        final Trace copy = this.trace;
-        this.trace = null;
-        return copy;
-    }
+    V clear();
 }

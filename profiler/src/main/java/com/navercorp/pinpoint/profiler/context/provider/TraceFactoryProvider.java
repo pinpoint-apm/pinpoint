@@ -18,11 +18,12 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
-import com.navercorp.pinpoint.profiler.context.ThreadLocalReferenceFactory;
+import com.navercorp.pinpoint.profiler.context.Binder;
+import com.navercorp.pinpoint.profiler.context.DefaultTraceFactory;
 import com.navercorp.pinpoint.profiler.context.BaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.CallStackFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultBaseTraceFactory;
@@ -46,24 +47,28 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final TraceRootFactory traceRootFactory;
+    private final Binder<Trace> binder;
     private final StorageFactory storageFactory;
     private final Sampler sampler;
     private final IdGenerator idGenerator;
+
     private final Provider<AsyncContextFactory> asyncContextFactoryProvider;
 
     private final ActiveTraceRepository activeTraceRepository;
 
     private final CallStackFactory callStackFactory;
-
     private final SpanFactory spanFactory;
     private final RecorderFactory recorderFactory;
 
 
     @Inject
-    public TraceFactoryProvider(TraceRootFactory traceRootFactory, CallStackFactory callStackFactory, StorageFactory storageFactory,
+    public TraceFactoryProvider(TraceRootFactory traceRootFactory, Binder<Trace> binder,
+                                CallStackFactory callStackFactory, StorageFactory storageFactory,
                                 Sampler sampler, IdGenerator idGenerator, Provider<AsyncContextFactory> asyncContextFactoryProvider,
                                 Provider<ActiveTraceRepository> activeTraceRepositoryProvider, SpanFactory spanFactory, RecorderFactory recorderFactory) {
         this.traceRootFactory = Assert.requireNonNull(traceRootFactory, "traceRootFactory must not be null");
+        this.binder = Assert.requireNonNull(binder, "binder must not be null");
+
         this.callStackFactory = Assert.requireNonNull(callStackFactory, "callStackFactory must not be null");
         this.storageFactory = Assert.requireNonNull(storageFactory, "storageFactory must not be null");
         this.sampler = Assert.requireNonNull(sampler, "sampler must not be null");
@@ -92,7 +97,7 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
             baseTraceFactory = LoggingBaseTraceFactory.wrap(baseTraceFactory);
         }
 
-        TraceFactory traceFactory = newTraceFactory(baseTraceFactory);
+        TraceFactory traceFactory = newTraceFactory(baseTraceFactory, binder);
         if (this.activeTraceRepository != null) {
             this.logger.debug("enable ActiveTrace");
             traceFactory = ActiveTraceFactory.wrap(traceFactory, this.activeTraceRepository);
@@ -101,8 +106,8 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
         return traceFactory;
     }
 
-    private TraceFactory newTraceFactory(BaseTraceFactory baseTraceFactory) {
-        return new ThreadLocalReferenceFactory(baseTraceFactory);
+    private TraceFactory newTraceFactory(BaseTraceFactory baseTraceFactory, Binder<Trace> binder) {
+        return new DefaultTraceFactory(baseTraceFactory, binder);
     }
 
     private boolean isDebugEnabled() {
