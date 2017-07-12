@@ -46,7 +46,7 @@ public class UdpSpanDispatchHandler extends AbstractDispatchHandler {
 
 
     @Override
-    List<SimpleHandler> getSimpleHandler(TBase<?, ?> tBase) {
+    protected List<SimpleHandler> getSimpleHandler(TBase<?, ?> tBase) {
         List<SimpleHandler> simpleHandlerList = new ArrayList<>();
 
         if (tBase instanceof TSpan) {

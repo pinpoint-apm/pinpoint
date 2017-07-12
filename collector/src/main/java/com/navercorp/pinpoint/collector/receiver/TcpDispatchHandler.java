@@ -61,7 +61,7 @@ public class TcpDispatchHandler extends AbstractDispatchHandler {
 
 
     @Override
-    RequestResponseHandler getRequestResponseHandler(TBase<?, ?> tBase) {
+    protected RequestResponseHandler getRequestResponseHandler(TBase<?, ?> tBase) {
         if (tBase instanceof TSqlMetaData) {
             return sqlMetaDataHandler;
         }
@@ -78,7 +78,7 @@ public class TcpDispatchHandler extends AbstractDispatchHandler {
     }
 
     @Override
-    List<SimpleHandler> getSimpleHandler(TBase<?, ?> tBase) {
+    protected List<SimpleHandler> getSimpleHandler(TBase<?, ?> tBase) {
         List<SimpleHandler> simpleHandlerList = new ArrayList<>();
         if (tBase instanceof TAgentInfo) {
             simpleHandlerList.add(agentInfoHandler);

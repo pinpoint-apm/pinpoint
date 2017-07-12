@@ -24,6 +24,6 @@ import org.apache.thrift.TBase;
  */
 public interface SimpleHandler {
 
-    void handleSimple(TBase<?, ?> tbase);
+    void handleSimple(TBase<?, ?> tBase);
     
 }

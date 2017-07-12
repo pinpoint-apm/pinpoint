@@ -35,7 +35,7 @@ import java.util.List;
  * @author Taejin Koo
  */
 @Service("agentEventHandler")
-public class AgentEventHandler implements Handler {
+public class AgentEventHandler implements SimpleHandler {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -49,16 +49,16 @@ public class AgentEventHandler implements Handler {
     private AgentEventService agentEventService;
 
     @Override
-    public void handle(TBase<?, ?> tbase) {
+    public void handleSimple(TBase<?, ?> tBase) {
         // FIXME (2014.08) Legacy - TAgentStat should not be sent over the wire.
-        if (tbase instanceof TAgentStat) {
-            TAgentStat tAgentStat = (TAgentStat)tbase;
+        if (tBase instanceof TAgentStat) {
+            TAgentStat tAgentStat = (TAgentStat)tBase;
             this.handleAgentStat(tAgentStat);
-        } else if (tbase instanceof TAgentStatBatch) {
-            TAgentStatBatch tAgentStatBatch = (TAgentStatBatch) tbase;
+        } else if (tBase instanceof TAgentStatBatch) {
+            TAgentStatBatch tAgentStatBatch = (TAgentStatBatch) tBase;
             this.handleAgentStatBatch(tAgentStatBatch);
         } else {
-            throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + TAgentStat.class.getName() + " or " + TAgentStatBatch.class.getName());
+            throw new IllegalArgumentException("unexpected tbase:" + tBase + " expected:" + TAgentStat.class.getName() + " or " + TAgentStatBatch.class.getName());
         }
     }
 

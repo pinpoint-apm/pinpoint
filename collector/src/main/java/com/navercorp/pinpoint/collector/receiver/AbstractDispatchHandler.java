@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
-import com.navercorp.pinpoint.collector.handler.Handler;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
@@ -60,17 +59,7 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
             }
         }
 
-        List<Handler> handlerList = getHandler(tBase);
-        if (!CollectionUtils.isEmpty(handlerList)) {
-            for (Handler handler : handlerList) {
-                if (logger.isTraceEnabled()) {
-                    logger.trace("handler name:{}", handler.getClass().getName());
-                }
-                handler.handle(tBase);
-            }
-        }
-
-        if (CollectionUtils.isEmpty(simpleHandlerList) && CollectionUtils.isEmpty(handlerList)) {
+        if (CollectionUtils.isEmpty(simpleHandlerList)) {
             throw new UnsupportedOperationException("Handler not found. Unknown type of data received. tBase=" + tBase);
         }
     }
@@ -90,15 +79,11 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
         throw new UnsupportedOperationException("Handler not found. Unknown type of data received. tBase=" + tBase);
     }
 
-    protected List<Handler> getHandler(TBase<?, ?> tBase) {
+    protected List<SimpleHandler> getSimpleHandler(TBase<?, ?> tBase) {
         return Collections.emptyList();
     }
 
-    List<SimpleHandler> getSimpleHandler(TBase<?, ?> tBase) {
-        return Collections.emptyList();
-    }
-
-    RequestResponseHandler getRequestResponseHandler(TBase<?, ?> tBase) {
+    protected RequestResponseHandler getRequestResponseHandler(TBase<?, ?> tBase) {
         return null;
     }
 

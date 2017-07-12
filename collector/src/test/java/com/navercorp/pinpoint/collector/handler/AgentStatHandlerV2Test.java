@@ -110,7 +110,7 @@ public class AgentStatHandlerV2Test {
         final AgentStatBo mappedAgentStat = new AgentStatBo();
         when(this.agentStatMapper.map(agentStat)).thenReturn(mappedAgentStat);
         // When
-        agentStatHandler.handle(agentStat);
+        agentStatHandler.handleSimple(agentStat);
         // Then
         verify(jvmGcDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getJvmGcBos());
         verify(jvmGcDetailedDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getJvmGcDetailedBos());
@@ -133,7 +133,7 @@ public class AgentStatHandlerV2Test {
         final AgentStatBo mappedAgentStat = new AgentStatBo();
         when(this.agentStatBatchMapper.map(agentStatBatch)).thenReturn(mappedAgentStat);
         // When
-        agentStatHandler.handle(agentStatBatch);
+        agentStatHandler.handleSimple(agentStatBatch);
         // Then
         verify(jvmGcDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getJvmGcBos());
         verify(jvmGcDetailedDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getJvmGcDetailedBos());
@@ -154,7 +154,7 @@ public class AgentStatHandlerV2Test {
         final AgentStatBo mappedAgentStat = null;
         when(this.agentStatMapper.map(agentStat)).thenReturn(mappedAgentStat);
         // When
-        agentStatHandler.handle(agentStat);
+        agentStatHandler.handleSimple(agentStat);
         // Then
         verifyZeroInteractions(jvmGcDao);
         verifyZeroInteractions(jvmGcDetailedDao);
@@ -175,7 +175,7 @@ public class AgentStatHandlerV2Test {
         final AgentStatBo mappedAgentStat = null;
         when(this.agentStatBatchMapper.map(agentStatBatch)).thenReturn(mappedAgentStat);
         // When
-        agentStatHandler.handle(agentStatBatch);
+        agentStatHandler.handleSimple(agentStatBatch);
         // Then
         verifyZeroInteractions(jvmGcDao);
         verifyZeroInteractions(jvmGcDetailedDao);
@@ -191,7 +191,7 @@ public class AgentStatHandlerV2Test {
         // Given
         final TAgentInfo wrongTBaseObject = new TAgentInfo();
         // When
-        agentStatHandler.handle(wrongTBaseObject);
+        agentStatHandler.handleSimple(wrongTBaseObject);
         // Then
         fail();
     }
