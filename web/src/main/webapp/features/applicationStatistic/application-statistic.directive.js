@@ -25,6 +25,12 @@
 						loadStatChart( UrlVoService.getQueryStartTime(), UrlVoService.getQueryEndTime() );
 					});
 
+					function initTooltip() {
+						TooltipService.init( "statHeap" );
+						TooltipService.init( "statPermGen" );
+						TooltipService.init( "statJVMCpu" );
+						TooltipService.init( "statSystemCpu" );
+					}
 					function loadStatChart(from, to) {
 						var oParam = {
 							to : to,
@@ -40,13 +46,13 @@
 										title: "JVM Cpu Usage",
 										isAvailable: false,
 										maximum: true
-									}, "Cpu Usage (%)", ["JVM(avg)", "JVM(max)", "JVM(min)"], chartData.data.charts["CPU_LOAD_JVM"]), "100%", "270px");
+									}, "Cpu Usage (%)", ["Avg", "Max", "Min"], chartData.data.charts["CPU_LOAD_JVM"]), "100%", "270px");
 									scope.$broadcast("statisticChartDirective.initAndRenderWithData.system", makeChartData({
 										id: "systemCpuLoad",
 										title: "System Cpu Usage",
 										isAvailable: false,
 										maximum: true
-									}, "Cpu Usage (%)", ["System(avg)", "System(max)", "System(min)"], chartData.data.charts["CPU_LOAD_SYSTEM"]), "100%", "270px");
+									}, "Cpu Usage (%)", ["Avg", "Max", "Min"], chartData.data.charts["CPU_LOAD_SYSTEM"]), "100%", "270px");
 								} else {
 									console.log("error");
 								}
@@ -59,13 +65,13 @@
 										title: "Memory Heap",
 										isAvailable: false,
 										maximum: false
-									}, "Memory(bytes)", ["JVM(avg)", "JVM(max)", "JVM(min)"], chartData.data.charts["MEMORY_HEAP"]), "100%", "270px");
+									}, "Memory(bytes)", ["Avg", "Max", "Min"], chartData.data.charts["MEMORY_HEAP"]), "100%", "270px");
 									scope.$broadcast("statisticChartDirective.initAndRenderWithData.non-heap", makeChartData({
 										id: "memoryNonHeapLoad",
 										title: "Memory Non Heap",
 										isAvailable: false,
 										maximum: false
-									}, "Memory(bytes)", ["System(avg)", "System(max)", "System(min)"], chartData.data.charts["MEMORY_NON_HEAP"]), "100%", "270px");
+									}, "Memory(bytes)", ["Avg", "Max", "Min"], chartData.data.charts["MEMORY_NON_HEAP"]), "100%", "270px");
 								} else {
 									console.log("error");
 								}
@@ -198,6 +204,7 @@
 					scope.$on("statisticChartDirective.cursorChanged", function (e, event, namespace) {
 						scope.$broadcast("statisticChartDirective.showCursorAt", event["index"], namespace);
 					});
+					initTooltip();
 				}
 			};
 		}

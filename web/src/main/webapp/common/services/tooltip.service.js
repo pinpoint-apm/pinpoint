@@ -76,6 +76,22 @@
 		"alarmRules": {
 			"position": "top",
 			"trigger": "click"
+		},
+		"statHeap": {
+			"position": "top",
+			"trigger": "click"
+		},
+		"statPermGen": {
+			"position": "top",
+			"trigger": "click"
+		},
+		"statJVMCpu": {
+			"position": "top",
+			"trigger": "click"
+		},
+		"statSystemCpu": {
+			"position": "top",
+			"trigger": "click"
 		}
 	});
 
@@ -130,6 +146,14 @@
 					return function() { return helpContentTemplate(helpContentService.realtime["default"]); };
 				case "alarmRules":
 					return function() { return helpContentTemplate(helpContentService.configuration.alarmRules); };
+				case "statHeap":
+					return function() { return helpContentTemplate(helpContentService.inspector.statHeap); };
+				case "statPermGen":
+					return function() { return helpContentTemplate(helpContentService.inspector.statPermGen); };
+				case "statJVMCpu":
+					return function() { return helpContentTemplate(helpContentService.inspector.statJVMCpu); };
+				case "statSystemCpu":
+					return function() { return helpContentTemplate(helpContentService.inspector.statSystemCpu); };
 			}
 		}
 	}]);

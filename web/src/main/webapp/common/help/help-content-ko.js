@@ -670,7 +670,82 @@
 				"2.{{agentId}}의 agent가 {{application2}}에도 등록 된 경우<hr>",
 				"1의 경우 {{application1}}과 {{agentId}}간의 매핑 저보를 삭제해야 합니다<br>",
 				"2의 경우 중복 등록 된 agent의 id를 변경해야 합니다.</div>"
-			].join("")
+			].join(""),
+			statHeap: {
+				mainStyle: "",
+				title: "Heap",
+				desc: "Agent들이 사용하는 JVM Heap 사이즈 정보",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent들이  사용하는  Heap 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent들이 사용하는 Heap의 평균값"
+					},{
+						name: "MIN",
+						desc: "Agent들이 사용하는 Heap 중 가장 작은 값"
+					}]
+				}]
+			},
+			statPermGen: {
+				mainStyle: "",
+				title: "PermGen",
+				desc: "Agent들이 사용하는 JVM Permgen 사이즈 정보",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent들이 사용하는 perm 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent들이 사용하는 perm의 평균값"
+					},{
+						name: "MIN",
+						desc: "Agent들이 사용하는 perm 중 가장 작은 값"
+					}]
+				}]
+			},
+			statJVMCpu: {
+				mainStyle: "",
+				title: "JVM Cpu Usage",
+				desc: "Agent들이 사용하는 JVM cpu 사용량 - 멀티코어 CPU의 경우, 전체 코어 사용량의 평균입니다.",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent들이 사용하는 JVM cpu 사용량 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent들이 사용하는 JVM cpu 사용량의 평균값"
+					},{
+						name: "MIN",
+						desc: "Agent들이 사용하는 JVM cpu 사용량 중 가장 작은 값"
+					}]
+				}]
+			},
+			statSystemCpu: {
+				mainStyle: "",
+				title: "System Cpu Usage",
+				desc: "Agent 서버들의 시스템 cpu 사용량 - 멀티코어 CPU의 경우, 전체 코어 사용량의 평균입니다.",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Agent 서버들의 시스템 cpu 사용량 중 가장 큰 값"
+					},{
+						name: "AVG",
+						desc: "Agent 서버들의 시스템 cpu 사용량 평균값"
+					},{
+						name: "MIN",
+						desc: "Agent 서버들의 시스템 cpu 사용량 중 가장 작은 값"
+					},{
+						name: "",
+						desc: "Java1.6 시스템 CPU 사용량은 수집되지 않습니다.<br>Java1.7+ 시스템 CPU 사용량이 수집됩니다."
+					}]
+				}]
+			}
 		},
 		callTree: {
 			column: {
