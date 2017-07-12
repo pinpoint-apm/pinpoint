@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
-import com.navercorp.pinpoint.collector.handler.Handler;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
@@ -41,7 +40,6 @@ public class DispatchHandlerTest {
 
     private static final int MAX_HANDLER_COUNT = 5;
 
-    private static final TestHandler TEST_HANDLER = new TestHandler();
     private static final TestSimpleHandler TEST_SIMPLE_HANDLER = new TestSimpleHandler();
     private static final TestRequestHandler TEST_REQUEST_HANDLER = new TestRequestHandler();
     @InjectMocks
@@ -68,7 +66,6 @@ public class DispatchHandlerTest {
     public void dispatchSendMessageTest() {
         testDispatchHandler.dispatchSendMessage(new TResult());
 
-        Assert.assertTrue(TEST_HANDLER.getExecutedCount() > 0);
         Assert.assertTrue(TEST_SIMPLE_HANDLER.getExecutedCount() > 0);
     }
 
@@ -82,22 +79,7 @@ public class DispatchHandlerTest {
     private static class TestDispatchHandler extends AbstractDispatchHandler {
 
         @Override
-        protected List<Handler> getHandler(TBase<?, ?> tBase) {
-            if (tBase == null) {
-                return Collections.emptyList();
-            }
-
-            int random = ThreadLocalRandom.current().nextInt(1, MAX_HANDLER_COUNT);
-            List<Handler> handlerList = new ArrayList<>(random);
-            for (int i = 0; i < random; i++) {
-                handlerList.add(TEST_HANDLER);
-            }
-
-            return handlerList;
-        }
-
-        @Override
-        List<SimpleHandler> getSimpleHandler(TBase<?, ?> tBase) {
+        protected List<SimpleHandler> getSimpleHandler(TBase<?, ?> tBase) {
             if (tBase == null) {
                 return Collections.emptyList();
             }
@@ -112,27 +94,12 @@ public class DispatchHandlerTest {
         }
 
         @Override
-        RequestResponseHandler getRequestResponseHandler(TBase<?, ?> tBase) {
+        protected RequestResponseHandler getRequestResponseHandler(TBase<?, ?> tBase) {
             if (tBase == null) {
                 return null;
             }
 
             return TEST_REQUEST_HANDLER;
-        }
-
-    }
-
-    private static class TestHandler implements Handler {
-
-        private int executedCount = 0;
-
-        @Override
-        public void handle(TBase<?, ?> tbase) {
-            executedCount++;
-        }
-
-        public int getExecutedCount() {
-            return executedCount;
         }
 
     }

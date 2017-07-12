@@ -16,14 +16,14 @@
 package com.navercorp.pinpoint.flink.receiver;
 
 
-import com.navercorp.pinpoint.collector.handler.Handler;
+import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceContext;
 import org.apache.thrift.TBase;
 
 /**
  * @author minwoo.jung
  */
-public class AgentStatHandler implements Handler {
+public class AgentStatHandler implements SimpleHandler {
 
     private final SourceContext sourceContext;
 
@@ -32,7 +32,8 @@ public class AgentStatHandler implements Handler {
     }
 
     @Override
-    public void handle(TBase<?, ?> tBase) {
+    public void handleSimple(TBase<?, ?> tBase) {
         sourceContext.collect(tBase);
     }
+
 }

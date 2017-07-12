@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.flink.receiver;
 
-import com.navercorp.pinpoint.collector.handler.Handler;
+import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.receiver.AbstractDispatchHandler;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import org.apache.thrift.TBase;
@@ -31,8 +31,8 @@ public class TcpDispatchHandler extends AbstractDispatchHandler {
     private  AgentStatHandler agentStatHandler;
 
     @Override
-    protected List<Handler> getHandler(TBase<?, ?> tBase) {
-        List<Handler> handlerList = new ArrayList<>();
+    protected List<SimpleHandler> getSimpleHandler(TBase<?, ?> tBase) {
+        List<SimpleHandler> handlerList = new ArrayList<>();
 
         if (tBase instanceof TFAgentStatBatch) {
             handlerList.add(agentStatHandler);
