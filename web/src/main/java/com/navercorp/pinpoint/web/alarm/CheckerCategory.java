@@ -145,7 +145,7 @@ public enum CheckerCategory {
             return new DataSourceConnectionUsageRateChecker((DataSourceDataCollector) dataCollector, rule);
         }
     },
-    DEADLOCK_OCCURRENCE("DEADLOCK OCCURRENCE", DataCollectorCategory.DATA_SOURCE_STAT) {
+    DEADLOCK_OCCURRENCE("DEADLOCK OCCURRENCE", DataCollectorCategory.AGENT_EVENT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
             return new DeadlockChecker((AgentEventDataCollector) dataCollector, rule);
