@@ -650,7 +650,82 @@
 				"2. A different agent with the same agent id has been registered to {{application2}}<hr>",
 				"For the former case, you should delete the mapping between {{application1}} and {{agentId}}.<br>",
 				"For the latter case, the agent id of the duplicate agent must be changed.</div>"
-			].join("")
+			].join(""),
+			statHeap: {
+				mainStyle: "",
+				title: "Heap",
+				desc: "Heap size used by agent JVMs",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "MAX",
+						desc: "Largest heap size used by agent JVMs"
+					},{
+						name: "AVG",
+						desc: "Average heap size used by agent JVMs"
+					},{
+						name: "MIN",
+						desc: "Smallest heap size used by agent JVMs"
+					}]
+				}]
+			},
+			statPermGen: {
+				mainStyle: "",
+				title: "PermGen",
+				desc: "Permgen size used by the agent JVMs",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "MAX",
+						desc: "Largest permgen size used by agent JVMs"
+					},{
+						name: "AVG",
+						desc: "Average permgen size used by agent JVMs"
+					},{
+						name: "MIN",
+						desc: "Smallest permgen size used by agent JVMs"
+					}]
+				}]
+			},
+			statJVMCpu: {
+				mainStyle: "",
+				title: "JVM Cpu Usage",
+				desc: "CPU used by agent JVM processes - For multi-core CPUs, displays the average CPU usage of all the cores.",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "MAX",
+						desc: "Largest CPU usage of agent JVM processes"
+					},{
+						name: "AVG",
+						desc: "Average CPU usage of agent JVM processes"
+					},{
+						name: "MIN",
+						desc: "Smallest CPU usage of agent JVM processes"
+					}]
+				}]
+			},
+			statSystemCpu: {
+				mainStyle: "",
+				title: "System pu Usage",
+				desc: "CPU usage of agents' whole system - For multi-core CPUs, displays the average CPU usage of all the cores.",
+				category: [{
+					title: "[범례]",
+					items: [{
+						name: "MAX",
+						desc: "Largest system CPU usage of agents"
+					},{
+						name: "AVG",
+						desc: "Average system CPU usage of agents"
+					},{
+						name: "MIN",
+						desc: "Smallest system CPU usage of agents"
+					},{
+						name: "",
+						desc: "Java1.6 Only the JVM's CPU usage is collected<br>Java1.7+ Both the JVM's and the system's CPU usage are collected"
+					}]
+				}]
+			}
 		},
 		callTree: {
 			column: {
