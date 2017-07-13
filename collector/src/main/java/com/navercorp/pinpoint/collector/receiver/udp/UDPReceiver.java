@@ -16,21 +16,17 @@
 
 package com.navercorp.pinpoint.collector.receiver.udp;
 
-import com.codahale.metrics.MetricRegistry;
-import com.navercorp.pinpoint.collector.monitor.MonitoredExecutorService;
 import com.navercorp.pinpoint.collector.receiver.DataReceiver;
-import com.navercorp.pinpoint.collector.receiver.WorkerOption;
+import com.navercorp.pinpoint.collector.receiver.DispatchWorker;
 import com.navercorp.pinpoint.collector.util.DatagramPacketFactory;
 import com.navercorp.pinpoint.collector.util.DefaultObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPool;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
 import com.navercorp.pinpoint.collector.util.PooledObject;
-import com.navercorp.pinpoint.common.util.ExecutorFactory;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.CpuUtils;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
@@ -44,11 +40,9 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author emeroad
@@ -64,16 +58,12 @@ public class UDPReceiver implements DataReceiver {
 
     private final String receiverName;
 
-    @Autowired
-    private MetricRegistry metricRegistry;
-
     // increasing ioThread size wasn't very effective
     private final int ioThreadSize = CpuUtils.cpuCount();
     private ThreadPoolExecutor io;
 
-    private final WorkerOption workerOption;
     // modify thread pool size appropriately when modifying queue capacity
-    private ExecutorService worker;
+    private DispatchWorker worker;
 
     // can't really allocate memory as max udp packet sizes are unknown.
     // not allocating memory in advance as I am unsure of the max udp packet size.
@@ -84,24 +74,23 @@ public class UDPReceiver implements DataReceiver {
 
     private final PacketHandlerFactory<DatagramPacket> packetHandlerFactory;
 
-    private final AtomicInteger rejectedExecutionCount = new AtomicInteger(0);
-
     private final AtomicBoolean state = new AtomicBoolean(true);
 
-    public UDPReceiver(String receiverName, PacketHandlerFactory<DatagramPacket> packetHandlerFactory, String bindAddress, int port, int receiverBufferSize, WorkerOption workerOption) {
+    public UDPReceiver(String receiverName, PacketHandlerFactory<DatagramPacket> packetHandlerFactory, String bindAddress, int port, int receiverBufferSize, DispatchWorker worker) {
         if (receiverName != null) {
             this.logger = LoggerFactory.getLogger(receiverName);
         } else {
             this.logger = LoggerFactory.getLogger(this.getClass());
         }
+
         if (packetHandlerFactory == null) {
             throw new NullPointerException("packetHandlerFactory must not be null");
         }
         if (bindAddress == null) {
             throw new NullPointerException("bindAddress must not be null");
         }
-        if (workerOption == null) {
-            throw new NullPointerException("workerOption must not be null");
+        if (worker == null) {
+            throw new NullPointerException("worker must not be null");
         }
 
         this.receiverName = receiverName;
@@ -111,29 +100,16 @@ public class UDPReceiver implements DataReceiver {
 
         this.packetHandlerFactory = packetHandlerFactory;
 
-        this.workerOption = workerOption;
+        this.worker = worker;
     }
 
     public void afterPropertiesSet() {
-        Assert.notNull(metricRegistry, "metricRegistry must not be null");
         Assert.notNull(packetHandlerFactory, "packetHandlerFactory must not be null");
 
-        this.worker = createWorker(workerOption, receiverName + "-Worker");
-        if (workerOption.isEnableCollectMetric()) {
-            this.worker = new MonitoredExecutorService(worker, metricRegistry, receiverName + "-Worker");
-        }
-
-        final int packetPoolSize = getPacketPoolSize(workerOption);
+        final int packetPoolSize = getPacketPoolSize();
         this.datagramPacketPool = new DefaultObjectPool<>(new DatagramPacketFactory(), packetPoolSize);
 
         this.io = (ThreadPoolExecutor) Executors.newCachedThreadPool(new PinpointThreadFactory(receiverName + "-Io", true));
-    }
-
-    private ExecutorService createWorker(WorkerOption workerOption, String receiverName) {
-        int workerThreadSize = workerOption.getWorkerThreadSize();
-        int workerThreadQueueSize = workerOption.getWorkerThreadQueueSize();
-
-        return ExecutorFactory.newFixedThreadPool(workerThreadSize, workerThreadQueueSize, receiverName, true);
     }
 
     private void receive(final DatagramSocket socket) {
@@ -156,23 +132,11 @@ public class UDPReceiver implements DataReceiver {
                 }
                 return;
             }
-            try {
-                Runnable dispatchTask = wrapDispatchTask(pooledPacket);
-                worker.execute(dispatchTask);
-            } catch (RejectedExecutionException ree) {
-                handleRejectedExecutionException(ree);
-            }
+            Runnable dispatchTask = wrapDispatchTask(pooledPacket);
+            worker.execute(dispatchTask);
         }
         if (logger.isInfoEnabled()) {
             logger.info("stop ioThread localAddress:{}, IoThread:{}", localSocketAddress, Thread.currentThread().getName());
-        }
-    }
-
-    private void handleRejectedExecutionException(RejectedExecutionException ree) {
-        final int error = rejectedExecutionCount.incrementAndGet();
-        final int mod = 100;
-        if ((error % mod) == 0) {
-            logger.warn("RejectedExecutionCount={}", error);
         }
     }
 
@@ -255,9 +219,11 @@ public class UDPReceiver implements DataReceiver {
         }
     }
 
-    private int getPacketPoolSize(WorkerOption workerOption) {
-        int workerThreadQueueSize = workerOption.getWorkerThreadQueueSize();
-        return workerOption.getWorkerThreadSize() + workerThreadQueueSize + ioThreadSize;
+    private int getPacketPoolSize() {
+        int threadSize = worker.getThreadSize();
+        int queueSize = worker.getQueueSize();
+
+        return threadSize + queueSize + ioThreadSize;
     }
 
     @PostConstruct
@@ -293,7 +259,6 @@ public class UDPReceiver implements DataReceiver {
             socket.close();
         }
         shutdownExecutor(io, "IoExecutor");
-        shutdownExecutor(worker, "WorkerExecutor");
     }
 
     private void shutdownExecutor(ExecutorService executor, String executorName) {

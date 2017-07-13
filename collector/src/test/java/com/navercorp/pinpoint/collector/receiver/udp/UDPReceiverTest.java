@@ -16,22 +16,22 @@
 
 package com.navercorp.pinpoint.collector.receiver.udp;
 
+import com.navercorp.pinpoint.collector.receiver.DataReceiver;
+import com.navercorp.pinpoint.collector.receiver.DispatchWorker;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.SocketUtils;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.SocketUtils;
-
-import com.navercorp.pinpoint.collector.receiver.DataReceiver;
-import com.navercorp.pinpoint.collector.receiver.WorkerOption;
 
 /**
  * @author emeroad
@@ -45,14 +45,14 @@ public class UDPReceiverTest {
     public void startStop() {
         DataReceiver receiver = null;
 
-        WorkerOption workerOption = new WorkerOption(1, 10, true);
+        DispatchWorker mockWorker = Mockito.mock(DispatchWorker.class);
         try {
             receiver = new UDPReceiver("test", new PacketHandlerFactory() {
                 @Override
                 public PacketHandler createPacketHandler() {
                     return null;
                 }
-            }, "127.0.0.1", PORT, 1024, workerOption);
+            }, "127.0.0.1", PORT, 1024, mockWorker);
         } catch (Exception e) {
             logger.debug(e.getMessage(), e);
             Assert.fail(e.getMessage());

@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:jee="http://www.springframework.org/schema/jee" xmlns:lang="http://www.springframework.org/schema/lang"
-       xmlns:beans="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p"
-       xmlns:util="http://www.springframework.org/schema/util" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-       xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
-        http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
-        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
@@ -32,7 +27,7 @@
 
     <context:component-scan
             base-package="com.navercorp.pinpoint.common.server.util,
-                        com.navercorp.pinpoint.collector.mapper.thrift.stat" />
+                        com.navercorp.pinpoint.collector.mapper.thrift.stat"/>
 
 
     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -45,7 +40,7 @@
 
     </bean>
 
-    <util:properties id="pinpoint_flink_properties" location="classpath:pinpoint-flink.properties" />
+    <util:properties id="pinpoint_flink_properties" location="classpath:pinpoint-flink.properties"/>
 
     <!-- 컴포넌트 스캔으로 변경 필요함-->
     <bean id="flinkConfiguration" class="com.navercorp.pinpoint.flink.config.FlinkConfiguration">
@@ -250,10 +245,25 @@
     <!--<ref bean="agentLifeCycleChangeEventHandler"/> -->
     <!--</util:list>-->
 
-    <bean id="tcpReceiver" class="com.navercorp.pinpoint.flink.receiver.TCPReceiver" lazy-init="true">
-    <constructor-arg index="0" ref="flinkConfiguration"/>
-    <constructor-arg index="1" ref="tcpDispatchHandlerWrapper"/>
-    <constructor-arg index="2" ref="serverAcceptor"/>
+    <!-- TCPReceiver related Beans -->
+    <bean id="flinkWorkerOption" class="com.navercorp.pinpoint.collector.receiver.DispatchWorkerOption">
+        <constructor-arg index="0" value="Pinpoint-Flink-Worker"/>
+        <constructor-arg index="1" value="#{collectorConfiguration.tcpWorkerThread}"/>
+        <constructor-arg index="2" value="#{collectorConfiguration.tcpWorkerQueueSize}"/>
+        <constructor-arg index="3" value="1"/>
+        <constructor-arg index="4" value="#{collectorConfiguration.tcpWorkerMonitor}"/>
+    </bean>
+
+    <bean id="flinkWorker" class="com.navercorp.pinpoint.collector.receiver.DispatchWorker">
+        <constructor-arg index="0" ref="flinkWorkerOption"/>
+    </bean>
+
+
+    <bean id="tcpReceiver" class="com.navercorp.pinpoint.flink.receiver.TCPReceiver" lazy-init="true" depends-on="flinkWorker">
+        <constructor-arg index="0" ref="flinkConfiguration"/>
+        <constructor-arg index="1" ref="tcpDispatchHandlerWrapper"/>
+        <constructor-arg index="2" ref="flinkWorker"/>
+        <constructor-arg index="3" ref="serverAcceptor"/>
     </bean>
 
     <bean id="tcpSourceFunction" class="com.navercorp.pinpoint.flink.receiver.TcpSourceFunction"/>
