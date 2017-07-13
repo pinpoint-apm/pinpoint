@@ -18,11 +18,9 @@ package com.navercorp.pinpoint.flink.receiver;
 
 import com.codahale.metrics.MetricRegistry;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
-import com.navercorp.pinpoint.collector.monitor.MonitoredExecutorService;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.DispatchWorker;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
-import com.navercorp.pinpoint.common.util.ExecutorFactory;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
@@ -32,7 +30,10 @@ import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
-import com.navercorp.pinpoint.thrift.io.*;
+import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseDeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.thrift.TBase;
@@ -49,10 +50,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author emeroad
@@ -62,43 +59,35 @@ public class TCPReceiver {
 
     private final Logger logger = LoggerFactory.getLogger(TCPReceiver.class);
 
-    private final ThreadFactory tcpWorkerThreadFactory = new PinpointThreadFactory("Pinpoint-TCP-Worker");
     private final DispatchHandler dispatchHandler;
+    private final DispatchWorker worker;
+
     private final PinpointServerAcceptor serverAcceptor;
     private final CollectorConfiguration configuration;
     private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<>(new FlinkHeaderTBaseDeserializerFactory());
 
-    private ExecutorService worker;
 
-    @Autowired(required=false)
+    @Autowired(required = false)
     private MetricRegistry metricRegistry;
 
-    public TCPReceiver(CollectorConfiguration configuration,  DispatchHandler dispatchHandler, PinpointServerAcceptor serverAcceptor) {
+    public TCPReceiver(CollectorConfiguration configuration, DispatchHandler dispatchHandler, DispatchWorker worker, PinpointServerAcceptor serverAcceptor) {
         if (configuration == null) {
             throw new NullPointerException("collector configuration must not be null");
         }
         if (dispatchHandler == null) {
             throw new NullPointerException("dispatchHandler must not be null");
         }
+        if (worker == null) {
+            throw new NullPointerException("worker may not be null");
+        }
 
         this.dispatchHandler = dispatchHandler;
+        this.worker = worker;
         this.configuration = configuration;
         this.serverAcceptor = serverAcceptor;
     }
 
     public void afterPropertiesSet() {
-        ExecutorService worker = ExecutorFactory.newFixedThreadPool(configuration.getTcpWorkerThread(), configuration.getTcpWorkerQueueSize(), tcpWorkerThreadFactory);
-        if (configuration.isTcpWorkerMonitor()) {
-            if (metricRegistry == null) {
-                logger.warn("metricRegistry not autowired. Can't enable monitoring.");
-                this.worker = worker;
-            } else {
-                this.worker = new MonitoredExecutorService(worker, metricRegistry, this.getClass().getSimpleName() + "-Worker");
-            }
-        } else {
-            this.worker = worker;
-        }
-
         setL4TcpChannel(serverAcceptor, configuration.getL4IpList());
     }
 
@@ -137,7 +126,6 @@ public class TCPReceiver {
             @Override
             public HandshakeResponseCode handleHandshake(Map properties) {
                 return HandshakeResponseType.Success.SIMPLEX_COMMUNICATION;
-
             }
 
             @Override
@@ -158,16 +146,17 @@ public class TCPReceiver {
     }
 
     private void receive(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-        try {
-            worker.execute(new Dispatch(sendPacket.getPayload(), pinpointSocket.getRemoteAddress()));
-        } catch (RejectedExecutionException e) {
-            // cause is clear - full stack trace not necessary
-            logger.warn("RejectedExecutionException Caused:{}", e.getMessage());
-        }
+        worker.execute(new Dispatch(sendPacket.getPayload(), pinpointSocket.getRemoteAddress()));
     }
 
     private void requestResponse(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-          logger.warn("Not support requestResponse");
+        logger.warn("Not support requestResponse");
+    }
+
+    @PreDestroy
+    public void stop() {
+        logger.info("Pinpoint-TCP-Server stop");
+        serverAcceptor.close();
     }
 
     private class Dispatch implements Runnable {
@@ -203,25 +192,6 @@ public class TCPReceiver {
                     logger.debug("packet dump hex:{}", PacketUtils.dumpByteArray(bytes));
                 }
             }
-        }
-    }
-
-    @PreDestroy
-    public void stop() {
-        logger.info("Pinpoint-TCP-Server stop");
-        serverAcceptor.close();
-        shutdownExecutor(worker);
-    }
-
-    private void shutdownExecutor(ExecutorService executor) {
-        if (executor == null) {
-            return;
-        }
-        executor.shutdown();
-        try {
-            executor.awaitTermination(10, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
         }
     }
 }

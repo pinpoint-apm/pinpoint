@@ -19,14 +19,13 @@ package com.navercorp.pinpoint.collector.receiver.tcp;
 import com.codahale.metrics.MetricRegistry;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
-import com.navercorp.pinpoint.collector.monitor.MonitoredExecutorService;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.DispatchWorker;
 import com.navercorp.pinpoint.collector.rpc.handler.AgentLifeCycleHandler;
 import com.navercorp.pinpoint.collector.service.AgentEventService;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
-import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
@@ -67,7 +66,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
@@ -87,57 +85,51 @@ public class TCPReceiver {
 
     private final ZookeeperClusterService clusterService;
 
-    private ExecutorService worker;
+    private final DispatchWorker worker;
 
     private final SerializerFactory<HeaderTBaseSerializer> serializerFactory = new ThreadLocalHeaderTBaseSerializerFactory<>(new HeaderTBaseSerializerFactory(true, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE));
     private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<>(new HeaderTBaseDeserializerFactory());
 
-    @Autowired(required=false)
+    @Autowired(required = false)
     private MetricRegistry metricRegistry;
 
-    @Resource(name="agentEventWorker")
+    @Resource(name = "agentEventWorker")
     private ExecutorService agentEventWorker;
-    
-    @Resource(name="agentEventService")
+
+    @Resource(name = "agentEventService")
     private AgentEventService agentEventService;
-    
-    @Resource(name="agentLifeCycleHandler")
+
+    @Resource(name = "agentLifeCycleHandler")
     private AgentLifeCycleHandler agentLifeCycleHandler;
-    
-    @Resource(name="channelStateChangeEventHandlers")
+
+    @Resource(name = "channelStateChangeEventHandlers")
     private List<ServerStateChangeEventHandler> channelStateChangeEventHandlers = Collections.emptyList();
 
-    public TCPReceiver(CollectorConfiguration configuration, DispatchHandler dispatchHandler) {
-        this(configuration, dispatchHandler, new PinpointServerAcceptor(), null);
+    public TCPReceiver(CollectorConfiguration configuration, DispatchHandler dispatchHandler, DispatchWorker worker) {
+        this(configuration, dispatchHandler, worker, new PinpointServerAcceptor(), null);
     }
 
-    public TCPReceiver(CollectorConfiguration configuration, DispatchHandler dispatchHandler, PinpointServerAcceptor serverAcceptor, ZookeeperClusterService service) {
+    public TCPReceiver(CollectorConfiguration configuration, DispatchHandler dispatchHandler, DispatchWorker worker, PinpointServerAcceptor serverAcceptor, ZookeeperClusterService service) {
         if (configuration == null) {
             throw new NullPointerException("collector configuration must not be null");
         }
         if (dispatchHandler == null) {
             throw new NullPointerException("dispatchHandler must not be null");
         }
-        
-        this.dispatchHandler = dispatchHandler;
+        if (worker == null) {
+            throw new NullPointerException("worker may not be null");
+        }
+
         this.configuration = configuration;
+
+        this.dispatchHandler = dispatchHandler;
+        this.worker = worker;
+
         this.serverAcceptor = serverAcceptor;
         this.clusterService = service;
     }
 
     public void afterPropertiesSet() {
-        ExecutorService worker = ExecutorFactory.newFixedThreadPool(configuration.getTcpWorkerThread(), configuration.getTcpWorkerQueueSize(), tcpWorkerThreadFactory);
-        if (configuration.isTcpWorkerMonitor()) {
-            if (metricRegistry == null) {
-                logger.warn("metricRegistry not autowired. Can't enable monitoring.");
-                this.worker = worker;
-            } else {
-                this.worker = new MonitoredExecutorService(worker, metricRegistry, this.getClass().getSimpleName() + "-Worker");
-            }
-        } else {
-            this.worker = worker;
-        }
-
         if (clusterService != null && clusterService.isEnable()) {
             this.serverAcceptor.addStateChangeEventHandler(clusterService.getChannelStateChangeEventHandler());
         }
@@ -148,7 +140,7 @@ public class TCPReceiver {
 
         setL4TcpChannel(serverAcceptor, configuration.getL4IpList());
     }
-    
+
     private void setL4TcpChannel(PinpointServerAcceptor serverFactory, List<String> l4ipList) {
         if (l4ipList == null) {
             return;
@@ -166,7 +158,7 @@ public class TCPReceiver {
                     inetAddressList.add(address);
                 }
             }
-            
+
             InetAddress[] inetAddressArray = new InetAddress[inetAddressList.size()];
             serverFactory.setIgnoreAddressList(inetAddressList.toArray(inetAddressArray));
         } catch (UnknownHostException e) {
@@ -219,23 +211,13 @@ public class TCPReceiver {
     }
 
     private void receive(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-        try {
-            worker.execute(new Dispatch(sendPacket.getPayload(), pinpointSocket.getRemoteAddress()));
-        } catch (RejectedExecutionException e) {
-            // cause is clear - full stack trace not necessary 
-            logger.warn("RejectedExecutionException Caused:{}", e.getMessage());
-        }
+        worker.execute(new Dispatch(sendPacket.getPayload(), pinpointSocket.getRemoteAddress()));
     }
 
     private void requestResponse(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-        try {
-            worker.execute(new RequestResponseDispatch(requestPacket, pinpointSocket));
-        } catch (RejectedExecutionException e) {
-            // cause is clear - full stack trace not necessary
-            logger.warn("RejectedExecutionException Caused:{}", e.getMessage());
-        }
+        worker.execute(new RequestResponseDispatch(requestPacket, pinpointSocket));
     }
-    
+
     private void recordPing(PingPacket pingPacket, PinpointServer pinpointServer) {
         final int eventCounter = pingPacket.getPingId();
         long pingTimestamp = System.currentTimeMillis();
@@ -246,6 +228,25 @@ public class TCPReceiver {
             agentEventService.handleEvent(pinpointServer, pingTimestamp, AgentEventType.AGENT_PING);
         } catch (Exception e) {
             logger.warn("Error handling ping event", e);
+        }
+    }
+
+    @PreDestroy
+    public void stop() {
+        logger.info("Pinpoint-TCP-Server stop");
+        serverAcceptor.close();
+        shutdownExecutor(agentEventWorker);
+    }
+
+    private void shutdownExecutor(ExecutorService executor) {
+        if (executor == null) {
+            return;
+        }
+        executor.shutdown();
+        try {
+            executor.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -326,26 +327,6 @@ public class TCPReceiver {
                     logger.debug("packet dump hex:{}", PacketUtils.dumpByteArray(bytes));
                 }
             }
-        }
-    }
-
-    @PreDestroy
-    public void stop() {
-        logger.info("Pinpoint-TCP-Server stop");
-        serverAcceptor.close();
-        shutdownExecutor(worker);
-        shutdownExecutor(agentEventWorker);
-    }
-    
-    private void shutdownExecutor(ExecutorService executor) {
-        if (executor == null) {
-            return;
-        }
-        executor.shutdown();
-        try {
-            executor.awaitTermination(10, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
         }
     }
 }
