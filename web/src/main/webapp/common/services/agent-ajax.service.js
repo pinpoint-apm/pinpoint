@@ -19,7 +19,9 @@
 		"tpsChart"			: "getAgentStat/transaction/chart.pinpoint",
 		"activeTraceChart"	: "getAgentStat/activeTrace/chart.pinpoint",
 		"dataSourceChart"	: "getAgentStat/dataSource/chartList.pinpoint",
-		"responseTimeChart" : "getAgentStat/responseTime/chart.pinpoint"
+		"responseTimeChart" : "getAgentStat/responseTime/chart.pinpoint",
+		"statMemory"		: "getApplicationStat/memory/chart.pinpoint",
+		"statCpuLoad"		: "getApplicationStat/cpuLoad/chart.pinpoint"
 	});
 
 	pinpointApp.service('AgentAjaxService', [ 'AgentAjaxServiceConfig', '$http', function ($config, $http) {
@@ -57,6 +59,12 @@
 		};
 		this.getEvent = function( data, callback ) {
 			retrieve($config.agentEvent, data, callback);
+		};
+		this.getStatMemory = function( data, callback ) {
+			retrieve($config.statMemory, data, callback);
+		};
+		this.getStatCpuLoad = function( data, callback ) {
+			retrieve($config.statCpuLoad, data, callback);
 		};
 
 		function retrieve(url, data, callback) {

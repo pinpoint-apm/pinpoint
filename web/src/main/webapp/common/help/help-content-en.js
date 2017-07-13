@@ -722,7 +722,7 @@
 						desc: "Smallest system CPU usage of agents"
 					},{
 						name: "",
-						desc: "Java1.6 Only the JVM's CPU usage is collected<br>Java1.7+ Both the JVM's and the system's CPU usage are collected"
+						desc: "<span style='color:#2ca02c'>Java1.6 Only the JVM's CPU usage is collected<br>Java1.7+ Both the JVM's and the system's CPU usage are collected</span>"
 					}]
 				}]
 			}
