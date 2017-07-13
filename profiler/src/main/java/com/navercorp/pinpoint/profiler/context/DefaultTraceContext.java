@@ -28,15 +28,14 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
+
 import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.context.id.TraceRootSupport;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * @author emeroad
@@ -50,6 +49,8 @@ public class DefaultTraceContext implements TraceContext {
     private final TraceIdFactory traceIdFactory;
     private final TraceFactory traceFactory;
 
+    private final AsyncTraceContext asyncTraceContext;
+
     private final AgentInformation agentInformation;
 
     private final ApiMetaDataService apiMetaDataService;
@@ -62,13 +63,11 @@ public class DefaultTraceContext implements TraceContext {
 
     private final JdbcContext jdbcContext;
 
-    private final AsyncIdGenerator asyncIdGenerator;
-
     public DefaultTraceContext(final ProfilerConfig profilerConfig,
                                final AgentInformation agentInformation,
                                final TraceIdFactory traceIdFactory,
                                final TraceFactory traceFactory,
-                               final AsyncIdGenerator asyncIdGenerator,
+                               final AsyncTraceContext asyncTraceContext,
                                final ServerMetaDataHolder serverMetaDataHolder,
                                final ApiMetaDataService apiMetaDataService,
                                final StringMetaDataService stringMetaDataService,
@@ -81,7 +80,8 @@ public class DefaultTraceContext implements TraceContext {
 
         this.traceIdFactory = Assert.requireNonNull(traceIdFactory, "traceIdFactory must not be null");
         this.traceFactory = Assert.requireNonNull(traceFactory, "traceFactory must not be null");
-        this.asyncIdGenerator = Assert.requireNonNull(asyncIdGenerator, "asyncIdGenerator must not be null");
+        this.asyncTraceContext = Assert.requireNonNull(asyncTraceContext, "asyncTraceContextProvider must not be null");
+
         this.jdbcContext = Assert.requireNonNull(jdbcContext, "jdbcContext must not be null");
 
         this.apiMetaDataService = Assert.requireNonNull(apiMetaDataService, "apiMetaDataService must not be null");
@@ -151,28 +151,7 @@ public class DefaultTraceContext implements TraceContext {
 
     @Override
     public Trace continueAsyncTraceObject(AsyncTraceId asyncTraceId, int asyncId, long startTime) {
-        Assert.requireNonNull(asyncTraceId, "asyncTraceId must not be null");
-
-        final TraceRoot traceRoot = getTraceRoot(asyncTraceId, startTime);
-        final short asyncSequence = asyncTraceId.nextAsyncSequence();
-        return traceFactory.continueAsyncTraceObject(traceRoot, asyncId, asyncSequence);
-    }
-
-    private TraceRoot getTraceRoot(AsyncTraceId asyncTraceId, long startTime) {
-        if (asyncTraceId instanceof TraceRootSupport) {
-            final TraceRoot traceRoot = ((TraceRootSupport) asyncTraceId).getTraceRoot();
-            assertTraceStartTime(traceRoot, startTime);
-            return traceRoot ;
-        }
-
-        throw new UnsupportedOperationException("unsupported TraceRootSupport:" + asyncTraceId);
-    }
-
-    private void assertTraceStartTime(TraceRoot traceRoot, long startTime) {
-        if (traceRoot.getTraceStartTime() != startTime) {
-            throw new IllegalStateException("traceStartTime not equals traceRoot:" + traceRoot.getTraceStartTime()
-                    + " startTime:" + startTime);
-        }
+        return asyncTraceContext.continueAsyncTraceObject(asyncTraceId, asyncId, startTime).get();
     }
 
 
@@ -246,7 +225,7 @@ public class DefaultTraceContext implements TraceContext {
 
     @Override
     public int getAsyncId() {
-        return this.asyncIdGenerator.nextAsyncId();
+        return this.asyncTraceContext.nextAsyncId();
     }
 
     @Override

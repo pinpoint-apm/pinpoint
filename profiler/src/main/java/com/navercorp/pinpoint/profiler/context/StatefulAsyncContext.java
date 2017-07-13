@@ -30,8 +30,8 @@ public class StatefulAsyncContext extends DefaultAsyncContext implements AsyncSt
     private final AsyncState asyncState;
 
 
-    public StatefulAsyncContext(TraceFactory traceFactory, TraceRoot traceRoot, int asyncId, int asyncMethodApiId, AsyncState asyncState) {
-        super(traceFactory, traceRoot, asyncId, asyncMethodApiId);
+    public StatefulAsyncContext(AsyncTraceContext asyncTraceContext, TraceRoot traceRoot, int asyncId, int asyncMethodApiId, AsyncState asyncState) {
+        super(asyncTraceContext, traceRoot, asyncId, asyncMethodApiId);
         this.asyncState = Assert.requireNonNull(asyncState, "asyncState must not be null");
     }
 

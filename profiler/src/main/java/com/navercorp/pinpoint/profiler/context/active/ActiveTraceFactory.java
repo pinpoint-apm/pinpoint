@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.context.active;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.profiler.context.TraceFactory;
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 /**
  * @author Taejin Koo
@@ -77,11 +76,6 @@ public class ActiveTraceFactory implements TraceFactory {
     public Trace continueTraceObject(Trace continueTrace) {
         final Trace trace = this.delegate.continueTraceObject(continueTrace);
         return trace;
-    }
-
-    @Override
-    public Trace continueAsyncTraceObject(TraceRoot traceRoot, int asyncId, short asyncSequence) {
-        return this.delegate.continueAsyncTraceObject(traceRoot, asyncId, asyncSequence);
     }
 
     @Override

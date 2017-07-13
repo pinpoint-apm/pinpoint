@@ -16,33 +16,30 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface TraceFactory {
+public interface AsyncTraceContext {
 
-    Trace currentTraceObject();
+//    Reference<Trace> continueAsyncTraceObject(TraceRoot traceRoot, int asyncId, short asyncSequence);
 
-    Trace currentRawTraceObject();
+    Reference<Trace> continueAsyncTraceObject(TraceRoot traceRoot, int asyncId, short asyncSequence);
 
-    Trace removeTraceObject();
+    Trace newAsyncTraceObject(TraceRoot traceRoot, int asyncId, short asyncSequence);
 
-    Trace disableSampling();
+    Reference<Trace> continueAsyncTraceObject(AsyncTraceId asyncTraceId, int asyncId, long startTime);
 
-    // picked as sampling target at remote
-    Trace continueTraceObject(TraceId traceId);
+    Reference<Trace> currentRawTraceObject();
 
-    Trace continueTraceObject(Trace trace);
+    Reference<Trace> currentTraceObject();
 
-    @InterfaceAudience.LimitedPrivate("vert.x")
-    Trace continueAsyncTraceObject(TraceId traceId);
+    void removeTraceObject();
 
-    Trace newTraceObject();
+    int nextAsyncId();
 
-    @InterfaceAudience.LimitedPrivate("vert.x")
-    Trace newAsyncTraceObject();
 }

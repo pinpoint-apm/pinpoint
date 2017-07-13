@@ -25,6 +25,8 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.context.AsyncTraceContext;
+import com.navercorp.pinpoint.profiler.context.BaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.Binder;
 import com.navercorp.pinpoint.profiler.context.ThreadLocalBinder;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
@@ -38,6 +40,8 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.method.DefaultPredefinedMethodDescriptorRegistry;
 import com.navercorp.pinpoint.profiler.context.method.PredefinedMethodDescriptorRegistry;
 import com.navercorp.pinpoint.profiler.context.provider.AsyncContextFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.AsyncTraceContextProvider;
+import com.navercorp.pinpoint.profiler.context.provider.BaseTraceFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.context.DefaultSpanFactory;
@@ -133,20 +137,27 @@ public class MockTraceContextFactory {
 
         final AsyncIdGenerator asyncIdGenerator = new DefaultAsyncIdGenerator();
         final PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry = new DefaultPredefinedMethodDescriptorRegistry(apiMetaDataService);
-        final AsyncContextFactoryProvider asyncContextFactoryProvider = new AsyncContextFactoryProvider(asyncIdGenerator, predefinedMethodDescriptorRegistry);
+
+        final Binder<Trace> binder = new ThreadLocalBinder<Trace>();
+        final AsyncTraceContextProvider asyncTraceContextProvider = new AsyncTraceContextProvider(asyncIdGenerator, binder);
+        final AsyncContextFactoryProvider asyncContextFactoryProvider = new AsyncContextFactoryProvider(asyncTraceContextProvider, asyncIdGenerator, predefinedMethodDescriptorRegistry);
 
         RecorderFactory recorderFactory = new DefaultRecorderFactory(asyncContextFactoryProvider, stringMetaDataService, sqlMetaDataService);
         TraceRootFactory traceRootFactory = newInternalTraceIdFactory(traceIdFactory, idGenerator);
-        Binder<Trace> binder = new ThreadLocalBinder<Trace>();
 
 
-        final Provider<TraceFactory> traceFactoryBuilder = new TraceFactoryProvider(traceRootFactory, binder, callStackFactory, storageFactory,
+        Provider<BaseTraceFactory> baseTraceFactoryProvider = new BaseTraceFactoryProvider(traceRootFactory, storageFactory,
                 sampler, idGenerator, asyncContextFactoryProvider,
-                Providers.of(activeTraceRepository), spanFactory, recorderFactory);
+                callStackFactory, spanFactory, recorderFactory);
+        asyncTraceContextProvider.setBaseTraceFactoryProvider(baseTraceFactoryProvider);
+
+        final Provider<TraceFactory> traceFactoryBuilder = new TraceFactoryProvider(baseTraceFactoryProvider, binder, Providers.of(activeTraceRepository));
         final TraceFactory traceFactory = traceFactoryBuilder.get();
 
+
+        AsyncTraceContext asyncTraceContext = asyncTraceContextProvider.get();
         this.traceContext = new DefaultTraceContext(profilerConfig, agentInformation,
-                traceIdFactory, traceFactory, asyncIdGenerator, serverMetaDataHolder,
+                traceIdFactory, traceFactory, asyncTraceContext, serverMetaDataHolder,
                 apiMetaDataService, stringMetaDataService, sqlMetaDataService,
                 DisabledJdbcContext.INSTANCE
         );

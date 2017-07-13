@@ -20,8 +20,8 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
+import com.navercorp.pinpoint.profiler.context.AsyncTraceContext;
 import com.navercorp.pinpoint.profiler.context.DefaultAsyncContextFactory;
-import com.navercorp.pinpoint.profiler.context.TraceFactory;
 import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.method.PredefinedMethodDescriptorRegistry;
 
@@ -30,26 +30,22 @@ import com.navercorp.pinpoint.profiler.context.method.PredefinedMethodDescriptor
  */
 public class AsyncContextFactoryProvider implements Provider<AsyncContextFactory> {
 
-    private Provider<TraceFactory> traceFactoryProvider;
+    private final Provider<AsyncTraceContext> asyncTraceContextProvider;
     private final AsyncIdGenerator asyncIdGenerator;
     private final PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry;
 
     @Inject
-    public AsyncContextFactoryProvider(AsyncIdGenerator asyncIdGenerator, PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry) {
+    public AsyncContextFactoryProvider(Provider<AsyncTraceContext> asyncTraceContextProvider, AsyncIdGenerator asyncIdGenerator, PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry) {
+        this.asyncTraceContextProvider = Assert.requireNonNull(asyncTraceContextProvider, "asyncTraceContextProvider must not be null");
         this.asyncIdGenerator = Assert.requireNonNull(asyncIdGenerator, "asyncIdGenerator must not be null");
         this.predefinedMethodDescriptorRegistry = Assert.requireNonNull(predefinedMethodDescriptorRegistry, "predefinedMethodDescriptorRegistry must not be null");
-    }
-
-    @Inject
-    public void setTraceFactoryProvider(Provider<TraceFactory> traceFactoryProvider) {
-        this.traceFactoryProvider = Assert.requireNonNull(traceFactoryProvider, "traceFactoryProvider must not be null");
     }
 
 
 
     @Override
     public AsyncContextFactory get() {
-        Assert.requireNonNull(traceFactoryProvider, "traceFactoryProvider must not be null");
-        return new DefaultAsyncContextFactory(traceFactoryProvider, asyncIdGenerator, predefinedMethodDescriptorRegistry);
+        final AsyncTraceContext asyncTraceContext = asyncTraceContextProvider.get();
+        return new DefaultAsyncContextFactory(asyncTraceContext, asyncIdGenerator, predefinedMethodDescriptorRegistry);
     }
 }

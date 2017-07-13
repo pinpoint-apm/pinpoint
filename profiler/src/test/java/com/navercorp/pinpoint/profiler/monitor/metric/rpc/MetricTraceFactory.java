@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.monitor.metric.rpc;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.TraceFactory;
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 /**
  * @author emeroad
@@ -78,10 +77,6 @@ public class MetricTraceFactory implements TraceFactory {
         return delegate.continueAsyncTraceObject(traceId);
     }
 
-    @Override
-    public Trace continueAsyncTraceObject(TraceRoot traceRoot, int asyncId, short asyncSequence) {
-        return delegate.continueAsyncTraceObject(traceRoot, asyncId, asyncSequence);
-    }
 
     @Override
     public Trace newTraceObject() {

@@ -39,4 +39,18 @@ public class DefaultReference<V> implements Reference<V> {
         this.value = null;
         return copy;
     }
+
+
+
+    private static final Reference<Object> EMPTY = new DefaultReference<Object>() {
+        @Override
+        public void set(Object value) {
+            throw new IllegalStateException("unsupported set:" + value);
+        }
+    };
+
+    @SuppressWarnings("unchecked")
+    public static <V> Reference<V> emptyReference() {
+        return (Reference<V>) EMPTY;
+    }
 }
