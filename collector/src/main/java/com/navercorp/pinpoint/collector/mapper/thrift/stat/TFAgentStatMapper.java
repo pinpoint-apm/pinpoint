@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
+import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFJvmGc;
 
@@ -29,6 +30,7 @@ import java.util.*;
 public class TFAgentStatMapper {
     private static final TFCpuLoadMapper tFCpuLoadMapper = new TFCpuLoadMapper();
     private static final TFJvmGcMapper tFJvmGcMapper = new TFJvmGcMapper();
+    private static final TFTransactionMapper tFTransactionMapper = new TFTransactionMapper();
 
     public List<TFAgentStat> map(AgentStatBo agentStatBo) {
         final TreeMap<Long, TFAgentStat> tFAgentStatMap = new TreeMap<>();
@@ -37,8 +39,21 @@ public class TFAgentStatMapper {
 
         insertTFCpuLoad(tFAgentStatMap, agentStatBo.getCpuLoadBos(), agentId, startTimestamp);
         insertTFJvmGc(tFAgentStatMap, agentStatBo.getJvmGcBos(), agentId, startTimestamp);
+        //insertTFTransaction(tFAgentStatMap, agentStatBo.getTransactionBos(), agentId, startTimestamp);
 
         return new ArrayList<>(tFAgentStatMap.values());
+    }
+
+    private void insertTFTransaction(TreeMap<Long, TFAgentStat> tFAgentStatMap, List<TransactionBo> transactionBoList, String agentId, long startTimestamp) {
+        if (transactionBoList == null) {
+            return;
+        }
+
+        for (TransactionBo transactionBo : transactionBoList) {
+            TFAgentStat tfAgentStat = getOrCreateTFAgentStat(tFAgentStatMap, transactionBo.getTimestamp(), agentId, startTimestamp);
+            tfAgentStat.setCollectInterval(transactionBo.getCollectInterval());
+            tfAgentStat.setTransaction(tFTransactionMapper.map(transactionBo));
+        }
     }
 
     private void insertTFJvmGc(TreeMap<Long, TFAgentStat> tFAgentStatMap, List<JvmGcBo> jvmGcBoList, String agentId, long startTimestamp) {
