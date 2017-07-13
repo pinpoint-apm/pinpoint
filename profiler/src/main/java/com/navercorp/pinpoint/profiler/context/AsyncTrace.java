@@ -188,7 +188,7 @@ public class AsyncTrace implements Trace {
                 logger.debug("Close trace={}. asyncState={}", this, this.asyncState);
             }
         }
-        this.asyncState = null;
+
     }
 
 

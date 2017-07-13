@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
@@ -32,13 +30,13 @@ import com.navercorp.pinpoint.profiler.context.method.PredefinedMethodDescriptor
  */
 public class DefaultAsyncContextFactory implements AsyncContextFactory {
 
-    private final Provider<TraceFactory> traceFactoryProvider;
+    private final AsyncTraceContext asyncTraceContext;
     private final AsyncIdGenerator asyncIdGenerator;
     private final PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry;
     private final int asyncMethodApiId;
 
-    public DefaultAsyncContextFactory(Provider<TraceFactory> traceFactoryProvider, AsyncIdGenerator asyncIdGenerator, PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry) {
-        this.traceFactoryProvider = Assert.requireNonNull(traceFactoryProvider, "traceFactoryProvider must not be null");
+    public DefaultAsyncContextFactory(AsyncTraceContext asyncTraceContext, AsyncIdGenerator asyncIdGenerator, PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry) {
+        this.asyncTraceContext = Assert.requireNonNull(asyncTraceContext, "traceFactoryProvider must not be null");
         this.asyncIdGenerator = Assert.requireNonNull(asyncIdGenerator, "asyncIdGenerator must not be null");
 
         this.predefinedMethodDescriptorRegistry = Assert.requireNonNull(predefinedMethodDescriptorRegistry, "predefinedMethodDescriptorRegistry must not be null");
@@ -55,9 +53,8 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
     public InternalAsyncContext newAsyncContext(TraceRoot traceRoot) {
         Assert.requireNonNull(traceRoot, "traceRoot must not be null");
 
-        final TraceFactory traceFactory = traceFactoryProvider.get();
         final int asyncId = asyncIdGenerator.nextAsyncId();
-        return new DefaultAsyncContext(traceFactory, traceRoot, asyncId, this.asyncMethodApiId);
+        return new DefaultAsyncContext(asyncTraceContext, traceRoot, asyncId, this.asyncMethodApiId);
     }
 
     @Override
@@ -65,9 +62,8 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
         Assert.requireNonNull(traceRoot, "traceRoot must not be null");
         Assert.requireNonNull(asyncState, "asyncState must not be null");
 
-        final TraceFactory traceFactory = traceFactoryProvider.get();
         final int asyncId = asyncIdGenerator.nextAsyncId();
-        return new StatefulAsyncContext(traceFactory, traceRoot, asyncId, asyncMethodApiId, asyncState);
+        return new StatefulAsyncContext(asyncTraceContext, traceRoot, asyncId, asyncMethodApiId, asyncState);
     }
 
 

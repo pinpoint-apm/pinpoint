@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
@@ -41,7 +40,7 @@ public class DefaultAsyncContext implements InternalAsyncContext {
     private final TraceRoot traceRoot;
     private final int asyncId;
 
-    private final TraceFactory traceFactory;
+    private final AsyncTraceContext asyncTraceContext;
 
     @SuppressWarnings("unused")
     private volatile int asyncSequence = 0;
@@ -49,8 +48,8 @@ public class DefaultAsyncContext implements InternalAsyncContext {
     private final int asyncMethodApiId;
 
 
-    public DefaultAsyncContext(TraceFactory traceFactory, TraceRoot traceRoot, int asyncId, int asyncMethodApiId) {
-        this.traceFactory = Assert.requireNonNull(traceFactory, "traceFactory must not be null");
+    public DefaultAsyncContext(AsyncTraceContext asyncTraceContext, TraceRoot traceRoot, int asyncId, int asyncMethodApiId) {
+        this.asyncTraceContext = Assert.requireNonNull(asyncTraceContext, "asyncTraceContext must not be null");
         this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
         this.asyncId = asyncId;
 
@@ -66,7 +65,8 @@ public class DefaultAsyncContext implements InternalAsyncContext {
     @Override
     public Trace continueAsyncTraceObject() {
 
-        final Trace nestedTrace = traceFactory.currentRawTraceObject();
+        final Reference<Trace> reference = asyncTraceContext.currentRawTraceObject();
+        final Trace nestedTrace = reference.get();
         if (nestedTrace != null) {
             // return Nested Trace Object?
             if (nestedTrace.canSampled()) {
@@ -75,14 +75,18 @@ public class DefaultAsyncContext implements InternalAsyncContext {
             return null;
         }
 
-        return newAsyncTrace();
+        return newAsyncTrace(reference);
     }
 
-    private Trace newAsyncTrace() {
+    private Trace newAsyncTrace(Reference<Trace> reference) {
         final short asyncSequence = nextAsyncSequence();
-        final Trace asyncTrace = traceFactory.continueAsyncTraceObject(traceRoot, asyncId, asyncSequence);
+        final Trace asyncTrace = asyncTraceContext.newAsyncTraceObject(traceRoot, asyncId, asyncSequence);
+
+
+        bind(reference, asyncTrace);
+
         if (logger.isDebugEnabled()) {
-            logger.debug("traceFactory.continueAsyncTraceObject() AsyncTrace:{}", asyncTrace);
+            logger.debug("asyncTraceContext.continueAsyncTraceObject() AsyncTrace:{}", asyncTrace);
         }
 
         // add async scope.
@@ -108,25 +112,17 @@ public class DefaultAsyncContext implements InternalAsyncContext {
         return asyncTrace;
     }
 
-//    @Override
-//    public Trace continueAsyncTraceObject() {
-//
-//        final Trace currentTrace = traceFactory.currentRawTraceObject();
-//        if (currentTrace == null) {
-//            // return Nested Trace?
-//            return currentTrace;
-//        }
-//
-//        final short asyncSequence = nextAsyncSequence();
-//        final Trace asyncTrace = traceFactory.continueAsyncTraceObject(traceRoot, asyncId, asyncSequence);
-//
-//        return asyncTrace;
-//    }
+    private void bind(Reference<Trace> reference, Trace asyncTrace) {
+        Assert.state(reference.get() == null, "traceReference is not null");
+
+        reference.set(asyncTrace);
+    }
+
 
     @Override
     public Trace currentAsyncTraceObject() {
-        final Trace trace = traceFactory.currentTraceObject();
-        return trace;
+        final Reference<Trace> reference = asyncTraceContext.currentTraceObject();
+        return reference.get();
     }
 
 
@@ -134,9 +130,10 @@ public class DefaultAsyncContext implements InternalAsyncContext {
         return (short) ASYNC_SEQUENCE_UPDATER.incrementAndGet(this);
     }
 
+
     @Override
     public void close() {
-        traceFactory.removeTraceObject();
+        asyncTraceContext.removeTraceObject();
     }
 
     @Override
