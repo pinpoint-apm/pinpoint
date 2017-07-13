@@ -43,7 +43,7 @@ public class AnnotationKeyRegistry {
 
     private HashMap<String, AnnotationKey> buildNameTable(Collection<AnnotationKey> buildMap) {
 
-        final HashMap<String, AnnotationKey> nameLookupTable = new HashMap<String, AnnotationKey>();
+        final HashMap<String, AnnotationKey> nameLookupTable = new HashMap<>();
 
         for (AnnotationKey annotationKey : buildMap) {
             final AnnotationKey exist = nameLookupTable.put(annotationKey.getName(), annotationKey);
@@ -61,7 +61,7 @@ public class AnnotationKeyRegistry {
 
 
     private IntHashMap<AnnotationKey> buildApiMetaDataError(Collection<AnnotationKey> buildMap) {
-        final IntHashMap<AnnotationKey> table = new IntHashMap<AnnotationKey>();
+        final IntHashMap<AnnotationKey> table = new IntHashMap<>();
 
         for (AnnotationKey annotationKey : buildMap) {
             if (annotationKey.isErrorApiMetadata()) {

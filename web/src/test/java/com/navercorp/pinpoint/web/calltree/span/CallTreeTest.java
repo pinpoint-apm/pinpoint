@@ -37,7 +37,7 @@ public class CallTreeTest {
     private static final boolean ASYNC = true;
 
     private SpanCallTree callTree = new SpanCallTree(makeSpanAlign());
-    private List<String> expectResult = new ArrayList<String>();
+    private List<String> expectResult = new ArrayList<>();
 
     @Test
     public void add() {

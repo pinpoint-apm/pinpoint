@@ -87,7 +87,7 @@ public class AgentStatBatchMapper implements ThriftBoMapper<AgentStatBo, TAgentS
         List<CpuLoadBo> cpuLoadBos = new ArrayList<>(agentStatsSize);
         List<TransactionBo> transactionBos = new ArrayList<>(agentStatsSize);
         List<ActiveTraceBo> activeTraceBos = new ArrayList<>(agentStatsSize);
-        List<DataSourceListBo> dataSourceListBos = new ArrayList<DataSourceListBo>(agentStatsSize);
+        List<DataSourceListBo> dataSourceListBos = new ArrayList<>(agentStatsSize);
         List<ResponseTimeBo> responseTimeBos = new ArrayList<>(agentStatsSize);
         List<DeadlockBo> deadlockBos = new ArrayList<>(agentStatsSize);
 

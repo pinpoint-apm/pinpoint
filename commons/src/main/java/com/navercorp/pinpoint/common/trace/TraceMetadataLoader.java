@@ -172,7 +172,7 @@ public class TraceMetadataLoader {
         private final Map<Short, Pair<ServiceType>> serviceTypeCodeMap = new HashMap<Short, Pair<ServiceType>>();
 
         private void check(ServiceType type, Class<?> providerClass) {
-            Pair<ServiceType> pair = new Pair<ServiceType>(type, providerClass);
+            Pair<ServiceType> pair = new Pair<>(type, providerClass);
             Pair<ServiceType> prev = serviceTypeNameMap.put(type.getName(), pair);
     
             if (prev != null) {
@@ -191,7 +191,7 @@ public class TraceMetadataLoader {
         private void logResult() {
             logger.info("Finished loading ServiceType:");
 
-            List<Pair<ServiceType>> serviceTypes = new ArrayList<Pair<ServiceType>>(serviceTypeCodeMap.values());
+            List<Pair<ServiceType>> serviceTypes = new ArrayList<>(serviceTypeCodeMap.values());
             Collections.sort(serviceTypes, new Comparator<Pair<ServiceType>>() {
                 @Override
                 public int compare(Pair<ServiceType> o1, Pair<ServiceType> o2) {
@@ -213,7 +213,7 @@ public class TraceMetadataLoader {
         private final Map<Integer, Pair<AnnotationKey>> annotationKeyCodeMap = new HashMap<Integer, Pair<AnnotationKey>>();
 
         private void check(AnnotationKey key, Class<?> providerClass) {
-            Pair<AnnotationKey> pair = new Pair<AnnotationKey>(key, providerClass);
+            Pair<AnnotationKey> pair = new Pair<>(key, providerClass);
             Pair<AnnotationKey> prev = annotationKeyCodeMap.put(key.getCode(), pair);
     
             if (prev != null) {
@@ -225,7 +225,7 @@ public class TraceMetadataLoader {
         private void logResult() {
             logger.info("Finished loading AnnotationKeys:");
 
-            List<Pair<AnnotationKey>> annotationKeys = new ArrayList<Pair<AnnotationKey>>(annotationKeyCodeMap.values());
+            List<Pair<AnnotationKey>> annotationKeys = new ArrayList<>(annotationKeyCodeMap.values());
             Collections.sort(annotationKeys, new Comparator<Pair<AnnotationKey>>() {
                 @Override
                 public int compare(Pair<AnnotationKey> o1, Pair<AnnotationKey> o2) {

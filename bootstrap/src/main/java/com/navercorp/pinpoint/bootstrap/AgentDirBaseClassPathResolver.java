@@ -87,7 +87,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
     }
 
     public List<String> getDefaultFileExtensionList() {
-        List<String> extensionList = new ArrayList<String>();
+        List<String> extensionList = new ArrayList<>();
         extensionList.add("jar");
         extensionList.add("xml");
         extensionList.add("properties");
@@ -331,7 +331,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
             logger.warn(agentLibPath + " not Directory");
             return Collections.emptyList();
         }
-        final List<URL> jarURLList =  new ArrayList<URL>();
+        final List<URL> jarURLList = new ArrayList<>();
 
         final File[] findJarList = findJar(libDir);
         if (findJarList != null) {

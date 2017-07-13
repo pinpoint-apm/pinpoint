@@ -52,7 +52,7 @@ public class ActiveTraceBoMapper implements ThriftBoMapper<ActiveTraceBo, TActiv
             if (activeTraceCounts.size() != 4) {
                 return Collections.emptyMap();
             } else {
-                Map<SlotType, Integer> activeTraceCountMap = new HashMap<SlotType, Integer>();
+                Map<SlotType, Integer> activeTraceCountMap = new HashMap<>();
                 activeTraceCountMap.put(SlotType.FAST, activeTraceCounts.get(0));
                 activeTraceCountMap.put(SlotType.NORMAL, activeTraceCounts.get(1));
                 activeTraceCountMap.put(SlotType.SLOW, activeTraceCounts.get(2));

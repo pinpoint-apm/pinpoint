@@ -44,7 +44,7 @@ public class BootstrapJarFile {
     }
 
     public List<String> getJarNameList() {
-        List<String> bootStrapJarLIst = new ArrayList<String>(jarFileEntry.size());
+        List<String> bootStrapJarLIst = new ArrayList<>(jarFileEntry.size());
         for (JarFile jarFile : jarFileEntry) {
             bootStrapJarLIst.add(jarFile.getName());
         }

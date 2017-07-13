@@ -91,7 +91,7 @@ public final class NetworkUtils {
     }
 
     public static List<String> getHostIpList() {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
 
         Enumeration<NetworkInterface> interfaces = null;
         try {
@@ -137,7 +137,7 @@ public final class NetworkUtils {
 
     public static List<String> getHostV4IpList() {
         List<String> hostIpList = getHostIpList();
-        List<String> hostV4IpList = new ArrayList<String>(hostIpList.size());
+        List<String> hostV4IpList = new ArrayList<>(hostIpList.size());
         for (String ip : hostIpList) {
             if (validationIpV4FormatAddress(ip)) {
                 hostV4IpList.add(ip);

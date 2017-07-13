@@ -37,7 +37,7 @@ public class PluginDisableIT {
     public void test() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("name", "jackson");
         
         mapper.writeValueAsString(map);

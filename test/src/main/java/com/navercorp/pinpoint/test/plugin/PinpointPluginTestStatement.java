@@ -142,7 +142,7 @@ public class PinpointPluginTestStatement extends Statement {
     }
     
     private String[] buildCommand() {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         
         list.add(context.getJavaExecutable());
         

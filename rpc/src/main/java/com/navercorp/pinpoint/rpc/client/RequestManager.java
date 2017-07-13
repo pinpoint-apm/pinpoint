@@ -144,7 +144,7 @@ public class RequestManager {
         final int requestId = getNextRequestId();
         requestPacket.setRequestId(requestId);
 
-        final ChannelWriteFailListenableFuture<ResponseMessage> future = new ChannelWriteFailListenableFuture<ResponseMessage>(timeoutMillis);
+        final ChannelWriteFailListenableFuture<ResponseMessage> future = new ChannelWriteFailListenableFuture<>(timeoutMillis);
 
         final DefaultFuture old = this.requestMap.put(requestId, future);
         if (old != null) {

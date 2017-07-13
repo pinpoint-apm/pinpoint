@@ -33,7 +33,7 @@ public class StandbySpanStreamDataStorageTest {
     @BeforeClass
     public static void setUp() {
         HeaderTBaseSerializerPoolFactory serializerFactory = new HeaderTBaseSerializerPoolFactory(true, 1000, true);
-        ObjectPool<HeaderTBaseSerializer> objectPool = new ObjectPool<HeaderTBaseSerializer>(serializerFactory, 16);
+        ObjectPool<HeaderTBaseSerializer> objectPool = new ObjectPool<>(serializerFactory, 16);
 
         factory = new SpanStreamSendDataFactory(objectPool);
     }

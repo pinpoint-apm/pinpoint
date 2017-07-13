@@ -73,7 +73,7 @@ public class HeaderTBaseDeserializer {
     }
     
     public List<TBase<?, ?>> deserializeList(byte[] buffer) throws TException {
-        List<TBase<?, ?>> tBaseList = new ArrayList<TBase<?,?>>();
+        List<TBase<?, ?>> tBaseList = new ArrayList<>();
         
         trans.reset(buffer);
         try {

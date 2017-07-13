@@ -129,7 +129,7 @@ public final class PinpointRPCTestUtils {
     }
 
     public static Map<String, Object> getParams() {
-        Map<String, Object> properties = new HashMap<String, Object>();
+        Map<String, Object> properties = new HashMap<>();
         properties.put(HandshakePropertyType.AGENT_ID.getName(), "agent");
         properties.put(HandshakePropertyType.APPLICATION_NAME.getName(), "application");
         properties.put(HandshakePropertyType.HOSTNAME.getName(), "hostname");

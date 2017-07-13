@@ -169,7 +169,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         
         registerPing();
 
-        Map<String, Object> handshakeData = new HashMap<String, Object>();
+        Map<String, Object> handshakeData = new HashMap<>();
         handshakeData.putAll(clientFactory.getProperties());
         handshakeData.put("socketId", socketId);
 
@@ -342,7 +342,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
         boolean isEnable = state.isEnableCommunication();
         if (!isEnable) {
-            DefaultFuture<ResponseMessage> closedException = new DefaultFuture<ResponseMessage>();
+            DefaultFuture<ResponseMessage> closedException = new DefaultFuture<>();
             closedException.setFailure(new PinpointSocketException("invalid state:" + state.getCurrentStateCode() + " channel:" + channel));
             return closedException;
         }

@@ -112,7 +112,7 @@ public class TestBroker {
             brokerService.setBrokerName(this.brokerName);
             brokerService.setPersistent(false);
             brokerService.setUseJmx(false);
-            Map<String, ActiveMQConnectionFactory> connectionFactories = new HashMap<String, ActiveMQConnectionFactory>();
+            Map<String, ActiveMQConnectionFactory> connectionFactories = new HashMap<>();
             for (String bindAddress : this.connectors) {
                 TransportConnector connector = brokerService.addConnector(bindAddress);
                 connectionFactories.put(bindAddress, new ActiveMQConnectionFactory(connector.getConnectUri()));

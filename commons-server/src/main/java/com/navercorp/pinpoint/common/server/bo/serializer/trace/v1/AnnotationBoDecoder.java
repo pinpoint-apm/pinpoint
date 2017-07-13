@@ -33,7 +33,7 @@ public class AnnotationBoDecoder {
             return new ArrayList<AnnotationBo>();
         }
 
-        List<AnnotationBo> annotationBoList = new ArrayList<AnnotationBo>(annotationSize);
+        List<AnnotationBo> annotationBoList = new ArrayList<>(annotationSize);
         for (int i = 0; i < annotationSize; i++) {
 
             AnnotationBo annotation = decodeAnnotation(valueBuffer);

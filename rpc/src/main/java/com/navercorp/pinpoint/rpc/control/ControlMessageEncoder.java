@@ -86,7 +86,7 @@ public class ControlMessageEncoder {
             } else if (value.getClass().isArray()) {
                 int arraySize = Array.getLength(value);
 
-                List<Object> arrayToList = new ArrayList<Object>(arraySize);
+                List<Object> arrayToList = new ArrayList<>(arraySize);
                 for (int i = 0; i < arraySize; i++) {
                     arrayToList.add(Array.get(value, i));
                 }

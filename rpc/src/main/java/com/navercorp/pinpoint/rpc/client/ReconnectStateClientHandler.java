@@ -69,7 +69,7 @@ public class ReconnectStateClientHandler implements PinpointClientHandler {
     }
 
     private DefaultFuture<ResponseMessage> reconnectFailureFuture() {
-        DefaultFuture<ResponseMessage> reconnect = new DefaultFuture<ResponseMessage>();
+        DefaultFuture<ResponseMessage> reconnect = new DefaultFuture<>();
         reconnect.setFailure(newReconnectException());
         return reconnect;
     }

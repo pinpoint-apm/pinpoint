@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class SpanStorage implements Storage {
 
-    protected List<TSpanEvent> spanEventList = new ArrayList<TSpanEvent>(10);
+    protected List<TSpanEvent> spanEventList = new ArrayList<>(10);
     private final TraceRoot traceRoot;
     private final DataSender dataSender;
 

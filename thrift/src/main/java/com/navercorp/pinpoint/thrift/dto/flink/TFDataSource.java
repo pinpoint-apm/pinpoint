@@ -140,7 +140,7 @@ public class TFDataSource implements org.apache.thrift.TBase<TFDataSource, TFDat
   private static final _Fields optionals[] = {_Fields.SERVICE_TYPE_CODE, _Fields.DATABASE_NAME, _Fields.URL, _Fields.ACTIVE_CONNECTION_SIZE, _Fields.MAX_CONNECTION_SIZE};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
-    Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+    Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
     tmpMap.put(_Fields.ID, new org.apache.thrift.meta_data.FieldMetaData("id", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.SERVICE_TYPE_CODE, new org.apache.thrift.meta_data.FieldMetaData("serviceTypeCode", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
@@ -511,7 +511,7 @@ public class TFDataSource implements org.apache.thrift.TBase<TFDataSource, TFDat
 
   @Override
   public int hashCode() {
-    List<Object> list = new ArrayList<Object>();
+    List<Object> list = new ArrayList<>();
 
     boolean present_id = true;
     list.add(present_id);

@@ -57,7 +57,7 @@ public class PreparedStatementBindingMethodFilter implements MethodFilter {
     
     
     public static PreparedStatementBindingMethodFilter includes(String... names) {
-        Map<String, List<String[]>> targets = new HashMap<String, List<String[]>>(names.length);
+        Map<String, List<String[]>> targets = new HashMap<>(names.length);
         
         for (String name : names) {
             List<String[]> paramTypes = BIND_METHODS.get(name);
@@ -71,7 +71,7 @@ public class PreparedStatementBindingMethodFilter implements MethodFilter {
     }
 
     public static PreparedStatementBindingMethodFilter excludes(String... names) {
-        Map<String, List<String[]>> targets = new HashMap<String, List<String[]>>(BIND_METHODS);
+        Map<String, List<String[]>> targets = new HashMap<>(BIND_METHODS);
         
         for (String name : names) {
             targets.remove(name);
