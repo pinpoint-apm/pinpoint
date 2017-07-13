@@ -39,43 +39,41 @@
 							applicationId: UrlVoService.getApplicationName()
 						};
 						if ( oParam.from > 0 && oParam.to > 0 ) {
-							$http.get( "getApplicationStat/cpuLoad/chart.pinpoint" +  getQueryStr(oParam) ).then(function(chartData) {
-								if ( angular.isUndefined(chartData.data.exception) ) {
+							AgentAjaxService.getStatCpuLoad( oParam, function(chartData) {
+								if ( angular.isUndefined(chartData.exception) ) {
 									scope.$broadcast("statisticChartDirective.initAndRenderWithData.jvm", makeChartData({
 										id: "jvmCpuLoad",
 										title: "JVM Cpu Usage",
 										isAvailable: false,
 										maximum: true
-									}, "Cpu Usage (%)", ["Avg", "Max", "Min"], chartData.data.charts["CPU_LOAD_JVM"]), "100%", "270px");
+									}, "Cpu Usage (%)", ["Avg", "Max", "Min"], chartData.charts["CPU_LOAD_JVM"]), "100%", "270px");
 									scope.$broadcast("statisticChartDirective.initAndRenderWithData.system", makeChartData({
 										id: "systemCpuLoad",
 										title: "System Cpu Usage",
 										isAvailable: false,
 										maximum: true
-									}, "Cpu Usage (%)", ["Avg", "Max", "Min"], chartData.data.charts["CPU_LOAD_SYSTEM"]), "100%", "270px");
+									}, "Cpu Usage (%)", ["Avg", "Max", "Min"], chartData.charts["CPU_LOAD_SYSTEM"]), "100%", "270px");
 								} else {
 									console.log("error");
 								}
-							}, function(error) {
 							});
-							$http.get( "getApplicationStat/memory/chart.pinpoint" +  getQueryStr(oParam) ).then(function(chartData) {
-								if ( angular.isUndefined(chartData.data.exception) ) {
+							AgentAjaxService.getStatMemory( oParam, function(chartData) {
+								if ( angular.isUndefined(chartData.exception) ) {
 									scope.$broadcast("statisticChartDirective.initAndRenderWithData.heap", makeChartData({
 										id: "memoryHeapLoad",
 										title: "Memory Heap",
 										isAvailable: false,
 										maximum: false
-									}, "Memory(bytes)", ["Avg", "Max", "Min"], chartData.data.charts["MEMORY_HEAP"]), "100%", "270px");
+									}, "Memory(bytes)", ["Avg", "Max", "Min"], chartData.charts["MEMORY_HEAP"]), "100%", "270px");
 									scope.$broadcast("statisticChartDirective.initAndRenderWithData.non-heap", makeChartData({
 										id: "memoryNonHeapLoad",
 										title: "Memory Non Heap",
 										isAvailable: false,
 										maximum: false
-									}, "Memory(bytes)", ["Avg", "Max", "Min"], chartData.data.charts["MEMORY_NON_HEAP"]), "100%", "270px");
+									}, "Memory(bytes)", ["Avg", "Max", "Min"], chartData.charts["MEMORY_NON_HEAP"]), "100%", "270px");
 								} else {
 									console.log("error");
 								}
-							}, function(error) {
 							});
 						}
 					}
@@ -111,11 +109,6 @@
 							}
 						}
 						return returnData;
-					}
-					function getQueryStr( o ) {
-						return "?" + Object.keys(o).map(function(v) {
-								return v + "=" + o[v];
-							}).join("&");
 					}
 
 					scope.selectTime = -1;

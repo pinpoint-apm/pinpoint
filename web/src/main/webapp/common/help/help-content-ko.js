@@ -742,7 +742,7 @@
 						desc: "Agent 서버들의 시스템 cpu 사용량 중 가장 작은 값"
 					},{
 						name: "",
-						desc: "Java1.6 시스템 CPU 사용량은 수집되지 않습니다.<br>Java1.7+ 시스템 CPU 사용량이 수집됩니다."
+						desc: "<span style='color:#2ca02c'>Java1.6 시스템 CPU 사용량은 수집되지 않습니다.<br>Java1.7+ 시스템 CPU 사용량이 수집됩니다.</span>"
 					}]
 				}]
 			}

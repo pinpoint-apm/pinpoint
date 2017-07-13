@@ -51,7 +51,9 @@
                                 "autoMargins": false,
                                 "align" : "right",
                                 "position": "top",
-                                "valueWidth": 70
+                                "valueWidth": 70,
+								"markerSize": 10,
+								"valueAlign": "left"
                             },
                             "usePrefixes": true,
                             "dataProvider": chartData,
@@ -123,18 +125,29 @@
                                 "labelFunction": function (valueText) {
 									return valueText.replace(/\s/, "<br>").replace(/-/g, ".").substring(2);
                                 }
-                            }
+                            },
+							"chartCursor": {
+								"categoryBalloonAlpha": 0.7,
+								"fullWidth": true,
+								"cursorAlpha": 0.1,
+								"listeners": [{
+									"event": "changed",
+									"method": function (event) {
+										scope.$emit("jvmMemoryChartDirective.cursorChanged." + scope.namespace, event);
+									}
+								}]
+							}
                         };
 						oChart = AmCharts.makeChart(sId, options);
-						var oChartCursor = new AmCharts.ChartCursor({
-							"categoryBalloonAlpha": 0.7,
-							"fullWidth": true,
-							"cursorAlpha": 0.1
-						});
-						oChartCursor.addListener("changed", function (event) {
-							scope.$emit("jvmMemoryChartDirective.cursorChanged." + scope.namespace, event);
-						});
-						oChart.addChartCursor( oChartCursor );
+						// var oChartCursor = new AmCharts.ChartCursor({
+						// 	"categoryBalloonAlpha": 0.7,
+						// 	"fullWidth": true,
+						// 	"cursorAlpha": 0.1
+						// });
+						// oChartCursor.addListener("changed", function (event) {
+						// 	scope.$emit("jvmMemoryChartDirective.cursorChanged." + scope.namespace, event);
+						// });
+						// oChart.addChartCursor( oChartCursor );
                     }
 
 					function showCursorAt(category) {
